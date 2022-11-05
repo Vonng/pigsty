@@ -2,56 +2,59 @@
 #--------------------------------------------------------------#
 # Install Haproxy
 #--------------------------------------------------------------#
-- name: Install Haproxy
+- name: install haproxy
   tags: haproxy_install
   block:
-    - name: Make sure haproxy is installed
+
+    - name: install haproxy
       package: name=haproxy state=present
 
-    - name: Create haproxy config directory
+    - name: create haproxy config dir
       file: path=/etc/haproxy state=directory
 
-    - name: Create haproxy environment file
+    - name: create haproxy environment file
       file: path=/etc/sysconfig/haproxy state=touch mode=0644
 
-    - name: Copy haproxy systemd service file
+    - name: create haproxy systemd service
       copy: src=haproxy.service dest=/usr/lib/systemd/system/haproxy.service
 
 
 #--------------------------------------------------------------#
 # Config Haproxy
 #--------------------------------------------------------------#
-- name: Config Haproxy
+- name: config haproxy
   tags: haproxy_config
   block:
-    - name: Fetch postgres cluster memberships
+
+    - name: get postgres cluster memberships
       connection: local
       set_fact:
-        pg_cluster_members={{ hostvars| json_query(pg_cluster_members_query) }}
+        pg_cluster_members={{ hostvars|json_query(pg_cluster_members_query) }}
         pg_instance="{{ pg_cluster }}-{{ pg_seq }}"
         pg_services="{{ pg_services + pg_services_extra }}"
       vars:
         pg_cluster_members_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']"
 
-    - name: Templating /etc/haproxy/haproxy.cfg
+    - name: render haproxy config
       template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
 
-    - name: Reload Haproxy
+    - name: reload haproxy
       tags: haproxy_reload
       when: haproxy_reload|bool
       ignore_errors: true
       systemd: name=haproxy state=reloaded enabled=yes daemon_reload=yes
 
+
 #--------------------------------------------------------------#
 # Launch Haproxy
 #--------------------------------------------------------------#
-- name: Launch Haproxy
+- name: launch haproxy
   tags: haproxy_launch
   block:
-    - name: Launch haproxy load balancer service
+    - name: launch haproxy systemd service
       systemd: name=haproxy state=restarted enabled=yes daemon_reload=yes
 
-    - name: Wait for haproxy load balancer online
+    - name: wait for haproxy service online
       wait_for: host=127.0.0.1 port=9101 state=started timeout=10
 
 ...

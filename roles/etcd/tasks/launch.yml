@@ -2,17 +2,18 @@
 #------------------------------------------------------------------------------
 # Launch etcd server
 #------------------------------------------------------------------------------
-- name: Launch etcd server
+- name: launch etcd server
   tags: etcd_launch
   when: inventory_hostname in dcs_servers.values()
   any_errors_fatal: true
   block:
+
     # launch etcd
-    - name: Launch etcd server service
+    - name: launch etcd server service
       systemd: name=etcd state=restarted enabled=yes daemon_reload=yes
 
     # wait etcd online
-    - name: Wait for etcd server online
+    - name: wait for etcd server online
       wait_for: host=127.0.0.1 port=2379 state=started timeout=10
 
 ...

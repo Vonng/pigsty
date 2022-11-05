@@ -2,15 +2,17 @@
 #--------------------------------------------------------------#
 # Install vip-manager
 #--------------------------------------------------------------#
-- name: Install vip-manager for l2 VIP
-  tags: vip2_install
+- name: install vip-manager
+  tags: vip_install
   block:
-    - name: Make sure vip-manager is installed
+
+    - name: install vip-manager
       package: name=vip-manager state=present
 
-    - name: Copy vip-manager systemd service file
+    - name: create vip-manager systemd service
       copy: src=vip-manager.service dest=/usr/lib/systemd/system/vip-manager.service
 
+    # if consul used, add service dependency
     - name: create vip-manager systemd drop-in dir
       when: pg_dcs_type == 'consul'
       file:
@@ -27,18 +29,20 @@
           After=consul.service
         mode: 0644
 
+
 #--------------------------------------------------------------#
 # Config vip-manager
 #--------------------------------------------------------------#
-- name: Templating /etc/default/vip-manager.yml
-  tags: vip2_config
+- name: render vip-manager config
+  tags: vip_config
   template: src=vip-manager.yml.j2 dest=/etc/default/vip-manager.yml
+
 
 #--------------------------------------------------------------#
 #  Reload vip-manager
 #--------------------------------------------------------------#
-- name: Reload vip-manager config
-  tags: vip2_reload
+- name: restart vip-manager
+  tags: vip_reload
   systemd: name=vip-manager state=restarted enabled=yes daemon_reload=true
 
 ...

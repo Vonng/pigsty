@@ -2,48 +2,48 @@
 #------------------------------------------------------------------------------
 # register infra service to consul
 #------------------------------------------------------------------------------
-- name: Register infra service to consul
+- name: register infra service to consul
   tags: [ infra_register, register_consul ]
   when: dcs_registry == 'consul'
   ignore_errors: true
   block:
 
-    - name: Register nginx service to consul
+    - name: register nginx service to consul
       when: nginx_enabled|bool
       template: src=svc-nginx.json.j2 dest=/etc/consul.d/svc-nginx.json owner=consul mode=0660
 
-    - name: Register nginx-exporter service to consul
+    - name: register nginx-exporter service to consul
       when: nginx_enabled|bool
       template: src=svc-nginx-exporter.json.j2 dest=/etc/consul.d/svc-nginx-exporter.json owner=consul mode=0660
 
-    - name: Register prometheus service to consul
+    - name: register prometheus service to consul
       when: prometheus_enabled|bool
       template: src=svc-prometheus.json.j2 dest=/etc/consul.d/svc-prometheus.json owner=consul mode=0660
 
-    - name: Register alertmanager service to consul
+    - name: register alertmanager service to consul
       when: prometheus_enabled|bool
       template: src=svc-alertmanager.json.j2 dest=/etc/consul.d/svc-alertmanager.json owner=consul mode=0660
 
-    - name: Register grafana service to consul
+    - name: register grafana service to consul
       when: grafana_enabled|bool
       template: src=svc-grafana.json.j2 dest=/etc/consul.d/svc-grafana.json owner=consul mode=0660
 
-    - name: Register loki service to consul
+    - name: register loki service to consul
       when: loki_enabled|bool
       template: src=svc-loki.json.j2 dest=/etc/consul.d/svc-loki.json owner=consul mode=0660
 
-    - name: Register dnsmasq service to consul
+    - name: register dnsmasq service to consul
       when: nameserver_enabled|bool
       template: src=svc-dnsmasq.json.j2 dest=/etc/consul.d/svc-dnsmasq.json owner=consul mode=0660
 
-    - name: Reload consul
+    - name: reload consul to finish infra register
       systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
 
 
 #--------------------------------------------------------------#
 # Register infra service to prometheus
 #--------------------------------------------------------------#
-- name: Render infra file-sd targets targets for prometheus
+- name: render infra targets for prometheus
   tags: [ infra_register, register_prometheus ]
   ignore_errors: true
   delegate_to: '{{ item }}'

@@ -1,19 +1,18 @@
 ---
 #------------------------------------------------------------------------------
-# Check consul
+# Check Consul
 #------------------------------------------------------------------------------
-- name: Check existing consul
+- name: check consul exists
   tags: consul_check
   block:
 
     #--------------------------------------------------------------------------
     # check consul exists
     #--------------------------------------------------------------------------
-    - name: Check for existing consul
+    - name: check consul exists
       command: 'ss -tp state listening sport = :8500'
       register: check_consul_port_result
-
-    - name: Consul exists flag fact set
+    - name: set consul exists flag
       connection: local
       set_fact:
         consul_exists: "{{ 'consul' in check_consul_port_result.stdout }}"
@@ -24,7 +23,7 @@
     # when any running instance exists, abort play in two cases:
     # 1. dcs_safeguard = true          (global flag to prevent accidentally purge)
     # 2. dcs_clean = true
-    - name: Abort due to existing consul instance
+    - name: ABORT due to consul exists
       connection: local
       any_errors_fatal: true
       when: consul_exists and (dcs_safeguard or not dcs_clean)
@@ -32,22 +31,23 @@
 
 
 #------------------------------------------------------------------------------
-# Clean consul
+# Purge Consul
 #------------------------------------------------------------------------------
-- name: Clean existing consul
+- name: clean up existing consul
   tags: consul_clean
   block:
+
     #--------------------------------------------------------------------------
     # purge dcs
     #--------------------------------------------------------------------------
     # dangerous: (it will remove consul data!)
-    - name: Clean existing consul instance
+    - name: WARNING, PURGE CONSUL INSTANCE!
       # connection: local, leave a chance for human intervention
       when: not dcs_safeguard and consul_exists and dcs_clean # DANGEROUS!
       debug:
         msg: "[DANGEROUS] RUNNING CONSUL INSTANCE {{ inventory_hostname }} WILL BE PURGED!"
 
-    - name: Stop any running consul instance
+    - name: remove consul
       ignore_errors: yes
       shell: |
         # try graceful shutdown first
@@ -80,39 +80,40 @@
 #------------------------------------------------------------------------------
 # prepare consul user
 #------------------------------------------------------------------------------
-- name: Add consul user to dcs group
+- name: add consul user to dcs group
   tags: consul_user
   user: name=consul home=/var/lib/consul groups=dcs append=yes
-
 
 
 #------------------------------------------------------------------------------
 # prepare consul dir
 #------------------------------------------------------------------------------
-- name: Create consul dir
+- name: create consul directories
   tags: consul_dir
   block:
-    - name: Create consul config dir
+
+    - name: create consul config dir
       file: path={{ item }} state=directory owner=consul group=dcs mode=0750
       with_items:
         - /etc/consul.d
         - /var/lib/consul
         - /etc/consul.d/ssl
 
-    - name: Create consul data dir
+    - name: create consul data dir
       file: path="{{ consul_data_dir }}" state=directory owner=consul group=dcs mode=0700
 
 #------------------------------------------------------------------------------
-# prepare consul_alias
+# consul environment
 #------------------------------------------------------------------------------
-# write consul env & cert to all nodes
-- name: Write consul env profile
-  tags: consul_alias
-  when: dcs_ssl_enabled|bool
+- name: write consul environment profile
+  tags: consul_env
   copy:
     dest: /etc/profile.d/consul.sh
     mode: 0644
     content: |
+      #!/bin/bash
+      {% if dcs_ssl_enabled|bool %}
       export CONSUL_HTTP_SSL=true
+      {% endif %}
 
 ...

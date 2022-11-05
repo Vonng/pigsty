@@ -2,38 +2,29 @@
 #------------------------------------------------------------------------------
 # register node service to consul
 #------------------------------------------------------------------------------
-- name: Register infra service to consul
+- name: register infra service to consul
   tags: [ node_register, register_consul ]
   when: dcs_registry == 'consul'
   ignore_errors: true
   block:
 
-    # use hostname as nodename if not provided
-    - name: Fetch hostname from server if no node name is given
-      when: nodename is not defined or nodename == ''
-      shell: echo $HOSTNAME
-      register: hostname_result
-
-    - name: Setup nodename according to hostname
-      when: nodename is not defined or nodename == ''
-      connection: local
-      set_fact:
-        nodename: "{{ hostname_result.stdout }}"
-
-    - name: Register docker service to consul
-      when: docker_enabled|bool
-      template: src=svc-docker.json.j2 dest=/etc/consul.d/svc-docker.json owner=consul mode=0660
-
-    - name: Register node-exporter service to consul
+    # node-exporter register
+    - name: register node-exporter service to consul
       when: node_exporter_enabled|bool
       template: src=svc-node-exporter.json.j2 dest=/etc/consul.d/svc-node-exporter.json owner=consul mode=0660
 
-    - name: Register promtail service to consul
+    # promtail register
+    - name: register promtail service to consul
       when: promtail_enabled|bool
       template: src=svc-promtail.json.j2 dest=/etc/consul.d/svc-promtail.json owner=consul mode=0660
 
-    # register consul itself into consul is meaningless
-    - name: Reload consul
+    # docker register
+    - name: register docker service to consul
+      when: docker_enabled|bool
+      template: src=svc-docker.json.j2 dest=/etc/consul.d/svc-docker.json owner=consul mode=0660
+
+    # reload consul
+    - name: reload consul to finish node register
       systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
 
 
@@ -41,35 +32,21 @@
 # Register Node to Prometheus
 #------------------------------------------------------------------------------
 # /etc/prometheus/targets/nodes/{{ ip }}.yml
-- name: Register node exporter as prometheus target
+- name: register node as prometheus target
   tags: [ node_register, register_prometheus ]
   ignore_errors: true
-  block:
-
-    # use hostname as nodename if not provided
-    #- name: Fetch hostname from server if no node name is given
-    #  when: nodename is not defined or nodename == ''
-    #  shell: echo $HOSTNAME
-    #  register: hostname_result
-    #- name: Setup nodename according to hostname
-    #  when: nodename is not defined or nodename == ''
-    #  connection: local
-    #  set_fact:
-    #    nodename: "{{ hostname_result.stdout }}"
-
-    - name: Register node exporter as prometheus target
-      delegate_to: '{{ item }}'
-      with_items: '{{ groups["meta"] }}'
-      copy:
-        dest: /etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
-        content: |
-          # {{ inventory_hostname }}
-          - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }} }
-            targets: 
-              {% if node_exporter_enabled|bool %}- {{ inventory_hostname }}:{{ node_exporter_port }}{% endif %}
-          
-              {% if docker_enabled|bool %}- {{ inventory_hostname }}:9323{% endif %}
-          
-              {% if promtail_enabled|bool %}- {{ inventory_hostname }}:{{ promtail_port }}{% endif %}
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["meta"] }}'
+  copy:
+    dest: /etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
+    content: |
+      # {{ inventory_hostname }}
+      - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }} }
+        targets: 
+          {% if node_exporter_enabled|bool %}- {{ inventory_hostname }}:{{ node_exporter_port }}{% endif %}
+      
+          {% if docker_enabled|bool %}- {{ inventory_hostname }}:9323{% endif %}
+      
+          {% if promtail_enabled|bool %}- {{ inventory_hostname }}:{{ promtail_port }}{% endif %}
 
 ...

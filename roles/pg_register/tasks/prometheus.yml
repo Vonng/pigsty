@@ -11,7 +11,7 @@
 
 # prometheus are idempotent on multiple meta nodes
 # /etc/prometheus/targets/pgsql/{{ pg_instance }}.yml
-- name: Register pgsql exporter as prometheus target
+- name: register postgres to prometheus
   tags: [ pgsql_register, pg_register ]
   delegate_to: '{{ item }}'
   with_items: '{{ groups["meta"] }}'
@@ -29,6 +29,5 @@
           {% if patroni_enabled|bool and patroni_mode != 'remove'  %}- {{ inventory_hostname }}:{{ patroni_port }}{% endif %}
       
           {% if haproxy_enabled|bool %}- {{ inventory_hostname }}:{{ haproxy_exporter_port }}{% endif %}
-      
 
 ...

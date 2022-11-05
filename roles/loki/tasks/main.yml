@@ -1,14 +1,14 @@
 #------------------------------------------------------------------------------
 # Install
 #------------------------------------------------------------------------------
-- name: Install loki via yum
+- name: install loki
   tags: loki_install
   package: name=loki state=present
 
 #------------------------------------------------------------------------------
 # Cleanup
 #------------------------------------------------------------------------------
-- name: Cleanup loki
+- name: clean up loki
   tags: loki_clean
   when: loki_clean|bool
   file: path={{ loki_data_dir }} state=absent owner=prometheus
@@ -16,20 +16,20 @@
 #------------------------------------------------------------------------------
 # Config
 #------------------------------------------------------------------------------
-- name: Config loki
+- name: config loki
   tags: loki_config
   block:
 
-    - name: Make sure loki data & rule dir exists
+    - name: touch loki data and rule directories
       file: path={{ loki_data_dir }}/data/rules/fake state=directory owner=prometheus
 
-    - name: Copy loki systemd service
+    - name: copy loki systemd service
       copy: src=loki.service dest=/usr/lib/systemd/system/loki.service
 
-    - name: Templating loki.yml main config
+    - name: render loki config
       template: src=loki.yml dest=/etc/loki.yml owner=prometheus
 
-    - name: Render loki default config
+    - name: render etc default loki config
       copy:
         dest: /etc/default/loki
         owner: prometheus
@@ -42,14 +42,15 @@
 #------------------------------------------------------------------------------
 # Launch
 #------------------------------------------------------------------------------
-- name: Launch loki
+- name: launch loki
   tags: loki_launch
   when: loki_enabled|bool
   block:
-    - name: Launch Loki
+
+    - name: launch loki systemd service
       systemd: name=loki state=restarted enabled=yes daemon_reload=yes
 
-    - name: Wait for loki online
+    - name: wait for loki service online
       wait_for: host=127.0.0.1 port=3100 state=started timeout=20
 
 ...

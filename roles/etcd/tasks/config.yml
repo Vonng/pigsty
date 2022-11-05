@@ -4,18 +4,18 @@
 #------------------------------------------------------------------------------
 # Config etcd cert
 #------------------------------------------------------------------------------
-- name: Generate etcd cert for servers
+- name: generate etcd cert for servers
   tags: etcd_cert
   when: dcs_ssl_enabled|bool and inventory_hostname in dcs_servers.values()
   delegate_to: "{{ meta_ip }}"
   block:
 
-    - name: Generate etcd private key
+    - name: generate etcd private key
       openssl_privatekey:
         path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.key"
         mode: 0600
 
-    - name: Generate etcd server csr
+    - name: generate etcd signing request
       openssl_csr:
         path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.csr"
         privatekey_path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.key"
@@ -26,7 +26,7 @@
           - IP:127.0.0.1
           - "IP:{{ inventory_hostname }}"
 
-    - name: Sign etcd server crt
+    - name: issue etcd server certificate
       openssl_certificate:
         path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.crt"
         csr_path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.csr"
@@ -36,40 +36,42 @@
         selfsigned_not_after: "+{{ cert_validity }}"
         mode: 0644
 
-    - name: Make sure local directory exists
+    # fetch etcd certs from meta node
+    - name: create local files/pki/ dir for etcd
       delegate_to: localhost
       become: no
       file: path="files/pki/{{ inventory_hostname }}" state=directory
-    - name: Fetch etcd cert & key from primary meta node
+    - name: fetch etcd cert and key to local
       fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
       with_items:
         - { src: "/etc/pki/CA/etcd-{{ dcs_nodename }}.crt"   , dest: "files/pki/{{ inventory_hostname }}/etcd.crt" }
         - { src: "/etc/pki/CA/etcd-{{ dcs_nodename }}.key" , dest: "files/pki/{{ inventory_hostname }}/etcd.key" }
 
-- name: Copy etcd certs
+
+- name: copy etcd certs
   tags: [ etcd_cert, etcd_cert_copy ]
   when: dcs_ssl_enabled|bool and inventory_hostname in dcs_servers.values()
   block:
-    - name: Copy etcd ssl cert
+    - name: copy etcd ssl cert
       copy: src="files/pki/{{ inventory_hostname }}/etcd.crt" dest="/etc/etcd/etcd.crt" owner=etcd group=dcs mode=0644
-    - name: Copy etcd ssl key
+    - name: copy etcd ssl key
       copy: src="files/pki/{{ inventory_hostname }}/etcd.key" dest="/etc/etcd/etcd.key" owner=etcd group=dcs mode=0600
 
 
 #------------------------------------------------------------------------------
 # Config etcd server
 #------------------------------------------------------------------------------
-- name: Setup etcd server
+- name: setup etcd server
   tags: etcd_config
   when: inventory_hostname in dcs_servers.values()
   block:
 
     # config etcd
-    - name: Copy etcd server service unit
+    - name: copy etcd server service unit
       template: src=etcd.service.j2 dest=/usr/lib/systemd/system/etcd.service
 
     # only server need config
-    - name: Copy /etc/etcd/etcd.conf
+    - name: copy /etc/etcd/etcd.conf
       template: src=etcd.conf.j2 dest=/etc/etcd/etcd.conf owner=etcd mode=0644
 
 ...

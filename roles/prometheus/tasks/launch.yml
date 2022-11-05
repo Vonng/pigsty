@@ -2,23 +2,24 @@
 #------------------------------------------------------------------------------
 # Launch Prometheus
 #------------------------------------------------------------------------------
-- name: Launch prometheus and alertmanager
+- name: Launch prometheus
   block:
-    - name: Launch prometheus service
+
+    - name: launch prometheus systemd service
       systemd: name=prometheus state=restarted enabled=yes daemon_reload=yes
-    - name: Wait for prometheus online
+    - name: wait for prometheus service online
       wait_for: host=127.0.0.1 port=9090 state=started
 
 #------------------------------------------------------------------------------
 # Launch AlertManager
 #------------------------------------------------------------------------------
-- name: Launch alertmanager
+- name: launch alertmanager
   ignore_errors: true        # alertmanager are NOT critical for installation
   block:
-    - name: Launch alertmanager service
+    - name: launch alertmanager systemd service
       systemd: name=alertmanager state=restarted enabled=yes daemon_reload=yes
 
-    - name: Wait for alertmanager online
+    - name: wait for alertmanager service online
       wait_for: host=127.0.0.1 port=9093 state=started
 
 ...

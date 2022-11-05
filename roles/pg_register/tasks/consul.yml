@@ -2,7 +2,7 @@
 #--------------------------------------------------------------#
 # Register Postgres
 #--------------------------------------------------------------#
-- name: Register postgres service to consul
+- name: register postgres service to consul
   tags: [ register_consul_postgres , postgres ]
   template:
     src: svc-postgres.json.j2
@@ -14,7 +14,7 @@
 #--------------------------------------------------------------#
 # Register Patroni
 #--------------------------------------------------------------#
-- name: Register patroni service to consul
+- name: register patroni service to consul
   tags: [ register_consul_patroni , postgres ]
   when: patroni_mode != 'remove'
   template:
@@ -27,7 +27,7 @@
 #--------------------------------------------------------------#
 # Register Pgbouncer
 #--------------------------------------------------------------#
-- name: Register pgbouncer service to consul
+- name: register pgbouncer service to consul
   tags: [ register_consul_pgbouncer , pgbouncer ]
   template:
     src: svc-pgbouncer.json.j2
@@ -40,7 +40,7 @@
 #--------------------------------------------------------------#
 # Register PG Exporter
 #--------------------------------------------------------------#
-- name: Register pg_exporter service to consul
+- name: register pg_exporter service to consul
   tags: [ register_consul_pg_exporter , pg_exporter ]
   when: pg_exporter_enabled|bool
   template:
@@ -54,7 +54,7 @@
 #--------------------------------------------------------------#
 # Register Pgbouncer Exporter
 #--------------------------------------------------------------#
-- name: Register pgbouncer_exporter service to consul
+- name: register pgbouncer_exporter service to consul
   tags: [ register_consul_pgbouncer_exporter , pgbouncer_exporter ]
   when: pgbouncer_exporter_enabled|bool
   template:
@@ -67,7 +67,7 @@
 #--------------------------------------------------------------#
 # Register HAProxy (Exporter)
 #--------------------------------------------------------------#
-- name: Register haproxy (exporter) service to consul
+- name: register haproxy (exporter) service to consul
   tags: [ register_consul_haproxy_exporter , haproxy ]
   when: haproxy_enabled|bool
   template:
@@ -82,7 +82,7 @@
 # Register Cluster Service
 #--------------------------------------------------------------#
 # register consul exposed cluster service (primary|replica|offline|default)
-- name: Register cluster service to consul
+- name: register cluster service to consul
   tags:  [ register_consul_cluster_service , haproxy ]
   when: haproxy_enabled|bool
   template:
@@ -99,7 +99,7 @@
 #--------------------------------------------------------------#
 # Reload Consul
 #--------------------------------------------------------------#
-- name: Reload consul to finish register
+- name: reload consul to finish register
   tags: register_consul_reload
   systemd: name=consul state=reloaded
 

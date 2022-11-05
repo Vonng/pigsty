@@ -6,13 +6,13 @@
 #---------------------------#
 # Cleanup existing config   #
 #---------------------------#
-- name: Remove grafana provisioning config
+- name: remove grafana provisioning config
   file: path={{ item }} state=absent
   with_items:
     - /etc/grafana/provisioning/dashboards/pigsty.yml
     - /etc/grafana/provisioning/datasources/pigsty.yml
 
-- name: Remake grafana resource dir
+- name: make grafana directories
   file: path={{ item }} state=directory owner=grafana group=root mode=0775
   with_items:
     - /etc/grafana/
@@ -23,22 +23,22 @@
 #---------------------------#
 # Templating new config     #
 #---------------------------#
-- name: Copy grafana systemd service
+- name: copy grafana systemd service
   copy: src=grafana-server.service dest=/usr/lib/systemd/system/grafana-server.service
 
-- name: Templating /etc/grafana/grafana.ini
+- name: render /etc/grafana/grafana.ini
   template: src=grafana.ini dest=/etc/grafana/grafana.ini owner=grafana group=grafana
 
-- name: Templating datasources provisioning config
+- name: render provisioning datasources
   template: src=datasources-pigsty.yml.j2 dest=/etc/grafana/provisioning/datasources/pigsty.yml owner=grafana group=grafana
 
-- name: Templating dashboards provisioning config
+- name: render provisioning dashboards
   template: src=dashboards-pigsty.yml dest=/etc/grafana/provisioning/dashboards/pigsty.yml owner=grafana group=grafana
 
 #------------------------------------------------------------------------------
 # Customize Logo
 #------------------------------------------------------------------------------
-- name: Customize grafana logo icon
+- name: customize grafana logo
   tags: grafana_customize
   when: grafana_customize_logo is defined and grafana_customize_logo != ''
   copy: src={{ grafana_customize_logo }} dest=/usr/share/grafana/public/img/grafana_icon.svg
@@ -47,7 +47,7 @@
 # Copy base dashboards (home dashboard & core application)
 #--------------------------------------------------------------#
 # Note that dashboards dir are located @ pigsty home files/
-- name: Sync grafana home and core dashboards
+- name: sync grafana dashboards
   tags: [ dashboard, dashboard_sync ]
   synchronize:
     src: dashboards/

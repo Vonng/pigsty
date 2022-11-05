@@ -2,18 +2,18 @@
 #------------------------------------------------------------------------------
 # Check etcd
 #------------------------------------------------------------------------------
-- name: Check existing etcd
+- name: check etcd exists
   tags: etcd_check
   when: inventory_hostname in dcs_servers.values()
   block:
+
     #--------------------------------------------------------------------------
     # check etcd exists
     #--------------------------------------------------------------------------
-    - name: Check for existing etcd
+    - name: check etcd exists
       command: 'ss -tp state listening sport = :2379'
       register: check_etcd_port_result
-
-    - name: Etcd exists flag fact set
+    - name: set etcd exists flag
       connection: local
       set_fact:
         etcd_exists: "{{ 'etcd' in check_etcd_port_result.stdout }}"
@@ -24,7 +24,7 @@
     # when any running etcd instance exists, abort play in two cases:
     # 1. dcs_safeguard = true          (global flag to prevent accidentally purge)
     # 2. dcs_clean = true
-    - name: Abort due to etcd exists
+    - name: ABORT due to etcd exists
       connection: local
       any_errors_fatal: true
       when: etcd_exists and (dcs_safeguard or not dcs_clean)
@@ -34,21 +34,22 @@
 #------------------------------------------------------------------------------
 # Clean etcd
 #------------------------------------------------------------------------------
-- name: Clean existing etcd
+- name: clean up existing etcd
   tags: etcd_clean
   when: inventory_hostname in dcs_servers.values()
   block:
+
     #--------------------------------------------------------------------------
     # purge dcs
     #--------------------------------------------------------------------------
     # dangerous: (it will remove etcd data!)
-    - name: Clean existing etcd instance
+    - name: WARNING, PURGE ETCD SERVER!
       # connection: local, leave a chance for human intervention
       when: not dcs_safeguard and etcd_exists and dcs_clean # DANGEROUS!
       debug:
-        msg: "[DANGEROUS] RUNNING etcd INSTANCE {{ inventory_hostname }} WILL BE PURGED!"
+        msg: "[DANGEROUS] RUNNING ETCD INSTANCE {{ inventory_hostname }} WILL BE PURGED!"
 
-    - name: Stop any running etcd instance
+    - name: remove etcd
       ignore_errors: yes
       shell: |
         # try graceful shutdown first
@@ -80,23 +81,23 @@
 #------------------------------------------------------------------------------
 # ETCD User
 #------------------------------------------------------------------------------
-- name: Add etcd user to dcs group
+- name: add etcd user to dcs group
   tags: etcd_user
   user: name=etcd home=/var/lib/etcd groups=dcs append=yes
 
 #------------------------------------------------------------------------------
 # ETCD Dir
 #------------------------------------------------------------------------------
-- name: Create etcd dir
+- name: create etcd directory
   tags: etcd_dir
   block:
 
-    - name: Create etcd config dir
+    - name: create etcd config dir
       file: path={{ item }} state=directory owner=etcd group=etcd mode=0750
       with_items:
         - /etc/etcd
         - /var/lib/etcd
 
-    - name: Create etcd data dir
+    - name: create etcd data dir
       file: path="{{ etcd_data_dir }}" state=directory owner=etcd group=etcd mode=0700
 ...

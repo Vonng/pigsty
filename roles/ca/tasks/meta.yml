@@ -2,16 +2,16 @@
 #------------------------------------------------------------------------------
 # meta cert
 #------------------------------------------------------------------------------
-- name: Generate meta cert
+- name: generate meta cert
   delegate_to: "{{ meta_ip }}"
   block:
 
-    - name: Generate meta private key
+    - name: generate private key for meta node
       openssl_privatekey:
         path: "/etc/pki/CA/meta-{{ inventory_hostname }}.key"
         mode: 0600
 
-    - name: Generate meta server csr
+    - name: generate signing request for meta node
       openssl_csr:
         path: "/etc/pki/CA/meta-{{ inventory_hostname }}.csr"
         privatekey_path: "/etc/pki/CA/meta-{{ inventory_hostname }}.key"
@@ -22,7 +22,7 @@
           - IP:127.0.0.1
           - "IP:{{ inventory_hostname }}"
 
-    - name: Sign meta server crt
+    - name: signing meta node cert
       openssl_certificate:
         path: "/etc/pki/CA/meta-{{ inventory_hostname }}.crt"
         csr_path: "/etc/pki/CA/meta-{{ inventory_hostname }}.csr"
@@ -32,20 +32,22 @@
         selfsigned_not_after: "+{{ cert_validity }}"
         mode: 0644
 
-    - name: Make sure local directory exists
+    # copy cert and key to local files/pki/<ip>/
+    - name: create local files/pki/ dir
       delegate_to: localhost
       become: no
       file: path="files/pki/{{ inventory_hostname }}" state=directory
-    - name: Fetch meta cert & key from primary meta node
+
+    - name: fetch meta cert and key to local
       fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
       with_items:
         - { src: "/etc/pki/CA/meta-{{ inventory_hostname }}.crt"   , dest: "files/pki/{{ inventory_hostname }}/meta.crt" }
         - { src: "/etc/pki/CA/meta-{{ inventory_hostname }}.key" , dest: "files/pki/{{ inventory_hostname }}/meta.key" }
 
-- name: Copy meta certs
+- name: copy meta certs
   block:
-    - name: Copy meta ssl cert
+    - name: copy meta cert
       copy: src="files/pki/{{ inventory_hostname }}/meta.crt" dest="/etc/pki/meta.crt" owner=root group=root mode=0644
-    - name: Copy meta ssl key
+    - name: copy meta key
       copy: src="files/pki/{{ inventory_hostname }}/meta.key" dest="/etc/pki/meta.key" owner=root group=root mode=0644
 ...

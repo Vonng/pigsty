@@ -2,31 +2,31 @@
 #------------------------------------------------------------------------------
 # Dnsmasq
 #------------------------------------------------------------------------------
-- name: Setup dnsmasq service
+- name: setup dnsmasq service
   tags: nameserver
   block:
 
     # - install - #
-    - name: Make sure dnsmasq package installed
+    - name: install dnsmasq
       package: name=dnsmasq state=present
 
     # - config - #
-    - name: Copy dnsmasq /etc/dnsmasq.d/config
+    - name: render /etc/dnsmasq.d/config
       template: src=dnsmasq.conf.j2 dest=/etc/dnsmasq.d/config
 
     # - record - #
-    - name: Add dynamic dns records to meta
+    - name: add dynamic dns records
       lineinfile: path=/etc/hosts line="{{ item }}"
       with_items: "{{ dns_records }}"
 
     # - launch - #
-    - name: Launch meta dnsmasq service
+    - name: launch dnsmasq systemd service
       when: nameserver_enabled|bool
       systemd: name=dnsmasq state=restarted enabled=yes daemon_reload=yes
 
     # - wait - #
-    - name: Wait for meta dnsmasq online
+    - name: wait for dnsmasq service online
       when: nameserver_enabled|bool
-      wait_for: host=localhost port=53 state=started
+      wait_for: host=127.0.0.1 port=53 state=started
 
 ...

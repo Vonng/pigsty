@@ -2,14 +2,14 @@
 #--------------------------------------------------------------#
 # Register Postgres Datasource to Grafana
 #--------------------------------------------------------------#
-- name: Register pgsql datasources to grafana
+- name: register pgsql datasources to grafana
   block:
 
     #--------------------------------------------------------------#
     # render datasource definition to:
     # /etc/pigsty/datasources/{{ pg_instance }}.{{ datname }}.json
     #--------------------------------------------------------------#
-    - name: Render datasource definition on meta node
+    - name: render grafana datasource definition
       delegate_to: meta
       copy:
         dest: "/etc/pigsty/datasources/{{ insdb }}.json"
@@ -50,7 +50,7 @@
     #--------------------------------------------------------------#
     # upsert datasource using grafana datasource API
     #--------------------------------------------------------------#
-    - name: Load grafana datasource on meta node
+    - name: load grafana datasource
       delegate_to: meta
       shell: |
         curl -X DELETE "{{ grafana_endpoint | regex_replace('\${meta_ip}', meta_ip ) }}/api/datasources/name/{{ insdb }}" -u "{{ grafana_admin_username }}:{{ grafana_admin_password }}"  -H 'Content-Type: application/json' || true

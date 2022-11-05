@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # Config
 #------------------------------------------------------------------------------
-- name: Setup prometheus and alertmanager
+- name: setup prometheus and alertmanager
   block:
 
 
@@ -21,7 +21,7 @@
     #            ^-----@pgsql            # pgsql static targets definition
     #            ^-----@redis            # redis static targets definition
     #------------------------------------------------------------------------------
-    - name: Create prometheus directories
+    - name: create prometheus directories
       file: path={{ item }} state=directory owner=prometheus group=prometheus mode=700
       with_items:
         - /etc/prometheus
@@ -35,27 +35,25 @@
         - "{{ prometheus_data_dir }}"
 
     # - bin scripts - #
-    - name: Copy prometheus bin scripts
+    - name: copy prometheus bin scripts
       copy: src=bin/ dest=/etc/prometheus/bin/ owner=prometheus mode=0755
 
     # - copy rules - #
-    - name: Copy prometheus rules
+    - name: copy prometheus rules
       tags: prometheus_rules
       copy: src=rules/ dest=/etc/prometheus/rules/ owner=prometheus mode=0755
 
     # - prometheus config - #
-    - name: Render prometheus config
+    - name: render prometheus config
       tags: prometheus_conf
       template: src=prometheus.yml.j2 dest=/etc/prometheus/prometheus.yml owner=prometheus mode=0644
 
     # - alertmanager config - #
-    - name: Render altermanager config
+    - name: redner altermanager config
       template: src=alertmanager.yml.j2 dest=/etc/prometheus/alertmanager.yml owner=prometheus mode=0644
 
     # - overwrite opts - #
-    - name: Config /etc/prometheus opts
+    - name: render /etc/default/prometheus
       template: src=prometheus.default.j2 dest=/etc/default/prometheus owner=prometheus mode=0755
 
 ...
-
-

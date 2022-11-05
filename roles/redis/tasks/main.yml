@@ -5,15 +5,16 @@
 #------------------------------------------------------------------------------
 # Assert before launch instances
 #------------------------------------------------------------------------------
-- name: Check redis instance existance
+- name: check redis instance existence
   tags: [ redis, redis_precheck ]
   block:
-    - name: Check redis {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}:{{ port }} exists
+
+    - name: check redis {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}:{{ port }} exists
       any_errors_fatal: true
       command: 'ss -tp state listening sport = :{{ port }}'
       register: check_redis_port_result
 
-    - name: Set fact whether redis port is open
+    - name: set fact whether redis port is open
       connection: local
       tags: [ redis_ins , redis_precheck ]
       set_fact: { redis_exists: "{{ 'redis' in check_redis_port_result.stdout }}" }
@@ -21,7 +22,7 @@
     # when any running instance exists, abort play in two cases:
     # 1. redis_safeguard = true (if safeguard is enabled, redis instance will never be purged!)
     # 2. redis_clean == 'false' (if redis clean is enabled , redis instance will be purged during init)
-    - name: Abort due to existing redis instance
+    - name: ABORT due to existing redis instance
       connection: local
       when: redis_exists|bool and (redis_safeguard|bool or not redis_clean|bool)
       any_errors_fatal: true
@@ -30,11 +31,11 @@
 #------------------------------------------------------------------------------
 # Clean [DANGEROUS!]
 #------------------------------------------------------------------------------
-- name: Clean existing redis instance
+- name: clean up redis
   tags: [ redis, redis_clean ]
   block:
 
-    - name: PURGING RUNNING INSTANCE {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
+    - name: PURGING REDIS INSTANCE {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
       # connection: local # leave some time for manual intervention
       when: not redis_safeguard|bool and redis_exists|bool and redis_clean|bool # DANGEROUS
       debug:
@@ -61,24 +62,24 @@
 # Config
 #------------------------------------------------------------------------------
 # create data dir & config & systemd service
-- name: Create redis resource dir
+- name: create redis resource dir
   tags: [ redis, redis_config ]
   become: yes
   block:
 
     # data dir @ /data/redis/<port> (default)
-    - name: Create dir for {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
+    - name: create dir for {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
       file: path={{ redis_fs_main }}/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }} state=directory owner=redis mode=0700
 
     # config @ /etc/redis/<port>.conf
-    - name: Render config for {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
+    - name: render config for {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
       template: src={{ config_template }} dest=/etc/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }}.conf owner=redis mode=0700
       vars:
         upstream: "{{ conf['replica_of']|default(None) }}"
         config_template: "{% if redis_mode == 'sentinel' %}redis-sentinel.conf{% else %}{{ redis_conf }}{% endif %}"
 
     # services name examples:  redis-test-1-6379 , redis-sentinel-2-26379
-    - name: Render systemd svc for {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
+    - name: render systemd svc for {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
       template: src={{ service_template }} dest=/usr/lib/systemd/system/{{ svcname }} owner=root mode=644
       vars:
         svcname: "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
@@ -88,7 +89,7 @@
 #------------------------------------------------------------------------------
 # launch
 #------------------------------------------------------------------------------
-- name: Launch {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
+- name: launch {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
   tags: [ redis, redis_launch ]
   # systemd: name="{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service" state=restarted enabled=yes daemon_reload=yes
   shell: |
@@ -96,4 +97,4 @@
     systemctl enable "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
     systemctl restart "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
 
-    
+...

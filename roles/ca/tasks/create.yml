@@ -3,21 +3,25 @@
 #------------------------------------------------------------------------------
 # Check CA
 #------------------------------------------------------------------------------
-- name: Check ca existence on primary meta node
+- name: check ca exist on primary meta node
   tags: ca_check
   block:
-    - name: Check if ca cert exists
+
+    # ca exists if both key & crt exists on /etc/pki/
+    - name: check /etc/pki/ca.crt exists
       stat: path="/etc/pki/ca.crt"
       register: ca_crt_exists
-    - name: Check if ca key exists
+    - name: check /etc/pki/ca.key exists
       stat: path="/etc/pki/ca.key"
       register: ca_key_exists
-    - name: Check CA create necessity
+
+    - name: check ca exists on primary meta node
       connection: local
       set_fact:
         ca_exists: "{{ ca_crt_exists.stat.exists and ca_key_exists.stat.exists }}"
     - debug:
         msg: "ca exists = {{ ca_exists }}, ca method = {{ ca_method }}, create = {% if (not ca_exists|bool and ca_method == 'create') or ca_method == 'recreate' %}Yes{% else %}No{% endif %}"
+
 
 #------------------------------------------------------------------------------
 # Create CA
@@ -29,15 +33,12 @@
   when: (not ca_exists|bool and ca_method == 'create') or ca_method == 'recreate'
   block:
 
-    #------------------------------------------------------------------------------
-    # Create CA
-    #------------------------------------------------------------------------------
     # generate ca private key on /etc/pki/
-    - name: Generate CA private key
+    - name: generate ca private key
       openssl_privatekey: path="/etc/pki/ca.key" mode=0600 owner=root group=root
 
     # generate ca self-signing csr
-    - name: Generate CA signing request
+    - name: generate ca signing request
       openssl_csr:
         path: /etc/pki/CA/ca.csr
         privatekey_path: /etc/pki/ca.key
@@ -53,7 +54,7 @@
         # use_common_name_for_san: false
 
     # approve csr and get self-signed ca cert
-    - name: Generate CA Cert
+    - name: generate self-signed ca.crt
       openssl_certificate:
         path: /etc/pki/ca.crt
         csr_path: /etc/pki/CA/ca.csr
@@ -63,10 +64,10 @@
         mode: 0644
         owner: root
 
-    - name: Fetch CA cert & key from primary meta node
+    - name: fetch ca cert and key to local
       when: meta_ip == inventory_hostname
       fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
       with_items:
-        - { src: "/etc/pki/ca.crt"  , dest: "files/pki/ca.crt" }
-        - { src: "/etc/pki/ca.key"  , dest: "files/pki/ca.key" }
+        - { src: /etc/pki/ca.crt , dest: files/pki/ca.crt }
+        - { src: /etc/pki/ca.key , dest: files/pki/ca.key }
 ...

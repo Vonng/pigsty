@@ -2,10 +2,10 @@
 #------------------------------------------------------------------------------
 # Config pg_exporter
 #------------------------------------------------------------------------------
-- name: Setup pg_exporter
+- name: config pg_exporter
   block:
 
-    - name: Set pg_exporter facts
+    - name: set pg_exporter facts
       set_fact:
         pg_instance:        "{{ insvar.pg_cluster }}-{{ insvar.pg_seq }}"
         pg_address:         "{{ insvar.inventory_hostname }}-{{ insvar.pg_port }}"
@@ -13,26 +13,26 @@
         pg_exporter_target: "{% if pg_exporter_url != '' %}{{ pg_exporter_url }}{% else %}postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@{{ inventory_hostname }}:{{ item.key }}/postgres{% if pg_exporter_params != '' %}?{{ pg_exporter_params }}{% if pg_localhost != '' %}&host={{ pg_localhost }}{% endif %}{% endif %}{% endif %}"
 
     # create pg_exporter config dir
-    - name: Create /etc/pg_exporter conf dir
+    - name: create /etc/pg_exporter conf dir
       file: path=/etc/pg_exporter state=directory owner={{ insvar.pg_dbsu }} group=postgres mode=0775
 
     # config pg_exporter config
-    - name: Copy default pg_exporter.yml config
+    - name: copy default pg_exporter.yml config
       copy: src={{ insvar.pg_exporter_config }} dest=/etc/pg_exporter/{{ insvar.pg_exporter_config }} owner={{ insvar.pg_dbsu }} group=postgres mode=0644
 
     # config pg_exporter systemd environment options
-    - name: Config pg_exporter parameters
+    - name: config pg_exporter parameters
       template: src=pg_exporter.j2 dest=/etc/default/{{ pg_exporter_unit }} owner={{ insvar.pg_dbsu }} group=postgres mode=0600
 
     # config pg_exporter systemd service
-    - name: Config pg_exporter systemd unit
+    - name: config pg_exporter systemd unit
       template: src=pg_exporter.service.j2 dest=/usr/lib/systemd/system/{{ pg_exporter_unit }}.service
 
     # launch pg_exporter systemd service
-    - name: Launch pg_exporter systemd unit
+    - name: launch pg_exporter systemd unit
       systemd: name={{ pg_exporter_unit }} state=restarted enabled=yes daemon_reload=yes
 
-    - name: Wait for pg_exporter online
+    - name: wait for pg_exporter online
       wait_for: host=127.0.0.1 port={{ insvar.pg_exporter_port }} state=started timeout=10
 
 ...
