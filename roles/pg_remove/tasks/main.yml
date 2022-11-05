@@ -1,5 +1,15 @@
 ---
 #--------------------------------------------------------------#
+# HONOR PG_SAFEGUARD
+#--------------------------------------------------------------#
+- name: ABORT due to pg_safeguard enabled
+  connection: local
+  when: pg_safeguard|bool
+  tags: [ always , pg_safeguard ]
+  any_errors_fatal: true
+  fail: msg="Abort due to pg_safeguard for {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }} is enabled, use -e pg_safeguard=false to override"
+
+#--------------------------------------------------------------#
 # remove exporter targets from prometheus
 #--------------------------------------------------------------#
 - import_tasks: prometheus.yml

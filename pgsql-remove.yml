@@ -3,8 +3,8 @@
 #==============================================================#
 # File      :   pgsql-remove.yml
 # Mtime     :   2020-05-12
-# Mtime     :   2022-02-23
-# Desc      :   remove pgsql from nodes
+# Mtime     :   2022-11-05
+# Desc      :   remove pgsql from hosts
 # Path      :   pgsql-remove.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
@@ -30,26 +30,6 @@
 #     pgsql-remove.yml --tags=postgres  # postgres
 #     pgsql-remove.yml --tags=haproxy   # remove haproxy
 #==============================================================#
-
-
-#------------------------------------------------------------------------------
-# Honor pg_safeguard
-#------------------------------------------------------------------------------
-- name: PGSQL Remove Precheck
-  hosts: all
-  tags: precheck
-  gather_facts: no
-  tasks:
-
-    - name: Abort due to pg_safeguard enabled
-      connection: local
-      when: pg_safeguard|bool
-      any_errors_fatal: true
-      fail: msg="Abort due to pg_safeguard for {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }} is enabled, use -e pg_safeguard=false to override"
-
-#------------------------------------------------------------------------------
-# Remove PGSQL from nodes
-#------------------------------------------------------------------------------
 - name: PGSQL Remove
   become: yes
   hosts: all
@@ -62,8 +42,6 @@
     rm_pgpkgs: false        # uninstall pg_packages? false by default
 
   roles:
-
-    # remove pgsql cluster without safeguard
     - role: pg_remove
       when: not pg_safeguard|bool
 
