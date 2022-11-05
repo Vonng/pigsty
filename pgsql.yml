@@ -8,7 +8,30 @@
 # Path      :   pgsql.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
+- name: Pgsql Init
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: pg-init
+  roles:
 
+    - role: node_id         # get node identity (always)
+      tags: node-id
+
+    - role: pg_id           # get pgsql identity (always)
+      tags: pg-id
+
+    - role: postgres        # init postgres pgbouncer patroni
+      tags: postgres
+
+    - role: service         # init service , haproxy , vip
+      tags: service
+
+    - role: pg_exporter     # init monitor exporters
+      tags: pg-exporter
+
+    - role: pg_register     # register postgres cluster/instance to infra
+      tags: pg-register
 
 #==============================================================#
 # Playbook : Init PGSQL Cluster/Instance on Pigsty Node
@@ -46,31 +69,4 @@
 #     pgsql.yml --tags=register_grafana     # pgsql datasource
 #     pgsql.yml --tags=register_nginx       # haproxy admin page
 #==============================================================#
-
-# init postgres cluster/instance
-- name: Pgsql Init
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: pg-init
-  roles:
-
-    - role: node_id         # get node identity (always)
-      tags: node-id
-
-    - role: pg_id           # get pgsql identity (always)
-      tags: pg-id
-
-    - role: postgres        # init postgres pgbouncer patroni
-      tags: postgres
-
-    - role: service         # init service , haproxy , vip
-      tags: service
-
-    - role: pg_exporter     # init monitor exporters
-      tags: pg-exporter
-
-    - role: pg_register     # register postgres cluster/instance to infra
-      tags: pg-register
-
 ...
