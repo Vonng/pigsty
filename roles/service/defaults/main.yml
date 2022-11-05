@@ -40,6 +40,7 @@ pg_services:                      # how to expose postgres service in cluster?
     selector: "[? pg_role == `offline` || pg_offline_query ]"         # instances with pg_role == 'offline' or instance marked with 'pg_offline_query == true'
     selector_backup: "[? pg_role == `replica` && !pg_offline_query]"  # replica are used as backup server in offline service
 
+pg_services_extra: []             # extra services
 haproxy_enabled: true             # enable haproxy on this node?
 haproxy_reload: true              # reload haproxy after config?
 haproxy_auth_enabled: false       # enable authentication for haproxy admin?
@@ -69,11 +70,11 @@ dcs_registry: consul              # none | consul | etcd | both
 #-----------------------------------------------------------------
 # PG_BOOTSTRAP (Reference)
 #-----------------------------------------------------------------
-pg_dcs_type: consul               # consul | etcd | raft
-pg_namespace: /pg
-pg_port: 5432
-pgbouncer_port: 6432
-patroni_port: 8008
+pg_dcs_type: consul               # which dcs to use: consul or etcd or raft
+pg_namespace: /pg                 # top level key namespace in dcs
+pg_port: 5432                     # postgres port, 5432 by default
+patroni_port: 8008                # default patroni port
+pgbouncer_port: 6432              # pgbouncer port, 6432 by default
 
 #-----------------------------------------------------------------
 # EXPORTER (Reference)
