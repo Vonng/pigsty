@@ -42,8 +42,8 @@ global:
 alerting:
   alertmanagers:
     - static_configs:
-        - targets: # [ 127.0.0.1:9093 ]
-            - {{ nginx_upstream | json_query('[?name==`alertmanager`].endpoint') | first }}
+        - targets:
+            - {{ alertmanager_endpoint | regex_replace('\${meta_ip}', meta_ip ) }}
       scheme: http
       timeout: 10s
       api_version: v1
