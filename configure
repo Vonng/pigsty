@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   configure
 # Ctime     :   2021-05-17
-# Mtime     :   2022-10-16
+# Mtime     :   2022-11-06
 # Desc      :   configure pigsty
 # Usage     :   ./configure [-imdn]
 # Note      :   run as admin user (nopass sudo & ssh)
@@ -227,8 +227,6 @@ function list_ipaddr(){
     done
 }
 
-
-
 function check_ipaddr(){
     local primary_ip=${1-${PRIMARY_IP}}
     local interactive=${2-${INTERACTIVE}}
@@ -316,7 +314,13 @@ function check_mode(){
         log_info "mode = ${mode} (manually set)"
         return 0
     fi
-    # if el9 & el8 are used, use corresponding template
+    # if username is vagrant, demo template is used
+    if [[ "$(whoami)" == "vagrant" ]]; then
+        log_info "mode = demo (vagrant demo)"
+        MODE=demo
+        return 0
+    fi
+    # otherwise, use el7, el8, el9 according to os version
     local os_release=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
     if [[ ${os_release} == "9" ]]; then
         MODE=el9
@@ -324,38 +328,12 @@ function check_mode(){
     elif [[ ${os_release} == "8" ]]; then
         MODE=el8
         return 0
-    fi
-    # if username is vagrant, demo template is used
-    if [[ "$(whoami)" == "vagrant" ]]; then
-        log_info "mode = demo (vagrant demo)"
-        MODE=demo
+    elif [[ ${os_release} == "7" ]]; then
+        MODE=el7
         return 0
     fi
-    # otherwise, use auto template
-    MODE=auto
+    MODE=el7
     return 0
-}
-
-#----------------------------------------------#
-# check node spec
-#----------------------------------------------#
-function check_spec(){
-    # infer machine spec from cpu core
-    CPU_COUNT=$(getconf _NPROCESSORS_ONLN)
-    if ((${CPU_COUNT}>=32)); then
-        SPEC=oltp
-    elif ((${CPU_COUNT}>=16)); then
-        SPEC=large
-    elif ((${CPU_COUNT}>=8)); then
-        SPEC=medium
-    elif ((${CPU_COUNT}>=4)); then
-        SPEC=small
-    elif ((${CPU_COUNT}>=2)); then
-        SPEC=mini
-    elif ((${CPU_COUNT}>=1)); then
-        SPEC=tiny
-    fi
-    log_info "spec = ${SPEC} (cpu = ${CPU_COUNT})"
 }
 
 # return 0 if behind gfw (inside mainland china), otherwise 1
@@ -437,7 +415,6 @@ function main(){
         esac
         shift
     done
-
 
     log_hint "configure pigsty ${VERSION} begin\n"
     # check

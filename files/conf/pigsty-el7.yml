@@ -1,0 +1,38 @@
+---
+######################################################################
+# File      :   pigsty-el7.yml
+# Desc      :   Pigsty auto generated config for el7 singleton
+# Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
+# Ctime     :   2020-05-22
+# Mtime     :   2022-11-06
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
+######################################################################
+
+all:
+  children:
+
+    meta:                             # special group: meta nodes
+      hosts: { 10.10.10.10: { } }
+      vars:
+        meta_node: true               # mark this group as meta nodes
+        ansible_group_priority: 99    # overwrite other group parameters
+        patroni_watchdog_mode: off    # do not fencing meta nodes
+
+    pg-meta:
+      hosts:
+        10.10.10.10: { pg_seq: 1, pg_role: primary }
+      vars:
+        pg_cluster: pg-meta
+        pg_users:
+          - { name: dbuser_meta , password: DBUser.Meta   , pgbouncer: true , roles: [ dbrole_admin ] , comment: pigsty admin user }
+          - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
+        pg_databases:
+          - { name: meta , baseline: cmdb.sql ,comment: pigsty meta database , schemas: [ pigsty ] , extensions: [{ name: postgis, schema: public }] }
+
+  vars:                               # global variables
+    version: v1.6.0-b4                # pigsty version string
+    meta_ip: 10.10.10.10              # primary meta node ip address
+    region: default                   # upstream mirror region: default|china|europe
+    dcs_servers:
+      meta-1: 10.10.10.10
+...
