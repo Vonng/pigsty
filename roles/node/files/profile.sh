@@ -73,32 +73,13 @@ alias adm="sudo su - admin"
 alias pp="sudo su - postgres"
 alias sc='sudo systemctl'
 alias st="sudo systemctl status "
-
 alias d="docker"
 alias dc="docker-compose"
 alias di="docker images"
 alias dp="docker ps -a"
-
-# patroni command line tools
-function pg() {
-    local patroni_conf="/pg/bin/patroni.yml"
-    if [ ! -r ${patroni_conf} ]; then
-        patroni_conf="/etc/pigsty/patronictl.yml"
-        if [ ! -r ${patroni_conf} ]; then
-        	echo "error: patroni ctl config not found"
-            return 1
-        fi
-    fi
-    patronictl -c ${patroni_conf} "$@"
-}
-
 alias ntpsync="sudo ntpdate pool.ntp.org"
+alias node-mt="curl -sL localhost:9100/metrics | grep -v '#' | grep node_"
 
-# dcs alias
-alias cst="systemctl status consul"
-alias cm="consul members"
-alias cnode="consul catalog nodes -detailed"
-alias csvc="consul catalog services --tags"
 #--------------------------------------------------------------#
 # ls corlor
 [ ls --color ] >/dev/null 2>&1 && colorflag="--color" || colorflag="-G"
