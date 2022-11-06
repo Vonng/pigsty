@@ -66,14 +66,24 @@
         dest: /pg
         state: link
 
-    # log directories
+    # log dir
     - name: create external postgres log dir
       when: not ( pg_log_dir.startswith(pg_data) )
       file: path={{ pg_log_dir }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
-    - name: create pgbouncer and patroni log dir
+
+    - name: create patroni and pgbouncer log dir
       file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
       with_items:
         - "{{ pgbouncer_log_dir }}"
         - "{{ patroni_log_dir }}"
+        - "{{ pgbackrest_log_dir }}"
+
+    # conf dir
+    - name: create postgres config directories
+      file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
+      with_items:
+        - "/etc/patroni/"
+        - "/etc/pgbackrest/"
+        - "/etc/pgbouncer/"
 
 ...

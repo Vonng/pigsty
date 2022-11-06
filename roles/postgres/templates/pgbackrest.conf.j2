@@ -1,81 +1,92 @@
-[global]
-# Repo
-{% if meta_node|bool %}
-repo1-type={{ pgbackrest_type }}
-{% if pgbackrest_type == 's3' %}
-repo1-path=/repo
-repo1-s3-endpoint={{ pgbackrest_s3_endpoint }}
-repo1-storage-port={{ pgbackrest_s3_port }}
-repo1-s3-uri-style=path
-repo1-s3-bucket={{ pgbackrest_s3_bucket }}
-repo1-s3-verify-tls=n
-repo1-s3-key={{ pgbackrest_s3_key }}
-repo1-s3-key-secret={{ pgbackrest_s3_secret }}
-repo1-s3-region={{ pgbackrest_s3_region }}
-{% else %}
-repo1-path={{ pg_fs_bkup }}/pgbackrest
-{% endif %}
-{% if pgbackrest_cipher_type != 'none' %}
-repo1-cipher-type={{ pgbackrest_cipher_type }}
-repo1-cipher-pass={{ pgbackrest_cipher_pass }}
-{% endif %}
-repo1-retention-full-type={{ pgbackrest_retention_type }}
-repo1-retention-full={{ pgbackrest_retention_full }}
-repo1-retention-diff={{ pgbackrest_retention_diff }}
-{% else %}
-repo1-host=$META_NAME
-repo1-host-user={{ pg_dbsu }}
-repo1-host-type={{ pgbackrest_protocol }}
-{% if pgbackrest_protocol == 'tls' and pgbackrest_tls_port is defined %}
-repo1-host-cert-file=/pg/cert/server.crt
-repo1-host-key-file=/pg/cert/server.key
-repo1-host-ca-file=/etc/pki/ca.crt
-{% endif %}
-{% endif %}
+#==============================================================#
+# File      :   pgbackrest.conf
+# Ctime     :   2022-11-01
+# Mtime     :   2022-11-06
+# Desc      :   pgbackrest configuration file
+# Path      :   /etc/pgbackrest/pgbackrest.conf
+# Doc       :   https://pgbackrest.org/configuration.html
+#==============================================================#
 
-# General
+[{{ pg_cluster }}]
+
+#==========================================================#
+# 1. stanza
+# https://pgbackrest.org/configuration.html#section-stanza
+#==========================================================#
+pg1-path={{ pg_data }}
+pg1-port={{ pg_port }}
+start-fast=y
+
+
+[global]
+#==========================================================#
+# 2. archive
+# https://pgbackrest.org/configuration.html#section-archive
+#==========================================================#
+archive-async=y
+
+
+#==========================================================#
+# 3. backup
+# https://pgbackrest.org/configuration.html#section-backup
+#==========================================================#
+annotation=pg_cluster="{{ pg_cluster }}"
+expire-auto=y
+#backup-standby=y
+
+
+#==========================================================#
+# 4. general
+# https://pgbackrest.org/configuration.html#section-general
+#==========================================================#
+compress-type=lz4
+spool-path=/pg/tmp
+
+
+#==========================================================#
+# 5. log
+# https://pgbackrest.org/configuration.html#section-log
+#==========================================================#
 log-level-console=info
 log-level-file=debug
-compress-type={{ pgbackrest_compression_type }}
-{% if meta_node|bool %}
-process-max=4
-{% if pgbackrest_from_standby|bool %}
-backup-standby=y
-{% endif %}
-start-fast=y
-expire-auto=y
-{% else %}
-spool-path={{ pgbackrest_spool_dir }}
-{% if pgbackrest_archive_async|bool %}
-archive-async=y
-{% endif %}
-{% endif %}
+log-path={{ pgbackrest_log_dir }}
 
-{% if pgbackrest_protocol == 'tls' and pgbackrest_tls_port is defined %}
-# TLS
-tls-server-address=*
-tls-server-port={{ pgbackrest_tls_port }}
-tls-server-ca-file=/etc/pki/ca.crt
-tls-server-cert-file=/pg/cert/server.crt
-tls-server-key-file=/pg/cert/server.key
-{% if not meta_node|bool %}
-tls-server-auth=$META_NAME={{ pgbackrest_stanza }}
-{% endif %}
-{% endif %}
 
-{% if not meta_node|bool %}
-[global:archive-get]
-process-max=2
+#==========================================================#
+# 6. repository
+# https://pgbackrest.org/configuration.html#section-repository
+#==========================================================#
+{{ pgbackrest_repo }}
 
-[global:archive-push]
-process-max=4
 
+#==========================================================#
+# 7. restore
+# https://pgbackrest.org/configuration.html#section-restore
+#==========================================================#
 [global:restore]
 process-max=8
 link-all=y
 delta=y
 
-[{{ pgbackrest_stanza }}]
-pg1-path={{ pg_data }}
-pg1-port={{ pg_port }}
-{% endif %}
+
+#==========================================================#
+# 8. server
+# https://pgbackrest.org/configuration.html#section-server
+#==========================================================#
+#tls-server-address=*
+#tls-server-port=9638
+#tls-server-ca-file=/etc/pki/ca.crt
+#tls-server-cert-file=/pg/cert/server.crt
+#tls-server-key-file=/pg/cert/server.key
+
+
+#==========================================================#
+# 9. adhoc (parallel)
+#==========================================================#
+process-max=4
+
+[global:archive-get]
+process-max=2
+
+[global:archive-push]
+process-max=4

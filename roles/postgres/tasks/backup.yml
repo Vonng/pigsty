@@ -1,0 +1,18 @@
+---
+#------------------------------------------------------------------------------
+# PgBackrest
+#------------------------------------------------------------------------------
+- name: setup pgbackrest
+  tags: pg_backrest
+  block:
+
+    # config pgbackrest with local repo
+    - name: render pgbackrest config
+      template: src=pgbackrest.conf.j2 dest=/etc/pgbackrest/pgbackrest.conf owner=postgres group=postgres mode=0600
+
+    - name: create pgbackrest stanza
+      become: yes
+      become_user: "{{ pg_dbsu }}"
+      shell: /usr/bin/pgbackrest --stanza={{ pg_cluster }} --no-online stanza-create
+
+...
