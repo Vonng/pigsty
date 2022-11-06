@@ -13,4 +13,3 @@ Specs = [
   { "name" => "node-2", "ip" => "10.10.10.12", "cpu" => "1", "mem" => "2048", "image" =>  Images["Oracle"][EL_VERSION] },
   { "name" => "node-3", "ip" => "10.10.10.13", "cpu" => "1", "mem" => "2048", "image" =>  Images["Alma"][EL_VERSION]   },
 ]
-
