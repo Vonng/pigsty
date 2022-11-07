@@ -282,9 +282,10 @@ rw:
 	while true; do pgbench -nv -P1 -c4 --rate=64 -T10 postgres://dbuser_meta:DBUser.Meta@meta:5433/meta; done
 ro:
 	while true; do pgbench -nv -P1 -c8 --rate=256 --select-only -T10 postgres://dbuser_meta:DBUser.Meta@meta:5434/meta; done
-
+rt:
+	psql postgres://dbuser_meta:DBUser.Meta@meta:5433/meta -c 'CREATE TABLE IF NOT EXISTS health(t TIMESTAMPTZ PRIMARY KEY);'
+	while true; do psql postgres://dbuser_meta:DBUser.Meta@meta:5433/meta -qc 'INSERT INTO health VALUES (now());'; sleep 0.5; done
 # pg-test cluster benchmark
-
 test-ri:
 	pgbench -is10  postgres://test:test@pg-test:5436/test
 test-rc:
