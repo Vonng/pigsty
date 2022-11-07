@@ -20,8 +20,8 @@ function pt-log() {
 }
 alias pt-start='sudo systemctl start patroni'
 alias pt-stop='sudo systemctl stop patroni'
-alias pt-reload='sudo systemctl reload  patroni'
-alias pt-restart='sudo systemctl restart  patroni'
+alias pt-reload='sudo systemctl reload patroni'
+alias pt-restart='sudo systemctl restart patroni'
 alias pt-st='systemctl status patroni'
 
 
@@ -34,7 +34,7 @@ alias pg-d="cd /pg/data"
 alias pg-st='ps aux | grep postgres'
 alias pg-start='pg_ctl -D /pg/data start'
 alias pg-stop='pg_ctl -D /pg/data stop'
-alias pg-stop='pg_ctl -D /pg/data restart'
+alias pg-restart='pg_ctl -D /pg/data restart'
 alias pg-reload='pg_ctl -D /pg/data reload'
 alias pg-db="oid2name | grep -v postgres | grep -v template"
 alias pg-r="psql -qAXtwc \"SELECT CASE pg_is_in_recovery() WHEN TRUE THEN 'replica' ELSE 'primary' END\";"
@@ -82,19 +82,26 @@ function pb() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=$stanza $@
 }
+function pb-create() {
+    local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
+    pgbackrest --stanza=${stanza} --no-online stanza-create
+}
+function pb-destroy() {
+    rm -rf /pg/backup/*
+}
 function pb-full() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
-    pgbackrest --stanza=$stanza --type=full backup
+    pgbackrest --stanza=${stanza} --type=full backup
 }
 function pb-diff() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
-    pgbackrest --stanza=$stanza --type=diff backup
+    pgbackrest --stanza=${stanza} --type=diff backup
 }
 function pb-incr() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
-    pgbackrest --stanza=$stanza --type=incr backup
+    pgbackrest --stanza=${stanza} --type=incr backup
 }
 function pb-check() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
-    check_pgbackrest --stanza=$stanza --service=retention --output=human && printf '\n' && check_pgbackrest --stanza=$stanza --service=archives --output=human
+    check_pgbackrest --stanza=${stanza} --service=retention --output=human && printf '\n' && check_pgbackrest --stanza=$stanza --service=archives --output=human
 }

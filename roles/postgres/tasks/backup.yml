@@ -15,4 +15,10 @@
       become_user: "{{ pg_dbsu }}"
       shell: /usr/bin/pgbackrest --stanza={{ pg_cluster }} --no-online stanza-create
 
+    - name: create an empty full backup
+      when: pg_role == 'primary'
+      ignore_errors: yes
+      become: yes
+      become_user: "{{ pg_dbsu }}"
+      shell: /usr/bin/pgbackrest --stanza={{ pg_cluster }} backup
 ...

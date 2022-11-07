@@ -63,8 +63,6 @@ log-path={{ pgbackrest_log_dir }}
 # 7. restore
 # https://pgbackrest.org/configuration.html#section-restore
 #==========================================================#
-[global:restore]
-process-max=8
 link-all=y
 delta=y
 
@@ -83,10 +81,11 @@ delta=y
 #==========================================================#
 # 9. adhoc (parallel)
 #==========================================================#
+[global:restore]
+process-max={{ node_cpu }}
+
+[global:archive-push]
 process-max=4
 
 [global:archive-get]
 process-max=2
-
-[global:archive-push]
-process-max=4
