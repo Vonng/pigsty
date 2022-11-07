@@ -1,10 +1,10 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty 4-node local sandbox demo config
-# Link      :   https://pigsty.cc/en/docs/concept/config/
+# Desc      :   pigsty default configuration with all available params
+# Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2022-11-06
+# Mtime     :   2022-11-07
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -71,13 +71,12 @@ all:
         pg_cluster: pg-meta
         patroni_watchdog_mode: off
         pg_databases:
-          - { name: meta, baseline: cmdb.sql , schemas: [ pigsty ]   , extensions: [ { name: adminpack, schema: pg_catalog } ,  { name: postgis, schema: public } , { name: timescaledb } ] ,comment: pigsty meta database }
+          - { name: meta ,schemas: [pigsty] ,extensions: [{name: timescaledb},{name: postgis,schema: public}] ,baseline: cmdb.sql ,comment: pigsty meta database}
           - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana primary database }
           - { name: bytebase,   owner: dbuser_bytebase   , revokeconn: true , comment: bytebase primary database }
           - { name: kong,       owner: dbuser_kong       , revokeconn: true , comment: kong the api gateway database }
           - { name: gitea,      owner: dbuser_gitea      , revokeconn: true , comment: gitea meta database }
           - { name: wiki,       owner: dbuser_wiki       , revokeconn: true , comment: wiki meta database }
-
         pg_users:
           - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty cmdb admin user             }
           - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
@@ -86,7 +85,6 @@ all:
           - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
           - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service       }
           - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
-
         pg_hba_rules_extra:
           - title: allow grafana bytebase kong intranet access
             role: common
@@ -94,7 +92,6 @@ all:
               - host    kong            dbuser_kong         10.0.0.0/8          md5
               - host    bytebase        dbuser_bytebase     10.0.0.0/8          md5
               - host    grafana         dbuser_grafana      10.0.0.0/8          md5
-
         vip_mode: l2
         vip_address: 10.10.10.2
         vip_cidrmask: 8
@@ -112,14 +109,10 @@ all:
         10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
       vars:
         pg_cluster: pg-test           # define pgsql cluster name
-        pg_version: 14                # test postgresql 14 with pg-test cluster
-        pg_users:
-          - name: test
-            password: test
-            pgbouncer: true
-            roles: [ dbrole_admin ]
-        pg_databases:                 # create a database and user named 'test'
-          - name: test
+        pg_version: 15                # test postgresql 15 with pg-test cluster
+        pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
+        pg_databases: [{ name: test }] # create a database and user named 'test'
+        pg_extensions: ['postgis33_${pg_version}* citus111_${pg_version} pg_repack_${pg_version} wal2json_${pg_version}']
         pg_services_extra:            # extra services in addition to pg_services_default, array of service definition
           # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
           - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
