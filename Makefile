@@ -282,9 +282,12 @@ rw:
 	while true; do pgbench -nv -P1 -c4 --rate=64 -T10 postgres://dbuser_meta:DBUser.Meta@meta:5433/meta; done
 ro:
 	while true; do pgbench -nv -P1 -c8 --rate=256 --select-only -T10 postgres://dbuser_meta:DBUser.Meta@meta:5434/meta; done
-rt:
-	psql postgres://dbuser_meta:DBUser.Meta@meta:5433/meta -c 'CREATE TABLE IF NOT EXISTS health(t TIMESTAMPTZ PRIMARY KEY);'
-	while true; do psql postgres://dbuser_meta:DBUser.Meta@meta:5433/meta -qc 'INSERT INTO health VALUES (now());'; sleep 0.5; done
+# meta heartbeat and heartbeat check
+rh:
+	psql postgres://dbuser_dba:DBUser.DBA@meta:5432/postgres -c 'CREATE TABLE IF NOT EXISTS heartbeat(t TIMESTAMPTZ PRIMARY KEY);'
+	while true; do psql postgres://dbuser_dba:DBUser.DBA@meta:5432/postgres -qc 'INSERT INTO heartbeat VALUES (now());'; sleep 0.1; done
+rhc:
+	while true; do psql postgres://dbuser_dba:DBUser.DBA@meta:5432/postgres -qc 'SELECT count(*) AS cnt, max(t)-min(t) AS span, max(t) AS max FROM heartbeat'; sleep 3; done
 # pg-test cluster benchmark
 test-ri:
 	pgbench -is10  postgres://test:test@pg-test:5436/test
@@ -473,7 +476,7 @@ svg:
         deps dns start ssh demo \
         up dw del new clean up-test dw-test del-test new-test clean \
         st status suspend resume v1 v4 v7 v8 v9 vb vnew \
-        ri rc rw ro test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
+        ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb\
         r releast rp release-pkg cache release-matrix release-docker p publish \
