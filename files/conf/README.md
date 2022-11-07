@@ -1,27 +1,30 @@
 # Configuration Template
 
-This directory (`files/conf`) contains pigsty configuration templates, Which will be used during `configure` procedure.
+This directory (`files/conf`) contains pigsty configuration templates, Which will be used during [`configure`](https://github.com/Vonng/pigsty/wiki/Configuration) procedure.
 
 Config templates are named as `pigsty-<mode>.yml`.  `<mode>` can be designated using `./configure -m <mode>`
 
 There are several built-in modes:
 
-* [pigsty-demo.yml](pigsty-demo.yml) : exact same as repo default: 4 node sandbox demo (EL7)
-* [pigsty-auto.yml](pigsty-auto.yml) : auto generated template for production installation (EL7)
-* [pigsty-el8.yml](pigsty-el8.yml) : example config on RHEL8 and compatible OS distributions
-* [pigsty-el9.yml](pigsty-el9.yml) : example config on RHEL9 and compatible OS distributions
+* [pigsty-el7.yml](pigsty-el7.yml) : default config on RHEL7 and compatible OS distributions
+* [pigsty-el8.yml](pigsty-el8.yml) : default config on RHEL8 and compatible OS distributions
+* [pigsty-el9.yml](pigsty-el9.yml) : default config on RHEL9 and compatible OS distributions
+* [pigsty-sec.yml](pigsty-sec.yml) : security enhanced version (on el7)
+* [pigsty-demo.yml](pigsty-demo.yml) : exact same as default pigsty.yml , but in short version
 * [pigsty-citus.yml](pigsty-citus.yml) : citus cluster example: 1 coordinator and 3 data nodes
-* [pigsty-dcs3.yml](pigsty-dcs3.yml) : 3 meta nodes x 3 dcs servers, and delayed replica example 
-* [pigsty-mxdb.yml](pigsty-mxdb.yml) : matrixdb (greenplum 7) 4 nodes sandbox on el7
-* [pigsty-sec.yml](pigsty-sec.yml) : example of enabling ssl everywhere
-* [pigsty-pub4.yml](pigsty-pub4.yml) : configuration file for [public demo](http://demo.pigsty.cc)
 * [pigsty-build.yml](pigsty-build.yml) : 3 nodes el7, el8, el9 for release building
+* [pigsty-full.yml](pigsty-pub.yml) : same as default pigsty.yml with full available options documented
+* [pigsty-pub.yml](pigsty-pub.yml) : configuration file for [public demo](http://demo.pigsty.cc)
 
-if `-m` is not specified, here are some special rules about default mode:
 
-* if el9 is detected, use `pigsty-el9.yml` 
-* if el8 is detected, use `pigsty-el8.yml`
-* if current admin username is `vagrant`, use `pigsty-demo.yml`
-* otherwise, use `pigsty-auto.yml`
+Here are rules of which template is used:
+
+* if `-m <mode>` is specified, corresponding `pigsty-<mode>.yml` is used.
+* otherwise if current admin username is `vagrant`, `pigsty-demo.yml` is used.
+* otherwise
+  * if EL9 detected, `pigsty-el9.yml` is used.
+  * if EL8 detected, `pigsty-el8.yml` is used.
+  * if EL7 detected, `pigsty-el7.yml` is used.
+* use el7 by default
 
 `configure` is optional. You can always skip it and edit `pigsty.yml` by yourself. 

@@ -5,6 +5,7 @@
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2022-10-12
 # Mtime     :   2022-11-04
+# Note      :   For building el7, el8, el9 offline packages only
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -157,26 +158,19 @@ all:
           - postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} # citus111_${pg_version} timescaledb-2-postgresql-${pg_version}
 
 
-  ####################################################################
-  #                             VARS                                 #
-  ####################################################################
-  vars:                               # global variables
+  vars:
 
-    #================================================================#
-    #                         VARS: BASIC                            #
-    #================================================================#
     version: v1.6.0-b4
     meta_ip: 10.10.10.10
     region: china
-    pg_hostname: true                 # overwrite node identity with pgsql instance name
+
     dcs_clean: true                   # purge existing dcs if exists
     pg_clean: true                    # purge existing pgsql if exists
     node_admin_pk_list:               # vagrant ssh public keys on admin node
       - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
-
     dcs_servers:                      # dcs server dict in name:ip format
       meta-1: 10.10.10.10             # using existing external dcs cluster is recommended for HA
       meta-2: 10.10.10.11             # node with ip in dcs_servers will be initialized as dcs servers
       meta-3: 10.10.10.12             # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
-
+    docker_registry_mirrors: ["https://registry.cn-hangzhou.aliyuncs.com"]
 ...

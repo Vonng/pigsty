@@ -256,7 +256,7 @@ v9:
 	vagrant/switch el9
 vb:
 	vagrant/switch build
-
+vnew: new ssh copy-pkg use-pkg copy-src use-src
 
 ###############################################################
 
@@ -425,9 +425,7 @@ publish:
 	bin/publish ${VERSION}
 
 # build environment
-build-new: vb new build
-
-build: build-src build-repo build-boot
+build-new: vb new ssh build-repo build-src
 
 build-src: release
 	scp dist/${VERSION}/${SRC_PKG}   meta:~/pigsty.tgz ; ssh   meta "tar -xf pigsty.tgz";
@@ -473,7 +471,7 @@ svg:
         infra pgsql repo repo-upstream repo-build prometheus grafana loki docker \
         deps dns start ssh demo \
         up dw del new clean up-test dw-test del-test new-test clean \
-        st status suspend resume v1 v4 v7 v8 v9 vb \
+        st status suspend resume v1 v4 v7 v8 v9 vb vnew \
         ri rc rw ro test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb\

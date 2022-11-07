@@ -45,11 +45,7 @@ all:
           - { name: dbuser_meta , password: DBUser.Meta   , pgbouncer: true , roles: [ dbrole_admin ] , comment: pigsty admin user }
           - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
         pg_databases:
-          - name: meta
-            baseline: cmdb.sql
-            comment: pigsty meta database
-            schemas: [ pigsty ]
-            extensions: [ { name: postgis, schema: public }, { name: timescaledb } ]
+          - { name: meta , baseline: cmdb.sql ,comment: pigsty meta database , schemas: [ pigsty ] , extensions: [{ name: postgis, schema: public }] }
         pg_services_extra:            # extra services in addition to pg_services_default, array of service definition
           - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
             src_ip: "*"               # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
@@ -70,6 +66,7 @@ all:
         vip_cidrmask: 8
         vip_interface: eth1
 
+    # OPTIONAL delayed cluster for pg-meta
     pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
       hosts:
         10.10.10.13: { pg_seq: 1, pg_role: primary, pg_upstream: 10.10.10.10, pg_delay: 1h }
