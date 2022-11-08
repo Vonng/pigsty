@@ -1,8 +1,12 @@
 #!/bin/bash
+#=========================#
+# patroni & postgres (pg)
+#=========================#
+alias pt-start='sudo systemctl start patroni'
+alias pt-stop='sudo systemctl stop patroni'
+alias pt-reload='sudo systemctl reload patroni'
+alias pt-restart='sudo systemctl restart patroni'
 
-#======================#
-# patroni
-#======================#
 function pg() {
     local patroni_conf="/pg/bin/patroni.yml"
     if [ ! -r ${patroni_conf} ]; then
@@ -14,56 +18,48 @@ function pg() {
     fi
     patronictl -c ${patroni_conf} "$@"
 }
-function pt-log() {
-    local logdir=$(grep -A2 'log:' /pg/bin/patroni.yml | head -n3 | awk '/dir:/ {print $2}')
-    [[ -f "${logdir}/patroni.log" ]] && tail -f "${logdir}/patroni.log"
-}
-alias pt-start='sudo systemctl start patroni'
-alias pt-stop='sudo systemctl stop patroni'
-alias pt-reload='sudo systemctl reload patroni'
-alias pt-restart='sudo systemctl restart patroni'
-alias pt-st='systemctl status patroni'
 
-
-#======================#
-# postgres
-#======================#
-alias pg-c="less /pg/data/postgresql.conf"
-alias pg-h="less /pg/data/pg_hba.conf"
-alias pg-d="cd /pg/data"
-alias pg-st='ps aux | grep postgres'
+alias pg-s='ps -fp $(pgrep -u postgres); systemctl status patroni; pg list'
 alias pg-start='pg_ctl -D /pg/data start'
 alias pg-stop='pg_ctl -D /pg/data stop'
 alias pg-restart='pg_ctl -D /pg/data restart'
 alias pg-reload='pg_ctl -D /pg/data reload'
+alias pg-promote='pg_ctl -D /pg/data promote'
+alias pg-up='sudo systemctl start patroni'
+alias pg-dw='sudo systemctl stop patroni'
+alias pg-rc='sudo systemctl reload patroni'
+alias pg-rb='sudo systemctl restart patroni'
+alias pg-st='systemctl status patroni; systemctl status pgbouncer; systemctl status pg_exporter; '
+alias pg-ps='ps -fp $(pgrep -u postgres)'
+alias pg-cf="cat /pg/data/patroni.dynamic.json | jq"
+alias pg-d="cd /pg/data"
+alias pg-c="vi /pg/data/postgresql.conf"
+alias pg-h="vi /pg/data/pg_hba.conf"
 alias pg-db="oid2name | grep -v postgres | grep -v template"
-alias pg-r="psql -qAXtwc \"SELECT CASE pg_is_in_recovery() WHEN TRUE THEN 'replica' ELSE 'primary' END\";"
-alias pg-repl='psql -qAXtwc "TABLE pg_stat_replication;"'
-alias pg-recv='psql -qAXtwc "TABLE pg_stat_wal_receiver;"'
 alias pg-md=" sed 's/+/|/g' | sed 's/^/|/' | sed 's/$/|/' |  grep -v rows | grep -v '||'"
 alias pg-ts='psql -qAXtwc "SELECT CURRENT_TIMESTAMP;"'
-alias pg-rc='psql -qAXtwc "SELECT pg_reload_conf();"'
+alias pg-r="psql -qAXtwc \"SELECT CASE pg_is_in_recovery() WHEN TRUE THEN 'replica' ELSE 'primary' END\";"
+alias pg-repl='psql -qXxwc "TABLE pg_stat_replication;"'
+alias pg-recv='psql -qXxwc "TABLE pg_stat_wal_receiver;"'
 alias pg-mt="curl -sL localhost:9630/metrics | grep -v '#' | grep pg_"
+alias pg-lsn='psql -qAXtwc "SELECT CASE WHEN pg_is_in_recovery() THEN pg_last_wal_replay_lsn() ELSE pg_current_wal_lsn() END AS lsn;"'
+alias pg-ll='while true; do psql -qAXtwc "SELECT NOW(), CASE WHEN pg_is_in_recovery() THEN pg_last_wal_replay_lsn() ELSE pg_current_wal_lsn() END AS lsn;"; sleep 0.2; done'
+alias pg-wal='psql -qAXtwc "SELECT pg_walfile_name(pg_current_wal_lsn()) AS wal;"'
+alias pg-kill="psql -wc \"SELECT pg_terminate_backend(pid) AS killed, NOW()-backend_start AS time,datname, usename, application_name AS appname, client_addr,state FROM pg_stat_activity WHERE backend_type = 'client backend' and pid <> pg_backend_pid();\""
+alias pg-kk="while true; do psql -wc \"SELECT pg_terminate_backend(pid) AS killed, NOW()-backend_start AS time,datname, usename, application_name AS appname, client_addr,state FROM pg_stat_activity WHERE backend_type = 'client backend' and application_name != 'pg_exporter' and pid <> pg_backend_pid();\"; sleep 0.1; done"
+alias pg-cancel="psql -wc \"SELECT pg_cancel_backend(pid) AS canceled, NOW()-state_change AS time, datname, usename, application_name AS appname, client_addr,state FROM pg_stat_activity WHERE backend_type = 'client backend' and pid <> pg_backend_pid();\""
+alias pg-cc="while true; do psql -wc \"SELECT pg_cancel_backend(pid) AS canceled, NOW()-state_change AS time, datname, usename, application_name AS appname, client_addr,state FROM pg_stat_activity WHERE backend_type = 'client backend' and pid <> pg_backend_pid();\"; sleep 0.1; done"
 
-function pg-l() {
-    local logdir=$(grep 'log_directory' /pg/data/postgresql.conf | awk '{print $3}' | tr -d "'"); cd ${logdir};
-}
-function pg-log() {
-    local logdir=$(grep 'log_directory' /pg/data/postgresql.conf | awk '{print $3}' | tr -d "'")
-    [[ -f "${logdir}/postgresql-$(date '+%Y-%m-%d').csv" ]] && tail -f "${logdir}/postgresql-$(date '+%Y-%m-%d').csv"
-}
-
-
-#======================#
-# pgbouncer
-#======================#
+#=========================#
+# pgbouncer (pgb)
+#=========================#
 alias pgb='psql -p6432 -dpgbouncer'
 alias pgb-st='systemctl status pgbouncer'
 alias pgb-ps='ps aux | grep pgbouncer'
 alias pgb-start='sudo systemctl start pgbouncer'
 alias pgb-stop='sudo systemctl stop pgbouncer'
-alias pgb-restart='systemctl restart pgbouncer'
-alias pgb-reload='systemctl reload pgbouncer'
+alias pgb-restart='sudo systemctl restart pgbouncer'
+alias pgb-reload='sudo systemctl reload pgbouncer'
 alias pgb-new='/usr/bin/pgbouncer -d -R /etc/pgbouncer/pgbouncer.ini'
 alias pgb-stat='psql -p6432 -dpgbouncer -xc "SHOW STATS;"'
 alias pgb-pool='psql -p6432 -dpgbouncer -xc "SHOW POOLS;"'
@@ -74,34 +70,59 @@ alias pgb-user="cat /etc/pgbouncer/database.txt"
 alias pgb-db="cat /etc/pgbouncer/userlist.txt"
 alias pgb-mt="curl -sL localhost:9631/metrics | grep -v '#' | grep pg_"
 
+# route pgbouncer traffic to another cluster member
+function pgb-route(){
+  local ip=${1-'\/var\/run\/postgresql'}
+  sed -i "s/host=.*/host=${ip}/" /etc/pgbouncer/database.txt
+  cat /etc/pgbouncer/database.txt
+  echo "reload with pgb-reload (systemctl reload pgbouncer)"
+}
 
-#======================#
-# pgbackrest
-#======================#
-function pb() {
+#=========================#
+# pgbackrest (pgbr)
+#=========================#
+function pgbr() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=$stanza $@
 }
-function pb-create() {
+function pgbr-create() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=${stanza} --no-online stanza-create
 }
-function pb-destroy() {
-    rm -rf /pg/backup/*
+function pgbr-backup() {
+    local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
+    pgbackrest --stanza=${stanza} backup
 }
-function pb-full() {
+function pgbr-full() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=${stanza} --type=full backup
 }
-function pb-diff() {
+function pgbr-diff() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=${stanza} --type=diff backup
 }
-function pb-incr() {
+function pgbr-incr() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=${stanza} --type=incr backup
 }
-function pb-check() {
-    local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
-    check_pgbackrest --stanza=${stanza} --service=retention --output=human && printf '\n' && check_pgbackrest --stanza=$stanza --service=archives --output=human
+
+
+#======================#
+# log
+#======================#
+function pg-log() {
+    local logdir=$(grep 'log_directory' /pg/data/postgresql.conf | awk '{print $3}' | tr -d "'")
+    [[ -f "${logdir}/postgresql-$(date '+%Y-%m-%d').csv" ]] && tail -f "${logdir}/postgresql-$(date '+%Y-%m-%d').csv"
+}
+function pt-log() {
+    local logdir=$(grep -A2 'log:' /pg/bin/patroni.yml | head -n3 | awk '/dir:/ {print $2}')
+    [[ -f "${logdir}/patroni.log" ]] && tail -f "${logdir}/patroni.log"
+}
+function pgb-log() {
+    local logfile=$(grep -A2 'logfile' /etc/pgbouncer/pgbouncer.ini | awk '/logfile/ {print $3}')
+    [[ -f ${logfile} ]] && tail -f "${logfile}"
+}
+function pbr-log() {
+    local logdir=$(grep 'log-path' /etc/pgbackrest/pgbackrest.conf | sed 's/log-path=//g')
+    [[ -d "${logdir}" ]] && tail -f ${logdir}/*.log
 }
