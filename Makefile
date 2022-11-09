@@ -357,6 +357,7 @@ copy-el7:
 	scp dist/${VERSION}/${EL7_PKG} meta:/tmp/pkg.tgz
 copy-el8:
 	scp dist/${VERSION}/${EL8_PKG} meta:/tmp/pkg.tgz
+
 copy-el9:
 	scp dist/${VERSION}/${EL9_PKG} meta:/tmp/pkg.tgz
 copy-matrix:
@@ -428,9 +429,6 @@ p: release publish
 publish:
 	bin/publish ${VERSION}
 
-# build environment
-build-new: vb new ssh build-repo build-src
-
 build-src: release
 	scp dist/${VERSION}/${SRC_PKG}   meta:~/pigsty.tgz ; ssh   meta "tar -xf pigsty.tgz";
 	scp dist/${VERSION}/${SRC_PKG} node-1:~/pigsty.tgz ; ssh node-1 "tar -xf pigsty.tgz";
@@ -462,6 +460,14 @@ build-release:
 svg:
 	bin/svg
 
+# environment
+e1: v1 new ssh copy-el7 use-pkg
+e4: v4 new ssh copy-el7 use-pkg
+e7: v7 new ssh copy-el7 use-pkg
+e8: v8 new ssh copy-el8 use-pkg
+e9: v9 new ssh copy-el9 use-pkg
+eb: vb new ssh build-repo build-src
+
 ###############################################################
 
 
@@ -478,8 +484,8 @@ svg:
         st status suspend resume v1 v4 v7 v8 v9 vb vnew \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
-        copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb\
+        copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb \
         r releast rp release-pkg cache release-matrix release-docker p publish \
-        build-new build-vagrant build build-src build-repo build-boot build-release \
-        svg
+        build-vagrant build build-src build-repo build-boot build-release \
+        svg e1 e4 e7 e8 e9 eb
 ###############################################################
