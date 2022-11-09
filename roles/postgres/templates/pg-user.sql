@@ -46,7 +46,9 @@ ALTER USER "{{ user.name }}" {% if 'login' in user and not user.login %} NOLOGIN
 
 -- password
 {% if 'password' in user and user.password is not none %}
+SET log_statement TO 'none';
 ALTER USER "{{ user.name }}" PASSWORD '{{ user.password }}';
+SET log_statement TO DEFAULT;
 {% endif %}
 
 -- expire

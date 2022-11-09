@@ -29,7 +29,11 @@ CREATE USER "{{ user.username }}";
 --------------------------
 {% if 'password' in user %}
 {% if user.password == '' %}ALTER ROLE "{{ user.username }}" PASSWORD NULL;
-{% else %}ALTER ROLE "{{ user.username }}" PASSWORD '{{ user.password }}';{% endif %}
+{% else %}
+SET log_statement TO 'none';
+ALTER ROLE "{{ user.username }}" PASSWORD '{{ user.password }}';
+SET log_statement TO DEFAULT;
+{% endif %}
 {% endif %}
 {% if 'options' in user %}ALTER ROLE "{{ user.username }}" {{ user.options }};{% endif %}
 

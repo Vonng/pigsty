@@ -48,7 +48,9 @@ ALTER USER "{{ user.name }}" {% if 'login' in user and not user.login %} NOLOGIN
 
 -- password
 {% if 'password' in user %}
+SET log_statement TO 'none';
 ALTER USER "{{ user.name }}" PASSWORD '{{ user.password }}';
+SET log_statement TO DEFAULT;
 {% endif %}
 
 -- expire
@@ -115,8 +117,10 @@ GRANT "{{ role }}" TO "{{ user.name }}";
 --==================================================================--
 --                       PASSWORD OVERWRITE                         --
 --==================================================================--
+SET log_statement TO 'none';
 ALTER ROLE "{{ pg_replication_username }}" PASSWORD '{{ pg_replication_password }}';
 ALTER ROLE "{{ pg_monitor_username }}" PASSWORD '{{ pg_monitor_password }}';
 ALTER ROLE "{{ pg_admin_username }}" PASSWORD '{{ pg_admin_password }}';
+SET log_statement TO DEFAULT;
 --==================================================================--
 
