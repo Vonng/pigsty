@@ -205,6 +205,6 @@ Discord: https://discord.gg/wDzt5VyWEz
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
-License: [Apache 2.0 License](LICENSE)
+License: [AGPL-3.0](LICENSE)
 
 Copyright 2018-2022 rh@vonng.com
