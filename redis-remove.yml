@@ -30,13 +30,13 @@
 #---------------------------------------------------------------
 # Remove Redis Node
 #---------------------------------------------------------------
-- name: Redis Node Remove
+- name: REDIS REMOVE
   hosts: all
   become: true
   gather_facts: no
   tasks:
 
-    - name: Abort due to redis_safeguard enabled
+    - name: ABORT due to redis_safeguard enabled
       connection: local
       when: redis_safeguard|bool
       any_errors_fatal: true
@@ -45,20 +45,20 @@
     #------------------------------------------------------------------------------
     # Remove register from prometheus & stop redis-exporter
     #------------------------------------------------------------------------------
-    - name: Remove redis register from prometheus
+    - name: remove redis register from prometheus
       when: not redis_safeguard|bool
       tags: [ register, redis_deregister, deregister_prometheus ]
       block:
 
         # remove whole redis instances register on that node
-        - name: Deregister redis node from prometheus
+        - name: deregister redis node from prometheus
           when: redis_port is not defined
           delegate_to: '{{ item }}'
           with_items: '{{ groups["meta"] }}'
           file: path=/etc/prometheus/targets/redis/{{ redis_cluster }}-{{ redis_node }}.yml state=absent
 
         # remove single redis instance on that node if redis_port is defined
-        - name: Deregister redis instance from prometheus # (single instance)
+        - name: deregister redis instance from prometheus # (single instance)
           when: redis_port is defined
           delegate_to: '{{ item }}'
           with_items: '{{ groups["meta"] }}'
@@ -74,7 +74,7 @@
               {% endif %}
               {% endfor %}
 
-        - name: Shut redis exporter service
+        - name: stop and disable redis exporter service
           when: not redis_safeguard|bool and redis_port is not defined
           ignore_errors: yes
           tags: redis
@@ -84,20 +84,20 @@
     #------------------------------------------------------------------------------
     # Stop redis instances
     #------------------------------------------------------------------------------
-    - name: Stop redis systemd service
+    - name: stop redis systemd service
       when: not redis_safeguard|bool
       ignore_errors: yes
       tags: redis
       block:
 
         # stop redis instances (whole node)
-        - name: Shut redis node systemd services
+        - name: stop redis node systemd services
           when: not redis_port is defined
           systemd: name="{{ redis_cluster }}-{{ redis_node }}-{{ item.key }}.service" state=stopped enabled=no
           with_dict: "{{ redis_instances }}"
 
         # stop redis instance (single instance)
-        - name: Shut redis instance systemd service
+        - name: stop redis instance systemd service
           when: redis_port is defined
           systemd: name="{{ redis_cluster }}-{{ redis_node }}-{{ redis_port }}.service" state=stopped enabled=no
 
@@ -105,21 +105,20 @@
     #------------------------------------------------------------------------------
     # Remove data dir if redis_rmdata
     #------------------------------------------------------------------------------
-    - name: Stop redis systemd service
+    - name: remove redis data
       when: not redis_safeguard|bool and redis_rmdata|bool
       ignore_errors: yes
       tags: redis
       block:
 
         # remove entire redis data dir
-        - name: Remove redis data dir
+        - name: remove redis data dir
           when: not redis_port is defined
           file: path={{ redis_fs_main }}/redis state=absent owner=root mode=0777
 
         # remove single instance data
-        - name: Remove redis instance data dir
+        - name: remove redis instance data dir
           when: redis_port is defined
           file: path={{ redis_fs_main }}/redis/{{ redis_cluster }}-{{ redis_node }}-{{ redis_port }} state=absent
-
 
 ...

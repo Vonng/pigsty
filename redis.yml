@@ -33,7 +33,7 @@
 # Init Redis Node
 #---------------------------------------------------------------
 # install software, create user & dir, launch exporter
-- name: Redis Node
+- name: REDIS NODE
   hosts: all
   become: true
   gather_facts: no
@@ -43,7 +43,7 @@
     #------------------------------------------------------------------------------
     # Redis Packages
     #------------------------------------------------------------------------------
-    - name: Install redis and exporter
+    - name: install redis binaries
       when: not redis_port is defined
       package: name={{ item }} state=present
       with_items: [ redis , redis_exporter ]
@@ -51,12 +51,12 @@
     #------------------------------------------------------------------------------
     # Redis User & Directory
     #------------------------------------------------------------------------------
-    - name: Create user redis
+    - name: create os user redis
       tags: [ redis_install_method , redis_user ]
       when: not redis_port is defined
       user: name=redis home=/home/redis generate_ssh_key=yes
 
-    - name: Make sure redis data dir exists
+    - name: create redis directories
       when: not redis_port is defined
       file: path={{ item }} state=directory owner=redis mode=0700
       with_items:
@@ -68,7 +68,7 @@
     #------------------------------------------------------------------------------
     # Setup Redis Exporter
     #------------------------------------------------------------------------------
-    - name: Config /etc/default/redis_exporter
+    - name: config /etc/default/redis_exporter
       tags: [ redis_exporter, redis_exporter_config ]
       when: not redis_port is defined
       copy:
@@ -80,7 +80,7 @@
           REDIS_EXPORTER_WEB_TELEMETRY_PATH="{{ exporter_metrics_path }}"
           REDIS_EXPORTER_INCL_SYSTEM_METRICS=true
 
-    - name: Config redis_exporter service unit
+    - name: config redis_exporter service unit
       tags: [ redis_exporter, redis_exporter_config ]
       when: not redis_port is defined
       copy:
@@ -102,11 +102,11 @@
           [Install]
           WantedBy=multi-user.target
 
-    - name: Launch redis_exporter systemd service
+    - name: launch redis_exporter systemd service
       when: redis_exporter_enabled|bool and not redis_port is defined
       tags: redis_exporter
       systemd: name=redis_exporter state=restarted enabled=yes daemon_reload=yes
-    - name: Wait for redis_exporter online
+    - name: wait for redis_exporter service online
       when: redis_exporter_enabled|bool and not redis_port is defined
       tags: redis_exporter
       wait_for: host=127.0.0.1 port={{ redis_exporter_port }} state=started  timeout=10
@@ -115,14 +115,14 @@
 #---------------------------------------------------------------
 # launch redis instance on nodes
 #---------------------------------------------------------------
-- name: Setup Redis Instances
+- name: REDIS INIT
   hosts: all
   become: true
   gather_facts: no
   tags: redis
   tasks:
 
-    - name: Assert redis configured properly
+    - name: check redis configuration
       tags: [ always, redis-id ]
       assert:
         that:
@@ -131,7 +131,7 @@
           - redis_instances is defined and redis_instances | type_debug == "dict"
         fail_msg: variable `redis_cluster|redis_instances` are required for redis deployment
 
-    - name: Setup redis instance
+    - name: setup redis instance
       tags: redis_ins
       when: redis_port is not defined or (redis_port is defined and item.key|int == redis_port|int)
       include_role:
@@ -141,7 +141,7 @@
         conf: "{{ item.value|default({}) }}"
       with_dict: "{{ redis_instances }}"
 
-    - name: Register redis exporter as prometheus target
+    - name: register redis exporter to prometheus
       tags: [ redis_register, register_prometheus ]
       delegate_to: '{{ item }}'
       with_items: '{{ groups["meta"] }}'
@@ -161,21 +161,22 @@
 #---------------------------------------------------------------
 # join redis instances for cluster (works on -l <clsname> )
 #---------------------------------------------------------------
-- name: Join redis cluster
+- name: REDIS JOIN
   hosts: all
   become: true
   gather_facts: no
   tags: redis-join
   tasks:
 
-    - name: Skip for non redis native cluster
+    - name: skip if not a redis native cluster
       when: redis_port is defined or redis_mode != 'cluster'
       meta: end_host
 
-    - name: Execute redis cluster join
+    - name: perform redis cluster join
       run_once: true
       block:
-        - name: Fetch redis cluster memberships
+
+        - name: fetch redis cluster membership
           when: redis_port is not defined
           connection: local
           set_fact:
@@ -183,7 +184,7 @@
           vars:
             redis_cluster_members_query: "[@.*][0][?redis_cluster=='{{ redis_cluster }}']"
 
-        - name: Render redis cluster join script
+        - name: render redis cluster join script
           when: redis_port is not defined
           copy:
             dest: /tmp/{{ redis_cluster }}-join.sh
@@ -199,7 +200,7 @@
               {% endfor %}
                 --cluster-replicas {{ redis_cluster_replicas|default(1) }}
 
-        - name: Join redis clusters
+        - name: execute redis cluster join script
           ignore_errors: true
           run_once: true
           when: redis_port is not defined

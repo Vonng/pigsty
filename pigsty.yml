@@ -37,7 +37,7 @@ all:
 
 
     #================================================================#
-    #                  Meta Nodes: Admin Controller                  #
+    #                     INFRA & ADMIN NODES                        #
     #================================================================#
     meta:   # meta nodes are defined in this special group "meta"
       vars:
@@ -57,6 +57,11 @@ all:
         # 10.10.10.11: { nginx_enabled: false }
         # 10.10.10.12: { nginx_enabled: false  }
     #================================================================#
+
+    minio:
+      hosts: { 10.10.10.10: { minio_seq: 1 } }
+      vars:
+        minio_cluster: minio
 
     #================================================================#
     #                        PGSQL Clusters                          #
@@ -97,7 +102,8 @@ all:
         vip_address: 10.10.10.2
         vip_cidrmask: 8
         vip_interface: eth1
-        node_crontab: []
+        node_crontab:
+          - '00 01 * * * postgres pgbackrest --stanza=pg-meta backup >> /pg/log/pgbackrest/backup.log 2>&1'
 
     #----------------------------------#
     # pgsql cluster: pg-test (3 nodes) #
@@ -134,56 +140,6 @@ all:
         vip_address: 10.10.10.3       # virtual ip address for this cluster
         vip_cidrmask: 8               # cidr network mask length
         vip_interface: eth1           # interface to add virtual ip
-
-    #================================================================#
-    #                        REDIS Clusters                          #
-    #================================================================#
-
-    #----------------------------------#
-    # redis sentinel example           #
-    #----------------------------------#
-    redis-meta:
-      hosts:
-        10.10.10.10:
-          redis_node: 1
-          redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
-      vars:
-        redis_cluster: redis-meta
-        redis_mode: sentinel
-        redis_max_memory: 64MB
-
-    #----------------------------------#
-    # redis cluster example            #
-    #----------------------------------#
-    redis-test:
-      hosts:
-        10.10.10.11:
-          redis_node: 1
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-        10.10.10.12:
-          redis_node: 2
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-      vars:
-        redis_cluster: redis-test           # name of this redis 'cluster'
-        redis_mode: cluster                 # standalone,cluster,sentinel
-        redis_max_memory: 32MB              # max memory used by each redis instance
-        redis_mem_policy: allkeys-lru       # memory eviction policy
-
-    #----------------------------------#
-    # redis standalone example         #
-    #----------------------------------#
-    redis-common:
-      hosts:
-        10.10.10.13:
-          redis_node: 1
-          redis_instances:
-            6501: {}
-            6502: { replica_of: '10.10.10.13 6501' }
-            6503: { replica_of: '10.10.10.13 6501' }
-      vars:
-        redis_cluster: redis-common         # name of this redis 'cluster'
-        redis_mode: standalone              # standalone,cluster,sentinel
-        redis_max_memory: 64MB              # max memory used by each redis instance
 
 
   ####################################################################
@@ -293,12 +249,12 @@ all:
       - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8  ] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
       - { name: citus          ,description: 'Citus Community'   ,module: pgsql ,releases: [7,8  ] ,baseurl: { default: 'https://repos.citusdata.com/community/el/$releasever/$basearch'          }}
     repo_packages: # which packages to be included                                   #  what to download #
-      - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils  # modulemd-tools
+      - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils #modulemd-tools
       - uuid lz4 bzip2 netcat pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync nvme-cli numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet audit ca-certificates
       - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils*
-      - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter # redis
+      - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter #redis haproxy
       - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python36-pyOpenSSL # python3-pyOpenSSL python3-jmespath
-      - postgresql14* pglogical_14* postgis33_14* citus111_14* timescaledb-2-postgresql-14 # citus & tsdb not ready in el9, postgis33 available since el8+
+      - postgresql14* pglogical_14* postgis33_14* citus111_14* timescaledb-2-postgresql-14 # citus & tsdb not ready in el9
       - patroni patroni-consul patroni-etcd pgbouncer pgbadger tail_n_mail boxinfo check_postgres barman barman-cli pgFormatter pitrery pspg PyGreSQL pgbackrest nagios-plugins-pgbackrest
       - pg_activity pgxnclient pgcenter emaj pgbconsole pg_bloat_check pgloader pg_cli pgquarrel # some not available on el8, el9
       - pg_repack_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 plsh_14 pldebugger_14 plpgsql_check_14 wal2json_14
@@ -319,6 +275,8 @@ all:
       - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm # redis.el7
       - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.6/haproxy-2.6.6-1.el7.x86_64.rpm # haproxy.el7
+      #- https://dl.min.io/server/minio/release/linux-amd64/minio-20221108052707.0.0.x86_64.rpm
+      #- https://dl.min.io/client/mc/release/linux-amd64/mcli-20221107234739.0.0.x86_64.rpm
 
     #-----------------------------------------------------------------
     # NAMESERVER
@@ -493,7 +451,7 @@ all:
     #-----------------------------------------------------------------
     docker_enabled: false             # enable docker on all nodes? (you can enable them on meta nodes only)
     docker_cgroups_driver: systemd    # docker cgroup fs driver
-    docker_registry_mirrors: []       # docker registry mirror
+    docker_registry_mirrors: ["https://registry.cn-hangzhou.aliyuncs.com"] # docker registry mirror
     docker_image_cache: /tmp/docker.tgz # docker images tarball to be loaded if exists
 
     #-----------------------------------------------------------------
@@ -786,43 +744,5 @@ all:
     # vip_interface: eth0             # virtual ip network interface (l2 only)
     # dns_mode: vip                   # vip|all|selector: how to resolve cluster DNS?
     # dns_selector: '[]'              # if dns_mode == vip, filter instances been resolved
-
-
-    #================================================================#
-    #                         VARS: REDIS                            #
-    #================================================================#
-    # REDIS are not enabled by default
-
-    #-----------------------------------------------------------------
-    # REDIS_IDENTITY
-    #-----------------------------------------------------------------
-    #redis_cluster: redis-test        # name of this redis cluster @ cluster level
-    #redis_node: 1                    # redis node identifier, integer sequence @ node level
-    #redis_instances: {}              # redis instances definition of this redis node @ node level
-
-    #-----------------------------------------------------------------
-    # REDIS_NODE
-    #-----------------------------------------------------------------
-    redis_fs_main: /data              # main fs mountpoint for redis data
-    redis_exporter_enabled: true      # install redis exporter on redis nodes?
-    redis_exporter_port: 9121         # default port for redis exporter
-    redis_exporter_options: ''        # default cli args for redis exporter
-
-    #-----------------------------------------------------------------
-    # REDIS_PROVISION
-    #-----------------------------------------------------------------
-    redis_safeguard: false            # force redis_clean = abort if true
-    redis_clean: true                 # abort|skip|clean if redis server already exists
-    redis_rmdata: true                # remove redis data when purging redis server?
-    redis_mode: standalone            # standalone,cluster,sentinel
-    redis_conf: redis.conf            # config template path (except sentinel)
-    redis_bind_address: '0.0.0.0'     # bind address, empty string turns to inventory_hostname
-    redis_max_memory: 1GB             # max memory used by each redis instance
-    redis_mem_policy: allkeys-lru     # memory eviction policy
-    redis_password: ''                # masterauth & requirepass password, disable by empty string
-    redis_rdb_save: ['1200 1']        # redis rdb save directives, disable with empty list
-    redis_aof_enabled: false          # redis aof enabled
-    redis_rename_commands: {}         # rename dangerous commands
-    redis_cluster_replicas: 1         # how many replicas for a master in redis cluster ?
 
 ...
