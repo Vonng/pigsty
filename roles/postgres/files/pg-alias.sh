@@ -79,29 +79,29 @@ function pgb-route(){
 }
 
 #=========================#
-# pgbackrest (pgbr)
+# pgbackrest (pb)
 #=========================#
-function pgbr() {
+function pb() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=$stanza $@
 }
-function pgbr-create() {
+function pb-create() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=${stanza} --no-online stanza-create
 }
-function pgbr-backup() {
+function pb-backup() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=${stanza} backup
 }
-function pgbr-full() {
+function pb-full() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=${stanza} --type=full backup
 }
-function pgbr-diff() {
+function pb-diff() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=${stanza} --type=diff backup
 }
-function pgbr-incr() {
+function pb-incr() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=${stanza} --type=incr backup
 }
