@@ -54,7 +54,9 @@ REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension %} WITH SCHEMA "{{ extension.schema }}"{% endif %};
 {% endfor %}
 
-
+-- always enable file_fdw and default server fs
+CREATE EXTENSION IF NOT EXISTS file_fdw;
+CREATE SERVER IF NOT EXISTS fs FOREIGN DATA WRAPPER file_fdw;
 
 
 --==================================================================--
@@ -299,16 +301,38 @@ CREATE OR REPLACE VIEW monitor.pg_seq_scan AS
 COMMENT ON VIEW monitor.pg_seq_scan IS 'table that have seq scan';
 
 
+--==================================================================--
+--                            Functions                             --
+--==================================================================--
 
 {% if pg_version >= 13 %}
 ----------------------------------------------------------------------
--- pg_shmem auxiliary function
--- PG 13 ONLY!
+-- pg_shmem auxiliary function (PG13+ only)
 ----------------------------------------------------------------------
 DROP FUNCTION IF EXISTS monitor.pg_shmem() CASCADE;
 CREATE OR REPLACE FUNCTION monitor.pg_shmem() RETURNS SETOF
     pg_shmem_allocations AS $$ SELECT * FROM pg_shmem_allocations;$$ LANGUAGE SQL SECURITY DEFINER;
-COMMENT ON FUNCTION monitor.pg_shmem() IS 'security wrapper for pg_shmem';
+COMMENT ON FUNCTION monitor.pg_shmem() IS 'security wrapper for system view pg_shmem';
+REVOKE ALL ON FUNCTION monitor.pg_shmem() FROM PUBLIC;
+REVOKE ALL ON FUNCTION monitor.pg_shmem() FROM dbrole_readonly;
+REVOKE ALL ON FUNCTION monitor.pg_shmem() FROM dbrole_offline;
+GRANT EXECUTE ON FUNCTION monitor.pg_shmem() TO "{{ pg_monitor_username }}";
+{% endif %}
+
+
+----------------------------------------------------------------------
+-- monitor.pgbouncer_auth for pgbouncer_auth_query
+----------------------------------------------------------------------
+{% if pgbouncer_enabled|bool %}
+CREATE OR REPLACE FUNCTION monitor.pgbouncer_auth(p_username TEXT) RETURNS TABLE(username TEXT, password TEXT) AS
+$$ BEGIN
+    RAISE WARNING 'PgBouncer auth request: %', p_username;
+    RETURN QUERY SELECT rolname::TEXT, rolpassword::TEXT FROM pg_authid WHERE NOT rolsuper AND rolname = p_username;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+REVOKE ALL ON FUNCTION monitor.pgbouncer_auth(p_username TEXT) FROM PUBLIC;
+REVOKE ALL ON FUNCTION monitor.pgbouncer_auth(p_username TEXT) FROM dbrole_readonly;
+REVOKE ALL ON FUNCTION monitor.pgbouncer_auth(p_username TEXT) FROM dbrole_offline;
 {% endif %}
 
 
