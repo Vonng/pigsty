@@ -33,6 +33,8 @@
     - name: stop and disable haproxy service
       systemd: name=haproxy state=stopped enabled=no daemon_reload=yes
 
+    - name: remove haproxy config file
+      file: name=/etc/haproxy/haproxy.conf state=absent
 
 #------------------------------------------------------------------------------
 # Remove VIP-Manager
@@ -42,6 +44,12 @@
   tags: vip
   become: yes
   ignore_errors: yes
-  systemd: name=vip-manager state=stopped enabled=no daemon_reload=yes
+  block:
+
+    - name: stop and disable vip-manager service
+      systemd: name=vip-manager state=stopped enabled=no daemon_reload=yes
+
+    - name: remove vip-manager config file
+      file: name=/etc/default/vip-manager.yml state=absent
 
 ...

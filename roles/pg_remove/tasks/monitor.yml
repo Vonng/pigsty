@@ -22,11 +22,13 @@
     - name: stop and disable pg_exporter service
       systemd: name=pg_exporter state=stopped enabled=no daemon_reload=yes
 
+    - name: remove pg_exporter config file
+      file: name=/etc/default/pg_exporter state=absent
 
 #------------------------------------------------------------------------------
 # Remove Pgbouncer Exporter
 #------------------------------------------------------------------------------
-- name: remove pgbouncer Exporter
+- name: remove pgbouncer exporter
   tags: pgbouncer_exporter
   become: yes
   ignore_errors: yes
@@ -43,7 +45,7 @@
       when: dcs_registry == 'consul'
       systemd: name=consul state=reloaded
 
-    - name: stop and disable pgbouncer_exporter service
-      systemd: name=pgbouncer_exporter state=stopped enabled=no daemon_reload=yes
+    - name: remove pgbouncer_exporter config file
+      file: name=/etc/default/pgbouncer_exporter state=absent
 
 ...
