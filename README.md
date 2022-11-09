@@ -181,7 +181,7 @@ pg-test:
 Then create it with built-in playbooks:
 
 ```bash
-./nodes.yml -l pg-test   # init nodes of pg-test 
+./node.yml  -l pg-test   # init nodes of pg-test 
 ./pgsql.yml -l pg-test   # init pg cluster pg-test
 ```
 

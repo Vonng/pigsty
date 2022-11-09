@@ -19,8 +19,8 @@
 #  ^
 # /etc/prometheus/
 #  ^-----@targets          # file based service discovery targets definition
+#            ^-----@node   # node  static targets definition
 #            ^-----@infra  # infra static targets definition
-#            ^-----@nodes  # pgsql static targets definition
 #            ^-----@pgsql  # pgsql static targets definition
 #            ^-----@redis  # redis static targets definition (not exists for now)
 #
@@ -102,16 +102,16 @@ scrape_configs:
 {% endif %}
 
   #------------------------------------------------------------------------------
-  # job: nodes
+  # job: node
   # node_exporter, docker, promtail
   # labels: [cls, ins, ip, instance]
   # path: targets/pgsql/<ip>.yml
   #------------------------------------------------------------------------------
-  - job_name: nodes
+  - job_name: node
     metrics_path: {{ exporter_metrics_path }}
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/nodes/*.yml ]
+        files: [ targets/node/*.yml ]
 
   #------------------------------------------------------------------------------
   # job: pgsql
@@ -127,7 +127,7 @@ scrape_configs:
 
   #------------------------------------------------------------------------------
   # job: redis
-  # multiple redis targets from redis_exporter @ target nodes
+  # multiple redis targets from redis_exporter @ target node
   # labels: [cls, ip, ins, instance]
   # path: targets/redis/<redis_node>.yml
   #------------------------------------------------------------------------------
@@ -217,18 +217,18 @@ scrape_configs:
 {% endif %}
 
   #------------------------------------------------------------------------------
-  # job: nodes
+  # job: node
   # node_exporter, docker, promtail
   # labels: [cls, ins, ip, instance]
   # path: targets/pgsql/<ip>.yml
   #------------------------------------------------------------------------------
-  - job_name: nodes
+  - job_name: node
     metrics_path: {{ exporter_metrics_path }}
     consul_sd_configs:
       - server: 127.0.0.1:8500
         refresh_interval: {{ prometheus_sd_interval }}
         tags:
-          - nodes
+          - node
           - exporter
 
     relabel_configs:
@@ -281,7 +281,7 @@ scrape_configs:
 
   #------------------------------------------------------------------------------
   # job: redis (use static file sd in consul sd)
-  # multiple redis targets from redis_exporter @ target nodes
+  # multiple redis targets from redis_exporter @ target node
   # labels: [cls, ip, ins, instance]
   # path: targets/redis/<redis_node>.yml
   #------------------------------------------------------------------------------

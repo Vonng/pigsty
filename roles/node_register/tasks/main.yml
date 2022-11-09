@@ -31,14 +31,14 @@
 #------------------------------------------------------------------------------
 # Register Node to Prometheus
 #------------------------------------------------------------------------------
-# /etc/prometheus/targets/nodes/{{ ip }}.yml
+# /etc/prometheus/targets/node/{{ ip }}.yml
 - name: register node as prometheus target
   tags: [ node_register, register_prometheus ]
   ignore_errors: true
   delegate_to: '{{ item }}'
   with_items: '{{ groups["meta"] }}'
   copy:
-    dest: /etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
+    dest: /etc/prometheus/targets/node/{{ inventory_hostname }}.yml
     content: |
       # {{ inventory_hostname }}
       - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }} }

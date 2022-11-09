@@ -1,11 +1,11 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   nodes-remove.yml
+# File      :   node-remove.yml
 # Mtime     :   2022-02-22
 # Mtime     :   2022-11-05
-# Desc      :   remove nodes from pigsty
-# Path      :   nodes-remove.yml
+# Desc      :   remove node from pigsty
+# Path      :   node-remove.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
@@ -17,19 +17,15 @@
 #  Remove node cluster `pg-test`
 #     node-remove.yml -l pg-test
 #
-#  Remove instance (10.10.10.13) among cluster `pg-test`
-#     pgsql-remove.yml -l 10.10.10.13
+#  Sub Tasks:
 #
-#  Remove postgres data along with pg_packages
-#     pgsql-remove.yml -e rm_pgdata=true -e rm_pgpkgs=true
+#     node-remove.yml -t register       # remove prometheus targets
+#     node-remove.yml -t node_exporter  # remove monitoring exporter
+#     node-remove.yml -t promtail       # remove loki log agent
+#     node-remove.yml -t docker         # remove docker daemon
+#     node-remove.yml -t dcs            # remove dcs: consul/etcd
+#     node-remove.yml -t profile        # remove /etc/profile.d/node.sh
 #
-#  Register cluster/instance to infrastructure
-#     pgsql-remove.yml --tags=register  # prometheus, grafana, nginx
-#     pgsql-remove.yml --tags=service   # haproxy, vip
-#     pgsql-remove.yml --tags=monitor   # pg_exporter, pgbouncer_exporter, node_exporter, promtail
-#     pgsql-remove.yml --tags=pgbouncer # pgbouncer
-#     pgsql-remove.yml --tags=postgres  # postgres
-#     pgsql-remove.yml --tags=haproxy   # remove haproxy
 #==============================================================#
 - name: REMOVE NODE
   become: yes

@@ -1,10 +1,10 @@
 ---
 #==============================================================#
-# File      :   nodes.yml
+# File      :   node.yml
 # Ctime     :   2020-04-22
 # Mtime     :   2022-02-22
-# Desc      :   Nodes Record Rules (Node)
-# Path      :   /etc/prometheus/rules/nodes.yml
+# Desc      :   Node Record Rules (Node)
+# Path      :   /etc/prometheus/rules/node.yml
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
 
@@ -50,12 +50,12 @@
 groups:
 
   ################################################################
-  #              Nodes Derived Metrics                  #
+  #                   Node Derived Metrics                       #
   ################################################################
   # node & load balancer (haproxy) are treated as infrastructure
   # monitoring components: prometheus, alertmanager, grafana
 
-  - name: nodes-rules
+  - name: node-rules
     rules:
 
       ################################################################
@@ -675,10 +675,9 @@ groups:
 
 
   ################################################################
-  #                         Nodes Alert                          #
+  #                         Node Alert                           #
   ################################################################
-  # https://awesome-prometheus-alerts.grep.to/rules
-  - name: nodes-alert
+  - name: node-alert
     rules:
       
       #==============================================================#
@@ -688,7 +687,7 @@ groups:
       - alert: NodeCpuHigh
         expr: node:ins:cpu_usage_1m > 0.70
         for: 1m
-        labels: { level: 1, severity: WARN, category: nodes }
+        labels: { level: 1, severity: WARN, category: node }
         annotations:
           summary: 'WARN NodeCpuHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -706,7 +705,7 @@ groups:
       - alert: NodeLoadHigh
         expr: node:ins:stdload1 > 1
         for: 1m
-        labels: { level: 1, severity: WARN, category: nodes }
+        labels: { level: 1, severity: WARN, category: node }
         annotations:
           summary: 'WARN NodeLoadHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -720,7 +719,7 @@ groups:
       - alert: NodeOutOfMem
         expr: node:ins:mem_avail < 0.10
         for: 1m
-        labels: { level: 1, severity: WARN, category: nodes }
+        labels: { level: 1, severity: WARN, category: node }
         annotations:
           summary: 'WARN NodeOutOfMem {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -735,7 +734,7 @@ groups:
       - alert: NodeMemSwapped
         expr: node:ins:swap_usage > 0.01
         for: 5m
-        labels: { level: 2, severity: INFO, category: nodes }
+        labels: { level: 2, severity: INFO, category: node }
         annotations:
           summary: 'INFO NodeMemSwapped {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -749,7 +748,7 @@ groups:
       - alert: NodeFsSpaceFull
         expr: node:fs:space_usage > 0.90
         for: 1m
-        labels: { level: 1, severity: WARN, category: nodes }
+        labels: { level: 1, severity: WARN, category: node }
         annotations:
           summary: 'WARN NodeFsSpaceFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -759,7 +758,7 @@ groups:
       - alert: NodeFsFilesFull
         expr: node:fs:inode_usage > 0.90
         for: 1m
-        labels: { level: 1, severity: WARN, category: nodes }
+        labels: { level: 1, severity: WARN, category: node }
         annotations:
           summary: 'WARN NodeFsFilesFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -769,7 +768,7 @@ groups:
       - alert: NodeFdFull
         expr: node:ins:fd_usage > 0.90
         for: 1m
-        labels: { level: 1, severity: WARN, category: nodes }
+        labels: { level: 1, severity: WARN, category: node }
         annotations:
           summary: 'WARN NodeFdFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -786,7 +785,7 @@ groups:
       - alert: NodeDiskSlow
         expr: node:dev:disk_read_rt_1m{device="dfa"} > 0.032 or node:dev:disk_write_rt_1m{device="dfa"} > 0.032
         for: 1m
-        labels: { level: 1, severity: WARN, category: nodes }
+        labels: { level: 1, severity: WARN, category: node }
         annotations:
           summary: 'WARN NodeReadSlow {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.6f" }}'
           description: |
@@ -810,7 +809,7 @@ groups:
       - alert: NodeTcpErrHigh
         expr: rate(node:ins:tcp_error[1m]) > 1
         for: 1m
-        labels: { level: 1, severity: WARN, category: nodes }
+        labels: { level: 1, severity: WARN, category: node }
         annotations:
           summary: 'WARN NodeTcpErrHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -820,7 +819,7 @@ groups:
       - alert: NodeTcpRetransHigh
         expr: node:ins:tcp_retrans_ratio1m > 1e-2
         for: 1m
-        labels: { level: 1, severity: WARN, category: nodes }
+        labels: { level: 1, severity: WARN, category: node }
         annotations:
           summary: 'INFO NodeTcpRetransHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.6f" }}'
           description: |
@@ -838,7 +837,7 @@ groups:
       - alert: NodeTimeDrift
         expr: node:ins:time_drift > 0.064
         for: 1m
-        labels: { level: 1, severity: WARN, category: nodes }
+        labels: { level: 1, severity: WARN, category: node }
         annotations:
           summary: 'WARN NodeTimeDrift {{ $labels.ins }}@{{ $labels.instance }}'
           description: |
