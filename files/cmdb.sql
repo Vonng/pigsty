@@ -1067,7 +1067,7 @@ CREATE TABLE pglog.sample
     pid      INTEGER,     -- process_id
     conn     TEXT,        -- connect_from
     sid      TEXT,        -- session id
-    sln      bigint,      -- session line number
+    sln      BIGINT,      -- session line number
     cmd_tag  TEXT,        -- command tag
     stime    TIMESTAMPTZ, -- session start time
     vxid     TEXT,        -- virtual transaction id
@@ -1084,7 +1084,6 @@ CREATE TABLE pglog.sample
     qp       INTEGER,     -- query position
     location TEXT,        -- location
     appname  TEXT,        -- application name
-    backend  TEXT,        -- backend_type (new field in PG13)
     PRIMARY KEY (sid, sln)
 );
 CREATE INDEX ON pglog.sample (ts);
@@ -1097,7 +1096,7 @@ COMMENT ON TABLE pglog.sample IS 'PostgreSQL CSVLOG sample for Pigsty PGLOG anal
 -- child tables
 CREATE TABLE pglog.sample12() INHERITS (pglog.sample);
 CREATE TABLE pglog.sample13(backend TEXT) INHERITS (pglog.sample);
-CREATE TABLE pglog.sample14(backend TEXT, leader_pid INTEGER, query_id   BIGINT) INHERITS (pglog.sample);
-COMMENT ON TABLE pglog.sample12 IS 'PostgreSQL 12- CSVLOG sample for Pigsty PGLOG analysis';
-COMMENT ON TABLE pglog.sample13 IS 'PostgreSQL 13 CSVLOG sample for Pigsty PGLOG analysis';
-COMMENT ON TABLE pglog.sample14 IS 'PostgreSQL 14 CSVLOG sample for Pigsty PGLOG analysis';
+CREATE TABLE pglog.sample14(backend TEXT, leader_pid INTEGER, query_id BIGINT) INHERITS (pglog.sample);
+COMMENT ON TABLE pglog.sample12 IS 'PostgreSQL 12- CSVLOG sample';
+COMMENT ON TABLE pglog.sample13 IS 'PostgreSQL 13 CSVLOG sample';
+COMMENT ON TABLE pglog.sample14 IS 'PostgreSQL 14/15 CSVLOG';
