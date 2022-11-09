@@ -316,7 +316,7 @@ COMMENT ON FUNCTION monitor.pg_shmem() IS 'security wrapper for system view pg_s
 REVOKE ALL ON FUNCTION monitor.pg_shmem() FROM PUBLIC;
 REVOKE ALL ON FUNCTION monitor.pg_shmem() FROM dbrole_readonly;
 REVOKE ALL ON FUNCTION monitor.pg_shmem() FROM dbrole_offline;
-GRANT EXECUTE ON FUNCTION monitor.pg_shmem() TO "{{ pg_monitor_username }}";
+GRANT EXECUTE ON FUNCTION monitor.pg_shmem() TO pg_monitor;
 {% endif %}
 
 
@@ -334,6 +334,162 @@ REVOKE ALL ON FUNCTION monitor.pgbouncer_auth(p_username TEXT) FROM PUBLIC;
 REVOKE ALL ON FUNCTION monitor.pgbouncer_auth(p_username TEXT) FROM dbrole_readonly;
 REVOKE ALL ON FUNCTION monitor.pgbouncer_auth(p_username TEXT) FROM dbrole_offline;
 {% endif %}
+
+
+--==================================================================--
+--                         Foreign Tables                           --
+--==================================================================--
+
+----------------------------------------------------------------------
+-- current log
+----------------------------------------------------------------------
+CREATE TYPE monitor.log_level AS ENUM (
+    'LOG','INFO','NOTICE','WARNING','ERROR','FATAL','PANIC','DEBUG'
+);
+COMMENT ON TYPE monitor.log_level IS 'PostgreSQL Log Level';
+
+-- current log
+DROP FOREIGN TABLE monitor.pg_log;
+CREATE FOREIGN TABLE monitor.pg_log
+    (
+        ts        TIMESTAMPTZ, -- ts
+        username  TEXT,        -- user name
+        datname   TEXT,        -- database name
+        pid       INTEGER,     -- process_id
+        conn      TEXT,        -- connect_from
+        sid       TEXT,        -- session id
+        sln       BIGINT,      -- session line number
+        cmd_tag   TEXT,        -- command tag
+        stime     TIMESTAMPTZ, -- session start time
+        vxid      TEXT,        -- virtual transaction id
+        txid      BIGINT,      -- transaction id
+        level     monitor.log_level, -- log level
+        code      VARCHAR(5),  -- sql state error code
+        msg       TEXT,        -- message
+        detail    TEXT,        -- detail
+        hint      TEXT,        -- hint
+        iq        TEXT,        -- internal query
+        iqp       INTEGER,     -- internal query position
+        context   TEXT,        -- context
+        q         TEXT,        -- query
+        qp        INTEGER,     -- query position
+        location  TEXT,        -- location
+        appname   TEXT         -- application name
+{% if pg_version|int >= 13%}
+        ,backend    TEXT      -- backend_type (PG13)
+{% endif %}
+{% if pg_version|int >= 14%}
+        ,leader_pid INTEGER   -- parallel group leader pid, if this is worker
+{% endif %}
+{% if pg_version|int >= 14%}
+        ,query_id   BIGINT    -- query id of the current query
+{% endif %}
+
+) SERVER fs OPTIONS (program $$cat $(cat /pg/data/current_logfiles | awk '{print $2}');$$, format 'csv');
+COMMENT ON FOREIGN TABLE monitor.pg_log IS 'current log file foreign table';
+
+REVOKE ALL ON monitor.pg_log FROM PUBLIC;
+REVOKE ALL ON monitor.pg_log FROM dbrole_offline;
+REVOKE ALL ON monitor.pg_log FROM dbrole_readonly;
+REVOKE ALL ON monitor.pg_log FROM dbrole_readwrite;
+REVOKE ALL ON monitor.pg_log FROM dbrole_admin;
+GRANT SELECT ON monitor.pg_log TO pg_monitor;
+
+
+----------------------------------------------------------------------
+-- pgbackrest information
+----------------------------------------------------------------------
+DROP FOREIGN TABLE IF EXISTS monitor.pgbackrest_info CASCADE;
+CREATE FOREIGN TABLE IF NOT EXISTS monitor.pgbackrest_info (data JSONB)
+    SERVER fs OPTIONS (PROGRAM $$pgbackrest --output=json info$$ , FORMAT 'text');
+
+REVOKE ALL ON monitor.pgbackrest_info FROM PUBLIC;
+REVOKE ALL ON monitor.pgbackrest_info FROM dbrole_offline;
+REVOKE ALL ON monitor.pgbackrest_info FROM dbrole_readonly;
+REVOKE ALL ON monitor.pgbackrest_info FROM dbrole_readwrite;
+GRANT SELECT ON monitor.pgbackrest_info TO pg_monitor;
+
+DROP VIEW IF EXISTS monitor.pgbackrest;
+CREATE OR REPLACE VIEW monitor.pgbackrest AS
+SELECT name,
+       value ->> 'type'                                          AS bk_type,
+       (value ->> 'error')::BOOLEAN                              AS bk_error,
+       current_archive ->> 'min'                                 as wal_min,
+       current_archive ->> 'max'                                 as wal_max,
+       value ->> 'label'                                         AS bk_label,
+       value ->> 'prior'                                         AS bk_prior,
+       (value -> 'timestamp' ->> 'start')::NUMERIC               AS bk_start_ts,
+       (value -> 'timestamp' ->> 'stop')::NUMERIC                AS bk_stop_ts,
+       to_timestamp((value -> 'timestamp' ->> 'start')::NUMERIC) AS bk_start_at,
+       to_timestamp((value -> 'timestamp' ->> 'stop')::NUMERIC)  AS bk_stop_at,
+       value -> 'lsn' ->> 'start'                                AS bk_start_lsn,
+       value -> 'lsn' ->> 'stop'                                 AS bk_stop_lsn,
+       (value -> 'info' ->> 'size')::BIGINT                      AS bk_size,
+       (value -> 'info' ->> 'delta')::BIGINT                     AS bk_delta,
+       (value -> 'info' -> 'repo' ->> 'size')::BIGINT            AS bk_repo_size,
+       (value -> 'info' -> 'repo' ->> 'delta')::BIGINT           AS bk_repo_delta,
+       value -> 'reference'                                      AS bk_reference,
+       value -> 'annotation'                                     AS bk_annotation
+FROM (SELECT value ->> 'name'   AS name,
+             value -> 'backup'  AS backups,
+             value -> 'archive' -> (jsonb_array_length(value -> 'archive') - 1) AS current_archive
+      FROM monitor.pgbackrest_info i, jsonb_array_elements(i.data)) z, jsonb_array_elements(z.backups);
+
+REVOKE ALL ON monitor.pgbackrest FROM PUBLIC;
+REVOKE ALL ON monitor.pgbackrest FROM dbrole_offline;
+REVOKE ALL ON monitor.pgbackrest FROM dbrole_readonly;
+REVOKE ALL ON monitor.pgbackrest FROM dbrole_readwrite;
+REVOKE ALL ON monitor.pgbackrest FROM dbrole_admin;
+GRANT SELECT ON monitor.pgbackrest TO pg_monitor;
+
+
+----------------------------------------------------------------------
+-- patroni information
+----------------------------------------------------------------------
+DROP FOREIGN TABLE IF EXISTS monitor.patroni_info CASCADE;
+CREATE FOREIGN TABLE IF NOT EXISTS monitor.patroni_info (data JSONB)
+    SERVER fs OPTIONS (PROGRAM $$curl http{% if patroni_ssl_enabled|bool %}s{% endif %}://127.0.0.1:{{ patroni_port }}/cluster$$ , FORMAT 'text');
+
+REVOKE ALL ON monitor.patroni_info FROM PUBLIC;
+REVOKE ALL ON monitor.patroni_info FROM dbrole_offline;
+REVOKE ALL ON monitor.patroni_info FROM dbrole_readonly;
+REVOKE ALL ON monitor.patroni_info FROM dbrole_readwrite;
+GRANT SELECT ON monitor.patroni_info TO pg_monitor;
+
+DROP FOREIGN TABLE IF EXISTS monitor.patroni_conf CASCADE;
+CREATE FOREIGN TABLE IF NOT EXISTS monitor.patroni_conf (data JSONB)
+    SERVER fs OPTIONS (PROGRAM $$cat patroni.dynamic.json$$ , FORMAT 'text');
+
+REVOKE ALL ON monitor.patroni_conf FROM PUBLIC;
+REVOKE ALL ON monitor.patroni_conf FROM dbrole_offline;
+REVOKE ALL ON monitor.patroni_conf FROM dbrole_readonly;
+REVOKE ALL ON monitor.patroni_conf FROM dbrole_readwrite;
+GRANT SELECT ON monitor.patroni_conf TO pg_monitor;
+
+DROP VIEW IF EXISTS monitor.patroni;
+CREATE OR REPLACE VIEW monitor.patroni AS
+SELECT value ->> 'name'                                                             AS name,
+       CASE value ->> 'role' WHEN 'leader' THEN 'primary' ELSE value ->> 'role' END AS role,
+       value ->> 'host'                                                             AS host,
+       value ->> 'port'                                                             AS port,
+       value ->> 'state'                                                            AS state,
+       (value ->> 'timeline')::INTEGER                                              AS timeline,
+       (value ->> 'lag')::BIGINT                                                    AS lag,
+       value ->> 'api_url'                                                          AS url,
+       value -> 'tags' ->> 'replicatefrom'                                          AS replicatefrom,
+       coalesce((value -> 'tags' -> 'nofailover') ::BOOLEAN, false)::BOOLEAN        AS nofailover,
+       coalesce((value -> 'tags' -> 'clonefrom') ::BOOLEAN, false)::BOOLEAN         AS clonefrom,
+       coalesce((value -> 'tags' -> 'noloadbalance') ::BOOLEAN, false)::BOOLEAN     AS noloadbalance,
+       coalesce((value -> 'tags' -> 'nosync') ::BOOLEAN, false)::BOOLEAN            AS nosync,
+       value -> 'tags'                                                              AS tags
+FROM monitor.patroni_info i, jsonb_array_elements(data -> 'members');
+
+REVOKE ALL ON monitor.patroni FROM PUBLIC;
+REVOKE ALL ON monitor.patroni FROM dbrole_offline;
+REVOKE ALL ON monitor.patroni FROM dbrole_readonly;
+REVOKE ALL ON monitor.patroni FROM dbrole_readwrite;
+GRANT SELECT ON monitor.patroni TO pg_monitor;
+
 
 
 --==================================================================--
