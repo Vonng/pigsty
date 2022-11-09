@@ -52,46 +52,6 @@ groups:
       - record: agent_up
         expr: up{job!="infra"}
 
-      #==============================================================#
-      #                     Exporter Aliveness                       #
-      #==============================================================#
-      # TODO: change this to your node exporter port  (9100 by default)
-      - record: node:ins:exporter_up
-        expr: up{instance=~".*:9100"}
-
-      # TODO: change this to your pg exporter port  (9630 by default)
-      - record: pg:ins:exporter_up
-        expr: up{instance=~".*:9630"}
-
-      # TODO: change this to your pgbouncer exporter port  (9631 by default)
-      - record: pgbouncer:ins:exporter_up
-        expr: up{instance=~".*:9631"}
-
-      # TODO: change this to your patroni exporter port  (8008 by default)
-      - record: patroni_up
-        expr: up{instance=~".*:8008"}
-
-      # TODO: change this yo your haproxy exporter port (9101 by default)
-      - record: haproxy_up
-        expr: up{instance=~".*:9101"}
-
-
-      #==============================================================#
-      #                       DCS : Consul                           #
-      #==============================================================#
-
-      #==============================================================#
-      #                        Prometheus                            #
-      #==============================================================#
-
-      #==============================================================#
-      #                          Grafana                             #
-      #==============================================================#
-
-      #==============================================================#
-      #                     Blackbox Exporter                        #
-      #==============================================================#
-
 
   ################################################################
   #                Infrastructure Alert Rules                    #
@@ -112,7 +72,6 @@ groups:
           summary: "CRIT InfraDown {{ $labels.type }}@{{ $labels.instance }}"
           description: |
             infra_up[type={{ $labels.type }}, instance={{ $labels.instance }}] = {{ $value  | printf "%.2f" }} < 1
-            http://g.pigsty/d/pgsql-alert?viewPanel=32
 
       #==============================================================#
       #                       Agent Aliveness                        #
@@ -128,6 +87,5 @@ groups:
           summary: 'CRIT AgentDown {{ $labels.ins }}@{{ $labels.instance }}'
           description: |
             agent_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value  | printf "%.2f" }} < 1
-            http://g.pigsty/d/pgsql-alert?viewPanel=22
 
 ...

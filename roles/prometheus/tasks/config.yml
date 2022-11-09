@@ -12,12 +12,11 @@
     # /etc/prometheus/
     #  ^-----prometheus.yml              # prometheus main config file
     #  ^-----alertmanager.yml            # alertmanger main config file
-    #  ^-----infrastructure.yml          # infrastructure targets definition
     #  ^-----@bin                        # util scripts: check,reload,status,new
     #  ^-----@rules                      # record & alerting rules definition
     #  ^-----@targets                    # file based service discovery targets definition
-    #            ^-----@infra            # infra static targets definition
     #            ^-----@node             # node  static targets definition
+    #            ^-----@infra            # infra static targets definition
     #            ^-----@pgsql            # pgsql static targets definition
     #            ^-----@redis            # redis static targets definition
     #------------------------------------------------------------------------------
@@ -42,6 +41,11 @@
     - name: copy prometheus rules
       tags: prometheus_rules
       copy: src=rules/ dest=/etc/prometheus/rules/ owner=prometheus mode=0755
+
+    # render port
+    - name: render prometheus agent rules
+      tags: prometheus_rules
+      template: src=agent.yml.j2 dest=/etc/prometheus/rules/agent.yml owner=prometheus mode=0644
 
     # - prometheus config - #
     - name: render prometheus config
