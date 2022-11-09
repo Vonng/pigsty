@@ -66,7 +66,7 @@
         dest: /pg
         state: link
 
-    # log dir
+    # do not create log dir before data dir (create when data dir is not prefix of log dir)
     - name: create external postgres log dir
       when: not ( pg_log_dir.startswith(pg_data) )
       file: path={{ pg_log_dir }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
@@ -74,8 +74,8 @@
     - name: create patroni and pgbouncer log dir
       file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
       with_items:
-        - "{{ pgbouncer_log_dir }}"
         - "{{ patroni_log_dir }}"
+        - "{{ pgbouncer_log_dir }}"
         - "{{ pgbackrest_log_dir }}"
 
     # conf dir
