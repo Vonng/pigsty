@@ -32,46 +32,72 @@
 # remove service (haproxy, vip)
 #--------------------------------------------------------------#
 - import_tasks: service.yml
-  tags: [ service ]
+  tags: service
 
 #--------------------------------------------------------------#
 # remove monitor
 #--------------------------------------------------------------#
 - import_tasks: monitor.yml
-  tags: [ monitor ]
+  tags: monitor
 
 #--------------------------------------------------------------#
 # remove pgbouncer
 #--------------------------------------------------------------#
 - import_tasks: pgbouncer.yml
-  tags: [ pgbouncer ]
+  tags: pgbouncer
 
 #--------------------------------------------------------------#
 # remove postgres
 #--------------------------------------------------------------#
 - import_tasks: postgres.yml
-  tags: [ postgres ]
-
+  tags: postgres
 
 #--------------------------------------------------------------#
 # remove data
 #--------------------------------------------------------------#
-- import_tasks: pgdata.yml
+- name: remove postgres data
+  tags: pgdata
   when: rm_pgdata|bool
-  tags: [ pgdata ]
+  ignore_errors: yes
+  file: path={{ item }} state=absent
+  with_items:
+    - /pg/data
+    - "{{ pg_fs_main }}/postgres"
 
 #--------------------------------------------------------------#
-# remove data
+# remove backup
 #--------------------------------------------------------------#
-- import_tasks: pgbkup.yml
+- name: remove postgres backup
+  tags: pgbkup
   when: rm_pgbkup|bool
-  tags: [ pgbkup ]
+  ignore_errors: yes
+  file: path={{ pg_fs_bkup }}/postgres state=absent
+
 
 #--------------------------------------------------------------#
 # remove packages
 #--------------------------------------------------------------#
-- import_tasks: pgpkgs.yml
+- name: remove postgres packages
+  tags: pgpkgs
   when: rm_pgpkgs|bool
-  tags: [ pgpkgs ]
+  ignore_errors: yes
+  block:
+
+    # remove pg path & alias
+    - name: remove postgres environ
+      file: path={{ item }} state=absent
+      with_items:
+        - /etc/profile.d/pgsql.sh
+        - /etc/profile.d/pg-alias.sh
+
+    # uninstall postgres extensions
+    - name: uninstall pg extensions
+      yum: state=absent name={{ item | regex_replace('\${pg_version}', pg_version|string) |regex_replace(' ',',') }} disable_gpg_check=true
+      with_items: "{{ pg_extensions }}"
+
+    # uninstall postgres basic packages
+    - name: uninstall pg packages
+      yum: state=absent name={{ item | regex_replace('\${pg_version}', pg_version|string) |regex_replace(' ',',') }} disable_gpg_check=true
+      with_items: "{{ pg_packages }}"
 
 ...

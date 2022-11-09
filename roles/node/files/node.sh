@@ -25,14 +25,6 @@ export HISTIGNORE="l:ls:cd:cd -:pwd:exit:date:* --help"
 # Prompt
 export PS1="\[\033]0;\w\007\]\[\]\n\[\e[1;36m\][\D{%m-%d %T}] \[\e[1;31m\]\u\[\e[1;33m\]@\H\[\e[1;32m\]:\w \n\[\e[1;35m\]\$ \[\e[0m\]"
 #--------------------------------------------------------------#
-# PATH
-[ -d ${PGHOME:=/usr/pgsql} ] && export PGHOME || unset PGHOME
-[ -d ${PGDATA:=/pg/data} ] && export PGDATA || unset PGDATA
-#--------------------------------------------------------------#
-# Path builder
-[ ! -z "$PGHOME" ] && PATH=$PGHOME/bin:$PATH
-[ -d "/pg/bin" ] && PATH=/pg/bin:$PATH
-#--------------------------------------------------------------#
 # Path dedupe
 if [ -n "$PATH" ]; then
 	old_PATH=$PATH:
@@ -51,7 +43,6 @@ fi
 #--------------------------------------------------------------#
 # aliases & functions
 alias c="clear"
-alias s="systemctl"
 alias p="psql"
 alias q="exit"
 alias j="jobs"
@@ -71,15 +62,18 @@ alias sa="sudo su - root"
 alias sp="sudo su - postgres"
 alias adm="sudo su - admin"
 alias pp="sudo su - postgres"
-alias sc='sudo systemctl'
+alias s="systemctl"
 alias st="sudo systemctl status "
+alias ssdr="sudo systemctl daemon-reload"
 alias d="docker"
 alias dc="docker-compose"
 alias di="docker images"
 alias dp="docker ps -a"
-alias ntpsync="sudo ntpdate pool.ntp.org"
+alias vl="sudo cat /var/log/messages"
+alias je="journalctl -xe"
+alias ju="journalctl -u"
+alias ntps="sudo chronyc -a makestep"
 alias node-mt="curl -sL localhost:9100/metrics | grep -v '#' | grep node_"
-
 #--------------------------------------------------------------#
 # ls corlor
 [ ls --color ] >/dev/null 2>&1 && colorflag="--color" || colorflag="-G"

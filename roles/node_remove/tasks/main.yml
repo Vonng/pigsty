@@ -3,7 +3,7 @@
 # remove prometheus register
 #---------------------------------------------
 - name: remove node target from prometheus
-  tags: register_prometheus
+  tags: [ register, prometheus ]
   become: yes
   ignore_errors: yes
   delegate_to: '{{ item }}'
@@ -11,24 +11,25 @@
   file: state=absent path=/etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
 
 #---------------------------------------------
-# remove consul register
+# remove consul registration
 #---------------------------------------------
-- name: remove node_exporter
-  tags: register_consul
+- name: remove node service from consul
+  tags: [ register, consul ]
+  when: dcs_registry == 'consul'
   become: yes
   ignore_errors: yes
   block:
 
-    - name: remove node_exporter service from consul
-      tags: register_consul
-      when: dcs_registry == 'consul'
+    - name: remove node service register from consul
       file:
         path: /etc/consul.d/svc-node-exporter.json
         state: absent
+      with_items:
+        - node-exporter
+        - promtail
+        - docker
 
-    - name: remove consul to deregister node_exporter
-      tags: register_consul
-      when: dcs_registry == 'consul'
+    - name: reload consul to deregister node services
       systemd: name=consul state=reloaded
 
 #--------------------------------------------------------------#
@@ -57,4 +58,11 @@
 #--------------------------------------------------------------#
 - import_tasks: dcs.yml
 
+#--------------------------------------------------------------#
+# remove node etc profile
+#--------------------------------------------------------------#
+- name: remove node etc profile
+  tags: profile
+  ignore_errors: yes
+  file: path=/etc/profile.d/node.sh state=absent
 ...
