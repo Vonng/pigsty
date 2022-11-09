@@ -68,6 +68,21 @@
         - { src: "/pg/conf/{{ pg_instance }}.yml" , dest: "/pg/bin/patroni.yml" }
         - { src: "/pg/bin/patroni.yml"            , dest: "/etc/patroni/patroni.yml" }
 
+    - name: link config shortcuts
+      ignore_errors: true
+      file:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: "{{ pg_dbsu }}"
+        group: postgres
+        state: link
+      with_items:
+        - { src: "{{ pg_data }}/postgresql.conf"   , dest: "/pg/conf/postgres.conf"       }
+        - { src: "{{ pg_data }}/postgresql.conf"   , dest: "/pg/conf/postgres.auto.conf"  }
+        - { src: "/etc/patroni/patroni.yml"        , dest: "/pg/conf/patroni.yml"         }
+        - { src: "/etc/pgbouncer/pgbouncer.ini"    , dest: "/pg/conf/pgbouncer.ini"       }
+        - { src: "/etc/pgbackrest/pgbackrest.conf" , dest: "/pg/conf/pgbackrest.yml"      }
+
 
 #------------------------------------------------------------------------------
 # Systemd Service
