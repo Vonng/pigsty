@@ -2,9 +2,9 @@
 set -euo pipefail
 
 #==============================================================#
-# File      :   pg-report
+# File      :   pg-badger
 # Ctime     :   2021-09-17
-# Mtime     :   2021-09-17
+# Mtime     :   2021-11-09
 # Desc      :   Generate pgbadger HTML report to /pg/stat/logs
 # Path      :   /pg/bin/pg-badger
 # Depend    :   pgbadger, /pg/stat
@@ -25,16 +25,18 @@ mkdir -p /pg/stat/logs
 
 MODE=${1-''}
 
-if [[ ${MODE} == "full" ]]; then
+LOGDIR=$(grep 'log_directory' /pg/data/postgresql.conf | awk '{print $3}' | tr -d "'")
+
+if [[ ${LOGDIR} == "full" ]]; then
 	pgbadger \
-	   -I /pg/data/log/*.csv \
+	   -I ${LOGDIR}/*.csv \
 	   -f csv \
 	   --outdir /pg/stat/logs \
 	   --wide-char \
 	   --average 1 \
 	   --sample 3
 else
-    LATEST_LOGS="$(find /pg/data/log -name '*.csv' -mtime 0)"
+    LATEST_LOGS="$(find ${LOGDIR} -name '*.csv' -mtime 0)"
 	pgbadger \
 	   -I ${LATEST_LOGS} \
 	   -f csv \
@@ -43,5 +45,3 @@ else
 	   --average 1 \
 	   --sample 3
 fi
-
-
