@@ -48,6 +48,8 @@ alias q="exit"
 alias j="jobs"
 alias k="kubectl"
 alias h="history"
+alias m="mcli"
+alias mc="mcli"
 function v() {
 	[ $# -eq 0 ] && vi . || vi $@
 }

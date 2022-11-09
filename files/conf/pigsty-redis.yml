@@ -1,0 +1,86 @@
+---
+######################################################################
+# File      :   pigsty-redis.yml
+# Desc      :   pigsty config for redis clusters
+# Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
+# Ctime     :   2022-11-09
+# Mtime     :   2022-11-09
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
+######################################################################
+
+all:
+
+  #-----------------------------------------------------------------
+  children:
+
+    meta:                             # special group: meta nodes
+      hosts: { 10.10.10.10: { } }
+      vars:
+        meta_node: true               # mark this group as meta nodes
+        ansible_group_priority: 99    # overwrite other group parameters
+        patroni_watchdog_mode: off    # do not fencing meta nodes
+
+    #----------------------------------#
+    # redis sentinel example           #
+    #----------------------------------#
+    redis-meta:
+      hosts:
+        10.10.10.10:
+          redis_node: 1
+          redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
+      vars:
+        redis_cluster: redis-meta
+        redis_mode: sentinel
+        redis_max_memory: 64MB
+
+    #----------------------------------#
+    # redis cluster example            #
+    #----------------------------------#
+    redis-test:
+      hosts:
+        10.10.10.11:
+          redis_node: 1
+          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+        10.10.10.12:
+          redis_node: 2
+          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+      vars:
+        redis_cluster: redis-test           # name of this redis 'cluster'
+        redis_mode: cluster                 # standalone,cluster,sentinel
+        redis_max_memory: 32MB              # max memory used by each redis instance
+        redis_mem_policy: allkeys-lru       # memory eviction policy
+
+    #----------------------------------#
+    # redis standalone example         #
+    #----------------------------------#
+    redis-common:
+      hosts:
+        10.10.10.13:
+          redis_node: 1
+          redis_instances:
+            6501: {}
+            6502: { replica_of: '10.10.10.13 6501' }
+            6503: { replica_of: '10.10.10.13 6501' }
+      vars:
+        redis_cluster: redis-common         # name of this redis 'cluster'
+        redis_mode: standalone              # standalone,cluster,sentinel
+        redis_max_memory: 64MB              # max memory used by each redis instance
+
+
+  #-----------------------------------------------------------------
+  vars:
+    redis_safeguard: false            # force redis_clean = abort if true
+    redis_clean: true                 # abort|skip|clean if redis server already exists
+    redis_rmdata: true                # remove redis data when purging redis server?
+    redis_mode: standalone            # standalone,cluster,sentinel
+    redis_conf: redis.conf            # config template path (except sentinel)
+    redis_bind_address: '0.0.0.0'     # bind address, empty string turns to inventory_hostname
+    redis_max_memory: 1GB             # max memory used by each redis instance
+    redis_mem_policy: allkeys-lru     # memory eviction policy
+    redis_password: ''                # masterauth & requirepass password, disable by empty string
+    redis_rdb_save: ['1200 1']        # redis rdb save directives, disable with empty list
+    redis_aof_enabled: false          # redis aof enabled
+    redis_rename_commands: {}         # rename dangerous commands
+    redis_cluster_replicas: 1         # how many replicas for a master in redis cluster ?
+
+...
