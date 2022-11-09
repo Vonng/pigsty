@@ -86,4 +86,25 @@
         - "/etc/pgbackrest/"
         - "/etc/pgbouncer/"
 
+    - name: create config soft links
+      ignore_errors: true
+      file:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: "{{ pg_dbsu }}"
+        group: postgres
+        state: link
+        force: yes
+      with_items:
+        - { src: "{{ pg_data }}/postgresql.conf"      , dest: /pg/conf/postgres.conf        }
+        - { src: "{{ pg_data }}/postgresql.conf"      , dest: /pg/conf/postgres.auto.conf   }
+        - { src: "{{ pg_data }}/patroni.dynamic.json" , dest: /pg/conf/patroni.dynamic.json }
+        - { src: "/etc/patroni/patroni.yml"           , dest: /pg/conf/patroni.yml          }
+        - { src: "/etc/pgbouncer/pgbouncer.ini"       , dest: /pg/conf/pgbouncer.ini        }
+        - { src: "/etc/pgbackrest/pgbackrest.conf"    , dest: /pg/conf/pgbackrest.yml       }
+        - { src: "/etc/haproxy/haproxy.conf"          , dest: /pg/conf/haproxy.conf         }
+        - { src: "/etc/pg_exporter.yml"               , dest: /pg/conf/pg_exporter.yml      }
+        - { src: "/etc/default/pg_exporter"           , dest: /pg/conf/pg_exporter          }
+        - { src: "/etc/default/pgbouncer_exporter"    , dest: /pg/conf/pgbouncer_exporter   }
+        - { src: "/etc/default/vip-manager.yml"       , dest: /pg/conf/vip-manager.yml      }
 ...
