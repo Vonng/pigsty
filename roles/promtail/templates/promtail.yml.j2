@@ -35,21 +35,21 @@ scrape_configs:
           - localhost
         labels:
           src: syslog
-          job: nodes
+          job: node
           __path__: /var/log/messages
 
       - targets:
           - localhost
         labels:
           src: dmesg
-          job: nodes
+          job: node
           __path__: /var/log/dmesg
 
       - targets:
           - localhost
         labels:
           src: cron
-          job: nodes
+          job: node
           __path__: /var/log/cron
 
 
@@ -110,7 +110,7 @@ scrape_configs:
 
     pipeline_stages:
       - match:
-          selector: '{job="postgres"}'
+          selector: '{src="postgres"}'
           stages:
             - multiline:
                 firstline: '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+,'
@@ -119,8 +119,6 @@ scrape_configs:
             - regex:
                 expression: '^(?P<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+),.*$'
             #   expression: '^(?P<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+),"?(?P<user>[^"]*?)?"?,"?(?P<datname>[^"]*?)?"?,(?P<pid>\d+)?,"?(?P<conn>[^"]+)?"?,(?P<session_id>\w+\.\w+)?,(?P<line_num>\d+)?,"?(?P<cmdtag>[^"]*?)?"?,(?P<session_start>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \w+)?,(?P<vxid>[^"]*?)?,(?P<txid>\d+)?,(?P<level>\w+)?,(?P<code>\w{5})?,.*$'
-            # - labels: # add extra labels from fields
-            #    level:
             - timestamp:
                 source: ts
                 format: '2006-01-02 15:04:05 MST'
@@ -143,7 +141,7 @@ scrape_configs:
 
     pipeline_stages:
       - match:
-          selector: '{job="patroni"}'
+          selector: '{src="patroni"}'
           stages:
             - regex:
                 expression: '^(?P<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{4}) (?P<level>\w+): (?P<message>.*)'
@@ -172,7 +170,7 @@ scrape_configs:
 
     pipeline_stages:
       - match:
-          selector: '{job="pgbackrest"}'
+          selector: '{src="pgbackrest"}'
           stages:
             - multiline:
                 firstline: '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+ \[\d+\]'
@@ -204,7 +202,7 @@ scrape_configs:
 
     pipeline_stages:
       - match:
-          selector: '{job="pgbouncer"}'
+          selector: '{src="pgbouncer"}'
           stages:
             - multiline:
                 firstline: '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+ \[\d+\]'
