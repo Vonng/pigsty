@@ -142,17 +142,12 @@
         selfsigned_not_after: "+{{ cert_validity }}"
         mode: 0644
 
-    # copy consul cert & key to local files/pki/
-    - name: create local files/pki/<host>/
-      delegate_to: localhost
-      become: no
-      file: path="files/pki/{{ inventory_hostname }}" state=directory
-
+    # copy consul cert & key to local files/pki/consul
     - name: fetch consul cert and key
       fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
       with_items:
-        - { src: "/etc/pki/CA/consul-{{ dcs_nodename }}.crt"   , dest: "files/pki/{{ inventory_hostname }}/consul.crt" }
-        - { src: "/etc/pki/CA/consul-{{ dcs_nodename }}.key" , dest: "files/pki/{{ inventory_hostname }}/consul.key" }
+        - { src: "/etc/pki/CA/consul-{{ dcs_nodename }}.crt" , dest: "files/pki/consul/consul-{{ dcs_nodename }}.crt" }
+        - { src: "/etc/pki/CA/consul-{{ dcs_nodename }}.key" , dest: "files/pki/consul/consul-{{ dcs_nodename }}.key" }
 
 
 #------------------------------------------------------------------------------
@@ -162,10 +157,11 @@
   tags: [ consul_cert, consul_cert_copy ]
   when: dcs_ssl_enabled|bool
   block:
+
     - name: create consul config ssl dir
       file: path=/etc/consul.d/ssl state=directory owner=consul group=dcs mode=0700
     - name: copy consul ssl cert
-      copy: src="files/pki/{{ inventory_hostname }}/consul.crt" dest="/etc/consul.d/ssl/consul.crt" owner=consul group=dcs mode=0644
+      copy: src="files/pki/consul/consul-{{ dcs_nodename }}.crt" dest="/etc/consul.d/ssl/consul.crt" owner=consul group=dcs mode=0644
     - name: copy consul ssl key
-      copy: src="files/pki/{{ inventory_hostname }}/consul.key" dest="/etc/consul.d/ssl/consul.key" owner=consul group=dcs mode=0600
+      copy: src="files/pki/consul/consul-{{ dcs_nodename }}.key" dest="/etc/consul.d/ssl/consul.key" owner=consul group=dcs mode=0600
 ...

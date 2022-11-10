@@ -38,16 +38,12 @@
         selfsigned_not_after: "+{{ cert_validity }}"
         mode: 0644
 
-    # fetch etcd certs from meta node
-    - name: create local files/pki/ dir for etcd
-      delegate_to: localhost
-      become: no
-      file: path="files/pki/{{ inventory_hostname }}" state=directory
+    # fetch etcd certs to files/pki/etcd
     - name: fetch etcd cert and key to local
       fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
       with_items:
-        - { src: "/etc/pki/CA/etcd-{{ dcs_nodename }}.crt"   , dest: "files/pki/{{ inventory_hostname }}/etcd.crt" }
-        - { src: "/etc/pki/CA/etcd-{{ dcs_nodename }}.key" , dest: "files/pki/{{ inventory_hostname }}/etcd.key" }
+        - { src: "/etc/pki/CA/etcd-{{ dcs_nodename }}.crt"   , dest: "files/pki/etcd/etcd-{{ dcs_nodename }}.crt" }
+        - { src: "/etc/pki/CA/etcd-{{ dcs_nodename }}.key"   , dest: "files/pki/etcd/etcd-{{ dcs_nodename }}.key" }
 
 
 - name: copy etcd certs
@@ -55,9 +51,9 @@
   when: dcs_ssl_enabled|bool and inventory_hostname in dcs_servers.values()
   block:
     - name: copy etcd ssl cert
-      copy: src="files/pki/{{ inventory_hostname }}/etcd.crt" dest="/etc/etcd/etcd.crt" owner=etcd group=dcs mode=0644
+      copy: src="files/pki/etcd/etcd-{{ dcs_nodename }}.crt" dest="/etc/etcd/etcd.crt" owner=etcd group=dcs mode=0644
     - name: copy etcd ssl key
-      copy: src="files/pki/{{ inventory_hostname }}/etcd.key" dest="/etc/etcd/etcd.key" owner=etcd group=dcs mode=0600
+      copy: src="files/pki/etcd/etcd-{{ dcs_nodename }}.key" dest="/etc/etcd/etcd.key" owner=etcd group=dcs mode=0600
 
 
 #------------------------------------------------------------------------------

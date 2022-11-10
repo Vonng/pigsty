@@ -38,7 +38,7 @@
     # postgres primary instance -> local files/pki
     - name: fetch pg private key from primary
       when: pg_key_on_primary|bool and not pg_key_on_meta|bool
-      fetch: src=/pg/cert/server.key dest=files/pki/{{ pg_cluster }}.key flat=yes
+      fetch: src=/pg/cert/server.key dest=files/pki/pgsql/{{ pg_cluster }}.key flat=yes
 
     - name: pour pg private key back to meta node
       delegate_to: "{{ meta_ip }}"
@@ -56,7 +56,7 @@
     # This will guarantee private key on local files/pki
     - name: fetch pg private key from meta node
       delegate_to: "{{ meta_ip }}"
-      fetch: src="/etc/pki/CA/{{ pg_cluster }}.key" dest=files/pki/{{ pg_cluster }}.key flat=yes
+      fetch: src="/etc/pki/CA/{{ pg_cluster }}.key" dest=files/pki/pgsql/{{ pg_cluster }}.key flat=yes
 
 
 #------------------------------------------------------------------------------
@@ -93,20 +93,20 @@
         mode: 0644
 
     - name: fetch pgsql cert to local
-      fetch: src="/etc/pki/CA/{{ pg_cluster }}-{{ pg_seq }}.crt" dest="files/pki/{{ pg_cluster }}-{{ pg_seq }}.crt" flat=yes
+      fetch: src="/etc/pki/CA/{{ pg_cluster }}-{{ pg_seq }}.crt" dest="files/pki/pgsql/{{ pg_cluster }}-{{ pg_seq }}.crt" flat=yes
 
 
 #------------------------------------------------------------------------------
-# Distribute key & certs
+# copy postgres key & certs
 #------------------------------------------------------------------------------
 - name: copy pg server certificates
   any_errors_fatal: true
   tags: pg_cert_copy
   block:
-    - name: copy pg server cert
-      copy: src="files/pki/{{ pg_cluster }}-{{ pg_seq }}.crt" dest="/pg/cert/server.crt" owner=postgres group=postgres mode=0644
 
+    - name: copy pg server cert
+      copy: src="files/pki/pgsql/{{ pg_cluster }}-{{ pg_seq }}.crt" dest="/pg/cert/server.crt" owner=postgres group=postgres mode=0644
     - name: copy pg server key
-      copy: src="files/pki/{{ pg_cluster }}.key" dest="/pg/cert/server.key" owner=postgres group=postgres mode=0600
+      copy: src="files/pki/pgsql/{{ pg_cluster }}.key" dest="/pg/cert/server.key" owner=postgres group=postgres mode=0600
 
 ...
