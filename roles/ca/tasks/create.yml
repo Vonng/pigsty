@@ -43,7 +43,8 @@
         path: /etc/pki/CA/ca.csr
         privatekey_path: /etc/pki/ca.key
         common_name: pigsty-ca
-        organization_name: Pigsty CA
+        organization_name: pigsty
+        organizational_unit_name: ca
         basic_constraints:
           - CA:TRUE
           - pathlen:1
@@ -64,10 +65,11 @@
         mode: 0644
         owner: root
 
-    - name: fetch ca cert and key to local
-      when: meta_ip == inventory_hostname
-      fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
-      with_items:
-        - { src: /etc/pki/ca.crt , dest: files/pki/ca.crt }
-        - { src: /etc/pki/ca.key , dest: files/pki/ca.key }
+- name: fetch ca cert and key to local
+  tags: ca_fetch
+  when: meta_ip == inventory_hostname
+  fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
+  with_items:
+    - { src: /etc/pki/ca.crt , dest: files/pki/ca/ca.crt }
+    - { src: /etc/pki/ca.key , dest: files/pki/ca/ca.key }
 ...

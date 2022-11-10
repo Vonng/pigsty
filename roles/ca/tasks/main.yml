@@ -22,7 +22,7 @@
 # This is created by default on all EL releases
 - name: create ca directory on meta nodes
   tags: ca_dir
-  when: meta_node|bool and ca_method != 'none'
+  when: meta_node|bool
   file: path="/etc/pki/CA" state=directory mode=0755
 
 #------------------------------------------------------------------------------
@@ -46,8 +46,8 @@
   when: meta_node|bool and ca_method != 'none'
   copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }} owner=root group=root
   with_items:
-    - {src: files/pki/ca.crt, dest: /etc/pki/ca.crt  , mode: 644 }
-    - {src: files/pki/ca.key, dest: /etc/pki/ca.key  , mode: 600 }
+    - {src: files/pki/ca/ca.crt, dest: /etc/pki/ca.crt  , mode: 644 }
+    - {src: files/pki/ca/ca.key, dest: /etc/pki/ca.key  , mode: 600 }
 
 
 #------------------------------------------------------------------------------
