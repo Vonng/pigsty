@@ -1,42 +1,5 @@
 ---
 #------------------------------------------------------------------------------
-# Remove HAProxy Service Provider
-#------------------------------------------------------------------------------
-- name: remove haproxy service provider
-  tags: haproxy
-  become: yes
-  ignore_errors: yes
-  # when: haproxy_enabled|bool
-  block:
-
-    - name: remove cluster service from consul
-      tags: consul_registry
-      when: dcs_registry == 'consul'
-      file:
-        path: /etc/consul.d/svc-{{ pg_cluster }}-{{ service.name }}.json
-        state: absent
-      vars:
-        service: "{{ item }}"
-      with_items: "{{ pg_services + pg_services_extra }}"
-
-    - name: remove haproxy service from consul
-      tags: consul_registry
-      when: dcs_registry == 'consul'
-      file:
-        path: /etc/consul.d/svc-haproxy.json
-        state: absent
-
-    - name: reload consul to deregister haproxy
-      when: dcs_registry == 'consul'
-      systemd: name=consul state=reloaded
-
-    - name: stop and disable haproxy service
-      systemd: name=haproxy state=stopped enabled=no daemon_reload=yes
-
-    - name: remove haproxy config file
-      file: name=/etc/haproxy/haproxy.conf state=absent
-
-#------------------------------------------------------------------------------
 # Remove VIP-Manager
 #------------------------------------------------------------------------------
 # TODO: if you have external vip service provider, remove it here
@@ -51,5 +14,20 @@
 
     - name: remove vip-manager config file
       file: name=/etc/default/vip-manager.yml state=absent
+
+#------------------------------------------------------------------------------
+# Remove HAProxy Service Provider
+#------------------------------------------------------------------------------
+- name: remove haproxy service provider
+  tags: haproxy
+  become: yes
+  ignore_errors: yes
+  block:
+
+    - name: stop and disable haproxy service
+      systemd: name=haproxy state=stopped enabled=no daemon_reload=yes
+
+    - name: remove haproxy config file
+      file: name=/etc/haproxy/haproxy.conf state=absent
 
 ...

@@ -7,29 +7,9 @@
   ignore_errors: yes
   block:
 
-    #---------------------------------------------
-    # Deregister Service
-    #---------------------------------------------
-    - name: deregister pgbouncer service from consul
-      tags: consul_registry
-      when: dcs_registry == 'consul'
-      file:
-        path: /etc/consul.d/svc-pgbouncer.json
-        state: absent
-
-    - name: reload consul to deregister pgbouncer
-      when: dcs_registry == 'consul'
-      systemd: name=consul state=reloaded
-
-    #---------------------------------------------
-    # Stop Service
-    #---------------------------------------------
     - name: stop and disable pgbouncer service
       systemd: name=pgbouncer state=stopped enabled=no daemon_reload=yes
 
-    #---------------------------------------------
-    # Remove Config
-    #---------------------------------------------
     - name: remove pgbouncer config data
       ignore_errors: yes
       file: path=/etc/pgbouncer state=absent

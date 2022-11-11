@@ -2,30 +2,30 @@
 #------------------------------------------------------------------------------
 # register node service to consul
 #------------------------------------------------------------------------------
-- name: register infra service to consul
-  tags: [ node_register, register_consul ]
-  when: dcs_registry == 'consul'
-  ignore_errors: true
-  block:
-
-    # node-exporter register
-    - name: register node-exporter service to consul
-      when: node_exporter_enabled|bool
-      template: src=svc-node-exporter.json.j2 dest=/etc/consul.d/svc-node-exporter.json owner=consul mode=0660
-
-    # promtail register
-    - name: register promtail service to consul
-      when: promtail_enabled|bool
-      template: src=svc-promtail.json.j2 dest=/etc/consul.d/svc-promtail.json owner=consul mode=0660
-
-    # docker register
-    - name: register docker service to consul
-      when: docker_enabled|bool
-      template: src=svc-docker.json.j2 dest=/etc/consul.d/svc-docker.json owner=consul mode=0660
-
-    # reload consul
-    - name: reload consul to finish node register
-      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+#- name: register infra service to consul
+#  tags: [ node_register, register_consul ]
+#  when: dcs_registry == 'consul'
+#  ignore_errors: true
+#  block:
+#
+#    # node-exporter register
+#    - name: register node-exporter service to consul
+#      when: node_exporter_enabled|bool
+#      template: src=svc-node-exporter.json.j2 dest=/etc/consul.d/svc-node-exporter.json owner=consul mode=0660
+#
+#    # promtail register
+#    - name: register promtail service to consul
+#      when: promtail_enabled|bool
+#      template: src=svc-promtail.json.j2 dest=/etc/consul.d/svc-promtail.json owner=consul mode=0660
+#
+#    # docker register
+#    - name: register docker service to consul
+#      when: docker_enabled|bool
+#      template: src=svc-docker.json.j2 dest=/etc/consul.d/svc-docker.json owner=consul mode=0660
+#
+#    # reload consul
+#    - name: reload consul to finish node register
+#      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
 
 
 #------------------------------------------------------------------------------

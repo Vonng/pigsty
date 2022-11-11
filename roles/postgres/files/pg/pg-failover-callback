@@ -4,10 +4,10 @@ set -uo pipefail
 #==============================================================#
 # File      :   pg-failover-callback
 # Ctime     :   2018-12-06
-# Mtime     :   2020-12-17
-# Desc      :   Patroni event callback scripts
+# Mtime     :   2022-11-11
+# Desc      :   Patroni event callback script
 # Path      :   /pg/bin/pg-failover-callback
-# Depend    :   pg-register pg-role
+# Depend    :   pg-role
 # Author    :   Vonng(fengruohang@outlook.com)
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
@@ -50,7 +50,7 @@ function usage() {
 			pg-failover-callback event role cluster
 		
 		SYNOPSIS
-			This is patroni pg event callback scripts
+			This is patroni callback event scripts
 			event could be on_stop|on_start|on_role_change
 			role could be master|replica
 			cluster would be target cluster name
@@ -65,17 +65,9 @@ function on_role_change_handler() {
 	local detect_role=$(/pg/bin/pg-role)
 	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}][role_change@${cluster}] new_role=${role} detect_role=${detect_role} \033[0m\n" >>$LOGPATH/callback.log
 
-    # perform a checkpoint after failover
+  # perform two checkpoint after failover
   printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}] CHECKPOINT \033[0m\n" >>$LOGPATH/callback.log
 	psql -Atqwc 'CHECKPOINT;CHECKPOINT;'
-
-    # register new role to consul /pg/bin/pg-register $(/pg/bin/pg-role)
-	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}] Register role=${role} \033[0m\n" >>$LOGPATH/callback.log
-	#/pg/bin/pg-register ${role} >> $LOGPATH/callback.log
-
-    # reload to take effect
-	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}] Reload consul \033[0m\n" >>$LOGPATH/callback.log
-  consul reload
 }
 
 function on_stop_handler() {
@@ -106,7 +98,6 @@ function main() {
 		patroni_role="replica"
 		;;
 	*)
-		echo "monitor.sh <cluster> <role>"
 		exit 1
 		;;
 	esac

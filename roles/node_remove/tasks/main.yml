@@ -10,28 +10,6 @@
   with_items: '{{ groups["meta"] }}'
   file: state=absent path=/etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
 
-#---------------------------------------------
-# remove consul registration
-#---------------------------------------------
-- name: remove node service from consul
-  tags: [ register, consul ]
-  when: dcs_registry == 'consul'
-  become: yes
-  ignore_errors: yes
-  block:
-
-    - name: remove node service register from consul
-      file:
-        path: /etc/consul.d/svc-node-exporter.json
-        state: absent
-      with_items:
-        - node-exporter
-        - promtail
-        - docker
-
-    - name: reload consul to deregister node services
-      systemd: name=consul state=reloaded
-
 #--------------------------------------------------------------#
 # remove exporter
 #--------------------------------------------------------------#
@@ -60,12 +38,6 @@
   tags: docker
   ignore_errors: yes
   systemd: name=docker state=stopped enabled=no daemon_reload=yes
-
-#--------------------------------------------------------------#
-# remove dcs
-#--------------------------------------------------------------#
-- import_tasks: dcs.yml
-  tags: dcs
 
 #--------------------------------------------------------------#
 # remove node etc profile

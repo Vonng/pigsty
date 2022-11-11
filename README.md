@@ -193,7 +193,7 @@ You can deploy different kinds of instance roles such as primary, replica, offli
 
 ## About
 
-> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle."
+> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Great STYle."
 
 Official Site: https://pigsty.cc/en/  https://pigsty.cc/zh/
 

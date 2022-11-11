@@ -7,10 +7,10 @@ rm_pgbkup: true                   # remove postgres backup? true by default
 rm_pgpkgs: false                  # uninstall pg_packages? false by default
 
 #-----------------------------------------------------------------
-# DCS (Reference)
+# ETCD (Reference)
 #-----------------------------------------------------------------
-dcs_ssl_enabled: true             # secure dcs communications with ssl?
-dcs_registry: consul              # where to register services: none | consul | etcd | both
+etcd_port: 2379                   # etcd client port, 2379 by default
+etcd_api: 2                       # etcd api version used, 2 by default
 
 #-----------------------------------------------------------------
 # GRAFANA (Reference)
@@ -25,8 +25,7 @@ grafana_admin_password: pigsty    # default grafana admin password
 pg_dbsu: postgres                 # os user for database, postgres by default (unwise to change it)
 pg_dbsu_home: /var/lib/pgsql      # postgresql home directory
 pg_safeguard: false               # true will disable pg_clean at all, even for pgsql-remove.yml
-pg_dcs_type: etcd                 # which dcs to use: consul or etcd or raft
-pg_namespace: /pg                 # top level key namespace in dcs
+pg_namespace: /pg                 # top level key namespace in etcd
 pg_data: /pg/data                 # postgres data directory (soft link)
 pg_fs_main: /data                 # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
 pg_fs_bkup: /data/backups         # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
@@ -36,7 +35,7 @@ pg_version: 14                    # default postgresql version to be installed
 
 pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
   - postgresql${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} postgis33_${pg_version}* # 33 on el8+
-  - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd pgbackrest #pg_activity
+  - pgbouncer pg_exporter pgbadger haproxy vip-manager patroni patroni-etcd pgbackrest #pg_activity
 pg_extensions:                    # postgresql extensions, `${pg_version} will be replaced by actual `pg_version`
   - pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}
 

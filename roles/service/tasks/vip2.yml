@@ -12,23 +12,6 @@
     - name: create vip-manager systemd service
       copy: src=vip-manager.service dest=/usr/lib/systemd/system/vip-manager.service
 
-    # if consul used, add service dependency
-    - name: create vip-manager systemd drop-in dir
-      when: pg_dcs_type == 'consul'
-      file:
-        path: /etc/systemd/system/vip-manager.service.d
-        state: directory
-        mode: 0755
-
-    - name: create vip-manager systemd drop-in file
-      when: pg_dcs_type == 'consul'
-      copy:
-        dest: /etc/systemd/system/vip-manager.service.d/consul.conf
-        content: |
-          [Unit]
-          After=consul.service
-        mode: 0644
-
 
 #--------------------------------------------------------------#
 # Config vip-manager

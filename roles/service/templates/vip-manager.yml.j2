@@ -1,9 +1,9 @@
-# config for vip-manager by Cybertec Schönig & Schönig GmbH
+{{ ansible_managed | comment }}
 
 # time (in milliseconds) after which vip-manager wakes up and checks if it needs to register or release ip addresses.
 interval: 1000
 
-# the etcd or consul key which vip-manager will regularly poll.
+# the etcd key which vip-manager will regularly poll.
 trigger-key: "{{ pg_namespace }}/{{ pg_cluster }}/leader"
 
 # if the value of the above key matches the trigger-value (often the hostname of this host), vip-manager will try to add the virtual ip address to the interface specified in Iface
@@ -22,52 +22,17 @@ interface: {{ vip_interface }}
 # possible values: basic, or hetzner.
 hosting-type: basic
 
-
 # dcs
-dcs-type: {{ pg_dcs_type }}
+dcs-type: etcd
 
 # a list that contains all DCS endpoints to which vip-manager could talk.
 dcs-endpoints:
-{% if pg_dcs_type == 'consul' %}
-{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
-  - https://127.0.0.1:8500
-{% else %}
-  - http://127.0.0.1:8500
-{% endif %}
-{% endif %}
-{% if pg_dcs_type == 'etcd' %}
-{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
-{% for k,v in dcs_servers.items() %}
-  - https://{{ v }}:2379
+{% for ip in groups['etcd'] %}
+  - https://{{ ip }}:{{ etcd_port }}
 {% endfor %}
 etcd-ca-file: "/etc/pki/ca.crt"
 etcd-cert-file: "/pg/cert/server.crt"
 etcd-key-file: "/pg/cert/server.key"
-{% else %}
-{% for k,v in dcs_servers.items() %}
-  - http://{{ v }}:2379
-{% endfor %}
-{% endif %}
-{% endif %}
-
-
-# A single list-item is also fine.
-# consul will always only use the first entry from this list.
-# For consul, you'll obviously need to change the port to 8500. Unless you're using a different one. Maybe you're a rebel and are running consul on port 2379? Just to confuse people? Why would you do that? Oh, I get it.
-
-
-# etcd specific
-# etcd-user: "patroni"
-# etcd-password: "Julian's secret password"
-# when etcd-ca-file is specified, TLS connections to the etcd endpoints will be used.
-# etcd-ca-file: "/path/to/etcd/trusted/ca/file"
-# when etcd-cert-file and etcd-key-file are specified, we will authenticate at the etcd endpoints using this certificate and key.
-# etcd-cert-file: "/path/to/etcd/client/cert/file"
-# etcd-key-file: "/path/to/etcd/client/key/file"
-
-# consul specific
-# don't worry about parameter with a prefix that doesn't match the endpoint_type. You can write anything there, I won't even look at it.
-consul-token: "Julian's secret token"
 
 # how often things should be retried and how long to wait between retries. (currently only affects arpClient)
 retry-num: 2

@@ -55,51 +55,24 @@ alerting:
 rule_files:
   - rules/*.yml
 
-{% if prometheus_sd_method == 'static' %}
+
 #------------------------------------------------------------------------------
-# Targets (Static File Service Discovery) (Default)
+# Targets Definition
 #------------------------------------------------------------------------------
 # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config
 scrape_configs:
 
   #------------------------------------------------------------------------------
   # job: infra
-  # targets: prometheus | grafana | altermanager | loki | nginx | consul
+  # targets: prometheus | grafana | altermanager | loki | nginx
   # labels: [ip, instance, type]
-  # path: targets/infra/<ip>.yml   # except for consul
+  # path: targets/infra/<ip>.yml
   #------------------------------------------------------------------------------
   - job_name: infra
     metrics_path: /metrics
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
         files: [ targets/infra/*.yml ]
-
-{% if consul_enabled|bool %}
-  - job_name: consul
-    metrics_path: /v1/agent/metrics
-    params:
-      format: ['prometheus']
-    static_configs: [ { targets: [ 127.0.0.1:8500 ] , labels: { ip: {{ inventory_hostname }}, type: consul , job: infra } } ]
-{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
-    scheme: https
-{% endif %}
-{% endif %}
-
-{% if etcd_enabled|bool and dcs_servers|length > 0 %}
-  - job_name: etcd
-    metrics_path: /metrics
-    static_configs:
-{% for name,ip in dcs_servers.items() %}
-      - { targets: [ {{ ip }}:2379 ] , labels: { ip: {{ ip }}, ins: {{ name }}, type: etcd , job: infra } }
-{% endfor %}
-{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
-    scheme: https
-    tls_config:
-      ca_file:   /etc/pki/ca.crt
-      cert_file: /etc/pki/meta.crt
-      key_file:  /etc/pki/meta.key
-{% endif %}
-{% endif %}
 
   #------------------------------------------------------------------------------
   # job: node
@@ -112,6 +85,22 @@ scrape_configs:
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
         files: [ targets/node/*.yml ]
+
+  #------------------------------------------------------------------------------
+  # job: etcd
+  # labels: [cls, ins, ip, instance]
+  # path: targets/etcd/<etcd_instance>.yml
+  #------------------------------------------------------------------------------
+  - job_name: etcd
+    metrics_path: /metrics
+    file_sd_configs:
+      - refresh_interval: {{ prometheus_sd_interval }}
+        files: [ targets/etcd/*.yml ]
+    scheme: https
+    tls_config:
+      ca_file:   /etc/pki/ca.crt
+      cert_file: /etc/pki/meta.crt
+      key_file:  /etc/pki/meta.key
 
   #------------------------------------------------------------------------------
   # job: pgsql
@@ -153,161 +142,4 @@ scrape_configs:
         replacement: $1:9121
         target_label: __address__
 
-
-{% endif %}
-
-{% if prometheus_sd_method == 'consul' %}
-#------------------------------------------------------------------------------
-# Targets (Consul Service Discovery)
-#------------------------------------------------------------------------------
-# https://prometheus.io/docs/prometheus/latest/configuration/configuration/#consul_sd_config
-
-scrape_configs:
-
-  #------------------------------------------------------------------------------
-  # job: infra (self monitoring)
-  # grafana | prometheus | altermanager | nginx | etc...
-  # labels: [type, instance]
-  #------------------------------------------------------------------------------
-  - job_name: infra
-    metrics_path: /metrics
-    consul_sd_configs:
-      - server: 127.0.0.1:8500
-        refresh_interval: {{ prometheus_sd_interval }}
-        tags:
-          - infra
-          - exporter
-
-    relabel_configs:
-      # relabel meta.type -> type  (infra type)
-      - source_labels: [ __meta_consul_service_metadata_type ]
-        action: replace
-        target_label: type
-
-      # relabel meta.address -> ip (unique node ip identifier)
-      - source_labels: [ __meta_consul_address ]
-        action: replace
-        target_label: ip
-
-{% if consul_enabled|bool %}
-  - job_name: consul
-    metrics_path: /v1/agent/metrics
-    params:
-      format: ['prometheus']
-    static_configs: [ { targets: [ 127.0.0.1:8500 ] , labels: { ip: {{ inventory_hostname }}, type: consul , job: infra } } ]
-{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
-    scheme: https
-{% endif %}
-{% endif %}
-
-{% if etcd_enabled|bool and dcs_servers|length > 0 %}
-  - job_name: etcd
-    metrics_path: /metrics
-    static_configs:
-{% for name,ip in dcs_servers.items() %}
-      - { targets: [ {{ ip }}:2379 ] , labels: { ip: {{ ip }}, ins: {{ name }}, type: etcd , job: infra } }
-{% endfor %}
-{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
-    scheme: https
-    tls_config:
-      ca_file:   /etc/pki/ca.crt
-      cert_file: /etc/pki/meta.crt
-      key_file:  /etc/pki/meta.key
-{% endif %}
-{% endif %}
-
-  #------------------------------------------------------------------------------
-  # job: node
-  # node_exporter, docker, promtail
-  # labels: [cls, ins, ip, instance]
-  # path: targets/pgsql/<ip>.yml
-  #------------------------------------------------------------------------------
-  - job_name: node
-    metrics_path: {{ exporter_metrics_path }}
-    consul_sd_configs:
-      - server: 127.0.0.1:8500
-        refresh_interval: {{ prometheus_sd_interval }}
-        tags:
-          - node
-          - exporter
-
-    relabel_configs:
-      # relabel meta.cluster -> cls  (unique cluster identifier)
-      - source_labels: [ __meta_consul_service_metadata_cluster ]
-        action: replace
-        target_label: cls
-
-      # relabel meta.instance -> ins  (unique instance identifier prefixed with cls)
-      - source_labels: [ __meta_consul_service_metadata_instance ]
-        action: replace
-        target_label: ins
-
-      # relabel meta.address -> ip    (unique node ip identifier)
-      - source_labels: [ __meta_consul_address ]
-        action: replace
-        target_label: ip
-
-
-  #------------------------------------------------------------------------------
-  # job: pgsql (database monitoring)
-  # node_exporter | pg_exporter | pgbouncer_exporter | haproxy(exporter)
-  # labels: [cls, ins, instance]
-  # selector: tags @> [ pgsql, exporter ]
-  #------------------------------------------------------------------------------
-  - job_name: pgsql
-    metrics_path: {{ exporter_metrics_path }}
-    consul_sd_configs:
-      - server: 127.0.0.1:8500
-        refresh_interval: {{ prometheus_sd_interval }}
-        tags:
-          - pgsql
-          - exporter
-
-    relabel_configs:
-      # relabel meta.cluster -> cls  (unique cluster identifier)
-      - source_labels: [ __meta_consul_service_metadata_cluster ]
-        action: replace
-        target_label: cls
-
-      # relabel meta.instance -> ins  (unique instance identifier prefixed with cls)
-      - source_labels: [ __meta_consul_service_metadata_instance ]
-        action: replace
-        target_label: ins
-
-      # relabel meta.address -> ip    (unique node ip identifier)
-      - source_labels: [ __meta_consul_address ]
-        action: replace
-        target_label: ip
-
-  #------------------------------------------------------------------------------
-  # job: redis (use static file sd in consul sd)
-  # multiple redis targets from redis_exporter @ target node
-  # labels: [cls, ip, ins, instance]
-  # path: targets/redis/<redis_node>.yml
-  #------------------------------------------------------------------------------
-  - job_name: redis
-    metrics_path: /scrape
-    file_sd_configs:
-      - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/redis/*.yml ]
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        regex: ^redis://(.*):(\d+)$
-        replacement: $1:$2
-        target_label: instance
-      - source_labels: [__param_target]
-        regex: ^redis://(.*):(\d+)$
-        replacement: $1
-        target_label: ip
-      # scrape redis_exporter on target node
-      - source_labels: [__param_target]
-        regex: ^redis://(.*):\d+$
-        replacement: $1:9121
-        target_label: __address__
-
-
-{% endif %}
-
-
+...

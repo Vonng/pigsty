@@ -8,17 +8,6 @@
   ignore_errors: yes
   block:
 
-    - name: deregister pg_exporter service from consul
-      tags: consul_registry
-      when: dcs_registry == 'consul'
-      file:
-        path: /etc/consul.d/svc-pg-exporter.json
-        state: absent
-
-    - name: reload consul to deregister pg_exporter
-      when: dcs_registry == 'consul'
-      systemd: name=consul state=reloaded
-
     - name: stop and disable pg_exporter service
       systemd: name=pg_exporter state=stopped enabled=no daemon_reload=yes
 
@@ -34,16 +23,8 @@
   ignore_errors: yes
   block:
 
-    - name: remove pgbouncer_exporter service from consul
-      tags: consul_registry
-      when: dcs_registry == 'consul'
-      file:
-        path: /etc/consul.d/svc-pgbouncer-exporter.json
-        state: absent
-
-    - name: reload consul to deregister pgbouncer_exporter
-      when: dcs_registry == 'consul'
-      systemd: name=consul state=reloaded
+    - name: stop and disable pgbouncer_exporter service
+      systemd: name=pgbouncer_exporter state=stopped enabled=no daemon_reload=yes
 
     - name: remove pgbouncer_exporter config file
       file: name=/etc/default/pgbouncer_exporter state=absent

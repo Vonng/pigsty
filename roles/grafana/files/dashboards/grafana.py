@@ -18,8 +18,6 @@ if UPSTREAM != '':
 def host_replace(s):
     if 'home' in REPLACEMENT and REPLACEMENT['home'] != 'pigsty':
         s = s.replace('://pigsty/', '://' + REPLACEMENT['home'] + '/')
-    if 'consul' in REPLACEMENT and REPLACEMENT['consul'] != 'c.pigsty':
-        s = s.replace('://c.pigsty', '://' + REPLACEMENT['consul'])
     if 'grafana' in REPLACEMENT and REPLACEMENT['grafana'] != 'g.pigsty':
         s = s.replace('://g.pigsty', '://' + REPLACEMENT['grafana'])
     if 'prometheus' in REPLACEMENT and REPLACEMENT['prometheus'] != 'p.pigsty':

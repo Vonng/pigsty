@@ -2,31 +2,14 @@
 namespace: {{ pg_namespace }}/          # namespace
 
 #------------------------------------------------------------------------------
-# dcs
+# etcd
 #------------------------------------------------------------------------------
-{% if pg_dcs_type == 'consul' %}
-consul:
-  host: 127.0.0.1:8500
-  consistency: default         # default|consistent|stale
-  register_service: true
-  service_check_interval: 15s
-  service_tags:
-    - {{ pg_cluster }}
-{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
-  scheme: https
-  cacert: /etc/pki/ca.crt
-{% endif %}
-{% endif %}
-{% if pg_dcs_type == 'etcd' %}
-etcd:
-  hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
-{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+etcd{% if etcd_api|int == 3 %}3{% endif %}:
+  hosts: '{% for ip in groups['etcd'] %}{% if not loop.first %},{% endif %}{{ ip }}:{{ etcd_port }}{% endfor %}'
   protocol: https
   cacert: /etc/pki/ca.crt
   cert:   /etc/pki/meta.crt
   key:    /etc/pki/meta.key
-{% endif %}
-{% endif %}
 
 #------------------------------------------------------------------------------
 # api

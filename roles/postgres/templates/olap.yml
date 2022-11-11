@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   patroni.yml
 # Ctime     :   2020-04-08
-# Mtime     :   2022-10-18
+# Mtime     :   2022-11-11
 # Desc      :   patroni cluster definition for {{ pg_cluster }} (olap)
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
@@ -11,7 +11,7 @@
 # Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
-{% set pg_max_connections = 50 %}
+{% set pg_max_connections = 100 %}
 {% set pg_shared_buffers = ([(node_mem_mb|int / 400 | round(0, 'ceil'))|int * 100 , 64000])|min %}
 {% set pg_maintenance_mem = ((pg_shared_buffers|int / 20)|round(0, 'ceil')|int * 10)|int %}
 {% set pg_effective_cache_size = node_mem_mb|int - pg_shared_buffers|int  %}
@@ -33,7 +33,7 @@
 
 # Node: {{ node_cpu }}C{{ node_mem_gb }}G , node_tune = {{ node_tune }}
 # Memory: {{ node_mem_mb }}MB , Disk : {{ [ (node_fs_bytes|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}GB {{ pg_storage_type|default('SSD') }} @ {{ pg_fs_main }}
-# DCS {{ pg_dcs_type }} : {% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}{% endfor %}
+# etcd{% if etcd_api|int == 3 %}3{% endif %}: {% for ip in groups['etcd'] %}{{ ip }}:{{ etcd_port }} {% endfor %}
 
 #--------------------------------------------------------------#
 # pgconf, maxconn, workmem   = {{ pg_conf }} , {{ pg_max_connections }} , {{ pg_workmem }}MB
@@ -64,31 +64,14 @@ log:
   format: '%(asctime)s %(levelname)s: %(message)s'
 
 #------------------------------------------------------------------------------
-# dcs
+# etcd
 #------------------------------------------------------------------------------
-{% if pg_dcs_type == 'consul' %}
-consul:
-  host: 127.0.0.1:8500
-  consistency: default         # default|consistent|stale
-  register_service: true
-  service_check_interval: 15s
-  service_tags:
-    - {{ pg_cluster }}
-{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
-  scheme: https
-  cacert: /etc/pki/ca.crt
-{% endif %}
-{% endif %}
-{% if pg_dcs_type == 'etcd' %}
-etcd:
-  hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
-{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+etcd{% if etcd_api|int == 3 %}3{% endif %}:
+  hosts: '{% for ip in groups['etcd'] %}{% if not loop.first %},{% endif %}{{ ip }}:{{ etcd_port }}{% endfor %}'
   protocol: https
   cacert: /etc/pki/ca.crt
   cert:   /pg/cert/server.crt
   key:    /pg/cert/server.key
-{% endif %}
-{% endif %}
 
 #------------------------------------------------------------------------------
 # api

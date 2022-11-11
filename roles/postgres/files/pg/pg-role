@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-
 #==============================================================#
 # File      :   pg-role
 # Ctime     :   2020-05-16
@@ -10,8 +9,6 @@
 # Author    :   Vonng(fengruohang@outlook.com)
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
-
-
 import os, json
 
 def get_user():
@@ -119,43 +116,13 @@ def pg_role_from_pgdata(pgdata="/pg/data"):
     return role_result(pg_alive, pg_role, "pgdata")
 
 
-# this is used when pg is not alive and /pg/data have no access
-def pg_role_from_consul():
-    # if pg is dead, check /etc/consul.d/svc-postgres.json for registered information
-    pg_alive, pg_role = None, None
-    postgres_svc = "/etc/consul.d/svc-postgres.json"
-    svc = None
-    try:
-        svc = json.load(open(postgres_svc))
-    except:
-        pass
-
-    if not svc or "service" not in svc or "meta" not in svc["service"]:
-        return {
-            "alive": pg_alive,
-            "role": pg_role,
-            "source": "pgdata"
-        }
-
-    for k, v in svc["service"]["meta"].items():  # infer role from registered meta (role|service)
-        if k == "role":
-            pg_role = v
-        if k == "service":
-            if v.endswith('primary'):
-                pg_role = 'primary'
-            if v.endswith('replica'):
-                pg_role = 'replica'
-
-    return role_result(pg_alive, pg_role, "consul")
-
-
 def get_pg_role():
     """
     get pg role and aliveness from multiple sources
     :return:  (pg_alive, pg_role, source)
     """
     pg_alive, pg_role, source = None, None, None
-    role_ps, role_psql, role_pgdata, role_consul = None, None, None, None
+    role_ps, role_psql, role_pgdata = None, None, None
 
     # processes check result usually have a result as a baseline
     role_ps = pg_role_from_ps()
@@ -179,11 +146,6 @@ def get_pg_role():
     if role_pgdata["role"] is not None:
         pg_role, source = role_pgdata["role"], role_pgdata["source"]
         return role_result(pg_alive, pg_role, source)
-
-    # if pg is dead , infer role from pg_data
-    role_consul = pg_role_from_consul()
-    if role_consul["role"] is not None:
-        pg_role, source = role_consul["role"], role_consul["source"]
 
     return role_result(pg_alive, pg_role, source)
 

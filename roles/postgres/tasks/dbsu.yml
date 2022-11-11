@@ -12,9 +12,6 @@
       group: name=postgres gid={{ pg_dbsu_uid }}
     - name: create postgres dbsu
       user: name={{ pg_dbsu }} uid={{ pg_dbsu_uid }} home={{ pg_dbsu_home }} group=postgres groups=postgres generate_ssh_key=yes
-    - name: add postgres dbsu to dcs group
-      ignore_errors: yes
-      user: name={{ pg_dbsu }} append=yes groups=dcs
 
     # - dbsu privilege - #
     # nopass : no password required to execute all sudo command! DANGEROUS!
@@ -29,7 +26,7 @@
           {% if pg_dbsu_sudo == 'nopass' %}postgres ALL=(ALL) NOPASSWD: ALL{% endif %}
           {% if pg_dbsu_sudo == 'all' %}postgres ALL=(ALL) ALL{% endif %}
           {% if pg_dbsu_sudo == 'limit' %}
-          {% for svc in ['postgres', 'pgbouncer', 'patroni', 'pg_exporter', 'pgbouncer_exporter', 'haproxy', 'vip-manager', 'consul'] %}
+          {% for svc in ['postgres', 'pgbouncer', 'patroni', 'pg_exporter', 'pgbouncer_exporter', 'haproxy', 'vip-manager', 'pgbackrest' ] %}
           %postgres ALL=NOPASSWD: /bin/systemctl stop {{ svc }}
           %postgres ALL=NOPASSWD: /bin/systemctl start {{ svc }}
           %postgres ALL=NOPASSWD: /bin/systemctl status {{ svc }}

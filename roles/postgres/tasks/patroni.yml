@@ -36,23 +36,6 @@
       become_user: "{{ pg_dbsu }}"
       command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
 
-    # - name: Copy pg ssl cert to data dir
-    #   any_errors_fatal: true
-    #   tags: pg_cert_primary
-    #   when: patroni_ssl_enabled|bool or pg_sslmode != 'disable'
-    #   copy: src="{{ item.src }}" dest="{{ item.dest }}" mode={{ item.mode }} remote_src=true owner=postgres group=postgres
-    #   with_items:
-    #     - { src: "/etc/pki/ca.crt"      , dest: "/pg/data/root.crt"    , mode: '0644' }
-    #     - { src: "/pg/cert/server.crt"  , dest: "/pg/data/server.crt"  , mode: '0644' }
-    #     - { src: "/pg/cert/server.key"  , dest: "/pg/data/server.key"  , mode: '0600' }
-    #
-    # - name: Check replication connectivity on primary
-    #   become_user: "{{ pg_dbsu }}"
-    #   environment:
-    #     PGPASSWORD: "{{ pg_replication_password }}"
-    #   command: psql -w -h {{ pg_primary_ip }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
-
-
 #------------------------------------------------------------------------------
 # init postgres cluster                                               [pg_init]
 #------------------------------------------------------------------------------
@@ -143,6 +126,7 @@
   tags: pg_hba
   become_user: "{{ pg_dbsu }}"
   block:
+
     - name: render hba rules
       template: src=pg_hba.conf.j2 dest=/pg/data/pg_hba.conf owner={{ pg_dbsu }} group=postgres mode=0600
 
