@@ -13,7 +13,7 @@ There are several built-in modes:
 * [pigsty-demo.yml](pigsty-demo.yml) : exact same as default pigsty.yml , but in short version
 * [pigsty-citus.yml](pigsty-citus.yml) : citus cluster example: 1 coordinator and 3 data nodes
 * [pigsty-build.yml](pigsty-build.yml) : 3 nodes el7, el8, el9 for release building
-* [pigsty-full.yml](pigsty-pub.yml) : same as default pigsty.yml with full available options documented
+* [pigsty-full.yml](pigsty-default.yml) : detail documented config example with default parameters
 * [pigsty-pub.yml](pigsty-pub.yml) : configuration file for [public demo](http://demo.pigsty.cc)
 
 

@@ -1,10 +1,10 @@
 ---
 ######################################################################
-# File      :   pigsty.yml
-# Desc      :   pigsty default configuration with all available params
+# File      :   pigsty-default.yml
+# Desc      :   pigsty config template with all default values
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2022-11-07
+# Mtime     :   2022-11-11
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -37,7 +37,7 @@ all:
 
 
     #================================================================#
-    #                  Meta Nodes: Admin Controller                  #
+    #                     INFRA & ADMIN NODES                        #
     #================================================================#
     meta:   # meta nodes are defined in this special group "meta"
       vars:
@@ -49,14 +49,23 @@ all:
         prometheus_enabled:  true     # setup prometheus
         grafana_enabled:     true     # setup grafana
         loki_enabled:        true     # setup loki
-        docker_enabled:      true     # setup docker on meta node (disabled)
-        dcs_safeguard:       false    # protect dcs server from fat fingers
+        docker_enabled:      false    # setup docker on meta node (disabled)
 
       hosts:                          # add nodes to group 'meta'
         10.10.10.10: { }
         # 10.10.10.11: { nginx_enabled: false }
         # 10.10.10.12: { nginx_enabled: false  }
     #================================================================#
+
+    etcd: # dcs service for postgres/patroni ha consensus
+      hosts:  # 1 node for testing, 3 or 5 for production
+        10.10.10.10: { etcd_seq: 1 }  # etcd_seq required
+        10.10.10.11: { etcd_seq: 2 }  # assign from 1 ~ n
+        10.10.10.12: { etcd_seq: 3 }  # odd number please
+      vars: # cluster level parameter override roles/etcd
+        etcd_cluster: etcd  # mark etcd cluster name etcd
+        etcd_safeguard: false # safeguard against purging
+        etcd_clean: true # purge etcd during init process
 
     #================================================================#
     #                        PGSQL Clusters                          #
@@ -97,7 +106,8 @@ all:
         vip_address: 10.10.10.2
         vip_cidrmask: 8
         vip_interface: eth1
-        node_crontab: []
+        node_crontab:
+          - '00 01 * * * postgres pgbackrest --stanza=pg-meta backup >> /pg/log/pgbackrest/backup.log 2>&1'
 
     #----------------------------------#
     # pgsql cluster: pg-test (3 nodes) #
@@ -135,56 +145,6 @@ all:
         vip_cidrmask: 8               # cidr network mask length
         vip_interface: eth1           # interface to add virtual ip
 
-    #================================================================#
-    #                        REDIS Clusters                          #
-    #================================================================#
-
-    #----------------------------------#
-    # redis sentinel example           #
-    #----------------------------------#
-    redis-meta:
-      hosts:
-        10.10.10.10:
-          redis_node: 1
-          redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
-      vars:
-        redis_cluster: redis-meta
-        redis_mode: sentinel
-        redis_max_memory: 64MB
-
-    #----------------------------------#
-    # redis cluster example            #
-    #----------------------------------#
-    redis-test:
-      hosts:
-        10.10.10.11:
-          redis_node: 1
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-        10.10.10.12:
-          redis_node: 2
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-      vars:
-        redis_cluster: redis-test           # name of this redis 'cluster'
-        redis_mode: cluster                 # standalone,cluster,sentinel
-        redis_max_memory: 32MB              # max memory used by each redis instance
-        redis_mem_policy: allkeys-lru       # memory eviction policy
-
-    #----------------------------------#
-    # redis standalone example         #
-    #----------------------------------#
-    redis-common:
-      hosts:
-        10.10.10.13:
-          redis_node: 1
-          redis_instances:
-            6501: {}
-            6502: { replica_of: '10.10.10.13 6501' }
-            6503: { replica_of: '10.10.10.13 6501' }
-      vars:
-        redis_cluster: redis-common         # name of this redis 'cluster'
-        redis_mode: standalone              # standalone,cluster,sentinel
-        redis_max_memory: 64MB              # max memory used by each redis instance
-
 
   ####################################################################
   #                             VARS                                 #
@@ -197,77 +157,45 @@ all:
     version: v2.0.0-a1                # pigsty version string
     meta_ip: 10.10.10.10              # primary meta node ip address
     region: default                   # upstream mirror region: default|china|europe
-
-
-    #================================================================#
-    #                         VARS: INFRA                            #
-    #================================================================#
-
-    #-----------------------------------------------------------------
-    # CONNECT
-    #-----------------------------------------------------------------
-    # INSTANCE level ansible connect parameters
-    # ansible_user: vagrant           # which user to be used (when connecting to remote nodes)
-    # ansible_port: 22                # which port to be used (when connecting to remote nodes)
-    # ansible_host: meta              # ssh alias host name (when connecting to remote nodes)
-    # ansible_ssh_private_key_file: ~/.ssh/id_rsa            # ssh private key file
-    # ansible_ssh_common_args: '-o StrictHostKeyChecking=no' # ssh common args
-
     proxy_env:                        # global proxy env when downloading packages
       no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
       # http_proxy:  # set your proxy here: e.g http://user:pass@proxy.xxx.com
       # https_proxy: # set your proxy here: e.g http://user:pass@proxy.xxx.com
       # all_proxy:   # set your proxy here: e.g http://user:pass@proxy.xxx.com
 
+    #================================================================#
+    #                         VARS: INFRA                            #
+    #================================================================#
+
     #-----------------------------------------------------------------
-    # CA & CERTS
+    # CA
     #-----------------------------------------------------------------
-    ca_method: create                 # none|copy|create|recreate, create if not exists by default
-    ca_cn: pigsty-ca                  # ca common name, pigsty-ca by default
+    ca_method: create                 # create|recreate|copy, create by default
+    ca_cn: pigsty-ca                  # ca common name, fixed as pigsty-ca
     cert_validity: 7300d              # cert validity, 20 years by default
 
     #-----------------------------------------------------------------
     # NGINX
     #-----------------------------------------------------------------
-    nginx_enabled: true               # build local repo on this node
-    nginx_port: 80                    # repo listen address, must same as repo_address
-    nginx_home: /www                  # default repo home dir
-    nginx_upstream:                   # domain names and upstream servers
+    nginx_enabled: true               # enable nginx on this infra node?
+    nginx_port: 80                    # nginx listen port, 80 by default
+    nginx_home: /www                  # default nginx content home dir
+    nginx_upstream:                   # nginx domain names and upstreams
       - { name: home         , domain: pigsty      , endpoint: "${meta_ip}:80"   }
       - { name: grafana      , domain: g.pigsty    , endpoint: "${meta_ip}:3000" }
-      - { name: loki         , domain: l.pigsty    , endpoint: "${meta_ip}:3100" }
       - { name: prometheus   , domain: p.pigsty    , endpoint: "${meta_ip}:9090" }
       - { name: alertmanager , domain: a.pigsty    , endpoint: "${meta_ip}:9093" }
-      - { name: consul       , domain: c.pigsty    , endpoint: "127.0.0.1:8500"   } #== ^ required ==#
-      - { name: postgrest    , domain: api.pigsty  , endpoint: "127.0.0.1:8884"   } #== v optional ==#
-      - { name: pgadmin      , domain: adm.pigsty  , endpoint: "127.0.0.1:8885"   }
-      - { name: pgweb        , domain: cli.pigsty  , endpoint: "127.0.0.1:8886"   }
-      - { name: bytebase     , domain: ddl.pigsty  , endpoint: "127.0.0.1:8887"   }
-      - { name: jupyter      , domain: lab.pigsty  , endpoint: "127.0.0.1:8888"   }
-      - { name: gitea        , domain: git.pigsty  , endpoint: "127.0.0.1:8889"   }
-      - { name: minio        , domain: sss.pigsty  , endpoint: "127.0.0.1:9000"   }
-      - { name: wiki         , domain: wiki.pigsty , endpoint: "127.0.0.1:9002"   }
-    nginx_indexes:                    # application nav links on home page
-      - { name: PgAdmin4   , url : 'http://adm.pigsty'  , comment: 'PgAdmin4 for PostgreSQL'  }
-      - { name: PGWeb      , url : 'http://cli.pigsty'  , comment: 'PGWEB Browser Client'     }
-      - { name: ByteBase   , url : 'http://ddl.pigsty'  , comment: 'ByteBase Schema Migrator' }
-      - { name: PostgREST  , url : 'http://api.pigsty'  , comment: 'Kong API Gateway'         }
-      - { name: Gitea      , url : 'http://git.pigsty'  , comment: 'Gitea Git Service'        }
-      - { name: Minio      , url : 'http://sss.pigsty'  , comment: 'Minio Object Storage'     }
-      - { name: Wiki       , url : 'http://wiki.pigsty' , comment: 'Local Wiki Pedia'         }
-      - { name: Explain    , url : '/pev.html'          , comment: 'pgsql explain visualizer' }
-      - { name: Package    , url : '/pigsty'            , comment: 'local yum repo packages'  }
-      - { name: Matrix Pkg , url : '/matrix'            , comment: 'matrixdb repo packages'   }
-      - { name: PG Logs    , url : '/logs'              , comment: 'postgres raw csv logs'    }
-      - { name: Schemas    , url : '/schema'            , comment: 'schemaspy summary report' }
-      - { name: Reports    , url : '/report'            , comment: 'pgbadger summary report'  }
+    nginx_indexes:                    # nginx index.html navigation links
+      - { name: Package    , url : '/pigsty'   , comment: 'local yum repo packages'     }
+      - { name: Explain    , url : '/pev.html' , comment: 'postgres explain visualizer' }
+      - { name: PG Logs    , url : '/logs'     , comment: 'postgres raw csv logs'       }
+      - { name: Reports    , url : '/report'   , comment: 'pgbadger summary report'     }
 
     #-----------------------------------------------------------------
     # REPO
     #-----------------------------------------------------------------
     repo_name: pigsty                 # repo name, pigsty by default
-    repo_address: pigsty              # external address to this repo (ip:port or url)
-    repo_rebuild: false               # force re-download packages
+    repo_address: pigsty              # address to this repo by ip:port or url
     repo_remove: true                 # remove existing upstream repo
     repo_upstream:                    # where to download #
       - { name: base           ,description: 'EL 7 Base'         ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/os/$basearch/'                    , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/'       , europe: 'https://mirrors.xtom.de/centos/$releasever/os/$basearch/'           }}
@@ -292,33 +220,34 @@ all:
       - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' }}
       - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8  ] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
       - { name: citus          ,description: 'Citus Community'   ,module: pgsql ,releases: [7,8  ] ,baseurl: { default: 'https://repos.citusdata.com/community/el/$releasever/$basearch'          }}
-    repo_packages: # which packages to be included                                   #  what to download #
-      - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils  # modulemd-tools
+    repo_packages:                    # what to download #
+      - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils #modulemd-tools
       - uuid lz4 bzip2 netcat pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync nvme-cli numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet audit ca-certificates
-      - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils*
-      - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter # redis
-      - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python36-pyOpenSSL # python3-pyOpenSSL python3-jmespath
-      - postgresql14* pglogical_14* postgis33_14* citus111_14* timescaledb-2-postgresql-14 # citus & tsdb not ready in el9, postgis33 available since el8+
-      - patroni patroni-consul patroni-etcd pgbouncer pgbadger tail_n_mail boxinfo check_postgres barman barman-cli pgFormatter pitrery pspg PyGreSQL pgbackrest nagios-plugins-pgbackrest
-      - pg_activity pgxnclient pgcenter emaj pgbconsole pg_bloat_check pgloader pg_cli pgquarrel # some not available on el8, el9
-      - pg_repack_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 plsh_14 pldebugger_14 plpgsql_check_14 wal2json_14
-      - mysql_fdw_14 ogr_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 pgbouncer_fdw_14 hypopg_14 geoip_14 tdigest_14 multicorn2_14 pg_ivm_14 # osm_fdw_14 tds_fdw_14
-      - bgw_replstatus_14 ddlx_14 mysqlcompat_14 orafce_14 repmgr_14 pg_auto_failover_14 pg_catcheck_14 pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14
-      - pg_readonly_14 pgagent_14 pgaudit16_14 pgauditlogtofile_14 pgfincore_14 powa_14 pgq_14 pgsql_tweaks_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
-      - pg_statement_rollback_14 system_stats_14 plproxy_14 pgmemcache_14 rum_14 hll_14 ip4r_14 prefix_14 pguri_14 topn_14 periods_14 # pgrouting_14 osm2pgrouting_14
-      - count_distinct_14 credcheck_14 extra_window_functions_14 logerrors_14 pg_auth_mon_14 pg_background_14 pg_bulkload_14 pg_comparator_14
-      - pg_prioritize_14 pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 pgtap_14 safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14
+      - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils* s3cmd
       - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex docker-ce docker-compose* # kubelet kubectl kubeadm kubernetes-cni helm
-      - postgresql15* postgis33_15* citus111_15* sqlite_fdw_15 wal2json_15 # timescaledb-2-postgresql-15*
+      - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter #redis haproxy
+      - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-urllib3 python3-idna python36-pyOpenSSL
+      - postgresql14* pg_repack_14 wal2json_14 pglogical_14* postgis33_14* citus111_14* timescaledb-2-postgresql-14
+      - postgresql15* pg_repack_15 wal2json_15 pglogical_15* postgis33_15* citus111_15* #timescaledb-2-postgresql-15
+      - patroni patroni-etcd pgbouncer pgbadger tail_n_mail pgbackrest pg_activity
+      - boxinfo check_postgres barman barman-cli pgFormatter pitrery pspg PyGreSQL pgloader
+      - pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 plsh_14 pldebugger_14 plpgsql_check_14 postgresql_faker_14
+      - mysql_fdw_14 ogr_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 pgbouncer_fdw_14 hypopg_14 geoip_14 tdigest_14 multicorn2_14 pg_ivm_14 semver_14
+      - bgw_replstatus_14 ddlx_14 mysqlcompat_14 orafce_14 repmgr_14 pg_auto_failover_14 pg_catcheck_14 pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14
+      - pg_readonly_14 pgagent_14 pgaudit16_14 pgauditlogtofile_14 pgfincore_14 powa_14 pgq_14 pgsql_tweaks_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 rum_14
+      - pg_statement_rollback_14 system_stats_14 plproxy_14 pgmemcache_14 hll_14 ip4r_14 prefix_14 pguri_14 topn_14 periods_14
+      - count_distinct_14 credcheck_14 extra_window_functions_14 logerrors_14 pg_auth_mon_14 pg_background_14 pg_bulkload_14 pg_comparator_14
+      - pg_prioritize_14 pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 pgtap_14 safeupdate_14 set_user_14 sslutils_14 table_version_14
     repo_url_packages:                # extra packages from url
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.1/loki-2.6.1.x86_64.rpm
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.1/promtail-2.6.1.x86_64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
-      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
       - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm # redis.el7
       - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.6/haproxy-2.6.6-1.el7.x86_64.rpm # haproxy.el7
+      - https://dl.min.io/server/minio/release/linux-amd64/minio-20221111034420.0.0.x86_64.rpm
+      - https://dl.min.io/client/mc/release/linux-amd64/mcli-20221107234739.0.0.x86_64.rpm
 
     #-----------------------------------------------------------------
     # NAMESERVER
@@ -330,8 +259,8 @@ all:
     # PROMETHEUS
     #-----------------------------------------------------------------
     prometheus_enabled: true          # setup prometheus on meta nodes?
-    prometheus_data_dir: /data/prometheus/data
-    prometheus_options: '--storage.tsdb.retention.time=15d'
+    prometheus_data_dir: /data/prometheus/data # prometheus data dir, /data/prometheus/data by default
+    prometheus_options: '--storage.tsdb.retention.time=15d' # prometheus extra server options
     prometheus_reload: false          # reload prometheus instead of recreate it?
     prometheus_sd_interval: 5s        # service discovery refresh interval
     prometheus_scrape_interval: 10s   # global scrape & evaluation interval
@@ -341,15 +270,15 @@ all:
     #-----------------------------------------------------------------
     # EXPORTER
     #-----------------------------------------------------------------
-    exporter_install: none            # none|yum|binary, none by default
-    exporter_repo_url: ''             # if set, repo will be added to /etc/yum.repos.d/
-    exporter_metrics_path: /metrics   # default metric path for pg related exporter
+    exporter_install: none            # how to install exporter? none|yum|binary
+    exporter_repo_url: ''             # add this repo by url string for exporter install
+    exporter_metrics_path: /metrics   # exporter metric path
 
     #-----------------------------------------------------------------
     # GRAFANA
     #-----------------------------------------------------------------
     grafana_enabled: true             # setup grafana on meta nodes?
-    grafana_endpoint: http://${meta_ip}:3000     # grafana endpoint url
+    grafana_endpoint: http://${meta_ip}:3000 # grafana endpoint url
     grafana_admin_username: admin     # default grafana admin username
     grafana_admin_password: pigsty    # default grafana admin password
     grafana_plugin_method: install    # none|install|always, none will skip plugin install
@@ -364,24 +293,35 @@ all:
     # LOKI
     #-----------------------------------------------------------------
     loki_enabled: true                # setup loki on meta nodes?
-    loki_clean: false                 # whether remove existing loki data
-    loki_endpoint: http://${meta_ip}:3100/loki/api/v1/push # where to push data
+    loki_clean: false                 # whether remove existing loki data?
+    loki_endpoint: http://${meta_ip}:3100/loki/api/v1/push # where to receive logs
     loki_options: '-config.file=/etc/loki.yml -config.expand-env=true'
-    loki_data_dir: /data/loki         # default loki data dir
+    loki_data_dir: /data/loki         # loki data dir, /data/loki by default
     loki_retention: 15d               # log retention period
 
+    #-----------------------------------------------------------------
+    # etcd
+    #-----------------------------------------------------------------
+    #etcd_seq: 1                      # etcd instance identifier, explicitly required
+    etcd_cluster: etcd                # etcd cluster & group name, etcd by default
+    etcd_safeguard: false             # prevent purging running etcd instance?
+    etcd_clean: true                  # purging existing etcd during initialization?
+    etcd_data: /data/etcd             # etcd data directory, /data/etcd by default
+    etcd_port: 2379                   # etcd client port, 2379 by default
+    etcd_peer_port: 2380              # etcd peer port, 2380 by default
+    etcd_init: new                    # etcd initial cluster state, new or existing
+    etcd_api: 2                       # etcd api version used, 2 by default
 
     #================================================================#
     #                         VARS: NODES                            #
     #================================================================#
-    # global variables for nodes (including meta)
 
     #-----------------------------------------------------------------
     # NODE_IDENTITY
     #-----------------------------------------------------------------
     meta_node: false                  # node with meta_node flag will be marked as admin node
-    # nodename:          # [OPTIONAL] # node instance identity, used as `ins`, hostname by default
-    node_cluster: nodes  # [OPTIONAL] # node cluster identity, used as `cls`, 'nodes' by default
+    #nodename:           # [OPTIONAL] # node instance identity, use hostname if missing
+    node_cluster: nodes  # [OPTIONAL] # node cluster identity, use 'nodes' if missing
     nodename_overwrite: true          # overwrite node's hostname with nodename?
     nodename_exchange: false          # exchange nodename among play hosts?
 
@@ -391,16 +331,9 @@ all:
     node_etc_hosts_default:           # static dns records in /etc/hosts
       - "${meta_ip} meta pigsty p.pigsty g.pigsty a.pigsty c.pigsty l.pigsty"
       - "${meta_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
-    node_etc_hosts:                   # extra static dns records in /etc/hosts
-      - 10.10.10.2  pg-meta           # sandbox vip for pg-meta
-      - 10.10.10.3  pg-test           # sandbox vip for pg-test
-      - 10.10.10.10 pg-meta-1         # sandbox instance pg-meta-1
-      - 10.10.10.11 pg-test-1         # sandbox instance node-1
-      - 10.10.10.12 pg-test-2         # sandbox instance node-2
-      - 10.10.10.13 pg-test-3         # sandbox instance node-3
-
+    node_etc_hosts: []                # extra static dns records in /etc/hosts
     node_dns_method: none             # add (default) | none (skip) | overwrite (remove old settings)
-    node_dns_servers: [ ]             # dynamic nameserver in /etc/resolv.conf
+    node_dns_servers: []              # dynamic nameserver in /etc/resolv.conf
     node_dns_options:                 # dns resolv options
       - options single-request-reopen timeout:1 rotate
 
@@ -411,16 +344,20 @@ all:
     node_repo_remove: true            # remove existing repo on nodes?
     node_repo_local_urls:             # list local repo url, if node_repo_method = local
       - http://pigsty/pigsty.repo
+
+    #-----------------------------------------------------------------
+    # NODE_PACKAGE
+    #-----------------------------------------------------------------
     node_packages: [ ]                # extra packages for all nodes
     node_packages_default:            # common packages for all nodes
-      - chrony,zip,unzip,bzip2,lz4,netcat,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,rsync,ca-certificates
-      - numactl,grubby,vim-minimal,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,perf,nvme-cli
-      - python3,python3-pip,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python36-pyOpenSSL
-      - readline,zlib,openssl,openssl-libs,openssh-clients,node_exporter,consul,etcd,promtail
+      - chrony,zip,unzip,bzip2,lz4,netcat,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,rsync,tuned,ca-certificates
+      - numactl,grubby,vim-minimal,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,perf,nvme-cli,s3cmd
+      - python3,python3-pip,python3-requests,python3-psycopg2,python3-etcd,python3-urllib3,python3-idna,python36-pyOpenSSL
+      - readline,zlib,openssl,openssl-libs,openssh-clients,node_exporter,etcd,promtail
     node_packages_meta:               # extra packages for meta nodes
       - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway
       - nginx,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,postgresql14,redis
-      - ansible,polysh
+      - ansible
     node_packages_meta_pip: 'jupyterlab'
 
     #-----------------------------------------------------------------
@@ -428,18 +365,18 @@ all:
     #-----------------------------------------------------------------
     node_disable_firewall: true       # disable firewall
     node_disable_selinux: true        # disable selinux
-    node_disable_numa: false          # disable numa (node reboot required)
+    node_disable_numa: false          # disable numa, reboot required
     node_disable_swap: false          # disable swap, use with caution
     node_static_network: true         # keep dns resolver settings after reboot
     node_disk_prefetch: false         # setup disk prefetch on HDD to increase performance
     node_kernel_modules: [ softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_wrr, ip_vs_sh ]
     node_tune: oltp                   # install and activate tuned profile: none|oltp|olap|crit|tiny
-    node_sysctl_params: { }           # set additional sysctl parameters, k:v format
+    node_sysctl_params: { }           # set additional sysctl parameters in k:v format
 
     #-----------------------------------------------------------------
     # NODE_ADMIN
     #-----------------------------------------------------------------
-    node_data_dir: /data              # main data directory
+    node_data_dir: /data              # node main data directory, /data by default
     node_admin_enabled: true          # create a default admin user defined by `node_admin_*` ?
     node_admin_uid: 88                # uid and gid for this admin user
     node_admin_username: dba          # name of this admin user, dba by default
@@ -451,20 +388,17 @@ all:
     #-----------------------------------------------------------------
     # NODE_TIME
     #-----------------------------------------------------------------
-    node_timezone: Asia/Hong_Kong     # default node timezone, empty will not change
-    node_ntp_enabled: true            # enable ntp service? false will leave ntp service untouched
-    node_ntp_servers:                 # NTP servers in /etc/chrony.conf
-      - pool cn.pool.ntp.org iburst
+    node_timezone: ''                 # default node timezone, empty means use system default
+    node_ntp_enabled: true            # setup and enable chronyd service?
+    node_ntp_servers:                 # ntp servers in /etc/chrony.conf
       - pool pool.ntp.org iburst
-      - pool time.pool.aliyun.com iburst
-      - server ntp.tuna.tsinghua.edu.cn iburst
-    node_crontab_overwrite: true      # true will overwrite /etc/crontab, false will append crontab
+    node_crontab_overwrite: true      # overwrite /etc/crontab or append to it?
     node_crontab: [ ]                 # crontab entries in /etc/crontab
 
     #-----------------------------------------------------------------
     # DOCKER
     #-----------------------------------------------------------------
-    docker_enabled: false             # enable docker on all nodes? (you can enable them on meta nodes only)
+    docker_enabled: false             # enable docker on nodes?
     docker_cgroups_driver: systemd    # docker cgroup fs driver
     docker_registry_mirrors: []       # docker registry mirror
     docker_image_cache: /tmp/docker.tgz # docker images tarball to be loaded if exists
@@ -498,11 +432,9 @@ all:
     # pg_seq: 0                       # <INSTANCE> <REQUIRED>  : instance seq number
     # pg_instances: {}                # <INSTANCE>             : define multiple pg instances on node, used by monly & gpsql
     # pg_upstream:                    # <INSTANCE>             : replication upstream ip addr
-
     # pg_shard:                       # <CLUSTER>              : pgsql shard name
     # pg_sindex: 0                    # <CLUSTER>              : pgsql shard index
     # gp_role: master                 # <CLUSTER>              : gpsql role, master or segment
-
     pg_offline_query: false           # <INSTANCE> [FLAG] set to true to enable offline query on this instance (instance level)
     pg_weight: 100                    # <INSTANCE> [FLAG] default load balance weight (instance level)
     pg_hostname: true                 # [FLAG] reuse postgres identity name as node identity?
@@ -510,27 +442,27 @@ all:
     #-----------------------------------------------------------------
     # PG_BUSINESS
     #-----------------------------------------------------------------
-    # overwrite these variables on <CLUSTER> level
-    pg_users: []                      # business users
-    pg_databases: []                  # business databases
-    pg_services_extra: []             # extra services
-    pg_hba_rules_extra: []            # extra hba rules
-    pgbouncer_hba_rules_extra: []     # extra pgbouncer hba rules
+    # NOTICE: overwrite these variables on <CLUSTER> level
+    pg_users: []                      # postgres business users
+    pg_databases: []                  # postgres business databases
+    pg_services_extra: []             # postgres extra services
+    pg_hba_rules_extra: []            # postgres hba rules
+    pgbouncer_hba_rules_extra: []     # pgbouncer hba rules
 
-    # WARNING: change these in production environment!
+    # WARNING: change these credentials in production deployment!
     pg_admin_username: dbuser_dba
     pg_admin_password: DBUser.DBA
     pg_monitor_username: dbuser_monitor
     pg_monitor_password: DBUser.Monitor
     pg_replication_username: replicator
     pg_replication_password: DBUser.Replicator
-    patroni_username: postgres            # patroni rest api username
-    patroni_password: Patroni.API         # patroni rest api password (IMPORTANT: CHANGE THIS)
+    patroni_username: postgres
+    patroni_password: Patroni.API
 
     #-----------------------------------------------------------------
     # PG_INSTALL
     #-----------------------------------------------------------------
-    pg_dbsu: postgres                 # os user for database, postgres by default (unwise to change it)
+    pg_dbsu: postgres                 # os user for database, postgres by default, better not change it
     pg_dbsu_uid: 26                   # os dbsu uid and gid, 26 for default postgres users and groups
     pg_dbsu_sudo: limit               # dbsu sudo privilege: none|limit|all|nopass, limit by default
     pg_dbsu_home: /var/lib/pgsql      # postgresql home directory
@@ -540,49 +472,48 @@ all:
     pg_log_dir: /pg/log/postgres      # postgres log dir, /pg/log/postgres by default
     pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
       - postgresql${pg_version}*
-      - pgbouncer pg_exporter pgbadger haproxy vip-manager patroni patroni-consul patroni-etcd pgbackrest nagios-plugins-pgbackrest pg_activity
+      - pgbouncer pg_exporter pgbadger haproxy vip-manager patroni patroni-etcd pgbackrest pg_activity
     pg_extensions:                    # postgresql extensions, `${pg_version} will be replaced by actual `pg_version`
       - postgis33_${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} pg_repack_${pg_version} wal2json_${pg_version}
 
     #-----------------------------------------------------------------
     # PG_BOOTSTRAP
     #-----------------------------------------------------------------
-    pg_safeguard: false                   # true will disable pg_clean at all, even for pgsql-remove.yml
-    pg_clean: true                        # true will clean running postgres during pgsql init (DANGEROUS)
-    pg_data: /pg/data                     # postgres data directory (soft link)
-    pg_fs_main: /data                     # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
-    pg_fs_bkup: /data/backups             # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
-    pg_storage_type: SSD                  # SSD|HDD, SSD by default
-    pg_dummy_filesize: 64MiB              # /pg/dummy hold some disk space for emergency use
-    pg_listen: '0.0.0.0'                  # postgres listen address, '0.0.0.0' (all ipv4 addr) by default
-    pg_port: 5432                         # postgres port, 5432 by default
-    pg_localhost: /var/run/postgresql     # localhost unix socket dir for connection
-    patroni_enabled: true                 # if not enabled, no postgres cluster will be created
-    patroni_mode: default                 # pause|default|remove
-    pg_dcs_type: etcd                     # which dcs to use: consul or etcd or raft
-    pg_namespace: /pg                     # top level key namespace in dcs
-    patroni_port: 8008                    # default patroni port, 8008 by default
-    patroni_log_dir: /pg/log/patroni      # patroni log dir, /pg/log/patroni by default
-    patroni_ssl_enabled: false            # secure patroni RestAPI communications with SSL?
-    patroni_watchdog_mode: automatic      # watchdog mode: off|automatic|required
-    pg_conf: oltp.yml                     # pgsql template:  {oltp|olap|crit|tiny}.yml
-    pg_rto: 30                            # recovery time objective, ttl to failover, 30s by default
-    pg_rpo: 1048576                       # recovery point objective, 1MB data loss at most by default
-    pg_libs: 'pg_stat_statements, auto_explain'  # extensions to be loaded
-    pg_delay: 0                           # apply delay for standby cluster leader
-    pg_checksum: false                    # enable data checksum by default
-    pg_pwd_enc: md5                       # algorithm for encrypting passwords: md5|scram-sha-256
-    pg_sslmode: disable                   # enable sslmode: disable|allow|prefer|require|verify-ca|verify-full
-    pg_encoding: UTF8                     # database cluster encoding, UTF8 by default
-    pg_locale: C                          # database cluster local, C by default
-    pg_lc_collate: C                      # database cluster collate, C by default
-    pg_lc_ctype: en_US.UTF8               # database character type, en_US.UTF8 by default (for i18n full-text search)
-    pgbouncer_enabled: true               # if not enabled, pgbouncer will not be created
-    pgbouncer_port: 6432                  # pgbouncer port, 6432 by default
+    pg_safeguard: false               # prevent purging running postgres instance?
+    pg_clean: true                    # purging existing postgres during initialization?
+    pg_data: /pg/data                 # postgres data directory, /pg/data by default
+    pg_fs_main: /data                 # main data disk path, /data by default
+    pg_fs_bkup: /data/backups         # backup disk path, /data/backups by default
+    pg_storage_type: SSD              # main storage type, SSD or HDD, SSD by default
+    pg_dummy_filesize: 64MiB          # size of /pg/dummy, which hold some fs space for emergency use
+    pg_listen: '0.0.0.0'              # postgres listen address, '0.0.0.0' (all ipv4 addr) by default
+    pg_port: 5432                     # postgres port, 5432 by default
+    pg_localhost: /var/run/postgresql # unix socket dir for localhost connection
+    patroni_enabled: true             # if not enabled, no postgres cluster will be created
+    patroni_mode: default             # patroni working mode: pause|default|remove
+    pg_namespace: /pg                 # top level key namespace in etcd
+    patroni_port: 8008                # patroni port, 8008 by default
+    patroni_log_dir: /pg/log/patroni  # patroni log dir, /pg/log/patroni by default
+    patroni_ssl_enabled: false        # secure patroni RestAPI communications with SSL?
+    patroni_watchdog_mode: automatic  # patroni watchdog mode: off|automatic|required, automatic by default
+    pg_conf: oltp.yml                 # pgsql template: {oltp|olap|crit|tiny}.yml , oltp.yml by default
+    pg_rto: 30                        # recovery time objective, ttl to failover, 30s by default
+    pg_rpo: 1048576                   # recovery point objective, 1MB data loss at most by default
+    pg_libs: 'pg_stat_statements, auto_explain'  # extensions to be loaded, pg_stat_statements & auto_explain by default
+    pg_delay: 0                       # replication delay for standby cluster leader
+    pg_checksum: false                # enable data checksum for postgres cluster?
+    pg_pwd_enc: md5                   # algorithm for encrypting passwords: md5|scram-sha-256
+    pg_sslmode: disable               # disable|allow|prefer|require|verify-ca|verify-full, allow by default
+    pg_encoding: UTF8                 # database cluster encoding, UTF8 by default
+    pg_locale: C                      # database cluster local, C by default
+    pg_lc_collate: C                  # database cluster collate, C by default
+    pg_lc_ctype: en_US.UTF8           # database character type, en_US.UTF8 by default
+    pgbouncer_enabled: true           # setup pgbouncer on pgsql host?
+    pgbouncer_port: 6432              # pgbouncer port, 6432 by default
     pgbouncer_log_dir: /pg/log/pgbouncer  # pgbouncer log dir, /pg/log/pgbouncer by default
-    pgbouncer_auth_query: false           # query pg_authid table to retrieve biz users instead of populating userlist
-    pgbouncer_poolmode: session           # pooling mode: session|transaction|statement, session pooling by default
-    pgbouncer_max_db_conn: 100            # max connection to single database, DO NOT SET THIS LARGER THAN PG MAXCONN
+    pgbouncer_auth_query: false       # query postgres user table to retrieve unlisted business users?
+    pgbouncer_poolmode: session       # pooling mode: session|transaction|statement, session pooling by default
+    pgbouncer_max_db_conn: 100        # max connection to single database, 100 by default
 
     #-----------------------------------------------------------------
     # PG_PROVISION
@@ -590,16 +521,16 @@ all:
     pg_provision: true                # whether provisioning postgres cluster
     pg_init: pg-init                  # init script for cluster template
     pg_default_roles:
-      - { name: dbrole_readonly  , login: false , comment: role for global read-only access  }                                 # production read-only role
-      - { name: dbrole_readwrite , login: false , roles: [dbrole_readonly], comment: role for global read-write access }       # production read-write role
-      - { name: dbrole_offline   , login: false , comment: role for restricted read-only access (offline instance) }           # restricted-read-only role
-      - { name: dbrole_admin     , login: false , roles: [pg_monitor, dbrole_readwrite] , comment: role for object creation }  # production DDL change role
+      - { name: dbrole_readonly  , login: false , comment: role for global read-only access  }                                # production read-only role
+      - { name: dbrole_readwrite , login: false , roles: [dbrole_readonly], comment: role for global read-write access }      # production read-write role
+      - { name: dbrole_offline   , login: false , comment: role for restricted read-only access (offline instance) }          # restricted-read-only role
+      - { name: dbrole_admin     , login: false , roles: [pg_monitor, dbrole_readwrite] , comment: role for object creation } # production DDL change role
       - { name: dbuser_monitor   , roles: [pg_monitor, dbrole_readonly] , comment: system monitor user , parameters: {log_min_duration_statement: 1000 } }
       - { name: postgres     , superuser: true  , comment: system superuser }                             # system dbsu, name is designated by `pg_dbsu`
       - { name: dbuser_dba   , superuser: true  , roles: [dbrole_admin] , comment: system admin user }    # admin dbsu, name is designated by `pg_admin_username`
       - { name: replicator , replication: true  , bypassrls: true , roles: [pg_monitor, dbrole_readonly] , comment: system replicator }  # replicator
       - { name: dbuser_stats  , password: DBUser.Stats , roles: [dbrole_offline] , comment: business offline user for offline queries and ETL } # ETL user
-    pg_default_privileges:            # - privileges - #
+    pg_default_privileges:            # default privileges created by admin user
       - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
       - GRANT SELECT                        ON TABLES    TO dbrole_readonly
       - GRANT SELECT                        ON SEQUENCES TO dbrole_readonly
@@ -614,23 +545,22 @@ all:
       - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
     pg_default_schemas: [ monitor ]   # default schemas to be created
     pg_default_extensions:            # default extensions to be created
+      - { name: adminpack          ,schema: pg_catalog }
+      - { name: pg_stat_statements ,schema: monitor }
+      - { name: pgstattuple        ,schema: monitor }
+      - { name: pg_buffercache     ,schema: monitor }
+      - { name: pageinspect        ,schema: monitor }
+      - { name: pg_prewarm         ,schema: monitor }
+      - { name: pg_visibility      ,schema: monitor }
+      - { name: pg_freespacemap    ,schema: monitor }
+      - { name: postgres_fdw       ,schema: public  }
+      - { name: file_fdw           ,schema: public  }
+      - { name: btree_gist         ,schema: public  }
+      - { name: btree_gin          ,schema: public  }
+      - { name: pg_trgm            ,schema: public  }
+      - { name: intagg             ,schema: public  }
+      - { name: intarray           ,schema: public  }
       - { name: pg_repack }
-      - { name: adminpack          , schema: pg_catalog }
-      - { name: pg_stat_statements , schema: monitor    }
-      - { name: pgstattuple        , schema: monitor    }
-      - { name: pg_buffercache     , schema: monitor    }
-      - { name: pageinspect        , schema: monitor    }
-      - { name: pg_prewarm         , schema: monitor    }
-      - { name: pg_visibility      , schema: monitor    }
-      - { name: pg_freespacemap    , schema: monitor    }
-      - { name: postgres_fdw       , schema: public     }
-      - { name: file_fdw           , schema: public     }
-      - { name: btree_gist         , schema: public     }
-      - { name: btree_gin          , schema: public     }
-      - { name: pg_trgm            , schema: public     }
-      - { name: intagg             , schema: public     }
-      - { name: intarray           , schema: public     }
-
     pg_reload: true                   # reload postgres after hba changes
     pg_hba_rules:                     # postgres host-based authentication rules
       - title: allow meta node password access
@@ -660,13 +590,12 @@ all:
           - host    all     +dbrole_offline               10.0.0.0/8        md5
           - host    all     +dbrole_offline               172.16.0.0/12     md5
           - host    all     +dbrole_offline               192.168.0.0/16    md5
-    pgbouncer_hba_rules:             # pgbouncer host-based authentication rules
+    pgbouncer_hba_rules:              # pgbouncer host-based authentication rules
       - title: local password access
         role: common
         rules:
           - local  all          all                                     md5
           - host   all          all                     127.0.0.1/32    md5
-
       - title: intranet password access
         role: common
         rules:
@@ -677,10 +606,10 @@ all:
     #-----------------------------------------------------------------
     # PG_BACKUP
     #-----------------------------------------------------------------
-    pgbackrest_enabled: true         # setup pgbackrest?
-    pgbackrest_clean: false          # whether remove existing pgbackrest data
-    pgbackrest_log_dir: /pg/log/pgbackrest  # pgbackrest log dir, /pg/log/pgbackrest by default
-    pgbackrest_repo: |               # pgbackrest backup repo config
+    pgbackrest_enabled: true          # setup pgbackrest on pgsql hosts?
+    pgbackrest_clean: false           # remove existing pgbackrest data during init?
+    pgbackrest_log_dir: /pg/log/pgbackrest # pgbackrest log dir, /pg/log/pgbackrest by default
+    pgbackrest_repo: |                # pgbackrest backup repo config
       repo1-path=/pg/backup/
       repo1-retention-full-type=time
       repo1-retention-full=14
@@ -689,18 +618,18 @@ all:
     #-----------------------------------------------------------------
     # PG_EXPORTER
     #-----------------------------------------------------------------
-    pg_exporter_enabled: true              # setup pg_exporter on instance
-    pg_exporter_config: pg_exporter.yml    # use fast cache exporter for demo
-    pg_exporter_port: 9630                 # pg_exporter listen port
-    pg_exporter_params: 'sslmode=disable'  # url query parameters for pg_exporter
-    pg_exporter_url: ''                    # optional, overwrite auto-generate postgres connstr
-    pg_exporter_auto_discovery: true       # optional, discovery available database on target instance ?
-    pg_exporter_exclude_database: 'template0,template1,postgres' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
-    pg_exporter_include_database: ''       # optional, comma separated list of database that WILL BE monitored when auto-discovery enabled, empty string will disable include mode
+    pg_exporter_enabled: true              # setup pg_exporter on pgsql hosts?
+    pg_exporter_config: pg_exporter.yml    # pg_exporter configuration file
+    pg_exporter_port: 9630                 # pg_exporter listen port, 9630 by default
+    pg_exporter_params: 'sslmode=disable'  # extra url parameters for pg_exporter
+    pg_exporter_url: ''                    # overwrite auto-generate postgres connstr if specified
+    pg_exporter_auto_discovery: true       # discovery available database on target instance?
+    pg_exporter_exclude_database: 'template0,template1,postgres' # list of databases that WILL NOT be monitored when auto-discovery enabled
+    pg_exporter_include_database: ''       # list of database that WILL BE monitored when auto-discovery enabled, non-empty string will use include mode
     pg_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pg_exporter&local=7"'
-    pgbouncer_exporter_enabled: true       # setup pgbouncer_exporter on instance (if you don't have pgbouncer, disable it)
-    pgbouncer_exporter_port: 9631          # pgbouncer_exporter listen port
-    pgbouncer_exporter_url: ''             # optional, overwrite auto-generate pgbouncer connstr
+    pgbouncer_exporter_enabled: true       # setup pgbouncer_exporter on hosts?
+    pgbouncer_exporter_port: 9631          # pgbouncer_exporter listen port, 9631 by default
+    pgbouncer_exporter_url: ''             # overwrite auto-generate pgbouncer connstr if specified
     pgbouncer_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pgbouncer_exporter&local=7"'
 
     #-----------------------------------------------------------------
@@ -713,7 +642,6 @@ all:
         dst_port: pgbouncer           # 5433 route to pgbouncer
         check_url: /primary           # primary health check, success when instance is primary
         selector: "[]"                # select all instance as primary service candidate
-
       - name: replica                 # service name {{ pg_cluster }}-replica
         src_ip: "*"
         src_port: 5434
@@ -721,7 +649,6 @@ all:
         check_url: /read-only         # read-only health check. (including primary)
         selector: "[]"                # select all instance as replica service candidate
         selector_backup: "[? pg_role == `primary` || pg_role == `offline` ]"
-
       - name: default                 # service's actual name is {{ pg_cluster }}-default
         src_ip: "*"                   # service bind ip address, * for all, vip for cluster virtual ip address
         src_port: 5436                # bind port, mandatory
@@ -735,7 +662,6 @@ all:
           maxconn: 3000               # default front-end connection
           balance: roundrobin         # load balance algorithm (roundrobin by default)
           default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
-
       - name: offline                 # service name {{ pg_cluster }}-offline
         src_ip: "*"
         src_port: 5438
@@ -743,35 +669,33 @@ all:
         check_url: /replica           # offline MUST be a replica
         selector: "[? pg_role == `offline` || pg_offline_query ]"         # instances with pg_role == 'offline' or instance marked with 'pg_offline_query == true'
         selector_backup: "[? pg_role == `replica` && !pg_offline_query]"  # replica are used as backup server in offline service
-
     haproxy_enabled: true             # enable haproxy on this node?
     haproxy_reload: true              # reload haproxy after config?
     haproxy_auth_enabled: false       # enable authentication for haproxy admin?
     haproxy_admin_username: admin     # default haproxy admin username
     haproxy_admin_password: pigsty    # default haproxy admin password
-    haproxy_exporter_port: 9101       # default admin/exporter port
+    haproxy_exporter_port: 9101       # haproxy admin/exporter port, 9101 by default
     haproxy_client_timeout: 24h       # client side connection timeout
     haproxy_server_timeout: 24h       # server side connection timeout
-    vip_mode: none                    # none | l2 | l4 , l4 not implemented yet
+    vip_mode: none                    # virtual ip mode: none or l2, none by default
     vip_reload: true                  # reload vip after config?
-    # vip_address: 127.0.0.1          # virtual ip address ip (l2 or l4)
-    # vip_cidrmask: 24                # virtual ip address cidr mask (l2 only)
-    # vip_interface: eth0             # virtual ip network interface (l2 only)
-    # dns_mode: vip                   # vip|all|selector: how to resolve cluster DNS?
-    # dns_selector: '[]'              # if dns_mode == vip, filter instances been resolved
+    vip_address: 127.0.0.1            # virtual ip address, used when vip_mode is l2
+    vip_cidrmask: 24                  # virtual ip address cidr mask
+    vip_interface: eth0               # virtual ip network interface, eth0 by default
+    dns_mode: vip                     # how to resolve cluster DNS, reserved field
+    dns_selector: '[]'                # jmespath selector for resolved members if dns_mode == selector
 
 
     #================================================================#
     #                         VARS: REDIS                            #
     #================================================================#
-    # REDIS are not enabled by default
 
     #-----------------------------------------------------------------
     # REDIS_IDENTITY
     #-----------------------------------------------------------------
-    #redis_cluster: redis-test        # name of this redis cluster @ cluster level
-    #redis_node: 1                    # redis node identifier, integer sequence @ node level
-    #redis_instances: {}              # redis instances definition of this redis node @ node level
+    # redis_cluster: redis-test       # name of this redis cluster @ cluster level
+    # redis_node: 1                   # redis node identifier, integer sequence @ node level
+    # redis_instances: {}             # redis instances definition of this redis node @ node level
 
     #-----------------------------------------------------------------
     # REDIS_NODE
@@ -784,8 +708,8 @@ all:
     #-----------------------------------------------------------------
     # REDIS_PROVISION
     #-----------------------------------------------------------------
-    redis_safeguard: false            # force redis_clean = abort if true
-    redis_clean: true                 # abort|skip|clean if redis server already exists
+    redis_safeguard: false            # prevent purging running redis instance?
+    redis_clean: true                 # purging existing redis during initialization?
     redis_rmdata: true                # remove redis data when purging redis server?
     redis_mode: standalone            # standalone,cluster,sentinel
     redis_conf: redis.conf            # config template path (except sentinel)

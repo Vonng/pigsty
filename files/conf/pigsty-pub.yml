@@ -18,6 +18,16 @@ all:
         ansible_group_priority: 99    # overwrite other group parameters
         patroni_watchdog_mode: off    # do not fencing meta nodes
 
+    etcd: # dcs service for postgres/patroni ha consensus
+      hosts:  # 1 node for testing, 3 or 5 for production
+        10.10.10.10: { etcd_seq: 1 }  # etcd_seq required
+        10.10.10.11: { etcd_seq: 2 }  # assign from 1 ~ n
+        10.10.10.12: { etcd_seq: 3 }  # odd number please
+      vars: # cluster level parameter override roles/etcd
+        etcd_cluster: etcd  # mark etcd cluster name etcd
+        etcd_safeguard: false # safeguard against purging
+        etcd_clean: true # purge etcd during init process
+
     pg-meta:
       hosts:
         10.10.10.10: { pg_seq: 1, pg_role: primary }
@@ -122,9 +132,6 @@ all:
     version: v2.0.0-a1                # pigsty version string
     meta_ip: 10.10.10.10              # primary meta node ip address
     region: default                   # upstream mirror region: default|china|europe
-    dcs_servers:
-      meta-1: 10.10.10.10
-    dcs_ssl_enabled: true             # secure dcs communications with ssl?
     nginx_upstream:                   # domain names and upstream servers
       - { name: home         , domain: home.pigsty.cc , endpoint: "${meta_ip}:80"   }
       - { name: grafana      , domain: demo.pigsty.cc , endpoint: "${meta_ip}:3000" }
@@ -170,7 +177,6 @@ all:
       - pool cn.pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
     docker_registry_mirrors: ["https://registry.cn-hangzhou.aliyuncs.com"]
-    pg_dcs_type: etcd                 # which dcs to use: consul or etcd or raft
     pg_pwd_enc: scram-sha-256         # algorithm for encrypting passwords: md5|scram-sha-256
     pg_sslmode: require               # enable sslmode: disable|allow|prefer|require|verify-ca|verify-full
 

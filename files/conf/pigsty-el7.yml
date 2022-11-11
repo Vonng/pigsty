@@ -4,7 +4,7 @@
 # Desc      :   Pigsty auto generated config for el7 singleton
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2022-11-06
+# Mtime     :   2022-11-11
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -18,9 +18,12 @@ all:
         ansible_group_priority: 99    # overwrite other group parameters
         patroni_watchdog_mode: off    # do not fencing meta nodes
 
+    # etcd cluster for ha postgres
+    etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
+
+    # default postgres database (optional)
     pg-meta:
-      hosts:
-        10.10.10.10: { pg_seq: 1, pg_role: primary }
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary }}
       vars:
         pg_cluster: pg-meta
         pg_users:
@@ -33,6 +36,4 @@ all:
     version: v2.0.0-a1                # pigsty version string
     meta_ip: 10.10.10.10              # primary meta node ip address
     region: default                   # upstream mirror region: default|china|europe
-    dcs_servers:
-      meta-1: 10.10.10.10
 ...

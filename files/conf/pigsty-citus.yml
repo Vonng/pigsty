@@ -19,6 +19,9 @@ all:
         ansible_group_priority: 99    # overwrite other group parameters
         patroni_watchdog_mode: off    # do not fencing meta nodes
 
+    # etcd cluster for ha postgres
+    etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
+
     # citus coordinator node
     pg-meta:
       hosts:
@@ -62,14 +65,10 @@ all:
     version: v2.0.0-a1                # pigsty version string
     meta_ip: 10.10.10.10              # primary meta node ip address
     region: default                   # upstream mirror region: default|china|europe
-    dcs_servers:
-      meta-1: 10.10.10.10
-
     node_etc_hosts:                   # write static etc hosts to citus cluster
       - 10.10.10.11 node-1 pg-node1-1
       - 10.10.10.12 node-2 pg-node2-1
       - 10.10.10.13 node-3 pg-node3-1
-
     pg_libs: 'citus, pg_stat_statements, auto_explain'  # extensions to be loaded
     pg_hba_rules_extra:               # extra hba rules to allow intranet citus trust access
       # AD HOC FOR CITUS CLUSTER

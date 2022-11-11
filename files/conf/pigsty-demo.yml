@@ -19,6 +19,9 @@ all:
         patroni_watchdog_mode: off    # do not fencing meta nodes
         docker_enabled: true          # enable docker service on meta nodes
 
+    # etcd cluster for ha postgres
+    etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
+
     pg-meta:
       hosts:
         10.10.10.10: { pg_seq: 1, pg_role: primary }
@@ -74,9 +77,6 @@ all:
     meta_ip: 10.10.10.10              # primary meta node ip address
     region: default                   # upstream mirror region: default|china|europe
     pg_clean: true                    # for convenience, purge existing pg during init, DO NOT DO THIS IN PRODUCTION
-    dcs_clean: true                   # for convenience, purge existing dcs during init, DO NOT DO THIS IN PRODUCTION
-    dcs_servers:                      # singleton dcs server
-      meta-1: 10.10.10.10
     nginx_upstream:                   # domain names and upstream servers
       - { name: home         , domain: pigsty      , endpoint: "${meta_ip}:80"   }
       - { name: grafana      , domain: g.pigsty    , endpoint: "${meta_ip}:3000" }
@@ -120,6 +120,5 @@ all:
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
-    pg_dcs_type: etcd                 # which dcs to use: consul or etcd or raft
     docker_registry_mirrors: ["https://registry.cn-hangzhou.aliyuncs.com"]
 ...

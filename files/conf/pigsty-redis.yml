@@ -67,10 +67,21 @@ all:
         redis_max_memory: 64MB              # max memory used by each redis instance
 
 
-  #-----------------------------------------------------------------
   vars:
-    redis_safeguard: false            # force redis_clean = abort if true
-    redis_clean: true                 # abort|skip|clean if redis server already exists
+
+    #-----------------------------------------------------------------
+    # REDIS_NODE
+    #-----------------------------------------------------------------
+    redis_fs_main: /data              # main fs mountpoint for redis data
+    redis_exporter_enabled: true      # install redis exporter on redis nodes?
+    redis_exporter_port: 9121         # default port for redis exporter
+    redis_exporter_options: ''        # default cli args for redis exporter
+
+    #-----------------------------------------------------------------
+    # REDIS_PROVISION
+    #-----------------------------------------------------------------
+    redis_safeguard: false            # prevent purging running redis instance?
+    redis_clean: true                 # purging existing redis during initialization?
     redis_rmdata: true                # remove redis data when purging redis server?
     redis_mode: standalone            # standalone,cluster,sentinel
     redis_conf: redis.conf            # config template path (except sentinel)
@@ -82,5 +93,6 @@ all:
     redis_aof_enabled: false          # redis aof enabled
     redis_rename_commands: {}         # rename dangerous commands
     redis_cluster_replicas: 1         # how many replicas for a master in redis cluster ?
+
 
 ...
