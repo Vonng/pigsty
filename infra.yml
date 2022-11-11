@@ -10,7 +10,7 @@
 #==============================================================#
 
 #---------------------------------------------------------------
-# identity
+# setup node & pgsql identity
 #---------------------------------------------------------------
 - name: Identity
   hosts: all
@@ -23,13 +23,13 @@
 
 
 #---------------------------------------------------------------
-# bootstrap meta node with local yum repo
+# bootstrap infra nodes with local yum repo
 #---------------------------------------------------------------
-- name: Infra Bootstrap
+- name: INFRA BOOT
   become: yes
   hosts: meta
   gather_facts: no
-  tags: infra
+  tags: infra-boot
   roles:
 
     # INFRA
@@ -51,13 +51,8 @@
       tags: docker
       when: docker_enabled|bool
 
-    - role: consul              # init consul if enabled
-      tags: [ dcs, consul ]
-      when: consul_enabled|bool
-
     - role: etcd                # init etcd if enabled
       tags: [ dcs, etcd ]
-      when: etcd_enabled|bool
 
     # INFRA
     - role: nameserver      # init dns nameserver

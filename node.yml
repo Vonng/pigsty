@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   node.yml
 # Mtime     :   2020-05-12
-# Mtime     :   2022-11-09
+# Mtime     :   2022-11-11
 # Desc      :   init node for pigsty
 # Path      :   node.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -20,8 +20,6 @@
 # ./node.yml -t node_admin       # create admin user for nodes
 # ./node.yml -t node-exporter    # deploy and register node-exporter
 # ./node.yml -t node-register    # register node_exporter to prometheus
-# ...
-# ./node.yml -t dcs -e dcs_clean=clean  # force reinstall consul
 # ./node.yml -t node_admin -k -K -e ansible_user=<another admin>
 # ...
 #--------------------------------------------------------------
@@ -52,23 +50,9 @@
   tags: id
   roles:
 
-    - role: node_id             # get node identity (always)
+    # get node identity (always)
+    - role: node_id
       tags: node-id
-
-    #- role: pg_id
-    #  tags: pg-id
-    #  when: pg_cluster is defined
-
-
-#---------------------------------------------------------------
-# Node Init
-#---------------------------------------------------------------
-- name: NODE INIT
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: node-init
-  roles:
 
     # prepare node for pigsty
     - role: node
@@ -77,51 +61,9 @@
     - role: ca
       tags: ca
 
-
-#---------------------------------------------------------------
-# Node Docker
-#---------------------------------------------------------------
-- name: NODE DOCKER
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: node-docker
-  roles:
-    # init docker if enabled
     - role: docker
       tags: docker
       when: docker_enabled|bool
-
-#---------------------------------------------------------------
-# Node DCS Service (Consul Server/Agent & Etcd)
-#---------------------------------------------------------------
-- name: NODE DCS
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: node-dcs
-  roles:
-
-    # init dcs:consul server/agent if enabled
-    - role: consul
-      tags: [ dcs, consul ]
-      when: consul_enabled|bool
-
-    # init dcs:etcd server/agent if enabled
-    - role: etcd
-      tags: [ dcs, etcd ]
-      when: etcd_enabled|bool
-
-
-#---------------------------------------------------------------
-# Node monitor
-#---------------------------------------------------------------
-- name: NODE MONITOR
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: node-monitor
-  roles:
 
     # init & register node exporter
     - role: node_exporter
@@ -137,5 +79,4 @@
     - role: node_register
       tags: node-register
 
-#---------------------------------------------------------------
 ...

@@ -3,8 +3,8 @@
 #==============================================================#
 # File      :   infra-remove.yml
 # Ctime     :   2022-02-22
-# Mtime     :   2022-10-05
-# Desc      :   uninstall pigsty from meta nodes
+# Mtime     :   2022-11-11
+# Desc      :   uninstall pigsty infra module
 # Path      :   infra-remove.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
@@ -13,78 +13,60 @@
 # Usage
 #---------------------------------------------------------------
 # ./infra-remove.yml -t infra      # remove infra
-# ./infra-remove.yml -t infra-svc  # remove infra services
-# ./infra-remove.yml -t infra-data # remove infra data
-# ./infra-remove.yml -t infra-pkg  # remove infra packages
-# ./infra-remove.yml -e rm_metadata=true   # remove pigsty data
-# ./infra-remove.yml -e rm_metadpkgs=true  # remove meta pkgs too
-# ./infra-remove.yml -e rm_metadata=true -e rm_metadpkgs=true  #
+# ./infra-remove.yml -t service    # stop infra services
+# ./infra-remove.yml -t data       # remove infra data
+# ./infra-remove.yml -t package    # uninstall infra packages
 #---------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # Remove Infrastructure
 #------------------------------------------------------------------------------
-- name: Infra Remove
+- name: INFRA REMOVE
   become: yes
   hosts: meta
   tags: infra
   gather_facts: no
   ignore_errors: yes
-  vars:
-
-    rm_metadata: false        # remove metadata on meta nodes? false by default
-    rm_metapkgs: false        # uninstall node_packages_meta? false by default
-
   tasks:
 
     #---------------------------------------------
     # Stop Service
     #---------------------------------------------
-    - name: Stop and disable systemd infra service
+    - name: stop and disable infra service
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
-      tags: infra-svc
+      tags: service
       with_items:
         - grafana-server
         - prometheus
         - alertmanager
-        - node_exporter
-        - consul
-        - etcd
         - loki
-        - promtail
 
     #---------------------------------------------
     # Remove Data
     #---------------------------------------------
-    - name: Remove infra data on meta nodes
+    - name: remove infra data
       file: state=absent path="{{ item }}"
-      tags: infra-data
-      when: rm_metadata|bool
+      tags: data
+      when: rm_infradata|bool
       with_items:
         - /etc/pigsty
         - /etc/prometheus/targets
         - /etc/nginx/conf.d/
         - /var/lib/grafana
-        - "{{ nginx_home }}"
-        - "{{ pg_data }}"
         - "{{ prometheus_data_dir }}"
-        - "{{ consul_data_dir }}"
-        - "{{ etcd_data_dir }}"
+        - "{{ nginx_home }}"
 
     #---------------------------------------------
-    # Remove Packages
+    # Uninstall Packages
     #---------------------------------------------
-    - name: Uninstall meta packages
+    - name: uninstall infra packages
       yum: name={{ item }} state=removed
-      tags: infra-pkg
-      when: rm_metapkgs|bool
+      tags: package
       with_items:
-        - prometheus2
         - grafana
+        - prometheus2
         - alertmanager
         - loki
         - nginx
-        - consul
-        - etcd
 
 ...

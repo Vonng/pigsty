@@ -3,16 +3,34 @@
 #==============================================================#
 # File      :   install.yml
 # Ctime     :   2021-01-19
-# Mtime     :   2022-11-04
+# Mtime     :   2022-11-11
 # Desc      :   install everything on all nodes
 # Path      :   install.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
+#==============================================================#
+# install.yml will interleave infra.yml & node.yml in following
+# orders to set up everything in one pass
+# - id           : generate node & pgsql identity
+# - infra-boot   : environ repo
+# - node-init    : node ca docker
+# - infra-init   : nameserver nginx prometheus grafana loki
+# - node-monitor : node-exporter promtail
+# - etcd-init    : etcd
+# - pgsql-init   : postgres service pg-exporter pg-register
+#
+# Which is equivalent to the following 4 playbooks altogether:
+# - infra.yml    deploy infrastructure on group 'infra'
+# - node.yml     init all nodes (including infra nodes)
+# - etcd.yml     deploy etcd on group 'etcd` for pg ha dcs
+# - pgsql.yml    deploy postgres database clusters
+#==============================================================#
+
 #---------------------------------------------------------------
-# identity
+# setup node & pgsql identity
 #---------------------------------------------------------------
-- name: Identity
+- name: IDENTITY
   hosts: all
   gather_facts: no
   tags: id
@@ -26,9 +44,9 @@
       when: pg_cluster is defined
 
 #---------------------------------------------------------------
-# bootstrap meta node with local yum repo
+# bootstrap infra nodes with local yum repo
 #---------------------------------------------------------------
-- name: Infra Bootstrap
+- name: INFRA BOOT
   become: yes
   hosts: meta
   gather_facts: no
@@ -44,9 +62,9 @@
 
 
 #---------------------------------------------------------------
-# init node , ca, docker & dcs
+# init node , ca, docker
 #---------------------------------------------------------------
-- name: Node Init
+- name: NODE INIT
   become: yes
   hosts: all
   gather_facts: no
@@ -63,23 +81,15 @@
       tags: docker
       when: docker_enabled|bool
 
-    - role: consul          # init consul if enabled
-      tags: [ dcs, consul ]
-      when: consul_enabled|bool
-
-    - role: etcd            # init etcd if enabled
-      tags: [ dcs, etcd ]
-      when: etcd_enabled|bool
-
 
 #---------------------------------------------------------------
-# init infrastructure on meta nodes
+# init dns, nginx, prometheus, grafana, loki
 #---------------------------------------------------------------
-- name: Setup Infrastructure on meta nodes
+- name: INFRA INIT
   become: yes
   hosts: meta
   gather_facts: no
-  tags: infra
+  tags: infra-init
   roles:
 
     - role: nameserver    # init dns nameserver
@@ -102,13 +112,15 @@
       tags: loki
       # when: loki_enabled|bool
 
+    # register infra targets to prometheus
     - role: infra_register
       tags: infra-register
+
 
 #---------------------------------------------------------------
 # Node Monitor
 #---------------------------------------------------------------
-- name: Node Monitor
+- name: NODE MONITOR
   become: yes
   hosts: all
   gather_facts: no
@@ -129,14 +141,29 @@
     - role: node_register
       tags: node-register
 
+
 #---------------------------------------------------------------
-# init cmdb(s) on meta nodes
+# ETCD INIT
+#---------------------------------------------------------------
+- name: ETCD INIT
+  become: yes
+  hosts: etcd               # run on group 'etcd'
+  gather_facts: no
+  tags: etcd-init
+  roles:
+
+    - role: etcd            # init etcd
+      tags: etcd
+
+
+#---------------------------------------------------------------
+# INIT PGSQL
 #---------------------------------------------------------------
 - name: PGSQL Init     # init pgsql cmdb on meta nodes
   become: yes
   hosts: all
   gather_facts: no
-  tags: [ pgsql-init ]
+  tags: pgsql-init
   roles:
 
     - role: postgres        # init postgres pgbouncer patroni
@@ -150,7 +177,6 @@
 
     - role: pg_register     # register cluster/instance to infra
       tags: pg-register
-
 
 #---------------------------------------------------------------
 ...
