@@ -3,8 +3,7 @@
 # REPO
 #-----------------------------------------------------------------
 repo_name: pigsty                 # repo name, pigsty by default
-repo_address: pigsty              # external address to this repo (ip:port or url)
-repo_rebuild: false               # force re-download packages
+repo_address: pigsty              # address to this repo by ip:port or url
 repo_remove: true                 # remove existing upstream repo
 repo_upstream:                    # where to download #
   - { name: base           ,description: 'EL 7 Base'         ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/os/$basearch/'                    , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/'       , europe: 'https://mirrors.xtom.de/centos/$releasever/os/$basearch/'           }}
@@ -29,24 +28,24 @@ repo_upstream:                    # where to download #
   - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' }}
   - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8  ] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
   - { name: citus          ,description: 'Citus Community'   ,module: pgsql ,releases: [7,8  ] ,baseurl: { default: 'https://repos.citusdata.com/community/el/$releasever/$basearch'          }}
-repo_packages: # which packages to be included                                   #  what to download #
+repo_packages:                    # what to download #
   - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils #modulemd-tools
   - uuid lz4 bzip2 netcat pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync nvme-cli numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet audit ca-certificates
-  - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils*
-  - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter # redis
-  - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-urllib3 python3-idna python36-pyOpenSSL # python3-pyOpenSSL python3-jmespath
-  - postgresql14* pglogical_14* postgis33_14* citus111_14* timescaledb-2-postgresql-14 # citus & tsdb not ready in el9
-  - patroni patroni-etcd pgbouncer pgbadger tail_n_mail boxinfo check_postgres barman barman-cli pgFormatter pitrery pspg PyGreSQL
-  - pg_activity pgxnclient pgcenter emaj pgbconsole pg_bloat_check pgloader pg_cli pgquarrel pgbackrest # some not available on el8, el9
-  - pg_repack_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 plsh_14 pldebugger_14 plpgsql_check_14 wal2json_14
-  - mysql_fdw_14 ogr_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 pgbouncer_fdw_14 hypopg_14 geoip_14 tdigest_14 multicorn2_14 pg_ivm_14 # osm_fdw_14 tds_fdw_14
-  - bgw_replstatus_14 ddlx_14 mysqlcompat_14 orafce_14 repmgr_14 pg_auto_failover_14 pg_catcheck_14 pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14
-  - pg_readonly_14 pgagent_14 pgaudit16_14 pgauditlogtofile_14 pgfincore_14 powa_14 pgq_14 pgsql_tweaks_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
-  - pg_statement_rollback_14 system_stats_14 plproxy_14 pgmemcache_14 rum_14 hll_14 ip4r_14 prefix_14 pguri_14 topn_14 periods_14 # pgrouting_14 osm2pgrouting_14
-  - count_distinct_14 credcheck_14 extra_window_functions_14 logerrors_14 pg_auth_mon_14 pg_background_14 pg_bulkload_14 pg_comparator_14
-  - pg_prioritize_14 pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 pgtap_14 safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14
+  - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils* s3cmd
   - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex docker-ce docker-compose* # kubelet kubectl kubeadm kubernetes-cni helm
-  - postgresql15* postgis33_15* citus111_15* sqlite_fdw_15 wal2json_15 # timescaledb-2-postgresql-15*
+  - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter #redis haproxy
+  - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-urllib3 python3-idna python36-pyOpenSSL
+  - postgresql14* pg_repack_14 wal2json_14 pglogical_14* postgis33_14* citus111_14* timescaledb-2-postgresql-14
+  - postgresql15* pg_repack_15 wal2json_15 pglogical_15* postgis33_15* citus111_15* #timescaledb-2-postgresql-15
+  - patroni patroni-etcd pgbouncer pgbadger tail_n_mail pgbackrest pg_activity
+  - boxinfo check_postgres barman barman-cli pgFormatter pitrery pspg PyGreSQL pgloader
+  - pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 plsh_14 pldebugger_14 plpgsql_check_14 postgresql_faker_14
+  - mysql_fdw_14 ogr_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 pgbouncer_fdw_14 hypopg_14 geoip_14 tdigest_14 multicorn2_14 pg_ivm_14 semver_14
+  - bgw_replstatus_14 ddlx_14 mysqlcompat_14 orafce_14 repmgr_14 pg_auto_failover_14 pg_catcheck_14 pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14
+  - pg_readonly_14 pgagent_14 pgaudit16_14 pgauditlogtofile_14 pgfincore_14 powa_14 pgq_14 pgsql_tweaks_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 rum_14
+  - pg_statement_rollback_14 system_stats_14 plproxy_14 pgmemcache_14 hll_14 ip4r_14 prefix_14 pguri_14 topn_14 periods_14
+  - count_distinct_14 credcheck_14 extra_window_functions_14 logerrors_14 pg_auth_mon_14 pg_background_14 pg_bulkload_14 pg_comparator_14
+  - pg_prioritize_14 pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 pgtap_14 safeupdate_14 set_user_14 sslutils_14 table_version_14
 repo_url_packages:                # extra packages from url
   - https://github.com/Vonng/loki-rpm/releases/download/v2.6.1/loki-2.6.1.x86_64.rpm
   - https://github.com/Vonng/loki-rpm/releases/download/v2.6.1/promtail-2.6.1.x86_64.rpm
@@ -56,23 +55,22 @@ repo_url_packages:                # extra packages from url
   - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
   - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm # redis.el7
   - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.6/haproxy-2.6.6-1.el7.x86_64.rpm # haproxy.el7
-
+  - https://dl.min.io/server/minio/release/linux-amd64/minio-20221108052707.0.0.x86_64.rpm
+  - https://dl.min.io/client/mc/release/linux-amd64/mcli-20221107234739.0.0.x86_64.rpm
 #-----------------------------------------------------------------
-# INTERNAL FLAG
+# INTERNAL
 #-----------------------------------------------------------------
 repo_exists: false # internal flag
-
-#-----------------------------------------------------------------
-# NGINX (Reference)
-#-----------------------------------------------------------------
-nginx_enabled: true               # build local repo on this node
-nginx_port: 80                    # repo listen address, must same as repo_address
-nginx_home: /www                  # default repo home dir
-proxy_env:                        # global proxy env when downloading packages
-  no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
-
 #-----------------------------------------------------------------
 # META (Reference)
 #-----------------------------------------------------------------
 region: default                   # choose a region from where to download repo pkgs: default|china|europe
+proxy_env:                        # global proxy env when downloading packages
+  no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
+#-----------------------------------------------------------------
+# NGINX (Reference)
+#-----------------------------------------------------------------
+nginx_enabled: true               # enable nginx on this infra node?
+nginx_port: 80                    # nginx listen port, 80 by default
+nginx_home: /www                  # default nginx content home dir
 ...

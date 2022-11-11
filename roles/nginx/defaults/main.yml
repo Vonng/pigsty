@@ -2,29 +2,26 @@
 #-----------------------------------------------------------------
 # NGINX
 #-----------------------------------------------------------------
-nginx_enabled: true               # build local repo on this node
-nginx_port: 80                    # repo listen address, must same as repo_address
-nginx_home: /www                  # default repo home dir
-nginx_upstream:                   # domain names and upstream servers
+nginx_enabled: true               # enable nginx on this infra node?
+nginx_port: 80                    # nginx listen port, 80 by default
+nginx_home: /www                  # default nginx content home dir
+nginx_upstream:                   # nginx domain names and upstreams
   - { name: home         , domain: pigsty      , endpoint: "${meta_ip}:80"   }
   - { name: grafana      , domain: g.pigsty    , endpoint: "${meta_ip}:3000" }
-  - { name: loki         , domain: l.pigsty    , endpoint: "${meta_ip}:3100" }
   - { name: prometheus   , domain: p.pigsty    , endpoint: "${meta_ip}:9090" }
   - { name: alertmanager , domain: a.pigsty    , endpoint: "${meta_ip}:9093" }
-nginx_indexes:                    # application nav links on home page
-  - { name: Explain    , url : '/pev.html' , comment: 'postgres explain visualizer' }
+nginx_indexes:                    # nginx index.html navigation links
   - { name: Package    , url : '/pigsty'   , comment: 'local yum repo packages'     }
+  - { name: Explain    , url : '/pev.html' , comment: 'postgres explain visualizer' }
   - { name: PG Logs    , url : '/logs'     , comment: 'postgres raw csv logs'       }
-  - { name: Schemas    , url : '/schema'   , comment: 'schemaspy summary report'    }
   - { name: Reports    , url : '/report'   , comment: 'pgbadger summary report'     }
 
 #-----------------------------------------------------------------
-# Meta (Reference)
+# META (Reference)
 #-----------------------------------------------------------------
-version: v1.6.0-b4
-
+version: v2.0.0-a1                # pigsty version string
 #-----------------------------------------------------------------
-# Repo (Reference)
+# REPO (Reference)
 #-----------------------------------------------------------------
 repo_name: pigsty                 # repo name, pigsty by default
 repo_address: pigsty              # external address to this repo (ip:port or url)

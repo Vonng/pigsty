@@ -2,40 +2,30 @@
 #-----------------------------------------------------------------
 # GRAFANA (Reference)
 #-----------------------------------------------------------------
-grafana_enabled: true             # enable grafana? only works on meta nodes
-grafana_endpoint: http://${meta_ip}:3000     # grafana endpoint url
+grafana_enabled: true             # setup grafana on meta nodes?
+grafana_endpoint: http://${meta_ip}:3000 # grafana endpoint url
 grafana_admin_username: admin     # default grafana admin username
 grafana_admin_password: pigsty    # default grafana admin password
-
 #-----------------------------------------------------------------
 # PROMETHEUS (Reference)
 #-----------------------------------------------------------------
-prometheus_enabled: true          # setup prometheus
-
-#-----------------------------------------------------------------
-# POSTGRES (Reference)
-#-----------------------------------------------------------------
-pg_port: 5432                         # postgres port, 5432 by default
-patroni_port: 8008                    # default patroni port
-pgbouncer_port: 6432                  # pgbouncer port, 6432 by default
-
-#-----------------------------------------------------------------
-# PG_EXPORTER (Reference)
-#-----------------------------------------------------------------
-pg_exporter_port: 9630           # pg_exporter listen port
-pgbouncer_exporter_port: 9631    # pgbouncer_exporter listen port
-
-#-----------------------------------------------------------------
-# PG_SERVICE (Reference)
-#-----------------------------------------------------------------
-haproxy_exporter_port: 9101      # default admin/exporter port
-
+prometheus_enabled: true          # setup prometheus on meta nodes?
 #-----------------------------------------------------------------
 # PG_BUSINESS (Reference)
 #-----------------------------------------------------------------
 pg_monitor_username: dbuser_monitor
 pg_monitor_password: DBUser.Monitor
-
+#-----------------------------------------------------------------
+# PG_BOOTSTRAP (Reference)
+#-----------------------------------------------------------------
+pg_port: 5432                     # postgres port, 5432 by default
+patroni_port: 8008                # default patroni port
+pgbouncer_port: 6432              # pgbouncer port, 6432 by default
+#-----------------------------------------------------------------
+# PG_EXPORTER (Reference)
+#-----------------------------------------------------------------
+pg_exporter_port: 9630            # pg_exporter listen port, 9630 by default
+pgbouncer_exporter_port: 9631     # pgbouncer_exporter listen port, 9631 by default
 #-----------------------------------------------------------------
 # PG_SERVICE (Reference)
 #-----------------------------------------------------------------
@@ -78,5 +68,5 @@ pg_services:                      # how to expose postgres service in cluster?
     selector_backup: "[? pg_role == `replica` && !pg_offline_query]"  # replica are used as backup server in offline service
 
 pg_services_extra: []             # extra services
-
+haproxy_exporter_port: 9101       # haproxy admin/exporter port, 9101 by default
 ...

@@ -6,7 +6,7 @@
 
 **Current master branch is under development (v1.6.0), check [v1.5.1](https://github.com/Vonng/pigsty/tree/v1.5.1) for stable release.**
 
-> Latest Beta: [v1.6.0-b4](https://github.com/Vonng/pigsty/releases/tag/v1.6.0-b4) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
+> Latest Beta: [v2.0.0-a1](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-a1) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
 >
 > Documentation:  [Wiki](https://github.com/Vonng/pigsty/wiki), [Website](https://pigsty.cc/en/) | [中文站点](https://pigsty.cc/zh/)
 
