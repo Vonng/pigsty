@@ -1,6 +1,6 @@
 ---
 #==============================================================#
-# Prepare: Cleanup & Create directories
+# Clean existing postgres
 #==============================================================#
 
 #---------------------------------------------------------------
@@ -14,13 +14,13 @@
 
 
 #------------------------------------------------------------------------------
-# Check PostgreSQL
+# Check PostgreSQL                                                   [pg_check]
 #------------------------------------------------------------------------------
 - name: check postgres exists
   tags: pg_check
   block:
 
-    # check postgres by according to pg_port
+    # check postgres by listening port
     - name: check postgres exists
       command: 'ss -tp state listening sport = :{{ pg_port }}'
       any_errors_fatal: true
@@ -30,9 +30,9 @@
       set_fact:
         pg_exists: "{{ 'post' in check_pg_port_result.stdout }}"
 
-    # when any running instance exists, abort play in two cases:
+    # when any running postgres exists, abort play in two cases:
     # 1. pg_safeguard = true   # prevent accidentally purge at all
-    # 2. pg_clean = false      # explicitly set pg_clean=true to purge during init
+    # 2. pg_clean = false      # pg_clean=true is required for purging during init
     - name: ABORT due to postgres exists
       connection: local
       when: pg_exists|bool and (pg_safeguard|bool or not pg_clean|bool)
@@ -46,12 +46,12 @@
 
 
 #------------------------------------------------------------------------------
-# Purge PostgreSQL
+# Purge PostgreSQL                                                   [pg_purge]
 #------------------------------------------------------------------------------
 # DANGEROUS! remove all postgres data of target machine
 # BUT, this is your choice
 - name: purge postgres
-  tags: pg_clean
+  tags: pg_purge
   become: yes
   block:
 
