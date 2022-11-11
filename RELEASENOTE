@@ -1,7 +1,7 @@
 
 | Version         |    Time    | Description                                             | Release                                                                                   |
 |:----------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.0.0](#v200) | 2022-11-? | Compatibility Security Maintainability Enhancement      | [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.6.0)                             |
+| [v2.0.0-a1](#v200-a1) | 2022-11-11 | Compatibility Security Maintainability Enhancement      | [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-a1)                       |
 | [v1.5.1](#v151) | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
 | [v1.5.0](#v150) | 2022-05-31 | Docker Applications                                     | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
 | [v1.4.1](#v141) | 2022-04-20 | Bug fix & Full translation of English documents.        | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |
@@ -28,15 +28,22 @@
 
 ------------------------------
 
-## v2.0.0
+## v2.0.0-a1
 
 v2.0.0 Alpha1 Release
 
 **Highlights**
 
-* Compatibility: EL 7,8,9, PG 15
-* Security Enhancement: CA, SSL for etcd/consul/postgres
-* Maintainability Enhancement: adaptive tuning templates
+* PostgreSQL 15, PostGIS 3.3, Citus 11, TimescaleDB 2.8
+* Compatibility: EL 7,8,9, PG 15 for RHEL, CentOS, Rocky, OracleLinux, AlmaLinux
+* Security Enhancement: CA, SSL for etcd/postgres, scram-sha-256 encryption
+* Battery-Included PITR with pgbackrest
+* Adaptive tuning template for PostgreSQL and nodes
+* Simplified configuration templates
+* Replace consul with etcd completely
+* Minio S3 Compatible Object Storage
+* Change license to AGPL 3.0 (infect by grafana & minio)
+
 
 **Compatibility**
 
@@ -67,19 +74,20 @@ v2.0.0 Alpha1 Release
 
 **Software Upgrade**
 
-* PostgreSQL 14.5 / PostgreSQL 15.0
+* PostgreSQL 14.6 / PostgreSQL 15.1
 * Patroni 2.1.4
 * Pgbouncer 1.17
 * HAProxy 2.6.6
 * PostGIS 3.3
 * Citus 11.1
-* TimescaleDB 2.8
-* Prometheus 2.39
+* TimescaleDB 2.8.1
+* Prometheus 2.40
 * Loki & Promtail 2.6.1
-* Grafana 9.2.2
+* Grafana 9.2.4
 * Node Exporter 1.4
 * Consul v13.3
 * ETCD 3.5.5
+* Minio 20221111
 
 **Bug Fix**
 
@@ -96,8 +104,6 @@ add 24 parameters, remove 8 parameters
 - `INFRA`.`CA`.`ca_cn`                               : ca common name, pigsty-ca by default
 - `INFRA`.`CA`.`cert_validity`                       : cert validity, 20 years by default
 - `INFRA`.`REPO`.`repo_upstream`                     : list of upstream yum repo definition
-- `INFRA`.`DCS`.`dcs_gid`                            : gid for consul/etcd users
-- `INFRA`.`DCS`.`dcs_ssl_enabled`                    : secure dcs communications with ssl?
 - `PGSQL`.`PG_INSTALL`.`pg_log_dir`                  : postgres log dir, `/pg/data/log` by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_storage_type`           : SSD|HDD, SSD by default
 - `PGSQL`.`PG_BOOTSTRAP`.`patroni_log_dir`           : patroni log dir, `/pg/log` by default
@@ -117,6 +123,7 @@ add 24 parameters, remove 8 parameters
 
 **Removed Parameters**
 
+- `INFRA`.`DCS`: removed, replaced by `ETCD`
 - `INFRA`.`CA`.`ca_homedir`: ca home dir, now fixed as `/etc/pki/`
 - `INFRA`.`CA`.`ca_cert`: ca cert filename, now fixed as `ca.key`
 - `INFRA`.`CA`.`ca_key`: ca key filename, now fixed as `ca.key`
@@ -125,7 +132,6 @@ add 24 parameters, remove 8 parameters
 - `PGSQL`.`PG_INSTALL`.`pg_add_repo`: now taken care by node playbooks
 - `PGSQL`.`PG_IDENTITY`.`pg_backup`: not used and conflict with section name
 - `PGSQL`.`PG_IDENTITY`.`pg_preflight_skip`: not used anymore, replace by `pg_id`
-
 
 
 
