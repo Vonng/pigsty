@@ -2,36 +2,35 @@
 # WARNING: you have to run
 
 #------------------------------------------------------------------------------
-# Config etcd cert
+# Config etcd cert                                                  [etcd_cert]
 #------------------------------------------------------------------------------
-- name: generate etcd cert for servers
+- name: generate etcd server certs
   tags: etcd_cert
-  when: dcs_ssl_enabled|bool and inventory_hostname in dcs_servers.values()
   delegate_to: "{{ meta_ip }}"
   block:
 
     - name: generate etcd private key
       openssl_privatekey:
-        path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.key"
+        path: "/etc/pki/CA/{{ etcd_instance }}.key"
         mode: 0600
 
     - name: generate etcd signing request
       openssl_csr:
-        path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.csr"
-        privatekey_path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.key"
-        common_name: "{{ dcs_nodename }}"
+        path: "/etc/pki/CA/{{ etcd_instance }}.csr"
+        privatekey_path: "/etc/pki/CA/{{ etcd_instance }}.key"
+        common_name: "{{ etcd_instance }}"
         organization_name: pigsty
         organizational_unit_name: etcd
         subject_alt_name:
-          - DNS:localhost
-          - "DNS:{{ dcs_nodename }}"
           - IP:127.0.0.1
+          - DNS:localhost
           - "IP:{{ inventory_hostname }}"
+          - "DNS:{{ etcd_instance }}"
 
     - name: issue etcd server certificate
       openssl_certificate:
-        path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.crt"
-        csr_path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.csr"
+        path: "/etc/pki/CA/{{ etcd_instance }}.crt"
+        csr_path: "/etc/pki/CA/{{ etcd_instance }}.csr"
         ownca_path: /etc/pki/ca.crt
         ownca_privatekey_path: /etc/pki/ca.key
         provider: ownca
@@ -42,34 +41,67 @@
     - name: fetch etcd cert and key to local
       fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
       with_items:
-        - { src: "/etc/pki/CA/etcd-{{ dcs_nodename }}.crt"   , dest: "files/pki/etcd/etcd-{{ dcs_nodename }}.crt" }
-        - { src: "/etc/pki/CA/etcd-{{ dcs_nodename }}.key"   , dest: "files/pki/etcd/etcd-{{ dcs_nodename }}.key" }
+        - { src: "/etc/pki/CA/{{ etcd_instance }}.crt" , dest: "files/pki/etcd/{{ etcd_instance }}.crt" }
+        - { src: "/etc/pki/CA/{{ etcd_instance }}.key" , dest: "files/pki/etcd/{{ etcd_instance }}.key" }
 
 
+#------------------------------------------------------------------------------
+# Config etcd cert                                             [etcd_cert_copy]
+#------------------------------------------------------------------------------
 - name: copy etcd certs
   tags: [ etcd_cert, etcd_cert_copy ]
-  when: dcs_ssl_enabled|bool and inventory_hostname in dcs_servers.values()
   block:
+    - name: copy ca file # NOTE: files/pki/ca/ca.crt is created by role: ca
+      copy: src="files/pki/ca/ca.crt" dest="/etc/etcd/ca.crt" owner=etcd mode=0600
     - name: copy etcd ssl cert
-      copy: src="files/pki/etcd/etcd-{{ dcs_nodename }}.crt" dest="/etc/etcd/etcd.crt" owner=etcd group=dcs mode=0644
+      copy: src="files/pki/etcd/{{ etcd_instance }}.crt" dest="/etc/etcd/server.crt" owner=etcd mode=0644
     - name: copy etcd ssl key
-      copy: src="files/pki/etcd/etcd-{{ dcs_nodename }}.key" dest="/etc/etcd/etcd.key" owner=etcd group=dcs mode=0600
+      copy: src="files/pki/etcd/{{ etcd_instance }}.key" dest="/etc/etcd/server.key" owner=etcd mode=0600
+
 
 
 #------------------------------------------------------------------------------
-# Config etcd server
+# Config etcd server                                                [etcd_conf]
 #------------------------------------------------------------------------------
 - name: setup etcd server
-  tags: etcd_config
-  when: inventory_hostname in dcs_servers.values()
+  tags: etcd_conf
   block:
 
-    # config etcd
+#    - name: get etcd cluster membership
+#      set_fact:
+#        etcd_members: "{{ hostvars|json_query(etcd_members_query) }}"
+#      vars:
+#        etcd_members_query: "[@.*][0][?etcd_cluster=='{{ etcd_cluster }}']"
+
+    - name: print etcd configuration info
+      debug:
+        msg: "ETCDCTL_ENDPOINTS={% for ip in groups['etcd'] %}{% if not loop.first %},{% endif %}https://{{ ip }}:{{ etcd_port }}{% endfor %}"
+
+    - name: copy /etc/etcd/etcd.conf
+      template: src=etcd.conf.j2 dest=/etc/etcd/etcd.conf owner=etcd mode=0644
+
     - name: copy etcd server service unit
       template: src=etcd.service.j2 dest=/usr/lib/systemd/system/etcd.service
 
-    # only server need config
-    - name: copy /etc/etcd/etcd.conf
-      template: src=etcd.conf.j2 dest=/etc/etcd/etcd.conf owner=etcd mode=0644
+    - name: write etcd environment profile
+      tags: etcd_env
+      copy:
+        dest: /etc/profile.d/etcdctl.sh
+        mode: 0644
+        content: |
+          #!/bin/bash
+          alias e="etcdctl"
+          alias em="etcdctl member"
+          export ETCDCTL_API={{ etcd_api }}
+          export ETCDCTL_ENDPOINTS={% for ip in groups['etcd'] %}{% if not loop.first %},{% endif %}https://{{ ip }}:{{ etcd_port }}{% endfor %}          
+          if (( ${ETCDCTL_API} == 3 )); then
+            export ETCDCTL_CACERT=/etc/pki/ca.crt
+            export ETCDCTL_CERT=/etc/etcd/server.crt
+            export ETCDCTL_KEY=/etc/etcd/server.key
+          else          
+            export ETCDCTL_CA_FILE=/etc/pki/ca.crt
+            export ETCDCTL_CERT_FILE=/etc/etcd/server.crt
+            export ETCDCTL_KEY_FILE=/etc/etcd/server.key
+          fi
 
 ...

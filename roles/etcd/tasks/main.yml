@@ -1,52 +1,87 @@
 ---
-# https://www.digitalocean.com/community/tutorials/how-to-set-up-and-secure-an-etcd-cluster-with-ansible-on-ubuntu-18-04#step-13-copying-private-keys-and-certificates
+# Run on: inventory_hostname in groups['etcd']
+# Reference: https://www.digitalocean.com/community/tutorials/how-to-set-up-and-secure-an-etcd-cluster-with-ansible-on-ubuntu-18-04
+
 
 #------------------------------------------------------------------------------
-# 1. Prepare ETCD Env: Check & Cleanup & Dir & User
+# 0. Assert
 #------------------------------------------------------------------------------
-# tasks: etcd_check , etcd_clean, etcd_user, etcd_dir, etcd_alias
-# abort if dcs_safeguard set to ture and etcd is running
-- import_tasks: prepare.yml
-  tags: etcd_prepare
-  when: inventory_hostname in dcs_servers.values()
+- name: assert etcd identity
+  assert:
+    that:
+      - etcd_cluster is defined and etcd_cluster is not none and etcd_cluster != ""
+      - etcd_seq is defined and etcd_seq|int >= 0
+    fail_msg: variable 'etcd_seq' is required for etcd instance
 
 #------------------------------------------------------------------------------
-# 2. Config ETCD
+# 1. Install
+#------------------------------------------------------------------------------
+- name: install etcd
+  tags: etcd_install
+  package: name=etcd state=present
+
+#------------------------------------------------------------------------------
+# 2. Clean
+#------------------------------------------------------------------------------
+# tasks: etcd_check , etcd_clean
+# if etcd exists, abort when pg_safeguard = true or pg_clean = false
+- import_tasks: clean.yml
+  tags: etcd_clean
+
+#------------------------------------------------------------------------------
+# 3. Directory
+#------------------------------------------------------------------------------
+- name: create etcd directory
+  tags: etcd_dir
+  block:
+
+    - name: create etcd config dir
+      file: path={{ item }} state=directory owner=etcd group=etcd mode=0750
+      with_items: [ "/etc/etcd" , "/var/lib/etcd"]
+
+    # avoid overwrite node data dir file permission
+    - name: create node data dir if not exists
+      when: etcd_data.startswith(node_data_dir)
+      file: path="{{ node_data_dir }}" state=directory owner=root group=root mode=0777
+    - name: create etcd data dir
+      file: path="{{ etcd_data }}" state=directory owner=etcd group=etcd mode=0700
+
+
+#------------------------------------------------------------------------------
+# 4. Config
 #------------------------------------------------------------------------------
 - import_tasks: config.yml
   tags: etcd_config
   vars:
-    dcs_nodename: "{% if inventory_hostname in dcs_servers.values() %}{{ (dcs_servers|dict2items|items2dict(key_name='value', value_name='key'))[inventory_hostname] }}{% else %}{{ nodename }}{% endif %}"
-  when: inventory_hostname in dcs_servers.values()
+    etcd_members_query: "[@.*][0][?etcd_cluster=='{{ etcd_cluster }}']"
+    etcd_instance: "{{ etcd_cluster }}-{{ etcd_seq }}"
 
 #------------------------------------------------------------------------------
-# 3. Launch Etcd Server
+# 5. Launch
 #------------------------------------------------------------------------------
-- import_tasks: launch.yml
+- name: launch etcd server
   tags: etcd_launch
-  when: inventory_hostname in dcs_servers.values()
+  block:
+
+    - name: launch etcd server service
+      systemd: name=etcd state=restarted enabled=yes daemon_reload=yes
+
+    - name: wait for etcd server online
+      wait_for: host=127.0.0.1 port={{ etcd_port }} state=started timeout=10
 
 #------------------------------------------------------------------------------
-# ETCD Client (will be executed on all meta nodes)
+# 6. Register
 #------------------------------------------------------------------------------
-- name: write etcd environment profile
-  tags: etcd_client
-  when: meta_node|bool
+- name: register etcd as prometheus target
+  tags: [ etcd_register, register_prometheus ]
+  ignore_errors: true
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["meta"] }}'
   copy:
-    dest: /etc/profile.d/etcd.sh
-    mode: 0644
+    dest: /etc/prometheus/targets/etcd/{{ etcd_cluster }}-{{ etcd_seq }}.yml
     content: |
-      export ETCDCTL_API=2
-      {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
-      export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}https://{{ v }}:2379{% endfor %}"
-      {% else %}
-      export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}http://{{ v }}:2379{% endfor %}"
-      {% endif %}
-      ETCDPTS="--ca-file=/etc/pki/ca.crt --cert-file=/etc/pki/meta.crt --key-file=/etc/pki/meta.key"
-
-      alias e="etcdctl --ca-file=/etc/pki/ca.crt --cert-file=/etc/pki/meta.crt --key-file=/etc/pki/meta.key"
-      alias est="systemctl status etcd"
-      alias em="etcdctl --ca-file=/etc/pki/ca.crt --cert-file=/etc/pki/meta.crt --key-file=/etc/pki/meta.key member list"
-      alias ech="etcdctl --ca-file=/etc/pki/ca.crt --cert-file=/etc/pki/meta.crt --key-file=/etc/pki/meta.key cluster-health"
+      # {{ etcd_cluster }}-{{ etcd_seq }} @ {{ inventory_hostname }}
+      - labels: { ip: {{ inventory_hostname }} , ins: {{ etcd_cluster }}-{{ etcd_seq }} , cls: {{ etcd_cluster }} }
+        targets: [ {{ inventory_hostname }}:{{ etcd_port }} ]
 
 ...

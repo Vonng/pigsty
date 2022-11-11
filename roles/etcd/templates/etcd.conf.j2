@@ -1,38 +1,31 @@
-# human-readable name for this etcd instance
-name: {{ dcs_nodename }}
+# {{ ansible_managed }}
 
-data-dir: {{ etcd_data_dir }}
+name: {{ etcd_instance }}
+
+data-dir: {{ etcd_data }}
 
 enable-v2: yes
 
-initial-cluster-token: "{{ dcs_name }}"
+initial-cluster-token: "{{ etcd_cluster }}"
 
-# establish a new cluster
-initial-cluster-state: "new"
+initial-cluster-state: "{{ etcd_init_state|default('new') }}"
 
-{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
-initial-advertise-peer-urls: https://{{ inventory_hostname }}:2380
-listen-peer-urls: https://{{ inventory_hostname }}:2380
-listen-client-urls: "https://{{ inventory_hostname }}:2379,https://127.0.0.1:2379"
-advertise-client-urls: https://{{ inventory_hostname }}:2379
-initial-cluster: "{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ k }}=https://{{ v }}:2380{% endfor %}"
+initial-cluster: "{% for ip in groups['etcd'] %}{% if not loop.first %},{% endif %}{{ etcd_cluster }}-{{ hostvars[ip].etcd_seq }}=https://{{ ip }}:{{ etcd_peer_port }}{% endfor %}"
 
-# TLS Config
+initial-advertise-peer-urls: "https://{{ inventory_hostname }}:{{ etcd_peer_port }}"
+
+listen-peer-urls: "https://{{ inventory_hostname }}:{{ etcd_peer_port }}"
+
+listen-client-urls: "https://{{ inventory_hostname }}:{{ etcd_port }},https://127.0.0.1:{{ etcd_port }}"
+
+advertise-client-urls: "https://{{ inventory_hostname }}:{{ etcd_port }}"
+
 client-transport-security:
-  cert-file: "/etc/etcd/etcd.crt"
-  key-file:  "/etc/etcd/etcd.key"
+  cert-file: "/etc/etcd/server.crt"
+  key-file:  "/etc/etcd/server.key"
   trusted-ca-file: "/etc/pki/ca.crt"
 
 peer-transport-security:
-  cert-file: "/etc/etcd/etcd.crt"
-  key-file:  "/etc/etcd/etcd.key"
+  cert-file: "/etc/etcd/server.crt"
+  key-file:  "/etc/etcd/server.key"
   trusted-ca-file: "/etc/pki/ca.crt"
-
-{% else %}
-initial-advertise-peer-urls: http://{{ inventory_hostname }}:2380
-listen-peer-urls: http://{{ inventory_hostname }}:2380
-listen-client-urls: "http://{{ inventory_hostname }}:2379,http://127.0.0.1:2379"
-advertise-client-urls: http://{{ inventory_hostname }}:2379
-initial-cluster: "{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ k }}=http://{{ v }}:2380{% endfor %}"
-
-{% endif %}
