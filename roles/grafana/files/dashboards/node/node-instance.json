@@ -3806,7 +3806,7 @@
                                 "value": null
                             },
                             {
-                                "color": "#3274D9",
+                                "color": "blue",
                                 "value": 1
                             }
                         ]
@@ -3816,7 +3816,7 @@
                     {
                         "matcher": {
                             "id": "byFrameRefID",
-                            "options": "A"
+                            "options": "F"
                         },
                         "properties": [
                             {
@@ -3849,7 +3849,7 @@
                     {
                         "matcher": {
                             "id": "byFrameRefID",
-                            "options": "B"
+                            "options": "A"
                         },
                         "properties": [
                             {
@@ -3862,7 +3862,7 @@
                                             "value": null
                                         },
                                         {
-                                            "color": "#3c6388",
+                                            "color": "#3e668f",
                                             "value": 1
                                         }
                                     ]
@@ -3915,7 +3915,7 @@
                     {
                         "matcher": {
                             "id": "byFrameRefID",
-                            "options": "D"
+                            "options": "C"
                         },
                         "properties": [
                             {
@@ -3938,8 +3938,41 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "Node Instance: ${__field.labels.ip}",
+                                        "title": "Node Instance : ${__field.labels.ip}",
                                         "url": "/d/node-instance?var-id=${__field.labels.ins}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "D"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "text",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#5b9cd5",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "ETCD Overview",
+                                        "url": "/d/etcd-overview"
                                     }
                                 ]
                             }
@@ -3953,7 +3986,7 @@
                 "x": 12,
                 "y": 13
             },
-            "id": 247,
+            "id": 252,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -3976,8 +4009,23 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "min by (ins) (up{ip=\"$ip\", job=\"pgsql\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min by (ins) (up{ip=\"$ip\", job=\"redis\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
@@ -3989,8 +4037,9 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (ins) (redis_up{ip=\"$ip\", job=\"redis\"})",
+                    "expr": "min by (ins) (up{ip=\"$ip\", job=\"node\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
@@ -4002,22 +4051,9 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (instance) (up{ip=\"$ip\", job!~\"(node|infra|pgsql|redis)\"})",
-                    "hide": false,
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "{{ instance }}",
-                    "refId": "E"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "exemplar": false,
-                    "expr": "min by (ins) (up{ip=\"$ip\", job=\"node\"})",
-                    "hide": false,
+                    "expr": "max by (ins,instance) (up{ip=\"$ip\", job=\"etcd\"})",
                     "instant": true,
                     "interval": "",
                     "legendFormat": "{{ ins }}",
@@ -4028,12 +4064,42 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (ins,instance) (up{ip=\"$ip\", job=\"minio\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "max by (type,instance) (up{ip=\"$ip\", job=\"infra\"})",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
                     "legendFormat": "{{ type }}",
-                    "refId": "A"
+                    "refId": "F"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (instance) (up{ip=\"$ip\", job!~\"(node|infra|etcd|pgsql|redis|minio)\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ instance }}",
+                    "refId": "G"
                 }
             ],
             "title": "Instances",
@@ -4587,7 +4653,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 2
+                        "y": 10
                     },
                     "id": 172,
                     "options": {
@@ -4879,7 +4945,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 2
+                        "y": 10
                     },
                     "id": 36,
                     "options": {
@@ -4979,7 +5045,7 @@
                         "h": 9,
                         "w": 16,
                         "x": 0,
-                        "y": 8
+                        "y": 16
                     },
                     "id": 35,
                     "options": {
@@ -5067,7 +5133,7 @@
                         "h": 9,
                         "w": 8,
                         "x": 16,
-                        "y": 8
+                        "y": 16
                     },
                     "id": 180,
                     "links": [],
@@ -5234,7 +5300,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 24
+                        "y": 32
                     },
                     "id": 173,
                     "options": {
@@ -5399,7 +5465,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 24
+                        "y": 32
                     },
                     "id": 186,
                     "options": {
@@ -5507,7 +5573,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 31
+                        "y": 39
                     },
                     "id": 80,
                     "options": {
@@ -5600,7 +5666,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 31
+                        "y": 39
                     },
                     "id": 203,
                     "options": {
@@ -5744,7 +5810,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 38
+                        "y": 46
                     },
                     "id": 30,
                     "options": {
@@ -5936,7 +6002,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 38
+                        "y": 46
                     },
                     "id": 119,
                     "options": {
@@ -6038,7 +6104,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 0,
-                        "y": 44
+                        "y": 52
                     },
                     "id": 187,
                     "options": {
@@ -6127,7 +6193,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 12,
-                        "y": 44
+                        "y": 52
                     },
                     "id": 32,
                     "options": {
@@ -6180,7 +6246,7 @@
                         "h": 5,
                         "w": 4,
                         "x": 0,
-                        "y": 49
+                        "y": 57
                     },
                     "id": 208,
                     "links": [],
@@ -6286,7 +6352,7 @@
                         "h": 5,
                         "w": 8,
                         "x": 4,
-                        "y": 49
+                        "y": 57
                     },
                     "id": 79,
                     "options": {
@@ -6375,7 +6441,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 12,
-                        "y": 49
+                        "y": 57
                     },
                     "id": 204,
                     "options": {
@@ -6503,7 +6569,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 4
+                        "y": 12
                     },
                     "id": 33,
                     "options": {
@@ -6619,7 +6685,7 @@
                         "h": 6,
                         "w": 9,
                         "x": 12,
-                        "y": 4
+                        "y": 12
                     },
                     "id": 220,
                     "options": {
@@ -6699,7 +6765,7 @@
                         "h": 3,
                         "w": 3,
                         "x": 21,
-                        "y": 4
+                        "y": 12
                     },
                     "id": 71,
                     "links": [],
@@ -6787,7 +6853,7 @@
                         "h": 3,
                         "w": 3,
                         "x": 21,
-                        "y": 7
+                        "y": 15
                     },
                     "id": 72,
                     "links": [],
@@ -6886,7 +6952,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 10
+                        "y": 18
                     },
                     "id": 40,
                     "options": {
@@ -7051,7 +7117,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 10
+                        "y": 18
                     },
                     "id": 221,
                     "options": {
@@ -7206,7 +7272,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 16
+                        "y": 24
                     },
                     "id": 89,
                     "options": {
@@ -7303,7 +7369,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 16
+                        "y": 24
                     },
                     "id": 90,
                     "options": {
@@ -7416,7 +7482,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 22
+                        "y": 30
                     },
                     "id": 91,
                     "options": {
@@ -7540,7 +7606,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 22
+                        "y": 30
                     },
                     "id": 188,
                     "options": {
@@ -7692,7 +7758,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 28
+                        "y": 36
                     },
                     "id": 31,
                     "options": {
@@ -7837,7 +7903,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 28
+                        "y": 36
                     },
                     "id": 205,
                     "options": {
@@ -7933,7 +7999,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 34
+                        "y": 42
                     },
                     "id": 206,
                     "options": {
@@ -8021,7 +8087,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 34
+                        "y": 42
                     },
                     "id": 88,
                     "options": {
@@ -8208,7 +8274,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 40
+                        "y": 48
                     },
                     "id": 249,
                     "options": {
@@ -8372,7 +8438,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 40
+                        "y": 48
                     },
                     "id": 250,
                     "links": [],
@@ -8760,7 +8826,7 @@
                         "h": 5,
                         "w": 24,
                         "x": 0,
-                        "y": 5
+                        "y": 13
                     },
                     "id": 207,
                     "options": {
@@ -9112,7 +9178,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 10
+                        "y": 18
                     },
                     "id": 46,
                     "options": {
@@ -9232,7 +9298,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 10
+                        "y": 18
                     },
                     "id": 45,
                     "options": {
@@ -9350,7 +9416,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 16
+                        "y": 24
                     },
                     "id": 201,
                     "options": {
@@ -9466,7 +9532,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 16
+                        "y": 24
                     },
                     "id": 47,
                     "options": {
@@ -9583,7 +9649,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 22
+                        "y": 30
                     },
                     "id": 29,
                     "options": {
@@ -9699,7 +9765,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 22
+                        "y": 30
                     },
                     "id": 202,
                     "options": {
@@ -9789,7 +9855,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 28
+                        "y": 36
                     },
                     "id": 38,
                     "options": {
@@ -9883,7 +9949,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 28
+                        "y": 36
                     },
                     "id": 84,
                     "options": {
@@ -10214,7 +10280,7 @@
                         "h": 5,
                         "w": 24,
                         "x": 0,
-                        "y": 27
+                        "y": 35
                     },
                     "id": 110,
                     "options": {
@@ -10477,7 +10543,7 @@
                         "h": 6,
                         "w": 6,
                         "x": 0,
-                        "y": 32
+                        "y": 40
                     },
                     "id": 189,
                     "options": {
@@ -10576,7 +10642,7 @@
                         "h": 6,
                         "w": 6,
                         "x": 6,
-                        "y": 32
+                        "y": 40
                     },
                     "id": 200,
                     "options": {
@@ -10658,7 +10724,7 @@
                         "h": 6,
                         "w": 6,
                         "x": 12,
-                        "y": 32
+                        "y": 40
                     },
                     "id": 174,
                     "options": {
@@ -10723,7 +10789,7 @@
                         "h": 6,
                         "w": 6,
                         "x": 18,
-                        "y": 32
+                        "y": 40
                     },
                     "id": 198,
                     "options": {
@@ -10815,7 +10881,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 38
+                        "y": 46
                     },
                     "id": 182,
                     "options": {
@@ -10924,7 +10990,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 38
+                        "y": 46
                     },
                     "id": 199,
                     "options": {
@@ -11051,7 +11117,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 44
+                        "y": 52
                     },
                     "id": 51,
                     "options": {
@@ -11199,7 +11265,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 44
+                        "y": 52
                     },
                     "id": 58,
                     "options": {
@@ -11506,7 +11572,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 28
+                        "y": 36
                     },
                     "id": 213,
                     "options": {
@@ -11733,7 +11799,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 35
+                        "y": 43
                     },
                     "id": 183,
                     "options": {
@@ -11828,7 +11894,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 35
+                        "y": 43
                     },
                     "id": 185,
                     "options": {
@@ -11965,7 +12031,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 0,
-                        "y": 41
+                        "y": 49
                     },
                     "id": 53,
                     "options": {
@@ -12093,7 +12159,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 12,
-                        "y": 41
+                        "y": 49
                     },
                     "id": 178,
                     "options": {
@@ -12240,7 +12306,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 8
+                        "y": 16
                     },
                     "id": 49,
                     "options": {
@@ -12395,7 +12461,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 8
+                        "y": 16
                     },
                     "id": 93,
                     "options": {
@@ -12494,7 +12560,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 14
+                        "y": 22
                     },
                     "id": 54,
                     "options": {
@@ -12609,7 +12675,7 @@
                         "h": 7,
                         "w": 6,
                         "x": 12,
-                        "y": 14
+                        "y": 22
                     },
                     "id": 92,
                     "options": {
@@ -12704,7 +12770,7 @@
                         "h": 7,
                         "w": 6,
                         "x": 18,
-                        "y": 14
+                        "y": 22
                     },
                     "id": 56,
                     "options": {
@@ -12849,7 +12915,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 21
+                        "y": 29
                     },
                     "id": 52,
                     "options": {
@@ -12942,7 +13008,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 21
+                        "y": 29
                     },
                     "id": 55,
                     "options": {
@@ -13141,7 +13207,7 @@
                         "h": 6,
                         "w": 3,
                         "x": 0,
-                        "y": 30
+                        "y": 38
                     },
                     "id": 212,
                     "options": {
@@ -13243,7 +13309,7 @@
                         "h": 6,
                         "w": 9,
                         "x": 3,
-                        "y": 30
+                        "y": 38
                     },
                     "id": 83,
                     "options": {
@@ -13332,7 +13398,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 30
+                        "y": 38
                     },
                     "id": 70,
                     "options": {
@@ -13438,7 +13504,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 36
+                        "y": 44
                     },
                     "id": 87,
                     "options": {
@@ -13531,7 +13597,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 36
+                        "y": 44
                     },
                     "id": 73,
                     "options": {
@@ -13657,7 +13723,7 @@
                         "h": 5,
                         "w": 24,
                         "x": 0,
-                        "y": 31
+                        "y": 39
                     },
                     "id": 243,
                     "interval": "1s",
@@ -13703,7 +13769,7 @@
                         "h": 12,
                         "w": 24,
                         "x": 0,
-                        "y": 36
+                        "y": 44
                     },
                     "id": 245,
                     "options": {
@@ -13908,5 +13974,6 @@
     "uid": "node-instance",
     "version": 1,
     "weekStart": "",
-    "author": "Vonng (rh@vonng.com)"
+    "author": "Vonng (rh@vonng.com)",
+    "license": "AGPLv3"
 }

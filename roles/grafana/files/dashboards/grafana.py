@@ -210,6 +210,7 @@ def dump_dashboard_to_file(d, path):
         raw = dashboard_raw(d)
         raw["version"] = 1
         raw["author"] = "Vonng (rh@vonng.com)"
+        raw["license"] = "AGPLv3"
         json.dump(raw, dst, indent=4)
 
 
