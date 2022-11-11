@@ -23,8 +23,17 @@ node_dns_options:                 # dns resolv options
 #-----------------------------------------------------------------
 # NODE_REPO
 #-----------------------------------------------------------------
+node_repo_method: local           # none|local: ad local repo|public: add upstream directly
+node_repo_remove: true            # remove existing repo on nodes?
+node_repo_local_urls:             # list local repo url, if node_repo_method = local
+  - http://pigsty/pigsty.repo
+
+#-----------------------------------------------------------------
+# NODE_PACKAGE
+#-----------------------------------------------------------------
+node_packages: [ ]                # extra packages for all nodes
 node_packages_default:            # common packages for all nodes
-  - chrony,zip,unzip,bzip2,lz4,netcat,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,rsync,ca-certificates
+  - chrony,zip,unzip,bzip2,lz4,netcat,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,rsync,tuned,ca-certificates
   - numactl,grubby,vim-minimal,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,perf,nvme-cli,s3cmd
   - python3,python3-pip,python3-requests,python3-psycopg2,python3-etcd,python3-urllib3,python3-idna,python36-pyOpenSSL
   - readline,zlib,openssl,openssl-libs,openssh-clients,node_exporter,etcd,promtail
@@ -67,7 +76,6 @@ node_ntp_servers:                 # ntp servers in /etc/chrony.conf
   - pool pool.ntp.org iburst
 node_crontab_overwrite: true      # overwrite /etc/crontab or append to it?
 node_crontab: [ ]                 # crontab entries in /etc/crontab
-
 
 #-----------------------------------------------------------------
 # META (Reference)
