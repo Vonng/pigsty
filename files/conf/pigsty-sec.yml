@@ -5,6 +5,7 @@
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2020-05-22
 # Mtime     :   2022-11-11
+# License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -32,6 +33,12 @@ all:
         meta_node: true               # mark this group as meta nodes
         ansible_group_priority: 99    # overwrite other group parameters
         patroni_watchdog_mode: off    # do not fencing meta nodes
+
+    infra: # infra cluster for proxy, monitor, alert, etc
+      hosts: # 1 for common usage, 3 nodes for production
+        10.10.10.10: { infra_seq: 1 } # identity required
+        10.10.10.11: { infra_seq: 2 } # assign from 1 ~ n
+        10.10.10.12: { infra_seq: 3 } # DO NOT reuse seqs
 
     etcd: # dcs service for postgres/patroni ha consensus
       hosts:  # 1 node for testing, 3 or 5 for production
