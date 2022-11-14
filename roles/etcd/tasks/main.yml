@@ -45,17 +45,22 @@
     - name: create etcd data dir
       file: path="{{ etcd_data }}" state=directory owner=etcd group=etcd mode=0700
 
-
 #------------------------------------------------------------------------------
 # 4. Config
 #------------------------------------------------------------------------------
 - import_tasks: config.yml
   tags: etcd_config
-  vars:
-    etcd_instance: "{{ etcd_cluster }}-{{ etcd_seq }}"
+  vars: { etcd_instance: "{{ etcd_cluster }}-{{ etcd_seq }}" }
 
 #------------------------------------------------------------------------------
-# 5. Launch
+# 5. Certs
+#------------------------------------------------------------------------------
+- import_tasks: cert.yml
+  tags: [ etcd_config, etcd_cert ]
+  vars: { etcd_instance: "{{ etcd_cluster }}-{{ etcd_seq }}" }
+
+#------------------------------------------------------------------------------
+# 6. Launch
 #------------------------------------------------------------------------------
 - name: launch etcd server
   tags: etcd_launch
@@ -68,7 +73,7 @@
       wait_for: host=127.0.0.1 port={{ etcd_port }} state=started timeout=10
 
 #------------------------------------------------------------------------------
-# 6. Register
+# 7. Register
 #------------------------------------------------------------------------------
 - name: register etcd as prometheus target
   tags: [ etcd_register, register_prometheus ]
