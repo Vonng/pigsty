@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   prometheus.yml
 # Ctime     :   2020-04-03
-# Mtime     :   2022-04-29
+# Mtime     :   2022-11-14
 # Desc      :   Prometheus Configuration File
 # Path      :   /etc/prometheus/prometheus.yml
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -20,10 +20,11 @@
 # /etc/prometheus/
 #  ^-----@targets          # file based service discovery targets definition
 #            ^-----@node   # node  static targets definition
-#            ^-----@infra  # infra static targets definition
 #            ^-----@pgsql  # pgsql static targets definition
-#            ^-----@redis  # redis static targets definition (not exists for now)
-#
+#            ^-----@redis  # redis static targets definition
+#            ^-----@etcd   # etcd static targets definition
+#            ^-----@minio  # minio static targets definition
+#            ^-----@infra  # infra static targets definition
 #------------------------------------------------------------------------------
 
 
@@ -96,6 +97,22 @@ scrape_configs:
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
         files: [ targets/etcd/*.yml ]
+    scheme: https
+    tls_config:
+      ca_file:   /etc/pki/ca.crt
+      cert_file: /etc/pki/infra.crt
+      key_file:  /etc/pki/infra.key
+
+  #------------------------------------------------------------------------------
+  # job: minio
+  # labels: [cls, ins, ip, instance]
+  # path: targets/minio/<minio_instance>.yml
+  #------------------------------------------------------------------------------
+  - job_name: minio
+    metrics_path: /minio/v2/metrics/cluster
+    file_sd_configs:
+      - refresh_interval: {{ prometheus_sd_interval }}
+        files: [ targets/minio/*.yml ]
     scheme: https
     tls_config:
       ca_file:   /etc/pki/ca.crt
