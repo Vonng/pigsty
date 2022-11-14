@@ -91,7 +91,7 @@ resource "alicloud_instance" "pg-test-3" {
 }
 
 
-output "meta_ip" {
+output "admin_ip" {
   value = "${alicloud_instance.pg-meta-1.public_ip}"
 }
 

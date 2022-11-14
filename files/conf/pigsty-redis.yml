@@ -4,7 +4,7 @@
 # Desc      :   pigsty config for redis clusters
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2022-11-09
-# Mtime     :   2022-11-09
+# Mtime     :   2022-11-11
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
@@ -14,19 +14,11 @@ all:
   #-----------------------------------------------------------------
   children:
 
-    meta:                             # special group: meta nodes
-      hosts: { 10.10.10.10: { } }
-      vars:
-        meta_node: true               # mark this group as meta nodes
-        ansible_group_priority: 99    # overwrite other group parameters
-        patroni_watchdog_mode: off    # do not fencing meta nodes
 
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
-    #----------------------------------#
-    # redis sentinel example           #
-    #----------------------------------#
+    # redis sentinel
     redis-meta:
       hosts:
         10.10.10.10:
@@ -37,9 +29,7 @@ all:
         redis_mode: sentinel
         redis_max_memory: 64MB
 
-    #----------------------------------#
-    # redis cluster example            #
-    #----------------------------------#
+    # redis cluster
     redis-test:
       hosts:
         10.10.10.11:
@@ -54,9 +44,7 @@ all:
         redis_max_memory: 32MB              # max memory used by each redis instance
         redis_mem_policy: allkeys-lru       # memory eviction policy
 
-    #----------------------------------#
-    # redis standalone example         #
-    #----------------------------------#
+    # redis standalone
     redis-common:
       hosts:
         10.10.10.13:
@@ -72,6 +60,10 @@ all:
 
 
   vars:
+
+    version: v2.0.0-a1                # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default|china|europe
 
     #-----------------------------------------------------------------
     # REDIS_NODE

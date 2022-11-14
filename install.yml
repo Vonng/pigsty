@@ -44,25 +44,22 @@
       when: pg_cluster is defined
 
 #---------------------------------------------------------------
-# setup admin node with ca and environment (usually localhost)
+# Setup local CA
 #---------------------------------------------------------------
-- name: ADMIN BOOT
+- name: CA
   become: yes
   hosts: localhost
   gather_facts: no
-  tags: admin-boot
+  tags: ca
   roles:
-
-    - role: ca          # init ca-infra & dist to nodes
-      tags: ca
-
+    - role: ca          # init ca on local files/pki
 
 #---------------------------------------------------------------
 # bootstrap infra nodes with local yum repo
 #---------------------------------------------------------------
 - name: INFRA BOOT
   become: yes
-  hosts: meta
+  hosts: infra
   gather_facts: no
   tags: infra-boot
   roles:
@@ -101,7 +98,7 @@
 #---------------------------------------------------------------
 - name: INFRA INIT
   become: yes
-  hosts: meta
+  hosts: infra
   gather_facts: no
   tags: infra-init
   roles:

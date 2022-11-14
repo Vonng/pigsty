@@ -215,6 +215,6 @@ resource "aws_eip" "pigsty-ip" {
   depends_on                = [aws_internet_gateway.pigsty_igw]
 }
 
-output "meta_ip" {
+output "admin_ip" {
   value = aws_eip.pigsty-ip.public_ip
 }

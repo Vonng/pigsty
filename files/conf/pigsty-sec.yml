@@ -21,24 +21,13 @@ all:
 
   children:
 
-    ##################################################################
-    #                             GROUPS                             #
-    ##################################################################
-    meta:                             # use 3 meta nodes
-      hosts:
-        10.10.10.10: { }
-        10.10.10.11: { nginx_enabled: false }
-        10.10.10.12: { nginx_enabled: false  }
-      vars:
-        meta_node: true               # mark this group as meta nodes
-        ansible_group_priority: 99    # overwrite other group parameters
-        patroni_watchdog_mode: off    # do not fencing meta nodes
-
     infra: # infra cluster for proxy, monitor, alert, etc
       hosts: # 1 for common usage, 3 nodes for production
         10.10.10.10: { infra_seq: 1 } # identity required
-        10.10.10.11: { infra_seq: 2 } # assign from 1 ~ n
-        10.10.10.12: { infra_seq: 3 } # DO NOT reuse seqs
+        10.10.10.11: { infra_seq: 2, nginx_enabled: false }
+        10.10.10.12: { infra_seq: 3, nginx_enabled: false }
+      vars:
+        patroni_watchdog_mode: off
 
     etcd: # dcs service for postgres/patroni ha consensus
       hosts:  # 1 node for testing, 3 or 5 for production
@@ -96,7 +85,7 @@ all:
   ####################################################################
   vars:                               # global variables
     version: v2.0.0-a1                # pigsty version string
-    meta_ip: 10.10.10.10              # primary meta node ip address
+    admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     pg_pwd_enc: scram-sha-256         # algorithm for encrypting passwords: md5|scram-sha-256
     pg_sslmode: require               # enable sslmode: disable|allow|prefer|require|verify-ca|verify-full

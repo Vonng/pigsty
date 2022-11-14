@@ -9,15 +9,15 @@
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
-all:
-  children:
 
-    meta:                             # special group: meta nodes
-      hosts: { 10.10.10.10: { } }
-      vars:
-        meta_node: true               # mark this group as meta nodes
-        ansible_group_priority: 99    # overwrite other group parameters
-        patroni_watchdog_mode: off    # do not fencing meta nodes
+all:
+
+  vars:                               # global parameters
+    version: v2.0.0-a1                # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default|china|europe
+
+  children:                           # group definitions
 
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
@@ -25,7 +25,8 @@ all:
     # etcd cluster for ha postgres
     etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
 
-    # default postgres database (optional)
+
+    # postgres cluster 'pg-meta'
     pg-meta:
       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary }}
       vars:
@@ -36,8 +37,14 @@ all:
         pg_databases:
           - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}]}
 
-  vars:                               # global variables
-    version: v2.0.0-a1                # pigsty version string
-    meta_ip: 10.10.10.10              # primary meta node ip address
-    region: default                   # upstream mirror region: default|china|europe
+    # postgres cluster 'pg-meta'
+    pg-test:
+      hosts:
+        10.10.10.11: { pg_seq: 1, pg_role: primary }
+        10.10.10.12: { pg_seq: 2, pg_role: replica }
+        10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query:true }
+      vars:
+        pg_cluster: pg-test
+        pg_databases: [{ name: test }]
+        pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
 ...

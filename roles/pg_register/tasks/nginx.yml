@@ -10,13 +10,13 @@
 
     - name: create nginx config dir for haproxy
       delegate_to: '{{ item }}'
-      with_items: '{{ groups["meta"] }}'
+      with_items: '{{ groups["infra"] }}'
       file: path=/etc/nginx/conf.d/haproxy state=directory owner=root
 
     # /etc/nginx/conf.d/haproxy/upstream-{{ pg_instance }}.conf
     - name: register haproxy upstream to nginx
       delegate_to: '{{ item }}'
-      with_items: '{{ groups["meta"] }}'
+      with_items: '{{ groups["infra"] }}'
       copy:
         dest: /etc/nginx/conf.d/haproxy/upstream-{{ pg_cluster }}-{{ pg_seq }}.conf
         content: |
@@ -27,7 +27,7 @@
     # /etc/nginx/conf.d/haproxy/location-{{ pg_instance }}.conf
     - name: register haproxy url location to nginx
       delegate_to: '{{ item }}'
-      with_items: '{{ groups["meta"] }}'
+      with_items: '{{ groups["infra"] }}'
       copy:
         dest: /etc/nginx/conf.d/haproxy/location-{{ pg_cluster }}-{{ pg_seq }}.conf
         content: |
@@ -40,7 +40,7 @@
     - name: reload nginx to finish haproxy register
       delegate_to: '{{ item }}'
       run_once: true
-      with_items: '{{ groups["meta"] }}'
+      with_items: '{{ groups["infra"] }}'
       systemd: name=nginx state=reloaded enabled=yes daemon_reload=yes
 
 ...

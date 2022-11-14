@@ -55,7 +55,7 @@ all:
           - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
           - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
           - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
-        pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # add timescaledb extension
+        pg_libs: 'pg_stat_statements, auto_explain'  # add timescaledb extension
         pg_hba_rules_extra:
           - title: allow application database intranet access
             role: common
@@ -137,14 +137,14 @@ all:
 
   vars:                               # global variables
     version: v2.0.0-a1                # pigsty version string
-    meta_ip: 10.10.10.10              # primary meta node ip address
+    admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     nginx_upstream:                   # domain names and upstream servers
-      - { name: home         , domain: home.pigsty.cc , endpoint: "${meta_ip}:80"   }
-      - { name: grafana      , domain: demo.pigsty.cc , endpoint: "${meta_ip}:3000" }
-      - { name: loki         , domain: l.pigsty.cc    , endpoint: "${meta_ip}:3100" }
-      - { name: prometheus   , domain: p.pigsty.cc    , endpoint: "${meta_ip}:9090" }
-      - { name: alertmanager , domain: a.pigsty.cc    , endpoint: "${meta_ip}:9093" }
+      - { name: home         , domain: home.pigsty.cc , endpoint: "${admin_ip}:80"   }
+      - { name: grafana      , domain: demo.pigsty.cc , endpoint: "${admin_ip}:3000" }
+      - { name: loki         , domain: l.pigsty.cc    , endpoint: "${admin_ip}:3100" }
+      - { name: prometheus   , domain: p.pigsty.cc    , endpoint: "${admin_ip}:9090" }
+      - { name: alertmanager , domain: a.pigsty.cc    , endpoint: "${admin_ip}:9093" }
       - { name: consul       , domain: c.pigsty.cc    , endpoint: "127.0.0.1:8500"  }
       - { name: postgrest    , domain: api.pigsty.cc  , endpoint: "127.0.0.1:8884"  }
       - { name: pgadmin      , domain: adm.pigsty.cc  , endpoint: "127.0.0.1:8885"  }

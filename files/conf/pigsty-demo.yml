@@ -53,7 +53,6 @@ all:
               - host    kong            dbuser_kong         10.0.0.0/8          md5
               - host    bytebase        dbuser_bytebase     10.0.0.0/8          md5
               - host    grafana         dbuser_grafana      10.0.0.0/8          md5
-        pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # add timescaledb extension
         vip_mode: l2                 # listen l2 vip 10.10.10.2 on eth1
         vip_address: 10.10.10.2
         vip_cidrmask: 8
@@ -78,15 +77,15 @@ all:
 
   vars:                               # global variables
     version: v2.0.0-a1                # pigsty version string
-    meta_ip: 10.10.10.10              # primary meta node ip address
+    admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     pg_clean: true                    # for convenience, purge existing pg during init, DO NOT DO THIS IN PRODUCTION
     nginx_upstream:                   # domain names and upstream servers
-      - { name: home         , domain: pigsty      , endpoint: "${meta_ip}:80"   }
-      - { name: grafana      , domain: g.pigsty    , endpoint: "${meta_ip}:3000" }
-      - { name: loki         , domain: l.pigsty    , endpoint: "${meta_ip}:3100" }
-      - { name: prometheus   , domain: p.pigsty    , endpoint: "${meta_ip}:9090" }
-      - { name: alertmanager , domain: a.pigsty    , endpoint: "${meta_ip}:9093" }
+      - { name: home         , domain: pigsty      , endpoint: "${admin_ip}:80"   }
+      - { name: grafana      , domain: g.pigsty    , endpoint: "${admin_ip}:3000" }
+      - { name: loki         , domain: l.pigsty    , endpoint: "${admin_ip}:3100" }
+      - { name: prometheus   , domain: p.pigsty    , endpoint: "${admin_ip}:9090" }
+      - { name: alertmanager , domain: a.pigsty    , endpoint: "${admin_ip}:9093" }
       - { name: consul       , domain: c.pigsty    , endpoint: "127.0.0.1:8500"   } #== ^ required ==#
       - { name: postgrest    , domain: api.pigsty  , endpoint: "127.0.0.1:8884"   } #== v optional ==#
       - { name: pgadmin      , domain: adm.pigsty  , endpoint: "127.0.0.1:8885"   }

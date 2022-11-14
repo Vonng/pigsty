@@ -10,39 +10,28 @@
 #==============================================================#
 
 #---------------------------------------------------------------
-# setup node & pgsql identity
+# Setup local CA
 #---------------------------------------------------------------
-- name: Identity
-  hosts: all
-  gather_facts: no
-  tags: id
-  roles:
-
-    - role: node_id     # get node identity (always)
-      tags: node-id
-
-#---------------------------------------------------------------
-# setup admin node with ca and environment (usually localhost)
-#---------------------------------------------------------------
-- name: ADMIN BOOT
+- name: CA
   become: yes
   hosts: localhost
   gather_facts: no
-  tags: admin-boot
+  tags: ca
   roles:
-
-    - role: ca          # init ca-infra & dist to nodes
-      tags: ca
+    - role: ca          # init ca on local files/pki
 
 #---------------------------------------------------------------
 # bootstrap infra nodes with local yum repo
 #---------------------------------------------------------------
-- name: INFRA BOOT
+- name: INFRA
   become: yes
-  hosts: meta
+  hosts: infra
   gather_facts: no
-  tags: infra-boot
+  tags: infra
   roles:
+
+    - role: node_id     # get node identity (always)
+      tags: node-id
 
     - role: infra_cert  # setup infrastructure certificates
       tags: infra_cert
@@ -54,21 +43,13 @@
       tags: repo        # you can disable repo on extra meta nodes with nginx_enabled: false
       when: nginx_enabled|bool
 
-    # NODE
     - role: node        # init meta node itself
-      tags: [ node , node-init ]
-
-    - role: ca          # init ca-infra & dist to nodes
-      tags: ca
+      tags: node
 
     - role: docker      # init docker if enabled
       tags: docker
       when: docker_enabled|bool
 
-    - role: etcd        # init etcd if enabled
-      tags: [ dcs, etcd ]
-
-    # INFRA
     - role: nameserver  # init dns nameserver
       tags: nameserver
       # when: nameserver_enabled|bool
@@ -89,7 +70,7 @@
       tags: loki
       # when: loki_enabled|bool
 
-    - role: infra_register  # register infra targets
+    - role: infra_register
       tags: infra-register
 
     # init & register node exporter
@@ -105,5 +86,4 @@
     # register node monitor target to prometheus
     - role: node_register
       tags: node-register
-
 ...

@@ -46,7 +46,7 @@
       with_items: "{{ node_packages }}"
 
     - name: install infra node packages
-      when: meta_node|bool
+      when: inventory_hostname in groups["infra"]
       environment: "{{ proxy_env | default({}) }}"
       yum: name={{ item }} disable_gpg_check=true
       with_items: "{{ node_packages_meta|default([]) }}"
@@ -57,7 +57,7 @@
 #------------------------------------------------------------------------------
 - name: install python pip packages
   tags: node_pip
-  when: meta_node|bool and node_packages_meta_pip != '' and nginx_enabled|bool
+  when: inventory_hostname in groups["infra"] and node_packages_meta_pip != '' and nginx_enabled|bool
   ignore_errors: yes
   environment: "{{ proxy_env | default({}) }}"
   shell: |
