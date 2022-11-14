@@ -6,18 +6,21 @@
 #------------------------------------------------------------------------------
 - name: generate etcd server certs
   tags: etcd_cert
-  delegate_to: "{{ meta_ip }}"
+  become: no
+  delegate_to: localhost
   block:
 
     - name: generate etcd private key
+      connection: local
       openssl_privatekey:
-        path: "/etc/pki/CA/{{ etcd_instance }}.key"
+        path: files/pki/etcd/{{ etcd_instance }}.key
         mode: 0600
 
     - name: generate etcd signing request
+      connection: local
       openssl_csr:
-        path: "/etc/pki/CA/{{ etcd_instance }}.csr"
-        privatekey_path: "/etc/pki/CA/{{ etcd_instance }}.key"
+        path: "files/pki/csr/{{ etcd_instance }}.csr"
+        privatekey_path: "files/pki/etcd/{{ etcd_instance }}.key"
         common_name: "{{ etcd_instance }}"
         organization_name: pigsty
         organizational_unit_name: etcd
@@ -28,21 +31,15 @@
           - "DNS:{{ etcd_instance }}"
 
     - name: issue etcd server certificate
+      connection: local
       openssl_certificate:
-        path: "/etc/pki/CA/{{ etcd_instance }}.crt"
-        csr_path: "/etc/pki/CA/{{ etcd_instance }}.csr"
-        ownca_path: /etc/pki/ca.crt
-        ownca_privatekey_path: /etc/pki/ca.key
+        path: "files/pki/etcd/{{ etcd_instance }}.crt"
+        csr_path: "files/pki/csr/{{ etcd_instance }}.csr"
+        ownca_path: files/pki/ca/ca.crt
+        ownca_privatekey_path: files/pki/ca/ca.key
         provider: ownca
         selfsigned_not_after: "+{{ cert_validity }}"
         mode: 0644
-
-    # fetch etcd certs to files/pki/etcd
-    - name: fetch etcd cert and key to local
-      fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
-      with_items:
-        - { src: "/etc/pki/CA/{{ etcd_instance }}.crt" , dest: "files/pki/etcd/{{ etcd_instance }}.crt" }
-        - { src: "/etc/pki/CA/{{ etcd_instance }}.key" , dest: "files/pki/etcd/{{ etcd_instance }}.key" }
 
 
 #------------------------------------------------------------------------------
@@ -50,9 +47,10 @@
 #------------------------------------------------------------------------------
 - name: copy etcd certs
   tags: [ etcd_cert, etcd_cert_copy ]
+  become: yes
   block:
-    - name: copy ca file # NOTE: files/pki/ca/ca.crt is created by role: ca
-      copy: src="files/pki/ca/ca.crt" dest="/etc/etcd/ca.crt" owner=etcd mode=0600
+    - name: copy ca file
+      copy: src="files/pki/ca/ca.crt" dest="/etc/etcd/ca.crt" owner=etcd mode=0644
     - name: copy etcd ssl cert
       copy: src="files/pki/etcd/{{ etcd_instance }}.crt" dest="/etc/etcd/server.crt" owner=etcd mode=0644
     - name: copy etcd ssl key
