@@ -36,12 +36,26 @@
   tags: id
   roles:
 
-    - role: node_id             # get node identity (always)
+    - role: node_id     # get node identity (always)
       tags: node-id
 
-    - role: pg_id               # get pgsql identity (always)
+    - role: pg_id       # get pgsql identity (always)
       tags: pg-id
       when: pg_cluster is defined
+
+#---------------------------------------------------------------
+# setup admin node with ca and environment (usually localhost)
+#---------------------------------------------------------------
+- name: ADMIN BOOT
+  become: yes
+  hosts: localhost
+  gather_facts: no
+  tags: admin-boot
+  roles:
+
+    - role: ca          # init ca-infra & dist to nodes
+      tags: ca
+
 
 #---------------------------------------------------------------
 # bootstrap infra nodes with local yum repo
@@ -53,11 +67,14 @@
   tags: infra-boot
   roles:
 
-    - role: environ             # setup environment on meta nodes
+    - role: infra_cert  # setup infrastructure certificates
+      tags: infra_cert
+
+    - role: environ     # setup admin functions, envs, certs
       tags: environ
 
-    - role: repo                # setup local yum repo on meta nodes
-      tags: repo                # you can disable repo on extra meta nodes with nginx_enabled: false
+    - role: repo        # setup local yum repo on meta nodes
+      tags: repo
       when: nginx_enabled|bool
 
 
@@ -73,9 +90,6 @@
 
     - role: node            # init meta node itself
       tags: node
-
-    - role: ca              # init ca-infra & dist to nodes
-      tags: ca
 
     - role: docker          # init docker if enabled
       tags: docker

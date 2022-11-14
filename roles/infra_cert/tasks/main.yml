@@ -1,0 +1,46 @@
+---
+#------------------------------------------------------------------------------
+# issue infra cert
+#------------------------------------------------------------------------------
+- name: generate infra cert
+  become: no
+  delegate_to: localhost
+  block:
+
+    - name: generate private key for infra nodes
+      connection: local
+      openssl_privatekey:
+        path: "files/pki/infra/infra-{{ infra_seq }}.key"
+        mode: 0600
+
+    - name: generate signing request for infra nodes
+      connection: local
+      openssl_csr:
+        path: "files/pki/csr/infra-{{ infra_seq }}.csr"
+        privatekey_path: "files/pki/infra/infra-{{ infra_seq }}.key"
+        common_name: "{{ inventory_hostname }}"
+        subject_alt_name:
+          - DNS:localhost
+          - "DNS:{{ nodename }}"
+          - IP:127.0.0.1
+          - "IP:{{ inventory_hostname }}"
+
+    - name: signing infra node cert
+      connection: local
+      openssl_certificate:
+        path: "files/pki/infra/infra-{{ infra_seq }}.crt"
+        csr_path: "files/pki/csr/infra-{{ infra_seq }}.csr"
+        ownca_path: files/pki/ca/ca.crt
+        ownca_privatekey_path: files/pki/ca/ca.key
+        provider: ownca
+        selfsigned_not_after: "+{{ cert_validity }}"
+        mode: 0644
+
+- name: copy infra certs
+  become: yes
+  block:
+    - name: copy infra ssl cert
+      copy: src="files/pki/infra/infra-{{ infra_seq }}.crt" dest="/etc/pki/infra.crt" owner=root group=root mode=0644
+    - name: copy infra ssl key                                                          # TODO: strict access control
+      copy: src="files/pki/infra/infra-{{ infra_seq }}.key" dest="/etc/pki/infra.key" owner=root group=root mode=0644
+...

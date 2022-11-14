@@ -18,9 +18,21 @@
   tags: id
   roles:
 
-    - role: node_id             # get node identity (always)
+    - role: node_id     # get node identity (always)
       tags: node-id
 
+#---------------------------------------------------------------
+# setup admin node with ca and environment (usually localhost)
+#---------------------------------------------------------------
+- name: ADMIN BOOT
+  become: yes
+  hosts: localhost
+  gather_facts: no
+  tags: admin-boot
+  roles:
+
+    - role: ca          # init ca-infra & dist to nodes
+      tags: ca
 
 #---------------------------------------------------------------
 # bootstrap infra nodes with local yum repo
@@ -32,46 +44,48 @@
   tags: infra-boot
   roles:
 
-    # INFRA
-    - role: environ             # setup environment on meta nodes
+    - role: infra_cert  # setup infrastructure certificates
+      tags: infra_cert
+
+    - role: environ     # setup environment on meta nodes
       tags: environ
 
-    - role: repo                # setup local yum repo on meta nodes
-      tags: repo                # you can disable repo on extra meta nodes with nginx_enabled: false
+    - role: repo        # setup local yum repo on meta nodes
+      tags: repo        # you can disable repo on extra meta nodes with nginx_enabled: false
       when: nginx_enabled|bool
 
     # NODE
-    - role: node                # init meta node itself
+    - role: node        # init meta node itself
       tags: [ node , node-init ]
 
-    - role: ca                  # init ca-infra & dist to nodes
+    - role: ca          # init ca-infra & dist to nodes
       tags: ca
 
-    - role: docker              # init docker if enabled
+    - role: docker      # init docker if enabled
       tags: docker
       when: docker_enabled|bool
 
-    - role: etcd                # init etcd if enabled
+    - role: etcd        # init etcd if enabled
       tags: [ dcs, etcd ]
 
     # INFRA
-    - role: nameserver      # init dns nameserver
+    - role: nameserver  # init dns nameserver
       tags: nameserver
       # when: nameserver_enabled|bool
 
-    - role: nginx           # init nginx
+    - role: nginx       # init nginx
       tags: nginx
       # when: nginx_enabled|bool
 
-    - role: prometheus      # init prometheus
+    - role: prometheus  # init prometheus
       tags: prometheus
       # when: prometheus_enabled|bool
 
-    - role: grafana         # init grafana
+    - role: grafana     # init grafana
       tags: grafana
       # when: grafana_enabled|bool
 
-    - role: loki            # init loki
+    - role: loki        # init loki
       tags: loki
       # when: loki_enabled|bool
 

@@ -103,16 +103,16 @@
         META_DIR="{{ pg_namespace|default('/pg') }}/{{ pg_cluster }}"
         if (( ${ETCDCTL_API} == 3 )); then
           export ETCDCTL_CACERT=/etc/pki/ca.crt
-          export ETCDCTL_CERT=/etc/pki/meta.crt
-          export ETCDCTL_KEY=/etc/pki/meta.key
+          export ETCDCTL_CERT=/etc/pki/infra.crt
+          export ETCDCTL_KEY=/etc/pki/infra.key
           etcdctl del "${META_DIR}" --prefix=true
         else
           export ETCDCTL_CA_FILE=/etc/pki/ca.crt
-          export ETCDCTL_CERT_FILE=/etc/pki/meta.crt
-          export ETCDCTL_KEY_FILE=/etc/pki/meta.key
+          export ETCDCTL_CERT_FILE=/etc/pki/infra.crt
+          export ETCDCTL_KEY_FILE=/etc/pki/infra.key
           etcdctl rm -r "${META_DIR}"
         fi
-        /bin/true
+        /bin/true;
 
     - name: remove postgres data
       tags: pg_clean_data
