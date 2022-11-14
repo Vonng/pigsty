@@ -429,7 +429,7 @@ p: release publish
 publish:
 	bin/publish ${VERSION}
 
-build-src: release
+build-src:
 	scp dist/${VERSION}/${SRC_PKG}   meta:~/pigsty.tgz ; ssh   meta "tar -xf pigsty.tgz";
 	scp dist/${VERSION}/${SRC_PKG} node-1:~/pigsty.tgz ; ssh node-1 "tar -xf pigsty.tgz";
 	scp dist/${VERSION}/${SRC_PKG} node-2:~/pigsty.tgz ; ssh node-2 "tar -xf pigsty.tgz";

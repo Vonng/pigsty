@@ -21,12 +21,12 @@ VERSION=v2.0.0-a1
 #==============================================================#
 # args
 #  -i  --ip  <ip addr>    : set local primary ip address
-#  -m  --mode             : mode, ([auto]|demo|...)
+#  -m  --mode             : mode, (el7|el8|el9|demo|sec|citus|redis)
 #  -n  --non-interactive  : flag, run as non-interactive mode
 #==============================================================#
 INTERACTIVE=true                  # run configure with interactive mode
 PRIMARY_IP=""                     # primary IP address (intranet, do not use public IP)
-MODE=""                           # default install mode ([auto]|demo|...)
+MODE=""                           # default install mode (el7|el8|el9|demo|sec|citus|redis)
 SPEC=tiny                         # default postgres spec (tiny|mini|small|medium|large|huge)
 
 #==============================================================#
@@ -403,7 +403,7 @@ function main(){
     while [ $# -gt 0 ]; do
         case $1 in
             -h|--help)
-                echo './configure [-n|--non-interactive] [-d|--download] [-i|--ip <ipaddr>] [-m|--mode {auto|demo}]'
+                echo './configure [-n|--non-interactive] [-d|--download] [-i|--ip <ipaddr>] [-m|--mode <mode>]'
                 exit 0;;
             -i|--ip) PRIMARY_IP="$2" ; shift;;
             -r|--region) REGION="$2" ; shift;;
@@ -426,7 +426,7 @@ function main(){
     check_ssh        # current_user  = NOPASSWD ssh
     check_ipaddr     # primary_ip (arg|probe|input)                    (INTERACTIVE: ask for ip)
     check_admin      # check current_user@primary_ip nopass ssh sudo
-    check_mode       # check config template (auto|demo|...)
+    check_mode       # check config template
     check_config     # generate config according to primary_ip and mode
     check_utils      # check ansible sshpass and other utils installed
     log_info "configure pigsty done"
