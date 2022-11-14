@@ -1,58 +1,54 @@
 ---
 #------------------------------------------------------------------------------
-# Signing minio certs
+# Config minio certs                                               [minio_cert]
 #------------------------------------------------------------------------------
-- name: create minio cert dir
-  tags: minio_cert_dir
-  file: path=/etc/minio state=directory owner={{ minio_user }} group=minio mode=0755
-
 - name: generate certs for minio
-  tags: minio_cert_gen
-  delegate_to: "{{ admin_ip }}"
+  tags: minio_cert
+  become: no
+  delegate_to: localhost
   block:
 
     - name: generate minio private key
       openssl_privatekey:
-        path: "/etc/pki/CA/{{ minio_cluster }}-{{ minio_seq }}.key"
+        path: files/pki/minio/{{ minio_instance }}.key
         mode: 0600
 
     - name: generate minio server signing request
       openssl_csr:
-        path: "/etc/pki/CA/{{ minio_cluster }}-{{ minio_seq }}.csr"
-        privatekey_path: "/etc/pki/CA/{{ minio_cluster }}-{{ minio_seq }}.key"
-        common_name: "{{ minio_cluster }}"
+        path: "files/pki/csr/{{ minio_instance }}.csr"
+        privatekey_path: "files/pki/minio/{{ minio_instance }}.key"
+        common_name: "{{ minio_instance }}"
         organization_name: pigsty
         organizational_unit_name: minio
         subject_alt_name:
           - "DNS:localhost"
           - "DNS:{{ minio_cluster }}"
+          - "DNS:{{ minio_cluster }}-{{ minio_seq }}"
           - "DNS:{{ minio_domain }}"
           - IP:127.0.0.1
           - "IP:{{ inventory_hostname }}"
 
     - name: issue minio server certificate
       openssl_certificate:
-        path: "/etc/pki/CA/{{ minio_cluster }}-{{ minio_seq }}.crt"
-        csr_path: "/etc/pki/CA/{{ minio_cluster }}-{{ minio_seq }}.csr"
-        ownca_path: /etc/pki/ca.crt
-        ownca_privatekey_path: /etc/pki/ca.key
+        path: "files/pki/minio/{{ minio_instance }}.crt"
+        csr_path: "files/pki/csr/{{ minio_instance }}.csr"
+        ownca_path: files/pki/ca/ca.crt
+        ownca_privatekey_path: files/pki/ca/ca.key
         provider: ownca
         selfsigned_not_after: "+{{ cert_validity }}"
         mode: 0644
 
-    - name: fetch minio cert to local
-      fetch: src="/etc/pki/CA/{{ minio_cluster }}-{{ minio_seq }}.crt" dest="files/pki/{{ minio_cluster }}-{{ minio_seq }}.crt" flat=yes
-    - name: fetch minio key to local
-      fetch: src="/etc/pki/CA/{{ minio_cluster }}-{{ minio_seq }}.key" dest="files/pki/{{ minio_cluster }}-{{ minio_seq }}.key" flat=yes
-
-- name: copy minio server certificates
-  any_errors_fatal: true
-  tags: minio_cert_copy
+#------------------------------------------------------------------------------
+# Config minio certs                                          [minio_cert_copy]
+#------------------------------------------------------------------------------
+- name: copy minio certs
+  tags: [ minio_cert, minio_cert_copy ]
+  become: yes
   block:
-
+    - name: copy minio ca file
+      copy: src="files/pki/ca/ca.crt" dest="/etc/minio/ca.crt" owner=minio mode=0644
     - name: copy minio server cert
-      copy: src="files/pki/{{ minio_cluster }}-{{ minio_seq }}.crt" dest="/etc/minio/public.crt" owner={{ minio_user }} group=minio mode=0644
-
+      copy: src="files/pki/minio/{{ minio_instance }}.crt" dest="/etc/minio/public.crt" owner={{ minio_user }} group=minio mode=0644
     - name: copy minio server key
-      copy: src="files/pki/{{ minio_cluster }}-{{ minio_seq }}.key" dest="/etc/minio/private.key" owner={{ minio_user }} group=minio mode=0600
+      copy: src="files/pki/minio/{{ minio_instance }}.key" dest="/etc/minio/private.key" owner={{ minio_user }} group=minio mode=0600
 ...
