@@ -1,0 +1,46 @@
+---
+#------------------------------------------------------------------------------
+# Setup Redis Exporter
+#------------------------------------------------------------------------------
+- name: config /etc/default/redis_exporter
+  tags: redis_exporter_config
+  when:
+  block:
+    - name: config /etc/default/redis_exporter
+      copy:
+        dest: /etc/default/redis_exporter
+        content: |
+          REDIS_EXPORTER_OPTS={{ redis_exporter_options }}
+          REDIS_EXPORTER_CONNECTION_TIMEOUT=10s
+          REDIS_EXPORTER_WEB_LISTEN_ADDRESS="0.0.0.0:{{ redis_exporter_port }}"
+          REDIS_EXPORTER_WEB_TELEMETRY_PATH="{{ exporter_metrics_path }}"
+          REDIS_EXPORTER_INCL_SYSTEM_METRICS=true
+
+    - name: config redis_exporter systemd service
+      copy:
+        dest: /usr/lib/systemd/system/redis_exporter.service
+        content: |
+          [Unit]
+          Description=Prometheus exporter for Redis server metrics.
+          Documentation=https://github.com/oliver006/redis_exporter
+          After=network.target
+          [Service]
+          EnvironmentFile=-/etc/default/redis_exporter
+          User=prometheus
+          ExecStart=/bin/redis_exporter $REDIS_EXPORTER_OPTS
+          ExecReload=/bin/kill -HUP $MAINPID
+          Restart=on-failure
+          RestartSec=5s
+          CPUQuota=10%
+          MemoryLimit=200M          
+          [Install]
+          WantedBy=multi-user.target
+
+- name: launch redis_exporter systemd service
+  when: redis_exporter_enabled|bool and not redis_port is defined
+  systemd: name=redis_exporter state=restarted enabled=yes daemon_reload=yes
+
+- name: wait for redis_exporter service online
+  when: redis_exporter_enabled|bool and not redis_port is defined
+  wait_for: host=127.0.0.1 port={{ redis_exporter_port }} state=started  timeout=10
+...

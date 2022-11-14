@@ -11,9 +11,7 @@
 
 all:
 
-  #-----------------------------------------------------------------
   children:
-
 
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
@@ -34,10 +32,10 @@ all:
       hosts:
         10.10.10.11:
           redis_node: 1
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} }
         10.10.10.12:
           redis_node: 2
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} }
       vars:
         redis_cluster: redis-test           # name of this redis 'cluster'
         redis_mode: cluster                 # standalone,cluster,sentinel
@@ -64,31 +62,5 @@ all:
     version: v2.0.0-a1                # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
-
-    #-----------------------------------------------------------------
-    # REDIS_NODE
-    #-----------------------------------------------------------------
-    redis_fs_main: /data              # main fs mountpoint for redis data
-    redis_exporter_enabled: true      # install redis exporter on redis nodes?
-    redis_exporter_port: 9121         # default port for redis exporter
-    redis_exporter_options: ''        # default cli args for redis exporter
-
-    #-----------------------------------------------------------------
-    # REDIS_PROVISION
-    #-----------------------------------------------------------------
-    redis_safeguard: false            # prevent purging running redis instance?
-    redis_clean: true                 # purging existing redis during initialization?
-    redis_rmdata: true                # remove redis data when purging redis server?
-    redis_mode: standalone            # standalone,cluster,sentinel
-    redis_conf: redis.conf            # config template path (except sentinel)
-    redis_bind_address: '0.0.0.0'     # bind address, empty string turns to inventory_hostname
-    redis_max_memory: 1GB             # max memory used by each redis instance
-    redis_mem_policy: allkeys-lru     # memory eviction policy
-    redis_password: ''                # masterauth & requirepass password, disable by empty string
-    redis_rdb_save: ['1200 1']        # redis rdb save directives, disable with empty list
-    redis_aof_enabled: false          # redis aof enabled
-    redis_rename_commands: {}         # rename dangerous commands
-    redis_cluster_replicas: 1         # how many replicas for a master in redis cluster ?
-
 
 ...

@@ -1,0 +1,110 @@
+---
+#------------------------------------------------------------------------------
+# CLI ARGS: redis_port
+#------------------------------------------------------------------------------
+# if `redis_port` is defined (usually specified by, e.g. -e redis_port=6379)
+# it means, we are going to manipulate a single redis instance rather than entire redis node
+# so we skip redis node & exporter tasks, and only init instance with that port
+
+#--------------------------------------------------------------#
+# HONOR REDIS_SAFEGUARD
+#--------------------------------------------------------------#
+- name: ABORT due to redis_safeguard enabled
+  connection: local
+  when: redis_safeguard|bool
+  tags: [ always , redis_safeguard ]
+  any_errors_fatal: true
+  ignore_errors: false
+  fail: msg="Abort due to redis_safeguard for {{ redis_cluster }}-{{ redis_seq }} @ {{ inventory_hostname }} is enabled, override with -e redis_safeguard=false"
+
+
+#------------------------------------------------------------------------------
+# Remove register from prometheus & stop redis-exporter
+#------------------------------------------------------------------------------
+- name: remove redis register from prometheus
+  when: not redis_safeguard|bool
+  tags: [ register, redis_deregister, deregister_prometheus ]
+  block:
+
+    # remove whole redis instances register on that node
+    - name: deregister redis node from prometheus
+      when: redis_port is not defined
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["infra"] }}'
+      file: path=/etc/prometheus/targets/redis/{{ redis_cluster }}-{{ redis_node }}.yml state=absent
+
+    # remove single redis instance on that node if redis_port is defined
+    - name: deregister redis instance from prometheus # (single instance)
+      when: redis_port is defined
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["infra"] }}'
+      copy:
+        dest: /etc/prometheus/targets/redis/{{ redis_cluster }}-{{ redis_node }}.yml
+        content: |
+          # {{ redis_cluster }}-{{ redis_node }} @ {{ inventory_hostname }}
+          
+          {% for port in redis_instances %}
+          {% if port != redis_port|int %}
+          - labels: { cls: {{ redis_cluster }}, ins: {{ redis_cluster }}-{{ redis_node }}-{{ port }}, instance: {{ inventory_hostname }}:{{ port }} }
+            targets: [ redis://{{ inventory_hostname }}:{{ port }} ]
+          {% endif %}
+          {% endfor %}
+
+    - name: stop and disable redis exporter service
+      when: not redis_safeguard|bool and redis_port is not defined
+      ignore_errors: yes
+      tags: redis
+      systemd: name="redis_exporter.service" state=stopped enabled=no
+
+
+#------------------------------------------------------------------------------
+# Stop redis instances
+#------------------------------------------------------------------------------
+- name: stop redis systemd service
+  when: not redis_safeguard|bool
+  ignore_errors: yes
+  tags: redis
+  block:
+
+    # stop redis instances (whole node)
+    - name: stop redis node systemd services
+      when: not redis_port is defined
+      systemd: name="{{ redis_cluster }}-{{ redis_node }}-{{ item.key }}.service" state=stopped enabled=no
+      with_dict: "{{ redis_instances }}"
+
+    # stop redis instance (single instance)
+    - name: stop redis instance systemd service
+      when: redis_port is defined
+      systemd: name="{{ redis_cluster }}-{{ redis_node }}-{{ redis_port }}.service" state=stopped enabled=no
+
+
+#------------------------------------------------------------------------------
+# Remove data dir if redis_rmdata
+#------------------------------------------------------------------------------
+- name: remove redis data
+  when: not redis_safeguard|bool and redis_rmdata|bool
+  ignore_errors: yes
+  tags: data
+  block:
+
+    # remove entire redis data dir
+    - name: remove redis data dir
+      when: not redis_port is defined
+      file: path={{ redis_fs_main }}/redis state=absent owner=root mode=0777
+
+    # remove single instance data
+    - name: remove redis instance data dir
+      when: redis_port is defined
+      file: path={{ redis_fs_main }}/redis/{{ redis_cluster }}-{{ redis_node }}-{{ redis_port }} state=absent
+
+#------------------------------------------------------------------------------
+# Remove redis packages
+#------------------------------------------------------------------------------
+- name: remove redis packages
+  when: not redis_safeguard|bool and redis_rmpkgs|bool and not redis_port is defined
+  ignore_errors: yes
+  tags: pkg
+  yum: name={{ item }} state=absent
+  with_items: [ 'redis', 'redis_exporter' ]
+
+...

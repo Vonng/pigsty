@@ -1,100 +1,72 @@
-###############################################################################
-# Setup Redis Instance Resource
-###############################################################################
+---
+#------------------------------------------------------------------------------
+# CLI ARGS: redis_port
+#------------------------------------------------------------------------------
+# if `redis_port` is defined (usually specified by, e.g. -e redis_port=6379)
+# it means, we are going to manipulate a single redis instance rather than entire redis node
+# so we skip redis node & exporter tasks, and only init instance with that port
 
 #------------------------------------------------------------------------------
-# Assert before launch instances
+# Precheck
 #------------------------------------------------------------------------------
-- name: check redis instance existence
-  tags: [ redis, redis_precheck ]
-  block:
-
-    - name: check redis {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}:{{ port }} exists
-      any_errors_fatal: true
-      command: 'ss -tp state listening sport = :{{ port }}'
-      register: check_redis_port_result
-
-    - name: set fact whether redis port is open
-      connection: local
-      tags: [ redis_ins , redis_precheck ]
-      set_fact: { redis_exists: "{{ 'redis' in check_redis_port_result.stdout }}" }
-
-    # when any running instance exists, abort play in two cases:
-    # 1. redis_safeguard = true (if safeguard is enabled, redis instance will never be purged!)
-    # 2. redis_clean == 'false' (if redis clean is enabled , redis instance will be purged during init)
-    - name: ABORT due to existing redis instance
-      connection: local
-      when: redis_exists|bool and (redis_safeguard|bool or not redis_clean|bool)
-      any_errors_fatal: true
-      fail: msg="Abort because redis instance {{ redis_cluster }}-{{ redis_node }}-{{ port }} is running"
+- name: check redis instance config
+  tags: [ always, redis-id ]
+  assert:
+    that:
+      - redis_cluster is defined and redis_cluster != ''
+      - redis_node is defined
+      - redis_instances is defined and redis_instances | type_debug == "dict"
+    fail_msg: variable `redis_cluster|redis_instances` are required for redis deployment
 
 #------------------------------------------------------------------------------
-# Clean [DANGEROUS!]
+# Node
 #------------------------------------------------------------------------------
-- name: clean up redis
-  tags: [ redis, redis_clean ]
-  block:
-
-    - name: PURGING REDIS INSTANCE {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
-      # connection: local # leave some time for manual intervention
-      when: not redis_safeguard|bool and redis_exists|bool and redis_clean|bool # DANGEROUS
-      debug:
-        msg: "[DANGEROUS] RUNNING REDIS INSTANCE {{ redis_cluster }}-{{ redis_node }}-{{ port }} WILL BE PURGED!"
-
-    - name: SHUTTING DOWN {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
-      ignore_errors: true
-      shell: |
-        systemctl stop {{ redis_cluster }}-{{ redis_node }}-{{ port }}.service ;
-        if lsof -t -i tcp:{{ port }}; then
-            kill $(lsof -t -i tcp:{{ port }} );
-        fi ;
-        if lsof -t -i tcp:{{ port }}; then
-            kill -9 $(lsof -t -i tcp:{{ port }} );
-        fi ;
-        # /bin/true
-
-    - name: REMOVING DATADIR {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
-      when: redis_rmdata|bool and (not redis_safeguard|bool and redis_exists|bool and redis_clean|bool)
-      file: path={{ redis_fs_main }}/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }} state=absent owner=redis mode=0700
-
+- import_tasks: node.yml
+  when: not redis_port is defined
+  tags: redis_node
 
 #------------------------------------------------------------------------------
-# Config
+# Exporter
 #------------------------------------------------------------------------------
-# create data dir & config & systemd service
-- name: create redis resource dir
-  tags: [ redis, redis_config ]
+- import_tasks: exporter.yml
+  when: not redis_port is defined
+  tags: redis_exporter
+
+#------------------------------------------------------------------------------
+# Redis Instance
+#------------------------------------------------------------------------------
+- include_tasks: instance.yml
+  when: redis_port is not defined or (redis_port is defined and item.key|int == redis_port|int)
+  tags: redis_instance
+  vars:
+    port: "{{ item.key }}"
+    conf: "{{ item.value|default({}) }}"
+  with_dict: "{{ redis_instances }}"
+
+#------------------------------------------------------------------------------
+# Register
+#------------------------------------------------------------------------------
+- name: register redis exporter to prometheus
+  tags: [ redis_register, register_prometheus ]
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
   become: yes
-  block:
-
-    # data dir @ /data/redis/<port> (default)
-    - name: create dir for {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
-      file: path={{ redis_fs_main }}/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }} state=directory owner=redis mode=0700
-
-    # config @ /etc/redis/<port>.conf
-    - name: render config for {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
-      template: src={{ config_template }} dest=/etc/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }}.conf owner=redis mode=0700
-      vars:
-        upstream: "{{ conf['replica_of']|default(None) }}"
-        config_template: "{% if redis_mode == 'sentinel' %}redis-sentinel.conf{% else %}{{ redis_conf }}{% endif %}"
-
-    # services name examples:  redis-test-1-6379 , redis-sentinel-2-26379
-    - name: render systemd svc for {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
-      template: src={{ service_template }} dest=/usr/lib/systemd/system/{{ svcname }} owner=root mode=644
-      vars:
-        svcname: "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
-        service_template: "{% if redis_mode == 'sentinel' %}redis-sentinel.service{% else %}redis.service{% endif %}"
-
+  copy:
+    dest: /etc/prometheus/targets/redis/{{ redis_cluster }}-{{ redis_node }}.yml
+    content: |
+      # {{ redis_cluster }}-{{ redis_node }} @ {{ inventory_hostname }}
+      
+      {% for port in redis_instances %}
+      - labels: { cls: {{ redis_cluster }}, ins: {{ redis_cluster }}-{{ redis_node }}-{{ port }}, instance: {{ inventory_hostname }}:{{ port }} }
+        targets: [ redis://{{ inventory_hostname }}:{{ port }} ]
+      
+      {% endfor %}
 
 #------------------------------------------------------------------------------
-# launch
+# Join
 #------------------------------------------------------------------------------
-- name: launch {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
-  tags: [ redis, redis_launch ]
-  # systemd: name="{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service" state=restarted enabled=yes daemon_reload=yes
-  shell: |
-    systemctl daemon-reload;
-    systemctl enable "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
-    systemctl restart "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
-
+# run join task on redis native cluster
+#- import_tasks: join.yml
+#  when: not redis_port is defined and redis_mode is defined and redis_mode == 'cluster'
+#  tags: redis_join
 ...

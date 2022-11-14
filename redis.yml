@@ -30,133 +30,15 @@
 
 
 #---------------------------------------------------------------
-# Init Redis Node
+# Init Redis by Node
 #---------------------------------------------------------------
-# install software, create user & dir, launch exporter
-- name: REDIS NODE
-  hosts: all
-  become: true
-  gather_facts: no
-  tags: redis-node
-  tasks:
-
-    #------------------------------------------------------------------------------
-    # Redis Packages
-    #------------------------------------------------------------------------------
-    - name: install redis binaries
-      when: not redis_port is defined
-      package: name={{ item }} state=present
-      with_items: [ redis , redis_exporter ]
-
-    #------------------------------------------------------------------------------
-    # Redis User & Directory
-    #------------------------------------------------------------------------------
-    - name: create os user redis
-      tags: [ redis_install_method , redis_user ]
-      when: not redis_port is defined
-      user: name=redis home=/home/redis generate_ssh_key=yes
-
-    - name: create redis directories
-      when: not redis_port is defined
-      file: path={{ item }} state=directory owner=redis mode=0700
-      with_items:
-        - /etc/redis
-        - /var/log/redis/
-        - /var/run/redis/
-        - "{{ redis_fs_main }}/redis"
-
-    #------------------------------------------------------------------------------
-    # Setup Redis Exporter
-    #------------------------------------------------------------------------------
-    - name: config /etc/default/redis_exporter
-      tags: [ redis_exporter, redis_exporter_config ]
-      when: not redis_port is defined
-      copy:
-        dest: /etc/default/redis_exporter
-        content: |
-          REDIS_EXPORTER_OPTS={{ redis_exporter_options }}
-          REDIS_EXPORTER_CONNECTION_TIMEOUT=10s
-          REDIS_EXPORTER_WEB_LISTEN_ADDRESS="0.0.0.0:{{ redis_exporter_port }}"
-          REDIS_EXPORTER_WEB_TELEMETRY_PATH="{{ exporter_metrics_path }}"
-          REDIS_EXPORTER_INCL_SYSTEM_METRICS=true
-
-    - name: config redis_exporter service unit
-      tags: [ redis_exporter, redis_exporter_config ]
-      when: not redis_port is defined
-      copy:
-        dest: /usr/lib/systemd/system/redis_exporter.service
-        content: |
-          [Unit]
-          Description=Prometheus exporter for Redis server metrics.
-          Documentation=https://github.com/oliver006/redis_exporter
-          After=network.target
-          [Service]
-          EnvironmentFile=-/etc/default/redis_exporter
-          User=prometheus
-          ExecStart=/bin/redis_exporter $REDIS_EXPORTER_OPTS
-          ExecReload=/bin/kill -HUP $MAINPID
-          Restart=on-failure
-          RestartSec=5s
-          CPUQuota=10%
-          MemoryLimit=200M          
-          [Install]
-          WantedBy=multi-user.target
-
-    - name: launch redis_exporter systemd service
-      when: redis_exporter_enabled|bool and not redis_port is defined
-      tags: redis_exporter
-      systemd: name=redis_exporter state=restarted enabled=yes daemon_reload=yes
-    - name: wait for redis_exporter service online
-      when: redis_exporter_enabled|bool and not redis_port is defined
-      tags: redis_exporter
-      wait_for: host=127.0.0.1 port={{ redis_exporter_port }} state=started  timeout=10
-
-
-#---------------------------------------------------------------
-# launch redis instance on nodes
-#---------------------------------------------------------------
-- name: REDIS INIT
+- name: REDIS
   hosts: all
   become: true
   gather_facts: no
   tags: redis
-  tasks:
-
-    - name: check redis configuration
-      tags: [ always, redis-id ]
-      assert:
-        that:
-          - redis_cluster is defined and redis_cluster != ''
-          - redis_node is defined
-          - redis_instances is defined and redis_instances | type_debug == "dict"
-        fail_msg: variable `redis_cluster|redis_instances` are required for redis deployment
-
-    - name: setup redis instance
-      tags: redis_ins
-      when: redis_port is not defined or (redis_port is defined and item.key|int == redis_port|int)
-      include_role:
-        name: redis
-      vars:
-        port: "{{ item.key }}"
-        conf: "{{ item.value|default({}) }}"
-      with_dict: "{{ redis_instances }}"
-
-    - name: register redis exporter to prometheus
-      tags: [ redis_register, register_prometheus ]
-      delegate_to: '{{ item }}'
-      with_items: '{{ groups["infra"] }}'
-      become: yes
-      copy:
-        dest: /etc/prometheus/targets/redis/{{ redis_cluster }}-{{ redis_node }}.yml
-        content: |
-          # {{ redis_cluster }}-{{ redis_node }} @ {{ inventory_hostname }}
-    
-          {% for port in redis_instances %}
-          - labels: { cls: {{ redis_cluster }}, ins: {{ redis_cluster }}-{{ redis_node }}-{{ port }}, instance: {{ inventory_hostname }}:{{ port }} }
-            targets: [ redis://{{ inventory_hostname }}:{{ port }} ]
-    
-          {% endfor %}
-
+  roles:
+    - role: redis
 
 #---------------------------------------------------------------
 # join redis instances for cluster (works on -l <clsname> )
