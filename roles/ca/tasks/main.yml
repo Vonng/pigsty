@@ -1,83 +1,90 @@
 ---
-#--------------------------------------------------------------------------
-# Make Sure Self-Signed Root CA Exists on All Meta Nodes
-#   ca_method (create|copy|recreate)
-#     * none     : skip ca creation at all
-#     * copy     : copy ca.{key,crt} from local files directly
-#     * create   : create ca.{key|crt} if not exist on meta
-#     * recreate : force recreate ca key & file on meta
-#--------------------------------------------------------------------------
-
-#--------------------------------------------------------------------------
-#  FHS
-#--------------------------------------------------------------------------
-# /etc/pki/ca.crt    root 644 , all nodes
-# /etc/pki/ca.key    root 600 , meta nodes
-# /etc/pki/ca-trust/source/anchors/ca.crt root 644 all nodes
-#--------------------------------------------------------------------------
-
 #------------------------------------------------------------------------------
 # CA Dir
 #------------------------------------------------------------------------------
 # This is created by default on all EL releases
-- name: create ca directory on meta nodes
+- name: create ca directory on local files/pki/ca
   tags: ca_dir
-  when: meta_node|bool
-  file: path="/etc/pki/CA" state=directory mode=0755
-
-#------------------------------------------------------------------------------
-# CA Create (on primary meta node)
-#------------------------------------------------------------------------------
-# create ca cert on meta nodes and copy to local files/pki dir when ca_method = (create,recreate)
-# when ca_method = copy : it's user's responsibility to make sure ca exists under files/pki dir
-# available tags for ca_create: ca_check, ca_gen, ca_fetch
-# run on primary meta nodes (${meta_ip})
-- import_tasks: create.yml
-  tags: ca_create
-  when: meta_ip == inventory_hostname and ca_method != 'none' and ca_method != 'copy'
-
-#------------------------------------------------------------------------------
-# CA Sync (on all meta nodes)
-#------------------------------------------------------------------------------
-# run on meta nodes:  primary meta node -> other meta nodes
-# sync ca.crt & ca.key to all meta nodes in case of primary meta node failure
-- name: sync ca cert and key to meta nodes
-  tags: ca_sync
-  when: meta_node|bool and ca_method != 'none'
-  copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }} owner=root group=root
+  become: no
+  connection: local
+  file: path={{ item }} state=directory mode=0755
   with_items:
-    - {src: files/pki/ca/ca.crt, dest: /etc/pki/ca.crt  , mode: 644 }
-    - {src: files/pki/ca/ca.key, dest: /etc/pki/ca.key  , mode: 600 }
-
-
-#------------------------------------------------------------------------------
-# Meta Cert
-#------------------------------------------------------------------------------
-# issue meta cert on meta nodes
-- import_tasks: meta.yml
-  tags: ca_meta
-  when: meta_node|bool and ca_method != 'none'
-
+    - files/pki
+    - files/pki/ca
+    - files/pki/csr
+    - files/pki/etcd
+    - files/pki/infra
+    - files/pki/pgsql
 
 #------------------------------------------------------------------------------
-# Node Cert
+# CA Private
 #------------------------------------------------------------------------------
-- name: node add and trust ca cert
-  tags: node_ca
+# make sure ca private key exists, or abort
+- name: create ca private key
+  tags: ca_private
+  become: no
+  connection: local
   block:
 
-    - name: add /etc/pki/ca.crt to node
-      copy:
-        src: files/pki/ca/ca.crt
-        dest: /etc/pki/ca.crt
-        owner: root
-        group: root
-        mode: 0644
+    # check ca private key file exists @ files/pki/ca.key
+    - name: check files/pki/ca/ca.key exists
+      stat: path=files/pki/ca/ca.key
+      register: ca_key_exists
 
-    - name: trust /etc/pki/ca.crt on node
-      shell: |
-        ln -s /etc/pki/ca.crt /etc/pki/ca-trust/source/anchors/ca.crt
-        /bin/update-ca-trust
-        /bin/true
+    # abort becomes user does not provide their ca key & certs
+    - name: ABORT if ca key not exists
+      when: not ca_key_exists.stat.exists|bool and not ca_create|bool
+      any_errors_fatal: true
+      ignore_errors: false
+      fail:
+        msg: 'Abort because `ca_create` is set to false, but local ca key cert not exists.'
+
+    # generate ca private key on /etc/pki/ when `ca_create=true`
+    - name: generate ca private key
+      when: not ca_key_exists.stat.exists|bool and ca_create|bool
+      openssl_privatekey: path=files/pki/ca/ca.key mode=0600
+
+#------------------------------------------------------------------------------
+# CA Cert
+#------------------------------------------------------------------------------
+# self-signing a ca cert if not exists
+- name: self-signing ca cert
+  tags: ca_cert
+  become: no
+  connection: local
+  block:
+
+    # check ca public cert file exists @ files/pki/ca.crt
+    - name: check files/pki/ca/ca.crt exists
+      stat: path=files/pki/ca/ca.crt
+      register: ca_crt_exists
+
+    # generate ca self-signing request
+    - name: generate ca signing request
+      when: not ca_crt_exists.stat.exists|bool
+      openssl_csr:
+        path: files/pki/csr/ca.csr
+        privatekey_path: files/pki/ca/ca.key
+        common_name: pigsty-ca
+        organization_name: pigsty
+        organizational_unit_name: ca
+        basic_constraints:
+          - CA:TRUE
+          - pathlen:1
+        basic_constraints_critical: yes
+        key_usage: [ keyCertSign, cRLSign, digitalSignature ]
+        force: false                      # force recreate csr ?
+        #key_usage_critical: true
+        #use_common_name_for_san: false
+
+    # approve csr and get self-signed ca cert
+    - name: generate self-signed ca.crt
+      openssl_certificate:
+        path: files/pki/ca/ca.crt
+        csr_path: files/pki/csr/ca.csr
+        privatekey_path: files/pki/ca/ca.key
+        provider: selfsigned
+        selfsigned_not_after: +36500d
+        mode: 0644
 
 ...
