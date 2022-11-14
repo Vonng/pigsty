@@ -54,7 +54,7 @@ function v() {
 	[ $# -eq 0 ] && vi . || vi $@
 }
 alias hg="history | grep --color=auto "
-alias py="python"
+alias py="python3"
 alias cl="clear"
 alias clc="clear"
 alias rf="rm -rf"
