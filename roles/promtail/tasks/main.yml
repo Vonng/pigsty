@@ -21,20 +21,14 @@
   tags: promtail_config
   block:
 
-    - name: Copy promtail systemd service
+    - name: remove promtail /etc/systemd service
+      file: dest=/etc/systemd/system/promtail.service state=absent
+
+    - name: create promtail systemd service
       copy: src=promtail.service dest=/usr/lib/systemd/system/promtail.service
 
-    - name: render /etc/promtail.yml
+    - name: render /etc/promtail.yml config
       template: src=promtail.yml.j2 dest=/etc/promtail.yml
-
-    - name: render /etc/default/promtail
-      copy:
-        dest: /etc/default/promtail
-        owner: root
-        content: |
-          PROMTAIL_OPTS="{{ promtail_options }}"
-          PROMTAIL_POSITIONS="{{ promtail_positions }}"
-          PROMTAIL_SEND_URL="{{ loki_endpoint | regex_replace('\${admin_ip}', admin_ip ) }}"
 
 #------------------------------------------------------------------------------
 # Launch
