@@ -1,9 +1,9 @@
 #==============================================================#
 # File      :   loki.yml
 # Ctime     :   2021-04-03
-# Mtime     :   2022-04-28
+# Mtime     :   2022-11-16
 # Desc      :   Loki configuration file
-# Path      :   /etc/loki.yml
+# Path      :   /etc/loki/config.yml
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
 
@@ -16,7 +16,7 @@ server:
 ingester:
   wal:
     enabled: true
-    dir: {{ loki_data_dir }}
+    dir: {{ loki_data }}
   lifecycler:
     address: 127.0.0.1
     ring:
@@ -43,23 +43,28 @@ schema_config:
 
 storage_config:
   boltdb_shipper:
-    active_index_directory: {{ loki_data_dir }}/data/boltdb-shipper-active
-    cache_location: {{ loki_data_dir }}/data/boltdb-shipper-cache
+    active_index_directory: {{ loki_data }}/data/boltdb-shipper-active
+    cache_location: {{ loki_data }}/data/boltdb-shipper-cache
     cache_ttl: 24h   # Can be increased for faster performance over longer query periods, uses more disk space
     shared_store: filesystem
 
   filesystem:
-    directory: {{ loki_data_dir }}/chunks
+    directory: {{ loki_data }}/chunks
 
 compactor:
-  working_directory: {{ loki_data_dir }}/tmp/boltdb-shipper-compactor
+  working_directory: {{ loki_data }}/tmp/boltdb-shipper-compactor
   shared_store: filesystem
 
+# https://grafana.com/docs/loki/latest/configuration/#limits_config
 limits_config:
   enforce_metric_name: false
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   split_queries_by_interval: 15m
+  ingestion_rate_mb: 16
+  ingestion_burst_size_mb: 64
+  max_entries_limit_per_query: 50000
+  max_query_series: 10000
 
 chunk_store_config:
   max_look_back_period: 0s
@@ -75,26 +80,26 @@ table_manager:
   retention_period: {{ loki_retention }}
 
 frontend:
-  max_outstanding_per_tenant: 2048
+  max_outstanding_per_tenant: 4096
 
+# https://grafana.com/docs/loki/latest/configuration/#query_range
 query_range:
   align_queries_with_step: true
   parallelise_shardable_queries: false
-  max_retries: 5
+  max_retries: 3
   cache_results: true
   results_cache:
     cache:
-      enable_fifocache: true
-      fifocache:
-        max_size_items: 1024
-        validity: 24h
+      embedded_cache:
+        enabled: true
+        max_size_mb: 100
 
 ruler:
   storage:
     type: local
     local:
-      directory: {{ loki_data_dir }}/data/rules
-  rule_path: {{ loki_data_dir }}/data/rules-temp
+      directory: {{ loki_data }}/data/rules
+  rule_path: {{ loki_data }}/data/rules-temp
   # alertmanager_url: http://127.0.0.1:9093
   ring:
     kvstore:

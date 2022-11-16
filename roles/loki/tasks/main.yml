@@ -5,13 +5,32 @@
   tags: loki_install
   package: name=loki state=present
 
+# The use loki is created by official loki rpm
+
 #------------------------------------------------------------------------------
 # Cleanup
 #------------------------------------------------------------------------------
 - name: clean up loki
   tags: loki_clean
   when: loki_clean|bool
-  file: path={{ loki_data_dir }} state=absent owner=prometheus
+  file: path={{ loki_data }} state=absent
+
+#------------------------------------------------------------------------------
+# dir
+#------------------------------------------------------------------------------
+- name: create loki directory
+  tags: loki_dir
+  block:
+
+    - name: create loki data dir
+      file: path={{ loki_data }} state=directory owner=loki mode=0700
+
+    - name: create loki data/rules/fake
+      file: path={{ loki_data }}/data/rules/fake state=directory owner=loki mode=0700
+
+    - name: create loki config dir
+      file: path=/etc/loki state=directory owner=root mode=0755
+
 
 #------------------------------------------------------------------------------
 # Config
@@ -20,23 +39,14 @@
   tags: loki_config
   block:
 
-    - name: touch loki data and rule directories
-      file: path={{ loki_data_dir }}/data/rules/fake state=directory owner=prometheus
+    - name: remove promtail /etc/systemd service
+      file: dest=/etc/systemd/system/loki.service state=absent
 
-    - name: copy loki systemd service
+    - name: create loki systemd service
       copy: src=loki.service dest=/usr/lib/systemd/system/loki.service
 
-    - name: render loki config
-      template: src=loki.yml dest=/etc/loki.yml owner=prometheus
-
-    - name: render etc default loki config
-      copy:
-        dest: /etc/default/loki
-        owner: prometheus
-        content: |
-          LOKI_OPTS='{{ loki_options }}'
-          LOKI_DATA={{ loki_data_dir }}
-          LOKI_RETENTION_PERIOD={{ loki_retention }}
+    - name: render loki config file
+      template: src=loki.yml dest=/etc/loki/config.yml owner=loki
 
 
 #------------------------------------------------------------------------------

@@ -6,13 +6,13 @@ Documentation=https://grafana.com/docs/loki/latest/
 After=network.target
 
 [Service]
-User=prometheus
-EnvironmentFile=-/etc/default/loki
-ExecStart=/usr/bin/loki $LOKI_OPTS
+User=loki
+ExecStart=/usr/bin/loki -config.file /etc/loki/config.yml
 ExecReload=/bin/kill -HUP $MAINPID
-Restart=always
-RestartSec=5s
-LimitNOFILE=65536
+TimeoutSec = 120
+Restart = on-failure
+RestartSec = 2
+LimitNOFILE=16777216
 
 [Install]
 WantedBy=multi-user.target
