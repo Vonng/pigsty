@@ -1,12 +1,12 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# Init a local yum repo powered by a local nginx web server
+# Init a local yum repo
 # all necessary rpm packages are downloaded to accelerate
 # cluster initialization, or in case that target machine does
 # not have internet access.
 #
-# RPM packages are downloaded to {{ nginx_home }}/{{ repo_name }}.
+# RPM packages are downloaded to {{ repo_home }}/{{ repo_name }}.
 # And it will skip download if all packages already exists
 #
 # Local yum repo url:  http://{{ repo_address }}/{{ repo_name }}/
@@ -33,42 +33,63 @@
 
 
 #--------------------------------------------------------------#
-# 1. Check whether repo exists?
+# 1. Check whether repo exists?                     [repo_check]
 #--------------------------------------------------------------#
 # check flag file /www/pigsty/repo_complete existence
 - name: check local repo exists
-  tags: repo_prepare
+  tags: repo_check
+  when: repo_enabled|bool
+  block:
+
+    # set repo_exists = true if local repo already exists
+    - name: check repo cache exists
+      stat: path={{ repo_home }}/{{ repo_name }}/repo_complete
+      register: repo_cache
+
+#--------------------------------------------------------------#
+# 1. Check whether repo exists?                       [repo_dir]
+#--------------------------------------------------------------#
+- name: setup repo dir and file
+  tags: repo_dir
+  when: repo_enabled|bool
   block:
 
     # create repo directory
     - name: create local repo dir
       tags: repo_dir
-      file: path={{ nginx_home }}/{{ repo_name }} state=directory mode=0755
+      file: path={{ repo_home }}/{{ repo_name }} state=directory mode=0755
 
-    # set repo_exists = true if local repo already exists
-    - name: check repo cache exists
-      stat: path={{ nginx_home }}/{{ repo_name }}/repo_complete
-      register: repo_cache
-
-    - name: set repo_exists flag
-      connection: local
-      set_fact: { repo_exists: "{{ repo_cache.stat.exists }}" }
-
+    - name: render repo definition file
+      tags: repo_file
+      copy:
+        dest: "{{ repo_home }}/{{ repo_name }}.repo"
+        mode: 0755
+        content: |
+          [{{ repo_name }}]
+          name=Pigsty Local Yum Repo {{ repo_name }}
+          baseurl={{ repo_endpoint | regex_replace('\${admin_ip}', admin_ip ) }}/{{ repo_name }}
+          skip_if_unavailable = 1
+          enabled = 1
+          priority = 1
+          gpgcheck = 0
+          {% if os_version|int >= 8 %}
+          module_hotfixes=1
+          {% endif %}
 
 #--------------------------------------------------------------#
-# 2. Use local repo (IF REPO EXISTS)
+# 2. Use local repo (IF REPO EXISTS)              [repo_prepare]
 #--------------------------------------------------------------#
-# if local yum cache exists, use it directly
+# if local yum cache exists, use it directly, done
 - name: setup local repo if exists
   tags: repo_prepare
-  when: repo_exists|bool
+  when: repo_cache.stat.exists and repo_enabled|bool
   shell: |
     mkdir -p /etc/yum.repos.d/backup/
     mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ || /bin/true
     cat > /etc/yum.repos.d/{{ repo_name }}-local.repo <<-'EOF'
     [{{ repo_name }}-local]
     name={{ repo_name }}-local $releasever - $basearch
-    baseurl=file://{{ nginx_home }}/{{ repo_name }}/
+    baseurl=file://{{ repo_home }}/{{ repo_name }}/
     enabled=1
     gpgcheck=0
     {% if os_version|int >= 8 %}
@@ -81,11 +102,12 @@
 
 
 #--------------------------------------------------------------#
-# 3. Build repo (IF REPO NOT EXISTS)
+# 3. Build repo (IF REPO NOT EXISTS)                [repo_build]
 #--------------------------------------------------------------#
+# if local yum cache not exists, download them and use it, done
 - name: build local yum repo
   tags: repo_build
-  when: not repo_exists|bool
+  when: not repo_cache.stat.exists and repo_enabled|bool
   block:
 
     #--------------------------------------------------------------#
@@ -135,7 +157,7 @@
       tags: repo_url_pkg
       ignore_errors: true
       environment: "{{ proxy_env }}"
-      get_url: dest={{ nginx_home }}/{{ repo_name }}/ url={{ item | regex_replace('\${releasever}', os_version|string) | regex_replace('\${arch}', os_arch|string ) }}
+      get_url: dest={{ repo_home }}/{{ repo_name }}/ url={{ item | regex_replace('\${releasever}', os_version|string) | regex_replace('\${arch}', os_arch|string ) }}
       with_items: "{{ repo_url_packages }}"
 
     #--------------------------------------------------------------#
@@ -174,7 +196,7 @@
           {% else %}
           repotrack {{ item }}
           {% endif %}
-        chdir: "{{ nginx_home }}/{{ repo_name }}"
+        chdir: "{{ repo_home }}/{{ repo_name }}"
       with_items: "{{ repo_packages }}"
 
     #--------------------------------------------------------------#
@@ -187,14 +209,14 @@
         cmd: |
           #!/bin/bash
           rm -f *.i686.rpm   # remove i686 packages
-          createrepo_c {{ nginx_home }}/{{ repo_name }}
+          createrepo_c {{ repo_home }}/{{ repo_name }}
           {% if os_version|int >= 8 %}
           repo2module -s stable . modules.yaml
           modifyrepo_c --mdtype=modules modules.yaml repodata/              
           {% endif %}
-          cd {{ nginx_home }}/{{ repo_name }}
-          md5sum *.rpm > {{ nginx_home }}/{{ repo_name }}/repo_complete || /bin/true
-        chdir: "{{ nginx_home }}/{{ repo_name }}"
+          cd {{ repo_home }}/{{ repo_name }}
+          md5sum *.rpm > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
+        chdir: "{{ repo_home }}/{{ repo_name }}"
 
     #--------------------------------------------------------------#
     # 3.8 Use built repo                                  [repo_use]
@@ -207,7 +229,7 @@
         cat > /etc/yum.repos.d/{{ repo_name }}-local.repo <<-'EOF'
         [{{ repo_name }}-local]
         name={{ repo_name }}-local $releasever - $basearch
-        baseurl=file://{{ nginx_home }}/{{ repo_name }}/
+        baseurl=file://{{ repo_home }}/{{ repo_name }}/
         enabled=1
         gpgcheck=0
         {% if os_version|int >= 8 %}
@@ -219,44 +241,46 @@
         yum install -y wget sshpass createrepo_c yum-utils nginx;
 
 #--------------------------------------------------------------#
-# 8. Launch Nginx
+# 8. Launch Nginx                                   [repo_nginx]
 #--------------------------------------------------------------#
-- name: setup repo nginx server
-  tags: repo_nginx
-  block:
-
-    # make sure nginx installed
-    - name: make sure nginx installed
-      package: name=nginx state=present
-
-    # copy repo nginx config & content
-    - name: render repo nginx files
-      template: src={{ item.src }} dest={{ item.dest }} mode=0644
-      with_items:
-        - {src: nginx.conf.j2,    dest: /etc/nginx/nginx.conf}
-        - {src: default.conf.j2,  dest: /etc/nginx/conf.d/default.conf}
-        - {src: index.html.j2,    dest: "{{ nginx_home }}/index.html" }
-        - {src: local.repo.j2,    dest: "{{ nginx_home }}/{{ repo_name }}.repo"}
-
-    # launch nginx with systemctl and wait for port 80 online
-    - name: launch repo nginx server
-      systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
-
-    - name: wait repo nginx server online
-      wait_for: host=127.0.0.1 port={{ nginx_port }} state=started
+#- name: setup repo nginx server
+#  tags: repo_nginx
+#  when: repo_enabled|bool
+#  block:
+#
+#    # make sure nginx installed
+#    - name: make sure nginx installed
+#      package: name=nginx state=present
+#
+#    # copy repo nginx config & content
+#    - name: render repo nginx files
+#      template: src={{ item.src }} dest={{ item.dest }} mode=0644
+#      with_items:
+#        - {src: nginx.conf.j2,    dest: /etc/nginx/nginx.conf}
+#        - {src: default.conf.j2,  dest: /etc/nginx/conf.d/default.conf}
+#        - {src: index.html.j2,    dest: "{{ repo_home }}/index.html" }
+#        - {src: local.repo.j2,    dest: "{{ repo_home }}/{{ repo_name }}.repo"}
+#
+#    # launch nginx with systemctl and wait for port 80 online
+#    - name: launch repo nginx server
+#      systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
+#
+#    - name: wait repo nginx server online
+#      wait_for: host=127.0.0.1 port={{ nginx_port }} state=started
 
 
 #--------------------------------------------------------------#
-# 9. Open port for repo server
+# 9. Open port for repo server                   [repo_firewall]
 #--------------------------------------------------------------#
-- name: setup firewall and selinux for repo
-  tags: repo_firewall
-  ignore_errors: true
-  block:
-
-    # temporary disable selinux for nginx
-    - name: disable selinux for repo server
-      shell: setenforce 0; /bin/true
+#- name: setup firewall and selinux for repo
+#  tags: repo_firewall
+#  when: repo_enabled|bool
+#  ignore_errors: true
+#  block:
+#
+#    # temporary disable selinux for nginx
+#    - name: disable selinux for repo server
+#      shell: setenforce 0; /bin/true
 
     #- name: allow nginx port traffic
     #  tags: repo_fire
