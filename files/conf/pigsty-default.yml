@@ -35,30 +35,8 @@ all:
   ##################################################################
   children:                           # groups definition
 
-
-    #================================================================#
-    #                     INFRA & ADMIN NODES                        #
-    #================================================================#
-    meta:   # meta nodes are defined in this special group "meta"
-      vars:
-        meta_node: true               # mark this group as meta nodes
-        ansible_group_priority: 99    # overwrite with the highest priority
-
-        nginx_enabled:       true     # setup repo & underlying nginx
-        nameserver_enabled:  false    # setup dnsmasq
-        prometheus_enabled:  true     # setup prometheus
-        grafana_enabled:     true     # setup grafana
-        loki_enabled:        true     # setup loki
-        docker_enabled:      false    # setup docker on meta node (disabled)
-
-      hosts:                          # add nodes to group 'meta'
-        10.10.10.10: { }
-        # 10.10.10.11: { nginx_enabled: false }
-        # 10.10.10.12: { nginx_enabled: false  }
-    #================================================================#
-
     # infra cluster for proxy, monitor, alert, etc..
-    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
+    infra: { hosts: {10.10.10.10: {infra_seq: 1}}, vars: {patroni_watchdog_mode: off}}
 
     # etcd cluster for ha postgres
     etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
@@ -290,12 +268,11 @@ all:
     loki_clean: false                 # whether remove existing loki data?
     loki_data: /data/loki             # loki data dir, /data/loki by default
     loki_endpoint: http://${admin_ip}:3100/loki/api/v1/push # where to receive logs
-    loki_options: '-config.file=/etc/loki.yml -config.expand-env=true'
     loki_retention: 15d               # log retention period
 
-    #-----------------------------------------------------------------
-    # etcd
-    #-----------------------------------------------------------------
+    #================================================================#
+    #                         VARS: ETCD                             #
+    #================================================================#
     #etcd_seq: 1                      # etcd instance identifier, explicitly required
     etcd_cluster: etcd                # etcd cluster & group name, etcd by default
     etcd_safeguard: false             # prevent purging running etcd instance?
@@ -306,8 +283,24 @@ all:
     etcd_init: new                    # etcd initial cluster state, new or existing
     etcd_api: 2                       # etcd api version used, 2 by default
 
+
     #================================================================#
-    #                         VARS: NODES                            #
+    #                         VARS: MINIO                            #
+    #================================================================#
+    #minio_seq: 1                   # minio instance identifier, explicitly required
+    minio_cluster: minio            # minio cluster name, minio by default
+    minio_user: minio               # minio os user
+    minio_domain: sss.pigsty        # minio domain name
+    minio_port: 9000                # minio service port, 9000 by default
+    minio_admin_port: 9001          # minio console port, 9001 by default
+    minio_data: [ '/data/minio' ]   # data directories for minio
+    minio_access_key: minioadmin    # root access key
+    minio_secret_key: minioadmin    # root secret key
+    minio_extra_vars: ''            # extra environment variables
+
+
+    #================================================================#
+    #                         VARS: NODE                             #
     #================================================================#
 
     #-----------------------------------------------------------------
@@ -346,7 +339,7 @@ all:
     node_packages_default:            # common packages for all nodes
       - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,dstat,iotop,htop,yum,yum-utils
       - wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal
-      - readline,zlib,openssl,openssh-clients,node_exporter,etcd,promtail,mtail
+      - readline,zlib,openssl,openssh-clients,node_exporter,etcd,promtail,mtail,python3-idna,python3-requests
     node_packages_meta:               # extra packages for meta nodes
       - grafana,prometheus2,alertmanager,pushgateway,dnsmasq,node_exporter,nginx_exporter,blackbox_exporter,redis_exporter
       - nginx,ansible,python3-requests,postgresql15,redis
