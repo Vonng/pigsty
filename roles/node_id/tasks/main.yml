@@ -33,15 +33,15 @@
 
     # if nodename is empty, or can not be built from pgsql instance's identity
     - name: fill empty nodename with hostname
-      when: (nodename is not defined or nodename == '') and not (pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' )
+      when: (nodename is not defined or nodename == '') and not (node_id_from_pg|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' )
       connection: local
       set_fact: { nodename: "{{ node_hostname }}" }
 
     - name: build node identity
       connection: local
       set_fact:
-        nodename:       "{% if pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' %}{{ pg_cluster }}-{{ pg_seq }}{% else %}{{ nodename|default(omit) }}{% endif %}"
-        node_cluster:   "{% if pg_hostname|bool and pg_cluster is defined and pg_cluster != '' and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') %}{{ pg_cluster }}{% else %}{{ node_cluster|default('nodes') }}{% endif %}"
+        nodename:       "{% if node_id_from_pg|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' %}{{ pg_cluster }}-{{ pg_seq }}{% else %}{{ nodename|default(omit) }}{% endif %}"
+        node_cluster:   "{% if node_id_from_pg|bool and pg_cluster is defined and pg_cluster != '' and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') %}{{ pg_cluster }}{% else %}{{ node_cluster|default('nodes') }}{% endif %}"
         node_mem_bytes: "{{ node_pages|int * node_page_size|int }}"
         node_mem_mb:    "{{ (node_pages|int * node_page_size|int / 1048576) | round(0, 'ceil')|int }}"
         node_mem_gb:    "{{ [ (node_pages|int * node_page_size|int / 1073741824) | round(0, 'ceil')|int , 1 ] | max }}"
