@@ -1,29 +1,26 @@
 ---
 #------------------------------------------------------------------------------
-# Config Nginx
+# Config Nginx                                                   [nginx_config]
 #------------------------------------------------------------------------------
-- name: Config nginx server
+- name: config nginx server
   tags: nginx_config
   block:
 
+    # create /etc/nginx/conf.d/cert
+    - name: create nginx cert config dir
+      file: path=/etc/nginx/conf.d/cert state=directory
+
     # create /etc/nginx/conf.d/haproxy directory (used by default server)
-    - name: Create nginx haproxy config dir
+    - name: create nginx haproxy config dir
       file: path=/etc/nginx/conf.d/haproxy state=directory
 
-    # main config
-    - name: Copy nginx main config
-      copy: src=nginx.conf dest=/etc/nginx/nginx.conf
-
-    # homepage server & other portals (http://pigsty)
-    - name: Copy nginx default config
-      template: src=default.conf.j2 dest=/etc/nginx/conf.d/default.conf
-
     # render nginx_upstream to nginx server config
-    - name: Copy nginx upstream conf
-      template: src=upstream.conf.j2 dest=/etc/nginx/conf.d/{{ item.name }}.conf
+    - name: render nginx server conf
+      template: src=server.conf.j2 dest=/etc/nginx/conf.d/{{ item.name }}.conf
       with_items: "{{ nginx_upstream }}"
-      when: item.name != 'home'
 
-    # home entry will be skipped, it is served via default server
-
+    # main config
+    - name: copy nginx main config
+      copy: src=nginx.conf dest=/etc/nginx/nginx.conf
+      #notify: [ 'reload nginx service' ]
 ...

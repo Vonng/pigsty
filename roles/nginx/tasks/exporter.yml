@@ -2,18 +2,22 @@
 #------------------------------------------------------------------------------
 # setup nginx exporter
 #------------------------------------------------------------------------------
-- name: Setup nginx exporter
+- name: setup nginx exporter
   ignore_errors: true
   block:
-    - name: Make sure nginx exporter installed
+
+    - name: install nginx exporter
       package: name=nginx_exporter state=present
 
-    - name: Config nginx_exporter options
-      template: src=nginx_exporter.default.j2 dest=/etc/default/nginx_exporter
+    - name: config nginx_exporter
+      copy:
+        dest: /etc/default/nginx_exporter
+        content: |
+          NGINX_EXPORTER_OPTS="-nginx.scrape-uri http://127.0.0.1:80/nginx"
 
-    - name: Restart nginx_exporter service
+    - name: restart nginx_exporter service
       systemd: name=nginx_exporter state=restarted enabled=yes daemon_reload=yes
 
-    - name: Wait for nginx exporter online
+    - name: wait for nginx exporter
       wait_for: host=localhost port=9113 state=started timeout=10
 ...

@@ -1,0 +1,70 @@
+{% if item.name == 'home' %}
+# NGINX DEFAULT SERVER
+
+# include haproxy admin webui upstream definition
+include /etc/nginx/conf.d/haproxy/upstream-*.conf;
+
+server {
+    server_name  {{  item.domain }} localhost;
+    listen       {{ nginx_port }} default_server;
+    #listen       {{ nginx_ssl_port }} ssl default_server;
+    #ssl_certificate /etc/nginx/conf.d/cert/pigsty.crt;
+    #ssl_certificate_key /etc/nginx/conf.d/cert/pigsty.key;
+    #ssl_session_timeout 5m;
+    #ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    #ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+    #ssl_prefer_server_ciphers on;
+
+    # home server
+    location / {
+        root        {{ nginx_home }};
+        index       index.html;
+        autoindex   on;
+        autoindex_exact_size on;
+        autoindex_localtime on;
+        autoindex_format html;
+    }
+
+    # liveness probe
+    location /nginx {
+        stub_status on;
+        access_log off;
+    }
+
+    # proxy pass haproxy admin webui requests
+    include /etc/nginx/conf.d/haproxy/location-*.conf;
+}
+
+
+{% else %}
+# NGINX UPSTREAM [{{ item.name }}]: {{ item.domain }}
+
+upstream {{ item.name }} {
+    server {{ item.endpoint | regex_replace('\${admin_ip}', admin_ip) }} max_fails=0;
+}
+
+server {
+    server_name  {{ item.domain }};
+    listen       {{ nginx_port }};
+    access_log /var/log/nginx/{{ item.name }}.log;
+    location / {
+        proxy_pass http://{{ item.name }}/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-Scheme $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_connect_timeout 5;
+        proxy_read_timeout 120s;
+        proxy_next_upstream error;
+
+{% if item.name.startswith('grafana') or item.name == 'jupyter' %}
+        # WebSocket support for grafana
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+{% endif %}
+    }
+}
+
+
+{% endif %}
