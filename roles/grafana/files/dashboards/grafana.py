@@ -6,6 +6,7 @@ ENDPOINT = os.environ.get("GRAFANA_ENDPOINT", 'http://g.pigsty:3000')
 USERNAME = os.environ.get("GRAFANA_USERNAME", 'admin')
 PASSWORD = os.environ.get("GRAFANA_PASSWORD", 'pigsty')
 UPSTREAM = os.environ.get("NGINX_UPSTREAM", "")
+NGINX_SSL = os.environ.get("NGINX_SSL_ENABLED", "false")
 
 ##########################################
 # load dashboard
@@ -16,8 +17,8 @@ if UPSTREAM != '':
     REPLACEMENT = {i.split('=')[0]: i.split('=')[1] for i in UPSTREAM.split(',')}
 
 def host_replace(s):
-    if 'home' in REPLACEMENT and REPLACEMENT['home'] != 'pigsty':
-        s = s.replace('://pigsty/', '://' + REPLACEMENT['home'] + '/')
+    if 'home' in REPLACEMENT and REPLACEMENT['home'] != 'i.pigsty':
+        s = s.replace('://i.pigsty/', '://' + REPLACEMENT['home'] + '/')
     if 'grafana' in REPLACEMENT and REPLACEMENT['grafana'] != 'g.pigsty':
         s = s.replace('://g.pigsty', '://' + REPLACEMENT['grafana'])
     if 'prometheus' in REPLACEMENT and REPLACEMENT['prometheus'] != 'p.pigsty':

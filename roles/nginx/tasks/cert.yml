@@ -1,11 +1,28 @@
 ---
 #------------------------------------------------------------------------------
-# issue nginx cert
+# Check Nginx Cert
 #------------------------------------------------------------------------------
-- name: generate nginx cert
-  tags: nginx_cert
+# check nginx cert & key file exists @ files/pki/nginx/pigsty.{crt|key}
+- name: check nginx cert key exists
+  tags: nginx_cert_check
   become: no
   delegate_to: localhost
+  block:
+    - name: check files/pki/nginx/pigsty.key exists
+      stat: path=files/pki/nginx/pigsty.key
+      register: nginx_key_exists
+    - name: check files/pki/nginx/pigsty.crt exists
+      stat: path=files/pki/nginx/pigsty.crt
+      register: nginx_crt_exists
+    - name: set nginx_cert_exists
+      set_fact:
+        nginx_cert_exists: "{{ nginx_key_exists.stat.exists|bool and nginx_crt_exists.stat.exists|bool }}"
+
+- name: generate nginx cert
+  tags: nginx_cert_issue
+  become: no
+  delegate_to: localhost
+  when: not nginx_cert_exists|bool
   block:
 
     - name: generate private key for nginx server
@@ -17,23 +34,19 @@
     - name: generate signing request for nginx
       connection: local
       openssl_csr:
-        path: files/pki/nginx/pigsty.csr
+        path: files/pki/csr/pigsty.csr
         privatekey_path: files/pki/nginx/pigsty.key
-        common_name: h.pigsty
-        subject_alt_name:
-          - DNS:h.pigsty
-          - DNS:g.pigsty
-          - DNS:p.pigsty
-          - DNS:a.pigsty
-          - DNS:localhost
+        common_name: pigsty
         organization_name: pigsty
         organizational_unit_name: nginx
+        force: yes
+        subject_alt_name: "{% set san = [] %}{% for srv in nginx_upstream %}{{ san.append('DNS:'+srv.domain) }}{% endfor %}{{ san.append('DNS:localhost') }}{{ san.append('IP:' + inventory_hostname) }}{{ san }}"
 
     - name: signing nginx cert
       connection: local
       openssl_certificate:
         path: files/pki/nginx/pigsty.crt
-        csr_path: files/pki/nginx/pigsty.csr
+        csr_path: files/pki/csr/pigsty.csr
         ownca_path: files/pki/ca/ca.crt
         ownca_privatekey_path: files/pki/ca/ca.key
         provider: ownca

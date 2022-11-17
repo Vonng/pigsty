@@ -210,14 +210,15 @@ all:
     # NGINX
     #-----------------------------------------------------------------
     nginx_enabled: true               # enable nginx on this infra node?
+    nginx_home: /www                  # nginx content dir, /www by default
     nginx_port: 80                    # nginx listen port, 80 by default
     nginx_ssl_port: 443               # nginx ssl listen port, 443 by default
-    nginx_home: /www                  # nginx content dir, /www by default
-    nginx_upstream:                   # nginx domain names and upstreams
-      - { name: home         , domain: pigsty      , endpoint: "${admin_ip}:80"   }
-      - { name: grafana      , domain: g.pigsty    , endpoint: "${admin_ip}:3000" }
-      - { name: prometheus   , domain: p.pigsty    , endpoint: "${admin_ip}:9090" }
-      - { name: alertmanager , domain: a.pigsty    , endpoint: "${admin_ip}:9093" }
+    nginx_ssl_enabled: true           # enable ssl on nginx? trust self-singed ca or apply a real cert.
+    nginx_upstream:                   # nginx domain names and upstreams: h,a,p,g
+      - { name: home         , domain: i.pigsty , endpoint: "${admin_ip}:80"   }
+      - { name: alertmanager , domain: a.pigsty , endpoint: "${admin_ip}:9093" }
+      - { name: prometheus   , domain: p.pigsty , endpoint: "${admin_ip}:9090" }
+      - { name: grafana      , domain: g.pigsty , endpoint: "${admin_ip}:3000" }
     nginx_indexes:                    # nginx index.html navigation links
       - { name: Package , url: '/pigsty'   ,comment: 'local yum repo packages'    }
       - { name: Explain , url: '/pev.html' ,comment: 'postgres explain visualizer'}
@@ -319,7 +320,7 @@ all:
     # NODE_DNS
     #-----------------------------------------------------------------
     node_etc_hosts_default:           # static dns records in /etc/hosts
-      - "${admin_ip} meta pigsty p.pigsty g.pigsty a.pigsty c.pigsty l.pigsty"
+      - "${admin_ip} meta i.pigsty p.pigsty g.pigsty a.pigsty"
       - "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
     node_etc_hosts: []                # extra static dns records in /etc/hosts
     node_dns_method: none             # add (default) | none (skip) | overwrite (remove old settings)
@@ -333,7 +334,7 @@ all:
     node_repo_method: local           # none|local: ad local repo|public: add upstream directly
     node_repo_remove: true            # remove existing repo on nodes?
     node_repo_local_urls:             # list local repo url, if node_repo_method = local
-      - http://pigsty/pigsty.repo
+      - http://10.10.10.10/pigsty.repo
 
     #-----------------------------------------------------------------
     # NODE_PACKAGE
