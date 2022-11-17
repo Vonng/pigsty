@@ -10,12 +10,12 @@
 #--------------------------------------------------------------#
 # Extract plugins cache if applicable
 #--------------------------------------------------------------#
-- name: Check grafana plugin cache exists
+- name: check grafana plugin cache exists
   stat: path={{ grafana_plugin_cache }}
   register: grafana_plugins_cache
 
 # skip if grafana_plugin_method = none
-- name: Provision grafana plugins via cache if exists
+- name: provision grafana plugins via cache if exists
   tags: grafana_plugins_unzip
   when: grafana_plugins_cache.stat.exists  and grafana_plugin_method != 'none'
   shell: |
@@ -26,7 +26,7 @@
 #--------------------------------------------------------------#
 # install plugins from internet with grafana-cli
 #--------------------------------------------------------------#
-- name: Download grafana plugins via internet
+- name: download grafana plugins via internet
   when: grafana_plugin_method != 'none' and (not grafana_plugins_cache.stat.exists or grafana_plugin_method == 'always')
   ignore_errors: true
   environment: "{{ proxy_env | default({}) }}"
