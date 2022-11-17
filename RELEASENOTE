@@ -1,7 +1,7 @@
 
 | Version         |    Time    | Description                                             | Release                                                                                   |
 |:----------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.0.0-a1](#v200-a1) | 2022-11-11 | Compatibility Security Maintainability Enhancement      | [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-a1)                       |
+| [v2.0.0-a1](#v200-a1) | 2022-11-20 | Compatibility Security Maintainability Enhancement | [v2.0.0-1](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-a1)                       |
 | [v1.5.1](#v151) | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
 | [v1.5.0](#v150) | 2022-05-31 | Docker Applications                                     | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
 | [v1.4.1](#v141) | 2022-04-20 | Bug fix & Full translation of English documents.        | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |
@@ -11,11 +11,11 @@
 | [v1.1.0](#v110) | 2021-10-12 | HomePage, JupyterLab, Pgweb, Pev2 & Pgbadger            | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)                             |
 | [v1.0.0](#v100) | 2021-07-26 | v1 GA, Monitoring System Overhaul                       | [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)                             |
 | [v0.9.1](#v091) | 2021-04-20 | Accessibility and extensibility enhancement             | [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1)                             |
-| [v0.9.0](#v090) | 2021-04-04 | Pigsty GUI, CLI, Logging Intergration                   | [v0.9.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.0)                             |
+| [v0.9.0](#v090) | 2021-04-04 | Pigsty GUI, CLI, Logging Integration                   | [v0.9.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.0)                             |
 | [v0.8.0](#v080) | 2021-03-28 | Service Provision                                       | [v0.8.0](https://github.com/Vonng/pigsty/releases/tag/v0.8.0)                             |
 | [v0.7.0](#v070) | 2021-03-01 | Monitor only deployment                                 | [v0.7.0](https://github.com/Vonng/pigsty/releases/tag/v0.7.0)                             |
 | [v0.6.0](#v060) | 2021-02-19 | Architecture Enhancement                                | [v0.6.0](https://github.com/Vonng/pigsty/releases/tag/v0.6.0)                             |
-| [v0.5.0](#v050) | 2021-01-07 | Databaes Customize Template                             | [v0.5.0](https://github.com/Vonng/pigsty/releases/tag/v0.5.0)                             |
+| [v0.5.0](#v050) | 2021-01-07 | Database Customize Template                             | [v0.5.0](https://github.com/Vonng/pigsty/releases/tag/v0.5.0)                             |
 | [v0.4.0](#v040) | 2020-12-14 | PostgreSQL 13 Support, Official Documentation           | [v0.4.0](https://github.com/Vonng/pigsty/releases/tag/v0.4.0)                             |
 | [v0.3.0](#v030) | 2020-10-22 | Provisioning Solution GA                                | [v0.3.0](https://github.com/Vonng/pigsty/releases/tag/v0.3.0)                             |
 | [v0.2.0](#)     | 2020-07-10 | PGSQL Monitoring v6 GA                                  | [v0.2.0](https://github.com/Vonng/pigsty/commit/385e33a62a19817e8ba19997260e6b77d99fe2ba) |
@@ -34,9 +34,10 @@ v2.0.0 Alpha1 Release
 
 **Highlights**
 
-* PostgreSQL 15, PostGIS 3.3, Citus 11, TimescaleDB 2.8
+* PostgreSQL 15.1, PostGIS 3.3, Citus 11.1, TimescaleDB 2.8
 * Compatibility: EL 7,8,9, PG 15 for RHEL, CentOS, Rocky, OracleLinux, AlmaLinux
-* Security Enhancement: CA, SSL for etcd/postgres, scram-sha-256 encryption
+* Security Enhancement: CA, SSL for nginx/etcd/postgres, scram-sha-256 encryption
+* Dedicate ETCD & Minio Cluster support
 * Battery-Included PITR with pgbackrest
 * Adaptive tuning template for PostgreSQL and nodes
 * Simplified configuration templates
@@ -82,12 +83,13 @@ v2.0.0 Alpha1 Release
 * Citus 11.1
 * TimescaleDB 2.8.1
 * Prometheus 2.40
-* Loki & Promtail 2.6.1
+* Loki & Promtail 2.7
 * Grafana 9.2.4
 * Node Exporter 1.4
 * Consul v13.3
 * ETCD 3.5.5
 * Minio 20221111
+
 
 **Bug Fix**
 
@@ -96,30 +98,37 @@ v2.0.0 Alpha1 Release
 
 **API Changes**
 
-add 24 parameters, remove 8 parameters
+add 24 parameters, remove 8 parameters, rename 11 parameters
 
-- `INFRA`.`META`.`admin_ip`                           : primary meta node ip address
-- `INFRA`.`META`.`region`                            : upstream mirror region: default|china|europe
-- `INFRA`.`META`.`os_version`                        : enterprise linux release version: 7,8,9
-- `INFRA`.`CA`.`ca_cn`                               : ca common name, pigsty-ca by default
-- `INFRA`.`CA`.`cert_validity`                       : cert validity, 20 years by default
-- `INFRA`.`REPO`.`repo_upstream`                     : list of upstream yum repo definition
-- `PGSQL`.`PG_INSTALL`.`pg_log_dir`                  : postgres log dir, `/pg/data/log` by default
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_storage_type`           : SSD|HDD, SSD by default
-- `PGSQL`.`PG_BOOTSTRAP`.`patroni_log_dir`           : patroni log dir, `/pg/log` by default
-- `PGSQL`.`PG_BOOTSTRAP`.`patroni_ssl_enabled`       : secure patroni RestAPI communications with SSL?
-- `PGSQL`.`PG_BOOTSTRAP`.`patroni_username`          : patroni rest api username
-- `PGSQL`.`PG_BOOTSTRAP`.`patroni_password`          : patroni rest api password (IMPORTANT: CHANGE THIS)
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_rto`                    : recovery time objective, ttl to failover, 30s by default
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_rpo`                    : recovery point objective, 1MB data loss at most by default
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_pwd_enc`                : algorithm for encrypting passwords: md5|scram-sha-256
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_sslmode`                : SSL for pg: disable|allow|prefer|require|verify-ca|verify-full
-- `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_log_dir`         : pgbouncer log dir, `/var/log/pgbouncer` by default
-- `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_auth_query`      : if enabled, query pg_authid table to retrieve biz users instead of populating userlist
-- `PGSQL`.`PG_BACKUP`.`pgbackrest_enabled`           : pgbackrest enabled ?
-- `PGSQL`.`PG_BACKUP`.`pgbackrest_clean`             : remove pgbackrest data during init ?
-- `PGSQL`.`PG_BACKUP`.`pgbackrest_log_dir`           : pgbackrest log dir, `/pg/log` by default
-- `PGSQL`.`PG_BACKUP`.`pgbackrest_repo`              : pgbackrest backup repo config
+- `INFRA`.`META`.`admin_ip`                     : primary meta node ip address
+- `INFRA`.`META`.`region`                       : upstream mirror region: default|china|europe
+- `INFRA`.`META`.`os_version`                   : enterprise linux release version: 7,8,9
+- `INFRA`.`CA`.`ca_cn`                          : ca common name, pigsty-ca by default
+- `INFRA`.`CA`.`cert_validity`                  : cert validity, 20 years by default
+- `INFRA`.`REPO`.`repo_enabled`                 : build a local yum repo on infra node?
+- `INFRA`.`REPO`.`repo_upstream`                : list of upstream yum repo definition
+- `INFRA`.`REPO`.`repo_home`                    : home dir of local yum repo, usually same as nginx_home '/www'
+- `INFRA`.`NGINX`.`nginx_ssl_port`              : https listen port
+- `INFRA`.`NGINX`.`nginx_ssl_enabled`           : nginx https enabled?
+- `INFRA`.`PROMTETHEUS`.`alertmanager_endpoint` : altermanager endpoint in (ip|domain):port format
+- `PGSQL`.`PG_INSTALL`.`pg_log_dir`             : postgres log dir, `/pg/data/log` by default
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_storage_type`      : SSD|HDD, SSD by default
+- `PGSQL`.`PG_BOOTSTRAP`.`patroni_log_dir`      : patroni log dir, `/pg/log` by default
+- `PGSQL`.`PG_BOOTSTRAP`.`patroni_ssl_enabled`  : secure patroni RestAPI communications with SSL?
+- `PGSQL`.`PG_BOOTSTRAP`.`patroni_username`     : patroni rest api username
+- `PGSQL`.`PG_BOOTSTRAP`.`patroni_password`     : patroni rest api password (IMPORTANT: CHANGE THIS)
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_rto`               : recovery time objective, ttl to failover, 30s by default
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_rpo`               : recovery point objective, 1MB data loss at most by default
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_pwd_enc`           : algorithm for encrypting passwords: md5|scram-sha-256
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_sslmode`           : SSL for pg: disable|allow|prefer|require|verify-ca|verify-full
+- `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_log_dir`    : pgbouncer log dir, `/var/log/pgbouncer` by default
+- `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_auth_query` : if enabled, query pg_authid table to retrieve biz users instead of populating userlist
+- `PGSQL`.`PG_BACKUP`.`pgbackrest_enabled`      : pgbackrest enabled ?
+- `PGSQL`.`PG_BACKUP`.`pgbackrest_clean`        : remove pgbackrest data during init ?
+- `PGSQL`.`PG_BACKUP`.`pgbackrest_log_dir`      : pgbackrest log dir, `/pg/log` by default
+- `PGSQL`.`PG_BACKUP`.`pgbackrest_repo`         : pgbackrest backup repo config
+- `ETCD`: 9 parameters
+- `MINIO`: 10 parameters
 
 **Removed Parameters**
 
@@ -133,6 +142,19 @@ add 24 parameters, remove 8 parameters
 - `PGSQL`.`PG_IDENTITY`.`pg_backup`: not used and conflict with section name
 - `PGSQL`.`PG_IDENTITY`.`pg_preflight_skip`: not used anymore, replace by `pg_id`
 
+**Renamed Parameters**
+
+- `repo_address`              -> `repo_endpoint`
+- `pg_services`               -> `pg_default_services`
+- `pg_services_extra`         -> `pg_services`
+- `pg_hba_rules_extra`        -> `pg_hba_rules`
+- `pg_hba_rules`              -> `pg_default_hba_rules`
+- `pgbouncer_hba_rules_extra` -> `pgbouncer_hba_rules`
+- `pgbouncer_hba_rules`       -> `pgbouncer_default_hba_rules`
+- `node_packages_default`     -> `node_default_packages`
+- `node_packages_meta`        -> `infra_packages`
+- `node_packages_meta_pip`    -> `infra_packages_pip`
+- `node_data_dir`             -> `node_data`
 
 
 ------------------------

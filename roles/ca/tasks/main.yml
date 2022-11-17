@@ -75,12 +75,13 @@
           - pathlen:1
         basic_constraints_critical: yes
         key_usage: [ keyCertSign, cRLSign, digitalSignature ]
-        force: true                    # force recreate csr?
+        #force: true
         #key_usage_critical: true
         #use_common_name_for_san: false
 
     # approve csr and get self-signed ca cert
     - name: generate self-signed ca.crt
+      when: not ca_crt_exists.stat.exists|bool
       openssl_certificate:
         path: files/pki/ca/ca.crt
         csr_path: files/pki/csr/ca.csr
