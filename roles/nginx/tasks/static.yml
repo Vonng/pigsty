@@ -8,7 +8,6 @@
   file: path={{ item }} state=directory
   with_items:
     - "{{ nginx_home }}"
-    - "{{ nginx_home }}/docs"
     - "{{ nginx_home }}/logs"
     - "{{ nginx_home }}/schema"
     - "{{ nginx_home }}/report"
@@ -28,14 +27,14 @@
   tags: nginx_index
   template: src=index.html.j2 dest=/{{ nginx_home }}/index.html
   vars:
-    home_domain:           "http://{{ nginx_upstream | json_query('[?name==`home`].domain') | first }}"
-    prometheus_domain:     "http://{{ nginx_upstream | json_query('[?name==`prometheus`].domain') | first }}"
-    grafana_domain:        "http://{{ nginx_upstream | json_query('[?name==`grafana`].domain') | first }}"
-    alertmanager_domain:   "http://{{ nginx_upstream | json_query('[?name==`alertmanager`].domain') | first }}"
-    home_endpoint:                "{{ nginx_upstream | json_query('[?name==`home`].endpoint') | first | regex_replace('\\${admin_ip}', admin_ip) }}"
-    prometheus_endpoint:          "{{ nginx_upstream | json_query('[?name==`prometheus`].endpoint') | first | regex_replace('\\${admin_ip}', admin_ip) }}"
-    grafana_endpoint:             "{{ nginx_upstream | json_query('[?name==`grafana`].endpoint') | first | regex_replace('\\${admin_ip}', admin_ip)}}"
-    alertmanager_endpoint:        "{{ nginx_upstream | json_query('[?name==`alertmanager`].endpoint') | first | regex_replace('\\${admin_ip}', admin_ip)}}"
+    home_domain:           "http{% if nginx_ssl_enabled|bool %}s{% endif %}://{{ nginx_upstream | json_query('[?name==`home`].domain') | first }}"
+    prometheus_domain:     "http{% if nginx_ssl_enabled|bool %}s{% endif %}://{{ nginx_upstream | json_query('[?name==`prometheus`].domain') | first }}"
+    grafana_domain:        "http{% if nginx_ssl_enabled|bool %}s{% endif %}://{{ nginx_upstream | json_query('[?name==`grafana`].domain') | first }}"
+    alertmanager_domain:   "http{% if nginx_ssl_enabled|bool %}s{% endif %}://{{ nginx_upstream | json_query('[?name==`alertmanager`].domain') | first }}"
+    home_endpoint:         "{{ nginx_upstream | json_query('[?name==`home`].endpoint') | first | regex_replace('\\${admin_ip}', admin_ip) }}"
+    prometheus_endpoint:   "{{ nginx_upstream | json_query('[?name==`prometheus`].endpoint') | first | regex_replace('\\${admin_ip}', admin_ip) }}"
+    grafana_endpoint:      "{{ nginx_upstream | json_query('[?name==`grafana`].endpoint') | first | regex_replace('\\${admin_ip}', admin_ip)}}"
+    alertmanager_endpoint: "{{ nginx_upstream | json_query('[?name==`alertmanager`].endpoint') | first | regex_replace('\\${admin_ip}', admin_ip)}}"
 
 #------------------------------------------------------------------------------
 # 3.3 Setup pev2 explain visualizer                                 [nginx_pev]

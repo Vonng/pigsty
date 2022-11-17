@@ -1,0 +1,51 @@
+---
+#------------------------------------------------------------------------------
+# issue nginx cert
+#------------------------------------------------------------------------------
+- name: generate nginx cert
+  tags: nginx_cert
+  become: no
+  delegate_to: localhost
+  block:
+
+    - name: generate private key for nginx server
+      connection: local
+      openssl_privatekey:
+        path: files/pki/nginx/pigsty.key
+        mode: 0600
+
+    - name: generate signing request for nginx
+      connection: local
+      openssl_csr:
+        path: files/pki/nginx/pigsty.csr
+        privatekey_path: files/pki/nginx/pigsty.key
+        common_name: h.pigsty
+        subject_alt_name:
+          - DNS:h.pigsty
+          - DNS:g.pigsty
+          - DNS:p.pigsty
+          - DNS:a.pigsty
+          - DNS:localhost
+        organization_name: pigsty
+        organizational_unit_name: nginx
+
+    - name: signing nginx cert
+      connection: local
+      openssl_certificate:
+        path: files/pki/nginx/pigsty.crt
+        csr_path: files/pki/nginx/pigsty.csr
+        ownca_path: files/pki/ca/ca.crt
+        ownca_privatekey_path: files/pki/ca/ca.key
+        provider: ownca
+        selfsigned_not_after: "+{{ cert_validity }}"
+        mode: 0644
+
+- name: copy nginx certs
+  become: yes
+  tags: nginx_cert_copy
+  block:
+    - name: copy nginx ssl cert
+      copy: src="files/pki/nginx/pigsty.crt" dest="/etc/nginx/conf.d/cert/pigsty.crt" owner=root group=root mode=0644
+    - name: copy nginx ssl key
+      copy: src="files/pki/nginx/pigsty.key" dest="/etc/nginx/conf.d/cert/pigsty.key" owner=root group=root mode=0600
+...

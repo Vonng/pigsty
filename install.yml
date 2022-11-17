@@ -75,6 +75,7 @@
 
     - role: nginx       # init nginx server for local yum repo
       tags: nginx
+      when: nginx_enabled|bool
 
 
 #---------------------------------------------------------------
@@ -92,8 +93,6 @@
 
     - role: docker          # init docker if enabled
       tags: docker
-      when: docker_enabled|bool
-
 
 #---------------------------------------------------------------
 # init dns, nginx, prometheus, grafana, loki
@@ -105,13 +104,9 @@
   tags: infra-init
   roles:
 
-    - role: nameserver    # init dns nameserver
+    - role: nameserver      # init dns nameserver
       tags: nameserver
       # when: nameserver_enabled|bool
-
-    - role: nginx           # init nginx
-      tags: nginx
-      # when: nginx_enabled|bool
 
     - role: prometheus      # init prometheus
       tags: prometheus
@@ -172,7 +167,7 @@
 #---------------------------------------------------------------
 # INIT PGSQL
 #---------------------------------------------------------------
-- name: PGSQL Init     # init pgsql cmdb on meta nodes
+- name: PGSQL Init          # init pgsql cmdb on meta nodes
   become: yes
   hosts: all
   gather_facts: no

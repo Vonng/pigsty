@@ -7,14 +7,15 @@ include /etc/nginx/conf.d/haproxy/upstream-*.conf;
 server {
     server_name  {{  item.domain }} localhost;
     listen       {{ nginx_port }} default_server;
-    #listen       {{ nginx_ssl_port }} ssl default_server;
-    #ssl_certificate /etc/nginx/conf.d/cert/pigsty.crt;
-    #ssl_certificate_key /etc/nginx/conf.d/cert/pigsty.key;
-    #ssl_session_timeout 5m;
-    #ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
-    #ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
-    #ssl_prefer_server_ciphers on;
-
+{% if nginx_ssl_enabled|bool %}
+    listen       {{ nginx_ssl_port }} ssl default_server;
+    ssl_certificate /etc/nginx/conf.d/cert/pigsty.crt;
+    ssl_certificate_key /etc/nginx/conf.d/cert/pigsty.key;
+    ssl_session_timeout 5m;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+    ssl_prefer_server_ciphers on;
+{% endif %}
     # home server
     location / {
         root        {{ nginx_home }};
@@ -46,6 +47,15 @@ upstream {{ item.name }} {
 server {
     server_name  {{ item.domain }};
     listen       {{ nginx_port }};
+{% if nginx_ssl_enabled|bool %}
+    listen       {{ nginx_ssl_port }} ssl;
+    ssl_certificate /etc/nginx/conf.d/cert/pigsty.crt;
+    ssl_certificate_key /etc/nginx/conf.d/cert/pigsty.key;
+    ssl_session_timeout 5m;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+    ssl_prefer_server_ciphers on;
+{% endif %}
     access_log /var/log/nginx/{{ item.name }}.log;
     location / {
         proxy_pass http://{{ item.name }}/;
