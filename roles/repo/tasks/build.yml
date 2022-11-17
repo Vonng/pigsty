@@ -1,0 +1,131 @@
+---
+#--------------------------------------------------------------#
+# 3.1   Remove existing upstream repo files        [repo_remove]
+#--------------------------------------------------------------#
+- name: remove existing repo before build
+  tags: [ repo_upstream, repo_remove ]
+  when: repo_remove|bool
+  shell:
+    warn: no
+    cmd: |
+      mkdir -p /etc/yum.repos.d/backup/
+      mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ || /bin/true
+
+#--------------------------------------------------------------#
+# 3.2  Add required upstream repo files               [repo_add]
+#--------------------------------------------------------------#
+- name: add pigsty upstream repo file
+  tags: [ repo_upstream , repo_add ]
+  copy:
+    dest: /etc/yum.repos.d/{{ item.name }}.repo
+    content: |
+      [{{ item.name }}]
+      name = {{ item.description }} $releasever - $basearch
+      {% if region in item.baseurl and item.baseurl[region] != '' %}
+      baseurl = {{ item.baseurl[region] | regex_replace('\$releasever', os_version|string )  }}
+      {% else %}
+      {% if item.name == 'prometheus' and os_version|int >= 8 %}
+      baseurl = {{ item.baseurl.default | regex_replace('\$releasever', '8' )  }}
+      {% else %}
+      baseurl = {{ item.baseurl.default | regex_replace('\$releasever', os_version|string )  }}
+      {% endif %}
+      {% endif %}
+      gpgcheck = 0
+      enabled = 1
+      {% if os_version|int >= 8 %}
+      module_hotfixes=1
+      {% endif %}
+  when: os_version|int in item.releases
+  with_items: "{{ repo_upstream }}"
+
+#--------------------------------------------------------------#
+# 3.3  Download url packages                      [repo_url_pkg]
+#--------------------------------------------------------------#
+# download packages directly via url (replace ${releasever} to 7|8|9)
+- name: download repo url packages
+  tags: repo_url_pkg
+  ignore_errors: true
+  environment: "{{ proxy_env }}"
+  get_url: dest={{ repo_home }}/{{ repo_name }}/ url={{ item | regex_replace('\${releasever}', os_version|string) | regex_replace('\${arch}', os_arch|string ) }}
+  with_items: "{{ repo_url_packages }}"
+
+#--------------------------------------------------------------#
+# 3.4 Make repo cache                               [repo_cache]
+#--------------------------------------------------------------#
+# this usually takes 1~2 minutes, according to your network condition and region & mirrors
+- name: remake repo cache
+  tags: repo_cache
+  environment: "{{ proxy_env|default({}) }}"
+  shell: |
+    yum clean all;
+    yum makecache;
+    {% if os_version|int >= 8 %}
+    dnf module disable -y php nginx postgresql;
+    {% endif %}
+    /bin/true
+
+#--------------------------------------------------------------#
+# 3.5  Download bootstrap packages               [repo_boot_pkg]
+#--------------------------------------------------------------#
+- name: install repo boot packages
+  tags: repo_boot_pkg
+  environment: "{{ proxy_env|default({}) }}"
+  yum: name="createrepo_c,yum-utils{% if os_version|int >= 8 %},modulemd-tools{% endif %}" state=present
+
+#--------------------------------------------------------------#
+# 3.6 Download rpm Packages                           [repo_pkg]
+#--------------------------------------------------------------#
+- name: download repo packages
+  tags: repo_pkg
+  environment: "{{ proxy_env }}"
+  shell:
+    cmd: |
+      {% if os_version|int >= 8 %}
+      repotrack --arch x86_64,noarch {{ item }};
+      {% else %}
+      repotrack {{ item }}
+      {% endif %}
+    chdir: "{{ repo_home }}/{{ repo_name }}"
+  with_items: "{{ repo_packages }}"
+
+#--------------------------------------------------------------#
+# 3.7 Create repo                                  [repo_create]
+#--------------------------------------------------------------#
+# create local yum repo
+- name: create local repo
+  tags: repo_create
+  shell:
+    cmd: |
+      #!/bin/bash
+      rm -f *.i686.rpm   # remove i686 packages
+      createrepo_c {{ repo_home }}/{{ repo_name }}
+      {% if os_version|int >= 8 %}
+      repo2module -s stable . modules.yaml
+      modifyrepo_c --mdtype=modules modules.yaml repodata/              
+      {% endif %}
+      cd {{ repo_home }}/{{ repo_name }}
+      md5sum *.rpm > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
+    chdir: "{{ repo_home }}/{{ repo_name }}"
+
+#--------------------------------------------------------------#
+# 3.8 Use built repo                                  [repo_use]
+#--------------------------------------------------------------#
+- name: use built local repo
+  tags: repo_use
+  shell: |
+    mkdir -p /etc/yum.repos.d/backup/
+    mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ || /bin/true
+    cat > /etc/yum.repos.d/{{ repo_name }}-local.repo <<-'EOF'
+    [{{ repo_name }}-local]
+    name={{ repo_name }}-local $releasever - $basearch
+    baseurl=file://{{ repo_home }}/{{ repo_name }}/
+    enabled=1
+    gpgcheck=0
+    {% if os_version|int >= 8 %}
+    module_hotfixes=1
+    {% endif %}
+    EOF
+    yum clean all;
+    yum makecache;
+    yum install -y wget sshpass createrepo_c yum-utils nginx;
+...
