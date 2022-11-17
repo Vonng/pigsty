@@ -22,27 +22,16 @@
 #--------------------------------------------------------------#
 # Config Haproxy
 #--------------------------------------------------------------#
-- name: config haproxy
+- name: render haproxy config
   tags: haproxy_config
-  block:
-
-    - name: get postgres cluster memberships
-      connection: local
-      set_fact:
-        pg_cluster_members={{ hostvars|json_query(pg_cluster_members_query) }}
-        pg_services="{{ pg_services + pg_services_extra }}"
-      vars:
-        pg_cluster_members_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']"
-
-    - name: render haproxy config
-      template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg owner=root group=postgres mode=0640
-
-    - name: reload haproxy
-      tags: haproxy_reload
-      when: haproxy_reload|bool
-      ignore_errors: true
-      systemd: name=haproxy state=reloaded enabled=yes daemon_reload=yes
-
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: postgres
+    mode: 0640
+  vars:
+    pg_cluster_members_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']"
 
 #--------------------------------------------------------------#
 # Launch Haproxy
@@ -56,4 +45,12 @@
     - name: wait for haproxy service online
       wait_for: host=127.0.0.1 port=9101 state=started timeout=10
 
+#--------------------------------------------------------------#
+# Reload Haproxy
+#--------------------------------------------------------------#
+- name: reload haproxy
+  tags: [ haproxy_reload , haproxy_config ]
+  when: haproxy_reload|bool
+  ignore_errors: true
+  systemd: name=haproxy state=reloaded enabled=yes daemon_reload=yes
 ...

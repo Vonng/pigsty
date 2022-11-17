@@ -1,3 +1,6 @@
+# {{ ansible_managed }}
+# {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }}
+
 #=====================================================================
 # Global settings
 # Document: https://www.haproxy.org/download/2.6/doc/configuration.txt
@@ -34,30 +37,30 @@ defaults
 #---------------------------------------------------------------------
 # default admin users
 #---------------------------------------------------------------------
-userlist STATS_USERS
-        group admin     users {{ haproxy_admin_username }}
-        user stats  insecure-password {{ haproxy_admin_password }}
+userlist stats-auth
+        group admin users {{ haproxy_admin_username }}
         user {{ haproxy_admin_username }}  insecure-password {{ haproxy_admin_password }}
+        group readonly users haproxy
+        user haproxy insecure-password haproxy
 
 #---------------------------------------------------------------------
 # stats and exporter
 #---------------------------------------------------------------------
+# https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/
 listen stats                                # both frontend and a backend for statistics
     # option httplog                        # log http activity
-    stats realm {{ pg_cluster }}-{{ pg_seq }}-haproxy-{{ inventory_hostname }}
-
     bind *:{{ haproxy_exporter_port }}  # default haproxy exporter port
     mode  http                              # server in http mode
     stats enable                            # enable stats page on http://localhost:9101/haproxy
+    stats hide-version
     stats uri /{{ pg_cluster }}-{{ pg_seq }}/     # stats endpoint
     stats refresh 30s                       # refresh stats page every 30 seconds
     stats show-node
 
-{% if haproxy_auth_enabled == false %}
-    stats admin if TRUE                     # no auth for admin
-{% else %}
-    stats auth {{ haproxy_admin_username }} {{ haproxy_admin_password }}
-{% endif %}
+    acl AUTH       http_auth(stats-auth)
+    acl AUTH_ADMIN http_auth_group(stats-auth) admin
+    stats http-request auth unless AUTH
+    stats admin if AUTH_ADMIN
 
     # embed prometheus exporter on http://localhost:9101/metrics
     http-request use-service prometheus-exporter if { path {{ exporter_metrics_path }} }
@@ -65,8 +68,10 @@ listen stats                                # both frontend and a backend for st
 #=====================================================================
 # Service Definition
 #=====================================================================
+{% set pg_service_list = pg_services_default + pg_services %}
+{% set pg_cluster_members = hostvars|json_query(pg_cluster_members_query) %}
 
-{% for service in pg_services %}
+{% for service in pg_service_list %}
 #---------------------------------------------------------------------
 # service: {{ pg_cluster }}-{{ service.name }}
 #---------------------------------------------------------------------

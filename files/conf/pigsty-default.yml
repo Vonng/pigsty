@@ -95,7 +95,7 @@ all:
         pg_cluster: pg-test           # define pgsql cluster name
         pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
         pg_databases: [{ name: test }] # create a database and user named 'test'
-        pg_services_extra:            # extra services in addition to pg_services_default, array of service definition
+        pg_services:                  # extra services in addition to pg_services_default, array of service definition
           # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
           - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
             src_ip: "*"               # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
@@ -432,7 +432,7 @@ all:
     # NOTICE: overwrite these variables on <CLUSTER> level
     pg_users: []                      # postgres business users
     pg_databases: []                  # postgres business databases
-    pg_services_extra: []             # postgres extra services
+    pg_services: []                   # postgres extra services
     pg_hba_rules_extra: []            # postgres hba rules
     pgbouncer_hba_rules_extra: []     # pgbouncer hba rules
 
@@ -622,7 +622,7 @@ all:
     #-----------------------------------------------------------------
     # PG_SERVICE
     #-----------------------------------------------------------------
-    pg_services:                      # how to expose postgres service in cluster?
+    pg_services_default:              # default postgres services to be exposed
       - name: primary                 # service name {{ pg_cluster }}-primary
         src_ip: "*"
         src_port: 5433

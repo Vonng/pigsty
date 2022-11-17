@@ -2,7 +2,8 @@
 #-----------------------------------------------------------------
 # PG_SERVICE
 #-----------------------------------------------------------------
-pg_services:                      # how to expose postgres service in cluster?
+pg_services: []                   # postgres business services to be exposed
+pg_services_default:              # default postgres services to be exposed
   - name: primary                 # service name {{ pg_cluster }}-primary
     src_ip: "*"
     src_port: 5433
@@ -40,7 +41,6 @@ pg_services:                      # how to expose postgres service in cluster?
     selector: "[? pg_role == `offline` || pg_offline_query ]"         # instances with pg_role == 'offline' or instance marked with 'pg_offline_query == true'
     selector_backup: "[? pg_role == `replica` && !pg_offline_query]"  # replica are used as backup server in offline service
 
-pg_services_extra: []             # extra services
 haproxy_enabled: true             # enable haproxy on this node?
 haproxy_reload: true              # reload haproxy after config?
 haproxy_auth_enabled: false       # enable authentication for haproxy admin?

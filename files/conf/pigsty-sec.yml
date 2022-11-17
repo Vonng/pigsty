@@ -52,7 +52,7 @@ all:
           - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
         pg_databases:
           - { name: meta , baseline: cmdb.sql ,comment: pigsty meta database , schemas: [ pigsty ] , extensions: [{ name: postgis, schema: public }] }
-        pg_services_extra:            # extra services in addition to pg_services_default, array of service definition
+        pg_services:                  # extra services in addition to pg_services_default, array of service definition
           - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
             src_ip: "*"               # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
             src_port: 5435            # required, service exposed port (work as kubernetes service node port mode)
@@ -89,6 +89,22 @@ all:
     region: default                   # upstream mirror region: default|china|europe
     pg_pwd_enc: scram-sha-256         # algorithm for encrypting passwords: md5|scram-sha-256
     pg_sslmode: require               # enable sslmode: disable|allow|prefer|require|verify-ca|verify-full
+    haproxy_auth_enabled: false       # enable authentication for haproxy admin?
+
+    # WARNING: CHANGE THESE PASSWORDS
+    #grafana_admin_username: admin
+    grafana_admin_password: pigsty
+    #pg_admin_username: dbuser_dba
+    pg_admin_password: DBUser.DBA
+    #pg_monitor_username: dbuser_monitor
+    pg_monitor_password: DBUser.Monitor
+    #pg_replication_username: replicator
+    pg_replication_password: DBUser.Replicator
+    #patroni_username: postgres
+    patroni_password: Patroni.API
+    #haproxy_admin_username: admin
+    haproxy_admin_password: pigsty
+
     pg_hba_rules:                     # postgres host-based authentication rules
       - title: allow meta node password access
         role: common
