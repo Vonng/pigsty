@@ -11,7 +11,7 @@ node_id_from_pg: true             # get node identity from postgres ins/cls if a
 #-----------------------------------------------------------------
 # NODE_DNS
 #-----------------------------------------------------------------
-node_etc_hosts_default:           # static dns records in /etc/hosts
+node_default_etc_hosts:           # static dns records in /etc/hosts
   - "${admin_ip} meta i.pigsty p.pigsty g.pigsty a.pigsty "
   - "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
 node_etc_hosts: []                # extra static dns records in /etc/hosts
@@ -32,14 +32,14 @@ node_repo_local_urls:             # list local repo url, if node_repo_method = l
 # NODE_PACKAGE
 #-----------------------------------------------------------------
 node_packages: [ ]                # extra packages for all nodes
-node_packages_default:            # common packages for all nodes
+node_default_packages:            # common packages for all nodes
   - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,dstat,iotop,htop,yum,yum-utils
   - wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal
   - readline,zlib,openssl,openssh-clients,node_exporter,etcd,promtail,mtail,python3-idna,python3-requests
-node_packages_meta:               # extra packages for meta nodes
+infra_packages:                   # packages for infra nodes
   - grafana,loki,prometheus2,alertmanager,pushgateway,dnsmasq,node_exporter,nginx_exporter,blackbox_exporter,redis_exporter,mcli,logcli
   - nginx,ansible,python3,python3-pip,python3-requests,postgresql15,redis
-node_packages_meta_pip: ''        # install infra python packages with pip3
+infra_packages_pip: ''            # pip installed packages for infra nodes
 
 #-----------------------------------------------------------------
 # NODE_TUNE
@@ -57,7 +57,7 @@ node_sysctl_params: { }           # set additional sysctl parameters in k:v form
 #-----------------------------------------------------------------
 # NODE ADMIN
 #-----------------------------------------------------------------
-node_data_dir: /data              # main data directory
+node_data: /data                  # node main data directory, /data by default
 node_admin_enabled: true          # create a default admin user defined by `node_admin_*` ?
 node_admin_uid: 88                # uid and gid for this admin user
 node_admin_username: dba          # name of this admin user, dba by default

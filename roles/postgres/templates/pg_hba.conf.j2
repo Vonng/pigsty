@@ -41,7 +41,7 @@ host    all             {{ pg_monitor_username }}      127.0.0.1/32        {{ pg
 #==============================================================#
 # add extra hba rules here
 
-{% for hba in pg_hba_rules_extra %}
+{% for hba in pg_hba_rules %}
 {% if hba.role == 'common' %}
 #  {% if 'title' in hba %}{{ hba.title }}{% endif %}
 
@@ -52,7 +52,7 @@ host    all             {{ pg_monitor_username }}      127.0.0.1/32        {{ pg
 {% endif %}
 {% endfor %}
 
-{% for hba in pg_hba_rules_extra %}
+{% for hba in pg_hba_rules %}
 {% if hba.role == pg_role %}
 #  {% if 'title' in hba %}{{ hba.title }}{% endif %}
 
@@ -66,7 +66,7 @@ host    all             {{ pg_monitor_username }}      127.0.0.1/32        {{ pg
 #==============================================================#
 # {{ pg_role }} HBA
 #==============================================================#
-{% for hba in pg_hba_rules %}
+{% for hba in pg_default_hba_rules %}
 {% if hba.role == pg_role %}
 {% if 'title' in hba %}# {{ hba.title }}{% endif %}
 
@@ -80,7 +80,7 @@ host    all             {{ pg_monitor_username }}      127.0.0.1/32        {{ pg
 #==============================================================#
 # special HBA for instance marked with 'pg_offline_query = true'
 #==============================================================#
-{% for hba in pg_hba_rules_extra %}
+{% for hba in pg_hba_rules %}
 {% if hba.role == 'offline' and pg_role != 'offline' and pg_offline_query == true %}
 #  {% if 'title' in hba %}{{ hba.title }}{% endif %}
 
@@ -90,7 +90,7 @@ host    all             {{ pg_monitor_username }}      127.0.0.1/32        {{ pg
 {% endif %}
 {% endfor %}
 
-{% for hba in pg_hba_rules %}
+{% for hba in pg_default_hba_rules %}
 {% if hba.role == 'offline' and pg_role != 'offline' and pg_offline_query == true %}
 #  {% if 'title' in hba %}{{ hba.title }}{% endif %}
 
@@ -104,7 +104,7 @@ host    all             {{ pg_monitor_username }}      127.0.0.1/32        {{ pg
 #==============================================================#
 # Common HBA
 #==============================================================#
-{% for hba in pg_hba_rules %}
+{% for hba in pg_default_hba_rules %}
 {% if hba.role == 'common' %}
 #  {% if 'title' in hba %}{{ hba.title }}{% endif %}
 

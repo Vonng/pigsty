@@ -38,7 +38,7 @@
     - name: install default node packages
       environment: "{{ proxy_env | default({}) }}"
       yum: name={{ item }} disable_gpg_check=true
-      with_items: "{{ node_packages_default }}"
+      with_items: "{{ node_default_packages }}"
 
     - name: install extra node packages
       environment: "{{ proxy_env | default({}) }}"
@@ -49,7 +49,7 @@
       when: inventory_hostname in groups["infra"]
       environment: "{{ proxy_env | default({}) }}"
       yum: name={{ item }} disable_gpg_check=true
-      with_items: "{{ node_packages_meta|default([]) }}"
+      with_items: "{{ infra_packages|default([]) }}"
 
 
 #------------------------------------------------------------------------------
@@ -57,7 +57,7 @@
 #------------------------------------------------------------------------------
 - name: install python pip packages
   tags: node_pip
-  when: inventory_hostname in groups["infra"] and node_packages_meta_pip != '' and nginx_enabled|bool
+  when: inventory_hostname in groups["infra"] and infra_packages_pip != '' and nginx_enabled|bool
   ignore_errors: yes
   environment: "{{ proxy_env | default({}) }}"
   shell: |
@@ -81,7 +81,7 @@
         echo "f============================fuck"
         ${PYTHON_BIN} -m pip install --upgrade pip
         ${PYTHON_BIN} -m pip download pip
-        ${PYTHON_BIN} -m pip download {{ node_packages_meta_pip }}
+        ${PYTHON_BIN} -m pip download {{ infra_packages_pip }}
     fi
     ${PYTHON_BIN} -m pip install ${PYTHON_DIR}/pip* || /bin/true
     ${PYTHON_BIN} -m pip install ${PYTHON_DIR}/*    || /bin/true

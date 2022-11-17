@@ -52,21 +52,8 @@ all:
           - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
         pg_databases:
           - { name: meta , baseline: cmdb.sql ,comment: pigsty meta database , schemas: [ pigsty ] , extensions: [{ name: postgis, schema: public }] }
-        pg_services:                  # extra services in addition to pg_services_default, array of service definition
-          - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
-            src_ip: "*"               # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
-            src_port: 5435            # required, service exposed port (work as kubernetes service node port mode)
-            dst_port: pgbouncer       # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
-            check_method: http        # optional, health check method: http is the only available method for now
-            check_port: patroni       # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
-            check_url: /sync          # optional, health check url path, /read-only?lag=0 by default
-            check_code: 200           # optional, health check expected http code, 200 by default
-            selector: "[]"            # required, JMESPath to filter inventory ()
-            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
-            haproxy:                  # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
-              maxconn: 3000           # optional, max allowed front-end connection
-              balance: roundrobin     # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
-              default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
+        pg_services:
+          - { name: standby ,src_ip: "*" ,src_port: 5435 , dst_port: postgres ,selector: "[]" , selector_backup: "[? pg_role == `primary`]" }
         vip_mode: l2
         vip_address: 10.10.10.2
         vip_cidrmask: 8
@@ -105,7 +92,7 @@ all:
     #haproxy_admin_username: admin
     haproxy_admin_password: pigsty
 
-    pg_hba_rules:                     # postgres host-based authentication rules
+    pg_default_hba_rules:             # postgres host-based auth rules by default
       - title: allow meta node password access
         role: common
         rules:
@@ -134,7 +121,7 @@ all:
           - host    all     +dbrole_offline               172.16.0.0/12     scram-sha-256
           - host    all     +dbrole_offline               192.168.0.0/16    scram-sha-256
 
-    pgbouncer_hba_rules:              # pgbouncer host-based authentication rules
+    pgbouncer_default_hba_rules:      # pgbouncer host-based authentication rules
       - title: local password access
         role: common
         rules:

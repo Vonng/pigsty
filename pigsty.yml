@@ -68,7 +68,7 @@ all:
           - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
           - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service       }
           - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
-        pg_hba_rules_extra:
+        pg_hba_rules:
           - title: allow grafana bytebase kong intranet access
             role: common
             rules:
@@ -95,7 +95,7 @@ all:
         pg_cluster: pg-test           # define pgsql cluster name
         pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
         pg_databases: [{ name: test }] # create a database and user named 'test'
-        pg_services:                  # extra services in addition to pg_services_default, array of service definition
+        pg_services:                  # extra services in addition to pg_default_services, array of service definition
           # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
           - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
             src_ip: "*"               # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
@@ -319,7 +319,7 @@ all:
     #-----------------------------------------------------------------
     # NODE_DNS
     #-----------------------------------------------------------------
-    node_etc_hosts_default:           # static dns records in /etc/hosts
+    node_default_etc_hosts:           # static dns records in /etc/hosts
       - "${admin_ip} meta i.pigsty p.pigsty g.pigsty a.pigsty"
       - "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
     node_etc_hosts: []                # extra static dns records in /etc/hosts
@@ -340,14 +340,14 @@ all:
     # NODE_PACKAGE
     #-----------------------------------------------------------------
     node_packages: [ ]                # extra packages for all nodes
-    node_packages_default:            # common packages for all nodes
+    node_default_packages:            # common packages for all nodes
       - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,dstat,iotop,htop,yum,yum-utils
       - wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal
       - readline,zlib,openssl,openssh-clients,node_exporter,etcd,promtail,mtail,python3-idna,python3-requests
-    node_packages_meta:               # extra packages for meta nodes
+    infra_packages:                   # packages for infra nodes
       - grafana,prometheus2,alertmanager,pushgateway,dnsmasq,node_exporter,nginx_exporter,blackbox_exporter,redis_exporter,mcli,logcli
       - nginx,ansible,python3-requests,postgresql15,redis
-    node_packages_meta_pip: ''        # install infra python packages with pip3
+    infra_packages_pip: ''            # pip installed packages for infra nodes
 
     #-----------------------------------------------------------------
     # NODE_TUNE
@@ -365,7 +365,7 @@ all:
     #-----------------------------------------------------------------
     # NODE_ADMIN
     #-----------------------------------------------------------------
-    node_data_dir: /data              # node main data directory, /data by default
+    node_data: /data                  # node main data directory, /data by default
     node_admin_enabled: true          # create a default admin user defined by `node_admin_*` ?
     node_admin_uid: 88                # uid and gid for this admin user
     node_admin_username: dba          # name of this admin user, dba by default
@@ -433,8 +433,8 @@ all:
     pg_users: []                      # postgres business users
     pg_databases: []                  # postgres business databases
     pg_services: []                   # postgres business services
-    pg_hba_rules_extra: []            # postgres hba rules
-    pgbouncer_hba_rules_extra: []     # pgbouncer hba rules
+    pg_hba_rules: []                  # postgres hba rules
+    pgb_hba_rules: []                 # pgbouncer hba rules
 
     # WARNING: change these credentials in production deployment!
     pg_admin_username: dbuser_dba
@@ -549,7 +549,7 @@ all:
       - { name: intarray           ,schema: public  }
       - { name: pg_repack }
     pg_reload: true                   # reload postgres after hba changes
-    pg_hba_rules:                     # postgres host-based authentication rules
+    pg_default_hba_rules:             # postgres host-based auth rules by default
       - title: allow meta node password access
         role: common
         rules:
@@ -577,7 +577,7 @@ all:
           - host    all     +dbrole_offline               10.0.0.0/8        md5
           - host    all     +dbrole_offline               172.16.0.0/12     md5
           - host    all     +dbrole_offline               192.168.0.0/16    md5
-    pgbouncer_hba_rules:              # pgbouncer host-based authentication rules
+    pgbouncer_default_hba_rules:      # pgbouncer host-based authentication rules
       - title: local password access
         role: common
         rules:
@@ -622,7 +622,7 @@ all:
     #-----------------------------------------------------------------
     # PG_SERVICE
     #-----------------------------------------------------------------
-    pg_services_default:              # how to expose postgres service in cluster?
+    pg_default_services:              # how to expose postgres service in cluster?
       - name: primary                 # service name {{ pg_cluster }}-primary
         src_ip: "*"
         src_port: 5433

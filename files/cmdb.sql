@@ -307,10 +307,10 @@ SELECT cls,
        coalesce(vars -> 'pg_users', '[]'::JSONB)                             AS pg_users,
        coalesce((gsvc.global || vars) -> 'pg_services', '[]'::JSONB) ||
        coalesce((gsvc.global || vars) -> 'pg_services_extra', '[]'::JSONB)   AS pg_services,
-       coalesce((gsvc.global || vars) -> 'pg_hba_rules_extra', '[]'::JSONB) ||
-       coalesce((gsvc.global || vars) -> 'pg_hba_rules', '[]'::JSONB)  AS pg_hba,
-       coalesce((gsvc.global || vars) -> 'pgbouncer_hba_rules_extra', '[]'::JSONB) ||
-       coalesce((gsvc.global || vars) -> 'pgbouncer_hba_rules', '[]'::JSONB) AS pgbouncer_hba
+       coalesce((gsvc.global || vars) -> 'pg_hba_rules', '[]'::JSONB) ||
+       coalesce((gsvc.global || vars) -> 'pg_default_hba_rules', '[]'::JSONB)  AS pg_hba,
+       coalesce((gsvc.global || vars) -> 'pgbouncer_hba_rules', '[]'::JSONB) ||
+       coalesce((gsvc.global || vars) -> 'pgbouncer_default_hba_rules', '[]'::JSONB) AS pgbouncer_hba
 FROM pigsty.group_config,
      (SELECT jsonb_object_agg(key, value) AS global
       FROM global_var
@@ -442,8 +442,8 @@ SELECT cls,
        vars ->> 'pg_shard'                                            AS pg_shard,
        hosts,
        vars,
-       coalesce((gsvc.global || vars) -> 'pg_hba_rules_extra', '[]'::JSONB) ||
-       coalesce((gsvc.global || vars) -> 'pg_hba_rules', '[]'::JSONB) AS pg_hba
+       coalesce((gsvc.global || vars) -> 'pg_hba_rules', '[]'::JSONB) ||
+       coalesce((gsvc.global || vars) -> 'pg_default_hba_rules', '[]'::JSONB) AS pg_hba
 FROM pigsty.group_config,
      (SELECT jsonb_object_agg(key, value) AS global
       FROM global_var

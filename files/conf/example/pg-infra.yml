@@ -10,7 +10,7 @@ pg-infra:
     pg_version: 13
     vip_address: 10.10.10.4
     pgbouncer_poolmode: session
-    pg_hba_rules_extra:
+    pg_hba_rules:
       - title: allow confluence jira gitlab eazybi direct access
         role: common
         rules:
@@ -31,7 +31,7 @@ pg-infra:
       - { name: gitlab , revokeconn: true, owner: dbuser_gitlab, connlimit: 100 }
       - { name: jira , revokeconn: true, owner: dbuser_jira , connlimit: 100 }
 
-    pg_services:                        # extra services in addition to pg_services_default, array of service definition
+    pg_services:                        # extra services in addition to pg_default_services, array of service definition
       # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
       - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
         src_ip: "*"                     # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
