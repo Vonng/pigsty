@@ -80,11 +80,13 @@ def write_inventory_sh(path):
 
 
 def load_conf(conf, pgurl):
+    if 'all' not in conf: return
     import psycopg2
     from psycopg2.extras import Json
-    groups = conf['all']['children']
-    global_vars = [(k, Json(v)) for k, v in conf['all']['vars'].items()]
-    group_names = [(i,) for i in conf['all']['children'].keys()]
+    groups, global_vars = {}, []
+    if 'children' in conf['all']: groups = conf['all']['children']
+    if 'vars' in conf['all']: global_vars = [(k, Json(v)) for k, v in conf['all']['vars'].items()]
+    group_names = [(i,) for i in groups.keys()]
     conn = psycopg2.connect(pgurl)
     try:
         with conn.cursor() as cur:
@@ -95,7 +97,8 @@ def load_conf(conf, pgurl):
             cur.executemany(SQL_INSERT_GROUP_NAMES, group_names)
             for cls, group in groups.items():
                 print("[INFO] load group %s" % cls)
-                group_vars = [(cls, k, Json(v)) for k, v in group['vars'].items()]
+                group_vars = []
+                if 'vars' in group: group_vars = [(cls, k, Json(v)) for k, v in group['vars'].items()]
                 cur.executemany(SQL_INSERT_GROUP_VARS, group_vars)  # insert group var
                 cur.executemany(SQL_INSERT_HOST_NAMES, [(cls, ip) for ip in group['hosts'].keys()])  # insert host names
                 for ip, vars in group['hosts'].items():
