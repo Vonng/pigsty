@@ -213,7 +213,7 @@ all:
     nginx_home: /www                  # nginx content dir, /www by default
     nginx_port: 80                    # nginx listen port, 80 by default
     nginx_ssl_port: 443               # nginx ssl listen port, 443 by default
-    nginx_ssl_enabled: false          # enable ssl on nginx? trust self-singed ca or apply a real cert.
+    nginx_ssl_enabled: true           # enable ssl on nginx? trust self-singed ca or apply a real cert.
     nginx_upstream:                   # nginx domain names and upstreams: h,a,p,g
       - { name: home         , domain: i.pigsty , endpoint: "${admin_ip}:80"   }
       - { name: alertmanager , domain: a.pigsty , endpoint: "${admin_ip}:9093" }
@@ -278,7 +278,7 @@ all:
     #                         VARS: ETCD                             #
     #================================================================#
     #etcd_seq: 1                      # etcd instance identifier, explicitly required
-    etcd_cluster: etcd                # etcd cluster & group name, etcd by default
+    #etcd_cluster: etcd               # etcd cluster & group name, etcd by default
     etcd_safeguard: false             # prevent purging running etcd instance?
     etcd_clean: true                  # purging existing etcd during initialization?
     etcd_data: /data/etcd             # etcd data directory, /data/etcd by default
@@ -291,16 +291,16 @@ all:
     #================================================================#
     #                         VARS: MINIO                            #
     #================================================================#
-    #minio_seq: 1                   # minio instance identifier, explicitly required
-    minio_cluster: minio            # minio cluster name, minio by default
-    minio_user: minio               # minio os user
-    minio_domain: sss.pigsty        # minio domain name
-    minio_port: 9000                # minio service port, 9000 by default
-    minio_admin_port: 9001          # minio console port, 9001 by default
-    minio_data: [ '/data/minio' ]   # data directories for minio
-    minio_access_key: minioadmin    # root access key
-    minio_secret_key: minioadmin    # root secret key
-    minio_extra_vars: ''            # extra environment variables
+    #minio_seq: 1                     # minio instance identifier, explicitly required
+    #minio_cluster: minio             # minio cluster name, minio by default
+    minio_user: minio                 # minio os user
+    minio_domain: sss.pigsty          # minio domain name
+    minio_port: 9000                  # minio service port, 9000 by default
+    minio_admin_port: 9001            # minio console port, 9001 by default
+    minio_data: [ '/data/minio' ]     # data directories for minio
+    minio_access_key: minioadmin      # root access key
+    minio_secret_key: minioadmin      # root secret key
+    minio_extra_vars: ''              # extra environment variables
 
 
     #================================================================#
@@ -320,7 +320,7 @@ all:
     # NODE_DNS
     #-----------------------------------------------------------------
     node_default_etc_hosts:           # static dns records in /etc/hosts
-      - "${admin_ip} meta pigsty p.pigsty g.pigsty a.pigsty c.pigsty l.pigsty"
+      - "${admin_ip} meta i.pigsty p.pigsty g.pigsty a.pigsty"
       - "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
     node_etc_hosts: []                # extra static dns records in /etc/hosts
     node_dns_method: none             # add (default) | none (skip) | overwrite (remove old settings)
@@ -334,7 +334,7 @@ all:
     node_repo_method: local           # none|local: ad local repo|public: add upstream directly
     node_repo_remove: true            # remove existing repo on nodes?
     node_repo_local_urls:             # list local repo url, if node_repo_method = local
-      - http://i.pigsty/pigsty.repo
+      - http://10.10.10.10/pigsty.repo
 
     #-----------------------------------------------------------------
     # NODE_PACKAGE
@@ -359,6 +359,7 @@ all:
     node_static_network: true         # keep dns resolver settings after reboot
     node_disk_prefetch: false         # setup disk prefetch on HDD to increase performance
     node_kernel_modules: [ softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_wrr, ip_vs_sh ]
+    node_hugepage_ratio: 0            # mem hugepage ratio, 0 disable it by default
     node_tune: oltp                   # install and activate tuned profile: none|oltp|olap|crit|tiny
     node_sysctl_params: { }           # set additional sysctl parameters in k:v format
 
@@ -432,9 +433,9 @@ all:
     # NOTICE: overwrite these variables on <CLUSTER> level
     pg_users: []                      # postgres business users
     pg_databases: []                  # postgres business databases
-    pg_services: []                   # postgres extra services
+    pg_services: []                   # postgres business services
     pg_hba_rules: []                  # postgres hba rules
-    pgbouncer_hba_rules: []           # pgbouncer hba rules
+    pgb_hba_rules: []                 # pgbouncer hba rules
 
     # WARNING: change these credentials in production deployment!
     pg_admin_username: dbuser_dba
@@ -618,7 +619,7 @@ all:
     #-----------------------------------------------------------------
     # PG_SERVICE
     #-----------------------------------------------------------------
-    pg_default_services:              # default postgres services to be exposed
+    pg_default_services:              # how to expose postgres service in cluster?
       - name: primary                 # service name {{ pg_cluster }}-primary
         src_ip: "*"
         src_port: 5433
@@ -654,7 +655,7 @@ all:
         selector_backup: "[? pg_role == `replica` && !pg_offline_query]"  # replica are used as backup server in offline service
     haproxy_enabled: true             # enable haproxy on this node?
     haproxy_reload: true              # reload haproxy after config?
-    haproxy_auth_enabled: false       # enable authentication for haproxy admin?
+    haproxy_auth_enabled: true        # enable authentication for haproxy admin?
     haproxy_admin_username: admin     # default haproxy admin username
     haproxy_admin_password: pigsty    # default haproxy admin password
     haproxy_exporter_port: 9101       # haproxy admin/exporter port, 9101 by default
