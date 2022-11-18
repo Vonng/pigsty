@@ -15,6 +15,11 @@ hostssl   pgbouncer    {{ pg_monitor_username }}   172.16.0.0/12   {{ pg_pwd_enc
 hostssl   pgbouncer    {{ pg_monitor_username }}   192.168.0.0/16  {{ pg_pwd_enc }}
 hostssl   all          {{ pg_monitor_username }}   0.0.0.0/0       reject
 
+{% if admin_ip is defined and admin_ip != '' %}
+# allow admin nodes everyone access with password
+host    all             all      {{ admin_ip }}/32        {{ pg_pwd_enc }}
+{% endif %}
+
 {% if not pgbouncer_auth_query|bool %}
 # admin user have intranet access to pgbouncer admin
 hostssl   pgbouncer    {{ pg_admin_username }}     10.0.0.0/8      {{ pg_pwd_enc }}
@@ -30,6 +35,11 @@ host      pgbouncer    {{ pg_monitor_username }}   10.0.0.0/8      {{ pg_pwd_enc
 host      pgbouncer    {{ pg_monitor_username }}   172.16.0.0/12   {{ pg_pwd_enc }}
 host      pgbouncer    {{ pg_monitor_username }}   192.168.0.0/16  {{ pg_pwd_enc }}
 host      all          {{ pg_monitor_username }}   0.0.0.0/0       reject
+
+{% if admin_ip is defined and admin_ip != '' %}
+# allow admin nodes everyone access with password
+host    all             all      {{ admin_ip }}/32        {{ pg_pwd_enc }}
+{% endif %}
 
 {% if not pgbouncer_auth_query|bool %}
 # admin user have intranet access to pgbouncer admin

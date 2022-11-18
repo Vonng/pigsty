@@ -36,6 +36,19 @@ hostssl all             {{ pg_monitor_username }}      127.0.0.1/32        {{ pg
 host    all             {{ pg_monitor_username }}      127.0.0.1/32        {{ pg_pwd_enc }}
 {% endif %}
 
+{% if admin_ip is defined and admin_ip != '' %}
+# allow admin nodes everyone access with password
+host    all             all      {{ admin_ip }}/32        {{ pg_pwd_enc }}
+{% endif %}
+
+{% if 'infra' in groups and groups['infra']|length > 0 %}
+# allow infra nodes monitor with password
+{% for ip in groups['infra'] %}
+host    all             {{ pg_monitor_username }}      {{ ip }}/32        {{ pg_pwd_enc }}
+{% endfor %}
+{% endif %}
+
+
 #==============================================================#
 # Extra HBA
 #==============================================================#
