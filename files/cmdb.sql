@@ -16,14 +16,14 @@ SET search_path TO pigsty, public;
 --===========================================================--
 --                          type                             --
 --===========================================================--
-CREATE TYPE pigsty.status AS ENUM ('unknown', 'failed', 'available', 'creating', 'deleting');
-COMMENT ON TYPE pigsty.status IS 'entity status';
-
 CREATE TYPE pigsty.pg_role AS ENUM ('unknown','primary', 'replica', 'offline', 'standby', 'delayed', 'common');
 COMMENT ON TYPE pigsty.pg_role IS 'available postgres roles';
 
 CREATE TYPE pigsty.job_status AS ENUM ('draft', 'ready', 'run', 'done', 'fail');
 COMMENT ON TYPE pigsty.job_status IS 'pigsty job status';
+
+CREATE TYPE pigsty.var_level AS ENUM ('default', 'global', 'group', 'host', 'ins', 'arg');
+COMMENT ON TYPE pigsty.var_level IS 'pigsty parameters level';
 
 --===========================================================--
 --                         cluster                           --
@@ -32,17 +32,13 @@ COMMENT ON TYPE pigsty.job_status IS 'pigsty job status';
 CREATE TABLE IF NOT EXISTS pigsty.group
 (
     cls     TEXT PRIMARY KEY,
-    status  Pigsty.Status NOT NULL DEFAULT 'unknown'::status,
     ctime   TIMESTAMPTZ   NOT NULL DEFAULT now(),
-    mtime   TIMESTAMPTZ   NOT NULL DEFAULT now(),
-    is_meta BOOLEAN GENERATED ALWAYS AS ( cls = 'meta' ) STORED
+    mtime   TIMESTAMPTZ   NOT NULL DEFAULT now()
 );
 COMMENT ON TABLE pigsty.group IS 'pigsty inventory group';
 COMMENT ON COLUMN pigsty.group.cls IS 'group name, primary key, can not change';
-COMMENT ON COLUMN pigsty.group.status IS 'group status: unknown|failed|available|creating|deleting';
 COMMENT ON COLUMN pigsty.group.ctime IS 'group entry creation time';
 COMMENT ON COLUMN pigsty.group.mtime IS 'group modification time';
-COMMENT ON COLUMN pigsty.group.is_meta IS 'is this the meta group?';
 
 
 --===========================================================--
@@ -55,7 +51,6 @@ CREATE TABLE IF NOT EXISTS pigsty.host
 (
     cls    TEXT        NOT NULL REFERENCES pigsty.group (cls) ON DELETE CASCADE ON UPDATE CASCADE,
     ip     INET        NOT NULL,
-    status status      NOT NULL DEFAULT 'unknown'::status,
     ctime  TIMESTAMPTZ NOT NULL DEFAULT now(),
     mtime  TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (cls, ip)
@@ -64,10 +59,26 @@ CREATE TABLE IF NOT EXISTS pigsty.host
 COMMENT ON TABLE pigsty.host IS 'pigsty hosts';
 COMMENT ON COLUMN pigsty.host.cls IS 'host primary key: cls & ip';
 COMMENT ON COLUMN pigsty.host.ip IS 'host primary key: cls & host ip';
-COMMENT ON COLUMN pigsty.host.status IS 'host status: unknown|failed|available|creating|deleting';
 COMMENT ON COLUMN pigsty.host.ctime IS 'host entry creation time';
 COMMENT ON COLUMN pigsty.host.mtime IS 'host modification time';
 
+
+--===========================================================--
+--                      default_vars                          --
+--===========================================================--
+-- hold default var definition (roles.default)
+
+-- DROP TABLE IF EXISTS pigsty.default_var;
+CREATE TABLE IF NOT EXISTS pigsty.default_var
+(
+    key   TEXT PRIMARY KEY CHECK (key != ''),
+    value JSONB NULL,
+    mtime TIMESTAMPTZ DEFAULT now()
+);
+COMMENT ON TABLE pigsty.default_var IS 'default variables';
+COMMENT ON COLUMN pigsty.default_var.key IS 'default config entry name';
+COMMENT ON COLUMN pigsty.default_var.value IS 'default config entry value';
+COMMENT ON COLUMN pigsty.default_var.mtime IS 'default config entry last modified time';
 
 
 --===========================================================--
@@ -177,121 +188,89 @@ SELECT to_timestamp(((id >> 23) + 748569600000)::DOUBLE PRECISION / 1000)::TIMES
 $func$ LANGUAGE sql IMMUTABLE;
 COMMENT ON FUNCTION pigsty.job_id_ts(BIGINT) IS 'extract timestamp from job id';
 
-
-
-
 --===========================================================--
---                        pigsty.node                        --
+--                      pigsty.vars_agg                      --
 --===========================================================--
 CREATE AGGREGATE pigsty.vars_agg(jsonb) (
-    SFUNC = 'jsonb_concat',
-  STYPE = jsonb,
-  INITCOND = '{}'
+    SFUNC = 'jsonb_concat', STYPE = jsonb, INITCOND = '{}'
 );
+COMMENT ON AGGREGATE pigsty.vars_agg(jsonb) IS 'aggregate jsonb into one';
 
-DROP VIEW IF EXISTS pigsty.node;
-CREATE OR REPLACE VIEW pigsty.node AS
-SELECT node.ip, groups, m.is_meta, node.vars || coalesce(meta.vars, '{}'::JSONB) AS vars
-FROM (
-         SELECT i.ip, c.cls, is_meta, coalesce(cv.vars, '{}'::JSONB) || coalesce(iv.vars, '{}'::JSONB) AS vars
-         FROM pigsty.group c
-                  LEFT JOIN pigsty.host i ON c.cls = i.cls
-                  LEFT JOIN (SELECT cls, jsonb_object_agg(key, value) AS vars FROM pigsty.group_var GROUP BY cls) cv
-                            ON c.cls = cv.cls
-                  LEFT JOIN (SELECT cls, ip, jsonb_object_agg(key, value) AS vars
-                             FROM pigsty.host_var
-                             GROUP BY cls, ip) iv ON i.cls = iv.cls AND i.ip = iv.ip
-         WHERE is_meta
-     ) meta
-         FULL OUTER JOIN
-     (
-         SELECT i.ip,
-                pigsty.vars_agg(coalesce(coalesce(cv.vars, '{}'::JSONB) || coalesce(iv.vars, '{}'::JSONB), '{}'::JSONB)
-                                ORDER BY c.cls) AS vars
-         FROM pigsty.group c
-                  LEFT JOIN pigsty.host i ON c.cls = i.cls
-                  LEFT JOIN (SELECT cls, jsonb_object_agg(key, value) AS vars FROM pigsty.group_var GROUP BY cls) cv
-                            ON c.cls = cv.cls
-                  LEFT JOIN (SELECT cls, ip, jsonb_object_agg(key, value) AS vars
-                             FROM pigsty.host_var
-                             GROUP BY cls, ip) iv ON i.cls = iv.cls AND i.ip = iv.ip
-         WHERE NOT is_meta
-         GROUP BY i.ip
-     ) node ON meta.ip = node.ip
-         LEFT OUTER JOIN
-     (SELECT ip, array_agg(cls) AS groups, array_agg(cls) @> '{meta}' AS is_meta FROM pigsty.host GROUP BY ip) m
-     ON node.ip = m.ip;
+--===========================================================--
+--                     pigsty.host_config                    --
+--===========================================================--
+DROP VIEW IF EXISTS pigsty.host_config;
+CREATE OR REPLACE VIEW pigsty.host_config AS
+SELECT node.ip, g.groups, node.vars FROM
+    (
+        SELECT i.ip, pigsty.vars_agg(coalesce(coalesce(cv.vars, '{}'::JSONB) || coalesce(iv.vars, '{}'::JSONB), '{}'::JSONB) ORDER BY c.cls) AS vars
+        FROM pigsty.group c
+                 LEFT JOIN pigsty.host i ON c.cls = i.cls
+                 LEFT JOIN (SELECT cls, jsonb_object_agg(key, value) AS vars FROM pigsty.group_var GROUP BY cls) cv ON c.cls = cv.cls
+                 LEFT JOIN (SELECT cls, ip, jsonb_object_agg(key, value) AS vars FROM pigsty.host_var GROUP BY cls, ip) iv ON i.cls = iv.cls AND i.ip = iv.ip
+        GROUP BY i.ip
+    ) node LEFT OUTER JOIN (SELECT ip, array_agg(cls) AS groups FROM pigsty.host GROUP BY ip) g ON node.ip = g.ip;
 
-COMMENT ON VIEW pigsty.node IS 'pigsty node and merged hostvars';
-
+COMMENT ON VIEW pigsty.host_config IS 'pigsty host config, groups + host vars merged on host level';
 
 
 --===========================================================--
---                       pigsty.hostvars                     --
+--                    pigsty.group_config                    --
 --===========================================================--
--- DROP VIEW IF EXISTS pigsty.hostvars;
-CREATE OR REPLACE VIEW pigsty.hostvars AS
-SELECT host(ip) AS ip, groups, is_meta, coalesce(g.vars, '{}') || coalesce(n.vars, '{}') AS vars
-FROM pigsty.node n, (SELECT jsonb_object_agg(key, value) AS vars FROM pigsty.global_var) g;
-COMMENT ON VIEW pigsty.hostvars IS 'pigsty inventory hostvars';
+DROP VIEW IF EXISTS pigsty.group_config CASCADE;
+CREATE OR REPLACE VIEW pigsty.group_config AS
+SELECT cls, gh.hosts, gc.vars FROM pigsty.group g LEFT JOIN
+    (SELECT cls, jsonb_object_agg(ip, vars) AS hosts
+        FROM (SELECT coalesce(h.cls, h2.cls) AS cls, coalesce(h.ip, h2.ip) AS ip, coalesce(h.vars, '{}'::JSONB) AS vars
+        FROM (SELECT cls, ip, jsonb_object_agg(key, value) AS vars FROM pigsty.host_var GROUP BY cls, ip) h FULL JOIN pigsty.host h2 USING (cls, ip)) hv
+        GROUP BY cls) gh USING (cls)
+    LEFT JOIN (SELECT cls, jsonb_object_agg(key, value) AS vars FROM pigsty.group_var GROUP BY cls) gc USING (cls);
 
--- DROP VIEW IF EXISTS pigsty.node_summary;
-CREATE OR REPLACE VIEW pigsty.node_summary AS
-SELECT hostvars.ip,
-       hostvars.groups,
-       coalesce((hostvars.vars ->> 'meta_node'::text)::boolean                  , FALSE ) AS is_meta,
-       coalesce((hostvars.vars ->> 'nginx_enabled'::text)::boolean              , TRUE ) AS nginx,
-       coalesce((hostvars.vars ->> 'nameserver_enabled'::text)::boolean         , FALSE ) AS nameserver,
-       coalesce((hostvars.vars ->> 'prometheus_enabled'::text)::boolean         , TRUE ) AS prometheus,
-       coalesce((hostvars.vars ->> 'grafana_enabled'::text)::boolean            , TRUE ) AS grafana,
-       coalesce((hostvars.vars ->> 'loki_enabled'::text)::boolean               , TRUE ) AS loki,
-       coalesce((hostvars.vars ->> 'consul_enabled'::text)::boolean             , TRUE ) AS consul,
-       coalesce((hostvars.vars ->> 'docker_enabled'::text)::boolean             , FALSE ) AS docker,
-       coalesce((hostvars.vars ->> 'node_exporter_enabled'::text)::boolean      , TRUE ) AS node_exporter,
-       coalesce((hostvars.vars ->> 'promtail_enabled'::text)::boolean           , TRUE ) AS promtail,
-       coalesce((hostvars.vars ->> 'patroni_enabled'::text)::boolean            , TRUE ) AS postgres,
-       coalesce((hostvars.vars ->> 'pgbouncer_enabled'::text)::boolean          , TRUE ) AS pgbouncer,
-       coalesce((hostvars.vars ->> 'pg_exporter_enabled'::text)::boolean        , TRUE ) AS pg_exporter,
-       coalesce((hostvars.vars ->> 'pgbouncer_exporter_enabled'::text)::boolean , TRUE ) AS pgb_exporter,
-       coalesce((hostvars.vars ->> 'haproxy_enabled'::text)::boolean            , TRUE ) AS haproxy,
-       coalesce((hostvars.vars ->> 'redis_exporter_enabled'::text)::boolean     , TRUE ) AS redis_exporter
-FROM pigsty.hostvars;
+COMMENT ON VIEW pigsty.group_config IS 'pigsty group config view: name, hosts, vars';
+
+
+--===========================================================--
+--                    pigsty.global_config                   --
+--===========================================================--
+DROP VIEW IF EXISTS pigsty.global_config;
+CREATE OR REPLACE VIEW pigsty.global_config AS
+SELECT coalesce(gv.key, dv.key) AS key, coalesce(gv.value, dv.value) AS value,
+       CASE when gv.value IS NULL THEN 'default'::pigsty.var_level ELSE 'global'::pigsty.var_level END AS level  FROM
+    pigsty.default_var dv FULL OUTER JOIN pigsty.global_var gv ON dv.key = gv.key;
+
+COMMENT ON VIEW pigsty.global_config IS 'pigsty global config, default + global vars merged';
+
+
+--===========================================================--
+--                    pigsty.raw_config                      --
+--===========================================================--
+DROP VIEW IF EXISTS pigsty.raw_config;
+CREATE OR REPLACE VIEW pigsty.raw_config AS
+    SELECT jsonb_build_object('all', jsonb_build_object('children', children, 'vars', vars)) FROM
+    (SELECT jsonb_object_agg(cls, jsonb_build_object('hosts', hosts, 'vars', vars)) AS children FROM pigsty.group_config) a1,
+    (SELECT jsonb_object_agg(key, value) AS vars FROM pigsty.global_var) a2;
+COMMENT ON VIEW pigsty.inventory IS 'pigsty config file in json format';
 
 
 --===========================================================--
 --                     pigsty.inventory                      --
 --===========================================================--
--- DROP VIEW IF EXISTS pigsty.inventory;
+DROP VIEW IF EXISTS pigsty.inventory;
 CREATE OR REPLACE VIEW pigsty.inventory AS
-SELECT a.data || g.data || m.data AS text
-FROM (SELECT jsonb_build_object('all', jsonb_build_object('children', '["meta"]' || jsonb_agg(cls))) AS data
-      FROM pigsty.group) a,
-     (SELECT jsonb_object_agg(cls, cc.member) AS data
-      FROM (SELECT cls, jsonb_build_object('hosts', jsonb_agg(host(ip))) AS member
-            FROM pigsty.host i
-            GROUP BY cls) cc) g,
-     (SELECT jsonb_build_object('_meta', jsonb_build_object('hostvars', jsonb_object_agg(ip, vars))) AS data
-      FROM (SELECT host(ip) AS ip, coalesce(g.vars, '{}') || coalesce(n.vars, '{}') AS vars
-            FROM pigsty.node n,
-                 (SELECT jsonb_object_agg(key, value) AS vars FROM pigsty.global_var) g) mm) m;
+    SELECT groups.data || hosts.data || variables.data AS text
+    FROM (SELECT jsonb_build_object('all', jsonb_build_object('children', '["meta"]' || jsonb_agg(cls))) AS data FROM pigsty.group) groups,
+         (SELECT jsonb_object_agg(cls, cc.member) AS data FROM (SELECT cls, jsonb_build_object('hosts', jsonb_agg(host(ip))) AS member FROM pigsty.host i GROUP BY cls) cc) hosts,
+         (
+            SELECT jsonb_build_object('_meta', jsonb_build_object('hostvars', jsonb_object_agg(ip, vars))) AS data
+            FROM (SELECT ip, coalesce(gv.vars, '{}'::JSONB) || hv.vars AS vars FROM
+                      (SELECT i.ip, pigsty.vars_agg(coalesce(coalesce(cv.vars, '{}'::JSONB) || coalesce(iv.vars, '{}'::JSONB), '{}'::JSONB) ORDER BY c.cls) AS vars FROM pigsty.group c
+                            LEFT JOIN pigsty.host i ON c.cls = i.cls
+                            LEFT JOIN (SELECT cls, jsonb_object_agg(key, value) AS vars FROM pigsty.group_var GROUP BY cls) cv ON c.cls = cv.cls
+                            LEFT JOIN (SELECT cls, ip, jsonb_object_agg(key, value) AS vars FROM pigsty.host_var GROUP BY cls, ip) iv ON i.cls = iv.cls AND i.ip = iv.ip
+                   GROUP BY i.ip) hv, (SELECT jsonb_object_agg(key, value) AS vars FROM pigsty.global_var) gv) mm) variables;
 COMMENT ON VIEW pigsty.inventory IS 'pigsty config inventory in ansible dynamic inventory format';
 
---===========================================================--
---                    pigsty.group_config                    --
---===========================================================--
-DROP VIEW IF EXISTS pigsty.group_config;
-CREATE OR REPLACE VIEW pigsty.group_config AS
-SELECT cls, gh.hosts, gc.vars
-FROM pigsty.group g
-         LEFT JOIN
-     (SELECT cls, jsonb_object_agg(ip, vars) AS hosts
-      FROM (
-               SELECT coalesce(h.cls, h2.cls) AS cls, coalesce(h.ip, h2.ip) AS ip, coalesce(h.vars, '{}'::JSONB) AS vars
-               FROM (SELECT cls, ip, jsonb_object_agg(key, value) AS vars FROM host_var GROUP BY cls, ip) h
-                        FULL JOIN pigsty.host h2 USING (cls, ip)
-           ) hv
-      GROUP BY cls) gh USING (cls)
-         LEFT JOIN (SELECT cls, jsonb_object_agg(key, value) AS vars FROM group_var GROUP BY cls) gc USING (cls);
+
 
 
 --===========================================================--
@@ -299,84 +278,85 @@ FROM pigsty.group g
 --===========================================================--
 DROP VIEW IF EXISTS pigsty.pg_cluster CASCADE;
 CREATE OR REPLACE VIEW pigsty.pg_cluster AS
-SELECT cls,
-       vars ->> 'pg_cluster'                                                 AS name,
-       hosts,
-       vars,
-       coalesce(vars -> 'pg_databases', '[]'::JSONB)                         AS pg_databases,
-       coalesce(vars -> 'pg_users', '[]'::JSONB)                             AS pg_users,
-       coalesce((gsvc.global || vars) -> 'pg_services', '[]'::JSONB) ||
-       coalesce((gsvc.global || vars) -> 'pg_services_extra', '[]'::JSONB)   AS pg_services,
-       coalesce((gsvc.global || vars) -> 'pg_hba_rules', '[]'::JSONB) ||
-       coalesce((gsvc.global || vars) -> 'pg_default_hba_rules', '[]'::JSONB)  AS pg_hba,
-       coalesce((gsvc.global || vars) -> 'pgbouncer_hba_rules', '[]'::JSONB) ||
-       coalesce((gsvc.global || vars) -> 'pgbouncer_default_hba_rules', '[]'::JSONB) AS pgbouncer_hba
-FROM pigsty.group_config,
-     (SELECT jsonb_object_agg(key, value) AS global
-      FROM global_var
-      WHERE key ~ '^pg_services' or key ~ 'hba_rules') gsvc
-WHERE vars ? 'pg_cluster';
+    SELECT cls,
+           vars ->> 'pg_cluster'                                                 AS name,
+           hosts,
+           vars,
+           coalesce(vars -> 'pg_databases', '[]'::JSONB)                         AS pg_databases,
+           coalesce(vars -> 'pg_users', '[]'::JSONB)                             AS pg_users,
+           coalesce((gsvc.global || vars) -> 'pg_services', '[]'::JSONB) ||
+           coalesce((gsvc.global || vars) -> 'pg_default_services', '[]'::JSONB)   AS pg_services,
+           coalesce((gsvc.global || vars) -> 'pg_hba_rules', '[]'::JSONB) ||
+           coalesce((gsvc.global || vars) -> 'pg_default_hba_rules', '[]'::JSONB)  AS pg_hba,
+           coalesce((gsvc.global || vars) -> 'pgb_hba_rules', '[]'::JSONB) ||
+           coalesce((gsvc.global || vars) -> 'pgb_default_hba_rules', '[]'::JSONB) AS pgbouncer_hba
+    FROM pigsty.group_config,
+         (SELECT jsonb_object_agg(key, value) AS global FROM pigsty.global_config WHERE key ~ '_services$' OR key ~ '_hba_rules$') gsvc
+    WHERE vars ? 'pg_cluster';
+COMMENT ON VIEW pigsty.pg_cluster IS 'pigsty cluster definition for pg_cluster';
+
 
 --===========================================================--
 --                    pigsty.pg_instance                     --
 --===========================================================--
 DROP VIEW IF EXISTS pigsty.pg_instance;
 CREATE OR REPLACE VIEW pigsty.pg_instance AS
-SELECT cls,
-       key                                                      AS ip,
-       cls || '-' || (value ->> 'pg_seq')                       AS ins,
-       (value ->> 'pg_seq')::INTEGER                            AS seq,
-       (value ->> 'pg_role')::pigsty.pg_role                    AS role,
-       coalesce((value ->> 'pg_offline_query')::BOOLEAN, false) AS offline_query,
-       coalesce((value ->> 'pg_weight')::INTEGER, 100)          AS weight,
-       (value ->> 'pg_upstream')::INET                          AS upstream,
-       value                                                    AS instance
-FROM pigsty.pg_cluster, jsonb_each(hosts) ORDER BY 1, 4;
-
+    SELECT cls,
+           key                                                      AS ip,
+           cls || '-' || (value ->> 'pg_seq')                       AS ins,
+           (value ->> 'pg_seq')::INTEGER                            AS seq,
+           (value ->> 'pg_role')::pigsty.pg_role                    AS role,
+           coalesce((value ->> 'pg_offline_query')::BOOLEAN, false) AS offline_query,
+           coalesce((value ->> 'pg_weight')::INTEGER, 100)          AS weight,
+           (value ->> 'pg_upstream')::INET                          AS upstream,
+           value                                                    AS instance
+    FROM pigsty.pg_cluster, jsonb_each(hosts) ORDER BY 1, 4;
+COMMENT ON VIEW pigsty.pg_instance IS 'pigsty instance definition';
 
 --===========================================================--
 --                    pigsty.pg_service                      --
 --===========================================================--
 DROP VIEW IF EXISTS pigsty.pg_service;
 CREATE OR REPLACE VIEW pigsty.pg_service AS
-SELECT cls,
-       cls || '-' || (value ->> 'name') AS svc,
-       value ->> 'name'                 AS name,
-       value ->> 'src_ip'               AS src_ip,
-       value ->> 'src_port'             AS src_port,
-       value ->> 'dst_port'             AS dst_port,
-       value ->> 'check_url'            AS check_url,
-       value ->> 'selector'             AS selector,
-       value ->> 'selector_backup'      AS selector_backup,
-       value -> 'haproxy'               AS haproxy,
-       value                            AS service
-FROM pigsty.pg_cluster, jsonb_array_elements(pg_services) ORDER BY 1 ,3;
-
+    SELECT cls,
+           cls || '-' || (value ->> 'name') AS svc,
+           value ->> 'name'                 AS name,
+           value ->> 'src_ip'               AS src_ip,
+           value ->> 'src_port'             AS src_port,
+           value ->> 'dst_port'             AS dst_port,
+           value ->> 'check_url'            AS check_url,
+           value ->> 'selector'             AS selector,
+           value ->> 'selector_backup'      AS selector_backup,
+           value -> 'haproxy'               AS haproxy,
+           value                            AS service
+    FROM pigsty.pg_cluster, jsonb_array_elements(pg_services) ORDER BY 1 ,3;
+COMMENT ON VIEW pigsty.pg_service IS 'pigsty service definition';
 
 --===========================================================--
 --                   pigsty.pg_databases                     --
 --===========================================================--
 DROP VIEW IF EXISTS pigsty.pg_database;
 CREATE OR REPLACE VIEW pigsty.pg_database AS
-SELECT cls,
-       value ->> 'name'                                      AS datname,
-       value ->> 'owner'                                     AS owner,
-       value ->> 'template'                                  AS template,
-       value ->> 'encoding'                                  AS encoding,
-       value ->> 'locale'                                    AS locale,
-       value ->> 'lc_collate'                                AS lc_collate,
-       value ->> 'lc_ctype'                                  AS lc_ctype,
-       coalesce((value ->> 'allowconn')::BOOLEAN, true)      AS allowconn,
-       coalesce((value ->> 'revokeconn')::BOOLEAN, false)    AS revokeconn,
-       (value ->> 'tablespace')                              AS tablespace,
-       coalesce((value ->> 'connlimit')::INTEGER, -1)        AS connlimit,
-       coalesce((value -> 'pgbouncer')::BOOLEAN, true)       AS pgbouncer,
-       coalesce((value ->> 'comment'), '')                   AS comment,
-       coalesce((value -> 'schemas')::JSONB, '[]'::JSONB)    AS schemas,
-       coalesce((value -> 'extensions')::JSONB, '[]'::JSONB) AS extensions,
-       coalesce((value -> 'parameters')::JSONB, '{}'::JSONB) AS parameters,
-       value                                                 AS database
-FROM pigsty.pg_cluster, jsonb_array_elements(pg_databases);
+    SELECT cls,
+           value ->> 'name'                                      AS datname,
+           value ->> 'owner'                                     AS owner,
+           value ->> 'template'                                  AS template,
+           value ->> 'encoding'                                  AS encoding,
+           value ->> 'locale'                                    AS locale,
+           value ->> 'lc_collate'                                AS lc_collate,
+           value ->> 'lc_ctype'                                  AS lc_ctype,
+           coalesce((value ->> 'allowconn')::BOOLEAN, true)      AS allowconn,
+           coalesce((value ->> 'revokeconn')::BOOLEAN, false)    AS revokeconn,
+           (value ->> 'tablespace')                              AS tablespace,
+           coalesce((value ->> 'connlimit')::INTEGER, -1)        AS connlimit,
+           coalesce((value -> 'pgbouncer')::BOOLEAN, true)       AS pgbouncer,
+           coalesce((value ->> 'comment'), '')                   AS comment,
+           coalesce((value -> 'schemas')::JSONB, '[]'::JSONB)    AS schemas,
+           coalesce((value -> 'extensions')::JSONB, '[]'::JSONB) AS extensions,
+           coalesce((value -> 'parameters')::JSONB, '{}'::JSONB) AS parameters,
+           value                                                 AS database
+    FROM pigsty.pg_cluster, jsonb_array_elements(pg_databases);
+COMMENT ON VIEW pigsty.pg_database IS 'pigsty postgres databases definition';
 
 
 --===========================================================--
@@ -384,85 +364,89 @@ FROM pigsty.pg_cluster, jsonb_array_elements(pg_databases);
 --===========================================================--
 DROP VIEW IF EXISTS pigsty.pg_users;
 CREATE OR REPLACE VIEW pigsty.pg_users AS
-SELECT cls,
-       (u ->> 'name')                                  AS name,
-       (u ->> 'password')                              AS password,
-       starts_with(u ->> 'password', 'md5')            AS is_md5pwd,
-       coalesce((u ->> 'login')::BOOLEAN, true)        AS login,
-       coalesce((u ->> 'superuser') ::BOOLEAN, false)  AS superuser,
-       coalesce((u ->> 'createdb')::BOOLEAN, false)    AS createdb,
-       coalesce((u ->> 'createrole')::BOOLEAN, false)  AS createrole,
-       coalesce((u ->> 'inherit')::BOOLEAN, false)     AS inherit,
-       coalesce((u ->> 'replication')::BOOLEAN, false) AS replication,
-       coalesce((u ->> 'bypassrls')::BOOLEAN, false)   AS bypassrls,
-       coalesce((u ->> 'pgbouncer')::BOOLEAN, false)   AS pgbouncer,
-       coalesce((u ->> 'connlimit')::INTEGER, -1)      AS connlimit,
-       (u ->> 'expire_in')::INTEGER                    AS expire_in,
-       (u ->> 'expire_at')::DATE                       AS expire_at,
-       (u ->> 'comment')                               AS comment,
-       (u -> 'roles')                                  AS roles,
-       (u -> 'parameters')                             AS parameters,
-       u                                               AS user
-FROM pigsty.pg_cluster, jsonb_array_elements(pg_users) AS u;
-
+    SELECT cls,
+           (u ->> 'name')                                  AS name,
+           (u ->> 'password')                              AS password,
+           starts_with(u ->> 'password', 'md5')            AS is_md5pwd,
+           coalesce((u ->> 'login')::BOOLEAN, true)        AS login,
+           coalesce((u ->> 'superuser') ::BOOLEAN, false)  AS superuser,
+           coalesce((u ->> 'createdb')::BOOLEAN, false)    AS createdb,
+           coalesce((u ->> 'createrole')::BOOLEAN, false)  AS createrole,
+           coalesce((u ->> 'inherit')::BOOLEAN, false)     AS inherit,
+           coalesce((u ->> 'replication')::BOOLEAN, false) AS replication,
+           coalesce((u ->> 'bypassrls')::BOOLEAN, false)   AS bypassrls,
+           coalesce((u ->> 'pgbouncer')::BOOLEAN, false)   AS pgbouncer,
+           coalesce((u ->> 'connlimit')::INTEGER, -1)      AS connlimit,
+           (u ->> 'expire_in')::INTEGER                    AS expire_in,
+           (u ->> 'expire_at')::DATE                       AS expire_at,
+           (u ->> 'comment')                               AS comment,
+           (u -> 'roles')                                  AS roles,
+           (u -> 'parameters')                             AS parameters,
+           u                                               AS user
+    FROM pigsty.pg_cluster, jsonb_array_elements(pg_users) AS u;
+COMMENT ON VIEW pigsty.pg_users IS 'pigsty postgres users definition';
 
 --===========================================================--
 --                     pigsty.pg_hba                         --
 --===========================================================--
 DROP VIEW IF EXISTS pigsty.pg_hba;
 CREATE OR REPLACE VIEW pigsty.pg_hba AS
-SELECT cls,
-       hba ->> 'title'   AS title,
-       (hba ->> 'role')::pigsty.pg_role,
-       (hba -> 'rules') AS rules,
-       hba
-FROM pigsty.pg_cluster, jsonb_array_elements(pg_hba) AS hba;
-
+    SELECT cls,
+           hba ->> 'title'   AS title,
+           (hba ->> 'role')::pigsty.pg_role,
+           (hba -> 'rules') AS rules,
+           hba
+    FROM pigsty.pg_cluster, jsonb_array_elements(pg_hba) AS hba;
+COMMENT ON VIEW pigsty.pg_hba IS 'pigsty postgres hba rules';
 
 --===========================================================--
 --                  pigsty.pgbouncer_hba                     --
 --===========================================================--
-DROP VIEW IF EXISTS pigsty.pgbouncer_hba;
-CREATE OR REPLACE VIEW pigsty.pgbouncer_hba AS
-SELECT cls,
-       hba ->> 'title'   AS title,
-       (hba ->> 'role')::pigsty.pg_role,
-       (hba -> 'rules') AS rules,
-       hba
-FROM pigsty.pg_cluster,jsonb_array_elements(pgbouncer_hba) AS hba;
+DROP VIEW IF EXISTS pigsty.pgb_hba;
+CREATE OR REPLACE VIEW pigsty.pgb_hba AS
+    SELECT cls,
+           hba ->> 'title'   AS title,
+           (hba ->> 'role')::pigsty.pg_role,
+           (hba -> 'rules') AS rules,
+           hba
+    FROM pigsty.pg_cluster,jsonb_array_elements(pgbouncer_hba) AS hba;
+COMMENT ON VIEW pigsty.pg_hba IS 'pigsty pgbouncer hba rules';
 
 --===========================================================--
 --                   pigsty.gp_cluster                       --
 --===========================================================--
 DROP VIEW IF EXISTS pigsty.gp_cluster CASCADE;
 CREATE OR REPLACE VIEW pigsty.gp_cluster AS
-SELECT cls,
-       vars ->> 'pg_cluster'                                          AS name,
-       vars ->> 'gp_role'                                             AS gp_role,
-       vars ->> 'pg_shard'                                            AS pg_shard,
-       hosts,
-       vars,
-       coalesce((gsvc.global || vars) -> 'pg_hba_rules', '[]'::JSONB) ||
-       coalesce((gsvc.global || vars) -> 'pg_default_hba_rules', '[]'::JSONB) AS pg_hba
-FROM pigsty.group_config,
-     (SELECT jsonb_object_agg(key, value) AS global
-      FROM global_var
-      WHERE key ~ '^pg_services'
-         or key ~ 'hba_rules') gsvc
-WHERE vars ? 'gp_role';
+    SELECT cls,
+           vars ->> 'pg_cluster'                                          AS name,
+           vars ->> 'gp_role'                                             AS gp_role,
+           vars ->> 'pg_shard'                                            AS pg_shard,
+           hosts,
+           vars,
+           coalesce((gsvc.global || vars) -> 'pg_hba_rules', '[]'::JSONB) ||
+           coalesce((gsvc.global || vars) -> 'pg_default_hba_rules', '[]'::JSONB) AS pg_hba
+    FROM pigsty.group_config,
+         (SELECT jsonb_object_agg(key, value) AS global
+          FROM global_var
+          WHERE key ~ '^pg_services'
+             or key ~ 'hba_rules') gsvc
+    WHERE vars ? 'gp_role';
 
+COMMENT ON VIEW pigsty.gp_cluster IS 'pigsty greenplum/matrixdb cluster definition';
 
 --===========================================================--
 --                     pigsty.gp_node                        --
 --===========================================================--
 DROP VIEW IF EXISTS pigsty.gp_node CASCADE;
 CREATE OR REPLACE VIEW pigsty.gp_node AS
-SELECT cls,
-       key                                            AS ip,
-       (value ->> 'nodename')                         AS node,
-       coalesce(value -> 'pg_instances', '{}'::JSONB) AS instances
-FROM pigsty.gp_cluster, jsonb_each(hosts)
-ORDER BY 3;
+    SELECT cls,
+           key                                            AS ip,
+           (value ->> 'nodename')                         AS node,
+           coalesce(value -> 'pg_instances', '{}'::JSONB) AS instances
+    FROM pigsty.gp_cluster, jsonb_each(hosts)
+    ORDER BY 3;
+
+COMMENT ON VIEW pigsty.gp_node IS 'pigsty greenplum/matrixdb node definition';
 
 
 --===========================================================--
@@ -470,54 +454,100 @@ ORDER BY 3;
 --===========================================================--
 DROP VIEW IF EXISTS pigsty.gp_instance CASCADE;
 CREATE OR REPLACE VIEW pigsty.gp_instance AS
-SELECT (value ->> 'pg_cluster')                         AS cls,
-       (value ->> 'pg_cluster') || (value ->> 'pg_seq') AS ins,
-       ip,node,key::INTEGER AS port,
-       (value ->> 'pg_role')::pigsty.pg_role            AS pg_role,
-       (value ->> 'pg_seq')::INTEGER                    AS pg_seq,
-       (value ->> 'pg_exporter_port')::INTEGER          AS exporter_port,
-       value                                            AS instance
-FROM pigsty.gp_node, jsonb_each(instances)
-ORDER BY cls, node, port;
-
+    SELECT (value ->> 'pg_cluster')                         AS cls,
+           (value ->> 'pg_cluster') || (value ->> 'pg_seq') AS ins,
+           ip,node,key::INTEGER AS port,
+           (value ->> 'pg_role')::pigsty.pg_role            AS pg_role,
+           (value ->> 'pg_seq')::INTEGER                    AS pg_seq,
+           (value ->> 'pg_exporter_port')::INTEGER          AS exporter_port,
+           value                                            AS instance
+    FROM pigsty.gp_node, jsonb_each(instances)
+    ORDER BY cls, node, port;
+COMMENT ON VIEW pigsty.gp_instance IS 'pigsty greenplum/matrixdb instance definition';
 
 --===========================================================--
 --                   pigsty.redis_cluster                    --
 --===========================================================--
--- DROP VIEW IF EXISTS pigsty.redis_cluster CASCADE;
+DROP VIEW IF EXISTS pigsty.redis_cluster CASCADE;
 CREATE OR REPLACE VIEW pigsty.redis_cluster AS
-SELECT cls,
-       vars ->> 'redis_cluster'                                              AS name,
-       coalesce((gsvc.global || vars) ->> 'redis_mode', 'standalone')        AS mode,
-       coalesce((gsvc.global || vars) ->> 'redis_conf', 'redis.conf')        AS conf,
-       coalesce((gsvc.global || vars) ->> 'redis_max_memory', '1GB')         AS max_memory,
-       coalesce((gsvc.global || vars) ->> 'redis_mem_policy', 'allkeys-lru') AS mem_policy,
-       (gsvc.global || vars) ->> 'redis_password' AS password,
-       hosts,vars
-FROM pigsty.group_config,
-     (SELECT jsonb_object_agg(key, value) AS global FROM global_var WHERE key ~ '^redis') gsvc
-WHERE vars ? 'redis_cluster';
+    SELECT cls,
+           vars ->> 'redis_cluster'                                              AS name,
+           coalesce((gsvc.global || vars) ->> 'redis_mode', 'standalone')        AS mode,
+           coalesce((gsvc.global || vars) ->> 'redis_conf', 'redis.conf')        AS conf,
+           coalesce((gsvc.global || vars) ->> 'redis_max_memory', '1GB')         AS max_memory,
+           coalesce((gsvc.global || vars) ->> 'redis_mem_policy', 'allkeys-lru') AS mem_policy,
+           (gsvc.global || vars) ->> 'redis_password' AS password,
+           hosts,vars
+    FROM pigsty.group_config,
+         (SELECT jsonb_object_agg(key, value) AS global FROM global_config WHERE key ~ '^redis') gsvc
+    WHERE vars ? 'redis_cluster';
+COMMENT ON VIEW pigsty.redis_cluster IS 'pigsty redis cluster definition';
 
 --===========================================================--
 --                   pigsty.redis_node                    --
 --===========================================================--
--- DROP VIEW IF EXISTS pigsty.redis_node CASCADE;
+DROP VIEW IF EXISTS pigsty.redis_node CASCADE;
 CREATE OR REPLACE VIEW pigsty.redis_node AS
-SELECT name AS cls, r.mode AS mode, key as ip,
-       cls || '-' || (value ->> 'redis_node') AS redis_node,
-       (value ->> 'redis_node')::INTEGER AS node_id,
-       coalesce(value -> 'redis_instances', '{}'::JSONB) AS instances
-FROM pigsty.redis_cluster r, jsonb_each(hosts) ORDER BY 1,4;
+    SELECT name AS cls, r.mode AS mode, key as ip,
+           cls || '-' || (value ->> 'redis_node') AS redis_node,
+           (value ->> 'redis_node')::INTEGER AS node_id,
+           coalesce(value -> 'redis_instances', '{}'::JSONB) AS instances
+    FROM pigsty.redis_cluster r, jsonb_each(hosts) ORDER BY 1,4;
+COMMENT ON VIEW pigsty.redis_node IS 'pigsty redis node definition';
 
 --===========================================================--
 --                   pigsty.redis_instance                    --
 --===========================================================--
 -- DROP VIEW IF EXISTS pigsty.redis_instance CASCADE;
 CREATE OR REPLACE VIEW pigsty.redis_instance AS
-SELECT cls, mode, ip , redis_node, node_id , key::INTEGER AS port, redis_node || '-' || key AS ins,
-       value->>'replica_of' AS replica_of, value AS instance
-FROM pigsty.redis_node, jsonb_each(instances)
-ORDER BY cls, node_id, port;
+    SELECT cls, mode, ip , redis_node, node_id , key::INTEGER AS port, redis_node || '-' || key AS ins,
+           value->>'replica_of' AS replica_of, value AS instance
+    FROM pigsty.redis_node, jsonb_each(instances)
+    ORDER BY cls, node_id, port;
+COMMENT ON VIEW pigsty.redis_instance IS 'pigsty redis instance definition';
+
+
+--===========================================================--
+--                   pigsty.minio_cluster                    --
+--===========================================================--
+DROP VIEW IF EXISTS pigsty.minio_cluster CASCADE;
+CREATE OR REPLACE VIEW pigsty.minio_cluster AS
+    SELECT cls,
+           vars ->> 'minio_cluster' AS name,
+           ((gsvc.global || vars) ->> 'minio_port')::INTEGER AS port,
+           ((gsvc.global || vars) ->> 'minio_admin_port')::INTEGER AS console_port,
+           (gsvc.global || vars) ->> 'minio_domain' AS domain,
+           hosts,vars
+    FROM pigsty.group_config,
+         (SELECT jsonb_object_agg(key, value) AS global FROM global_config WHERE key ~ '^minio') gsvc
+    WHERE vars ? 'minio_cluster';
+COMMENT ON VIEW pigsty.minio_cluster IS 'pigsty minio cluster definition';
+
+
+
+
+--===========================================================--
+--                   pigsty.etcd_cluster                    --
+--===========================================================--
+DROP VIEW IF EXISTS pigsty.etcd_cluster CASCADE;
+CREATE OR REPLACE VIEW pigsty.etcd_cluster AS
+    SELECT cls,
+           vars ->> 'etcd_cluster' AS name,
+           ((gsvc.global || vars) ->> 'etcd_api')::INTEGER AS api,
+           ((gsvc.global || vars) ->> 'etcd_port')::INTEGER AS port,
+           ((gsvc.global || vars) ->> 'etcd_peer_port')::INTEGER AS peer_port,
+           (gsvc.global || vars) ->> 'etcd_data' AS data_dir,
+           ((gsvc.global || vars) ->> 'etcd_clean')::BOOLEAN AS clean,
+           ((gsvc.global || vars) ->> 'etcd_safeguard')::BOOLEAN AS safeguard,
+           (SELECT count(*) FROM host WHERE cls = 'etcd') AS size,
+           ceil((SELECT count(*) FROM host WHERE cls = 'etcd') / 2.0) AS quorum,
+           hosts,vars
+    FROM pigsty.group_config,
+         (SELECT jsonb_object_agg(key, value) AS global FROM global_config WHERE key ~ '^etcd') gsvc
+    WHERE vars ? 'etcd_cluster';
+
+COMMENT ON VIEW pigsty.etcd_cluster IS 'pigsty etcd cluster definition';
+
 
 
 --===========================================================--
