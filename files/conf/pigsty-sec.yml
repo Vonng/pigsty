@@ -76,7 +76,7 @@ all:
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     pg_pwd_enc: scram-sha-256         # algorithm for encrypting passwords: md5|scram-sha-256
-    pg_sslmode: require               # enable sslmode: disable|allow|prefer|require|verify-ca|verify-full
+    pg_sslmode: verify-full           # enable sslmode: disable|allow|prefer|require|verify-ca|verify-full
     haproxy_auth_enabled: false       # enable authentication for haproxy admin?
 
     # WARNING: CHANGE THESE PASSWORDS
@@ -94,42 +94,39 @@ all:
     haproxy_admin_password: pigsty
 
     pg_default_hba_rules:             # postgres host-based auth rules by default
-      - title: allow intranet admin password access
+      - title: allow local read/write roles access via pgbouncer
         role: common
         rules:
-          - host    all     +dbrole_admin               10.0.0.0/8          scram-sha-256
-          - host    all     +dbrole_admin               172.16.0.0/12       scram-sha-256
-          - host    all     +dbrole_admin               192.168.0.0/16      scram-sha-256
-      - title: allow intranet password access
+          - local     all     +dbrole_readonly                  scram-sha-256
+          - host      all     +dbrole_readonly  127.0.0.1/32    scram-sha-256
+      - title: allow intranet admin password access with ssl
         role: common
         rules:
-          - host    all             all                 10.0.0.0/8          scram-sha-256
-          - host    all             all                 172.16.0.0/12       scram-sha-256
-          - host    all             all                 192.168.0.0/16      scram-sha-256
-      - title: allow local read/write (local production user via pgbouncer)
+          - hostssl   all     +dbrole_admin     10.0.0.0/8      scram-sha-256
+          - hostssl   all     +dbrole_admin     172.16.0.0/12   scram-sha-256
+          - hostssl   all     +dbrole_admin     192.168.0.0/16  scram-sha-256
+      - title: allow everyone intranet password access
         role: common
         rules:
-          - local   all     +dbrole_readonly                                scram-sha-256
-          - host    all     +dbrole_readonly           127.0.0.1/32         scram-sha-256
-      - title: allow offline query (ETL,SAGA,Interactive) on offline instance
+          - hostssl   all     all               10.0.0.0/8      scram-sha-256
+          - hostssl   all     all               172.16.0.0/12   scram-sha-256
+          - hostssl   all     all               192.168.0.0/16  scram-sha-256
+      - title: allow intranet offline queries (etl,saga,interactive) with ssl
         role: offline
         rules:
-          - host    all     +dbrole_offline               10.0.0.0/8        scram-sha-256
-          - host    all     +dbrole_offline               172.16.0.0/12     scram-sha-256
-          - host    all     +dbrole_offline               192.168.0.0/16    scram-sha-256
-
+          - hostssl   all     +dbrole_offline   10.0.0.0/8      scram-sha-256
+          - hostssl   all     +dbrole_offline   172.16.0.0/12   scram-sha-256
+          - hostssl   all     +dbrole_offline   192.168.0.0/16  scram-sha-256
     pgb_default_hba_rules:            # pgbouncer host-based authentication rules
       - title: local password access
         role: common
         rules:
-          - local  all          all                                     scram-sha-256
-          - host   all          all                     127.0.0.1/32    scram-sha-256
-      - title: intranet password access
+          - local     all     all                               scram-sha-256
+          - host      all     all               127.0.0.1/32    scram-sha-256
+      - title: intranet password access with ssl
         role: common
         rules:
-          - host   all          all                     10.0.0.0/8      scram-sha-256
-          - host   all          all                     172.16.0.0/12   scram-sha-256
-          - host   all          all                     192.168.0.0/16  scram-sha-256
-
-
+          - hostssl   all     all               10.0.0.0/8      scram-sha-256
+          - hostssl   all     all               172.16.0.0/12   scram-sha-256
+          - hostssl   all     all               192.168.0.0/16  scram-sha-256
 ...
