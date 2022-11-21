@@ -490,7 +490,7 @@ all:
     pg_libs: 'pg_stat_statements, auto_explain'  # extensions to be loaded, pg_stat_statements & auto_explain by default
     pg_delay: 0                       # replication delay for standby cluster leader
     pg_checksum: false                # enable data checksum for postgres cluster?
-    pg_pwd_enc: md5                   # algorithm for encrypting passwords: md5|scram-sha-256
+    pg_pwd_enc: scram-sha-256         # algorithm for encrypting passwords: md5|scram-sha-256
     pg_sslmode: allow                 # disable|allow|prefer|require|verify-ca|verify-full, allow by default
     pg_encoding: UTF8                 # database cluster encoding, UTF8 by default
     pg_locale: C                      # database cluster local, C by default
@@ -519,18 +519,23 @@ all:
       - { name: replicator , replication: true  , bypassrls: true , roles: [pg_monitor, dbrole_readonly] , comment: system replicator }  # replicator
       - { name: dbuser_stats  , password: DBUser.Stats , roles: [dbrole_offline] , comment: business offline user for offline queries and ETL } # ETL user
     pg_default_privileges:            # default privileges created by admin user
-      - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
-      - GRANT SELECT                        ON TABLES    TO dbrole_readonly
-      - GRANT SELECT                        ON SEQUENCES TO dbrole_readonly
-      - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly
-      - GRANT USAGE                         ON SCHEMAS   TO dbrole_offline
-      - GRANT SELECT                        ON TABLES    TO dbrole_offline
-      - GRANT SELECT                        ON SEQUENCES TO dbrole_offline
-      - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_offline
-      - GRANT INSERT, UPDATE, DELETE        ON TABLES    TO dbrole_readwrite
-      - GRANT USAGE, UPDATE                 ON SEQUENCES TO dbrole_readwrite
-      - GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES    TO dbrole_admin
-      - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
+      - GRANT USAGE     ON SCHEMAS   TO dbrole_readonly
+      - GRANT SELECT    ON TABLES    TO dbrole_readonly
+      - GRANT SELECT    ON SEQUENCES TO dbrole_readonly
+      - GRANT EXECUTE   ON FUNCTIONS TO dbrole_readonly
+      - GRANT USAGE     ON SCHEMAS   TO dbrole_offline
+      - GRANT SELECT    ON TABLES    TO dbrole_offline
+      - GRANT SELECT    ON SEQUENCES TO dbrole_offline
+      - GRANT EXECUTE   ON FUNCTIONS TO dbrole_offline
+      - GRANT INSERT    ON TABLES    TO dbrole_readwrite
+      - GRANT UPDATE    ON TABLES    TO dbrole_readwrite
+      - GRANT DELETE    ON TABLES    TO dbrole_readwrite
+      - GRANT USAGE     ON SEQUENCES TO dbrole_readwrite
+      - GRANT UPDATE    ON SEQUENCES TO dbrole_readwrite
+      - GRANT TRUNCATE  ON TABLES    TO dbrole_admin
+      - GRANT REFERENCE ON TABLES    TO dbrole_admin
+      - GRANT TRIGGER   ON TABLES    TO dbrole_admin
+      - GRANT CREATE    ON SCHEMAS   TO dbrole_admin
     pg_default_schemas: [ monitor ]   # default schemas to be created
     pg_default_extensions:            # default extensions to be created
       - { name: adminpack          ,schema: pg_catalog }
