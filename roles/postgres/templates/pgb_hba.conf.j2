@@ -1,53 +1,34 @@
+{% set hostssl = 'host' %}
+{% if pg_sslmode not in ('disable', 'allow', 'prefer') %}
+{% set hostssl = 'hostssl' %}
+{% endif %}
 #==============================================================#
 # Default HBA
 #==============================================================#
 # local dbsu quick access
-local     pgbouncer    postgres                                    peer
+local    pgbouncer    postgres                         peer
 
-# local all password access (for biz user test)
-local     all          all                                         {{ pg_pwd_enc }}
-{% if pg_sslmode != 'disable' %}
-hostssl   all          all                         127.0.0.1/32    {{ pg_pwd_enc }}
+# local all password access
+local    all          all                              {{ pg_pwd_enc }}
+host     all          all              127.0.0.1/32    {{ pg_pwd_enc }}
 
-# monitor user intranet access to pgbouncer stats
-hostssl   pgbouncer    {{ pg_monitor_username }}   10.0.0.0/8      {{ pg_pwd_enc }}
-hostssl   pgbouncer    {{ pg_monitor_username }}   172.16.0.0/12   {{ pg_pwd_enc }}
-hostssl   pgbouncer    {{ pg_monitor_username }}   192.168.0.0/16  {{ pg_pwd_enc }}
-hostssl   all          {{ pg_monitor_username }}   0.0.0.0/0       reject
+# monitor user intranet monitor access
+{{hostssl}}     pgbouncer    {{ pg_monitor_username }}   10.0.0.0/8      {{ pg_pwd_enc }}
+{{hostssl}}     pgbouncer    {{ pg_monitor_username }}   172.16.0.0/12   {{ pg_pwd_enc }}
+{{hostssl}}     pgbouncer    {{ pg_monitor_username }}   192.168.0.0/16  {{ pg_pwd_enc }}
+{{hostssl}}     all          {{ pg_monitor_username }}   0.0.0.0/0       reject
 
 {% if admin_ip is defined and admin_ip != '' %}
-# allow admin nodes everyone access with password
-host    all             all      {{ admin_ip }}/32        {{ pg_pwd_enc }}
+# admin node everyone access with password
+{{hostssl}}     all          all              {{ admin_ip }}/32   {{ pg_pwd_enc }}
 {% endif %}
 
 {% if not pgbouncer_auth_query|bool %}
-# admin user have intranet access to pgbouncer admin
-hostssl   pgbouncer    {{ pg_admin_username }}     10.0.0.0/8      {{ pg_pwd_enc }}
-hostssl   pgbouncer    {{ pg_admin_username }}     172.16.0.0/12   {{ pg_pwd_enc }}
-hostssl   pgbouncer    {{ pg_admin_username }}     192.168.0.0/16  {{ pg_pwd_enc }}
-hostssl   all          {{ pg_admin_username }}     0.0.0.0/0       reject
-{% endif %}
-{% else %}
-host      all          all                         127.0.0.1/32    {{ pg_pwd_enc }}
-
-# monitor user intranet access to pgbouncer stats
-host      pgbouncer    {{ pg_monitor_username }}   10.0.0.0/8      {{ pg_pwd_enc }}
-host      pgbouncer    {{ pg_monitor_username }}   172.16.0.0/12   {{ pg_pwd_enc }}
-host      pgbouncer    {{ pg_monitor_username }}   192.168.0.0/16  {{ pg_pwd_enc }}
-host      all          {{ pg_monitor_username }}   0.0.0.0/0       reject
-
-{% if admin_ip is defined and admin_ip != '' %}
-# allow admin nodes everyone access with password
-host    all             all      {{ admin_ip }}/32        {{ pg_pwd_enc }}
-{% endif %}
-
-{% if not pgbouncer_auth_query|bool %}
-# admin user have intranet access to pgbouncer admin
-host      pgbouncer    {{ pg_admin_username }}     10.0.0.0/8      {{ pg_pwd_enc }}
-host      pgbouncer    {{ pg_admin_username }}     172.16.0.0/12   {{ pg_pwd_enc }}
-host      pgbouncer    {{ pg_admin_username }}     192.168.0.0/16  {{ pg_pwd_enc }}
-host      all          {{ pg_admin_username }}     0.0.0.0/0       reject
-{% endif %}
+# admin user intranet admin access with password
+{{hostssl}}      pgbouncer    {{ pg_admin_username }}      10.0.0.0/8      {{ pg_pwd_enc }}
+{{hostssl}}      pgbouncer    {{ pg_admin_username }}      172.16.0.0/12   {{ pg_pwd_enc }}
+{{hostssl}}      pgbouncer    {{ pg_admin_username }}      192.168.0.0/16  {{ pg_pwd_enc }}
+{{hostssl}}      all          {{ pg_admin_username }}      0.0.0.0/0       reject
 {% endif %}
 
 #==============================================================#
@@ -55,7 +36,7 @@ host      all          {{ pg_admin_username }}     0.0.0.0/0       reject
 #==============================================================#
 {% for hba in pgb_default_hba_rules %}
 {% if hba.role == 'common' %}
-#  {% if 'title' in hba %}{{ hba.title }}{% endif %}
+# {% if 'title' in hba %}{{ hba.title }}{% endif %}
 
 {% for rule in hba.rules %}
 {{ rule }}
@@ -70,7 +51,7 @@ host      all          {{ pg_admin_username }}     0.0.0.0/0       reject
 #==============================================================#
 {% for hba in pgb_default_hba_rules %}
 {% if hba.role == pg_role %}
-#  {% if 'title' in hba %}{{ hba.title }}{% endif %}
+# {% if 'title' in hba %}{{ hba.title }}{% endif %}
 
 {% for rule in hba.rules %}
 {{ rule }}
@@ -86,7 +67,7 @@ host      all          {{ pg_admin_username }}     0.0.0.0/0       reject
 
 {% for hba in pgb_hba_rules %}
 {% if hba.role == 'common' %}
-#  {% if 'title' in hba %}{{ hba.title }}{% endif %}
+# {% if 'title' in hba %}{{ hba.title }}{% endif %}
 
 {% for rule in hba.rules %}
 {{ rule }}
@@ -97,7 +78,7 @@ host      all          {{ pg_admin_username }}     0.0.0.0/0       reject
 
 {% for hba in pgb_hba_rules %}
 {% if hba.role == pg_role %}
-#  {% if 'title' in hba %}{{ hba.title }}{% endif %}
+# {% if 'title' in hba %}{{ hba.title }}{% endif %}
 
 {% for rule in hba.rules %}
 {{ rule }}
