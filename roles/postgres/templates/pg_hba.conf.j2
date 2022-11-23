@@ -1,11 +1,12 @@
-# PG HBA RULES FOR {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }}
+# PG HBA RULES FOR {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }}:{{ pg_port }}
 # {{ ansible_managed }}
+
 {% macro abort(error) %}{{ None['[ERROR] ' ~ error][0] }}{% endmacro %}
 {% set pwdenc = 'scram-sha-256' %}{% if pg_pwd_enc == 'md5' %}{% set pwdenc = 'md5' %}{% endif %}
 {% set intranet = ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'] %}
 {% set usermapping = {"${dbsu}": pg_dbsu, "${repl}": pg_replication_username, "${monitor}": pg_monitor_username, "${admin}": pg_admin_username} %}
-{% set authmapping = {"deny":"reject","pwd":pwdenc,"ssl":pwdenc,"sha":"scram-sha-256","cert":"cert clientcert=verify-full","ssl-md5":"md5","ssl-sha":"scram-sha-256","md5":"md5","os":"ident","ident":"ident","trust":"trust","reject":"reject","scram-sha-256":"scram-sha-256"} %}
-{% set pg_hba_list = pg_hba_rules + pg_default_hba_rules %}
+{% set authmapping = {"deny":"reject","pwd":pwdenc,"ssl":pwdenc,"sha":"scram-sha-256","cert":"cert","ssl-md5":"md5","ssl-sha":"scram-sha-256","md5":"md5","os":"ident","ident":"ident","peer":"peer","trust":"trust","reject":"reject","scram-sha-256":"scram-sha-256"} %}
+{% set pg_hba_list = pg_default_hba_rules + pg_hba_rules %}
 # addr alias
 # local     : {{ pg_localhost }}
 # admin     : {{ admin_ip }}
@@ -36,7 +37,7 @@
 {% endif %}
 {% set hba_address = hba_addr %}
 {% set hba_user = hba.user if 'user' in hba and hba.user != '' else 'all' %}
-{% set hba_user = usermapping[hba_user] if hba_user in usermapping %}
+{% if hba_user in usermapping %}{% set hba_user = usermapping.get(hba_user) %}{% endif %}
 {% set hba_db = hba.db if 'db' in hba and hba.db != '' else 'all' %}
 {% set hba_auth = hba.auth if 'auth' in hba and hba.auth != '' else pwdenc %}
 {% if hba_auth not in authmapping %}{{ abort("unsupported hba auth " + hba_auth + ". use raw hba.rules instead") }}{% endif %}

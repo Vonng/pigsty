@@ -1,93 +1,75 @@
-{% set hostssl = 'host' %}
-{% if pg_sslmode not in ('disable', 'allow', 'prefer') %}
-{% set hostssl = 'hostssl' %}
-{% endif %}
-#==============================================================#
-# Default HBA
-#==============================================================#
-# local dbsu quick access
-local    pgbouncer    postgres                         peer
+# PGBOUNCER HBA RULES FOR {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }}:{{ pgbouncer_port }}
+# {{ ansible_managed }}
 
-# local all password access
-local    all          all                              {{ pg_pwd_enc }}
-host     all          all              127.0.0.1/32    {{ pg_pwd_enc }}
+{% macro abort(error) %}{{ None['[ERROR] ' ~ error][0] }}{% endmacro %}
+{% set pwdenc = 'scram-sha-256' %}{% if pg_pwd_enc == 'md5' %}{% set pwdenc = 'md5' %}{% endif %}
+{% set intranet = ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'] %}
+{% set usermapping = {"${dbsu}": pg_dbsu, "${repl}": pg_replication_username, "${monitor}": pg_monitor_username, "${admin}": pg_admin_username} %}
+{% set authmapping = {"deny":"reject","pwd":pwdenc,"ssl":pwdenc,"sha":"scram-sha-256","cert":"cert","ssl-md5":"md5","ssl-sha":"scram-sha-256","md5":"md5","os":"peer","ident":"peer","peer":"peer","trust":"trust","reject":"reject","scram-sha-256":"scram-sha-256"} %}
+{% set pgb_hba_list = pgb_default_hba_rules + pgb_hba_rules %}
+# addr alias
+# local     : {{ pg_localhost }}
+# admin     : {{ admin_ip }}
+# infra     : {{ groups['infra']|join(', ') }}
+# intra     : {{ intranet|join(', ') }}
 
-# monitor user intranet monitor access
-{{hostssl}}     pgbouncer    {{ pg_monitor_username }}   10.0.0.0/8      {{ pg_pwd_enc }}
-{{hostssl}}     pgbouncer    {{ pg_monitor_username }}   172.16.0.0/12   {{ pg_pwd_enc }}
-{{hostssl}}     pgbouncer    {{ pg_monitor_username }}   192.168.0.0/16  {{ pg_pwd_enc }}
-{{hostssl}}     all          {{ pg_monitor_username }}   0.0.0.0/0       reject
+# user alias
+# dbsu    :  {{ pg_dbsu }}
+# repl    :  {{ pg_replication_username }}
+# monitor :  {{ pg_monitor_username }}
+# admin   :  {{ pg_admin_username }}
 
-{% if admin_ip is defined and admin_ip != '' %}
-# admin node everyone access with password
-{{hostssl}}     all          all              {{ admin_ip }}/32   {{ pg_pwd_enc }}
-{% endif %}
-
-{% if not pgbouncer_auth_query|bool %}
-# admin user intranet admin access with password
-{{hostssl}}      pgbouncer    {{ pg_admin_username }}      10.0.0.0/8      {{ pg_pwd_enc }}
-{{hostssl}}      pgbouncer    {{ pg_admin_username }}      172.16.0.0/12   {{ pg_pwd_enc }}
-{{hostssl}}      pgbouncer    {{ pg_admin_username }}      192.168.0.0/16  {{ pg_pwd_enc }}
-{{hostssl}}      all          {{ pg_admin_username }}      0.0.0.0/0       reject
-{% endif %}
-
-#==============================================================#
-# Common HBA
-#==============================================================#
-{% for hba in pgb_default_hba_rules %}
-{% if hba.role == 'common' %}
-# {% if 'title' in hba %}{{ hba.title }}{% endif %}
+{% for hba in pgb_hba_list %}
+{% set hba_role = hba.role if 'role' in hba and hba.role != '' else 'default' %}
+{% if hba_role not in ['default', 'common', 'primary', 'replica', 'offline', 'standby', 'delayed' ] %}{{ abort("invalid hba role " + hba_role) }}{% endif %}
+{% set hba_enabled = '#' %}
+{% if hba_role == 'default' or hba_role == pg_role or (hba_role == 'offline' and pg_offline_query|bool)  %}{% set hba_enabled = '' %}{% endif %}
+{% if 'rules' in hba and hba.rules|length > 0 %}
+# {% if 'title' in hba %}{{ hba.title }}{% endif %} [{{ hba_role }}] {% if hba_enabled != '' %}[DISABLED]{% endif %}
 
 {% for rule in hba.rules %}
-{{ rule }}
+{{ hba_enabled }}{{ rule }}
 {% endfor %}
-
+{% elif 'addr' in hba and hba.addr != '' %}
+{% set hba_addr = hba.addr %}
+{% if hba_addr not in ['local', 'localhost', 'admin', 'infra', 'intra', 'intranet', 'world', 'all'] and not hba_addr|regex_search('^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$') %}
+{{ abort("invalid addr name: " + hba_addr) }}
 {% endif %}
+{% set hba_address = hba_addr %}
+{% set hba_user = hba.user if 'user' in hba and hba.user != '' else 'all' %}
+{% if hba_user in usermapping %}{% set hba_user = usermapping.get(hba_user) %}{% endif %}
+{% set hba_db = hba.db if 'db' in hba and hba.db != '' else 'all' %}
+{% if hba_db == 'replication' %}{{ abort("db:replication is not allowed in pgbouncer hba conf") }}{% endif %}
+{% set hba_auth = hba.auth if 'auth' in hba and hba.auth != '' else pwdenc %}
+{% if hba_auth not in authmapping %}{{ abort("unsupported hba auth " + hba_auth + ". use raw hba.rules instead") }}{% endif %}
+{% set hba_conntype = 'host' %}
+{% if hba.auth is defined and hba.auth in ['ssl', 'ssl-md5', 'ssl-sha', 'cert'] %}{% set hba_conntype = 'hostssl' %}{% endif %}
+{% if hba.addr in ['local', 'localhost'] %}{% set hba_conntype = 'local' %}{% endif %}
+{% if hba_auth in authmapping %}{% set hba_auth = authmapping[hba_auth]  %}{% endif %}
+# {% if 'title' in hba %}{{ hba.title }}{% endif %} [{{ hba_role }}] {% if hba_enabled != '' %}[DISABLED]{% endif %}
+
+{% if hba_addr == 'local' %}
+{{ hba_enabled }}local    {{ "%-18s" | format(hba_db) }} {{ "%-18s" | format(hba_user) }}                    {{ hba_auth }}
+{% elif hba_addr == 'localhost' %}
+{{ hba_enabled }}local    {{ "%-18s" | format(hba_db) }} {{ "%-18s" | format(hba_user) }}                    {{ hba_auth }}
+{{ hba_enabled }}host     {{ "%-18s" | format(hba_db) }} {{ "%-18s" | format(hba_user) }} 127.0.0.1/32       {{ hba_auth }}
+{% elif hba_addr == 'admin' %}
+{{ hba_enabled }}{{ "%-8s" | format(hba_conntype) }} {{ "%-18s" | format(hba_db) }} {{ "%-18s" | format(hba_user) }} {{ "%-18s" | format(admin_ip|string + '/32') }} {{ hba_auth }}
+{% elif hba_addr == 'infra' %}
+{% for ip in groups['infra'] %}
+{{ hba_enabled }}{{ "%-8s" | format(hba_conntype) }} {{ "%-18s" | format(hba_db) }} {{ "%-18s" | format(hba_user) }} {{ "%-18s" | format(ip|string + '/32') }} {{ hba_auth }}
 {% endfor %}
-
-
-#==============================================================#
-# {{ pg_role }} HBA
-#==============================================================#
-{% for hba in pgb_default_hba_rules %}
-{% if hba.role == pg_role %}
-# {% if 'title' in hba %}{{ hba.title }}{% endif %}
-
-{% for rule in hba.rules %}
-{{ rule }}
+{% elif hba_addr in ['intra','intranet'] %}
+{% for ip in intranet %}
+{{ hba_enabled }}{{ "%-8s" | format(hba_conntype) }} {{ "%-18s" | format(hba_db) }} {{ "%-18s" | format(hba_user) }} {{ "%-18s" | format(ip) }} {{ hba_auth }}
 {% endfor %}
+{% elif hba_addr in ['world','all'] %}
+{{ hba_enabled }}{{ "%-8s" | format(hba_conntype) }} {{ "%-18s" | format(hba_db) }} {{ "%-18s" | format(hba_user) }} all                {{ hba_auth }}
+{% else %}
+{{ hba_enabled }}{{ "%-8s" | format(hba_conntype) }}  {{ "%-18s" | format(hba_db) }} {{ "%-18s" | format(hba_user) }} {{ "%-18s" | format(hba_address) }} {{ hba_auth }}
 {% endif %}
-{% endfor %}
-
-
-#==============================================================#
-# Extra HBA
-#==============================================================#
-# add extra hba rules here
-
-{% for hba in pgb_hba_rules %}
-{% if hba.role == 'common' %}
-# {% if 'title' in hba %}{{ hba.title }}{% endif %}
-
-{% for rule in hba.rules %}
-{{ rule }}
-{% endfor %}
-
+{% else %}
+{{ abort("no rules or addr defined in hba rules") }}
 {% endif %}
+
 {% endfor %}
-
-{% for hba in pgb_hba_rules %}
-{% if hba.role == pg_role %}
-# {% if 'title' in hba %}{{ hba.title }}{% endif %}
-
-{% for rule in hba.rules %}
-{{ rule }}
-{% endfor %}
-{% endif %}
-{% endfor %}
-
-
-#==============================================================#
-# Ad Hoc HBA
-#==============================================================#
-# manual maintained hba rules
