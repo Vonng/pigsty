@@ -20,7 +20,10 @@ pg_weight: 100                    # <INSTANCE> [FLAG] default load balance weigh
 pg_users: []                      # business users
 pg_databases: []                  # business databases
 pg_services: []                   # business services
-pg_hba_rules: []                  # business hba rules for postgres
+pg_hba_rules:                     # business hba rules for postgres
+  - {user: '+dbrole_readonly',db: all    ,addr: localhost ,auth: pwd   ,title: 'pgbouncer read/write via local socket'}
+  - {user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: pwd   ,title: 'read/write biz user via password'}
+  - {user: '+dbrole_offline' ,db: all    ,addr: intra     ,auth: pwd   ,title: 'allow etl offline tasks from intranet', role: offline }
 pgb_hba_rules: []                 # business hba rules for pgbouncer
 
 # WARNING: change these credentials in production deployment!
@@ -142,29 +145,15 @@ pg_default_extensions:            # default extensions to be created
   - { name: pg_repack }
 pg_reload: true                   # reload postgres after hba changes
 pg_default_hba_rules:             # postgres host-based auth rules by default
-  - title: allow intranet admin password access
-    role: common
-    rules:
-      - host    all     +dbrole_admin               10.0.0.0/8          md5
-      - host    all     +dbrole_admin               172.16.0.0/12       md5
-      - host    all     +dbrole_admin               192.168.0.0/16      md5
-  - title: allow intranet password access
-    role: common
-    rules:
-      - host    all             all                 10.0.0.0/8          md5
-      - host    all             all                 172.16.0.0/12       md5
-      - host    all             all                 192.168.0.0/16      md5
-  - title: allow local read/write (local production user via pgbouncer)
-    role: common
-    rules:
-      - local   all     +dbrole_readonly                                md5
-      - host    all     +dbrole_readonly            127.0.0.1/32         md5
-  - title: allow offline query (ETL,SAGA,Interactive) on offline instance
-    role: offline
-    rules:
-      - host    all     +dbrole_offline             10.0.0.0/8        md5
-      - host    all     +dbrole_offline             172.16.0.0/12     md5
-      - host    all     +dbrole_offline             192.168.0.0/16    md5
+  - {user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident'  }
+  - {user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident' }
+  - {user: '${repl}'    ,db: replication ,addr: localhost ,auth: pwd   ,title: 'replicator replication from localhost'}
+  - {user: '${repl}'    ,db: replication ,addr: intra     ,auth: pwd   ,title: 'replicator replication from intranet' }
+  - {user: '${repl}'    ,db: postgres    ,addr: intra     ,auth: pwd   ,title: 'replicator postgres db from intranet' }
+  - {user: '${monitor}' ,db: all         ,addr: localhost ,auth: pwd   ,title: 'monitor from localhost with password' }
+  - {user: '${monitor}' ,db: all         ,addr: infra     ,auth: pwd   ,title: 'monitor from infra host with password'}
+  - {user: '${admin}'   ,db: all         ,addr: world     ,auth: cert  ,title: 'admin @ everywhere with ssl & cert'   }
+  - {user: '${admin}'   ,db: all         ,addr: infra     ,auth: ssl   ,title: 'admin @ infra nodes with pwd & ssl'   }
 pgb_default_hba_rules:            # pgbouncer host-based authentication rules
   - title: local password access
     role: common
