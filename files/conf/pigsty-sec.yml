@@ -4,7 +4,7 @@
 # Desc      :   Pigsty security enhancement configuration
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2022-11-16
+# Mtime     :   2022-11-23
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
@@ -13,8 +13,7 @@
 #   * 3 node autonomous cluster with one delayed instance example
 #   * use crit templates, no data loss, checksum force enabled
 #   * use at least 3 dcs nodes, and enable ssl for etcd & consul
-#   * use ssl on postgres & pgbouncer, sslmode=require
-#   * use scram-sha-256 instead of md5 password encryption
+#   * enforce ssl on postgres & pgbouncer
 #   * use a l2 vip for pgsql cluster
 
 all:
@@ -75,9 +74,7 @@ all:
     version: v2.0.0-a1                # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
-    pg_pwd_enc: scram-sha-256         # algorithm for encrypting passwords: md5|scram-sha-256
-    pg_sslmode: verify-full           # enable sslmode: disable|allow|prefer|require|verify-ca|verify-full
-    haproxy_auth_enabled: false       # enable authentication for haproxy admin?
+    haproxy_auth_enabled: true        # enable authentication for haproxy admin?
 
     # WARNING: CHANGE THESE PASSWORDS
     #grafana_admin_username: admin
@@ -94,39 +91,25 @@ all:
     haproxy_admin_password: pigsty
 
     pg_default_hba_rules:             # postgres host-based auth rules by default
-      - title: allow local read/write roles access via pgbouncer
-        role: common
-        rules:
-          - local     all     +dbrole_readonly                  scram-sha-256
-          - host      all     +dbrole_readonly  127.0.0.1/32    scram-sha-256
-      - title: allow intranet admin password access with ssl
-        role: common
-        rules:
-          - hostssl   all     +dbrole_admin     10.0.0.0/8      scram-sha-256
-          - hostssl   all     +dbrole_admin     172.16.0.0/12   scram-sha-256
-          - hostssl   all     +dbrole_admin     192.168.0.0/16  scram-sha-256
-      - title: allow everyone intranet password access
-        role: common
-        rules:
-          - hostssl   all     all               10.0.0.0/8      scram-sha-256
-          - hostssl   all     all               172.16.0.0/12   scram-sha-256
-          - hostssl   all     all               192.168.0.0/16  scram-sha-256
-      - title: allow intranet offline queries (etl,saga,interactive) with ssl
-        role: offline
-        rules:
-          - hostssl   all     +dbrole_offline   10.0.0.0/8      scram-sha-256
-          - hostssl   all     +dbrole_offline   172.16.0.0/12   scram-sha-256
-          - hostssl   all     +dbrole_offline   192.168.0.0/16  scram-sha-256
+      - {user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident'  }
+      - {user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident' }
+      - {user: '${repl}'    ,db: replication ,addr: localhost ,auth: ssl   ,title: 'replicator replication from localhost'}
+      - {user: '${repl}'    ,db: replication ,addr: intra     ,auth: ssl   ,title: 'replicator replication from intranet' }
+      - {user: '${repl}'    ,db: postgres    ,addr: intra     ,auth: ssl   ,title: 'replicator postgres db from intranet' }
+      - {user: '${monitor}' ,db: all         ,addr: localhost ,auth: pwd   ,title: 'monitor from localhost with password' }
+      - {user: '${monitor}' ,db: all         ,addr: infra     ,auth: ssl   ,title: 'monitor from infra host with password'}
+      - {user: '${admin}'   ,db: all         ,addr: infra     ,auth: ssl   ,title: 'admin @ infra nodes with pwd & ssl'   }
+      - {user: '${admin}'   ,db: all         ,addr: world     ,auth: ssl   ,title: 'admin @ everywhere with ssl & cert'   }
+      - {user: '+dbrole_readonly',db: all    ,addr: localhost ,auth: ssl   ,title: 'pgbouncer read/write via local socket'}
+      - {user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: ssl   ,title: 'read/write biz user via password'     }
+      - {user: '+dbrole_offline' ,db: all    ,addr: intra     ,auth: ssl   ,title: 'allow etl offline tasks from intranet'}
     pgb_default_hba_rules:            # pgbouncer host-based authentication rules
-      - title: local password access
-        role: common
-        rules:
-          - local     all     all                               scram-sha-256
-          - host      all     all               127.0.0.1/32    scram-sha-256
-      - title: intranet password access with ssl
-        role: common
-        rules:
-          - hostssl   all     all               10.0.0.0/8      scram-sha-256
-          - hostssl   all     all               172.16.0.0/12   scram-sha-256
-          - hostssl   all     all               192.168.0.0/16  scram-sha-256
+      - {user: '${dbsu}'    ,db: pgbouncer   ,addr: local     ,auth: peer  ,title: 'dbsu local admin access with os ident'}
+      - {user: 'all'        ,db: all         ,addr: localhost ,auth: pwd   ,title: 'allow all user local access with pwd' }
+      - {user: '${monitor}' ,db: pgbouncer   ,addr: intra     ,auth: ssl   ,title: 'monitor access via intranet with pwd' }
+      - {user: '${monitor}' ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other monitor access addr' }
+      - {user: '${admin}'   ,db: all         ,addr: intra     ,auth: ssl   ,title: 'admin access via intranet with pwd'   }
+      - {user: '${admin}'   ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other admin access addr'   }
+      - {user: 'all'        ,db: all         ,addr: intra     ,auth: ssl   ,title: 'allow all user intra access with pwd' }
+
 ...
