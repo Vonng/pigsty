@@ -1,9 +1,18 @@
 # PGBOUNCER CONFIGURATION FILE
+# {{ ansible_managed }}
 # FILE PATH : /etc/pgbouncer/pgbouncer.ini
+
+[users]
+{{ "%-27s" | format(pg_admin_username)   }} = pool_mode=session max_user_connections=8
+{{ "%-27s" | format(pg_monitor_username) }} = pool_mode=session max_user_connections=8
+{% for user in pg_users %}
+{% if 'pool_mode' in user or  'pool_connlimit' in user %}
+{{ "%-27s" | format(user.name) }} = {% if 'pool_mode' in user %}pool_mode={{ user.pool_mode }}{% endif %} {% if 'pool_connlimit' in user %}max_user_connections={{ user.pool_connlimit }}{% endif %}
+{% endif %}
+{% endfor %}
 
 [databases]
 %include /etc/pgbouncer/database.txt
-
 
 [pgbouncer]
 pool_mode                   = {{ pgbouncer_poolmode }}
@@ -26,16 +35,17 @@ logfile                     = {{ pgbouncer_log_dir }}/pgbouncer.log
 unix_socket_dir             = /var/run/postgresql
 application_name_add_host   = 1
 max_client_conn             = 20000
-default_pool_size           = 64
+min_pool_size               = 0
+default_pool_size           = 32
 reserve_pool_size           = 32
-reserve_pool_timeout        = 5
-max_db_connections          = {{ pgbouncer_max_db_conn }}
+reserve_pool_timeout        = 1
+max_db_connections          = 100
+max_user_connections        = 100
+server_round_robin          = 0
 log_connections             = 0
 log_disconnections          = 0
 ignore_startup_parameters   = extra_float_digits
-{% if pgbouncer_sslmode != 'disable' %}
 client_tls_sslmode          = {{ pgbouncer_sslmode }}
 client_tls_cert_file        = /pg/cert/server.crt
 client_tls_key_file         = /pg/cert/server.key
 client_tls_ca_file          = /etc/pki/ca.crt
-{% endif %}

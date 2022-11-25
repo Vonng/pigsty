@@ -73,9 +73,8 @@ alias pgb-mt="curl -sL localhost:9631/metrics | grep -v '#' | grep pg_"
 # route pgbouncer traffic to another cluster member
 function pgb-route(){
   local ip=${1-'\/var\/run\/postgresql'}
-  sed -i "s/host=.*/host=${ip}/" /etc/pgbouncer/database.txt
-  cat /etc/pgbouncer/database.txt
-  echo "reload with pgb-reload (systemctl reload pgbouncer)"
+  sed -ie "s/host=[^[:space:]]\+/host=${ip}/g" /etc/pgbouncer/pgbouncer.ini
+  cat /etc/pgbouncer/pgbouncer.ini
 }
 
 #=========================#
