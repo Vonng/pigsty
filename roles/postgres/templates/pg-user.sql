@@ -10,14 +10,14 @@
 --                            EXECUTION                             --
 --==================================================================--
 -- run as dbsu (postgres by default)
--- createuser -w -p {{ pg_port }} {% if 'login' in user and not user.login %}--no-login{% endif %}
+-- createuser -w -p {{ pg_port|default(5432) }} {% if 'login' in user and not user.login %}--no-login{% endif %}
 {% if 'superuser' in user and user.superuser %} --superuser{% endif %}
 {% if 'createdb' in user and user.createdb %} --createdb{% endif %}
 {% if 'createrole' in user and user.createrole %} --createrole{% endif %}
 {% if 'inherit' in user and not user.inherit %} --no-inherit{% endif %}
 {% if 'replication' in user and user.replication %} --replication{% endif %}
 '{{ user.name }}';
--- psql -p {{ pg_port }} -AXtwqf /pg/tmp/pg-user-{{ user.name }}.sql
+-- psql -p {{ pg_port|default(5432) }} -AXtwqf /pg/tmp/pg-user-{{ user.name }}.sql
 
 --==================================================================--
 --                           CREATE USER                            --

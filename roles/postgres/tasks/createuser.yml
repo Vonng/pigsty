@@ -8,27 +8,16 @@
   block:
 
     - name: render sql for user {{ user.name }}
-      when: pg_role == 'primary'
       tags: pg_user_config
-      template: src="pg-user.sql" dest=/pg/tmp/pg-user-{{ user.name }}.sql owner={{ pg_dbsu }} group=postgres mode=0755
+      template: src="pg-user.sql" dest=/pg/tmp/pg-user-{{ user.name }}.sql owner={{ pg_dbsu|default('postgres') }} group=postgres mode=0755
 
     - name: execute sql for user {{ user.name }}
       tags: pg_user_create
-      when: pg_role == 'primary'
       ignore_errors: true
-      become_user: "{{ pg_dbsu }}"
+      become_user: "{{ pg_dbsu|default('postgres') }}"
       shell: |
-        psql -h {{ pg_localhost }}  -p {{ pg_port }} -d postgres -AXtwqf /pg/tmp/pg-user-{{ user.name }}.sql || true;
-        role_exists=$(psql -h {{ pg_localhost }} -p {{ pg_port }} -d postgres -AXtwqc "SELECT true WHERE EXISTS(SELECT * FROM pg_authid WHERE rolname = '{{ user.name }}' LIMIT 1)")
+        psql -h {{ pg_localhost|default('/var/run/postgresql') }}  -p {{ pg_port|default(5432) }} -d postgres -AXtwqf /pg/tmp/pg-user-{{ user.name }}.sql || true;
+        role_exists=$(psql -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} -d postgres -AXtwqc "SELECT true WHERE EXISTS(SELECT * FROM pg_authid WHERE rolname = '{{ user.name }}' LIMIT 1)")
         [[ -z "${role_exists}" ]] && exit 1 || exit 0
-
-
-# retrieve biz user passwords in AUTO mode (when auth_query is not enabled)
-- name: add business user to pgbouncer
-  tags: pg_user_pgbouncer
-  when: pgbouncer_enabled|bool and user.pgbouncer is defined and user.pgbouncer|bool and not pgbouncer_auth_query|bool
-  ignore_errors: true
-  become_user: "{{ pg_dbsu }}"
-  shell: /bin/bash /pg/bin/pgbouncer-create-user '{{ user.name }}' 'AUTO'
 
 ...

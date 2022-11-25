@@ -51,21 +51,12 @@
   when: patroni_enabled|bool
 
 #------------------------------------------------------------------------------
-# Pgbouncer
-#------------------------------------------------------------------------------
-# install connection pooling middleware
-- import_tasks: pgbouncer.yml
-  tags: pgbouncer
-  when: pgbouncer_enabled|bool
-
-#------------------------------------------------------------------------------
 # Users
 #------------------------------------------------------------------------------
 - include_tasks: createuser.yml
   tags: pg_user
   when: pg_provision|bool
-  vars:
-    user: "{{ item }}"
+  vars: {user: "{{ item }}" }
   with_items: "{{ pg_users }}"
 
 #------------------------------------------------------------------------------
@@ -74,17 +65,16 @@
 - include_tasks: createdb.yml
   when: pg_provision|bool
   tags: pg_db
-  vars:
-    database: "{{ item }}"
+  vars: { database: "{{ item }}" }
   with_items: "{{ pg_databases }}"
 
 #------------------------------------------------------------------------------
-# Pgbouncer Reload
+# Pgbouncer
 #------------------------------------------------------------------------------
-- name: reload pgbouncer to finish provision
-  tags: pgbouncer_reload
-  when: pgbouncer_enabled|bool and pg_provision|bool
-  systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
+# install connection pooling middleware
+- import_tasks: pgbouncer.yml
+  tags: pgbouncer
+  when: pgbouncer_enabled|bool
 
 #------------------------------------------------------------------------------
 # Backup

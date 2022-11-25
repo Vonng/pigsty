@@ -1,0 +1,93 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   pgsql-user.yml
+# Ctime     :   2021-02-27
+# Mtime     :   2022-11-24
+# Desc      :   create or modify user/role on pgsql cluster
+# Path      :   pgsql-user.yml
+# Deps      :   templates/pg-user.sql
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+
+#==============================================================#
+# How to create new user/role on existing postgres cluster ?   #
+#==============================================================#
+#  1.  Define new user/role in inventory (cmdb or config)
+#      `all.children.<pg_cluster>.vars.pg_users[i]`
+#  2.  Execute this playbook on target cluster with arg `username`
+#      `pgsql-user.yml -l <pg_cluster> -e username=<name>
+#  3.  The playbook execution can be simplified by wrapper script
+#      bin/createuser <pg_cluster> <name>
+#
+#  This playbook will:
+#   1. create user sql definition on `/pg/tmp/pg-user-{{ user.name }}.sql`
+#   2. execute database creation/update sql on cluster leader instance
+#   3. update /etc/pgbouncer/userlist.txt and reload pgbouncer if necessary
+#=============================================================================#
+- name: PGSQL USER
+  become: yes
+  hosts: all
+  gather_facts: no
+  tasks:
+
+    #-------------------------------------------------------------------------------
+    # pre-flight check: validate username and user definition            [preflight]
+    # ------------------------------------------------------------------------------
+    - name: preflight
+      tags: [ preflight, always ]
+      connection: local
+      block:
+
+        - name: validate username parameter
+          assert:
+            that:
+              - username is defined
+              - username != ''
+              - username != 'postgres'
+            fail_msg: variable 'username' should be specified (-e username=<name>)
+
+        - name: fetch user definition
+          set_fact: user_def={{ pg_users | json_query(user_def_query) }}
+          vars: { user_def_query: "[?name=='{{ username }}'] | [0]" }
+
+        - name: validate user definition
+          assert:
+            that:
+              - user_def is defined
+              - user_def != None
+              - user_def != ''
+              - user_def != {}
+            fail_msg: define user {{ username }} in pg_users first
+
+        - debug: { msg: "{{ user_def }}" }
+
+
+    #------------------------------------------------------------------------------
+    # Create Postgres User                                               [postgres]
+    #------------------------------------------------------------------------------
+    # create user according to user definition
+    - include_tasks: roles/postgres/tasks/createuser.yml
+      tags: postgres
+      when: pg_role == 'primary'
+      vars: { user: "{{ user_def }}" }
+
+
+    #------------------------------------------------------------------------------
+    # Refresh Pgbouncer Users                                           [pgbouncer]
+    #------------------------------------------------------------------------------
+    - name: refresh pgbouncer users
+      tags: pgbouncer
+      when: user_def.pgbouncer is defined and user_def.pgbouncer|bool
+      block:
+
+        - name: add business users to pgbouncer
+          ignore_errors: true
+          become_user: "{{ pg_dbsu|default('postgres') }}"
+          shell: /bin/bash /pg/bin/pgbouncer-create-user '{{ username }}' AUTO
+
+        - name: reload pgbouncer
+          systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
+
+...

@@ -11,7 +11,7 @@
 --                            EXECUTION                             --
 --==================================================================--
 -- run as dbsu (postgres by default)
--- createdb -w -p {{ pg_port }} {% if 'owner'      in  database and database.owner != ''      %}-O "{{ database.owner      }}" {% endif %}
+-- createdb -w -p {{ pg_port|default(5432) }} {% if 'owner'      in  database and database.owner != ''      %}-O "{{ database.owner      }}" {% endif %}
 {% if 'template'   in  database and database.template != ''   %}-T '{{ database.template   }}' {% endif %}
 {% if 'encoding'   in  database and database.encoding != ''   %}-E '{{ database.encoding   }}' {% endif %}
 {% if 'locale'     in  database and database.locale != ''     %}-l '{{ database.locale     }}' {% endif %}
@@ -19,9 +19,9 @@
 {% if 'lc_ctype'   in  database and database.lc_ctype != ''   %}--lc-ctype '{{ database.lc_ctype   }}' {% endif %}
 {% if 'tablespace' in  database and database.tablespace != '' %}-D '{{ database.tablespace }}' {% endif %}
 '{{ database.name }}';
--- psql {{ database.name }} -p {{ pg_port }} -AXtwqf /pg/tmp/pg-db-{{ database.name }}.sql
+-- psql {{ database.name }} -p {{ pg_port|default(5432) }} -AXtwqf /pg/tmp/pg-db-{{ database.name }}.sql
 {% if 'baseline' in database and database.baseline != '' %}
--- psql {{ database.name }} -p {{ pg_port }} -AXtwqf /pg/tmp/pg-db-{{ database.name }}-baseline.sql
+-- psql {{ database.name }} -p {{ pg_port|default(5432) }} -AXtwqf /pg/tmp/pg-db-{{ database.name }}-baseline.sql
 {% endif %}
 
 --==================================================================--
@@ -84,11 +84,11 @@ COMMENT ON DATABASE "{{ database.name }}" IS 'business database {{ database.name
 REVOKE CONNECT ON DATABASE "{{ database.name }}" FROM PUBLIC;
 
 -- replicator, monitor have connect privilege
-GRANT CONNECT ON DATABASE "{{ database.name }}" TO "{{ pg_replication_username }}";
-GRANT CONNECT ON DATABASE "{{ database.name }}" TO "{{ pg_monitor_username }}";
+GRANT CONNECT ON DATABASE "{{ database.name }}" TO "{{ pg_replication_username|default('replicator') }}";
+GRANT CONNECT ON DATABASE "{{ database.name }}" TO "{{ pg_monitor_username|default('dbuser_monitor') }}";
 
 -- admin have connect privilege with grant option
-GRANT CONNECT ON DATABASE "{{ database.name }}" TO "{{ pg_admin_username }}" WITH GRANT OPTION;
+GRANT CONNECT ON DATABASE "{{ database.name }}" TO "{{ pg_admin_username|default('dbuser_dba') }}" WITH GRANT OPTION;
 
 -- owner have connect privilege with grant option if exists
 {% if 'owner' in  database and database.owner is not none and database.owner != '' %}
@@ -143,7 +143,7 @@ CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension
 
 -- foreach database created on pgb, add the function to retrieve
 -- user passwords from pg_authid when auth_query is set to 'true'
--- The user designated for this purpose is {{ pg_monitor_username }}
+-- The user designated for this purpose is {{ pg_monitor_username|default('dbuser_monitor') }}
 {% else %}
 -- Database '{{ database.name }}' will NOT be added to /etc/pgbouncer/database.txt
 {% endif %}

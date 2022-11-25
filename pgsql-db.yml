@@ -1,0 +1,177 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   pgsql-createdb.yml
+# Ctime     :   2021-02-27
+# Mtime     :   2022-11-25
+# Desc      :   create database on existing cluster
+# Deps      :   templates/pg-db.sql
+# Path      :   pgsql-createdb.yml
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+#==============================================================#
+# How to create new database on existing postgres cluster ?    #
+#==============================================================#
+#  1.  Define new database in inventory (cmdb or config)
+#      `all.children.<pg_cluster>.vars.pg_databases[i]`
+#  2.  Execute this playbook on target cluster with arg dbname
+#      `pgsql-createdb.yml -l <pg_cluster> -e dbname=<database.name>
+#  3.  The playbook execution can be simplified by wrapper script
+#      bin/createdb <pg_cluster> <dbname>
+#
+#  This playbook will:
+#   1. create database sql definition on `/pg/tmp/pg-db-{{ database.name }}.sql`
+#   2. execute database creation/update sql on cluster leader instance
+#   3. update /etc/pgbouncer/database.txt and reload pgbouncer if necessary
+#   4. register database to grafana instance
+#=============================================================================#
+
+- name: PGSQL IDENTITY
+  become: yes
+  hosts: all
+  gather_facts: no
+  roles:
+
+    #-------------------------------------------------------------------------------
+    # Get Postgres Identity                                                  [pg-id]
+    # ------------------------------------------------------------------------------
+    - role: pg_id
+      tags: pg-id
+
+- name: PGSQL CREATEDB
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: createdb
+  tasks:
+
+    #-------------------------------------------------------------------------------
+    # Preflight Check: validate dbname and database definition           [preflight]
+    # ------------------------------------------------------------------------------
+    - name: preflight
+      tags: [ preflight , always ]
+      connection: local
+      block:
+        - name: validate dbname parameter
+          assert:
+            that:
+              - dbname is defined
+              - dbname != ''
+              - dbname != 'postgres'
+            fail_msg: variable 'pg_database' should be specified (-e dbname=<name>)
+
+        - name: get database definition
+          set_fact: db_def={{ pg_databases | json_query(db_def_query) }}
+          vars: { db_def_query: "[?name=='{{ dbname }}'] | [0]" }
+
+        - name: validate database definition
+          assert:
+            that:
+              - db_def is defined
+              - db_def != None
+              - db_def != ''
+              - db_def != {}
+            fail_msg: define database {{ dbname }} in pg_databases first
+
+        - debug:
+            msg: "{{ db_def }}"
+
+    #------------------------------------------------------------------------------
+    # Create Postgres Database                                           [postgres]
+    #------------------------------------------------------------------------------
+    # create database according to database definition
+    - include_tasks: roles/postgres/tasks/createdb.yml
+      tags: createdb
+      when: pg_role == 'primary'
+      vars: { database: "{{ db_def }}" }
+
+    #------------------------------------------------------------------------------
+    # Refresh Pgbouncer Configuration                                   [pgbouncer]
+    #------------------------------------------------------------------------------
+    - name: refresh pgbouncer databases
+      tags: pgbouncer
+      when: db_def.pgbouncer is not defined or db_def.pgbouncer|bool
+      block:
+
+        - name: render pgbouncer databases.txt
+          copy:
+            dest: /etc/pgbouncer/databases.txt
+            owner: "{{ pg_dbsu|default('postgres') }}"
+            group: postgres
+            mode: 0600
+            content: |
+              {% for db in pg_databases %}
+              {% if 'pgbouncer' not in db or db.pgbouncer|bool %}
+              {% set connstr = "host=" + pg_localhost|default('/var/run/postgresql')|string %}
+              {% if pgbouncer_redirect_to is defined and pgbouncer_redirect_to != '' %}{% set db_host = "host=" + pgbouncer_redirect_to %}{% endif %}
+              {% if 'pool_auth_user' in db %}{% set connstr = connstr + " auth_user=" + db.pool_auth_user|string %}{% endif %}
+              {% if 'pool_mode' in db %}{% set connstr = connstr + " pool_mode=" + db.pool_mode|string %}{% endif %}
+              {% if 'pool_size' in db %}{% set connstr = connstr + " pool_size=" + db.pool_size|string %}{% endif %}
+              {% if 'pool_size_min' in db %}{% set connstr = connstr + " min_pool_size=" + db.pool_size_min|string %}{% endif %}
+              {% if 'pool_reserve' in db %}{% set connstr = connstr + " reserve_pool=" + db.pool_reserve|string %}{% endif %}
+              {% if 'pool_connlimit' in db %}{% set connstr = connstr + " max_db_connections=" + db.pool_connlimit|string %}{% endif %}
+              {{ "%-27s" | format(db.name) }} = {{ connstr }}
+              {% endif %}
+              {% endfor %}
+
+        - name: reload pgbouncer
+          systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
+
+    #------------------------------------------------------------------------------
+    # Register datasource on grafana                                   [datasource]
+    #------------------------------------------------------------------------------
+    - name: register grafana datasource
+      tags: datasource
+      when: db_def.register_datasource is not defined or db_def.register_datasource|bool
+      delegate_to: "{{ admin_ip }}"
+      block:
+
+        - name: render datasource definition
+          copy:
+            dest: "/etc/pigsty/datasources/{{ insdb }}.json"
+            content: |
+              {
+                "type": "postgres",
+                "access": "proxy",
+                "name": "{{ insdb }}",
+                "url": "{{ host }}:{{ port }}",
+                "user": "{{ username }}",
+                "password": "{{ password }}",
+                "database": "{{ dbname }}",
+                "typeLogoUrl": "",
+                "basicAuth": false,
+                "basicAuthUser": "",
+                "basicAuthPassword": "",
+                "withCredentials": false,
+                "isDefault": false,
+                "jsonData": {
+                  "connMaxLifetime": 3600,
+                  "maxIdleConns": 1,
+                  "maxOpenConns": 8,
+                  "postgresVersion": {{ pg_version|default(15) }}00,
+                  "sslmode": "disable",
+                  "tlsAuth": false,
+                  "tlsAuthWithCACert": false
+                }
+              }
+            mode: 0600
+          vars:
+            host: "{{ inventory_hostname }}"
+            port: "{{ pg_port|default(5432) }}"
+            username: "{{ grafana_admin_username|default('admin') }}"
+            password: "{{ grafana_admin_password|default('pigsty') }}"
+            dbname: "{{ dbname }}"
+            insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ dbname }}"
+
+        - name: load grafana datasource of database
+          tags: datasource
+          shell: |
+            curl -X DELETE "{{ endpoint }}/api/datasources/name/{{ insdb }}" -u "{{ username }}:{{ password }}"  -H 'Content-Type: application/json' || true
+            curl -X POST   "{{ endpoint }}/api/datasources/" -u "{{ username }}:{{ password }}"  -H 'Content-Type: application/json' -d @/etc/pigsty/datasources/{{ insdb }}.json || true
+          vars:
+            insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ dbname }}"
+            endpoint: "{{ grafana_endpoint|default('http://${admin_ip}:3000')|regex_replace('${admin_ip}', admin_ip) }}"
+            username: "{{ grafana_admin_username|default('admin') }}"
+            password: "{{ grafana_admin_password|default('pigsty') }}"
+...
