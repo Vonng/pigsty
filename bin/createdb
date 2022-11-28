@@ -45,24 +45,24 @@ function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 # parameters
 #==============================================================#
 PG_CLUSTER=${1-''}
-PG_DATABASE=${2-''}
+DBNAME=${2-''}
 
 if [[ -z "${PG_CLUSTER}" ]]; then
     log_error "pg_cluster is empty"
-    log_hint "bin/createdb <pg_cluster> <pg_database>    # define database in pg_databases first"
+    log_hint "bin/createdb <pg_cluster> <dbname>    # define database in pg_databases first"
     exit 1
 fi
 
-if [[ -z "${PG_DATABASE}" ]]; then
-    log_error "pg_database is empty"
-    log_hint "bin/createdb <pg_cluster> <pg_database>    # define database in pg_databases first"
+if [[ -z "${DBNAME}" ]]; then
+    log_error "dbname is empty"
+    log_hint "bin/createdb <pg_cluster> <dbname>    # define database in pg_databases first"
     exit 2
 fi
 #==============================================================#
 
 
 #==============================================================#
-echo "create database ${PG_DATABASE} on cluster ${PG_CLUSTER}"
+echo "create database ${DBNAME} on cluster ${PG_CLUSTER}"
 #==============================================================#
 cd ${PIGSTY_HOME} >/dev/null
-${PIGSTY_HOME}/pgsql-createdb.yml -l ${PG_CLUSTER} -e pg_database=${PG_DATABASE}
+${PIGSTY_HOME}/pgsql-db.yml -l ${PG_CLUSTER} -e dbname=${DBNAME}

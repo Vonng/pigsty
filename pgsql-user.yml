@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   pgsql-user.yml
 # Ctime     :   2021-02-27
-# Mtime     :   2022-11-24
+# Mtime     :   2022-11-25
 # Desc      :   create or modify user/role on pgsql cluster
 # Path      :   pgsql-user.yml
 # Deps      :   templates/pg-user.sql
@@ -29,6 +29,7 @@
 - name: PGSQL USER
   become: yes
   hosts: all
+  tags: createuser
   gather_facts: no
   tasks:
 
@@ -81,6 +82,22 @@
       tags: pgbouncer
       when: user_def.pgbouncer is defined and user_def.pgbouncer|bool
       block:
+
+        # regenerate user level parameters for pgbouncer if specified
+        - name: refresh pgbouncer useropts.txt
+          when: user_def.pool_mode is defined or user_def.pool_connlimit is defined
+          copy:
+            dest: /etc/pgbouncer/useropts.txt
+            owner: "{{ pg_dbsu|default('postgres') }}"
+            group: postgres
+            mode: 0600
+            content: |
+              {% for user in pg_default_roles|default([]) + pg_users|default([]) %}
+              {% if 'pool_mode' in user or 'pool_connlimit' in user %}
+              {{ "%-27s" | format(user.name) }} = {% if 'pool_mode' in user %}pool_mode={{ user.pool_mode }}{% endif %} {% if 'pool_connlimit' in user %}max_user_connections={{ user.pool_connlimit }}{% endif %}
+              
+              {% endif %}
+              {% endfor %}
 
         - name: add business users to pgbouncer
           ignore_errors: true

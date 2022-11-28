@@ -45,24 +45,24 @@ function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 # parameters
 #==============================================================#
 PG_CLUSTER=${1-''}
-PG_USER=${2-''}
+USERNAME=${2-''}
 
 if [[ -z "${PG_CLUSTER}" ]]; then
     log_error "pg_cluster is empty"
-    log_hint "bin/createuser <pg_cluster> <pg_user>    # define user in pg_users first"
+    log_hint "bin/createuser <pg_cluster> <username>    # define user in pg_users first"
     exit 1
 fi
 
-if [[ -z "${PG_USER}" ]]; then
-    log_error "pg_user is empty"
-    log_hint "bin/createuser <pg_cluster> <pg_user>    # define user in pg_users first"
+if [[ -z "${USERNAME}" ]]; then
+    log_error "username is empty"
+    log_hint "bin/createuser <pg_cluster> <username>    # define user in pg_users first"
     exit 2
 fi
 #==============================================================#
 
 
 #==============================================================#
-echo "create user ${PG_USER} on cluster ${PG_CLUSTER}"
+echo "create user ${USERNAME} on cluster ${PG_CLUSTER}"
 #==============================================================#
 cd ${PIGSTY_HOME} >/dev/null
-${PIGSTY_HOME}/pgsql-createuser.yml -l ${PG_CLUSTER} -e pg_user=${PG_USER}
+${PIGSTY_HOME}/pgsql-user.yml -l ${PG_CLUSTER} -e username=${USERNAME}
