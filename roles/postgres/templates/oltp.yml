@@ -82,13 +82,13 @@ restapi:
   listen: 0.0.0.0:{{ patroni_port }}
   connect_address: {{ inventory_hostname }}:{{ patroni_port }}
 {% if patroni_ssl_enabled|bool %}
-  cacert:    '/etc/pki/ca.crt'
-  #certfile: '/pg/cert/server.crt'
-  #keyfile:  '/pg/cert/server.key'
+  cacert:   '/etc/pki/ca.crt'
+  certfile: '/pg/cert/server.crt'
+  keyfile:  '/pg/cert/server.key'
+  verify_client: optional  # none|optional|required
 {% endif %}
   # unsafe api can only been accessed from meta nodes with auth
   authentication:
-    verify_client: optional  # none|optional|required
     username: '{{ patroni_username }}'
     password: '{{ patroni_password }}'
   allowlist: [ {% for v in groups["infra"] %}{% if not loop.first %}, {% endif %}{{ v }}{% endfor %} ]
