@@ -3,13 +3,7 @@
 # FILE PATH : /etc/pgbouncer/pgbouncer.ini
 
 [users]
-{{ "%-27s" | format(pg_admin_username)   }} = pool_mode=session max_user_connections=8
-{{ "%-27s" | format(pg_monitor_username) }} = pool_mode=session max_user_connections=8
-{% for user in pg_users %}
-{% if 'pool_mode' in user or  'pool_connlimit' in user %}
-{{ "%-27s" | format(user.name) }} = {% if 'pool_mode' in user %}pool_mode={{ user.pool_mode }}{% endif %} {% if 'pool_connlimit' in user %}max_user_connections={{ user.pool_connlimit }}{% endif %}
-{% endif %}
-{% endfor %}
+%include /etc/pgbouncer/useropts.txt
 
 [databases]
 %include /etc/pgbouncer/database.txt

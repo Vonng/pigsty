@@ -4,7 +4,7 @@
 # Desc      :   pigsty config template with all default values
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2022-11-22
+# Mtime     :   2022-11-28
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -53,24 +53,71 @@ all:
       vars:
         pg_cluster: pg-meta
         patroni_watchdog_mode: off
-        pg_databases:
-          - { name: meta ,schemas: [pigsty] ,extensions: [{name: timescaledb},{name: postgis,schema: public}] ,baseline: cmdb.sql ,comment: pigsty meta database}
-          - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana primary database }
-          - { name: bytebase,   owner: dbuser_bytebase   , revokeconn: true , comment: bytebase primary database }
-        pg_users:
-          - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty cmdb admin user             }
-          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
-          - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database    }
-          - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
+        pg_databases:                       # define business databases on this cluster, array of database definition
+          - name: meta                      # REQUIRED, `name` is the only mandatory field of a database definition
+            baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
+            pgbouncer: true                 # optional, add this database to pgbouncer database list? true by default
+            schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
+            extensions: [{name: postgis}]   # optional, additional extensions to be installed: array of `{name[,schema]}`
+            comment: pigsty meta database   # optional, comment string for this database
+            # owner: postgres               # optional, database owner, postgres by default
+            # template: template1           # optional, which template to use, template1 by default
+            # encoding: UTF8                # optional, database encoding, UTF8 by default. (MUST same as template database)
+            # locale: C                     # optional, database locale, C by default.  (MUST same as template database)
+            # lc_collate: C                 # optional, database collate, C by default. (MUST same as template database)
+            # lc_ctype: C                   # optional, database ctype, C by default.   (MUST same as template database)
+            # tablespace: pg_default        # optional, default tablespace, 'pg_default' by default.
+            # allowconn: true               # optional, allow connection, true by default. false will disable connect at all
+            # revokeconn: false             # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
+            # register_datasource: true     # optional, register this database to grafana datasources? true by default
+            # connlimit: -1                 # optional, database connection limit, default -1 disable limit
+            # pool_auth_user: dbuser_meta   # optional, all connection to this pgbouncer database will be authenticated by this user
+            # pool_mode: transaction        # optional, pgbouncer pool mode at database level, default transaction
+            # pool_size: 64                 # optional, pgbouncer pool size at database level, default 64
+            # pool_size_reserve: 32         # optional, pgbouncer pool size reserve at database level, default 32
+            # pool_size_min: 0              # optional, pgbouncer pool size min at database level, default 0
+            # pool_max_db_conn: 100         # optional, max database connections at database level, default 100
+          #- { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
+          #- { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
+          #- { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
+          #- { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
+          #- { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
+
+        pg_users:                           # define business users/roles on this cluster, array of user definition
+          - name: dbuser_meta               # REQUIRED, `name` is the only mandatory field of a user definition
+            password: md5d3d10d8cad606308bdb180148bf663e1  # md5 salted password of 'DBUser.Meta'
+            login: true                     # optional, can log in, true by default  (new biz ROLE should be false)
+            superuser: false                # optional, is superuser? false by default
+            createdb: false                 # optional, can create database? false by default
+            createrole: false               # optional, can create role? false by default
+            inherit: true                   # optional, can this role use inherited privileges? true by default
+            replication: false              # optional, can this role do replication? false by default
+            bypassrls: false                # optional, can this role bypass row level security? false by default
+            pgbouncer: true                 # optional, add this user to pgbouncer user-list? false by default (production user should be true explicitly)
+            connlimit: -1                   # optional, user connection limit, default -1 disable limit
+            expire_in: 3650                 # optional, now + n days when this role is expired (OVERWRITE expire_at)
+            expire_at: '2030-12-31'         # optional, YYYY-MM-DD 'timestamp' when this role is expired  (OVERWRITTEN by expire_in)
+            comment: pigsty admin user      # optional, comment string for this user/role
+            roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
+            parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
+            pool_mode: transaction          # optional, pgbouncer pool mode at user level, transaction by default
+            pool_connlimit: -1              # optional, max database connections at user level, default -1 disable limit
+            search_path: public             # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
+          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
+          #- {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database   }
+          #- {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database  }
+          #- {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway   }
+          #- {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service      }
+          #- {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service    }
         pg_hba_rules:
-          - {user: dbuser_bytebase , db: bytebase ,addr: 10.0.0.0/8 ,auth: pwd ,title: 'allow bytebase intra access by its owner'}
-          - {user: dbuser_grafana  , db: grafana  ,addr: 10.0.0.0/8 ,auth: pwd ,title: 'allow grafana intra access by its owner' }
+          - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
         vip_mode: l2
         vip_address: 10.10.10.2
         vip_cidrmask: 8
         vip_interface: eth1
         node_crontab:
           - '00 01 * * * postgres pgbackrest --stanza=pg-meta backup >> /pg/log/pgbackrest/backup.log 2>&1'
+
 
     #----------------------------------#
     # pgsql cluster: pg-test (3 nodes) #
@@ -469,8 +516,7 @@ all:
     pgbouncer_port: 6432              # pgbouncer port, 6432 by default
     pgbouncer_log_dir: /pg/log/pgbouncer  # pgbouncer log dir, /pg/log/pgbouncer by default
     pgbouncer_auth_query: false       # query postgres user table to retrieve unlisted business users?
-    pgbouncer_poolmode: session       # pooling mode: session|transaction|statement, session pooling by default
-    pgbouncer_max_db_conn: 100        # max connection to single database, 100 by default
+    pgbouncer_poolmode: transaction   # pooling mode: session|transaction|statement, transaction pooling by default
     pgbouncer_sslmode: disable        # pgbouncer client ssl mode: disable|allow|prefer|require|verify-ca|verify-full, disable by default
 
     #-----------------------------------------------------------------
@@ -478,16 +524,15 @@ all:
     #-----------------------------------------------------------------
     pg_provision: true                # whether provisioning postgres cluster
     pg_init: pg-init                  # init script for cluster template
-    pg_default_roles:
-      - { name: dbrole_readonly  , login: false , comment: role for global read-only access  }                                # production read-only role
-      - { name: dbrole_readwrite , login: false , roles: [dbrole_readonly], comment: role for global read-write access }      # production read-write role
-      - { name: dbrole_offline   , login: false , comment: role for restricted read-only access (offline instance) }          # restricted-read-only role
-      - { name: dbrole_admin     , login: false , roles: [pg_monitor, dbrole_readwrite] , comment: role for object creation } # production DDL change role
-      - { name: dbuser_monitor   , roles: [pg_monitor, dbrole_readonly] , comment: system monitor user , parameters: {log_min_duration_statement: 1000 } }
-      - { name: postgres     , superuser: true  , comment: system superuser }                             # system dbsu, name is designated by `pg_dbsu`
-      - { name: dbuser_dba   , superuser: true  , roles: [dbrole_admin] , comment: system admin user }    # admin dbsu, name is designated by `pg_admin_username`
-      - { name: replicator , replication: true  , bypassrls: true , roles: [pg_monitor, dbrole_readonly] , comment: system replicator }  # replicator
-      - { name: dbuser_stats  , password: DBUser.Stats , roles: [dbrole_offline] , comment: business offline user for offline queries and ETL } # ETL user
+    pg_default_roles:                 # default roles and users in postgres cluster
+      - { name: dbrole_readonly  ,login: false ,comment: role for global read-only access     }
+      - { name: dbrole_offline   ,login: false ,comment: role for restricted read-only access }
+      - { name: dbrole_readwrite ,login: false ,roles: [dbrole_readonly]               ,comment: role for global read-write access }
+      - { name: dbrole_admin     ,login: false ,roles: [pg_monitor, dbrole_readwrite]  ,comment: role for object creation }
+      - { name: postgres     ,superuser: true                                          ,comment: system superuser }
+      - { name: replicator ,replication: true  ,roles: [pg_monitor, dbrole_readonly]   ,comment: system replicator }
+      - { name: dbuser_dba   ,superuser: true  ,roles: [dbrole_admin]  ,pgbouncer: true ,pool_mode: session, pool_connlimit: 16 , comment: pgsql admin user }
+      - { name: dbuser_monitor   ,roles: [pg_monitor, dbrole_readonly] ,pgbouncer: true ,parameters: {log_min_duration_statement: 1000 } ,pool_mode: session ,pool_connlimit: 8 ,comment: pgsql monitor user }
     pg_default_privileges:            # default privileges created by admin user
       - GRANT USAGE     ON SCHEMAS   TO dbrole_readonly
       - GRANT SELECT    ON TABLES    TO dbrole_readonly
