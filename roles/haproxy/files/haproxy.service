@@ -1,0 +1,23 @@
+[Unit]
+Description=HAProxy2 Load Balancer
+Documentation=https://www.haproxy.org/download/2.0/doc/configuration.txt
+After=network.target
+
+[Service]
+LimitNOFILE=16777216
+LimitNPROC=infinity
+LimitCORE=infinity
+Environment="CONFIG=/etc/haproxy/"
+EnvironmentFile=-/etc/default/haproxy
+ExecStartPre=/usr/sbin/haproxy -f $CONFIG -c -q
+ExecStart=/usr/sbin/haproxy -Ws -f $CONFIG $OPTIONS
+ExecReload=/usr/sbin/haproxy -f $CONFIG -c -q
+ExecReload=/bin/kill -USR2 $MAINPID
+KillMode=mixed
+Type=notify
+
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

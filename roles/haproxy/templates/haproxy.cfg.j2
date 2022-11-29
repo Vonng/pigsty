@@ -1,0 +1,59 @@
+# {{ ansible_managed }}
+# {{ nodename }} @ {{ inventory_hostname }}
+
+#=====================================================================
+# Global settings
+# Document: https://www.haproxy.org/download/2.6/doc/configuration.txt
+#=====================================================================
+global
+    daemon
+    user        haproxy
+    group       haproxy
+    node        {{ nodename }}
+    pidfile     /var/run/haproxy.pid
+    #chroot     /var/lib/haproxy            # if chroot, change stats socket above
+    stats socket /var/run/haproxy.socket user haproxy group haproxy mode 600 level admin
+    # spread-checks 3                       # add randomness in check interval
+    # quiet                                 # Do not display any message during startup
+    maxconn     65535                       # maximum per-process number of concurrent connections
+
+#---------------------------------------------------------------------
+# default settings
+#---------------------------------------------------------------------
+defaults
+    #log               global
+    mode               tcp
+    retries            3            # max retry connect to upstream
+    timeout queue      3s           # maximum time to wait in the queue for a connection slot to be free
+    timeout connect    3s           # maximum time to wait for a connection attempt to a server to succeed
+    timeout client     {{ haproxy_client_timeout }}           # client connection timeout
+    timeout server     {{ haproxy_server_timeout }}           # server connection timeout
+    timeout check      3s           # health check timeout
+
+#---------------------------------------------------------------------
+# users and auth
+#---------------------------------------------------------------------
+userlist stats-auth
+    group admin users {{ haproxy_admin_username }}
+    user {{ haproxy_admin_username }}  insecure-password {{ haproxy_admin_password }}
+    group readonly users haproxy
+    user haproxy insecure-password haproxy
+
+#---------------------------------------------------------------------
+# stats and exporter
+#---------------------------------------------------------------------
+# https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/
+listen stats                                # both frontend and a backend for statistics
+    #option httplog                         # log http activity
+    bind *:{{ haproxy_exporter_port }}  # default haproxy exporter port
+    mode  http                              # server in http mode
+    stats enable                            # enable stats page on http://127.0.0.1:9101
+    stats hide-version
+    stats uri /{{ nodename }}/
+    stats refresh 30s                       # refresh stats page every 30 seconds
+    stats show-node
+    acl AUTH       http_auth(stats-auth)
+    acl AUTH_ADMIN http_auth_group(stats-auth) admin
+    stats http-request auth unless AUTH
+    stats admin if AUTH_ADMIN
+    http-request use-service prometheus-exporter if { path {{ exporter_metrics_path }} }
