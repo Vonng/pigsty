@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   pgsql.yml
 # Mtime     :   2020-05-12
-# Mtime     :   2022-11-11
+# Mtime     :   2022-11-28
 # Desc      :   init postgres cluster/instance
 # Path      :   pgsql.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -12,26 +12,16 @@
   become: yes
   hosts: all
   gather_facts: no
-  tags: pg-init
   roles:
+    - { role: node_id     , tags: node-id  } # get node identity (always)
+    - { role: pg_id       , tags: pg-id    } # get pgsql identity (always)
+    - { role: postgres    , tags: pgsql    } # init postgres cluster/instance
+    - { role: pg_vip      , tags: vip      } # init postgres vip address
+    - { role: pg_exporter , tags: monitor  } # setup postgres monitor
+    - { role: pg_register , tags: register } # register postgres services
 
-    - role: node_id         # get node identity (always)
-      tags: node-id
 
-    - role: pg_id           # get pgsql identity (always)
-      tags: pg-id
-
-    - role: postgres        # init postgres pgbouncer patroni
-      tags: postgres
-
-    - role: service         # init service , haproxy , vip
-      tags: service
-
-    - role: pg_exporter     # init monitor exporters
-      tags: pg-exporter
-
-    - role: pg_register     # register postgres cluster/instance to infra
-      tags: pg-register
+#pg_service_provider: local                   # where to expose postgres service? local haproxy, or lb group names
 
 #==============================================================#
 # Playbook : Init PGSQL Cluster/Instance on Pigsty Node
@@ -48,24 +38,21 @@
 #     pgsql.yml -l 10.10.10.13
 #
 #  Re-init postgres instance only on node 10.10.10.13
-#     pgsql.yml -l10.10.10.13 --tags=postgres
+#     pgsql.yml -l 10.10.10.13 --tags=postgres
+#
+#  Re-init pgbouncer instance only on node 10.10.10.13
+#     pgsql.yml -l 10.10.10.13 --tags=pgbouncer
 #
 #  Re-deploy monitor component
 #     pgsql.yml --tags=monitor
 #
-#  Replace exporter with new binary version
-#     pgsql.yml --tags=monitor -e exporter_install=binary
-#
-#  Refresh (haproxy) services
-#     pgsql.yml --tags=service (or bin/reloadha <cluster>)
-#
 #  Refresh HBA rules
-#     pgsql.yml --tags=pg_hba  (or bin/reloadhba <cluster>)
+#     pgsql.yml --tags=pg_hba   (or bin/reloadhba <cluster>)
+##    pgsql.yml --tags=pgb_hba  (or bin/reloadhba <cluster>)
 #
 #  Register cluster/instance to infrastructure
 #     pgsql.yml --tags=register             # register all
 #     pgsql.yml --tags=register_prometheus  # monitor target
 #     pgsql.yml --tags=register_grafana     # pgsql datasource
-#     pgsql.yml --tags=register_nginx       # haproxy admin page
 #==============================================================#
 ...

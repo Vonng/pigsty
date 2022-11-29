@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   install.yml
 # Ctime     :   2021-01-19
-# Mtime     :   2022-11-17
+# Mtime     :   2022-11-29
 # Desc      :   install everything on all nodes
 # Path      :   install.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -35,13 +35,8 @@
   gather_facts: no
   tags: id
   roles:
-
-    - role: node_id     # get node identity (always)
-      tags: node-id
-
-    - role: pg_id       # get pgsql identity (always)
-      tags: pg-id
-      when: pg_cluster is defined
+    - { role: node_id ,tags: node-id }
+    - { role: pg_id   ,tags: pg-id   ,when: pg_cluster is defined }
 
 #---------------------------------------------------------------
 # Setup local CA
@@ -51,8 +46,7 @@
   hosts: localhost
   gather_facts: no
   tags: ca
-  roles:
-    - role: ca          # init ca on local files/pki
+  roles: [{ role: ca }]
 
 #---------------------------------------------------------------
 # bootstrap infra nodes with local yum repo
@@ -63,20 +57,10 @@
   gather_facts: no
   tags: infra-boot
   roles:
-
-    - role: infra_cert  # setup infrastructure certificates
-      tags: infra-cert
-
-    - role: environ     # setup admin functions, envs, certs
-      tags: environ
-
-    - role: repo        # setup local yum repo on meta nodes
-      tags: repo
-
-    - role: nginx       # init nginx server for local yum repo
-      tags: nginx
-      when: nginx_enabled|bool
-
+    - { role: infra_cert ,tags: infra_cert }  # issue infra cert
+    - { role: environ    ,tags: environ    }  # setup admin environment vars
+    - { role: repo       ,tags: repo       }  # create local yum repo
+    - { role: nginx      ,tags: nginx      }  # launch nginx portal
 
 #---------------------------------------------------------------
 # init node , ca, docker
@@ -87,12 +71,9 @@
   gather_facts: no
   tags: node-init
   roles:
-
-    - role: node            # init meta node itself
-      tags: node
-
-    - role: docker          # init docker if enabled
-      tags: docker
+    - { role: node    ,tags: node    }  # prepare node for pigsty
+    - { role: haproxy ,tags: haproxy }  # init haproxy if enabled
+    - { role: docker  ,tags: docker  }  # init docker if enabled
 
 #---------------------------------------------------------------
 # init dns, nginx, prometheus, grafana, loki
@@ -103,27 +84,11 @@
   gather_facts: no
   tags: infra-init
   roles:
-
-    - role: nameserver      # init dns nameserver
-      tags: nameserver
-      # when: nameserver_enabled|bool
-
-    - role: prometheus      # init prometheus
-      tags: prometheus
-      # when: prometheus_enabled|bool
-
-    - role: grafana         # init grafana
-      tags: grafana
-      # when: grafana_enabled|bool
-
-    - role: loki            # init loki
-      tags: loki
-      # when: loki_enabled|bool
-
-    # register infra targets to prometheus
-    - role: infra_register
-      tags: infra-register
-
+    - { role: nameserver     ,tags: nameserver }  # setup dnsmasq
+    - { role: prometheus     ,tags: prometheus }  # setup prometheus, alertmanager, pushgateway, blackbox_exporter
+    - { role: grafana        ,tags: grafana    }  # setup grafana
+    - { role: loki           ,tags: loki       }  # setup loki
+    - { role: infra_register ,tags: register   }  # register infra services
 
 #---------------------------------------------------------------
 # Node Monitor
@@ -134,35 +99,19 @@
   gather_facts: no
   tags: node-monitor
   roles:
-
-    # init & register node exporter
-    - role: node_exporter
-      tags: node-exporter
-      when: node_exporter_enabled|bool
-
-    # init & register promtail log agent
-    - role: promtail
-      tags: promtail
-      when: promtail_enabled|bool
-
-    # register node-exporter & docker to prometheus
-    - role: node_register
-      tags: node-register
-
+    - { role: node_exporter ,tags: monitor  }  # init node exporter if enabled
+    - { role: promtail      ,tags: promtail }  # init promtail if enabled
+    - { role: node_register ,tags: register }  # register node to infra
 
 #---------------------------------------------------------------
 # ETCD INIT
 #---------------------------------------------------------------
 - name: ETCD INIT
   become: yes
-  hosts: etcd               # run on group 'etcd'
+  hosts: etcd
   gather_facts: no
-  tags: etcd-init
-  roles:
-
-    - role: etcd            # init etcd
-      tags: etcd
-
+  tags: etcd
+  roles: [{ role: etcd }]   # init etcd on fixed group 'etcd'
 
 #---------------------------------------------------------------
 # INIT PGSQL
@@ -173,18 +122,10 @@
   gather_facts: no
   tags: pgsql-init
   roles:
-
-    - role: postgres        # init postgres pgbouncer patroni
-      tags: postgres
-
-    - role: service         # init service , haproxy , vip
-      tags: service
-
-    - role: pg_exporter     # init monitor exporters
-      tags: pg-exporter
-
-    - role: pg_register     # register cluster/instance to infra
-      tags: pg-register
+    - { role: postgres    , tags: pgsql    } # init postgres cluster/instance
+    - { role: pg_vip      , tags: vip      } # init postgres vip address
+    - { role: pg_exporter , tags: monitor  } # setup postgres monitor
+    - { role: pg_register , tags: register } # register postgres services
 
 #---------------------------------------------------------------
 ...

@@ -16,13 +16,27 @@
 # 2. make sure you have defined these nodes in your inventory
 # 3. run ./node.yml -l <selector> to finish node provisioning
 #--------------------------------------------------------------
-# ./node.yml -t node-id          # print node identity
-# ./node.yml -t node_admin       # create admin user for nodes
-# ./node.yml -t node-exporter    # deploy and register node-exporter
-# ./node.yml -t node-register    # register node_exporter to prometheus
-# ./node.yml -t node_admin -k -K -e ansible_user=<another admin>
+# node.yml -t id               # print node identity
+# node.yml -t monitor          # deploy and register node-exporter
+# node.yml -t register         # register node_exporter to prometheus
+#
+# bootstrap with another admin user:
+# node.yml -t node_admin       # create admin user for nodes
+# node.yml -t node_admin -k -K -e ansible_user=<another admin>
 # ...
 #--------------------------------------------------------------
+- name: NODE
+  hosts: all
+  become: yes
+  gather_facts: no
+  roles:
+    - { role: node_id       , tags: id       }  # get node identity (always)
+    - { role: node          , tags: node     }  # prepare node for pigsty
+    - { role: haproxy       , tags: haproxy  }  # init haproxy if enabled
+    - { role: docker        , tags: docker   }  # init docker if enabled
+    - { role: node_exporter , tags: monitor  }  # init node exporter if enabled
+    - { role: promtail      , tags: promtail }  # init promtail if enabled
+    - { role: node_register , tags: register }  # register node to infra
 
 #---------------------------------------------------------------
 # node identity
@@ -41,40 +55,40 @@
 # 3. otherwise, node_cluster will fall back to `nodes` and nodename will fall back to node's current hostname
 #---------------------------------------------------------------
 
-#---------------------------------------------------------------
-# identity
-#---------------------------------------------------------------
-- name: NODE ID
-  hosts: all
-  become: yes
-  gather_facts: no
-  roles:
 
-    # get node identity (always)
-    - role: node_id
-      tags: node-id
 
-    # prepare node for pigsty
-    - role: node
-      tags: node
 
-    # init docker if enabled
-    - role: docker
-      tags: docker
-      when: docker_enabled|bool
-
-    # init & register node exporter
-    - role: node_exporter
-      tags: node-exporter
-      when: node_exporter_enabled|bool
-
-    # init & register promtail log agent
-    - role: promtail
-      tags: promtail
-      when: promtail_enabled|bool
-
-    # register node-exporter & docker to prometheus
-    - role: node_register
-      tags: node-register
+#    # get node identity (always)
+#    - role: node_id
+#      tags: node-id
+#
+#    # prepare node for pigsty
+#    - role: node
+#      tags: node
+#
+#    # prepare haproxy for pigsty
+#    - role: haproxy
+#      tags: haproxy
+#      when: promtail_enabled|bool
+#
+#
+#    # init docker if enabled
+#    - role: docker
+#      tags: docker
+#      when: docker_enabled|bool
+#
+#    # init & register node exporter
+#    - role: node_exporter
+#      tags: node-exporter
+#      when: node_exporter_enabled|bool
+#
+#    # init & register promtail log agent
+#    - role: promtail
+#      tags: promtail
+#      when: promtail_enabled|bool
+#
+#    # register node-exporter & docker to prometheus
+#    - role: node_register
+#      tags: node-register
 
 ...

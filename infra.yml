@@ -3,84 +3,45 @@
 #==============================================================#
 # File      :   infra.yml
 # Ctime     :   2021-01-19
-# Mtime     :   2022-11-04
-# Desc      :   init infrastructure on meta nodes
+# Mtime     :   2022-11-29
+# Desc      :   init pigsty infrastructure on infra nodes
 # Path      :   infra.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 #---------------------------------------------------------------
-# Setup local CA
+# create CA (if not exists on files/pki/ca)
 #---------------------------------------------------------------
 - name: CA
   become: yes
   hosts: localhost
   gather_facts: no
   tags: ca
-  roles:
-    - role: ca          # init ca on local files/pki
+  roles: [{ role: ca }]
 
 #---------------------------------------------------------------
-# bootstrap infra nodes with local yum repo
+# deploy pigsty infra on infra nodes
 #---------------------------------------------------------------
 - name: INFRA
   become: yes
   hosts: infra
   gather_facts: no
-  tags: infra
+  tags: infra       # infra playbook only works on infra nodes
   roles:
-
-    - role: node_id     # get node identity (always)
-      tags: node-id
-
-    - role: infra_cert  # setup infrastructure certificates
-      tags: infra-cert
-
-    - role: environ     # setup environment on meta nodes
-      tags: environ
-
-    - role: repo        # setup local yum repo on meta nodes
-      tags: repo
-
-    - role: nginx       # init nginx server for local yum repo
-      tags: nginx
-
-    - role: node        # init meta node itself
-      tags: node
-
-    - role: docker      # init docker if enabled
-      tags: docker
-
-    - role: nameserver  # init dns nameserver
-      tags: nameserver
-      # when: nameserver_enabled|bool
-
-    - role: prometheus  # init prometheus
-      tags: prometheus
-      # when: prometheus_enabled|bool
-
-    - role: grafana     # init grafana
-      tags: grafana
-      # when: grafana_enabled|bool
-
-    - role: loki        # init loki
-      tags: loki
-      # when: loki_enabled|bool
-
-    - role: infra_register
-      tags: infra-register
-
-    # init & register node exporter
-    - role: node_exporter
-      tags: node-exporter
-      when: node_exporter_enabled|bool
-
-    # init & register promtail log agent
-    - role: promtail
-      tags: promtail
-      when: promtail_enabled|bool
-
-    # register node monitor target to prometheus
-    - role: node_register
-      tags: node-register
+    - { role: node_id        ,tags: node-id    }  # generate node & pgsql identity
+    - { role: infra_cert     ,tags: cert       }  # issue cert for infra
+    - { role: environ        ,tags: environ    }  # setup admin environment vars
+    - { role: repo           ,tags: repo       }  # create local yum repo
+    - { role: nginx          ,tags: nginx      }  # launch nginx portal
+    - { role: node           ,tags: node       }  # prepare node for pigsty
+    - { role: haproxy        ,tags: haproxy    }  # init haproxy if enabled
+    - { role: docker         ,tags: docker     }  # init docker if enabled
+    - { role: nameserver     ,tags: nameserver }  # setup dnsmasq
+    - { role: prometheus     ,tags: prometheus }  # setup prometheus, alertmanager, pushgateway, blackbox_exporter
+    - { role: grafana        ,tags: grafana    }  # setup grafana
+    - { role: loki           ,tags: loki       }  # setup loki
+    - { role: infra_register ,tags: register   }  # register infra services
+    - { role: node_exporter  ,tags: monitor    }  # init node exporter if enabled
+    - { role: promtail       ,tags: promtail   }  # init promtail if enabled
+    - { role: node_register  ,tags: register   }  # register node to infra
 ...
