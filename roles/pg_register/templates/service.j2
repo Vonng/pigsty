@@ -1,0 +1,36 @@
+# {{ ansible_managed }}
+#---------------------------------------------------------------------
+# service: {{ pg_cluster }}-{{ service.name }} @ {{ inventory_hostname }}:{{ service.port }}
+#---------------------------------------------------------------------
+{% set pg_cluster_members = hostvars|json_query(pg_cluster_members_query) %}
+{% set pg_service_members = pg_cluster_members|json_query(service.selector) %}
+{% set pg_service_member_names = pg_service_members|json_query('[].inventory_hostname') %}
+{% set pg_service_backups = [] %}{% if service.backup is defined %}{% set pg_service_backups = pg_cluster_members|json_query(service.backup) %}{% endif %}
+{% if not pg_service_backups %}{% set pg_service_backups = [] %}{% endif %}
+{% set pg_service_backup_names = pg_service_backups|json_query('[].inventory_hostname') %}
+# service instances {{ pg_service_member_names|join(', ') }}
+# service backups   {{ pg_service_backup_names|join(', ') }}
+listen {{ pg_cluster }}-{{ service.name }}
+    bind {{ service.ip|default('*') }}:{{ service.port }}
+    mode tcp
+    maxconn {{ service.maxconn|default(5000) }}
+    balance {{ service.balance|default('roundrobin') }}
+    option httpchk
+    option http-keep-alive
+    http-check send meth OPTIONS uri {{ service.check|default('/') }}
+    http-check expect status 200
+    default-server {{ service.options|default('inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100') }} {% if service.check_port is number %}{{ service.check_port }}{% endif %}
+
+    # servers
+{% for host in pg_service_members %}
+    server {{ host.pg_cluster }}-{{ host.pg_seq }} {{ host.inventory_hostname }}:{% if service.dest is not defined %}{{ host.pg_port|default(5432) }}{% elif service.dest is number %}{{ service.dest }}{% elif service.dest == 'postgres' %}{{ host.pg_port|default(5432) }}{% elif service.dest == 'pgbouncer' %}{{ host.pgbouncer_port|default(6432) }}{% else %}5432{% endif %}
+{% if host.patroni_ssl_enabled|default(false)|bool %}check-ssl{% endif %} check port {{ host.patroni_port|default(8008) }} weight {{ host.pg_weight|default(100) }} {% if host.inventory_hostname in pg_service_backup_names %}backup{% endif %}
+
+{% endfor %}
+{% for host in pg_service_backups %}
+{% if host.inventory_hostname not in pg_service_member_names %}
+    server {{ host.pg_cluster }}-{{ host.pg_seq }} {{ host.inventory_hostname }}:{% if service.dest is not defined %}{{ host.pg_port|default(5432) }}{% elif service.dest is number %}{{ service.dest }}{% elif service.dest == 'postgres' %}{{ host.pg_port|default(5432) }}{% elif service.dest == 'pgbouncer' %}{{ host.pgbouncer_port|default(6432) }}{% else %}5432{% endif %}
+{% if host.patroni_ssl_enabled|default(false)|bool %}check-ssl{% endif %} check port {{ host.patroni_port|default(8008) }} weight {{ host.pg_weight|default(100) }} backup
+{% endif %}
+
+{% endfor %}
