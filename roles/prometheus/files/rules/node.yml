@@ -2,8 +2,8 @@
 #==============================================================#
 # File      :   node.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2022-02-22
-# Desc      :   Node Record Rules (Node)
+# Mtime     :   2022-11-29
+# Desc      :   Node Record Rules (Node/Haproxy/Docker/Promtail)
 # Path      :   /etc/prometheus/rules/node.yml
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
@@ -671,6 +671,27 @@ groups:
       - record: node:cls:time_drift_range
         expr: max by (cls, job) (node_ntp_offset_seconds) - min by (cls, job) (node_ntp_offset_seconds)
 
+
+      ################################################################
+      #                          HAProxy                             #
+      ################################################################
+      # cpu usage (busy ratio) of haproxy instance
+      - record: haproxy:ins:usage
+        expr: (100 - haproxy_process_idle_time_percent) / 100
+
+      - record: haproxy:cls:usage
+        expr: avg by (cls, job) (haproxy:ins:usage)
+
+      - record: haproxy:ins:uptime
+        expr: time() - haproxy_process_start_time_seconds
+
+      ################################################################
+      #                          Docker                              #
+      ################################################################
+
+      ################################################################
+      #                          Promtail                            #
+      ################################################################
 
 
 
