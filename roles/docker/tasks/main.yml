@@ -1,10 +1,11 @@
 ---
 #------------------------------------------------------------------------------
-# install docker
+# install docker                                               [docker_install]
 #------------------------------------------------------------------------------
 - name: install docker and docker-compose
   tags: docker_install
-  ignore_errors: yes
+  ignore_errors: true  # HOTFIX for EL8 Docker installation
+  #ignore_errors: "{{ not docker_enabled|bool }}"   # ignore errors if not enabled
   package: name={{ item }} state=present
   with_items:
     - docker-ce
@@ -12,7 +13,7 @@
 
 
 #------------------------------------------------------------------------------
-# docker admin user
+# docker admin user                                              [docker_admin]
 #------------------------------------------------------------------------------
 - name: add admin user to docker group
   ignore_errors: true
@@ -20,11 +21,11 @@
   user: name={{ item }} group=docker
   with_items:
     - "{{ node_user }}"
-    - "{{ node_admin_username|default('dba') }}"
+    - "{{ node_admin_username }}"
 
 
 #------------------------------------------------------------------------------
-# config docker
+# config docker                                                 [docker_config]
 #------------------------------------------------------------------------------
 - name: create /etc/docker config dir
   tags: docker_config
@@ -36,25 +37,29 @@
 
 
 #------------------------------------------------------------------------------
-# launch docker
+# launch docker                                                 [docker_launch]
 #------------------------------------------------------------------------------
+# only launch docker when enabled
 - name: launch docker systemd service
   tags: docker_launch
+  when: docker_enabled|bool
   systemd: name=docker state=restarted enabled=yes daemon_reload=yes
 
 
 #------------------------------------------------------------------------------
-# load docker images cache if exists
+# load docker images cache if exists                             [docker_image]
 #------------------------------------------------------------------------------
+# only load docker images docker when enabled
 - name: check docker image cache exists
   tags: docker_image
+  when: docker_enabled|bool
   ignore_errors: true
   stat: path={{ docker_image_cache }}
   register: docker_cache
 
 - name: load docker image cache if exists
   tags: docker_image
+  when: docker_enabled|bool and docker_cache.stat.exists
   ignore_errors: true
-  when: docker_cache.stat.exists
   shell: cat {{ docker_image_cache }} | gzip -d -c - | docker load
 ...
