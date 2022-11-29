@@ -4,6 +4,7 @@
 #------------------------------------------------------------------------------
 - name: install node_exporter
   tags: node_exporter_install
+  ignore_errors: "{{ not node_exporter_enabled|bool }}" # ignore errors if not enabled
   when: exporter_install != 'none' # node_exporter_enabled|bool
   block:
 
@@ -32,7 +33,6 @@
 #------------------------------------------------------------------------------
 - name: config node_exporter
   tags: node_exporter_config
-  #when: node_exporter_enabled|bool
   block:
 
     - name: config node_exporter systemd unit

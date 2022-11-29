@@ -1,21 +1,22 @@
 ---
 #------------------------------------------------------------------------------
-# Install
+# install promtail                                           [promtail_install]
 #------------------------------------------------------------------------------
 - name: install promtail via yum
   tags: promtail_install
+  ignore_errors: "{{ not promtail_enabled|bool }}"  # ignore errors if not enabled
   package: name=promtail state=present
 
 #------------------------------------------------------------------------------
-# Cleanup
+# cleanup promtail                                             [promtail_clean]
 #------------------------------------------------------------------------------
 - name: remove promtail positions
   tags: promtail_clean
-  when: promtail_clean|bool
+  when: promtail_clean|bool and promtail_enabled|bool
   file: path={{ promtail_positions }} state=absent
 
 #------------------------------------------------------------------------------
-# Config
+# config promtail                                             [promtail_config]
 #------------------------------------------------------------------------------
 - name: config promtail
   tags: promtail_config
@@ -31,13 +32,12 @@
       template: src=promtail.yml.j2 dest=/etc/promtail.yml
 
 #------------------------------------------------------------------------------
-# Launch
+# launch promtail                                             [promtail_launch]
 #------------------------------------------------------------------------------
 - name: Launch promtail
   tags: promtail_launch
   when: promtail_enabled|bool
   block:
-
     - name: launch promtail systemd service
       systemd: name=promtail state=restarted enabled=yes daemon_reload=yes
 
