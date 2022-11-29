@@ -1,35 +1,6 @@
 ---
 #------------------------------------------------------------------------------
-# register node service to consul
-#------------------------------------------------------------------------------
-#- name: register infra service to consul
-#  tags: [ node_register, register_consul ]
-#  when: dcs_registry == 'consul'
-#  ignore_errors: true
-#  block:
-#
-#    # node-exporter register
-#    - name: register node-exporter service to consul
-#      when: node_exporter_enabled|bool
-#      template: src=svc-node-exporter.json.j2 dest=/etc/consul.d/svc-node-exporter.json owner=consul mode=0660
-#
-#    # promtail register
-#    - name: register promtail service to consul
-#      when: promtail_enabled|bool
-#      template: src=svc-promtail.json.j2 dest=/etc/consul.d/svc-promtail.json owner=consul mode=0660
-#
-#    # docker register
-#    - name: register docker service to consul
-#      when: docker_enabled|bool
-#      template: src=svc-docker.json.j2 dest=/etc/consul.d/svc-docker.json owner=consul mode=0660
-#
-#    # reload consul
-#    - name: reload consul to finish node register
-#      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
-
-
-#------------------------------------------------------------------------------
-# Register Node to Prometheus
+# Register Node to Prometheus              [node_register, register_prometheus]
 #------------------------------------------------------------------------------
 # /etc/prometheus/targets/node/{{ ip }}.yml
 - name: register node as prometheus target
@@ -42,11 +13,62 @@
     content: |
       # {{ inventory_hostname }}
       - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }} }
-        targets: 
+        targets: {% if not node_exporter_enabled|bool and not haproxy_enabled|bool and docker_enabled|bool and not promtail_enabled|bool %}[]{% endif %} 
+
           {% if node_exporter_enabled|bool %}- {{ inventory_hostname }}:{{ node_exporter_port }}{% endif %}
+      
+          {% if haproxy_enabled|bool %}- {{ inventory_hostname }}:{{ haproxy_exporter_port }}{% endif %}
       
           {% if docker_enabled|bool %}- {{ inventory_hostname }}:9323{% endif %}
       
           {% if promtail_enabled|bool %}- {{ inventory_hostname }}:{{ promtail_port }}{% endif %}
+
+
+#------------------------------------------------------------------------------
+# Register HAProxy to Nginx on Infra nodes
+#------------------------------------------------------------------------------
+# nginx are idempotent on multiple infra nodes
+- name: register haproxy to nginx
+  tags: [node_register, register_nginx]
+  when: haproxy_enabled|bool
+  ignore_errors: true
+  become: yes
+  block:
+
+    # /etc/nginx/conf.d/haproxy/ should be created by nginx role already!
+    #- name: create nginx config dir for haproxy
+    #  delegate_to: '{{ item }}'
+    #  with_items: '{{ groups["infra"] }}'
+    #  file: path=/etc/nginx/conf.d/haproxy state=directory owner=root
+
+    # /etc/nginx/conf.d/haproxy/upstream-{{ nodename }}.conf
+    - name: register haproxy upstream to nginx
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["infra"] }}'
+      copy:
+        dest: /etc/nginx/conf.d/haproxy/upstream-{{ nodename }}.conf
+        content: |
+          upstream {{ nodename }} {
+              server {{ inventory_hostname }}:{{ haproxy_exporter_port }} max_fails=0;
+          }
+
+    # /etc/nginx/conf.d/haproxy/location-{{ nodename }}.conf
+    - name: register haproxy location to nginx
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["infra"] }}'
+      copy:
+        dest: /etc/nginx/conf.d/haproxy/location-{{ nodename }}.conf
+        content: |
+          location ^~/{{ nodename }}/ {
+              proxy_pass http://{{ nodename }};
+              proxy_connect_timeout 1;
+          }
+
+    # reload infra nginx to proxy haproxy admin page
+    - name: reload infra nginx config
+      delegate_to: '{{ item }}'
+      run_once: true
+      with_items: '{{ groups["infra"] }}'
+      systemd: name=nginx state=reloaded enabled=yes daemon_reload=yes
 
 ...
