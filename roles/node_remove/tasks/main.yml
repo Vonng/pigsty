@@ -1,7 +1,7 @@
 ---
-#---------------------------------------------
+#--------------------------------------------------------------#
 # remove prometheus register
-#---------------------------------------------
+#--------------------------------------------------------------#
 - name: remove node target from prometheus
   tags: [ register, prometheus ]
   become: yes
@@ -9,6 +9,24 @@
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
   file: state=absent path=/etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
+
+#--------------------------------------------------------------#
+# remove nginx register (haproxy admin page)
+#--------------------------------------------------------------#
+- import_tasks: nginx.yml
+  tags: [ register, nginx ]
+
+#--------------------------------------------------------------#
+# remove haproxy services
+#--------------------------------------------------------------#
+- name: stop and disable haproxy
+  tags: haproxy
+  ignore_errors: yes
+  block:
+    - name: stop and disable haproxy
+      systemd: name=haproxy state=stopped enabled=no daemon_reload=yes
+    - name: remove haproxy config dir
+      file: state=absent path=/etc/haproxy
 
 #--------------------------------------------------------------#
 # remove exporter
@@ -24,12 +42,11 @@
 - name: stop and disable promtail service
   tags: promtail
   ignore_errors: yes
-  systemd: name=promtail state=stopped enabled=no daemon_reload=yes
-
-- name: remove promtail log positions
-  tags: promtail
-  ignore_errors: yes
-  file: path={{ promtail_positions }} state=absent
+  block:
+    - name: stop promtail service
+      systemd: name=promtail state=stopped enabled=no daemon_reload=yes
+    - name: remove promtail log positions
+      file: path={{ promtail_positions }} state=absent
 
 #--------------------------------------------------------------#
 # remove docker
