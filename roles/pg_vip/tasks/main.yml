@@ -1,0 +1,33 @@
+---
+#--------------------------------------------------------------#
+# Install vip-manager
+#--------------------------------------------------------------#
+- name: install vip-manager
+  tags: vip_install
+  ignore_errors: "{{ not pg_vip_enabled|bool }}"
+  package: name=vip-manager state=present
+
+#--------------------------------------------------------------#
+# Config vip-manager
+#--------------------------------------------------------------#
+- name: create vip-manager systemd service
+  tags: vip_config
+  copy: src=vip-manager.service dest=/usr/lib/systemd/system/vip-manager.service
+
+# TODO: validate pg_vip_address, but ipaddr require extra python packages
+- name: render vip-manager config
+  tags: vip_config
+  template: src=vip-manager.yml.j2 dest=/etc/default/vip-manager.yml
+  vars:
+    vip_address:  "{{ pg_vip_address.split('/')[0] }}"
+    vip_cidrmask: "{{ pg_vip_address.split('/')[1] }}"
+    vip_interface: "{{ pg_vip_interface }}"
+
+#--------------------------------------------------------------#
+#  Reload vip-manager
+#--------------------------------------------------------------#
+- name: reload vip-manager
+  tags: vip_reload
+  when: pg_vip_enabled|bool
+  systemd: name=vip-manager state=restarted enabled=yes daemon_reload=true
+...
