@@ -8,11 +8,10 @@
   delegate_to: "{{ admin_ip }}"
   when: item.register_data_source is not defined or item.register_data_source|bool
   shell: |
-    curl -X DELETE "{{ endpoint ) }}/api/datasources/name/{{ insdb }}" -u "{{ username }}:{{ password }}"  -H 'Content-Type: application/json' || true
+    curl -X DELETE "{{ endpoint }}/api/datasources/name/{{ name }}" -u "{{ username }}:{{ password }}" -H 'Content-Type: application/json'
   vars:
-    dbname: "{{ item.name }}"
-    insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ item.name }}"
-    endpoint: "{{ grafana_endpoint|default('http://${admin_ip}:3000')|regex_replace('${admin_ip}', admin_ip) }}"
+    name: "{{ pg_cluster }}-{{ pg_seq }}.{{ item.name }}"
+    endpoint: "{{ grafana_endpoint|default('http://${admin_ip}:3000')|regex_replace('\\${admin_ip}', admin_ip) }}"
     username: "{{ grafana_admin_username|default('admin') }}"
     password: "{{ grafana_admin_password|default('pigsty') }}"
   with_items: "{{ pg_databases }}"

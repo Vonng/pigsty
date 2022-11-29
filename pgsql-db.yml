@@ -116,17 +116,16 @@
       delegate_to: "{{ admin_ip }}"
       block:
 
-        - name: render datasource definition
+        - name: render grafana datasource definition
           copy:
-            dest: "/etc/pigsty/datasources/{{ insdb }}.json"
+            dest: "/etc/pigsty/datasources/{{ name }}.json"
             content: |
               {
                 "type": "postgres",
                 "access": "proxy",
-                "name": "{{ insdb }}",
+                "name": "{{ name }}",
                 "url": "{{ host }}:{{ port }}",
                 "user": "{{ username }}",
-                "password": "{{ password }}",
                 "database": "{{ dbname }}",
                 "typeLogoUrl": "",
                 "basicAuth": false,
@@ -138,29 +137,30 @@
                   "connMaxLifetime": 3600,
                   "maxIdleConns": 1,
                   "maxOpenConns": 8,
-                  "postgresVersion": {{ pg_version|default(15) }}00,
-                  "sslmode": "disable",
+                  "postgresVersion": {{ pg_version }}00,
+                  "sslmode": "require",
                   "tlsAuth": false,
                   "tlsAuthWithCACert": false
+                },
+                "secureJsonData":{
+                  "password": "{{ password }}"
                 }
               }
             mode: 0600
           vars:
+            name: "{{ pg_cluster }}-{{ pg_seq }}.{{ dbname }}"
             host: "{{ inventory_hostname }}"
             port: "{{ pg_port|default(5432) }}"
-            username: "{{ grafana_admin_username|default('admin') }}"
-            password: "{{ grafana_admin_password|default('pigsty') }}"
-            dbname: "{{ dbname }}"
-            insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ dbname }}"
+            username: "{{ pg_monitor_username|default('dbuser_monitor') }}"
+            password: "{{ pg_monitor_password|default('DBUser.Monitor') }}"
 
-        - name: load grafana datasource of database
-          tags: datasource
+        - name: load grafana datasource
           shell: |
-            curl -X DELETE "{{ endpoint }}/api/datasources/name/{{ insdb }}" -u "{{ username }}:{{ password }}"  -H 'Content-Type: application/json' || true
-            curl -X POST   "{{ endpoint }}/api/datasources/" -u "{{ username }}:{{ password }}"  -H 'Content-Type: application/json' -d @/etc/pigsty/datasources/{{ insdb }}.json || true
+            curl -X DELETE "{{ endpoint }}/api/datasources/name/{{ name }}" -u "{{ username }}:{{ password }}"  -H 'Content-Type: application/json'
+            curl -X POST   "{{ endpoint }}/api/datasources/" -u "{{ username }}:{{ password }}" -H 'Content-Type: application/json' -d @/etc/pigsty/datasources/{{ name }}.json
           vars:
-            insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ dbname }}"
-            endpoint: "{{ grafana_endpoint|default('http://${admin_ip}:3000')|regex_replace('${admin_ip}', admin_ip) }}"
+            name: "{{ pg_cluster }}-{{ pg_seq }}.{{ dbname }}"
+            endpoint: "{{ grafana_endpoint|default('http://${admin_ip}:3000')|regex_replace('\\${admin_ip}', admin_ip) }}"
             username: "{{ grafana_admin_username|default('admin') }}"
             password: "{{ grafana_admin_password|default('pigsty') }}"
 ...
