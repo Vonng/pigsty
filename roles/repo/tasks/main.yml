@@ -66,8 +66,12 @@
 # check flag file /www/pigsty/repo_complete existence
 - name: check local repo exists
   tags: repo_check
-  stat: path={{ repo_home }}/{{ repo_name }}/repo_complete
-  register: repo_cache
+  block:
+    - name: check local repo exists
+      stat: path={{ repo_home }}/{{ repo_name }}/repo_complete
+      register: repo_cache
+    - name: set repo_exists flag
+      set_fact: { repo_exists: "{{ repo_cache.stat.exists }}" }
 
 #--------------------------------------------------------------#
 # 2. Use local repo (IF REPO EXISTS)              [repo_prepare]
@@ -75,7 +79,7 @@
 # if local yum cache exists, use it directly, done
 - name: setup local repo if exists
   tags: repo_prepare
-  when: repo_cache.stat.exists and repo_enabled|bool
+  when: repo_exists|bool and repo_enabled|bool
   shell: |
     mkdir -p /etc/yum.repos.d/backup/
     mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ || /bin/true
@@ -99,7 +103,7 @@
 #--------------------------------------------------------------#
 # if local yum cache not exists, download them and use it, done
 - import_tasks: build.yml
-  when: repo_enabled|bool and not (repo_cache.stat.exists|bool)
+  when: repo_enabled|bool and not repo_exists|bool
   tags: repo_build
   ignore_errors: true
 ...
