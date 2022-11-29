@@ -82,7 +82,6 @@ all:
           #- { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
           #- { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
           #- { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
-
         pg_users:                           # define business users/roles on this cluster, array of user definition
           - name: dbuser_meta               # REQUIRED, `name` is the only mandatory field of a user definition
             password: md5d3d10d8cad606308bdb180148bf663e1  # md5 salted password of 'DBUser.Meta'
@@ -123,13 +122,11 @@ all:
             options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
         pg_hba_rules:
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
-        vip_mode: l2
-        vip_address: 10.10.10.2
-        vip_cidrmask: 8
-        vip_interface: eth1
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.2/24
+        pg_vip_interface: eth1
         node_crontab:
           - '00 01 * * * postgres pgbackrest --stanza=pg-meta backup >> /pg/log/pgbackrest/backup.log 2>&1'
-
 
     #----------------------------------#
     # pgsql cluster: pg-test (3 nodes) #
@@ -144,10 +141,9 @@ all:
         pg_cluster: pg-test           # define pgsql cluster name
         pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
         pg_databases: [{ name: test }] # create a database and user named 'test'
-        vip_mode: l2                  # enable/disable vip (require members in same LAN)
-        vip_address: 10.10.10.3       # virtual ip address for this cluster
-        vip_cidrmask: 8               # cidr network mask length
-        vip_interface: eth1           # interface to add virtual ip
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.3/24
+        pg_vip_interface: eth1
 
 
   ####################################################################
@@ -306,6 +302,7 @@ all:
     loki_data: /data/loki             # loki data dir, /data/loki by default
     loki_endpoint: http://${admin_ip}:3100/loki/api/v1/push # where to receive logs
     loki_retention: 15d               # log retention period
+
 
     #================================================================#
     #                         VARS: ETCD                             #
@@ -577,7 +574,6 @@ all:
       - { name: intagg             ,schema: public  }
       - { name: intarray           ,schema: public  }
       - { name: pg_repack }
-    pg_reload: true                   # reload postgres after hba changes
     pg_default_hba_rules:             # postgres host-based auth rules by default
       - {user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident'  }
       - {user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident' }
@@ -599,6 +595,11 @@ all:
       - {user: '${admin}'   ,db: all         ,addr: intra     ,auth: pwd   ,title: 'admin access via intranet with pwd'   }
       - {user: '${admin}'   ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other admin access addr'   }
       - {user: 'all'        ,db: all         ,addr: intra     ,auth: pwd   ,title: 'allow all user intra access with pwd' }
+    pg_default_services:
+      - { name: primary ,port: 5433 ,dest: pgbouncer ,check: /primary   ,selector: "[]" }
+      - { name: replica ,port: 5434 ,dest: pgbouncer ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
+      - { name: default ,port: 5436 ,dest: postgres  ,check: /primary   ,selector: "[]" }
+      - { name: offline ,port: 5438 ,dest: postgres  ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
 
     #-----------------------------------------------------------------
     # PG_BUSINESS
@@ -635,9 +636,9 @@ all:
     #-----------------------------------------------------------------
     # PG_VIP
     #-----------------------------------------------------------------
-    pg_vip_enabled: true              # enable vip for pgsql primary?
-    pg_vip_address: 127.0.0.1/24      # vip address, required if pg_vip_enabled is true
-    pg_vip_interface: eth0            # vip network interface, eth0 by default
+    pg_vip_enabled: false             # enable vip for pgsql primary? false by default
+    pg_vip_address: 127.0.0.1/24      # l2 vip address, required if pg_vip_enabled
+    pg_vip_interface: eth0            # l2 vip network interface, eth0 by default
 
     #-----------------------------------------------------------------
     # PG_EXPORTER
@@ -655,15 +656,6 @@ all:
     pgbouncer_exporter_port: 9631          # pgbouncer_exporter listen port, 9631 by default
     pgbouncer_exporter_url: ''             # overwrite auto-generate pgbouncer connstr if specified
     pgbouncer_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pgbouncer_exporter&local=7"'
-
-    #-----------------------------------------------------------------
-    # PG_SERVICE
-    #-----------------------------------------------------------------
-    pg_default_services:
-      - { name: primary ,port: 5433 ,dest: pgbouncer ,check: /primary   ,selector: "[]" }
-      - { name: replica ,port: 5434 ,dest: pgbouncer ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
-      - { name: default ,port: 5436 ,dest: postgres  ,check: /primary   ,selector: "[]" }
-      - { name: offline ,port: 5438 ,dest: postgres  ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
 
 
     #================================================================#
