@@ -30,12 +30,12 @@ Apple M1 now has arm64 support with Parallel Desktop.
 vagrant/switch <spec>
 
 # example
-vagrant/switch default
-vagrant/switch full   
-vagrant/switch build  
-vagrant/switch el7    
-vagrant/switch el8    
-vagrant/switch el9    
+vagrant/switch default  # shortcut: make v1
+vagrant/switch full     # shortcut: make v4
+vagrant/switch build    # shortcut: make vb
+vagrant/switch el7      # shortcut: make v7
+vagrant/switch el8      # shortcut: make v8
+vagrant/switch el9      # shortcut: make v9
 ...
 ```
 
@@ -92,7 +92,7 @@ make dns    # write dns configuration to local host
 
 ## Caveat
 
-Newer version of virtualbox have problem alloc host-only 10.x.x.x address. Add cidr to to `/etc/vbox/networks.conf`:
+Newer version of virtualbox have problem alloc host-only 10.x.x.x address. Add cidr to `/etc/vbox/networks.conf`:
 
 ```bash
 # /etc/vbox/networks.conf

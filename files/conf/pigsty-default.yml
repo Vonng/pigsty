@@ -4,7 +4,7 @@
 # Desc      :   pigsty config template with all default values
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2022-11-28
+# Mtime     :   2022-11-30
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -60,23 +60,23 @@ all:
             schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
             extensions: [{name: postgis}]   # optional, additional extensions to be installed: array of `{name[,schema]}`
             comment: pigsty meta database   # optional, comment string for this database
-            # owner: postgres               # optional, database owner, postgres by default
-            # template: template1           # optional, which template to use, template1 by default
-            # encoding: UTF8                # optional, database encoding, UTF8 by default. (MUST same as template database)
-            # locale: C                     # optional, database locale, C by default.  (MUST same as template database)
-            # lc_collate: C                 # optional, database collate, C by default. (MUST same as template database)
-            # lc_ctype: C                   # optional, database ctype, C by default.   (MUST same as template database)
-            # tablespace: pg_default        # optional, default tablespace, 'pg_default' by default.
-            # allowconn: true               # optional, allow connection, true by default. false will disable connect at all
-            # revokeconn: false             # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
-            # register_datasource: true     # optional, register this database to grafana datasources? true by default
-            # connlimit: -1                 # optional, database connection limit, default -1 disable limit
-            # pool_auth_user: dbuser_meta   # optional, all connection to this pgbouncer database will be authenticated by this user
-            # pool_mode: transaction        # optional, pgbouncer pool mode at database level, default transaction
-            # pool_size: 64                 # optional, pgbouncer pool size at database level, default 64
-            # pool_size_reserve: 32         # optional, pgbouncer pool size reserve at database level, default 32
-            # pool_size_min: 0              # optional, pgbouncer pool size min at database level, default 0
-            # pool_max_db_conn: 100         # optional, max database connections at database level, default 100
+            #owner: postgres                # optional, database owner, postgres by default
+            #template: template1            # optional, which template to use, template1 by default
+            #encoding: UTF8                 # optional, database encoding, UTF8 by default. (MUST same as template database)
+            #locale: C                      # optional, database locale, C by default.  (MUST same as template database)
+            #lc_collate: C                  # optional, database collate, C by default. (MUST same as template database)
+            #lc_ctype: C                    # optional, database ctype, C by default.   (MUST same as template database)
+            #tablespace: pg_default         # optional, default tablespace, 'pg_default' by default.
+            #allowconn: true                # optional, allow connection, true by default. false will disable connect at all
+            #revokeconn: false              # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
+            #register_datasource: true      # optional, register this database to grafana datasources? true by default
+            #connlimit: -1                  # optional, database connection limit, default -1 disable limit
+            #pool_auth_user: dbuser_meta    # optional, all connection to this pgbouncer database will be authenticated by this user
+            #pool_mode: transaction         # optional, pgbouncer pool mode at database level, default transaction
+            #pool_size: 64                  # optional, pgbouncer pool size at database level, default 64
+            #pool_size_reserve: 32          # optional, pgbouncer pool size reserve at database level, default 32
+            #pool_size_min: 0               # optional, pgbouncer pool size min at database level, default 0
+            #pool_max_db_conn: 100          # optional, max database connections at database level, default 100
           #- { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
           #- { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
           #- { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
@@ -109,6 +109,18 @@ all:
           #- {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway   }
           #- {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service      }
           #- {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service    }
+        pg_services:                  # extra services in addition to pg_default_services, array of service definition
+          # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
+          - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
+            port: 5435                # required, service exposed port (work as kubernetes service node port mode)
+            selector: "[]"            # required, service member selector, use JMESPath to filter inventory
+            dest: pgbouncer           # optional, destination port, postgres|pgbouncer|<port_number> , pgbouncer(6432) by default
+            ip: "*"                   # optional, service bind ip address, `*` for all ip by default
+            check: /sync              # optional, health check url path, / by default
+            selector_backup: "[? pg_role == `primary`]"  # backup server selector
+            maxconn: 3000             # optional, max allowed front-end connection
+            balance: roundrobin       # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
+            options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
         pg_hba_rules:
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
         vip_mode: l2
@@ -132,22 +144,6 @@ all:
         pg_cluster: pg-test           # define pgsql cluster name
         pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
         pg_databases: [{ name: test }] # create a database and user named 'test'
-        pg_services:                  # extra services in addition to pg_default_services, array of service definition
-          # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
-          - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
-            src_ip: "*"               # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
-            src_port: 5435            # required, service exposed port (work as kubernetes service node port mode)
-            dst_port: pgbouncer       # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
-            check_method: http        # optional, health check method: http is the only available method for now
-            check_port: patroni       # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
-            check_url: /sync          # optional, health check url path, /read-only?lag=0 by default
-            check_code: 200           # optional, health check expected http code, 200 by default
-            selector: "[]"            # required, JMESPath to filter inventory ()
-            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
-            haproxy:                  # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
-              maxconn: 3000           # optional, max allowed front-end connection
-              balance: roundrobin     # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
-              default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
         vip_mode: l2                  # enable/disable vip (require members in same LAN)
         vip_address: 10.10.10.3       # virtual ip address for this cluster
         vip_cidrmask: 8               # cidr network mask length
@@ -423,6 +419,18 @@ all:
     node_crontab: [ ]                 # crontab entries in /etc/crontab
 
     #-----------------------------------------------------------------
+    # HAPROXY
+    #-----------------------------------------------------------------
+    haproxy_enabled: true             # enable haproxy on this node?
+    haproxy_reload: true              # reload haproxy after config?
+    haproxy_auth_enabled: true        # enable authentication for haproxy admin?
+    haproxy_admin_username: admin     # default haproxy admin username
+    haproxy_admin_password: pigsty    # default haproxy admin password
+    haproxy_exporter_port: 9101       # haproxy admin/exporter port, 9101 by default
+    haproxy_client_timeout: 24h       # client side connection timeout
+    haproxy_server_timeout: 24h       # server side connection timeout
+
+    #-----------------------------------------------------------------
     # DOCKER
     #-----------------------------------------------------------------
     docker_enabled: false             # enable docker on nodes?
@@ -625,6 +633,13 @@ all:
       repo1-retention-diff=3
 
     #-----------------------------------------------------------------
+    # PG_VIP
+    #-----------------------------------------------------------------
+    pg_vip_enabled: true              # enable vip for pgsql primary?
+    pg_vip_address: 127.0.0.1/24      # vip address, required if pg_vip_enabled is true
+    pg_vip_interface: eth0            # vip network interface, eth0 by default
+
+    #-----------------------------------------------------------------
     # PG_EXPORTER
     #-----------------------------------------------------------------
     pg_exporter_enabled: true              # setup pg_exporter on pgsql hosts?
@@ -644,55 +659,11 @@ all:
     #-----------------------------------------------------------------
     # PG_SERVICE
     #-----------------------------------------------------------------
-    pg_default_services:              # how to expose postgres service in cluster?
-      - name: primary                 # service name {{ pg_cluster }}-primary
-        src_ip: "*"
-        src_port: 5433
-        dst_port: pgbouncer           # 5433 route to pgbouncer
-        check_url: /primary           # primary health check, success when instance is primary
-        selector: "[]"                # select all instance as primary service candidate
-      - name: replica                 # service name {{ pg_cluster }}-replica
-        src_ip: "*"
-        src_port: 5434
-        dst_port: pgbouncer
-        check_url: /read-only         # read-only health check. (including primary)
-        selector: "[]"                # select all instance as replica service candidate
-        selector_backup: "[? pg_role == `primary` || pg_role == `offline` ]"
-      - name: default                 # service's actual name is {{ pg_cluster }}-default
-        src_ip: "*"                   # service bind ip address, * for all, vip for cluster virtual ip address
-        src_port: 5436                # bind port, mandatory
-        dst_port: postgres            # target port: postgres|pgbouncer|port_number , pgbouncer(6432) by default
-        check_method: http            # health check method: only http is available for now
-        check_port: patroni           # health check port:  patroni|pg_exporter|port_number , patroni by default
-        check_url: /primary           # health check url path, / as default
-        check_code: 200               # health check http code, 200 as default
-        selector: "[]"                # instance selector
-        haproxy:                      # haproxy specific fields
-          maxconn: 3000               # default front-end connection
-          balance: roundrobin         # load balance algorithm (roundrobin by default)
-          default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
-      - name: offline                 # service name {{ pg_cluster }}-offline
-        src_ip: "*"
-        src_port: 5438
-        dst_port: postgres
-        check_url: /replica           # offline MUST be a replica
-        selector: "[? pg_role == `offline` || pg_offline_query ]"         # instances with pg_role == 'offline' or instance marked with 'pg_offline_query == true'
-        selector_backup: "[? pg_role == `replica` && !pg_offline_query]"  # replica are used as backup server in offline service
-    haproxy_enabled: true             # enable haproxy on this node?
-    haproxy_reload: true              # reload haproxy after config?
-    haproxy_auth_enabled: true        # enable authentication for haproxy admin?
-    haproxy_admin_username: admin     # default haproxy admin username
-    haproxy_admin_password: pigsty    # default haproxy admin password
-    haproxy_exporter_port: 9101       # haproxy admin/exporter port, 9101 by default
-    haproxy_client_timeout: 24h       # client side connection timeout
-    haproxy_server_timeout: 24h       # server side connection timeout
-    vip_mode: none                    # virtual ip mode: none or l2, none by default
-    vip_reload: true                  # reload vip after config?
-    vip_address: 127.0.0.1            # virtual ip address, used when vip_mode is l2
-    vip_cidrmask: 24                  # virtual ip address cidr mask
-    vip_interface: eth0               # virtual ip network interface, eth0 by default
-    dns_mode: vip                     # how to resolve cluster DNS, reserved field
-    dns_selector: '[]'                # jmespath selector for resolved members if dns_mode == selector
+    pg_default_services:
+      - { name: primary ,port: 5433 ,dest: pgbouncer ,check: /primary   ,selector: "[]" }
+      - { name: replica ,port: 5434 ,dest: pgbouncer ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
+      - { name: default ,port: 5436 ,dest: postgres  ,check: /primary   ,selector: "[]" }
+      - { name: offline ,port: 5438 ,dest: postgres  ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
 
 
     #================================================================#
