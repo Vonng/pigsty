@@ -108,17 +108,17 @@ all:
           #- {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway   }
           #- {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service      }
           #- {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service    }
-        pg_services:                  # extra services in addition to pg_default_services, array of service definition
+        pg_services:                        # extra services in addition to pg_default_services, array of service definition
           # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
-          - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
-            port: 5435                # required, service exposed port (work as kubernetes service node port mode)
-            selector: "[]"            # required, service member selector, use JMESPath to filter inventory
-            dest: pgbouncer           # optional, destination port, postgres|pgbouncer|<port_number> , pgbouncer(6432) by default
-            ip: "*"                   # optional, service bind ip address, `*` for all ip by default
-            check: /sync              # optional, health check url path, / by default
-            selector_backup: "[? pg_role == `primary`]"  # backup server selector
-            maxconn: 3000             # optional, max allowed front-end connection
-            balance: roundrobin       # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
+          - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
+            port: 5435                      # required, service exposed port (work as kubernetes service node port mode)
+            ip: "*"                         # optional, service bind ip address, `*` for all ip by default
+            selector: "[]"                  # required, service member selector, use JMESPath to filter inventory
+            dest: pgbouncer                 # optional, destination port, postgres|pgbouncer|<port_number> , pgbouncer(6432) by default
+            check: /sync                    # optional, health check url path, / by default
+            backup: "[? pg_role == `primary`]"  # backup server selector
+            maxconn: 3000                   # optional, max allowed front-end connection
+            balance: roundrobin             # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
             options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
         pg_hba_rules:
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
@@ -427,6 +427,7 @@ all:
     haproxy_exporter_port: 9101       # haproxy admin/exporter port, 9101 by default
     haproxy_client_timeout: 24h       # client side connection timeout
     haproxy_server_timeout: 24h       # server side connection timeout
+    haproxy_services: []              # list of haproxy service
 
     #-----------------------------------------------------------------
     # DOCKER

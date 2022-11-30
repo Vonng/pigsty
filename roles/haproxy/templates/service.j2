@@ -3,7 +3,7 @@
 # service: {{ service.name }} @ {{ inventory_hostname }}:{{ service.port }}
 #---------------------------------------------------------------------
 listen {{ service.name }}
-    bind {{ service.src_ip|default('*') }}:{{ service.src_port }}
+    bind {{ service.ip|default('*') }}:{{ service.port }}
     mode {{ service.protocol|default('tcp') }}
     maxconn {{ service.haproxy.maxconn|default(10000) }}
     balance {{ service.haproxy.balance|default('roundrobin') }}
@@ -12,7 +12,7 @@ listen {{ service.name }}
     {{ opt }}
 {% endfor %}
 {% endif %}
-    default-server {{ service.haproxy.default_server_options|default('inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100') }} {% if service.check_port is number %}{{ service.check_port }}{% endif %}
+    default-server {{ service.default|default('inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100') }}
 
     # server
 {% for server in service.servers %}
