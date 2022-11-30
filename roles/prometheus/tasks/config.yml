@@ -5,7 +5,6 @@
 - name: setup prometheus and alertmanager
   block:
 
-
     #------------------------------------------------------------------------------
     # FHS
     #------------------------------------------------------------------------------
@@ -21,6 +20,7 @@
     #            ^-----@pgsql            # pgsql static targets definition
     #            ^-----@redis            # redis static targets definition
     #            ^-----@minio            # minio static targets definition
+    #            ^-----ping.yml          # ping all nodes under pigsty
     #------------------------------------------------------------------------------
     - name: create prometheus directories
       file: path={{ item }} state=directory owner=prometheus group=prometheus mode=700
@@ -30,6 +30,7 @@
         - /etc/prometheus/rules
         - /etc/prometheus/targets
         - /etc/prometheus/targets/node
+        - /etc/prometheus/targets/ping
         - /etc/prometheus/targets/etcd
         - /etc/prometheus/targets/infra
         - /etc/prometheus/targets/pgsql
@@ -39,17 +40,23 @@
 
     # - bin scripts - #
     - name: copy prometheus bin scripts
+      tags: prometheus_bin
       copy: src=bin/ dest=/etc/prometheus/bin/ owner=prometheus mode=0755
 
     # - copy rules - #
     - name: copy prometheus rules
-      tags: prometheus_rules
+      tags: prometheus_rule
       copy: src=rules/ dest=/etc/prometheus/rules/ owner=prometheus mode=0755
 
     # render port
     - name: render prometheus agent rules
-      tags: prometheus_rules
+      tags: prometheus_rule
       template: src=agent.yml.j2 dest=/etc/prometheus/rules/agent.yml owner=prometheus mode=0644
+
+    # - prometheus opts - #
+    - name: render /etc/default/prometheus
+      tags: prometheus_conf
+      template: src=prometheus.default.j2 dest=/etc/default/prometheus owner=prometheus mode=0755
 
     # - prometheus config - #
     - name: render prometheus config
@@ -58,10 +65,23 @@
 
     # - alertmanager config - #
     - name: redner altermanager config
+      tags: alertmanager_conf
       template: src=alertmanager.yml.j2 dest=/etc/prometheus/alertmanager.yml owner=prometheus mode=0644
 
-    # - overwrite opts - #
-    - name: render /etc/default/prometheus
-      template: src=prometheus.default.j2 dest=/etc/default/prometheus owner=prometheus mode=0755
+    # - blackbox exporter config - #
+    - name: render blackbox exporter config
+      tags: blackbox_conf
+      template: src=blackbox.yml.j2 dest=/etc/prometheus/blackbox.yml owner=prometheus mode=0644
 
+    # - backbox ping targets - #
+    - name: render blackbox ping config
+      tags: blackbox_conf
+      copy:
+        dest: /etc/prometheus/targets/ping.yml
+        owner: prometheus
+        mode: 0644
+        content: |
+          {% for node in hostvars %}
+          - targets: [ {{ node }} ]
+          {% endfor %}
 ...

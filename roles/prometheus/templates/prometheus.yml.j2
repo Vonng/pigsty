@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   prometheus.yml
 # Ctime     :   2020-04-03
-# Mtime     :   2022-11-14
+# Mtime     :   2022-11-30
 # Desc      :   Prometheus Configuration File
 # Path      :   /etc/prometheus/prometheus.yml
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -71,6 +71,24 @@ scrape_configs:
     metrics_path: /metrics
     honor_labels: true
     static_configs: [{ targets: ['127.0.0.1:9091'] }]
+
+  #------------------------------------------------------------------------------
+  # job: ping
+  # blackbox exporter metrics
+  #------------------------------------------------------------------------------
+  - job_name: ping
+    metrics_path: /probe
+    params: {module: [icmp]}
+    file_sd_configs:
+      - refresh_interval: {{ prometheus_sd_interval }}
+        files: [ targets/ping.yml ]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9115
 
   #------------------------------------------------------------------------------
   # job: infra
