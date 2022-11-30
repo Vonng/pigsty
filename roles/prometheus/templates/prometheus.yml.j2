@@ -64,6 +64,15 @@ rule_files:
 scrape_configs:
 
   #------------------------------------------------------------------------------
+  # job: push
+  # pushgateway metrics
+  #------------------------------------------------------------------------------
+  - job_name: push
+    metrics_path: /metrics
+    honor_labels: true
+    static_configs: [{ targets: ['127.0.0.1:9091'] }]
+
+  #------------------------------------------------------------------------------
   # job: infra
   # targets: prometheus | grafana | altermanager | loki | nginx
   # labels: [ip, instance, type]
@@ -77,7 +86,7 @@ scrape_configs:
 
   #------------------------------------------------------------------------------
   # job: node
-  # node_exporter, docker, promtail
+  # node_exporter, haproxy, docker, promtail
   # labels: [cls, ins, ip, instance]
   # path: targets/pgsql/<ip>.yml
   #------------------------------------------------------------------------------
@@ -121,7 +130,7 @@ scrape_configs:
 
   #------------------------------------------------------------------------------
   # job: pgsql
-  # node_exporter pg_exporter | pgbouncer_exporter | patroni | haproxy
+  # node_exporter pg_exporter | pgbouncer_exporter | patroni
   # labels: [cls, ins, ip, instance]
   # path: targets/pgsql/<pg_instance>.yml
   #------------------------------------------------------------------------------
