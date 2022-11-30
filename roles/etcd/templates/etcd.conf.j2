@@ -1,5 +1,7 @@
 # {{ ansible_managed }}
 
+# https://etcd.io/docs/v3.5/op-guide/configuration/
+
 name: {{ etcd_instance }}
 
 data-dir: {{ etcd_data }}
@@ -19,6 +21,10 @@ listen-peer-urls: "https://{{ inventory_hostname }}:{{ etcd_peer_port }}"
 listen-client-urls: "https://{{ inventory_hostname }}:{{ etcd_port }},https://127.0.0.1:{{ etcd_port }}"
 
 advertise-client-urls: "https://{{ inventory_hostname }}:{{ etcd_port }}"
+
+election-timeout: {{ etcd_election_timeout|default(1000) }}
+
+heartbeat-interval: {{ etcd_heartbeat_interval|default(100) }}
 
 client-transport-security:
   cert-file: "/etc/etcd/server.crt"
