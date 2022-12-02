@@ -1,17 +1,16 @@
-# -*- mode: conf -*-
-
 [Unit]
-Description=Promtail Log Agent
+Description=Promtail service
 Documentation=https://grafana.com/docs/loki/latest/clients/promtail/
 After=network.target
 
 [Service]
 User=root
-ExecStart=/usr/bin/promtail -config.file=/etc/promtail.yml
+ExecStart=/usr/bin/promtail -config.file=/etc/promtail/config.yml
 ExecReload=/bin/kill -HUP $MAINPID
-Restart=always
-RestartSec=5s
-LimitNOFILE=65536
+TimeoutSec = 60
+Restart = on-failure
+RestartSec = 5s
+LimitNOFILE=655360
 
 [Install]
 WantedBy=multi-user.target
