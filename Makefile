@@ -1,14 +1,15 @@
 #==============================================================#
 # File      :   Makefile
+# Desc      :   Makefile shortcuts
 # Ctime     :   2019-04-13
 # Mtime     :   2022-06-20
-# Desc      :   Makefile shortcuts
 # Path      :   Makefile
+# License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 # pigsty version
-VERSION?=v2.0.0-a1
+VERSION?=v2.0.0-b1
 EL_VER=7
 
 # local name
@@ -444,9 +445,12 @@ build-boot:
 	ssh node-1 "cd pigsty; ./bootstrap -n ; ./configure -m el8  -i 10.10.10.11 -n";
 	ssh node-2 "cd pigsty; ./bootstrap -n ; ./configure -m el9  -i 10.10.10.12 -n";
 
-build-release:
+build-release: r rr build-el7 build-el8 build-el9
+build-el7:
 	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
+build-el8:
 	scp bin/cache node-1:/tmp/cache ; ssh node-1 "sudo bash /tmp/cache"; scp node-1:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
+build-el9:
 	scp bin/cache node-2:/tmp/cache ; ssh node-2 "sudo bash /tmp/cache"; scp node-2:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
 
 ###############################################################
@@ -486,6 +490,6 @@ eb: vb new ssh build-repo build-src
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb \
         r releast rp release-pkg cache release-matrix release-docker p publish \
-        build-vagrant build build-src build-repo build-boot build-release \
+        build-vagrant build build-src build-repo build-boot build-release build-el7 build-el8 build-el9 \
         svg e1 e4 e7 e8 e9 eb
 ###############################################################

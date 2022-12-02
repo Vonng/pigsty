@@ -1,10 +1,10 @@
 ---
 ######################################################################
 # File      :   pigsty-citus.yml
-# Desc      :   citus 1 coordinator & 3 data node example config
+# Desc      :   pigsty citus demo with 1 coordinator and 3 data nodes
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2022-11-14
+# Mtime     :   2022-12-02
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
@@ -58,17 +58,19 @@ all:
 
 
   vars:                               # global variables
-    version: v2.0.0-a1                # pigsty version string
+    version: v2.0.0-b1                # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     node_etc_hosts:                   # write static etc hosts to citus cluster
       - 10.10.10.11 node-1 pg-node1-1
       - 10.10.10.12 node-2 pg-node2-1
       - 10.10.10.13 node-3 pg-node3-1
+    pg_extensions:                    # use citus_15* in el9
+      - postgis33_${pg_version}* citus111_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} #timescaledb-2-postgresql-${pg_version}
     pg_libs: 'citus, pg_stat_statements, auto_explain'  # extensions to be loaded
     pg_hba_rules:               # extra hba rules to allow intranet citus trust access
       # AD HOC FOR CITUS CLUSTER
-      - title: Allow unrestricted access to nodes in the local network. The following ranges
+      - title: Allow unrestricted access to nodes in the local network
         role: common
         rules:
           - host    all             all             10.0.0.0/8              trust

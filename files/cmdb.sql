@@ -2,7 +2,8 @@
 -- # File      :   cmdb.sql
 -- # Desc      :   Pigsty CMDB baseline
 -- # Ctime     :   2021-04-21
--- # Mtime     :   2022-05-05
+-- # Mtime     :   2022-12-02
+-- # License   :   AGPLv3
 -- # Copyright (C) 2018-2022 Ruohang Feng
 -- ######################################################################
 
