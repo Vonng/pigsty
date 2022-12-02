@@ -59,7 +59,7 @@ scrape_configs:
   ################################################################
   # collect nginx logs on meta nodes
 
-{% if nginx_enabled|bool %}
+{% if inventory_hostname in groups['infra'] and (nginx_enabled is not defined or nginx_enabled|bool) %}
   - job_name: nginx
     static_configs:
       - targets:
