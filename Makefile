@@ -452,7 +452,12 @@ build-el8:
 	scp bin/cache node-1:/tmp/cache ; ssh node-1 "sudo bash /tmp/cache"; scp node-1:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
 build-el9:
 	scp bin/cache node-2:/tmp/cache ; ssh node-2 "sudo bash /tmp/cache"; scp node-2:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
-
+make-el7:
+	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
+make-el8:
+	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
+make-el9:
+	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
 ###############################################################
 
 
@@ -490,6 +495,6 @@ eb: vb new ssh build-repo build-src
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb \
         r releast rp release-pkg cache release-matrix release-docker p publish \
-        build-vagrant build build-src build-repo build-boot build-release build-el7 build-el8 build-el9 \
+        build-vagrant build build-src build-repo build-boot build-release build-el7 build-el8 build-el9 make-el7 make-el8 make-el9 \
         svg e1 e4 e7 e8 e9 eb
 ###############################################################

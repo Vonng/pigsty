@@ -1,6 +1,6 @@
 ---
 ######################################################################
-# File      :   pigsty.yml
+# File      :   pigsty-default.yml
 # Desc      :   pigsty config template with all default values
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2020-05-22
@@ -157,7 +157,7 @@ all:
     #================================================================#
     version: v2.0.0-b1                # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
-    region: default                   # upstream mirror region: default|china|europe
+    region: default                   # upstream mirror region: default,china,europe
     proxy_env:                        # global proxy env when downloading packages
       no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
       # http_proxy:  # set your proxy here: e.g http://user:pass@proxy.xxx.com
@@ -171,15 +171,15 @@ all:
     #-----------------------------------------------------------------
     # CA
     #-----------------------------------------------------------------
-    ca_method: create                 # create|recreate|copy, create by default
+    ca_method: create                 # create,recreate,copy, create by default
     ca_cn: pigsty-ca                  # ca common name, fixed as pigsty-ca
     cert_validity: 7300d              # cert validity, 20 years by default
 
     #-----------------------------------------------------------------
     # REPO
     #-----------------------------------------------------------------
-    repo_enabled: true                # create a local yum repo on this infra node?
-    repo_home: /www                   # repo home dir, /www by default
+    repo_enabled: true                # create a yum repo on this infra node?
+    repo_home: /www                   # repo home dir, `/www` by default
     repo_name: pigsty                 # repo name, pigsty by default
     repo_endpoint: http://${admin_ip}:80 # access point to this repo by domain or ip:port
     repo_remove: true                 # remove existing upstream repo
@@ -236,11 +236,11 @@ all:
     # NGINX
     #-----------------------------------------------------------------
     nginx_enabled: true               # enable nginx on this infra node?
-    nginx_home: /www                  # nginx content dir, /www by default
+    nginx_home: /www                  # nginx content dir, `/www` by default
     nginx_port: 80                    # nginx listen port, 80 by default
     nginx_ssl_port: 443               # nginx ssl listen port, 443 by default
-    nginx_ssl_enabled: true           # enable ssl on nginx? trust self-singed ca or apply a real cert.
-    nginx_upstream:                   # nginx domain names and upstreams: h,a,p,g
+    nginx_ssl_enabled: true           # enable ssl on nginx? enabled by default
+    nginx_upstream:                   # nginx domain names and upstreams: i,a,p,g
       - { name: home         , domain: i.pigsty , endpoint: "${admin_ip}:80"   }
       - { name: alertmanager , domain: a.pigsty , endpoint: "${admin_ip}:9093" }
       - { name: prometheus   , domain: p.pigsty , endpoint: "${admin_ip}:9090" }
@@ -254,20 +254,20 @@ all:
     #-----------------------------------------------------------------
     # NAMESERVER
     #-----------------------------------------------------------------
-    nameserver_enabled: false         # setup dnsmasq on meta nodes?
+    nameserver_enabled: false         # enable dnsmasq on this infra node?
     dns_records: [ ]                  # dynamic dns record resolved by dnsmasq
 
     #-----------------------------------------------------------------
     # PROMETHEUS
     #-----------------------------------------------------------------
-    prometheus_enabled: true          # setup prometheus on meta nodes?
-    prometheus_data: /data/prometheus/data # prometheus data dir, /data/prometheus/data by default
+    prometheus_enabled: true          # enable prometheus on this infra node?
+    prometheus_data: /data/prometheus/data # prometheus data dir, `/data/prometheus/data` by default
     prometheus_options: '--storage.tsdb.retention.time=15d' # prometheus extra server options
     prometheus_reload: false          # reload prometheus instead of recreate it?
-    prometheus_sd_interval: 5s        # service discovery refresh interval
-    prometheus_scrape_interval: 10s   # global scrape & evaluation interval
-    prometheus_scrape_timeout: 8s     # prometheus scrape timeout
-    alertmanager_endpoint: '${admin_ip}:9093' # alertmanager endpoint
+    prometheus_sd_interval: 5s        # service discovery refresh interval, 5s by default
+    prometheus_scrape_interval: 10s   # global scrape & evaluation interval, 10s by default
+    prometheus_scrape_timeout: 8s     # prometheus scrape timeout, 8s by default
+    alertmanager_endpoint: '${admin_ip}:9093' # alertmanager endpoint, `admin_ip:9093` by default
 
     #-----------------------------------------------------------------
     # EXPORTER
@@ -279,26 +279,24 @@ all:
     #-----------------------------------------------------------------
     # GRAFANA
     #-----------------------------------------------------------------
-    grafana_enabled: true             # setup grafana on meta nodes?
-    grafana_endpoint: http://${admin_ip}:3000 # grafana endpoint url
-    grafana_admin_username: admin     # default grafana admin username
-    grafana_admin_password: pigsty    # default grafana admin password
-    grafana_plugin_method: install    # none|install|always, none will skip plugin install
+    grafana_enabled: true             # enable grafana on this infra node?
+    grafana_endpoint: http://${admin_ip}:3000 # grafana endpoint url, admin_ip:3000 by default
+    grafana_admin_username: admin     # grafana admin username, `admin` by default
+    grafana_admin_password: pigsty    # grafana admin password, `pigsty` by default
+    grafana_plugin_method: install    # how to install grafana plugins? none,install,always
     grafana_plugin_cache: /www/pigsty/plugins.tgz # path to grafana plugins cache tarball
-    grafana_plugin_list:              # plugins that will be downloaded via grafana-cli
+    grafana_plugin_list:              # grafana plugins to be downloaded with grafana-cli
       - volkovlabs-echarts-panel
-      - marcusolsson-csv-datasource
-      - marcusolsson-json-datasource
       - marcusolsson-treemap-panel
 
     #-----------------------------------------------------------------
     # LOKI
     #-----------------------------------------------------------------
-    loki_enabled: true                # setup loki on meta nodes?
+    loki_enabled: true                # enable loki on this infra node?
     loki_clean: false                 # whether remove existing loki data?
-    loki_data: /data/loki             # loki data dir, /data/loki by default
-    loki_endpoint: http://${admin_ip}:3100/loki/api/v1/push # where to receive logs
-    loki_retention: 15d               # log retention period
+    loki_data: /data/loki             # loki data dir, `/data/loki` by default
+    loki_endpoint: http://${admin_ip}:3100/loki/api/v1/push # loki endpoint to to receive logs
+    loki_retention: 15d               # loki log retention period, 15d by default
 
 
     #================================================================#
@@ -321,14 +319,14 @@ all:
     #================================================================#
     #minio_seq: 1                     # minio instance identifier, explicitly required
     #minio_cluster: minio             # minio cluster name, minio by default
-    minio_user: minio                 # minio os user
-    minio_domain: sss.pigsty          # minio domain name
+    minio_user: minio                 # minio os user, `minio` by default
+    minio_domain: sss.pigsty          # minio domain name, `sss.pigsty` by default
     minio_port: 9000                  # minio service port, 9000 by default
     minio_admin_port: 9001            # minio console port, 9001 by default
-    minio_data: [ '/data/minio' ]     # data directories for minio
-    minio_access_key: minioadmin      # root access key
-    minio_secret_key: minioadmin      # root secret key
-    minio_extra_vars: ''              # extra environment variables
+    minio_data: [ '/data/minio' ]     # minio data directories
+    minio_access_key: minioadmin      # minio root access key
+    minio_secret_key: minioadmin      # minio root secret key
+    minio_extra_vars: ''              # extra minio environment variables
 
 
     #================================================================#
@@ -338,8 +336,8 @@ all:
     #-----------------------------------------------------------------
     # NODE_IDENTITY
     #-----------------------------------------------------------------
-    #nodename:           # [OPTIONAL] # node instance identity, use hostname if missing
-    node_cluster: nodes  # [OPTIONAL] # node cluster identity, use 'nodes' if missing
+    #nodename:           # [INSTANCE] # node instance identity, use hostname if missing, optional
+    node_cluster: nodes   # [CLUSTER] # node cluster identity, use 'nodes' if missing, optional
     nodename_overwrite: true          # overwrite node's hostname with nodename?
     nodename_exchange: false          # exchange nodename among play hosts?
     node_id_from_pg: true             # use postgres identity as node identity if applicable?
@@ -347,32 +345,32 @@ all:
     #-----------------------------------------------------------------
     # NODE_DNS
     #-----------------------------------------------------------------
-    node_default_etc_hosts:           # static dns records in /etc/hosts
+    node_default_etc_hosts:           # static dns records in `/etc/hosts`
       - "${admin_ip} meta i.pigsty p.pigsty g.pigsty a.pigsty"
       - "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
-    node_etc_hosts: []                # extra static dns records in /etc/hosts
-    node_dns_method: none             # add (default) | none (skip) | overwrite (remove old settings)
-    node_dns_servers: []              # dynamic nameserver in /etc/resolv.conf
-    node_dns_options:                 # dns resolv options
+    node_etc_hosts: []                # extra static dns records in `/etc/hosts`
+    node_dns_method: none             # how to handle dns servers: add,none,overwrite
+    node_dns_servers: []              # dynamic nameserver in `/etc/resolv.conf`
+    node_dns_options:                 # dns resolv options in `/etc/resolv.conf`
       - options single-request-reopen timeout:1 rotate
 
     #-----------------------------------------------------------------
     # NODE_REPO
     #-----------------------------------------------------------------
-    node_repo_method: local           # none|local: ad local repo|public: add upstream directly
-    node_repo_remove: true            # remove existing repo on nodes?
-    node_repo_local_urls:             # list local repo url, if node_repo_method = local
+    node_repo_method: local           # how to setup node repo: none,local,public
+    node_repo_remove: true            # remove existing repo on node?
+    node_repo_local_urls:             # local repo url, if node_repo_method = local
       - http://10.10.10.10/pigsty.repo
 
     #-----------------------------------------------------------------
     # NODE_PACKAGE
     #-----------------------------------------------------------------
-    node_packages: [ ]                # extra packages to be installed
-    node_default_packages:            # default packages to be installed
+    node_packages: [ ]                # packages to be installed current nodes
+    node_default_packages:            # default packages to be installed on all nodes
       - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils
       - wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal
       - readline,zlib,openssl,openssh-clients,node_exporter,etcd,promtail,mtail,python3-idna,python3-requests,haproxy
-    infra_packages:                   # packages for infra nodes
+    infra_packages:                   # packages to be installed on infra nodes
       - grafana,prometheus2,alertmanager,pushgateway,blackbox_exporter,node_exporter,nginx_exporter
       - nginx,ansible,python3-requests,dnsmasq,redis,redis_exporter,mcli,logcli
     infra_packages_pip: ''            # pip installed packages for infra nodes
@@ -380,33 +378,33 @@ all:
     #-----------------------------------------------------------------
     # NODE_TUNE
     #-----------------------------------------------------------------
-    node_disable_firewall: true       # disable firewall
-    node_disable_selinux: true        # disable selinux
-    node_disable_numa: false          # disable numa, reboot required
-    node_disable_swap: false          # disable swap, use with caution
-    node_static_network: true         # keep dns resolver settings after reboot
+    node_disable_firewall: true       # disable node firewall?
+    node_disable_selinux: true        # disable node selinux?
+    node_disable_numa: false          # disable node numa, reboot required
+    node_disable_swap: false          # disable node swap, use with caution
+    node_static_network: true         # preserve dns resolver settings after reboot
     node_disk_prefetch: false         # setup disk prefetch on HDD to increase performance
     node_kernel_modules: [ softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_wrr, ip_vs_sh ]
-    node_hugepage_ratio: 0            # mem hugepage ratio, 0 disable it by default
-    node_tune: oltp                   # install and activate tuned profile: none|oltp|olap|crit|tiny
-    node_sysctl_params: { }           # set additional sysctl parameters in k:v format
+    node_hugepage_ratio: 0            # node mem hugepage ratio, 0 disable it by default
+    node_tune: oltp                   # node tuned profile: none,oltp,olap,crit,tiny
+    node_sysctl_params: { }           # sysctl parameters in k:v format in addition to tuned
 
     #-----------------------------------------------------------------
     # NODE_ADMIN
     #-----------------------------------------------------------------
-    node_data: /data                  # node main data directory, /data by default
-    node_admin_enabled: true          # create a default admin user defined by `node_admin_*` ?
-    node_admin_uid: 88                # uid and gid for this admin user
-    node_admin_username: dba          # name of this admin user, dba by default
-    node_admin_ssh_exchange: true     # exchange admin ssh key among each pgsql cluster ?
-    node_admin_pk_current: true       # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
-    node_admin_pk_list:               # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
+    node_data: /data                  # node main data directory, `/data` by default
+    node_admin_enabled: true          # create a admin user on target node?
+    node_admin_uid: 88                # uid and gid for node admin user
+    node_admin_username: dba          # name of node admin user, `dba` by default
+    node_admin_ssh_exchange: true     # exchange admin ssh key among node cluster
+    node_admin_pk_current: true       # add current user's ssh pk to admin authorized_keys
+    node_admin_pk_list:               # ssh public keys to be added to admin user
       - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
 
     #-----------------------------------------------------------------
     # NODE_TIME
     #-----------------------------------------------------------------
-    node_timezone: ''                 # default node timezone, empty means use system default
+    node_timezone: ''                 # setup node timezone, empty to skip
     node_ntp_enabled: true            # setup and enable chronyd service?
     node_ntp_servers:                 # ntp servers in /etc/chrony.conf
       - pool pool.ntp.org iburst
@@ -418,13 +416,13 @@ all:
     #-----------------------------------------------------------------
     haproxy_enabled: true             # enable haproxy on this node?
     haproxy_reload: true              # reload haproxy after config?
-    haproxy_auth_enabled: true        # enable authentication for haproxy admin?
+    haproxy_auth_enabled: true        # enable authentication for haproxy admin page
     haproxy_admin_username: admin     # default haproxy admin username
     haproxy_admin_password: pigsty    # default haproxy admin password
     haproxy_exporter_port: 9101       # haproxy admin/exporter port, 9101 by default
-    haproxy_client_timeout: 24h       # client side connection timeout
-    haproxy_server_timeout: 24h       # server side connection timeout
-    haproxy_services: []              # list of haproxy service
+    haproxy_client_timeout: 24h       # client side connection timeout, 24h by default
+    haproxy_server_timeout: 24h       # server side connection timeout, 24h by default
+    haproxy_services: []              # list of haproxy service to be exposed
 
     #-----------------------------------------------------------------
     # DOCKER
@@ -458,8 +456,8 @@ all:
     # PG_IDENTITY
     #-----------------------------------------------------------------
     # pg_cluster:           #CLUSTER  # pgsql cluster name, required identity parameter
-    # pg_role: replica      #INSTANCE # pgsql role, required, could be primary,replica,offline
     # pg_seq: 0             #INSTANCE # pgsql instance seq number, required identity parameter
+    # pg_role: replica      #INSTANCE # pgsql role, required, could be primary,replica,offline
     # pg_instances: {}      #INSTANCE # define multiple pg instances on node in `{port:ins_vars}` format
     # pg_upstream:          #INSTANCE # repl upstream ip addr for standby cluster or cascade replica
     # pg_shard:             #CLUSTER  # pgsql shard name, optional identity for sharding clusters
@@ -515,9 +513,9 @@ all:
     pg_listen: '0.0.0.0'              # postgres listen address, `0.0.0.0` (all ipv4 addr) by defaul
     pg_port: 5432                     # postgres listen port, 5432 by default
     pg_localhost: /var/run/postgresql # postgres unix socket dir for localhost connection
+    pg_namespace: /pg                 # top level key namespace in etcd, used by patroni & vip
     patroni_enabled: true             # if disabled, no postgres cluster will be created during init
     patroni_mode: default             # patroni working mode: default,pause,remove
-    pg_namespace: /pg                 # top level key namespace in etcd, used by patroni & vip
     patroni_port: 8008                # patroni listen port, 8008 by default
     patroni_log_dir: /pg/log/patroni  # patroni log dir, `/pg/log/patroni` by default
     patroni_ssl_enabled: false        # secure patroni RestAPI communications with SSL?
@@ -664,33 +662,33 @@ all:
     #-----------------------------------------------------------------
     # REDIS_IDENTITY
     #-----------------------------------------------------------------
-    # redis_cluster: redis-test       # name of this redis cluster @ cluster level
-    # redis_node: 1                   # redis node identifier, integer sequence @ node level
-    # redis_instances: {}             # redis instances definition of this redis node @ node level
+    #redis_cluster:        <CLUSTER> # redis cluster name, required identity parameter
+    #redis_node: 1            <NODE> # redis node sequence number, node int id required
+    #redis_instances: {}      <NODE> # redis instances definition on this redis node
 
     #-----------------------------------------------------------------
     # REDIS_NODE
     #-----------------------------------------------------------------
-    redis_fs_main: /data              # main fs mountpoint for redis data
+    redis_fs_main: /data              # redis main data mountpoint, `/data` by default
     redis_exporter_enabled: true      # install redis exporter on redis nodes?
-    redis_exporter_port: 9121         # default port for redis exporter
-    redis_exporter_options: ''        # default cli args for redis exporter
+    redis_exporter_port: 9121         # redis exporter listen port, 9121 by default
+    redis_exporter_options: ''        # cli args and extra options for redis exporter
 
     #-----------------------------------------------------------------
     # REDIS_PROVISION
     #-----------------------------------------------------------------
     redis_safeguard: false            # prevent purging running redis instance?
-    redis_clean: true                 # purging existing redis during initialization?
+    redis_clean: true                 # purging existing redis during init?
     redis_rmdata: true                # remove redis data when purging redis server?
-    redis_mode: standalone            # standalone,cluster,sentinel
-    redis_conf: redis.conf            # config template path (except sentinel)
-    redis_bind_address: '0.0.0.0'     # bind address, empty string turns to inventory_hostname
+    redis_mode: standalone            # redis mode: standalone,cluster,sentinel
+    redis_conf: redis.conf            # redis config template path, except sentinel
+    redis_bind_address: '0.0.0.0'     # redis bind address, empty string will use host ip
     redis_max_memory: 1GB             # max memory used by each redis instance
-    redis_mem_policy: allkeys-lru     # memory eviction policy
-    redis_password: ''                # masterauth & requirepass password, disable by empty string
+    redis_mem_policy: allkeys-lru     # redis memory eviction policy
+    redis_password: ''                # redis password, empty string will disable password
     redis_rdb_save: ['1200 1']        # redis rdb save directives, disable with empty list
-    redis_aof_enabled: false          # redis aof enabled
-    redis_rename_commands: {}         # rename dangerous commands
-    redis_cluster_replicas: 1         # how many replicas for a master in redis cluster ?
+    redis_aof_enabled: false          # enable redis append only file?
+    redis_rename_commands: {}         # rename redis dangerous commands
+    redis_cluster_replicas: 1         # replica number for one master in redis cluster
 
 ...
