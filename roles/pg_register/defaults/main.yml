@@ -2,12 +2,12 @@
 #-----------------------------------------------------------------
 # PG_SERVICE
 #-----------------------------------------------------------------
-pg_default_services:
+pg_services: []                   # postgres business services
+pg_default_services:              # postgres default service definitions
   - { name: primary ,port: 5433 ,dest: pgbouncer ,check: /primary   ,selector: "[]" }
   - { name: replica ,port: 5434 ,dest: pgbouncer ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
   - { name: default ,port: 5436 ,dest: postgres  ,check: /primary   ,selector: "[]" }
   - { name: offline ,port: 5438 ,dest: postgres  ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
-pg_services: []                   # extra services
 #-----------------------------------------------------------------
 # GRAFANA (Reference)
 #-----------------------------------------------------------------
@@ -26,9 +26,9 @@ pg_monitor_password: DBUser.Monitor
 #-----------------------------------------------------------------
 # PG_BOOTSTRAP (Reference)
 #-----------------------------------------------------------------
-pg_port: 5432                     # postgres port, 5432 by default
-patroni_port: 8008                # default patroni port
-pgbouncer_port: 6432              # pgbouncer port, 6432 by default
+pg_port: 5432                     # postgres listen port, 5432 by default
+patroni_port: 8008                # patroni listen port, 8008 by default
+pgbouncer_port: 6432              # pgbouncer listen port, 6432 by default
 #-----------------------------------------------------------------
 # PG_EXPORTER (Reference)
 #-----------------------------------------------------------------

@@ -5,7 +5,6 @@
 rm_pgdata: true                   # remove postgres data? true by default
 rm_pgbkup: true                   # remove postgres backup? true by default
 rm_pgpkgs: false                  # uninstall pg_packages? false by default
-
 #-----------------------------------------------------------------
 # ETCD (Reference)
 #-----------------------------------------------------------------
@@ -24,22 +23,22 @@ pg_databases: []                  # postgres business databases
 #-----------------------------------------------------------------
 # PG_INSTALL (Reference)
 #-----------------------------------------------------------------
-pg_dbsu: postgres                 # os user for database, postgres by default, better not change it
-pg_dbsu_home: /var/lib/pgsql      # postgresql home directory
-pg_version: 15                    # default postgresql version to be installed
-pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, /usr/pgsql/bin by default, ln -S /usr/pgsql-{ver} /usr/pgsql
-pg_log_dir: /pg/log/postgres      # postgres log dir, /pg/log/postgres by default
-pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
+pg_dbsu: postgres                 # os dbsu name, postgres by default, better not change it
+pg_dbsu_home: /var/lib/pgsql      # postgresql home directory, `/var/lib/pgsql` by default
+pg_version: 15                    # postgres major version to be installed, 15 by default
+pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, `/usr/pgsql/bin` by default
+pg_log_dir: /pg/log/postgres      # postgres log dir, `/pg/log/postgres` by default
+pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
   - postgresql${pg_version}*
   - pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest
-pg_extensions:                    # postgresql extensions, `${pg_version} will be replaced by actual `pg_version`
+pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
   - postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} #citus111_${pg_version} timescaledb-2-postgresql-${pg_version}
 #-----------------------------------------------------------------
 # PG_BOOTSTRAP (Reference)
 #-----------------------------------------------------------------
-pg_safeguard: false               # prevent purging running postgres instance?
-pg_data: /pg/data                 # postgres data directory, /pg/data by default
-pg_fs_main: /data                 # main data disk path, /data by default
-pg_fs_bkup: /data/backups         # backup disk path, /data/backups by default
-pg_namespace: /pg                 # top level key namespace in etcd
+pg_safeguard: false               # prevent purging running postgres instance? false by default
+pg_data: /pg/data                 # postgres data directory, `/pg/data` by default
+pg_fs_main: /data                 # mountpoint/path for postgres main data, `/data` by default
+pg_fs_bkup: /data/backups         # mountpoint/path for pg backup data, `data/backup` by default
+pg_namespace: /pg                 # top level key namespace in etcd, used by patroni & vip
 ...
