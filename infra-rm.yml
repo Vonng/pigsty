@@ -1,11 +1,11 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   infra-remove.yml
+# File      :   infra-rm.yml
 # Desc      :   uninstall pigsty infra module
 # Ctime     :   2022-02-22
-# Mtime     :   2022-11-11
-# Path      :   infra-remove.yml
+# Mtime     :   2022-12-03
+# Path      :   infra-rm.yml
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
@@ -13,10 +13,10 @@
 #---------------------------------------------------------------
 # Usage
 #---------------------------------------------------------------
-# ./infra-remove.yml -t infra      # remove infra
-# ./infra-remove.yml -t service    # stop infra services
-# ./infra-remove.yml -t data       # remove infra data
-# ./infra-remove.yml -t package    # uninstall infra packages
+# ./infra-rm.yml -t infra      # remove infra
+# ./infra-rm.yml -t service    # stop infra services
+# ./infra-rm.yml -t data       # remove infra data
+# ./infra-rm.yml -t package    # uninstall infra packages
 #---------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -25,7 +25,6 @@
 - name: INFRA REMOVE
   become: yes
   hosts: infra
-  tags: infra
   gather_facts: no
   ignore_errors: yes
   tasks:
@@ -37,10 +36,15 @@
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
       tags: service
       with_items:
-        - grafana-server
+        - dnsmasq
         - prometheus
         - alertmanager
+        - pushgateway
+        - blackbox_exporter
+        - grafana-server
         - loki
+        - tempo
+        - mimir
 
     #---------------------------------------------
     # Remove Data
@@ -64,10 +68,14 @@
       yum: name={{ item }} state=removed
       tags: package
       with_items:
-        - grafana
-        - prometheus2
+        - dnsmasq
+        - prometheus
         - alertmanager
+        - pushgateway
+        - blackbox_exporter
+        - grafana-server
         - loki
-        - nginx
+        - tempo
+        - mimir
 
 ...
