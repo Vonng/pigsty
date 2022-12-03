@@ -9,4 +9,11 @@
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
   file: state=absent path=/etc/prometheus/targets/pgsql/{{ pg_cluster }}-{{ pg_seq }}.yml
+
+- name: remove ssl patroni target from prometheus
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
+  ignore_errors: true
+  when: patroni_ssl_enabled|bool
+  file: state=absent path=/etc/prometheus/targets/patroni/{{ pg_cluster }}-{{ pg_seq }}.yml
 ...

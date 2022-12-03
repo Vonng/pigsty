@@ -148,7 +148,7 @@ scrape_configs:
 
   #------------------------------------------------------------------------------
   # job: pgsql
-  # node_exporter pg_exporter | pgbouncer_exporter | patroni
+  # pg_exporter | pgbouncer_exporter | patroni (if ssl disabled)
   # labels: [cls, ins, ip, instance]
   # path: targets/pgsql/<pg_instance>.yml
   #------------------------------------------------------------------------------
@@ -157,6 +157,23 @@ scrape_configs:
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
         files: [ targets/pgsql/*.yml ]
+
+{% if patroni_ssl_enabled|bool %}
+  #------------------------------------------------------------------------------
+  # job: patroni -> pgsql
+  # labels: [cls, ins, ip, instance]
+  # path: targets/patroni/<pg_instance>.yml
+  #------------------------------------------------------------------------------
+  - job_name: pgsql-patroni     # this job is used when `patroni_ssl_enabled`
+    honor_labels: true          # job name will be overwrite to 'pgsql' instead
+    metrics_path: /metrics      # patroni can not customize exporter metrics
+    scheme: https
+    tls_config:
+      ca_file: /etc/pki/ca.crt
+    file_sd_configs:
+      - refresh_interval: {{ prometheus_sd_interval }}
+        files: [ targets/patroni/*.yml ]
+{% endif %}
 
   #------------------------------------------------------------------------------
   # job: redis
