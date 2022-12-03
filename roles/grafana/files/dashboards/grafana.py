@@ -158,7 +158,7 @@ def ds_query_by_name(name, query):
 
 
 # Preference ----------------->
-def update_org_preference(home="home", theme="light"):
+def update_org_preference(home="pigsty", theme="light"):
     home_id = get_dashboard_id_by_uid(home)
     put('org/preferences', {
         "theme": theme,
@@ -166,7 +166,7 @@ def update_org_preference(home="home", theme="light"):
     })
 
 
-def update_user_preference(home="home", theme="light"):
+def update_user_preference(home="pigsty", theme="light"):
     home_id = get_dashboard_id_by_uid(home)
     put('user/preferences', {
         "theme": theme,
@@ -249,7 +249,7 @@ def init_all(dashboard_dir):
         if os.path.isdir(abs_path):
             folders.append((f, abs_path))  # folder name, abs path
 
-    home_uid = "home"
+    home_uid = "pigsty"
     star_dashboard_by_uid(home_uid)  # home dashboards will be loaded above if exists
     update_org_preference(home_uid, "light")
     update_user_preference(home_uid, "light")
