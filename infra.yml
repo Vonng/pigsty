@@ -4,14 +4,14 @@
 # File      :   infra.yml
 # Desc      :   init pigsty infrastructure on infra nodes
 # Ctime     :   2021-01-19
-# Mtime     :   2022-11-29
+# Mtime     :   2022-12-03
 # Path      :   infra.yml
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 #---------------------------------------------------------------
-# create CA (if not exists on files/pki/ca)
+# create CA on files/pki/ca @ localhost
 #---------------------------------------------------------------
 - name: CA
   become: yes
@@ -21,7 +21,7 @@
   roles: [{ role: ca }]
 
 #---------------------------------------------------------------
-# deploy pigsty infra on infra nodes
+# setup pigsty infra on infra nodes
 #---------------------------------------------------------------
 - name: INFRA
   become: yes
@@ -29,19 +29,24 @@
   gather_facts: no
   tags: infra       # infra playbook only works on infra nodes
   roles:
-    - { role: node_id        ,tags: node-id    }  # generate node & pgsql identity
-    - { role: infra_cert     ,tags: cert       }  # issue cert for infra
+    # id
+    - { role: node_id        ,tags: id         }  # generate node & pgsql identity
+    # infra-boot
     - { role: environ        ,tags: environ    }  # setup admin environment vars
     - { role: repo           ,tags: repo       }  # create local yum repo
-    - { role: nginx          ,tags: nginx      }  # launch nginx portal
+    # node-init
     - { role: node           ,tags: node       }  # prepare node for pigsty
     - { role: haproxy        ,tags: haproxy    }  # init haproxy if enabled
     - { role: docker         ,tags: docker     }  # init docker if enabled
+    # infra-init
+    - { role: infra_cert     ,tags: cert       }  # issue cert for infra
+    - { role: nginx          ,tags: nginx      }  # setup nginx portal
     - { role: nameserver     ,tags: nameserver }  # setup dnsmasq
     - { role: prometheus     ,tags: prometheus }  # setup prometheus, alertmanager, pushgateway, blackbox_exporter
-    - { role: grafana        ,tags: grafana    }  # setup grafana
+    - { role: grafana        ,tags: grafana    }  # setup grafana, loki, tempo, mimir
     - { role: loki           ,tags: loki       }  # setup loki
     - { role: infra_register ,tags: register   }  # register infra services
+    # node-monitor
     - { role: node_exporter  ,tags: monitor    }  # init node exporter if enabled
     - { role: promtail       ,tags: promtail   }  # init promtail if enabled
     - { role: node_register  ,tags: register   }  # register node to infra

@@ -34,11 +34,11 @@
 
   ![DISTRO](https://user-images.githubusercontent.com/8587410/198838835-f9df4737-f109-4e5b-b5a0-f54aa1b33c5a.gif)
 
-  > PostGIS, TimescaleDB, Citus, and hundreds of extensions!
+  > PostGIS, TimescaleDB, Citus, and tons of extensions!
   </details>
 
-* [**Infra Best Practice**](#): Grafana, Prometheus, Loki, AlertManager, Docker, Battery-Included!
-  <details><summary>Open Source Infrastructure Best Practice, Ship runtime with databases!</summary>
+* [**Infra Best Practice**](#): Full observability stack of Prometheus & Grafana, Battery-Included!
+  <details><summary>Open Source Infrastructure Best Practice, Ultimate observability for free!</summary>
 
   ![ARCH](https://user-images.githubusercontent.com/8587410/198838831-d0f263cb-da99-46db-a33e-01e7a9c6e061.gif)
 
@@ -122,14 +122,14 @@ Check [**Architecture**](https://github.com/Vonng/pigsty/wiki/Architecture) & [*
 
   <details><summary>Price Reference for EC2 / RDS Unit  ($ per  core · per month)</summary>
 
-  | Resource       | **Node Price** |
-  |----------------|:--------------:|
+  | Resource                                               | **Node Price** |
+  |--------------------------------------------------------|:--------------:|
   | AWS EC2 C5D.METAL 96C 200G                             | 11 ~ 14        |
   | Aliyun ECS 2xMem Series Exclusive                      | 28 ~ 38        |
   | IDC Self-Hosting: Dell R730 64C 384G x PCI-E SSD 3.2TB | 2.6            |
   | IDC Self-Hosting: Dell R730 40C 64G (China Mobile)     | 3.6            |
   | UCloud VPC 8C / 16G Exclusive                          | 3.3            |
-  | **⬆️ EC2  /  RDS⬇️**                                   |  **RDS Price** |
+  | **EC2**  /  **RDS**                                    | **RDS Price**  |
   | Aliyun RDS PG 2x Mem                                   | 36 ~ 56        |
   | AWS RDS PostgreSQL db.T2 (4x) / EBS                    | 60             |
   | AWS RDS PostgreSQL db.M5 (4x) / EBS                    | 84             |
@@ -141,7 +141,7 @@ Check [**Architecture**](https://github.com/Vonng/pigsty/wiki/Architecture) & [*
 
   </details>
 
-* [**Security**](#): On-Perm Deployment, Self-signed CA, Full SSL Support, PITR with one-command.
+* [**Security**](#): On-Perm Deployment, Self-signed CA, Full SSL Support, PITR with one command.
 
   <details><summary>PITR with Pgbackrest</summary>
   
@@ -164,43 +164,56 @@ Check [**FEATURES**](https://github.com/Vonng/pigsty/wiki/Overview) for detail.
 
 ## Getting Started
 
-Get a fresh Linux x86_64 EL7/8/9 node with nopass `sudo` & `ssh` access:
+Get a fresh Linux x86_64 EL7/8/9 node with nopass `sudo` & `ssh` access, then run:
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)" && cd ~/pigsty   
 ./bootstrap  && ./configure && ./install.yml # install latest pigsty
 ```
 
-> Build & Test on centos7.9, rocky8.6, rocky9.0. Compatible with RHEL, Oracle, Alma, etc...
+<details><summary>Compatible OS Platform</summary>
 
-Now you have a battery-included Postgres on port **5432** and infra web services available on port **80**.
+| Vendor \ Version | EL7  | EL8  | EL9  |
+| :--------------: | :--: | :--: | :--: |
+|      RedHat      |  7   |  8   |  9   |
+|      CentOS      |  7*  |  8   |  x   |
+|   Rocky Linux    |      |  8*  |  9*  |
+|    AlmaLinux     |  7   |  8   |  8   |
+|   OracleLinux    |  7   |  8   |  9   |
+
+> Pigsty offline packages are built on CentOS 7.9, Rocky 8.6, and Rocky 9.0. Which are fully tested. 
+
+</details>
+
+Then you will have full-featured Postgres on port `5432` and Infra Stack on port `80` by default.
 
 Check [Installation](https://github.com/Vonng/pigsty/wiki/Installation) & [Configure](https://github.com/Vonng/pigsty/wiki/Configuration) for detail.
 
 
---------
+
+
 
 ## Modular Design
 
-Pigsty use modular design, there are 6 default modules: `INFRA`, `NODE`, `ETCD`, `PGSQL`, `REDIS`, `MINIO`.
+Pigsty uses a **modular** design. There are several default modules available:
 
-* `INFRA`: local yum repo, prometheus, grafana, loki, altermanager, pushgateway, blackbox_exporter, etc...
-* `NODE`: tune node into desired state, name, timezone, hostname, ntp, ssh, sudo, haproxy, docker, promtail...
-* `ETCD`: distributed key-value store, it will be used as DCS for ha postgres clusters.
-* `PGSQL`: autonomous ha postgres cluster powered by Patroni, Pgbouncer, HAproxy, PgBackrest, etc...
-* `REDIS`: redis servers in standalone master-replica, sentinel, cluster mode with redis exporter.
-* `MINO`: S3 compatible simple object storage server, can be used as an optional backup center for postgres.
+* [`INFRA`](https://github.com/Vonng/pigsty/wiki/INFRA): Local yum repo, Nginx, DNS, and entire Prometheus & Grafana observability stack.
+* [`NODE`](https://github.com/Vonng/pigsty/wiki/NODE):   Init node name, repo, pkg, NTP, ssh, admin, tune, expose services, collect logs & metrics.
+* [`ETCD`](https://github.com/Vonng/pigsty/wiki/ETCD):   Init etcd cluster for HA PostgreSQL DCS or Kubernetes, used as distributed config store.
+* [`PGSQL`](https://github.com/Vonng/pigsty/wiki/PGSQL): Autonomous self-healing PostgreSQL cluster powered by Patroni, Pgbouncer, PgBackrest & HAProxy
+* [`REDIS`](https://github.com/Vonng/pigsty/wiki/REDIS): Deploy Redis servers in standalone master-replica, sentinel, and native cluster mode, optional.
+* [`MINIO`](https://github.com/Vonng/pigsty/wiki/MINIO): S3-compatible object storage service used as an optional central backup server for `PGSQL`.
 
 You can compose them freely in a declarative manner. If you want host monitoring, `INFRA` & `NODE` will suffice.
-Add additional `ETCD` and `PGSQL` are use for HA PG Clusters. deploy them on multiple nodes will form a ha cluster.
-You can reuse pigsty infra and develop your own modules, such as example optional module `REDIS` and `MINIO`.
+`ETCD` and `PGSQL` are used for HA PG clusters, install them on multiple nodes will automatically form a HA cluster.
+You can also reuse pigsty infra and develop your own modules, `KAFKA`, `MYSQL`, `GPSQL`, and more will come.
 
-The default `install.yml` playbook in [Getting Started](#getting-started) will install `INFRA`, `NODE`, `ETCD`, `PGSQL` on current node. 
-which gives you a battery-included postgres singleton instance (admin:5432) with everything ready.
-This node can be used as a control center & infra provider, to manage, deploy & monitor more nodes & database clusters. 
+The default [`install.yml`](install.yml) playbook in [Getting Started](#getting-started) will install `INFRA`, `NODE`, `ETCD` & `PGSQL` on the current node. 
+which gives you a battery-included PostgreSQL singleton instance (`admin_ip:5432`) with everything ready.
+This node can be used as an admin center & infra provider to manage, deploy & monitor more nodes & clusters.
 
 
---------
+
 
 ## More Clusters
 
@@ -438,7 +451,7 @@ redis-common:
 </details>
 
 
---------
+
 
 ## About
 

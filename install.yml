@@ -22,10 +22,10 @@
 # - pgsql-init   : postgres service pg-exporter pg-register
 #
 # Which is equivalent to the following 4 playbooks altogether:
-# - infra.yml    deploy infrastructure on group 'infra'
-# - node.yml     init all nodes (including infra nodes)
-# - etcd.yml     deploy etcd on group 'etcd` for pg ha dcs
-# - pgsql.yml    deploy postgres database clusters
+# - infra.yml -l infra   deploy infrastructure on group 'infra'
+# - node.yml  -l all     init all nodes (except infra nodes)
+# - etcd.yml  -l etcd    init etcd on group 'etcd` for pg ha
+# - pgsql.yml -l all     deploy postgres database clusters
 #==============================================================#
 
 #---------------------------------------------------------------
@@ -58,10 +58,8 @@
   gather_facts: no
   tags: infra-boot
   roles:
-    - { role: infra_cert ,tags: infra_cert }  # issue infra cert
     - { role: environ    ,tags: environ    }  # setup admin environment vars
     - { role: repo       ,tags: repo       }  # create local yum repo
-    - { role: nginx      ,tags: nginx      }  # launch nginx portal
 
 #---------------------------------------------------------------
 # init node , ca, docker
@@ -85,6 +83,8 @@
   gather_facts: no
   tags: infra-init
   roles:
+    - { role: infra_cert     ,tags: infra_cert }  # issue infra cert
+    - { role: nginx          ,tags: nginx      }  # setup nginx
     - { role: nameserver     ,tags: nameserver }  # setup dnsmasq
     - { role: prometheus     ,tags: prometheus }  # setup prometheus, alertmanager, pushgateway, blackbox_exporter
     - { role: grafana        ,tags: grafana    }  # setup grafana
