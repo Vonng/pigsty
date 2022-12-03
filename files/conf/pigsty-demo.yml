@@ -4,7 +4,7 @@
 # Desc      :   Pigsty Local Sandbox 4-node Demo
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2022-12-02
+# Mtime     :   2022-12-03
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
@@ -49,10 +49,9 @@ all:
               - host    kong            dbuser_kong         10.0.0.0/8          md5
               - host    bytebase        dbuser_bytebase     10.0.0.0/8          md5
               - host    grafana         dbuser_grafana      10.0.0.0/8          md5
-        vip_mode: l2                 # listen l2 vip 10.10.10.2 on eth1
-        vip_address: 10.10.10.2
-        vip_cidrmask: 8
-        vip_interface: eth1
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.2/24
+        pg_vip_interface: eth1
 
     # pgsql 3 node ha cluster: pg-test
     pg-test:
@@ -64,52 +63,23 @@ all:
         pg_cluster: pg-test           # define pgsql cluster name
         pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
         pg_databases: [{ name: test }]
-        vip_mode: l2                  # enable/disable vip (require members in same LAN)
-        vip_address: 10.10.10.3       # virtual ip address for this cluster
-        vip_cidrmask: 8               # cidr network mask length
-        vip_interface: eth1           # interface to add virtual ip
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.3/24
+        pg_vip_interface: eth1
 
+    redis-ms: # redis classic primary & replica
+      hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.13 6501' } } } }
+      vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
 
-    # redis sentinel
-    redis-meta:
+    redis-meta: # redis sentinel x 3
+      hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 6001: { } ,6002: { } , 6003: { } } } }
+      vars: { redis_cluster: redis-meta, redis_mode: sentinel ,redis_max_memory: 16MB }
+
+    redis-test: # redis native cluster: 3m x 3s
       hosts:
-        10.10.10.10:
-          redis_node: 1
-          redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
-      vars:
-        redis_cluster: redis-meta
-        redis_mode: sentinel
-        redis_max_memory: 64MB
-
-    # redis cluster
-    redis-test:
-      hosts:
-        10.10.10.11:
-          redis_node: 1
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} }
-        10.10.10.12:
-          redis_node: 2
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} }
-      vars:
-        redis_cluster: redis-test           # name of this redis 'cluster'
-        redis_mode: cluster                 # standalone,cluster,sentinel
-        redis_max_memory: 32MB              # max memory used by each redis instance
-        redis_mem_policy: allkeys-lru       # memory eviction policy
-
-    # redis standalone
-    redis-common:
-      hosts:
-        10.10.10.13:
-          redis_node: 1
-          redis_instances:
-            6501: {}
-            6502: { replica_of: '10.10.10.13 6501' }
-            6503: { replica_of: '10.10.10.13 6501' }
-      vars:
-        redis_cluster: redis-common         # name of this redis 'cluster'
-        redis_mode: standalone              # standalone,cluster,sentinel
-        redis_max_memory: 64MB              # max memory used by each redis instance
-
+        10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+        10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+      vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
 
   vars:                               # global variables
     version: v2.0.0-b1                # pigsty version string
@@ -117,19 +87,19 @@ all:
     region: default                   # upstream mirror region: default|china|europe
     pg_clean: true                    # for convenience, purge existing pg during init, DO NOT DO THIS IN PRODUCTION
     nginx_upstream:                   # domain names and upstream servers
-      - { name: home         , domain: pigsty      , endpoint: "${admin_ip}:80"   }
-      - { name: grafana      , domain: g.pigsty    , endpoint: "${admin_ip}:3000" }
-      - { name: prometheus   , domain: p.pigsty    , endpoint: "${admin_ip}:9090" }
-      - { name: alertmanager , domain: a.pigsty    , endpoint: "${admin_ip}:9093" }
-      - { name: consul       , domain: c.pigsty    , endpoint: "127.0.0.1:8500"   } #== ^ required ==#
-      - { name: postgrest    , domain: api.pigsty  , endpoint: "127.0.0.1:8884"   } #== v optional ==#
-      - { name: pgadmin      , domain: adm.pigsty  , endpoint: "127.0.0.1:8885"   }
-      - { name: pgweb        , domain: cli.pigsty  , endpoint: "127.0.0.1:8886"   }
-      - { name: bytebase     , domain: ddl.pigsty  , endpoint: "127.0.0.1:8887"   }
-      - { name: jupyter      , domain: lab.pigsty  , endpoint: "127.0.0.1:8888"   }
-      - { name: gitea        , domain: git.pigsty  , endpoint: "127.0.0.1:8889"   }
-      - { name: minio        , domain: sss.pigsty  , endpoint: "127.0.0.1:9000"   }
-      - { name: wiki         , domain: wiki.pigsty , endpoint: "127.0.0.1:9002"   }
+      - { name: home         ,domain: pigsty      ,endpoint: "${admin_ip}:80"   }
+      - { name: grafana      ,domain: g.pigsty    ,endpoint: "${admin_ip}:3000" }
+      - { name: prometheus   ,domain: p.pigsty    ,endpoint: "${admin_ip}:9090" }
+      - { name: alertmanager ,domain: a.pigsty    ,endpoint: "${admin_ip}:9093" }
+      - { name: consul       ,domain: c.pigsty    ,endpoint: "127.0.0.1:8500"   } #== ^ required ==#
+      - { name: postgrest    ,domain: api.pigsty  ,endpoint: "127.0.0.1:8884"   } #== v optional ==#
+      - { name: pgadmin      ,domain: adm.pigsty  ,endpoint: "127.0.0.1:8885"   }
+      - { name: pgweb        ,domain: cli.pigsty  ,endpoint: "127.0.0.1:8886"   }
+      - { name: bytebase     ,domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887"   }
+      - { name: jupyter      ,domain: lab.pigsty  ,endpoint: "127.0.0.1:8888"   }
+      - { name: gitea        ,domain: git.pigsty  ,endpoint: "127.0.0.1:8889"   }
+      - { name: minio        ,domain: sss.pigsty  ,endpoint: "127.0.0.1:9000"   }
+      - { name: wiki         ,domain: wiki.pigsty ,endpoint: "127.0.0.1:9002"   }
     nginx_indexes:                    # application nav links on home page
       - { name: PgAdmin4   , url : 'http://adm.pigsty'  , comment: 'PgAdmin4 for PostgreSQL'  }
       - { name: PGWeb      , url : 'http://cli.pigsty'  , comment: 'PGWEB Browser Client'     }
@@ -140,7 +110,6 @@ all:
       - { name: Wiki       , url : 'http://wiki.pigsty' , comment: 'Local Wiki Pedia'         }
       - { name: Explain    , url : '/pev.html'          , comment: 'pgsql explain visualizer' }
       - { name: Package    , url : '/pigsty'            , comment: 'local yum repo packages'  }
-      - { name: Matrix Pkg , url : '/matrix'            , comment: 'matrixdb repo packages'   }
       - { name: PG Logs    , url : '/logs'              , comment: 'postgres raw csv logs'    }
       - { name: Schemas    , url : '/schema'            , comment: 'schemaspy summary report' }
       - { name: Reports    , url : '/report'            , comment: 'pgbadger summary report'  }
@@ -153,7 +122,7 @@ all:
       - 10.10.10.13 pg-test-3         # sandbox instance node-3
     node_admin_pk_list:               # vagrant ssh public keys on admin node
       - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
-    node_timezone: Asia/Hong_Kong     # default node timezone, empty will not change
+    node_timezone: Asia/Hong_Kong     # use Asia/Hong_Kong Timezone
     node_ntp_servers:                 # NTP servers in /etc/chrony.conf
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst

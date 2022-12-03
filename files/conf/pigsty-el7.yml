@@ -11,13 +11,7 @@
 
 
 all:
-
-  vars:                               # global parameters
-    version: v2.0.0-b1                # pigsty version string
-    admin_ip: 10.10.10.10             # admin node ip address
-    region: default                   # upstream mirror region: default|china|europe
-
-  children:                           # group definitions
+  children:
 
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: {10.10.10.10: {infra_seq: 1}}, vars: {patroni_watchdog_mode: off}}
@@ -36,14 +30,9 @@ all:
         pg_databases:
           - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}]}
 
-    # postgres cluster 'pg-meta'
-    pg-test:
-      hosts:
-        10.10.10.11: { pg_seq: 1, pg_role: primary }
-        10.10.10.12: { pg_seq: 2, pg_role: replica }
-        10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query:true }
-      vars:
-        pg_cluster: pg-test
-        pg_databases: [{ name: test }]
-        pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
+  vars:                               # global parameters
+    version: v2.0.0-b1                # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default,china,europe
+
 ...

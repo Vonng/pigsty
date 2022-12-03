@@ -4,63 +4,60 @@
 # Desc      :   pigsty config for redis clusters
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2022-11-09
-# Mtime     :   2022-12-02
+# Mtime     :   2022-12-03
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
 all:
-
   children:
-
-    # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
-    # redis sentinel
-    redis-meta:
-      hosts:
-        10.10.10.10:
-          redis_node: 1
-          redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
-      vars:
-        redis_cluster: redis-meta
-        redis_mode: sentinel
-        redis_max_memory: 64MB
+    redis-ms: # redis classic primary & replica
+      hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.13 6501' } } } }
+      vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
 
-    # redis native cluster
-    redis-test:
-      hosts:
-        10.10.10.11:
-          redis_node: 1
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} }
-        10.10.10.12:
-          redis_node: 2
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} }
-      vars:
-        redis_cluster: redis-test           # name of this redis 'cluster'
-        redis_mode: cluster                 # standalone,cluster,sentinel
-        redis_max_memory: 32MB              # max memory used by each redis instance
-        redis_mem_policy: allkeys-lru       # memory eviction policy
+    redis-meta: # redis sentinel x 3
+      hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 6001: { } ,6002: { } , 6003: { } } } }
+      vars: { redis_cluster: redis-meta, redis_mode: sentinel ,redis_max_memory: 16MB }
 
-    # redis standalone
-    redis-common:
+    redis-test: # redis native cluster: 3m x 3s
       hosts:
-        10.10.10.13:
-          redis_node: 1
-          redis_instances:
-            6501: {}
-            6502: { replica_of: '10.10.10.13 6501' }
-            6503: { replica_of: '10.10.10.13 6501' }
-      vars:
-        redis_cluster: redis-common         # name of this redis 'cluster'
-        redis_mode: standalone              # standalone,cluster,sentinel
-        redis_max_memory: 64MB              # max memory used by each redis instance
-
+        10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+        10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+      vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
 
   vars:
+    version: v2.0.0-b1                      # pigsty version string
+    admin_ip: 10.10.10.10                   # admin node ip address
+    region: default                         # upstream mirror region: default|china|europe
 
-    version: v2.0.0-b1                # pigsty version string
-    admin_ip: 10.10.10.10             # admin node ip address
-    region: default                   # upstream mirror region: default|china|europe
+    #================================================================#
+    #                         VARS: REDIS                            #
+    #================================================================#
+    # redis identity
+    #redis_cluster:        <CLUSTER> # redis cluster name, required identity parameter
+    #redis_node: 1            <NODE> # redis node sequence number, node int id required
+    #redis_instances: {}      <NODE> # redis instances definition on this redis node
 
+    # redis node
+    redis_fs_main: /data              # redis main data mountpoint, `/data` by default
+    redis_exporter_enabled: true      # install redis exporter on redis nodes?
+    redis_exporter_port: 9121         # redis exporter listen port, 9121 by default
+    redis_exporter_options: ''        # cli args and extra options for redis exporter
+
+    # redis instance
+    redis_safeguard: false            # prevent purging running redis instance?
+    redis_clean: true                 # purging existing redis during init?
+    redis_rmdata: true                # remove redis data when purging redis server?
+    redis_mode: standalone            # redis mode: standalone,cluster,sentinel
+    redis_conf: redis.conf            # redis config template path, except sentinel
+    redis_bind_address: '0.0.0.0'     # redis bind address, empty string will use host ip
+    redis_max_memory: 32MB            # max memory used by each redis instance
+    redis_mem_policy: allkeys-lru     # redis memory eviction policy
+    redis_password: ''                # redis password, empty string will disable password
+    redis_rdb_save: [ '1200 1' ]      # redis rdb save directives, disable with empty list
+    redis_aof_enabled: false          # enable redis append only file?
+    redis_rename_commands: { }        # rename redis dangerous commands
+    redis_cluster_replicas: 1         # replica number for one master in redis cluster
 ...

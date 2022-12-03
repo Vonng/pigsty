@@ -4,7 +4,7 @@
 # Desc      :   Pigsty security enhancement configuration
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2022-12-02
+# Mtime     :   2022-12-03
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
@@ -17,7 +17,6 @@
 #   * use a l2 vip for pgsql cluster
 
 all:
-
   children:
 
     infra: # infra cluster for proxy, monitor, alert, etc
@@ -25,8 +24,7 @@ all:
         10.10.10.10: { infra_seq: 1 } # identity required
         10.10.10.11: { infra_seq: 2, repo_enabled: false }
         10.10.10.12: { infra_seq: 3, repo_enabled: false }
-      vars:
-        patroni_watchdog_mode: off
+      vars: { patroni_watchdog_mode: off }
 
     etcd: # dcs service for postgres/patroni ha consensus
       hosts:  # 1 node for testing, 3 or 5 for production
@@ -38,7 +36,7 @@ all:
         etcd_safeguard: false # safeguard against purging
         etcd_clean: true # purge etcd during init process
 
-    pg-meta:                          # 3 instance postgres cluster `pg-meta`
+    pg-meta:      # 3 instance postgres cluster `pg-meta`
       hosts:
         10.10.10.10: { pg_seq: 1, pg_role: primary }
         10.10.10.11: { pg_seq: 2, pg_role: replica }
@@ -52,18 +50,15 @@ all:
         pg_databases:
           - { name: meta , baseline: cmdb.sql ,comment: pigsty meta database , schemas: [ pigsty ] , extensions: [{ name: postgis, schema: public }] }
         pg_services:
-          - { name: standby ,src_ip: "*" ,src_port: 5435 , dst_port: postgres ,selector: "[]" , selector_backup: "[? pg_role == `primary`]" }
-        vip_mode: l2
-        vip_address: 10.10.10.2
-        vip_cidrmask: 8
-        vip_interface: eth1
+          - { name: standby ,src_ip: "*" ,port: 5435 , dest: postgres ,selector: "[]" , backup: "[? pg_role == `primary`]" }
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.2/24
+        pg_vip_interface: eth1
 
     # OPTIONAL delayed cluster for pg-meta
     pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
-      hosts:
-        10.10.10.13: { pg_seq: 1, pg_role: primary, pg_upstream: 10.10.10.10, pg_delay: 1h }
-      vars:
-        pg_cluster: pg-meta-delay
+      hosts: { 10.10.10.13: { pg_seq: 1, pg_role: primary, pg_upstream: 10.10.10.10, pg_delay: 1h } }
+      vars: { pg_cluster: pg-meta-delay }
 
 
   ####################################################################
