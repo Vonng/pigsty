@@ -212,7 +212,7 @@ def dump_dashboard_to_file(d, path):
         raw["version"] = 1
         raw["author"] = "Vonng (rh@vonng.com)"
         raw["license"] = "AGPLv3"
-        json.dump(raw, dst, indent=4)
+        json.dump(raw, dst, indent=4, sort_keys=True)
 
 
 def dump_dashboard(d, home):
@@ -222,7 +222,7 @@ def dump_dashboard(d, home):
         dir_uid = '.'
     p = os.path.join(home, dir_uid, db_uid + '.json')
     with open(p, 'w') as dst:
-        json.dump(dashboard_raw(d), dst, indent=4)
+        json.dump(dashboard_raw(d), dst, indent=4, sort_keys=True)
 
 
 ##########################################
@@ -295,8 +295,7 @@ def dump_all(dashboard_dir):
         os.mkdir(dashboard_dir)
     dbmeta = list_dashboards()
     folders = set([i.get('folderUid') for i in dbmeta if 'folderUid' in i and i.get('type') != 'dash-folder'])
-    dashdbs = [(i.get('uid'), i.get('folderUid', '.')) for i in dbmeta if
-               i.get('type') != 'dash-folder']
+    dashdbs = [(i.get('uid'), i.get('folderUid', '.')) for i in dbmeta if i.get('type') != 'dash-folder']
     for d in folders:
         abs_path = os.path.join(dashboard_dir, d)
         if os.path.isfile(abs_path):

@@ -330,15 +330,15 @@ test-rb3:
 #------------------------------#
 di: dashboard-init                    # init grafana dashboards
 dashboard-init:
-	cd roles/grafana/files/dashboards/ && ./grafana.py init
+	cd files/dashboards/ && ./grafana.py init
 
 dd: dashboard-dump                    # dump grafana dashboards
 dashboard-dump:
-	cd roles/grafana/files/dashboards/ && ./grafana.py dump
+	cd files/dashboards/ && ./grafana.py dump
 
 dc: dashboard-clean                   # cleanup grafana dashboards
 dashboard-clean:
-	cd files/ui && ./grafana.py clean
+	cd files/dashboards/ && ./grafana.py clean
 
 du: dashboard-clean dashboard-init    # update grafana dashboards
 

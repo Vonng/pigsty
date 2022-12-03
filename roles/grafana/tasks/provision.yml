@@ -1,5 +1,17 @@
 ---
 #--------------------------------------------------------------#
+# Copy base dashboards (home dashboard & core application)
+#--------------------------------------------------------------#
+# Note that dashboards dir are located @ pigsty home files/
+- name: sync grafana dashboards
+  tags: [ dashboard, dashboard_sync ]
+  synchronize:
+    src: dashboards/
+    owner: no
+    group: no
+    dest: /etc/pigsty/dashboards/
+
+#--------------------------------------------------------------#
 # Provisioning
 #--------------------------------------------------------------#
 - name: provisioning grafana with grafana.py
@@ -18,6 +30,7 @@
     export NGINX_UPSTREAM={% for entry in nginx_upstream %}{% if not loop.first %},{% endif %}{{ entry.name }}={{ entry.domain }}{% endfor %}
 
     # run provisioning logic
+    cd /etc/pigsty/dashboards/
+    chown -R root:root /etc/pigsty/dashboards/
     /etc/pigsty/dashboards/grafana.py init /etc/pigsty/dashboards/
-
 ...

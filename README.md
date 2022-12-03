@@ -199,7 +199,7 @@ Pigsty uses a **modular** design. There are several default modules available:
 
 * [`INFRA`](https://github.com/Vonng/pigsty/wiki/INFRA): Local yum repo, Nginx, DNS, and entire Prometheus & Grafana observability stack.
 * [`NODE`](https://github.com/Vonng/pigsty/wiki/NODE):   Init node name, repo, pkg, NTP, ssh, admin, tune, expose services, collect logs & metrics.
-* [`ETCD`](https://github.com/Vonng/pigsty/wiki/ETCD):   Init etcd cluster for HA PostgreSQL DCS or Kubernetes, used as distributed config store.
+* [`ETCD`](https://github.com/Vonng/pigsty/wiki/ETCD):   Init etcd cluster for HA Postgres DCS or Kubernetes, used as distributed config store.
 * [`PGSQL`](https://github.com/Vonng/pigsty/wiki/PGSQL): Autonomous self-healing PostgreSQL cluster powered by Patroni, Pgbouncer, PgBackrest & HAProxy
 * [`REDIS`](https://github.com/Vonng/pigsty/wiki/REDIS): Deploy Redis servers in standalone master-replica, sentinel, and native cluster mode, optional.
 * [`MINIO`](https://github.com/Vonng/pigsty/wiki/MINIO): S3-compatible object storage service used as an optional central backup server for `PGSQL`.
