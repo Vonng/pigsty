@@ -27,23 +27,22 @@
   become: yes
   hosts: infra
   gather_facts: no
-  tags: infra       # infra playbook only works on infra nodes
   roles:
     # id
     - { role: node_id        ,tags: id         }  # generate node & pgsql identity
-    # infra-boot
-    - { role: environ        ,tags: environ    }  # setup admin environment vars
+    # repo
     - { role: repo           ,tags: repo       }  # create local yum repo
     # node-init
     - { role: node           ,tags: node       }  # prepare node for pigsty
     - { role: haproxy        ,tags: haproxy    }  # init haproxy if enabled
     - { role: docker         ,tags: docker     }  # init docker if enabled
-    # infra-init
+    # infra
+    - { role: environ        ,tags: environ    }  # setup admin env
     - { role: infra_cert     ,tags: cert       }  # issue cert for infra
     - { role: nginx          ,tags: nginx      }  # setup nginx portal
     - { role: nameserver     ,tags: nameserver }  # setup dnsmasq
     - { role: prometheus     ,tags: prometheus }  # setup prometheus, alertmanager, pushgateway, blackbox_exporter
-    - { role: grafana        ,tags: grafana    }  # setup grafana, loki, tempo, mimir
+    - { role: grafana        ,tags: grafana    }  # setup grafana, tempo, mimir
     - { role: loki           ,tags: loki       }  # setup loki
     - { role: infra_register ,tags: register   }  # register infra services
     # node-monitor

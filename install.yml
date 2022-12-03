@@ -4,7 +4,7 @@
 # File      :   install.yml
 # Desc      :   install everything on all nodes
 # Ctime     :   2021-01-19
-# Mtime     :   2022-11-29
+# Mtime     :   2022-12-03
 # Path      :   install.yml
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -50,16 +50,14 @@
   roles: [{ role: ca }]
 
 #---------------------------------------------------------------
-# bootstrap infra nodes with local yum repo
+# bootstrap a local yum repo
 #---------------------------------------------------------------
-- name: INFRA BOOT
+- name: REPO
   become: yes
   hosts: infra
   gather_facts: no
-  tags: infra-boot
-  roles:
-    - { role: environ    ,tags: environ    }  # setup admin environment vars
-    - { role: repo       ,tags: repo       }  # create local yum repo
+  tags: repo
+  roles: [{ role: repo }]  # create local yum repo
 
 #---------------------------------------------------------------
 # init node , ca, docker
@@ -81,8 +79,9 @@
   become: yes
   hosts: infra
   gather_facts: no
-  tags: infra-init
+  tags: infra
   roles:
+    - { role: environ        ,tags: environ    }  # setup admin envs
     - { role: infra_cert     ,tags: infra_cert }  # issue infra cert
     - { role: nginx          ,tags: nginx      }  # setup nginx
     - { role: nameserver     ,tags: nameserver }  # setup dnsmasq
@@ -117,7 +116,7 @@
 #---------------------------------------------------------------
 # INIT PGSQL
 #---------------------------------------------------------------
-- name: PGSQL Init          # init pgsql cmdb on meta nodes
+- name: PGSQL INIT          # init pgsql cmdb on meta nodes
   become: yes
   hosts: all
   gather_facts: no
