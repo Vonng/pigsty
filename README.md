@@ -215,6 +215,7 @@ This node can be used as an admin center & infra provider to manage, deploy & mo
 
 
 
+
 ## More Clusters
 
 To deploy a 3-node HA Postgres Cluster with streaming replication,
@@ -351,10 +352,8 @@ pg-meta:                          # 3 instance postgres cluster `pg-meta`
 
 # OPTIONAL delayed cluster for pg-meta
 pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
-  hosts:
-    10.10.10.13: { pg_seq: 1, pg_role: primary, pg_upstream: 10.10.10.10, pg_delay: 1h }
-  vars:
-    pg_cluster: pg-meta-delay
+  hosts: { 10.10.10.13: { pg_seq: 1, pg_role: primary, pg_upstream: 10.10.10.10, pg_delay: 1h } }
+  vars: { pg_cluster: pg-meta-delay }
 ```
 
 </details>
@@ -364,18 +363,15 @@ pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
 ```bash
 # citus coordinator node
 pg-meta:
-  hosts:
-    10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true }
+  hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true } }
   vars:
     pg_cluster: pg-meta
     pg_users: [{ name: citus ,password: citus ,pgbouncer: true ,roles: [dbrole_admin]}]
-    pg_databases:
-      - { name: meta ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public},{ name: citus}] ,baseline: cmdb.sql ,comment: pigsty meta database}
+    pg_databases: [{ name: meta ,owner: citus , extensions: [{name: citus},{name: postgis, schema: public}]}]
 
 # citus data node 1,2,3
 pg-node1:
-  hosts:
-    10.10.10.11: { pg_seq: 1, pg_role: primary }
+  hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
   vars:
     pg_cluster: pg-node1
     vip_address: 10.10.10.3
@@ -383,8 +379,7 @@ pg-node1:
     pg_databases: [{ name: meta ,owner: citus , extensions: [{name: citus},{name: postgis, schema: public}]}]
 
 pg-node2:
-  hosts:
-    10.10.10.12: { pg_seq: 1, pg_role: primary  , pg_offline_query: true }
+  hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary  , pg_offline_query: true } }
   vars:
     pg_cluster: pg-node2
     vip_address: 10.10.10.4
@@ -392,8 +387,7 @@ pg-node2:
     pg_databases: [ { name: meta , owner: citus , extensions: [ { name: citus }, { name: postgis, schema: public } ] } ]
 
 pg-node3:
-  hosts:
-    10.10.10.13: { pg_seq: 1, pg_role: primary  , pg_offline_query: true }
+  hosts: { 10.10.10.13: { pg_seq: 1, pg_role: primary  , pg_offline_query: true } }
   vars:
     pg_cluster: pg-node3
     vip_address: 10.10.10.5
@@ -406,46 +400,20 @@ pg-node3:
 
 <details><summary>Redis Cluster Example</summary>
 
-```bash
-# redis sentinel
-redis-meta:
-  hosts:
-    10.10.10.10:
-      redis_node: 1
-      redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
-  vars:
-    redis_cluster: redis-meta
-    redis_mode: sentinel
-    redis_max_memory: 64MB
+```yaml
+redis-ms: # redis classic primary & replica
+  hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.13 6501' } } } }
+  vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
 
-# redis native cluster
-redis-test:
-  hosts:
-    10.10.10.11:
-      redis_node: 1
-      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} }
-    10.10.10.12:
-      redis_node: 2
-      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} }
-  vars:
-    redis_cluster: redis-test           # name of this redis 'cluster'
-    redis_mode: cluster                 # standalone,cluster,sentinel
-    redis_max_memory: 32MB              # max memory used by each redis instance
-    redis_mem_policy: allkeys-lru       # memory eviction policy
+redis-meta: # redis sentinel x 3
+  hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 6001: { } ,6002: { } , 6003: { } } } }
+  vars: { redis_cluster: redis-meta, redis_mode: sentinel ,redis_max_memory: 16MB }
 
-# redis standalone
-redis-common:
+redis-test: # redis native cluster: 3m x 3s
   hosts:
-    10.10.10.13:
-      redis_node: 1
-      redis_instances:
-        6501: {}
-        6502: { replica_of: '10.10.10.13 6501' }
-        6503: { replica_of: '10.10.10.13 6501' }
-  vars:
-    redis_cluster: redis-common         # name of this redis 'cluster'
-    redis_mode: standalone              # standalone,cluster,sentinel
-    redis_max_memory: 64MB              # max memory used by each redis instance
+    10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+    10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+  vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
 ```
 
 </details>
