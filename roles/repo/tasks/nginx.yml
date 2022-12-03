@@ -1,0 +1,38 @@
+#!/usr/bin/env ansible-playbook
+---
+# check postgres by listening port
+- name: check nginx exists by port
+  command: 'ss -tp state listening sport = :{{ nginx_port }}'
+  register: check_nginx_port_result
+- name: set nginx_exists flag
+  connection: local
+  set_fact: { nginx_exists: "{{ 'nginx' in check_nginx_port_result.stdout }}" }
+
+- name: setup repo nginx server
+  when: not nginx_exists|bool
+  block:
+
+    # make sure nginx installed
+    - name: make sure nginx installed
+      package: name=nginx state=present
+
+    # copy repo nginx config & content
+    - name: render repo nginx files
+      template: src={{ item.src }} dest={{ item.dest }} mode=0644
+      ignore_errors: false
+      with_items:
+        - { src: nginx.conf.j2,    dest: /etc/nginx/nginx.conf }
+        - { src: default.conf.j2,  dest: /etc/nginx/conf.d/default.conf }
+        - { src: index.html.j2,    dest: "{{ nginx_home }}/index.html" }
+
+    - name: disable selinux for repo server
+      shell: setenforce 0; /bin/true
+
+    # launch nginx with systemctl and wait for port 80 online
+    - name: launch repo nginx server
+      systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
+
+    - name: wait repo nginx server online
+      wait_for: host=127.0.0.1 port={{ nginx_port }} state=started
+
+...

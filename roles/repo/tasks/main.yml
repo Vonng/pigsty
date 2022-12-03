@@ -9,27 +9,27 @@
 # RPM packages are downloaded to {{ repo_home }}/{{ repo_name }}.
 # And it will skip download if all packages already exists
 #
-# Local yum repo url:  http://{{ repo_address }}/{{ repo_name }}/
+# Local yum repo url: {{ repo_endpoint }}/{{ repo_name }}/
 #==============================================================#
 # you can invoke repo tasks with infra.yml or install.yml
 #
-# call with : ./infra.yml -t repo_url_pkg   # redownload weburl packages
-# call with : ./infra.yml -t repo_boot_pkg  # install bootstrap packages
-# call with : ./infra.yml -t repo_rpm_pkg   # download repo rpm packages
-# call with : ./infra.yml -t repo_create    # create yum repo
+# infra.yml -t repo_url_pkg   # redownload weburl packages
+# infra.yml -t repo_boot_pkg  # install bootstrap packages
+# infra.yml -t repo_rpm_pkg   # download repo rpm packages
+# infra.yml -t repo_create    # create yum repo
 # build without check: ./infra.yml -t repo_build -e repo_url_packages=[] -e repo_packages=[]
 #
-# ./infra.yml -t repo          # init repo
-# ./infra.yml -t repo_prepare  # use existing repo if exists
-# ./infra.yml -t repo_build    # (re)build local repo
-# ./infra.yml -t repo_nginx    # setup nginx server for repo
-# ./infra.yml -t repo_create   # recreate repo
-# ./infra.yml -t repo_upstream # add upstream repo file
-# ./infra.yml -t repo_build   -e repo_url_packages=[]    # build & skip url download
-# ./infra.yml -t repo_build   -e repo_packages=[]        # build & skip rpm download
-# ./infra.yml -t repo_build   -e repo_packages=[] -e repo_url_packages=[]  # skip download
-# ./infra.yml -t repo_url_pkg -e repo_url_packages=[https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html]
-# ./infra.yml -t repo_pkg   -e repo_packages=[xxxx]
+# infra.yml -t repo          # init repo
+# infra.yml -t repo_prepare  # use existing repo if exists
+# infra.yml -t repo_build    # (re)build local repo
+# infra.yml -t repo_nginx    # setup temp nginx server for repo
+# infra.yml -t repo_create   # recreate repo
+# infra.yml -t repo_upstream # add upstream repo file
+# infra.yml -t repo_build   -e repo_url_packages=[]    # build & skip url download
+# infra.yml -t repo_build   -e repo_packages=[]        # build & skip rpm download
+# infra.yml -t repo_build   -e repo_packages=[] -e repo_url_packages=[]  # skip download
+# infra.yml -t repo_url_pkg -e repo_url_packages=[https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html]
+# infra.yml -t repo_pkg   -e repo_packages=[xxxx]
 
 #--------------------------------------------------------------#
 # 0. Create repo dir?                                 [repo_dir]
@@ -106,4 +106,16 @@
   when: repo_enabled|bool and not repo_exists|bool
   tags: repo_build
   ignore_errors: true
+
+
+#--------------------------------------------------------------#
+# 4. Repo Nginx                                     [repo_nginx]
+#--------------------------------------------------------------#
+# repo nginx is enabled on admin node, when there are multiple infra nodes
+# so that other infra nodes can use this repo to install nginx rather than download themselves
+# repo nginx will not be created if a nginx server is already running on admin node
+# and this temp nginx will be overwritten by role `nginx`.
+- import_tasks: nginx.yml
+  when: repo_enabled|bool and groups["infra"]|length > 1 and inventory_hostname == admin_ip
+  tags: repo_nginx
 ...
