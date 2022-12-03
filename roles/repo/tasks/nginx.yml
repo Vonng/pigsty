@@ -1,6 +1,5 @@
-#!/usr/bin/env ansible-playbook
 ---
-# check postgres by listening port
+# check nginx by listening port
 - name: check nginx exists by port
   command: 'ss -tp state listening sport = :{{ nginx_port }}'
   register: check_nginx_port_result
@@ -8,6 +7,7 @@
   connection: local
   set_fact: { nginx_exists: "{{ 'nginx' in check_nginx_port_result.stdout }}" }
 
+# only setup repo nginx when nginx is not running
 - name: setup repo nginx server
   when: not nginx_exists|bool
   block:
@@ -34,5 +34,4 @@
 
     - name: wait repo nginx server online
       wait_for: host=127.0.0.1 port={{ nginx_port }} state=started
-
 ...

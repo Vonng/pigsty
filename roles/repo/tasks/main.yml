@@ -111,11 +111,9 @@
 #--------------------------------------------------------------#
 # 4. Repo Nginx                                     [repo_nginx]
 #--------------------------------------------------------------#
-# repo nginx is enabled on admin node, when there are multiple infra nodes
-# so that other infra nodes can use this repo to install nginx rather than download themselves
 # repo nginx will not be created if a nginx server is already running on admin node
 # and this temp nginx will be overwritten by role `nginx`.
 - import_tasks: nginx.yml
-  when: repo_enabled|bool and groups["infra"]|length > 1 and inventory_hostname == admin_ip
+  when: repo_enabled|bool
   tags: repo_nginx
 ...
