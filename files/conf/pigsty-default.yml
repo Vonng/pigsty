@@ -4,7 +4,7 @@
 # Desc      :   pigsty config template with all default values
 # Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2022-12-03
+# Mtime     :   2022-12-05
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
@@ -153,7 +153,7 @@ all:
   vars:                               # global variables
 
     #================================================================#
-    #                         VARS: META                             #
+    #                         VARS: BASIC                            #
     #================================================================#
     version: v2.0.0-b1                # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
@@ -163,10 +163,6 @@ all:
       # http_proxy:  # set your proxy here: e.g http://user:pass@proxy.xxx.com
       # https_proxy: # set your proxy here: e.g http://user:pass@proxy.xxx.com
       # all_proxy:   # set your proxy here: e.g http://user:pass@proxy.xxx.com
-
-    #================================================================#
-    #                         VARS: INFRA                            #
-    #================================================================#
 
     #-----------------------------------------------------------------
     # CA
@@ -232,71 +228,88 @@ all:
       - https://dl.min.io/server/minio/release/linux-amd64/minio-20221111034420.0.0.x86_64.rpm
       - https://dl.min.io/client/mc/release/linux-amd64/mcli-20221107234739.0.0.x86_64.rpm
 
+
+    #================================================================#
+    #                         VARS: INFRA                            #
+    #================================================================#
+    #-----------------------------------------------------------------
+    # INFRA_IDENTITY
+    #-----------------------------------------------------------------
+    #infra_seq: 1                     # infra node identity, explicitly required
+    infra_portal:                     # infra services exposed via portal
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" ,websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
+
+    #-----------------------------------------------------------------
+    # INFRA_PACKAGE
+    #-----------------------------------------------------------------
+    infra_packages:                   # packages to be installed on infra nodes
+      - grafana,loki,prometheus2,alertmanager,pushgateway,blackbox_exporter,nginx_exporter
+      - nginx,dnsmasq,ansible,python3-requests,redis,redis_exporter,mcli,logcli,postgresql15
+    infra_packages_pip: ''            # pip installed packages for infra nodes
+
     #-----------------------------------------------------------------
     # NGINX
     #-----------------------------------------------------------------
     nginx_enabled: true               # enable nginx on this infra node?
+    nginx_sslmode: enable             # nginx ssl mode? disable,enable,enforce
     nginx_home: /www                  # nginx content dir, `/www` by default
     nginx_port: 80                    # nginx listen port, 80 by default
     nginx_ssl_port: 443               # nginx ssl listen port, 443 by default
-    nginx_ssl_enabled: true           # enable ssl on nginx? enabled by default
-    nginx_upstream:                   # nginx domain names and upstreams: i,a,p,g
-      - { name: home         , domain: i.pigsty , endpoint: "${admin_ip}:80"   }
-      - { name: alertmanager , domain: a.pigsty , endpoint: "${admin_ip}:9093" }
-      - { name: prometheus   , domain: p.pigsty , endpoint: "${admin_ip}:9090" }
-      - { name: grafana      , domain: g.pigsty , endpoint: "${admin_ip}:3000" }
-    nginx_indexes:                    # nginx index.html navigation links
-      - { name: Package , url: '/pigsty'   ,comment: 'local yum repo packages'    }
-      - { name: Explain , url: '/pev.html' ,comment: 'postgres explain visualizer'}
-      - { name: PG Logs , url: '/logs'     ,comment: 'postgres raw csv logs'      }
-      - { name: Reports , url: '/report'   ,comment: 'pgbadger summary report'    }
+    nginx_navbar:                     # nginx index page navigation links
+      - { name: CA Cert ,url: '/ca.crt'   ,desc: 'pigsty self-signed ca.crt' }
+      - { name: Package ,url: '/pigsty'   ,desc: 'local yum repo packages' }
+      - { name: Explain ,url: '/pev.html' ,desc: 'postgres explain visualizer' }
+      - { name: PG Logs ,url: '/logs'     ,desc: 'postgres raw csv logs' }
+      - { name: Reports ,url: '/report'   ,desc: 'pgbadger summary report' }
 
     #-----------------------------------------------------------------
-    # NAMESERVER
+    # DNS
     #-----------------------------------------------------------------
-    nameserver_enabled: false         # enable dnsmasq on this infra node?
-    dns_records: [ ]                  # dynamic dns record resolved by dnsmasq
+    dns_enabled: false                # setup dnsmasq on infra nodes?
+    dns_port: 53                      # dns server listen port, 53 by default
+    dns_records: [ ]                  # dynamic dns records resolved by dnsmasq
 
     #-----------------------------------------------------------------
-    # PROMETHEUS
+    # Prometheus
     #-----------------------------------------------------------------
     prometheus_enabled: true          # enable prometheus on this infra node?
-    prometheus_data: /data/prometheus/data # prometheus data dir, `/data/prometheus/data` by default
+    prometheus_clean: true            # clean prometheus data during init?
+    prometheus_data: /data/prometheus # prometheus data dir, `/data/prometheus` by default
+    prometheus_sd_interval: 5s        # prometheus target refresh interval, 5s by default
+    prometheus_scrape_interval: 10s   # prometheus scrape & eval interval, 10s by default
+    prometheus_scrape_timeout: 8s     # prometheus global scrape timeout, 8s by default
     prometheus_options: '--storage.tsdb.retention.time=15d' # prometheus extra server options
-    prometheus_reload: false          # reload prometheus instead of recreate it?
-    prometheus_sd_interval: 5s        # service discovery refresh interval, 5s by default
-    prometheus_scrape_interval: 10s   # global scrape & evaluation interval, 10s by default
-    prometheus_scrape_timeout: 8s     # prometheus scrape timeout, 8s by default
-    alertmanager_endpoint: '${admin_ip}:9093' # alertmanager endpoint, `admin_ip:9093` by default
-
-    #-----------------------------------------------------------------
-    # EXPORTER
-    #-----------------------------------------------------------------
+    pushgateway_enabled: true         # setup pushgateway on infra nodes?
+    pushgateway_options: '--persistence.interval=1m' # pushgateway extra server options
+    blackbox_enabled: true            # setup blackbox_exporter on infra nodes?
+    blackbox_options: ''              # blackbox_exporter extra server options
+    alertmanager_enabled: true        # setup alertmanager on this infra node?
+    alertmanager_options: ''          # alertmanager extra server options
+    exporter_metrics_path: /metrics   # exporter metric path, `/metrics` by default
     exporter_install: none            # how to install exporter? none,yum,binary
     exporter_repo_url: ''             # exporter repo file url if install exporter via binary
-    exporter_metrics_path: /metrics   # exporter metric path, `/metrics` by default
 
     #-----------------------------------------------------------------
     # GRAFANA
     #-----------------------------------------------------------------
     grafana_enabled: true             # enable grafana on this infra node?
-    grafana_endpoint: http://${admin_ip}:3000 # grafana endpoint url, admin_ip:3000 by default
+    grafana_clean: true               # clean grafana data during init?
     grafana_admin_username: admin     # grafana admin username, `admin` by default
     grafana_admin_password: pigsty    # grafana admin password, `pigsty` by default
-    grafana_plugin_method: install    # how to install grafana plugins? none,install,always
     grafana_plugin_cache: /www/pigsty/plugins.tgz # path to grafana plugins cache tarball
     grafana_plugin_list:              # grafana plugins to be downloaded with grafana-cli
       - volkovlabs-echarts-panel
       - marcusolsson-treemap-panel
-
-    #-----------------------------------------------------------------
-    # LOKI
-    #-----------------------------------------------------------------
     loki_enabled: true                # enable loki on this infra node?
     loki_clean: false                 # whether remove existing loki data?
     loki_data: /data/loki             # loki data dir, `/data/loki` by default
-    loki_endpoint: http://${admin_ip}:3100/loki/api/v1/push # loki endpoint to to receive logs
     loki_retention: 15d               # loki log retention period, 15d by default
+
 
 
     #================================================================#
@@ -346,7 +359,7 @@ all:
     # NODE_DNS
     #-----------------------------------------------------------------
     node_default_etc_hosts:           # static dns records in `/etc/hosts`
-      - "${admin_ip} meta i.pigsty p.pigsty g.pigsty a.pigsty"
+      - "${admin_ip} meta h.pigsty a.pigsty p.pigsty g.pigsty"
       - "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
     node_etc_hosts: []                # extra static dns records in `/etc/hosts`
     node_dns_method: none             # how to handle dns servers: add,none,overwrite
@@ -355,31 +368,23 @@ all:
       - options single-request-reopen timeout:1 rotate
 
     #-----------------------------------------------------------------
-    # NODE_REPO
+    # NODE_PACKAGE
     #-----------------------------------------------------------------
     node_repo_method: local           # how to setup node repo: none,local,public
     node_repo_remove: true            # remove existing repo on node?
     node_repo_local_urls:             # local repo url, if node_repo_method = local
-      - http://10.10.10.10/pigsty.repo
-
-    #-----------------------------------------------------------------
-    # NODE_PACKAGE
-    #-----------------------------------------------------------------
+      - http://${admin_ip}/pigsty.repo
     node_packages: [ ]                # packages to be installed current nodes
     node_default_packages:            # default packages to be installed on all nodes
       - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils
       - wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal
       - readline,zlib,openssl,openssh-clients,node_exporter,etcd,promtail,mtail,python3-idna,python3-requests,haproxy
-    infra_packages:                   # packages to be installed on infra nodes
-      - grafana,prometheus2,alertmanager,pushgateway,blackbox_exporter,nginx_exporter
-      - nginx,ansible,python3-requests,dnsmasq,redis,redis_exporter,mcli,logcli
-    infra_packages_pip: ''            # pip installed packages for infra nodes
 
     #-----------------------------------------------------------------
     # NODE_TUNE
     #-----------------------------------------------------------------
-    node_disable_firewall: true       # disable node firewall?
-    node_disable_selinux: true        # disable node selinux?
+    node_disable_firewall: true       # disable node firewall? true by default
+    node_disable_selinux: true        # disable node selinux? true by default
     node_disable_numa: false          # disable node numa, reboot required
     node_disable_swap: false          # disable node swap, use with caution
     node_static_network: true         # preserve dns resolver settings after reboot
@@ -427,25 +432,25 @@ all:
     #-----------------------------------------------------------------
     # DOCKER
     #-----------------------------------------------------------------
-    docker_enabled: false             # enable docker on nodes?
+    docker_enabled: false             # enable docker on host?
     docker_cgroups_driver: systemd    # docker cgroup fs driver
     docker_registry_mirrors: []       # docker registry mirror
-    docker_image_cache: /tmp/docker.tgz # docker images tarball to be loaded if exists
+    docker_image_cache: /tmp/docker.tgz # docker images tarball path
 
     #-----------------------------------------------------------------
     # NODE_EXPORTER
     #-----------------------------------------------------------------
-    node_exporter_enabled: true       # setup node_exporter on instance
-    node_exporter_port: 9100          # default port for node exporter
+    node_exporter_enabled: true       # enable node_exporter on host?
+    node_exporter_port: 9100          # node exporter listen port, 9100 by default
     node_exporter_options: '--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes'
 
     #-----------------------------------------------------------------
     # PROMTAIL
     #-----------------------------------------------------------------
     promtail_enabled: true            # enable promtail logging collector?
-    promtail_clean: false             # remove promtail status file? false by default
-    promtail_port: 9080               # default listen address for promtail
-    promtail_positions: /var/log/positions.yaml   # position status for promtail
+    promtail_clean: false             # purge existing promtail status file during init?
+    promtail_port: 9080               # promtail listen port, 9080 by default
+    promtail_positions: /var/log/positions.yaml   # promtail position status file path
 
 
     #================================================================#
@@ -634,7 +639,7 @@ all:
     # PG_VIP
     #-----------------------------------------------------------------
     pg_vip_enabled: false             # enable a l2 vip for pgsql primary? false by default
-    pg_vip_address: 127.0.0.1/24      # vip address in `<ipv4>/<mask>` format, require if vip is enabled  
+    pg_vip_address: 127.0.0.1/24      # vip address in `<ipv4>/<mask>` format, require if vip is enabled
     pg_vip_interface: eth0            # vip network interface to listen, eth0 by default
 
     #-----------------------------------------------------------------
@@ -645,7 +650,7 @@ all:
     pg_exporter_port: 9630                 # pg_exporter listen port, 9630 by default
     pg_exporter_params: 'sslmode=disable'  # extra url parameters for pg_exporter connstr
     pg_exporter_url: ''                    # overwrite auto-generate pg connstr if specified
-    pg_exporter_auto_discovery: true       # enable audo database discovery? enabled by default 
+    pg_exporter_auto_discovery: true       # enable audo database discovery? enabled by default
     pg_exporter_exclude_database: 'template0,template1,postgres' # csv of database that WILL NOT be monitored during auto-discovery
     pg_exporter_include_database: ''       # csv of database that WILL BE monitored during auto-discovery
     pg_exporter_options: ' --connect-timeout=200 --log.level=info --log.format="logger:syslog?appname=pg_exporter&local=7"'
