@@ -1,40 +1,38 @@
 ---
 #--------------------------------------------------------------#
-# expose pgsql service with local haproxy
+# register service to haproxy                 [register_haproxy]
 #--------------------------------------------------------------#
-# TODO: Compile pg_service to haproxy_services
-
-#--------------------------------------------------------------#
-# register service to haproxy
-#--------------------------------------------------------------#
+# pg_service, haproxy_reload
 - import_tasks: haproxy.yml
   tags: register_haproxy
 
 #--------------------------------------------------------------#
-# register exporter targets to prometheus
+# register exporter targets to prometheus  [register_prometheus]
 #--------------------------------------------------------------#
+# pgsql_register
 - import_tasks: prometheus.yml
   tags: register_prometheus
 
 #--------------------------------------------------------------#
-# register pgsql datasource to grafana
+# register pgsql datasource to grafana        [register_grafana]
 #--------------------------------------------------------------#
 - import_tasks: grafana.yml
   tags: register_grafana
 
 #--------------------------------------------------------------#
-# TODO: CMDB Register (if cmdb is used instead of inventory file)
+# TODO: DNS Register (apply for DNS name)         [register_dns]
+#--------------------------------------------------------------#
+
+
+#--------------------------------------------------------------#
+# TODO: CMDB Register                            [register_cmdb]
 #--------------------------------------------------------------#
 # - import_tasks: cmdb.yml
 #   tags: register_cmdb
 
-#--------------------------------------------------------------#
-# TODO: DNS Register (apply for DNS name)
-#--------------------------------------------------------------#
-
 
 #--------------------------------------------------------------#
-# print summary
+# print summary                                     [pg_summary]
 #--------------------------------------------------------------#
 - name: print pgsql identity
   tags: pg_summary

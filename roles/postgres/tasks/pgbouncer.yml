@@ -1,7 +1,7 @@
 ---
-#------------------------------------------------------------------------------
-# Cleanup existing pgbouncer
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Purge Pgbouncer                              [pgbouncer_clean]
+#--------------------------------------------------------------#
 - name: purge pgbouncer
   tags: pgbouncer_clean
   block:
@@ -17,17 +17,22 @@
         - /var/run/pgbouncer
         - "{{ pgbouncer_log_dir }}"
 
-    - name: create pgbouncer dir
-      file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0750
-      with_items:
-        - /etc/pgbouncer
-        - /var/run/pgbouncer
-        - "{{ pgbouncer_log_dir }}"
+
+#--------------------------------------------------------------#
+# Create Pgbouncer Dir                           [pgbouncer_dir]
+#--------------------------------------------------------------#
+- name: create pgbouncer dir
+  tags: pgbouncer_dir
+  file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0750
+  with_items:
+    - /etc/pgbouncer
+    - /var/run/pgbouncer
+    - "{{ pgbouncer_log_dir }}"
 
 
-#------------------------------------------------------------------------------
-# Config pgbouncer
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Config Pgbouncer                            [pgbouncer_config]
+#--------------------------------------------------------------#
 - name: config pgbouncer
   tags: pgbouncer_config
   block:
@@ -103,9 +108,10 @@
       vars: {user: "{{ item }}" }
       with_items: "{{ pg_users }}"
 
-#------------------------------------------------------------------------------
-# Launch pgbouncer
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Launch Pgbouncer                            [pgbouncer_launch]
+#--------------------------------------------------------------#
 - name: launch pgbouncer
   tags: pgbouncer_launch
   block:
@@ -116,10 +122,17 @@
     - name: wait for pgbouncer service online
       wait_for: host=127.0.0.1 port={{ pgbouncer_port }} state=started timeout=10
 
+
+#--------------------------------------------------------------#
+# Reload Pgbouncer                            [pgbouncer_reload]
+#--------------------------------------------------------------#
+- name: reload pgbouncer
+  tags: pgbouncer_reload
+  block:
+
     - name: reload pgbouncer
-      tags: pgbouncer_reload
       when: pg_reload|bool
-      systemd: name=pgbouncer state=restarted enabled=yes daemon_reload=yes
+      systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
 
     - name: check pgbouncer ready
       become_user: "{{ pg_dbsu }}"

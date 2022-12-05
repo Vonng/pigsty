@@ -155,13 +155,13 @@
             username: "{{ pg_monitor_username|default('dbuser_monitor') }}"
             password: "{{ pg_monitor_password|default('DBUser.Monitor') }}"
 
-        - name: load grafana datasource
+        - name: register grafana datasource
           shell: |
             curl -X DELETE "{{ endpoint }}/api/datasources/name/{{ name }}" -u "{{ username }}:{{ password }}"  -H 'Content-Type: application/json'
             curl -X POST   "{{ endpoint }}/api/datasources/" -u "{{ username }}:{{ password }}" -H 'Content-Type: application/json' -d @/etc/pigsty/datasources/{{ name }}.json
           vars:
             name: "{{ pg_cluster }}-{{ pg_seq }}.{{ dbname }}"
-            endpoint: "{{ grafana_endpoint|default('http://${admin_ip}:3000')|regex_replace('\\${admin_ip}', admin_ip) }}"
+            endpoint: "{{ 'http://' +  infra_portal.grafana.endpoint|default('${admin_ip}', admin_ip)|replace('${admin_ip}', admin_ip ) }}"
             username: "{{ grafana_admin_username|default('admin') }}"
             password: "{{ grafana_admin_password|default('pigsty') }}"
 ...

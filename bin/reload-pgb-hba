@@ -1,12 +1,13 @@
 #!/bin/bash
 set -euo pipefail
+
 #==============================================================#
-# File      :   bin/reloadha
-# Desc      :   Wrapper of pgsql playbook reload haproxy task
-# Ctime     :   2021-12-03
-# Mtime     :   2022-12-05
-# Usage     :   bin/reloadha <cluster>
-# Path      :   bin/reloadha
+# File      :   bin/reload-pgb-hba
+# Desc      :   Wrapper of pgsql playbook reload pgbouncer hba task
+# Ctime     :   2021-11-02
+# Mtime     :   2021-12-03
+# Usage     :   bin/reload-pgb-hba <cluster>
+# Path      :   bin/reload-pgb-hba
 # Depend    :   pigsty playbook pgsql.yml
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -48,16 +49,16 @@ PG_CLUSTER=${1-''}
 
 if [[ -z "${PG_CLUSTER}" ]]; then
     log_error "pg_cluster is empty"
-    log_hint "bin/reloadha <pg_cluster>"
+    log_hint "bin/reload-pgb-hba <pg_cluster> # define database in pg_databases first"
     exit 1
 fi
 #==============================================================#
 
 
 #==============================================================#
-log_warn "reload ${PG_CLUSTER} haproxy"
+log_warn "reload ${PG_CLUSTER} hba rules"
 #==============================================================#
 cd ${PIGSTY_HOME} >/dev/null
-${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} -t register_haproxy -e haproxy_reload=true
+${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} -t pgbouncer_hba,pgbouncer_reload -e pg_reload=true
 
-log_hint "some haproxy statistics may not be accurate after reload"
+log_hint "be careful to adjust pgbouncer hba rules, there's no way to check before reload!"

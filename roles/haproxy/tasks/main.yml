@@ -58,11 +58,19 @@
 #--------------------------------------------------------------#
 # Reload Haproxy                                [haproxy_reload]
 #--------------------------------------------------------------#
-- name: reload haproxy
+- name: reload haproxy to register node services
   tags: [ haproxy_reload , haproxy_config ]
   when: haproxy_reload|bool
-  ignore_errors: true
-  systemd: name=haproxy state=reloaded enabled=yes daemon_reload=yes
+  block:
 
+    # if check fail on this step, haproxy will not be reloaded
+    - name: check haproxy config before reload
+      ignore_errors: no
+      command: /usr/sbin/haproxy -f /etc/haproxy/haproxy.cfg -c -q
+
+    # even if you perform haproxy reload on junk config, it will not fail
+    - name: reload haproxy
+      ignore_errors: false
+      systemd: name=haproxy state=reloaded enabled=yes daemon_reload=yes
 
 ...
