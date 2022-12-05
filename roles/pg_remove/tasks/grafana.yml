@@ -11,7 +11,7 @@
     curl -X DELETE "{{ endpoint }}/api/datasources/name/{{ name }}" -u "{{ username }}:{{ password }}" -H 'Content-Type: application/json'
   vars:
     name: "{{ pg_cluster }}-{{ pg_seq }}.{{ item.name }}"
-    endpoint: "{{ grafana_endpoint|default('http://${admin_ip}:3000')|regex_replace('\\${admin_ip}', admin_ip) }}"
+    endpoint: "http://{{ infra_portal.grafana.endpoint|replace('${admin_ip}' ,admin_ip) }}"
     username: "{{ grafana_admin_username|default('admin') }}"
     password: "{{ grafana_admin_password|default('pigsty') }}"
   with_items: "{{ pg_databases }}"
