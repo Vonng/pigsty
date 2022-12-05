@@ -1,0 +1,17 @@
+[Unit]
+Description=Prometheus Alertmanager.
+Documentation=https://github.com/prometheus/alertmanager
+After=network.target
+
+[Service]
+EnvironmentFile=-/etc/default/alertmanager
+User=prometheus
+ExecStart=/usr/bin/alertmanager $ALERTMANAGER_OPTS
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5s
+LimitNOFILE=16384
+
+
+[Install]
+WantedBy=multi-user.target

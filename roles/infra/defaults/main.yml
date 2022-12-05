@@ -1,0 +1,128 @@
+---
+#-----------------------------------------------------------------
+# INFRA_IDENTITY
+#-----------------------------------------------------------------
+#infra_seq: 1                     # infra node identity, explicitly required
+infra_portal:                     # infra services exposed via portal
+  home         : { domain: h.pigsty }
+  grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" ,websocket: true }
+  prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+  alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+  blackbox     : { endpoint: "${admin_ip}:9115" }
+  loki         : { endpoint: "${admin_ip}:3100" }
+
+#-----------------------------------------------------------------
+# INFRA_PACKAGE
+#-----------------------------------------------------------------
+infra_packages:                   # packages to be installed on infra nodes
+  - grafana,loki,prometheus2,alertmanager,pushgateway,blackbox_exporter,nginx_exporter
+  - nginx,dnsmasq,ansible,python3-requests,redis,redis_exporter,mcli,logcli,postgresql15
+infra_packages_pip: ''            # pip installed packages for infra nodes
+
+#-----------------------------------------------------------------
+# NGINX
+#-----------------------------------------------------------------
+nginx_enabled: true               # enable nginx on this infra node?
+nginx_sslmode: enable             # nginx ssl mode? disable,enable,enforce
+nginx_home: /www                  # nginx content dir, `/www` by default
+nginx_port: 80                    # nginx listen port, 80 by default
+nginx_ssl_port: 443               # nginx ssl listen port, 443 by default
+nginx_navbar:                     # nginx index page navigation links
+  - { name: CA Cert ,url: '/ca.crt'   ,desc: 'pigsty self-signed ca.crt' }
+  - { name: Package ,url: '/pigsty'   ,desc: 'local yum repo packages' }
+  - { name: Explain ,url: '/pev.html' ,desc: 'postgres explain visualizer' }
+  - { name: PG Logs ,url: '/logs'     ,desc: 'postgres raw csv logs' }
+  - { name: Reports ,url: '/report'   ,desc: 'pgbadger summary report' }
+
+#-----------------------------------------------------------------
+# DNS
+#-----------------------------------------------------------------
+dns_enabled: false                # setup dnsmasq on infra nodes?
+dns_port: 53                      # dns server listen port, 53 by default
+dns_records: [ ]                  # dynamic dns records resolved by dnsmasq
+
+#-----------------------------------------------------------------
+# Prometheus
+#-----------------------------------------------------------------
+prometheus_enabled: true          # enable prometheus on this infra node?
+prometheus_clean: true            # clean prometheus data during init?
+prometheus_data: /data/prometheus # prometheus data dir, `/data/prometheus` by default
+prometheus_sd_interval: 5s        # prometheus target refresh interval, 5s by default
+prometheus_scrape_interval: 10s   # prometheus scrape & eval interval, 10s by default
+prometheus_scrape_timeout: 8s     # prometheus global scrape timeout, 8s by default
+prometheus_options: '--storage.tsdb.retention.time=15d' # prometheus extra server options
+pushgateway_enabled: true         # setup pushgateway on infra nodes?
+pushgateway_options: '--persistence.interval=1m' # pushgateway extra server options
+blackbox_enabled: true            # setup blackbox_exporter on infra nodes?
+blackbox_options: ''              # blackbox_exporter extra server options
+alertmanager_enabled: true        # setup alertmanager on infra nodes?
+alertmanager_options: ''          # alertmanager extra server options
+exporter_metrics_path: /metrics   # exporter metric path, `/metrics` by default
+exporter_install: none            # how to install exporter? none,yum,binary
+exporter_repo_url: ''             # exporter repo file url if install exporter via binary
+
+#-----------------------------------------------------------------
+# GRAFANA
+#-----------------------------------------------------------------
+grafana_enabled: true             # enable grafana on this infra node?
+grafana_clean: true               # clean grafana data during init?
+grafana_admin_username: admin     # grafana admin username, `admin` by default
+grafana_admin_password: pigsty    # grafana admin password, `pigsty` by default
+grafana_plugin_cache: /www/pigsty/plugins.tgz # path to grafana plugins cache tarball
+grafana_plugin_list:              # grafana plugins to be downloaded with grafana-cli
+  - volkovlabs-echarts-panel
+  - marcusolsson-treemap-panel
+loki_enabled: true                # enable loki on this infra node?
+loki_clean: false                 # whether remove existing loki data?
+loki_data: /data/loki             # loki data dir, `/data/loki` by default
+loki_retention: 15d               # loki log retention period, 15d by default
+
+#-----------------------------------------------------------------
+# EXPORTER & PORT (Reference)
+#-----------------------------------------------------------------
+node_exporter_port: 9100          # node exporter listen port, 9100 by default
+haproxy_exporter_port: 9101       # haproxy admin/exporter port, 9101 by default
+promtail_port: 9080               # promtail listen port, 9080 by default
+minio_port: 9000                  # minio service port, 9000 by default
+pg_exporter_port: 9630            # pg_exporter listen port, 9630 by default
+pgbouncer_exporter_port: 9631     # pgbouncer_exporter listen port, 9631 by default
+#-----------------------------------------------------------------
+# INTERNAL
+#-----------------------------------------------------------------
+nginx_cert_exists: false
+#-----------------------------------------------------------------
+# META (Reference)
+#-----------------------------------------------------------------
+version: v2.0.0-b1                # pigsty version string
+admin_ip: 10.10.10.10             # admin node ip address, overwritten by configure
+#-----------------------------------------------------------------
+# CA (Reference)
+#-----------------------------------------------------------------
+cert_validity: 7300d              # cert validity, 20 years by default
+#-----------------------------------------------------------------
+# REPO (Reference)
+#-----------------------------------------------------------------
+repo_name: pigsty                 # repo name, pigsty by default
+#-----------------------------------------------------------------
+# ETCD (Reference)
+#-----------------------------------------------------------------
+etcd_port: 2379                   # etcd client port, 2379 by default
+etcd_api: 2                       # etcd api version used, 2 by default
+#-----------------------------------------------------------------
+# PG_BOOTSTRAP (Reference)
+#-----------------------------------------------------------------
+pg_namespace: /pg                 # top level key namespace in etcd, used by patroni & vip
+patroni_port: 8008                # patroni listen port, 8008 by default
+patroni_ssl_enabled: false        # secure patroni RestAPI communications with SSL?
+#-----------------------------------------------------------------
+# PG_BUSINESS (Reference)
+#-----------------------------------------------------------------
+pg_replication_username: replicator         # default replication username
+pg_replication_password: DBUser.Replicator  # default replication password
+pg_admin_username: dbuser_dba               # default admin username
+pg_admin_password: DBUser.DBA               # default admin password
+pg_monitor_username: dbuser_monitor         # default monitor username
+pg_monitor_password: DBUser.Monitor         # default monitor password
+patroni_username: postgres                  # patroni rest api username
+patroni_password: Patroni.API               # patroni rest api password
+...

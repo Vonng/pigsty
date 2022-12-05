@@ -1,0 +1,165 @@
+---
+#--------------------------------------------------------------#
+# 1. Nginx Config                                 [nginx_config]
+#--------------------------------------------------------------#
+- name: config nginx server
+  tags: nginx_config
+  block:
+
+    - name: create nginx config dir
+      file: path={{ item.path }} state={{ item.state }}
+      with_items:
+        - { path: /etc/nginx/conf.d/cert ,state: directory }
+        - { path: /etc/nginx/conf.d/haproxy ,state: directory }
+        - { path: /etc/nginx/conf.d/default.conf ,state: absent }
+
+    # main config
+    - name: render nginx main config
+      template: src=nginx/nginx.conf.j2 dest=/etc/nginx/nginx.conf
+
+    # server config
+    - name: render nginx server conf
+      when: upstream.domain is defined and upstream.domain != ''
+      template: src=nginx/server.conf.j2 dest=/etc/nginx/conf.d/{{ upstream_name }}.conf
+      vars: { upstream_name: '{{ item.key }}' , upstream: '{{ item.value }}' }
+      with_dict: "{{ infra_portal|default({}) }}"
+
+
+#--------------------------------------------------------------#
+# 2. Nginx Cert                                     [nginx_cert]
+#--------------------------------------------------------------#
+# check nginx cert & key file exists @ files/pki/nginx/pigsty.{crt|key}
+- name: check nginx cert key exists
+  tags: [ nginx_cert, nginx_cert_check ]
+  become: no
+  delegate_to: localhost
+  block:
+    - name: check files/pki/nginx/pigsty.key exists
+      stat: path=files/pki/nginx/pigsty.key
+      register: nginx_key_exists
+
+    - name: check files/pki/nginx/pigsty.crt exists
+      stat: path=files/pki/nginx/pigsty.crt
+      register: nginx_crt_exists
+
+    - name: set nginx_cert_exists
+      set_fact: { nginx_cert_exists: "{{ nginx_key_exists.stat.exists|bool and nginx_crt_exists.stat.exists|bool }}" }
+
+- name: generate nginx cert
+  tags: [ nginx_cert, nginx_cert_issue ]
+  become: no
+  delegate_to: localhost
+  when: not nginx_cert_exists|bool
+  block:
+
+    - name: generate private key for nginx server
+      connection: local
+      openssl_privatekey:
+        path: files/pki/nginx/pigsty.key
+        mode: 0600
+
+    - name: generate signing request for nginx
+      connection: local
+      openssl_csr:
+        path: files/pki/csr/pigsty.csr
+        privatekey_path: files/pki/nginx/pigsty.key
+        common_name: pigsty
+        organization_name: pigsty
+        organizational_unit_name: nginx
+        force: yes
+        subject_alt_name: "{% set san = [] %}{% for name,srv in infra_portal.items() %}{% if srv.domain is defined and srv.domain != '' %}{{ san.append('DNS:'+srv.domain) }}{% endif %}{% endfor %}{{ san.append('DNS:localhost') }}{{ san.append('IP:' + inventory_hostname) }}{{ san }}"
+
+    - name: signing nginx cert
+      connection: local
+      openssl_certificate:
+        path: files/pki/nginx/pigsty.crt
+        csr_path: files/pki/csr/pigsty.csr
+        ownca_path: files/pki/ca/ca.crt
+        ownca_privatekey_path: files/pki/ca/ca.key
+        provider: ownca
+        selfsigned_not_after: "+{{ cert_validity }}"
+        mode: 0644
+
+- name: copy nginx certs
+  become: yes
+  tags: [ nginx_cert, nginx_cert_copy ]
+  block:
+    - name: copy nginx ssl cert
+      copy: src="files/pki/nginx/pigsty.crt" dest="/etc/nginx/conf.d/cert/pigsty.crt" owner=root group=root mode=0644
+    - name: copy nginx ssl key
+      copy: src="files/pki/nginx/pigsty.key" dest="/etc/nginx/conf.d/cert/pigsty.key" owner=root group=root mode=0600
+
+
+#--------------------------------------------------------------#
+# 3. Nginx Static Content                         [nginx_static]
+#--------------------------------------------------------------#
+# nginx_dir, nginx_ca, nginx_logo, nginx_index, nginx_pev
+- name: setup nginx static content
+  tags: nginx_static
+  block:
+
+    - name: create nginx content directory
+      tags: nginx_dir
+      file: path={{ item }} state=directory
+      with_items:
+        - "{{ nginx_home }}"
+        - "{{ nginx_home }}/logs"
+        - "{{ nginx_home }}/schema"
+        - "{{ nginx_home }}/report"
+
+    - name: copy pigsty ca cert
+      tags: nginx_ca
+      copy: src=files/pki/ca/ca.crt dest=/{{ nginx_home }}/ca.crt
+
+    - name: copy pigsty logo file
+      tags: nginx_logo
+      copy: src=icon.svg dest=/{{ nginx_home }}/icon.svg
+
+    - name: render nginx home page
+      tags: nginx_index
+      template: src=nginx/index.html.j2 dest=/{{ nginx_home }}/index.html
+      vars:
+        scheme: "{% if nginx_sslmode == 'enforce' %}https{% else %}http{% endif %}"
+        grafana_prefix: "{% if nginx_sslmode == 'enforce' %}https{% else %}http{% endif %}://{{ infra_portal.grafana.domain }}"
+
+#--------------------------------------------------------------#
+# 4. Nginx Launch                                 [nginx_launch]
+#--------------------------------------------------------------#
+- name: launch nginx service
+  tags: nginx_launch
+  when: nginx_enabled|bool
+  block:
+
+    - name: disable firewall and selinux for nginx
+      tags: nginx_firewall
+      ignore_errors: true
+      shell: setenforce 0; systemctl stop firewalld; /bin/true;
+
+    - name: restart nginx service
+      systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
+
+    - name: wait for nginx service
+      wait_for: host=127.0.0.1 port={{ nginx_port }} state=started timeout=10
+
+
+#--------------------------------------------------------------#
+# 5. Nginx Exporter                             [nginx_exporter]
+#--------------------------------------------------------------#
+- name: setup nginx exporter
+  ignore_errors: true
+  tags: nginx_exporter
+  block:
+
+    - name: config nginx_exporter
+      copy:
+        dest: /etc/default/nginx_exporter
+        content: 'NGINX_EXPORTER_OPTS="-nginx.scrape-uri http://127.0.0.1:80/nginx"'
+
+    - name: restart nginx_exporter service
+      systemd: name=nginx_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: wait for nginx exporter
+      wait_for: host=127.0.0.1 port=9113 state=started timeout=10
+
+
+...

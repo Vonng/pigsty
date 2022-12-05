@@ -1,0 +1,87 @@
+{% if upstream_name == 'home' %}
+# {{ ansible_managed }}
+# DEFAULT SERVER @ {{ nginx_port }} {% if nginx_sslmode != 'disable' %}/ {{ nginx_ssl_port }}{% endif %}
+
+# include haproxy admin webui upstream definition
+include /etc/nginx/conf.d/haproxy/upstream-*.conf;
+
+server {
+    server_name  {{  upstream.domain }} localhost;
+    listen       {{ nginx_port }} default_server;
+{% if nginx_sslmode != 'disable' %}
+    listen       {{ nginx_ssl_port }} ssl default_server;
+    ssl_certificate {% if upstream.cert is defined %}{{ upstream.cert }}{% else %}/etc/nginx/conf.d/cert/pigsty.crt{% endif %};
+    ssl_certificate_key {% if upstream.key is defined %}{{ upstream.key }}{% else %}/etc/nginx/conf.d/cert/pigsty.key{% endif %};
+    ssl_session_timeout 5m;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+    ssl_prefer_server_ciphers on;
+{% endif %}
+
+{% if upstream.websocket is defined and upstream.websocket|bool %}
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+{% endif %}
+
+    # home server
+    location / {
+        root        {{ nginx_home }};
+        index       index.html;
+        autoindex   on;
+        autoindex_exact_size on;
+        autoindex_localtime on;
+        autoindex_format html;
+    }
+
+    # liveness probe
+    location /nginx {
+        stub_status on;
+        access_log off;
+    }
+
+    # proxy pass haproxy admin webui requests
+    include /etc/nginx/conf.d/haproxy/location-*.conf;
+}
+
+
+{% else %}
+# {{ ansible_managed }}
+# INFRA PORTAL {{ upstream_name }}: {{ upstream.domain }} -> {{ upstream.endpoint|replace('${admin_ip}', admin_ip) }}
+
+upstream {{ upstream_name }} {
+    server {{ upstream.endpoint|replace('${admin_ip}', admin_ip) }} max_fails=0;
+}
+
+server {
+    server_name  {{ upstream.domain }};
+    listen       {{ nginx_port }};
+{% if nginx_sslmode != 'disable' %}
+    listen       {{ nginx_ssl_port }} ssl;
+    ssl_certificate {% if upstream.cert is defined %}{{ upstream.cert }}{% else %}/etc/nginx/conf.d/cert/pigsty.crt{% endif %};
+    ssl_certificate_key {% if upstream.key is defined %}{{ upstream.key }}{% else %}/etc/nginx/conf.d/cert/pigsty.key{% endif %};
+    ssl_session_timeout 5m;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+    ssl_prefer_server_ciphers on;
+{% endif %}
+    access_log /var/log/nginx/{{ upstream_name }}.log;
+    location / {
+        proxy_pass http://{{ upstream_name }}/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-Scheme $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_connect_timeout 5;
+        proxy_read_timeout 120s;
+        proxy_next_upstream error;
+{% if upstream.websocket is defined and upstream.websocket|bool %}
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+{% endif %}
+
+    }
+}
+
+{% endif %}

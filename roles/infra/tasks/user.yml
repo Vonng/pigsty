@@ -1,0 +1,14 @@
+---
+- name: create os user group infra
+  group: name=infra
+
+- name: add infra user to group infra
+  ignore_errors: true
+  user: name={{ item }} group=infra
+  with_items:
+    - prometheus
+    - grafana
+    - "{{ node_user }}"
+    - "{{ node_admin_username }}"
+
+...

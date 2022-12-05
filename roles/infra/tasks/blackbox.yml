@@ -1,0 +1,35 @@
+---
+#--------------------------------------------------------------#
+# Config Blackbox Exporter                     [blackbox_config]
+#--------------------------------------------------------------#
+- name: config blackbox
+  tags: blackbox_config
+  block:
+
+    # - blackbox exporter config - #
+    - name: render blackbox exporter config
+      tags: blackbox_conf
+      template: src=blackbox.yml.j2 dest=/etc/blackbox.yml owner=prometheus mode=0644
+
+    # - opts - #
+    - name: render /etc/default/blackbox
+      copy:
+        dest: /etc/default/blackbox_exporter
+        owner: prometheus
+        mode: 0755
+        content: |
+          BLACKBOX_EXPORTER_OPTS="--config.file=/etc/blackbox.yml {{ blackbox_options }}"
+
+#--------------------------------------------------------------#
+# Launch Blackbox Exporter                     [blackbox_launch]
+#--------------------------------------------------------------#
+# launch blackbox on port 9090
+- name: launch blackbox
+  tags: blackbox_launch
+  when: blackbox_enabled|bool
+  block:
+    - name: launch blackbox systemd service
+      systemd: name=blackbox_exporter state=restarted enabled=yes daemon_reload=yes
+    - name: wait for blackbox service online
+      wait_for: host=127.0.0.1 port=9115 state=started
+...

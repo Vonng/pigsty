@@ -1,0 +1,100 @@
+---
+#--------------------------------------------------------------#
+# 1. Environment                                     [infra_env]
+#--------------------------------------------------------------#
+# setup pigsty infra environment: env_dir, env_pg, env_var
+- import_tasks: env.yml
+  tags: infra_env
+
+#--------------------------------------------------------------#
+# 2. Packages                                        [infra_pkg]
+#--------------------------------------------------------------#
+# install infra packages: infra_pkg_yum, infra_pkg_pip
+- import_tasks: pkg.yml
+  tags: infra_pkg
+
+#--------------------------------------------------------------#
+# 3. User                                           [infra_user]
+#--------------------------------------------------------------#
+# create infra os user group and add users to group
+- import_tasks: user.yml
+  tags: infra_user
+
+#--------------------------------------------------------------#
+# 4. Certs                                          [infra_cert]
+#--------------------------------------------------------------#
+# issue /etc/pki/infra.{key,crt} for prometheus & patronictl
+# infra_cert_issue, infra_cert_copy
+- import_tasks: cert.yml
+  tags: infra_cert
+
+#--------------------------------------------------------------#
+# 5. DNS                                                   [dns]
+#--------------------------------------------------------------#
+# dns_config, dns_record, dns_launch
+- import_tasks: dns.yml
+  tags: dns
+
+#--------------------------------------------------------------#
+# 6. Nginx                                               [nginx]
+#--------------------------------------------------------------#
+# setup nginx, the web service portal
+# nginx_config, nginx_cert, nginx_static, nginx_launch, nginx_exporter
+- import_tasks: nginx.yml
+  tags: nginx
+
+#--------------------------------------------------------------#
+# 7. Prometheus                                     [prometheus]
+#--------------------------------------------------------------#
+# setup prometheus, the time-series databases
+# prometheus_clean, prometheus_dir, prometheus_config
+# prometheus_launch prometheus_reload
+- import_tasks: prometheus.yml
+  tags: prometheus
+
+#--------------------------------------------------------------#
+# 8. AlertManager                                 [altermanager]
+#--------------------------------------------------------------#
+# setup alertmanager: alertmanager_config, alertmanager_launch
+- import_tasks: alertmanager.yml
+  tags: alertmanager
+
+#--------------------------------------------------------------#
+# 9. Pushgateway                                   [pushgateway]
+#--------------------------------------------------------------#
+# setup pushgateway: pushgateway_config, pushgateway_launch
+- import_tasks: pushgateway.yml
+  tags: pushgateway
+
+#--------------------------------------------------------------#
+# 10. Blackbox Exporter                               [blackbox]
+#--------------------------------------------------------------#
+# setup blackbox_exporter: blackbox_config, blackbox_launch
+- import_tasks: blackbox.yml
+  tags: blackbox
+
+#--------------------------------------------------------------#
+# 8. Grafana                                           [grafana]
+#--------------------------------------------------------------#
+# setup grafana, the visualization platform
+# grafana_clean, grafana_config, grafana_plugin
+# grafana_launch, grafana_provision
+- import_tasks: grafana.yml
+  tags: grafana
+
+#--------------------------------------------------------------#
+# 9. Loki                                                 [loki]
+#--------------------------------------------------------------#
+# setup loki, the logging server: l
+# loki clean, loki_dir, loki_config, loki_launch
+- import_tasks: loki.yml
+  tags: loki
+
+#--------------------------------------------------------------#
+# 13. Register                                  [infra_register]
+#--------------------------------------------------------------#
+# register infra components to itself
+- import_tasks: register.yml
+  tags: infra_register
+
+...

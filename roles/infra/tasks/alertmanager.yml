@@ -1,0 +1,39 @@
+---
+#--------------------------------------------------------------#
+# Config Alertmanager                      [alertmanager_config]
+#--------------------------------------------------------------#
+- name: config alertmanager
+  tags: alertmanager_config
+  block:
+
+    # - service - #
+    - name: copy alertmanager systemd service
+      tags: alertmanager_conf
+      copy: src=alertmanager.service dest=/usr/lib/systemd/system/alertmanager.service
+
+    # - alertmanager config - #
+    - name: render alertmanager config
+      tags: alertmanager_conf
+      template: src=alertmanager.yml.j2 dest=/etc/alertmanager.yml owner=prometheus mode=0644
+
+    # - alertmanager opts - #
+    - name: render /etc/default/alertmanager
+      tags: alertmanager_conf
+      copy:
+        dest: /etc/default/alertmanager
+        content: |
+          ALERTMANAGER_OPTS="--config.file=/etc/alertmanager.yml --storage.path={{ prometheus_data }}/alertmanager {{ alertmanager_options }}"
+
+#--------------------------------------------------------------#
+# Launch Prometheus                          [alertmanager_launch]
+#--------------------------------------------------------------#
+# launch alertmanager on port 9090
+- name: launch alertmanager
+  tags: alertmanager_launch
+  when: alertmanager_enabled|bool
+  block:
+    - name: launch alertmanager systemd service
+      systemd: name=alertmanager state=restarted enabled=yes daemon_reload=yes
+    - name: wait for alertmanager service online
+      wait_for: host=127.0.0.1 port=9093 state=started
+...

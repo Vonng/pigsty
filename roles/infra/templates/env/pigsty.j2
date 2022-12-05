@@ -1,0 +1,34 @@
+#!/bin/bash
+# {{ ansible_managed }}
+
+# set default database for postgres
+export PGUSER={{ pg_admin_username }}
+export PGSERVICE="meta"
+export METADB_URL="service=meta"
+
+# grafana environment
+export GRAFANA_ENDPOINT=http://{{ infra_portal.grafana.endpoint|replace('${admin_ip}', admin_ip ) }}
+export GRAFANA_USERNAME={{ grafana_admin_username }}
+export GRAFANA_PASSWORD={{ grafana_admin_password }}
+export USE_HTTPS={{ use_https }}
+export INFRA_PORTAL={{ portals }}
+
+# export PIGSTY_HOME if exists on home dir
+if [[ -d ~/pigsty ]]; then
+  export PIGSTY_HOME="${HOME}/pigsty"
+fi
+
+# pglog analysis shortcuts
+alias pglog="psql   service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample14 FROM STDIN CSV;'"
+alias pglog12="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample12 FROM STDIN CSV;'"
+alias pglog13="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample13 FROM STDIN CSV;'"
+alias pglog14="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample14 FROM STDIN CSV;'"
+
+### default: get pgsql csvlog (localhost @ today)
+function catlog(){ # getlog <ip|host> <date:YYYY-MM-DD>
+  local node=${1-'127.0.0.1'}
+  local today=$(date '+%Y-%m-%d')
+  local ds=${2-${today}}
+  local logpath=$(sudo grep 'log_directory' /pg/data/postgresql.conf | awk '{print $3}' | tr -d "'")
+  ssh -t "${node}" "sudo cat ${logpath}/postgresql-${ds}.csv"
+}

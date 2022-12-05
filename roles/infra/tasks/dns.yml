@@ -1,0 +1,37 @@
+---
+#--------------------------------------------------------------#
+# Config DNS                                        [dns_config]
+#--------------------------------------------------------------#
+- name: render /etc/dnsmasq.d/config
+  tags: dns_config
+  copy:
+    dest: /etc/dnsmasq.d/config
+    content: |
+      port={{ dns_port }}
+      listen-address={{ inventory_hostname }}
+
+
+#--------------------------------------------------------------#
+# Write DNS Records                                 [dns_record]
+#--------------------------------------------------------------#
+- name: add dynamic dns records
+  tags: dns_record
+  lineinfile: path=/etc/hosts line="{{ item }}"
+  with_items: "{{ dns_records }}"
+
+
+#--------------------------------------------------------------#
+# Write DNS Records                                 [dns_launch]
+#--------------------------------------------------------------#
+- name: launch dnsmasq systemd service
+  tags: dns_launch
+  when: dns_enabled|bool
+  block:
+
+    - name: launch dnsmasq systemd service
+      systemd: name=dnsmasq state=restarted enabled=yes daemon_reload=yes
+
+    - name: wait for dnsmasq service online
+      wait_for: host=127.0.0.1 port=53 state=started
+
+...

@@ -1,0 +1,147 @@
+---
+#--------------------------------------------------------------#
+# Cleanup Grafana                                [grafana_clean]
+#--------------------------------------------------------------#
+- name: cleanup grafana data and config
+  tags: grafana_clean
+  when: grafana_clean|bool
+  ignore_errors: true
+  block:
+    - name: stop grafana service
+      tags: grafana_stop
+      shell: systemctl daemon-reload;systemctl stop grafana-server; systemctl stop grafana; /bin/true
+
+    - name: remove grafana config
+      tags: grafana_rmconf
+      file: path={{ item }} state=absent
+      with_items:
+        - /etc/grafana/provisioning/dashboards/pigsty.yml
+        - /etc/grafana/provisioning/datasources/pigsty.yml
+        - /usr/lib/systemd/system/grafana-server.service
+
+    - name: remove grafana data
+      tags: grafana_rmdata
+      file: path=/var/lib/grafana/grafana.db state=absent
+
+#--------------------------------------------------------------#
+# Create Grafana Dir                               [grafana_dir]
+#--------------------------------------------------------------#
+- name: make grafana directories
+  tags: grafana_dir
+  file: path={{ item }} state=directory owner=grafana group=root mode=0775
+  with_items:
+    - /etc/grafana/                          # grafana config dir
+    - /etc/dashboards                        # grafana dashboard dir to be provisioned
+    - /etc/grafana/provisioning/dashboards   # dashboard provisioner config dir
+    - /etc/grafana/provisioning/datasources  # datasource provisioner config dir
+
+
+#--------------------------------------------------------------#
+# Config Grafana                                [grafana_config]
+#--------------------------------------------------------------#
+- name: config grafana
+  tags: grafana_config
+  block:
+
+    - name: copy grafana systemd service
+      copy: src=grafana.service dest=/usr/lib/systemd/system/grafana.service
+
+    - name: render /etc/grafana/grafana.ini
+      template: src=grafana/grafana.ini.j2 dest=/etc/grafana/grafana.ini owner=grafana group=grafana
+
+    - name: render provisioning datasources
+      template: src=grafana/datasource.yml.j2 dest=/etc/grafana/provisioning/datasources/pigsty.yml owner=grafana group=grafana
+
+    - name: render provisioning dashboards
+      template: src=grafana/dashboard.yml.j2 dest=/etc/grafana/provisioning/dashboards/pigsty.yml owner=grafana group=grafana
+
+    - name: customize grafana logo
+      tags: grafana_logo
+      when: grafana_customize_logo is defined and grafana_customize_logo != ''
+      copy: src={{ grafana_customize_logo }} dest=/usr/share/grafana/public/img/grafana_icon.svg
+
+
+#--------------------------------------------------------------#
+# Grafana Plugins                               [grafana_plugin]
+#--------------------------------------------------------------#
+- name: install grafana plugins
+  tags: grafana_plugin
+  when: grafana_enabled|bool
+  ignore_errors: true  # since plugins are not so critical
+  block:
+
+    - name: check grafana plugin cache exists
+      stat: path={{ grafana_plugin_cache }}
+      register: grafana_plugins_cache
+
+    # use tarball if cache exists
+    - name: provision grafana plugins via cache if exists
+      when: grafana_plugins_cache.stat.exists
+      shell: |
+        [[ -a "{{ grafana_plugin_cache }}" ]] && rm -rf /var/lib/grafana/plugins && tar -xf {{ grafana_plugin_cache }} -C /var/lib/grafana
+        chown -R grafana /var/lib/grafana
+
+    # download from internet if cache not exists
+    - name: download grafana plugins via internet
+      when: not grafana_plugins_cache.stat.exists
+      ignore_errors: true
+      environment: "{{ proxy_env | default({}) }}"
+      grafana_plugin: name={{ item }}
+      with_items: "{{ grafana_plugin_list  }}"
+
+
+#--------------------------------------------------------------#
+# Launch Grafana                                [grafana_launch]
+#--------------------------------------------------------------#
+# launch grafana on port 3000
+- name: launch grafana
+  tags: grafana_launch
+  when: grafana_enabled|bool
+  block:
+    - name: launch grafana systemd service
+      systemd: name=grafana state=restarted enabled=yes daemon_reload=yes
+    - name: wait for grafana service online
+      wait_for: host=127.0.0.1 port=3000 state=started
+
+
+#--------------------------------------------------------------#
+# Launch Grafana                             [grafana_provision]
+#--------------------------------------------------------------#
+- name: provision grafana
+  tags: grafana_provision
+  when: grafana_enabled|bool
+  block:
+
+    # sync files/grafana @ local -> /etc/dashboards @ infra
+    - name: sync grafana dashboards
+      tags: dashboard_sync
+      synchronize:
+        src: grafana/
+        owner: no
+        group: no
+        dest: /etc/pigsty/dashboards/
+
+    - name: provisioning grafana with grafana.py
+      when: inventory_hostname in groups["infra"]
+      tags: dashboard_init
+      ignore_errors: true
+      vars:
+        endpoint: "{{ 'http://' +  infra_portal.grafana.endpoint|replace('${admin_ip}', admin_ip ) }}"
+        username: "{{ grafana_admin_username|default('admin') }}"
+        password: "{{ grafana_admin_password|default('pigsty') }}"
+        portals: "{% for key,value in infra_portal.items() %}{% if value.domain is defined and value.domain != '' %}{% if not loop.first %},{% endif %}{{ key }}={{ value.domain }}{% endif %}{% endfor %}"
+        use_https: "{% if nginx_sslmode == 'enforce' %}true{% else %}false{% endif %}"
+      shell: |
+        #!/bin/bash
+        export GRAFANA_ENDPOINT={{ endpoint }}
+        export GRAFANA_USERNAME={{ username }}
+        export GRAFANA_PASSWORD={{ password }}
+        export USE_HTTPS={{ use_https }}
+        export INFRA_PORTAL={{ portals }}
+
+        # run provisioning logic
+        cd /etc/pigsty/dashboards/
+        chown -R root:root /etc/pigsty/dashboards/
+        /etc/pigsty/dashboards/grafana.py init /etc/pigsty/dashboards/
+
+...

@@ -1,0 +1,50 @@
+---
+#==============================================================#
+# File      :   agent.yml
+# Ctime     :   2022-11-09
+# Mtime     :   2022-12-04
+# Desc      :   Agent Rules
+# Path      :   /etc/prometheus/rules/agent.yml
+# License   :   AGPLv3
+# Copyright (C) 2018-2022 Ruohang Feng
+#==============================================================#
+
+groups:
+
+  - name: agent-rules
+    rules:
+
+      # INFRA
+
+
+      # NODE
+      - record: node_up
+        expr: up{instance=~".*:{{ node_exporter_port }}"}
+
+      - record: haproxy_up
+        expr: up{instance=~".*:{{ haproxy_exporter_port }}"}
+
+      - record: docker_up
+        expr: up{instance=~".*:9323"}
+
+      - record: promtail_up
+        expr: up{instance=~".*:{{ promtail_port }}"}
+
+      # ETCD
+      - record: etcd_up
+        expr: up{instance=~".*:{{ etcd_port }}", job="etcd"}
+
+      # MINIO
+      - record: minio_up
+        expr: up{instance=~".*:{{ minio_port }}", job="minio"}
+
+      # PGSQL
+      - record: pg_exporter_up
+        expr: up{instance=~".*:{{ pg_exporter_port }}"}
+
+      - record: pgbouncer_exporter_up
+        expr: up{instance=~".*:{{ pgbouncer_exporter_port }}"}
+
+      - record: patroni_up
+        expr: up{instance=~".*:{{ patroni_port }}"}
+...
