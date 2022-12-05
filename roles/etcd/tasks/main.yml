@@ -3,40 +3,108 @@
 # Reference: https://www.digitalocean.com/community/tutorials/how-to-set-up-and-secure-an-etcd-cluster-with-ansible-on-ubuntu-18-04
 
 
-#------------------------------------------------------------------------------
-# 0. Assert
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Assert etcd identity                             [etcd_assert]
+#--------------------------------------------------------------#
 - name: assert etcd identity
+  tags: etcd_assert
   assert:
     that:
       - etcd_seq is defined and etcd_seq|int >= 0
     fail_msg: variable 'etcd_seq' is required for etcd instance
 
-#------------------------------------------------------------------------------
-# 1. Install
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Install etcd                                    [etcd_install]
+#--------------------------------------------------------------#
 - name: install etcd
   tags: etcd_install
   package: name=etcd state=present
 
-#------------------------------------------------------------------------------
-# 2. Clean
-#------------------------------------------------------------------------------
-# tasks: etcd_check , etcd_clean
-# if etcd exists, abort when pg_safeguard = true or pg_clean = false
-- import_tasks: clean.yml
-  tags: etcd_clean
 
-#------------------------------------------------------------------------------
-# 3. Directory
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Check etcd exists                                 [etcd_check]
+#--------------------------------------------------------------#
+- name: check etcd exists
+  tags: [ etcd_clean, etcd_check ]
+  block:
+
+    # check etcd by listening port
+    - name: check etcd exists
+      command: 'ss -tp state listening sport = :{{ etcd_port }}'
+      register: check_etcd_port_result
+    - name: set etcd_exists flag
+      connection: local
+      set_fact:
+        etcd_exists: "{{ 'etcd' in check_etcd_port_result.stdout }}"
+
+    # when any running etcd exists, abort play in two cases:
+    # 1. etcd_safeguard = true    # prevent accidentally purge at all
+    # 2. etcd_clean = false       # etcd_clean=true is required for purging during init
+    - name: abort etcd purging
+      connection: local
+      any_errors_fatal: true
+      when: etcd_exists and (etcd_safeguard or not etcd_clean)
+      fail:
+        msg: >-
+          Abort because etcd instance {{ etcd_cluster }}-{{ etcd_seq }} @ {{ inventory_hostname }} exists.
+           {% if etcd_safeguard|bool %}etcd_safeguard enabled, please disable it before purging.{% endif %}
+           {% if not etcd_clean|bool %}etcd_clean = false, use -e etcd_clean=true to override.{% endif %}
+
+
+#--------------------------------------------------------------#
+# Purge etcd                                        [etcd_clean]
+#--------------------------------------------------------------#
+- name: cleanup etcd
+  tags: etcd_clean
+  block:
+
+    # dangerous: (it will remove etcd data!)
+    - name: WARNING, PURGE ETCD INSTANCE
+      # connection: local, leave a chance for human intervention
+      when: not etcd_safeguard and etcd_exists and etcd_clean # DANGEROUS!
+      debug:
+        msg: "[DANGEROUS] RUNNING ETCD INSTANCE {{ inventory_hostname }} WILL BE PURGED!"
+
+    - name: purge etcd
+      ignore_errors: yes
+      shell: |
+        # try graceful shutdown first
+        if ps -u etcd -o command | grep -q 'etcd' ; then
+            /usr/bin/etcd leave
+            systemctl stop etcd
+        fi
+        
+        # kill if still exists
+        if ps -u etcd -o command | grep -q 'etcd' ; then
+            sleep 2
+            ps -u etcd -o pid:1,command | grep 'etcd' | awk '{print $1}' | xargs kill
+        fi
+        
+        # kill -9 if not killed 
+        if ps -u etcd -o command | grep -q 'etcd' ; then
+            sleep 5
+            ps -u etcd -o pid:1,command | grep 'etcd' | awk '{print $1}' | xargs kill -9
+        fi
+        
+        # guaranteed success
+        rm -rf /etc/etcd
+        rm -rf /var/lib/etcd/*
+        rm -rf "{{ etcd_data }}"
+        rm -f /etc/profile.d/etcd.sh
+        exit 0
+
+
+#--------------------------------------------------------------#
+# Create etcd directory                               [etcd_dir]
+#--------------------------------------------------------------#
 - name: create etcd directory
   tags: etcd_dir
   block:
 
     - name: create etcd config dir
       file: path={{ item }} state=directory owner=etcd group=etcd mode=0750
-      with_items: [ "/etc/etcd" , "/var/lib/etcd"]
+      with_items: [ "/etc/etcd" , "/var/lib/etcd" ]
 
     # avoid overwrite node data dir file permission
     - name: create node data dir if not exists
@@ -45,36 +113,31 @@
     - name: create etcd data dir
       file: path="{{ etcd_data }}" state=directory owner=etcd group=etcd mode=0700
 
-#------------------------------------------------------------------------------
-# 4. Config
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Config etcd                                      [etcd_config]
+#--------------------------------------------------------------#
 - import_tasks: config.yml
   tags: etcd_config
   vars: { etcd_instance: "{{ etcd_cluster }}-{{ etcd_seq }}" }
 
-#------------------------------------------------------------------------------
-# 5. Certs
-#------------------------------------------------------------------------------
-- import_tasks: cert.yml
-  tags: [ etcd_config, etcd_cert ]
-  vars: { etcd_instance: "{{ etcd_cluster }}-{{ etcd_seq }}" }
 
-#------------------------------------------------------------------------------
-# 6. Launch
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Launch etcd                                      [etcd_launch]
+#--------------------------------------------------------------#
 - name: launch etcd server
   tags: etcd_launch
   block:
 
     - name: launch etcd server service
       systemd: name=etcd state=restarted enabled=yes daemon_reload=yes
-
     - name: wait for etcd server online
       wait_for: host=127.0.0.1 port={{ etcd_port }} state=started timeout=10
 
-#------------------------------------------------------------------------------
-# 7. Register
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Register etcd to prometheus                    [etcd_register]
+#--------------------------------------------------------------#
 - name: register etcd as prometheus target
   tags: [ etcd_register, register_prometheus ]
   ignore_errors: true
