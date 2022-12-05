@@ -82,10 +82,11 @@ delta=y
 # 9. adhoc (parallel)
 #==========================================================#
 [global:restore]
-process-max={{ node_cpu }}
+[global:restore]
+process-max={{ ([node_cpu|int, 8])|min|int }}
 
 [global:archive-push]
-process-max=4
+process-max={{ ([(node_cpu|int / 2)|round(0,'ceil'), 4])|min|int }}
 
 [global:archive-get]
-process-max=2
+process-max={{ ([(node_cpu|int / 4)|round(0,'ceil'), 2])|min|int }}
