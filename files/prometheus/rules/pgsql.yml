@@ -1,0 +1,1496 @@
+---
+#==============================================================#
+# File      :   pgsql.yml
+# Ctime     :   2020-04-22
+# Mtime     :   2022-01-22
+# Desc      :   Rules for postgres & pgbouncer
+# Path      :   /etc/prometheus/rules/pgsql.yml
+# Copyright (C) 2018-2022 Ruohang Feng
+#==============================================================#
+
+################################################################
+#                          PGSQL Rules                         #
+################################################################
+# Naming Pattern:
+#
+#     pg     :  ins  :   xact_commit _  15m
+#     ^          ^           ^          ^
+# <namespace>:<level>:<metrics_name>_<modifier>
+#--------------------------------------------------------------#
+# Metrics Hierarchy
+# -------------------------------------------------------------
+#   env                          -->    environment {job}
+#   ^--> cls                     -->    cluster     {job, cls}
+# -------|-----------------------------------------------------
+#        ^--> ins    -->   {job, cls, ins} + {instance,ip,etc...}
+# ------------|------------------------------------------------
+#             ^-- datname        -->  {datname}
+#                  ^---- pool    -->  {datname, user}
+#                  ^---- table   -->  {datname, relname}
+#                  ^---- index   -->  {datname, relname, idxname}
+#                  ^---- query   -->  {datname, query}
+#                  ^---- .....   -->  {datname, ...}
+#--------------------------------------------------------------#
+# Alert Rule Format:
+#
+# Level: three alert levels
+#   0 : CRIT System failure needs immediate intervene   call  (e.g down) 1m
+#   1 : WARN Anomalies could lead to failure soon       sms   (e.g high) 1m
+#   2 : INFO Warning events that need attention         mail             5m
+
+# - alert: PostgresDown     <------- CamelCase Alert Name
+#   expr: pg_up < 1         <------- Expression
+#   for: 1m                 <------- Duration Threshold
+#        ^------- (omit) : Trigger immediately
+#   labels:
+#     level: 0              <------- numeric expression of severity 0,1,2
+#     severity: CRIT        <------- alert severity: fatal,error,event
+#     category: pgsql       <------- category: infra, node, pgsql, redis, ...
+#   annotations:            <------- short & detailed information about context
+#     summary: "FATAL InfraDown {{ $labels.type }}@{{ $labels.instance }}"
+#     description: |
+#       pg_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+################################################################
+
+
+groups:
+
+  ################################################################
+  #                       Postgres Rules                         #
+  ################################################################
+  - name: pgsql-rules
+    rules:
+
+
+      #==============================================================#
+      #                         Reference                            #
+      #==============================================================#
+      # these metrics are scrapped from node_exporter and join on ip
+
+      # cpu count for pg instance / cluster
+      - record: pg:ins:cpu_count
+        expr: node:ins:cpu_count + on(ip) group_right() pg_up * 0
+      - record: pg:cls:cpu_count
+        expr: sum by (job, cls) (pg:ins:cpu_count)
+      - record: pg:env:cpu_count
+        expr: sum by (job) (pg:cls:cpu_count)
+
+      # cpu usage for node instance
+      - record: pg:ins:cpu_usage
+        expr: node:ins:cpu_usage_1m + on(ip) group_right() pg_up * 0
+      - record: pg:ins:cpu_usage_1m
+        expr: node:ins:cpu_usage_1m + on(ip) group_right() pg_up * 0
+      - record: pg:ins:cpu_usage_5m
+        expr: node:ins:cpu_usage_5m + on(ip) group_right() pg_up * 0
+      - record: pg:ins:cpu_usage_15m
+        expr: node:ins:cpu_usage_15m + on(ip) group_right() pg_up * 0
+
+      # cpu usage for node cluster
+      - record: pg:cls:cpu_usage
+        expr: sum by (job, cls) (pg:ins:cpu_usage * pg:ins:cpu_count) / pg:cls:cpu_count
+      - record: pg:cls:cpu_usage_1m
+        expr: sum by (job, cls) (pg:ins:cpu_usage_1m * pg:ins:cpu_count) / pg:cls:cpu_count
+      - record: pg:cls:cpu_usage_5m
+        expr: sum by (job, cls) (pg:ins:cpu_usage_5m * pg:ins:cpu_count) / pg:cls:cpu_count
+      - record: pg:cls:cpu_usage_15m
+        expr: sum by (job, cls) (pg:ins:cpu_usage_15m * pg:ins:cpu_count) / pg:cls:cpu_count
+
+      # cpu usage for entire cpu
+      - record: pg:env:cpu_usage
+        expr: sum by (job) (pg:cls:cpu_usage * pg:cls:cpu_count) / pg:env:cpu_count
+      - record: pg:env:cpu_usage_1m
+        expr: sum by (job) (pg:cls:cpu_usage_1m * pg:cls:cpu_count) / pg:env:cpu_count
+      - record: pg:env:cpu_usage_5m
+        expr: sum by (job) (pg:cls:cpu_usage_5m * pg:cls:cpu_count) / pg:env:cpu_count
+      - record: pg:env:cpu_usage_15m
+        expr: sum by (job) (pg:cls:cpu_usage_15m * pg:cls:cpu_count) / pg:env:cpu_count
+
+      - record: pg:ins:mem_size
+        expr: node_memory_MemTotal_bytes + on(ip) group_right() pg_up * 0
+      - record: pg:ins:fs_size
+        expr: sum by (ip)(node_filesystem_size_bytes{fstype!~"(n|root|tmp)fs.*"}) + on(ip) group_right() pg_up * 0
+      - record: pg:ins:space_usage
+        expr: max by (ip)(node:fs:space_usage)+ on(ip) group_right() pg_up * 0
+
+      #==============================================================#
+      #                     PGSQL : Identity                         #
+      #==============================================================#
+      # Encoded leadership status: 0:follower[DOWN] 1:leader[DOWN] 2:follower 3:leader
+      - record: pg:ins:status
+        expr: pg_up * 2 + (1 - pg_in_recovery)
+
+      # True(1) if this instance is leader
+      - record: pg:ins:is_leader
+        expr: 1 - pg_in_recovery
+
+      # Leader among cluster, multiple record means brain split
+      - record: pg:cls:leader
+        expr: (pg_in_recovery == 0) * 0 + 1
+
+      #--------------------------------#
+      #          Membership            #
+      #--------------------------------#
+      # number of scraped targets for one instance, job with pgsql as prefix are counted
+      - record: pg:ins:target_count
+        expr: count by (job, cls, ins) (up{cls!="", ins!="", job=~'pgsql.*'})
+
+      # number of current cluster member
+      - record: pg:cls:size
+        expr: sum by (job, cls) (group by (job, cls, ins, ip) (up{cls!="", ins!="", job=~'pgsql.*'}))
+
+      # number of current cluster member
+      - record: pg:cls:members
+        expr: group by (job, cls, ins, ip) (up{cls!="", ins!="", job=~'pgsql.*'})
+
+      # Bridge instances among cluster, which are non-primary instances with descendant
+      - record: pg:cls:bridges
+        expr: count without(appname,usename,address,pid) (pg_repl_lsn) and (pg_in_recovery == 1)
+
+      # Number of network partition among this cluster
+      - record: pg:cls:partition
+        expr: count by (job, cls) (pg_in_recovery == 0 and pg_up == 1)
+
+      # number of alive instance among cluster
+      - record: pg:cls:alive_count
+        expr: count by (job, cls) (count by (cls, ins) (pg_up==1))
+
+      # Number of leader(primary) among cluster
+      - record: pg:cls:primary_count
+        expr: count by (job, cls) (max by (cls, ins) (pg_in_recovery{}) == 0)
+
+      # Number of follower(replica) among cluster
+      - record: pg:cls:replica_count
+        expr: count by (job, cls) (max by (cls, ins) (pg_in_recovery{}) == 1)
+
+      # Number of sync replica (standby) among cluster
+      - record: pg:cls:standby_count
+        expr: max by (job, cls) (pg_sync_standby_enabled) > bool 0
+
+      # Number of bridge instance among cluster
+      - record: pg:cls:bridge_count
+        expr: count by (job, cls) (pg:cls:bridges)
+
+
+
+      #==============================================================#
+      #                        Replication                           #
+      #==============================================================#
+
+      #--------------------------------#
+      #       Replication Topo         #
+      #--------------------------------#
+      # wal sender among cluster (job,cls,ins,ip,appname,usename,address,pid,sync_state)
+      - record: pg:cls:sender
+        expr: max by (job, cls, ins, ip, appname, usename, address, pid) (pg_repl_sync_state)
+
+      # wal receiver among cluster (job,cls,ip,appname,sender_host,sender_port,slot_name,state,tli)
+      - record: pg:cls:receiver
+        expr: |
+          max by ( job, cls, ip, appname, sender_host, sender_port, slot_name, state ) (
+            label_replace(pg_recv_flush_tli, "appname" , "$1",  "ins", "(.*)" )
+          )
+
+      #--------------------------------#
+      #           Timeline             #
+      #--------------------------------#
+      - record: pg:ins:timeline
+        expr: pg_checkpoint_tli
+      - record: pg:cls:timeline
+        expr: max by (job, cls) (max_over_time(pg_checkpoint_tli{}[30s]))
+
+
+      #--------------------------------#
+      #          Sync State            #
+      #--------------------------------#
+      # sync status 0-3 for async|potential|sync|quorum, (-1 for unknown)
+      - record: pg:ins:sync_state
+        expr: max by (job,cls,ins,instance) (label_replace(pg_repl_sync_state, "ins", "$1", "appname", "(.+)"))
+
+      # is this cluster a sync cluster?
+      - record: pg:cls:sync_state
+        expr: (max by (job, cls) (pg:ins:sync_state)) > bool 0
+
+
+      #--------------------------------#
+      #        Replication Lag         #
+      #--------------------------------#
+
+      # lag in bytes from sender's view (accurate)
+      - record: pg:ins:lag_bytes
+        expr: | 
+          max without (address, appname, usename, pid) (
+            label_replace(pg_repl_replay_diff{appname!~'walreceiver|pg_receivewal'}, "ins", "$1", "appname", "(.+)")
+          )
+      - record: pg:cls:lag_bytes
+        expr: max by (job, cls) (pg:ins:lag_bytes)
+      - record: pg:env:lag_bytes
+        expr: max by (job) (pg:cls:lag_bytes)
+
+      # lag in seconds from sender's view (roughly accurate, )
+      - record: pg:ins:lag_seconds
+        expr: |
+          max without (address, appname, usename, pid) (
+            label_replace(pg_repl_replay_lag{appname!~'walreceiver|pg_receivewal'}, "ins", "$1", "appname", "(.+)")
+          )
+      - record: pg:cls:lag_seconds
+        expr: max by (job, cls) (pg:ins:lag_seconds)
+      - record: pg:env:lag_seconds
+        expr: max by (job) (pg:cls:lag_seconds)
+
+
+      #--------------------------------#
+      #       Replication Slot         #
+      #--------------------------------#
+      # cls active slot
+      - record: pg:cls:slot_count
+        expr: count by (job, cls) (pg_slot_active > bool 0)
+
+      # replication slot retained bytes of single instance
+      - record: pg:ins:slot_retained_bytes
+        expr: max without (slot_name) (pg_slot_retained_bytes)
+
+      - record: pg:cls:slot_retained_bytes
+        expr: max by (job, cls) (pg:ins:slot_retained_bytes)
+
+
+
+      #==============================================================#
+      #                         Activity                             #
+      #==============================================================#
+
+      #--------------------------------#
+      #        Commit/Rollback         #
+      #--------------------------------#
+      # xact_commit_rate1m is xact_commit rate of last 1m
+      - record: pg:db:xact_commit_rate1m
+        expr: rate(pg_db_xact_commit[1m])
+      - record: pg:ins:xact_commit_rate1m
+        expr: sum without(datname) (pg:db:xact_commit_rate1m)
+      - record: pg:cls:xact_commit_rate1m
+        expr: sum by (job, cls) (pg:ins:xact_commit_rate1m)
+      - record: pg:env:xact_commit_rate1m
+        expr: sum by (job) (pg:cls:xact_commit_rate1m)
+
+      # xact_commit_rate5m is xact_commit rate of last 5m
+      - record: pg:db:xact_commit_rate5m
+        expr: rate(pg_db_xact_commit[5m])
+      - record: pg:ins:xact_commit_rate5m
+        expr: sum without(datname) (pg:db:xact_commit_rate5m)
+      - record: pg:cls:xact_commit_rate5m
+        expr: sum by (job, cls) (pg:ins:xact_commit_rate5m)
+      - record: pg:env:xact_commit_rate5m
+        expr: sum by (job) (pg:cls:xact_commit_rate5m)
+
+      # xact_commit_rate15m is xact_commit rate of last 15m
+      - record: pg:db:xact_commit_rate15m
+        expr: rate(pg_db_xact_commit[15m])
+      - record: pg:ins:xact_commit_rate15m
+        expr: sum without(datname) (pg:db:xact_commit_rate15m)
+      - record: pg:cls:xact_commit_rate15m
+        expr: sum by (job, cls) (pg:ins:xact_commit_rate15m)
+      - record: pg:env:xact_commit_rate15m
+        expr: sum by (job) (pg:cls:xact_commit_rate15m)
+
+      # xact_rollback_rate1m is xact_rollback rate of last 1m
+      - record: pg:db:xact_rollback_rate1m
+        expr: rate(pg_db_xact_rollback[1m])
+      - record: pg:ins:xact_rollback_rate1m
+        expr: sum without(datname) (pg:db:xact_rollback_rate1m)
+      - record: pg:cls:xact_rollback_rate1m
+        expr: sum by (job, cls) (pg:ins:xact_rollback_rate1m)
+      - record: pg:env:xact_rollback_rate1m
+        expr: sum by (job) (pg:cls:xact_rollback_rate1m)
+
+      # xact_rollback_rate5m is xact_rollback rate of last 5m
+      - record: pg:db:xact_rollback_rate5m
+        expr: rate(pg_db_xact_rollback[5m])
+      - record: pg:ins:xact_rollback_rate5m
+        expr: sum without(datname) (pg:db:xact_rollback_rate5m)
+      - record: pg:cls:xact_rollback_rate5m
+        expr: sum by (job, cls) (pg:ins:xact_rollback_rate5m)
+      - record: pg:env:xact_rollback_rate5m
+        expr: sum by (job) (pg:cls:xact_rollback_rate5m)
+
+      # xact_rollback_rate15m is xact_rollback rate of last 15m
+      - record: pg:db:xact_rollback_rate15m
+        expr: rate(pg_db_xact_rollback[15m])
+      - record: pg:ins:xact_rollback_rate15m
+        expr: sum without(datname) (pg:db:xact_rollback_rate15m)
+      - record: pg:cls:xact_rollback_rate15m
+        expr: sum by (job, cls) (pg:ins:xact_rollback_rate15m)
+      - record: pg:env:xact_rollback_rate15m
+        expr: sum by (job) (pg:cls:xact_rollback_rate15m)
+
+      # xact_total_rate1m is xact_total rate of last 1m
+      - record: pg:db:xact_total_rate1m
+        expr: rate(pg_db_xact_total[1m])
+      - record: pg:ins:xact_total_rate1m
+        expr: sum without(datname) (pg:db:xact_total_rate1m)
+      - record: pg:cls:xact_total_rate1m
+        expr: sum by (job, cls) (pg:ins:xact_total_rate1m)
+      - record: pg:env:xact_total_rate1m
+        expr: sum by (job) (pg:cls:xact_total_rate1m)
+
+      # xact_total_rate5m is xact_total rate of last 5m
+      - record: pg:db:xact_total_rate5m
+        expr: rate(pg_db_xact_total[5m])
+      - record: pg:ins:xact_total_rate5m
+        expr: sum without(datname) (pg:db:xact_total_rate5m)
+      - record: pg:cls:xact_total_rate5m
+        expr: sum by (job, cls) (pg:ins:xacts_total_rate5m)
+      - record: pg:env:xact_total_rate5m
+        expr: sum by (job) (pg:cls:xact_total_rate5m)
+
+      # xact_total_rate15m is xact_total rate of last 15m
+      - record: pg:db:xact_total_rate15m
+        expr: rate(pg_db_xact_total[15m])
+      - record: pg:ins:xact_total_rate15m
+        expr: sum without(datname) (pg:db:xact_total_rate15m)
+      - record: pg:cls:xact_total_rate15m
+        expr: sum by (job, cls) (pg:ins:xact_total_rate15m)
+      - record: pg:env:xact_total_rate15m
+        expr: sum by (job) (pg:cls:xact_total_rate15m)
+
+      # xacts σ: sigma
+      - record: pg:db:xact_total_sigma15m
+        expr: stddev_over_time(pg:db:xact_total_rate1m[15m])
+      - record: pg:ins:xact_total_sigma15m
+        expr: stddev_over_time(pg:ins:xact_total_rate1m[15m])
+      - record: pg:cls:xact_total_sigma15m
+        expr: stddev_over_time(pg:cls:xact_total_rate1m[15m])
+      - record: pg:env:xact_total_sigma15m
+        expr: stddev_over_time(pg:env:xact_total_rate1m[15m])
+
+
+      #--------------------------------#
+      #             Locks              #
+      #--------------------------------#
+      # lock count by mode
+      # - record: pg:db:locks
+      #   expr: pg_lock_count
+      - record: pg:ins:locks
+        expr: sum without (datname) (pg_lock_count)
+      - record: pg:cls:locks
+        expr: sum by (job, cls, mode) (pg:ins:locks)
+
+      # total lock count
+      - record: pg:db:lock_count
+        expr: sum without (mode) (pg_lock_count)
+      - record: pg:ins:lock_count
+        expr: sum without(mode) (pg:ins:locks)
+      - record: pg:cls:lock_count
+        expr: sum without(mode) (pg:cls:locks)
+
+      # read category lock
+      - record: pg:db:rlock_count
+        expr: sum without (mode) (pg_lock_count{mode="AccessShareLock"})
+      - record: pg:ins:rlock_count
+        expr: sum without(datname) (pg:db:rlock_count)
+      - record: pg:cls:rlock_count
+        expr: sum by (job, cls) (pg:ins:rlock_count)
+
+      # write category lock (insert|update|delete)
+      - record: pg:db:wlock_count
+        expr: sum without (mode) (pg_lock_count{mode=~"RowShareLock|RowExclusiveLock"})
+      - record: pg:ins:wlock_count
+        expr: sum without(datname) (pg:db:wlock_count)
+      - record: pg:cls:wlock_count
+        expr: sum by (job, cls) (pg:ins:wlock)
+        
+      # exclusive category lock
+      - record: pg:db:xlock_count
+        expr: sum without (mode) (pg_lock_count{mode!~"AccessShareLock|RowShareLock|RowExclusiveLock"})
+        # ALTERNATIVE: expr: sum without (mode) (pg_lock_count{mode=~"AccessExclusiveLock|ExclusiveLock|ShareRowExclusiveLock|ShareLock|ShareUpdateExclusiveLock"})
+      - record: pg:ins:xlock_count
+        expr: sum without(datname) (pg:db:xlock_count)
+      - record: pg:cls:xlock_count
+        expr: sum by (job, cls) (pg:ins:xlock_count)
+
+
+
+
+      #==============================================================#
+      #                PG14 New Database Metrics                     #
+      #==============================================================#
+
+      #--------------------------------#
+      #      Session/Idle Time         #
+      #--------------------------------#
+      # Time spent by database sessions per second, in seconds (ms->s)
+      - record: pg:db:session_time_rate1m
+        expr: rate(pg_db_session_time[1m])
+      - record: pg:ins:session_time_rate1m
+        expr: sum without(datname) (pg:db:session_time_rate1m)
+      - record: pg:cls:session_time_rate1m
+        expr: sum by (job, cls) (pg:ins:session_time_rate1m)
+      - record: pg:env:session_time_rate1m
+        expr: sum by (job) (pg:cls:session_time_rate1m)
+
+      # Time spent in idle per second, in seconds
+      - record: pg:db:ixact_time_rate1m
+        expr: rate(pg_db_ixact_time[1m])
+      - record: pg:ins:ixact_time_rate1m
+        expr: sum without(datname) (pg:db:ixact_time_rate1m)
+      - record: pg:cls:ixact_time_rate1m
+        expr: sum by (job, cls) (pg:ins:ixact_time_rate1m)
+      - record: pg:env:ixact_time_rate1m
+        expr: sum by (job) (pg:cls:ixact_time_rate1m)
+
+      #--------------------------------#
+      #         Active Time            #
+      #--------------------------------#
+      # Time rate spent executing SQL statements in this database, in seconds
+
+      # active_time_rate1m
+      - record: pg:db:active_time_rate1m
+        expr: rate(pg_db_active_time[1m])
+      - record: pg:ins:active_time_rate1m
+        expr: sum without(datname) (pg:db:active_time_rate1m)
+      - record: pg:cls:active_time_rate1m
+        expr: sum by (job, cls) (pg:ins:active_time_rate1m)
+      - record: pg:env:active_time_rate1m
+        expr: sum by (job) (pg:cls:active_time_rate1m)
+
+      # active_time_rate5m 
+      - record: pg:db:active_time_rate5m
+        expr: rate(pg_db_active_time[5m])
+      - record: pg:ins:active_time_rate5m
+        expr: sum without(datname) (pg:db:active_time_rate5m)
+      - record: pg:cls:active_time_rate5m
+        expr: sum by (job, cls) (pg:ins:active_time_rate5m)
+      - record: pg:env:active_time_rate5m
+        expr: sum by (job) (pg:cls:active_time_rate5m)
+
+      # active_time_rate1m 
+      - record: pg:db:active_time_rate15m
+        expr: rate(pg_db_active_time[15m])
+      - record: pg:ins:active_time_rate15m
+        expr: sum without(datname) (pg:db:active_time_rate15m)
+      - record: pg:cls:active_time_rate15m
+        expr: sum by (job, cls) (pg:ins:active_time_rate15m)
+      - record: pg:env:active_time_rate15m
+        expr: sum by (job) (pg:cls:active_time_rate15m)
+
+      #--------------------------------#
+      #             PG Load            #
+      #--------------------------------#
+      # instance level pg load 0,1,5,15
+      # it will be -1 if not applicable
+      - record: pg:ins:load1
+        expr: pg:ins:active_time_rate1m / pg:ins:cpu_count or (0 * pg_up - 1)
+      - record: pg:ins:load5
+        expr: pg:ins:active_time_rate5m / pg:ins:cpu_count or (0 * pg_up - 1)
+      - record: pg:ins:load15
+        expr: pg:ins:active_time_rate15m / pg:ins:cpu_count or (0 * pg_up - 1)
+
+      # cluster level pg load: 0,1,5,15
+      - record: pg:cls:load1
+        expr: pg:cls:active_time_rate1m / pg:cls:cpu_count or (0 * pg:cls:size - 1)
+      - record: pg:cls:load5
+        expr: pg:cls:active_time_rate5m / pg:cls:cpu_count or (0 * pg:cls:size - 1)
+      - record: pg:cls:load15
+        expr: pg:cls:active_time_rate15m / pg:cls:cpu_count or (0 * pg:cls:size - 1)
+
+
+
+      #==============================================================#
+      #                          Session                             #
+      #==============================================================#
+
+      #--------------------------------#
+      #       Postgres Backend         #
+      #--------------------------------#
+      # all backends
+      - record: pg:db:num_backends
+        expr: pg_db_numbackends
+      - record: pg:ins:num_backends
+        expr: sum without (datname) (pg:db:num_backends)
+      - record: pg:cls:num_backends
+        expr: sum by (job, cls) (pg:ins:num_backends)
+
+      # active backend
+      - record: pg:db:active_backends
+        expr: sum without(state) (pg_activity_count{state="active"})
+      - record: pg:ins:active_backends
+        expr: sum without(datname) (pg:db:active_backends)
+      - record: pg:cls:active_backends
+        expr: sum by (job, cls) (pg:ins:active_backends)
+      - record: pg:env:active_backends
+        expr: sum by (job) (pg:cls:active_backends)
+
+      # idle in transaction backend (abort included)
+      - record: pg:db:ixact_backends
+        expr: sum without(state) (pg_activity_count{state=~"idle in.*"})
+      - record: pg:ins:ixact_backends
+        expr: sum without(datname) (pg:db:ixact_backends)
+      - record: pg:cls:ixact_backends
+        expr: sum by (job, cls) (pg:ins:ixact_backends)
+      - record: pg:env:ixact_backends
+        expr: sum by (job) (pg:cls:ixact_backends)
+
+      #--------------------------------#
+      #      Connection Limit          #
+      #--------------------------------#
+      # instance connection limit (by max_connection)
+      - record: pg:ins:conn_limit
+        expr: pg_setting_max_connections
+
+      # database connection limit (by DDL) (if not set, instance max_connections are used)
+      - record: pg:db:conn_limit
+        expr: (pg_db_conn_limit != -1 ) or (0 * pg_db_conn_limit + on(cls, ins) group_left pg_setting_max_connections)
+
+      #--------------------------------#
+      #      Connection Usage          #
+      #--------------------------------#
+      # instance connection usage
+      - record: pg:ins:conn_usage
+        expr: pg:ins:num_backends / pg:ins:conn_limit
+
+      # database connection usage
+      - record: pg:db:conn_usage
+        expr: pg:db:num_backends / pg:db:conn_limit
+
+
+
+      #==============================================================#
+      #                         Database                             #
+      #==============================================================#
+
+      #--------------------------------#
+      #              Age               #
+      #--------------------------------#
+      # pg database age usage
+      - record: pg:db:age
+        expr: pg_db_age / 2147483647
+      - record: pg:ins:age
+        expr: max without (datname) (pg:db:age{datname!~"template[0-9]"})
+      - record: pg:cls:age
+        expr: max by (job, cls) (pg:ins:age)
+      - record: pg:env:age
+        expr: max by (job) (pg:cls:age)
+
+      # age derive in last 1h
+      - record: pg:db:age_deriv1h
+        expr: deriv(pg_db_age[1h])
+
+      # age exhaust time in seconds (according to last1h)
+      - record: pg:db:age_exhaust
+        expr: (2147483648 - pg_db_age) / pg:db:age_deriv1h
+
+
+
+
+      #--------------------------------#
+      #              CRUD              #
+      #--------------------------------#
+      # tup fetched are 1m rate of tuple been accessed
+      - record: pg:db:tup_fetched_rate1m
+        expr: rate(pg_db_tup_fetched[1m])
+      - record: pg:ins:tup_fetched_rate1m
+        expr: sum without(datname) (pg:db:tup_fetched_rate1m)
+      - record: pg:cls:tup_fetched_rate1m
+        expr: sum by (job, cls) (pg:ins:tup_fetched_rate1m)
+      - record: pg:env:tup_fetched_rate1m
+        expr: sum by (job) (pg:cls:tup_fetched_rate1m)
+
+      # tup returned are 1m rate of tuple been returned
+      - record: pg:db:tup_returned_rate1m
+        expr: rate(pg_db_tup_returned[1m])
+      - record: pg:ins:tup_returned_rate1m
+        expr: sum without(datname) (pg:db:tup_returned_rate1m)
+      - record: pg:cls:tup_returned_rate1m
+        expr: sum by (job, cls) (pg:ins:tup_returned_rate1m)
+      - record: pg:env:tup_returned_rate1m
+        expr: sum by (job) (pg:cls:tup_returned_rate1m)
+
+      # inserted
+      - record: pg:db:tup_inserted_rate1m
+        expr: rate(pg_db_tup_inserted[1m])
+      - record: pg:ins:tup_inserted_rate1m
+        expr: sum without(datname) (pg:db:tup_inserted_rate1m)
+      - record: pg:cls:tup_inserted_rate1m
+        expr: sum by (job, cls) (pg:ins:tup_inserted_rate1m)
+      - record: pg:env:tup_inserted_rate1m
+        expr: sum by (job) (pg:cls:tup_inserted_rate1m)
+
+      # updated
+      - record: pg:db:tup_updated_rate1m
+        expr: pg:db:tup_updated_rate1m
+      - record: pg:ins:tup_updated_rate1m
+        expr: sum without(datname) (pg:db:tup_updated_rate1m)
+      - record: pg:cls:tup_updated_rate1m
+        expr: sum by (job, cls) (pg:ins:tup_updated_rate1m)
+      - record: pg:env:tup_updated_rate1m
+        expr: sum by (job) (pg:cls:tup_updated_rate1m)
+
+      # deleted
+      - record: pg:db:tup_deleted_rate1m
+        expr: rate(pg_db_tup_deleted[1m])
+      - record: pg:ins:tup_deleted_rate1m
+        expr: sum without(datname) (pg:db:tup_deleted_rate1m)
+      - record: pg:cls:tup_deleted_rate1m
+        expr: sum by (job, cls) (pg:ins:tup_deleted_rate1m)
+      - record: pg:env:tup_deleted_rate1m
+        expr: sum by (job) (pg:cls:tup_deleted_rate1m)
+
+      # modified
+      - record: pg:db:tup_modified_rate1m
+        expr: rate(pg_db_tup_modified[1m])
+      - record: pg:ins:tup_modified_rate1m
+        expr: sum without(datname) (pg:db:tup_modified_rate1m)
+      - record: pg:cls:tup_modified_rate1m
+        expr: sum by (job, cls) (pg:ins:tup_modified_rate1m)
+      - record: pg:env:tup_modified_rate1m
+        expr: sum by (job) (pg:cls:tup_modified_rate1m)
+
+
+
+      #==============================================================#
+      #                          Persist                             #
+      #==============================================================#
+
+      #--------------------------------#
+      #           Temp File            #
+      #--------------------------------#
+      # temp file generated in last 1m in bytes
+      - record: pg:db:temp_bytes_rate1m
+        expr: rate(pg_db_temp_bytes[1m])
+      - record: pg:ins:temp_bytes
+        expr: sum without (datname) (pg:db:temp_bytes)
+      - record: pg:cls:temp_bytes
+        expr: sum by (job, cls) (pg:ins:temp_bytes)
+
+      # temp file count generated in last 1m
+      - record: pg:db:temp_files_1m
+        expr: increase(pg_db_temp_files[1m])
+      - record: pg:ins:temp_files_1m
+        expr: sum without(datname) (pg:db:temp_files)
+      - record: pg:cls:temp_files_1m
+        expr: sum by (job, cls) (pg:ins:temp_files)
+
+
+      #--------------------------------#
+      #           File Size            #
+      #--------------------------------#
+      # database size
+      - record: pg:db:db_size
+        expr: pg_size_bytes{datname!~"wal|log"}
+      - record: pg:ins:db_size
+        expr: sum without (datname) (pg:db:db_size)
+      - record: pg:cls:db_size
+        expr: sum by (job, cls) (pg:ins:db_size)
+
+      # wal size
+      - record: pg:ins:wal_size
+        expr: sum without (datname) (pg_size_bytes{datname="wal"})
+      - record: pg:cls:wal_size
+        expr: sum by (job, cls) (pg:ins:wal_size)
+
+      # log size
+      - record: pg:ins:log_size
+        expr: sum without (datname) (pg_size_bytes{datname="log"})
+      - record: pg:cls:log_size
+        expr: sum by (job, cls) (pg:ins:log_size)
+
+      # db + wal + log size
+      - record: pg:ins:file_size
+        expr: sum without(datname) (pg_size_bytes)
+      - record: pg:cls:file_size
+        expr: sum by (job, cls) (pg:ins:file_size)
+
+
+      #--------------------------------#
+      #       Disk/Mem Blocks          #
+      #--------------------------------#
+      # blocks read in last 1m
+      - record: pg:db:blks_read_1m
+        expr: increase(pg_db_blks_read[1m])
+
+      # blocks hit in last 1m
+      - record: pg:db:blks_hit_1m
+        expr: increase(pg_db_blks_hit[1m])
+
+      # blocks access (hit + read) in last 1m
+      - record: pg:db:blks_access_1m
+        expr: increase(pg_db_blks_access[1m])
+
+      # blocks hit rate in (1m)
+      - record: pg:db:blks_hit_ratio1m
+        expr: pg:db:blks_hit_1m / pg:db:blks_access_1m
+
+      - record: pg:ins:blks_hit_ratio1m
+        expr: sum without (datname) (pg:db:blks_hit_1m) / sum without (datname) (pg:db:blks_access_1m)
+
+      # block read time spent
+      - record: pg:db:blk_read_time_seconds_rate1m
+        expr: rate(pg_db_blk_read_time[1m])
+
+      # block write time spent
+      - record: pg:db:blk_write_time_seconds_rate1m
+        expr: rate(pg_db_blk_write_time[1m])
+
+      # block io (read + write) time spent
+      - record: pg:db:blk_io_time_seconds_rate1m
+        expr: pg:db:blk_read_time_seconds_rate1m + pg:db:blk_write_time_seconds_rate1m
+
+
+      #--------------------------------#
+      #         Shared Buffer          #
+      #--------------------------------#
+      # buffer flushed by checkpoint (good)
+      - record: pg:ins:buf_flush_checkpoint_rate1m
+        expr: rate(pg_bgwriter_buffers_checkpoint[1m])
+      - record: pg:cls:buf_flush_checkpoint_rate1m
+        expr: sum by (job, cls) (pg:ins:buf_flush_checkpoint_rate1m)
+
+      # buffer flushed by backend (bad)
+      - record: pg:ins:buf_flush_backend_rate1m
+        expr: rate(pg_bgwriter_buffers_backend[1m])
+      - record: pg:cls:buf_flush_backend_rate1m
+        expr: sum by (job, cls) (pg:ins:buf_flush_backend_rate1m)
+
+      # buffer cleaned
+      - record: pg:ins:buf_clean_rate1m
+        expr: rate(pg_bgwriter_buffers_clean[1m])
+      - record: pg:cls:buf_clean_rate1m
+        expr: sum by (job, cls) (pg:ins:buf_clean_rate1m)
+
+      # buffer flushed (checkpoint + backend) ins,cls,env
+      - record: pg:ins:buf_write_rate1m
+        expr: pg:ins:buf_flush_backend + pg:ins:buf_flush_checkpoint + pg:ins:buf_clean_rate1m
+      - record: pg:cls:buf_write_rate1m
+        expr: sum by (job, cls) (pg:ins:buf_flush_rate1m)
+
+      # buffer allocated
+      - record: pg:ins:buf_alloc_rate1m
+        expr: rate(pg_bgwriter_buffers_alloc[1m])
+      - record: pg:cls:buf_alloc_rate1m
+        expr: sum by (job, cls) (pg:ins:buf_alloc_rate1m)
+
+
+      #--------------------------------#
+      #           Checkpoint           #
+      #--------------------------------#
+      # checkpoint stats
+      # True(1) if scheduled checkpoint occurs on last 1 minute
+      - record: pg:ins:ckpt_timed_1m
+        expr: increase(pg_bgwriter_checkpoints_timed[1m])
+
+      # True(1) if requested checkpoint occurs on last 1 minute
+      - record: pg:ins:ckpt_req_1m
+        expr: increase(pg_bgwriter_checkpoints_req[1m])
+
+      # Number of checkpoint happened in last 1 hour
+      - record: pg:ins:ckpt_1h
+        expr: increase(pg_bgwriter_checkpoints_timed[1h]) + increase(pg_bgwriter_checkpoints_req[1h])
+
+
+
+      # 1m wal rate of single instance
+      - record: pg:ins:lsn_rate1m
+        expr: rate(pg_lsn[1m])
+
+      # 1m wal rate of a cluster
+      - record: pg:cls:lsn_rate1m
+        expr: sum by (job, cls) (pg:ins:lsn_rate1m * on(ins) group_left() (1 - pg_in_recovery))
+
+      # 1m wal rate of entire environment
+      - record: pg:env:lsn_rate1m
+        expr: sum by (job) (pg:cls:lsn_rate1m)
+
+
+      #==============================================================#
+      #                      Object Access                           #
+      #==============================================================#
+      # table scan
+      - record: pg:table:scan_rate1m
+        expr: rate(pg_table_tbl_scan[1m])
+
+      # query cenv rate during last 1m
+      - record: pg:query:call_rate1m
+        expr: rate(pg_query_calls[1m])
+
+      # query response time during last 1m
+      - record: pg:query:rt_1m
+        expr: rate(pg_query_exec_time[1m]) / pg:query:call_rate1m
+
+      # index scan
+      # - record: pg:index:scan_rate1m
+      #   expr: rate(pg_index_idx_scan{}[1m])
+
+
+
+  ################################################################
+  #                      Pgbouncer Rules                         #
+  ################################################################
+  - name: pgbouncer-rules
+    rules:
+
+      ################################################################
+      #                        Pgbouncer                             #
+      ################################################################
+
+      #==============================================================#
+      #                           List                               #
+      #==============================================================#
+      # object list
+      - record: pgbouncer:ins:pools
+        expr: sum without (list) (pgbouncer_list_items{list="pools"})
+      - record: pgbouncer:ins:pool_databases
+        expr: sum without (list) (pgbouncer_list_items{list="databases"})
+      - record: pgbouncer:ins:pool_users
+        expr: sum without (list) (pgbouncer_list_items{list="users"})
+      - record: pgbouncer:ins:login_clients
+        expr: sum without (list) (pgbouncer_list_items{list="login_clients"})
+      - record: pgbouncer:ins:free_clients
+        expr: sum without (list) (pgbouncer_list_items{list="free_clients"})
+      - record: pgbouncer:ins:used_clients
+        expr: sum without (list) (pgbouncer_list_items{list="used_clients"})
+      - record: pgbouncer:ins:free_servers
+        expr: sum without (list) (pgbouncer_list_items{list="free_servers"})
+
+
+      #==============================================================#
+      #                          Database                            #
+      #==============================================================#
+      - record: pgbouncer:db:pool_max_conn
+        expr: pgbouncer_database_pool_size{datname!="pgbouncer"} + pgbouncer_database_reserve_pool{datname!="pgbouncer"}
+      - record: pgbouncer:db:pool_size
+        expr: pgbouncer_database_pool_size{datname!="pgbouncer"}
+      - record: pgbouncer:db:pool_reserve_size
+        expr: pgbouncer_database_reserve_pool{datname!="pgbouncer"}
+      - record: pgbouncer:db:pool_current_conn
+        expr: pgbouncer_database_current_connections{datname!="pgbouncer"}
+      - record: pgbouncer:db:pool_paused
+        expr: pgbouncer_database_paused{datname!="pgbouncer"}
+      - record: pgbouncer:db:pool_disabled
+        expr: pgbouncer_database_disabled{datname!="pgbouncer"}
+
+      # pgbouncer database connection usage
+      - record: pgbouncer:db:conn_usage
+        expr: pgbouncer:db:pool_current_conn / pgbouncer:db:pool_size
+
+      # pgbouncer database connection usage (with additional reserved conn)
+      - record: pgbouncer:db:conn_usage_reserve
+        expr: pgbouncer:db:pool_current_conn / pgbouncer:db:pool_max_conn
+
+
+      #==============================================================#
+      #                            Pool                              #
+      #==============================================================#
+      # 5 different level: pool, db, ins, cls, env
+      # level 0:   pool {cls,ins,datname,user}    #  atomic level
+      # level 1:   db   {cls,ins,datname}         #  agg without (user)    (pool)
+      # level 2:   ins  {cls,ins}                 #  agg without (datname) (db)
+      # level 3:   cls  {cls}                     #  agg by (job, cls)          (ins)
+      # level 4:   env  {}                        #  agg                   (cls)
+
+      # max wait time (in µs, transfer to seconds)
+      - record: pgbouncer:pool:maxwait
+        expr: pgbouncer_pool_maxwait{datname!="pgbouncer"} + pgbouncer_pool_maxwait_us{datname!="pgbouncer"} / 1000000
+      - record: pgbouncer:db:maxwait
+        expr: max without(user, pool_mode) (pgbouncer:pool:maxwait)
+      - record: pgbouncer:ins:maxwait
+        expr: max without(datname) (pgbouncer:db:maxwait)
+      - record: pgbouncer:cls:maxwait
+        expr: max by (job, cls) (pgbouncer:ins:maxwait)
+      - record: pgbouncer:env:maxwait
+        expr: max by (job) (pgbouncer:cls:maxwait)
+
+      # active servers
+      - record: pgbouncer:pool:active_servers
+        expr: pgbouncer_pool_active_servers{datname!="pgbouncer"}
+      - record: pgbouncer:db:active_servers
+        expr: sum without(user, pool_mode) (pgbouncer:pool:active_servers)
+      - record: pgbouncer:ins:active_servers
+        expr: sum without(datname) (pgbouncer:db:active_servers)
+      - record: pgbouncer:cls:active_servers
+        expr: sum by (job, cls) (pgbouncer:ins:active_servers)
+      - record: pgbouncer:env:active_servers
+        expr: sum by (job) (pgbouncer:cls:active_servers)
+
+      # idle servers
+      - record: pgbouncer:pool:idle_servers
+        expr: pgbouncer_pool_idle_servers{datname!="pgbouncer"}
+      - record: pgbouncer:db:idle_servers
+        expr: max without(user, pool_mode) (pgbouncer:pool:idle_servers)
+      - record: pgbouncer:ins:idle_servers
+        expr: sum without(datname) (pgbouncer:db:idle_servers)
+      - record: pgbouncer:cls:idle_servers
+        expr: sum by (job, cls) (pgbouncer:ins:idle_servers)
+      - record: pgbouncer:env:idle_servers
+        expr: sum by (job) (pgbouncer:cls:idle_servers)
+
+      # used servers
+      - record: pgbouncer:pool:used_servers
+        expr: pgbouncer_pool_used_servers{datname!="pgbouncer"}
+      - record: pgbouncer:db:used_servers
+        expr: max without(user, pool_mode) (pgbouncer:pool:used_servers)
+      - record: pgbouncer:ins:used_servers
+        expr: sum without(datname) (pgbouncer:db:used_servers)
+      - record: pgbouncer:cls:used_servers
+        expr: sum by (job, cls) (pgbouncer:ins:used_servers)
+      - record: pgbouncer:env:used_servers
+        expr: sum by (job) (pgbouncer:cls:used_servers)
+
+      # tested servers
+      - record: pgbouncer:pool:tested_servers
+        expr: pgbouncer_pool_tested_servers{datname!="pgbouncer"}
+      - record: pgbouncer:db:tested_servers
+        expr: max without(user, pool_mode) (pgbouncer:pool:tested_servers)
+      - record: pgbouncer:ins:tested_servers
+        expr: sum without(datname) (pgbouncer:db:tested_servers)
+      - record: pgbouncer:cls:tested_servers
+        expr: sum by (job, cls) (pgbouncer:ins:tested_servers)
+      - record: pgbouncer:env:tested_servers
+        expr: sum by (job) (pgbouncer:cls:tested_servers)
+
+      # login servers
+      - record: pgbouncer:pool:login_servers
+        expr: pgbouncer_pool_login_servers{datname!="pgbouncer"}
+      - record: pgbouncer:db:login_servers
+        expr: max without(user, pool_mode) (pgbouncer:pool:login_servers)
+      - record: pgbouncer:ins:login_servers
+        expr: sum without(datname) (pgbouncer:db:login_servers)
+      - record: pgbouncer:cls:login_servers
+        expr: sum by (job, cls) (pgbouncer:ins:login_servers)
+      - record: pgbouncer:env:login_servers
+        expr: sum by (job) (pgbouncer:cls:login_servers)
+
+      # active clients
+      - record: pgbouncer:pool:active_clients
+        expr: pgbouncer_pool_active_clients{datname!="pgbouncer"}
+      - record: pgbouncer:db:active_clients
+        expr: max without(user, pool_mode) (pgbouncer:pool:active_clients)
+      - record: pgbouncer:ins:active_clients
+        expr: sum without(datname) (pgbouncer:db:active_clients)
+      - record: pgbouncer:cls:active_clients
+        expr: sum by (job, cls) (pgbouncer:ins:active_clients)
+      - record: pgbouncer:env:active_clients
+        expr: sum by (job) (pgbouncer:cls:active_clients)
+
+      # waiting clients
+      - record: pgbouncer:pool:waiting_clients
+        expr: pgbouncer_pool_waiting_clients{datname!="pgbouncer"}
+      - record: pgbouncer:db:waiting_clients
+        expr: max without(user, pool_mode) (pgbouncer:pool:waiting_clients)
+      - record: pgbouncer:ins:waiting_clients
+        expr: sum without(datname) (pgbouncer:db:waiting_clients)
+      - record: pgbouncer:cls:waiting_clients
+        expr: sum by (job, cls) (pgbouncer:ins:waiting_clients)
+      - record: pgbouncer:env:waiting_clients
+        expr: sum by (job) (pgbouncer:cls:waiting_clients)
+
+
+
+      #==============================================================#
+      #                           Stat                               #
+      #==============================================================#
+
+      # transmit bandwidth (sent, out) (db,ins,cls,env)
+      - record: pgbouncer:db:tx_rate1m
+        expr: rate(pgbouncer_stat_total_sent{datname!="pgbouncer"}[1m])
+      - record: pgbouncer:ins:tx_rate1m
+        expr: sum without (datname) (pgbouncer:db:tx_rate1m)
+      - record: pgbouncer:cls:tx_rate1m
+        expr: sum by (job, cls) (pgbouncer:ins:tx_rate1m)
+      - record: pgbouncer:env:tx_rate1m
+        expr: sum by (job) (pgbouncer:cls:tx_rate1m)
+
+      # receive bandwidth (recv, in)  (db,ins,cls,env)
+      - record: pgbouncer:db:rx_rate1m
+        expr: rate(pgbouncer_stat_total_received{datname!="pgbouncer"}[1m])
+      - record: pgbouncer:ins:rx_rate1m
+        expr: sum without (datname) (pgbouncer:db:rx_rate1m)
+      - record: pgbouncer:cls:rx_rate1m
+        expr: sum by (job, cls) (pgbouncer:ins:rx_rate1m)
+      - record: pgbouncer:env:rx_rate1m
+        expr: sum by (job) (pgbouncer:cls:rx_rate1m)
+
+
+      #--------------------------------#
+      #    Transactions(Xacts)         #
+      #--------------------------------#
+      # xact_rate1m is xact rate of last 1m
+      - record: pgbouncer:db:xact_rate1m
+        expr: rate(pgbouncer_stat_total_xact_count{datname!="pgbouncer"}[1m])
+      - record: pgbouncer:ins:xact_rate1m
+        expr: sum without(datname) (pgbouncer:db:xact_rate1m)
+      - record: pgbouncer:cls:xact_rate1m
+        expr: sum by (job, cls) (pgbouncer:ins:xact_rate1m)
+      - record: pgbouncer:env:xact_rate1m
+        expr: sum by (job) (pgbouncer:cls:xact_rate1m)
+
+
+      # xact_rate5m is xact rate of last 5m
+      - record: pgbouncer:db:xact_rate5m
+        expr: rate(pgbouncer_stat_total_xact_count{datname!="pgbouncer"}[5m])
+      - record: pgbouncer:ins:xact_rate5m
+        expr: sum without(datname) (pgbouncer:db:xact_rate5m)
+      - record: pgbouncer:cls:xact_rate5m
+        expr: sum by (job, cls) (pgbouncer:ins:xact_rate5m)
+      - record: pgbouncer:env:xact_rate5m
+        expr: sum by (job) (pgbouncer:cls:xact_rate5m)
+
+
+      # xact_rate15m is xact rate of last 15m
+      - record: pgbouncer:db:xact_rate15m
+        expr: rate(pgbouncer_stat_total_xact_count{datname!="pgbouncer"}[15m])
+      - record: pgbouncer:ins:xact_rate15m
+        expr: sum without(datname) (pgbouncer:db:xact_rate15m)
+      - record: pgbouncer:cls:xact_rate15m
+        expr: sum by (job, cls) (pgbouncer:ins:xact_rate15m)
+      - record: pgbouncer:env:xact_rate15m
+        expr: sum by (job) (pgbouncer:cls:xact_rate15m)
+
+      # xact_time_rate1m is xact_time rate of last 1m (µs to s)
+      - record: pgbouncer:db:xact_time_rate1m
+        expr: rate(pgbouncer_stat_total_xact_time{datname!="pgbouncer"}[1m])
+      - record: pgbouncer:ins:xact_time_rate1m
+        expr: sum without(datname) (pgbouncer:db:xact_time_rate1m)
+      - record: pgbouncer:cls:xact_time_rate1m
+        expr: sum by (job, cls) (pgbouncer:ins:xact_time_rate1m)
+      - record: pgbouncer:env:xact_time_rate1m
+        expr: sum by (job) (pgbouncer:cls:xact_time_rate1m)
+
+
+      # xact_time_rate5m is xact_time rate of last 5m
+      - record: pgbouncer:db:xact_time_rate5m
+        expr: rate(pgbouncer_stat_total_xact_time{datname!="pgbouncer"}[5m])
+      - record: pgbouncer:ins:xact_time_rate5m
+        expr: sum without(datname) (pgbouncer:db:xact_time_rate5m)
+      - record: pgbouncer:cls:xact_time_rate5m
+        expr: sum by (job, cls) (pgbouncer:ins:xact_time_rate5m)
+      - record: pgbouncer:env:xact_time_rate5m
+        expr: sum by (job) (pgbouncer:cls:xact_time_rate5m)
+
+
+      # xact_time_rate15m is xact_time rate of last 15m
+      - record: pgbouncer:db:xact_time_rate15m
+        expr: rate(pgbouncer_stat_total_xact_time{datname!="pgbouncer"}[15m])
+      - record: pgbouncer:ins:xact_time_rate15m
+        expr: sum without(datname) (pgbouncer:db:xact_time_rate15m)
+      - record: pgbouncer:cls:xact_time_rate15m
+        expr: sum by (job, cls) (pgbouncer:ins:xact_time_rate15m)
+      - record: pgbouncer:env:xact_time_rate15m
+        expr: sum by (job) (pgbouncer:cls:xact_time_rate15m)
+
+      # xact_rt_1m is xact_rate1m / sum_rate1m of last 1m
+      - record: pgbouncer:db:xact_rt_1m
+        expr: pgbouncer:db:xact_time_rate1m / pgbouncer:db:xact_rate1m
+      - record: pgbouncer:ins:xact_rt_1m
+        expr: pgbouncer:ins:xact_time_rate1m / pgbouncer:ins:xact_rate1m
+      - record: pgbouncer:cls:xact_rt_1m
+        expr: pgbouncer:cls:xact_time_rate1m / pgbouncer:cls:xact_rate1m
+      - record: pgbouncer:env:xact_rt_1m
+        expr: pgbouncer:env:xact_time_rate1m / pgbouncer:env:xact_rate1m
+
+
+      # xact_rt_5m is xact_rate5m / sum_rate5m of last 5m
+      - record: pgbouncer:db:xact_rt_5m
+        expr: pgbouncer:db:xact_time_rate5m / pgbouncer:db:xact_rate5m
+      - record: pgbouncer:ins:xact_rt_5m
+        expr: pgbouncer:ins:xact_time_rate5m / pgbouncer:ins:xact_rate5m
+      - record: pgbouncer:cls:xact_rt_5m
+        expr: pgbouncer:cls:xact_time_rate5m / pgbouncer:cls:xact_rate5m
+      - record: pgbouncer:env:xact_rt_5m
+        expr: pgbouncer:env:xact_time_rate5m / pgbouncer:env:xact_rate5m
+
+
+      # xact_rt_15m is xact_rate15m / sum_rate15m of last 15m
+      - record: pgbouncer:db:xact_rt_15m
+        expr: pgbouncer:db:xact_time_rate15m / pgbouncer:db:xact_rate15m
+      - record: pgbouncer:ins:xact_rt_15m
+        expr: pgbouncer:ins:xact_time_rate15m / pgbouncer:ins:xact_rate15m
+      - record: pgbouncer:cls:xact_rt_15m
+        expr: pgbouncer:cls:xact_time_rate15m / pgbouncer:cls:xact_rate15m
+      - record: pgbouncer:env:xact_rt_15m
+        expr: pgbouncer:env:xact_time_rate15m / pgbouncer:env:xact_rate15m
+
+
+
+      #--------------------------------#
+      #            Queries             #
+      #--------------------------------#
+      # query_rate1m is query rate of last 1m
+      - record: pgbouncer:db:query_rate1m
+        expr: rate(pgbouncer_stat_total_query_count{datname!="pgbouncer"}[1m])
+      - record: pgbouncer:ins:query_rate1m
+        expr: sum without(datname) (pgbouncer:db:query_rate1m)
+      - record: pgbouncer:cls:query_rate1m
+        expr: sum by (job, cls) (pgbouncer:ins:query_rate1m)
+      - record: pgbouncer:env:query_rate1m
+        expr: sum by (job) (pgbouncer:cls:query_rate1m)
+
+
+      # query_rate5m is query rate of last 5m
+      - record: pgbouncer:db:query_rate5m
+        expr: rate(pgbouncer_stat_total_query_count{datname!="pgbouncer"}[5m])
+      - record: pgbouncer:ins:query_rate5m
+        expr: sum without(datname) (pgbouncer:db:query_rate5m)
+      - record: pgbouncer:cls:query_rate5m
+        expr: sum by (job, cls) (pgbouncer:ins:query_rate5m)
+      - record: pgbouncer:env:query_rate5m
+        expr: sum by (job) (pgbouncer:cls:query_rate5m)
+
+
+      # query_rate15m is query rate of last 15m
+      - record: pgbouncer:db:query_rate15m
+        expr: rate(pgbouncer_stat_total_query_count{datname!="pgbouncer"}[15m])
+      - record: pgbouncer:ins:query_rate15m
+        expr: sum without(datname) (pgbouncer:db:query_rate15m)
+      - record: pgbouncer:cls:query_rate15m
+        expr: sum by (job, cls) (pgbouncer:ins:query_rate15m)
+      - record: pgbouncer:env:query_rate15m
+        expr: sum by (job) (pgbouncer:cls:query_rate15m)
+
+      # query_time_rate1m is query_time rate of last 1m
+      - record: pgbouncer:db:query_time_rate1m
+        expr: rate(pgbouncer_stat_total_query_time{datname!="pgbouncer"}[1m])
+      - record: pgbouncer:ins:query_time_rate1m
+        expr: sum without(datname) (pgbouncer:db:query_time_rate1m)
+      - record: pgbouncer:cls:query_time_rate1m
+        expr: sum by (job, cls) (pgbouncer:ins:query_time_rate1m)
+      - record: pgbouncer:env:query_time_rate1m
+        expr: sum by (job) (pgbouncer:cls:query_time_rate1m)
+
+
+      # query_time_rate5m is query_time rate of last 5m
+      - record: pgbouncer:db:query_time_rate5m
+        expr: rate(pgbouncer_stat_total_query_time{datname!="pgbouncer"}[5m])
+      - record: pgbouncer:ins:query_time_rate5m
+        expr: sum without(datname) (pgbouncer:db:query_time_rate5m)
+      - record: pgbouncer:cls:query_time_rate5m
+        expr: sum by (job, cls) (pgbouncer:ins:query_time_rate5m)
+      - record: pgbouncer:env:query_time_rate5m
+        expr: sum by (job) (pgbouncer:cls:query_time_rate5m)
+
+
+      # query_time_rate15m is query_time rate of last 15m
+      - record: pgbouncer:db:query_time_rate15m
+        expr: rate(pgbouncer_stat_total_query_time{datname!="pgbouncer"}[15m])
+      - record: pgbouncer:ins:query_time_rate15m
+        expr: sum without(datname) (pgbouncer:db:query_time_rate15m)
+      - record: pgbouncer:cls:query_time_rate15m
+        expr: sum by (job, cls) (pgbouncer:ins:query_time_rate15m)
+      - record: pgbouncer:env:query_time_rate15m
+        expr: sum by (job) (pgbouncer:cls:query_time_rate15m)
+
+
+      # query_rt_1m is query_rate1m / sum_rate1m of last 1m
+      - record: pgbouncer:db:query_rt_1m
+        expr: pgbouncer:db:query_time_rate1m / pgbouncer:db:query_rate1m
+      - record: pgbouncer:ins:query_rt_1m
+        expr: pgbouncer:ins:query_time_rate1m / pgbouncer:ins:query_rate1m
+      - record: pgbouncer:cls:query_rt_1m
+        expr: pgbouncer:cls:query_time_rate1m / pgbouncer:cls:query_rate1m
+      - record: pgbouncer:env:query_rt_1m
+        expr: pgbouncer:env:query_time_rate1m / pgbouncer:env:query_rate1m
+
+
+      # query_rt_5m is query_rate5m / sum_rate5m of last 5m
+      - record: pgbouncer:db:query_rt_5m
+        expr: pgbouncer:db:query_time_rate5m / pgbouncer:db:query_rate5m
+      - record: pgbouncer:ins:query_rt_5m
+        expr: pgbouncer:ins:query_time_rate5m / pgbouncer:ins:query_rate5m
+      - record: pgbouncer:cls:query_rt_5m
+        expr: pgbouncer:cls:query_time_rate5m / pgbouncer:cls:query_rate5m
+      - record: pgbouncer:env:query_rt_5m
+        expr: pgbouncer:env:query_time_rate5m / pgbouncer:env:query_rate5m
+
+
+      # query_rt_15m is query_rate15m / sum_rate15m of last 15m
+      - record: pgbouncer:db:query_rt_15m
+        expr: pgbouncer:db:query_time_rate15m / pgbouncer:db:query_rate15m
+      - record: pgbouncer:ins:query_rt_15m
+        expr: pgbouncer:ins:query_time_rate15m/ pgbouncer:ins:query_rate15m
+      - record: pgbouncer:cls:query_rt_15m
+        expr: pgbouncer:cls:query_time_rate15m / pgbouncer:cls:query_rate15m
+      - record: pgbouncer:env:query_rt_15m
+        expr: pgbouncer:env:query_time_rate15m / pgbouncer:env:query_rate15m
+
+
+      #--------------------------------#
+      #       Standard Deviance        #
+      #--------------------------------#
+
+      # xact_sigma15m is standard deviance of xact_rate1m of last 15m
+      - record: pgbouncer:db:xact_sigma15m
+        expr: stddev_over_time(pgbouncer:db:xact_rate1m[15m])
+      - record: pgbouncer:ins:xact_sigma15m
+        expr: stddev_over_time(pgbouncer:ins:xact_rate1m[15m])
+      - record: pgbouncer:cls:xact_sigma15m
+        expr: stddev_over_time(pgbouncer:cls:xact_rate1m[15m])
+      - record: pgbouncer:env:xact_sigma15m
+        expr: stddev_over_time(pgbouncer:env:xact_rate1m[15m])
+
+      # xact_rt_sigma15m is standard deviance of xact_rt_1m of last 15m
+      - record: pgbouncer:db:xact_rt_sigma15m
+        expr: stddev_over_time(pgbouncer:db:xact_rt_1m[15m])
+      - record: pgbouncer:ins:xact_rt_sigma15m
+        expr: stddev_over_time(pgbouncer:ins:xact_rt_1m[15m])
+      - record: pgbouncer:cls:xact_rt_sigma15m
+        expr: stddev_over_time(pgbouncer:cls:xact_rt_1m[15m])
+      - record: pgbouncer:env:xact_rt_sigma15m
+        expr: stddev_over_time(pgbouncer:env:xact_rt_1m[15m])
+
+      # query_sigma15m is standard deviance of query_rate1m of last 15m
+      - record: pgbouncer:db:query_sigma15m
+        expr: stddev_over_time(pgbouncer:db:query_rate1m[15m])
+      - record: pgbouncer:ins:query_sigma15m
+        expr: stddev_over_time(pgbouncer:ins:query_rate1m[15m])
+      - record: pgbouncer:cls:query_sigma15m
+        expr: stddev_over_time(pgbouncer:cls:query_rate1m[15m])
+      - record: pgbouncer:env:query_sigma15m
+        expr: stddev_over_time(pgbouncer:env:query_rate1m[15m])
+
+      # query_rt_sigma15m is standard deviance of query_rt_1m of last 15m
+      - record: pgbouncer:db:query_rt_sigma15m
+        expr: stddev_over_time(pgbouncer:db:query_rt_1m[15m])
+      - record: pgbouncer:ins:query_rt_sigma15m
+        expr: stddev_over_time(pgbouncer:ins:query_rt_1m[15m])
+      - record: pgbouncer:cls:query_rt_sigma15m
+        expr: stddev_over_time(pgbouncer:cls:query_rt_1m[15m])
+      - record: pgbouncer:env:query_rt_sigma15m
+        expr: stddev_over_time(pgbouncer:env:query_rt_1m[15m])
+
+
+      #--------------------------------#
+      #        Pgbouncer Load          #
+      #--------------------------------#
+      # instance level pg load 0,1,5,15
+      - record: pgbouncer:ins:load1
+        expr: pgbouncer:ins:query_time_rate1m / on(ins) group_left pg:ins:cpu_count or (0 * pgbouncer_up - 1)
+      - record: pgbouncer:ins:load5
+        expr: pgbouncer:ins:query_time_rate5m / on(ins) group_left pg:ins:cpu_count or (0 * pgbouncer_up - 1)
+      - record: pgbouncer:ins:load15
+        expr: pgbouncer:ins:query_time_rate15m / on(ins) group_left pg:ins:cpu_count or (0 * pgbouncer_up - 1)
+
+      # cluster level pg load: 0,1,5,15
+      - record: pgbouncer:cls:load1
+        expr: pgbouncer:cls:query_time_rate1m  / pg:cls:cpu_count or (0 * pg:cls:size - 1)
+      - record: pgbouncer:cls:load5
+        expr: pgbouncer:cls:query_time_rate5m  / pg:cls:cpu_count or (0 * pg:cls:size - 1)
+      - record: pgbouncer:cls:load15
+        expr: pgbouncer:cls:query_time_rate15m / pg:cls:cpu_count or (0 * pg:cls:size - 1)
+
+
+
+
+
+
+      ################################################################
+      #                   Saturation & Pressure                      #
+      ################################################################
+      # pg:ins:saturation = max( pg:ins:load, pgbouncer:ins:load )                      # database load
+      # pg:ins:pressure   = max( pg:ins:load, pgbouncer:ins:load , pg:ins:cpu_usage )   # instance load
+
+      #--------------------------------#
+      #          Saturation            #
+      #--------------------------------#
+      # saturation = max(pg_load , pgbouncer_load)
+      # saturation does not have instance label (because postgres & pgbouncer have different instance label)
+
+      # pg saturation of instance level 1,5,15
+      - record: pg:ins:saturation1
+        expr: max without (instance) (pg:ins:load1 > ignoring(instance) pgbouncer:ins:load1 or pgbouncer:ins:load1)
+      - record: pg:ins:saturation5
+        expr: max without (instance) (pg:ins:load5 > ignoring(instance) pgbouncer:ins:load5 or pgbouncer:ins:load5)
+      - record: pg:ins:saturation15
+        expr: max without (instance) (pg:ins:load15 > ignoring(instance) pgbouncer:ins:load15 or pgbouncer:ins:load15)
+
+      # pg saturation of cluster level 1,5,15
+      - record: pg:cls:saturation1
+        expr: pg:cls:load1 > pgbouncer:cls:load1 or pgbouncer:cls:load1
+      - record: pg:cls:saturation5
+        expr: pg:cls:load5 > pgbouncer:cls:load5 or pgbouncer:cls:load5
+      - record: pg:cls:saturation15
+        expr: pg:cls:load15 > pgbouncer:cls:load15 or pgbouncer:cls:load15
+
+
+
+      ################################################################
+      #                     Instance Pressure                        #
+      ################################################################
+      # overall indicator for instance load/pressure/saturation
+      # pressure = max(pg:x:saturation, node:x:load)
+      # it is merged from node_exporter, pg_exporter & pgbouncer_exporter
+      # CPU Usage will be the last safe guard in case of missing pg:x:load & pgbouncer:x:load
+
+      # instance level pressure
+      - record: ins:pressure1
+        expr: clamp_min(max without (instance) (pg:ins:cpu_usage_1m > pg:ins:saturation1 or pg:ins:saturation1), 0)
+      - record: ins:pressure5
+        expr: clamp_min(max without (instance) (pg:ins:cpu_usage_5m > pg:ins:saturation5 or pg:ins:saturation5), 0)
+      - record: ins:pressure15
+        expr: clamp_min(max without (instance) (pg:ins:cpu_usage_15m > pg:ins:saturation15 or pg:ins:saturation15), 0)
+
+      # cluster level pressure
+      - record: cls:pressure1
+        expr: clamp_min(max by (job, cls) (pg:cls:cpu_usage_1m > pg:cls:saturation1 or pg:cls:saturation1), 0)
+      - record: cls:pressure5
+        expr: clamp_min(max by (job, cls) (pg:cls:cpu_usage_5m > pg:cls:saturation5 or pg:cls:saturation5), 0)
+      - record: cls:pressure15
+        expr: clamp_min(max by (job, cls) (pg:cls:cpu_usage_15m > pg:cls:saturation15 or pg:cls:saturation15), 0)
+
+
+
+  ################################################################
+  #                         PgSQL Alert                          #
+  ################################################################
+  - name: pgsql-alert
+    rules:
+
+      #==============================================================#
+      #                          Aliveness                           #
+      #==============================================================#
+
+      # database server down
+      - alert: PostgresDown
+        expr: pg_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: pgsql }
+        annotations:
+          summary: "CRIT PostgresDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            pg_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/pgsql-instance?var-ins={{ $labels.ins }}
+
+
+      # database connection pool down
+      - alert: PgbouncerDown
+        expr: pgbouncer_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: pgsql }
+        annotations:
+          summary: "CRIT PostgresDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            pgbouncer_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/pgsql-instance?var-ins={{ $labels.ins }}
+
+      # database server restart (uptime < 5min)
+      - alert: PostgresRestart
+        expr: pg_uptime < 300
+        for: 1m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PostgresRestart {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            pg_uptime[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value | printf "%.1f" }} < 300
+            http://g.pigsty/d/pgsql-instance?var-ins={{ $labels.ins }}
+
+
+      #==============================================================#
+      #                         Leadership                           #
+      #==============================================================#
+      # cluster partition: split brain
+      - alert: PostgresPartition
+        expr: pg:cls:partition != 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: pgsql }
+        annotations:
+          summary: "CRIT PostgresPartition {{ $labels.cls }}@{{ $labels.job }} {{ $value }}"
+          description: |
+            pg:cls:partition[cls={{ $labels.cls }}, job={{ $labels.job }}] = {{ $value }} != 1
+
+      # OPTIONAL: promotion
+      # OPTIONAL: timeline diverge
+
+
+      #==============================================================#
+      #                        Saturation                            #
+      #==============================================================#
+      # instance pressure higher than 70% for 1m triggers a P1 alert
+      - alert: PostgresPressureHigh
+        expr: ins:pressure1 > 0.70
+        for: 1m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PostgresPressureHigh: {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            ins:pressure1[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value | printf "%.3f" }} > 0.70
+
+
+      #==============================================================#
+      #                         Replication                          #
+      #==============================================================#
+      # replication break for 1m triggers a P1 alert (WARN: heal in 5m)
+      - alert: PostgresReplicationBreak
+        expr: changes(pg_downstream_count{state="streaming"}[5m]) > 0
+        # for: 1m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PostgresReplicationBreak: {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            changes(pg_downstream_count{ins={{ $labels.ins }}, instance={{ $labels.instance }}, state="streaming"}[5m]) > 0
+
+
+      # replication lag bytes > 1MiB or lag seconds > 1s
+      - alert: PostgresReplicationLag
+        expr: pg:ins:lag_bytes > 1048576 or pg:ins:lag_seconds > 1
+        for: 1m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PostgresReplicationLag: {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            pg:ins:lag_bytes[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value | printf "%.0f" }} > 1048576 or
+            pg:ins:lag_seconds[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value | printf "%.2f" }} > 1
+
+
+      #==============================================================#
+      #                         Database                             #
+      #==============================================================#
+
+      # database age saturation > 80%
+      - alert: PostgresXidWarpAround
+        expr: pg:db:age > 0.80
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: pgsql }
+        annotations:
+          summary: "CRIT PostgresXidWarpAround: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
+          description: |
+            pg:db:age[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf "%.0f" }} > 80%
+
+      # pgbouncer client queue exists
+      - alert: PgbouncerClientQueue
+        expr: pgbouncer:db:waiting_clients > 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: pgsql }
+        annotations:
+          summary: "CRIT PgbouncerClientQueue: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
+          description: |
+            pgbouncer:db:waiting_clients[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf "%.0f" }} > 1
+
+      # pgbouncer avg response time > 16ms (database level)
+      - alert: PgbouncerQuerySlow
+        expr: pgbouncer:db:query_rt_1m > 0.016
+        for: 3m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PgbouncerQuerySlow: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
+          description: |
+            pgbouncer:db:query_rt_1m[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf "%.3f" }} > 0.016
+
+      # database connection usage > 70%
+      - alert: PostgresConnUsageHigh
+        expr: pg:db:conn_usage > 0.70
+        for: 3m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PostgresConnUsageHigh: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
+          description: |
+            pg:db:conn_usage[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf "%.3f" }} > 0.70
+
+      # database connection usage > 70%
+      - alert: PostgresIdleInXact
+        expr: pg:db:ixact_backends > 1
+        for: 3m
+        labels: { level: 2, severity: INFO, category: pgsql }
+        annotations:
+          summary: "Info PostgresIdleInXact: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
+          description: |
+            pg:db:ixact_backends[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf "%.0f" }} > 1
+
+
+
+...
