@@ -1,25 +1,19 @@
 ---
-#------------------------------------------------------------------------------
-# 0. Assert
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Assert Minio Identity                           [minio_assert]
+#--------------------------------------------------------------#
 - name: assert minio identity
+  tags: minio_assert
   assert:
     that:
       - minio_cluster is defined and minio_cluster != ''
       - minio_seq is defined and         minio_seq|int >= 0
     fail_msg: variable 'minio_cluster' & 'minio_seq' are required for minio playbook
 
-#------------------------------------------------------------------------------
-# 1. Install
-#------------------------------------------------------------------------------
-- name: install minio
-  tags: minio_install
-  package: name={{ item }} state=present
-  with_items: [ minio, mcli ]
 
-#------------------------------------------------------------------------------
-# 1. User & Group
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Create Minio OS user & Group                      [minio_user]
+#--------------------------------------------------------------#
 - name: create minio user group
   tags: minio_user
   block:
@@ -28,15 +22,32 @@
     - name: create minio os user
       user: name={{ minio_user }} group=minio
 
-#------------------------------------------------------------------------------
-# 2. Directories
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Install Minio                                  [minio_install]
+#--------------------------------------------------------------#
+- name: install minio
+  tags: minio_install
+  package: name={{ item }} state=present
+  with_items: [ minio, mcli ]
+
+
+#--------------------------------------------------------------#
+# Purge Minio Directories                          [minio_clean]
+#--------------------------------------------------------------#
+- name: clean minio data dir
+  tags: minio_clean
+  when: minio_clean|bool
+  file: path={{ item }} state=absent
+  with_items: "{{ minio_data }}"
+
+
+#--------------------------------------------------------------#
+# Create Minio Directories                           [minio_dir]
+#--------------------------------------------------------------#
 - name: create minio directories
   tags: minio_dir
   block:
-
-    - name: clean minio data
-      file: path="{{ minio_data }}" state=absent
 
     - name: create minio data dir
       file:
@@ -51,51 +62,32 @@
       file: path=/etc/minio state=directory owner={{ minio_user }} group=minio mode=0755
 
 
-#------------------------------------------------------------------------------
-# 3. Config
-#------------------------------------------------------------------------------
-- name: render minio config
+#--------------------------------------------------------------#
+# Config Minio                                    [minio_config]
+#--------------------------------------------------------------#
+- import_tasks: config.yml
   tags: minio_config
-  block:
-
-    - name: render minio config
-      tags: minio_config
-      template:
-        src: minio.default.j2
-        dest: /etc/default/minio
-        owner: root
-        group: minio
-        mode: 0644
-
-    - name: create minio systemd service
-      tags: minio_config
-      template: src=minio.service.j2 dest=/etc/systemd/system/minio.service owner=root group=root
-
-#------------------------------------------------------------------------------
-# 4. Cert
-#------------------------------------------------------------------------------
-- import_tasks: cert.yml
-  tags: [ minio_config, minio_cert ]
   vars: { minio_instance: "{{ minio_cluster }}-{{ minio_seq }}" }
 
-#------------------------------------------------------------------------------
-# 5. Launch
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Launch Minio                                    [minio_launch]
+#--------------------------------------------------------------#
 - name: launch minio server
-  tags: etcd_launch
+  tags: minio_launch
   block:
 
     - name: launch minio server service
       systemd: name=minio state=restarted enabled=yes daemon_reload=yes
-
     - name: wait for minio server online
       wait_for: host=127.0.0.1 port={{ minio_port }} state=started timeout=10
 
-#------------------------------------------------------------------------------
-# 6. Register
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Register Minio                                [minio_register]
+#--------------------------------------------------------------#
 - name: register minio as prometheus target
-  tags: [ etcd_register, register_prometheus ]
+  tags: [ minio_register, register_prometheus ]
   ignore_errors: true
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
@@ -105,5 +97,6 @@
       # {{ minio_cluster }}-{{ minio_seq }} @ {{ inventory_hostname }}
       - labels: { ip: {{ inventory_hostname }} , ins: {{ minio_cluster }}-{{ minio_seq }} , cls: {{ minio_cluster }} }
         targets: [ {{ inventory_hostname }}:{{ minio_port }} ]
+
 
 ...
