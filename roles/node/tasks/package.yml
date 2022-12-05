@@ -23,7 +23,7 @@
     - name: add local repo file
       when: node_repo_method == "local"
       get_url:
-        url: "{{ item }}"
+        url: "{{ item|replace('${admin_ip}', admin_ip) }}"
         dest: /etc/yum.repos.d/{{ item | basename }}
       with_items: "{{ node_repo_local_urls }}"
 
@@ -44,46 +44,5 @@
       environment: "{{ proxy_env | default({}) }}"
       yum: name={{ item }} disable_gpg_check=true
       with_items: "{{ node_packages }}"
-
-    - name: install infra node packages
-      when: inventory_hostname in groups["infra"]
-      environment: "{{ proxy_env | default({}) }}"
-      yum: name={{ item }} disable_gpg_check=true
-      with_items: "{{ infra_packages|default([]) }}"
-
-
-#------------------------------------------------------------------------------
-# Install Python Packages with pip3
-#------------------------------------------------------------------------------
-- name: install python pip packages
-  tags: node_pip
-  when: inventory_hostname in groups["infra"] and infra_packages_pip != '' and nginx_enabled|bool
-  ignore_errors: yes
-  environment: "{{ proxy_env | default({}) }}"
-  shell: |
-    #!/bin/bash
-    PYTHON_BIN="$(which python3)"
-    PYTHON_DIR="{{ nginx_home }}/{{ repo_name }}/python"
-    OS_RELEASE=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
-    # python3 & python3-pip is installed 
-    if [ ${OS_RELEASE} -ge 9 ]; then
-        PYTHON_BIN="$(which python3.9)"
-    elif [ ${OS_RELEASE} -ge 8 ]; then
-        PYTHON_BIN="$(which python3.8)"
-    elif [ ${OS_RELEASE} -ge 7 ]; then
-        PYTHON_BIN="$(which python3.6)"
-    else
-        PYTHON_BIN="$(which python3)"
-    fi
-    
-    mkdir -p ${PYTHON_DIR}; cd ${PYTHON_DIR}
-    if ! compgen -G ${PYTHON_DIR}/pip*.whl ; then
-        echo "f============================fuck"
-        ${PYTHON_BIN} -m pip install --upgrade pip
-        ${PYTHON_BIN} -m pip download pip
-        ${PYTHON_BIN} -m pip download {{ infra_packages_pip }}
-    fi
-    ${PYTHON_BIN} -m pip install ${PYTHON_DIR}/pip* || /bin/true
-    ${PYTHON_BIN} -m pip install ${PYTHON_DIR}/*    || /bin/true
 
 ...
