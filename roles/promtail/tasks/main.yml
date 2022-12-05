@@ -1,7 +1,7 @@
 ---
-#------------------------------------------------------------------------------
-# install promtail                                           [promtail_install]
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Install Promtail                            [promtail_install]
+#--------------------------------------------------------------#
 - name: install promtail via yum
   tags: promtail_install
   ignore_errors: "{{ not promtail_enabled|bool }}"  # ignore errors if not enabled
@@ -13,28 +13,33 @@
     - name: create /etc/promtail config dir
       file: dest=/etc/promtail state=directory
 
-#------------------------------------------------------------------------------
-# cleanup promtail                                             [promtail_clean]
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Cleanup Promtail                              [promtail_clean]
+#--------------------------------------------------------------#
 - name: remove promtail positions
   tags: promtail_clean
-  when: promtail_clean|bool and promtail_enabled|bool
+  when: promtail_clean|bool
   file: path={{ promtail_positions }} state=absent
 
-#------------------------------------------------------------------------------
-# config promtail                                             [promtail_config]
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Config Promtail                              [promtail_config]
+#--------------------------------------------------------------#
 - name: config promtail
   tags: promtail_config
   block:
     - name: create promtail systemd service
       copy: src=promtail.service dest=/usr/lib/systemd/system/promtail.service
+
     - name: render /etc/promtail.yml config
       template: src=promtail.yml.j2 dest=/etc/promtail.yml
+      vars: { loki_url: "http://{{ infra_portal.loki.endpoint|replace('${admin_ip}', admin_ip) }}/loki/api/v1/push" }
 
-#------------------------------------------------------------------------------
-# launch promtail                                             [promtail_launch]
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Launch Promtail                              [promtail_launch]
+#--------------------------------------------------------------#
 - name: Launch promtail
   tags: promtail_launch
   when: promtail_enabled|bool
