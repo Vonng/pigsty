@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   Makefile shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2022-06-20
+# Mtime     :   2022-12-04
 # Path      :   Makefile
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -330,15 +330,15 @@ test-rb3:
 #------------------------------#
 di: dashboard-init                    # init grafana dashboards
 dashboard-init:
-	cd files/dashboards/ && ./grafana.py init
+	cd files/grafana/ && ./grafana.py init
 
 dd: dashboard-dump                    # dump grafana dashboards
 dashboard-dump:
-	cd files/dashboards/ && ./grafana.py dump
+	cd files/grafana/ && ./grafana.py dump
 
 dc: dashboard-clean                   # cleanup grafana dashboards
 dashboard-clean:
-	cd files/dashboards/ && ./grafana.py clean
+	cd files/grafana/ && ./grafana.py clean
 
 du: dashboard-clean dashboard-init    # update grafana dashboards
 

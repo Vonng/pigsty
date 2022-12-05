@@ -10,9 +10,9 @@
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
-#---------------------------------------------------------------
-# create CA on files/pki/ca @ localhost
-#---------------------------------------------------------------
+#--------------------------------------------------------------#
+# create CA on files/pki/ca @ localhost                     [ca]
+#--------------------------------------------------------------#
 - name: CA
   become: yes
   hosts: localhost
@@ -20,9 +20,9 @@
   tags: ca
   roles: [{ role: ca }]
 
-#---------------------------------------------------------------
-# setup pigsty infra on infra nodes
-#---------------------------------------------------------------
+#--------------------------------------------------------------#
+# install module `INFRA` and `NODE` on infra nodes
+#--------------------------------------------------------------#
 - name: INFRA
   become: yes
   hosts: infra
@@ -37,14 +37,7 @@
     - { role: haproxy        ,tags: haproxy    }  # init haproxy if enabled
     - { role: docker         ,tags: docker     }  # init docker if enabled
     # infra
-    - { role: environ        ,tags: environ    }  # setup admin env
-    - { role: infra_cert     ,tags: cert       }  # issue cert for infra
-    - { role: nginx          ,tags: nginx      }  # setup nginx portal
-    - { role: nameserver     ,tags: nameserver }  # setup dnsmasq
-    - { role: prometheus     ,tags: prometheus }  # setup prometheus, alertmanager, pushgateway, blackbox_exporter
-    - { role: grafana        ,tags: grafana    }  # setup grafana, tempo, mimir
-    - { role: loki           ,tags: loki       }  # setup loki
-    - { role: infra_register ,tags: register   }  # register infra services
+    - { role: infra          ,tags: infra      }  # setup infra components
     # node-monitor
     - { role: node_exporter  ,tags: monitor    }  # init node exporter if enabled
     - { role: promtail       ,tags: promtail   }  # init promtail if enabled

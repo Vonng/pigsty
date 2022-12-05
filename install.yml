@@ -4,7 +4,7 @@
 # File      :   install.yml
 # Desc      :   install everything on all nodes
 # Ctime     :   2021-01-19
-# Mtime     :   2022-12-03
+# Mtime     :   2022-12-04
 # Path      :   install.yml
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -14,12 +14,13 @@
 # install.yml will interleave infra.yml & node.yml in following
 # orders to set up everything in one pass
 # - id           : generate node & pgsql identity
-# - repo         : local yum repo
-# - node-init    : node haproxy docker
-# - infra        : nameserver nginx prometheus grafana loki
-# - node-monitor : node-exporter promtail
-# - etcd-init    : etcd
-# - pgsql-init   : pgsql vip monitor register
+# - ca           : create self-signed CA on localhost
+# - repo         : create local yum repo on infra nodes
+# - node-init    : init node, haproxy & docker
+# - infra        : init nginx, dns, prometheus, grafana
+# - node-monitor : init node-exporter promtail
+# - etcd-init    : init etcd cluster
+# - pgsql-init   : init pgsql vip monitor register
 #
 # Which is equivalent to the following 4 playbooks altogether:
 # - infra.yml -l infra   deploy infrastructure on group 'infra'
@@ -73,22 +74,14 @@
     - { role: docker  ,tags: docker  }  # init docker if enabled
 
 #---------------------------------------------------------------
-# init dns, nginx, prometheus, grafana, loki
+# init dns, nginx, prometheus, grafana
 #---------------------------------------------------------------
 - name: INFRA INIT
   become: yes
   hosts: infra
   gather_facts: no
   tags: infra
-  roles:
-    - { role: environ        ,tags: environ    }  # setup admin envs
-    - { role: infra_cert     ,tags: infra_cert }  # issue infra cert
-    - { role: nginx          ,tags: nginx      }  # setup nginx
-    - { role: nameserver     ,tags: nameserver }  # setup dnsmasq
-    - { role: prometheus     ,tags: prometheus }  # setup prometheus, alertmanager, pushgateway, blackbox_exporter
-    - { role: grafana        ,tags: grafana    }  # setup grafana
-    - { role: loki           ,tags: loki       }  # setup loki
-    - { role: infra_register ,tags: register   }  # register infra services
+  roles: [{ role: infra }]
 
 #---------------------------------------------------------------
 # Node Monitor
