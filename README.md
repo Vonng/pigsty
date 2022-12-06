@@ -247,7 +247,6 @@ pg-meta:
   hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true } }
   vars:
     pg_cluster: pg-meta
-    patroni_watchdog_mode: off
     pg_databases:                       # define business databases on this cluster, array of database definition
       - name: meta                      # REQUIRED, `name` is the only mandatory field of a database definition
         baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)

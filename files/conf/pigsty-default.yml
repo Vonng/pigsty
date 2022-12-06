@@ -39,7 +39,7 @@ all:
   children:                           # groups definition
 
     # infra cluster for proxy, monitor, alert, etc..
-    infra: { hosts: {10.10.10.10: {infra_seq: 1}}, vars: {patroni_watchdog_mode: off}}
+    infra: { hosts: {10.10.10.10: {infra_seq: 1}}}
 
     # etcd cluster for ha postgres
     etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
@@ -59,7 +59,6 @@ all:
       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true } }
       vars:
         pg_cluster: pg-meta
-        patroni_watchdog_mode: off
         pg_databases:                       # define business databases on this cluster, array of database definition
           - name: meta                      # REQUIRED, `name` is the only mandatory field of a database definition
             baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
@@ -543,7 +542,7 @@ all:
     patroni_port: 8008                # patroni listen port, 8008 by default
     patroni_log_dir: /pg/log/patroni  # patroni log dir, `/pg/log/patroni` by default
     patroni_ssl_enabled: false        # secure patroni RestAPI communications with SSL?
-    patroni_watchdog_mode: automatic  # patroni watchdog mode: automatic,required,off. automatic by default
+    patroni_watchdog_mode: off        # patroni watchdog mode: automatic,required,off. off by default
     patroni_username: postgres        # patroni restapi username, `postgres` by default
     patroni_password: Patroni.API     # patroni restapi password, `Patroni.API` by default
     pg_conf: oltp.yml                 # config template: oltp,olap,crit,tiny. `oltp.yml` by default
