@@ -1,7 +1,57 @@
 ---
-#------------------------------------------------------------------------------
-# Add tuned profile
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Node Feature Flags                              [node_feature]
+#--------------------------------------------------------------#
+- name: set node features
+  tags: node_feature
+  ignore_errors: true
+  block:
+
+    # - disable numa - #
+    - name: disable node numa
+      when: node_disable_numa
+      script: disable_numa.sh
+
+    # disable swap, do so if you have enough memory or run kubernetes #
+    - name: disable node swap
+      when: node_disable_swap|bool
+      command: swapoff -a
+
+    - name: unmount node swap fs
+      when: node_disable_swap|bool
+      mount: name={{ item }} fstype=swap state=absent
+      with_items: [swap, none]
+
+    # - static network - #
+    - name: setup node static network
+      when: node_static_network|bool
+      script: static_network.sh
+
+    # - enable disk prefetch - #
+    - name: configure disk prefetch
+      when: node_disk_prefetch|bool
+      script: disk_prefetch.sh
+
+
+#--------------------------------------------------------------#
+# Node Kernel Modules                              [node_kernel]
+#--------------------------------------------------------------#
+- name: setup node kernel modules
+  tags: node_kernel
+  block:
+
+    - name: enable kernel module
+      modprobe: name={{ item }} state=present
+      with_items: "{{ node_kernel_modules }}"
+
+    - name: enable kernel module on system boot
+      copy: content={{ item }} dest=/etc/modules-load.d/{{ item }}.conf
+      with_items: "{{ node_kernel_modules }}"
+
+
+#--------------------------------------------------------------#
+# Setup Node Tuned Profile                         [node_tuned]
+#--------------------------------------------------------------#
 - name: tune node performance
   tags: node_tune
   when: node_tune is defined and node_tune != 'none'
@@ -21,9 +71,10 @@
       ignore_errors: true
       command: tuned-adm profile {{ node_tune }}
 
-#------------------------------------------------------------------------------
-# Change sysctl parameters
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Change Node sysctl parameters                    [node_sysctl]
+#--------------------------------------------------------------#
 - name: change sysctl parameter
   tags: node_sysctl
   ignore_errors: true

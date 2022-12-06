@@ -1,56 +1,53 @@
 ---
 #--------------------------------------------------------------#
-# Prerequisites
+# Prerequisites                                        [node_id]
 #--------------------------------------------------------------#
 # run role node_id before this
 
 #--------------------------------------------------------------#
-# 1. Name
+# 1. Name                                            [node_name]
 #--------------------------------------------------------------#
-#- import_tasks: name.yml
 - name: set hostname to nodename
   tags: node_name
   when: nodename_overwrite|bool and nodename is defined and nodename != ''
   hostname: name="{{ nodename }}"
 
 #--------------------------------------------------------------#
-# 2. DNS & Resolv
+# 2. Hosts & Resolv                    [node_hosts, node_resolv]
 #--------------------------------------------------------------#
+# node_hosts , node_resolv
 - import_tasks: dns.yml
-- import_tasks: resolv.yml
 
 #--------------------------------------------------------------#
-# 3. Firewall
+# 3. Firewall                                    [node_firewall]
 #--------------------------------------------------------------#
 - import_tasks: firewall.yml
+  tags: node_firewall
 
 #--------------------------------------------------------------#
-# 4. Cert
+# 4. Cert                                              [node_ca]
 #--------------------------------------------------------------#
 - import_tasks: cert.yml
-  tags: node_cert
+  tags: node_ca
 
 #--------------------------------------------------------------#
-# 5. Packages
+# 5. Packages                               [node_repo,node_pkg]
 #--------------------------------------------------------------#
-- import_tasks: package.yml
+- import_tasks: pkg.yml
 
 #--------------------------------------------------------------#
-# 6. TUNE
+# 6. TUNE    [node_feature, node_kernel, node_tune, node_sysctl]
 #--------------------------------------------------------------#
-- import_tasks: feature.yml
-- import_tasks: kernel.yml
 - import_tasks: tune.yml
 
 #--------------------------------------------------------------#
-# 7. ADMIN
+# 7. ADMIN    [node_profile, node_ulimit, node_data, node_admin]
 #--------------------------------------------------------------#
 - import_tasks: admin.yml
 
 #--------------------------------------------------------------#
-# 8. TIME
+# 8. TIME                   [node_timezone, node_ntp, node_cron]
 #--------------------------------------------------------------#
 - import_tasks: time.yml
-- import_tasks: cron.yml
 
 ...

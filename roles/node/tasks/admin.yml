@@ -1,39 +1,42 @@
 ---
-#==============================================================#
-# Stage 1: Add /etc/profile
-#==============================================================#
+#--------------------------------------------------------------#
+# Stage 1: Add /etc/profile                       [node_profile]
+#--------------------------------------------------------------#
 - name: write node etc profile
   tags: node_profile
   copy: src=node.sh dest=/etc/profile.d/node.sh mode=0644
 
-#==============================================================#
-# Stage 2: Setup pam ulimit for node users
-#==============================================================#
+
+#--------------------------------------------------------------#
+# Stage 2: Setup pam ulimit for node users         [node_ulimit]
+#--------------------------------------------------------------#
 - name: set pam ulimit
   tags: node_ulimit
   copy: src=limits.conf dest=/etc/security/limits.d/limits.conf mode=0644
 
-#==============================================================#
-# Stage 3: Create data dir if not exists
-#==============================================================#
+
+#--------------------------------------------------------------#
+# Stage 3: Create data dir if not exists             [node_data]
+#--------------------------------------------------------------#
 # TODO: MOUNT DISK TO DATA DIR NOW LEAVES TO USER
 - name: assure node data dir exists
   tags: node_data
+  when: node_data is defined and node_data != '' and node_data != '/'
   shell: >-
-    [[ -d {{ node_data }} ]] || mkdir -p {{ node_data }} -m 777
+    mkdir -p "{{ node_data }}" -m 777;
+    chown root:root "{{ node_data }}"
+    /bin/true
 
 
-#==============================================================#
-# Stage 5: Create default users/groups
-#==============================================================#
+#--------------------------------------------------------------#
+# Stage 5: Create default users/groups              [node_admin]
+#--------------------------------------------------------------#
 - name: create os node users and groups
   tags: node_admin
   when: node_admin_enabled
   block:
 
-    #------------------------------------------------------------------------------
     # admin user , group, privileges
-    #------------------------------------------------------------------------------
     - name: create os user group admin
       group: name=admin gid={{ node_admin_uid }}
     - name: create os user admin
@@ -54,10 +57,7 @@
         regexp: '^StrictHostKeyChecking='
         line: StrictHostKeyChecking=no
 
-    #------------------------------------------------------------------------------
     # admin ssh exchange among cluster
-    #------------------------------------------------------------------------------
-    # admin ssh-key exchange
     - name: fetch admin public keys
       shell: cat /home/{{ node_admin_username }}/.ssh/id_rsa.pub
       register: admin_ssh_keys
@@ -72,9 +72,7 @@
         - "{{ admin_ssh_keys.stdout }}"
         - "{{ play_hosts }}"
 
-    #------------------------------------------------------------------------------
     # add additional public keys
-    #------------------------------------------------------------------------------
     - name: add admin public keys
       tags: node_admin_pk_list
       when: node_admin_pk_list is defined and node_admin_pk_list|length > 0

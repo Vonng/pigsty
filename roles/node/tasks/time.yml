@@ -1,6 +1,6 @@
 ---
 #--------------------------------------------------------------#
-# 1. Setup node timezone (if given)
+# 1. Setup node timezone (if given)              [node_timezone]
 #--------------------------------------------------------------#
 - name: setup node timezone
   tags: node_timezone
@@ -9,7 +9,7 @@
 
 
 #--------------------------------------------------------------#
-# 2. Setup time services
+# 2. Setup time services                              [node_ntp]
 #--------------------------------------------------------------#
 - name: setup time service
   tags: node_ntp
@@ -29,5 +29,44 @@
     - name: launch ntpd service
       tags: node_ntp_launch
       systemd: name=chronyd enabled=true state=restarted
+
+#--------------------------------------------------------------#
+# Setup Node Crontab                                 [node_cron]
+#--------------------------------------------------------------#
+- name: setup node crontab
+  tags: node_crontab
+  when: node_crontab|length > 0
+  block:
+
+    # append entries to /etc/crontab, default behavior
+    - name: append etc crontab
+      when: not node_crontab_overwrite|bool
+      lineinfile: path=/etc/crontab line="{{ item }}"
+      with_items: "{{ node_crontab }}"
+
+    # overwrite /etc/crontab if node_crontab_overwrite is true
+    - name: overwrite etc crontab
+      when: node_crontab_overwrite|bool
+      copy:
+        dest: /etc/crontab
+        content: |
+          SHELL=/bin/bash
+          PATH=/sbin:/bin:/usr/sbin:/usr/bin
+          MAILTO=root
+          
+          # For details see man 4 crontabs
+          
+          # Example of job definition:
+          # .---------------- minute (0 - 59)
+          # |  .------------- hour (0 - 23)
+          # |  |  .---------- day of month (1 - 31)
+          # |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+          # |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+          # |  |  |  |  |
+          # *  *  *  *  * user-name  command to be executed
+          
+          {% for item in node_crontab %}
+          {{ item }}
+          {% endfor %}
 
 ...
