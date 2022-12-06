@@ -1,50 +1,43 @@
 #!/bin/bash
 set -euo pipefail
-
 #==============================================================#
-# File      :   bin/redis-add
+# File      :   redis-add
+# Desc      :   Create Redis Cluster/Node/Instances
 # Ctime     :   2022-05-14
 # Mtime     :   2022-05-14
-# Desc      :   Wrapper of redis playbook
-# Usage     :   bin/redis-add <cluster|ip> [...port]
 # Path      :   bin/redis-add
-# Depend    :   pigsty playbook redis.yml
+# Deps      :   ansible-playbook, redis.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
-# Copyright (C) 2018-2022 Ruohang Feng
-#==============================================================#
-
-#==============================================================#
-# environment
 #==============================================================#
 APP_NAME="$(basename $0)"
 APP_DIR="$(cd $(dirname $0) && pwd)"
 PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
 
 
-#==============================================================#
-# log util
-#==============================================================#
-__CN='\033[0m'    # no color
-__CB='\033[0;30m' # black
-__CR='\033[0;31m' # red
-__CG='\033[0;32m' # green
-__CY='\033[0;33m' # yellow
-__CB='\033[0;34m' # blue
-__CM='\033[0;35m' # magenta
-__CC='\033[0;36m' # cyan
-__CW='\033[0;37m' # white
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+# bin/redis-add <cluster|ip> [...port]
+# if ports are specified, only those corresponding instances will be added
+
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
 function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
 function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
 function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
 function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
 function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
 function log_hint()  { printf "${__CB}$*${__CN}\n"; }
-#==============================================================#
 
 
-#==============================================================#
-# parameters
-#==============================================================#
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
 REDIS_SELECTOR=${1-''}
 log_info "redis selector: ${REDIS_SELECTOR}"
 

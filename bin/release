@@ -1,25 +1,21 @@
 #!/bin/bash
 set -euo pipefail
-
 #==============================================================#
 # File      :   release
-# Ctime     :   2021-04-20
-# Mtime     :   2022-04-29
 # Desc      :   make pigsty release
+# Ctime     :   2021-04-20
+# Mtime     :   2022-12-06
 # Path      :   bin/release
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
-
-#==============================================================#
-# environment
-#==============================================================#
 PROG_NAME="$(basename $0)"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 
-#==============================================================#
-# parameters
-#==============================================================#
+
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
 # complete version string start with 'v'. e.g: v1.0.0
 # if default 'latest' is used, released source code will be generated @ dist/latest
 PIGSTY_VERSION=${1-'latest'}
@@ -30,20 +26,22 @@ PIGSTY_HOME="$(cd $(dirname ${PROG_DIR}) && pwd)"
 RELEASE_DIR=${PIGSTY_HOME}/dist/
 DIR="${RELEASE_DIR}/${PIGSTY_VERSION}"
 
-#==============================================================#
+
+#--------------------------------------------------------------#
 # source code dir
-#==============================================================#
+#--------------------------------------------------------------#
 cd ${PIGSTY_HOME}
 mkdir -p "${DIR}"
 rm -rf "${DIR}/pigsty"
 mkdir -p "${DIR}/pigsty" "${DIR}/pigsty/files/bin" "${DIR}/pigsty/vagrant"
 
-#==============================================================#
+
+#--------------------------------------------------------------#
 # copy resources
-#==============================================================#
+#--------------------------------------------------------------#
 cp -r ${PIGSTY_HOME}/{README.md,KEYS,LICENSE,Makefile} "${DIR}/pigsty/"
 cp -r ${PIGSTY_HOME}/vagrant/{Vagrantfile,ssh,spec,switch} "${DIR}/pigsty/vagrant/"
-cp -R ${PIGSTY_HOME}/files/{conf,cmdb.sql,rule,pg_exporter.yml,dashboards} "${DIR}/pigsty/files/"
+cp -R ${PIGSTY_HOME}/files/{conf,cmdb.sql,pg_exporter.yml,grafana,prometheus} "${DIR}/pigsty/files/"
 cp -r ${PIGSTY_HOME}/app         "${DIR}/pigsty/" # copy pigsty app
 cp -r ${PIGSTY_HOME}/{bin,roles} "${DIR}/pigsty/" # copy scripts, playbooks
 cp -r ${PIGSTY_HOME}/ansible.cfg "${DIR}/pigsty/" # copy ansible config
@@ -62,8 +60,9 @@ rm -rf "${DIR}/pigsty/bin/__pycache__"            # remove py cache files
 mkdir -p ${DIR}/pigsty/files/pki
 mkdir ${DIR}/pigsty/files/pki/{ca,etcd,misc,consul,pgsql,redis,nginx,minio}
 
-#==============================================================#
+
+#--------------------------------------------------------------#
 # make tarball
-#==============================================================#
+#--------------------------------------------------------------#
 cd ${DIR} && tar cf - pigsty | gzip -9 > pigsty-${PIGSTY_VERSION}.tgz
 rm -rf ${DIR}/pigsty

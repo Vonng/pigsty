@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*- #
-# This file parse nginx access to into csv format
+#==============================================================#
+# File      :   inventory_load
+# Desc      :   parse nginx access to into csv format
+# Ctime     :   2022-05-22
+# Mtime     :   2022-05-22
+# Path      :   bin/inventory_cmdb
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
 import os, sys, re, csv, datetime
 
 NGINX_ACCESS_LOG_REGEX = r'(?P<ip>.*?)- - \[(?P<time>.*?)\] "(?P<request>.*?)" (?P<status>.*?) (?P<bytes>.*?) "(?P<referer>.*?)" "(?P<ua>.*?)"'
