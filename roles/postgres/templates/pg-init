@@ -1,31 +1,28 @@
 #!/usr/bin/env bash
 set -uo pipefail
-
 #==============================================================#
 # File      :   pg-init
-# Ctime     :   2020-12-16
-# Mtime     :   2020-12-21
-# ATime     :   {{ '%Y-%m-%d %H:%M' | strftime }}
-# Desc      :   init postgres cluster (after creation)
+# Desc      :   shell script to init postgres cluster
+# Time      :   {{ '%Y-%m-%d %H:%M' | strftime }}
+# Host      :   {{ pg_instance }} @ {{ inventory_hostname }}:{{ patroni_port }}
 # Path      :   /pg/bin/pg-init
-# Depend    :   psql, /pg/tmp/pg-init-*.sql
-# Author    :   Vonng(fengruohang@outlook.com)
-# Copyright (C) 2018-2022 Ruohang Feng
+# Deps      :   psql, /pg/tmp/pg-init-*.sql
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
 #==============================================================#
-
 PROG_NAME="$(basename $0)"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 
 
-#==================================================================#
-#                          Default Roles                           #
-#==================================================================#
+#--------------------------------------------------------------#
+#                        Default Roles                         #
+#--------------------------------------------------------------#
 psql postgres -qAXwtf /pg/tmp/pg-init-roles.sql
 
 
-#==================================================================#
-#                          System Template                         #
-#==================================================================#
+#--------------------------------------------------------------#
+#                        System Template                       #
+#--------------------------------------------------------------#
 # system default template
 psql template1 -qAXwtf /pg/tmp/pg-init-template.sql
 
@@ -33,8 +30,7 @@ psql template1 -qAXwtf /pg/tmp/pg-init-template.sql
 psql postgres  -qAXwtf /pg/tmp/pg-init-template.sql
 
 
-
-#==================================================================#
-#                          Customize Logic                         #
-#==================================================================#
+#--------------------------------------------------------------#
+#                        Customize Logic                       #
+#--------------------------------------------------------------#
 # add your template logic here

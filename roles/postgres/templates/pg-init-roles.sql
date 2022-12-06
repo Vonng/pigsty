@@ -1,9 +1,12 @@
 ----------------------------------------------------------------------
 -- File      :   pg-init-roles.sql
--- Path      :   /pg/tmp/pg-init-roles
+-- Desc      :   create roles for postgres cluster {{ pg_cluster }}
 -- Time      :   {{ '%Y-%m-%d %H:%M' | strftime }}
--- Note      :   managed by ansible, DO NOT CHANGE
--- Desc      :   creation sql script for default roles
+-- Host      :   {{ pg_instance }} @ {{ inventory_hostname }}:{{ pg_port }}
+-- Path      :   /pg/tmp/pg-init-roles.sql
+-- Note      :   ANSIBLE MANAGED, DO NOT CHANGE!
+-- Author    :   Ruohang Feng (rh@vonng.com)
+-- License   :   AGPLv3
 ----------------------------------------------------------------------
 
 {% for user in pg_default_roles %}

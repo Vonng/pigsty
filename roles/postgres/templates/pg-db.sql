@@ -1,11 +1,13 @@
 ----------------------------------------------------------------------
 -- File      :   pg-db-{{ database.name }}.sql
+-- Desc      :   creation sql script for db {{ database.name }}
+-- Time      :   {{ '%Y-%m-%d %H:%M' | strftime }}
+-- Host      :   {{ pg_instance }} @ {{ inventory_hostname }}:{{ pg_port }}
 -- Path      :   /pg/tmp/pg-db-{{ database.name }}.sql
--- Time      :   {{ '%Y-%m-%d %H:%M' |strftime }}
--- Note      :   managed by ansible, DO NOT CHANGE
--- Desc      :   creation sql script for database {{ database.name }}
+-- Note      :   ANSIBLE MANAGED, DO NOT CHANGE!
+-- Author    :   Ruohang Feng (rh@vonng.com)
+-- License   :   AGPLv3
 ----------------------------------------------------------------------
-
 
 --==================================================================--
 --                            EXECUTION                             --

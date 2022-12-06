@@ -1,9 +1,12 @@
 ----------------------------------------------------------------------
 -- File      :   pg-user-{{ user.name }}.sql
--- Path      :   /pg/tmp/pg-user-{{ user.name }}.sql
--- Time      :   {{ '%Y-%m-%d %H:%M' |strftime }}
--- Note      :   managed by ansible, DO NOT CHANGE
 -- Desc      :   creation sql script for user {{ user.name }}
+-- Time      :   {{ '%Y-%m-%d %H:%M' | strftime }}
+-- Host      :   {{ pg_instance }} @ {{ inventory_hostname }}:{{ pg_port }}
+-- Path      :   /pg/tmp/pg-user-{{ user.name }}.sql
+-- Note      :   ANSIBLE MANAGED, DO NOT CHANGE!
+-- Author    :   Ruohang Feng (rh@vonng.com)
+-- License   :   AGPLv3
 ----------------------------------------------------------------------
 
 --==================================================================--

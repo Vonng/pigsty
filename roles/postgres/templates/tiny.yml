@@ -1,15 +1,14 @@
 #!/usr/bin/env patroni
 #==============================================================#
-# File      :   patroni.yml
-# Ctime     :   2020-04-08
-# Mtime     :   2022-11-11
-# Desc      :   patroni cluster definition for {{ pg_cluster }} (tiny)
-# Path      :   /pg/bin/patroni.yml
-# Real Path :   /pg/conf/{{ pg_instance }}.yml
-# Link      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance }}.yml
-# Note      :   Tiny Database Cluster Template (1-3 core)
-# Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
-# Copyright (C) 2018-2022 Ruohang Feng
+# File      :   patroni.yml (tiny)
+# Desc      :   Tiny Database Cluster Template (1-3C)
+# Time      :   {{ '%Y-%m-%d %H:%M' |strftime }}
+# Host      :   {{ pg_instance }} @ {{ inventory_hostname }}:{{ patroni_port }}
+# Path      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance }}.yml
+# Note      :   ANSIBLE MANAGED, DO NOT CHANGE!
+# Docs      :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
 #==============================================================#
 {% set pg_max_connections = 100 %}
 {% set pg_shared_buffers = ([(node_mem_mb|int / 400 | round(0, 'ceil'))|int * 100 , 32000])|min %}
@@ -45,16 +44,16 @@
 #==============================================================#
 
 ---
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # identity
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 namespace: {{ pg_namespace }}/          # namespace
 scope: {{ pg_cluster }}                 # cluster name
 name: {{ pg_instance }}                 # instance name
 
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # log
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 log:
   level: INFO                           #  NOTEST|DEBUG|INFO|WARNING|ERROR|CRITICAL
   dir: {{ patroni_log_dir }}            #  patroni log dir
@@ -63,9 +62,9 @@ log:
   dateformat: '%Y-%m-%d %H:%M:%S %z'    #  IMPORTANT: discard milli timestamp
   format: '%(asctime)s %(levelname)s: %(message)s'
 
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # etcd
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 etcd{% if etcd_api|int == 3 %}3{% endif %}:
   hosts: '{% for ip in groups['etcd'] %}{% if not loop.first %},{% endif %}{{ ip }}:{{ etcd_port }}{% endfor %}'
   protocol: https
@@ -73,9 +72,9 @@ etcd{% if etcd_api|int == 3 %}3{% endif %}:
   cert:   /pg/cert/server.crt
   key:    /pg/cert/server.key
 
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # api
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # how to expose patroni service
 # listen on all ipv4, connect via public ip
 restapi:
@@ -93,9 +92,9 @@ restapi:
     password: '{{ patroni_password }}'
   allowlist: [ {% for v in groups["infra"] %}{% if not loop.first %}, {% endif %}{{ v }}{% endfor %} ]
 
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # ctl
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 ctl:
 {% if patroni_ssl_enabled|bool %}
   insecure: false
@@ -106,9 +105,9 @@ ctl:
   insecure: true
 {% endif %}
 
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # tags
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 tags:
   nofailover: false
   clonefrom: true
@@ -121,23 +120,23 @@ tags:
   spec: '{{ node_cpu }}C.{{ node_mem_gb }}G.{{ [ (node_fs_bytes|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}G'
   conf: '{{ pg_conf }}'
 
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # watchdog
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # available mode: off|automatic|required
 watchdog:
   mode: {{ patroni_watchdog_mode }}
   device: /dev/watchdog
   # safety_margin: 10s
 
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # bootstrap
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 bootstrap:
 
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # bootstrap method
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   method: initdb
   # add custom bootstrap method here
 
@@ -159,9 +158,9 @@ bootstrap:
     - lc-ctype: {{ pg_lc_ctype }}
 {% endif %}
 
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # bootstrap users
-  #---------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # additional users which need to be created after initializing new cluster
   # replication user and monitor user are required
   users:
@@ -181,22 +180,22 @@ bootstrap:
     - host    replication     all            0.0.0.0/0                {{ pg_pwd_enc }}
 
 
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # customization
-  #---------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # post_init: /pg/bin/pg-init
 
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # bootstrap config
-  #---------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # this section will be written to /{{ pg_namespace }}/{{ pg_cluster }}/config
   # if will NOT take any effect after cluster bootstrap
   dcs:
 
 {% if pg_role == 'primary' and pg_upstream is defined %}
-    #----------------------------------------------------------------------------
+    #----------------------------------------------------------#
     # standby cluster definition
-    #---------------------------------------------------------------------------
+    #----------------------------------------------------------#
     standby_cluster:
       host: {{ pg_upstream }}
       port: {{ pg_port }}
@@ -208,9 +207,9 @@ bootstrap:
         - basebackup
 {% endif %}
 
-    #----------------------------------------------------------------------------
+    #----------------------------------------------------------#
     # important parameters
-    #---------------------------------------------------------------------------
+    #----------------------------------------------------------#
     # constraint: ttl >: loop_wait + retry_timeout * 2
 
     # the TTL to acquire the leader lock (in seconds). Think of it as the length of time before initiation of the automatic failover process. Default value: 30
@@ -247,18 +246,18 @@ bootstrap:
     synchronous_mode_strict: false
     # synchronous_node_count: 1  # edit-config only, when using quorum commit
 
-    #----------------------------------------------------------------------------
+    #----------------------------------------------------------#
     # postgres parameters
-    #---------------------------------------------------------------------------
+    #----------------------------------------------------------#
     postgresql:
       use_slots: true
       use_pg_rewind: true
       remove_data_directory_on_rewind_failure: true
 
       parameters:
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # IMPORTANT PARAMETERS
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         max_connections: {{ pg_max_connections }}
         superuser_reserved_connections: 10
         max_locks_per_transaction: {{ pg_max_locks_per_transaction }}
@@ -271,18 +270,18 @@ bootstrap:
         max_wal_senders: 10                         # default 10
         max_replication_slots: 10                   # default 10
 
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # AUTHENTICATION
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         password_encryption: {{ pg_pwd_enc }}
         ssl: on
         ssl_cert_file: '/pg/cert/server.crt'
         ssl_key_file: '/pg/cert/server.key'
         ssl_ca_file: '/etc/pki/ca.crt'
 
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # RESOURCE USAGE (except WAL)
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # memory: shared_buffers and maintenance_work_mem will be dynamically set
         shared_buffers: {{ pg_shared_buffers }}MB
         maintenance_work_mem: {{ pg_maintenance_mem }}MB
@@ -298,9 +297,9 @@ bootstrap:
         bgwriter_lru_maxpages: 800              # 100 -> 800
         bgwriter_lru_multiplier: 5.0            # 2.0 -> 5.0  more cushion buffer
 
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # WAL
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         min_wal_size: {{ pg_size_twentieth }}GB                      # 1/20 disk size
         max_wal_size: {{ pg_size_twentieth * 4 }}GB                     # 2/10 disk size
         max_slot_wal_keep_size: {{ pg_size_twentieth * 6 }}GB           # 3/10 disk size at most!
@@ -319,9 +318,9 @@ bootstrap:
 {% endif %}
         archive_timeout: 300                    # 5 min timeout for archiving
 
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # REPLICATION
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # synchronous_standby_names: ''
         vacuum_defer_cleanup_age: 50000         # 0->50000 last 50000 xact changes will not be vacuumed
         promote_trigger_file: promote.signal    # default promote trigger file path
@@ -333,18 +332,18 @@ bootstrap:
         max_logical_replication_workers: 8      # default 4, 6 sync worker + 1~2 apply worker
         max_sync_workers_per_subscription: 6    # default 2, 6 sync worker
 
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # QUERY TUNING
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # enable_partitionwise_join: on
         random_page_cost: {{ pg_random_page_cost }}                   # 4 for HDD, 1.1 for SSD
         effective_io_concurrency: {{ pg_effective_io_concurrency }}             # 2 for HDD, 1000 for SSD
         effective_cache_size: {{ pg_effective_cache_size }}MB           # max mem - shared buffer
         default_statistics_target: 200          # stat bucket 100 -> 200
 
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # REPORTING AND LOGGING
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         log_destination: csvlog                 # use standard csv log
         logging_collector: on                   # enable csvlog
         log_directory: {{ pg_log_dir }}         # postgres log dir
@@ -356,16 +355,16 @@ bootstrap:
         log_statement: ddl                      # log ddl change
         log_min_duration_statement: 100         # log slow query (>100ms)
 
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # STATISTICS
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         track_io_timing: on                     # collect io statistics
         track_functions: all                    # track all functions (none|pl|all)
         track_activity_query_size: 8192         # max query length in pg_stat_activity
 
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # AUTOVACUUM
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         log_autovacuum_min_duration: 1s         # log autovacuum activity take more than 1s
         autovacuum_max_workers: 1               # default autovacuum worker 3 -> 1
         autovacuum_naptime: 1min                # default autovacuum naptime 1min
@@ -375,15 +374,15 @@ bootstrap:
         autovacuum_vacuum_cost_limit: -1        # default vacuum cost limit: same as vacuum_cost_limit
         autovacuum_freeze_max_age: 1000000000   # age > 1 billion triggers force vacuum
 
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # CLIENT
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         deadlock_timeout: 50ms                      # 50ms for deadlock
         idle_in_transaction_session_timeout: 10min  # 10min timeout for idle in transaction
 
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # CUSTOMIZED OPTIONS
-        #----------------------------------------------------------------------
+        #------------------------------------------------------#
         # extensions
         shared_preload_libraries: '{{ pg_libs | default("pg_stat_statements, auto_explain") }}'
 
@@ -408,14 +407,14 @@ bootstrap:
         citus.node_conninfo: 'sslmode=prefer'   # prefer ssl instead of require
 
 
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # postgres
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 postgresql:
 
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # how to connect to postgres
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   bin_dir: {{ pg_bin_dir }}
   data_dir: {{ pg_data }}
   config_dir: {{ pg_data }}
@@ -424,9 +423,9 @@ postgresql:
   connect_address: {{ inventory_hostname }}:{{ pg_port }}
   use_unix_socket: true # default: /var/run/postgresql, /tmp
 
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # who to connect to postgres
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   authentication:
     superuser:
       username: {{ pg_dbsu }}
@@ -437,9 +436,9 @@ postgresql:
       username: {{ pg_replication_username }}
       password: '{{ pg_replication_password }}'
 
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # how to react to database operations
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # event callback script log: {{ patroni_log_dir }}/callback.log
   callbacks:
     on_start: /pg/bin/pg-failover-callback
@@ -453,9 +452,9 @@ postgresql:
   remove_data_directory_on_rewind_failure: true
   remove_data_directory_on_diverged_timelines: false
 
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # how to create replica
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # create replica method: default pg_basebackup
   create_replica_methods:
     - basebackup
@@ -465,20 +464,20 @@ postgresql:
     - verbose
     - progress
 
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # ad hoc parameters (overwrite with default)
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # parameters:
 
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # host based authentication, overwrite default pg_hba.conf
-  #----------------------------------------------------------------------------
+  #------------------------------------------------------------#
   # pg_hba:
-  #   - local   all             postgres                                ident
-  #   - local   all             all                                     {{ pg_pwd_enc }}
-  #   - host    all             all            0.0.0.0/0                {{ pg_pwd_enc }}
-  #   - local   replication     postgres                                ident
-  #   - local   replication     all                                     {{ pg_pwd_enc }}
-  #   - host    replication     all            0.0.0.0/0                {{ pg_pwd_enc }}
+  #   - local  all          postgres             ident
+  #   - local  all          all                  {{ pg_pwd_enc }}
+  #   - host   all          all       0.0.0.0/0  {{ pg_pwd_enc }}
+  #   - local  replication  postgres             ident
+  #   - local  replication  all                  {{ pg_pwd_enc }}
+  #   - host   replication  all       0.0.0.0/0  {{ pg_pwd_enc }}
 
 ...

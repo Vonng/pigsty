@@ -1,13 +1,13 @@
 ----------------------------------------------------------------------
 -- File      :   pg-init-template.sql
--- Ctime     :   2018-10-30
--- Mtime     :   2021-02-27
--- Desc      :   init postgres cluster template
+-- Desc      :   init templates for postgres cluster {{ pg_cluster }}
+-- Time      :   {{ '%Y-%m-%d %H:%M' | strftime }}
+-- Host      :   {{ pg_instance }} @ {{ inventory_hostname }}:{{ pg_port }}
 -- Path      :   /pg/tmp/pg-init-template.sql
--- Author    :   Vonng(fengruohang@outlook.com)
--- Copyright (C) 2018-2022 Ruohang Feng
+-- Note      :   ANSIBLE MANAGED, DO NOT CHANGE!
+-- Author    :   Ruohang Feng (rh@vonng.com)
+-- License   :   AGPLv3
 ----------------------------------------------------------------------
-
 
 --==================================================================--
 --                           Executions                             --
