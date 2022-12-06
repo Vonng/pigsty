@@ -1,15 +1,12 @@
 ---
-#==============================================================#
-# Install PostgreSQL Packages                                  #
-#==============================================================#
+#--------------------------------------------------------------#
+# Install PostgreSQL Packages                           [pg_pkg]
+#--------------------------------------------------------------#
 - name: install postgres packages
   become: yes
   tags: pg_pkg
   block:
 
-    #-----------------------------------------------------------
-    # Install packages
-    #-----------------------------------------------------------
     # install postgres basic packages
     - name: install postgres packages
       environment: "{{ proxy_env | default({}) }}"
@@ -18,13 +15,11 @@
 
     # install postgres extensions
     - name: install postgres extensions
+      tags: pg_extension
       environment: "{{ proxy_env | default({}) }}"
       yum: name={{ item | regex_replace('\\$\\{pg_version\\}', (lookup('vars', 'pg_version')|string))|regex_replace(' ',',') }} disable_gpg_check=true
       with_items: "{{ pg_extensions }}"
 
-    #-----------------------------------------------------------
-    # Fix Problems
-    #-----------------------------------------------------------
     # fix run dir ownership
     - name: own /var/run/postgresql with dbsu
       file: path=/var/run/postgresql state=directory owner={{ pg_dbsu }} group=postgres
@@ -40,18 +35,18 @@
         /bin/true;
 
 
-#-----------------------------------------------------------
-# Setup bin path
-#-----------------------------------------------------------
+#--------------------------------------------------------------#
+# Setup bin path                                       [pg_path]
+#--------------------------------------------------------------#
 # soft link /usr/pgsql to specific pgsql binary version
 - name: link /usr/pgsql to current version
   tags: pg_path
   file: src="/usr/pgsql-{{ pg_version }}" dest={{ pg_bin_dir | dirname }} state=link
 
 
-#-----------------------------------------------------------
-# Setup pgsql profile
-#-----------------------------------------------------------
+#--------------------------------------------------------------#
+# Setup pgsql profile                                   [pg_env]
+#--------------------------------------------------------------#
 # add /usr/pgsql/bin/ to PATH environment variable
 - name: add pgsql path to system profile
   tags: pg_env

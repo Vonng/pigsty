@@ -1,6 +1,6 @@
-#------------------------------------------------------------------------------
-# check pg private key existence on primary instance & meta node CA
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# check pg private key existence               [pg_cert_private]
+#--------------------------------------------------------------#
 - name: create pg private key
   tags: pg_cert_private
   become: no
@@ -28,11 +28,11 @@
       openssl_privatekey: path=files/pki/pgsql/{{ pg_cluster }}.key mode=0600
 
 
-#------------------------------------------------------------------------------
-# Signing server certs
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Signing server certs                           [pg_cert_issue]
+#--------------------------------------------------------------#
 - name: signing cert for postgres
-  tags: pg_cert_sign
+  tags: pg_cert_issue
   become: no
   delegate_to: localhost
   block:
@@ -64,9 +64,9 @@
         mode: 0644
 
 
-#------------------------------------------------------------------------------
-# copy postgres key & certs
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# copy postgres key & certs                       [pg_cert_copy]
+#--------------------------------------------------------------#
 - name: copy pg server certificates
   any_errors_fatal: true
   tags: pg_cert_copy
