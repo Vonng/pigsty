@@ -1,7 +1,7 @@
 ---
-#------------------------------------------------------------------------------
-# Install pg_exporter
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Install pg_exporter                      [pg_exporter_install]
+#--------------------------------------------------------------#
 - name: install pg_exporter
   tags: [ pg_exporter, pg_exporter_install ]
   when: exporter_install != 'none'
@@ -26,9 +26,9 @@
       when: exporter_install == 'binary'
       copy: src=bin/pg_exporter dest=/usr/bin/pg_exporter owner=root mode=0755
 
-#------------------------------------------------------------------------------
-# Config pg_exporter
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Config pg_exporter                        [pg_exporter_config]
+#--------------------------------------------------------------#
 - name: config pg_exporter
   tags: [ pg_exporter, pg_exporter_config ]
   block:
@@ -56,9 +56,9 @@
       template: src=pgbouncer_exporter.service.j2 dest=/usr/lib/systemd/system/pgbouncer_exporter.service
 
 
-#------------------------------------------------------------------------------
-# Launch pg_exporter
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Launch pg_exporter                        [pg_exporter_launch]
+#--------------------------------------------------------------#
 - name: launch pg_exporter
   tags: [ pg_exporter, pg_exporter_launch ]
   when: pg_exporter_enabled|bool
@@ -70,9 +70,9 @@
     - name: wait for pg_exporter online
       wait_for: host=127.0.0.1 port={{ pg_exporter_port }} state=started timeout=10
 
-#------------------------------------------------------------------------------
-# Launch pgbouncer_exporter
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Launch pgbouncer_exporter          [pgbouncer_exporter_launch]
+#--------------------------------------------------------------#
 - name: launch pgbouncer_exporter
   tags: [ pg_exporter, pgbouncer_exporter_launch ]
   when: pgbouncer_exporter_enabled|bool

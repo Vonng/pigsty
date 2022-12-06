@@ -1,6 +1,6 @@
 ---
 #--------------------------------------------------------------#
-# HONOR PG_SAFEGUARD
+# HONOR PG_SAFEGUARD                              [pg_safeguard]
 #--------------------------------------------------------------#
 - name: ABORT due to pg_safeguard enabled
   connection: local
@@ -10,47 +10,56 @@
   ignore_errors: false
   fail: msg="Abort due to pg_safeguard for {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }} is enabled, override with -e pg_safeguard=false"
 
+
 #--------------------------------------------------------------#
-# remove exporter targets from prometheus
+# remove exporter targets from prometheus           [prometheus]
 #--------------------------------------------------------------#
 - import_tasks: prometheus.yml
   tags: [ prometheus , register ]
 
+
 #--------------------------------------------------------------#
-# remove pgsql datasource from grafana
+# remove pgsql datasource from grafana                 [grafana]
 #--------------------------------------------------------------#
 - import_tasks: grafana.yml
   tags: [ grafana , register ]
 
+
 #--------------------------------------------------------------#
-# remove pg vip manager
+# remove pg vip manager                                    [vip]
 #--------------------------------------------------------------#
 - import_tasks: vip.yml
   tags: vip
 
+
 #--------------------------------------------------------------#
-# remove monitor
+# remove monitor                                       [monitor]
 #--------------------------------------------------------------#
+# pg_exporter, pgbouncer_exporter
 - import_tasks: monitor.yml
   tags: monitor
 
+
 #--------------------------------------------------------------#
-# remove pgbouncer
+# remove pgbouncer                                   [pgbouncer]
 #--------------------------------------------------------------#
 - import_tasks: pgbouncer.yml
   tags: pgbouncer
 
+
 #--------------------------------------------------------------#
-# remove postgres
+# remove postgres                                     [postgres]
 #--------------------------------------------------------------#
+# pg_replica, pg_primary, pg_meta
 - import_tasks: postgres.yml
   tags: postgres
 
+
 #--------------------------------------------------------------#
-# remove data
+# remove data                                          [pg_data]
 #--------------------------------------------------------------#
 - name: remove postgres data
-  tags: pgdata
+  tags: pg_data
   when: rm_pgdata|bool
   ignore_errors: yes
   file: path={{ item }} state=absent
@@ -58,11 +67,12 @@
     - /pg/data
     - "{{ pg_fs_main }}/postgres"
 
+
 #--------------------------------------------------------------#
-# remove backup
+# remove backup                                      [pg_backup]
 #--------------------------------------------------------------#
 - name: remove postgres backup
-  tags: pgbkup
+  tags: pg_backup
   when: rm_pgbkup|bool
   ignore_errors: yes
   file: path={{ pg_fs_bkup }}/postgres state=absent
@@ -75,10 +85,10 @@
 
 
 #--------------------------------------------------------------#
-# remove packages
+# remove packages                                       [pg_pkg]
 #--------------------------------------------------------------#
 - name: remove postgres packages
-  tags: pgpkgs
+  tags: pg_pkg
   when: rm_pgpkgs|bool
   ignore_errors: yes
   block:
@@ -92,12 +102,12 @@
 
     # uninstall postgres extensions
     - name: uninstall pg extensions
-      yum: state=absent name={{ item | regex_replace('\${pg_version}', pg_version|string) |regex_replace(' ',',') }}
+      yum: state=absent name={{ item|replace('${pg_version}', pg_version|string)|replace(' ',',') }}
       with_items: "{{ pg_extensions }}"
 
     # uninstall postgres basic packages
     - name: uninstall pg packages
-      yum: state=absent name={{ item | regex_replace('\${pg_version}', pg_version|string) |regex_replace(' ',',') }}
+      yum: state=absent name={{ item|replace('${pg_version}', pg_version|string)|replace(' ',',') }}
       with_items: "{{ pg_packages }}"
 
 ...

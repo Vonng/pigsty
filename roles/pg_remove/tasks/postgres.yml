@@ -1,32 +1,7 @@
 ---
-#------------------------------------------------------------------------------
-# Detect Leadership
-#------------------------------------------------------------------------------
-# since cluster may switchover/failover, it's important to detect actual role first
-#- name: detect real pg_role
-#  block:
-#
-#    # detect pg_role
-#    - name: get actual pg_role
-#      shell: /pg/bin/pg-role
-#      register: pg_role_result
-#    - name: get pg_role from result
-#      connection: local
-#      set_fact:
-#        pg_role_detected: pg_role_result.stdout
-#
-#    - name: set actual pg_role if applicable
-#      when: pg_role_detected == 'primary' or pg_role_detected == 'replica'
-#      set_fact:
-#        pg_role: "{{ pg_role_detected }}"
-#
-#    # TODO: Raise a notice if pg_role != pg_role_detected
-#    - debug:
-#        msg: "REMOVE {{ pg_cluster }}-{{ pg_seq }}, pg_role: {{ pg_role }}, detect role: {{ pg_role_detected }}"
-
-#------------------------------------------------------------------------------
-# Remove Follower
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Remove Follower                                   [pg_replica]
+#--------------------------------------------------------------#
 # remove followers first to avoid unnecessary failover, especially when removing entire cluster
 - name: remove postgres replica
   tags: pg_replica
@@ -48,9 +23,9 @@
 
 
 
-#------------------------------------------------------------------------------
-# Remove Leader
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Remove Leader                                     [pg_primary]
+#--------------------------------------------------------------#
 - name: remove postgres primary
   tags: pg_primary
   become: yes
@@ -70,12 +45,12 @@
       shell: "{{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate; /bin/true"
 
 
-#------------------------------------------------------------------------------
-# Remove DCS Meta Data
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Remove ETCD Meta Data                                [pg_meta]
+#--------------------------------------------------------------#
 # when cleanup primary, remove etcd metadata, too
 - name: remove postgres metadata from etcd
-  tags: etcd
+  tags: pg_meta
   ignore_errors: true
   when: pg_role == 'primary' and pg_cluster != ''
   delegate_to: '{{ admin_ip }}'
