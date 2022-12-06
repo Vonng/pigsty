@@ -146,9 +146,9 @@ Check [**Architecture**](https://github.com/Vonng/pigsty/wiki/Architecture) & [*
   <details><summary>PITR with Pgbackrest</summary>
   
   ```bash
-  pg-backup                      # make a full/incr backup
-  pg-pitr "2022-11-08 10:58:48"  # pitr to specific timepoint
-  pg-restore 20221108-105325F_20221108-105938I # restore to specific backup
+  pb-backup                      # make a full/incr backup
+  pb-pitr "2022-11-08 10:58:48"  # pitr to specific timepoint
+  pb-restore 20221108-105325F_20221108-105938I # restore to specific backup
   ```
 
   > Check [Backup & PITR](https://github.com/Vonng/pigsty/wiki/Backup-and-PITR) for details 
