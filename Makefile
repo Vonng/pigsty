@@ -1,14 +1,12 @@
 #==============================================================#
 # File      :   Makefile
-# Desc      :   Makefile shortcuts
+# Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
 # Mtime     :   2022-12-04
 # Path      :   Makefile
+# Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
-# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
-
-# pigsty version
 VERSION?=v2.0.0-b1
 EL_VER=7
 

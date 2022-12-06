@@ -1,27 +1,29 @@
 ---
-######################################################################
+#==============================================================#
 # File      :   pigsty.yml
 # Desc      :   pigsty config template with all default values
-# Link      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Ctime     :   2020-05-22
 # Mtime     :   2022-12-03
+# Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
+# Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
-# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
-######################################################################
+#==============================================================#
 
-######################################################################
-#                        Sandbox (4-node)                            #
-#====================================================================#
-# admin user : vagrant  (nopass ssh & sudo already set)              #
-# 1.  meta    :    10.10.10.10     (2 Core | 4GB)    pg-meta         #
-# 2.  node-1  :    10.10.10.11     (1 Core | 1GB)    pg-test-1       #
-# 3.  node-2  :    10.10.10.12     (1 Core | 1GB)    pg-test-2       #
-# 4.  node-3  :    10.10.10.13     (1 Core | 1GB)    pg-test-3       #
-# (replace these ip if your 4-node env have different ip addr)       #
-# VIP 2: (l2 vip is available inside same LAN )                      #
-#     pg-meta --->  10.10.10.2 ---> 10.10.10.10                      #
-#     pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}                #
-######################################################################
+
+#==============================================================#
+#                        Sandbox (4-node)                      #
+#==============================================================#
+# admin user : vagrant  (nopass ssh & sudo already set)        #
+# 1.  meta    :    10.10.10.10     (2 Core | 4GB)    pg-meta   #
+# 2.  node-1  :    10.10.10.11     (1 Core | 1GB)    pg-test-1 #
+# 3.  node-2  :    10.10.10.12     (1 Core | 1GB)    pg-test-2 #
+# 4.  node-3  :    10.10.10.13     (1 Core | 1GB)    pg-test-3 #
+# (replace these ip if your 4-node env have different ip addr) #
+# VIP 2: (l2 vip is available inside same LAN )                #
+#     pg-meta --->  10.10.10.2 ---> 10.10.10.10                #
+#     pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}          #
+#==============================================================#
+
 
 all:
 
@@ -41,6 +43,10 @@ all:
 
     # etcd cluster for ha postgres
     etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
+
+    # minio cluster, s3 compatible object storage
+    minio: {hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio }}
+
 
     #================================================================#
     #                        PGSQL Clusters                          #
@@ -146,6 +152,19 @@ all:
         pg_vip_address: 10.10.10.3/24
         pg_vip_interface: eth1
 
+    redis-ms: # redis classic primary & replica
+      hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.13 6501' } } } }
+      vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
+
+    redis-meta: # redis sentinel x 3
+      hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 6001: { } ,6002: { } , 6003: { } } } }
+      vars: { redis_cluster: redis-meta, redis_mode: sentinel ,redis_max_memory: 16MB }
+
+    redis-test: # redis native cluster: 3m x 3s
+      hosts:
+        10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+        10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+      vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
 
   ####################################################################
   #                             VARS                                 #
@@ -170,6 +189,22 @@ all:
     ca_method: create                 # create,recreate,copy, create by default
     ca_cn: pigsty-ca                  # ca common name, fixed as pigsty-ca
     cert_validity: 7300d              # cert validity, 20 years by default
+
+
+    #================================================================#
+    #                         VARS: INFRA                            #
+    #================================================================#
+    #-----------------------------------------------------------------
+    # INFRA_IDENTITY
+    #-----------------------------------------------------------------
+    #infra_seq: 1                     # infra node identity, explicitly required
+    infra_portal:                     # infra services exposed via portal
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" ,websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
 
     #-----------------------------------------------------------------
     # REPO
@@ -227,22 +262,6 @@ all:
       - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.6/haproxy-2.6.6-1.el7.x86_64.rpm # haproxy.el7
       - https://dl.min.io/server/minio/release/linux-amd64/minio-20221111034420.0.0.x86_64.rpm
       - https://dl.min.io/client/mc/release/linux-amd64/mcli-20221107234739.0.0.x86_64.rpm
-
-
-    #================================================================#
-    #                         VARS: INFRA                            #
-    #================================================================#
-    #-----------------------------------------------------------------
-    # INFRA_IDENTITY
-    #-----------------------------------------------------------------
-    #infra_seq: 1                     # infra node identity, explicitly required
-    infra_portal:                     # infra services exposed via portal
-      home         : { domain: h.pigsty }
-      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" ,websocket: true }
-      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
-      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
-      blackbox     : { endpoint: "${admin_ip}:9115" }
-      loki         : { endpoint: "${admin_ip}:3100" }
 
     #-----------------------------------------------------------------
     # INFRA_PACKAGE

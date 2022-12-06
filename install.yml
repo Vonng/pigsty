@@ -6,9 +6,10 @@
 # Ctime     :   2021-01-19
 # Mtime     :   2022-12-04
 # Path      :   install.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
-# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
+
 
 #==============================================================#
 # install.yml will interleave infra.yml & node.yml in following
@@ -29,6 +30,7 @@
 # - pgsql.yml -l all     deploy postgres database clusters
 #==============================================================#
 
+
 #---------------------------------------------------------------
 # setup node & pgsql identity
 #---------------------------------------------------------------
@@ -40,6 +42,7 @@
     - { role: node_id ,tags: node-id }
     - { role: pg_id   ,tags: pg-id   ,when: pg_cluster is defined }
 
+
 #---------------------------------------------------------------
 # Setup local CA
 #---------------------------------------------------------------
@@ -50,6 +53,7 @@
   tags: ca
   roles: [{ role: ca }]
 
+
 #---------------------------------------------------------------
 # bootstrap a local yum repo
 #---------------------------------------------------------------
@@ -59,6 +63,7 @@
   gather_facts: no
   tags: repo
   roles: [{ role: repo }]  # create local yum repo
+
 
 #---------------------------------------------------------------
 # init node , ca, docker
@@ -73,6 +78,7 @@
     - { role: haproxy ,tags: haproxy }  # init haproxy if enabled
     - { role: docker  ,tags: docker  }  # init docker if enabled
 
+
 #---------------------------------------------------------------
 # init dns, nginx, prometheus, grafana
 #---------------------------------------------------------------
@@ -82,6 +88,7 @@
   gather_facts: no
   tags: infra
   roles: [{ role: infra }]
+
 
 #---------------------------------------------------------------
 # Node Monitor
@@ -96,6 +103,7 @@
     - { role: promtail      ,tags: promtail }  # init promtail if enabled
     - { role: node_register ,tags: register }  # register node to infra
 
+
 #---------------------------------------------------------------
 # ETCD INIT
 #---------------------------------------------------------------
@@ -105,6 +113,7 @@
   gather_facts: no
   tags: etcd
   roles: [{ role: etcd }]   # init etcd on fixed group 'etcd'
+
 
 #---------------------------------------------------------------
 # INIT PGSQL

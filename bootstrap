@@ -4,17 +4,38 @@
 # Desc      :   setup local repo & install boot utils
 # Ctime     :   2022-10-16
 # Mtime     :   2022-10-16
-# Usage     :   ./bootstrap [-rdn]
-# Note      :   run as admin user (nopass sudo & ssh)
-# Path      :   configure
+# Path      :   bootstrap
+# Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
-# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 VERSION=v2.0.0-b1
 
-#==============================================================#
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+#  boostrap [-p <path>] [-y|--yes] [-n|--no]
+#
+#  ./boostrap
+#     [-r|--region <region]   [default,china,europe]
+#     [-p|--path <path>]      specify another offline pkg path
+#     [-y|--yes]              download offline pkg without asking
+#     [-n|--no]               do not download offline pkg.tgz
+#
+# if neither `-y` or `-n` is specified, Pigsty will ask for
+# downloading `pkg.tgz` from the Internet during `bootstrap`
+#--------------------------------------------------------------#
+# args
+#  -r  --region <region> : mirror region to use (default|china|europe)
+#  -p  --pkg    <path>   : offline packages path, /tmp/pkg.tgz by default
+#  -y  --yes             : download pkg.tgz from internet, ask by default
+#  -n  --no              : do not download pkg.tgz from internet
+#--------------------------------------------------------------#
+
+
+#--------------------------------------------------------------#
 # Logic
-#==============================================================#
+#--------------------------------------------------------------#
 # This script make sure two things:
 #    1. ansible is installed
 #    2. local repo is prepared
@@ -33,24 +54,15 @@ VERSION=v2.0.0-b1
 #     dnf-utils,modulemd-tools,python3-jmespath (el8/9)
 #
 # 4. Check ansible availability.
-#==============================================================#
-# Usage
-#==============================================================#
-# ./boostrap [-p <path>] [-y|--yes] [-n|--no]
-#==============================================================#
-# args
-#  -r  --region <region> : mirror region to use (default|china|europe)
-#  -p  --pkg    <path>   : offline packages path, /tmp/pkg.tgz by default
-#  -y  --yes             : download pkg.tgz from internet, ask by default
-#  -n  --no              : do not download pkg.tgz from internet
-#==============================================================#
+#--------------------------------------------------------------#
+
+
+#----------------------------------------------#
+# Param
+#----------------------------------------------#
 REGION=""               # which mirror to use? (default|china|europe)
 DOWNLOAD_PKG=ask        # download pkg.tgz ? (ask|yes|no, ask by default)
 PKG_PATH=/tmp/pkg.tgz   # which pkg to be used ? (/tmp/pkg.tgz by default)
-
-#==============================================================#
-# environment
-#==============================================================#
 PROG_NAME="$(basename $0)"
 PIGSTY_HOME="$(cd $(dirname $0) && pwd)"
 REPO_NAME=pigsty
@@ -64,18 +76,12 @@ PKG_FILENAME="pigsty-pkg-${VERSION}.el${OS_VERSION}.x86_64.tgz"
 DEFAULT_SRC_URL="${BASEURL}/${SRC_FILENAME}"
 DEFAULT_PKG_URL="${BASEURL}/${PKG_FILENAME}"
 
-#==============================================================#
-# color log util
-#==============================================================#
-__CN='\033[0m'    # no color
-__CB='\033[0;30m' # black
-__CR='\033[0;31m' # red
-__CG='\033[0;32m' # green
-__CY='\033[0;33m' # yellow
-__CB='\033[0;34m' # blue
-__CM='\033[0;35m' # magenta
-__CC='\033[0;36m' # cyan
-__CW='\033[0;37m' # white
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
 function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
 function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
 function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
@@ -83,11 +89,7 @@ function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
 function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
 function log_hint()  { printf "${__CB}$*${__CN}"; }
 ipv4_regexp='(([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])'
-#==============================================================#
 
-#==============================================================#
-# precheck
-#==============================================================#
 
 #----------------------------------------------#
 # region
@@ -415,9 +417,10 @@ function check_utils(){
     fi
 }
 
-#========================================#
-# main
-#========================================#
+
+#--------------------------------------------------------------#
+# Main
+#--------------------------------------------------------------#
 function main(){
     # arg parsing
     while [ $# -gt 0 ]; do
