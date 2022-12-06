@@ -1,10 +1,9 @@
 ---
-#------------------------------------------------------------------------------
-# Setup Redis Exporter
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Setup Redis Exporter                   [redis_exporter_config]
+#--------------------------------------------------------------#
 - name: config /etc/default/redis_exporter
-  tags: redis_exporter_config
-  when:
+  tags: [ redis_exporter, redis_exporter_config ]
   block:
     - name: config /etc/default/redis_exporter
       copy:
@@ -36,11 +35,18 @@
           [Install]
           WantedBy=multi-user.target
 
-- name: launch redis_exporter systemd service
-  when: redis_exporter_enabled|bool and not redis_port is defined
-  systemd: name=redis_exporter state=restarted enabled=yes daemon_reload=yes
 
-- name: wait for redis_exporter service online
+#--------------------------------------------------------------#
+# Launch Redis Exporter                  [redis_exporter_launch]
+#--------------------------------------------------------------#
+- name: launch /etc/default/redis_exporter
+  tags: [ redis_exporter, redis_exporter_launch ]
   when: redis_exporter_enabled|bool and not redis_port is defined
-  wait_for: host=127.0.0.1 port={{ redis_exporter_port }} state=started  timeout=10
+  block:
+
+    - name: launch redis_exporter systemd service
+      systemd: name=redis_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: wait for redis_exporter service online
+      wait_for: host=127.0.0.1 port={{ redis_exporter_port }} state=started  timeout=10
 ...

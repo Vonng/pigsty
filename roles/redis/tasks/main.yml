@@ -1,14 +1,14 @@
 ---
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # CLI ARGS: redis_port
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # if `redis_port` is defined (usually specified by, e.g. -e redis_port=6379)
 # it means, we are going to manipulate a single redis instance rather than entire redis node
 # so we skip redis node & exporter tasks, and only init instance with that port
 
-#------------------------------------------------------------------------------
-# Precheck
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Redis Identity                                      [redis-id]
+#--------------------------------------------------------------#
 - name: check redis instance config
   tags: [ always, redis-id ]
   assert:
@@ -18,23 +18,26 @@
       - redis_instances is defined and redis_instances | type_debug == "dict"
     fail_msg: variable `redis_cluster|redis_instances` are required for redis deployment
 
-#------------------------------------------------------------------------------
-# Node
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Node                                              [redis_node]
+#--------------------------------------------------------------#
 - import_tasks: node.yml
   when: not redis_port is defined
   tags: redis_node
 
-#------------------------------------------------------------------------------
-# Exporter
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Exporter                                      [redis_exporter]
+#--------------------------------------------------------------#
 - import_tasks: exporter.yml
   when: not redis_port is defined
   tags: redis_exporter
 
-#------------------------------------------------------------------------------
-# Redis Instance
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Redis Instance                                [redis_instance]
+#--------------------------------------------------------------#
 - include_tasks: instance.yml
   when: redis_port is not defined or (redis_port is defined and item.key|int == redis_port|int)
   tags: redis_instance
@@ -43,9 +46,10 @@
     conf: "{{ item.value|default({}) }}"
   with_dict: "{{ redis_instances }}"
 
-#------------------------------------------------------------------------------
-# Register
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Register                                      [redis_register]
+#--------------------------------------------------------------#
 - name: register redis exporter to prometheus
   tags: [ redis_register, register_prometheus ]
   delegate_to: '{{ item }}'
@@ -62,9 +66,10 @@
       
       {% endfor %}
 
-#------------------------------------------------------------------------------
-# Join
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Join Redis Native Cluster                         [redis_join]
+#--------------------------------------------------------------#
 # run join task on redis native cluster
 #- import_tasks: join.yml
 #  when: not redis_port is defined and redis_mode is defined and redis_mode == 'cluster'

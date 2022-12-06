@@ -1,13 +1,15 @@
 ---
-#------------------------------------------------------------------------------
-# CLI ARGS: redis_port
-#------------------------------------------------------------------------------
-# if `redis_port` is defined (usually specified by, e.g. -e redis_port=6379)
-# it means, we are going to manipulate a single redis instance rather than entire redis node
-# so we skip redis node & exporter tasks, and only init instance with that port
+#--------------------------------------------------------------#
+# CLI ARGS: redis_port:
+#--------------------------------------------------------------#
+# if `redis_port` is defined (usually specified by cli args)
+#   (e.g. -e redis_port=6379)
+# it means, we are going to manipulate a single redis instance
+# rather than entire redis node, so we skip redis node tasks,
+# and only init instance with that port
 
 #--------------------------------------------------------------#
-# HONOR REDIS_SAFEGUARD
+# HONOR REDIS_SAFEGUARD                        [redis_safeguard]
 #--------------------------------------------------------------#
 - name: ABORT due to redis_safeguard enabled
   connection: local
@@ -18,9 +20,10 @@
   fail: msg="Abort due to redis_safeguard for {{ redis_cluster }}-{{ redis_seq }} @ {{ inventory_hostname }} is enabled, override with -e redis_safeguard=false"
 
 
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Deregister Redis                                    [register]
+#--------------------------------------------------------------#
 # Remove register from prometheus & stop redis-exporter
-#------------------------------------------------------------------------------
 - name: remove redis register from prometheus
   when: not redis_safeguard|bool
   tags: [ register, redis_deregister, deregister_prometheus ]
@@ -57,9 +60,9 @@
       systemd: name="redis_exporter.service" state=stopped enabled=no
 
 
-#------------------------------------------------------------------------------
-# Stop redis instances
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Stop redis instances                                   [redis]
+#--------------------------------------------------------------#
 - name: stop redis systemd service
   when: not redis_safeguard|bool
   ignore_errors: yes
@@ -78,13 +81,13 @@
       systemd: name="{{ redis_cluster }}-{{ redis_node }}-{{ redis_port }}.service" state=stopped enabled=no
 
 
-#------------------------------------------------------------------------------
-# Remove data dir if redis_rmdata
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Remove data dir if redis_rmdata                   [redis_data]
+#--------------------------------------------------------------#
 - name: remove redis data
   when: not redis_safeguard|bool and redis_rmdata|bool
   ignore_errors: yes
-  tags: data
+  tags: redis_data
   block:
 
     # remove entire redis data dir
@@ -97,13 +100,13 @@
       when: redis_port is defined
       file: path={{ redis_fs_main }}/redis/{{ redis_cluster }}-{{ redis_node }}-{{ redis_port }} state=absent
 
-#------------------------------------------------------------------------------
-# Remove redis packages
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Remove redis packages                              [redis_pkg]
+#--------------------------------------------------------------#
 - name: remove redis packages
   when: not redis_safeguard|bool and redis_rmpkgs|bool and not redis_port is defined
   ignore_errors: yes
-  tags: pkg
+  tags: redis_pkg
   yum: name={{ item }} state=absent
   with_items: [ 'redis', 'redis_exporter' ]
 

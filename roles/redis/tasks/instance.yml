@@ -1,12 +1,9 @@
-###############################################################################
-# Setup Redis Instance Resource
-###############################################################################
 
-#------------------------------------------------------------------------------
-# Assert before launch instances
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Assert before launch iredis nstances             [redis_check]
+#--------------------------------------------------------------#
 - name: check redis instance existence
-  tags: [ redis, redis_precheck ]
+  tags: [ redis, redis_check ]
   block:
 
     - name: check redis {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}:{{ port }} exists
@@ -16,7 +13,7 @@
 
     - name: set fact whether redis port is open
       connection: local
-      tags: [ redis_ins , redis_precheck ]
+      tags: [ redis_ins , redis_check ]
       set_fact: { redis_exists: "{{ 'redis' in check_redis_port_result.stdout }}" }
 
     # when any running instance exists, abort play in two cases:
@@ -28,9 +25,9 @@
       any_errors_fatal: true
       fail: msg="Abort because redis instance {{ redis_cluster }}-{{ redis_node }}-{{ port }} is running"
 
-#------------------------------------------------------------------------------
-# Clean [DANGEROUS!]
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Cleanup redis                                    [redis_clean]
+#--------------------------------------------------------------#
 - name: clean up redis
   tags: [ redis, redis_clean ]
   block:
@@ -58,9 +55,9 @@
       file: path={{ redis_fs_main }}/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }} state=absent owner=redis mode=0700
 
 
-#------------------------------------------------------------------------------
-# Config
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Config Redis                                    [redis_config]
+#--------------------------------------------------------------#
 # create data dir & config & systemd service
 - name: create redis resource dir
   tags: [ redis, redis_config ]
@@ -86,9 +83,9 @@
         service_template: "{% if redis_mode == 'sentinel' %}redis-sentinel.service{% else %}redis.service{% endif %}"
 
 
-#------------------------------------------------------------------------------
-# launch
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# launch                                          [redis_launch]
+#--------------------------------------------------------------#
 - name: launch {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
   tags: [ redis, redis_launch ]
   # systemd: name="{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service" state=restarted enabled=yes daemon_reload=yes
