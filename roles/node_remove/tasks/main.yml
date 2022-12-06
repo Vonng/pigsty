@@ -1,6 +1,6 @@
 ---
 #--------------------------------------------------------------#
-# remove prometheus register
+# remove prometheus register                        [prometheus]
 #--------------------------------------------------------------#
 - name: remove node target from prometheus
   tags: [ register, prometheus ]
@@ -8,16 +8,16 @@
   ignore_errors: yes
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
-  file: state=absent path=/etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
+  file: state=absent path=/etc/prometheus/targets/node/{{ inventory_hostname }}.yml
 
 #--------------------------------------------------------------#
-# remove nginx register (haproxy admin page)
+# remove nginx register (haproxy admin page)             [nginx]
 #--------------------------------------------------------------#
 - import_tasks: nginx.yml
   tags: [ register, nginx ]
 
 #--------------------------------------------------------------#
-# remove haproxy services
+# remove haproxy services                              [haproxy]
 #--------------------------------------------------------------#
 - name: stop and disable haproxy
   tags: haproxy
@@ -29,7 +29,7 @@
       file: state=absent path=/etc/haproxy
 
 #--------------------------------------------------------------#
-# remove exporter
+# remove exporter                                [node_exporter]
 #--------------------------------------------------------------#
 - name: stop and disable node_exporter service
   tags: node_exporter
@@ -37,7 +37,7 @@
   systemd: name=node_exporter state=stopped enabled=no daemon_reload=yes
 
 #--------------------------------------------------------------#
-# remove promtail
+# remove promtail                                     [promtail]
 #--------------------------------------------------------------#
 - name: stop and disable promtail service
   tags: promtail
@@ -49,7 +49,7 @@
       file: path={{ promtail_positions }} state=absent
 
 #--------------------------------------------------------------#
-# remove docker
+# remove docker                                         [docker]
 #--------------------------------------------------------------#
 - name: stop and disable docker service
   tags: docker
@@ -57,7 +57,7 @@
   systemd: name=docker state=stopped enabled=no daemon_reload=yes
 
 #--------------------------------------------------------------#
-# remove node etc profile
+# remove node etc profile                              [profile]
 #--------------------------------------------------------------#
 - name: remove node etc profile
   tags: profile

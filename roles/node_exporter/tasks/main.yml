@@ -1,9 +1,9 @@
 ---
-#------------------------------------------------------------------------------
-# Install node_exporter
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Install node_exporter                  [node_exporter_install]
+#--------------------------------------------------------------#
 - name: install node_exporter
-  tags: node_exporter_install
+  tags: [ node_exporter, node_exporter_install ]
   ignore_errors: "{{ not node_exporter_enabled|bool }}" # ignore errors if not enabled
   when: exporter_install != 'none' # node_exporter_enabled|bool
   block:
@@ -28,24 +28,28 @@
       copy: src=bin/node_exporter dest=/usr/bin/node_exporter owner=root mode=0755
 
 
-#------------------------------------------------------------------------------
-# Config node_exporter
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# Config node_exporter                    [node_exporter_config]
+#--------------------------------------------------------------#
 - name: config node_exporter
-  tags: node_exporter_config
+  tags: [ node_exporter, node_exporter_config ]
   block:
 
     - name: config node_exporter systemd unit
-      template: src=node_exporter.service.j2 dest=/usr/lib/systemd/system/node_exporter.service
+      copy: src=node_exporter.service dest=/usr/lib/systemd/system/node_exporter.service
 
     - name: config default node_exporter options
-      template: src=node_exporter.j2 dest=/etc/default/node_exporter
+      copy:
+        dest: /etc/default/node_exporter
+        content: |
+          NODE_EXPORTER_OPTS="--web.listen-address=':{{ node_exporter_port }}' --web.telemetry-path='{{ exporter_metrics_path }}' {{ node_exporter_options }}"
 
-#------------------------------------------------------------------------------
-# Launch node_exporter
-#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------#
+# Launch node_exporter                    [node_exporter_launch]
+#--------------------------------------------------------------#
 - name: Launch node_exporter
-  tags: node_exporter_launch
+  tags: [ node_exporter, node_exporter_launch ]
   when: node_exporter_enabled|bool
   block:
 
@@ -54,5 +58,6 @@
 
     - name: wait for node_exporter service online
       wait_for: host=127.0.0.1 port={{ node_exporter_port }} state=started timeout=10
+
 
 ...
