@@ -141,7 +141,6 @@ CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension
 
 {% if 'pgbouncer' not in database or database.pgbouncer|bool == true %}
 -- Database '{{ database.name }}' will be added to /etc/pgbouncer/database.txt via
--- /pg/bin/pgbouncer-create-db '{{ database.name }}'
 
 -- foreach database created on pgb, add the function to retrieve
 -- user passwords from pg_authid when auth_query is set to 'true'

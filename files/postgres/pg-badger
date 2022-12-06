@@ -1,18 +1,22 @@
 #!/bin/bash
 set -euo pipefail
-
 #==============================================================#
 # File      :   pg-badger
+# Desc      :   Generate pgbadger HTML report to /pg/stat/logs
 # Ctime     :   2021-09-17
 # Mtime     :   2021-11-09
-# Desc      :   Generate pgbadger HTML report to /pg/stat/logs
 # Path      :   /pg/bin/pg-badger
-# Depend    :   pgbadger, /pg/stat
-# Author    :   Vonng(fengruohang@outlook.com)
-# Copyright (C) 2018-2022 Ruohang Feng
+# Deps      :   pgbadger, /pg/stat
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
 #==============================================================#
+PROG_NAME="$(basename $0)"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
 
-# usage
+
+#--------------------------------------------------------------#
+#                             Usage                            #
+#--------------------------------------------------------------#
 # pg-report       incremental report for today's log
 # pg-report full  full report for all historic log
 
@@ -27,6 +31,10 @@ MODE=${1-''}
 
 LOGDIR=$(grep 'log_directory' /pg/data/postgresql.conf | awk '{print $3}' | tr -d "'")
 
+
+#--------------------------------------------------------------#
+#                             Main                             #
+#--------------------------------------------------------------#
 if [[ ${LOGDIR} == "full" ]]; then
 	pgbadger \
 	   -I ${LOGDIR}/*.csv \

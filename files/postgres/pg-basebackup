@@ -1,33 +1,30 @@
 #!/bin/bash
 set -uo pipefail
-
 #==============================================================#
-# File      :   pg-backup
+# File      :   pg-basebackup
+# Desc      :   PostgreSQL base backup script
 # Ctime     :   2018-12-06
 # Mtime     :   2022-12-17
-# Desc      :   PostgreSQL base backup script
-# Path      :   /pg/bin/pg-backup
-# Depend    :   pg_basebackup, psql, lz4, openssl, .pgpass
-# Author    :   Vonng(fengruohang@outlook.com)
-# Copyright (C) 2018-2022 Ruohang Feng
+# Path      :   /pg/bin/pg-basebackup
+# Deps      :   pg_basebackup, psql, lz4, openssl, .pgpass
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
 #==============================================================#
-
 PROG_NAME="$(basename $0)"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 
-export PATH=/usr/pgsql/bin:${PATH}
 
-#==============================================================#
+#--------------------------------------------------------------#
 #                             Usage                            #
-#==============================================================#
+#--------------------------------------------------------------#
 function usage() {
 	cat <<-'EOF'
 		NAME
-			pg-backup  -- make base backup from PostgreSQL instance
+			pg-basebackup  -- make base backup from PostgreSQL instance
 		
 		SYNOPSIS
-			pg-backup -sdfeukr
-			pg-backup --src postgres:/// --dst . --file backup.tar.lz4
+			pg-basebackup -sdfeukr
+			pg-basebackup --src postgres:/// --dst . --file backup.tar.lz4
 		
 		DESCRIPTION
 			-s, --src, --url
@@ -61,10 +58,10 @@ function usage() {
 		
 		EXAMPLES
 			routine backup crontab:
-				00 01 * * * /pg/bin/pg-backup --encrypt --upload --tag=test --key=<secret> 2>> /pg/log/backup.log
+				00 01 * * * /pg/bin/pg-basebackup --encrypt --upload --tag=test --key=<secret> 2>> /pg/log/backup.log
 		
 			one-time manual backup:
-				pg-backup -s postgres:/// -d . -f one_time_backup.tar.lz4 -e
+				pg-basebackup -s postgres:/// -d . -f one_time_backup.tar.lz4 -e
 		
 			extract backup files:
 			  backup_dir="/pg/backup"
@@ -74,9 +71,16 @@ function usage() {
 	EOF
 }
 
-#==============================================================#
+
+#--------------------------------------------------------------#
+#                             Param                            #
+#--------------------------------------------------------------#
+export PATH=/usr/pgsql/bin:${PATH}
+
+
+#--------------------------------------------------------------#
 #                             Utils                            #
-#==============================================================#
+#--------------------------------------------------------------#
 # logger functions
 function log_debug() {
 	[ -t 2 ] && printf "\033[0;34m[$(date "+%Y-%m-%d %H:%M:%S")][DEBUG] $*\033[0m\n" >&2 ||
@@ -206,9 +210,10 @@ function upload_backup() {
 	return 0
 }
 
-#==============================================================#
-#                            MAIN                              #
-#==============================================================#
+
+#--------------------------------------------------------------#
+#                             Main                             #
+#--------------------------------------------------------------#
 function main() {
 	# default settings
 	local lock_path="/tmp/backup.lock"
@@ -294,7 +299,7 @@ function main() {
 
 	log_info "================================================================"
 	# check parameters
-	log_info "[INIT] pg-backup begin, checking parameters"
+	log_info "[INIT] pg-basebackup begin, checking parameters"
 
 	if [[ ! -d ${dst} ]]; then
 		log_error "[INIT] destination directory ${dst} not exist"

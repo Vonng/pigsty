@@ -1,14 +1,18 @@
 #!/bin/bash
 set -uo pipefail
-
 #==============================================================#
-# File      :   pgbouncer-create-user
+# File      :   pgb-user
+# Desc      :   add user to pgbouncer pool
 # Ctime     :   2021-03-29
 # Mtime     :   2022-11-24
-# Desc      :   add user to pgbouncer pool
-# Path      :   /pg/bin/pgbouncer-create-user
-# Copyright (C) 2018-2022 Ruohang Feng
+# Path      :   /pg/bin/pgb-user
+# Deps      :   psql, sed
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
 #==============================================================#
+PROG_NAME="$(basename $0)"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
 
 #--------------------------------------------------------------#
 # use AUTO or "" as password will fetch from database
@@ -18,20 +22,21 @@ set -uo pipefail
 # scram pwd cannot be calculated, use plain-text instead
 #--------------------------------------------------------------#
 
+
 #--------------------------------------------------------------#
 # Test Cases
-# pgbouncer-create-user dbp_vonng
-# pgbouncer-create-user dbp_vonng auto
-# pgbouncer-create-user dbp_vonngNE auto  # Not Exist Error
-# pgbouncer-create-user dbp_vonng null
-# pgbouncer-create-user dbp_vonng md596bceae83ba2937778af09adf00ae738
-# pgbouncer-create-user dbp_vonng md596bceae83ba29377
-# pgbouncer-create-user dbp_vonng Test.Password
+# pgb-user dbp_vonng
+# pgb-user dbp_vonng auto
+# pgb-user dbp_vonngNE auto  # Not Exist Error
+# pgb-user dbp_vonng null
+# pgb-user dbp_vonng md596bceae83ba2937778af09adf00ae738
+# pgb-user dbp_vonng md596bceae83ba29377
+# pgb-user dbp_vonng Test.Password
 #--------------------------------------------------------------#
 
 
 #--------------------------------------------------------------#
-# Name: pgbouncer-create-user
+# Name: pgbouncer_create_user
 # Desc: Add or modify pgbouncer userlist
 # Arg1: username (required)
 # Arg2: password (optional)
@@ -92,4 +97,8 @@ function pgbouncer_create_user() {
     mv -f "${userlist}e" "${userlist}"
 }
 
+
+#--------------------------------------------------------------#
+#                             Main                             #
+#--------------------------------------------------------------#
 pgbouncer_create_user $@

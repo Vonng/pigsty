@@ -93,9 +93,9 @@
       become_user: "{{ pg_dbsu }}"
       ignore_errors: true
       shell: |
-        /bin/bash /pg/bin/pgbouncer-create-user "{{ pg_dbsu }}" NULL
-        /bin/bash /pg/bin/pgbouncer-create-user "{{ pg_monitor_username }}"
-        /bin/bash /pg/bin/pgbouncer-create-user "{{ pg_admin_username }}"
+        /bin/bash /pg/bin/pgb-user "{{ pg_dbsu }}" NULL
+        /bin/bash /pg/bin/pgb-user "{{ pg_monitor_username }}"
+        /bin/bash /pg/bin/pgb-user "{{ pg_admin_username }}"
 
     # retrieve biz user password in AUTO mode
     # ignore errors, in case of user not exists
@@ -104,7 +104,7 @@
       when: user.pgbouncer is defined and user.pgbouncer|bool and not pgbouncer_auth_query|bool
       ignore_errors: true
       become_user: "{{ pg_dbsu }}"
-      shell: /bin/bash /pg/bin/pgbouncer-create-user '{{ user.name }}' AUTO
+      shell: /bin/bash /pg/bin/pgb-user '{{ user.name }}' AUTO
       vars: {user: "{{ item }}" }
       with_items: "{{ pg_users }}"
 

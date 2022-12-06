@@ -1,24 +1,22 @@
 #!/bin/bash
 set -uo pipefail
-
 #==============================================================#
 # File      :   pg-failover-callback
+# Desc      :   Patroni event callback script
 # Ctime     :   2018-12-06
 # Mtime     :   2022-11-11
-# Desc      :   Patroni event callback script
 # Path      :   /pg/bin/pg-failover-callback
-# Depend    :   pg-role
-# Author    :   Vonng(fengruohang@outlook.com)
-# Copyright (C) 2018-2022 Ruohang Feng
+# Deps      :   pg-role
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
 #==============================================================#
-
 PROG_NAME="$(basename $0)"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
-LOGPATH=$(grep -A2 'log:' /pg/bin/patroni.yml | head -n3 | awk '/dir:/ {print $2}')
 
-#==============================================================#
+
+#--------------------------------------------------------------#
 #                             Usage                            #
-#==============================================================#
+#--------------------------------------------------------------#
 function usage() {
 	cat <<-'EOF'
 		NAME
@@ -43,21 +41,12 @@ function usage() {
 	exit 1
 }
 
-#==============================================================#
-function usage() {
-	cat <<-'EOF'
-		NAME
-			pg-failover-callback event role cluster
-		
-		SYNOPSIS
-			This is patroni callback event scripts
-			event could be on_stop|on_start|on_role_change
-			role could be master|replica
-			cluster would be target cluster name
-	EOF
-	exit 1
-}
-#==============================================================#
+
+#--------------------------------------------------------------#
+#                             Path                             #
+#--------------------------------------------------------------#
+LOGPATH=$(grep -A2 'log:' /pg/bin/patroni.yml | head -n3 | awk '/dir:/ {print $2}')
+
 
 function on_role_change_handler() {
 	local role=$1
@@ -82,6 +71,10 @@ function on_start_handler() {
 	exit 0
 }
 
+
+#--------------------------------------------------------------#
+#                             Main                             #
+#--------------------------------------------------------------#
 function main() {
 	local event=$1
 	local role=$2

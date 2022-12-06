@@ -1,7 +1,15 @@
 #!/bin/bash
-#=========================#
+#==============================================================#
+# File      :   pg-alias.sh
+# Desc      :   shell script to init postgres cluster
+# Path      :   /etc/profile.d/pg-alias.sh
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+#--------------------------------------------------------------#
 # patroni & postgres (pg)
-#=========================#
+#--------------------------------------------------------------#
 alias pt-start='sudo systemctl start patroni'
 alias pt-stop='sudo systemctl stop patroni'
 alias pt-reload='sudo systemctl reload patroni'
@@ -50,9 +58,9 @@ alias pg-kk="while true; do psql -wc \"SELECT pg_terminate_backend(pid) AS kille
 alias pg-cancel="psql -wc \"SELECT pg_cancel_backend(pid) AS canceled, NOW()-state_change AS time, datname, usename, application_name AS appname, client_addr,state FROM pg_stat_activity WHERE backend_type = 'client backend' and pid <> pg_backend_pid();\""
 alias pg-cc="while true; do psql -wc \"SELECT pg_cancel_backend(pid) AS canceled, NOW()-state_change AS time, datname, usename, application_name AS appname, client_addr,state FROM pg_stat_activity WHERE backend_type = 'client backend' and pid <> pg_backend_pid();\"; sleep 0.1; done"
 
-#=========================#
+#--------------------------------------------------------------#
 # pgbouncer (pgb)
-#=========================#
+#--------------------------------------------------------------#
 alias pgb='psql -p6432 -dpgbouncer'
 alias pgb-st='systemctl status pgbouncer'
 alias pgb-ps='ps aux | grep pgbouncer'
@@ -77,9 +85,9 @@ function pgb-route(){
   cat /etc/pgbouncer/pgbouncer.ini
 }
 
-#=========================#
+#--------------------------------------------------------------#
 # pgbackrest (pb)
-#=========================#
+#--------------------------------------------------------------#
 function pb() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=$stanza $@
@@ -106,9 +114,9 @@ function pb-incr() {
 }
 
 
-#======================#
+#--------------------------------------------------------------#
 # log
-#======================#
+#--------------------------------------------------------------#
 function pg-log() {
     local logdir=$(grep 'log_directory' /pg/data/postgresql.conf | awk '{print $3}' | tr -d "'")
     [[ -f "${logdir}/postgresql-$(date '+%Y-%m-%d').csv" ]] && tail -f "${logdir}/postgresql-$(date '+%Y-%m-%d').csv"
