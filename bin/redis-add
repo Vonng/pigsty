@@ -2,13 +2,13 @@
 set -euo pipefail
 
 #==============================================================#
-# File      :   bin/reload-hba
-# Desc      :   Wrapper of pgsql playbook reload hba task
-# Ctime     :   2021-11-02
-# Mtime     :   2021-12-03
-# Usage     :   bin/reload-hba <cluster>
-# Path      :   bin/reload-hba
-# Depend    :   pigsty playbook pgsql.yml
+# File      :   bin/redis-add
+# Ctime     :   2022-05-14
+# Mtime     :   2022-05-14
+# Desc      :   Wrapper of redis playbook
+# Usage     :   bin/redis-add <cluster|ip> [...port]
+# Path      :   bin/redis-add
+# Depend    :   pigsty playbook redis.yml
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
@@ -45,18 +45,30 @@ function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 #==============================================================#
 # parameters
 #==============================================================#
-PG_CLUSTER=${1-''}
+REDIS_SELECTOR=${1-''}
+log_info "redis selector: ${REDIS_SELECTOR}"
 
-if [[ -z "${PG_CLUSTER}" ]]; then
-    log_error "pg_cluster is empty"
-    log_hint "bin/reload-hba <pg_cluster> # define database in pg_databases first"
-    exit 1
+if [[ -z "${REDIS_SELECTOR}" ]]; then
+	log_error "redis cluster/node is empty"
+	log_hint "bin/create_redis ip [...port]"
+	exit 1
 fi
-#==============================================================#
+
+if (($# == 1)); then
+	# init redis cluster or node
+	log_info "init redis ${REDIS_SELECTOR} : ./redis.yml -l ${REDIS_SELECTOR}"
+	${PIGSTY_HOME}/redis.yml -l ${REDIS_SELECTOR}
+else
+	# init sinle redis instance
+	for ((i=2; i<=$#; i++))
+	do
+		log_info "init redis instance ${REDIS_SELECTOR}:${!i} with redis.yml -l ${REDIS_SELECTOR} -e redis_port=${!i} -t redis"
+		${PIGSTY_HOME}/redis.yml -l ${REDIS_SELECTOR} -e redis_port=${!i}
+	done
+fi
 
 
-#==============================================================#
-log_warn "reload ${PG_CLUSTER} hba rules"
-#==============================================================#
-cd ${PIGSTY_HOME} >/dev/null
-${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} -t pg_hba -e pg_reload=true
+# TEST CASES
+# bin/redis-add redis-common
+# bin/redis-add 10.10.10.10
+# bin/redis-add 10.10.10.10 6501 6502

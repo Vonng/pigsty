@@ -1,13 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 #==============================================================#
-# File      :   bin/createdb
-# Ctime     :   2021-07-15
-# Mtime     :   2021-07-20
-# Desc      :   Wrapper of pgsql-db.yml playbook
-# Usage     :   bin/createdb <cluster> <dbname>
-# Path      :   bin/createdb
-# Depend    :   pigsty playbook pgsql-db.yml
+# File      :   bin/pg-svc
+# Desc      :   Refresh PGSQL Cluster Services on HAProxy
+# Ctime     :   2021-12-03
+# Mtime     :   2022-12-05
+# Depend    :   pigsty playbook pgsql.yml
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
@@ -45,24 +43,19 @@ function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 # parameters
 #==============================================================#
 PG_CLUSTER=${1-''}
-DBNAME=${2-''}
 
 if [[ -z "${PG_CLUSTER}" ]]; then
     log_error "pg_cluster is empty"
-    log_hint "bin/createdb <pg_cluster> <dbname>    # define database in pg_databases first"
+    log_hint "bin/pg-svc <pg_cluster>"
     exit 1
 fi
-
-if [[ -z "${DBNAME}" ]]; then
-    log_error "dbname is empty"
-    log_hint "bin/createdb <pg_cluster> <dbname>    # define database in pg_databases first"
-    exit 2
-fi
 #==============================================================#
 
 
 #==============================================================#
-echo "create database ${DBNAME} on cluster ${PG_CLUSTER}"
+log_warn "reload ${PG_CLUSTER} haproxy"
 #==============================================================#
 cd ${PIGSTY_HOME} >/dev/null
-${PIGSTY_HOME}/pgsql-db.yml -l ${PG_CLUSTER} -e dbname=${DBNAME}
+${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} -t pg_service -e haproxy_reload=true
+
+log_hint "some haproxy statistics may not be accurate after reload"

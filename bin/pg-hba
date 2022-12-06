@@ -1,13 +1,12 @@
 #!/bin/bash
 set -euo pipefail
-
 #==============================================================#
-# File      :   bin/createpg
-# Ctime     :   2021-07-15
-# Mtime     :   2022-02-22
-# Desc      :   Wrapper of pgsql playbook
-# Usage     :   bin/createpg <cluster> [...tasks]
-# Path      :   bin/createpg
+# File      :   bin/pg-hba
+# Desc      :   Refresh Postgres Cluster HBA Rules
+# Ctime     :   2021-11-02
+# Mtime     :   2022-12-05
+# Usage     :   bin/pg-hba <cluster>
+# Path      :   bin/pg-hba
 # Depend    :   pigsty playbook pgsql.yml
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -46,30 +45,17 @@ function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 # parameters
 #==============================================================#
 PG_CLUSTER=${1-''}
-shift;
-PG_TASKS="$@"
 
 if [[ -z "${PG_CLUSTER}" ]]; then
-	log_error "pg_cluster is empty"
-	log_hint "bin/createpg <pg_cluster>   # define cluster in config first"
-	exit 1
-fi
-
-PLAYBOOK_TAGS=""
-if [[ ! -z "${PG_TASKS}" ]]; then
-    PLAYBOOK_TAGS="-t $@"
+    log_error "pg_cluster is empty"
+    log_hint "bin/pg-hba <pg_cluster> # define database in pg_databases first"
+    exit 1
 fi
 #==============================================================#
 
 
+#==============================================================#
+log_warn "reload ${PG_CLUSTER} hba rules"
 #==============================================================#
 cd ${PIGSTY_HOME} >/dev/null
-#==============================================================#
-log_info "init nodes for ${PG_CLUSTER} : ${PIGSTY_HOME}/node.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}"
-#==============================================================#
-${PIGSTY_HOME}/node.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}
-
-#==============================================================#
-log_info "init pgsql ${PG_CLUSTER} : ${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}"
-${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}
-#==============================================================#
+${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} -t pg_hba -e pg_reload=true

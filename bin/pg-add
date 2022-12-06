@@ -1,13 +1,14 @@
 #!/bin/bash
 set -euo pipefail
+
 #==============================================================#
-# File      :   createuser
-# Desc      :   Wrapper of pgsql-user.yml playbook
+# File      :   bin/pg-add
 # Ctime     :   2021-07-15
-# Mtime     :   2022-12-02
-# Usage     :   bin/pguser <cluster> <username>
-# Path      :   bin/pgeuser
-# Depend    :   pigsty playbook pgsql-user.yml
+# Mtime     :   2022-02-22
+# Desc      :   Wrapper of pgsql playbook
+# Usage     :   bin/pg-add <cluster> [...tasks]
+# Path      :   bin/pg-add
+# Depend    :   pigsty playbook pgsql.yml
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
@@ -45,24 +46,30 @@ function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 # parameters
 #==============================================================#
 PG_CLUSTER=${1-''}
-USERNAME=${2-''}
+shift;
+PG_TASKS="$@"
 
 if [[ -z "${PG_CLUSTER}" ]]; then
-    log_error "pg_cluster is empty"
-    log_hint "bin/createuser <pg_cluster> <username>    # define user in pg_users first"
-    exit 1
+	log_error "pg_cluster is empty"
+	log_hint "bin/pg-add <pg_cluster>   # define cluster in config first"
+	exit 1
 fi
 
-if [[ -z "${USERNAME}" ]]; then
-    log_error "username is empty"
-    log_hint "bin/createuser <pg_cluster> <username>    # define user in pg_users first"
-    exit 2
+PLAYBOOK_TAGS=""
+if [[ ! -z "${PG_TASKS}" ]]; then
+    PLAYBOOK_TAGS="-t $@"
 fi
 #==============================================================#
 
 
-#==============================================================#
-echo "create user ${USERNAME} on cluster ${PG_CLUSTER}"
 #==============================================================#
 cd ${PIGSTY_HOME} >/dev/null
-${PIGSTY_HOME}/pgsql-user.yml -l ${PG_CLUSTER} -e username=${USERNAME}
+#==============================================================#
+log_info "init nodes for ${PG_CLUSTER} : ${PIGSTY_HOME}/node.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}"
+#==============================================================#
+${PIGSTY_HOME}/node.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}
+
+#==============================================================#
+log_info "init pgsql ${PG_CLUSTER} : ${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}"
+${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}
+#==============================================================#

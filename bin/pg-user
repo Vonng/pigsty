@@ -1,18 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 #==============================================================#
-# File      :   bin/reload-ha
-# Desc      :   Wrapper of pgsql playbook reload haproxy task
-# Ctime     :   2021-12-03
-# Mtime     :   2022-12-05
-<<<<<<< HEAD:bin/reloadha
-# Usage     :   bin/reloadha <cluster>
-# Path      :   bin/reloadha
-=======
-# Usage     :   bin/reload-ha <cluster>
-# Path      :   bin/reload-ha
->>>>>>> 7c7cf02 (add check before haproxy reload):bin/reload-ha
-# Depend    :   pigsty playbook pgsql.yml
+# File      :   pg-user
+# Desc      :   Wrapper of pgsql-user.yml playbook
+# Ctime     :   2021-07-15
+# Mtime     :   2022-12-02
+# Usage     :   bin/pg-user <cluster> <username>
+# Path      :   bin/pg-user
+# Depend    :   pigsty playbook pgsql-user.yml
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
@@ -50,23 +45,24 @@ function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 # parameters
 #==============================================================#
 PG_CLUSTER=${1-''}
+USERNAME=${2-''}
 
 if [[ -z "${PG_CLUSTER}" ]]; then
     log_error "pg_cluster is empty"
-<<<<<<< HEAD:bin/reloadha
-    log_hint "bin/reloadha <pg_cluster>"
-=======
-    log_hint "bin/reload-ha <pg_cluster>"
->>>>>>> 7c7cf02 (add check before haproxy reload):bin/reload-ha
+    log_hint "bin/pg-user <pg_cluster> <username>    # define user in pg_users first"
     exit 1
+fi
+
+if [[ -z "${USERNAME}" ]]; then
+    log_error "username is empty"
+    log_hint "bin/pg-user <pg_cluster> <username>    # define user in pg_users first"
+    exit 2
 fi
 #==============================================================#
 
 
 #==============================================================#
-log_warn "reload ${PG_CLUSTER} haproxy"
+echo "create user ${USERNAME} on cluster ${PG_CLUSTER}"
 #==============================================================#
 cd ${PIGSTY_HOME} >/dev/null
-${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} -t register_haproxy -e haproxy_reload=true
-
-log_hint "some haproxy statistics may not be accurate after reload"
+${PIGSTY_HOME}/pgsql-user.yml -l ${PG_CLUSTER} -e username=${USERNAME}

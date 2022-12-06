@@ -1,14 +1,13 @@
 #!/bin/bash
 set -euo pipefail
-
 #==============================================================#
-# File      :   bin/createredis
-# Ctime     :   2022-05-14
-# Mtime     :   2022-05-14
-# Desc      :   Wrapper of redis playbook
-# Usage     :   bin/createredis <cluster|ip> [...port]
-# Path      :   bin/createredis
-# Depend    :   pigsty playbook redis.yml
+# File      :   bin/pg-db
+# Ctime     :   2021-07-15
+# Mtime     :   2022-12-05
+# Desc      :   Create database on postgres cluster
+# Usage     :   bin/pg-db <cluster> <dbname>
+# Path      :   bin/pg-db
+# Depend    :   pigsty playbook pgsql-db.yml
 # License   :   AGPLv3
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
@@ -45,30 +44,25 @@ function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 #==============================================================#
 # parameters
 #==============================================================#
-REDIS_SELECTOR=${1-''}
-log_info "redis selector: ${REDIS_SELECTOR}"
+PG_CLUSTER=${1-''}
+DBNAME=${2-''}
 
-if [[ -z "${REDIS_SELECTOR}" ]]; then
-	log_error "redis cluster/node is empty"
-	log_hint "bin/create_redis ip [...port]"
-	exit 1
+if [[ -z "${PG_CLUSTER}" ]]; then
+    log_error "pg_cluster is empty"
+    log_hint "bin/pg-db <pg_cluster> <dbname>    # define database in pg_databases first"
+    exit 1
 fi
 
-if (($# == 1)); then
-	# init redis cluster or node
-	log_info "init redis ${REDIS_SELECTOR} : ./redis.yml -l ${REDIS_SELECTOR}"
-	${PIGSTY_HOME}/redis.yml -l ${REDIS_SELECTOR}
-else
-	# init sinle redis instance
-	for ((i=2; i<=$#; i++))
-	do
-		log_info "init redis instance ${REDIS_SELECTOR}:${!i} with redis.yml -l ${REDIS_SELECTOR} -e redis_port=${!i} -t redis"
-		${PIGSTY_HOME}/redis.yml -l ${REDIS_SELECTOR} -e redis_port=${!i}
-	done
+if [[ -z "${DBNAME}" ]]; then
+    log_error "dbname is empty"
+    log_hint "bin/pg-db <pg_cluster> <dbname>    # define database in pg_databases first"
+    exit 2
 fi
+#==============================================================#
 
 
-# TEST CASES
-# bin/createredis redis-common
-# bin/createredis 10.10.10.10
-# bin/createredis 10.10.10.10 6501 6502
+#==============================================================#
+echo "create database ${DBNAME} on cluster ${PG_CLUSTER}"
+#==============================================================#
+cd ${PIGSTY_HOME} >/dev/null
+${PIGSTY_HOME}/pgsql-db.yml -l ${PG_CLUSTER} -e dbname=${DBNAME}
