@@ -1,14 +1,17 @@
 ---
 #--------------------------------------------------------------#
+# Create DNS Dir                                       [dns_dir]
+#--------------------------------------------------------------#
+- name: create dns records dir
+  tags: dns_dir
+  file: path=/etc/hosts.d/ state=directory
+
+#--------------------------------------------------------------#
 # Config DNS                                        [dns_config]
 #--------------------------------------------------------------#
 - name: render /etc/dnsmasq.d/config
   tags: dns_config
-  copy:
-    dest: /etc/dnsmasq.d/config
-    content: |
-      port={{ dns_port }}
-      listen-address={{ inventory_hostname }}
+  template: src=dnsmasq.conf.j2 dest=/etc/dnsmasq.conf
 
 
 #--------------------------------------------------------------#
@@ -16,7 +19,7 @@
 #--------------------------------------------------------------#
 - name: add dynamic dns records
   tags: dns_record
-  lineinfile: path=/etc/hosts line="{{ item }}"
+  lineinfile: path=/etc/hosts.d/default line="{{ item }}"
   with_items: "{{ dns_records }}"
 
 
@@ -30,8 +33,7 @@
 
     - name: launch dnsmasq systemd service
       systemd: name=dnsmasq state=restarted enabled=yes daemon_reload=yes
-
     - name: wait for dnsmasq service online
-      wait_for: host=127.0.0.1 port=53 state=started
+      wait_for: host=127.0.0.1 port={{ dns_port }} state=started
 
 ...

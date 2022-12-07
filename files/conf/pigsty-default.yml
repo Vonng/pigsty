@@ -267,7 +267,7 @@ all:
     #-----------------------------------------------------------------
     infra_packages:                   # packages to be installed on infra nodes
       - grafana,loki,prometheus2,alertmanager,pushgateway,blackbox_exporter,nginx_exporter
-      - nginx,dnsmasq,ansible,python3-requests,redis,redis_exporter,mcli,logcli,postgresql15
+      - nginx,ansible,python3-requests,redis,mcli,logcli,postgresql15
     infra_packages_pip: ''            # pip installed packages for infra nodes
 
     #-----------------------------------------------------------------
@@ -288,7 +288,7 @@ all:
     #-----------------------------------------------------------------
     # DNS
     #-----------------------------------------------------------------
-    dns_enabled: false                # setup dnsmasq on this infra node?
+    dns_enabled: true                 # setup dnsmasq on this infra node?
     dns_port: 53                      # dns server listen port, 53 by default
     dns_records: [ ]                  # dynamic dns records resolved by dnsmasq
 
@@ -378,8 +378,8 @@ all:
       - "${admin_ip} meta h.pigsty a.pigsty p.pigsty g.pigsty"
       - "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
     node_etc_hosts: []                # extra static dns records in `/etc/hosts`
-    node_dns_method: none             # how to handle dns servers: add,none,overwrite
-    node_dns_servers: []              # dynamic nameserver in `/etc/resolv.conf`
+    node_dns_method: add              # how to handle dns servers: add,none,overwrite
+    node_dns_servers: ['${admin_ip}'] # dynamic nameserver in `/etc/resolv.conf`
     node_dns_options:                 # dns resolv options in `/etc/resolv.conf`
       - options single-request-reopen timeout:1 rotate
 
@@ -393,8 +393,8 @@ all:
     node_packages: [ ]                # packages to be installed current nodes
     node_default_packages:            # default packages to be installed on all nodes
       - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils
-      - wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal
-      - readline,zlib,openssl,openssh-clients,node_exporter,etcd,promtail,mtail,python3-idna,python3-requests,haproxy
+      - wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,dnsmasq,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal
+      - node_exporter,etcd,promtail,mtail,python3-idna,python3-requests,haproxy
 
     #-----------------------------------------------------------------
     # NODE_TUNE
