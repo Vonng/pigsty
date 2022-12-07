@@ -77,11 +77,11 @@
   with_items: "{{ pg_databases }}"
 
 #--------------------------------------------------------------#
-# Pgbackrest                                         [pg_backup]
+# Pgbackrest                                        [pgbackrest]
 #--------------------------------------------------------------#
 # pg_backrest
 - import_tasks: backup.yml
-  tags: pg_backup
+  tags: pgbackrest
 
 #--------------------------------------------------------------#
 # Pgbouncer                                          [pgbouncer]
@@ -92,11 +92,18 @@
   tags: pgbouncer
   when: pgbouncer_enabled|bool
 
+
 #--------------------------------------------------------------#
 # VIP                                                   [pg_vip]
 #--------------------------------------------------------------#
 - import_tasks: vip.yml
-  tags: vip
+  tags: pg_vip
 
+
+#--------------------------------------------------------------#
+# Service                                           [pg_service]
+#--------------------------------------------------------------#
+- import_tasks: service.yml
+  tags: pg_service
 
 ...
