@@ -137,7 +137,7 @@ pg_default_extensions:            # default extensions to be created
   - { name: intagg             ,schema: public  }
   - { name: intarray           ,schema: public  }
   - { name: pg_repack }
-pg_reload: true                   # reload postgres after hba changes
+pg_reload: true                   # reload postgres/pgbouncer/vip after conf changes
 pg_default_hba_rules:             # postgres default host-based authentication rules
   - {user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident'  }
   - {user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident' }
@@ -176,6 +176,13 @@ pgbackrest_repo: |                # pgbackrest backup repo config, local repo on
   repo1-retention-full-type=time
   repo1-retention-full=14
   repo1-retention-diff=3
+
+#-----------------------------------------------------------------
+# PG_VIP
+#-----------------------------------------------------------------
+pg_vip_enabled: false             # enable a l2 vip for pgsql primary? false by default
+pg_vip_address: 127.0.0.1/24      # vip address in `<ipv4>/<mask>` format, require if vip is enabled
+pg_vip_interface: eth0            # vip network interface to listen, eth0 by default
 
 #-----------------------------------------------------------------
 # INTERNAL

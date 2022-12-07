@@ -1,14 +1,5 @@
 ---
 #--------------------------------------------------------------#
-# Install vip-manager                              [vip_install]
-#--------------------------------------------------------------#
-#- name: install vip-manager
-#  tags: vip_install
-#  ignore_errors: "{{ not pg_vip_enabled|bool }}"
-#  package: name=vip-manager state=present
-
-
-#--------------------------------------------------------------#
 # Config vip-manager                                [vip_config]
 #--------------------------------------------------------------#
 - name: create vip-manager systemd service
@@ -24,12 +15,11 @@
     vip_cidrmask: "{{ pg_vip_address.split('/')[1] }}"
     vip_interface: "{{ pg_vip_interface }}"
 
-
 #--------------------------------------------------------------#
 #  Reload vip-manager                               [vip_launch]
 #--------------------------------------------------------------#
 - name: reload vip-manager
   tags: vip_launch
-  when: pg_vip_enabled|bool
+  when: pg_vip_enabled|bool and pg_reload|bool
   systemd: name=vip-manager state=restarted enabled=yes daemon_reload=true
 ...
