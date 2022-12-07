@@ -534,7 +534,6 @@ DROP VIEW IF EXISTS pigsty.etcd_cluster CASCADE;
 CREATE OR REPLACE VIEW pigsty.etcd_cluster AS
     SELECT cls,
            vars ->> 'etcd_cluster' AS name,
-           ((gsvc.global || vars) ->> 'etcd_api')::INTEGER AS api,
            ((gsvc.global || vars) ->> 'etcd_port')::INTEGER AS port,
            ((gsvc.global || vars) ->> 'etcd_peer_port')::INTEGER AS peer_port,
            (gsvc.global || vars) ->> 'etcd_data' AS data_dir,

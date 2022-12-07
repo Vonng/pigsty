@@ -46,15 +46,6 @@ etcd:
 ```bash
 alias e="etcdctl"
 alias em="etcdctl member"
-
-# if etcd_api==2
-export ETCDCTL_API=2
-export ETCDCTL_CA_FILE=/etc/pki/ca.crt
-export ETCDCTL_CERT_FILE=/etc/etcd/server.crt
-export ETCDCTL_KEY_FILE=/etc/etcd/server.key
-export ETCDCTL_ENDPOINTS=https://10.10.10.10:2379
-
-# IF etcd_api==3
 export ETCDCTL_API=3
 export ETCDCTL_CACERT=/etc/pki/ca.crt
 export ETCDCTL_CERT=/etc/etcd/server.crt
@@ -65,7 +56,6 @@ export ETCDCTL_ENDPOINTS=https://10.10.10.10:2379
 CRUD example: 
 
 ```bash
-e set a 10 ; e get a; e rm a  ; # V2 API
 e put a 10 ; e get a; e del a ; # V3 API
 ```
 
