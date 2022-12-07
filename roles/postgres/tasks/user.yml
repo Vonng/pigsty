@@ -7,11 +7,11 @@
   when: pg_role == 'primary'
   block:
 
-    - name: render sql for user {{ user.name }}
+    - name: prepare sql for user {{ user.name }}
       tags: pg_user_config
       template: src="pg-user.sql" dest=/pg/tmp/pg-user-{{ user.name }}.sql owner={{ pg_dbsu|default('postgres') }} group=postgres mode=0755
 
-    - name: execute sql for user {{ user.name }}
+    - name: create postgres user {{ user.name }}
       tags: pg_user_create
       ignore_errors: true
       become_user: "{{ pg_dbsu|default('postgres') }}"

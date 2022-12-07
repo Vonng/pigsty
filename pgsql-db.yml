@@ -4,9 +4,9 @@
 # File      :   pgsql-db.yml
 # Desc      :   create database on existing cluster
 # Ctime     :   2021-02-27
-# Mtime     :   2022-12-03
-# Deps      :   templates/pg-db.sql
+# Mtime     :   2022-12-07
 # Path      :   pgsql-db.yml
+# Deps      :   templates/pg-db.sql
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
@@ -20,24 +20,23 @@
 #  2.  Execute this playbook on target cluster with arg dbname
 #      `pgsql-db.yml -l <pg_cluster> -e dbname=<database.name>
 #  3.  The playbook execution can be simplified by wrapper script
-#      bin/createdb <pg_cluster> <dbname>
+#      bin/pg-db <pg_cluster> <dbname>
 #
 #  This playbook will:
 #   1. create database sql definition on `/pg/tmp/pg-db-{{ database.name }}.sql`
 #   2. execute database creation/update sql on cluster leader instance
-#   3. update /etc/pgbouncer/database.txt and reload pgbouncer if necessary
-#   4. register database to grafana instance
-#=============================================================================#
+#   3. register database to grafana datasource when `db.register_datasource`
+#   4. update /etc/pgbouncer/database.txt and reload pgbouncer if necessary
+#==============================================================#
 - name: PGSQL CREATEDB
   become: yes
   hosts: all
   gather_facts: no
-  tags: createdb
   tasks:
 
-    #-------------------------------------------------------------------------------
-    # Preflight Check: validate dbname and database definition           [preflight]
-    # ------------------------------------------------------------------------------
+    #----------------------------------------------------------#
+    # Validate dbname and database definition        [preflight]
+    # ---------------------------------------------------------#
     - name: preflight
       tags: [ preflight , always ]
       connection: local
@@ -66,18 +65,29 @@
         - debug:
             msg: "{{ db_def }}"
 
-    #------------------------------------------------------------------------------
-    # Create Postgres Database                                           [postgres]
-    #------------------------------------------------------------------------------
+    #----------------------------------------------------------#
+    # Create Postgres Database                        [postgres]
+    # ---------------------------------------------------------#
     # create database according to database definition
-    - include_tasks: roles/postgres/tasks/createdb.yml
-      tags: createdb
+    - include_tasks: roles/postgres/tasks/database.yml
+      tags: postgres
       when: pg_role == 'primary'
       vars: { database: "{{ db_def }}" }
 
-    #------------------------------------------------------------------------------
-    # Refresh Pgbouncer Configuration                                   [pgbouncer]
-    #------------------------------------------------------------------------------
+
+    #----------------------------------------------------------#
+    # Create Postgres Database                        [grafana]
+    # ---------------------------------------------------------#
+    # register grafana database as grafana datasource
+    - include_tasks: roles/postgres/tasks/register_grafana.yml
+      ignore_errors: yes
+      tags: [ register, grafana ]
+      vars: { database: "{{ db_def }}" }
+
+
+    #----------------------------------------------------------#
+    # Refresh Pgbouncer Database Configuration       [pgbouncer]
+    # ---------------------------------------------------------#
     - name: refresh pgbouncer databases
       tags: pgbouncer
       when: db_def.pgbouncer is not defined or db_def.pgbouncer|bool
@@ -107,60 +117,4 @@
         - name: reload pgbouncer
           systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
 
-    #------------------------------------------------------------------------------
-    # Register datasource on grafana                                   [datasource]
-    #------------------------------------------------------------------------------
-    - name: register grafana datasource
-      tags: datasource
-      when: db_def.register_datasource is not defined or db_def.register_datasource|bool
-      delegate_to: "{{ admin_ip }}"
-      block:
-
-        - name: render grafana datasource definition
-          copy:
-            dest: "/etc/pigsty/datasources/{{ name }}.json"
-            content: |
-              {
-                "type": "postgres",
-                "access": "proxy",
-                "name": "{{ name }}",
-                "url": "{{ host }}:{{ port }}",
-                "user": "{{ username }}",
-                "database": "{{ dbname }}",
-                "typeLogoUrl": "",
-                "basicAuth": false,
-                "basicAuthUser": "",
-                "basicAuthPassword": "",
-                "withCredentials": false,
-                "isDefault": false,
-                "jsonData": {
-                  "connMaxLifetime": 3600,
-                  "maxIdleConns": 1,
-                  "maxOpenConns": 8,
-                  "postgresVersion": {{ pg_version }}00,
-                  "sslmode": "require",
-                  "tlsAuth": false,
-                  "tlsAuthWithCACert": false
-                },
-                "secureJsonData":{
-                  "password": "{{ password }}"
-                }
-              }
-            mode: 0600
-          vars:
-            name: "{{ pg_cluster }}-{{ pg_seq }}.{{ dbname }}"
-            host: "{{ inventory_hostname }}"
-            port: "{{ pg_port|default(5432) }}"
-            username: "{{ pg_monitor_username|default('dbuser_monitor') }}"
-            password: "{{ pg_monitor_password|default('DBUser.Monitor') }}"
-
-        - name: register grafana datasource
-          shell: |
-            curl -X DELETE "{{ endpoint }}/api/datasources/name/{{ name }}" -u "{{ username }}:{{ password }}"  -H 'Content-Type: application/json'
-            curl -X POST   "{{ endpoint }}/api/datasources/" -u "{{ username }}:{{ password }}" -H 'Content-Type: application/json' -d @/etc/pigsty/datasources/{{ name }}.json
-          vars:
-            name: "{{ pg_cluster }}-{{ pg_seq }}.{{ dbname }}"
-            endpoint: "{{ 'http://' +  infra_portal.grafana.endpoint|default('${admin_ip}', admin_ip)|replace('${admin_ip}', admin_ip ) }}"
-            username: "{{ grafana_admin_username|default('admin') }}"
-            password: "{{ grafana_admin_password|default('pigsty') }}"
 ...

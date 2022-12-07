@@ -4,7 +4,7 @@
 # File      :   pgsql-user.yml
 # Desc      :   create or modify user/role on pgsql cluster
 # Ctime     :   2021-02-27
-# Mtime     :   2022-12-03
+# Mtime     :   2022-12-07
 # Path      :   pgsql-user.yml
 # Deps      :   templates/pg-user.sql
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -20,23 +20,23 @@
 #  2.  Execute this playbook on target cluster with arg `username`
 #      `pgsql-user.yml -l <pg_cluster> -e username=<name>
 #  3.  The playbook execution can be simplified by wrapper script
-#      bin/createuser <pg_cluster> <name>
+#      bin/pg-user <pg_cluster> <name>
 #
 #  This playbook will:
 #   1. create user sql definition on `/pg/tmp/pg-user-{{ user.name }}.sql`
 #   2. execute database creation/update sql on cluster leader instance
-#   3. update /etc/pgbouncer/userlist.txt and reload pgbouncer if necessary
-#=============================================================================#
+#   3. update /etc/pgbouncer/userlist.txt & useropts.txt
+#   4. and reload pgbouncer to take effect
+#==============================================================#
 - name: PGSQL USER
   become: yes
   hosts: all
-  tags: createuser
   gather_facts: no
   tasks:
 
-    #-------------------------------------------------------------------------------
-    # pre-flight check: validate username and user definition            [preflight]
-    # ------------------------------------------------------------------------------
+    #----------------------------------------------------------#
+    # Validate username and user definition          [preflight]
+    # ---------------------------------------------------------#
     - name: preflight
       tags: [ preflight, always ]
       connection: local
@@ -66,19 +66,19 @@
         - debug: { msg: "{{ user_def }}" }
 
 
-    #------------------------------------------------------------------------------
-    # Create Postgres User                                               [postgres]
-    #------------------------------------------------------------------------------
+    #----------------------------------------------------------#
+    # Create Postgres User                            [postgres]
+    # ---------------------------------------------------------#
     # create user according to user definition
-    - include_tasks: roles/postgres/tasks/createuser.yml
+    - include_tasks: roles/postgres/tasks/user.yml
       tags: postgres
       when: pg_role == 'primary'
       vars: { user: "{{ user_def }}" }
 
 
-    #------------------------------------------------------------------------------
-    # Refresh Pgbouncer Users                                           [pgbouncer]
-    #------------------------------------------------------------------------------
+    #----------------------------------------------------------#
+    # Refresh Pgbouncer User Configuration           [pgbouncer]
+    # ---------------------------------------------------------#
     - name: refresh pgbouncer users
       tags: pgbouncer
       when: user_def.pgbouncer is defined and user_def.pgbouncer|bool

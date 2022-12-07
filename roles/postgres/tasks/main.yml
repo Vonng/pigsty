@@ -60,7 +60,7 @@
 # Users                                                [pg_user]
 #--------------------------------------------------------------#
 # pg_user_config, pg_user_create
-- include_tasks: createuser.yml
+- include_tasks: user.yml
   tags: pg_user
   when: pg_provision|bool
   vars: {user: "{{ item }}" }
@@ -70,9 +70,18 @@
 # Databases                                              [pg_db]
 #--------------------------------------------------------------#
 # pg_db_config, pg_db_create
-- include_tasks: createdb.yml
+- include_tasks: database.yml
   when: pg_provision|bool
   tags: pg_db
+  vars: { database: "{{ item }}" }
+  with_items: "{{ pg_databases }}"
+
+#--------------------------------------------------------------#
+# Databases                                     [pg_db_register]
+#--------------------------------------------------------------#
+- include_tasks: register_grafana.yml
+  when: pg_provision|bool
+  tags: [ pg_db_register, register_grafana ]
   vars: { database: "{{ item }}" }
   with_items: "{{ pg_databases }}"
 

@@ -2,12 +2,13 @@
 -- File      :   pg-db-{{ database.name }}.sql
 -- Desc      :   creation sql script for db {{ database.name }}
 -- Time      :   {{ '%Y-%m-%d %H:%M' | strftime }}
--- Host      :   {{ pg_instance }} @ {{ inventory_hostname }}:{{ pg_port }}
+-- Host      :   {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }}:{{ pg_port|default(5432) }}
 -- Path      :   /pg/tmp/pg-db-{{ database.name }}.sql
 -- Note      :   ANSIBLE MANAGED, DO NOT CHANGE!
 -- Author    :   Ruohang Feng (rh@vonng.com)
 -- License   :   AGPLv3
 ----------------------------------------------------------------------
+
 
 --==================================================================--
 --                            EXECUTION                             --
