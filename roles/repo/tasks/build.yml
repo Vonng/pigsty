@@ -22,12 +22,12 @@
       [{{ item.name }}]
       name = {{ item.description }} $releasever - $basearch
       {% if region in item.baseurl and item.baseurl[region] != '' %}
-      baseurl = {{ item.baseurl[region] | regex_replace('\$releasever', os_version|string )  }}
+      baseurl = {{ item.baseurl[region] | replace('$releasever', os_version|string )  }}
       {% else %}
       {% if item.name == 'prometheus' and os_version|int >= 8 %}
-      baseurl = {{ item.baseurl.default | regex_replace('\$releasever', '8' )  }}
+      baseurl = {{ item.baseurl.default | replace('$releasever', '8' )  }}
       {% else %}
-      baseurl = {{ item.baseurl.default | regex_replace('\$releasever', os_version|string )  }}
+      baseurl = {{ item.baseurl.default | replace('$releasever', os_version|string )  }}
       {% endif %}
       {% endif %}
       gpgcheck = 0
@@ -46,7 +46,7 @@
   tags: repo_url_pkg
   ignore_errors: true
   environment: "{{ proxy_env }}"
-  get_url: dest={{ repo_home }}/{{ repo_name }}/ url={{ item | regex_replace('\${releasever}', os_version|string) | regex_replace('\${arch}', os_arch|string ) }}
+  get_url: dest={{ repo_home }}/{{ repo_name }}/ url={{ item | replace('${releasever}', os_version|string) | replace('${arch}', os_arch|string ) }}
   with_items: "{{ repo_url_packages }}"
 
 #--------------------------------------------------------------#

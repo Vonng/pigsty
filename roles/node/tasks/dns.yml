@@ -14,7 +14,7 @@
     - name: write static etc hosts entry
       lineinfile:
         path: /etc/hosts
-        line: "{{ item | regex_replace('\\${admin_ip}', admin_ip) }} # pigsty dns"
+        line: "{{ item | replace('${admin_ip}', admin_ip) }} # pigsty dns"
       with_items: "{{ node_default_etc_hosts|default([]) + node_etc_hosts|default([]) }}"
 
     - name: exchange nodename between nodes
@@ -54,12 +54,12 @@
           {{ item }}
           {% endfor %}
           {% for item in node_dns_servers %}
-          {{ item | regex_replace('\${admin_ip}', admin_ip ) }}
+          nameserver {{ item | replace('${admin_ip}', admin_ip ) }}
           {% endfor %}
           {% if node_dns_method == 'add' %}
           {% for item in old_nameservers.stdout_lines %}
           {% if item not in node_dns_servers and item != admin_ip %}
-          {{ item | regex_replace('\${admin_ip}', admin_ip ) }}
+          {{ item | replace('${admin_ip}', admin_ip ) }}
           {% endif %}
           {% endfor %}
           {% endif %}

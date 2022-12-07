@@ -10,14 +10,14 @@
     # install postgres basic packages
     - name: install postgres packages
       environment: "{{ proxy_env | default({}) }}"
-      yum: name={{ item | regex_replace('\\$\\{pg_version\\}', (lookup('vars', 'pg_version')|string))|regex_replace(' ',',') }} disable_gpg_check=true
+      yum: name={{ item | replace('${pg_version}', pg_version|string)|replace(' ',',') }} disable_gpg_check=true
       with_items: "{{ pg_packages }}"
 
     # install postgres extensions
     - name: install postgres extensions
       tags: pg_extension
       environment: "{{ proxy_env | default({}) }}"
-      yum: name={{ item | regex_replace('\\$\\{pg_version\\}', (lookup('vars', 'pg_version')|string))|regex_replace(' ',',') }} disable_gpg_check=true
+      yum: name={{ item | replace('${pg_version}', pg_version|string)|replace(' ',',') }} disable_gpg_check=true
       with_items: "{{ pg_extensions }}"
 
     # fix run dir ownership
