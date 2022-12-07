@@ -1,18 +1,17 @@
 ---
 #--------------------------------------------------------------#
-# Register PGSQL Target to Prometheus              [pg_register]
+# Register postgres to Prometheus          [register_prometheus]
 #--------------------------------------------------------------#
-
 #- name: Deregister pgsql exporter from prometheus
 #  tags: [ pg_deregister , deregister_prometheus ]
 #  delegate_to: '{{ item }}'
 #  with_items: '{{ groups["infra"] }}'
 #  file: path=/etc/prometheus/targets/pgsql/{{ pg_cluster }}-{{ pg_seq }}.yml state=absent
 
-# prometheus are idempotent on multiple meta nodes
+# prometheus are idempotent on multiple infra nodes
 # /etc/prometheus/targets/pgsql/{{ pg_instance }}.yml
 - name: register postgres to prometheus
-  tags: [ pgsql_register, pg_register ]
+  tags: [ pg_register, register_prometheus ]
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
   ignore_errors: true
@@ -36,7 +35,7 @@
 
 
 - name: register ssl patroni to prometheus
-  tags: [ pgsql_register, pg_register ]
+  tags: [ pg_register, register_prometheus ]
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
   ignore_errors: true

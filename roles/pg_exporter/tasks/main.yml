@@ -26,6 +26,7 @@
       when: exporter_install == 'binary'
       copy: src=bin/pg_exporter dest=/usr/bin/pg_exporter owner=root mode=0755
 
+
 #--------------------------------------------------------------#
 # Config pg_exporter                        [pg_exporter_config]
 #--------------------------------------------------------------#
@@ -70,6 +71,7 @@
     - name: wait for pg_exporter online
       wait_for: host=127.0.0.1 port={{ pg_exporter_port }} state=started timeout=10
 
+
 #--------------------------------------------------------------#
 # Launch pgbouncer_exporter          [pgbouncer_exporter_launch]
 #--------------------------------------------------------------#
@@ -84,5 +86,54 @@
     - name: wait for pgbouncer_exporter service online
       ignore_errors: true
       wait_for: host=127.0.0.1 port={{ pgbouncer_exporter_port }} state=started timeout=10
+
+
+#--------------------------------------------------------------#
+# Register postgres to Prometheus                  [pg_register]
+#--------------------------------------------------------------#
+#- name: Deregister pgsql exporter from prometheus
+#  tags: [ pg_deregister , deregister_prometheus ]
+#  delegate_to: '{{ item }}'
+#  with_items: '{{ groups["infra"] }}'
+#  file: path=/etc/prometheus/targets/pgsql/{{ pg_cluster }}-{{ pg_seq }}.yml state=absent
+
+# prometheus are idempotent on multiple infra nodes
+# /etc/prometheus/targets/pgsql/{{ pg_instance }}.yml
+- name: register postgres to prometheus
+  tags: [ pgsql_register, pg_register ]
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
+  ignore_errors: true
+  when: pg_exporter_enabled|bool or pgbouncer_exporter_enabled|bool or (patroni_enabled|bool and patroni_mode != 'remove')
+  copy:
+    dest: /etc/prometheus/targets/pgsql/{{ pg_cluster }}-{{ pg_seq }}.yml
+    content: |
+      # {{ pg_cluster }}-{{ pg_seq }} [{{ pg_role }}] @ {{ inventory_hostname }}
+      - labels: { cls: {{ pg_cluster }}, ins: {{ pg_cluster }}-{{ pg_seq }}, ip: {{ inventory_hostname }} }
+        targets: {% if not pg_exporter_enabled|bool and not pgbouncer_exporter_enabled|bool and not (not patroni_ssl_enabled|bool and patroni_enabled|bool and patroni_mode != 'remove') %} [] {% endif %}
+
+      {% if pg_exporter_enabled|bool %}
+          - {{ inventory_hostname }}:{{ pg_exporter_port }}
+      {% endif %}
+      {% if pgbouncer_exporter_enabled|bool %}
+          - {{ inventory_hostname }}:{{ pgbouncer_exporter_port }}
+      {% endif %}
+      {% if not patroni_ssl_enabled|bool and patroni_enabled|bool and patroni_mode != 'remove' %}
+          - {{ inventory_hostname }}:{{ patroni_port }}
+      {% endif %}
+
+
+- name: register ssl patroni to prometheus
+  tags: [ pgsql_register, pg_register ]
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
+  ignore_errors: true
+  when: patroni_ssl_enabled|bool and patroni_enabled|bool and patroni_mode != 'remove'
+  copy:
+    dest: /etc/prometheus/targets/patroni/{{ pg_cluster }}-{{ pg_seq }}.yml
+    content: |
+      # {{ pg_cluster }}-{{ pg_seq }} [{{ pg_role }}] @ {{ inventory_hostname }}
+      - labels: { job: pgsql, cls: {{ pg_cluster }}, ins: {{ pg_cluster }}-{{ pg_seq }}, ip: {{ inventory_hostname }} }
+        targets: [ {{ inventory_hostname }}:{{ patroni_port }} ]
 
 ...

@@ -8,7 +8,6 @@
 #--------------------------------------------------------------#
 # User                                                 [pg_dbsu]
 #--------------------------------------------------------------#
-# pg_dbsu_sudo
 - import_tasks: dbsu.yml
   tags: pg_dbsu
 
@@ -77,19 +76,10 @@
   with_items: "{{ pg_databases }}"
 
 #--------------------------------------------------------------#
-# Databases                                     [pg_db_register]
-#--------------------------------------------------------------#
-- include_tasks: register_grafana.yml
-  when: pg_provision|bool
-  tags: [ pg_db_register, register_grafana ]
-  vars: { database: "{{ item }}" }
-  with_items: "{{ pg_databases }}"
-
-#--------------------------------------------------------------#
 # Pgbackrest                                        [pgbackrest]
 #--------------------------------------------------------------#
 # pg_backrest
-- import_tasks: backup.yml
+- import_tasks: pgbackrest.yml
   tags: pgbackrest
 
 #--------------------------------------------------------------#
@@ -101,18 +91,44 @@
   tags: pgbouncer
   when: pgbouncer_enabled|bool
 
-
 #--------------------------------------------------------------#
 # VIP                                                   [pg_vip]
 #--------------------------------------------------------------#
 - import_tasks: vip.yml
   tags: pg_vip
 
+#--------------------------------------------------------------#
+# Domain Name                                           [pg_dns]
+#--------------------------------------------------------------#
+#- import_tasks: dns.yml
+#  tags: pg_dns
 
 #--------------------------------------------------------------#
 # Service                                           [pg_service]
 #--------------------------------------------------------------#
 - import_tasks: service.yml
   tags: pg_service
+
+#--------------------------------------------------------------#
+# Monitor                                          [pg_exporter]
+#--------------------------------------------------------------#
+# pg_exporter_config, pg_exporter_launch, pgbouncer_exporter_launch
+- import_tasks: exporter.yml
+  tags: pg_exporter
+
+#--------------------------------------------------------------#
+# Register Prometheus         [pg_register, register_prometheus]
+#--------------------------------------------------------------#
+- import_tasks: register_prometheus.yml
+  tags: [ pg_register, register_prometheus ]
+
+#--------------------------------------------------------------#
+# Register Grafana               [pg_register, register_grafana]
+#--------------------------------------------------------------#
+- include_tasks: register_grafana.yml
+  when: pg_provision|bool
+  tags: [ pg_register, register_grafana ]
+  vars: { database: "{{ item }}" }
+  with_items: "{{ pg_databases }}"
 
 ...

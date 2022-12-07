@@ -3,12 +3,12 @@
 # Config vip-manager                                [vip_config]
 #--------------------------------------------------------------#
 - name: create vip-manager systemd service
-  tags: vip_config
+  tags: pg_vip_config
   copy: src=vip-manager.service dest=/usr/lib/systemd/system/vip-manager.service
 
 # TODO: validate pg_vip_address, but ipaddr require extra python packages
 - name: render vip-manager config
-  tags: vip_config
+  tags: pg_vip_launch
   template: src=vip-manager.yml.j2 dest=/etc/default/vip-manager.yml
   vars:
     vip_address:  "{{ pg_vip_address.split('/')[0] }}"

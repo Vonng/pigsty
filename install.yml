@@ -4,7 +4,7 @@
 # File      :   install.yml
 # Desc      :   install everything on all nodes
 # Ctime     :   2021-01-19
-# Mtime     :   2022-12-04
+# Mtime     :   2022-12-07
 # Path      :   install.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -20,8 +20,8 @@
 # - node-init    : init node, haproxy & docker
 # - infra        : init nginx, dns, prometheus, grafana
 # - node-monitor : init node-exporter promtail
-# - etcd-init    : init etcd cluster
-# - pgsql-init   : init pgsql vip monitor register
+# - etcd         : init etcd cluster
+# - pgsql        : init pgsql vip monitor register
 #
 # Which is equivalent to the following 4 playbooks altogether:
 # - infra.yml -l infra   deploy infrastructure on group 'infra'
@@ -51,7 +51,7 @@
   hosts: localhost
   gather_facts: no
   tags: ca
-  roles: [{ role: ca }]
+  roles: [ { role: ca } ]
 
 
 #---------------------------------------------------------------
@@ -62,7 +62,7 @@
   hosts: infra
   gather_facts: no
   tags: repo
-  roles: [{ role: repo }]  # create local yum repo
+  roles: [ { role: repo } ]
 
 
 #---------------------------------------------------------------
@@ -87,7 +87,7 @@
   hosts: infra
   gather_facts: no
   tags: infra
-  roles: [{ role: infra }]
+  roles: [ { role: infra } ]
 
 
 #---------------------------------------------------------------
@@ -112,7 +112,7 @@
   hosts: etcd
   gather_facts: no
   tags: etcd
-  roles: [{ role: etcd }]   # init etcd on fixed group 'etcd'
+  roles: [ { role: etcd } ]   # init etcd on fixed group 'etcd'
 
 
 #---------------------------------------------------------------
@@ -122,11 +122,8 @@
   become: yes
   hosts: all
   gather_facts: no
-  tags: pgsql-init
-  roles:
-    - { role: postgres    , tags: pgsql    } # init postgres cluster/instance
-    - { role: pg_exporter , tags: monitor  } # setup postgres monitor
-    - { role: pg_register , tags: register } # register postgres services
+  tags: pgsql  # init pgsql on all nodes with pg_cluster defined
+  roles: [ { role: pgsql ,when: pg_cluster is defined } ]
 
 
 ...
