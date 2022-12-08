@@ -4,29 +4,11 @@
 # File      :   node.yml
 # Desc      :   init node for pigsty
 # Ctime     :   2020-05-12
-# Mtime     :   2022-11-11
+# Mtime     :   2022-12-08
 # Path      :   node.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-
-
-#---------------------------------------------------------------
-# usage
-#---------------------------------------------------------------
-# 1. make sure you have nopass ssh & sudo access to target node
-# 2. make sure you have defined these nodes in your inventory
-# 3. run ./node.yml -l <selector> to finish node provisioning
-#--------------------------------------------------------------
-# node.yml -t id               # print node identity
-# node.yml -t monitor          # deploy and register node-exporter
-# node.yml -t register         # register node_exporter to prometheus
-#
-# bootstrap with another admin user:
-# node.yml -t node_admin       # create admin user for nodes
-# node.yml -t node_admin -k -K -e ansible_user=<another admin>
-# ...
-#--------------------------------------------------------------
 - name: NODE
   hosts: all
   become: yes
@@ -38,6 +20,24 @@
     - { role: docker        , tags: docker   }  # init docker if enabled
     - { role: node_exporter , tags: monitor  }  # init node exporter if enabled
     - { role: promtail      , tags: promtail }  # init promtail if enabled
+
+#---------------------------------------------------------------
+# usage
+#---------------------------------------------------------------
+# 1. make sure you have nopass ssh & sudo access to target node
+# 2. make sure you have defined these nodes in your inventory
+# 3. run ./node.yml -l <selector> to finish node provisioning
+#--------------------------------------------------------------
+# node.yml -t id                    # print node identity
+# node.yml -t monitor               # deploy and register node-exporter
+# node.yml -t register_prometheus   # register node_exporter to prometheus
+#
+# bootstrap with another admin user:
+# node.yml -t node_admin       # create admin user for nodes
+# node.yml -t node_admin -k -K -e ansible_user=<another admin>
+# ...
+#--------------------------------------------------------------
+
 
 
 #---------------------------------------------------------------

@@ -4,7 +4,7 @@
 # File      :   infra-rm.yml
 # Desc      :   uninstall pigsty infra module
 # Ctime     :   2022-02-22
-# Mtime     :   2022-12-03
+# Mtime     :   2022-12-08
 # Path      :   infra-rm.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -14,16 +14,16 @@
 #---------------------------------------------------------------
 # Usage
 #---------------------------------------------------------------
-# ./infra-rm.yml -t infra      # remove infra
+# ./infra-rm.yml               # remove everything about infra
 # ./infra-rm.yml -t service    # stop infra services
 # ./infra-rm.yml -t data       # remove infra data
 # ./infra-rm.yml -t package    # uninstall infra packages
 #---------------------------------------------------------------
 
 
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # Remove Infrastructure
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 - name: INFRA REMOVE
   become: yes
   hosts: infra
@@ -34,31 +34,82 @@
     #---------------------------------------------
     # Stop Service
     #---------------------------------------------
-    - name: stop and disable infra service
+    - name: stop infra service
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
       tags: service
       with_items:
-        - dnsmasq
-        - prometheus
         - alertmanager
         - pushgateway
         - blackbox_exporter
-        - grafana
+        - prometheus
         - loki
+        - grafana
+        - nginx_exporter
+        - nginx
+        - dnsmasq
+
 
     #---------------------------------------------
-    # Remove Data
+    # Remove conf
+    #---------------------------------------------
+    - name: remove infra conf
+      file: state=absent path="{{ item }}"
+      tags: config
+      with_items:
+        - /etc/pigsty
+        - /etc/pki/infra.crt
+        - /etc/pki/infra.key
+        - /etc/alertmanager.yml
+        - /etc/default/alertmanager
+        - /usr/lib/systemd/system/alertmanager.service
+        - /etc/blackbox.conf
+        - /etc/default/blackbox_exporter
+        - /usr/lib/systemd/system/blackbox_exporter.service
+        - /etc/default/pushgateway
+        - /usr/lib/systemd/system/pushgateway.service
+        - /etc/prometheus
+        - /etc/default/prometheus
+        - /usr/lib/systemd/system/prometheus.service
+        - /etc/loki.yml
+        - /usr/lib/systemd/system/loki.service
+        - /etc/grafana
+        - /usr/lib/systemd/system/grafana.service
+        - /etc/nginx/
+        - /etc/default/nginx_exporter
+        - /usr/lib/systemd/system/nginx.service
+        - /usr/lib/systemd/system/nginx_exporter.service
+        - /etc/dnsmasq.conf
+        - /usr/lib/systemd/system/dnsmasq.service
+
+
+    #---------------------------------------------
+    # Remove Env
+    #---------------------------------------------
+    - name: remove infra env
+      become: no
+      file: state=absent path="{{ item }}"
+      tags: env
+      with_items:
+        - '~/.pg_service.conf'
+        - '~/.servers.json'
+        - '~/.pgpass'
+        - '~/.pigsty'
+        - '~/.pgpass'
+
+
+    #---------------------------------------------
+    # Remove Infra Data
     #---------------------------------------------
     - name: remove infra data
       file: state=absent path="{{ item }}"
       tags: data
       with_items:
-        - /etc/pigsty
-        - /etc/prometheus/targets
-        - /etc/nginx/conf.d/
-        - /var/lib/grafana
-        - "{{ prometheus_data_dir }}"
+        - "{{ prometheus_data|default('/data/prometheus') }}"
+        - "{{ loki_data|default('/data/loki') }}"
         - "{{ nginx_home }}"
+        - /var/lib/grafana
+        - /etc/hosts.d
+
 
     #---------------------------------------------
     # Uninstall Packages
@@ -67,15 +118,17 @@
       yum: name={{ item }} state=removed
       tags: package
       with_items:
-        - dnsmasq
-        - prometheus
         - alertmanager
         - pushgateway
         - blackbox_exporter
-        - grafana
+        - prometheus2
         - loki
-        - tempo
-        - mimir
+        - grafana
+        - nginx_exporter
+        - nginx
+        - dnsmasq
+        - mcli
+        - logcli
 
 
 ...
