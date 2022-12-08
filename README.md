@@ -179,7 +179,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/get)" && cd ~/pigsty
 |      CentOS      |  7*  |  8   |  x   |
 |   Rocky Linux    |      |  8*  |  9*  |
 |    AlmaLinux     |  7   |  8   |  8   |
-|   OracleLinux    |  7   |  8   |  9   |
+|   OracleLinux    |  7   |  x   |  x   |
 
 > Pigsty offline packages are built on CentOS 7.9, Rocky 8.6, and Rocky 9.0. Which are fully tested. 
 
