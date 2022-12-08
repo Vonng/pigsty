@@ -6,6 +6,7 @@
   tags: dns_dir
   file: path=/etc/hosts.d/ state=directory
 
+
 #--------------------------------------------------------------#
 # Config DNS                                        [dns_config]
 #--------------------------------------------------------------#
@@ -17,10 +18,14 @@
 #--------------------------------------------------------------#
 # Write DNS Records                                 [dns_record]
 #--------------------------------------------------------------#
-- name: add dynamic dns records
+- name: render default dns records
   tags: dns_record
-  lineinfile: path=/etc/hosts.d/default line="{{ item }}"
-  with_items: "{{ dns_records }}"
+  copy:
+    dest: /etc/hosts.d/default
+    content: |
+      {% for rec in dns_records|default([]) %}
+      {{ rec|replace('${admin_ip}', admin_ip) }}
+      {% endfor %} 
 
 
 #--------------------------------------------------------------#

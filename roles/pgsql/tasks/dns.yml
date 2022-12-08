@@ -1,0 +1,39 @@
+---
+- name: register postgres instance dns
+  delegate_to: '{{ item }}'
+  with_items: "{{ groups['infra'] }}"
+  copy:
+    dest: /etc/hosts.d/{{ pg_instance }}
+    content: "{{ inventory_hostname }} {{ pg_instance }}"
+
+
+# write dns records to infra nodes's /etc/hosts.d/<pg_cluster>
+- name: register postgres cluster dns
+  tags: [ pg_register, register_dns ]
+  delegate_to: '{{ item }}'
+  with_items: "{{ groups['infra'] }}"
+  ignore_errors: true
+  run_once: true
+  copy:
+    dest: /etc/hosts.d/{{ pg_cluster }}
+    content: |
+      {% set pg_dns_name = pg_cluster + pg_dns_suffix|default('') %}
+      {% if pg_dns_target == 'vip' and pg_vip_enabled|bool %}
+      # [VIP] {{ pg_dns_name }} -> {{ pg_vip_address.split('/')[0] }} 
+      {{ pg_vip_address.split('/')[0] }} {{ pg_dns_name }}
+      {% elif pg_dns_target == 'primary' %}
+      # [PRIMARY] {{ pg_dns_name }} -> {{ pg_primary_ip }}
+      {{ pg_primary_ip }} {{ pg_dns_name }}
+      {% elif pg_dns_target == 'auto' %}
+      {% if pg_vip_enabled|bool %}
+      # [VIP] {{ pg_dns_name }} -> {{ pg_vip_address.split('/')[0] }} 
+      {{ pg_vip_address.split('/')[0] }} {{ pg_dns_name }}
+      {% elif pg_dns_target == 'primary' %}
+      # [PRIMARY] {{ pg_dns_name }} -> {{ pg_primary_ip }}
+      {{ pg_primary_ip }} {{ pg_dns_name }}
+      {% endif %}
+      {% elif pg_dns_target|regex_search('^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$') %}
+      # [ADHOC] {{ pg_dns_name }} -> {{ pg_primary_ip }}
+      {{ pg_dns_target }} {{ pg_dns_name }}
+      {% endif %}
+...
