@@ -2,36 +2,32 @@
 #-----------------------------------------------------------------
 # NODE_IDENTITY
 #-----------------------------------------------------------------
-#nodename:           # [OPTIONAL] # node instance identity, use hostname if missing
-node_cluster: nodes  # [OPTIONAL] # node cluster identity, use 'nodes' if missing
+#nodename:           # [INSTANCE] # node instance identity, use hostname if missing, optional
+node_cluster: nodes   # [CLUSTER] # node cluster identity, use 'nodes' if missing, optional
 nodename_overwrite: true          # overwrite node's hostname with nodename?
 nodename_exchange: false          # exchange nodename among play hosts?
-node_id_from_pg: true             # get node identity from postgres ins/cls if applicable
+node_id_from_pg: true             # use postgres identity as node identity if applicable?
 
 #-----------------------------------------------------------------
 # NODE_DNS
 #-----------------------------------------------------------------
-node_default_etc_hosts:           # static dns records in /etc/hosts
+node_default_etc_hosts:           # static dns records in `/etc/hosts`
   - "${admin_ip} h.pigsty a.pigsty p.pigsty g.pigsty"
-node_etc_hosts: []                # extra static dns records in /etc/hosts
-node_dns_method: add              # add (default) | none (skip) | overwrite (remove old settings)
+node_etc_hosts: []                # extra static dns records in `/etc/hosts`
+node_dns_method: add              # how to handle dns servers: add,none,overwrite
 node_dns_servers: ['${admin_ip}'] # dynamic nameserver in `/etc/resolv.conf`
-node_dns_options:                 # dns resolv options
+node_dns_options:                 # dns resolv options in `/etc/resolv.conf`
   - options single-request-reopen timeout:1 rotate
-
-#-----------------------------------------------------------------
-# NODE_REPO
-#-----------------------------------------------------------------
-node_repo_method: local           # none|local: ad local repo|public: add upstream directly
-node_repo_remove: true            # remove existing repo on nodes?
-node_repo_local_urls:             # list local repo url, if node_repo_method = local
-  - http://h.pigsty/pigsty.repo
 
 #-----------------------------------------------------------------
 # NODE_PACKAGE
 #-----------------------------------------------------------------
-node_packages: [ ]                # extra packages to be installed
-node_default_packages:            # default packages to be installed
+node_repo_method: local           # how to setup node repo: none,local,public
+node_repo_remove: true            # remove existing repo on node?
+node_repo_local_urls:             # local repo url, if node_repo_method = local
+  - http://${admin_ip}/pigsty.repo
+node_packages: [ ]                # packages to be installed current nodes
+node_default_packages:            # default packages to be installed on all nodes
   - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils
   - wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,dnsmasq,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal
   - node_exporter,etcd,promtail,mtail,python3-idna,python3-requests,haproxy
@@ -39,37 +35,37 @@ node_default_packages:            # default packages to be installed
 #-----------------------------------------------------------------
 # NODE_TUNE
 #-----------------------------------------------------------------
-node_disable_firewall: true       # disable firewall
-node_disable_selinux: true        # disable selinux
-node_disable_numa: false          # disable numa, reboot required
-node_disable_swap: false          # disable swap, use with caution
-node_static_network: true         # keep dns resolver settings after reboot
+node_disable_firewall: true       # disable node firewall? true by default
+node_disable_selinux: true        # disable node selinux? true by default
+node_disable_numa: false          # disable node numa, reboot required
+node_disable_swap: false          # disable node swap, use with caution
+node_static_network: true         # preserve dns resolver settings after reboot
 node_disk_prefetch: false         # setup disk prefetch on HDD to increase performance
 node_kernel_modules: [ softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_wrr, ip_vs_sh ]
-node_hugepage_ratio: 0            # mem hugepage ratio, 0 disable it by default
-node_tune: oltp                   # install and activate tuned profile: none|oltp|olap|crit|tiny
-node_sysctl_params: { }           # set additional sysctl parameters in k:v format
+node_hugepage_ratio: 0            # node mem hugepage ratio, 0 disable it by default
+node_tune: oltp                   # node tuned profile: none,oltp,olap,crit,tiny
+node_sysctl_params: { }           # sysctl parameters in k:v format in addition to tuned
 
 #-----------------------------------------------------------------
-# NODE ADMIN
+# NODE_ADMIN
 #-----------------------------------------------------------------
-node_data: /data                  # node main data directory, /data by default
-node_admin_enabled: true          # create a default admin user defined by `node_admin_*` ?
-node_admin_uid: 88                # uid and gid for this admin user
-node_admin_username: dba          # name of this admin user, dba by default
-node_admin_ssh_exchange: true     # exchange admin ssh key among each pgsql cluster ?
-node_admin_pk_current: true       # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
-node_admin_pk_list: []            # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
+node_data: /data                  # node main data directory, `/data` by default
+node_admin_enabled: true          # create a admin user on target node?
+node_admin_uid: 88                # uid and gid for node admin user
+node_admin_username: dba          # name of node admin user, `dba` by default
+node_admin_ssh_exchange: true     # exchange admin ssh key among node cluster
+node_admin_pk_current: true       # add current user's ssh pk to admin authorized_keys
+node_admin_pk_list: []            # ssh public keys to be added to admin user
 
 #-----------------------------------------------------------------
 # NODE_TIME
 #-----------------------------------------------------------------
-node_timezone: ''                 # default node timezone, empty means use system default
-node_ntp_enabled: true            # setup and enable chronyd service?
-node_ntp_servers:                 # ntp servers in /etc/chrony.conf
+node_timezone: ''                 # setup node timezone, empty string to skip
+node_ntp_enabled: true            # enable chronyd time sync service?
+node_ntp_servers:                 # ntp servers in `/etc/chrony.conf`
   - pool pool.ntp.org iburst
-node_crontab_overwrite: true      # overwrite /etc/crontab or append to it?
-node_crontab: [ ]                 # crontab entries in /etc/crontab
+node_crontab_overwrite: true      # overwrite or append to `/etc/crontab`?
+node_crontab: [ ]                 # crontab entries in `/etc/crontab`
 
 #-----------------------------------------------------------------
 # META (Reference)

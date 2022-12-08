@@ -3,7 +3,7 @@
 # File      :   pigsty-default.yml
 # Desc      :   pigsty config template with all default values
 # Ctime     :   2020-05-22
-# Mtime     :   2022-12-07
+# Mtime     :   2022-12-08
 # Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -151,6 +151,9 @@ all:
         pg_vip_address: 10.10.10.3/24
         pg_vip_interface: eth1
 
+    #----------------------------------#
+    # redis ms, sentinel, native cluster
+    #----------------------------------#
     redis-ms: # redis classic primary & replica
       hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.13 6501' } } } }
       vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
@@ -164,6 +167,7 @@ all:
         10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
         10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
       vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
+
 
   ####################################################################
   #                             VARS                                 #
@@ -267,7 +271,7 @@ all:
     #-----------------------------------------------------------------
     infra_packages:                   # packages to be installed on infra nodes
       - grafana,loki,prometheus2,alertmanager,pushgateway,blackbox_exporter,nginx_exporter
-      - nginx,ansible,python3-requests,redis,mcli,logcli,postgresql15
+      - nginx,dnsmasq,ansible,python3-requests,redis,redis_exporter,mcli,logcli,postgresql15
     infra_packages_pip: ''            # pip installed packages for infra nodes
 
     #-----------------------------------------------------------------
@@ -376,13 +380,13 @@ all:
     #-----------------------------------------------------------------
     # NODE_DNS
     #-----------------------------------------------------------------
-    node_default_etc_hosts:           # static dns records in /etc/hosts
+    node_default_etc_hosts:           # static dns records in `/etc/hosts`
       - "${admin_ip} h.pigsty a.pigsty p.pigsty g.pigsty"
     node_etc_hosts: []                # extra static dns records in `/etc/hosts`
     node_dns_method: add              # how to handle dns servers: add,none,overwrite
     node_dns_servers: ['${admin_ip}'] # dynamic nameserver in `/etc/resolv.conf`
     node_dns_options:                 # dns resolv options in `/etc/resolv.conf`
-      - options single-request-reopen timeout:1 rotate
+      - options single-request-reopen timeout:1
 
     #-----------------------------------------------------------------
     # NODE_PACKAGE
@@ -426,21 +430,22 @@ all:
     #-----------------------------------------------------------------
     # NODE_TIME
     #-----------------------------------------------------------------
-    node_timezone: ''                 # setup node timezone, empty to skip
-    node_ntp_enabled: true            # setup and enable chronyd service?
-    node_ntp_servers:                 # ntp servers in /etc/chrony.conf
+    node_timezone: ''                 # setup node timezone, empty string to skip
+    node_ntp_enabled: true            # enable chronyd time sync service?
+    node_ntp_servers:                 # ntp servers in `/etc/chrony.conf`
       - pool pool.ntp.org iburst
-    node_crontab_overwrite: true      # overwrite /etc/crontab or append to it?
-    node_crontab: [ ]                 # crontab entries in /etc/crontab
+    node_crontab_overwrite: true      # overwrite or append to `/etc/crontab`?
+    node_crontab: [ ]                 # crontab entries in `/etc/crontab`
 
     #-----------------------------------------------------------------
     # HAPROXY
     #-----------------------------------------------------------------
     haproxy_enabled: true             # enable haproxy on this node?
+    haproxy_clean: false              # cleanup all existing haproxy config?
     haproxy_reload: true              # reload haproxy after config?
     haproxy_auth_enabled: true        # enable authentication for haproxy admin page
-    haproxy_admin_username: admin     # default haproxy admin username
-    haproxy_admin_password: pigsty    # default haproxy admin password
+    haproxy_admin_username: admin     # haproxy admin username, `admin` by default
+    haproxy_admin_password: pigsty    # haproxy admin password, `pigsty` by default
     haproxy_exporter_port: 9101       # haproxy admin/exporter port, 9101 by default
     haproxy_client_timeout: 24h       # client side connection timeout, 24h by default
     haproxy_server_timeout: 24h       # server side connection timeout, 24h by default
@@ -449,15 +454,15 @@ all:
     #-----------------------------------------------------------------
     # DOCKER
     #-----------------------------------------------------------------
-    docker_enabled: false             # enable docker on host?
-    docker_cgroups_driver: systemd    # docker cgroup fs driver
-    docker_registry_mirrors: []       # docker registry mirror
-    docker_image_cache: /tmp/docker.tgz # docker images tarball path
+    docker_enabled: false             # enable docker on this node?
+    docker_cgroups_driver: systemd    # docker cgroup fs driver: cgroupfs,systemd
+    docker_registry_mirrors: []       # docker registry mirror list
+    docker_image_cache: /tmp/docker   # docker image cache dir, `/tmp/docker` by default
 
     #-----------------------------------------------------------------
     # NODE_EXPORTER
     #-----------------------------------------------------------------
-    node_exporter_enabled: true       # enable node_exporter on host?
+    node_exporter_enabled: true       # setup node_exporter on this node?
     node_exporter_port: 9100          # node exporter listen port, 9100 by default
     node_exporter_options: '--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes'
 
@@ -467,7 +472,7 @@ all:
     promtail_enabled: true            # enable promtail logging collector?
     promtail_clean: false             # purge existing promtail status file during init?
     promtail_port: 9080               # promtail listen port, 9080 by default
-    promtail_positions: /var/log/positions.yaml   # promtail position status file path
+    promtail_positions: /var/log/positions.yaml # promtail position status file path
 
 
     #================================================================#
