@@ -47,10 +47,10 @@ etcd:
 alias e="etcdctl"
 alias em="etcdctl member"
 export ETCDCTL_API=3
+export ETCDCTL_ENDPOINTS=https://10.10.10.10:2379
 export ETCDCTL_CACERT=/etc/pki/ca.crt
 export ETCDCTL_CERT=/etc/etcd/server.crt
 export ETCDCTL_KEY=/etc/etcd/server.key
-export ETCDCTL_ENDPOINTS=https://10.10.10.10:2379
 ```
 
 CRUD example: 
