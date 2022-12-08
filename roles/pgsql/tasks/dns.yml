@@ -4,6 +4,7 @@
   with_items: "{{ groups['infra'] }}"
   copy:
     dest: /etc/hosts.d/{{ pg_instance }}
+    mode: 0644
     content: "{{ inventory_hostname }} {{ pg_instance }}"
 
 
@@ -13,9 +14,9 @@
   delegate_to: '{{ item }}'
   with_items: "{{ groups['infra'] }}"
   ignore_errors: true
-  run_once: true
   copy:
     dest: /etc/hosts.d/{{ pg_cluster }}
+    mode: 0644
     content: |
       {% set pg_dns_name = pg_cluster + pg_dns_suffix|default('') %}
       {% if pg_dns_target == 'vip' and pg_vip_enabled|bool %}

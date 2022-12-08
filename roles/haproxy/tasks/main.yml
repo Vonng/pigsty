@@ -84,10 +84,11 @@
   become: yes
   block:
 
-    #- name: create nginx config dir for haproxy
-    #  delegate_to: '{{ item }}'
-    #  with_items: '{{ groups["infra"] }}'
-    #  file: path=/etc/nginx/conf.d/haproxy state=directory owner=root
+    - name: create nginx config dir for haproxy
+      run_once: true
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["infra"] }}'
+      file: path=/etc/nginx/conf.d/haproxy state=directory owner=root
 
     # /etc/nginx/conf.d/haproxy/upstream-{{ pg_instance }}.conf
     - name: register haproxy upstream to nginx
