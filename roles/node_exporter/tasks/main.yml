@@ -60,4 +60,30 @@
       wait_for: host=127.0.0.1 port={{ node_exporter_port }} state=started timeout=10
 
 
+
+#--------------------------------------------------------------#
+# Register Node             [node_register, register_prometheus]
+#--------------------------------------------------------------#
+# /etc/prometheus/targets/node/{{ ip }}.yml
+- name: register node as prometheus target
+  tags: [ node_register, register_prometheus ]
+  ignore_errors: true
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
+  copy:
+    dest: /etc/prometheus/targets/node/{{ inventory_hostname }}.yml
+    content: |
+      # {{ inventory_hostname }}
+      - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }} }
+        targets: {% if not node_exporter_enabled|bool and not haproxy_enabled|bool and docker_enabled|bool and not promtail_enabled|bool %}[]{% endif %} 
+
+          {% if node_exporter_enabled|bool %}- {{ inventory_hostname }}:{{ node_exporter_port }}{% endif %}
+      
+          {% if haproxy_enabled|bool %}- {{ inventory_hostname }}:{{ haproxy_exporter_port }}{% endif %}
+      
+          {% if docker_enabled|bool %}- {{ inventory_hostname }}:9323{% endif %}
+      
+          {% if promtail_enabled|bool %}- {{ inventory_hostname }}:{{ promtail_port }}{% endif %}
+
+
 ...
