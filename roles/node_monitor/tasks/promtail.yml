@@ -31,7 +31,6 @@
   block:
     - name: create promtail systemd service
       copy: src=promtail.service dest=/usr/lib/systemd/system/promtail.service
-
     - name: render /etc/promtail.yml config
       template: src=promtail.yml.j2 dest=/etc/promtail.yml
       vars: { loki_url: "http://{{ infra_portal.loki.endpoint|replace('${admin_ip}', admin_ip) }}/loki/api/v1/push" }
@@ -46,7 +45,6 @@
   block:
     - name: launch promtail systemd service
       systemd: name=promtail state=restarted enabled=yes daemon_reload=yes
-
     - name: wait for promtail online
       wait_for: host=127.0.0.1 port={{ promtail_port }} state=started timeout=20
 
