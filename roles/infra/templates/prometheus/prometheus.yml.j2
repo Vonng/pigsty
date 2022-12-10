@@ -20,7 +20,8 @@
 #  ^
 # /etc/prometheus/
 #  ^-----@targets          # file based service discovery targets definition
-#            ^-----@node   # node  static targets definition
+#            ^-----@node   # node static targets definition
+#            ^-----@node   # ping targets definition
 #            ^-----@pgsql  # pgsql static targets definition
 #            ^-----@redis  # redis static targets definition
 #            ^-----@etcd   # etcd static targets definition
@@ -83,7 +84,7 @@ scrape_configs:
     params: {module: [icmp]}
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/ping.yml ]
+        files: [ targets/ping/*.yml ]
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target

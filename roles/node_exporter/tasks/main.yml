@@ -86,4 +86,15 @@
           {% if promtail_enabled|bool %}- {{ inventory_hostname }}:{{ promtail_port }}{% endif %}
 
 
+- name: register node as blackbox exporter target
+  tags: [ node_register, register_prometheus ]
+  ignore_errors: true
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
+  copy:
+    dest: /etc/prometheus/targets/ping/{{ inventory_hostname }}.yml
+    content: |
+      # {{ inventory_hostname }}
+      - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }} }
+        targets: [ {{inventory_hostname }} ]
 ...
