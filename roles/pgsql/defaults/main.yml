@@ -191,6 +191,23 @@ pg_dns_suffix: ''                # pgsql dns suffix, '' by default
 pg_dns_target: auto              # auto, primary, vip, none, or ad hoc ip
 
 #-----------------------------------------------------------------
+# PG_EXPORTER
+#-----------------------------------------------------------------
+pg_exporter_enabled: true              # enable pg_exporter on pgsql hosts?
+pg_exporter_config: pg_exporter.yml    # pg_exporter configuration file name
+pg_exporter_port: 9630                 # pg_exporter listen port, 9630 by default
+pg_exporter_params: 'sslmode=disable'  # extra url parameters for pg_exporter connstr
+pg_exporter_url: ''                    # overwrite auto-generate pg connstr if specified
+pg_exporter_auto_discovery: true       # enable audo database discovery? enabled by default
+pg_exporter_exclude_database: 'template0,template1,postgres' # csv of database that WILL NOT be monitored during auto-discovery
+pg_exporter_include_database: ''       # csv of database that WILL BE monitored during auto-discovery
+pg_exporter_options: ' --connect-timeout=200 --log.level=info --log.format="logger:syslog?appname=pg_exporter&local=7"'
+pgbouncer_exporter_enabled: true       # enable pgbouncer_exporter on pgsql hosts?
+pgbouncer_exporter_port: 9631          # pgbouncer_exporter listen port, 9631 by default
+pgbouncer_exporter_url: ''             # overwrite auto-generate pgbouncer connstr if specified
+pgbouncer_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pgbouncer_exporter&local=7"'
+
+#-----------------------------------------------------------------
 # INTERNAL
 #-----------------------------------------------------------------
 pg_exists: false
@@ -208,6 +225,10 @@ node_tune: oltp                   # install and activate tuned profile: none|olt
 # ETCD (Reference)
 #-----------------------------------------------------------------
 etcd_port: 2379                   # etcd client port, 2379 by default
+#-----------------------------------------------------------------
+# PROMETHEUS (Reference)
+#-----------------------------------------------------------------
+exporter_metrics_path: /metrics   # exporter metric path, `/metrics` by default
 #-----------------------------------------------------------------
 # GRAFANA (Reference)
 #-----------------------------------------------------------------
