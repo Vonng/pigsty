@@ -1,1 +1,1 @@
-../roles/postgres/templates/pg-user.sql
+../roles/pgsql/templates/pg-user.sql
