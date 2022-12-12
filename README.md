@@ -13,8 +13,7 @@
 > Documentation:  [Wiki](https://github.com/Vonng/pigsty/wiki), [Website](https://pigsty.cc/en/) | [中文站点](https://pigsty.cc/zh/)
 
 
-[![pigsty](https://user-images.githubusercontent.com/8587410/198840611-744709cb-cf25-4dff-a91d-c593347076a8.jpg)](https://pigsty.cc/en/)
-
+[![pigsty-banner](https://user-images.githubusercontent.com/8587410/206971422-deb6dd88-c89e-43e4-8130-cf32a24b07b9.jpg)](https://pigsty.cc/en/)
 
 
 --------
@@ -32,7 +31,7 @@
 * [**Postgres Distribution**](#): PostgreSQL, PostGIS, TimescaleDB, Citus, Redis/GP, United in One!
   <details><summary>PostgreSQL Kernel, Extensions, Peripherals, and Companion</summary>
 
-  ![DISTRO](https://user-images.githubusercontent.com/8587410/198838835-f9df4737-f109-4e5b-b5a0-f54aa1b33c5a.gif)
+  ![pigsty-distro](https://user-images.githubusercontent.com/8587410/206971964-0035bbca-889e-44fc-9b0d-640d34573a95.gif)
 
   > PostGIS, TimescaleDB, Citus, and tons of extensions!
   </details>
@@ -40,7 +39,7 @@
 * [**Infra Best Practice**](#): Full observability stack of Prometheus & Grafana, Battery-Included!
   <details><summary>Open Source Infrastructure Best Practice, Ultimate observability for free!</summary>
 
-  ![ARCH](https://user-images.githubusercontent.com/8587410/198838831-d0f263cb-da99-46db-a33e-01e7a9c6e061.gif)
+  ![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
 
   > If you can have a better RDS service with the price of EC2, Why use RDS at all?
   </details>
@@ -66,7 +65,7 @@ Check [**Architecture**](https://github.com/Vonng/pigsty/wiki/Architecture) & [*
 * [**High-Availability**](#): Auto-Pilot Postgres with idempotent instances & services, self-healing from failures!
   <details><summary>High-Availability PostgreSQL Powered by Patroni & HAProxy</summary>
 
-  ![HA](https://user-images.githubusercontent.com/8587410/198838836-433331a4-0df1-4588-944c-625c34430f2f.svg)
+  ![pigsty-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)
 
   > Self-healing on hardware failures: Failover impact on primary < 30s, Switchover impact < 1s
   </details>
@@ -83,7 +82,7 @@ Check [**Architecture**](https://github.com/Vonng/pigsty/wiki/Architecture) & [*
 * [**Database as Code**](#): Declarative config with idempotent playbooks. WYSIWYG and GitOps made easy!
   <details><summary>Define & Create a HA PostgreSQL Cluster in 10 lines of Code</summary>
 
-  ![IAC](https://user-images.githubusercontent.com/8587410/198838838-91c3d193-f600-422c-b504-b9bbec076802.gif)
+  ![pigsty-iac](https://user-images.githubusercontent.com/8587410/206972039-e13746ab-72ae-4cab-8de7-7b2ef543f3e5.gif)
 
   > Create a 3-node HA PostgreSQL with 10 lines of config and one command! Check [conf](https://github.com/Vonng/pigsty/tree/master/files/conf) for examples.
 
@@ -93,7 +92,7 @@ Check [**Architecture**](https://github.com/Vonng/pigsty/wiki/Architecture) & [*
 
   <details><summary>Pigsty 4-nodes sandbox on Local Vagrant VM or AWS EC2</summary>
 
-  ![SANDBOX](https://user-images.githubusercontent.com/8587410/198838845-09aee295-31d2-495b-b206-40ffc5f25133.gif)
+  ![pigsty-sandbox](https://user-images.githubusercontent.com/8587410/206972073-f204fb7a-b91c-4f50-9d5e-3104ea2e7d70.gif)
 
   > Full-featured 4 nodes demo sandbox can be created using pre-configured vagrant & terraform templates.
 
