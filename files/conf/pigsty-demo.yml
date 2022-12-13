@@ -87,21 +87,22 @@ all:
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     pg_clean: true                    # for convenience, purge existing pg during init, DO NOT DO THIS IN PRODUCTION
-    nginx_upstream:                   # domain names and upstream servers
-      - { name: home         ,domain: pigsty      ,endpoint: "${admin_ip}:80"   }
-      - { name: grafana      ,domain: g.pigsty    ,endpoint: "${admin_ip}:3000" }
-      - { name: prometheus   ,domain: p.pigsty    ,endpoint: "${admin_ip}:9090" }
-      - { name: alertmanager ,domain: a.pigsty    ,endpoint: "${admin_ip}:9093" }
-      - { name: consul       ,domain: c.pigsty    ,endpoint: "127.0.0.1:8500"   } #== ^ required ==#
-      - { name: postgrest    ,domain: api.pigsty  ,endpoint: "127.0.0.1:8884"   } #== v optional ==#
-      - { name: pgadmin      ,domain: adm.pigsty  ,endpoint: "127.0.0.1:8885"   }
-      - { name: pgweb        ,domain: cli.pigsty  ,endpoint: "127.0.0.1:8886"   }
-      - { name: bytebase     ,domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887"   }
-      - { name: jupyter      ,domain: lab.pigsty  ,endpoint: "127.0.0.1:8888"   }
-      - { name: gitea        ,domain: git.pigsty  ,endpoint: "127.0.0.1:8889"   }
-      - { name: minio        ,domain: sss.pigsty  ,endpoint: "127.0.0.1:9000"   }
-      - { name: wiki         ,domain: wiki.pigsty ,endpoint: "127.0.0.1:9002"   }
-    nginx_indexes:                    # application nav links on home page
+    infra_portal:                     # domain names and upstream servers
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
+      postgrest    : { domain: api.pigsty  ,endpoint: "127.0.0.1:8884"   }
+      pgadmin      : { domain: adm.pigsty  ,endpoint: "127.0.0.1:8885"   }
+      pgweb        : { domain: cli.pigsty  ,endpoint: "127.0.0.1:8886"   }
+      bytebase     : { domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887"   }
+      jupyter      : { domain: lab.pigsty  ,endpoint: "127.0.0.1:8888"   }
+      gitea        : { domain: git.pigsty  ,endpoint: "127.0.0.1:8889"   }
+      minio        : { domain: sss.pigsty  ,endpoint: "127.0.0.1:9000"   }
+      wiki         : { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002"   }
+    nginx_navbar:                    # application nav links on home page
       - { name: PgAdmin4   , url : 'http://adm.pigsty'  , comment: 'PgAdmin4 for PostgreSQL'  }
       - { name: PGWeb      , url : 'http://cli.pigsty'  , comment: 'PGWEB Browser Client'     }
       - { name: ByteBase   , url : 'http://ddl.pigsty'  , comment: 'ByteBase Schema Migrator' }

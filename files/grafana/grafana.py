@@ -250,7 +250,7 @@ def init_all(dashboard_dir):
     folders = []
     for f in os.listdir(dashboard_dir):
         abs_path = os.path.join(dashboard_dir, f)
-        if os.path.isfile(abs_path) and f.endswith('.json'):
+        if os.path.isfile(abs_path) and f.endswith('.json')  and not f.startswith('.'):
             print("init dashboard : %s" % f)
             add_dashboard(load_dashboard(abs_path, True))
         if os.path.isdir(abs_path):
@@ -268,7 +268,7 @@ def init_all(dashboard_dir):
 
         for f in os.listdir(folder_path):
             abs_path = os.path.join(dashboard_dir, folder_name, f)
-            if os.path.isfile(abs_path) and f.endswith('.json'):
+            if os.path.isfile(abs_path) and f.endswith('.json') and not f.startswith('.'):
                 print("init dashboard: %s / %s" % (folder_name, f))
                 add_dashboard(load_dashboard(abs_path, True), folder_name)
 
@@ -278,7 +278,7 @@ def load_all(dashboard_dir):
     folders = []
     for f in os.listdir(dashboard_dir):
         abs_path = os.path.join(dashboard_dir, f)
-        if os.path.isfile(abs_path) and f.endswith('.json'):
+        if os.path.isfile(abs_path) and f.endswith('.json') and not f.startswith('.'):
             print("load dashboard : %s" % f)
             add_dashboard(load_dashboard(abs_path))
         if os.path.isdir(abs_path):
@@ -290,7 +290,7 @@ def load_all(dashboard_dir):
 
         for f in os.listdir(folder_path):
             abs_path = os.path.join(dashboard_dir, folder_name, f)
-            if os.path.isfile(abs_path) and f.endswith('.json'):
+            if os.path.isfile(abs_path) and f.endswith('.json') and not f.startswith('.'):
                 print("load dashboard: %s / %s" % (folder_name, f))
                 add_dashboard(load_dashboard(abs_path), folder_name)
 

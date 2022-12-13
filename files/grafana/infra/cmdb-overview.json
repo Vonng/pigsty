@@ -763,7 +763,7 @@
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT d ->> 'name'     AS name,\n       (d ->> 'domain') AS domain,\n       d ->> 'endpoint' AS endpoint\nFROM pigsty.global_var v,\n     jsonb_array_elements(v.value) d\nWHERE v.key = 'nginx_upstream';",
+                    "rawSql": "SELECT d ->> 'name'     AS name,\n       (d ->> 'domain') AS domain,\n       d ->> 'endpoint' AS endpoint\nFROM pigsty.global_var v,\n     jsonb_array_elements(v.value) d\nWHERE v.key = 'infra_portal';",
                     "refId": "A",
                     "select": [
                         [
@@ -903,7 +903,7 @@
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "WITH nginx AS (\n    SELECT d ->> 'name'     AS name,\n           d ->> 'domain'   AS domain,\n           d ->> 'endpoint' AS endpoint\n    FROM pigsty.global_var v,\n         jsonb_array_elements(v.value) d\n    WHERE v.key = 'nginx_upstream'),\n     nginx_indexes AS (\n         SELECT d ->> 'name'    AS name,\n                d ->> 'url'     AS domain,\n                d ->> 'comment' AS comment\n         FROM pigsty.global_var v,\n              jsonb_array_elements(v.value) d\n         WHERE v.key = 'nginx_indexes')\nSELECT name,\n       comment,\n       case\n           when starts_with(domain, '/') THEN (SELECT 'http://' || domain FROM nginx WHERE name = 'home' LIMIT 1) ||\n                                              domain\n           ELSE replace(domain, '${grafana}', (SELECT 'http://' || domain FROM nginx WHERE name = 'grafana' LIMIT 1))\n           END AS url\nFROM nginx_indexes\n;",
+                    "rawSql": "WITH nginx AS (\n    SELECT d ->> 'name'     AS name,\n           d ->> 'domain'   AS domain,\n           d ->> 'endpoint' AS endpoint\n    FROM pigsty.global_var v,\n         jsonb_array_elements(v.value) d\n    WHERE v.key = 'infra_portal'),\n     nginx_indexes AS (\n         SELECT d ->> 'name'    AS name,\n                d ->> 'url'     AS domain,\n                d ->> 'comment' AS comment\n         FROM pigsty.global_var v,\n              jsonb_array_elements(v.value) d\n         WHERE v.key = 'nginx_indexes')\nSELECT name,\n       comment,\n       case\n           when starts_with(domain, '/') THEN (SELECT 'http://' || domain FROM nginx WHERE name = 'home' LIMIT 1) ||\n                                              domain\n           ELSE replace(domain, '${grafana}', (SELECT 'http://' || domain FROM nginx WHERE name = 'grafana' LIMIT 1))\n           END AS url\nFROM nginx_indexes\n;",
                     "refId": "A",
                     "select": [
                         [

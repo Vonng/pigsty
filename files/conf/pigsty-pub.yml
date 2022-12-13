@@ -9,17 +9,12 @@
 # License   :   AGPLv3
 #==============================================================#
 
-
 all:
   children:
 
     infra: # infra cluster for proxy, monitor, alert, etc
       hosts: # 1 for common usage, 3 nodes for production
         10.10.10.10: { infra_seq: 1 } # identity required
-        10.10.10.11: { infra_seq: 2 } # assign from 1 ~ n
-        10.10.10.12: { infra_seq: 3 } # DO NOT reuse seqs
-      vars:
-        patroni_watchdog_mode: off # do not fencing meta nodes
 
     etcd: # dcs service for postgres/patroni ha consensus
       hosts:  # 1 node for testing, 3 or 5 for production
@@ -95,22 +90,22 @@ all:
     version: v2.0.0-b2                # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
-    nginx_upstream:                   # domain names and upstream servers
-      - { name: home         , domain: home.pigsty.cc , endpoint: "${admin_ip}:80"   }
-      - { name: grafana      , domain: demo.pigsty.cc , endpoint: "${admin_ip}:3000" }
-      - { name: loki         , domain: l.pigsty.cc    , endpoint: "${admin_ip}:3100" }
-      - { name: prometheus   , domain: p.pigsty.cc    , endpoint: "${admin_ip}:9090" }
-      - { name: alertmanager , domain: a.pigsty.cc    , endpoint: "${admin_ip}:9093" }
-      - { name: consul       , domain: c.pigsty.cc    , endpoint: "127.0.0.1:8500"  }
-      - { name: postgrest    , domain: api.pigsty.cc  , endpoint: "127.0.0.1:8884"  }
-      - { name: pgadmin      , domain: adm.pigsty.cc  , endpoint: "127.0.0.1:8885"  }
-      - { name: pgweb        , domain: cli.pigsty.cc  , endpoint: "127.0.0.1:8886"  }
-      - { name: bytebase     , domain: ddl.pigsty.cc  , endpoint: "127.0.0.1:8887"  }
-      - { name: jupyter      , domain: lab.pigsty.cc  , endpoint: "127.0.0.1:8888"  }
-      - { name: gitea        , domain: git.pigsty.cc  , endpoint: "127.0.0.1:8889"  }
-      - { name: minio        , domain: sss.pigsty.cc  , endpoint: "127.0.0.1:9000"  }
-      - { name: wiki         , domain: wiki.pigsty.cc , endpoint: "127.0.0.1:9002"  }
-    nginx_indexes:                    # application nav links on home page
+    infra_portal:                     # domain names and upstream servers
+      home         : { domain: home.pigsty.cc }
+      grafana      : { domain: demo.pigsty.cc ,endpoint: "${admin_ip}:3000" ,websocket: true }
+      prometheus   : { domain: p.pigsty.cc ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty.cc ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
+      postgrest    : { domain: api.pigsty.cc  ,endpoint: "127.0.0.1:8884"   }
+      pgadmin      : { domain: adm.pigsty.cc  ,endpoint: "127.0.0.1:8885"   }
+      pgweb        : { domain: cli.pigsty.cc  ,endpoint: "127.0.0.1:8886"   }
+      bytebase     : { domain: ddl.pigsty.cc  ,endpoint: "127.0.0.1:8887"   }
+      jupyter      : { domain: lab.pigsty.cc  ,endpoint: "127.0.0.1:8888"   }
+      gitea        : { domain: git.pigsty.cc  ,endpoint: "127.0.0.1:8889"   }
+      minio        : { domain: sss.pigsty.cc  ,endpoint: "127.0.0.1:9000"   }
+      wiki         : { domain: wiki.pigsty.cc ,endpoint: "127.0.0.1:9002"   }
+    nginx_navbar:                     # application nav links on home page
       - { name: PgAdmin4   , url : 'http://adm.pigsty.cc'           , comment: 'PgAdmin4 for PostgreSQL'     }
       - { name: PGWeb      , url : 'http://cli.pigsty.cc'           , comment: 'PGWEB Browser Client'        }
       - { name: ByteBase   , url : 'http://ddl.pigsty.cc'           , comment: 'ByteBase Schema Migrator'    }
@@ -128,19 +123,10 @@ all:
       - { name: Covid      , url : '${grafana}/d/covid-overview'    , comment: 'covid data visualization'    }
       - { name: Worktime   , url : '${grafana}/d/worktime-overview' , comment: 'worktime query'              }
       - { name: DBTrend    , url : '${grafana}/d/dbeng-trending'    , comment: 'DB Engine Trending Graph'    }
-    node_etc_hosts:                   # extra static dns records in /etc/hosts
-      - 10.10.10.10 pg-meta           # vip not available on public cloud
-      - 10.10.10.11 pg-test           # sandbox vip for pg-test
-      - 10.10.10.10 pg-meta-1
-      - 10.10.10.11 pg-test-1
-      - 10.10.10.12 pg-test-2
-      - 10.10.10.13 pg-test-3
     node_timezone: Asia/Hong_Kong     # default node timezone, empty will not change
     node_ntp_servers:                 # NTP servers in /etc/chrony.conf
       - pool cn.pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
     docker_registry_mirrors: ["https://registry.cn-hangzhou.aliyuncs.com"]
-    pg_pwd_enc: scram-sha-256         # algorithm for encrypting passwords: md5|scram-sha-256
-
 
 ...
