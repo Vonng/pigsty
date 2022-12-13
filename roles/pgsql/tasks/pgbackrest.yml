@@ -2,28 +2,75 @@
 #--------------------------------------------------------------#
 # Setup PgBackrest Repo                            [pg_backrest]
 #--------------------------------------------------------------#
-- name: setup pgbackrest
-  tags: pgbackrest
+- name: setup pgbackrest repo
+  tags: pgbackrest_setup
   block:
-
     - name: remove unused pgbackrest.conf file
       file:
         path: /etc/pgbackrest.conf
         state: absent
 
-    # config pgbackrest with local repo
     - name: render pgbackrest config
       template: src=pgbackrest.conf.j2 dest=/etc/pgbackrest/pgbackrest.conf owner=postgres group=postgres mode=0600
 
-    - name: create pgbackrest stanza
+- name: setup minio for pgbackrest
+  tags: pgbackrest_setup
+  when: pgbackrest_repo_mode == 'minio' and (pg_role == 'primary' and pg_upstream is not defined)
+  become: no
+  delegate_to: '{{ admin_ip }}'
+  any_errors_fatal: true
+  block:
+    - name: render minio alias
+      shell: mcli alias set minio https://{{ minio_domain }}:{{ minio_port }} {{ minio_access_key }} {{ minio_secret_key }}
+
+    - name: cleanup existing bucket
+      when: pgbackrest_clean|bool
+      shell: mcli rb --force minio/{{ pgbackrest_s3_bucket }}; /bin/true
+
+    - name: create pgbackrest bucket
+      shell: mcli mb --ignore-existing --region={{ pgbackrest_s3_region }} minio/{{ pgbackrest_s3_bucket }}
+
+    - name: create pgbackrest user & perms
+      shell: |
+        mcli admin user add minio {{ pgbackrest_s3_key }} {{ pgbackrest_s3_secret }};
+        mcli admin policy set minio readwrite user={{ pgbackrest_s3_key }}
+
+
+#--------------------------------------------------------------#
+# Setup PgBackrest Service                         [pg_backrest]
+#--------------------------------------------------------------#
+- name: setup pgbackrest service
+  tags: pgbackrest_service
+  when: pgbackrest_repo_mode == 'infra' and pgbackrest_tls_port is defined
+  block:
+    - name: Copy pgbackrest systemd service
+      template: src=pgbackrest.service.j2 dest=/etc/systemd/system/pgbackrest.service owner=root mode=0644
+
+    - name: Launch pgbackrest service
+      systemd: name=pgbackrest state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for pgbackrest service online
+      wait_for: host=127.0.0.1 port={{ pgbackrest_tls_port }} state=started timeout=10
+
+    - name: Check pgbackrest service is ready
       become: yes
       become_user: "{{ pg_dbsu }}"
+      command: /usr/bin/pgbackrest server-ping
+
+
+#--------------------------------------------------------------#
+# Launch PgBackrest Backup                         [pg_backrest]
+#--------------------------------------------------------------#
+- name: launch pgbackrest first backup
+  tags: pgbackrest_backup
+  become: yes
+  become_user: "{{ pg_dbsu }}"
+  when: pg_role == 'primary' and pg_upstream is not defined
+  block:
+    - name: create pgbackrest stanza
       shell: /usr/bin/pgbackrest --stanza={{ pg_cluster }} --no-online stanza-create
 
     - name: create an empty full backup
-      when: pg_role == 'primary' and pg_upstream is not defined
-      ignore_errors: yes
-      become: yes
-      become_user: "{{ pg_dbsu }}"
       shell: /usr/bin/pgbackrest --stanza={{ pg_cluster }} backup
+
 ...

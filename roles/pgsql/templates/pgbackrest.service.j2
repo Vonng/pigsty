@@ -1,0 +1,16 @@
+[Unit]
+Description=pgBackRest Server
+After=network.target
+#StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User={{ pg_dbsu }}
+Group=postgres
+Restart=always
+RestartSec=1
+ExecStart=/usr/bin/pgbackrest server
+ExecReload=kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target
