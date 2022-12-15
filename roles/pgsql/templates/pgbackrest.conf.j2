@@ -56,15 +56,15 @@ log-path={{ pgbackrest_log_dir }}
 # 6. repository                                                #
 # https://pgbackrest.org/configuration.html#section-repository #
 #==============================================================#
-{% if pgbackrest_repo_mode == 'local' %}
-repo1-path={{ pgbackrest_local_path }}/{{ pg_cluster }}-{{ pg_version }}
-{% elif pgbackrest_repo_mode == 'minio' %}
+{% if pgbackrest_repo_type == 'fs' %}
+repo1-path={{ pgbackrest_fs_path }}
+{% elif pgbackrest_repo_type == 'minio' %}
 repo1-type=s3
 repo1-s3-endpoint={{ minio_domain }}
 repo1-storage-port={{ minio_port }}
 repo1-storage-ca-file=/etc/pki/ca.crt 
 repo1-s3-uri-style=path
-repo1-path=/{{ pg_cluster }}-{{ pg_version }}
+repo1-path=/
 repo1-s3-bucket={{ pgbackrest_s3_bucket }}
 repo1-s3-key={{ pgbackrest_s3_key }}
 repo1-s3-key-secret={{ pgbackrest_s3_secret }}
@@ -91,7 +91,7 @@ delta=y
 # 8. server                                                    #
 # https://pgbackrest.org/configuration.html#section-server     #
 #==============================================================#
-{% if pgbackrest_repo_mode == 'infra' %}
+{% if pgbackrest_deployment_mode == 'infra' %}
 tls-server-address=*
 tls-server-port={{ pgbackrest_tls_port }}
 tls-server-ca-file=/etc/pki/ca.crt

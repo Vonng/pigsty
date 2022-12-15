@@ -15,7 +15,7 @@
 
 - name: setup minio for pgbackrest
   tags: pgbackrest_setup
-  when: pgbackrest_repo_mode == 'minio' and (pg_role == 'primary' and pg_upstream is not defined)
+  when: pgbackrest_repo_type == 'minio' and (pg_role == 'primary' and pg_upstream is not defined)
   become: no
   delegate_to: '{{ admin_ip }}'
   any_errors_fatal: true
@@ -41,7 +41,7 @@
 #--------------------------------------------------------------#
 - name: setup pgbackrest service
   tags: pgbackrest_service
-  when: pgbackrest_repo_mode == 'infra' and pgbackrest_tls_port is defined
+  when: pgbackrest_deployment_mode == 'infra' and pgbackrest_tls_port is defined
   block:
     - name: Copy pgbackrest systemd service
       template: src=pgbackrest.service.j2 dest=/etc/systemd/system/pgbackrest.service owner=root mode=0644
