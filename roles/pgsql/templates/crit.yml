@@ -32,7 +32,7 @@
 
 # Node: {{ node_cpu }}C{{ node_mem_gb }}G , node_tune = {{ node_tune }}
 # Memory: {{ node_mem_mb }}MB , Disk : {{ [ (node_fs_bytes|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}GB {{ pg_storage_type|default('SSD') }} @ {{ pg_fs_main }}
-# ETCD: {% for ip in groups['etcd'] %}{{ ip }}:{{ etcd_port }} {% endfor %}
+# ETCD: {% for ip in groups['etcd']|sort %}{{ ip }}:{{ etcd_port }} {% endfor %}
 
 #--------------------------------------------------------------#
 # pgconf, maxconn, workmem   = {{ pg_conf }} , {{ pg_max_connections }} , {{ pg_workmem }}MB
@@ -66,7 +66,7 @@ log:
 # etcd
 #--------------------------------------------------------------#
 etcd3:
-  hosts: '{% for ip in groups['etcd'] %}{% if not loop.first %},{% endif %}{{ ip }}:{{ etcd_port }}{% endfor %}'
+  hosts: '{% for ip in groups['etcd']|sort %}{% if not loop.first %},{% endif %}{{ ip }}:{{ etcd_port }}{% endfor %}'
   protocol: https
   cacert: /etc/pki/ca.crt
   cert:   /pg/cert/server.crt
@@ -90,7 +90,7 @@ restapi:
   authentication:
     username: '{{ patroni_username }}'
     password: '{{ patroni_password }}'
-  allowlist: [ {% for v in groups["infra"] %}{% if not loop.first %}, {% endif %}{{ v }}{% endfor %} ]
+  allowlist: [ {% for v in groups["infra"]|sort %}{% if not loop.first %}, {% endif %}{{ v }}{% endfor %} ]
 
 #--------------------------------------------------------------#
 # ctl

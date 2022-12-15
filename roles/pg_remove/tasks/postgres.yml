@@ -56,7 +56,7 @@
   shell: |
     META_DIR="{{ pg_namespace|default('/pg') }}/{{ pg_cluster }}"
     export ETCDCTL_API=3
-    export ETCDCTL_ENDPOINTS="{% for ip in groups['etcd'] %}{% if not loop.first %},{% endif %}https://{{ ip }}:{{ etcd_port }}{% endfor %}"
+    export ETCDCTL_ENDPOINTS="{% for ip in groups['etcd']|sort %}{% if not loop.first %},{% endif %}https://{{ ip }}:{{ etcd_port }}{% endfor %}"
     
     export ETCDCTL_CACERT=/etc/pki/ca.crt
     export ETCDCTL_CERT=/etc/etcd/server.crt
