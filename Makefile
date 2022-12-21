@@ -469,12 +469,18 @@ svg:
 
 # environment
 e1: v1 new ssh copy-el7 use-pkg
+	cp files/conf/pigsty-el7.yml pigsty.yml
 e4: v4 new ssh copy-el7 use-pkg
+	cp files/conf/pigsty-default.yml pigsty.yml
 e7: v7 new ssh copy-el7 use-pkg
+	cp files/conf/pigsty-test.yml pigsty.yml
 e8: v8 new ssh copy-el8 use-pkg
+	cp files/conf/pigsty-test.yml pigsty.yml
 e9: v9 new ssh copy-el9 use-pkg
+	cp files/conf/pigsty-test.yml pigsty.yml
 eb: vb new ssh build-repo build-src
-
+	cp files/conf/pigsty-build.yml pigsty.yml
+ed: e4
 ###############################################################
 
 
@@ -494,5 +500,5 @@ eb: vb new ssh build-repo build-src
         copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb \
         r releast rp release-pkg cache release-matrix release-docker p publish \
         build-vagrant build build-src build-repo build-boot build-release build-el7 build-el8 build-el9 make-el7 make-el8 make-el9 \
-        svg e1 e4 e7 e8 e9 eb
+        svg e1 e4 e7 e8 e9 eb ed
 ###############################################################

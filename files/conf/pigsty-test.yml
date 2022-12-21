@@ -1,0 +1,65 @@
+---
+#==============================================================#
+# File      :   pigsty-test.yml
+# Desc      :   Pigsty 3 nodes config for el 7,8,9 test
+# Ctime     :   2020-05-22
+# Mtime     :   2022-12-20
+# Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+all:
+  children:
+
+    # infra cluster for proxy, monitor, alert, etc..
+    infra: { hosts: {10.10.10.10: {infra_seq: 1}}}
+
+    # etcd cluster for ha postgres
+    etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
+
+    # minio cluster, s3 compatible object storage
+    minio: {hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio }}
+
+    # postgres cluster 'pg-meta'
+    pg-meta:
+      hosts:
+        10.10.10.10: { pg_seq: 1, pg_role: primary }
+        10.10.10.11: { pg_seq: 2, pg_role: replica }
+        10.10.10.12: { pg_seq: 3, pg_role: replica , pg_offline_query: true }
+      vars:
+        pg_cluster: pg-meta
+        pg_users:
+          - {name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
+          - {name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+        pg_databases:
+          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}]}
+
+  vars:                               # global parameters
+    version: v2.0.0-b2                # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default,china,europe
+
+    pgbackrest_method: minio          # pgbackrest repo method: posix,minio,[user-defined...]
+    pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+      posix:                          # default pgbackrest repo with local posix fs
+        path: /pg/backup              # local backup directory, `/pg/backup` by default
+        retention_full_type: count    # retention full backups by count
+        retention_full: 1             # keep 1, at most 2 full backup when using local fs repo
+      minio:                          # optional minio repo for pgbackrest
+        type: s3                      # minio is s3-compatible, so s3 is used
+        s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default
+        s3_region: us-east-1          # minio region, us-east-1 by default, useless for minio
+        s3_bucket: pgsql              # minio bucket name, `pgsql` by default
+        s3_key: pgbackrest            # minio user access key for pgbackrest
+        s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
+        s3_uri_style: path            # use path style uri for minio rather than host style
+        path: /backup/${pg_cluster}   # minio backup path, default is `/backup/${pg_cluster}`
+        storage_port: 9000            # minio port, 9000 by default
+        storage_ca_file: /etc/pki/ca.crt  # minio ca file path, `/etc/pki/ca.crt` by default
+        bundle: y                     # bundle small files into a single file
+        cipher_type: aes-256-cbc      # enable AES encryption for remote backup repo
+        cipher_pass: ${pg_cluster}.Pgbackrest # AES encryption password, ${pg_cluster} will be replaced
+        retention_full_type: time     # retention full backup by time on minio repo
+        retention_full: 14            # keep full backup for last 14 days
+
+...
