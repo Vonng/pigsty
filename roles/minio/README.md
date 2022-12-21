@@ -13,7 +13,7 @@ Run on admin node with admin user
 mcli alias ls  # list minio alias (there's a sss by default)
 mcli alias set sss https://sss.pigsty:9000 minioadmin minioadmin
 mcli alias set patroni https://sss.pigsty:9000 patroni S3User.Patroni
-mcli alias set pgbackrest https://sss.pigsty:9000 pgbackrest S3User.Pgbackrest
+mcli alias set pgbackrest https://sss.pigsty:9000 pgbackrest S3User.Backup
 ```
 
 
@@ -24,7 +24,7 @@ mcli admin user list sss     # list all users on sss
 set +o history # hide password in history and create minio user
 mcli admin user add sss dba S3User.DBA
 mcli admin user add sss patroni S3User.Patroni
-mcli admin user add sss pgbackrest S3User.Pgbackrest
+mcli admin user add sss pgbackrest S3User.Backup
 set -o history 
 ```
 
