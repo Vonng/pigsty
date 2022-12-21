@@ -23,19 +23,19 @@ repo_upstream:                    # where to download #
   - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com' }}
   - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' }}
   - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/'                }}
-  - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable'                     , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable'       }}
+  - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable'                     , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable'       }}
   - { name: pgdg15         ,description: 'PostgreSQL 15'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg-common    ,description: 'PostgreSQL Common' ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg-el8fix    ,description: 'PostgreSQL EL8FIX' ,module: pgsql ,releases: [  8  ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' }}
   - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
-  - { name: citus          ,description: 'Citus Community'   ,module: pgsql ,releases: [7,8  ] ,baseurl: { default: 'https://repos.citusdata.com/community/el/$releasever/$basearch'          }}
+  - { name: citus          ,description: 'Citus Community'   ,module: pgsql ,releases: [7    ] ,baseurl: { default: 'https://repos.citusdata.com/community/el/$releasever/$basearch'          }}
 repo_packages:                    # which packages to be included
   - grafana loki logcli promtail prometheus2 alertmanager pushgateway blackbox_exporter node_exporter redis_exporter
   - nginx wget createrepo_c sshpass ansible python3 python3-pip python3-requests mtail dnsmasq docker-ce etcd
   - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned chrony perf nvme-cli numactl grubby sysstat iotop htop
   - netcat socat rsync ftp lrzsz s3cmd net-tools tcpdump ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal
-  - postgresql15* postgis33_15* citus111_15* pglogical_15* pg_repack_15* pg_squeeze_15* wal2json_15* timescaledb-tools #timescaledb-2-postgresql-15
+  - postgresql15* postgis33_15* citus111_15* pglogical_15* pg_repack_15* pg_squeeze_15* wal2json_15* timescaledb-2-postgresql-15* timescaledb-tools
   - patroni patroni-etcd pgbouncer pgbadger pgbackrest tail_n_mail pgloader pg_activity
   - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 pg_dbms_job_15
   - pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15 logerrors_15 pg_top_15
@@ -44,17 +44,17 @@ repo_packages:                    # which packages to be included
   - pg_comparator_15 pg_ivm_15* pgsodium_15*  pgfincore_15* ddlx_15 credcheck_15 postgresql_anonymizer_15* postgresql_faker_15 safeupdate_15
   - pg_fkpart_15 pg_jobmon_15 pg_partman_15 pg_permissions_15 pgaudit17_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15*
   - pg_cron_15 pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pg_filedump_15 pgcryptokey_15
-  - docker-compose #timescaledb-2-postgresql-15  # el7
-  #- modulemd-tools python38-jmespath haproxy redis docker-compose-plugin # el8
-  #- modulemd-tools python3-jmespath haproxy redis docker-compose-plugin citus_15* # el9
+  - docker-compose # citus111_15* # el7
+  #- modulemd-tools python38-jmespath haproxy redis docker-compose-plugin citus_15* # el8
+  #- modulemd-tools python3-jmespath haproxy redis docker-compose-plugin citus_15*  # el9
 repo_url_packages:                # extra packages from url
   - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
   - https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.0.0/vip-manager_2.0.0_Linux_x86_64.rpm
   - https://github.com/dalibo/pev2/releases/download/v1.6.0/index.html
   - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm # redis.el7
   - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.6/haproxy-2.6.6-1.el7.x86_64.rpm # haproxy.el7
-  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20221129234049.0.0.x86_64.rpm
-  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20221117212039.0.0.x86_64.rpm
+  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20221212192727.0.0.x86_64.rpm
+  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20221213002328.0.0.x86_64.rpm
 
 #-----------------------------------------------------------------
 # INTERNAL
