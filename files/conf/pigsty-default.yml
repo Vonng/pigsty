@@ -64,7 +64,7 @@ all:
             baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
             pgbouncer: true                 # optional, add this database to pgbouncer database list? true by default
             schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
-            extensions: [{name: postgis}]   # optional, additional extensions to be installed: array of `{name[,schema]}`
+            extensions: {name: postgis}]    # optional, additional extensions to be installed: array of `{name[,schema]}`
             comment: pigsty meta database   # optional, comment string for this database
             #owner: postgres                # optional, database owner, postgres by default
             #template: template1            # optional, which template to use, template1 by default
@@ -535,7 +535,7 @@ all:
       - postgresql${pg_version}*
       - pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest
     pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-      - postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} #citus111_${pg_version} timescaledb-2-postgresql-${pg_version}
+      - postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} timescaledb-2-postgresql-${pg_version}
 
     #-----------------------------------------------------------------
     # PG_BOOTSTRAP
@@ -562,7 +562,7 @@ all:
     pg_conf: oltp.yml                 # config template: oltp,olap,crit,tiny. `oltp.yml` by default
     pg_rto: 30                        # recovery time objective in seconds,  `30s` by default
     pg_rpo: 1048576                   # recovery point objective in bytes, `1MiB` at most by default
-    pg_libs: 'pg_stat_statements, auto_explain'  # preloaded libraries, `pg_stat_statements,auto_explain` by default
+    pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
     pg_delay: 0                       # replication apply delay for standby cluster leader
     pg_checksum: false                # enable data checksum for postgres cluster?
     pg_pwd_enc: scram-sha-256         # passwords encryption algorithm: md5,scram-sha-256

@@ -14,11 +14,11 @@ all:
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: {10.10.10.10: {infra_seq: 1}}}
 
-    # etcd cluster for ha postgres
-    etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
-
     # minio cluster, s3 compatible object storage
     minio: {hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio }}
+
+    # etcd cluster for ha postgres
+    etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
 
     # postgres cluster 'pg-meta'
     pg-meta:
@@ -32,7 +32,7 @@ all:
           - {name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
           - {name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
         pg_databases:
-          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}]}
+          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public},{name: timescaledb}]}
 
   vars:                               # global parameters
     version: v2.0.0-b2                # pigsty version string

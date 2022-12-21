@@ -28,6 +28,10 @@ all:
         10.10.10.12: { infra_seq: 3, repo_enabled: false }
       vars: { patroni_watchdog_mode: off }
 
+    minio:  # minio cluster, s3 compatible object storage
+      hosts: { 10.10.10.10: { minio_seq: 1 } }
+      vars: { minio_cluster: minio }
+
     etcd: # dcs service for postgres/patroni ha consensus
       hosts:  # 1 node for testing, 3 or 5 for production
         10.10.10.10: { etcd_seq: 1 }  # etcd_seq required
@@ -50,7 +54,7 @@ all:
           - { name: dbuser_meta , password: DBUser.Meta   , pgbouncer: true , roles: [ dbrole_admin ] , comment: pigsty admin user }
           - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
         pg_databases:
-          - { name: meta , baseline: cmdb.sql ,comment: pigsty meta database , schemas: [ pigsty ] , extensions: [{ name: postgis, schema: public }] }
+          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public},{name: timescaledb}]}
         pg_services:
           - { name: standby ,src_ip: "*" ,port: 5435 , dest: postgres ,selector: "[]" , backup: "[? pg_role == `primary`]" }
         pg_vip_enabled: true
@@ -73,6 +77,7 @@ all:
     patroni_ssl_enabled: true         # secure patroni RestAPI communications with SSL?
     haproxy_auth_enabled: true        # enable authentication for haproxy admin?
     pgbouncer_sslmode: require        # pgbouncer client ssl mode: disable|allow|prefer|require|verify-ca|verify-full, disable by default
+    pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
 
     # WARNING: CHANGE THESE PASSWORDS
     #grafana_admin_username: admin

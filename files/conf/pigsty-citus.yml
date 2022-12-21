@@ -16,6 +16,9 @@ all:
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: {10.10.10.10: {infra_seq: 1}}}
 
+    # minio cluster, s3 compatible object storage
+    minio: {hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio }}
+
     # etcd cluster for ha postgres
     etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
 
@@ -27,7 +30,7 @@ all:
         pg_cluster: pg-meta
         pg_users: [{ name: citus ,password: citus ,pgbouncer: true ,roles: [dbrole_admin]}]
         pg_databases:
-          - { name: meta ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public},{ name: citus}] ,baseline: cmdb.sql ,comment: pigsty meta database}
+          - { name: meta ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public},{ name: citus }] ,baseline: cmdb.sql ,comment: pigsty meta database}
 
     # citus data node 1,2,3
     pg-node1:
