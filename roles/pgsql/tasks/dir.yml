@@ -40,9 +40,7 @@
         - "{{ pg_cluster_dir }}/stat"
         - "{{ pg_cluster_dir }}/change"
         - "{{ pg_backup_dir }}/postgres"
-        - "{{ pg_backup_dir }}/arcwal"
         - "{{ pg_backup_dir }}/backup"
-        - "{{ pg_backup_dir }}/remote"
 
     - name: create pgbouncer directories
       file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0750
@@ -50,17 +48,13 @@
         - /etc/pgbouncer
         - /var/run/pgbouncer
 
-    - name: link backup dirs to pgroot
+    - name: create link for pg backup dir
       file:
-        src: "{{ pg_backup_dir }}/{{ item }}"
-        dest: "{{ pg_cluster_dir }}/{{ item }}"
+        src: "{{ pg_backup_dir }}/backup"
+        dest: "{{ pg_cluster_dir }}/backup"
         state: link
-      with_items:
-        - arcwal
-        - backup
-        - remote
 
-    - name: Create links from current cluster
+    - name: create links from current cluster
       file:
         src: "{{ pg_cluster_dir }}"
         dest: /pg
