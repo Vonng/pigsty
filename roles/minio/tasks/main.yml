@@ -12,10 +12,10 @@
 
 
 #--------------------------------------------------------------#
-# Create Minio OS user & Group                      [minio_user]
+# Create Minio OS user & Group                   [minio_os_user]
 #--------------------------------------------------------------#
 - name: create minio user group
-  tags: minio_user
+  tags: minio_os_user
   block:
     - name: create minio os group
       group: name=minio state=present
@@ -98,5 +98,10 @@
       - labels: { ip: {{ inventory_hostname }} , ins: {{ minio_cluster }}-{{ minio_seq }} , cls: {{ minio_cluster }} }
         targets: [ {{ inventory_hostname }}:{{ minio_port }} ]
 
+#--------------------------------------------------------------#
+# Provision Minio                              [minio_provision]
+#--------------------------------------------------------------#
+- import_tasks: provision.yml
+  tags: minio_provision
 
 ...
