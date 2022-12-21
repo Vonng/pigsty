@@ -661,14 +661,28 @@ all:
     pgbackrest_enabled: true          # enable pgbackrest on pgsql host?
     pgbackrest_clean: false           # remove existing pgbackrest data during init?
     pgbackrest_log_dir: /pg/log/pgbackrest # pgbackrest log dir, `/pg/log/pgbackrest` by default
-    pgbackrest_tls_port: 8432         # tls server port on 'infra' mode, default is 8432
-    pgbackrest_repo_type: fs          # pgbackrest repo type: fs|minio
-    pgbackrest_fs_path: /pg/backup    # path where posix backups and archives are stored
-    pgbackrest_retention_type: time   # retention type for full backups: count|time
-    pgbackrest_retention_full: 14     # full backup retention count/time
-    pgbackrest_retention_diff: 3      # number of differential backups to retain
-    pgbackrest_cipher_type: none      # cipher used to encrypt the repository: none|aes-256-cbc
-    pgbackrest_cipher_pass: ''        # GENERATE with `openssl rand -base64 48`
+    pgbackrest_method: local          # pgbackrest repo method: local,minio,[user-defined...]
+    pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+      local:                          # default pgbackrest repo with local posix fs
+        path: /pg/backup              # local backup directory, `/pg/backup` by default
+        retention_full_type: count    # retention full backups by count
+        retention_full: 1             # keep 1, at most 2 full backup when using local fs repo
+      minio:                          # optional minio repo for pgbackrest
+        type: s3                      # minio is s3-compatible, so s3 is used
+        s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default
+        s3_region: us-east-1          # minio region, us-east-1 by default, useless for minio
+        s3_bucket: pgsql              # minio bucket name, `pgsql` by default
+        s3_key: pgbackrest            # minio user access key for pgbackrest
+        s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
+        s3_uri_style: path            # use path style uri for minio rather than host style
+        path: /backup/${pg_cluster}   # minio backup path, default is `/backup/${pg_cluster}`
+        storage_port: 9000            # minio port, 9000 by default
+        storage_ca_file: /etc/pki/ca.crt  # minio ca file path, `/etc/pki/ca.crt` by default
+        bundle: y                     # bundle small files into a single file
+        cipher_type: aes-256-cbc      # enable AES encryption for remote backup repo
+        cipher_pass: ${pg_cluster}.Pgbackrest # AES encryption password, ${pg_cluster} will be replaced
+        retention_full_type: time     # retention full backup by time on minio repo
+        retention_full: 14            # keep full backup for last 14 days
 
     #-----------------------------------------------------------------
     # PG_VIP
