@@ -78,9 +78,13 @@
     # use tarball if cache exists
     - name: provision grafana plugins via cache if exists
       when: grafana_plugins_cache.stat.exists
+      vars:
+        grafana_plugin_path: "{{ nginx_home }}/{{ repo_name }}/plugins.tgz"
+        grafana_chart_path: "{{ nginx_home }}/{{ repo_name }}/chart.tgz"
       shell: |
-        [[ -a "{{ grafana_plugin_cache }}" ]] && rm -rf /var/lib/grafana/plugins && tar -xf {{ grafana_plugin_cache }} -C /var/lib/grafana
+        [[ -a "{{ grafana_plugin_path }}" ]] && rm -rf /var/lib/grafana/plugins && tar -xf "{{ grafana_plugin_path }}" -C /var/lib/grafana
         chown -R grafana /var/lib/grafana
+        [[ -a "{{ grafana_chart_path }}" ]] && rm -rf /usr/share/grafana/public/chart && tar -xf "{{ grafana_chart_path }}" -C /usr/share/grafana/public/
 
     # download from internet if cache not exists
     - name: download grafana plugins via internet
