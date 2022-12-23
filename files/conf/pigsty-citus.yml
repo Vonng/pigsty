@@ -3,7 +3,7 @@
 # File      :   pigsty-citus.yml
 # Desc      :   pigsty citus demo with 1 coordinator and 3 data nodes
 # Ctime     :   2020-05-22
-# Mtime     :   2022-12-02
+# Mtime     :   2022-12-23
 # Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -28,9 +28,9 @@ all:
         10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true }
       vars:
         pg_cluster: pg-meta
-        pg_users: [{ name: citus ,password: citus ,pgbouncer: true ,roles: [dbrole_admin]}]
+        pg_users: [ { name: citus ,password: citus ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
         pg_databases:
-          - { name: meta ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public},{ name: citus }] ,baseline: cmdb.sql ,comment: pigsty meta database}
+          - { name: meta ,schemas: [ pigsty ] ,extensions: [ { name: postgis, schema: public },{ name: citus } ] ,baseline: cmdb.sql ,comment: pigsty meta database }
 
     # citus data node 1,2,3
     pg-node1:
@@ -39,8 +39,8 @@ all:
       vars:
         pg_cluster: pg-node1
         vip_address: 10.10.10.3
-        pg_users: [{ name: citus ,password: citus ,pgbouncer: true ,roles: [dbrole_admin]}]
-        pg_databases: [{ name: meta ,owner: citus , extensions: [{name: citus},{name: postgis, schema: public}]}]
+        pg_users: [ { name: citus ,password: citus ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: meta ,owner: citus , extensions: [ { name: citus },{ name: postgis, schema: public } ] } ]
 
     pg-node2:
       hosts:
@@ -62,7 +62,7 @@ all:
 
 
   vars:                               # global variables
-    version: v2.0.0-b2                # pigsty version string
+    version: v2.0.0-b3                # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     node_etc_hosts:                   # write static etc hosts to citus cluster

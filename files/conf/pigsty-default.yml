@@ -64,7 +64,9 @@ all:
             baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
             pgbouncer: true                 # optional, add this database to pgbouncer database list? true by default
             schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
-            extensions: {name: postgis}]    # optional, additional extensions to be installed: array of `{name[,schema]}`
+            extensions:                     # optional, additional extensions to be installed: array of `{name[,schema]}`
+              - { name: postgis , schema: public }
+              - { name: timescaledb }
             comment: pigsty meta database   # optional, comment string for this database
             #owner: postgres                # optional, database owner, postgres by default
             #template: template1            # optional, which template to use, template1 by default
@@ -179,7 +181,7 @@ all:
     #================================================================#
     #                         VARS: BASIC                            #
     #================================================================#
-    version: v2.0.0-b2                # pigsty version string
+    version: v2.0.0-b3                # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default,china,europe
     proxy_env:                        # global proxy env when downloading packages
