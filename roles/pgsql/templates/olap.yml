@@ -310,13 +310,11 @@ bootstrap:
         commit_siblings: 10                     # 5 -> 10
         checkpoint_timeout: 15min               # checkpoint 5min -> 15min
         checkpoint_completion_target: 0.80      # 0.5 -> 0.8
-        archive_mode: on
 {% if pgbackrest_enabled|bool %}
-        archive_command: 'pgbackrest --stanza={{ pg_cluster }} archive-push %p'
-{% else %}
-        archive_command: 'wal_dir=/pg/arcwal; [[ $(date +%H%M) == 1200 ]] && rm -rf ${wal_dir}/$(date -d"yesterday" +%Y%m%d); /bin/mkdir -p ${wal_dir}/$(date +%Y%m%d) && /usr/bin/lz4 -q -z %p > ${wal_dir}/$(date +%Y%m%d)/%f.lz4'
-{% endif %}
+        archive_mode: on
         archive_timeout: 300                    # 5 min timeout for archiving
+        archive_command: 'pgbackrest --stanza={{ pg_cluster }} archive-push %p'
+{% endif %}
 
         #------------------------------------------------------#
         # REPLICATION
@@ -459,11 +457,21 @@ postgresql:
   # create replica method: default pg_basebackup
   create_replica_methods:
     - basebackup
+{% if pgbackrest_enabled|bool and pgbackrest_method == 'minio' %}
+    - pgbackrest
+{% endif %}
   basebackup:
     - max-rate: '1000M'
     - checkpoint: fast
     - verbose
     - progress
+{% if pgbackrest_enabled|bool %}
+  pgbackrest:
+    command: /usr/bin/pgbackrest --stanza={{ pg_cluster }} --delta restore
+    keep_data: true
+    no_params: true
+    no_master: true
+{% endif %}
 
   #------------------------------------------------------------#
   # ad hoc parameters (overwrite with default)
