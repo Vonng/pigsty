@@ -31,11 +31,19 @@
 - import_tasks: dns.yml
   tags: dns
 
+
 #--------------------------------------------------------------#
 # remove pg vip manager                                    [vip]
 #--------------------------------------------------------------#
 - import_tasks: vip.yml
   tags: vip
+
+
+#--------------------------------------------------------------#
+# remove service                                    [pg_service]
+#--------------------------------------------------------------#
+- import_tasks: pg_service.yml
+  tags: [ haproxy, pg_service ]
 
 
 #--------------------------------------------------------------#
@@ -62,6 +70,33 @@
 
 
 #--------------------------------------------------------------#
+# remove backup                                      [pg_backup]
+#--------------------------------------------------------------#
+- name: remove postgres backup
+  tags: pg_backup
+  when: rm_pgbkup|bool
+  ignore_errors: yes
+  block:
+
+    - name: remove postgres backup repo
+      when: pgbackrest_method == 'minio' and pg_role == 'primary'
+      become: yes
+      become_user: "{{ pg_dbsu }}"
+      shell: |
+        if [[ -f /etc/pgbackrest/pgbackrest.conf ]]; then
+          pgbackrest --stanza={{ pg_cluster }} --force stop;
+          pgbackrest --stanza={{ pg_cluster }} --force stanza-delete;
+        fi
+
+    - name: remove postgres backup dir
+      when: pgbackrest_method == 'local'
+      file: path={{ pg_fs_bkup }}/postgres state=absent
+
+    - name: remove postgres backup config
+      file: path=/etc/pgbackrest/pgbackrest.conf state=absent
+
+
+#--------------------------------------------------------------#
 # remove data                                          [pg_data]
 #--------------------------------------------------------------#
 - name: remove postgres data
@@ -72,22 +107,6 @@
   with_items:
     - /pg/data
     - "{{ pg_fs_main }}/postgres"
-
-
-#--------------------------------------------------------------#
-# remove backup                                      [pg_backup]
-#--------------------------------------------------------------#
-- name: remove postgres backup
-  tags: pg_backup
-  when: rm_pgbkup|bool
-  ignore_errors: yes
-  file: path={{ pg_fs_bkup }}/postgres state=absent
-
-- name: remove postgres backup config
-  tags: pgbkup
-  when: rm_pgbkup|bool
-  ignore_errors: yes
-  file: path=/etc/pgbackrest/pgbackrest.conf state=absent
 
 
 #--------------------------------------------------------------#

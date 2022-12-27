@@ -14,6 +14,10 @@
   hosts: all
   gather_facts: no
   ignore_errors: yes
+  vars:
+    #rm_pgdata: true                   # remove postgres data? true by default
+    #rm_pgbkup: true                   # remove postgres backup? true by default
+    #rm_pgpkgs: false                  # uninstall pg_packages? false by default
   roles: [{ role: pg_remove }]
 
 
@@ -35,8 +39,8 @@
 #
 #  NOTE: hba & haproxy are based on role, you may have to adjust
 #        cluster ha/hba after removing instance from cluster with:
-#         bin/reloadha  <cluster>
-#         bin/reloadhba <cluster>
+#         bin/pg-hba <cls>
+#         bin/pg-svc <cls>
 #
 #  if `pg_safeguard` is `true`, you can't remove pgsql with this.
 #     but you can disable it in config or override it with:
@@ -48,21 +52,20 @@
 #
 #  Available Task Tags:
 #
-#  - register:            * remove registration in prometheus, grafana, nginx
+#  - register             * remove registration in prometheus, grafana, nginx
 #    - prometheus            * remove monitor target from prometheus
 #    - grafana               * remove datasource from grafana
-#    - nginx                 * remove nginx endpoint for haproxy
-#  - service:             * remove nginx service & vip
-#    - haproxy               * remove haproxy load balancer
-#    - vip                   * remove l2 vip-manager
-#  - monitor:             * remove monitor components
-#    - pg_exporter           * remove exporter for postgres
-#    - pgbouncer_exporter    * remove exporter for pgbouncer
-#  - postgres:            * remove postgres instances
+#  - dns                  * remove pg dns records
+#  - vip                  * remove pg vip manager
+#  - pg_service           * remove service definition from haproxy
+#  - pg_exporter          * remove pg_exporter & pgbouncer_exporter
+#  - pgbouncer            * remove pgbouncer connection middleware
+#  - postgres             * remove postgres instances
 #    - pg_replica            * remove all replicas
 #    - pg_primary            * remove primary instance
 #    - dcs                   * remove metadata from dcs
-#  - pgdata:              * remove postgres data (disable with `rm_pgdata=false`),
-#  - pgpkgs:              * remove postgres packages (enable with `rm_rmpkgs=true`)
+#  - pg_data              * remove postgres data (disable with `rm_pgdata=false`),
+#  - pg_backup            * remove postgres backup (disable with `rm_pgbkup=false`),
+#  - pg_pkg               * remove postgres packages (enable with `rm_rmpkgs=true`)
 #==============================================================#
 ...
