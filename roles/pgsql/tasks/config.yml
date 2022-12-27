@@ -82,4 +82,19 @@
         dest: "/usr/lib/systemd/system/{{ item }}.service"
       with_items: [ patroni, postgres ]
 
+
+#--------------------------------------------------------------#
+# Config PgBackrest Repo                     [pgbackrest_config]
+#--------------------------------------------------------------#
+- name: config pgbackrest
+  tags: [ pgbackrest, pgbackrest_config ]
+  block:
+
+    - name: remove unused pgbackrest.conf file
+      file: path=/etc/pgbackrest.conf state=absent
+
+    - name: render pgbackrest config
+      template: src=pgbackrest.conf.j2 dest=/etc/pgbackrest/pgbackrest.conf owner=postgres group=postgres mode=0600
+
+
 ...

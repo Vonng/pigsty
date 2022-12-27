@@ -76,11 +76,11 @@
   with_items: "{{ pg_databases }}"
 
 #--------------------------------------------------------------#
-# Pgbackrest                                        [pgbackrest]
+# Backup                                             [pg_backup]
 #--------------------------------------------------------------#
-# pg_backrest
-- import_tasks: pgbackrest.yml
-  tags: pgbackrest
+# pgbackrest_init, pgbackrest_backup
+- import_tasks: pg_backup.yml
+  tags: pg_backup
   when: pgbackrest_enabled|bool
 
 #--------------------------------------------------------------#
@@ -95,18 +95,21 @@
 #--------------------------------------------------------------#
 # VIP                                                   [pg_vip]
 #--------------------------------------------------------------#
+# pg_vip_config, pg_vip_launch
 - import_tasks: vip.yml
   tags: pg_vip
 
 #--------------------------------------------------------------#
 # Domain Name                                           [pg_dns]
 #--------------------------------------------------------------#
+# pg_dns_ins, pg_dns_cls
 - import_tasks: dns.yml
   tags: pg_dns
 
 #--------------------------------------------------------------#
 # Service                                           [pg_service]
 #--------------------------------------------------------------#
+# pg_service_config, pg_service_reload
 - import_tasks: service.yml
   tags: pg_service
 

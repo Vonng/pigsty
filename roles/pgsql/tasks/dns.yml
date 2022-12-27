@@ -1,5 +1,9 @@
 ---
+#--------------------------------------------------------------#
+# Register Instance DNS Name                       [register_dns]
+#--------------------------------------------------------------#
 - name: register postgres instance dns
+  tags: pg_dns_ins
   delegate_to: '{{ item }}'
   with_items: "{{ groups['infra'] }}"
   copy:
@@ -10,7 +14,7 @@
 
 # write dns records to infra nodes's /etc/hosts.d/<pg_cluster>
 - name: register postgres cluster dns
-  tags: [ pg_register, register_dns ]
+  tags: pg_dns_cls
   delegate_to: '{{ item }}'
   with_items: "{{ groups['infra'] }}"
   ignore_errors: true

@@ -8,7 +8,7 @@
 
 # TODO: validate pg_vip_address, but ipaddr require extra python packages
 - name: render vip-manager config
-  tags: pg_vip_launch
+  tags: pg_vip_config
   template: src=vip-manager.yml.j2 dest=/etc/default/vip-manager.yml
   vars:
     vip_address:  "{{ pg_vip_address.split('/')[0] }}"
@@ -19,7 +19,7 @@
 #  Reload vip-manager                               [vip_launch]
 #--------------------------------------------------------------#
 - name: reload vip-manager
-  tags: vip_launch
+  tags: pg_vip_launch
   when: pg_vip_enabled|bool and pg_reload|bool
   systemd: name=vip-manager state=restarted enabled=yes daemon_reload=true
 ...
