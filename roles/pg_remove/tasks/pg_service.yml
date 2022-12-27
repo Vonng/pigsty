@@ -1,0 +1,23 @@
+---
+#--------------------------------------------------------------#
+# Remove Services from HAProxy                      [pg_service]
+#--------------------------------------------------------------#
+- name: remove haproxy services
+  tags: pg_service
+  become: yes
+  ignore_errors: yes
+  block:
+
+    # remove service definition with pg_cluster are name prefix
+    - name: wipe existing postgres haproxy service
+      shell: "cd /etc/haproxy; rm -rf {{ pg_cluster }}-*.cfg;"
+
+    # if check fail on this step, haproxy will not be reloaded
+    - name: check haproxy config before reload
+      command: /usr/sbin/haproxy -f /etc/haproxy/haproxy.cfg -c -q
+
+    # even if you perform haproxy reload on junk config, it will not fail
+    - name: reload haproxy
+      systemd: name=haproxy state=reloaded enabled=yes daemon_reload=yes
+
+...
