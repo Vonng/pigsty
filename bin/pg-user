@@ -1,10 +1,10 @@
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail
 #==============================================================#
 # File      :   pg-user
 # Desc      :   Create PostgreSQL Business USer
 # Ctime     :   2021-07-15
-# Mtime     :   2022-12-02
+# Mtime     :   2022-12-28
 # Path      :   bin/pg-user
 # Deps      :   ansible-playbook, pgsql-user.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -18,8 +18,8 @@ PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
 #--------------------------------------------------------------#
 # Usage
 #--------------------------------------------------------------#
-# bin/pg-user <cluster> <username> # define user in inventory first
-# `app.children.<cluster>.vars.pg_users`, entry with name=<username>
+# bin/pg-user <cls> <username>  # define user in inventory first
+# `app.children.<cls>.vars.pg_users`, entry with name=<username>
 
 
 #--------------------------------------------------------------#
@@ -33,7 +33,7 @@ function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
 function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
 function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
 function log_hint()  { printf "${__CB}$*${__CN}\n"; }
-
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
 
 #--------------------------------------------------------------#
 # Param
@@ -43,20 +43,34 @@ USERNAME=${2-''}
 
 if [[ -z "${PG_CLUSTER}" ]]; then
     log_error "pg_cluster is empty"
-    log_hint "bin/pg-user <pg_cluster> <username>    # define user in pg_users first"
+    log_hint "Usage:"
+    log_hint "    bin/pg-user <cls> <username>"
     exit 1
 fi
-
 if [[ -z "${USERNAME}" ]]; then
     log_error "username is empty"
-    log_hint "bin/pg-user <pg_cluster> <username>    # define user in pg_users first"
+    log_warn "don't forget to define user in  all.children.${PG_CLUSTER}.vars.pg_users  first"
+    log_hint "Usage:"
+    log_hint "    bin/pg-user <cls> <username>"
     exit 2
 fi
 
 
 #--------------------------------------------------------------#
-# Main
+# Execute
 #--------------------------------------------------------------#
-echo "create user ${USERNAME} on cluster ${PG_CLUSTER}"
-cd ${PIGSTY_HOME} >/dev/null
-${PIGSTY_HOME}/pgsql-user.yml -l ${PG_CLUSTER} -e username=${USERNAME}
+log_line "EXECUTE"
+log_warn "create pg user '${USERNAME}' on '${PG_CLUSTER}'"
+log_hint "$ ./pgsql-user.yml -l ${PG_CLUSTER} -e username=${USERNAME}"
+"${PIGSTY_HOME}/pgsql-user.yml" -l "${PG_CLUSTER}" -e username="${USERNAME}"
+RETURN_CODE=$?
+
+log_line "SUMMARY"
+if [[ ${RETURN_CODE} -eq 0 ]]; then
+  log_info "create pg user ${USERNAME} on '${PG_CLUSTER}' complete"
+  log_hint "check pgurl: postgres://${USERNAME}:<PASSWORD>@${PG_CLUSTER}/postgres"
+  exit 0
+else
+  log_error "fail to create pg user ${USERNAME} on '${PG_CLUSTER}'"
+  exit 3
+fi
