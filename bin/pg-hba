@@ -4,7 +4,7 @@ set -euo pipefail
 # File      :   pg-hba
 # Desc      :   Refresh Postgres Cluster HBA Rules
 # Ctime     :   2021-11-02
-# Mtime     :   2022-12-05
+# Mtime     :   2022-12-28
 # Path      :   bin/pg-hba
 # Deps      :   ansible-playbook, pgsql.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -18,7 +18,8 @@ PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
 #--------------------------------------------------------------#
 # Usage
 #--------------------------------------------------------------#
-# bin/pg-add <cluster>
+# bin/pg-hba <cls>          # refresh postgres hba rules for cluster 'cls'
+# bin/pg-hba <cls> [ip...]  # refresh postgres hba rules for specific instances
 
 
 #--------------------------------------------------------------#
@@ -32,23 +33,68 @@ function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
 function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
 function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
 function log_hint()  { printf "${__CB}$*${__CN}\n"; }
-
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+function is_valid_ip(){
+    if [[ "$1" =~ (([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]) ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
 
 #--------------------------------------------------------------#
 # Param
 #--------------------------------------------------------------#
 PG_CLUSTER=${1-''}
-
 if [[ -z "${PG_CLUSTER}" ]]; then
-    log_error "pg_cluster is empty"
-    log_hint "bin/pg-hba <pg_cluster> # define database in pg_databases first"
-    exit 1
+	log_error "pg_cluster is empty"
+	log_hint "Usage:"
+	log_hint "    bin/pg-hba <cls>          # refresh postgres hba rules for cluster 'cls'"
+	log_hint "    bin/pg-hba <cls> [ip...]  # refresh postgres hba rules for specific instances"
+	exit 1
 fi
 
 
 #--------------------------------------------------------------#
-# Main
+# Reload Cluster HBA                  [ 1 arg = reload cls hba ]
 #--------------------------------------------------------------#
-log_warn "reload ${PG_CLUSTER} hba rules"
-cd ${PIGSTY_HOME} >/dev/null
-${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} -t pg_hba -e pg_reload=true
+# if only 1 arg is given, arg1 = pg_cluster
+# hba rules of the entire pgsql cluster will be reloaded
+if (($# == 1)); then
+	log_line "EXECUTE"
+	log_warn "reload postgres hba rules for '${PG_CLUSTER}'"
+  log_hint "$ ./pgsql.yml -l '${PG_CLUSTER}' -t pg_hba"
+  "${PIGSTY_HOME}/pgsql.yml" -l "${PG_CLUSTER}" -t pg_hba
+	RETURN_CODE=$?
+	log_info "reload pgsql hba rules for ${PG_CLUSTER} complete!"
+	exit ${RETURN_CODE}
+fi
+
+
+
+#--------------------------------------------------------------#
+# Reload Specific Instances           [2+ args = reload ins hba]
+#--------------------------------------------------------------#
+# if more than 1 args is given, arg1 = pg_cluster, arg2+ = ip list
+# each instance (with corresponding ip) hba rules will be reloaded
+IP_LIST=""
+TARGET_PATTERN="&${PG_CLUSTER}"
+EXISTS_PATTERN="${PG_CLUSTER}"
+for ((i=2; i<=$#; i++))
+do
+  if ! is_valid_ip "${!i}"; then
+    log_error "invalid ip address given: ${!i}"
+    exit 1
+  fi
+  IP_LIST="${IP_LIST} ${!i}"
+  TARGET_PATTERN="${!i},${TARGET_PATTERN}"
+  EXISTS_PATTERN="${EXISTS_PATTERN},!${!i}"
+done
+
+# Reload Postgres HBA
+log_line "EXECUTE"
+log_warn "reload postgres hba rules on specific ${PG_CLUSTER} members"
+log_hint "$ ./pgsql.yml -l '${TARGET_PATTERN}' -t pg_hba"
+"${PIGSTY_HOME}/pgsql.yml" -l "${TARGET_PATTERN}" -t pg_hba
+
+exit 0
