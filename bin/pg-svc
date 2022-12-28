@@ -4,7 +4,7 @@ set -euo pipefail
 # File      :   pg-svc
 # Desc      :   Refresh PGSQL Cluster Services on HAProxy
 # Ctime     :   2021-12-03
-# Mtime     :   2022-12-05
+# Mtime     :   2022-12-28
 # Path      :   bin/pg-svc
 # Deps      :   ansible-playbook, pgsql.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -18,7 +18,8 @@ PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
 #--------------------------------------------------------------#
 # Usage
 #--------------------------------------------------------------#
-# bin/pg-svc <cluster>
+# bin/pg-svc <cls>          # refresh haproxy services of cluster 'cls'
+# bin/pg-svc <cls> [ip...]  # refresh services on specific instances
 
 
 #--------------------------------------------------------------#
@@ -32,24 +33,75 @@ function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
 function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
 function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
 function log_hint()  { printf "${__CB}$*${__CN}\n"; }
-
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+function is_valid_ip(){
+    if [[ "$1" =~ (([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]) ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
 
 #--------------------------------------------------------------#
 # Param
 #--------------------------------------------------------------#
 PG_CLUSTER=${1-''}
 if [[ -z "${PG_CLUSTER}" ]]; then
-    log_error "pg_cluster is empty"
-    log_hint "bin/pg-svc <pg_cluster>"
-    exit 1
+	log_error "pg_cluster is empty"
+	log_hint "Usage:"
+	log_hint "    bin/pg-svc <cls>          # refresh haproxy services of cluster 'cls'"
+	log_hint "    bin/pg-svc <cls> [ip...]  # refresh services on specific instances"
+	exit 1
 fi
 
 
 #--------------------------------------------------------------#
-# Main
+# Create Cluster                     [ 1 arg = refresh cluster ]
 #--------------------------------------------------------------#
-log_warn "reload ${PG_CLUSTER} haproxy"
-cd ${PIGSTY_HOME} >/dev/null
-${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} -t pg_service -e pg_reload=true
+# if only 1 arg is given, arg1 = pg_cluster
+# the entire pgsql cluster will be refreshed
+if (($# == 1)); then
+	log_line "EXECUTE"
+	log_warn "reload pgsql service for '${PG_CLUSTER}'"
+  log_hint "$ ./pgsql.yml -l '${PG_CLUSTER}' -t pg_service"
+  "${PIGSTY_HOME}/pgsql.yml" -l "${PG_CLUSTER}" -t pg_service
+	RETURN_CODE=$?
+	log_info "refresh pgsql service for ${PG_CLUSTER} complete!"
 
-log_hint "some haproxy statistics may not be accurate after reload"
+	log_line "SUMMARY"
+  log_hint "check haproxy admin page: http://h.pigsty/${PG_CLUSTER}-n/"
+
+	exit ${RETURN_CODE}
+fi
+
+
+
+#--------------------------------------------------------------#
+# Refresh Specific Instances       [2+ args = refresh instances]
+#--------------------------------------------------------------#
+# if more than 1 args is given, arg1 = pg_cluster, arg2+ = ip list
+# each instance (with corresponding ip) haproxy will be refreshed
+IP_LIST=""
+TARGET_PATTERN="&${PG_CLUSTER}"
+EXISTS_PATTERN="${PG_CLUSTER}"
+for ((i=2; i<=$#; i++))
+do
+  if ! is_valid_ip "${!i}"; then
+    log_error "invalid ip address given: ${!i}"
+    exit 1
+  fi
+  IP_LIST="${IP_LIST} ${!i}"
+  TARGET_PATTERN="${!i},${TARGET_PATTERN}"
+  EXISTS_PATTERN="${EXISTS_PATTERN},!${!i}"
+done
+
+# Reload Services
+log_line "EXECUTE"
+log_warn "reload pg_service on specific ${PG_CLUSTER} members"
+log_hint "$ ./pgsql.yml -l '${TARGET_PATTERN}' -t pg_service"
+"${PIGSTY_HOME}/pgsql.yml" -l "${TARGET_PATTERN}" -t pg_service
+
+log_line "SUMMARY"
+log_hint "check haproxy admin page: http://h.pigsty/${PG_CLUSTER}-n/"
+
+exit 0
