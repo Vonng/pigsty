@@ -1,0 +1,66 @@
+---
+#--------------------------------------------------------------#
+# Config PgBackrest Repo                     [pgbackrest_config]
+#--------------------------------------------------------------#
+- name: config pgbackrest
+  tags: [ pgbackrest, pgbackrest_config ]
+  template: src=pgbackrest.conf.j2 dest=/etc/pgbackrest/pgbackrest.conf owner=postgres group=postgres mode=0600
+
+
+#--------------------------------------------------------------#
+# Remove Existing Backup                      [pgbackrest_clean]
+#--------------------------------------------------------------#
+# remove previous backup repo when init primary (default)
+# skip if pgbackrest_clean == false
+- name: stop pgbackrest and delete stanza
+  tags: [ pgbackrest, pgbackrest_clean ]
+  when: pgbackrest_clean|bool and pg_role == 'primary'
+  become: yes
+  become_user: "{{ pg_dbsu }}"
+  shell: |
+    if [[ -f /etc/pgbackrest/pgbackrest.conf ]]; then
+      /usr/bin/pgbackrest --stanza={{ pg_cluster }} --force stop;
+      /usr/bin/pgbackrest --stanza={{ pg_cluster }} --force stanza-delete;
+    fi
+
+# TO REMOVE A LOCAL BACKUP MANUALLY:
+#    rm -rf /pg/backup/backup/{{ pg_cluster }} /pg/backup/archive/{{ pg_cluster }}
+# TO REMOVE A MINIO BACKUP MANUALLY:
+#    mcli rm pgsql/pgbackrest/backup/{{ pg_cluster }} pgsql/pgbackrest/archive/{{ pg_cluster }}
+
+
+#--------------------------------------------------------------#
+# Init PgBackrest Repo                         [pgbackrest_init]
+#--------------------------------------------------------------#
+# if local repo is used, init a local repo on all cluster members
+# if minio repo is used, init a minio repo on primary only
+- name: create pgbackrest repo stanza
+  tags: [ pgbackrest, pgbackrest_init ]
+  when: pgbackrest_method == 'local' or (pgbackrest_method == 'minio' and pg_role == 'primary' and pg_upstream is not defined)
+  become: yes
+  become_user: "{{ pg_dbsu }}"
+  shell: |
+    /usr/bin/pgbackrest --stanza={{ pg_cluster }} start
+    /usr/bin/pgbackrest --stanza={{ pg_cluster }} --no-online stanza-create
+
+
+#--------------------------------------------------------------#
+# Create Initial Backup                      [pgbackrest_backup]
+#--------------------------------------------------------------#
+# create an initial backup on primary when cluster is bootstrapped
+- name: create pgbackrest initial backup
+  tags: [ pgbackrest, pgbackrest_backup ]
+  when: pg_role == 'primary' and pg_upstream is not defined
+  ignore_errors: yes
+  become: yes
+  become_user: "{{ pg_dbsu }}"
+  shell: |
+    if [[ -f /etc/pgbackrest/initial.done ]]; then
+        echo "initial backup already done"
+    else
+        /usr/bin/pgbackrest --stanza={{ pg_cluster }} backup
+        date > /etc/pgbackrest/initial.done
+    fi
+
+
+...
