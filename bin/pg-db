@@ -1,10 +1,10 @@
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail
 #==============================================================#
 # File      :   pg-db
 # Desc      :   Create database on postgres cluster
 # Ctime     :   2021-07-15
-# Mtime     :   2022-12-05
+# Mtime     :   2022-12-28
 # Path      :   bin/pg-db
 # Deps      :   ansible-playbook, pgsql-db.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -33,6 +33,8 @@ function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
 function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
 function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
 function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+
 
 
 #--------------------------------------------------------------#
@@ -43,20 +45,36 @@ DBNAME=${2-''}
 
 if [[ -z "${PG_CLUSTER}" ]]; then
     log_error "pg_cluster is empty"
-    log_hint "bin/pg-db <pg_cluster> <dbname>    # define database in pg_databases first"
+    log_hint "Usage:"
+    log_hint "    bin/pg-db <cls> <dbname>"
     exit 1
 fi
-
 if [[ -z "${DBNAME}" ]]; then
     log_error "dbname is empty"
-    log_hint "bin/pg-db <pg_cluster> <dbname>    # define database in pg_databases first"
+    log_hint "Usage:"
+    log_hint "    bin/pg-db <cls> <dbname>"
+
+    log_warn "don't forget to define database in  all.children.${PG_CLUSTER}.vars.pg_databases  first"
+    log_warn "if database have owner, make sure the user already exists, or create it with pg-user first"
     exit 2
 fi
 
 
 #--------------------------------------------------------------#
-# Main
+# Execute
 #--------------------------------------------------------------#
-echo "create database ${DBNAME} on cluster ${PG_CLUSTER}"
-cd ${PIGSTY_HOME} >/dev/null
-${PIGSTY_HOME}/pgsql-db.yml -l ${PG_CLUSTER} -e dbname=${DBNAME}
+log_line "EXECUTE"
+log_warn "create pg database '${DBNAME}' on '${PG_CLUSTER}'"
+log_hint "$ ./pgsql-db.yml -l ${PG_CLUSTER} -e dbname=${DBNAME}"
+"${PIGSTY_HOME}/pgsql-db.yml" -l "${PG_CLUSTER}" -e dbname="${DBNAME}"
+RETURN_CODE=$?
+
+log_line "SUMMARY"
+if [[ ${RETURN_CODE} -eq 0 ]]; then
+  log_info "create pg database ${DBNAME} on '${PG_CLUSTER}' complete"
+  log_hint "check pgurl: postgres://${PG_CLUSTER}/${DBNAME}"
+  exit 0
+else
+  log_error "fail to create pg database ${DBNAME} on '${PG_CLUSTER}'"
+  exit 3
+fi
