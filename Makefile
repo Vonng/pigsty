@@ -469,17 +469,17 @@ svg:
 
 # environment
 e1: v1 new ssh copy-el7 use-pkg
-	cp files/conf/pigsty-el7.yml pigsty.yml
+	cp files/pigsty/el7.yml pigsty.yml
 e4: v4 new ssh copy-el7 use-pkg
-	cp files/conf/pigsty-default.yml pigsty.yml
+	cp files/pigsty/default.yml pigsty.yml
 e7: v7 new ssh copy-el7 use-pkg
-	cp files/conf/pigsty-test.yml pigsty.yml
+	cp files/pigsty/test.yml pigsty.yml
 e8: v8 new ssh copy-el8 use-pkg
-	cp files/conf/pigsty-test.yml pigsty.yml
+	cp files/pigsty/test.yml pigsty.yml
 e9: v9 new ssh copy-el9 use-pkg
-	cp files/conf/pigsty-test.yml pigsty.yml
+	cp files/pigsty/test.yml pigsty.yml
 eb: vb new ssh build-repo build-src
-	cp files/conf/pigsty-build.yml pigsty.yml
+	cp files/pigsty/build.yml pigsty.yml
 ed: e4
 ###############################################################
 
