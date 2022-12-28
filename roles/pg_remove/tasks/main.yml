@@ -70,30 +70,10 @@
 
 
 #--------------------------------------------------------------#
-# remove backup                                      [pg_backup]
+# remove backup                                     [pgbackrest]
 #--------------------------------------------------------------#
-- name: remove postgres backup
-  tags: pg_backup
-  when: rm_pgbkup|bool
-  ignore_errors: yes
-  block:
-
-    - name: remove postgres backup repo
-      when: pgbackrest_method == 'minio' and pg_role == 'primary'
-      become: yes
-      become_user: "{{ pg_dbsu }}"
-      shell: |
-        if [[ -f /etc/pgbackrest/pgbackrest.conf ]]; then
-          pgbackrest --stanza={{ pg_cluster }} --force stop;
-          pgbackrest --stanza={{ pg_cluster }} --force stanza-delete;
-        fi
-
-    - name: remove postgres backup dir
-      when: pgbackrest_method == 'local'
-      file: path={{ pg_fs_bkup }}/postgres state=absent
-
-    - name: remove postgres backup config
-      file: path=/etc/pgbackrest/pgbackrest.conf state=absent
+- import_tasks: pgbackrest.yml
+  tags: pgbackrest
 
 
 #--------------------------------------------------------------#
@@ -101,7 +81,7 @@
 #--------------------------------------------------------------#
 - name: remove postgres data
   tags: pg_data
-  when: rm_pgdata|bool
+  when: pg_clean|bool
   ignore_errors: yes
   file: path={{ item }} state=absent
   with_items:
@@ -114,7 +94,7 @@
 #--------------------------------------------------------------#
 - name: remove postgres packages
   tags: pg_pkg
-  when: rm_pgpkgs|bool
+  when: pg_uninstall|bool
   ignore_errors: yes
   block:
 

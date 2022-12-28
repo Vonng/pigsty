@@ -1,0 +1,22 @@
+---
+#--------------------------------------------------------------#
+# Remove Pgbackrest                                 [pg_replica]
+#--------------------------------------------------------------#
+- name: stop pgbackrest and delete stanza
+  when: pg_role == 'primary'
+  become: yes
+  become_user: "{{ pg_dbsu }}"
+  ignore_errors: yes
+  shell: |
+    if [[ -f /etc/pgbackrest/pgbackrest.conf ]]; then
+      /usr/bin/pgbackrest --stanza={{ pg_cluster }} --force stop;
+      /usr/bin/pgbackrest --stanza={{ pg_cluster }} --force stanza-delete;
+    fi
+
+- name: remove postgres backup dir
+  when: pgbackrest_method == 'local'
+  file: path={{ pg_fs_bkup }}/postgres state=absent
+
+- name: remove postgres backup config
+  file: path=/etc/pgbackrest/pgbackrest.conf state=absent
+...
