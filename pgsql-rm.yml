@@ -4,68 +4,55 @@
 # File      :   pgsql-rm.yml
 # Desc      :   remove pgsql from hosts
 # Ctime     :   2020-05-12
-# Mtime     :   2022-12-03
+# Mtime     :   2022-12-28
 # Path      :   pgsql-rm.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-- name:  PGSQL REMOVE
+- name: PGSQL REMOVE
   become: yes
   hosts: all
   gather_facts: no
   ignore_errors: yes
   vars:
-    #rm_pgdata: true                   # remove postgres data? true by default
-    #rm_pgbkup: true                   # remove postgres backup? true by default
-    #rm_pgpkgs: false                  # uninstall pg_packages? false by default
-  roles: [{ role: pg_remove }]
+    pg_uninstall: false                # uninstall pg_packages? false by default
+    #pg_safeguard: false               # prevent purging running postgres instance? false by default
+    #pg_clean: true                    # remove postgres data? true by default
+    #pgbackrest_clean: true            # remove pgbackrest backup stanza? true by default
+  roles: [ { role: pg_remove } ]
 
 
 #==============================================================#
 # Playbook : Remove pgsql Cluster/Instance                     #
 #==============================================================#
-#
 #  Remove pgsql cluster `pg-test`
-#     pgsql-rm.yml -l pg-test
+#     pgsql-rm.yml -l pg-test       # remove cluster `pg-test`
+#         -e pg_clean=true          # remove postgres data by default
+#         -e pgbackrest_clean=true  # remove postgres backup by default (when removing primary)
+#         -e pg_uninstall=false     # do not uninstall pg packages by default, explicit override required
+#         -e pg_safeguard=false     # purge safeguard is not enabled by default, explicit override required
 #
-#  Remove instance (10.10.10.13) among cluster `pg-test`
-#     pgsql-rm.yml -l 10.10.10.13
-#
-#  Remove postgres data and backup (default behavior)
-#     pgsql-rm.yml -e rm_pgdata=true -e rm_pgbkup=true
-#
-#  Remove postgres packages (remove with explicit arg)
-#     pgsql-rm.yml -e rm_pgpkgs=true
-#
-#  NOTE: hba & haproxy are based on role, you may have to adjust
-#        cluster ha/hba after removing instance from cluster with:
-#         bin/pg-hba <cls>
-#         bin/pg-svc <cls>
-#
-#  if `pg_safeguard` is `true`, you can't remove pgsql with this.
-#     but you can disable it in config or override it with:
-#     pgsql-rm.yml -l pg-test -e pg_safeguard=false
-#
-#
-#  You can remove a subset of postgres cluster components, e.g.
-#     pgsql-rm.yml --tags=register  # remove database registration in infra
+#  Remove a pgsql replica:
+#     pgsql-rm.yml -l 10.10.10.13   # remove instance `10.10.10.13` from cluster `pg-test`
+#     bin/pg-hba <cls>              # hba rules & haproxy services may
+#     bin/pg-svc <cls>              # require reload after instance removal
 #
 #  Available Task Tags:
 #
-#  - register             * remove registration in prometheus, grafana, nginx
-#    - prometheus            * remove monitor target from prometheus
-#    - grafana               * remove datasource from grafana
-#  - dns                  * remove pg dns records
-#  - vip                  * remove pg vip manager
-#  - pg_service           * remove service definition from haproxy
-#  - pg_exporter          * remove pg_exporter & pgbouncer_exporter
-#  - pgbouncer            * remove pgbouncer connection middleware
-#  - postgres             * remove postgres instances
-#    - pg_replica            * remove all replicas
-#    - pg_primary            * remove primary instance
-#    - dcs                   * remove metadata from dcs
-#  - pg_data              * remove postgres data (disable with `rm_pgdata=false`),
-#  - pg_backup            * remove postgres backup (disable with `rm_pgbkup=false`),
-#  - pg_pkg               * remove postgres packages (enable with `rm_rmpkgs=true`)
+#     register             * remove registration in prometheus, grafana, nginx
+#       - prometheus          * remove monitor target from prometheus
+#       - grafana             * remove datasource from grafana
+#     dns                  * remove pg dns records
+#     vip                  * remove pg vip manager
+#     pg_service           * remove service definition from haproxy
+#     pg_exporter          * remove pg_exporter & pgbouncer_exporter
+#     pgbouncer            * remove pgbouncer connection middleware
+#     postgres             * remove postgres instances
+#       - pg_replica          * remove all replicas
+#       - pg_primary          * remove primary instance
+#       - dcs                 * remove metadata from dcs
+#     pg_data              * remove postgres data (disable with `rm_pgdata=false`),
+#     pgbackrest           * remove postgres backup when removing primary (disable with `pgbackrest_clean=false`),
+#     pg_pkg               * remove postgres packages (enable with `rm_rmpkgs=true`)
 #==============================================================#
 ...

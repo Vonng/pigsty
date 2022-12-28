@@ -19,7 +19,13 @@ PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
 # Usage
 #--------------------------------------------------------------#
 # bin/redis-add <cluster|ip> [...port]
+#
 # if ports are specified, only those corresponding instances will be added
+#
+# Examples:
+#   bin/redis-add redis-ms                # init a redis cluster
+#   bin/redis-add 10.10.10.10             # init a redis-node
+#   bin/redis-add 10.10.10.10 6501 6502   # init specific redis instances
 
 
 #--------------------------------------------------------------#
@@ -33,6 +39,7 @@ function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
 function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
 function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
 function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
 
 
 #--------------------------------------------------------------#
@@ -42,8 +49,8 @@ REDIS_SELECTOR=${1-''}
 log_info "redis selector: ${REDIS_SELECTOR}"
 
 if [[ -z "${REDIS_SELECTOR}" ]]; then
-	log_error "redis cluster/node is empty"
-	log_hint "bin/create_redis ip [...port]"
+	log_error "redis selector is empty"
+	log_hint "bin/redis-add <cls|ip> [port...]"
 	exit 1
 fi
 
@@ -52,16 +59,10 @@ if (($# == 1)); then
 	log_info "init redis ${REDIS_SELECTOR} : ./redis.yml -l ${REDIS_SELECTOR}"
 	${PIGSTY_HOME}/redis.yml -l ${REDIS_SELECTOR}
 else
-	# init sinle redis instance
+	# init single redis instance
 	for ((i=2; i<=$#; i++))
 	do
 		log_info "init redis instance ${REDIS_SELECTOR}:${!i} with redis.yml -l ${REDIS_SELECTOR} -e redis_port=${!i} -t redis"
 		${PIGSTY_HOME}/redis.yml -l ${REDIS_SELECTOR} -e redis_port=${!i}
 	done
 fi
-
-
-# TEST CASES
-# bin/redis-add redis-common
-# bin/redis-add 10.10.10.10
-# bin/redis-add 10.10.10.10 6501 6502
