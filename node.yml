@@ -4,7 +4,7 @@
 # File      :   node.yml
 # Desc      :   init node for pigsty
 # Ctime     :   2020-05-12
-# Mtime     :   2022-12-10
+# Mtime     :   2022-12-29
 # Path      :   node.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -22,26 +22,32 @@
 
 
 #---------------------------------------------------------------
-# usage
+# Usage
 #---------------------------------------------------------------
 # 1. make sure you have nopass ssh & sudo access to target node
 # 2. make sure you have defined these nodes in your inventory
 # 3. run ./node.yml -l <selector> to finish node provisioning
-#--------------------------------------------------------------
-# node.yml -t id                    # print node identity
-# node.yml -t monitor               # deploy and register node-exporter
-# node.yml -t register_prometheus   # register node_exporter to prometheus
 #
-# bootstrap with another admin user:
-# node.yml -t node_admin       # create admin user for nodes
-# node.yml -t node_admin -k -K -e ansible_user=<another admin>
-# ...
-#--------------------------------------------------------------
-
-
-
+#  Add node to pigsty:
+#     node.yml -l <cls>      # add groups
+#     node.yml -l <ip>       # add single node
+#
+#  Bootstrap with another admin user: (Create admin with another admin)
+#     node.yml -t node_admin       # create admin user for nodes
+#     node.yml -t node_admin -k -K -e ansible_user=<another admin>
+#
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+#
+#  bin/node-add pg-meta               # init nodes of group `pg-meta`
+#  bin/node-add pg-meta pg-test       # init multiple node groups
+#  bin/node-add 10.10.10.10           # init node with ip `10.10.10.10`
+#  bin/node-add 10.10.10.1*           # init node with pattern `10.10.10.1*`
+#  bin/node-add 1.2.3.4 5.6.7.8       # init multiple nodes
+#
 #---------------------------------------------------------------
-# node identity
+# Identity
 #---------------------------------------------------------------
 # nodename : optional, used as node identity, default to existing name
 # node_cluster : optional, used as node identity, default to `nodes`
@@ -55,5 +61,49 @@
 # 1. node identity can be specified by nodename or node_cluster explicitly (override all)
 # 2. if node identity is not specified and node_id_from_pg is set, it will use pg's instance identity if applicable
 # 3. otherwise, node_cluster will fall back to `nodes` and nodename will fall back to node's current hostname
+#---------------------------------------------------------------
+# Tasks
+#---------------------------------------------------------------
+# node-id       : generate node identity
+# node_name     : setup hostname
+# node_hosts    : setup /etc/hosts records
+# node_resolv   : setup dns resolver
+# node_firewall : setup firewall & selinux
+# node_ca       : add & trust ca certificate
+# node_repo     : add upstream repo
+# node_pkg      : install yum packages
+# node_feature  : setup numa, grub, static network
+# node_kernel   : enable kernel modules
+# node_tune     : setup tuned profile
+# node_sysctl   : setup additional sysctl parameters
+# node_profile  : write /etc/profile.d/node.sh
+# node_ulimit   : setup resource limits
+# node_data     : setup main data dir
+# node_admin    : setup admin user and ssh key
+# node_timezone : setup timezone
+# node_ntp      : setup ntp server/clients
+# node_crontab  : add/overwrite crontab tasks
+#
+# haproxy       : setup haproxy on node to expose services
+#   - haproxy_install
+#   - haproxy_config
+#   - haproxy_launch
+#   - haproxy_reload
+# docker        : setup docker on node to run containers
+#   - docker_install
+#   - docker_admin
+#   - docker_config
+#   - docker_launch
+#   - docker_image
+# monitor       : setup node_exporter & promtail for metrics & logs
+#   - node_exporter
+#     - node_exporter_config
+#     - node_exporter_launch
+#   - node_register
+#   - promtail
+#     - promtail_install
+#     - promtail_clean
+#     - promtail_config
+#     - promtail_launch
 #---------------------------------------------------------------
 ...

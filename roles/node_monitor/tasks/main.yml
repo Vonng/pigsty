@@ -132,7 +132,7 @@
 # Cleanup Promtail                              [promtail_clean]
 #--------------------------------------------------------------#
 - name: remove promtail positions
-  tags: promtail_clean
+  tags: [ promtail, promtail_clean ]
   when: promtail_clean|bool
   file: path={{ promtail_positions }} state=absent
 
@@ -141,7 +141,7 @@
 # Config Promtail                              [promtail_config]
 #--------------------------------------------------------------#
 - name: config promtail
-  tags: promtail_config
+  tags: [ promtail, promtail_config ]
   block:
     - name: create promtail systemd service
       copy: src=promtail.service dest=/usr/lib/systemd/system/promtail.service
@@ -154,7 +154,7 @@
 # Launch Promtail                              [promtail_launch]
 #--------------------------------------------------------------#
 - name: Launch promtail
-  tags: promtail_launch
+  tags: [ promtail, promtail_launch ]
   when: promtail_enabled|bool
   block:
     - name: launch promtail systemd service
