@@ -1,12 +1,12 @@
 #!/bin/bash
 set -uo pipefail
 #==============================================================#
-# File      :   pg-user
-# Desc      :   Create PostgreSQL Business USer
+# File      :   pgsql-db
+# Desc      :   Create database on postgres cluster
 # Ctime     :   2021-07-15
 # Mtime     :   2022-12-28
-# Path      :   bin/pg-user
-# Deps      :   ansible-playbook, pgsql-user.yml
+# Path      :   bin/pgsql-db
+# Deps      :   ansible-playbook, pgsql-db.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
@@ -18,8 +18,8 @@ PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
 #--------------------------------------------------------------#
 # Usage
 #--------------------------------------------------------------#
-# bin/pg-user <cls> <username>  # define user in inventory first
-# `app.children.<cls>.vars.pg_users`, entry with name=<username>
+# bin/pgsql-db <cluster> <dbname>  # define database in inventory first
+# `app.children.<cluster>.vars.pg_databases`, entry with name=<dbname>
 
 
 #--------------------------------------------------------------#
@@ -35,23 +35,27 @@ function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
 function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
 
+
+
 #--------------------------------------------------------------#
 # Param
 #--------------------------------------------------------------#
 PG_CLUSTER=${1-''}
-USERNAME=${2-''}
+DBNAME=${2-''}
 
 if [[ -z "${PG_CLUSTER}" ]]; then
     log_error "pg_cluster is empty"
     log_hint "Usage:"
-    log_hint "    bin/pg-user <cls> <username>"
+    log_hint "    bin/pgsql-db <cls> <dbname>"
     exit 1
 fi
-if [[ -z "${USERNAME}" ]]; then
-    log_error "username is empty"
-    log_warn "don't forget to define user in  all.children.${PG_CLUSTER}.vars.pg_users  first"
+if [[ -z "${DBNAME}" ]]; then
+    log_error "dbname is empty"
     log_hint "Usage:"
-    log_hint "    bin/pg-user <cls> <username>"
+    log_hint "    bin/pgsql-db <cls> <dbname>"
+
+    log_warn "don't forget to define database in  all.children.${PG_CLUSTER}.vars.pg_databases  first"
+    log_warn "if database have owner, make sure the user already exists, or create it with pg-user first"
     exit 2
 fi
 
@@ -60,17 +64,17 @@ fi
 # Execute
 #--------------------------------------------------------------#
 log_line "EXECUTE"
-log_warn "create pg user '${USERNAME}' on '${PG_CLUSTER}'"
-log_hint "$ ./pgsql-user.yml -l ${PG_CLUSTER} -e username=${USERNAME}"
-"${PIGSTY_HOME}/pgsql-user.yml" -l "${PG_CLUSTER}" -e username="${USERNAME}"
-RETURN_CODE=$?
+log_warn "create pgsql database '${DBNAME}' on '${PG_CLUSTER}'"
+log_hint "$ ./pgsql-db.yml -l ${PG_CLUSTER} -e dbname=${DBNAME}"
 
-log_line "SUMMARY"
-if [[ ${RETURN_CODE} -eq 0 ]]; then
-  log_info "create pg user ${USERNAME} on '${PG_CLUSTER}' complete"
-  log_hint "check pgurl: postgres://${USERNAME}:<PASSWORD>@${PG_CLUSTER}/postgres"
-  exit 0
-else
-  log_error "fail to create pg user ${USERNAME} on '${PG_CLUSTER}'"
+"${PIGSTY_HOME}/pgsql-db.yml" -l "${PG_CLUSTER}" -e dbname="${DBNAME}"
+
+if [[ $? -ne 0 ]]; then
+  log_line "FAILURE"
+  log_error "fail to create pgsql database on '${PG_CLUSTER}'"
   exit 3
 fi
+log_line "SUMMARY"
+log_info "create pgsql database ${DBNAME} on '${PG_CLUSTER}' complete"
+log_hint "check pgurl: postgres://${PG_CLUSTER}/${DBNAME}"
+exit 0

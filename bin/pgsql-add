@@ -1,11 +1,11 @@
 #!/bin/bash
 set -uo pipefail
 #==============================================================#
-# File      :   pg-add
+# File      :   pgsql-add
 # Desc      :   Create PostgreSQL Cluster / Append Replicas
 # Ctime     :   2021-07-15
 # Mtime     :   2022-12-28
-# Path      :   bin/pg-add
+# Path      :   bin/pgsql-add
 # Deps      :   ansible-playbook, pgsql.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -18,8 +18,8 @@ PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
 #--------------------------------------------------------------#
 # Usage
 #--------------------------------------------------------------#
-# bin/pg-add <cls>          # create pgsql cluster 'cls'
-# bin/pg-add <cls> [ip...]  # add replicas to cluster
+# bin/pgsql-add <cls>          # create pgsql cluster 'cls'
+# bin/pgsql-add <cls> [ip...]  # add replicas to cluster
 
 #--------------------------------------------------------------#
 # Utils
@@ -49,8 +49,8 @@ PG_CLUSTER=${1-''}
 if [[ -z "${PG_CLUSTER}" ]]; then
 	log_error "pg_cluster is empty"
 	log_hint "Usage:"
-	log_hint "    bin/pg-add <cls>          # create pgsql cluster 'cls'"
-	log_hint "    bin/pg-add <cls> [ip...]  # add replicas to cluster"
+	log_hint "    bin/pgsql-add <cls>          # create pgsql cluster 'cls'"
+	log_hint "    bin/pgsql-add <cls> [ip...]  # add replicas to cluster"
 	exit 1
 fi
 
@@ -61,22 +61,26 @@ fi
 # if only 1 arg is given, arg1 = pg_cluster
 # the entire pgsql cluster will be created
 if (($# == 1)); then
-	log_line "SUMMARY"
+	log_line "PLANNING"
 	log_warn "create pgsql cluster '${PG_CLUSTER}'"
   log_warn "please make sure nodes are added to pigsty"
-  log_hint "[HINT] did you run:  ./node.yml -l ${PG_CLUSTER}  ahead?"
+  log_hint "[HINT] did you run:  bin/node-add ${PG_CLUSTER}  ahead?"
 
 	log_line "EXECUTE"
 	log_info "create pgsql cluster '${PG_CLUSTER}' begin"
 	log_hint "$ ./pgsql.yml" -l "${PG_CLUSTER}"
+
 	"${PIGSTY_HOME}/pgsql.yml" -l "${PG_CLUSTER}"
-	RETURN_CODE=$?
+
+  if [[ $? -ne 0 ]]; then
+    log_line "FAILURE"
+    log_error "fail to create pgsql cluster for '${PG_CLUSTER}'"
+    exit 2
+  fi
+  log_line "SUMMARY"
 	log_info "create pgsql cluster ${PG_CLUSTER} complete!"
-
-	log_line "POSTRUN"
-	log_hint "conn check: psql postgres://${PG_CLUSTER}/postgres"
-
-	exit ${RETURN_CODE}
+  log_hint "conn check: psql postgres://${PG_CLUSTER}/postgres"
+	exit 0
 fi
 
 
@@ -93,42 +97,67 @@ for ((i=2; i<=$#; i++))
 do
   if ! is_valid_ip "${!i}"; then
     log_error "invalid ip address given: ${!i}"
-    exit 1
+    exit 3
   fi
   IP_LIST="${IP_LIST} ${!i}"
   TARGET_PATTERN="${!i},${TARGET_PATTERN}"
   EXISTS_PATTERN="${EXISTS_PATTERN},!${!i}"
 done
 
+#---------------------------------#
 # Planning
-log_line "SUMMARY"
-log_info "add instances ${IP_LIST} to pgsql cluster '${PG_CLUSTER}':"
+#---------------------------------#
+log_line "PLANNING"
+log_info "init instances ${IP_LIST} to pgsql cluster '${PG_CLUSTER}':"
 log_warn "  reminder: did you add nodes to pigsty?     # infra nodes were added"
-log_hint "[HINT]     # ./node.yml  -l '${TARGET_PATTERN}'  # run this before pg-add"
+log_hint "[HINT]     # bin/node.yml  -l '${TARGET_PATTERN}'  # run this before pgsql-add"
 log_warn "  init instances from cluster:"
 log_info "    $ ./pgsql.yml -l '${TARGET_PATTERN}'"
 log_warn "  reload pg_service on existing instances:"
 log_info "    $ ./pgsql.yml -l '${EXISTS_PATTERN}' -t pg_service"
 
+#---------------------------------#
 # Init Instances
+#---------------------------------#
 log_line "EXECUTE"
-log_warn "add instances ${IP_LIST}  to ${PG_CLUSTER}"
+log_warn "init instances  ${IP_LIST}  of ${PG_CLUSTER}"
 log_hint "$ ./pgsql.yml -l '${TARGET_PATTERN}'"
+
 "${PIGSTY_HOME}/pgsql.yml" -l "${TARGET_PATTERN}"
 
-# Reload Services
-log_line "EXECUTE"
-# TODO: if you are init a primary of cluster, this is not actually necessary
-log_warn "reload pg_service on existing ${PG_CLUSTER} members"
-log_hint "$ ./pgsql.yml -l '${EXISTS_PATTERN}' -t pg_service"
-"${PIGSTY_HOME}/pgsql.yml" -l "${EXISTS_PATTERN}" -t pg_service ;
+if [[ $? -ne 0 ]]; then
+  log_line "FAILURE"
+  log_error "fail to init pgsql instance for ${IP_LIST} of ${PG_CLUSTER}"
+  exit 4
+fi
+log_info "init pgsql instance for ${IP_LIST} of ${PG_CLUSTER} complete"
 
-# Print Info
-log_line "POSTRUN"
-log_info "add pgsql instances ${IP_LIST} to '${PG_CLUSTER}' complete"
+#---------------------------------#
+# Reload Services
+#---------------------------------#
+# TODO: if you are init a primary of cluster, this is not actually necessary
+log_line "EXECUTE"
+log_warn "reload pgsql services on ${EXISTS_PATTERN}"
+log_hint "$ ./pgsql.yml -l '${EXISTS_PATTERN}' -t pg_service"
+
+"${PIGSTY_HOME}/pgsql.yml" -l "${EXISTS_PATTERN}" -t pg_service
+
+if [[ $? -ne 0 ]]; then
+  log_line "FAILURE"
+  log_error "fail to reload pgsql services on ${EXISTS_PATTERN}"
+  log_warn "current traffic may not be affected immediately"
+  log_warn "BUT IT'S VERY IMPORTANT TO FIX THIS ASAP!"
+  exit 5
+fi
+log_info "reload pgsql services for ${IP_LIST} of ${PG_CLUSTER} complete"
+
+#---------------------------------#
+# Summary
+#---------------------------------#
+log_line "SUMMARY"
+log_info "init pgsql instance ${IP_LIST} of ${PG_CLUSTER} success"
 for ((i=2; i<=$#; i++))
 do
   log_hint "conn check: psql postgres://${!i}/postgres"
 done
-
 exit 0

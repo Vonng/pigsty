@@ -1,0 +1,159 @@
+#!/bin/bash
+set -uo pipefail
+#==============================================================#
+# File      :   pgsql-rm
+# Desc      :   Remove PostgreSQL Cluster / Remove Replicas
+# Ctime     :   2022-12-28
+# Mtime     :   2022-12-28
+# Path      :   bin/pgsql-rm
+# Deps      :   ansible-playbook, pgsql.yml, pgsql-rm.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+APP_NAME="$(basename $0)"
+APP_DIR="$(cd $(dirname $0) && pwd)"
+PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
+
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+# bin/pgsql-rm <cls>          # remove entire cluster 'cls'
+# bin/pgsql-rm <cls> [ip...]  # remove replicas from cluster
+
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+function is_valid_ip(){
+    if [[ "$1" =~ (([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]) ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+PG_CLUSTER=${1-''}
+if [[ -z "${PG_CLUSTER}" ]]; then
+	log_error "pg_cluster is empty"
+	log_hint "Usage:"
+	log_hint "    bin/pgsql-rm <cls>          # remove entire cluster 'cls'"
+	log_hint "    bin/pgsql-rm <cls> [ip...]  # remove instances from cluster"
+	exit 1
+fi
+
+
+#--------------------------------------------------------------#
+# Destroy Cluster                    [ 1 arg = destroy cluster ]
+#--------------------------------------------------------------#
+# if only 1 arg is given, arg1 = pg_cluster
+# the entire pgsql cluster will be removed
+if (($# == 1)); then
+	log_line "EXECUTE"
+	log_warn "remove pgsql cluster '${PG_CLUSTER}'"
+	log_hint "$ ./pgsql-rm.yml" -l "${PG_CLUSTER}"
+
+	"${PIGSTY_HOME}/pgsql-rm.yml" -l "${PG_CLUSTER}"
+
+  if [[ $? -ne 0 ]]; then
+    log_line "FAILURE"
+    log_error "fail to remove pgsql cluster '${PG_CLUSTER}'"
+    exit 2
+  fi
+  log_line "SUMMARY"
+	log_info "remove pgsql cluster ${PG_CLUSTER} complete!"
+	log_warn "please adjust your inventory accordingly"
+	log_hint "remove '${PG_CLUSTER}' from inventory: all.children"
+  log_warn "nodes will not be removed from pigsty, to do so:"
+  log_hint "$ ./node-rm.yml -l '${PG_CLUSTER}'"
+	exit 0
+fi
+
+
+#--------------------------------------------------------------#
+# Remove Instances                 [2+ args = remove instances ]
+#--------------------------------------------------------------#
+# if more than 1 args is given, arg1 = pg_cluster, arg2+ = ip list
+# each instance (with corresponding ip) will be removed from pg_cluster
+# haproxy on existing instances will be reloaded to re-route traffic
+IP_LIST=""
+TARGET_PATTERN="&${PG_CLUSTER}"
+EXISTS_PATTERN="${PG_CLUSTER}"
+for ((i=2; i<=$#; i++))
+do
+  if ! is_valid_ip "${!i}"; then
+    log_error "invalid ip address given: ${!i}"
+    exit 1
+  fi
+  IP_LIST="${IP_LIST} ${!i}"
+  TARGET_PATTERN="${!i},${TARGET_PATTERN}"
+  EXISTS_PATTERN="${EXISTS_PATTERN},!${!i}"
+done
+
+#---------------------------------#
+# Planning
+#---------------------------------#
+log_line "PLANNING"
+log_info "remove pgsql instances from ${IP_LIST} of '${PG_CLUSTER}':"
+log_warn "  remove instances from cluster:"
+log_info "    $ ./pgsql-rm.yml -l '${TARGET_PATTERN}'"
+log_warn "  reload pg_service on existing instances:"
+log_info "    $ ./pgsql.yml -l '${EXISTS_PATTERN}' -t pg_service"
+
+#---------------------------------#
+# Remove Instances
+#---------------------------------#
+log_line "EXECUTE"
+log_warn "remove pgsql instances ${IP_LIST} from ${PG_CLUSTER}"
+log_hint "$ ./pgsql-rm.yml -l '${TARGET_PATTERN}'"
+
+"${PIGSTY_HOME}/pgsql-rm.yml" -l "${TARGET_PATTERN}"
+
+if [[ $? -ne 0 ]]; then
+  log_line "FAILURE"
+  log_error "fail to remove pgsql instances from ${IP_LIST} of ${PG_CLUSTER}"
+  exit 4
+fi
+log_info "remove pgsql instances from '${IP_LIST} of ${PG_CLUSTER} complete"
+
+#---------------------------------#
+# Reload Services
+#---------------------------------#
+log_line "EXECUTE"
+log_warn "reload pgsql services on ${EXISTS_PATTERN}"
+log_hint "$ ./pgsql.yml -l '${EXISTS_PATTERN}' -t pg_service"
+
+"${PIGSTY_HOME}/pgsql.yml" -l "${EXISTS_PATTERN}" -t pg_service
+
+if [[ $? -ne 0 ]]; then
+  log_line "FAILURE"
+  log_error "fail to reload pgsql services on ${EXISTS_PATTERN}"
+  log_warn "current traffic may not be affected immediately"
+  log_warn "BUT IT'S VERY IMPORTANT TO FIX THIS ASAP!"
+  exit 5
+fi
+log_info "reload pgsql services for ${IP_LIST} of ${PG_CLUSTER} complete"
+
+#---------------------------------#
+# Summary
+#---------------------------------#
+log_line "SUMMARY"
+log_info "remove pgsql instances from ${IP_LIST} of ${PG_CLUSTER} success"
+log_warn "please adjust your inventory accordingly"
+log_hint "remove ${IP_LIST}  from inventory: all.children.${PG_CLUSTER}.hosts"
+log_warn "nodes will not be removed from pigsty, to do so:"
+log_hint "$ ./node-rm.yml -l ${IP_LIST}"
+exit 0

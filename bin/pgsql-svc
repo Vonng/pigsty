@@ -1,11 +1,11 @@
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail
 #==============================================================#
-# File      :   pg-hba
-# Desc      :   Refresh Postgres Cluster HBA Rules
-# Ctime     :   2021-11-02
+# File      :   pgsql-svc
+# Desc      :   Refresh PGSQL Cluster Services on HAProxy
+# Ctime     :   2021-12-03
 # Mtime     :   2022-12-28
-# Path      :   bin/pg-hba
+# Path      :   bin/pgsql-svc
 # Deps      :   ansible-playbook, pgsql.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -18,8 +18,8 @@ PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
 #--------------------------------------------------------------#
 # Usage
 #--------------------------------------------------------------#
-# bin/pg-hba <cls>          # refresh postgres hba rules for cluster 'cls'
-# bin/pg-hba <cls> [ip...]  # refresh postgres hba rules for specific instances
+# bin/pgsql-svc <cls>          # refresh haproxy services of cluster 'cls'
+# bin/pgsql-svc <cls> [ip...]  # refresh services on specific instances
 
 
 #--------------------------------------------------------------#
@@ -49,34 +49,42 @@ PG_CLUSTER=${1-''}
 if [[ -z "${PG_CLUSTER}" ]]; then
 	log_error "pg_cluster is empty"
 	log_hint "Usage:"
-	log_hint "    bin/pg-hba <cls>          # refresh postgres hba rules for cluster 'cls'"
-	log_hint "    bin/pg-hba <cls> [ip...]  # refresh postgres hba rules for specific instances"
+	log_hint "    bin/pgsql-svc <cls>          # refresh haproxy services of cluster 'cls'"
+	log_hint "    bin/pgsql-svc <cls> [ip...]  # refresh services on specific instances"
 	exit 1
 fi
 
 
 #--------------------------------------------------------------#
-# Reload Cluster HBA                  [ 1 arg = reload cls hba ]
+# Create Cluster                     [ 1 arg = refresh cluster ]
 #--------------------------------------------------------------#
 # if only 1 arg is given, arg1 = pg_cluster
-# hba rules of the entire pgsql cluster will be reloaded
+# the entire pgsql cluster will be refreshed
 if (($# == 1)); then
 	log_line "EXECUTE"
-	log_warn "reload postgres hba rules for '${PG_CLUSTER}'"
-  log_hint "$ ./pgsql.yml -l '${PG_CLUSTER}' -t pg_hba"
-  "${PIGSTY_HOME}/pgsql.yml" -l "${PG_CLUSTER}" -t pg_hba
-	RETURN_CODE=$?
-	log_info "reload pgsql hba rules for ${PG_CLUSTER} complete!"
-	exit ${RETURN_CODE}
+	log_warn "reload pgsql services for '${PG_CLUSTER}'"
+  log_hint "$ ./pgsql.yml -l '${PG_CLUSTER}' -t pg_service"
+
+  "${PIGSTY_HOME}/pgsql.yml" -l "${PG_CLUSTER}" -t pg_service
+
+  if [[ $? -ne 0 ]]; then
+    log_line "FAILURE"
+    log_error "fail to reload pgsql services for '${PG_CLUSTER}'"
+    exit 2
+  fi
+  log_line "SUMMARY"
+	log_info "reload pgsql services for ${PG_CLUSTER} complete!"
+  log_hint "check haproxy admin page: http://h.pigsty/${PG_CLUSTER}-n/"
+	exit 0
 fi
 
 
 
 #--------------------------------------------------------------#
-# Reload Specific Instances           [2+ args = reload ins hba]
+# Refresh Specific Instances       [2+ args = refresh instances]
 #--------------------------------------------------------------#
 # if more than 1 args is given, arg1 = pg_cluster, arg2+ = ip list
-# each instance (with corresponding ip) hba rules will be reloaded
+# each instance (with corresponding ip) haproxy will be refreshed
 IP_LIST=""
 TARGET_PATTERN="&${PG_CLUSTER}"
 EXISTS_PATTERN="${PG_CLUSTER}"
@@ -84,17 +92,28 @@ for ((i=2; i<=$#; i++))
 do
   if ! is_valid_ip "${!i}"; then
     log_error "invalid ip address given: ${!i}"
-    exit 1
+    exit 3
   fi
   IP_LIST="${IP_LIST} ${!i}"
   TARGET_PATTERN="${!i},${TARGET_PATTERN}"
   EXISTS_PATTERN="${EXISTS_PATTERN},!${!i}"
 done
 
-# Reload Postgres HBA
+# Reload Services
 log_line "EXECUTE"
-log_warn "reload postgres hba rules on specific ${PG_CLUSTER} members"
-log_hint "$ ./pgsql.yml -l '${TARGET_PATTERN}' -t pg_hba"
-"${PIGSTY_HOME}/pgsql.yml" -l "${TARGET_PATTERN}" -t pg_hba
+log_warn "reload pgsql services on specific ${PG_CLUSTER} members"
+log_hint "$ ./pgsql.yml -l '${TARGET_PATTERN}' -t pg_service"
 
+"${PIGSTY_HOME}/pgsql.yml" -l "${TARGET_PATTERN}" -t pg_service
+
+if [[ $? -ne 0 ]]; then
+  log_line "FAILURE"
+  log_error "fail to reload pgsql services for '${PG_CLUSTER}'"
+  log_warn "current traffic may not be affected immediately"
+  log_warn "BUT IT'S VERY IMPORTANT TO FIX THIS ASAP!"
+  exit 4
+fi
+log_line "SUMMARY"
+log_info "reload pgsql services for ${IP_LIST} of ${PG_CLUSTER} complete"
+log_hint "check haproxy admin page: http://h.pigsty/${PG_CLUSTER}-n/"
 exit 0

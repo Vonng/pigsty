@@ -1,12 +1,12 @@
 #!/bin/bash
 set -uo pipefail
 #==============================================================#
-# File      :   pg-rm
-# Desc      :   Remove PostgreSQL Cluster / Remove Replicas
-# Ctime     :   2022-12-28
+# File      :   pgsql-hba
+# Desc      :   Refresh Postgres/Pgbouncer HBA Rules
+# Ctime     :   2021-11-02
 # Mtime     :   2022-12-28
-# Path      :   bin/pg-rm
-# Deps      :   ansible-playbook, pgsql.yml, pgsql-rm.yml
+# Path      :   bin/pgsql-hba
+# Deps      :   ansible-playbook, pgsql.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
@@ -18,8 +18,8 @@ PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
 #--------------------------------------------------------------#
 # Usage
 #--------------------------------------------------------------#
-# bin/pg-rm <cls>          # remove entire cluster 'cls'
-# bin/pg-rm <cls> [ip...]  # remove replicas from cluster
+# bin/pgsql-hba <cls>          # refresh hba rules for cluster 'cls'
+# bin/pgsql-hba <cls> [ip...]  # refresh hba rules for specific instances
 
 
 #--------------------------------------------------------------#
@@ -42,7 +42,6 @@ function is_valid_ip(){
     fi
 }
 
-
 #--------------------------------------------------------------#
 # Param
 #--------------------------------------------------------------#
@@ -50,42 +49,46 @@ PG_CLUSTER=${1-''}
 if [[ -z "${PG_CLUSTER}" ]]; then
 	log_error "pg_cluster is empty"
 	log_hint "Usage:"
-	log_hint "    bin/pg-rm <cls>          # remove entire cluster 'cls'"
-	log_hint "    bin/pg-rm <cls> [ip...]  # remove instances from cluster"
+	log_hint "    bin/pgsql-hba <cls>          # refresh pg/pgb hba rules for cluster 'cls'"
+	log_hint "    bin/pgsql-hba <cls> [ip...]  # refresh pg/pgb hba rules for specific instances"
 	exit 1
 fi
 
 
 #--------------------------------------------------------------#
-# Destroy Cluster                    [ 1 arg = destroy cluster ]
+# Reload Cluster HBA                  [ 1 arg = reload cls hba ]
 #--------------------------------------------------------------#
 # if only 1 arg is given, arg1 = pg_cluster
-# the entire pgsql cluster will be removed
+# hba rules of the entire pgsql cluster will be reloaded
 if (($# == 1)); then
-	log_line "SUMMARY"
-	log_warn "remove pgsql cluster '${PG_CLUSTER}'"
-
 	log_line "EXECUTE"
-	log_hint "$ ./pgsql-rm.yml" -l "${PG_CLUSTER}"
-	"${PIGSTY_HOME}/pgsql-rm.yml" -l "${PG_CLUSTER}"
+	log_warn "reload hba rules for '${PG_CLUSTER}'"
+  log_hint "$ ./pgsql.yml -l '${PG_CLUSTER}' -t pg_hba"
+  "${PIGSTY_HOME}/pgsql.yml" -l "${PG_CLUSTER}" -t pg_hba
 	RETURN_CODE=$?
-	log_info "remove pgsql cluster ${PG_CLUSTER} complete!"
 
-	log_line "POSTRUN"
-	log_warn "please adjust your inventory accordingly"
-	log_hint "remove '${PG_CLUSTER}' from inventory: all.children"
-  log_warn "nodes will not be removed from pigsty, to do so:"
-  log_hint "$ ./node-rm.yml -l '${PG_CLUSTER}'"
+  log_line "SUMMARY"
+  if [[ ${RETURN_CODE} -eq 0 ]]; then
+    log_info "reload hba rules for '${PG_CLUSTER}' complete"
+    exit 0
+  else
+    log_error "fail to reload hba rules for '${PG_CLUSTER}'"
+    log_warn "current traffic may not be affected immediately"
+    log_warn "BUT IT'S VERY IMPORTANT TO FIX THIS ASAP!"
+    exit 2
+  fi
+
+	log_info "reload pgsql hba rules for ${PG_CLUSTER} complete!"
 	exit ${RETURN_CODE}
 fi
 
 
+
 #--------------------------------------------------------------#
-# Remove Instances                 [2+ args = remove instances ]
+# Reload Specific Instances           [2+ args = reload ins hba]
 #--------------------------------------------------------------#
 # if more than 1 args is given, arg1 = pg_cluster, arg2+ = ip list
-# each instance (with corresponding ip) will be removed from pg_cluster
-# haproxy on existing instances will be reloaded to re-route traffic
+# each instance (with corresponding ip) hba rules will be reloaded
 IP_LIST=""
 TARGET_PATTERN="&${PG_CLUSTER}"
 EXISTS_PATTERN="${PG_CLUSTER}"
@@ -93,40 +96,27 @@ for ((i=2; i<=$#; i++))
 do
   if ! is_valid_ip "${!i}"; then
     log_error "invalid ip address given: ${!i}"
-    exit 1
+    exit 3
   fi
   IP_LIST="${IP_LIST} ${!i}"
   TARGET_PATTERN="${!i},${TARGET_PATTERN}"
   EXISTS_PATTERN="${EXISTS_PATTERN},!${!i}"
 done
 
-# Planning
+# Reload Postgres HBA
+log_line "EXECUTE"
+log_warn "reload hba rules on specific ${PG_CLUSTER} members"
+log_hint "$ ./pgsql.yml -l '${TARGET_PATTERN}' -t pg_hba"
+"${PIGSTY_HOME}/pgsql.yml" -l "${TARGET_PATTERN}" -t pg_hba,pgbouncer_hba,pgbouncer_reload
+RETURN_CODE=$?
+
 log_line "SUMMARY"
-log_info "remove instances ${IP_LIST} from pgsql cluster '${PG_CLUSTER}':"
-log_warn "  remove instances from cluster:"
-log_info "    $ ./pgsql-rm.yml -l '${TARGET_PATTERN}'"
-log_warn "  reload pg_service on existing instances:"
-log_info "    $ ./pgsql.yml -l '${EXISTS_PATTERN}' -t pg_service"
-
-
-# Remove Instances
-log_line "EXECUTE"
-log_warn "remove instance ${IP_LIST} from ${PG_CLUSTER}"
-log_hint "$ ./pgsql-rm.yml -l '${TARGET_PATTERN}'"
-"${PIGSTY_HOME}/pgsql-rm.yml" -l "${TARGET_PATTERN}"
-
-# Reload Services
-log_line "EXECUTE"
-log_warn "reload pg_service on existing ${PG_CLUSTER} members"
-log_hint "$ ./pgsql.yml -l '${EXISTS_PATTERN}' -t pg_service"
-"${PIGSTY_HOME}/pgsql.yml" -l "${EXISTS_PATTERN}" -t pg_service
-log_info "remove pgsql instances ${IP_LIST} from '${PG_CLUSTER}' complete"
-
-# Print Info
-log_line "POSTRUN"
-log_warn "please adjust your inventory accordingly"
-log_hint "remove ${IP_LIST}  from inventory: all.children.${PG_CLUSTER}.hosts"
-log_warn "nodes will not be removed from pigsty, to do so:"
-log_hint "$ ./node-rm.yml -l ${IP_LIST}"
-
-exit 0
+if [[ ${RETURN_CODE} -eq 0 ]]; then
+  log_info "reload hba rules for ${IP_LIST} of ${PG_CLUSTER }complete"
+  exit 0
+else
+  log_error "fail to reload hba rules for ${IP_LIST} of ${PG_CLUSTER}"
+  log_warn "current traffic may not be affected immediately"
+  log_warn "BUT IT'S VERY IMPORTANT TO FIX THIS ASAP!"
+  exit 4
+fi
