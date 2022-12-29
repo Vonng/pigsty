@@ -1,12 +1,12 @@
 #!/bin/bash
 set -uo pipefail
 #==============================================================#
-# File      :   redis-add
+# File      :   redis-rm
 # Desc      :   Create Redis Cluster/Node/Instances
-# Ctime     :   2022-05-14
-# Mtime     :   2022-05-14
-# Path      :   bin/redis-add
-# Deps      :   ansible-playbook, redis.yml
+# Ctime     :   2022-12-29
+# Mtime     :   2022-12-29
+# Path      :   bin/redis-rm
+# Deps      :   ansible-playbook, redis-rm.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
@@ -18,14 +18,14 @@ PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
 #--------------------------------------------------------------#
 # Usage
 #--------------------------------------------------------------#
-# bin/redis-add <cluster|ip> [...port]
+# bin/redis-rm <cluster|ip> [...port]
 #
-# if ports are specified, only those corresponding instances will be added
+# if ports are specified, only those corresponding instances will be removed
 #
 # Examples:
-#   bin/redis-add redis-ms                # init a redis cluster
-#   bin/redis-add 10.10.10.10             # init a redis-node
-#   bin/redis-add 10.10.10.10 6501 6502   # init specific redis instances
+#   bin/redis-rm redis-ms                # remove a redis cluster
+#   bin/redis-rm 10.10.10.10             # remove a redis-node
+#   bin/redis-rm 10.10.10.10 6501 6502   # remove specific redis instances
 
 
 #--------------------------------------------------------------#
@@ -56,7 +56,7 @@ log_info "redis selector: ${REDIS_SELECTOR}"
 
 if [[ -z "${REDIS_SELECTOR}" ]]; then
 	log_error "redis selector is empty"
-	log_hint "bin/redis-add <cls|ip> [port...]"
+	log_hint "bin/redis-rm <cls|ip> [port...]"
 	exit 1
 fi
 HOST_TYPE='cluster'
@@ -65,14 +65,14 @@ if is_valid_ip "${REDIS_SELECTOR}"; then
 fi
 
 #--------------------------------------------------------------#
-# Init Redis Cluster/Node          [ 1 arg = init cluster/node ]
+# Remove Redis Cluster/Node      [ 1 arg = remove cluster/node ]
 #--------------------------------------------------------------#
 if (($# == 1)); then
 	log_line "EXECUTE"
-	log_warn "init redis ${HOST_TYPE} ${REDIS_SELECTOR}"
+	log_warn "remove redis ${HOST_TYPE} ${REDIS_SELECTOR}"
 	log_hint "$ ./redis.yml" -l "${REDIS_SELECTOR}"
 
-	"${PIGSTY_HOME}/redis.yml" -l "${REDIS_SELECTOR}"
+	"${PIGSTY_HOME}/redis-rm.yml" -l "${REDIS_SELECTOR}"
 
   if [[ $? -ne 0 ]]; then
     log_line "FAILURE"
@@ -86,14 +86,14 @@ fi
 
 
 #--------------------------------------------------------------#
-# Init Redis Instances             [2+ args = remove instances ]
+# Remove Redis Instances           [2+ args = remove instances ]
 #--------------------------------------------------------------#
 
 #---------------------------------#
 # Check Param Agent
 #---------------------------------#
 if ! is_valid_ip "${REDIS_SELECTOR}"; then
-  log_error "you have to use bin/redis-add <ip> [port...] format"
+  log_error "you have to use bin/redis-rm <ip> [port...] format"
   exit 3
 fi
 
@@ -109,30 +109,29 @@ done
 # Planning
 #---------------------------------#
 log_line "PLANNING"
-log_info "init redis instances:"
+log_info "remove redis instances:"
 for ((i=2; i<=$#; i++))
 do
     log_info "  - ${REDIS_SELECTOR}:${!i}"
 done
-log_hint "make sure redis node is already inited"
 
 #---------------------------------#
-# Init Redis Instance One by One
+# Remove Redis Instance One by One
 #---------------------------------#
 for ((i=2; i<=$#; i++))
 do
 
     log_line "EXECUTE"
-    log_info "init redis instance: ${REDIS_SELECTOR}:${!i}"
-    log_hint "$ ./redis.yml" -l "${REDIS_SELECTOR}" -e "redis_port=${!i}"
+    log_info "remove redis instance: ${REDIS_SELECTOR}:${!i}"
+    log_hint "$ ./redis-rm.yml" -l "${REDIS_SELECTOR}" -e "redis_port=${!i}"
 
-    "${PIGSTY_HOME}/redis.yml" -l "${REDIS_SELECTOR}" -e "redis_port=${!i}"
+    "${PIGSTY_HOME}/redis-rm.yml" -l "${REDIS_SELECTOR}" -e "redis_port=${!i}"
 
     if [[ $? -ne 0 ]]; then
       log_line "FAILURE"
-      log_error "fail to init redis instance ${REDIS_SELECTOR}:${!i}"
+      log_error "fail to remove redis instance ${REDIS_SELECTOR}:${!i}"
       exit 4
     fi
-    log_info "init redis instance: ${REDIS_SELECTOR}:${!i} complete"
+    log_info "remove redis instance: ${REDIS_SELECTOR}:${!i} complete"
 
 done
