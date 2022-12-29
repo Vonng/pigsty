@@ -4,31 +4,10 @@
 # File      :   node-rm.yml
 # Desc      :   remove node from pigsty
 # Ctime     :   2022-02-22
-# Mtime     :   2022-11-05
+# Mtime     :   2022-12-29
 # Path      :   node-rm.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
-#==============================================================#
-
-
-#==============================================================#
-# Playbook : Remove node                                       #
-#==============================================================#
-#
-#  Remove node cluster `pg-test`
-#     node-rm.yml -l pg-test
-#
-#  Sub Tasks:
-#
-#     node-rm.yml -t register       # remove register from prometheus & nginx
-#     node-rm.yml -t prometheus     # remove prometheus monitor target
-#     node-rm.yml -t nginx          # remove nginx proxy record for haproxy
-#     node-rm.yml -t haproxy        # remove haproxy load balancer
-#     node-rm.yml -t node_exporter  # remove monitoring exporter
-#     node-rm.yml -t promtail       # remove loki log agent
-#     node-rm.yml -t docker         # remove docker daemon
-#     node-rm.yml -t profile        # remove /etc/profile.d/node.sh
-#
 #==============================================================#
 - name: NODE REMOVE
   become: yes
@@ -38,4 +17,36 @@
   roles: [ { role: node_id }, { role: node_remove } ]
 
 
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+#
+#  Remove node cluster `pg-test`
+#     node-rm.yml -l pg-test
+#
+#  Remove node instance `10.10.10.11`
+#     node-rm.yml -l 10.10.10.11
+#
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+#
+#  bin/node-rm pg-meta               # remove nodes of group `pg-meta`
+#  bin/node-rm pg-meta pg-test       # remove multiple node groups
+#  bin/node-rm 10.10.10.10           # remove node with ip `10.10.10.10`
+#  bin/node-rm 10.10.10.1*           # remove node with pattern `10.10.10.1*`
+#  bin/node-rm 1.2.3.4 5.6.7.8       # remove multiple nodes
+#
+#--------------------------------------------------------------#
+# Tasks
+#--------------------------------------------------------------#
+# register       : remove register from prometheus & nginx
+#   - prometheus : remove registered prometheus monitor target
+#   - nginx      : remove nginx proxy record for haproxy admin
+# haproxy        : remove haproxy load balancer
+# node_exporter  : remove monitoring exporter
+# promtail       : remove loki log agent
+# docker         : remove docker daemon
+# profile        : remove /etc/profile.d/node.sh
+#--------------------------------------------------------------#
 ...

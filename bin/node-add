@@ -1,0 +1,71 @@
+#!/bin/bash
+set -uo pipefail
+#==============================================================#
+# File      :   node-add
+# Desc      :   Add Node to Pigsty
+# Ctime     :   2021-12-29
+# Mtime     :   2022-12-29
+# Path      :   bin/node-add
+# Deps      :   ansible-playbook, node.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+APP_NAME="$(basename $0)"
+APP_DIR="$(cd $(dirname $0) && pwd)"
+PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
+
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+# bin/node-add <cls|ip|selector> ...  # init node for pigsty
+
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+
+
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+IP_LIST=""
+if (($# == 1)); then
+  SELECTOR=$1
+  IP_LIST=$1
+else
+  SELECTOR=""
+  for ((i=1; i<=$#; i++))
+  do
+    IP_LIST="${IP_LIST} ${!i}"
+    SELECTOR="${SELECTOR},${!i}"
+  done
+fi
+
+
+#--------------------------------------------------------------#
+# Execute
+#--------------------------------------------------------------#
+log_line "EXECUTE"
+log_warn "init node  ${IP_LIST}  for pigsty"
+log_hint "$ ./node.yml -l '${SELECTOR}'"
+
+"${PIGSTY_HOME}/node.yml" -l "${SELECTOR}"
+
+if [[ $? -ne 0 ]]; then
+  log_line "FAILURE"
+  log_error "fail to init node ${IP_LIST} to pigsty"
+  exit 4
+fi
+log_line "SUMMARY"
+log_info "init node ${IP_LIST} for pigsty complete"
+exit 0
