@@ -2,18 +2,18 @@
 ---
 #==============================================================#
 # File      :   redis.yml
-# Desc      :   init redis instance on pigsty nodes
+# Desc      :   init redis cluster / node / instance
 # Ctime     :   2020-11-22
-# Mtime     :   2022-05-01
+# Mtime     :   2022-12-29
 # Path      :   redis.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 
 
-#==============================================================#
-# Tutorial
-#==============================================================#
+#---------------------------------------------------------------
+# usage
+#---------------------------------------------------------------
 # How to create redis clusters ?
 #
 #  init all redis instances on group <cluster>
@@ -28,12 +28,37 @@
 #  init one specific instance 10.10.10.11:6501
 #   ./redis.yml -l 10.10.10.11 -e redis_port=6501 -t redis
 #
-#==============================================================#
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+#
+#  bin/redis-add redis-ms          # create redis cluster 'redis-ms'
+#  bin/redis-add 10.10.10.10       # create redis node '10.10.10.10'
+#  bin/redis-add 10.10.10.10 6501  # create redis instance '10.10.10.10:6501'
+#
+#--------------------------------------------------------------#
+# Tasks
+#--------------------------------------------------------------#
+# redis_node        : init redis node
+#   - redis_install : install redis & redis_exporter
+#   - redis_user    : create os user redis
+#   - redis_dir     # redis redis fhs
+# redis_exporter    : stop and disable redis_exporter
+#   - redis_exporter_config  : generate redis_exporter config
+#   - redis_exporter_launch  : launch redis_exporter
+# redis_instance    : stop and disable redis cluster/node/instance
+#   - redis_check   : check redis instance existence
+#   - redis_clean   : purge existing redis instance
+#   - redis_config  : generate redis instance config
+#   - redis_launch  : launch redis instance
+# redis_register    : remove redis data (rdb, aof)
+# redis_join        : join redis cluster
+#--------------------------------------------------------------#
 
 
-#---------------------------------------------------------------
-# Init Redis by Node                                     [redis]
-#---------------------------------------------------------------
+#--------------------------------------------------------------#
+# Init Redis Cluster / Node / Instance                   [redis]
+#--------------------------------------------------------------#
 - name: REDIS
   hosts: all
   become: true
@@ -41,9 +66,10 @@
   tags: redis
   roles: [{ role: redis }]
 
-#---------------------------------------------------------------
+
+#--------------------------------------------------------------#
 # join redis instances for cluster                  [redis_join]
-#---------------------------------------------------------------
+#--------------------------------------------------------------#
 - name: REDIS JOIN
   hosts: all
   become: true
@@ -52,7 +78,7 @@
   tasks:
 
     - name: skip if not a redis native cluster
-      when: redis_port is defined or redis_mode != 'cluster'
+      when: redis_port is defined or redis_mode|default('standalone') != 'cluster'
       meta: end_host
 
     - name: perform redis cluster join
