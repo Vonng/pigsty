@@ -4,7 +4,7 @@
 # File      :   pgsql-db.yml
 # Desc      :   create database on existing cluster
 # Ctime     :   2021-02-27
-# Mtime     :   2022-12-07
+# Mtime     :   2022-12-29
 # Path      :   pgsql-db.yml
 # Deps      :   templates/pg-db.sql
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -12,22 +12,65 @@
 #==============================================================#
 
 
-#==============================================================#
-# How to create new database on existing postgres cluster ?    #
-#==============================================================#
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
 #  1.  Define new database in inventory (cmdb or config)
 #      `all.children.<pg_cluster>.vars.pg_databases[i]`
+#
 #  2.  Execute this playbook on target cluster with arg dbname
 #      `pgsql-db.yml -l <pg_cluster> -e dbname=<database.name>
-#  3.  The playbook execution can be simplified by wrapper script
-#      bin/pg-db <pg_cluster> <dbname>
 #
 #  This playbook will:
 #   1. create database sql definition on `/pg/tmp/pg-db-{{ database.name }}.sql`
 #   2. execute database creation/update sql on cluster leader instance
 #   3. register database to grafana datasource when `db.register_datasource`
 #   4. update /etc/pgbouncer/database.txt and reload pgbouncer if necessary
-#==============================================================#
+#
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+#  Create pgsql database 'dbname' on pgsql cluster 'cls'
+#    bin/pgsql-db <cls> <dbname>
+#    bin/pgsql-db pg-meta meta
+#--------------------------------------------------------------#
+# Example
+#--------------------------------------------------------------#
+# pg-meta:
+#   vars:
+#     pg_databases:                       # define business databases on this cluster, array of database definition
+#       - name: meta                      # REQUIRED, `name` is the only mandatory field of a database definition
+#         baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
+#         pgbouncer: true                 # optional, add this database to pgbouncer database list? true by default
+#         schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
+#         extensions:                     # optional, additional extensions to be installed: array of `{name[,schema]}`
+#           - { name: postgis , schema: public } # install postgis on schema `public`
+#           - { name: timescaledb }              # install timescaledb extension
+#         comment: pigsty meta database   # optional, comment string for this database
+#         owner: postgres                # optional, database owner, postgres by default
+#         template: template1            # optional, which template to use, template1 by default
+#         encoding: UTF8                 # optional, database encoding, UTF8 by default. (MUST same as template database)
+#         locale: C                      # optional, database locale, C by default.  (MUST same as template database)
+#         lc_collate: C                  # optional, database collate, C by default. (MUST same as template database)
+#         lc_ctype: C                    # optional, database ctype, C by default.   (MUST same as template database)
+#         tablespace: pg_default         # optional, default tablespace, 'pg_default' by default.
+#         allowconn: true                # optional, allow connection, true by default. false will disable connect at all
+#         revokeconn: false              # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
+#         register_datasource: true      # optional, register this database to grafana datasources? true by default
+#         connlimit: -1                  # optional, database connection limit, default -1 disable limit
+#         pool_auth_user: dbuser_meta    # optional, all connection to this pgbouncer database will be authenticated by this user
+#         pool_mode: transaction         # optional, pgbouncer pool mode at database level, default transaction
+#         pool_size: 64                  # optional, pgbouncer pool size at database level, default 64
+#         pool_size_reserve: 32          # optional, pgbouncer pool size reserve at database level, default 32
+#         pool_size_min: 0               # optional, pgbouncer pool size min at database level, default 0
+#         pool_max_db_conn: 100          # optional, max database connections at database level, default 100
+#       - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
+#       - { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
+#       - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
+#       - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
+#       - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
+#--------------------------------------------------------------#
+
 - name: PGSQL CREATEDB
   become: yes
   hosts: all

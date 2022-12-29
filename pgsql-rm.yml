@@ -4,7 +4,7 @@
 # File      :   pgsql-rm.yml
 # Desc      :   remove pgsql from hosts
 # Ctime     :   2020-05-12
-# Mtime     :   2022-12-28
+# Mtime     :   2022-12-29
 # Path      :   pgsql-rm.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -22,9 +22,9 @@
   roles: [ { role: pg_remove } ]
 
 
-#==============================================================#
-# Playbook : Remove pgsql Cluster/Instance                     #
-#==============================================================#
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
 #  Remove pgsql cluster `pg-test`
 #     pgsql-rm.yml -l pg-test       # remove cluster `pg-test`
 #         -e pg_clean=true          # remove postgres data by default
@@ -34,25 +34,32 @@
 #
 #  Remove a pgsql replica:
 #     pgsql-rm.yml -l 10.10.10.13   # remove instance `10.10.10.13` from cluster `pg-test`
-#     bin/pg-hba <cls>              # hba rules & haproxy services may
-#     bin/pg-svc <cls>              # require reload after instance removal
+#     pgsql.yml -l pg-test --tags=pg_service  # refresh pg service after cluster shrink
 #
-#  Available Task Tags:
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
 #
-#     register             * remove registration in prometheus, grafana, nginx
-#       - prometheus          * remove monitor target from prometheus
-#       - grafana             * remove datasource from grafana
-#     dns                  * remove pg dns records
-#     vip                  * remove pg vip manager
-#     pg_service           * remove service definition from haproxy
-#     pg_exporter          * remove pg_exporter & pgbouncer_exporter
-#     pgbouncer            * remove pgbouncer connection middleware
-#     postgres             * remove postgres instances
-#       - pg_replica          * remove all replicas
-#       - pg_primary          * remove primary instance
-#       - dcs                 * remove metadata from dcs
-#     pg_data              * remove postgres data (disable with `rm_pgdata=false`),
-#     pgbackrest           * remove postgres backup when removing primary (disable with `pgbackrest_clean=false`),
-#     pg_pkg               * remove postgres packages (enable with `rm_rmpkgs=true`)
-#==============================================================#
+#  bin/pgsql-rm pg-meta             # remove pgsql cluster 'pg-meta'
+#  bin/pgsql-rm pg-test 10.10.10.13 # remove pgsql instance '10.10.10.13' from 'pg-test'
+#
+#--------------------------------------------------------------#
+# Tasks
+#--------------------------------------------------------------#
+# register       : remove registration in prometheus, grafana, nginx
+#   - prometheus : remove monitor target from prometheus
+#   - grafana    : remove datasource from grafana
+# dns            : remove pg dns records
+# vip            : remove pg vip manager
+# pg_service     : remove service definition from haproxy
+# pg_exporter    : remove pg_exporter & pgbouncer_exporter
+# pgbouncer      : remove pgbouncer connection middleware
+# postgres       : remove postgres instances
+#   - pg_replica : remove all replicas
+#   - pg_primary : remove primary instance
+#   - dcs        : remove metadata from dcs
+# pg_data        : remove postgres data (disable with `pg_clean=false`),
+# pgbackrest     : remove postgres backup when removing primary (disable with `pgbackrest_clean=false`),
+# pg_pkg         : remove postgres packages (enable with `pg_uninstall=true`)
+#--------------------------------------------------------------#
 ...

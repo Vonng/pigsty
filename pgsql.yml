@@ -4,15 +4,50 @@
 # File      :   pgsql.yml
 # Desc      :   init postgres cluster/instance
 # Ctime     :   2020-05-12
-# Mtime     :   2022-12-07
+# Mtime     :   2022-12-28
 # Path      :   pgsql.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
+- name: PGSQL INIT
+  become: yes
+  hosts: all
+  gather_facts: no
+  roles:
+    - { role: node_id , tags: node-id  } # get node identity (always)
+    - { role: pg_id   , tags: pg-id    } # get pgsql identity (always)
+    - { role: pgsql   , tags: pgsql    } # init postgres cluster/instance
 
 
 #--------------------------------------------------------------#
-# Available Sub Tasks
+# Usage
+#--------------------------------------------------------------#
+#
+#  Init a cluster  (e.g. pg-meta)
+#    ./pgsql.yml -l pg-meta
+#
+#  Add/ReInit a replica to cluster (e.g. add 10.10.10.13 of pg-test)
+#    ./pgsql.yml -l 10.10.10.13   # refresh pg_services after expansion
+#    ./pgsql.yml -l 'pg-test,!10.10.10.13' -t pg_service
+#
+#  Refresh Postgres Cluster Service (e.g. pg-test)
+#    ./pgsql.yml -l pg-test --tags=pg_service
+#
+#  Reload Postgres/Pgbouncer HBA Rules (e.g. pg-test)
+#    ./pgsql.yml -l pg-test --tags=pg_hba,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
+#
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+#
+#  bin/pgsql-add pg-meta             # init pgsql cluster pg-meta
+#  bin/pgsql-add 10.10.10.10         # init pgsql instance 10.10.10.10
+#  bin/pgsql-add pg-test 10.10.10.13 # add 10.10.10.13 to cluster pg-test (with service refresh)
+#  bin/pgsql-svc pg-test             # refresh haproxy service of pg-test (when membership changed)
+#  bin/pgsql-hba pg-test             # reload pg/pgb hba rules of pg-test (when role/hba changed)
+#
+#--------------------------------------------------------------#
+# Tasks
 #--------------------------------------------------------------#
 # pg_clean      : cleanup existing postgres if necessary
 # pg_dbsu       : setup os user sudo for postgres dbsu
@@ -71,46 +106,4 @@
 #   - register_prometheus : register pg as prometheus monitor targets
 #   - register_grafana    : register pg database as grafana datasource
 #--------------------------------------------------------------#
-- name: PGSQL INIT
-  become: yes
-  hosts: all
-  gather_facts: no
-  roles:
-    - { role: node_id , tags: node-id  } # get node identity (always)
-    - { role: pg_id   , tags: pg-id    } # get pgsql identity (always)
-    - { role: pgsql   , tags: pgsql    } # init postgres cluster/instance
-
-
-#==============================================================#
-# Playbook : Init PGSQL Cluster/Instance on Pigsty Node
-#==============================================================#
-#  Warning: You have to run this playbook on provisioned nodes
-#  which should be provisioned by ./node.yml playbook ahead
-#  you can run both at once with bin/pg-add <cluster|ip>
-#    bin/pg-add pg-test
-#
-#  Init cluster `pg-test`
-#     pgsql.yml -l pg-test
-#
-#  Init instance (10.10.10.13) among cluster `pg-test`
-#     pgsql.yml -l 10.10.10.13
-#
-#  Re-init postgres instance only on node 10.10.10.13
-#     pgsql.yml -l 10.10.10.13 --tags=postgres
-#
-#  Re-init pgbouncer instance only on node 10.10.10.13
-#     pgsql.yml -l 10.10.10.13 --tags=pgbouncer
-#
-#  Re-deploy monitor component for postgres/pgbouncer
-#     pgsql.yml --tags=pg_exporter
-#
-#  Refresh HBA rules
-#     pgsql.yml --tags=pg_hba   (or bin/reloadhba <cluster>)
-##    pgsql.yml --tags=pgb_hba  (or bin/reloadhba <cluster>)
-#
-#  Register cluster/instance to infrastructure
-#     pgsql.yml --tags=register             # register all
-#     pgsql.yml --tags=register_prometheus  # monitor target
-#     pgsql.yml --tags=register_grafana     # pgsql datasource
-#==============================================================#
 ...
