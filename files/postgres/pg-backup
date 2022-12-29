@@ -1,0 +1,66 @@
+#!/bin/bash
+set -euo pipefail
+#==============================================================#
+# File      :   pg-backup
+# Desc      :   make physical backup with pgbackrest
+# Ctime     :   2022-12-29
+# Mtime     :   2022-12-29
+# Path      :   /pg/bin/pg-backup
+# Deps      :   pgbackrest, pg-role
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+PROG_NAME="$(basename $0)"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+# pg-backup [full|diff|incr]
+#
+# run this script with dbsu, only primary instance will continue
+# FYI: https://pgbackrest.org/user-guide-rhel.html#concept/backup
+#
+# example:
+#   pg-backup       # make a backup, incr, or full backup if necessary
+#   pg-backup full  # make a full backup
+#   pg-backup diff  # make a differential backup
+#   pg-backup incr  # make a incremental backup
+#
+#--------------------------------------------------------------#
+
+
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+BACKUP_MODE=${1-''}
+
+
+#--------------------------------------------------------------#
+# Check
+#--------------------------------------------------------------#
+if [[ $(/pg/bin/pg-role) != "primary" ]]; then
+  echo "[FAIL] this script should run on pgsql primary instance"
+  exit 0
+fi
+
+if [[ "$(whoami)" != "postgres" ]]; then
+  echo "[FAIL] run this as dbsu postgres"
+  exit 1
+fi
+
+BACKUP_TYPE=''
+if [[ "$BACKUP_MODE" == "incr" || "${BACKUP_MODE}" == "full" || "${BACKUP_MODE}" == "diff" ]]; then
+  BACKUP_TYPE="--type=${BACKUP_MODE}"
+elif [[ "$BACKUP_MODE" == "" ]]; then
+  BACKUP_TYPE="--type=incr"
+else
+  echo "[FAIL] invalid backup mode: ${BACKUP_MODE}"
+  exit 1
+fi
+
+STANZA=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
+
+echo /usr/bin/pgbackrest --stanza="${STANZA}" "${BACKUP_TYPE}" backup
+/usr/bin/pgbackrest --stanza="${STANZA}" "${BACKUP_TYPE}" backup

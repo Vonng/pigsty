@@ -96,22 +96,6 @@ function pb-init() {
     local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
     pgbackrest --stanza=${stanza} --no-online stanza-create
 }
-function pb-backup() {
-    local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
-    pgbackrest --stanza=${stanza} backup
-}
-function pb-full() {
-    local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
-    pgbackrest --stanza=${stanza} --type=full backup
-}
-function pb-diff() {
-    local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
-    pgbackrest --stanza=${stanza} --type=diff backup
-}
-function pb-incr() {
-    local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest/pgbackrest.conf | head -n1 | sed 's/.*\[\([^]]*\)].*/\1/')
-    pgbackrest --stanza=${stanza} --type=incr backup
-}
 
 
 #--------------------------------------------------------------#
