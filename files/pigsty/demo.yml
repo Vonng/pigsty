@@ -1,9 +1,9 @@
 ---
 #==============================================================#
-# File      :   pigsty-demo.yml
-# Desc      :   Pigsty Local Sandbox 4-node Demo
+# File      :   demo.yml
+# Desc      :   Pigsty Local Sandbox 4-node Demo Config
 # Ctime     :   2020-05-22
-# Mtime     :   2022-12-03
+# Mtime     :   2022-12-29
 # Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -14,13 +14,13 @@ all:
   children:
 
     # infra cluster for proxy, monitor, alert, etc..
-    infra: { hosts: {10.10.10.10: {infra_seq: 1}}}
-
-    # etcd cluster for ha postgres
-    etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
     # minio cluster, s3 compatible object storage
-    minio: {hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio }}
+    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+
+    # etcd cluster for ha postgres
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
 
     # postgres example cluster: pg-meta
     pg-meta:
@@ -82,8 +82,9 @@ all:
         10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
       vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
 
+
   vars:                               # global variables
-    version: v2.0.0-b3                # pigsty version string
+    version: v2.0.0-b4                # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     pg_clean: true                    # for convenience, purge existing pg during init, DO NOT DO THIS IN PRODUCTION
@@ -115,13 +116,6 @@ all:
       - { name: PG Logs    , url : '/logs'              , comment: 'postgres raw csv logs'    }
       - { name: Schemas    , url : '/schema'            , comment: 'schemaspy summary report' }
       - { name: Reports    , url : '/report'            , comment: 'pgbadger summary report'  }
-    node_etc_hosts:                   # extra static dns records in /etc/hosts
-      - 10.10.10.2  pg-meta           # sandbox vip for pg-meta
-      - 10.10.10.3  pg-test           # sandbox vip for pg-test
-      - 10.10.10.10 pg-meta-1         # sandbox instance pg-meta-1
-      - 10.10.10.11 pg-test-1         # sandbox instance node-1
-      - 10.10.10.12 pg-test-2         # sandbox instance node-2
-      - 10.10.10.13 pg-test-3         # sandbox instance node-3
     node_admin_pk_list:               # vagrant ssh public keys on admin node
       - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
     node_timezone: Asia/Hong_Kong     # use Asia/Hong_Kong Timezone
@@ -130,4 +124,27 @@ all:
       - pool pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
     docker_registry_mirrors: ["https://registry.cn-hangzhou.aliyuncs.com"]
+
+    pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
+    pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+      local:                          # default pgbackrest repo with local posix fs
+        path: /pg/backup              # local backup directory, `/pg/backup` by default
+        retention_full_type: count    # retention full backups by count
+        retention_full: 1             # keep 1, at most 2 full backup when using local fs repo
+      minio:                          # optional minio repo for pgbackrest
+        type: s3                      # minio is s3-compatible, so s3 is used
+        s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default
+        s3_region: us-east-1          # minio region, us-east-1 by default, useless for minio
+        s3_bucket: pgsql              # minio bucket name, `pgsql` by default
+        s3_key: pgbackrest            # minio user access key for pgbackrest
+        s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
+        s3_uri_style: path            # use path style uri for minio rather than host style
+        path: /pgbackrest             # minio backup path, default is `/pgbackrest`
+        storage_port: 9000            # minio port, 9000 by default
+        storage_ca_file: /etc/pki/ca.crt  # minio ca file path, `/etc/pki/ca.crt` by default
+        bundle: y                     # bundle small files into a single file
+        cipher_type: aes-256-cbc      # enable AES encryption for remote backup repo
+        cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
+        retention_full_type: time     # retention full backup by time on minio repo
+        retention_full: 14            # keep full backup for last 14 days
 ...

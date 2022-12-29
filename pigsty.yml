@@ -1,24 +1,30 @@
 ---
 #==============================================================#
-# File      :   pigsty-test.yml
-# Desc      :   Pigsty singleton example config
+# File      :   pigsty.yml
+# Desc      :   Pigsty simple example config
 # Ctime     :   2020-05-22
-# Mtime     :   2022-12-23
+# Mtime     :   2022-12-29
 # Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 all:
+
+  vars:
+    version: v2.0.0-b4                # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default,china,europe
+
   children:
 
     # infra cluster for proxy, monitor, alert, etc..
-    infra: { hosts: {10.10.10.10: {infra_seq: 1}}}
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
     # minio cluster, s3 compatible object storage
-    minio: {hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio }}
+    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 
     # etcd cluster for ha postgres
-    etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
 
     # postgres cluster 'pg-meta'
     pg-meta:
@@ -26,14 +32,30 @@ all:
       vars:
         pg_cluster: pg-meta
         pg_users:
-          - {name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
-          - {name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+          - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
+          - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
         pg_databases:
-          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
+          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [ { name: postgis, schema: public }, { name: timescaledb } ] }
 
-  vars:                               # global parameters
-    version: v2.0.0-b3                # pigsty version string
-    admin_ip: 10.10.10.10             # admin node ip address
-    region: default                   # upstream mirror region: default,china,europe
+    # postgres cluster 'pg-test'
+    pg-test:
+      hosts:
+        10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
+        10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
+        10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
+      vars:
+        pg_cluster: pg-test              # define pgsql cluster name
+        pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: test } ] # create a database and user named 'test'
+        node_tune: tiny
+        pg_conf: tiny.yml
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.3/24
+        pg_vip_interface: eth1
+
+    # redis standalone cluster `redis-ms`
+    redis-ms:
+      hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.13 6501' } } } }
+      vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
 
 ...

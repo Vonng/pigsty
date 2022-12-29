@@ -7,7 +7,7 @@
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-VERSION?=v2.0.0-b3
+VERSION?=v2.0.0-b4
 EL_VER=7
 
 # local name

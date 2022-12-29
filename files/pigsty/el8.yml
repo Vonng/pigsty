@@ -1,9 +1,9 @@
 ---
 #==============================================================#
-# File      :   pigsty-el8.yml
+# File      :   el8.yml
 # Desc      :   Pigsty auto generated config for el8 singleton
 # Ctime     :   2020-05-22
-# Mtime     :   2022-12-20
+# Mtime     :   2022-12-29
 # Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -14,27 +14,27 @@ all:
   children:
 
     # infra cluster for proxy, monitor, alert, etc..
-    infra: { hosts: {10.10.10.10: {infra_seq: 1}}}
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
     # minio cluster, s3 compatible object storage
-    minio: {hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio }}
+    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 
     # etcd cluster for ha postgres
-    etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
 
     # default postgres database (optional)
     pg-meta:
-      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary }}
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
       vars:
         pg_cluster: pg-meta
         pg_users:
-          - {name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
-          - {name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+          - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
+          - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
         pg_databases:
-          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
+          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [ { name: postgis, schema: public }, { name: timescaledb } ] }
 
   vars:                               # global variables
-    version: v2.0.0-b3                # pigsty version string
+    version: v2.0.0-b4                # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     repo_packages:                    # which packages to be included

@@ -7,12 +7,12 @@ Config templates are named as `<mode>.yml`.  `<mode>` can be designated using `.
 
 There are several built-in templates:
 
-* [default.yml](default.yml) : detail documented config example with default parameters
+* [full.yml](full.yml) : detail documented config example with default parameters
+* [demo.yml](demo.yml) : exact same as default.yml, in short version
 * [el7.yml](el7.yml) : default config on RHEL7 and compatible OS distributions
 * [el8.yml](el8.yml) : default config on RHEL8 and compatible OS distributions
 * [el9.yml](el9.yml) : default config on RHEL9 and compatible OS distributions
 * [security.yml](security.yml) : security enhanced config (on el7)
-* [demo.yml](demo.yml) : exact same as default.yml, in short version
 * [citus.yml](citus.yml) : citus cluster example: 1 coordinator and 3 data nodes
 * [build.yml](build.yml) : 3 nodes el7, el8, el9 for release building
 * [pubic.yml](public.yml) : config for [public demo](http://demo.pigsty.cc)
