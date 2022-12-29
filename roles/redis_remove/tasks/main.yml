@@ -53,11 +53,15 @@
           {% endif %}
           {% endfor %}
 
-    - name: stop and disable redis exporter service
-      when: not redis_safeguard|bool and redis_port is not defined
-      ignore_errors: yes
-      tags: redis
-      systemd: name="redis_exporter.service" state=stopped enabled=no
+
+#--------------------------------------------------------------#
+# Redis Exporter                                [redis_exporter]
+#--------------------------------------------------------------#
+- name: stop and disable redis exporter service
+  when: not redis_safeguard|bool and redis_port is not defined
+  ignore_errors: yes
+  tags: redis_exporter
+  systemd: name="redis_exporter.service" state=stopped enabled=no
 
 
 #--------------------------------------------------------------#
@@ -82,10 +86,10 @@
 
 
 #--------------------------------------------------------------#
-# Remove data dir if redis_rmdata                   [redis_data]
+# Remove data dir if redis_clean                    [redis_data]
 #--------------------------------------------------------------#
 - name: remove redis data
-  when: not redis_safeguard|bool and redis_rmdata|bool
+  when: not redis_safeguard|bool and redis_clean|bool
   ignore_errors: yes
   tags: redis_data
   block:
@@ -104,7 +108,7 @@
 # Remove redis packages                              [redis_pkg]
 #--------------------------------------------------------------#
 - name: remove redis packages
-  when: not redis_safeguard|bool and redis_rmpkgs|bool and not redis_port is defined
+  when: not redis_safeguard|bool and redis_uninstall|bool and not redis_port is defined
   ignore_errors: yes
   tags: redis_pkg
   yum: name={{ item }} state=absent

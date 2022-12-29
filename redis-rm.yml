@@ -2,30 +2,54 @@
 ---
 #==============================================================#
 # File      :   redis-rm.yml
-# Desc      :   remove redis from nodes
+# Desc      :   remove redis cluster / node /instance
 # Ctime     :   2022-03-20
-# Mtime     :   2022-05-01
+# Mtime     :   2022-12-29
 # Path      :   redis-rm.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
-#==============================================================#
-
-
-#==============================================================#
-# Playbook : Remove Redis Cluster/Node/Instance                #
-#==============================================================#
-#  Remove cluster `redis-test`
-#     redis-rm.yml -l redis-test
-#
-#  Remove all instance on redis node 10.10.10.13
-#     redis-rm.yml -l 10.10.10.13
-#
-#  Remove one specific instance 10.10.10.13:6501
-#     redis-rm.yml -l 10.10.10.13 -e redis_port=6501
 #==============================================================#
 - name: REDIS REMOVE
   hosts: all
   become: true
   gather_facts: no
   roles: [{ role: redis_remove }]
+  vars:
+    #redis_safeguard: false           # prevent purging running redis instance?
+    #redis_clean: true                # purging existing redis during initialization?
+    redis_uninstall: false            # uninstall redis & redis_exporter? false by default
+
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+#  Remove cluster `redis-test`
+#     redis-rm.yml -l redis-test
+#
+#  Remove cluster `redis-test`, and uninstall packages
+#     redis-rm.yml -l redis-test -e redis_uninstall=true
+#
+#  Remove all instance on redis node 10.10.10.13
+#     redis-rm.yml -l 10.10.10.13
+#
+#  Remove one specific instance 10.10.10.13:6501
+#     redis-rm.yml -l 10.10.10.13 -e redis_port=6501
+#
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+#
+#  bin/redis-rm redis-ms          # remove redis cluster 'redis-ms'
+#  bin/redis-rm 10.10.10.10       # remove redis node '10.10.10.10'
+#  bin/redis-rm 10.10.10.10 6501  # remove redis instance '10.10.10.10:6501'
+#
+#--------------------------------------------------------------#
+# Tasks
+#--------------------------------------------------------------#
+# register       : remove monitor target from prometheus
+# redis_exporter : stop and disable redis_exporter
+# redis          : stop and disable redis cluster/node/instance
+# redis_data     : remove redis data (rdb, aof)
+# redis_pkg      : uninstall redis & redis_exporter packages
+#--------------------------------------------------------------#
 ...
