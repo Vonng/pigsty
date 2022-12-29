@@ -1,0 +1,59 @@
+#!/bin/bash
+set -euo pipefail
+#==============================================================#
+# File      :   pg-bootstrap
+# Desc      :   bootstrap from pgbackrest
+# Ctime     :   2022-12-29
+# Mtime     :   2022-12-29
+# Path      :   /pg/bin/pg-bootstrap
+# Deps      :   pgbackrest
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+PROG_NAME="$(basename $0)"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+
+#--------------------------------------------------------------#
+#                             Usage                            #
+#--------------------------------------------------------------#
+# CHOOSE ONE of the following recovery target:
+#   -d|--default                # recover to the end of the archive stream, i.e. latest status
+#   -i|--immediate              # recover only until the database becomes consistent
+#   -t|--time=<time_point>      # recovery to specific time point
+#   -n|--name=<restore_point>   # recovery to named restore point (pg_create_restore_point)
+#   -s|--set=<backup_label>     # recovery to specific backup set (check pgbackrest info)
+#   -l|--lsn=<lsn_point>        # recovery to specific lsn point  (check monitor)
+#   -x|--xid=<xid>              # recovery to specific transaction id (check monitor)
+#
+# USE these args when necessary
+#
+#   -X|--target-exclusive       # recovery right BEFORE the target, rather that default inclusive behavior
+#   -P|--promote                # PROMOTE rather than PAUSE after reaching recovery target
+#
+#--------------------------------------------------------------#
+#                           Examples                           #
+#--------------------------------------------------------------#
+# pg-pitr --time="2022-12-29 15:00:00+8"  # restore TO specific time
+# pg-pitr --name="my-last-backup"         # restore TO a named restore point create by pg_create_restore_point
+# pg-pitr --set=latest                    # restore to latest backup
+# pg-pitr --set=20221108-105325F          # restore to a specific backup set, which can be checked with pgbackrest info
+# pg-pitr --lsn="0/7000000" -X            # restore right BEFORE a LSN
+# pg-pitr --xid="12345" -X -P               # restore right BEFORE a specific transaction id, then promote
+#
+#--------------------------------------------------------------#
+#                           WARNING                            #
+#--------------------------------------------------------------#
+# RTFM: https://pgbackrest.org/command.html#command-restore
+#
+# WARNING: YOU MUST STOP POSTGRES / PATRONI BEFORE RUNNING THIS SCRIPT!
+#   e.g. : ansible pg-test -b -a 'systemctl stop patroni'
+#
+# WARNING: YOU HAVE TO PERFORM PITR on PRIMARY when using local repo (default)
+#          YOU CAN PERFORM PITR on STANDBY if you are using remote repo (e.g. minio)
+#
+# WARNING: DO REMEMBER TO REINIT REPLICAS AFTER PITR!
+#
+#--------------------------------------------------------------#
+# TODO: TBD
+echo $*
