@@ -36,6 +36,16 @@
       become_user: "{{ pg_dbsu }}"
       command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
 
+    - name: remove postgres backup conf
+      file: path={{ item }} state=absent
+      ignore_errors: true
+      with_items:
+        - /pg/data/postgresql.conf.backup
+        - /pg/data/postgresql.base.conf.backup
+        - /pg/data/pg_hba.conf.backup
+        - /pg/data/pg_ident.conf.backup
+
+
 #--------------------------------------------------------------#
 # init postgres cluster                                [pg_init]
 #--------------------------------------------------------------#
