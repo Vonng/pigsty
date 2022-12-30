@@ -91,8 +91,38 @@ GRANT USAGE ON SCHEMA monitor TO "{{ pg_monitor_username }}";
 GRANT USAGE ON SCHEMA monitor TO "{{ pg_admin_username }}";
 GRANT USAGE ON SCHEMA monitor TO "{{ pg_replication_username }}";
 
+
 --==================================================================--
---                            Monitor Views                         --
+--                         Heartbeat Table                          --
+--==================================================================--
+-- table to hold heartbeat records
+DROP TABLE IF EXISTS monitor.heartbeat CASCADE;
+CREATE TABLE IF NOT EXISTS monitor.heartbeat
+(
+    id   VARCHAR(64) PRIMARY KEY,
+    ts   TIMESTAMPTZ,
+    lsn  BIGINT,
+    txid BIGINT
+);
+COMMENT ON TABLE monitor.heartbeat IS 'heartbeat table, contains one row only';
+REVOKE INSERT,UPDATE,DELETE ON TABLE monitor.heartbeat FROM dbrole_readwrite;
+GRANT SELECT,INSERT,UPDATE,DELETE ON TABLE monitor.heartbeat TO pg_monitor;
+
+-- function to generate & return generated heartbeat record
+CREATE OR REPLACE FUNCTION monitor.beating() RETURNS monitor.heartbeat AS
+$$ INSERT INTO monitor.heartbeat(id, ts, lsn, txid) VALUES (coalesce(current_setting('cluster_name', true), 'unknown'), now(), pg_current_wal_lsn() - '0/0'::PG_LSN, pg_current_xact_id()::text::BIGINT)
+   ON CONFLICT(id) DO UPDATE SET ts=EXCLUDED.ts, lsn=EXCLUDED.lsn, txid=EXCLUDED.txid RETURNING *;
+$$ LANGUAGE SQL VOLATILE;
+COMMENT ON FUNCTION monitor.beating() IS 'func to update heartbeat';
+
+REVOKE ALL ON FUNCTION monitor.beating() FROM PUBLIC;
+REVOKE ALL ON FUNCTION monitor.beating() FROM dbrole_readonly;
+REVOKE ALL ON FUNCTION monitor.beating() FROM dbrole_offline;
+GRANT EXECUTE ON FUNCTION monitor.beating() TO pg_monitor;
+
+
+--==================================================================--
+--                          Monitor Views                           --
 --==================================================================--
 
 ----------------------------------------------------------------------

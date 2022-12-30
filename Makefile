@@ -283,10 +283,10 @@ ro:
 	while true; do pgbench -nv -P1 -c8 --rate=256 --select-only -T10 postgres://dbuser_meta:DBUser.Meta@meta:5434/meta; done
 # meta heartbeat and heartbeat check
 rh:
-	psql postgres://dbuser_dba:DBUser.DBA@meta:5432/postgres -c 'CREATE TABLE IF NOT EXISTS heartbeat(t TIMESTAMPTZ PRIMARY KEY);'
-	while true; do psql postgres://dbuser_dba:DBUser.DBA@meta:5432/postgres -qc 'INSERT INTO heartbeat VALUES (now());'; sleep 0.1; done
+	while true; do psql postgres://dbuser_monitor:DBUser.Monitor@meta:5432/postgres -qc 'SELECT * FROM monitor.beating();' || psql postgres://dbuser_monitor:DBUser.Monitor@meta:5432/postgres -qc "SELECT id AS cls, date_trunc('second', ts)::TIME AS time, '0/0'::PG_LSN + lsn AS lsn, txid AS xid FROM monitor.heartbeat;"; sleep 1; done;
+
 rhc:
-	while true; do psql postgres://dbuser_dba:DBUser.DBA@meta:5432/postgres -qc 'SELECT count(*) AS cnt, max(t)-min(t) AS span, max(t) AS max FROM heartbeat'; sleep 3; done
+	while true; do psql postgres://dbuser_monitor:DBUser.Monitor@meta:5432/postgres -qc "SELECT id AS cls, date_trunc('second', ts)::TIME AS time, '0/0'::PG_LSN + lsn AS lsn, txid AS xid FROM monitor.heartbeat;"; sleep 3; done
 # pg-test cluster benchmark
 test-ri:
 	pgbench -is10  postgres://test:test@pg-test:5436/test
@@ -471,7 +471,7 @@ svg:
 e1: v1 new ssh copy-el7 use-pkg
 	cp files/pigsty/el7.yml pigsty.yml
 e4: v4 new ssh copy-el7 use-pkg
-	cp files/pigsty/default.yml pigsty.yml
+	cp files/pigsty/demo.yml pigsty.yml
 e7: v7 new ssh copy-el7 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
 e8: v8 new ssh copy-el8 use-pkg
