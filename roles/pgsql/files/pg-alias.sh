@@ -33,6 +33,16 @@ alias pg-stop='pg_ctl -D /pg/data stop'
 alias pg-restart='pg_ctl -D /pg/data restart'
 alias pg-reload='pg_ctl -D /pg/data reload'
 alias pg-promote='pg_ctl -D /pg/data promote'
+function pg-promote(){
+  rm -rf /pg/data/standby.signal;
+  pg_ctl -D /pg/data promote;
+}
+function pg-demote(){
+  touch /pg/data/standby.signal;
+  chown postgres:postgres /pg/data/standby.signal;
+  psql postgres -c 'CHECKPOINT;';
+  pg_ctl -D /pg/data restart;
+}
 alias pg-up='sudo systemctl start patroni'
 alias pg-dw='sudo systemctl stop patroni'
 alias pg-rc='sudo systemctl reload patroni'

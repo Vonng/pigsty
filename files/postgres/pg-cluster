@@ -19,18 +19,12 @@ PROG_DIR="$(cd $(dirname $0) && pwd)"
 #--------------------------------------------------------------#
 # get pg_cluster from local conn or meta file
 function pg_cluster() {
-	local cluster_name=$(psql -AXtwqc "SHOW cluster_name")
+	local cluster_name=$(psql -AXtwqc "SHOW cluster_name;")
 	if [[ ! -z "${cluster_name}" ]]; then
 		echo ${cluster_name}
 		return 0
 	fi
-
-	cluster_name=$(cat /pg/meta/cluster)
-	if [[ ! -z "${cluster_name}" ]]; then
-		echo ${cluster_name}
-		return 0
-	fi
-    return 1
+	return 1
 }
 
 
