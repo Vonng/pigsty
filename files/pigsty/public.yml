@@ -3,11 +3,12 @@
 # File      :   public.yml
 # Desc      :   Pigsty Public Demo Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2022-12-29
+# Mtime     :   2022-12-31
 # Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
+
 
 all:
   children:
@@ -57,6 +58,9 @@ all:
               - host    kong            dbuser_kong         10.0.0.0/8          md5
               - host    bytebase        dbuser_bytebase     10.0.0.0/8          md5
               - host    grafana         dbuser_grafana      10.0.0.0/8          md5
+        node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
+          - '00 01 * * 1 postgres /pg/bin/pg-backup full'
+          - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
 
     # pgsql cluster: pg-test (PostgreSQL 15)
     pg-test:
@@ -70,6 +74,11 @@ all:
         pg_databases: [{name: test}]  # demo database: test
         pg_extensions: ['postgis33_${pg_version}* citus111_${pg_version} pg_repack_${pg_version} wal2json_${pg_version}']
         pg_services: [{ name: standby ,src_ip: "*" ,port: 5435 , dest: postgres ,selector: "[]" , backup: "[? pg_role == `primary`]" }]
+        node_tune: tiny
+        pg_conf: tiny.yml
+        node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
+          - '00 01 * * 1 postgres /pg/bin/pg-backup full'
+          - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
 
     redis-ms: # redis classic primary & replica
       hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.13 6501' } } } }

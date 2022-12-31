@@ -3,7 +3,7 @@
 # File      :   demo.yml
 # Desc      :   Pigsty Local Sandbox 4-node Demo Config
 # Ctime     :   2020-05-22
-# Mtime     :   2022-12-29
+# Mtime     :   2022-12-31
 # Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -53,6 +53,8 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.2/24
         pg_vip_interface: eth1
+        node_crontab:  # make a full backup 1 am everyday
+          - '00 01 * * * postgres /pg/bin/pg-backup full'
 
     # pgsql 3 node ha cluster: pg-test
     pg-test:
@@ -64,9 +66,14 @@ all:
         pg_cluster: pg-test           # define pgsql cluster name
         pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
         pg_databases: [{ name: test }]
+        node_tune: tiny
+        pg_conf: tiny.yml
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.3/24
         pg_vip_interface: eth1
+        node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
+          - '00 01 * * 1 postgres /pg/bin/pg-backup full'
+          - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
 
     redis-ms: # redis classic primary & replica
       hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.13 6501' } } } }
@@ -87,7 +94,6 @@ all:
     version: v2.0.0-b4                # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
-    pg_clean: true                    # for convenience, purge existing pg during init, DO NOT DO THIS IN PRODUCTION
     infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
@@ -121,30 +127,6 @@ all:
     node_timezone: Asia/Hong_Kong     # use Asia/Hong_Kong Timezone
     node_ntp_servers:                 # NTP servers in /etc/chrony.conf
       - pool cn.pool.ntp.org iburst
-      - pool pool.ntp.org iburst
-      - pool time.pool.aliyun.com iburst
     docker_registry_mirrors: ["https://registry.cn-hangzhou.aliyuncs.com"]
-
     pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
-    pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
-      local:                          # default pgbackrest repo with local posix fs
-        path: /pg/backup              # local backup directory, `/pg/backup` by default
-        retention_full_type: count    # retention full backups by count
-        retention_full: 1             # keep 1, at most 2 full backup when using local fs repo
-      minio:                          # optional minio repo for pgbackrest
-        type: s3                      # minio is s3-compatible, so s3 is used
-        s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default
-        s3_region: us-east-1          # minio region, us-east-1 by default, useless for minio
-        s3_bucket: pgsql              # minio bucket name, `pgsql` by default
-        s3_key: pgbackrest            # minio user access key for pgbackrest
-        s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
-        s3_uri_style: path            # use path style uri for minio rather than host style
-        path: /pgbackrest             # minio backup path, default is `/pgbackrest`
-        storage_port: 9000            # minio port, 9000 by default
-        storage_ca_file: /etc/pki/ca.crt  # minio ca file path, `/etc/pki/ca.crt` by default
-        bundle: y                     # bundle small files into a single file
-        cipher_type: aes-256-cbc      # enable AES encryption for remote backup repo
-        cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
-        retention_full_type: time     # retention full backup by time on minio repo
-        retention_full: 14            # keep full backup for last 14 days
 ...

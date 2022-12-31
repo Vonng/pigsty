@@ -8,7 +8,7 @@
 
 **Current master branch is under development (v2.0.0-b4), check [v1.5.1](https://github.com/Vonng/pigsty/tree/v1.5.1) for stable release.**
 
-> Latest Beta: [v2.0.0-b3](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b3) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
+> Latest Beta: [v2.0.0-b4](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b4) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
 >
 > Documentation:  [Wiki](https://github.com/Vonng/pigsty/wiki), [Website](https://pigsty.cc/en/) | [中文站点](https://pigsty.cc/zh/)
 
@@ -145,9 +145,16 @@ Check [**Architecture**](https://github.com/Vonng/pigsty/wiki/Architecture) & [*
   <details><summary>PITR with Pgbackrest</summary>
   
   ```bash
-  pb-backup                      # make a full/incr backup
-  pb-pitr "2022-11-08 10:58:48"  # pitr to specific timepoint
-  pb-restore 20221108-105325F_20221108-105938I # restore to specific backup
+  pg-backup             # make a backup, incr, or full backup if necessary
+  pg-backup full        # make a full backup
+  pg-backup diff        # make a differential backup
+  pg-backup incr        # make a incremental backup
+
+  pg-pitr --time="2022-12-30 14:44:44+08" # restore to specific time point (in case of drop db, drop table)
+  pg-pitr --name="my-restore-point"       # restore TO a named restore point create by pg_create_restore_point
+  pg-pitr --lsn="0/7C82CB8" -X            # restore right BEFORE a LSN point
+  pg-pitr --xid="1234567" -X -P           # restore right BEFORE a specific transaction id, then promote
+  pg-pitr --backup=20221108-105325        # restore to a specific backup set, which can be checked with pgbackrest info
   ```
 
   > Check [Backup & PITR](https://github.com/Vonng/pigsty/wiki/Backup-and-PITR) for details 

@@ -3,7 +3,7 @@
 # File      :   full.yml
 # Desc      :   pigsty demo config with full default values
 # Ctime     :   2020-05-22
-# Mtime     :   2022-12-29
+# Mtime     :   2022-12-31
 # Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -133,8 +133,8 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.2/24
         pg_vip_interface: eth1
-        node_crontab:
-          - '00 01 * * * postgres pgbackrest --stanza=pg-meta backup >> /pg/log/pgbackrest/backup.log 2>&1'
+        node_crontab:  # make a full backup 1 am everyday
+          - '00 01 * * * postgres /pg/bin/pg-backup full'
 
     #----------------------------------#
     # pgsql cluster: pg-test (3 nodes) #
@@ -154,6 +154,9 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.3/24
         pg_vip_interface: eth1
+        node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
+          - '00 01 * * 1 postgres /pg/bin/pg-backup full'
+          - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
 
     #----------------------------------#
     # redis ms, sentinel, native cluster
@@ -668,7 +671,7 @@ all:
       local:                          # default pgbackrest repo with local posix fs
         path: /pg/backup              # local backup directory, `/pg/backup` by default
         retention_full_type: count    # retention full backups by count
-        retention_full: 1             # keep 1, at most 2 full backup when using local fs repo
+        retention_full: 2             # keep 2, at most 3 full backup when using local fs repo
       minio:                          # optional minio repo for pgbackrest
         type: s3                      # minio is s3-compatible, so s3 is used
         s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default

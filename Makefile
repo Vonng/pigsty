@@ -281,12 +281,8 @@ rw:
 	while true; do pgbench -nv -P1 -c4 --rate=64 -T10 postgres://dbuser_meta:DBUser.Meta@meta:5433/meta; done
 ro:
 	while true; do pgbench -nv -P1 -c8 --rate=256 --select-only -T10 postgres://dbuser_meta:DBUser.Meta@meta:5434/meta; done
-# meta heartbeat and heartbeat check
 rh:
-	while true; do psql postgres://dbuser_monitor:DBUser.Monitor@meta:5432/postgres -qc 'SELECT * FROM monitor.beating();' || psql postgres://dbuser_monitor:DBUser.Monitor@meta:5432/postgres -qc "SELECT id AS cls, date_trunc('second', ts)::TIME AS time, '0/0'::PG_LSN + lsn AS lsn, txid AS xid FROM monitor.heartbeat;"; sleep 1; done;
-
-rhc:
-	while true; do psql postgres://dbuser_monitor:DBUser.Monitor@meta:5432/postgres -qc "SELECT id AS cls, date_trunc('second', ts)::TIME AS time, '0/0'::PG_LSN + lsn AS lsn, txid AS xid FROM monitor.heartbeat;"; sleep 3; done
+	ssh meta 'sudo -iu postgres /pg/bin/pg-heartbeat'
 # pg-test cluster benchmark
 test-ri:
 	pgbench -is10  postgres://test:test@pg-test:5436/test
@@ -302,6 +298,8 @@ test-rw2:
 	while true; do pgbench -nv -P1 -c16 -T10 postgres://test:test@pg-test:5433/test; done
 test-ro2:
 	while true; do pgbench -nv -P1 -c64 -T10 --select-only postgres://test:test@pg-test:5434/test; done
+test-rh:
+	ssh node-1 'sudo -iu postgres /pg/bin/pg-heartbeat'
 #------------------------------#
 # show patroni status for pg-test cluster
 test-st:
@@ -461,26 +459,23 @@ make-el9:
 
 
 ###############################################################
-#                         9. Misc                             #
+#                     9. Environment                          #
 ###############################################################
-# generate playbook svg graph
-svg:
-	bin/svg
-
-# environment
-e1: v1 new ssh copy-el7 use-pkg
+meta: v1 new ssh copy-el7 use-pkg
 	cp files/pigsty/el7.yml pigsty.yml
-e4: v4 new ssh copy-el7 use-pkg
+full: v4 new ssh copy-el7 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
-e7: v7 new ssh copy-el7 use-pkg
-	cp files/pigsty/test.yml pigsty.yml
-e8: v8 new ssh copy-el8 use-pkg
-	cp files/pigsty/test.yml pigsty.yml
-e9: v9 new ssh copy-el9 use-pkg
-	cp files/pigsty/test.yml pigsty.yml
-eb: vb new ssh build-repo build-src
+build: vb new ssh build-src
 	cp files/pigsty/build.yml pigsty.yml
-ed: e4
+build-test: vb new ssh build-repo build-src
+	cp files/pigsty/build.yml pigsty.yml
+el7: v7 new ssh copy-el7 use-pkg
+	cp files/pigsty/test.yml pigsty.yml
+el8: v8 new ssh copy-el8 use-pkg
+	cp files/pigsty/test.yml pigsty.yml
+el9: v9 new ssh copy-el9 use-pkg
+	cp files/pigsty/test.yml pigsty.yml
+
 ###############################################################
 
 
@@ -500,5 +495,5 @@ ed: e4
         copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb \
         r releast rp release-pkg cache release-matrix release-docker p publish \
         build-vagrant build build-src build-repo build-boot build-release build-el7 build-el8 build-el9 make-el7 make-el8 make-el9 \
-        svg e1 e4 e7 e8 e9 eb ed
+        meta full build el7 el8 el9
 ###############################################################
