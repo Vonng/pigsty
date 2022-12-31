@@ -109,12 +109,24 @@ REVOKE INSERT,UPDATE,DELETE ON TABLE monitor.heartbeat FROM dbrole_readwrite;
 GRANT SELECT,INSERT,UPDATE,DELETE ON TABLE monitor.heartbeat TO pg_monitor;
 
 -- function to generate & return generated heartbeat record
-CREATE OR REPLACE FUNCTION monitor.beating() RETURNS monitor.heartbeat AS
+CREATE OR REPLACE FUNCTION monitor.upsert_heartbeat() RETURNS monitor.heartbeat AS
 $$ INSERT INTO monitor.heartbeat(id, ts, lsn, txid) VALUES (coalesce(current_setting('cluster_name', true), 'unknown'), now(), pg_current_wal_lsn() - '0/0'::PG_LSN, pg_current_xact_id()::text::BIGINT)
    ON CONFLICT(id) DO UPDATE SET ts=EXCLUDED.ts, lsn=EXCLUDED.lsn, txid=EXCLUDED.txid RETURNING *;
 $$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION monitor.beating() IS 'func to update heartbeat';
+COMMENT ON FUNCTION monitor.upsert_heartbeat() IS 'upsert a heartbeat record';
 
+REVOKE ALL ON FUNCTION monitor.upsert_heartbeat() FROM PUBLIC;
+REVOKE ALL ON FUNCTION monitor.upsert_heartbeat() FROM dbrole_readonly;
+REVOKE ALL ON FUNCTION monitor.upsert_heartbeat() FROM dbrole_offline;
+GRANT EXECUTE ON FUNCTION monitor.upsert_heartbeat() TO pg_monitor;
+
+CREATE OR REPLACE FUNCTION monitor.beating() RETURNS
+    TABLE (cls TEXT, ts TIMESTAMPTZ, lsn PG_LSN, lsn_int BIGINT, txid BIGINT, status TEXT)
+AS
+$$ SELECT id AS cls, ts , '0/0'::PG_LSN + lsn AS lsn, lsn AS lsn_int, txid, CASE WHEN pg_is_in_recovery() THEN 'recovery' ELSE 'leading' END AS status FROM
+    (SELECT (CASE WHEN pg_is_in_recovery() THEN (SELECT h FROM monitor.heartbeat h) ELSE monitor.upsert_heartbeat() END).*) d;
+$$ LANGUAGE SQL VOLATILE;
+COMMENT ON FUNCTION monitor.beating() IS 'refresh heartbeat on leader and return status';
 REVOKE ALL ON FUNCTION monitor.beating() FROM PUBLIC;
 REVOKE ALL ON FUNCTION monitor.beating() FROM dbrole_readonly;
 REVOKE ALL ON FUNCTION monitor.beating() FROM dbrole_offline;
