@@ -244,7 +244,7 @@ resume:
 #------------------------------#
 # vagrant templates:
 v1:
-	vagrant/switch default
+	vagrant/switch meta
 v4:
 	vagrant/switch full
 v7:
@@ -418,7 +418,7 @@ release-matrix:
 
 # release docker packages
 release-docker:
-	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui minio/minio bytebase/bytebase:1.5.0 vonng/pg_exporter | gzip -9 -c > /tmp/docker.tgz'
+	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb vonng/pg_exporter postgrest/postgrest bytebase/bytebase:1.10.0  | gzip -9 -c > /tmp/docker.tgz'
 	scp meta:/tmp/docker.tgz dist/${VERSION}/${DOCKER_PKG}
 
 # publish pigsty packages

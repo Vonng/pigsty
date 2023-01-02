@@ -13,14 +13,14 @@ Apple M1 now has arm64 support with Parallel Desktop.
 [Vagranfile](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) is a ruby script defining VM nodes. Here are the default specs of Pigsty. 
 
 
-|           Templates           | Shortcut |      Spec       |               Comment               |
-| :---------------------------: | :------: | :-------------: | :---------------------------------: |
-| [default.rb](spec/default.rb) |   `v1`   |    3C6G x 1     |             Single Node             |
-|    [full.rb](spec/full.rb)    |   `v4`   | 2C4G + 1C2G x 3 |          Full 4 Node Demo           |
-|   [build.rb](spec/build.rb)   |   `vb`   |    2C4G x 3     | 3-Node EL7,8,9 Building Environment |
-|     [el7.rb](spec/el7.rb)     |   `v7`   | 2C4G + 1C2G x 3 |       EL7 4-nodes Testing Env       |
-|     [el8.rb](spec/el8.rb)     |   `v8`   | 2C4G + 1C2G x 3 |       EL8 4-nodes Testing Env       |
-|     [el9.rb](spec/el9.rb)     |   `v9`   | 2C4G + 1C2G x 3 |       EL9 4-nodes Testing Env       |
+|         Templates         | Shortcut |      Spec       |               Comment               |
+|:-------------------------:| :------: |:---------------:|:-----------------------------------:|
+|  [meta.rb](spec/meta.rb)  |   `v1`   |    4C8G x 1     |          Single Meta Node           |
+|  [full.rb](spec/full.rb)  |   `v4`   | 2C4G + 1C2G x 3 |          Full 4 Node Demo           |
+| [build.rb](spec/build.rb) |   `vb`   |    2C4G x 3     | 3-Node EL7,8,9 Building Environment |
+|   [el7.rb](spec/el7.rb)   |   `v7`   | 2C4G + 1C2G x 3 |       EL7 4-nodes Testing Env       |
+|   [el8.rb](spec/el8.rb)   |   `v8`   | 2C4G + 1C2G x 3 |       EL8 4-nodes Testing Env       |
+|   [el9.rb](spec/el9.rb)   |   `v9`   | 2C4G + 1C2G x 3 |       EL9 4-nodes Testing Env       |
 
 
 
@@ -30,7 +30,7 @@ Apple M1 now has arm64 support with Parallel Desktop.
 vagrant/switch <spec>
 
 # example
-vagrant/switch default  # shortcut: make v1
+vagrant/switch meta     # shortcut: make v1
 vagrant/switch full     # shortcut: make v4
 vagrant/switch build    # shortcut: make vb
 vagrant/switch el7      # shortcut: make v7
