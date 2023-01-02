@@ -1,0 +1,85 @@
+---
+#==============================================================#
+# File      :   pigsty-test.yml
+# Desc      :   Pigsty 3 nodes testing config for el 7,8,9
+# Ctime     :   2020-05-22
+# Mtime     :   2022-12-20
+# Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+all:
+  children:
+
+    # infra cluster for proxy, monitor, alert, etc..
+    infra: { hosts: {10.10.10.10: {infra_seq: 1}}}
+
+    # minio cluster, s3 compatible object storage
+    minio: {hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio }}
+
+    # etcd cluster for ha postgres
+    etcd: { hosts: {10.10.10.10: {etcd_seq: 1}}, vars: {etcd_cluster: etcd}}
+
+    # postgres cluster 'pg-meta'
+    pg-meta:
+      hosts:
+        10.10.10.10: { pg_seq: 1, pg_role: primary }
+        10.10.10.11: { pg_seq: 2, pg_role: replica }
+        10.10.10.12: { pg_seq: 3, pg_role: replica , pg_offline_query: true }
+      vars:
+        pg_cluster: pg-meta
+        pg_users:
+          - {name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
+          - {name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+        pg_databases:
+          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
+        node_crontab:  # make a full backup 1 am everyday
+          - '00 01 * * * postgres /pg/bin/pg-backup full'
+
+    redis-ms: # redis classic primary & replica
+      hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.13 6501' } } } }
+      vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
+
+
+
+  vars:                               # global parameters
+    version: v2.0.0-b4                # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default|china|europe
+    infra_portal:                     # domain names and upstream servers
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
+      postgrest    : { domain: api.pigsty  ,endpoint: "127.0.0.1:8884"   }
+      pgadmin      : { domain: adm.pigsty  ,endpoint: "127.0.0.1:8885"   }
+      pgweb        : { domain: cli.pigsty  ,endpoint: "127.0.0.1:8886"   }
+      bytebase     : { domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887"   }
+      jupyter      : { domain: lab.pigsty  ,endpoint: "127.0.0.1:8888"   }
+      gitea        : { domain: git.pigsty  ,endpoint: "127.0.0.1:8889"   }
+      minio        : { domain: sss.pigsty  ,endpoint: "127.0.0.1:9000"   }
+      wiki         : { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002"   }
+    nginx_navbar:                    # application nav links on home page
+      - { name: PgAdmin4   , url : 'http://adm.pigsty'  , comment: 'PgAdmin4 for PostgreSQL'  }
+      - { name: PGWeb      , url : 'http://cli.pigsty'  , comment: 'PGWEB Browser Client'     }
+      - { name: ByteBase   , url : 'http://ddl.pigsty'  , comment: 'ByteBase Schema Migrator' }
+      - { name: PostgREST  , url : 'http://api.pigsty'  , comment: 'Kong API Gateway'         }
+      - { name: Gitea      , url : 'http://git.pigsty'  , comment: 'Gitea Git Service'        }
+      - { name: Minio      , url : 'http://sss.pigsty'  , comment: 'Minio Object Storage'     }
+      - { name: Wiki       , url : 'http://wiki.pigsty' , comment: 'Local Wiki Pedia'         }
+      - { name: Explain    , url : '/pev.html'          , comment: 'pgsql explain visualizer' }
+      - { name: Package    , url : '/pigsty'            , comment: 'local yum repo packages'  }
+      - { name: PG Logs    , url : '/logs'              , comment: 'postgres raw csv logs'    }
+      - { name: Schemas    , url : '/schema'            , comment: 'schemaspy summary report' }
+      - { name: Reports    , url : '/report'            , comment: 'pgbadger summary report'  }
+    node_timezone: Asia/Hong_Kong     # use Asia/Hong_Kong Timezone
+    node_ntp_servers:                 # NTP servers in /etc/chrony.conf
+      - pool cn.pool.ntp.org iburst
+    node_admin_pk_list:               # vagrant ssh public keys on admin node
+      - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
+    pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
+...
