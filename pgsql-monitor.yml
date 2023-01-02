@@ -1,0 +1,196 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   pgsql-monitor.yml
+# Mtime     :   2020-11-02
+# Mtime     :   2023-01-02
+# Desc      :   add remote pgsql instance to pigsty monitor
+# Path      :   pgsql-monitor.yml
+# Deps      :   files/pg_exporter.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+# Monitoring remote Postgres instances with local pg_exporter
+#
+# Requirement :
+#     Monitor User : a user with role pg_monitor
+#     Connectable  : a connectable PGURL to remote pg instance
+#     Local Port   : an unique local port for local pg_exporter
+#
+# Example :
+#
+#   pg-remote:
+#     hosts:         # define remote instances
+#       10.10.10.11: { pg_seq: 1, pg_role: primary , pg_exporter_port: 20001  }
+#       10.10.10.12: { pg_seq: 2, pg_role: replica , pg_exporter_port: 20002  }
+#     vars:          # overwrite cluster params
+#       pg_cluster: pg-remote
+#       pg_port: 5432
+#       pg_monitor_username: dbuser_monitor
+#       pg_monitor_password: DBUser.Monitor
+#
+#     ------ infra ------
+#     |                 |  database as datasource
+#     |     grafana   <-|-----------------------
+#     |       ^         |                      ^
+#     |   prometheus    |            v-- pg-remote-1 ---v
+#     |       ^         |  metrics   |         ^        |
+#     |   pg_exporter <-|------------|----  postgres    |
+#     |       ^ (20001) |            | 10.10.10.11:5432 |
+#     |       ^         |            ^------------------^
+#     |       ^         |                      ^
+#     |       ^         |            v-- pg-remote-2 ---v
+#     |       ^         |  metrics   |         ^        |
+#     |   pg_exporter <-|------------|----  postgres    |
+#     |   (port: 20002) |            | 10.10.10.12:5432 |
+#     -------------------            ^------------------^
+#
+# Limitation:
+#    postgres metrics only
+#    node, pgbouncer, patroni, haproxy metrics not available
+#
+# Use PGURL Directly:
+#
+#   Usually, TARGET URL are generated according to several parameters :
+#      postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@{{ inventory_hostname }}:{{ pg_port }}/postgres?sslmode=disable
+#   You can overwrite that URL directly by setting pg_exporter url on instance's vars:
+#
+#   pg-remote:
+#     hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary , pg_exporter_port: 20001 , pg_exporter_url: 'postgres://user:pass@host:port/dbname?key=value' } }
+#     vars: { pg_cluster: pg-remote }
+#
+#--------------------------------------------------------------#
+
+
+#----------------------------------------------------------#
+# Exporter                                        [exporter]
+# ---------------------------------------------------------#
+- name: deploy exporter on infra nodes
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: exporter
+  tasks:
+
+    - name: check parameters
+      assert:
+        that:
+          - pg_cluster is defined           # did you provide a require identity parameter: cluster name?
+          - pg_seq is defined               # did you provide a require identity parameter: instance seq?
+          - pg_exporter_port is defined     # did you alloc a pg_exporter_port for each remote instance?
+          - pg_exporter_port != 9630        # otherwise, this should not equal to default port 9630
+
+    - name: build pg_exporter_url
+      set_fact:
+        pg_instance: "{{ pg_cluster }}-{{ pg_seq }}"
+        unit_name: "pg_exporter_{{ pg_cluster }}-{{ pg_seq }}"
+        dst_address: "{{ inventory_hostname }}:{{ pg_port|default(5432) }}"
+        target_url: "{% if pg_exporter_url is defined and pg_exporter_url != '' %}{{ pg_exporter_url }}{% else %}postgres://{{ pg_monitor_username|default('dbuser_monitor') }}:{{ pg_monitor_password|default('DBUser.Monitor') }}@{{ inventory_hostname }}:{{ pg_port|default(5432) }}/postgres?sslmode=disable{% endif %}"
+
+    - name: print summary
+      debug:
+        msg: "deploy {{ unit_name }} on local:{{ pg_exporter_port }} -> {{ pg_instance }}@{{ dst_address }} with {{ target_url }}"
+
+    # maybe we can add them to all infra nodes, but for now, we just setup on admin node only
+    - name: config and launch pg_exporter on infra nodes
+      delegate_to: '{{ admin_ip }}'
+      block:
+
+        - name: create pg_exporter config dir
+          file: path=/etc/pg_exporter state=directory owner={{ pg_dbsu|default('postgres') }} group=postgres mode=0775
+
+        - name: copy pg_exporter config
+          copy: src={{ pg_exporter_config|default('pg_exporter.yml') }} dest=/etc/pg_exporter/{{ pg_exporter_config|default('pg_exporter.yml') }} owner=postgres group=postgres mode=0644
+
+        - name: config /etc/default/{{ unit_name }}
+          copy:
+            dest: "/etc/default/{{ unit_name }}"
+            owner: "{{ pg_dbsu|default('postgres') }}"
+            group: postgres
+            mode: 0600
+            content: |
+              PG_EXPORTER_LISTEN_ADDRESS=":{{ pg_exporter_port }}"
+              PG_EXPORTER_URL='{{ target_url }}'
+              PG_EXPORTER_AUTO_DISCOVERY="{% if pg_exporter_auto_discovery|default(true)|bool %}true{% else %}false{% endif %}"
+              PG_EXPORTER_EXCLUDE_DATABASE="{{ pg_exporter_exclude_database|default('template0,template1,postgres') }}"
+              PG_EXPORTER_INCLUDE_DATABASE="{{ pg_exporter_include_database|default('') }}"
+              PG_EXPORTER_CONFIG="/etc/pg_exporter/{{ pg_exporter_config|default('pg_exporter.yml') }}"
+              PG_EXPORTER_TELEMETRY_PATH="{{ exporter_metrics_path|default('/metrics') }}"
+              PG_EXPORTER_DISABLE_CACHE=false
+              PG_EXPORTER_OPTS='--log.level=info --log.format="logger:syslog?appname={{ unit_name }}&local=7"'
+              PG_EXPORTER_CONNECT_TIMEOUT=1000
+
+        - name: config {{ unit_name }} systemd service
+          copy:
+            dest: /usr/lib/systemd/system/{{ unit_name }}.service
+            content: |
+              [Unit]
+              Description= PG Exporter @ {{ pg_exporter_port }} for {{ pg_instance }}@{{ dst_address }}
+              Documentation=https://github.com/Vonng/pg_exporter
+              After=network.target
+
+              [Service]
+              EnvironmentFile=-/etc/default/{{ unit_name }}
+              User={{ pg_dbsu|default('postgres') }}
+              ExecStart=/usr/bin/pg_exporter $PG_EXPORTER_OPTS
+              ExecReload=/usr/bin/kill -HUP $MAINPID
+              Restart=on-failure
+              RestartSec=5s
+
+              CPUQuota=10%
+              MemoryLimit=200M
+
+              [Install]
+              WantedBy=multi-user.target
+
+
+        - name: Launch {{ unit_name }} systemd service
+          systemd: name={{ unit_name }} state=restarted enabled=yes daemon_reload=yes
+        - name: Wait for {{ unit_name }} service online
+          ignore_errors: true
+          wait_for: host=127.0.0.1 port={{ pg_exporter_port }} state=started timeout=10
+
+
+#----------------------------------------------------------#
+# Register Remote Instance                        [register]
+# ---------------------------------------------------------#
+- name: register remote pgsql to grafana & prometheus
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: register
+  tasks:
+
+    #------------------------------------------------------#
+    # Register Datasource to Grafana               [grafana]
+    # -----------------------------------------------------#
+    # if pg_databases is defined (and register_datasource is not disabled)
+    # we will register datasource for each database as grafana datasource
+    - include_tasks: roles/pgsql/tasks/register_grafana.yml
+      when: pg_databases is defined
+      tags: grafana
+      ignore_errors: yes
+      vars: { database: "{{ item }}" }
+      with_items: "{{ pg_databases }}"
+
+    #------------------------------------------------------#
+    # Register Target to Prometheus             [prometheus]
+    # -----------------------------------------------------#
+    - name: register pg instance as prometheus target
+      tags: prometheus
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["infra"] }}'
+      copy:
+        dest: /etc/prometheus/targets/pgsql/{{ pg_cluster }}-{{ pg_seq }}.yml
+        content: |
+          # [remote] {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }}
+          - labels: { cls: {{ pg_cluster }} ,ins: {{ pg_cluster }}-{{ pg_seq }} ,instance: {{ inventory_hostname }}:{% if pg_port is defined %}{{ pg_port }}{% else %}5432{% endif %} }
+            targets: [ 127.0.0.1:{{ pg_exporter_port }} ]
+
+
+...
