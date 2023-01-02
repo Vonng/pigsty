@@ -1,8 +1,16 @@
+ifeq (, $(shell which docker-compose 2>/dev/null))
+DOCKER_COMPOSE_PLUGIN="true"
+endif
+
 default: up view
 
-# minimal setup with internal pg & dir
 up: view
+ifdef DOCKER_COMPOSE_PLUGIN
+	docker compose up -d
+else
 	docker-compose up -d
+endif
+
 
 # run with local data dir & external pg
 run: pg
@@ -11,7 +19,7 @@ run: pg
         --restart always --detach \
         --publish 8887:8887 \
         --volume /data/bytebase/data:/var/opt/bytebase \
-        bytebase/bytebase:1.8.0 \
+        bytebase/bytebase:1.10.0 \
         --data /var/opt/bytebase \
         --external-url http://ddl.pigsty \
         --port 8887 \

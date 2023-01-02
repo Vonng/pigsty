@@ -1,6 +1,15 @@
+ifeq (, $(shell which docker-compose 2>/dev/null))
+DOCKER_COMPOSE_PLUGIN="true"
+endif
+
 default: up view
-up:
+
+up: view
+ifdef DOCKER_COMPOSE_PLUGIN
+	docker compose up -d
+else
 	docker-compose up -d
+endif
 
 log:
 	docker logs -f wiki

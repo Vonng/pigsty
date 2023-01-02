@@ -1,9 +1,14 @@
 version: "3"
 services:
-  ferretdb:
-    image: ghcr.io/ferretdb/ferretdb:latest
-    container_name: ferretdb
+  edgedb:
+    image: edgedb/edgedb
+    container_name: edgedb
     restart: on-failure
+    environment:
+      EDGEDB_SERVER_PASSWORD: postgres
+      EDGEDB_SERVER_SECURITY: insecure_dev_mode
+      EDGEDB_SERVER_BACKEND_DSN: postgres://dbuser_meta:DBUser.Meta@10.10.10.10:5432/meta
+    volumes:
+      - /data/edgedb:/var/lib/edgedb/data
     ports:
-      - 27017:27017
-    command: ["-listen-addr=:27017", "-postgresql-url=postgres://dbuser_meta:DBUser.Meta@10.10.10.10:5432/meta"]
+      - "3001:3000"
