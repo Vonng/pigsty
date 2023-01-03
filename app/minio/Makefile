@@ -39,9 +39,10 @@ rmi:
 	docker rmi minio/minio
 
 save:
-	docker save minio/minio | lz4 -c > /tmp/minio.tlz
+	mkdir -p /tmp/docker
+	docker save minio | gzip -9 -c > /tmp/docker/minio.tgz
 
 load:
-	cat /tmp/minio.tlz | lz4 -d -c - | docker load
+	cat /tmp/docker/minio.tgz | gzip -d -c - | docker load
 
 .PHONY: default up run view log info stop clean pull rmi save load

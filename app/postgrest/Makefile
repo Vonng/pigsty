@@ -43,9 +43,10 @@ rmi:
 	docker rmi postgrest/postgrest
 
 save:
-	docker save postgrest/postgrest | lz4 -c > /tmp/postgrest.tlz
+	mkdir -p /tmp/docker
+	docker save postgrest/postgrest | gzip -9 -c > /tmp/docker/postgrest.tgz
 
 load:
-	cat /tmp/postgrest.tlz | lz4 -d -c - | docker load
+	cat /tmp/docker/postgrest.tgz | gzip -d -c - | docker load
 
 .PHONY: default up run ui rmui view log info stop clean pull rmi save load

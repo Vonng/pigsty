@@ -31,9 +31,10 @@ rmi:
 	docker rmi wiki
 
 save:
-	docker save wiki | lz4 -c > /tmp/wiki.tlz
+	mkdir -p /tmp/docker
+	docker save requarks/wiki | gzip -9 -c > /tmp/docker/wiki.tgz
 
 load:
-	cat /tmp/wiki.tlz | lz4 -d -c - | docker load
+	cat /tmp/docker/wiki.tgz | gzip -d -c - | docker load
 
 .PHONY: default up run view log info stop clean pull rmi save load

@@ -39,9 +39,10 @@ rmi:
 	docker rmi gitea/gitea
 
 save:
-	docker save gitea/gitea | lz4 -c > /tmp/gitea.tlz
+	mkdir -p /tmp/docker
+	docker save gitea/gitea | gzip -9 -c > /tmp/docker/gitea.tgz
 
 load:
-	cat /tmp/gitea.tlz | lz4 -d -c - | docker load
+	cat /tmp/docker/gitea.tgz | gzip -d -c - | docker load
 
 .PHONY: default up run view log info stop clean pull rmi save load

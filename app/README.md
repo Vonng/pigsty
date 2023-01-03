@@ -32,20 +32,22 @@ wiki      : { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002"   }
 **Pull Image**
 
 ```bash
-docker pull kong                      # latest # 139MB
-docker pull alpine                    # latest # 5.57MB
-docker pull registry                  # latest # 24.2MB
-docker pull dpage/pgadmin4            # latest # 341MB
-docker pull sosedoff/pgweb            # latest # 192MB
-docker pull vonng/pg_exporter         # latest # 7.64B
-docker pull postgrest/postgrest       # latest # 16.3MB
-docker pull swaggerapi/swagger-ui     # latest # 77MB
-docker pull bytebase/bytebase:1.10.0  # latest  # 200MB
-docker pull ghcr.io/ferretdb/ferretdb # latest # 18.1MB
+docker pull kong                      # 164MB
+docker pull alpine                    # 7MB
+docker pull registry                  # 24.2MB
+docker pull dpage/pgadmin4            # 341MB
+docker pull sosedoff/pgweb            # 192MB
+docker pull vonng/pg_exporter         # 7.64B
+docker pull postgrest/postgrest       # 16.3MB
+docker pull swaggerapi/swagger-ui     # 77MB
+docker pull bytebase/bytebase:1.10.0  # 287MB
+docker pull ghcr.io/ferretdb/ferretdb # 18.1MB
+
 docker pull gitea/gitea               # latest # 256MB
 docker pull requarks/wiki             # latest 444 MB
 docker pull andrewjones/schemaspy-postgres # latest 
 ```
+
 
 **Make Cache**
 

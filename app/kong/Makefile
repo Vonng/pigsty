@@ -25,9 +25,10 @@ rmi:
 	docker rmi kong
 
 save:
-	docker save kong | lz4 -c > /tmp/kong.tlz
+	mkdir -p /tmp/docker
+	docker save kong | gzip -9 -c > /tmp/docker/kong.tgz
 
 load:
-	cat /tmp/kong.tlz | lz4 -d -c - | docker load
+	cat /tmp/docker/kong.tgz | gzip -d -c - | docker load
 
 .PHONY: default up run view log info stop clean pull rmi save load

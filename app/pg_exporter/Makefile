@@ -36,9 +36,10 @@ rmi:
 	docker rmi vonng/pg_exporter
 
 save:
-	docker save vonng/pg_exporter | lz4 -c > /tmp/pg_exporter.tlz
+	mkdir -p /tmp/docker
+	docker save Vonng/pg_exporter | gzip -9 -c > /tmp/docker/pg_exporter.tgz
 
 load:
-	cat /tmp/pg_exporter.tlz | lz4 -d -c - | docker load
+	cat /tmp/docker/pg_exporter.tgz | gzip -d -c - | docker load
 
 .PHONY: default up run view log info stop clean pull rmi save load

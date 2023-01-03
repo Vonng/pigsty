@@ -33,9 +33,10 @@ rmi:
 	docker rmi ferretdb/ferretdb4
 
 save:
-	docker save ferretdb/ferretdb4 | lz4 -c > /tmp/ferretdb.tlz
+	mkdir -p /tmp/docker
+	docker save ghcr.io/ferretdb/ferretdb:latest | gzip -9 -c > /tmp/docker/ferretdb.tgz
 
 load:
-	cat /tmp/ferretdb.tlz | lz4 -d -c - | docker load
+	cat /tmp/docker/ferretdb.tgz | gzip -d -c - | docker load
 
 .PHONY: default up run view log info stop clean conf dump pull rmi save load
