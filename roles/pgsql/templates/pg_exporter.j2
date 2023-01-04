@@ -17,6 +17,9 @@ PG_EXPORTER_CONFIG=/etc/pg_exporter.yml
 PG_EXPORTER_LISTEN_ADDRESS=":{{ pg_exporter_port }}"
 PG_EXPORTER_TELEMETRY_PATH="{{ exporter_metrics_path }}"
 PG_EXPORTER_DISABLE_CACHE=false
-PG_EXPORTER_CONNECT_TIMEOUT=100
-# PG_EXPORTER_OPTS='--log.level=info --log.format="logger:syslog?appname=pg_exporter&local=7"'
+PG_EXPORTER_CONNECT_TIMEOUT={{ pg_exporter_connect_timeout }}
+{% if pg_exporter_options != '' %}
 PG_EXPORTER_OPTS='{{ pg_exporter_options }}'
+{% else %}
+PG_EXPORTER_OPTS='--log.level=info --log.format="logger:syslog?appname=pg_exporter&local=7"'
+{% endif %}

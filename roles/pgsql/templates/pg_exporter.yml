@@ -6,7 +6,7 @@
 #┃ Desc  :   pg_exporter metrics collector definition          ┃#
 #┃ Ver   :   PostgreSQL 10~14 pgbouncer 1.9+                   ┃#
 #┃ Ctime :   2019-12-09                                        ┃#
-#┃ Mtime :   2022-05-13                                        ┃#
+#┃ Mtime :   2023-01-03                                        ┃#
 #┃ Copyright (C) 2019-2022 Ruohang Feng                        ┃#
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛#
 #################################################################
@@ -53,7 +53,7 @@
 #┃             extract(EPOCH FROM now() - pg_backup_start_time())     AS backup_time;
 #┃
 #┃                             <---- [OPTIONAL] metadata fields, control collector behavior
-#┃    ttl: 1                   <---- Cache TTL: in seconds, how long will pg_exporter cache this collector's query result.
+#┃    ttl: 10                  <---- Cache TTL: in seconds, how long will pg_exporter cache this collector's query result.
 #┃    timeout: 0.1             <---- Query Timeout: in seconds, query that exceed this limit will be canceled.
 #┃    min_version: 100000      <---- minimal supported version, boundary IS included. In server version number format,
 #┃    max_version: 130000      <---- maximal supported version, boundary NOT included, In server version number format
@@ -241,7 +241,7 @@ pg_primary_only:
   tags:
     - cluster
     - primary
-  ttl: 1
+  ttl: {{ ttl_fast }}
   # timeout: 0.1
   min_version: 100000
   # max_version: 0
@@ -349,7 +349,7 @@ pg_replica_only:
   tags:
     - cluster
     - replica
-  ttl: 1
+  ttl: {{ ttl_fast }}
   # timeout: 0.1
   min_version: 100000
   # max_version: 0
@@ -437,7 +437,7 @@ pg_meta:
            'N/A'                                               AS primary_conninfo,
            1                                                   AS info
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090600
   max_version: 130000
   tags:
@@ -505,7 +505,7 @@ pg_meta_13:
            current_setting('primary_conninfo')                 AS primary_conninfo,
            1                                                   AS info
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 130000
   tags:
     - cluster
@@ -577,7 +577,7 @@ pg_setting:
            CASE current_setting('data_checksums') WHEN 'on' THEN 1 ELSE 0 END AS data_checksums,
            CASE current_setting('wal_log_hints') WHEN 'on' THEN 1 ELSE 0 END AS wal_log_hints;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090600
   tags:
     - cluster
@@ -612,8 +612,6 @@ pg_setting:
         description: whether wal_log_hints is enabled, 1 enabled 0 disabled
 
 
-
-
 pg_repl_12:
   name: pg_repl
   desc: PostgreSQL replication stat metrics 12+
@@ -628,7 +626,7 @@ pg_repl_12:
            extract(EPOCH FROM current_timestamp) AS "time", extract(EPOCH FROM backend_start) AS launch_time, extract(EPOCH FROM reply_time) AS reply_time
     FROM pg_stat_replication, (SELECT CASE WHEN pg_is_in_recovery() THEN pg_last_wal_replay_lsn() ELSE pg_current_wal_lsn() END AS lsn) current;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 120000
   tags:
     - cluster
@@ -730,7 +728,7 @@ pg_repl_10_11:
            extract(EPOCH FROM current_timestamp) AS "time", extract(EPOCH FROM backend_start) AS launch_time
     FROM pg_stat_replication, (SELECT CASE WHEN pg_is_in_recovery() THEN pg_last_wal_replay_lsn() ELSE pg_current_wal_lsn() END AS lsn) current;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 100000
   max_version: 120000
   tags:
@@ -813,6 +811,8 @@ pg_repl_10_11:
     - launch_time:
         usage: COUNTER
         description: Time when this process was started, i.e., when the client connected to this WAL sender
+
+
 #┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #┃ pg_sync_standby
 #┃ PostgreSQL synchronous standby status and names
@@ -825,7 +825,7 @@ pg_sync_standby:
   query: |
     SELECT CASE WHEN names <> '' THEN names ELSE '<null>' END AS names, CASE WHEN names <> '' THEN 1 ELSE 0 END AS enabled FROM (SELECT current_setting('synchronous_standby_names') AS names) n;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090400
   tags:
     - cluster
@@ -837,7 +837,6 @@ pg_sync_standby:
     - enabled:
         usage: GAUGE
         description: Synchronous commit enabled, 1 if enabled, 0 if disabled
-
 
 
 #┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -852,7 +851,7 @@ pg_downstream:
   query: |
     SELECT l.state, coalesce(count, 0 ) AS count FROM unnest(ARRAY ['streaming','startup','catchup', 'backup', 'stopping']) l(state) LEFT JOIN (SELECT state, count(*) AS count FROM pg_stat_replication GROUP BY state)r ON l.state =  r.state;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090400
   tags:
     - cluster
@@ -865,6 +864,7 @@ pg_downstream:
         usage: GAUGE
         description: Count of corresponding state
 
+
 pg_slot_14:
   name: pg_slot
   desc: PostgreSQL replication slot metrics v14 with wal safe size and status
@@ -876,7 +876,7 @@ pg_slot_14:
       spill_txns,spill_count,spill_bytes,stream_txns,stream_count,stream_bytes,total_txns,total_bytes,extract(EPOCH FROM now() - stats_reset) AS reset_time
     FROM pg_replication_slots s LEFT OUTER JOIN pg_stat_replication_slots ss ON s.slot_name = ss.slot_name;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 140000
   tags:
     - cluster
@@ -971,7 +971,7 @@ pg_slot_13:
         safe_wal_size, CASE wal_status WHEN 'reserved' THEN 0 WHEN 'extended' THEN 1 WHEN 'unreserved' THEN 2 WHEN 'lost' THEN 3 ELSE -1 END AS wal_status
     FROM pg_replication_slots;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 130000
   max_version: 140000
   tags:
@@ -1032,7 +1032,7 @@ pg_slot_10_12:
            CASE WHEN pg_is_in_recovery() THEN pg_last_wal_replay_lsn() ELSE pg_current_wal_lsn() END - restart_lsn AS retained_bytes
     FROM pg_replication_slots;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 100000
   max_version: 130000
   tags:
@@ -1077,7 +1077,6 @@ pg_slot_10_12:
         description: Size of bytes that retained for this slot
 
 
-
 pg_recv_13:
   name: pg_recv
   desc: PostgreSQL walreceiver metrics 13+ (add written and flush lsn)
@@ -1088,7 +1087,7 @@ pg_recv_13:
            flushed_lsn - '0/0' AS flush_lsn,written_lsn - '0/0'AS write_lsn, received_tli AS flush_tli, latest_end_lsn - '0/0' AS reported_lsn,
            last_msg_send_time AS msg_send_time,last_msg_receipt_time AS msg_recv_time,latest_end_time AS reported_time,now() AS time FROM pg_stat_wal_receiver;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 130000
   tags:
     - cluster
@@ -1161,7 +1160,7 @@ pg_recv_11:
            received_lsn - '0/0' AS flush_lsn, received_tli AS flush_tli, latest_end_lsn - '0/0' AS reported_lsn,
            last_msg_send_time AS msg_send_time,last_msg_receipt_time AS msg_recv_time,latest_end_time AS reported_time,now() AS time FROM pg_stat_wal_receiver;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   tags:
     - cluster
     - replica
@@ -1230,7 +1229,7 @@ pg_recv_10:
            received_lsn - '0/0' AS flush_lsn, received_tli AS flush_tli, latest_end_lsn - '0/0' AS reported_lsn,
            last_msg_send_time AS msg_send_time,last_msg_receipt_time AS msg_recv_time,latest_end_time AS reported_time,now() AS time FROM pg_stat_wal_receiver;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   tags:
     - cluster
     - replica
@@ -1287,8 +1286,6 @@ pg_recv_10:
         description: Time of current snapshot
 
 
-
-
 pg_sub_10:
   name: pg_sub
   desc: PostgreSQL subscription statistics ()
@@ -1300,7 +1297,7 @@ pg_sub_10:
            extract(epoch from latest_end_time) AS reported_time
     FROM pg_stat_subscription WHERE relid ISNULL;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 100000
   tags:
     - cluster
@@ -1340,7 +1337,7 @@ pg_origin:
   desc: PostgreSQL replay state (approximate) for a certain origin
   query: SELECT roname, remote_lsn - '0/0' AS remote_lsn, local_lsn - '0/0' AS local_lsn FROM pg_replication_origin o LEFT JOIN pg_replication_origin_status os ON o.roident = os.local_id;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090500
   skip: true
   tags:
@@ -1367,7 +1364,7 @@ pg_size:
       SELECT 'log' AS datname, (SELECT (coalesce(sum(size), 0)) AS size FROM pg_catalog.pg_ls_logdir()) AS bytes UNION ALL
       SELECT 'wal' AS datname, (SELECT (coalesce(sum(size), 0)) AS size FROM pg_catalog.pg_ls_waldir()) AS bytes;
 
-  ttl: 60
+  ttl: {{ ttl_slow }}
   timeout: 1
   min_version: 100000
   tags:
@@ -1386,7 +1383,7 @@ pg_archiver:
   name: pg_archiver
   desc: PostgreSQL archiver process statistics
   query: SELECT archived_count AS finish_count, failed_count, last_archived_time AS last_finish_time, last_failed_time, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_archiver;
-  ttl: 60
+  ttl: {{ ttl_slow }}
   min_version: 090400
   tags:
     - cluster
@@ -1431,7 +1428,7 @@ pg_bgwriter:
   # https://pgpedia.info/p/pg_stat_bgwriter.html
   query: SELECT checkpoints_timed, checkpoints_req, checkpoint_write_time, checkpoint_sync_time, buffers_checkpoint, buffers_clean, buffers_backend, maxwritten_clean, buffers_backend_fsync, buffers_alloc, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_bgwriter;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090400
   tags:
     - cluster
@@ -1481,7 +1478,7 @@ pg_ssl:
   query: |
     SELECT count(*) FILTER (WHERE ssl) AS enabled, count(*) FILTER ( WHERE NOT ssl) AS disabled FROM pg_stat_ssl;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090500
   tags:
     - cluster
@@ -1494,11 +1491,12 @@ pg_ssl:
         usage: GAUGE
         description: Number of client connection that does not use ssl
 
+
 pg_checkpoint:
   name: pg_checkpoint
   desc: checkpoint information from pg_control_checkpoint since 10
   query: SELECT checkpoint_lsn - '0/0' AS checkpoint_lsn, redo_lsn - '0/0' AS redo_lsn, timeline_id AS tli, prev_timeline_id AS prev_tli, full_page_writes, split_part(next_xid, ':', 1) AS next_xid_epoch, split_part(next_xid, ':', 2) AS next_xid, next_oid::BIGINT, next_multixact_id::text::BIGINT, next_multi_offset::text::BIGINT, oldest_xid::text::BIGINT, oldest_xid_dbid::text::BIGINT, oldest_active_xid::text::BIGINT, oldest_multi_xid::text::BIGINT, oldest_multi_dbid::BIGINT, oldest_commit_ts_xid::text::BIGINT, newest_commit_ts_xid::text::BIGINT, checkpoint_time AS time, extract(epoch from now() - checkpoint_time) AS elapse FROM pg_control_checkpoint();
-  ttl: 60
+  ttl: {{ ttl_slow }}
   min_version: 100000
   tags:
     - cluster
@@ -1575,7 +1573,7 @@ pg_recovery:
       end_of_backup_record_required AS require_record
     FROM pg_control_recovery();
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090600
   tags:
     - cluster
@@ -1598,12 +1596,13 @@ pg_recovery:
         usage: GAUGE
         description: End-of-backup record required
 
+
 pg_slru_13:
   name: pg_slru
   desc: PostgreSQL simple-least-recently-used (SLRU) cache statistics v13
   query: SELECT name, blks_zeroed, blks_hit, blks_read, blks_written, blks_exists, flushes, truncates, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_slru;
 
-  ttl: 60
+  ttl: {{ ttl_slow }}
   min_version: 130000
   tags:
     - cluster
@@ -1637,6 +1636,7 @@ pg_slru_13:
         usage: COUNTER
         description: Time at which these statistics were last reset
 
+
 # pg_shmem require su privilege to work. Disable it or create auxiliary function with su before use:
 # CREATE OR REPLACE FUNCTION monitor.pg_shmem() RETURNS SETOF pg_shmem_allocations AS $$ SELECT * FROM pg_shmem_allocations;$$ LANGUAGE SQL SECURITY DEFINER;
 pg_shmem:
@@ -1644,7 +1644,7 @@ pg_shmem:
   desc: Allocations made from the server's main shared memory segment
   query: SELECT coalesce(name, 'Free') AS name, off AS offset, size, allocated_size FROM monitor.pg_shmem();
 
-  ttl: 60
+  ttl: {{ ttl_slow }}
   min_version: 130000
   skip: true            # disable it by default
   tags:
@@ -1671,7 +1671,7 @@ pg_wal_14:
   desc: PostgreSQL WAL statistics since v14
   query: SELECT wal_records AS records, wal_fpi AS fpi, wal_bytes AS bytes, wal_buffers_full AS buffers_full, wal_write AS write, wal_sync AS sync, wal_write_time AS write_time, wal_sync_time AS sync_time, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_wal;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   tags:
     - cluster
   min_version: 140000
@@ -1706,6 +1706,8 @@ pg_wal_14:
     - reset_time:
         usage: COUNTER
         description: When statistics were last reset
+
+
 pg_activity:
   name: pg_activity
   desc: PostgreSQL backend activity group by database and state
@@ -1716,7 +1718,7 @@ pg_activity:
           LEFT JOIN (SELECT datname, state, count(*) AS count, max(extract(epoch from now() - state_change)) AS max_duration, max(extract(epoch from now() - xact_start))
           AS max_tx_duration, max(extract(epoch from now() - backend_start)) AS max_conn_duration FROM pg_stat_activity WHERE pid <> pg_backend_pid() GROUP BY 1,2) data USING (datname,state);
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090400
   tags:
     - cluster
@@ -1749,7 +1751,7 @@ pg_wait:
   query: |
     SELECT datname, wait_event_type AS event, count(*) AS count FROM pg_stat_activity WHERE datname NOT IN ('template0', 'template1') AND backend_type = 'client backend' AND pid <> pg_backend_pid() GROUP BY 1, 2;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090600
   tags:
     - cluster
@@ -1766,13 +1768,12 @@ pg_wait:
         description: Count of WaitEvent on target database
 
 
-
 pg_backend:
   name: pg_backend
   desc: PostgreSQL backend client count group by wait event type since 9.6
   query: SELECT backend_type AS "type", count(*) AS count FROM pg_stat_activity GROUP BY backend_type;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090600
   tags:
     - cluster
@@ -1784,12 +1785,14 @@ pg_backend:
     - count:
         usage: GAUGE
         description: Database backend process count by backend_type
+
+
 pg_xact:
   name: pg_xact
   desc: PostgreSQL transaction identifier metrics
   query: WITH snap(v) AS (SELECT txid_current_snapshot()), xset(v) AS  (SELECT txid_snapshot_xip(v) FROM snap), xnum(v) AS (SELECT count(*) from xset), xmin(v) AS (SELECT txid_snapshot_xmin(v) FROM snap), xmax(v) AS (SELECT txid_snapshot_xmin(v) FROM snap) SELECT xmin.v AS xmin, xmax.v AS xmax, xnum.v AS xnum FROM xmin, xmax, xnum;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090400
   tags:
     - cluster
@@ -1806,8 +1809,6 @@ pg_xact:
         description: Current active transaction count
 
 
-
-
 pg_lock:
   name: pg_lock
   desc: PostgreSQL lock distribution by mode and database
@@ -1817,7 +1818,7 @@ pg_lock:
       FROM (SELECT d.oid AS database, d.datname, l.mode FROM pg_database d, unnest(ARRAY ['AccessShareLock','RowShareLock','RowExclusiveLock','ShareUpdateExclusiveLock', 'ShareLock','ShareRowExclusiveLock','ExclusiveLock','AccessExclusiveLock']) l(mode) WHERE d.datallowconn AND NOT d.datistemplate) base
       LEFT JOIN (SELECT database, mode, count(*) AS count FROM pg_locks WHERE database IS NOT NULL GROUP BY 1, 2) cnt USING (database, mode);
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090400
   tags:
     - cluster
@@ -1841,7 +1842,7 @@ pg_query_13:
     SELECT datname, queryid AS query, sum(calls) AS calls, sum(rows) AS rows, sum(total_exec_time) AS exec_time, sum(blk_read_time) + sum(blk_write_time) AS io_time, sum(wal_bytes) AS wal_bytes
       FROM monitor.pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY 1, 2 ORDER BY 5 DESC LIMIT 64;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   timeout: 1
   min_version: 130000
   tags:
@@ -1864,14 +1865,15 @@ pg_query_13:
         description: Total number of rows retrieved or affected by the statement
     - exec_time:
         usage: COUNTER
+        scale: 1e-3
         description: Total time spent executing the statement, in µs
     - io_time:
         usage: COUNTER
+        scale: 1e-3
         description: Total time the statement spent reading and writing blocks, in µs
     - wal_bytes:
         usage: COUNTER
         description: Total amount of WAL bytes generated by the statement
-
 
 
 
@@ -1880,7 +1882,7 @@ pg_query_94_12:
   desc: PostgreSQL query statement metrics, require pg_stat_statements installed in schema monitor, 9.4 ~ 12
   # note that postgres user or db and one-time job are not recorded in Monitoring System
   query: SELECT datname, queryid AS query, sum(calls) AS calls, sum(rows) AS rows, sum(total_time) AS exec_time, sum(blk_read_time) + sum(blk_write_time) AS io_time FROM monitor.pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY 1, 2 ORDER BY 5 DESC LIMIT 64;
-  ttl: 1
+  ttl: {{ ttl_norm }}
   timeout: 1
   min_version: 090400
   max_version: 130000
@@ -1904,9 +1906,11 @@ pg_query_94_12:
         description: Total number of rows retrieved or affected by the statement
     - exec_time:
         usage: COUNTER
+        scale: 1e-3
         description: Total time spent executing the statement, in µs
     - io_time:
         usage: COUNTER
+        scale: 1e-3
         description: Total time the statement spent reading and writing blocks, in µs
 
 
@@ -1925,7 +1929,7 @@ pg_vacuuming:
         WHEN 'vacuuming heap' THEN (CASE WHEN heap_blks_total > 0 THEN 1.0 * heap_blks_vacuumed / heap_blks_total ELSE 0 END)
         ELSE NULL END AS progress FROM pg_stat_progress_vacuum pspv;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 120000
   tags:
     - cluster
@@ -1966,7 +1970,7 @@ pg_indexing:
       (CASE WHEN lockers_total > 0 THEN 1.0 * lockers_done / lockers_total ELSE NULL END) AS lockers
     FROM pg_stat_progress_create_index pspci;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 120000
   tags:
     - cluster
@@ -2007,7 +2011,7 @@ pg_clustering:
   name: pg_clustering
   desc: PostgreSQL cluster or vacuum full progress (v12+)
   query: SELECT datname, pid, relid::RegClass AS relname, param4 AS tup_scan, CASE WHEN param6 > 0 THEN 1.0 * param7 / param6 ELSE 0 END AS progress FROM pg_stat_get_progress_info('cluster') s LEFT JOIN pg_database d ON s.datid = d.oid;;
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 120000
   tags:
     - cluster
@@ -2043,7 +2047,7 @@ pg_backup:
   desc: PostgreSQL basebackup progress since 13
   query: SELECT pid, param1 AS phase, CASE param2 WHEN -1::integer THEN NULL::bigint ELSE param2 END AS total_bytes, param3 AS sent_bytes FROM pg_stat_get_progress_info('BASEBACKUP');
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 130000
   tags:
     - cluster
@@ -2073,7 +2077,7 @@ pg_db_14:
       session_time,active_time,idle_in_transaction_time AS ixact_time,sessions,sessions_abandoned,sessions_fatal,sessions_killed,extract(EPOCH FROM stats_reset) AS reset_time
     FROM pg_database d JOIN pg_stat_database sd ON d.oid = sd.datid;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 140000
   tags:
     - cluster
@@ -2169,23 +2173,28 @@ pg_db_14:
         # Time at which the last data page checksum failure was detected in this database (or on a shared object), or NULL if data checksums are not enabled.
     - blk_read_time:
         usage: COUNTER
-        description: Time spent reading data file blocks by backends in this database, in ms
+        scale: 1e-3
+        description: Time spent reading data file blocks by backends in this database, in seconds
         # Time spent reading data file blocks by backends in this database, in milliseconds (if track_io_timing is enabled, otherwise zero)
     - blk_write_time:
         usage: COUNTER
-        description: Time spent writing data file blocks by backends in this database, in ms
+        scale: 1e-3
+        description: Time spent writing data file blocks by backends in this database, in seconds
         # Time spent writing data file blocks by backends in this database, in milliseconds (if track_io_timing is enabled, otherwise zero)
     - session_time:
         usage: COUNTER
-        description: Time spent by database sessions in this database, in ms
+        scale: 1e-3
+        description: Time spent by database sessions in this database, in seconds
         # Time spent by database sessions in this database, in milliseconds (note that statistics are only updated when the state of a session changes, so if sessions have been idle for a long time, this idle time won't be included)
     - active_time:
         usage: COUNTER
-        description: Time spent executing SQL statements in this database, in ms
+        scale: 1e-3
+        description: Time spent executing SQL statements in this database, in seconds
         # Time spent executing SQL statements in this database, in milliseconds (this corresponds to the states active and fastpath function call in pg_stat_activity)
     - ixact_time:
         usage: COUNTER
-        description: Time spent idling while in a transaction in this database, in ms
+        scale: 1e-3
+        description: Time spent idling while in a transaction in this database, in seconds
     - sessions:
         usage: COUNTER
         description: Total number of sessions established to this database
@@ -2213,7 +2222,7 @@ pg_db_12_13:
       conflicts,temp_files,temp_bytes,deadlocks,coalesce(checksum_failures, -1) AS cks_fails, checksum_last_failure AS cks_fail_time,blk_read_time,blk_write_time,
       extract(EPOCH FROM stats_reset) AS reset_time FROM pg_database d JOIN pg_stat_database sd ON d.oid = sd.datid;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 120000
   max_version: 140000
   tags:
@@ -2310,11 +2319,13 @@ pg_db_12_13:
         # Time at which the last data page checksum failure was detected in this database (or on a shared object), or NULL if data checksums are not enabled.
     - blk_read_time:
         usage: COUNTER
-        description: Time spent reading data file blocks by backends in this database, in ms
+        scale: 1e-3
+        description: Time spent reading data file blocks by backends in this database, in seconds
         # Time spent reading data file blocks by backends in this database, in milliseconds (if track_io_timing is enabled, otherwise zero)
     - blk_write_time:
         usage: COUNTER
-        description: Time spent writing data file blocks by backends in this database, in ms
+        scale: 1e-3
+        description: Time spent writing data file blocks by backends in this database, in seconds
         # Time spent writing data file blocks by backends in this database, in milliseconds (if track_io_timing is enabled, otherwise zero)
     - reset_time:
         usage: COUNTER
@@ -2330,7 +2341,7 @@ pg_db_10_11:
       numbackends,xact_commit,xact_rollback,xact_rollback + xact_commit AS xact_total, blks_read,blks_hit,blks_read + blks_hit AS blks_access,tup_returned,tup_fetched,tup_inserted,tup_updated,tup_deleted,tup_inserted + tup_updated + tup_deleted AS tup_modified,
       conflicts,temp_files,temp_bytes,deadlocks,blk_read_time,blk_write_time, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_database d JOIN pg_stat_database sd ON d.oid = sd.datid;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090200
   max_version: 120000
   tags:
@@ -2419,18 +2430,17 @@ pg_db_10_11:
         description: Number of deadlocks detected in this database
     - blk_read_time:
         usage: COUNTER
-        description: Time spent reading data file blocks by backends in this database, in ms
+        scale: 1e-3
+        description: Time spent reading data file blocks by backends in this database, in seconds
         # Time spent reading data file blocks by backends in this database, in milliseconds (if track_io_timing is enabled, otherwise zero)
     - blk_write_time:
         usage: COUNTER
-        description: Time spent writing data file blocks by backends in this database, in ms
+        scale: 1e-3
+        description: Time spent writing data file blocks by backends in this database, in seconds
         # Time spent writing data file blocks by backends in this database, in milliseconds (if track_io_timing is enabled, otherwise zero)
     - reset_time:
         usage: COUNTER
         description: Time at which database statistics were last reset
-
-
-
 
 
 pg_db_confl:
@@ -2439,7 +2449,7 @@ pg_db_confl:
   # https://pgpedia.info/p/pg_stat_database_conflicts.html
   query: SELECT * FROM pg_stat_database_conflicts;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 90100
   tags:
     - cluster
@@ -2468,12 +2478,11 @@ pg_db_confl:
         description: Number of queries in this database that have been canceled due to deadlocks
 
 
-
 pg_pubrel:
   name: pg_pubrel
   desc: PostgreSQL publication and relation count
   query: SELECT CURRENT_CATALOG AS datname, pubname, count(*) AS count FROM pg_publication p, LATERAL pg_get_publication_tables(pubname) GROUP BY pubname;
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 100000
 
   metrics:
@@ -2488,12 +2497,11 @@ pg_pubrel:
         description: Count of relation in the publication
 
 
-
 pg_subrel:
   name: pg_subrel
   desc: PostgreSQL subscripted relation group by state
   query: SELECT CURRENT_CATALOG AS datname, subname, srsubstate::TEXT AS state, count(*) AS count FROM pg_subscription_rel sr LEFT JOIN pg_stat_subscription  ss ON sr.srsubid = ss.subid GROUP BY 2, 3;
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 100000
 
   metrics:
@@ -2515,27 +2523,6 @@ pg_subrel:
 #                  Per Database Collectors                    #
 ###############################################################
 
-pg_relkind:
-  name: pg_relkind
-  desc: Postgres relation count by kind (category, r,i,m,t,...)
-
-  query: SELECT CURRENT_CATALOG AS datname, relkind, count(*) AS count FROM pg_class GROUP BY relkind;
-  ttl: 60
-  timeout: 1
-  min_version: 090400
-
-  metrics:
-    - datname:
-        usage: LABEL
-        description: Name of database
-    - relkind:
-        usage: LABEL
-        description: Kind of this relation, could be r,i,S,t,v,m,c,f,p,I
-    - count:
-        usage: GAUGE
-        description: Number of relations of corresponding relkind
-
-
 pg_table_13:
   name: pg_table
   desc: PostgreSQL table metrics (v13 with n_ins_since_vacuum)
@@ -2552,7 +2539,7 @@ pg_table_13:
     WHERE relnamespace = ANY (SELECT oid FROM pg_namespace WHERE nspname <> ALL (ARRAY ['pg_catalog','information_schema','pg_toast','columnar']) AND nspname !~ 'timescaledb' AND nspname !~ 'citus' ) AND relkind = ANY (ARRAY ['r', 'm', 't', 'p'])
     ORDER BY relpages DESC LIMIT 256;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   timeout: 1
   min_version: 130000
 
@@ -2720,7 +2707,7 @@ pg_table_10_12:
     WHERE relnamespace = ANY (SELECT oid FROM pg_namespace WHERE nspname <> ALL (ARRAY ['pg_catalog','information_schema','pg_toast','columnar']) AND nspname !~ 'timescaledb' AND nspname !~ 'citus' ) AND relkind = ANY (ARRAY ['r', 'm', 't', 'p'])
     ORDER BY relpages DESC LIMIT 256;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   timeout: 1
   min_version: 090400
   max_version: 130000
@@ -2879,7 +2866,7 @@ pg_index:
          LATERAL (SELECT relpages,reltuples FROM pg_class c WHERE c.oid = psui.indexrelid LIMIT 1) p3
     WHERE schemaname <> ALL(ARRAY['pg_catalog','information_schema','pg_toast','columnar']) AND schemaname !~'timescaledb' AND schemaname !~'citus' ORDER BY idx_tup_read DESC LIMIT 512;
 
-  ttl: 1
+  ttl: {{ ttl_norm }}
   timeout: 1
   min_version: 090400
 
@@ -2919,10 +2906,11 @@ pg_index:
         usage: COUNTER
         description: Number of buffer hits in this index
 
+
 pg_func:
   desc: PostgreSQL function metrics
   query: SELECT CURRENT_CATALOG AS datname, schemaname || '.' || funcname AS funcname, sum(calls) AS calls, sum(total_time) AS total_time, sum(self_time) AS self_time FROM pg_stat_user_functions GROUP BY 2 ORDER BY 4 DESC LIMIT 128;
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 090400
 
   metrics:
@@ -2946,7 +2934,7 @@ pg_func:
 pg_seq:
   desc: PostgreSQL sequence metrics
   query: SELECT CURRENT_CATALOG AS datname, schemaname || '.' || sequencename AS seqname, last_value, blks_read, blks_hit FROM pg_sequences s, LATERAL (SELECT relid, blks_read, blks_hit FROM pg_statio_all_sequences sio WHERE s.schemaname = sio.schemaname AND s.sequencename =  sio.relname LIMIT 1) d LIMIT 128;
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 100000
   metrics:
     - datname:
@@ -2967,11 +2955,33 @@ pg_seq:
         usage: COUNTER
         description: Number of buffer hits in this sequence
 
+
+pg_relkind:
+  name: pg_relkind
+  desc: Postgres relation count by kind (category, r,i,m,t,...)
+
+  query: SELECT CURRENT_CATALOG AS datname, relkind, count(*) AS count FROM pg_class GROUP BY relkind;
+  ttl: {{ ttl_slow }}
+  timeout: 1
+  min_version: 090400
+
+  metrics:
+    - datname:
+        usage: LABEL
+        description: Name of database
+    - relkind:
+        usage: LABEL
+        description: Kind of this relation, could be r,i,S,t,v,m,c,f,p,I
+    - count:
+        usage: GAUGE
+        description: Number of relations of corresponding relkind
+
+
 pg_defpart:
   name: pg_defpart
   desc: PostgreSQL default partition tuples
   query: SELECT CURRENT_CATALOG AS datname, relnamespace::RegNamespace || '.' || relname AS relname, reltuples AS tuples FROM pg_class WHERE relpartbound IS NOT NULL AND pg_catalog.pg_get_expr(relpartbound, oid) = 'DEFAULT' ORDER BY reltuples DESC LIMIT 64;
-  ttl: 60
+  ttl: {{ ttl_slow }}
   timeout: 1
   min_version: 110000
 
@@ -2986,6 +2996,7 @@ pg_defpart:
         usage: GAUGE
         description: Number of tuples in this default partition
 
+
 pg_table_size:
   desc: PostgreSQL table size metrics, quite slow
   query: |
@@ -2998,7 +3009,7 @@ pg_table_size:
     WHERE nspname <> ALL(ARRAY['pg_catalog', 'information_schema']) AND rel.relkind = 'r'
     ORDER BY 3 DESC NULLS LAST LIMIT 256;
 
-  ttl: 300
+  ttl: {{ ttl_slowest }}
   timeout: 2
   min_version: 100000
 
@@ -3025,6 +3036,7 @@ pg_table_size:
         usage: GAUGE
         default: 0
         description: Bytes of toast tables of this table
+
 
 # pg_table_bloat require auxiliary view to work. Disable it or create auxiliary view before use:
 # ----------------------------------------------------------------------
@@ -3075,7 +3087,7 @@ pg_table_bloat:
   desc: PostgreSQL table bloat metrics, require auxiliary view monitor.pg_table_bloat to work
   query: SELECT datname, nspname || '.' || relname AS relname, size, ratio FROM monitor.pg_table_bloat ORDER BY size DESC LIMIT 64;
 
-  ttl: 300
+  ttl: {{ ttl_slowest }}
   timeout: 2
   min_version: 090400
   skip: true
@@ -3149,7 +3161,7 @@ pg_index_bloat:
   desc: PostgreSQL index bloat metrics (btree only), require monitor.pg_index_bloat
   query: SELECT datname, nspname || '.' || relname AS relname, size, ratio FROM monitor.pg_index_bloat ORDER BY size DESC LIMIT 64;
 
-  ttl: 300
+  ttl: {{ ttl_slowest }}
   timeout: 2
   min_version: 090400
   skip: true
@@ -3181,7 +3193,7 @@ pgbouncer_list:
   name: pgbouncer_list
   desc: Pgbouncer entry list # http://www.pgbouncer.org/usage.html#show-lists
   query: SHOW LISTS;
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 10800
   fatal: true
   tags:
@@ -3211,7 +3223,7 @@ pgbouncer_database_116:
   name: pgbouncer_database
   desc: Pgbouncer database stats (since 1.16) # http://www.pgbouncer.org/usage.html#show-databases
   query: SHOW DATABASES;
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 11600
   tags:
     - pgbouncer
@@ -3262,7 +3274,7 @@ pgbouncer_database_108_115:
   name: pgbouncer_database
   desc: Pgbouncer database stats (1.08-1.15) # http://www.pgbouncer.org/usage.html#show-databases
   query: SHOW DATABASES;
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 10800
   max_version: 11600
   tags:
@@ -3307,7 +3319,6 @@ pgbouncer_database_108_115:
         description: True(1) if this database is currently disabled, else 0
 
 
-
 #┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #┃ pgbouncer_stat
 #┃ pgbouncer stats per database: http://www.pgbouncer.org/usage.html#show-stats
@@ -3316,22 +3327,22 @@ pgbouncer_database_108_115:
 #┃ pgbouncer_stat_total_query_count{datname}  GAUGE    Total number of SQL queries pooled by pgbouncer
 #┃ pgbouncer_stat_total_received{datname}     COUNTER  Total volume in bytes of network traffic received by pgbouncer
 #┃ pgbouncer_stat_total_sent{datname}         COUNTER  Total volume in bytes of network traffic sent by pgbouncer
-#┃ pgbouncer_stat_total_xact_time{datname}    COUNTER  Total number of microseconds spent when in a transaction
-#┃ pgbouncer_stat_total_query_time{datname}   COUNTER  Total number of microseconds spent when executing queries
-#┃ pgbouncer_stat_total_wait_time{datname}    COUNTER  Time spent by clients waiting for a server, in microseconds
+#┃ pgbouncer_stat_total_xact_time{datname}    COUNTER  Total number of seconds spent when in a transaction
+#┃ pgbouncer_stat_total_query_time{datname}   COUNTER  Total number of seconds spent when executing queries
+#┃ pgbouncer_stat_total_wait_time{datname}    COUNTER  Time spent by clients waiting for a server, in seconds
 #┃ pgbouncer_stat_avg_xact_count{datname}     GAUGE    Average transactions per second in last stat period
 #┃ pgbouncer_stat_avg_query_count{datname}    GAUGE    Average queries per second in last stat period
 #┃ pgbouncer_stat_avg_recv{datname}           GAUGE    Average received (from clients) bytes per second
 #┃ pgbouncer_stat_avg_sent{datname}           GAUGE    Average sent (to clients) bytes per second
-#┃ pgbouncer_stat_avg_xact_time{datname}      GAUGE    Average transaction duration, in microseconds
-#┃ pgbouncer_stat_avg_query_time{datname}     GAUGE    Average query duration, in microseconds
-#┃ pgbouncer_stat_avg_wait_time{datname}      GAUGE    Time spent by clients waiting for a server, in microseconds (average per second).
+#┃ pgbouncer_stat_avg_xact_time{datname}      GAUGE    Average transaction duration, in seconds
+#┃ pgbouncer_stat_avg_query_time{datname}     GAUGE    Average query duration, in seconds
+#┃ pgbouncer_stat_avg_wait_time{datname}      GAUGE    Time spent by clients waiting for a server, in seconds (average per second).
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 pgbouncer_stat:
   name: pgbouncer_stat
   desc: Pgbouncer stats per database   # http://www.pgbouncer.org/usage.html#show-stats
   query: SHOW STATS;
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 10800
   tags:
     - pgbouncer
@@ -3355,13 +3366,16 @@ pgbouncer_stat:
         description: Total volume in bytes of network traffic sent by pgbouncer
     - total_xact_time:
         usage: COUNTER
-        description: Total number of microseconds spent when in a transaction
+        scale: 1e-6
+        description: Total number of seconds spent when in a transaction
     - total_query_time:
         usage: COUNTER
-        description: Total number of microseconds spent when executing queries
+        scale: 1e-6
+        description: Total number of seconds spent when executing queries
     - total_wait_time:
         usage: COUNTER
-        description: Time spent by clients waiting for a server, in microseconds
+        scale: 1e-6
+        description: Time spent by clients waiting for a server, in seconds
     - avg_xact_count:
         usage: GAUGE
         description: Average transactions per second in last stat period
@@ -3376,13 +3390,16 @@ pgbouncer_stat:
         description: Average sent (to clients) bytes per second
     - avg_xact_time:
         usage: GAUGE
-        description: Average transaction duration, in microseconds
+        scale: 1e-6
+        description: Average transaction duration, in seconds
     - avg_query_time:
         usage: GAUGE
-        description: Average query duration, in microseconds
+        scale: 1e-6
+        description: Average query duration, in seconds
     - avg_wait_time:
         usage: GAUGE
-        description: Time spent by clients waiting for a server, in microseconds (average per second).
+        scale: 1e-6
+        description: Time spent by clients waiting for a server, in seconds (average per second).
 
 
 #┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -3399,12 +3416,86 @@ pgbouncer_stat:
 #┃ pgbouncer_pool_maxwait{datname,user}          GAUGE    how long the first(oldest) client in the queue has waited, in seconds, key metric
 #┃ pgbouncer_pool_maxwait_us{datname,user}       GAUGE    microsecond part of the maximum waiting time.
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-pgbouncer_pool_116:
+pgbouncer_pool_118:
   name: pgbouncer_pool
   desc: Pgbouncer pool stats (1.16+)    # http://www.pgbouncer.org/usage.html#show-pools
   query: SHOW POOLS;
-  ttl: 1
+  ttl: {{ ttl_norm }}
+  min_version: 11800
+  tags:
+    - pgbouncer
+
+  metrics:
+    - database:
+        usage: LABEL
+        rename: datname
+        description: Database name of this pool
+    - user:
+        usage: LABEL
+        description: User name of this pool
+    - cl_active:
+        usage: GAUGE
+        rename: active_clients
+        description: Client connections that are linked to server connection and can process queries
+    - cl_waiting:
+        usage: GAUGE
+        rename: waiting_clients
+        description: Client connections that have sent queries but have not yet got a server connection
+    - cl_active_cancel_req:
+        usage: GAUGE
+        rename: active_cancel_clients
+        description: Client connections that have forwarded query cancellations to the server and are waiting for the server response.
+    - cl_waiting_cancel_req:
+        usage: GAUGE
+        rename: cancel_clients
+        description: Client connections that have not forwarded query cancellations to the server yet.
+    - sv_active:
+        usage: GAUGE
+        rename: active_servers
+        description: Server connections that are linked to a client
+    - sv_active_cancel:
+        usage: GAUGE
+        rename: active_cancel_servers
+        description: Server connections that are currently forwarding a cancel request
+    - sv_being_canceled:
+        usage: GAUGE
+        rename: cancel_servers
+        description: cancel requests have completed that were sent to cancel a query on this server
+    - sv_idle:
+        usage: GAUGE
+        rename: idle_servers
+        description: Server connections that are unused and immediately usable for client queries
+    - sv_used:
+        usage: GAUGE
+        rename: used_servers
+        description: Server connections that have been idle for more than server_check_delay (means have to run check query)
+    - sv_tested:
+        usage: GAUGE
+        rename: tested_servers
+        description: Server connections that are currently running reset or check query
+    - sv_login:
+        usage: GAUGE
+        rename: login_servers
+        description: Server connections currently in the process of logging in
+    - maxwait:
+        usage: GAUGE
+        description: How long the first(oldest) client in the queue has waited, in seconds, key metric
+    - maxwait_us:
+        usage: GAUGE
+        description: Microsecond part of the maximum waiting time.
+    - pool_mode:
+        usage: LABEL
+        description: Pooling mode in use
+
+
+
+pgbouncer_pool_116_118:
+  name: pgbouncer_pool
+  desc: Pgbouncer pool stats (1.16+)    # http://www.pgbouncer.org/usage.html#show-pools
+  query: SHOW POOLS;
+  ttl: {{ ttl_norm }}
   min_version: 11600
+  max_version: 11800
   tags:
     - pgbouncer
 
@@ -3465,7 +3556,7 @@ pgbouncer_pool_108_115:
   name: pgbouncer_pool
   desc: Pgbouncer pool stats (1.08-1.15)   # http://www.pgbouncer.org/usage.html#show-pools
   query: SHOW POOLS;
-  ttl: 1
+  ttl: {{ ttl_norm }}
   min_version: 10800
   max_version: 11600
   tags:

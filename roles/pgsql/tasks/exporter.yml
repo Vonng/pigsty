@@ -6,8 +6,19 @@
   tags: [ pg_exporter, pg_exporter_config ]
   block:
 
-    - name: config pg_exporter.yml config
-      when: pg_exporter_enabled|bool or pgbouncer_exporter_enabled|bool
+    # if pg_exporter_config is not defined, use default template
+    - name: render default pg_exporter.yml config
+      when: (pg_exporter_enabled|bool or pgbouncer_exporter_enabled|bool) and pg_exporter_config == 'pg_exporter.yml'
+      template: src=pg_exporter.yml dest=/etc/pg_exporter.yml owner={{ pg_dbsu }} group=postgres mode=0644
+      vars:
+        ttl_fast: "{{ pg_exporter_cache_ttls.split(',')[0] }}"
+        ttl_norm: "{{ pg_exporter_cache_ttls.split(',')[1] }}"
+        ttl_slow: "{{ pg_exporter_cache_ttls.split(',')[2] }}"
+        ttl_slowest: "{{ pg_exporter_cache_ttls.split(',')[3] }}"
+
+    # otherwise, COPY use specified file
+    - name: copy user provided pg_exporter.yml config
+      when: (pg_exporter_enabled|bool or pgbouncer_exporter_enabled|bool) and pg_exporter_config != 'pg_exporter.yml'
       copy: src={{ pg_exporter_config }} dest=/etc/pg_exporter.yml owner={{ pg_dbsu }} group=postgres mode=0644
 
     # pg_exporter systemd

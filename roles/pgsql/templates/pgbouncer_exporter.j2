@@ -8,6 +8,9 @@ PG_EXPORTER_LISTEN_ADDRESS=":{{ pgbouncer_exporter_port }}"
 PG_EXPORTER_TELEMETRY_PATH="{{ exporter_metrics_path }}"
 PG_EXPORTER_DISABLE_CACHE=false
 PG_EXPORTER_AUTO_DISCOVERY=false
-PG_EXPORTER_CONNECT_TIMEOUT=100
-# PG_EXPORTER_OPTS='--log.level=info --log.format="logger:syslog?appname=pgbouncer_exporter&local=7"'
-PG_EXPORTER_OPTS={{ pgbouncer_exporter_options }}
+PG_EXPORTER_CONNECT_TIMEOUT={{ pg_exporter_connect_timeout }}
+{% if pgbouncer_exporter_options != '' %}
+PG_EXPORTER_OPTS='{{ pgbouncer_exporter_options }}'
+{% else %}
+PG_EXPORTER_OPTS='--log.level=info --log.format="logger:syslog?appname=pgbouncer_exporter&local=7"'
+{% endif %}
