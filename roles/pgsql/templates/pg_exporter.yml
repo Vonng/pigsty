@@ -2638,7 +2638,7 @@ pg_table_13:
        vacuum_count,autovacuum_count,analyze_count,autoanalyze_count,
        heap_blks_read,heap_blks_hit,idx_blks_read,idx_blks_hit,toast_blks_read,toast_blks_hit,tidx_blks_read,tidx_blks_hit
     FROM pg_class c, LATERAL (SELECT * FROM pg_stat_user_tables WHERE relid = c.oid LIMIT 1) psut, LATERAL (SELECT * FROM pg_statio_user_tables WHERE relid = c.oid LIMIT 1) psutio
-    WHERE relnamespace = ANY (SELECT oid FROM pg_namespace WHERE nspname <> ALL (ARRAY ['pg_catalog','information_schema','pg_toast','columnar']) AND nspname !~ 'timescaledb' AND nspname !~ 'citus' ) AND relkind = ANY (ARRAY ['r', 'm', 't', 'p'])
+    WHERE relnamespace = ANY (SELECT oid FROM pg_namespace WHERE nspname !~ '^pg_' AND nspname !~ '^_' AND nspname !~ '^timescaledb' AND nspname !~ '^citus' AND nspname !~ '^columnar' AND nspname NOT IN ('pg_catalog','information_schema','pg_toast','repack','monitor')) AND relkind = ANY (ARRAY ['r', 'm', 't', 'p'])
     ORDER BY relpages DESC LIMIT 256;
 
   ttl: {{ ttl_norm }}
@@ -2664,10 +2664,10 @@ pg_table_13:
         # Size of the on-disk representation of this table in pages (of size BLCKSZ). This is only an estimate used by the planner. It is updated by VACUUM, ANALYZE, and a few DDL commands such as CREATE INDEX.
     - tuples:
         usage: COUNTER
-        description: All txid before this have been forzen on this table
+        description: All txid before this have been frozen on this table
     - frozenxid:
         usage: COUNTER
-        description: All txid before this have been forzen on this table
+        description: All txid before this have been frozen on this table
     - age:
         usage: GAUGE
         description: Age of this table in vacuum cycles
@@ -2806,7 +2806,7 @@ pg_table_10_12:
        vacuum_count,autovacuum_count,analyze_count,autoanalyze_count,
        heap_blks_read,heap_blks_hit,idx_blks_read,idx_blks_hit,toast_blks_read,toast_blks_hit,tidx_blks_read,tidx_blks_hit
     FROM pg_class c, LATERAL (SELECT * FROM pg_stat_user_tables WHERE relid = c.oid LIMIT 1) psut, LATERAL (SELECT * FROM pg_statio_user_tables WHERE relid = c.oid LIMIT 1) psutio
-    WHERE relnamespace = ANY (SELECT oid FROM pg_namespace WHERE nspname <> ALL (ARRAY ['pg_catalog','information_schema','pg_toast','columnar']) AND nspname !~ 'timescaledb' AND nspname !~ 'citus' ) AND relkind = ANY (ARRAY ['r', 'm', 't', 'p'])
+    WHERE relnamespace = ANY (SELECT oid FROM pg_namespace WHERE nspname !~ '^pg_' AND nspname !~ '^_' AND nspname !~ '^timescaledb' AND nspname !~ '^citus' AND nspname !~ '^columnar' AND nspname NOT IN ('pg_catalog','information_schema','pg_toast','repack','monitor')) AND relkind = ANY (ARRAY ['r', 'm', 't', 'p'])
     ORDER BY relpages DESC LIMIT 256;
 
   ttl: {{ ttl_norm }}
@@ -2833,10 +2833,10 @@ pg_table_10_12:
         # Size of the on-disk representation of this table in pages (of size BLCKSZ). This is only an estimate used by the planner. It is updated by VACUUM, ANALYZE, and a few DDL commands such as CREATE INDEX.
     - tuples:
         usage: COUNTER
-        description: All txid before this have been forzen on this table
+        description: All txid before this have been frozen on this table
     - frozenxid:
         usage: COUNTER
-        description: All txid before this have been forzen on this table
+        description: All txid before this have been frozen on this table
     - age:
         usage: GAUGE
         description: Age of this table in vacuum cycles
@@ -2963,10 +2963,11 @@ pg_index:
   desc: PostgreSQL index metrics
   query: |
     SELECT CURRENT_CATALOG AS datname, schemaname || '.' || indexrelname AS idxname, schemaname || '.' || relname AS relname ,indexrelid AS relid,
-    relpages, reltuples, idx_scan, idx_tup_read, idx_tup_fetch, idx_blks_read, idx_blks_hit
-    FROM pg_stat_user_indexes psui, LATERAL (SELECT idx_blks_read, idx_blks_hit FROM pg_statio_user_indexes psio WHERE psio.indexrelid = psui.indexrelid LIMIT 1) p2, 
-         LATERAL (SELECT relpages,reltuples FROM pg_class c WHERE c.oid = psui.indexrelid LIMIT 1) p3
-    WHERE schemaname <> ALL(ARRAY['pg_catalog','information_schema','pg_toast','columnar']) AND schemaname !~'timescaledb' AND schemaname !~'citus' ORDER BY idx_tup_read DESC LIMIT 512;
+        relpages, reltuples, idx_scan, idx_tup_read, idx_tup_fetch, idx_blks_read, idx_blks_hit
+    FROM pg_stat_user_indexes psui, LATERAL (SELECT idx_blks_read, idx_blks_hit FROM pg_statio_user_indexes psio WHERE psio.indexrelid = psui.indexrelid LIMIT 1) p2,
+        LATERAL (SELECT relpages,reltuples FROM pg_class c WHERE c.oid = psui.indexrelid LIMIT 1) p3
+    WHERE schemaname !~ '^pg_' AND schemaname !~ '^_' AND schemaname !~ '^timescaledb' AND schemaname !~ '^citus' AND schemaname !~ '^columnar' AND schemaname NOT IN ('pg_catalog','information_schema','pg_toast','repack','monitor')
+    ORDER BY idx_tup_read DESC LIMIT 512;
 
   ttl: {{ ttl_norm }}
   timeout: 1
