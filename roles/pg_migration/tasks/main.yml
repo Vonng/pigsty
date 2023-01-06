@@ -1,0 +1,71 @@
+---
+#----------------------------------------------------------#
+# preflight check                                    [check]
+#----------------------------------------------------------#
+- name: validating parameters
+  tags: check
+  assert:
+    that:
+      - src_cls is defined and src_db is defined and src_ip is defined
+      - dst_cls is defined and dst_db is defined and dst_ip is defined
+
+- name: building parameters
+  tags: [ check, always ]
+  set_fact:
+    dir_path: "{{ context_dir }}/{{ src_cls }}.{{ src_db }}"
+    src_pg: "{% if src_pg is defined %}{{ src_pg }}{% else %}postgres://{{ pg_admin_username }}@{{ src_ip }}/{{ src_db }}{% endif %}"
+    dst_pg: "{% if dst_pg is defined %}{{ dst_pg }}{% else %}postgres://{{ pg_admin_username }}@{{ dst_ip }}/{{ dst_db }}{% endif %}"
+    pub_name: 'pub_{{ src_cls | replace("-", "_") }}_{{ src_db | replace("-", "_") }}'
+    sub_name: 'sub_{{ src_cls | replace("-", "_") }}_{{ src_db | replace("-", "_") }}'
+    sub_conn: '{% if sub_conn is defined %}{{ sub_conn }}{% else %}host={{ src_ip }} dbname={{ src_db }} user={{ pg_replication_username }}{% endif %}'
+
+- name: print parameters
+  tags: check
+  debug:
+    msg: "[SRC] {{ src_pg }}  [{{ pub_name }}]  ---->  [DST] {{ dst_pg }}  [{{ sub_name }}]"
+
+
+#----------------------------------------------------------#
+# create dir : ~/migration/{{ src_cls }}.{{ db }}      [dir]
+#----------------------------------------------------------#
+- name: create migration context directories
+  tags: dir
+  file: path="{{ dir_path }}/{{ item }}" state=directory mode=0700
+  with_items: [ data, log, sql ]
+
+
+#----------------------------------------------------------#
+# create migration manual                           [manual]
+#----------------------------------------------------------#
+- name: create migration manual
+  tags: manual
+  template: src=manual.md dest={{ dir_path }}/README.md
+
+
+#----------------------------------------------------------#
+# render migration script                           [script]
+#----------------------------------------------------------#
+- name: render migration scripts
+  tags: script
+  template:
+    src: "{{ item }}"
+    dest: "{{ dir_path }}/{{ item }}"
+    mode: 0755
+  with_items:
+
+    - activate       # migration context
+    - check-user     # check src users
+    - check-db       # check src databases
+    - check-hba      # check src hba rules
+    - check-repl     # check src replica identities
+    - check-misc     # check src special objects
+    - copy-schema    # copy schema from src to dst
+    - copy-seq       # copy sequences from src to dst
+    - copy-progress  # print logical replication initial sync complete ratio
+    - copy-diff      # diff src/dst table count to check logical replication is synced
+    - create-pub     # create publication on src
+    - drop-pub       # drop publication on src
+    - create-sub     # create subscription on dst
+    - drop-sub       # drop subscription on dst
+
+...

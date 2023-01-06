@@ -1,0 +1,134 @@
+#!/bin/bash
+#==============================================================#
+# File      :   copy-seq
+# Desc      :   copy sequence number from src to dst
+# Time      :   {{ '%Y-%m-%d %H:%M' |strftime }}
+# Path      :   {{ dir_path }}/copy-seq
+# Deps      :   bash
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+
+
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+# arg1 : shift number, add this number to all sequences to avoid conflict
+
+# check if MIGRATION_CONTEXT is defined as expected
+EXPECTED_CONTEXT="{{ src_cls }}.{{ src_db }}"
+if [[ "${MIGRATION_CONTEXT}" != "${EXPECTED_CONTEXT}" ]]; then
+    log_error "MIGRATION_CONTEXT = ${MIGRATION_CONTEXT} != EXPECTED ${EXPECTED_CONTEXT}"
+    log_hint "did you run . activate first?"
+    exit 1
+fi
+
+DUMP_SQL="data/seq-query.sql"
+LOAD_SQL="data/copy-seq.sql"
+REGEX_NUM='^[0-9]+$'
+SEQ_SHIFT=0
+
+if (($# >= 1)); then
+  SEQ_SHIFT=$1
+  if ! [[ $1 =~ $REGEX_NUM ]]; then
+    log_error "error: shift number must be a positive integer" >&2
+    exit 1
+  fi
+fi
+#--------------------------------------------------------------#
+
+
+
+#--------------------------------------------------------------#
+# Planning
+#--------------------------------------------------------------#
+# if seq shift is 0, we don't need to do anything
+if (( ${SEQ_SHIFT} >= 0 )); then
+log_info   "generate sequence dump sql with ${SEQ_SHIFT} shift: ${DUMP_SQL}"
+cat > ${DUMP_SQL} <<-EOF
+SELECT '-- DUMP AT: ' || NOW()::TEXT || ' WITH SHIFT ${SEQ_SHIFT} ' AS sql
+UNION ALL
+SELECT format('SELECT setval(''%s.%s'', %s + ${SEQ_SHIFT});', schemaname, sequencename, last_value ) AS sql
+FROM pg_sequences
+WHERE last_value IS NOT NULL
+  AND schemaname !~ '^pg_'
+  AND schemaname !~ '^_'
+  AND schemaname !~ '^timescaledb'
+  AND schemaname !~ '^citus'
+  AND schemaname !~ '^columnar'
+  AND schemaname NOT IN ('pg_catalog', 'information_schema', 'pg_toast', 'repack', 'monitor');
+EOF
+
+else
+
+log_info   "generate sequence dump sql without any shift: ${DUMP_SQL}"
+cat > ${DUMP_SQL} <<-EOF
+SELECT '-- DUMP AT: ' || NOW()::TEXT || ' WITH OUT SHIFT ' AS sql
+UNION ALL
+SELECT format('SELECT setval(''%s.%s'', %s);', schemaname, sequencename, last_value ) AS sql
+FROM pg_sequences
+WHERE last_value IS NOT NULL
+  AND schemaname !~ '^pg_'
+  AND schemaname !~ '^_'
+  AND schemaname !~ '^timescaledb'
+  AND schemaname !~ '^citus'
+  AND schemaname !~ '^columnar'
+  AND schemaname NOT IN ('pg_catalog', 'information_schema', 'pg_toast', 'repack', 'monitor');
+EOF
+
+fi
+
+
+#--------------------------------------------------------------#
+# Dump Seq
+#--------------------------------------------------------------#
+log_info   "dump src sequences from ${SRCCLS}.${SRCDB}"
+log_info   "  - SRC URL : ${SRCPG}"
+log_info   "  - INPUT   : ${DUMP_SQL}"
+log_info   "  - OUTPUT  : ${LOAD_SQL}"
+log_debug  "$ psql ${SRCPG} -Xwf ${DUMP_SQL} -o ${LOAD_SQL}"
+
+psql "${SRCPG}" -qAXtwf ${DUMP_SQL} -o ${LOAD_SQL}
+
+
+#--------------------------------------------------------------#
+# Print Seq
+#--------------------------------------------------------------#
+log_warn "check dumped sequences before loading to dst"
+cat ${LOAD_SQL}
+
+
+#--------------------------------------------------------------#
+# Load Seq (with explicit asking)
+#--------------------------------------------------------------#
+log_input "load sequences to dst ? (yes/no) >"
+read -r
+case ${REPLY} in
+    [yY][eE][sS]|[yY])
+        log_info   "load sequences into dst: ${DSTCLS}.${DSTDB}"
+        log_info   "  - DST URL  : ${DSTPG}"
+        log_info   "  - SQL FILE : ${LOAD_SQL}"
+        log_debug  "$ psql '${DSTPG}' -Xwf ${LOAD_SQL}"
+        psql "${DSTPG}" -Xwf ${LOAD_SQL}
+        exit 0
+        ;;
+    *)
+        log_info  "you can exam it and execute it later with:"
+        log_debug  "$ psql '${DSTPG}' -Xwf ${LOAD_SQL}"
+        exit 1
+        ;;
+esac

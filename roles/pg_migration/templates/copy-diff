@@ -1,0 +1,80 @@
+#!/bin/bash
+#==============================================================#
+# File      :   copy-diff
+# Desc      :   Diff two postgresql database by table row count
+# Time      :   {{ '%Y-%m-%d %H:%M' |strftime }}
+# Path      :   {{ dir_path }}/copy-diff
+# Deps      :   bash
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+
+
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+# check if MIGRATION_CONTEXT is defined as expected
+EXPECTED_CONTEXT="{{ src_cls }}.{{ src_db }}"
+if [[ "${MIGRATION_CONTEXT}" != "${EXPECTED_CONTEXT}" ]]; then
+    log_error "MIGRATION_CONTEXT = ${MIGRATION_CONTEXT} != EXPECTED ${EXPECTED_CONTEXT}"
+    log_hint "did you run . activate first?"
+    exit 1
+fi
+
+log_info   "diff src & dst tables:   ${SRCCLS}.${SRCDB} : ${DSTCLS}:${DSTDB}"
+log_info   "  - SRC URL : ${SRCPG}"
+log_info   "  - DST URL : ${DSTPG}"
+
+
+#--------------------------------------------------------------#
+# Execute
+#--------------------------------------------------------------#
+function compare_relation() {
+    local relname=${1}
+    res1=$(psql "${SRCPG}" -AXtwc "SELECT count(*) AS cnt FROM ${relname};")
+    res2=$(psql "${DSTPG}" -AXtwc "SELECT count(*) AS cnt FROM ${relname};")
+    if [[ "${res1}" == "${res2}" ]]; then
+        log_info "[PASS] ${relname}\t${res1}"
+    else
+        log_error "[FAIL] ${relname}\t [SRC=${res1}] [DST=${res2}]"
+    fi
+}
+
+function compare_sequence() {
+    local seqname=${1}
+    res1=$(psql "${SRCPG}" -AXtwc "SELECT currval('${seqname}');")
+    res2=$(psql "${DSTPG}" -AXtwc "SELECT currval('${seqname}');")
+    if [[ "${res1}" == "${res2}" ]]; then
+        log_info "[PASS] ${seqname}\t${res1}"
+    else
+        log_error "[FAIL] ${seqname}\t [SRC=${res1}] [DST=${res2}]"
+    fi
+}
+
+function compare_all() {
+    sequences=$(psql ${SRCPG} -AXtwc "SELECT quote_ident(schemaname) || '.' || quote_ident(sequencename) FROM pg_sequences WHERE schemaname !~ '^pg_' AND schemaname !~ '^_' AND schemaname !~ '^timescaledb' AND schemaname !~ '^citus' AND schemaname !~ '^columnar' AND schemaname NOT IN ('pg_catalog', 'information_schema', 'pg_toast', 'repack', 'monitor');;")
+    for sequence in $sequences; do
+        compare_sequence ${sequence}
+    done
+
+    tables=$(psql ${SRCPG} -AXtwc "SELECT quote_ident(nspname) || '.' || quote_ident(relname) AS name FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid WHERE relkind = 'r' AND nspname !~ '^pg_' AND nspname !~ '^_' AND nspname !~ '^timescaledb' AND nspname !~ '^citus' AND nspname !~ '^columnar' AND nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast', 'repack', 'monitor');")
+    for table in $tables; do
+        compare_relation ${table}
+    done
+}
+
+compare_all

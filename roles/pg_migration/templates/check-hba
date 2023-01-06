@@ -1,0 +1,59 @@
+#!/bin/bash
+#==============================================================#
+# File      :   check-hba
+# Desc      :   Check source postgres hba rules
+# Time      :   {{ '%Y-%m-%d %H:%M' |strftime }}
+# Path      :   {{ dir_path }}/check-hba
+# Deps      :   bash
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+
+
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+# check if MIGRATION_CONTEXT is defined as expected
+EXPECTED_CONTEXT="{{ src_cls }}.{{ src_db }}"
+if [[ "${MIGRATION_CONTEXT}" != "${EXPECTED_CONTEXT}" ]]; then
+    log_error "MIGRATION_CONTEXT = ${MIGRATION_CONTEXT} != EXPECTED ${EXPECTED_CONTEXT}"
+    log_hint "did you run . activate first?"
+    exit 1
+fi
+
+
+#--------------------------------------------------------------#
+# Execute
+#--------------------------------------------------------------#
+OUTPUT="data/pg_hba.data"
+log_info   "check src hba: ${SRCCLS}.${SRCDB}"
+log_info   "  - SRC URL : ${SRCPG}"
+log_info   "  - OUTPUT  : ${OUTPUT}"
+
+# cat & save pg_hba rules in postgres
+
+log_info "select pg_hba_file_rules into ${OUTPUT}"
+psql "${SRCPG}" -Xwo "${OUTPUT}" -c 'TABLE pg_hba_file_rules;'
+log_info "hba rules:\n"
+cat "${OUTPUT}"
+
+OUTPUT="data/pg_hba.conf"
+log_info "copy raw hba files into ${OUTPUT}"
+ssh "${SRCIP}" "sudo cat /pg/data/pg_hba.conf" > data/pg_hba.conf
+
+log_info "raw hba conf:\n"
+cat "${OUTPUT}"

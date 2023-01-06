@@ -1,0 +1,59 @@
+#!/bin/bash
+#==============================================================#
+# File      :   check-misc
+# Desc      :   Check MISCELLANEOUS database objects
+# Time      :   {{ '%Y-%m-%d %H:%M' |strftime }}
+# Path      :   {{ dir_path }}/check-misc
+# Deps      :   bash
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+
+
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+# check if MIGRATION_CONTEXT is defined as expected
+EXPECTED_CONTEXT="{{ src_cls }}.{{ src_db }}"
+if [[ "${MIGRATION_CONTEXT}" != "${EXPECTED_CONTEXT}" ]]; then
+    log_error "MIGRATION_CONTEXT = ${MIGRATION_CONTEXT} != EXPECTED ${EXPECTED_CONTEXT}"
+    log_hint "did you run . activate first?"
+    exit 1
+fi
+
+
+#--------------------------------------------------------------#
+# Execute
+#--------------------------------------------------------------#
+OUTPUT="data/misc.data"
+log_info   "check misc objects: ${SRCCLS}.${SRCDB}"
+log_info   "  - SRC URL : ${SRCPG}"
+log_info   "  - OUTPUT  : ${OUTPUT}"
+
+psql "${SRCPG}" -Xwo ${OUTPUT} <<-EOF
+
+    SELECT relkind ,quote_ident(nspname) || '.' || quote_ident(relname) AS name, con.ri AS keys, pg_size_pretty(pg_table_size(c.oid)) AS size,
+           CASE relreplident WHEN 'd' THEN 'default' WHEN 'n' THEN 'nothing' WHEN 'f' THEN 'full' WHEN 'i' THEN 'index' END AS identity
+    FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid, LATERAL (SELECT array_agg(contype) AS ri FROM pg_constraint WHERE conrelid = c.oid) con
+    WHERE relkind NOT IN ('r','i','v', 'S') AND nspname NOT IN ('pg_catalog', 'information_schema', 'monitor', 'repack', 'pg_toast')
+    ORDER BY 1,2;
+
+EOF
+
+# print result in yaml format
+log_info "check-misc result:\n"
+cat ${OUTPUT}

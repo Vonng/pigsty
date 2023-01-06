@@ -1,0 +1,89 @@
+#!/bin/bash
+#==============================================================#
+# File      :   check-db
+# Desc      :   Check source database definition
+# Time      :   {{ '%Y-%m-%d %H:%M' |strftime }}
+# Path      :   {{ dir_path }}/check-db
+# Deps      :   bash
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+
+
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+# check if MIGRATION_CONTEXT is defined as expected
+EXPECTED_CONTEXT="{{ src_cls }}.{{ src_db }}"
+if [[ "${MIGRATION_CONTEXT}" != "${EXPECTED_CONTEXT}" ]]; then
+    log_error "MIGRATION_CONTEXT = ${MIGRATION_CONTEXT} != EXPECTED ${EXPECTED_CONTEXT}"
+    log_hint "did you run . activate first?"
+    exit 1
+fi
+OUTPUT="data/pg_databases.json"
+
+
+#--------------------------------------------------------------#
+# Execute
+#--------------------------------------------------------------#
+log_info   "check src databases: ${SRCCLS}.${SRCDB}"
+log_info   "  - SRC URL : ${SRCPG}"
+log_info   "  - OUTPUT  : ${OUTPUT}"
+
+psql "${SRCPG}" -AXwto ${OUTPUT} <<-EOF
+
+-- generate json output of cluster databases
+SELECT jsonb_build_object('pg_databases', jsonb_agg(row_to_json(final)::JSONB))
+FROM (SELECT datname                       AS name,
+             datdba::RegRole::Text         AS owner,
+             pg_encoding_to_char(encoding) AS encoding,
+             datcollate                    AS lc_collate,
+             datctype                      AS lc_ctype,
+             datallowconn                  AS allowconn,
+             datconnlimit                  AS connlimit,
+             (SELECT json_agg(nspname) AS schemas
+              FROM pg_namespace
+              WHERE nspname !~ '^pg_'
+                AND nspname !~ '^_'
+                AND nspname !~ '^timescaledb'
+                AND nspname !~ '^citus'
+                AND nspname !~ '^columnar'
+                AND nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast', 'repack', 'monitor')),
+             (SELECT json_agg(row_to_json(ex)) AS extensions
+              FROM (SELECT extname AS name, extnamespace::RegNamespace AS schema
+                    FROM pg_extension
+                    WHERE extname NOT IN
+                          ('plpgsql', 'adminpack', 'pg_stat_statements', 'pgstattuple', 'pg_buffercache', 'pageinspect',
+                           'pg_prewarm', 'pg_visibility', 'pg_freespacemap', 'postgres_fdw', 'file_fdw', 'btree_gist',
+                           'btree_gin', 'pg_trgm', 'intagg', 'intarray', 'pg_repack')) ex),
+             (SELECT json_object_agg(substring(cfg, 0, strpos(cfg, '=')),
+                                     substring(cfg, strpos(cfg, '=') + 1)) AS parameters
+              FROM (SELECT unnest(setconfig) AS cfg
+                    FROM pg_db_role_setting s
+                             JOIN pg_database d ON d.oid = s.setdatabase
+                    WHERE d.datname = current_database()) cf)
+      FROM pg_database
+      WHERE datname = current_database()) final;
+
+EOF
+
+
+# print result in yaml format
+log_info "check-db result:\n"
+python3 -c "import json,yaml; print(yaml.dump(json.load(open('${OUTPUT}'))))"
+
+# alternative: cat ${OUTPUT}  | jq   | yq eval -P

@@ -1,0 +1,109 @@
+#!/bin/bash
+#==============================================================#
+# File      :   check-user
+# Desc      :   Check source user definition
+# Time      :   {{ '%Y-%m-%d %H:%M' |strftime }}
+# Path      :   {{ dir_path }}/check-user
+# Deps      :   bash
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+
+
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+# check if MIGRATION_CONTEXT is defined as expected
+EXPECTED_CONTEXT="{{ src_cls }}.{{ src_db }}"
+if [[ "${MIGRATION_CONTEXT}" != "${EXPECTED_CONTEXT}" ]]; then
+    log_error "MIGRATION_CONTEXT = ${MIGRATION_CONTEXT} != EXPECTED ${EXPECTED_CONTEXT}"
+    log_hint "did you run . activate first?"
+    exit 1
+fi
+OUTPUT="data/pg_users.json"
+
+
+#--------------------------------------------------------------#
+# Execute
+#--------------------------------------------------------------#
+log_info   "check src users: ${SRCCLS}.${SRCDB}"
+log_info   "  - SRC URL : ${SRCPG}"
+log_info   "  - OUTPUT  : ${OUTPUT}"
+
+psql "${SRCPG}" -AXwto ${OUTPUT} <<-EOF
+
+SELECT
+    json_build_object('pg_users', json_agg(jsonb_build_object('name', name) ||
+             CASE WHEN name ~ '^dbuser_.*' THEN '{"pgbouncer": true}' ELSE '{}'::JSONB END ||
+             CASE WHEN password IS NOT NULL THEN jsonb_build_object('password', password) ELSE '{}'::JSONB END ||
+             CASE WHEN login IS NOT NULL AND NOT login THEN jsonb_build_object('login', login) ELSE '{}'::JSONB END ||
+             CASE WHEN superuser IS NOT NULL AND superuser THEN jsonb_build_object('superuser', superuser) ELSE '{}'::JSONB END ||
+             CASE WHEN createdb IS NOT NULL AND createdb THEN jsonb_build_object('createdb', createdb) ELSE '{}'::JSONB END ||
+             CASE WHEN createrole IS NOT NULL AND createrole THEN jsonb_build_object('createrole', createrole) ELSE '{}'::JSONB END ||
+             CASE WHEN inherit IS NOT NULL AND NOT inherit THEN jsonb_build_object('inherit', inherit) ELSE '{}'::JSONB END ||
+             CASE WHEN replication IS NOT NULL AND replication THEN jsonb_build_object('replication', replication) ELSE '{}'::JSONB END ||
+             CASE WHEN bypassrls IS NOT NULL AND bypassrls THEN jsonb_build_object('bypassrls', bypassrls) ELSE '{}'::JSONB END ||
+             CASE WHEN connlimit IS NOT NULL AND connlimit != -1 THEN jsonb_build_object('connlimit', connlimit) ELSE '{}'::JSONB END ||
+             CASE WHEN expire_at IS NOT NULL AND expire_at > NOW()::DATE::TEXT THEN jsonb_build_object('expire_at', expire_at::DATE::TEXT) ELSE '{}'::JSONB END ||
+             CASE WHEN parameters IS NOT NULL THEN jsonb_build_object('parameters', parameters) ELSE '{}'::JSONB END ||
+             CASE WHEN roles IS NOT NULL AND array_length(roles, 0) > 0 THEN jsonb_build_object('roles', roles) WHEN name ~ '^dbuser_.*'
+                 THEN '{"roles": ["dbrole_readwrite"]}'::JSONB ELSE '{"roles":["dbrole_offline"]}'::JSONB END ||
+             CASE WHEN comment IS NOT NULL AND comment != '' THEN jsonb_build_object('comment', comment) ELSE '{}'::JSONB END))
+FROM
+    (SELECT r.rolname AS name,
+            a.rolpassword AS password,
+            r.rolcanlogin AS login,
+            r.rolsuper AS superuser,
+            r.rolcreatedb AS createdb,
+            r.rolcreaterole AS createrole,
+            r.rolinherit AS inherit,
+            r.rolreplication AS replication,
+            r.rolbypassrls AS bypassrls,
+            r.rolconnlimit AS connlimit,
+            r.rolvaliduntil::DATE::TEXT AS expire_at,
+            (SELECT json_object_agg(substring(cfg, 0 , strpos(cfg, '=')), substring(cfg, strpos(cfg, '=')+1)) FROM unnest(setconfig) p(cfg)) AS parameters,
+            ARRAY(SELECT CASE b.rolname WHEN 'dbrole_readwrite_with_delete' THEN 'dbrole_readwrite' ELSE b.rolname END FROM pg_catalog.pg_auth_members m JOIN pg_catalog.pg_roles b ON (m.roleid = b.oid) WHERE m.member = r.oid) as roles,
+            pg_catalog.shobj_description(r.oid, 'pg_authid') AS comment
+     FROM pg_catalog.pg_roles r
+              LEFT JOIN pg_db_role_setting rs ON r.oid = rs.setrole
+              LEFT JOIN pg_authid a ON r.oid = a.oid
+     WHERE r.rolname !~ '^pg_'
+       AND r.rolname NOT IN ('postgres','replicator','dbuser_stats','dbuser_monitor','dbuser_dba')
+       AND r.rolname !~'^dbrole_'
+     ORDER BY 1) u;
+
+EOF
+
+# print result in yaml format
+log_info "check-user result:\n"
+python3 -c "import json,yaml; print(yaml.dump(json.load(open('${OUTPUT}'))))"
+
+# alternative: cat ${OUTPUT}  | jq   | yq eval -P

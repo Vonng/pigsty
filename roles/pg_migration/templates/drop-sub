@@ -1,0 +1,73 @@
+#!/bin/bash
+#==============================================================#
+# File      :   drop-sub
+# Desc      :   Drop subscription on dst cluster
+# Time      :   {{ '%Y-%m-%d %H:%M' |strftime }}
+# Path      :   {{ dir_path }}/drop-sub
+# Deps      :   bash
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+
+
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+# check if MIGRATION_CONTEXT is defined as expected
+EXPECTED_CONTEXT="{{ src_cls }}.{{ src_db }}"
+if [[ "${MIGRATION_CONTEXT}" != "${EXPECTED_CONTEXT}" ]]; then
+    log_error "MIGRATION_CONTEXT = ${MIGRATION_CONTEXT} != EXPECTED ${EXPECTED_CONTEXT}"
+    log_hint "did you run . activate first?"
+    exit 1
+fi
+SQLFILE="data/drop-sub.sql"
+
+
+#--------------------------------------------------------------#
+# Planning
+#--------------------------------------------------------------#
+log_info "generate drop subscription sql on ${SQLFILE}"
+
+cat > ${SQLFILE} <<-EOF
+ALTER SUBSCRIPTION "${SUBNAME}" DISABLE;
+-- ALTER SUBSCRIPTION "${SUBNAME}" SET (slot_name = None);
+DROP SUBSCRIPTION "${SUBNAME}";
+EOF
+
+cat ${SQLFILE}
+
+
+#--------------------------------------------------------------#
+# Asking
+#--------------------------------------------------------------#
+log_input "drop subscription on dst ? (yes/no) >"
+read -r
+case ${REPLY} in
+    [yY][eE][sS]|[yY])
+        log_info   "create subscription on dst: ${DSTCLS}.${DSTDB}"
+        log_info   "  - DST URL  : ${DSTPG}"
+        log_info   "  - SQL FILE : ${SQLFILE}"
+        log_debug  "$ psql '${DSTPG}' -Xwf ${SQLFILE}"
+        psql "${DSTPG}" -Xwf ${SQLFILE}
+        exit 0
+        ;;
+    *)
+        log_info  "you can exam it and create sub later with:"
+        log_debug  "$ psql '${DSTPG}' -Xwf ${SQLFILE}"
+        exit 1
+        ;;
+esac
