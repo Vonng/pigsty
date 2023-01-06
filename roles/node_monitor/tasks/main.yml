@@ -113,19 +113,7 @@
         targets: [ {{inventory_hostname }} ]
 
 
-#--------------------------------------------------------------#
-# Install Promtail                            [promtail_install]
-#--------------------------------------------------------------#
-- name: install promtail via yum
-  tags: promtail_install
-  ignore_errors: "{{ not promtail_enabled|bool }}"  # ignore errors if not enabled
-  block:
-    - name: install promtail via yum
-      package: name=promtail state=present
-    - name: remove promtail /etc/systemd service
-      file: dest=/etc/systemd/system/promtail.service state=absent
-    - name: create /etc/promtail config dir
-      file: dest=/etc/promtail state=directory
+
 
 
 #--------------------------------------------------------------#
@@ -143,24 +131,51 @@
 - name: config promtail
   tags: [ promtail, promtail_config ]
   block:
-    - name: create promtail systemd service
-      copy: src=promtail.service dest=/usr/lib/systemd/system/promtail.service
+    - name: create /etc/promtail config dir
+      file: dest=/etc/promtail state=directory
     - name: render /etc/promtail.yml config
       template: src=promtail.yml.j2 dest=/etc/promtail/config.yml
       vars: { loki_url: "http://{{ infra_portal.loki.endpoint|replace('${admin_ip}', admin_ip) }}/loki/api/v1/push" }
+    - name: create promtail systemd service
+      copy: src=promtail.service dest=/etc/systemd/system/promtail.service
+
+
+# NOTICE: The official promtail rpm is tricky to use, since it
+# will launch immediately after install, we have to config it
+# before install & launch it. So do not install it in node_packages
+#--------------------------------------------------------------#
+# Install Promtail                            [promtail_install]
+#--------------------------------------------------------------#
+- name: install promtail via yum
+  tags: promtail_install
+  ignore_errors: "{{ not promtail_enabled|bool }}"  # ignore errors if not enabled
+  block:
+    - name: install promtail via yum
+      package: name=promtail state=present
+    - name: remove promtail /etc/systemd service
+      file: dest=/etc/systemd/system/promtail.service state=absent
+    - name: create promtail systemd service
+      copy: src=promtail.service dest=/usr/lib/systemd/system/promtail.service
 
 
 #--------------------------------------------------------------#
 # Launch Promtail                              [promtail_launch]
 #--------------------------------------------------------------#
-- name: Launch promtail
+- name: launch promtail
   tags: [ promtail, promtail_launch ]
   when: promtail_enabled|bool
   block:
-    - name: launch promtail systemd service
+
+    - name: restart promtail systemd service
       systemd: name=promtail state=restarted enabled=yes daemon_reload=yes
-    - name: wait for promtail online
+    - name: wait for promtail service online
       wait_for: host=127.0.0.1 port={{ promtail_port }} state=started timeout=20
 
 
+#--------------------------------------------------------------#
+# Launch Promtail                              [promtail_reload]
+#--------------------------------------------------------------#
+#- name: reload promtail systemd service
+#  tags: promtail_reload
+#  systemd: name=promtail state=restarted enabled=yes daemon_reload=yes
 ...
