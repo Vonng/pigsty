@@ -1,0 +1,47 @@
+---
+#------------------------------------------------------------------------------
+# Config pg_exporter
+#------------------------------------------------------------------------------
+- name: config pg_exporter
+  block:
+
+    - name: print pg_exporter summary
+      debug:
+        msg: "{{ pg_exporter_unit }} : {{ inventory_hostname }}:{{ pg_exporter_port }} -> {{ pg_cluster }}-{{ pg_seq }} @ {{ pg_host }}:{{ pg_port }}"
+
+    # create pg_exporter config dir
+    - name: create /etc/pg_exporter conf dir
+      file: path=/etc/pg_exporter state=directory owner={{ pg_dbsu }} group=postgres mode=0775
+
+    # if pg_exporter_config is not defined, use default template
+    - name: render default pg_exporter.yml config
+      when: pg_exporter_config == 'pg_exporter.yml'
+      template: src=pg_exporter.yml dest=/etc/pg_exporter/{{ pg_exporter_unit }}.yml owner={{ pg_dbsu }} group=postgres mode=0644
+      vars:
+        ttl_fast: "{{ pg_exporter_cache_ttls.split(',')[0]|int }}"
+        ttl_norm: "{{ pg_exporter_cache_ttls.split(',')[1]|int }}"
+        ttl_slow: "{{ pg_exporter_cache_ttls.split(',')[2]|int }}"
+        ttl_slowest: "{{ pg_exporter_cache_ttls.split(',')[3]|int }}"
+
+    # otherwise, COPY use specified file
+    - name: copy user provided pg_exporter.yml config
+      when: pg_exporter_config != 'pg_exporter.yml'
+      copy: src={{ pg_exporter_config }} dest=/etc/pg_exporter.yml owner={{ pg_dbsu }} group=postgres mode=0644
+
+    # config pg_exporter systemd environment options
+    - name: config pg_exporter parameters
+      template: src=pg_exporter.j2 dest=/etc/default/{{ pg_exporter_unit }} owner={{ pg_dbsu }} group=postgres mode=0600
+
+    # config pg_exporter systemd service
+    - name: config pg_exporter systemd unit
+      template: src=pg_exporter.service.j2 dest=/usr/lib/systemd/system/{{ pg_exporter_unit }}.service
+
+    # launch pg_exporter systemd service
+    - name: launch pg_exporter systemd unit
+      systemd: name={{ pg_exporter_unit }} state=restarted enabled=yes daemon_reload=yes
+
+    - name: wait for pg_exporter online
+      wait_for: host=127.0.0.1 port={{ pg_exporter_port }} state=started timeout=10
+
+
+...

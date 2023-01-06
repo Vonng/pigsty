@@ -1,0 +1,79 @@
+---
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+# Monitoring remote Postgres instances with local pg_exporter
+#
+#remote:
+#  hosts:          # a group contains any nodes that have prometheus enabled (infra nodes)
+#  10.10.10.10:    # k,v format, where k is distinct local port that is not used,
+#    pg_exporters: # list all remote instances here, alloc a unique unused local port as k
+#      20001: { pg_cluster: pg-foo, pg_seq: 1, pg_host: 10.10.10.10 }
+#      20004: { pg_cluster: pg-foo, pg_seq: 2, pg_host: 10.10.10.11 }
+#      20002: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.12 }
+#      20003: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.13 }
+#
+#     ------ infra ------
+#     |                 |
+#     |   prometheus    |            v---- pg-foo-1 ----v
+#     |       ^         |  metrics   |         ^        |
+#     |   pg_exporter <-|------------|----  postgres    |
+#     |   (port: 20001) |            | 10.10.10.10:5432 |
+#     |       ^         |            ^------------------^
+#     |       ^         |                      ^
+#     |       ^         |            v---- pg-foo-2 ----v
+#     |       ^         |  metrics   |         ^        |
+#     |   pg_exporter <-|------------|----  postgres    |
+#     |   (port: 20002) |            | 10.10.10.11:5433 |
+#     -------------------            ^------------------^
+#
+# Limitation:
+#    postgres metrics only
+#    node, pgbouncer, patroni, haproxy metrics not available
+#--------------------------------------------------------------#
+- include_tasks: pg_exporter.yml
+  tags: [ pg_exporters ]
+  when: pg_exporters is defined and pg_exporters|type_debug == "dict"
+  vars:
+    pg_exporter_port: "{{ item.key|int|string }}" # <REQUIRED> pg_exporter_port
+    pg_cluster: "{{ item.value.pg_cluster }}"     # <REQUIRED> identity: cls
+    pg_seq: "{{ item.value.pg_seq|int|string }}"  # <REQUIRED> sequence: seq
+    pg_host: "{{ item.value.pg_host }}"           # <REQUIRED> ip addr
+    pg_instance: "{{ item.value.pg_cluster }}-{{ item.value.pg_seq|string }}"
+    pg_exporter_unit: "pg_exporter_{{ item.value.pg_cluster }}-{{ item.value.pg_seq|string }}"
+    pg_port: "{% if 'pg_port' in item.value %}{{ item.value.pg_port }}{% elif 'pg_port' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_port }}{% else %}5432{% endif %}"
+    pg_dbsu: "{% if 'pg_dbsu' in item.value %}{{ item.value.pg_dbsu }}{% elif 'pg_dbsu' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_dbsu }}{% else %}postgres{% endif %}"
+    pg_exporter_config          :    "{% if 'pg_exporter_config'           in item.value %}{{ item.value.pg_exporter_config           }}{% elif 'pg_exporter_config'           in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_config           }} {% else %}pg_exporter.yml{% endif %}"
+    pg_exporter_cache_ttls      :    "{% if 'pg_exporter_cache_ttls'       in item.value %}{{ item.value.pg_exporter_cache_ttls       }}{% elif 'pg_exporter_cache_ttls'       in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_cache_ttls       }} {% else %}1,10,60,300{% endif %}"
+    pg_exporter_params          :    "{% if 'pg_exporter_params'           in item.value %}{{ item.value.pg_exporter_params           }}{% elif 'pg_exporter_params'           in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_params           }} {% else %}sslmode=disable{% endif %}"
+    pg_exporter_url             :    "{% if 'pg_exporter_url'              in item.value %}{{ item.value.pg_exporter_url              }}{% elif 'pg_exporter_url'              in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_url              }} {% else %}{% endif %}"
+    pg_exporter_auto_discovery  :    "{% if 'pg_exporter_auto_discovery'   in item.value %}{{ item.value.pg_exporter_auto_discovery   }}{% elif 'pg_exporter_auto_discovery'   in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_auto_discovery   }} {% else %}true{% endif %}"
+    pg_exporter_include_database:    "{% if 'pg_exporter_include_database' in item.value %}{{ item.value.pg_exporter_include_database }}{% elif 'pg_exporter_include_database' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_include_database }} {% else %}{% endif %}"
+    pg_exporter_connect_timeout :    "{% if 'pg_exporter_connect_timeout'  in item.value %}{{ item.value.pg_exporter_connect_timeout  }}{% elif 'pg_exporter_connect_timeout'  in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_connect_timeout  }} {% else %}200{% endif %}"
+    pg_exporter_exclude_database:    "{% if 'pg_exporter_exclude_database' in item.value %}{{ item.value.pg_exporter_exclude_database }}{% elif 'pg_exporter_exclude_database' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_exclude_database }} {% else %}template0,template1,postgres{% endif %}"
+  with_dict: "{{ pg_exporters }}"
+
+
+# prometheus are idempotent on multiple meta nodes
+# /etc/prometheus/targets/pgsql/{{ pg_instance }}.yml
+- name: register pgsql exporter as prometheus target
+  tags: [ pg_exporters, pg_register, register_prometheus ]
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
+  copy:
+    dest: /etc/prometheus/targets/pgsql/pg-remote.yml
+    content: |
+      # remote postgres instances
+      
+      {% set exporter_list = pg_exporters.items()|sort(attribute='1.pg_cluster') %}
+
+      {% for port, conf in exporter_list %}
+      # {{ conf.pg_cluster }}-{{ conf.pg_seq }} @ {{ conf.pg_host }}:{{ conf.pg_port|default(pg_port)|default(5432) }}
+      - labels: { cls: {{ conf.pg_cluster }}, ins: {{ conf.pg_cluster }}-{{ conf.pg_seq }}, ip: {{ conf.pg_host }} }
+        targets: [ {{ inventory_hostname }}:{{ port }} ]
+
+      {% endfor %}
+
+
+
+...
