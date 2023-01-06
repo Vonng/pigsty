@@ -4,8 +4,8 @@
 #--------------------------------------------------------------#
 - name: install docker and docker-compose
   tags: docker_install
+  when: docker_enabled|bool
   ignore_errors: true  # HOTFIX for EL8 Docker installation
-  #ignore_errors: "{{ not docker_enabled|bool }}"   # ignore errors if not enabled
   package: name={{ item }} state=present
   with_items:
     - docker-ce
@@ -29,8 +29,8 @@
 #--------------------------------------------------------------#
 - name: config docker
   tags: docker_config
+  when: docker_enabled|bool
   block:
-
     - name: create /etc/docker config dir
       file: path=/etc/docker state=directory mode=0755
 
