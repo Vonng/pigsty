@@ -20,9 +20,9 @@
       delegate_to: '{{ item }}'
       with_items: '{{ groups["infra"] }}'
       copy:
-        dest: /etc/nginx/conf.d/haproxy/upstream-{{ pg_cluster }}-{{ pg_seq }}.conf
+        dest: /etc/nginx/conf.d/haproxy/upstream-{{ nodename }}.conf
         content: |
-          upstream {{ pg_cluster }}-{{ pg_seq }} {
+          upstream {{ nodename }} {
               server {{ inventory_hostname }}:{{ haproxy_exporter_port }} max_fails=0;
           }
 
@@ -31,10 +31,10 @@
       delegate_to: '{{ item }}'
       with_items: '{{ groups["infra"] }}'
       copy:
-        dest: /etc/nginx/conf.d/haproxy/location-{{ pg_cluster }}-{{ pg_seq }}.conf
+        dest: /etc/nginx/conf.d/haproxy/location-{{ nodename }}.conf
         content: |
-          location ^~/{{ pg_cluster }}-{{ pg_seq }}/ {
-              proxy_pass http://{{ pg_cluster }}-{{ pg_seq }};
+          location ^~/{{ nodename }}/ {
+              proxy_pass http://{{ nodename }};
               proxy_connect_timeout 1;
           }
 
