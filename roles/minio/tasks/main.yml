@@ -1,14 +1,45 @@
 ---
 #--------------------------------------------------------------#
-# Assert Minio Identity                           [minio_assert]
+# Assert Minio Identity                               [minio-id]
 #--------------------------------------------------------------#
-- name: assert minio identity
-  tags: minio_assert
-  assert:
-    that:
-      - minio_cluster is defined and minio_cluster != ''
-      - minio_seq is defined and         minio_seq|int >= 0
-    fail_msg: variable 'minio_cluster' & 'minio_seq' are required for minio playbook
+- name: minio identity
+  tags: [ always, minio-id ]
+  block:
+
+    - name: assert minio identity
+      assert:
+        that:
+          - minio_cluster is defined and minio_cluster != ''
+          - minio_seq is defined and minio_seq|int >= 0
+        fail_msg: variable 'minio_cluster' & 'minio_seq' are required for minio playbook
+
+    - name: get minio cluster info
+      connection: local
+      set_fact:
+        minio_meta: "{{ hostvars|json_query(cluster_query) }}"
+        minio_nodename: "{{ minio_node|replace('${minio_cluster}', minio_cluster)|replace('${minio_seq}', minio_seq|string) }}"
+        minio_data_dirs: >-
+          {% set minio_multidriver =  minio_data | regex_search('{(\d+)...(\d+)}') %}{% if minio_multidriver and minio_multidriver != '' %}{% set minio_driver_min = (minio_data | regex_findall('{(\d+)...(\d+)}'))[0][0]|int %}{% set minio_driver_max = (minio_data | regex_findall('{(\d+)...(\d+)}'))[0][1]|int %}{% for i in range(minio_driver_min, minio_driver_max+1) %}{% if not loop.first %},{% endif %}{{ minio_data | regex_replace('{(\d+)...(\d+)}', i|string) }}{% endfor %}{% else %}{{ minio_data }}{% endif %}
+      vars: { cluster_query: "[@.*][0][?minio_cluster=='{{ minio_cluster }}']" }
+
+    - name: building minio params
+      connection: local
+      set_fact:
+        minio_cluster_size={{ minio_meta | json_query("[].inventory_hostname") | unique | length }}
+        minio_cluster_members={{ minio_meta | json_query("[].inventory_hostname") | unique | sort }}
+        minio_seq_min={{ minio_meta | json_query('min([].minio_seq)') | int  }}
+        minio_seq_max={{ minio_meta | json_query('max([].minio_seq)') | int  }}
+        minio_seq_range={% raw %}{{% endraw %}{{ minio_meta | json_query('min([].minio_seq)') | int  }}...{{ minio_meta | json_query('max([].minio_seq)') | int  }}{% raw %}}{% endraw %}
+
+    - name: calculate minio volumes
+      connection: local
+      set_fact:
+        minio_node_pattern: "{{ minio_node|replace('${minio_cluster}', minio_cluster)|replace('${minio_seq}',minio_seq_range) }}"
+        minio_volumes: "{% if minio_cluster_size|int > 1 %}https://{{ minio_node|replace('${minio_cluster}', minio_cluster)|replace('${minio_seq}',minio_seq_range) }}:{{ minio_port|default(9000) }}{% endif %}{{ minio_data }}"
+
+    - name: print minio identity
+      debug:
+        msg: "{{ minio_nodename }}: {{ minio_volumes }}"
 
 
 #--------------------------------------------------------------#
@@ -38,8 +69,14 @@
 - name: clean minio data dir
   tags: minio_clean
   when: minio_clean|bool
-  file: path={{ item }} state=absent
-  with_items: "{{ minio_data }}"
+  block:
+
+    - name: stop minio service
+      systemd: name=minio state=stopped enabled=no daemon_reload=yes
+
+    #- name: remove minio data dir
+    #  file: path={{ item }} state=absent
+    #  with_items: "{{ minio_data_dirs.split(',') }}"
 
 
 #--------------------------------------------------------------#
@@ -49,14 +86,14 @@
   tags: minio_dir
   block:
 
-    - name: create minio data dir
+    - name: create minio data directories
       file:
         path: "{{ item }}"
         state: directory
         owner: "{{ minio_user }}"
         group: minio
         mode: 0770
-      with_items: "{{ minio_data }}"
+      with_items: "{{ minio_data_dirs.split(',') }}"
 
     - name: create minio conf dir
       file: path=/etc/minio state=directory owner={{ minio_user }} group=minio mode=0755

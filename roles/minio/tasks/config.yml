@@ -27,6 +27,7 @@
   delegate_to: localhost
   block:
 
+    # reuse existing private key if already exists
     - name: generate minio private key
       openssl_privatekey:
         path: files/pki/minio/{{ minio_instance }}.key
@@ -36,12 +37,13 @@
       openssl_csr:
         path: "files/pki/csr/{{ minio_instance }}.csr"
         privatekey_path: "files/pki/minio/{{ minio_instance }}.key"
-        common_name: "{{ minio_instance }}"
+        common_name: "{{ minio_nodename }}"
         organization_name: pigsty
         organizational_unit_name: minio
         force: true
         subject_alt_name:
           - "DNS:localhost"
+          - "DNS:{{ minio_nodename }}"
           - "DNS:{{ minio_cluster }}"
           - "DNS:{{ minio_cluster }}-{{ minio_seq }}"
           - "DNS:{{ minio_domain }}"
@@ -72,6 +74,36 @@
       copy: src="files/pki/minio/{{ minio_instance }}.crt" dest="/etc/minio/public.crt" owner={{ minio_user }} group=minio mode=0644
     - name: copy minio server key
       copy: src="files/pki/minio/{{ minio_instance }}.key" dest="/etc/minio/private.key" owner={{ minio_user }} group=minio mode=0600
+
+
+#--------------------------------------------------------------#
+# Copy minio certs                                   [minio_dns]
+#--------------------------------------------------------------#
+- name: write minio instance dns to infra nameserver
+  tags: [ minio_dns , register_dns ]
+  delegate_to: '{{ item }}'
+  with_items: "{{ groups['infra'] }}"
+  copy:
+    dest: /etc/hosts.d/{{ minio_instance }}
+    mode: 0644
+    content: |
+      {{ inventory_hostname }} {{ minio_nodename }}
+      {{ inventory_hostname }} {{ minio_cluster }}-{{ minio_seq }}
+
+
+- name: write minio instance dns to infra nameserver
+  tags: [ minio_dns , minio_dns_local ]
+  block:
+
+    - name: wipe minio dns entries
+      lineinfile: path=/etc/hosts regexp='# minio dns$' state=absent
+
+    # NOTE: dns records write by pigsty will be suffixed with "# minio dns" mark
+    - name: write static etc hosts entry
+      lineinfile:
+        path: /etc/hosts
+        line: "{{ item.inventory_hostname }} {{ minio_node|replace('${minio_cluster}', item.minio_cluster)|replace('${minio_seq}', item.minio_seq|string) }} # minio dns"
+      with_items: "{{ minio_meta }}"
 
 
 ...

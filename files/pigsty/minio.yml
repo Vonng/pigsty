@@ -1,0 +1,81 @@
+---
+#==============================================================#
+# File      :   minio.yml
+# Desc      :   pigsty config for minio clusters
+# Ctime     :   2023-01-07
+# Mtime     :   2023-01-07
+# Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+# MINIO_VOLUMES="https://minio-{1...4}.pigsty:9000/data/minio"
+
+all:
+  children:
+
+    # infra cluster for proxy, monitor, alert, etc..
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
+
+
+    # 1 Node 1 Driver (DEFAULT)
+    #minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+
+
+    # 1 Node x 4 Driver
+    #minio:
+    #  hosts: { 10.10.10.10: { minio_seq: 1 } }
+    #  vars:
+    #    minio_cluster: minio              # minio cluster name, minio by default
+    #    minio_data: '/data{1...4}'        # minio data dir(s), use {x...y} to specify multi drivers
+
+
+    # Multi Node & Multi Driver Example (3 Node x 2 Disk)
+    minio:
+      hosts:
+        10.10.10.10: { minio_seq: 1 }
+        10.10.10.11: { minio_seq: 2 }
+        10.10.10.12: { minio_seq: 3 }
+      vars:
+        minio_cluster: minio
+        minio_data: '/data{1...2}'        # use two disk per node
+        minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio node name pattern
+        haproxy_services:
+          - name: minio                     # [REQUIRED] service name, unique
+            port: 9002                      # [REQUIRED] service port, unique
+            options:
+              - option httpchk
+              - option http-keep-alive
+              - http-check send meth OPTIONS uri /minio/health/live
+              - http-check expect status 200
+            servers:
+              - { name: minio-1 ,ip: 10.10.10.10 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+              - { name: minio-2 ,ip: 10.10.10.11 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+              - { name: minio-3 ,ip: 10.10.10.12 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+
+  vars:
+    version: v2.0.0-b4                # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default|china|europe
+
+    #-----------------------------------------------------------------
+    # MINIO
+    #-----------------------------------------------------------------
+    #minio_seq: 1                     # minio instance identifier, REQUIRED
+    minio_cluster: minio              # minio cluster name, minio by default
+    minio_clean: false                # cleanup minio during init?, false by default
+    minio_user: minio                 # minio os user, `minio` by default
+    minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio node name pattern
+    minio_data: '/data/minio'         # minio data dir(s), use {x...y} to specify multi drivers
+    minio_domain: sss.pigsty          # minio external domain name, `sss.pigsty` by default
+    minio_port: 9000                  # minio service port, 9000 by default
+    minio_admin_port: 9001            # minio console port, 9001 by default
+    minio_access_key: minioadmin      # root access key, `minioadmin` by default
+    minio_secret_key: minioadmin      # root secret key, `minioadmin` by default
+    minio_extra_vars: ''              # extra environment variables
+    minio_alias: sss                  # alias name for local minio deployment
+    minio_buckets: [ { name: pgsql }, { name: infra },  { name: redis } ]
+    minio_users:
+      - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
+      - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
+
+...
