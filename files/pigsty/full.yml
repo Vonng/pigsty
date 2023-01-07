@@ -122,7 +122,7 @@ all:
             port: 5435                      # required, service exposed port (work as kubernetes service node port mode)
             ip: "*"                         # optional, service bind ip address, `*` for all ip by default
             selector: "[]"                  # required, service member selector, use JMESPath to filter inventory
-            dest: pgbouncer                 # optional, destination port, postgres|pgbouncer|<port_number> , pgbouncer(6432) by default
+            dest: default                   # optional, destination port, default|postgres|pgbouncer|<port_number>, 'default' by default
             check: /sync                    # optional, health check url path, / by default
             backup: "[? pg_role == `primary`]"  # backup server selector
             maxconn: 3000                   # optional, max allowed front-end connection
@@ -653,11 +653,12 @@ all:
       - {user: '${admin}'   ,db: all         ,addr: intra     ,auth: pwd   ,title: 'admin access via intranet with pwd'   }
       - {user: '${admin}'   ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other admin access addr'   }
       - {user: 'all'        ,db: all         ,addr: intra     ,auth: pwd   ,title: 'allow all user intra access with pwd' }
-    pg_default_services:              # postgres default service definitions
-      - { name: primary ,port: 5433 ,dest: pgbouncer ,check: /primary   ,selector: "[]" }
-      - { name: replica ,port: 5434 ,dest: pgbouncer ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
-      - { name: default ,port: 5436 ,dest: postgres  ,check: /primary   ,selector: "[]" }
-      - { name: offline ,port: 5438 ,dest: postgres  ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
+    pg_default_service_dest: pgbouncer # default service destination if svc.dest='default'
+    pg_default_services:               # postgres default service definitions
+      - { name: primary ,port: 5433 ,dest: default  ,check: /primary   ,selector: "[]" }
+      - { name: replica ,port: 5434 ,dest: default  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
+      - { name: default ,port: 5436 ,dest: postgres ,check: /primary   ,selector: "[]" }
+      - { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
 
     #-----------------------------------------------------------------
     # PG_BACKUP

@@ -259,28 +259,28 @@ pg-meta:
         schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
         extensions: [{name: postgis}]   # optional, additional extensions to be installed: array of `{name[,schema]}`
         comment: pigsty meta database   # optional, comment string for this database
-        #owner: postgres                # optional, database owner, postgres by default
-        #template: template1            # optional, which template to use, template1 by default
-        #encoding: UTF8                 # optional, database encoding, UTF8 by default. (MUST same as template database)
-        #locale: C                      # optional, database locale, C by default.  (MUST same as template database)
-        #lc_collate: C                  # optional, database collate, C by default. (MUST same as template database)
-        #lc_ctype: C                    # optional, database ctype, C by default.   (MUST same as template database)
-        #tablespace: pg_default         # optional, default tablespace, 'pg_default' by default.
-        #allowconn: true                # optional, allow connection, true by default. false will disable connect at all
-        #revokeconn: false              # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
-        #register_datasource: true      # optional, register this database to grafana datasources? true by default
-        #connlimit: -1                  # optional, database connection limit, default -1 disable limit
-        #pool_auth_user: dbuser_meta    # optional, all connection to this pgbouncer database will be authenticated by this user
-        #pool_mode: transaction         # optional, pgbouncer pool mode at database level, default transaction
-        #pool_size: 64                  # optional, pgbouncer pool size at database level, default 64
-        #pool_size_reserve: 32          # optional, pgbouncer pool size reserve at database level, default 32
-        #pool_size_min: 0               # optional, pgbouncer pool size min at database level, default 0
-        #pool_max_db_conn: 100          # optional, max database connections at database level, default 100
-      #- { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
-      #- { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
-      #- { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
-      #- { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
-      #- { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
+        owner: postgres                 # optional, database owner, postgres by default
+        template: template1             # optional, which template to use, template1 by default
+        encoding: UTF8                  # optional, database encoding, UTF8 by default. (MUST same as template database)
+        locale: C                       # optional, database locale, C by default.  (MUST same as template database)
+        lc_collate: C                   # optional, database collate, C by default. (MUST same as template database)
+        lc_ctype: C                     # optional, database ctype, C by default.   (MUST same as template database)
+        tablespace: pg_default          # optional, default tablespace, 'pg_default' by default.
+        allowconn: true                 # optional, allow connection, true by default. false will disable connect at all
+        revokeconn: false               # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
+        register_datasource: true       # optional, register this database to grafana datasources? true by default
+        connlimit: -1                   # optional, database connection limit, default -1 disable limit
+        pool_auth_user: dbuser_meta     # optional, all connection to this pgbouncer database will be authenticated by this user
+        pool_mode: transaction          # optional, pgbouncer pool mode at database level, default transaction
+        pool_size: 64                   # optional, pgbouncer pool size at database level, default 64
+        pool_size_reserve: 32           # optional, pgbouncer pool size reserve at database level, default 32
+        pool_size_min: 0                # optional, pgbouncer pool size min at database level, default 0
+        pool_max_db_conn: 100           # optional, max database connections at database level, default 100
+      - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
+      - { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
+      - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
+      - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
+      - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
     pg_users:                           # define business users/roles on this cluster, array of user definition
       - name: dbuser_meta               # REQUIRED, `name` is the only mandatory field of a user definition
         password: DBUser.Meta           # optional, password, can be a scram-sha-256 hash string or plain text
@@ -302,18 +302,18 @@ pg-meta:
         pool_connlimit: -1              # optional, max database connections at user level, default -1 disable limit
         search_path: public             # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
       - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
-      #- {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database   }
-      #- {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database  }
-      #- {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway   }
-      #- {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service      }
-      #- {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service    }
+      - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database   }
+      - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database  }
+      - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway   }
+      - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service      }
+      - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service    }
     pg_services:                        # extra services in addition to pg_default_services, array of service definition
       # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
       - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
         port: 5435                      # required, service exposed port (work as kubernetes service node port mode)
         ip: "*"                         # optional, service bind ip address, `*` for all ip by default
         selector: "[]"                  # required, service member selector, use JMESPath to filter inventory
-        dest: pgbouncer                 # optional, destination port, postgres|pgbouncer|<port_number> , pgbouncer(6432) by default
+        dest: default                   # optional, destination port, default|postgres|pgbouncer|<port_number>
         check: /sync                    # optional, health check url path, / by default
         backup: "[? pg_role == `primary`]"  # backup server selector
         maxconn: 3000                   # optional, max allowed front-end connection
@@ -437,7 +437,7 @@ WeChat Group: Search `pigsty-cc` to join the WeChat group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/wDzt5VyWEz
+Discord: https://discord.gg/wDzt5VyWEzr
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
