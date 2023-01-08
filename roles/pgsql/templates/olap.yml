@@ -10,20 +10,18 @@
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-{% set pg_max_connections = 100 %}
-{% set pg_shared_buffers = ([(node_mem_mb|int / 400 | round(0, 'ceil'))|int * 100 , 64000])|min %}
-{% set pg_maintenance_mem = ((pg_shared_buffers|int / 20)|round(0, 'ceil')|int * 10)|int %}
+{% if pg_max_conn != 'auto' and pg_max_conn|int >= 20 %}{% set pg_max_connections = pg_max_conn|int %}{% else %}{% set pg_max_connections = 100 %}{% endif %}
+{% set pg_shared_buffers = (node_mem_mb|int * pg_shmem_ratio|float) | round(0, 'ceil') | int %}
+{% set pg_maintenance_mem = (pg_shared_buffers|int * 0.50)|round(0, 'ceil')|int %}
 {% set pg_effective_cache_size = node_mem_mb|int - pg_shared_buffers|int  %}
-{% set pg_workmem =  ([ ([ (pg_effective_cache_size / 3.0 / pg_max_connections)|round(0,'floor')|int , 16 ])|max|int , 1024])|min|int %}
+{% set pg_workmem =  ([ ([ (pg_shared_buffers / pg_max_connections)|round(0,'floor')|int , 64 ])|max|int , 8192])|min|int %}
 {% set pg_size_twentieth =  ([ ([(node_fs_bytes|int / 21474836480 )|round(0, 'ceil')|int , 1]) | max , 100 ]) | min  %}
 {% set pg_max_prepared_transactions = pg_max_connections if 'citus' in pg_libs else 0 %}
-{% set pg_max_locks_per_transaction = (16 * pg_max_connections)|int if 'citus' in pg_libs or 'timescaledb' in pg_libs else 4 * pg_max_connections %}
+{% set pg_max_locks_per_transaction = (16 * pg_max_connections)|int if 'citus' in pg_libs or 'timescaledb' in pg_libs else 2 * pg_max_connections %}
 {% set pg_max_worker_processes = ([node_cpu|int, 8])|max|int %}
 {% set pg_max_parallel_workers = pg_max_worker_processes|int %}
 {% set pg_max_parallel_workers_per_gather = (pg_max_parallel_workers / 2)|round(0, 'ceil')|int %}
 {% set pg_max_parallel_mt_workers = ([(node_cpu|int / 8)|round(0,'ceil'),2])|max|int %}
-{% set pg_random_page_cost = 4.0 if pg_storage_type == 'HDD' else 1.1 %}
-{% set pg_effective_io_concurrency = 2 if pg_storage_type == 'HDD' else 1000 %}
 
 #==============================================================#
 # Summary for patroni OLAP config template (4-128 cpu cores)
@@ -32,7 +30,7 @@
 
 # Node: {{ node_cpu }}C{{ node_mem_gb }}G , node_tune = {{ node_tune }}
 # Memory: {{ node_mem_mb }}MB , Disk : {{ [ (node_fs_bytes|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}GB {{ pg_storage_type|default('SSD') }} @ {{ pg_fs_main }}
-# etcd3: {% for ip in groups['etcd']|sort %}{{ ip }}:{{ etcd_port }} {% endfor %}
+# ETCD: {% for ip in groups['etcd']|sort %}{{ ip }}:{{ etcd_port }} {% endfor %}
 
 #--------------------------------------------------------------#
 # pgconf, maxconn, workmem   = {{ pg_conf }} , {{ pg_max_connections }} , {{ pg_workmem }}MB
@@ -274,10 +272,10 @@ bootstrap:
         # AUTHENTICATION
         #------------------------------------------------------#
         password_encryption: {{ pg_pwd_enc }}
-        ssl: on
-        ssl_cert_file: '/pg/cert/server.crt'
-        ssl_key_file: '/pg/cert/server.key'
-        ssl_ca_file: '/etc/pki/ca.crt'
+        ssl: on                                 # enable server ssl
+        ssl_cert_file: '/pg/cert/server.crt'    # public cert path
+        ssl_key_file: '/pg/cert/server.key'     # private key path
+        ssl_ca_file: '/etc/pki/ca.crt'          # ca file path
 
         #------------------------------------------------------#
         # RESOURCE USAGE (except WAL)
@@ -288,7 +286,10 @@ bootstrap:
         work_mem: {{ pg_workmem }}MB
         max_parallel_workers: {{ pg_max_parallel_workers }}
         max_parallel_maintenance_workers: {{ pg_max_parallel_mt_workers }}
-        max_parallel_workers_per_gather: {{ pg_max_parallel_workers_per_gather }}
+        max_parallel_workers_per_gather: {{ pg_max_parallel_workers_per_gather|int }}
+{% if pg_version|int >= 13 %}
+        hash_mem_multiplier: 8.0                # use 8x work mem in hash-based operations
+{% endif %}
         huge_pages: try                         # try huge pages
         temp_file_limit: {{ pg_size_twentieth * 2 }}GB     # 1/10 of disk size
         vacuum_cost_delay: 10ms                 # wait 10ms per 10000 cost
@@ -335,8 +336,10 @@ bootstrap:
         #------------------------------------------------------#
         enable_partitionwise_join: on           # enable for olap system
         enable_partitionwise_aggregate: on      # enable for olap system
-        random_page_cost: {{ pg_random_page_cost }}  # 4 for HDD, 1.1 for SSD
-        effective_io_concurrency: {{ pg_effective_io_concurrency }} # 2 for HDD, 1000 for SSD
+{% if pg_storage_type == 'SSD' %}
+        random_page_cost: 1.1                   # 4 for HDD, 1.1 for SSD
+        effective_io_concurrency: 1000          # 1000 for SSD
+{% endif %}
         effective_cache_size: {{ pg_effective_cache_size }}MB  # max mem - shared buffer
         default_statistics_target: 1000         # stat bucket 100 -> 1000
 
@@ -377,7 +380,7 @@ bootstrap:
         # CLIENT
         #------------------------------------------------------#
         deadlock_timeout: 50ms                  # 50ms for deadlock
-        idle_in_transaction_session_timeout: 0  # Disable idle in xact timeout in analysis database
+        idle_in_transaction_session_timeout: 0  # disable idle in xact timeout in analysis database
 
         #------------------------------------------------------#
         # CUSTOMIZED OPTIONS
