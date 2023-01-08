@@ -30,6 +30,9 @@
         minio_seq_min={{ minio_meta | json_query('min([].minio_seq)') | int  }}
         minio_seq_max={{ minio_meta | json_query('max([].minio_seq)') | int  }}
         minio_seq_range={% raw %}{{% endraw %}{{ minio_meta | json_query('min([].minio_seq)') | int  }}...{{ minio_meta | json_query('max([].minio_seq)') | int  }}{% raw %}}{% endraw %}
+        minio_member="{% for host in minio_meta %}{% if not loop.first %},{% endif %}{{ host.inventory_hostname }} {{ minio_node|replace('${minio_cluster}', host.minio_cluster)|replace('${minio_seq}', host.minio_seq|string) }}{% endfor %}"
+
+#  {% if not loop.first %},{% endif %}{{ host.inventory_hostname }}
 
     - name: calculate minio volumes
       connection: local

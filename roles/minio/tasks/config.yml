@@ -102,8 +102,8 @@
     - name: write static etc hosts entry
       lineinfile:
         path: /etc/hosts
-        line: "{{ item.inventory_hostname }} {{ minio_node|replace('${minio_cluster}', item.minio_cluster)|replace('${minio_seq}', item.minio_seq|string) }} # minio dns"
-      with_items: "{{ minio_meta }}"
+        line: "{{ item.strip() }} # minio dns"
+      with_items: "{{ minio_member|split(',') }}"
 
 
 ...
