@@ -1,0 +1,49 @@
+---
+#==============================================================#
+# File      :   remote.yml
+# Desc      :   Monitoring Remote RDS with pigsty
+# Ctime     :   2020-05-22
+# Mtime     :   2022-01-08
+# Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+all:
+  children:
+
+    # infra cluster for proxy, monitor, alert, etc..
+    infra:
+      hosts: { 10.10.10.10: { infra_seq: 1 } }
+      vars:
+        pg_exporters: # list all remote instances here, alloc a unique unused local port as k
+          20001: { pg_cluster: pg-foo, pg_seq: 1, pg_host: 10.10.10.10 }
+          20004: { pg_cluster: pg-foo, pg_seq: 2, pg_host: 10.10.10.11 , pg_port: 5432 }
+          20002: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.12 , pg_exporter_url: 'postgres://dbuser_monitor:DBUser.Monitor@10.10.10.12:5432/postgres'}
+          20003: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.13 , pg_monitor_username: dbuser_monitor, pg_monitor_password: DBUser.Monitor }
+
+    # minio cluster, s3 compatible object storage
+    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+
+    # etcd cluster for ha postgres
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+
+    # postgres cluster 'pg-meta'
+    pg-meta:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-meta
+        pg_users:
+          - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
+          - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
+        pg_databases:
+          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [ { name: postgis, schema: public }, { name: timescaledb } ] }
+        node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ]
+
+  vars: # global parameters
+    version: v2.0.0-b4                # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default,china,europe
+    pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
+...

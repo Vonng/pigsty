@@ -109,7 +109,6 @@ all:
             parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
             pool_mode: transaction          # optional, pgbouncer pool mode at user level, transaction by default
             pool_connlimit: -1              # optional, max database connections at user level, default -1 disable limit
-            search_path: public             # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
           - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
           #- {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database   }
           #- {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database  }
@@ -237,7 +236,7 @@ all:
       - { name: epel           ,description: 'EL 8+ EPEL'        ,module: node  ,releases: [  8,9] ,baseurl: { default: 'http://download.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/' , china: 'https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/Everything/$basearch/' , europe: 'https://mirrors.xtom.de/epel/$releasever/Everything/$basearch/'     }}
       - { name: powertools     ,description: 'EL 8 PowerTools'   ,module: node  ,releases: [  8  ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/PowerTools/$basearch/os/'     , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/PowerTools/$basearch/os/'  , europe: 'https://mirrors.xtom.de/rocky/$releasever/PowerTools/$basearch/os/' }}
       - { name: crb            ,description: 'EL 9 CRB'          ,module: node  ,releases: [    9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/CRB/$basearch/os/'            , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/CRB/$basearch/os/'         , europe: 'https://mirrors.xtom.de/rocky/$releasever/CRB/$basearch/os/'        }}
-      - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com' }}
+      - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packages.grafana.com/oss/rpm'                                         , china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
       - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' }}
       - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/'                }}
       - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable'                     , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable'       }}
@@ -463,7 +462,7 @@ all:
     haproxy_exporter_port: 9101       # haproxy admin/exporter port, 9101 by default
     haproxy_client_timeout: 24h       # client side connection timeout, 24h by default
     haproxy_server_timeout: 24h       # server side connection timeout, 24h by default
-    haproxy_services: []              # list of haproxy service to be exposed
+    haproxy_services: []              # list of haproxy service to be exposed on node
 
     #-----------------------------------------------------------------
     # DOCKER
@@ -564,6 +563,8 @@ all:
     patroni_username: postgres        # patroni restapi username, `postgres` by default
     patroni_password: Patroni.API     # patroni restapi password, `Patroni.API` by default
     pg_conf: oltp.yml                 # config template: oltp,olap,crit,tiny. `oltp.yml` by default
+    pg_max_conn: auto                 # postgres max connections, `auto` will use recommended value
+    pg_shmem_ratio: 0.25              # postgres shared memory ratio, 0.25 by default, 0.1~0.4
     pg_rto: 30                        # recovery time objective in seconds,  `30s` by default
     pg_rpo: 1048576                   # recovery point objective in bytes, `1MiB` at most by default
     pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
