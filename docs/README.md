@@ -1,0 +1,494 @@
+# Pigsty
+
+> **Postgres In Great STYle, Free RDS Alternative!**
+>
+> Latest Version: [v2.0.0-b5](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b5)  |  [Github Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc)
+>
+> Documentation: [EN Docs](https://pigsty.cc/en/) | [中文文档](https://pigsty.cc/zh/) | [Github Pages](https://vonng.github.io/pigsty/#/)
+
+
+![pigsty-banner](https://user-images.githubusercontent.com/8587410/206971422-deb6dd88-c89e-43e4-8130-cf32a24b07b9.jpg)
+
+![pigsty-distro](https://user-images.githubusercontent.com/8587410/206971964-0035bbca-889e-44fc-9b0d-640d34573a95.gif)
+
+
+
+--------
+
+## What is Pigsty?
+
+
+* [**Open Source RDS**](#): Open-Source alternative to public cloud RDS.
+  <details><summary>Full-Featured Open-Source Alternative to RDS PostgreSQL</summary>
+
+  ![RDS](https://user-images.githubusercontent.com/8587410/198838843-3b9c4c42-849b-48d3-9a13-25da10c33a86.gif)
+
+  > If you can have a better RDS service with the price of EC2, Why use RDS at all?
+  </details>
+* [**Postgres Distribution**](#): PostgreSQL, PostGIS, TimescaleDB, Citus, Redis/GP, United in One!
+  <details><summary>PostgreSQL Kernel, Extensions, Peripherals, and Companion</summary>
+
+  ![pigsty-distro](https://user-images.githubusercontent.com/8587410/206971964-0035bbca-889e-44fc-9b0d-640d34573a95.gif)
+
+  > PostGIS, TimescaleDB, Citus, and hundreds of extensions!
+  </details>
+
+* [**Infra Best Practice**](#): Grafana, Prometheus, Loki, AlertManager, Docker, Battery-Included!
+  <details><summary>Open Source Infrastructure Best Practice, Ship runtime with databases!</summary>
+  
+  ![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
+
+  > If you can have a better RDS service with the price of EC2, Why use RDS at all?
+  </details>
+
+* [**Developer Toolbox**](#): Manage production-ready HA database clusters in one command!
+  <details><summary>GUI & CLI, Handling 70% of database administration work in minutes!</summary>
+
+  ![INTERFACE](https://user-images.githubusercontent.com/8587410/198838840-898dbe75-8af7-4b87-9d18-02abc33f36eb.gif)
+
+  > Define clusters in a declarative manner and materialize them with idempotent playbooks
+  </details>
+
+Check [**Public Demo**](http://demo.pigsty.cc) for details.
+
+
+
+
+--------
+
+## Why Pigsty?
+
+
+* [**High-Availability**](feature#high-availability): Auto-Pilot Postgres with idempotent instances & services, self-healing from failures!
+  <details><summary>High-Availability PostgreSQL Powered by Patroni & HAProxy</summary>
+  
+  ![pigsty-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)
+
+  > Self-healing on hardware failures: Failover impact on primary < 30s, Switchover impact < 1s
+  </details>
+
+* [**Ultimate Observability**](feature#ultimate-observability): Unparalleled monitoring system based on modern open-source best-practice!!
+  <details><summary>Observability powered by Grafana, Prometheus & Loki</summary>
+
+  ![DASHBOARD](https://user-images.githubusercontent.com/8587410/198838834-1bd30b7e-47c9-4e35-90cb-5a75a2e6f6c6.jpg)
+
+  > 3K+ metrics on 30+ dashboards, Check [http://demo.pigsty.cc](http://demo.pigsty.cc) for a live demo!
+
+  </details>
+
+* [**Database as Code**](feature#database-as-code): Declarative config with idempotent playbooks. WYSIWYG and GitOps made easy!
+  <details><summary>Define & Create a HA PostgreSQL Cluster in 10 lines of Code</summary>
+
+  ![pigsty-iac](https://user-images.githubusercontent.com/8587410/206972039-e13746ab-72ae-4cab-8de7-7b2ef543f3e5.gif)
+
+  > Create a 3-node HA PostgreSQL with 10 lines of config and one command!
+
+  </details>
+
+* [**IaaS Provisioning**](feature#iaas-provisioning): Bare metal or VM, Cloud or On-Perm, One-Click provisioning with Vagrant/Terraform
+
+  <details><summary>Pigsty 4-nodes sandbox on Local Vagrant VM or AWS EC2</summary>
+
+  ![pigsty-sandbox](https://user-images.githubusercontent.com/8587410/206972073-f204fb7a-b91c-4f50-9d5e-3104ea2e7d70.gif)
+
+  > Full-featured 4 nodes demo sandbox can be created using pre-configured vagrant & terraform templates.
+
+  </details>
+
+* [**Versatile Scenario**](feature#versatile-scenario):  Monitor existing RDS, Run docker template apps, Toolset for data apps & vis/analysis.
+  <details><summary>Docker Applications, Data Toolkits, Visualization Data Apps</summary>
+
+  ![APP](https://user-images.githubusercontent.com/8587410/198838829-f0ea4af2-d33f-4978-a31a-ed81897aa8d1.gif)
+
+  > If your software requires a PostgreSQL, Pigsty may be the easiest way to get one.
+  </details>
+
+
+* [**Production Ready**](feature#production-ready): Ready for large-scale production environment and proven in real-world scenarios.
+
+  <details><summary>Overview Dashboards for a Huge Production Deployment</summary>
+
+  ![OVERVIEW](https://user-images.githubusercontent.com/8587410/198838841-b0796703-03c3-483b-bf52-dbef9ea10913.gif)
+
+  > A real-world Pigsty production deployment with 240 nodes, 13kC / 100T, 500K TPS , 3+ years.
+
+    </details>
+
+* [**Cost Saving**](feature#cost-saving): Save 50% - 95% compare to Public Cloud RDS. Create as many clusters as you want for free!
+
+  <details><summary>Price Reference for EC2 / RDS Unit  ($ per  core · per month)</summary>
+
+  | Resource       | **Node Price** |
+  |----------------| ---------------|
+  | AWS EC2 C5D.METAL 96C 200G                             | 11 ~ 14        |
+  | Aliyun ECS 2xMem Series Exclusive                      | 28 ~ 38        |
+  | IDC Self-Hosting: Dell R730 64C 384G x PCI-E SSD 3.2TB | 2.6            |
+  | IDC Self-Hosting: Dell R730 40C 64G (China Mobile)     | 3.6            |
+  | UCloud VPC 8C / 16G Exclusive                          | 3.3            |
+  | **⬆️ EC2  /  RDS⬇️**                                   |  **RDS Price** |
+  | Aliyun RDS PG 2x Mem                                   | 36 ~ 56        |
+  | AWS RDS PostgreSQL db.T2 (4x) / EBS                    | 60             |
+  | AWS RDS PostgreSQL db.M5 (4x) / EBS                    | 84             |
+  | AWS RDS PostgreSQL db.R6G (8x) / EBS                   | 108            |
+  | AWS RDS PostgreSQL db.M5 24xlarge (96C 384G)           | 182            |
+  | Oracle Licenses                                        | 1300           |
+
+  > AWS Price [Calculator](https://calculator.amazonaws.cn/#/): You can run RDS service with a dramatic cost reduction with EC2 or IDC.
+
+  </details>
+
+* [**Security**](feature#security): On-Perm Deployment, Self-signed CA, Full SSL Support, PITR with one-command.
+
+  <details><summary>PITR with Pgbackrest</summary>
+
+  ```bash
+  pg-backup                               # make a full/incr backup
+  pg-pitr                                 # restore to wal archive stream end (e.g. used in case of entire DC failure)
+  pg-pitr -i                              # restore to the time of latest backup complete (not often used)
+  pg-pitr --time="2022-12-30 14:44:44+08" # restore to specific time point (in case of drop db, drop table)
+  pg-pitr --name="my-restore-point"       # restore TO a named restore point create by pg_create_restore_point
+  pg-pitr --lsn="0/7C82CB8" -X            # restore right BEFORE a LSN
+  pg-pitr --xid="1234567" -X -P           # restore right BEFORE a specific transaction id, then promote
+  pg-pitr --backup=latest                 # restore to latest backup set
+  pg-pitr --backup=20221108-105325        # restore to a specific backup set, which can be checked with pgbackrest info
+  ```
+
+  > Check [Backup & PITR](https://github.com/Vonng/pigsty/wiki/Backup-and-PITR) for details
+
+  </details>
+
+Check [**Feature**](FEATURE) for detail.
+
+
+
+--------
+
+## Getting Started
+
+Get a fresh Linux x86_64 EL7/8/9 node with nopass `sudo` & `ssh` access:
+
+```bash
+bash -c "$(curl -fsSL http://download.pigsty.cc/get)" && cd ~/pigsty   
+./bootstrap  && ./configure && ./install.yml # install latest pigsty
+```
+
+> Build & Test on centos7.9, rocky8.6, rocky9.0. Compatible with RHEL, Alma, etc...
+>
+> use `getb` instead of `get` to use the latest beta release 
+
+Now you have a battery-included Postgres on port **5432** and infra web services available on port **80**.
+
+```bash
+psql postgres://dbuser_meta:DBUser.Meta@<your_ip>:5432/meta
+```
+
+Check [**Installation**](INSTALL) for detail.
+
+
+
+
+--------
+
+## Compose Modules
+
+Pigsty use modular design, there are 6 default modules: [`PGSQL`](PGSQL), [`INFRA`](INFRA), [`NODE`](NODE), [`ETCD`](ETCD), [`REDIS`](REDIS), [`MINIO`](MINIO).
+
+* [`PGSQL`](PGSQL): autonomous ha postgres cluster powered by Patroni, Pgbouncer, HAproxy, PgBackrest, etc...
+* [`INFRA`](INFRA): local yum repo, prometheus, grafana, loki, altermanager, pushgateway, blackbox_exporter, etc...
+* [`NODE`](NODE): tune node into desired state, name, timezone, hostname, ntp, ssh, sudo, haproxy, docker, promtail...
+* [`ETCD`](ETCD): distributed key-value store, it will be used as DCS for ha postgres clusters.
+* [`REDIS`](REDIS): redis servers in standalone master-replica, sentinel, cluster mode with redis exporter.
+* [`MINO`](MINIO): S3 compatible simple object storage server, can be used as an optional backup center for postgres.
+
+You can compose them freely in a declarative manner. If you want host monitoring, [`INFRA`](INFRA) & [`NODE`](NODE) will suffice.
+Add additional [`ETCD`](ETCD) and [`PGSQL`](PGSQL) are use for HA PG Clusters. deploy them on multiple nodes will form a ha cluster.
+You can reuse pigsty infra and develop your own modules, such as example optional module [`REDIS`](REDIS) and [`MINIO`](MINIO).
+
+The default `install.yml` playbook in [Getting Started](#getting-started) will install [`INFRA`](INFRA), [`NODE`](NODE), [`ETCD`](ETCD), [`PGSQL`](PGSQL) on current node.
+which gives you a battery-included postgres singleton instance (admin:5432) with everything ready.
+This node can be used as a control center & infra provider, to manage, deploy & monitor more nodes & database clusters.
+
+Check [**Architecture**](ARCH) for details.
+
+
+
+--------
+
+## More Clusters
+
+To deploy a 3-node HA Postgres Cluster with streaming replication,
+[define](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L157) a new cluster on `all.children.pg-test` of [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml):
+
+```yaml 
+pg-test:
+  hosts:
+    10.10.10.11: { pg_seq: 1, pg_role: primary }
+    10.10.10.12: { pg_seq: 2, pg_role: replica }
+    10.10.10.13: { pg_seq: 3, pg_role: offline }
+  vars:  { pg_cluster: pg-test }
+```
+
+Then create it with built-in playbooks:
+
+```bash
+bin/pgsql-add pg-test
+```
+
+You can deploy different kinds of instance roles such as primary, replica, offline, delayed, sync standby,
+and different kinds of clusters such as standby clusters, Citus clusters, and even Redis clusters & YMatrix clusters.
+
+<details><summary>Example: Complex Postgres Customize</summary>
+
+```yaml
+pg-meta:
+  hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true } }
+  vars:
+    pg_cluster: pg-meta
+    pg_databases:                       # define business databases on this cluster, array of database definition
+      - name: meta                      # REQUIRED, `name` is the only mandatory field of a database definition
+        baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
+        pgbouncer: true                 # optional, add this database to pgbouncer database list? true by default
+        schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
+        extensions:                     # optional, additional extensions to be installed: array of `{name[,schema]}`
+          - { name: postgis , schema: public }
+          - { name: timescaledb }
+        comment: pigsty meta database   # optional, comment string for this database
+        owner: postgres                # optional, database owner, postgres by default
+        template: template1            # optional, which template to use, template1 by default
+        encoding: UTF8                 # optional, database encoding, UTF8 by default. (MUST same as template database)
+        locale: C                      # optional, database locale, C by default.  (MUST same as template database)
+        lc_collate: C                  # optional, database collate, C by default. (MUST same as template database)
+        lc_ctype: C                    # optional, database ctype, C by default.   (MUST same as template database)
+        tablespace: pg_default         # optional, default tablespace, 'pg_default' by default.
+        allowconn: true                # optional, allow connection, true by default. false will disable connect at all
+        revokeconn: false              # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
+        register_datasource: true      # optional, register this database to grafana datasources? true by default
+        connlimit: -1                  # optional, database connection limit, default -1 disable limit
+        pool_auth_user: dbuser_meta    # optional, all connection to this pgbouncer database will be authenticated by this user
+        pool_mode: transaction         # optional, pgbouncer pool mode at database level, default transaction
+        pool_size: 64                  # optional, pgbouncer pool size at database level, default 64
+        pool_size_reserve: 32          # optional, pgbouncer pool size reserve at database level, default 32
+        pool_size_min: 0               # optional, pgbouncer pool size min at database level, default 0
+        pool_max_db_conn: 100          # optional, max database connections at database level, default 100
+      - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
+      - { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
+      - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
+      - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
+      - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
+    pg_users:                           # define business users/roles on this cluster, array of user definition
+      - name: dbuser_meta               # REQUIRED, `name` is the only mandatory field of a user definition
+        password: DBUser.Meta           # optional, password, can be a scram-sha-256 hash string or plain text
+        login: true                     # optional, can log in, true by default  (new biz ROLE should be false)
+        superuser: false                # optional, is superuser? false by default
+        createdb: false                 # optional, can create database? false by default
+        createrole: false               # optional, can create role? false by default
+        inherit: true                   # optional, can this role use inherited privileges? true by default
+        replication: false              # optional, can this role do replication? false by default
+        bypassrls: false                # optional, can this role bypass row level security? false by default
+        pgbouncer: true                 # optional, add this user to pgbouncer user-list? false by default (production user should be true explicitly)
+        connlimit: -1                   # optional, user connection limit, default -1 disable limit
+        expire_in: 3650                 # optional, now + n days when this role is expired (OVERWRITE expire_at)
+        expire_at: '2030-12-31'         # optional, YYYY-MM-DD 'timestamp' when this role is expired  (OVERWRITTEN by expire_in)
+        comment: pigsty admin user      # optional, comment string for this user/role
+        roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
+        parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
+        pool_mode: transaction          # optional, pgbouncer pool mode at user level, transaction by default
+        pool_connlimit: -1              # optional, max database connections at user level, default -1 disable limit
+       {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
+      - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database   }
+      - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database  }
+      - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway   }
+      - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service      }
+      - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service    }
+    pg_services:                        # extra services in addition to pg_default_services, array of service definition
+      # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
+      - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
+        port: 5435                      # required, service exposed port (work as kubernetes service node port mode)
+        ip: "*"                         # optional, service bind ip address, `*` for all ip by default
+        selector: "[]"                  # required, service member selector, use JMESPath to filter inventory
+        dest: default                   # optional, destination port, default|postgres|pgbouncer|<port_number>, 'default' by default
+        check: /sync                    # optional, health check url path, / by default
+        backup: "[? pg_role == `primary`]"  # backup server selector
+        maxconn: 3000                   # optional, max allowed front-end connection
+        balance: roundrobin             # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
+        options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
+    pg_hba_rules:
+      - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
+    pg_vip_enabled: true
+    pg_vip_address: 10.10.10.2/24
+    pg_vip_interface: eth1
+    node_crontab:  # make a full backup 1 am everyday
+      - '00 01 * * * postgres /pg/bin/pg-backup full'
+
+```
+
+</details>
+
+<details><summary>Example: Security Enhanced PG Cluster with Delayed Replica</summary>
+
+```yaml
+pg-meta:      # 3 instance postgres cluster `pg-meta`
+  hosts:
+    10.10.10.10: { pg_seq: 1, pg_role: primary }
+    10.10.10.11: { pg_seq: 2, pg_role: replica }
+    10.10.10.12: { pg_seq: 3, pg_role: replica , pg_offline_query: true }
+  vars:
+    pg_cluster: pg-meta
+    pg_conf: crit.yml
+    pg_users:
+      - { name: dbuser_meta , password: DBUser.Meta   , pgbouncer: true , roles: [ dbrole_admin ] , comment: pigsty admin user }
+      - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
+    pg_databases:
+      - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
+    pg_services:
+      - { name: standby ,src_ip: "*" ,port: 5435 , dest: default ,selector: "[]" , backup: "[? pg_role == `primary`]" }
+    pg_vip_enabled: true
+    pg_vip_address: 10.10.10.2/24
+    pg_vip_interface: eth1
+
+# OPTIONAL delayed cluster for pg-meta
+pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
+  hosts: { 10.10.10.13: { pg_seq: 1, pg_role: primary, pg_upstream: 10.10.10.10, pg_delay: 1h } }
+  vars: { pg_cluster: pg-meta-delay }
+```
+
+</details>
+
+<details><summary>Example: Citus Cluster: 1 Coordinator x 3 Data Nodes</summary>
+
+```yaml
+# citus coordinator node
+pg-meta:
+  hosts:
+    10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true }
+  vars:
+    pg_cluster: pg-meta
+    pg_users: [{ name: citus ,password: citus ,pgbouncer: true ,roles: [dbrole_admin]}]
+    pg_databases:
+      - { name: meta ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public},{ name: citus}] ,baseline: cmdb.sql ,comment: pigsty meta database}
+
+# citus data node 1,2,3
+pg-node1:
+  hosts:
+    10.10.10.11: { pg_seq: 1, pg_role: primary }
+  vars:
+    pg_cluster: pg-node1
+    vip_address: 10.10.10.3
+    pg_users: [{ name: citus ,password: citus ,pgbouncer: true ,roles: [dbrole_admin]}]
+    pg_databases: [{ name: meta ,owner: citus , extensions: [{name: citus},{name: postgis, schema: public}]}]
+
+pg-node2:
+  hosts:
+    10.10.10.12: { pg_seq: 1, pg_role: primary  , pg_offline_query: true }
+  vars:
+    pg_cluster: pg-node2
+    vip_address: 10.10.10.4
+    pg_users: [ { name: citus , password: citus , pgbouncer: true , roles: [ dbrole_admin ] } ]
+    pg_databases: [ { name: meta , owner: citus , extensions: [ { name: citus }, { name: postgis, schema: public } ] } ]
+
+pg-node3:
+  hosts:
+    10.10.10.13: { pg_seq: 1, pg_role: primary  , pg_offline_query: true }
+  vars:
+    pg_cluster: pg-node3
+    vip_address: 10.10.10.5
+    pg_users: [ { name: citus , password: citus , pgbouncer: true , roles: [ dbrole_admin ] } ]
+    pg_databases: [ { name: meta , owner: citus , extensions: [ { name: citus }, { name: postgis, schema: public } ] } ]
+
+```
+
+</details>
+
+<details><summary>Example: Redis Cluster/Sentinel/Standalone</summary>
+
+```yaml
+redis-ms: # redis classic primary & replica
+  hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.13 6501' } } } }
+  vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
+
+redis-meta: # redis sentinel x 3
+  hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 6001: { } ,6002: { } , 6003: { } } } }
+  vars: { redis_cluster: redis-meta, redis_mode: sentinel ,redis_max_memory: 16MB }
+
+redis-test: # redis native cluster: 3m x 3s
+  hosts:
+    10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+    10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+  vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
+
+```
+
+</details>
+
+
+<details><summary>Example: ETCD 3 Node Cluster</summary>
+
+```yaml
+etcd: # dcs service for postgres/patroni ha consensus
+  hosts:  # 1 node for testing, 3 or 5 for production
+    10.10.10.10: { etcd_seq: 1 }  # etcd_seq required
+    10.10.10.11: { etcd_seq: 2 }  # assign from 1 ~ n
+    10.10.10.12: { etcd_seq: 3 }  # odd number please
+  vars: # cluster level parameter override roles/etcd
+    etcd_cluster: etcd  # mark etcd cluster name etcd
+    etcd_safeguard: false # safeguard against purging
+    etcd_clean: true # purge etcd during init process
+
+```
+
+</details>
+
+
+<details><summary>Example: Minio 3 Node Deployment</summary>
+
+```yaml
+minio:
+  hosts:
+    10.10.10.10: { minio_seq: 1 }
+    10.10.10.11: { minio_seq: 2 }
+    10.10.10.12: { minio_seq: 3 }
+  vars:
+    minio_cluster: minio
+    minio_data: '/data{1...2}'        # use two disk per node
+    minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio node name pattern
+    haproxy_services:
+      - name: minio                     # [REQUIRED] service name, unique
+        port: 9002                      # [REQUIRED] service port, unique
+        options:
+          - option httpchk
+          - option http-keep-alive
+          - http-check send meth OPTIONS uri /minio/health/live
+          - http-check expect status 200
+        servers:
+          - { name: minio-1 ,ip: 10.10.10.10 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+          - { name: minio-2 ,ip: 10.10.10.11 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+          - { name: minio-3 ,ip: 10.10.10.12 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+
+```
+
+</details>
+
+Check [Configuration](CONFIG) for Detail.
+
+
+--------
+
+## About
+
+> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Great STYle."
+
+Wiki: https://github.com/Vonng/pigsty/wiki
+
+Official Site: https://pigsty.cc/en/ , https://pigsty.cc/zh/
+
+WeChat Group: Search `pigsty-cc` to join the WeChat group.
+
+Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
+
+Discord: https://discord.gg/wDzt5VyWEz
+
+Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
+
+License: [AGPL-3.0](LICENSE)
+
+Copyright 2018-2022 rh@vonng.com
