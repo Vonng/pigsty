@@ -15,6 +15,7 @@
 * [NODES](#NODES)
 * [PGSQL](#PGSQL)
 
+
 ## Preparation
 
 > It would help if you ensured that the machine node hardware specifications and OS meet the installation requirements, see: [preparation](d-prepare.md).

@@ -125,8 +125,6 @@ PITR with Pgbackrest
   pg-pitr --xid="1234567" -X -P           # restore right BEFORE a specific transaction id, then promote
   pg-pitr --backup=latest                 # restore to latest backup set
   pg-pitr --backup=20221108-105325        # restore to a specific backup set, which can be checked with pgbackrest info
-
-
   ```
 
   > Check [Backup & PITR](https://github.com/Vonng/pigsty/wiki/Backup-and-PITR) for details
