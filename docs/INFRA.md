@@ -10,70 +10,71 @@ There are 241 available parameters divide into 4 categories and 32 sections.
 
 There are 10 sections and 54 parameters about [`INFRA`](PARAM#INFRA) module.
 
-- [`META`](PARAM#META): Pigsty meta data                 
-- [`CA`](PARAM#CA): self-signed CA
-- [`INFRA_ID`](PARAM#INFRA_ID) : Portals and identity
-- [`DNS`](PARAM#DNS): dnsmasq nameserver
-- [`REPO`](PARAM#REPO): local yum repo               
-- [`INFRA_PACKAGE`](PARAM#INFRA_PACKAGE) : packages to be installed   
-- [`NGINX`](PARAM#NGINX) : nginx web server
-- [`PROMETHEUS`](PARAM#PROMETHEUS) : prometheus, alertmanager, pushgateway & blackbox_exporter  
-- [`GRAFANA`](PARAM#GRAFANA) : Grafana, the visualization platform
-- [`LOKI`](PARAM#LOKI) : Loki, the logging server
+- [`META`](PARAM#meta): Pigsty meta data                 
+- [`CA`](PARAM#ca): self-signed CA
+- [`INFRA_ID`](PARAM#infra_id) : Portals and identity
+- [`DNS`](PARAM#dns): dnsmasq nameserver
+- [`REPO`](PARAM#repo): local yum repo               
+- [`INFRA_PACKAGE`](PARAM#infra_package) : packages to be installed   
+- [`NGINX`](PARAM#nginx) : nginx web server
+- [`PROMETHEUS`](PARAM#prometheus) : prometheus, alertmanager, pushgateway & blackbox_exporter  
+- [`GRAFANA`](PARAM#grafana) : Grafana, the visualization platform
+- [`LOKI`](PARAM#loki) : Loki, the logging server
 
-| Parameter                                                    | Section                                | Type       | Level| Comment                                            |
-| ------------------------------------------------------------ | -------------------------------------- |:----------:|:----:| -------------------------------------------------- |
-| [`version`](PARAM#version)                                   | [`META`](PARAM#META)                   | string     | G    | pigsty version string                              |
-| [`admin_ip`](PARAM#admin_ip)                                 | [`META`](PARAM#META)                   | ip         | G    | admin node ip address                              |
-| [`region`](PARAM#region)                                     | [`META`](PARAM#META)                   | enum       | G    | upstream mirror region: default,china,europe       |
-| [`proxy_env`](PARAM#proxy_env)                               | [`META`](PARAM#META)                   | dict       | G    | global proxy env when downloading packages         |
-| [`ca_method`](PARAM#ca_method)                               | [`CA`](PARAM#CA)                       | enum       | G    | create,recreate,copy, create by default            |
-| [`ca_cn`](PARAM#ca_cn)                                       | [`CA`](PARAM#CA)                       | string     | G    | ca common name, fixed as pigsty-ca                 |
-| [`cert_validity`](PARAM#cert_validity)                       | [`CA`](PARAM#CA)                       | interval   | G    | cert validity, 20 years by default                 |
-| [`infra_seq`](PARAM#infra_seq)                               | [`INFRA_ID`](PARAM#INFRA_ID)           | int        | I    | infra node identity, REQUIRED                      |
-| [`infra_portal`](PARAM#infra_portal)                         | [`INFRA_ID`](PARAM#INFRA_ID)           | dict       | G    | infra services exposed via portal                  |
-| [`repo_enabled`](PARAM#repo_enabled)                         | [`REPO`](PARAM#REPO)                   | bool       | G/I  | create a yum repo on this infra node?              |
-| [`repo_home`](PARAM#repo_home)                               | [`REPO`](PARAM#REPO)                   | path       | G    | repo home dir, `/www` by default                   |
-| [`repo_name`](PARAM#repo_name)                               | [`REPO`](PARAM#REPO)                   | string     | G    | repo name, pigsty by default                       |
-| [`repo_endpoint`](PARAM#repo_endpoint)                       | [`REPO`](PARAM#REPO)                   | url        | G    | access point to this repo by domain or ip:port     |
-| [`repo_remove`](PARAM#repo_remove)                           | [`REPO`](PARAM#REPO)                   | bool       | G/A  | remove existing upstream repo                      |
-| [`repo_upstream`](PARAM#repo_upstream)                       | [`REPO`](PARAM#REPO)                   | upstream[] | G    | where to download upstream packages                |
-| [`repo_packages`](PARAM#repo_packages)                       | [`REPO`](PARAM#REPO)                   | string[]   | G    | which packages to be included                      |
-| [`repo_url_packages`](PARAM#repo_url_packages)               | [`REPO`](PARAM#REPO)                   | string[]   | G    | extra packages from url                            |
-| [`infra_packages`](PARAM#infra_packages)                     | [`INFRA_PACKAGE`](PARAM#INFRA_PACKAGE) | string[]   | G    | packages to be installed on infra nodes            |
-| [`infra_packages_pip`](PARAM#infra_packages_pip)             | [`INFRA_PACKAGE`](PARAM#INFRA_PACKAGE) | string     | G    | pip installed packages for infra nodes             |
-| [`nginx_enabled`](PARAM#nginx_enabled)                       | [`NGINX`](PARAM#NGINX)                 | bool       | G/I  | enable nginx on this infra node?                   |
-| [`nginx_sslmode`](PARAM#nginx_sslmode)                       | [`NGINX`](PARAM#NGINX)                 | enum       | G    | nginx ssl mode? disable,enable,enforce             |
-| [`nginx_home`](PARAM#nginx_home)                             | [`NGINX`](PARAM#NGINX)                 | path       | G    | nginx content dir, `/www` by default               |
-| [`nginx_port`](PARAM#nginx_port)                             | [`NGINX`](PARAM#NGINX)                 | port       | G    | nginx listen port, 80 by default                   |
-| [`nginx_ssl_port`](PARAM#nginx_ssl_port)                     | [`NGINX`](PARAM#NGINX)                 | port       | G    | nginx ssl listen port, 443 by default              |
-| [`nginx_navbar`](PARAM#nginx_navbar)                         | [`NGINX`](PARAM#NGINX)                 | index[]    | G    | nginx index page navigation links                  |
-| [`dns_enabled`](PARAM#dns_enabled)                           | [`DNS`](PARAM#DNS)                     | bool       | G/I  | setup dnsmasq on this infra node?                  |
-| [`dns_port`](PARAM#dns_port)                                 | [`DNS`](PARAM#DNS)                     | port       | G    | dns server listen port, 53 by default              |
-| [`dns_records`](PARAM#dns_records)                           | [`DNS`](PARAM#DNS)                     | string[]   | G    | dynamic dns records resolved by dnsmasq            |
-| [`prometheus_enabled`](PARAM#prometheus_enabled)             | [`PROMETHEUS`](PARAM#PROMETHEUS)       | bool       | G/I  | enable prometheus on this infra node?              |
-| [`prometheus_clean`](PARAM#prometheus_clean)                 | [`PROMETHEUS`](PARAM#PROMETHEUS)       | bool       | G/A  | clean prometheus data during init?                 |
-| [`prometheus_data`](PARAM#prometheus_data)                   | [`PROMETHEUS`](PARAM#PROMETHEUS)       | path       | G    | prometheus data dir, `/data/prometheus` by default |
-| [`prometheus_sd_interval`](PARAM#prometheus_sd_interval)     | [`PROMETHEUS`](PARAM#PROMETHEUS)       | interval   | G    | prometheus target refresh interval, 5s by default  |
-| [`prometheus_scrape_interval`](PARAM#prometheus_scrape_interval) | [`PROMETHEUS`](PARAM#PROMETHEUS)       | interval   | G    | prometheus scrape & eval interval, 10s by default  |
-| [`prometheus_scrape_timeout`](PARAM#prometheus_scrape_timeout) | [`PROMETHEUS`](PARAM#PROMETHEUS)       | interval   | G    | prometheus global scrape timeout, 8s by default    |
-| [`prometheus_options`](PARAM#prometheus_options)             | [`PROMETHEUS`](PARAM#PROMETHEUS)       | arg        | G    | prometheus extra server options                    |
-| [`pushgateway_enabled`](PARAM#pushgateway_enabled)           | [`PROMETHEUS`](PARAM#PROMETHEUS)       | bool       | G/I  | setup pushgateway on this infra node?              |
-| [`pushgateway_options`](PARAM#pushgateway_options)           | [`PROMETHEUS`](PARAM#PROMETHEUS)       | arg        | G    | pushgateway extra server options                   |
-| [`blackbox_enabled`](PARAM#blackbox_enabled)                 | [`PROMETHEUS`](PARAM#PROMETHEUS)       | bool       | G/I  | setup blackbox_exporter on this infra node?        |
-| [`blackbox_options`](PARAM#blackbox_options)                 | [`PROMETHEUS`](PARAM#PROMETHEUS)       | arg        | G    | blackbox_exporter extra server options             |
-| [`alertmanager_enabled`](PARAM#alertmanager_enabled)         | [`PROMETHEUS`](PARAM#PROMETHEUS)       | bool       | G/I  | setup alertmanager on this infra node?             |
-| [`alertmanager_options`](PARAM#alertmanager_options)         | [`PROMETHEUS`](PARAM#PROMETHEUS)       | arg        | G    | alertmanager extra server options                  |
-| [`exporter_metrics_path`](PARAM#exporter_metrics_path)       | [`PROMETHEUS`](PARAM#PROMETHEUS)       | path       | G    | exporter metric path, `/metrics` by default        |
-| [`exporter_install`](PARAM#exporter_install)                 | [`PROMETHEUS`](PARAM#PROMETHEUS)       | enum       | G    | how to install exporter? none,yum,binary           |
-| [`exporter_repo_url`](PARAM#exporter_repo_url)               | [`PROMETHEUS`](PARAM#PROMETHEUS)       | url        | G    | exporter repo file url if install exporter via yum |
-| [`grafana_enabled`](PARAM#grafana_enabled)                   | [`GRAFANA`](PARAM#GRAFANA)             | bool       | G/I  | enable grafana on this infra node?                 |
-| [`grafana_clean`](PARAM#grafana_clean)                       | [`GRAFANA`](PARAM#GRAFANA)             | bool       | G/A  | clean grafana data during init?                    |
-| [`grafana_admin_username`](PARAM#grafana_admin_username)     | [`GRAFANA`](PARAM#GRAFANA)             | username   | G    | grafana admin username, `admin` by default         |
-| [`grafana_admin_password`](PARAM#grafana_admin_password)     | [`GRAFANA`](PARAM#GRAFANA)             | password   | G    | grafana admin password, `pigsty` by default        |
-| [`grafana_plugin_cache`](PARAM#grafana_plugin_cache)         | [`GRAFANA`](PARAM#GRAFANA)             | path       | G    | path to grafana plugins cache tarball              |
-| [`grafana_plugin_list`](PARAM#grafana_plugin_list)           | [`GRAFANA`](PARAM#GRAFANA)             | string[]   | G    | grafana plugins to be downloaded with grafana-cli  |
-| [`loki_enabled`](PARAM#loki_enabled)                         | [`LOKI`](PARAM#LOKI)                   | bool       | G/I  | enable loki on this infra node?                    |
-| [`loki_clean`](PARAM#loki_clean)                             | [`LOKI`](PARAM#LOKI)                   | bool       | G/A  | whether remove existing loki data?                 |
-| [`loki_data`](PARAM#loki_data)                               | [`LOKI`](PARAM#LOKI)                   | path       | G    | loki data dir, `/data/loki` by default             |
-| [`loki_retention`](PARAM#loki_retention)                     | [`LOKI`](PARAM#LOKI)                   | interval   | G    | loki log retention period, 15d by default          |
+
+| Parameter                                                    | Section                                    |    Type     | Level | Comment                                                      |
+| ------------------------------------------------------------ | ------------------------------------------ | :---------: | :---: | ------------------------------------------------------------ |
+| [`version`](PARAM#version)                                   | [`META`](PARAM#meta)                       |   string    |   G   | pigsty version string                                        |
+| [`admin_ip`](PARAM#admin_ip)                                 | [`META`](PARAM#meta)                       |     ip      |   G   | admin node ip address                                        |
+| [`region`](PARAM#region)                                     | [`META`](PARAM#meta)                       |    enum     |   G   | upstream mirror region: default,china,europe                 |
+| [`proxy_env`](PARAM#proxy_env)                               | [`META`](PARAM#meta)                       |    dict     |   G   | global proxy env when downloading packages                   |
+| [`ca_method`](PARAM#ca_method)                               | [`CA`](PARAM#ca)                           |    enum     |   G   | create,recreate,copy, create by default                      |
+| [`ca_cn`](PARAM#ca_cn)                                       | [`CA`](PARAM#ca)                           |   string    |   G   | ca common name, fixed as pigsty-ca                           |
+| [`cert_validity`](PARAM#cert_validity)                       | [`CA`](PARAM#ca)                           |  interval   |   G   | cert validity, 20 years by default                           |
+| [`infra_seq`](PARAM#infra_seq)                               | [`INFRA_ID`](PARAM#infra_id)               |     int     |   I   | infra node identity, REQUIRED                                |
+| [`infra_portal`](PARAM#infra_portal)                         | [`INFRA_ID`](PARAM#infra_id)               |    dict     |   G   | infra services exposed via portal                            |
+| [`repo_enabled`](PARAM#repo_enabled)                         | [`REPO`](PARAM#repo)                       |    bool     |  G/I  | create a yum repo on this infra node?                        |
+| [`repo_home`](PARAM#repo_home)                               | [`REPO`](PARAM#repo)                       |    path     |   G   | repo home dir, `/www` by default                             |
+| [`repo_name`](PARAM#repo_name)                               | [`REPO`](PARAM#repo)                       |   string    |   G   | repo name, pigsty by default                                 |
+| [`repo_endpoint`](PARAM#repo_endpoint)                       | [`REPO`](PARAM#repo)                       |     url     |   G   | access point to this repo by domain or ip:port               |
+| [`repo_remove`](PARAM#repo_remove)                           | [`REPO`](PARAM#repo)                       |    bool     |  G/A  | remove existing upstream repo                                |
+| [`repo_upstream`](PARAM#repo_upstream)                       | [`REPO`](PARAM#repo)                       | upstream[]  |   G   | where to download upstream packages                          |
+| [`repo_packages`](PARAM#repo_packages)                       | [`REPO`](PARAM#repo)                       |  string[]   |   G   | which packages to be included                                |
+| [`repo_url_packages`](PARAM#repo_url_packages)               | [`REPO`](PARAM#repo)                       |  string[]   |   G   | extra packages from url                                      |
+| [`infra_packages`](PARAM#infra_packages)                     | [`INFRA_PACKAGE`](PARAM#infra_package)     |  string[]   |   G   | packages to be installed on infra nodes                      |
+| [`infra_packages_pip`](PARAM#infra_packages_pip)             | [`INFRA_PACKAGE`](PARAM#infra_package)     |   string    |   G   | pip installed packages for infra nodes                       |
+| [`nginx_enabled`](PARAM#nginx_enabled)                       | [`NGINX`](PARAM#nginx)                     |    bool     |  G/I  | enable nginx on this infra node?                             |
+| [`nginx_sslmode`](PARAM#nginx_sslmode)                       | [`NGINX`](PARAM#nginx)                     |    enum     |   G   | nginx ssl mode? disable,enable,enforce                       |
+| [`nginx_home`](PARAM#nginx_home)                             | [`NGINX`](PARAM#nginx)                     |    path     |   G   | nginx content dir, `/www` by default                         |
+| [`nginx_port`](PARAM#nginx_port)                             | [`NGINX`](PARAM#nginx)                     |    port     |   G   | nginx listen port, 80 by default                             |
+| [`nginx_ssl_port`](PARAM#nginx_ssl_port)                     | [`NGINX`](PARAM#nginx)                     |    port     |   G   | nginx ssl listen port, 443 by default                        |
+| [`nginx_navbar`](PARAM#nginx_navbar)                         | [`NGINX`](PARAM#nginx)                     |   index[]   |   G   | nginx index page navigation links                            |
+| [`dns_enabled`](PARAM#dns_enabled)                           | [`DNS`](PARAM#dns)                         |    bool     |  G/I  | setup dnsmasq on this infra node?                            |
+| [`dns_port`](PARAM#dns_port)                                 | [`DNS`](PARAM#dns)                         |    port     |   G   | dns server listen port, 53 by default                        |
+| [`dns_records`](PARAM#dns_records)                           | [`DNS`](PARAM#dns)                         |  string[]   |   G   | dynamic dns records resolved by dnsmasq                      |
+| [`prometheus_enabled`](PARAM#prometheus_enabled)             | [`PROMETHEUS`](PARAM#prometheus)           |    bool     |  G/I  | enable prometheus on this infra node?                        |
+| [`prometheus_clean`](PARAM#prometheus_clean)                 | [`PROMETHEUS`](PARAM#prometheus)           |    bool     |  G/A  | clean prometheus data during init?                           |
+| [`prometheus_data`](PARAM#prometheus_data)                   | [`PROMETHEUS`](PARAM#prometheus)           |    path     |   G   | prometheus data dir, `/data/prometheus` by default           |
+| [`prometheus_sd_interval`](PARAM#prometheus_sd_interval)     | [`PROMETHEUS`](PARAM#prometheus)           |  interval   |   G   | prometheus target refresh interval, 5s by default            |
+| [`prometheus_scrape_interval`](PARAM#prometheus_scrape_interval) | [`PROMETHEUS`](PARAM#prometheus)           |  interval   |   G   | prometheus scrape & eval interval, 10s by default            |
+| [`prometheus_scrape_timeout`](PARAM#prometheus_scrape_timeout) | [`PROMETHEUS`](PARAM#prometheus)           |  interval   |   G   | prometheus global scrape timeout, 8s by default              |
+| [`prometheus_options`](PARAM#prometheus_options)             | [`PROMETHEUS`](PARAM#prometheus)           |     arg     |   G   | prometheus extra server options                              |
+| [`pushgateway_enabled`](PARAM#pushgateway_enabled)           | [`PROMETHEUS`](PARAM#prometheus)           |    bool     |  G/I  | setup pushgateway on this infra node?                        |
+| [`pushgateway_options`](PARAM#pushgateway_options)           | [`PROMETHEUS`](PARAM#prometheus)           |     arg     |   G   | pushgateway extra server options                             |
+| [`blackbox_enabled`](PARAM#blackbox_enabled)                 | [`PROMETHEUS`](PARAM#prometheus)           |    bool     |  G/I  | setup blackbox_exporter on this infra node?                  |
+| [`blackbox_options`](PARAM#blackbox_options)                 | [`PROMETHEUS`](PARAM#prometheus)           |     arg     |   G   | blackbox_exporter extra server options                       |
+| [`alertmanager_enabled`](PARAM#alertmanager_enabled)         | [`PROMETHEUS`](PARAM#prometheus)           |    bool     |  G/I  | setup alertmanager on this infra node?                       |
+| [`alertmanager_options`](PARAM#alertmanager_options)         | [`PROMETHEUS`](PARAM#prometheus)           |     arg     |   G   | alertmanager extra server options                            |
+| [`exporter_metrics_path`](PARAM#exporter_metrics_path)       | [`PROMETHEUS`](PARAM#prometheus)           |    path     |   G   | exporter metric path, `/metrics` by default                  |
+| [`exporter_install`](PARAM#exporter_install)                 | [`PROMETHEUS`](PARAM#prometheus)           |    enum     |   G   | how to install exporter? none,yum,binary                     |
+| [`exporter_repo_url`](PARAM#exporter_repo_url)               | [`PROMETHEUS`](PARAM#prometheus)           |     url     |   G   | exporter repo file url if install exporter via yum           |
+| [`grafana_enabled`](PARAM#grafana_enabled)                   | [`GRAFANA`](PARAM#grafana)                 |    bool     |  G/I  | enable grafana on this infra node?                           |
+| [`grafana_clean`](PARAM#grafana_clean)                       | [`GRAFANA`](PARAM#grafana)                 |    bool     |  G/A  | clean grafana data during init?                              |
+| [`grafana_admin_username`](PARAM#grafana_admin_username)     | [`GRAFANA`](PARAM#grafana)                 |  username   |   G   | grafana admin username, `admin` by default                   |
+| [`grafana_admin_password`](PARAM#grafana_admin_password)     | [`GRAFANA`](PARAM#grafana)                 |  password   |   G   | grafana admin password, `pigsty` by default                  |
+| [`grafana_plugin_cache`](PARAM#grafana_plugin_cache)         | [`GRAFANA`](PARAM#grafana)                 |    path     |   G   | path to grafana plugins cache tarball                        |
+| [`grafana_plugin_list`](PARAM#grafana_plugin_list)           | [`GRAFANA`](PARAM#grafana)                 |  string[]   |   G   | grafana plugins to be downloaded with grafana-cli            |
+| [`loki_enabled`](PARAM#loki_enabled)                         | [`LOKI`](PARAM#loki)                       |    bool     |  G/I  | enable loki on this infra node?                              |
+| [`loki_clean`](PARAM#loki_clean)                             | [`LOKI`](PARAM#loki)                       |    bool     |  G/A  | whether remove existing loki data?                           |
+| [`loki_data`](PARAM#loki_data)                               | [`LOKI`](PARAM#loki)                       |    path     |   G   | loki data dir, `/data/loki` by default                       |
+| [`loki_retention`](PARAM#loki_retention)                     | [`LOKI`](PARAM#loki)                       |  interval   |   G   | loki log retention period, 15d by default                    |

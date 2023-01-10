@@ -1,276 +1,272 @@
 # Parameter
 
-There are 260+ parameters in Pigsty descrbing all aspect of the deployment.
+There are 260+ parameters in Pigsty describing all aspect of the deployment.
 
-|    ID   |  Name                                                        | Module                | Section                               |    Type     | Level | Comment                                                      |
-|:-------:| ------------------------------------------------------------ | --------------------- | ------------------------------------- |:-----------:|:-----:| ------------------------------------------------------------ |
-| **101** | [`version`](#version)                                        | [`INFRA`](#INFRA)     | [`META`](#META)                       |   string    | G     | pigsty version string                                        |
-| **102** | [`admin_ip`](#admin_ip)                                      | [`INFRA`](#INFRA)     | [`META`](#META)                       |     ip      | G     | admin node ip address                                        |
-| **103** | [`region`](#region)                                          | [`INFRA`](#INFRA)     | [`META`](#META)                       |    enum     | G     | upstream mirror region: default,china,europe                 |
-| **104** | [`proxy_env`](#proxy_env)                                    | [`INFRA`](#INFRA)     | [`META`](#META)                       |    dict     | G     | global proxy env when downloading packages                   |
-| **105** | [`ca_method`](#ca_method)                                    | [`INFRA`](#INFRA)     | [`CA`](#CA)                           |    enum     | G     | create,recreate,copy, create by default                      |
-| **106** | [`ca_cn`](#ca_cn)                                            | [`INFRA`](#INFRA)     | [`CA`](#CA)                           |   string    | G     | ca common name, fixed as pigsty-ca                           |
-| **107** | [`cert_validity`](#cert_validity)                            | [`INFRA`](#INFRA)     | [`CA`](#CA)                           |  interval   | G     | cert validity, 20 years by default                           |
-| **108** | [`infra_seq`](#infra_seq)                                    | [`INFRA`](#INFRA)     | [`INFRA_ID`](#INFRA_ID)               |     int     | I     | infra node identity, REQUIRED                                |
-| **109** | [`infra_portal`](#infra_portal)                              | [`INFRA`](#INFRA)     | [`INFRA_ID`](#INFRA_ID)               |    dict     | G     | infra services exposed via portal                            |
-| **110** | [`repo_enabled`](#repo_enabled)                              | [`INFRA`](#INFRA)     | [`REPO`](#REPO)                       |    bool     | G/I   | create a yum repo on this infra node?                        |
-| **111** | [`repo_home`](#repo_home)                                    | [`INFRA`](#INFRA)     | [`REPO`](#REPO)                       |    path     | G     | repo home dir, `/www` by default                             |
-| **112** | [`repo_name`](#repo_name)                                    | [`INFRA`](#INFRA)     | [`REPO`](#REPO)                       |   string    | G     | repo name, pigsty by default                                 |
-| **113** | [`repo_endpoint`](#repo_endpoint)                            | [`INFRA`](#INFRA)     | [`REPO`](#REPO)                       |     url     | G     | access point to this repo by domain or ip:port               |
-| **114** | [`repo_remove`](#repo_remove)                                | [`INFRA`](#INFRA)     | [`REPO`](#REPO)                       |    bool     | G/A   | remove existing upstream repo                                |
-| **115** | [`repo_upstream`](#repo_upstream)                            | [`INFRA`](#INFRA)     | [`REPO`](#REPO)                       | upstream[]  | G     | where to download upstream packages                          |
-| **116** | [`repo_packages`](#repo_packages)                            | [`INFRA`](#INFRA)     | [`REPO`](#REPO)                       |  string[]   | G     | which packages to be included                                |
-| **117** | [`repo_url_packages`](#repo_url_packages)                    | [`INFRA`](#INFRA)     | [`REPO`](#REPO)                       |  string[]   | G     | extra packages from url                                      |
-| **118** | [`infra_packages`](#infra_packages)                          | [`INFRA`](#INFRA)     | [`INFRA_PACKAGE`](#INFRA_PACKAGE)     |  string[]   | G     | packages to be installed on infra nodes                      |
-| **119** | [`infra_packages_pip`](#infra_packages_pip)                  | [`INFRA`](#INFRA)     | [`INFRA_PACKAGE`](#INFRA_PACKAGE)     |   string    | G     | pip installed packages for infra nodes                       |
-| **120** | [`nginx_enabled`](#nginx_enabled)                            | [`INFRA`](#INFRA)     | [`NGINX`](#NGINX)                     |    bool     | G/I   | enable nginx on this infra node?                             |
-| **121** | [`nginx_sslmode`](#nginx_sslmode)                            | [`INFRA`](#INFRA)     | [`NGINX`](#NGINX)                     |    enum     | G     | nginx ssl mode? disable,enable,enforce                       |
-| **122** | [`nginx_home`](#nginx_home)                                  | [`INFRA`](#INFRA)     | [`NGINX`](#NGINX)                     |    path     | G     | nginx content dir, `/www` by default                         |
-| **123** | [`nginx_port`](#nginx_port)                                  | [`INFRA`](#INFRA)     | [`NGINX`](#NGINX)                     |    port     | G     | nginx listen port, 80 by default                             |
-| **124** | [`nginx_ssl_port`](#nginx_ssl_port)                          | [`INFRA`](#INFRA)     | [`NGINX`](#NGINX)                     |    port     | G     | nginx ssl listen port, 443 by default                        |
-| **125** | [`nginx_navbar`](#nginx_navbar)                              | [`INFRA`](#INFRA)     | [`NGINX`](#NGINX)                     |   index[]   | G     | nginx index page navigation links                            |
-| **126** | [`dns_enabled`](#dns_enabled)                                | [`INFRA`](#INFRA)     | [`DNS`](#DNS)                         |    bool     | G/I   | setup dnsmasq on this infra node?                            |
-| **127** | [`dns_port`](#dns_port)                                      | [`INFRA`](#INFRA)     | [`DNS`](#DNS)                         |    port     | G     | dns server listen port, 53 by default                        |
-| **128** | [`dns_records`](#dns_records)                                | [`INFRA`](#INFRA)     | [`DNS`](#DNS)                         |  string[]   | G     | dynamic dns records resolved by dnsmasq                      |
-| **129** | [`prometheus_enabled`](#prometheus_enabled)                  | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |    bool     | G/I   | enable prometheus on this infra node?                        |
-| **130** | [`prometheus_clean`](#prometheus_clean)                      | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |    bool     | G/A   | clean prometheus data during init?                           |
-| **131** | [`prometheus_data`](#prometheus_data)                        | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |    path     | G     | prometheus data dir, `/data/prometheus` by default           |
-| **132** | [`prometheus_sd_interval`](#prometheus_sd_interval)          | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |  interval   | G     | prometheus target refresh interval, 5s by default            |
-| **133** | [`prometheus_scrape_interval`](#prometheus_scrape_interval)  | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |  interval   | G     | prometheus scrape & eval interval, 10s by default            |
-| **134** | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)    | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |  interval   | G     | prometheus global scrape timeout, 8s by default              |
-| **135** | [`prometheus_options`](#prometheus_options)                  | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |     arg     | G     | prometheus extra server options                              |
-| **136** | [`pushgateway_enabled`](#pushgateway_enabled)                | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |    bool     | G/I   | setup pushgateway on this infra node?                        |
-| **137** | [`pushgateway_options`](#pushgateway_options)                | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |     arg     | G     | pushgateway extra server options                             |
-| **138** | [`blackbox_enabled`](#blackbox_enabled)                      | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |    bool     | G/I   | setup blackbox_exporter on this infra node?                  |
-| **139** | [`blackbox_options`](#blackbox_options)                      | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |     arg     | G     | blackbox_exporter extra server options                       |
-| **140** | [`alertmanager_enabled`](#alertmanager_enabled)              | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |    bool     | G/I   | setup alertmanager on this infra node?                       |
-| **141** | [`alertmanager_options`](#alertmanager_options)              | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |     arg     | G     | alertmanager extra server options                            |
-| **142** | [`exporter_metrics_path`](#exporter_metrics_path)            | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |    path     | G     | exporter metric path, `/metrics` by default                  |
-| **143** | [`exporter_install`](#exporter_install)                      | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |    enum     | G     | how to install exporter? none,yum,binary                     |
-| **144** | [`exporter_repo_url`](#exporter_repo_url)                    | [`INFRA`](#INFRA)     | [`PROMETHEUS`](#PROMETHEUS)           |     url     | G     | exporter repo file url if install exporter via yum           |
-| **145** | [`grafana_enabled`](#grafana_enabled)                        | [`INFRA`](#INFRA)     | [`GRAFANA`](#GRAFANA)                 |    bool     | G/I   | enable grafana on this infra node?                           |
-| **146** | [`grafana_clean`](#grafana_clean)                            | [`INFRA`](#INFRA)     | [`GRAFANA`](#GRAFANA)                 |    bool     | G/A   | clean grafana data during init?                              |
-| **147** | [`grafana_admin_username`](#grafana_admin_username)          | [`INFRA`](#INFRA)     | [`GRAFANA`](#GRAFANA)                 |  username   | G     | grafana admin username, `admin` by default                   |
-| **148** | [`grafana_admin_password`](#grafana_admin_password)          | [`INFRA`](#INFRA)     | [`GRAFANA`](#GRAFANA)                 |  password   | G     | grafana admin password, `pigsty` by default                  |
-| **149** | [`grafana_plugin_cache`](#grafana_plugin_cache)              | [`INFRA`](#INFRA)     | [`GRAFANA`](#GRAFANA)                 |    path     | G     | path to grafana plugins cache tarball                        |
-| **150** | [`grafana_plugin_list`](#grafana_plugin_list)                | [`INFRA`](#INFRA)     | [`GRAFANA`](#GRAFANA)                 |  string[]   | G     | grafana plugins to be downloaded with grafana-cli            |
-| **151** | [`loki_enabled`](#loki_enabled)                              | [`INFRA`](#INFRA)     | [`LOKI`](#LOKI)                       |    bool     | G/I   | enable loki on this infra node?                              |
-| **152** | [`loki_clean`](#loki_clean)                                  | [`INFRA`](#INFRA)     | [`LOKI`](#LOKI)                       |    bool     | G/A   | whether remove existing loki data?                           |
-| **153** | [`loki_data`](#loki_data)                                    | [`INFRA`](#INFRA)     | [`LOKI`](#LOKI)                       |    path     | G     | loki data dir, `/data/loki` by default                       |
-| **154** | [`loki_retention`](#loki_retention)                          | [`INFRA`](#INFRA)     | [`LOKI`](#LOKI)                       |  interval   | G     | loki log retention period, 15d by default                    |
-| **201** | [`nodename`](#nodename)                                      | [`NODE`](#NODE)       | [`NODE_ID`](#NODE_ID)                 |   string    | I     | node instance identity, use hostname if missing, optional    |
-| **202** | [`node_cluster`](#node_cluster)                              | [`NODE`](#NODE)       | [`NODE_ID`](#NODE_ID)                 |   string    | C     | node cluster identity, use 'nodes' if missing, optional      |
-| **203** | [`nodename_overwrite`](#nodename_overwrite)                  | [`NODE`](#NODE)       | [`NODE_ID`](#NODE_ID)                 |    bool     | C     | overwrite node's hostname with nodename?                     |
-| **204** | [`nodename_exchange`](#nodename_exchange)                    | [`NODE`](#NODE)       | [`NODE_ID`](#NODE_ID)                 |    bool     | C     | exchange nodename among play hosts?                          |
-| **205** | [`node_id_from_pg`](#node_id_from_pg)                        | [`NODE`](#NODE)       | [`NODE_ID`](#NODE_ID)                 |    bool     | C     | use postgres identity as node identity if applicable?        |
-| **206** | [`node_default_etc_hosts`](#node_default_etc_hosts)          | [`NODE`](#NODE)       | [`NODE_DNS`](#NODE_DNS)               |  string[]   | G     | static dns records in `/etc/hosts`                           |
-| **207** | [`node_etc_hosts`](#node_etc_hosts)                          | [`NODE`](#NODE)       | [`NODE_DNS`](#NODE_DNS)               |  string[]   | C     | extra static dns records in `/etc/hosts`                     |
-| **208** | [`node_dns_method`](#node_dns_method)                        | [`NODE`](#NODE)       | [`NODE_DNS`](#NODE_DNS)               |    enum     | C     | how to handle dns servers: add,none,overwrite                |
-| **209** | [`node_dns_servers`](#node_dns_servers)                      | [`NODE`](#NODE)       | [`NODE_DNS`](#NODE_DNS)               |  string[]   | C     | dynamic nameserver in `/etc/resolv.conf`                     |
-| **210** | [`node_dns_options`](#node_dns_options)                      | [`NODE`](#NODE)       | [`NODE_DNS`](#NODE_DNS)               |  string[]   | C     | dns resolv options in `/etc/resolv.conf`                     |
-| **211** | [`node_repo_method`](#node_repo_method)                      | [`NODE`](#NODE)       | [`NODE_PACKAGE`](#NODE_PACKAGE)       |    enum     | C     | how to setup node repo: none,local,public                    |
-| **212** | [`node_repo_remove`](#node_repo_remove)                      | [`NODE`](#NODE)       | [`NODE_PACKAGE`](#NODE_PACKAGE)       |    bool     | C     | remove existing repo on node?                                |
-| **213** | [`node_repo_local_urls`](#node_repo_local_urls)              | [`NODE`](#NODE)       | [`NODE_PACKAGE`](#NODE_PACKAGE)       |  string[]   | C     | local repo url, if node_repo_method = local                  |
-| **214** | [`node_packages`](#node_packages)                            | [`NODE`](#NODE)       | [`NODE_PACKAGE`](#NODE_PACKAGE)       |  string[]   | C     | packages to be installed current nodes                       |
-| **215** | [`node_default_packages`](#node_default_packages)            | [`NODE`](#NODE)       | [`NODE_PACKAGE`](#NODE_PACKAGE)       |  string[]   | G     | default packages to be installed on all nodes                |
-| **216** | [`node_disable_firewall`](#node_disable_firewall)            | [`NODE`](#NODE)       | [`NODE_TUNE`](#NODE_TUNE)             |    bool     | C     | disable node firewall? true by default                       |
-| **217** | [`node_disable_selinux`](#node_disable_selinux)              | [`NODE`](#NODE)       | [`NODE_TUNE`](#NODE_TUNE)             |    bool     | C     | disable node selinux? true by default                        |
-| **218** | [`node_disable_numa`](#node_disable_numa)                    | [`NODE`](#NODE)       | [`NODE_TUNE`](#NODE_TUNE)             |    bool     | C     | disable node numa, reboot required                           |
-| **219** | [`node_disable_swap`](#node_disable_swap)                    | [`NODE`](#NODE)       | [`NODE_TUNE`](#NODE_TUNE)             |    bool     | C     | disable node swap, use with caution                          |
-| **220** | [`node_static_network`](#node_static_network)                | [`NODE`](#NODE)       | [`NODE_TUNE`](#NODE_TUNE)             |    bool     | C     | preserve dns resolver settings after reboot                  |
-| **221** | [`node_disk_prefetch`](#node_disk_prefetch)                  | [`NODE`](#NODE)       | [`NODE_TUNE`](#NODE_TUNE)             |    bool     | C     | setup disk prefetch on HDD to increase performance           |
-| **222** | [`node_kernel_modules`](#node_kernel_modules)                | [`NODE`](#NODE)       | [`NODE_TUNE`](#NODE_TUNE)             |  string[]   | C     | kernel modules to be enabled on this node                    |
-| **223** | [`node_hugepage_ratio`](#node_hugepage_ratio)                | [`NODE`](#NODE)       | [`NODE_TUNE`](#NODE_TUNE)             |    float    | C     | node mem hugepage ratio, 0 disable it by default             |
-| **224** | [`node_tune`](#node_tune)                                    | [`NODE`](#NODE)       | [`NODE_TUNE`](#NODE_TUNE)             |    enum     | C     | node tuned profile: none,oltp,olap,crit,tiny                 |
-| **225** | [`node_sysctl_params`](#node_sysctl_params)                  | [`NODE`](#NODE)       | [`NODE_TUNE`](#NODE_TUNE)             |    dict     | C     | sysctl parameters in k:v format in addition to tuned         |
-| **226** | [`node_data`](#node_data)                                    | [`NODE`](#NODE)       | [`NODE_ADMIN`](#NODE_ADMIN)           |    path     | C     | node main data directory, `/data` by default                 |
-| **227** | [`node_admin_enabled`](#node_admin_enabled)                  | [`NODE`](#NODE)       | [`NODE_ADMIN`](#NODE_ADMIN)           |    bool     | C     | create a admin user on target node?                          |
-| **228** | [`node_admin_uid`](#node_admin_uid)                          | [`NODE`](#NODE)       | [`NODE_ADMIN`](#NODE_ADMIN)           |     int     | C     | uid and gid for node admin user                              |
-| **229** | [`node_admin_username`](#node_admin_username)                | [`NODE`](#NODE)       | [`NODE_ADMIN`](#NODE_ADMIN)           |  username   | C     | name of node admin user, `dba` by default                    |
-| **230** | [`node_admin_ssh_exchange`](#node_admin_ssh_exchange)        | [`NODE`](#NODE)       | [`NODE_ADMIN`](#NODE_ADMIN)           |    bool     | C     | exchange admin ssh key among node cluster                    |
-| **231** | [`node_admin_pk_current`](#node_admin_pk_current)            | [`NODE`](#NODE)       | [`NODE_ADMIN`](#NODE_ADMIN)           |    bool     | C     | add current user's ssh pk to admin authorized_keys           |
-| **232** | [`node_admin_pk_list`](#node_admin_pk_list)                  | [`NODE`](#NODE)       | [`NODE_ADMIN`](#NODE_ADMIN)           |  string[]   | C     | ssh public keys to be added to admin user                    |
-| **233** | [`node_timezone`](#node_timezone)                            | [`NODE`](#NODE)       | [`NODE_TIME`](#NODE_TIME)             |   string    | C     | setup node timezone, empty string to skip                    |
-| **234** | [`node_ntp_enabled`](#node_ntp_enabled)                      | [`NODE`](#NODE)       | [`NODE_TIME`](#NODE_TIME)             |    bool     | C     | enable chronyd time sync service?                            |
-| **235** | [`node_ntp_servers`](#node_ntp_servers)                      | [`NODE`](#NODE)       | [`NODE_TIME`](#NODE_TIME)             |  string[]   | C     | ntp servers in `/etc/chrony.conf`                            |
-| **236** | [`node_crontab_overwrite`](#node_crontab_overwrite)          | [`NODE`](#NODE)       | [`NODE_TIME`](#NODE_TIME)             |    bool     | C     | overwrite or append to `/etc/crontab`?                       |
-| **237** | [`node_crontab`](#node_crontab)                              | [`NODE`](#NODE)       | [`NODE_TIME`](#NODE_TIME)             |  string[]   | C     | crontab entries in `/etc/crontab`                            |
-| **238** | [`haproxy_enabled`](#haproxy_enabled)                        | [`NODE`](#NODE)       | [`HAPROXY`](#HAPROXY)                 |    bool     | C     | enable haproxy on this node?                                 |
-| **239** | [`haproxy_clean`](#haproxy_clean)                            | [`NODE`](#NODE)       | [`HAPROXY`](#HAPROXY)                 |    bool     | G/C/A | cleanup all existing haproxy config?                         |
-| **240** | [`haproxy_reload`](#haproxy_reload)                          | [`NODE`](#NODE)       | [`HAPROXY`](#HAPROXY)                 |    bool     | A     | reload haproxy after config?                                 |
-| **241** | [`haproxy_auth_enabled`](#haproxy_auth_enabled)              | [`NODE`](#NODE)       | [`HAPROXY`](#HAPROXY)                 |    bool     | G     | enable authentication for haproxy admin page                 |
-| **242** | [`haproxy_admin_username`](#haproxy_admin_username)          | [`NODE`](#NODE)       | [`HAPROXY`](#HAPROXY)                 |  username   | G     | haproxy admin username, `admin` by default                   |
-| **243** | [`haproxy_admin_password`](#haproxy_admin_password)          | [`NODE`](#NODE)       | [`HAPROXY`](#HAPROXY)                 |  password   | G     | haproxy admin password, `pigsty` by default                  |
-| **244** | [`haproxy_exporter_port`](#haproxy_exporter_port)            | [`NODE`](#NODE)       | [`HAPROXY`](#HAPROXY)                 |    port     | C     | haproxy admin/exporter port, 9101 by default                 |
-| **245** | [`haproxy_client_timeout`](#haproxy_client_timeout)          | [`NODE`](#NODE)       | [`HAPROXY`](#HAPROXY)                 |  interval   | C     | client side connection timeout, 24h by default               |
-| **246** | [`haproxy_server_timeout`](#haproxy_server_timeout)          | [`NODE`](#NODE)       | [`HAPROXY`](#HAPROXY)                 |  interval   | C     | server side connection timeout, 24h by default               |
-| **247** | [`haproxy_services`](#haproxy_services)                      | [`NODE`](#NODE)       | [`HAPROXY`](#HAPROXY)                 |  service[]  | C     | list of haproxy service to be exposed on node                |
-| **248** | [`docker_enabled`](#docker_enabled)                          | [`NODE`](#NODE)       | [`DOCKER`](#DOCKER)                   |    bool     | C     | enable docker on this node?                                  |
-| **249** | [`docker_cgroups_driver`](#docker_cgroups_driver)            | [`NODE`](#NODE)       | [`DOCKER`](#DOCKER)                   |    enum     | C     | docker cgroup fs driver: cgroupfs,systemd                    |
-| **250** | [`docker_registry_mirrors`](#docker_registry_mirrors)        | [`NODE`](#NODE)       | [`DOCKER`](#DOCKER)                   |  string[]   | C     | docker registry mirror list                                  |
-| **251** | [`docker_image_cache`](#docker_image_cache)                  | [`NODE`](#NODE)       | [`DOCKER`](#DOCKER)                   |    path     | C     | docker image cache dir, `/tmp/docker` by default             |
-| **252** | [`node_exporter_enabled`](#node_exporter_enabled)            | [`NODE`](#NODE)       | [`NODE_EXPORTER`](#NODE_EXPORTER)     |    bool     | C     | setup node_exporter on this node?                            |
-| **253** | [`node_exporter_port`](#node_exporter_port)                  | [`NODE`](#NODE)       | [`NODE_EXPORTER`](#NODE_EXPORTER)     |    port     | C     | node exporter listen port, 9100 by default                   |
-| **254** | [`node_exporter_options`](#node_exporter_options)            | [`NODE`](#NODE)       | [`NODE_EXPORTER`](#NODE_EXPORTER)     |     arg     | C     | extra server options for node_exporter                       |
-| **255** | [`promtail_enabled`](#promtail_enabled)                      | [`NODE`](#NODE)       | [`PROMTAIL`](#PROMTAIL)               |    bool     | C     | enable promtail logging collector?                           |
-| **256** | [`promtail_clean`](#promtail_clean)                          | [`NODE`](#NODE)       | [`PROMTAIL`](#PROMTAIL)               |    bool     | G/A   | purge existing promtail status file during init?             |
-| **257** | [`promtail_port`](#promtail_port)                            | [`NODE`](#NODE)       | [`PROMTAIL`](#PROMTAIL)               |    port     | C     | promtail listen port, 9080 by default                        |
-| **258** | [`promtail_positions`](#promtail_positions)                  | [`NODE`](#NODE)       | [`PROMTAIL`](#PROMTAIL)               |    path     | C     | promtail position status file path                           |
-| **301** | [`etcd_seq`](#etcd_seq)                                      | [`ETCD`](#ETCD)       | [`ETCD`](#ETCD)                       |     int     | I     | etcd instance identifier, REQUIRED                           |
-| **302** | [`etcd_cluster`](#etcd_cluster)                              | [`ETCD`](#ETCD)       | [`ETCD`](#ETCD)                       |   string    | C     | etcd cluster & group name, etcd by default                   |
-| **303** | [`etcd_safeguard`](#etcd_safeguard)                          | [`ETCD`](#ETCD)       | [`ETCD`](#ETCD)                       |    bool     | G/C/A | prevent purging running etcd instance?                       |
-| **304** | [`etcd_clean`](#etcd_clean)                                  | [`ETCD`](#ETCD)       | [`ETCD`](#ETCD)                       |    bool     | G/C/A | purging existing etcd during initialization?                 |
-| **305** | [`etcd_data`](#etcd_data)                                    | [`ETCD`](#ETCD)       | [`ETCD`](#ETCD)                       |    path     | C     | etcd data directory, /data/etcd by default                   |
-| **306** | [`etcd_port`](#etcd_port)                                    | [`ETCD`](#ETCD)       | [`ETCD`](#ETCD)                       |    port     | C     | etcd client port, 2379 by default                            |
-| **307** | [`etcd_peer_port`](#etcd_peer_port)                          | [`ETCD`](#ETCD)       | [`ETCD`](#ETCD)                       |    port     | C     | etcd peer port, 2380 by default                              |
-| **308** | [`etcd_init`](#etcd_init)                                    | [`ETCD`](#ETCD)       | [`ETCD`](#ETCD)                       |    enum     | C     | etcd initial cluster state, new or existing                  |
-| **309** | [`etcd_election_timeout`](#etcd_election_timeout)            | [`ETCD`](#ETCD)       | [`ETCD`](#ETCD)                       |     int     | C     | etcd election timeout, 1000ms by default                     |
-| **310** | [`etcd_heartbeat_interval`](#etcd_heartbeat_interval)        | [`ETCD`](#ETCD)       | [`ETCD`](#ETCD)                       |     int     | C     | etcd heartbeat interval, 100ms by default                    |
-| **401** | [`minio_seq`](#minio_seq)                                    | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |     int     | I     | minio instance identifier, REQUIRED                          |
-| **402** | [`minio_cluster`](#minio_cluster)                            | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |   string    | C     | minio cluster name, minio by default                         |
-| **403** | [`minio_clean`](#minio_clean)                                | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |    bool     | G/C/A | cleanup minio during init?, false by default                 |
-| **404** | [`minio_user`](#minio_user)                                  | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |  username   | C     | minio os user, `minio` by default                            |
-| **405** | [`minio_node`](#minio_node)                                  | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |   string    | C     | minio node name pattern                                      |
-| **406** | [`minio_data`](#minio_data)                                  | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |    path     | C     | minio data dir(s), use {x...y} to specify multi drivers      |
-| **407** | [`minio_domain`](#minio_domain)                              | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |   string    | G     | minio external domain name, `sss.pigsty` by default          |
-| **408** | [`minio_port`](#minio_port)                                  | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |    port     | C     | minio service port, 9000 by default                          |
-| **409** | [`minio_admin_port`](#minio_admin_port)                      | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |    port     | C     | minio console port, 9001 by default                          |
-| **410** | [`minio_access_key`](#minio_access_key)                      | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |  username   | C     | root access key, `minioadmin` by default                     |
-| **411** | [`minio_secret_key`](#minio_secret_key)                      | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |  password   | C     | root secret key, `minioadmin` by default                     |
-| **412** | [`minio_extra_vars`](#minio_extra_vars)                      | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |   string    | C     | extra environment variables for minio server                 |
-| **413** | [`minio_alias`](#minio_alias)                                | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |   string    | G     | alias name for local minio deployment                        |
-| **414** | [`minio_buckets`](#minio_buckets)                            | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |  bucket[]   | C     | list of minio bucket to be created                           |
-| **415** | [`minio_users`](#minio_users)                                | [`MINIO`](#MINIO)     | [`MINIO`](#MINIO)                     |   user[]    | C     | list of minio user to be created                             |
-| **501** | [`pg_cluster`](#pg_cluster)                                  | [`PGSQL`](#PGSQL)     | [`PG_ID`](#PG_ID)                     |   string    | C     | pgsql cluster name, REQUIRED identity parameter              |
-| **502** | [`pg_seq`](#pg_seq)                                          | [`PGSQL`](#PGSQL)     | [`PG_ID`](#PG_ID)                     |     int     | I     | pgsql instance seq number, REQUIRED identity parameter       |
-| **503** | [`pg_role`](#pg_role)                                        | [`PGSQL`](#PGSQL)     | [`PG_ID`](#PG_ID)                     |    enum     | I     | pgsql role, REQUIRED, could be primary,replica,offline       |
-| **504** | [`pg_instances`](#pg_instances)                              | [`PGSQL`](#PGSQL)     | [`PG_ID`](#PG_ID)                     |    dict     | I     | define multiple pg instances on node in `{port:ins_vars}` format |
-| **505** | [`pg_upstream`](#pg_upstream)                                | [`PGSQL`](#PGSQL)     | [`PG_ID`](#PG_ID)                     |     ip      | I     | repl upstream ip addr for standby cluster or cascade replica |
-| **506** | [`pg_shard`](#pg_shard)                                      | [`PGSQL`](#PGSQL)     | [`PG_ID`](#PG_ID)                     |   string    | C     | pgsql shard name, optional identity for sharding clusters    |
-| **507** | [`pg_sindex`](#pg_sindex)                                    | [`PGSQL`](#PGSQL)     | [`PG_ID`](#PG_ID)                     |     int     | C     | pgsql shard index, optional identity for sharding clusters   |
-| **508** | [`gp_role`](#gp_role)                                        | [`PGSQL`](#PGSQL)     | [`PG_ID`](#PG_ID)                     |    enum     | C     | greenplum role of this cluster, could be master or segment   |
-| **509** | [`pg_exporters`](#pg_exporters)                              | [`PGSQL`](#PGSQL)     | [`PG_ID`](#PG_ID)                     |    dict     | C     | additional pg_exporters to monitor remote postgres instances |
-| **510** | [`pg_offline_query`](#pg_offline_query)                      | [`PGSQL`](#PGSQL)     | [`PG_ID`](#PG_ID)                     |    bool     | G     | set to true to enable offline query on this instance         |
-| **511** | [`pg_weight`](#pg_weight)                                    | [`PGSQL`](#PGSQL)     | [`PG_ID`](#PG_ID)                     |     int     | G     | relative load balance weight in service, 100 by default, 0-255 |
-| **512** | [`pg_users`](#pg_users)                                      | [`PGSQL`](#PGSQL)     | [`PG_BUSINESS`](#PG_BUSINESS)         |   user[]    | C     | postgres business users                                      |
-| **513** | [`pg_databases`](#pg_databases)                              | [`PGSQL`](#PGSQL)     | [`PG_BUSINESS`](#PG_BUSINESS)         | database[]  | C     | postgres business databases                                  |
-| **514** | [`pg_services`](#pg_services)                                | [`PGSQL`](#PGSQL)     | [`PG_BUSINESS`](#PG_BUSINESS)         |  service[]  | C     | postgres business services                                   |
-| **515** | [`pg_hba_rules`](#pg_hba_rules)                              | [`PGSQL`](#PGSQL)     | [`PG_BUSINESS`](#PG_BUSINESS)         |    hba[]    | C     | business hba rules for postgres                              |
-| **516** | [`pgb_hba_rules`](#pgb_hba_rules)                            | [`PGSQL`](#PGSQL)     | [`PG_BUSINESS`](#PG_BUSINESS)         |    hba[]    | C     | business hba rules for pgbouncer                             |
-| **517** | [`pg_replication_username`](#pg_replication_username)        | [`PGSQL`](#PGSQL)     | [`PG_BUSINESS`](#PG_BUSINESS)         |  username   | G     | postgres replication username, `replicator` by default       |
-| **518** | [`pg_replication_password`](#pg_replication_password)        | [`PGSQL`](#PGSQL)     | [`PG_BUSINESS`](#PG_BUSINESS)         |  password   | G     | postgres replication password, `DBUser.Replicator` by default |
-| **519** | [`pg_admin_username`](#pg_admin_username)                    | [`PGSQL`](#PGSQL)     | [`PG_BUSINESS`](#PG_BUSINESS)         |  username   | G     | postgres admin username, `dbuser_dba` by default             |
-| **520** | [`pg_admin_password`](#pg_admin_password)                    | [`PGSQL`](#PGSQL)     | [`PG_BUSINESS`](#PG_BUSINESS)         |  password   | G     | postgres admin password in plain text, `DBUser.DBA` by default |
-| **521** | [`pg_monitor_username`](#pg_monitor_username)                | [`PGSQL`](#PGSQL)     | [`PG_BUSINESS`](#PG_BUSINESS)         |  username   | G     | postgres monitor username, `dbuser_monitor` by default       |
-| **522** | [`pg_monitor_password`](#pg_monitor_password)                | [`PGSQL`](#PGSQL)     | [`PG_BUSINESS`](#PG_BUSINESS)         |  password   | G     | postgres monitor password, `DBUser.Monitor` by default       |
-| **523** | [`pg_dbsu`](#pg_dbsu)                                        | [`PGSQL`](#PGSQL)     | [`PG_INSTALL`](#PG_INSTALL)           |  username   | C     | os dbsu name, postgres by default, better not change it      |
-| **524** | [`pg_dbsu_uid`](#pg_dbsu_uid)                                | [`PGSQL`](#PGSQL)     | [`PG_INSTALL`](#PG_INSTALL)           |     int     | C     | os dbsu uid and gid, 26 for default postgres users and groups |
-| **525** | [`pg_dbsu_sudo`](#pg_dbsu_sudo)                              | [`PGSQL`](#PGSQL)     | [`PG_INSTALL`](#PG_INSTALL)           |    enum     | C     | dbsu sudo privilege, none,limit,all,nopass. limit by default |
-| **526** | [`pg_dbsu_home`](#pg_dbsu_home)                              | [`PGSQL`](#PGSQL)     | [`PG_INSTALL`](#PG_INSTALL)           |    path     | C     | postgresql home directory, `/var/lib/pgsql` by default       |
-| **527** | [`pg_dbsu_ssh_exchange`](#pg_dbsu_ssh_exchange)              | [`PGSQL`](#PGSQL)     | [`PG_INSTALL`](#PG_INSTALL)           |    bool     | C     | exchange postgres dbsu ssh key among same pgsql cluster      |
-| **528** | [`pg_version`](#pg_version)                                  | [`PGSQL`](#PGSQL)     | [`PG_INSTALL`](#PG_INSTALL)           |    enum     | C     | postgres major version to be installed, 15 by default        |
-| **529** | [`pg_bin_dir`](#pg_bin_dir)                                  | [`PGSQL`](#PGSQL)     | [`PG_INSTALL`](#PG_INSTALL)           |    path     | C     | postgres binary dir, `/usr/pgsql/bin` by default             |
-| **530** | [`pg_log_dir`](#pg_log_dir)                                  | [`PGSQL`](#PGSQL)     | [`PG_INSTALL`](#PG_INSTALL)           |    path     | C     | postgres log dir, `/pg/log/postgres` by default              |
-| **531** | [`pg_packages`](#pg_packages)                                | [`PGSQL`](#PGSQL)     | [`PG_INSTALL`](#PG_INSTALL)           |  string[]   | C     | pg packages to be installed, `${pg_version}` will be replaced |
-| **532** | [`pg_extensions`](#pg_extensions)                            | [`PGSQL`](#PGSQL)     | [`PG_INSTALL`](#PG_INSTALL)           |  string[]   | C     | pg extensions to be installed, `${pg_version}` will be replaced |
-| **533** | [`pg_safeguard`](#pg_safeguard)                              | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    bool     | G/C/A | prevent purging running postgres instance? false by default  |
-| **534** | [`pg_clean`](#pg_clean)                                      | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    bool     | G/C/A | purging existing postgres during pgsql init? true by default |
-| **535** | [`pg_data`](#pg_data)                                        | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    path     | C     | postgres data directory, `/pg/data` by default               |
-| **536** | [`pg_fs_main`](#pg_fs_main)                                  | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    path     | C     | mountpoint/path for postgres main data, `/data` by default   |
-| **537** | [`pg_fs_bkup`](#pg_fs_bkup)                                  | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    path     | C     | mountpoint/path for pg backup data, `/data/backup` by default |
-| **538** | [`pg_storage_type`](#pg_storage_type)                        | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    enum     | C     | storage type for pg main data, SSD,HDD, SSD by default       |
-| **539** | [`pg_dummy_filesize`](#pg_dummy_filesize)                    | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    size     | C     | size of `/pg/dummy`, hold 64MB disk space for emergency use  |
-| **540** | [`pg_listen`](#pg_listen)                                    | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |     ip      | C     | postgres listen address, `0.0.0.0` (all ipv4 addr) by defaul |
-| **541** | [`pg_port`](#pg_port)                                        | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    port     | C     | postgres listen port, 5432 by default                        |
-| **542** | [`pg_localhost`](#pg_localhost)                              | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    path     | C     | postgres unix socket dir for localhost connection            |
-| **543** | [`pg_namespace`](#pg_namespace)                              | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    path     | C     | top level key namespace in etcd, used by patroni & vip       |
-| **544** | [`patroni_enabled`](#patroni_enabled)                        | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    bool     | C     | if disabled, no postgres cluster will be created during init |
-| **545** | [`patroni_mode`](#patroni_mode)                              | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    enum     | C     | patroni working mode: default,pause,remove                   |
-| **546** | [`patroni_port`](#patroni_port)                              | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    port     | C     | patroni listen port, 8008 by default                         |
-| **547** | [`patroni_log_dir`](#patroni_log_dir)                        | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    path     | C     | patroni log dir, `/pg/log/patroni` by default                |
-| **548** | [`patroni_ssl_enabled`](#patroni_ssl_enabled)                | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    bool     | G     | secure patroni RestAPI communications with SSL?              |
-| **549** | [`patroni_watchdog_mode`](#patroni_watchdog_mode)            | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |      e      | C     | patroni watchdog mode: automatic,required,off. off by default |
-| **550** | [`patroni_username`](#patroni_username)                      | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |  username   | C     | patroni restapi username, `postgres` by default              |
-| **551** | [`patroni_password`](#patroni_password)                      | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |  password   | C     | patroni restapi password, `Patroni.API` by default           |
-| **552** | [`pg_conf`](#pg_conf)                                        | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    enum     | C     | config template: oltp,olap,crit,tiny. `oltp.yml` by default  |
-| **553** | [`pg_max_conn`](#pg_max_conn)                                | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |     int     | C     | postgres max connections, `auto` will use recommended value  |
-| **554** | [`pg_shmem_ratio`](#pg_shmem_ratio)                          | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    float    | C     | postgres shared memory ratio, 0.25 by default, 0.1~0.4       |
-| **555** | [`pg_rto`](#pg_rto)                                          | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |     int     | C     | recovery time objective in seconds, `30s` by default         |
-| **556** | [`pg_rpo`](#pg_rpo)                                          | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |     int     | C     | recovery point objective in bytes, `1MiB` at most by default |
-| **557** | [`pg_libs`](#pg_libs)                                        | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |   string    | C     | preloaded libraries, `pg_stat_statements,auto_explain` by default |
-| **558** | [`pg_delay`](#pg_delay)                                      | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |  interval   | I     | replication apply delay for standby cluster leader           |
-| **559** | [`pg_checksum`](#pg_checksum)                                | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    bool     | C     | enable data checksum for postgres cluster?                   |
-| **560** | [`pg_pwd_enc`](#pg_pwd_enc)                                  | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    enum     | C     | passwords encryption algorithm: md5,scram-sha-256            |
-| **561** | [`pg_encoding`](#pg_encoding)                                | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    enum     | C     | database cluster encoding, `UTF8` by default                 |
-| **562** | [`pg_locale`](#pg_locale)                                    | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    enum     | C     | database cluster local, `C` by default                       |
-| **563** | [`pg_lc_collate`](#pg_lc_collate)                            | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    enum     | C     | database cluster collate, `C` by default                     |
-| **564** | [`pg_lc_ctype`](#pg_lc_ctype)                                | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    enum     | C     | database character type, `en_US.UTF8` by default             |
-| **565** | [`pgbouncer_enabled`](#pgbouncer_enabled)                    | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    bool     | C     | if disabled, pgbouncer will not be launched on pgsql host    |
-| **566** | [`pgbouncer_port`](#pgbouncer_port)                          | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    port     | C     | pgbouncer listen port, 6432 by default                       |
-| **567** | [`pgbouncer_log_dir`](#pgbouncer_log_dir)                    | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    path     | C     | pgbouncer log dir, `/pg/log/pgbouncer` by default            |
-| **568** | [`pgbouncer_auth_query`](#pgbouncer_auth_query)              | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    bool     | C     | query postgres to retrieve unlisted business users?          |
-| **569** | [`pgbouncer_poolmode`](#pgbouncer_poolmode)                  | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    enum     | C     | pooling mode: transaction,session,statement, transaction by default |
-| **570** | [`pgbouncer_sslmode`](#pgbouncer_sslmode)                    | [`PGSQL`](#PGSQL)     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)       |    enum     | C     | pgbouncer client ssl mode, disable by default                |
-| **571** | [`pg_provision`](#pg_provision)                              | [`PGSQL`](#PGSQL)     | [`PG_PROVISION`](#PG_PROVISION)       |    bool     | C     | provision postgres cluster after bootstrap                   |
-| **572** | [`pg_init`](#pg_init)                                        | [`PGSQL`](#PGSQL)     | [`PG_PROVISION`](#PG_PROVISION)       |   string    | G/C   | provision init script for cluster template, `pg-init` by default |
-| **573** | [`pg_default_roles`](#pg_default_roles)                      | [`PGSQL`](#PGSQL)     | [`PG_PROVISION`](#PG_PROVISION)       |   role[]    | G/C   | default roles and users in postgres cluster                  |
-| **574** | [`pg_default_privileges`](#pg_default_privileges)            | [`PGSQL`](#PGSQL)     | [`PG_PROVISION`](#PG_PROVISION)       |  string[]   | G/C   | default privileges when created by admin user                |
-| **575** | [`pg_default_schemas`](#pg_default_schemas)                  | [`PGSQL`](#PGSQL)     | [`PG_PROVISION`](#PG_PROVISION)       |  string[]   | G/C   | default schemas to be created                                |
-| **576** | [`pg_default_extensions`](#pg_default_extensions)            | [`PGSQL`](#PGSQL)     | [`PG_PROVISION`](#PG_PROVISION)       | extension[] | G/C   | default extensions to be created                             |
-| **577** | [`pg_reload`](#pg_reload)                                    | [`PGSQL`](#PGSQL)     | [`PG_PROVISION`](#PG_PROVISION)       |    bool     | A     | reload postgres after hba changes                            |
-| **702** | [`redis_instances`](#redis_instances)                        | [`REDIS`](#REDIS)     | [`REDIS_ID`](#REDIS_ID)               |    dict     | I     | redis instances definition on this redis node                |
-| **703** | [`redis_node`](#redis_node)                                  | [`REDIS`](#REDIS)     | [`REDIS_ID`](#REDIS_ID)               |     int     | I     | redis node sequence number, node int id required             |
-| **704** | [`redis_fs_main`](#redis_fs_main)                            | [`REDIS`](#REDIS)     | [`REDIS_NODE`](#REDIS_NODE)           |    path     | C     | redis main data mountpoint, `/data` by default               |
-| **705** | [`redis_exporter_enabled`](#redis_exporter_enabled)          | [`REDIS`](#REDIS)     | [`REDIS_NODE`](#REDIS_NODE)           |    bool     | C     | install redis exporter on redis nodes?                       |
-| **706** | [`redis_exporter_port`](#redis_exporter_port)                | [`REDIS`](#REDIS)     | [`REDIS_NODE`](#REDIS_NODE)           |    port     | C     | redis exporter listen port, 9121 by default                  |
-| **707** | [`redis_exporter_options`](#redis_exporter_options)          | [`REDIS`](#REDIS)     | [`REDIS_NODE`](#REDIS_NODE)           |   string    | C/I   | cli args and extra options for redis exporter                |
-| **708** | [`redis_safeguard`](#redis_safeguard)                        | [`REDIS`](#REDIS)     | [`REDIS_PROVISION`](#REDIS_PROVISION) |    bool     | C     | prevent purging running redis instance?                      |
-| **709** | [`redis_clean`](#redis_clean)                                | [`REDIS`](#REDIS)     | [`REDIS_PROVISION`](#REDIS_PROVISION) |    bool     | C     | purging existing redis during init?                          |
-| **710** | [`redis_rmdata`](#redis_rmdata)                              | [`REDIS`](#REDIS)     | [`REDIS_PROVISION`](#REDIS_PROVISION) |    bool     | A     | remove redis data when purging redis server?                 |
-| **711** | [`redis_mode`](#redis_mode)                                  | [`REDIS`](#REDIS)     | [`REDIS_PROVISION`](#REDIS_PROVISION) |    enum     | C     | redis mode: standalone,cluster,sentinel                      |
-| **578** | [`pg_default_hba_rules`](#pg_default_hba_rules)              | [`PGSQL`](#PGSQL)     | [`PG_PROVISION`](#PG_PROVISION)       |    hba[]    | G/C   | postgres default host-based authentication rules             |
-| **579** | [`pgb_default_hba_rules`](#pgb_default_hba_rules)            | [`PGSQL`](#PGSQL)     | [`PG_PROVISION`](#PG_PROVISION)       |    hba[]    | G/C   | pgbouncer default host-based authentication rules            |
-| **580** | [`pg_default_service_dest`](#pg_default_service_dest)        | [`PGSQL`](#PGSQL)     | [`PG_PROVISION`](#PG_PROVISION)       |    enum     | G/C   | default service destination if svc.dest='default'            |
-| **581** | [`pg_default_services`](#pg_default_services)                | [`PGSQL`](#PGSQL)     | [`PG_PROVISION`](#PG_PROVISION)       |  service[]  | G/C   | postgres default service definitions                         |
-| **582** | [`pgbackrest_enabled`](#pgbackrest_enabled)                  | [`PGSQL`](#PGSQL)     | [`PG_BACKUP`](#PG_BACKUP)             |    bool     | C     | enable pgbackrest on pgsql host?                             |
-| **583** | [`pgbackrest_clean`](#pgbackrest_clean)                      | [`PGSQL`](#PGSQL)     | [`PG_BACKUP`](#PG_BACKUP)             |    bool     | C     | remove pg backup data during init?                           |
-| **584** | [`pgbackrest_log_dir`](#pgbackrest_log_dir)                  | [`PGSQL`](#PGSQL)     | [`PG_BACKUP`](#PG_BACKUP)             |    path     | C     | pgbackrest log dir, `/pg/log/pgbackrest` by default          |
-| **585** | [`pgbackrest_method`](#pgbackrest_method)                    | [`PGSQL`](#PGSQL)     | [`PG_BACKUP`](#PG_BACKUP)             |    enum     | C     | pgbackrest repo method: local,minio,[user-defined...]        |
-| **586** | [`pgbackrest_repo`](#pgbackrest_repo)                        | [`PGSQL`](#PGSQL)     | [`PG_BACKUP`](#PG_BACKUP)             |    dict     | G/C   | pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository |
-| **587** | [`pg_vip_enabled`](#pg_vip_enabled)                          | [`PGSQL`](#PGSQL)     | [`PG_VIP`](#PG_VIP)                   |    bool     | C     | enable a l2 vip for pgsql primary? false by default          |
-| **588** | [`pg_vip_address`](#pg_vip_address)                          | [`PGSQL`](#PGSQL)     | [`PG_VIP`](#PG_VIP)                   |    cidr4    | C     | vip address in `<ipv4>/<mask>` format, require if vip is enabled |
-| **589** | [`pg_vip_interface`](#pg_vip_interface)                      | [`PGSQL`](#PGSQL)     | [`PG_VIP`](#PG_VIP)                   |   string    | C/I   | vip network interface to listen, eth0 by default             |
-| **590** | [`pg_dns_suffix`](#pg_dns_suffix)                            | [`PGSQL`](#PGSQL)     | [`PG_DNS`](#PG_DNS)                   |   string    | C     | pgsql dns suffix, '' by default                              |
-| **591** | [`pg_dns_target`](#pg_dns_target)                            | [`PGSQL`](#PGSQL)     | [`PG_DNS`](#PG_DNS)                   |    enum     | C     | auto, primary, vip, none, or ad hoc ip                       |
-| **592** | [`pg_exporter_enabled`](#pg_exporter_enabled)                | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |    bool     | C     | enable pg_exporter on pgsql hosts?                           |
-| **593** | [`pg_exporter_config`](#pg_exporter_config)                  | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |   string    | C     | pg_exporter configuration file name                          |
-| **594** | [`pg_exporter_cache_ttls`](#pg_exporter_cache_ttls)          | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |   string    | C     | pg_exporter collector ttl stage in seconds, '1,10,60,300' by default |
-| **595** | [`pg_exporter_port`](#pg_exporter_port)                      | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |    port     | C     | pg_exporter listen port, 9630 by default                     |
-| **596** | [`pg_exporter_params`](#pg_exporter_params)                  | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |   string    | C     | extra url parameters for pg_exporter dsn                     |
-| **597** | [`pg_exporter_url`](#pg_exporter_url)                        | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |    pgurl    | C     | overwrite auto-generate pg dsn if specified                  |
-| **598** | [`pg_exporter_auto_discovery`](#pg_exporter_auto_discovery)  | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |    bool     | C     | enable auto database discovery? enabled by default           |
-| **599** | [`pg_exporter_exclude_database`](#pg_exporter_exclude_database) | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |   string    | C     | csv of database that WILL NOT be monitored during auto-discovery |
-| **600** | [`pg_exporter_include_database`](#pg_exporter_include_database) | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |   string    | C     | csv of database that WILL BE monitored during auto-discovery |
-| **601** | [`pg_exporter_connect_timeout`](#pg_exporter_connect_timeout) | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |     int     | C     | pg_exporter connect timeout in ms, 200 by default            |
-| **602** | [`pg_exporter_options`](#pg_exporter_options)                | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |     arg     | C     | overwrite extra options for pg_exporter                      |
-| **603** | [`pgbouncer_exporter_enabled`](#pgbouncer_exporter_enabled)  | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |    bool     | C     | enable pgbouncer_exporter on pgsql hosts?                    |
-| **604** | [`pgbouncer_exporter_port`](#pgbouncer_exporter_port)        | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |    port     | C     | pgbouncer_exporter listen port, 9631 by default              |
-| **605** | [`pgbouncer_exporter_url`](#pgbouncer_exporter_url)          | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |    pgurl    | C     | overwrite auto-generate pgbouncer dsn if specified           |
-| **606** | [`pgbouncer_exporter_options`](#pgbouncer_exporter_options)  | [`PGSQL`](#PGSQL)     | [`PG_EXPORTER`](#PG_EXPORTER)         |     arg     | C     | overwrite extra options for pgbouncer_exporter               |
-| **701** | [`redis_cluster`](#redis_cluster)                            | [`REDIS`](#REDIS)     | [`REDIS_ID`](#REDIS_ID)               |   string    | C     | redis cluster name, required identity parameter              |
-| **712** | [`redis_conf`](#redis_conf)                                  | [`REDIS`](#REDIS)     | [`REDIS_PROVISION`](#REDIS_PROVISION) |   string    | C     | redis config template path, except sentinel                  |
-| **713** | [`redis_bind_address`](#redis_bind_address)                  | [`REDIS`](#REDIS)     | [`REDIS_PROVISION`](#REDIS_PROVISION) |     ip      | C     | redis bind address, empty string will use host ip            |
-| **714** | [`redis_max_memory`](#redis_max_memory)                      | [`REDIS`](#REDIS)     | [`REDIS_PROVISION`](#REDIS_PROVISION) |    size     | C/I   | max memory used by each redis instance                       |
-| **715** | [`redis_mem_policy`](#redis_mem_policy)                      | [`REDIS`](#REDIS)     | [`REDIS_PROVISION`](#REDIS_PROVISION) |    enum     | C     | redis memory eviction policy                                 |
-| **716** | [`redis_password`](#redis_password)                          | [`REDIS`](#REDIS)     | [`REDIS_PROVISION`](#REDIS_PROVISION) |  password   | C     | redis password, empty string will disable password           |
-| **717** | [`redis_rdb_save`](#redis_rdb_save)                          | [`REDIS`](#REDIS)     | [`REDIS_PROVISION`](#REDIS_PROVISION) |  string[]   | C     | redis rdb save directives, disable with empty list           |
-| **718** | [`redis_aof_enabled`](#redis_aof_enabled)                    | [`REDIS`](#REDIS)     | [`REDIS_PROVISION`](#REDIS_PROVISION) |    bool     | C     | enable redis append only file?                               |
-| **719** | [`redis_rename_commands`](#redis_rename_commands)            | [`REDIS`](#REDIS)     | [`REDIS_PROVISION`](#REDIS_PROVISION) |    dict     | C     | rename redis dangerous commands                              |
-| **720** | [`redis_cluster_replicas`](#redis_cluster_replicas)          | [`REDIS`](#REDIS)     | [`REDIS_PROVISION`](#REDIS_PROVISION) |     int     | C     | replica number for one master in redis cluster               |
-
-
-
-
+| ID  | Name                                                            | Module            | Section                               |    Type     | Level | Comment                                                                       |
+|:---:|-----------------------------------------------------------------|-------------------|---------------------------------------|:-----------:|:-----:|-------------------------------------------------------------------------------|
+| 101 | [`version`](#version)                                           | [`INFRA`](#infra) | [`META`](#meta)                       |   string    |   G   | pigsty version string                                                         |
+| 102 | [`admin_ip`](#admin_ip)                                         | [`INFRA`](#infra) | [`META`](#meta)                       |     ip      |   G   | admin node ip address                                                         |
+| 103 | [`region`](#region)                                             | [`INFRA`](#infra) | [`META`](#meta)                       |    enum     |   G   | upstream mirror region: default,china,europe                                  |
+| 104 | [`proxy_env`](#proxy_env)                                       | [`INFRA`](#infra) | [`META`](#meta)                       |    dict     |   G   | global proxy env when downloading packages                                    |
+| 105 | [`ca_method`](#ca_method)                                       | [`INFRA`](#infra) | [`CA`](#ca)                           |    enum     |   G   | create,recreate,copy, create by default                                       |
+| 106 | [`ca_cn`](#ca_cn)                                               | [`INFRA`](#infra) | [`CA`](#ca)                           |   string    |   G   | ca common name, fixed as pigsty-ca                                            |
+| 107 | [`cert_validity`](#cert_validity)                               | [`INFRA`](#infra) | [`CA`](#ca)                           |  interval   |   G   | cert validity, 20 years by default                                            |
+| 108 | [`infra_seq`](#infra_seq)                                       | [`INFRA`](#infra) | [`INFRA_ID`](#infra_id)               |     int     |   I   | infra node identity, REQUIRED                                                 |
+| 109 | [`infra_portal`](#infra_portal)                                 | [`INFRA`](#infra) | [`INFRA_ID`](#infra_id)               |    dict     |   G   | infra services exposed via portal                                             |
+| 110 | [`repo_enabled`](#repo_enabled)                                 | [`INFRA`](#infra) | [`REPO`](#repo)                       |    bool     |  G/I  | create a yum repo on this infra node?                                         |
+| 111 | [`repo_home`](#repo_home)                                       | [`INFRA`](#infra) | [`REPO`](#repo)                       |    path     |   G   | repo home dir, `/www` by default                                              |
+| 112 | [`repo_name`](#repo_name)                                       | [`INFRA`](#infra) | [`REPO`](#repo)                       |   string    |   G   | repo name, pigsty by default                                                  |
+| 113 | [`repo_endpoint`](#repo_endpoint)                               | [`INFRA`](#infra) | [`REPO`](#repo)                       |     url     |   G   | access point to this repo by domain or ip:port                                |
+| 114 | [`repo_remove`](#repo_remove)                                   | [`INFRA`](#infra) | [`REPO`](#repo)                       |    bool     |  G/A  | remove existing upstream repo                                                 |
+| 115 | [`repo_upstream`](#repo_upstream)                               | [`INFRA`](#infra) | [`REPO`](#repo)                       | upstream[]  |   G   | where to download upstream packages                                           |
+| 116 | [`repo_packages`](#repo_packages)                               | [`INFRA`](#infra) | [`REPO`](#repo)                       |  string[]   |   G   | which packages to be included                                                 |
+| 117 | [`repo_url_packages`](#repo_url_packages)                       | [`INFRA`](#infra) | [`REPO`](#repo)                       |  string[]   |   G   | extra packages from url                                                       |
+| 118 | [`infra_packages`](#infra_packages)                             | [`INFRA`](#infra) | [`INFRA_PACKAGE`](#infra_package)     |  string[]   |   G   | packages to be installed on infra nodes                                       |
+| 119 | [`infra_packages_pip`](#infra_packages_pip)                     | [`INFRA`](#infra) | [`INFRA_PACKAGE`](#infra_package)     |   string    |   G   | pip installed packages for infra nodes                                        |
+| 120 | [`nginx_enabled`](#nginx_enabled)                               | [`INFRA`](#infra) | [`NGINX`](#nginx)                     |    bool     |  G/I  | enable nginx on this infra node?                                              |
+| 121 | [`nginx_sslmode`](#nginx_sslmode)                               | [`INFRA`](#infra) | [`NGINX`](#nginx)                     |    enum     |   G   | nginx ssl mode? disable,enable,enforce                                        |
+| 122 | [`nginx_home`](#nginx_home)                                     | [`INFRA`](#infra) | [`NGINX`](#nginx)                     |    path     |   G   | nginx content dir, `/www` by default                                          |
+| 123 | [`nginx_port`](#nginx_port)                                     | [`INFRA`](#infra) | [`NGINX`](#nginx)                     |    port     |   G   | nginx listen port, 80 by default                                              |
+| 124 | [`nginx_ssl_port`](#nginx_ssl_port)                             | [`INFRA`](#infra) | [`NGINX`](#nginx)                     |    port     |   G   | nginx ssl listen port, 443 by default                                         |
+| 125 | [`nginx_navbar`](#nginx_navbar)                                 | [`INFRA`](#infra) | [`NGINX`](#nginx)                     |   index[]   |   G   | nginx index page navigation links                                             |
+| 126 | [`dns_enabled`](#dns_enabled)                                   | [`INFRA`](#infra) | [`DNS`](#dns)                         |    bool     |  G/I  | setup dnsmasq on this infra node?                                             |
+| 127 | [`dns_port`](#dns_port)                                         | [`INFRA`](#infra) | [`DNS`](#dns)                         |    port     |   G   | dns server listen port, 53 by default                                         |
+| 128 | [`dns_records`](#dns_records)                                   | [`INFRA`](#infra) | [`DNS`](#dns)                         |  string[]   |   G   | dynamic dns records resolved by dnsmasq                                       |
+| 129 | [`prometheus_enabled`](#prometheus_enabled)                     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |    bool     |  G/I  | enable prometheus on this infra node?                                         |
+| 130 | [`prometheus_clean`](#prometheus_clean)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |    bool     |  G/A  | clean prometheus data during init?                                            |
+| 131 | [`prometheus_data`](#prometheus_data)                           | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |    path     |   G   | prometheus data dir, `/data/prometheus` by default                            |
+| 132 | [`prometheus_sd_interval`](#prometheus_sd_interval)             | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |  interval   |   G   | prometheus target refresh interval, 5s by default                             |
+| 133 | [`prometheus_scrape_interval`](#prometheus_scrape_interval)     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |  interval   |   G   | prometheus scrape & eval interval, 10s by default                             |
+| 134 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)       | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |  interval   |   G   | prometheus global scrape timeout, 8s by default                               |
+| 135 | [`prometheus_options`](#prometheus_options)                     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |     arg     |   G   | prometheus extra server options                                               |
+| 136 | [`pushgateway_enabled`](#pushgateway_enabled)                   | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |    bool     |  G/I  | setup pushgateway on this infra node?                                         |
+| 137 | [`pushgateway_options`](#pushgateway_options)                   | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |     arg     |   G   | pushgateway extra server options                                              |
+| 138 | [`blackbox_enabled`](#blackbox_enabled)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |    bool     |  G/I  | setup blackbox_exporter on this infra node?                                   |
+| 139 | [`blackbox_options`](#blackbox_options)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |     arg     |   G   | blackbox_exporter extra server options                                        |
+| 140 | [`alertmanager_enabled`](#alertmanager_enabled)                 | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |    bool     |  G/I  | setup alertmanager on this infra node?                                        |
+| 141 | [`alertmanager_options`](#alertmanager_options)                 | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |     arg     |   G   | alertmanager extra server options                                             |
+| 142 | [`exporter_metrics_path`](#exporter_metrics_path)               | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |    path     |   G   | exporter metric path, `/metrics` by default                                   |
+| 143 | [`exporter_install`](#exporter_install)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |    enum     |   G   | how to install exporter? none,yum,binary                                      |
+| 144 | [`exporter_repo_url`](#exporter_repo_url)                       | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)           |     url     |   G   | exporter repo file url if install exporter via yum                            |
+| 145 | [`grafana_enabled`](#grafana_enabled)                           | [`INFRA`](#infra) | [`GRAFANA`](#grafana)                 |    bool     |  G/I  | enable grafana on this infra node?                                            |
+| 146 | [`grafana_clean`](#grafana_clean)                               | [`INFRA`](#infra) | [`GRAFANA`](#grafana)                 |    bool     |  G/A  | clean grafana data during init?                                               |
+| 147 | [`grafana_admin_username`](#grafana_admin_username)             | [`INFRA`](#infra) | [`GRAFANA`](#grafana)                 |  username   |   G   | grafana admin username, `admin` by default                                    |
+| 148 | [`grafana_admin_password`](#grafana_admin_password)             | [`INFRA`](#infra) | [`GRAFANA`](#grafana)                 |  password   |   G   | grafana admin password, `pigsty` by default                                   |
+| 149 | [`grafana_plugin_cache`](#grafana_plugin_cache)                 | [`INFRA`](#infra) | [`GRAFANA`](#grafana)                 |    path     |   G   | path to grafana plugins cache tarball                                         |
+| 150 | [`grafana_plugin_list`](#grafana_plugin_list)                   | [`INFRA`](#infra) | [`GRAFANA`](#grafana)                 |  string[]   |   G   | grafana plugins to be downloaded with grafana-cli                             |
+| 151 | [`loki_enabled`](#loki_enabled)                                 | [`INFRA`](#infra) | [`LOKI`](#loki)                       |    bool     |  G/I  | enable loki on this infra node?                                               |
+| 152 | [`loki_clean`](#loki_clean)                                     | [`INFRA`](#infra) | [`LOKI`](#loki)                       |    bool     |  G/A  | whether remove existing loki data?                                            |
+| 153 | [`loki_data`](#loki_data)                                       | [`INFRA`](#infra) | [`LOKI`](#loki)                       |    path     |   G   | loki data dir, `/data/loki` by default                                        |
+| 154 | [`loki_retention`](#loki_retention)                             | [`INFRA`](#infra) | [`LOKI`](#loki)                       |  interval   |   G   | loki log retention period, 15d by default                                     |
+| 201 | [`nodename`](#nodename)                                         | [`NODE`](#node)   | [`NODE_ID`](#node_id)                 |   string    |   I   | node instance identity, use hostname if missing, optional                     |
+| 202 | [`node_cluster`](#node_cluster)                                 | [`NODE`](#node)   | [`NODE_ID`](#node_id)                 |   string    |   C   | node cluster identity, use 'nodes' if missing, optional                       |
+| 203 | [`nodename_overwrite`](#nodename_overwrite)                     | [`NODE`](#node)   | [`NODE_ID`](#node_id)                 |    bool     |   C   | overwrite node's hostname with nodename?                                      |
+| 204 | [`nodename_exchange`](#nodename_exchange)                       | [`NODE`](#node)   | [`NODE_ID`](#node_id)                 |    bool     |   C   | exchange nodename among play hosts?                                           |
+| 205 | [`node_id_from_pg`](#node_id_from_pg)                           | [`NODE`](#node)   | [`NODE_ID`](#node_id)                 |    bool     |   C   | use postgres identity as node identity if applicable?                         |
+| 206 | [`node_default_etc_hosts`](#node_default_etc_hosts)             | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)               |  string[]   |   G   | static dns records in `/etc/hosts`                                            |
+| 207 | [`node_etc_hosts`](#node_etc_hosts)                             | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)               |  string[]   |   C   | extra static dns records in `/etc/hosts`                                      |
+| 208 | [`node_dns_method`](#node_dns_method)                           | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)               |    enum     |   C   | how to handle dns servers: add,none,overwrite                                 |
+| 209 | [`node_dns_servers`](#node_dns_servers)                         | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)               |  string[]   |   C   | dynamic nameserver in `/etc/resolv.conf`                                      |
+| 210 | [`node_dns_options`](#node_dns_options)                         | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)               |  string[]   |   C   | dns resolv options in `/etc/resolv.conf`                                      |
+| 211 | [`node_repo_method`](#node_repo_method)                         | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)       |    enum     |   C   | how to setup node repo: none,local,public                                     |
+| 212 | [`node_repo_remove`](#node_repo_remove)                         | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)       |    bool     |   C   | remove existing repo on node?                                                 |
+| 213 | [`node_repo_local_urls`](#node_repo_local_urls)                 | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)       |  string[]   |   C   | local repo url, if node_repo_method = local                                   |
+| 214 | [`node_packages`](#node_packages)                               | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)       |  string[]   |   C   | packages to be installed current nodes                                        |
+| 215 | [`node_default_packages`](#node_default_packages)               | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)       |  string[]   |   G   | default packages to be installed on all nodes                                 |
+| 216 | [`node_disable_firewall`](#node_disable_firewall)               | [`NODE`](#node)   | [`NODE_TUNE`](#node_tune)             |    bool     |   C   | disable node firewall? true by default                                        |
+| 217 | [`node_disable_selinux`](#node_disable_selinux)                 | [`NODE`](#node)   | [`NODE_TUNE`](#node_tune)             |    bool     |   C   | disable node selinux? true by default                                         |
+| 218 | [`node_disable_numa`](#node_disable_numa)                       | [`NODE`](#node)   | [`NODE_TUNE`](#node_tune)             |    bool     |   C   | disable node numa, reboot required                                            |
+| 219 | [`node_disable_swap`](#node_disable_swap)                       | [`NODE`](#node)   | [`NODE_TUNE`](#node_tune)             |    bool     |   C   | disable node swap, use with caution                                           |
+| 220 | [`node_static_network`](#node_static_network)                   | [`NODE`](#node)   | [`NODE_TUNE`](#node_tune)             |    bool     |   C   | preserve dns resolver settings after reboot                                   |
+| 221 | [`node_disk_prefetch`](#node_disk_prefetch)                     | [`NODE`](#node)   | [`NODE_TUNE`](#node_tune)             |    bool     |   C   | setup disk prefetch on HDD to increase performance                            |
+| 222 | [`node_kernel_modules`](#node_kernel_modules)                   | [`NODE`](#node)   | [`NODE_TUNE`](#node_tune)             |  string[]   |   C   | kernel modules to be enabled on this node                                     |
+| 223 | [`node_hugepage_ratio`](#node_hugepage_ratio)                   | [`NODE`](#node)   | [`NODE_TUNE`](#node_tune)             |    float    |   C   | node mem hugepage ratio, 0 disable it by default                              |
+| 224 | [`node_tune`](#node_tune)                                       | [`NODE`](#node)   | [`NODE_TUNE`](#node_tune)             |    enum     |   C   | node tuned profile: none,oltp,olap,crit,tiny                                  |
+| 225 | [`node_sysctl_params`](#node_sysctl_params)                     | [`NODE`](#node)   | [`NODE_TUNE`](#node_tune)             |    dict     |   C   | sysctl parameters in k:v format in addition to tuned                          |
+| 226 | [`node_data`](#node_data)                                       | [`NODE`](#node)   | [`NODE_ADMIN`](#node_admin)           |    path     |   C   | node main data directory, `/data` by default                                  |
+| 227 | [`node_admin_enabled`](#node_admin_enabled)                     | [`NODE`](#node)   | [`NODE_ADMIN`](#node_admin)           |    bool     |   C   | create a admin user on target node?                                           |
+| 228 | [`node_admin_uid`](#node_admin_uid)                             | [`NODE`](#node)   | [`NODE_ADMIN`](#node_admin)           |     int     |   C   | uid and gid for node admin user                                               |
+| 229 | [`node_admin_username`](#node_admin_username)                   | [`NODE`](#node)   | [`NODE_ADMIN`](#node_admin)           |  username   |   C   | name of node admin user, `dba` by default                                     |
+| 230 | [`node_admin_ssh_exchange`](#node_admin_ssh_exchange)           | [`NODE`](#node)   | [`NODE_ADMIN`](#node_admin)           |    bool     |   C   | exchange admin ssh key among node cluster                                     |
+| 231 | [`node_admin_pk_current`](#node_admin_pk_current)               | [`NODE`](#node)   | [`NODE_ADMIN`](#node_admin)           |    bool     |   C   | add current user's ssh pk to admin authorized_keys                            |
+| 232 | [`node_admin_pk_list`](#node_admin_pk_list)                     | [`NODE`](#node)   | [`NODE_ADMIN`](#node_admin)           |  string[]   |   C   | ssh public keys to be added to admin user                                     |
+| 233 | [`node_timezone`](#node_timezone)                               | [`NODE`](#node)   | [`NODE_TIME`](#node_time)             |   string    |   C   | setup node timezone, empty string to skip                                     |
+| 234 | [`node_ntp_enabled`](#node_ntp_enabled)                         | [`NODE`](#node)   | [`NODE_TIME`](#node_time)             |    bool     |   C   | enable chronyd time sync service?                                             |
+| 235 | [`node_ntp_servers`](#node_ntp_servers)                         | [`NODE`](#node)   | [`NODE_TIME`](#node_time)             |  string[]   |   C   | ntp servers in `/etc/chrony.conf`                                             |
+| 236 | [`node_crontab_overwrite`](#node_crontab_overwrite)             | [`NODE`](#node)   | [`NODE_TIME`](#node_time)             |    bool     |   C   | overwrite or append to `/etc/crontab`?                                        |
+| 237 | [`node_crontab`](#node_crontab)                                 | [`NODE`](#node)   | [`NODE_TIME`](#node_time)             |  string[]   |   C   | crontab entries in `/etc/crontab`                                             |
+| 238 | [`haproxy_enabled`](#haproxy_enabled)                           | [`NODE`](#node)   | [`HAPROXY`](#haproxy)                 |    bool     |   C   | enable haproxy on this node?                                                  |
+| 239 | [`haproxy_clean`](#haproxy_clean)                               | [`NODE`](#node)   | [`HAPROXY`](#haproxy)                 |    bool     | G/C/A | cleanup all existing haproxy config?                                          |
+| 240 | [`haproxy_reload`](#haproxy_reload)                             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)                 |    bool     |   A   | reload haproxy after config?                                                  |
+| 241 | [`haproxy_auth_enabled`](#haproxy_auth_enabled)                 | [`NODE`](#node)   | [`HAPROXY`](#haproxy)                 |    bool     |   G   | enable authentication for haproxy admin page                                  |
+| 242 | [`haproxy_admin_username`](#haproxy_admin_username)             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)                 |  username   |   G   | haproxy admin username, `admin` by default                                    |
+| 243 | [`haproxy_admin_password`](#haproxy_admin_password)             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)                 |  password   |   G   | haproxy admin password, `pigsty` by default                                   |
+| 244 | [`haproxy_exporter_port`](#haproxy_exporter_port)               | [`NODE`](#node)   | [`HAPROXY`](#haproxy)                 |    port     |   C   | haproxy admin/exporter port, 9101 by default                                  |
+| 245 | [`haproxy_client_timeout`](#haproxy_client_timeout)             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)                 |  interval   |   C   | client side connection timeout, 24h by default                                |
+| 246 | [`haproxy_server_timeout`](#haproxy_server_timeout)             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)                 |  interval   |   C   | server side connection timeout, 24h by default                                |
+| 247 | [`haproxy_services`](#haproxy_services)                         | [`NODE`](#node)   | [`HAPROXY`](#haproxy)                 |  service[]  |   C   | list of haproxy service to be exposed on node                                 |
+| 248 | [`docker_enabled`](#docker_enabled)                             | [`NODE`](#node)   | [`DOCKER`](#docker)                   |    bool     |   C   | enable docker on this node?                                                   |
+| 249 | [`docker_cgroups_driver`](#docker_cgroups_driver)               | [`NODE`](#node)   | [`DOCKER`](#docker)                   |    enum     |   C   | docker cgroup fs driver: cgroupfs,systemd                                     |
+| 250 | [`docker_registry_mirrors`](#docker_registry_mirrors)           | [`NODE`](#node)   | [`DOCKER`](#docker)                   |  string[]   |   C   | docker registry mirror list                                                   |
+| 251 | [`docker_image_cache`](#docker_image_cache)                     | [`NODE`](#node)   | [`DOCKER`](#docker)                   |    path     |   C   | docker image cache dir, `/tmp/docker` by default                              |
+| 252 | [`node_exporter_enabled`](#node_exporter_enabled)               | [`NODE`](#node)   | [`NODE_EXPORTER`](#node_exporter)     |    bool     |   C   | setup node_exporter on this node?                                             |
+| 253 | [`node_exporter_port`](#node_exporter_port)                     | [`NODE`](#node)   | [`NODE_EXPORTER`](#node_exporter)     |    port     |   C   | node exporter listen port, 9100 by default                                    |
+| 254 | [`node_exporter_options`](#node_exporter_options)               | [`NODE`](#node)   | [`NODE_EXPORTER`](#node_exporter)     |     arg     |   C   | extra server options for node_exporter                                        |
+| 255 | [`promtail_enabled`](#promtail_enabled)                         | [`NODE`](#node)   | [`PROMTAIL`](#promtail)               |    bool     |   C   | enable promtail logging collector?                                            |
+| 256 | [`promtail_clean`](#promtail_clean)                             | [`NODE`](#node)   | [`PROMTAIL`](#promtail)               |    bool     |  G/A  | purge existing promtail status file during init?                              |
+| 257 | [`promtail_port`](#promtail_port)                               | [`NODE`](#node)   | [`PROMTAIL`](#promtail)               |    port     |   C   | promtail listen port, 9080 by default                                         |
+| 258 | [`promtail_positions`](#promtail_positions)                     | [`NODE`](#node)   | [`PROMTAIL`](#promtail)               |    path     |   C   | promtail position status file path                                            |
+| 301 | [`etcd_seq`](#etcd_seq)                                         | [`ETCD`](#etcd)   | [`ETCD`](#etcd)                       |     int     |   I   | etcd instance identifier, REQUIRED                                            |
+| 302 | [`etcd_cluster`](#etcd_cluster)                                 | [`ETCD`](#etcd)   | [`ETCD`](#etcd)                       |   string    |   C   | etcd cluster & group name, etcd by default                                    |
+| 303 | [`etcd_safeguard`](#etcd_safeguard)                             | [`ETCD`](#etcd)   | [`ETCD`](#etcd)                       |    bool     | G/C/A | prevent purging running etcd instance?                                        |
+| 304 | [`etcd_clean`](#etcd_clean)                                     | [`ETCD`](#etcd)   | [`ETCD`](#etcd)                       |    bool     | G/C/A | purging existing etcd during initialization?                                  |
+| 305 | [`etcd_data`](#etcd_data)                                       | [`ETCD`](#etcd)   | [`ETCD`](#etcd)                       |    path     |   C   | etcd data directory, /data/etcd by default                                    |
+| 306 | [`etcd_port`](#etcd_port)                                       | [`ETCD`](#etcd)   | [`ETCD`](#etcd)                       |    port     |   C   | etcd client port, 2379 by default                                             |
+| 307 | [`etcd_peer_port`](#etcd_peer_port)                             | [`ETCD`](#etcd)   | [`ETCD`](#etcd)                       |    port     |   C   | etcd peer port, 2380 by default                                               |
+| 308 | [`etcd_init`](#etcd_init)                                       | [`ETCD`](#etcd)   | [`ETCD`](#etcd)                       |    enum     |   C   | etcd initial cluster state, new or existing                                   |
+| 309 | [`etcd_election_timeout`](#etcd_election_timeout)               | [`ETCD`](#etcd)   | [`ETCD`](#etcd)                       |     int     |   C   | etcd election timeout, 1000ms by default                                      |
+| 310 | [`etcd_heartbeat_interval`](#etcd_heartbeat_interval)           | [`ETCD`](#etcd)   | [`ETCD`](#etcd)                       |     int     |   C   | etcd heartbeat interval, 100ms by default                                     |
+| 401 | [`minio_seq`](#minio_seq)                                       | [`MINIO`](#minio) | [`MINIO`](#minio)                     |     int     |   I   | minio instance identifier, REQUIRED                                           |
+| 402 | [`minio_cluster`](#minio_cluster)                               | [`MINIO`](#minio) | [`MINIO`](#minio)                     |   string    |   C   | minio cluster name, minio by default                                          |
+| 403 | [`minio_clean`](#minio_clean)                                   | [`MINIO`](#minio) | [`MINIO`](#minio)                     |    bool     | G/C/A | cleanup minio during init?, false by default                                  |
+| 404 | [`minio_user`](#minio_user)                                     | [`MINIO`](#minio) | [`MINIO`](#minio)                     |  username   |   C   | minio os user, `minio` by default                                             |
+| 405 | [`minio_node`](#minio_node)                                     | [`MINIO`](#minio) | [`MINIO`](#minio)                     |   string    |   C   | minio node name pattern                                                       |
+| 406 | [`minio_data`](#minio_data)                                     | [`MINIO`](#minio) | [`MINIO`](#minio)                     |    path     |   C   | minio data dir(s), use {x...y} to specify multi drivers                       |
+| 407 | [`minio_domain`](#minio_domain)                                 | [`MINIO`](#minio) | [`MINIO`](#minio)                     |   string    |   G   | minio external domain name, `sss.pigsty` by default                           |
+| 408 | [`minio_port`](#minio_port)                                     | [`MINIO`](#minio) | [`MINIO`](#minio)                     |    port     |   C   | minio service port, 9000 by default                                           |
+| 409 | [`minio_admin_port`](#minio_admin_port)                         | [`MINIO`](#minio) | [`MINIO`](#minio)                     |    port     |   C   | minio console port, 9001 by default                                           |
+| 410 | [`minio_access_key`](#minio_access_key)                         | [`MINIO`](#minio) | [`MINIO`](#minio)                     |  username   |   C   | root access key, `minioadmin` by default                                      |
+| 411 | [`minio_secret_key`](#minio_secret_key)                         | [`MINIO`](#minio) | [`MINIO`](#minio)                     |  password   |   C   | root secret key, `minioadmin` by default                                      |
+| 412 | [`minio_extra_vars`](#minio_extra_vars)                         | [`MINIO`](#minio) | [`MINIO`](#minio)                     |   string    |   C   | extra environment variables for minio server                                  |
+| 413 | [`minio_alias`](#minio_alias)                                   | [`MINIO`](#minio) | [`MINIO`](#minio)                     |   string    |   G   | alias name for local minio deployment                                         |
+| 414 | [`minio_buckets`](#minio_buckets)                               | [`MINIO`](#minio) | [`MINIO`](#minio)                     |  bucket[]   |   C   | list of minio bucket to be created                                            |
+| 415 | [`minio_users`](#minio_users)                                   | [`MINIO`](#minio) | [`MINIO`](#minio)                     |   user[]    |   C   | list of minio user to be created                                              |
+| 501 | [`pg_cluster`](#pg_cluster)                                     | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                     |   string    |   C   | pgsql cluster name, REQUIRED identity parameter                               |
+| 502 | [`pg_seq`](#pg_seq)                                             | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                     |     int     |   I   | pgsql instance seq number, REQUIRED identity parameter                        |
+| 503 | [`pg_role`](#pg_role)                                           | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                     |    enum     |   I   | pgsql role, REQUIRED, could be primary,replica,offline                        |
+| 504 | [`pg_instances`](#pg_instances)                                 | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                     |    dict     |   I   | define multiple pg instances on node in `{port:ins_vars}` format              |
+| 505 | [`pg_upstream`](#pg_upstream)                                   | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                     |     ip      |   I   | repl upstream ip addr for standby cluster or cascade replica                  |
+| 506 | [`pg_shard`](#pg_shard)                                         | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                     |   string    |   C   | pgsql shard name, optional identity for sharding clusters                     |
+| 507 | [`pg_sindex`](#pg_sindex)                                       | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                     |     int     |   C   | pgsql shard index, optional identity for sharding clusters                    |
+| 508 | [`gp_role`](#gp_role)                                           | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                     |    enum     |   C   | greenplum role of this cluster, could be master or segment                    |
+| 509 | [`pg_exporters`](#pg_exporters)                                 | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                     |    dict     |   C   | additional pg_exporters to monitor remote postgres instances                  |
+| 510 | [`pg_offline_query`](#pg_offline_query)                         | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                     |    bool     |   G   | set to true to enable offline query on this instance                          |
+| 511 | [`pg_weight`](#pg_weight)                                       | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                     |     int     |   G   | relative load balance weight in service, 100 by default, 0-255                |
+| 512 | [`pg_users`](#pg_users)                                         | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)         |   user[]    |   C   | postgres business users                                                       |
+| 513 | [`pg_databases`](#pg_databases)                                 | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)         | database[]  |   C   | postgres business databases                                                   |
+| 514 | [`pg_services`](#pg_services)                                   | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)         |  service[]  |   C   | postgres business services                                                    |
+| 515 | [`pg_hba_rules`](#pg_hba_rules)                                 | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)         |    hba[]    |   C   | business hba rules for postgres                                               |
+| 516 | [`pgb_hba_rules`](#pgb_hba_rules)                               | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)         |    hba[]    |   C   | business hba rules for pgbouncer                                              |
+| 517 | [`pg_replication_username`](#pg_replication_username)           | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)         |  username   |   G   | postgres replication username, `replicator` by default                        |
+| 518 | [`pg_replication_password`](#pg_replication_password)           | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)         |  password   |   G   | postgres replication password, `DBUser.Replicator` by default                 |
+| 519 | [`pg_admin_username`](#pg_admin_username)                       | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)         |  username   |   G   | postgres admin username, `dbuser_dba` by default                              |
+| 520 | [`pg_admin_password`](#pg_admin_password)                       | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)         |  password   |   G   | postgres admin password in plain text, `DBUser.DBA` by default                |
+| 521 | [`pg_monitor_username`](#pg_monitor_username)                   | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)         |  username   |   G   | postgres monitor username, `dbuser_monitor` by default                        |
+| 522 | [`pg_monitor_password`](#pg_monitor_password)                   | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)         |  password   |   G   | postgres monitor password, `DBUser.Monitor` by default                        |
+| 523 | [`pg_dbsu`](#pg_dbsu)                                           | [`PGSQL`](#pgsql) | [`PG_INSTALL`](#pg_install)           |  username   |   C   | os dbsu name, postgres by default, better not change it                       |
+| 524 | [`pg_dbsu_uid`](#pg_dbsu_uid)                                   | [`PGSQL`](#pgsql) | [`PG_INSTALL`](#pg_install)           |     int     |   C   | os dbsu uid and gid, 26 for default postgres users and groups                 |
+| 525 | [`pg_dbsu_sudo`](#pg_dbsu_sudo)                                 | [`PGSQL`](#pgsql) | [`PG_INSTALL`](#pg_install)           |    enum     |   C   | dbsu sudo privilege, none,limit,all,nopass. limit by default                  |
+| 526 | [`pg_dbsu_home`](#pg_dbsu_home)                                 | [`PGSQL`](#pgsql) | [`PG_INSTALL`](#pg_install)           |    path     |   C   | postgresql home directory, `/var/lib/pgsql` by default                        |
+| 527 | [`pg_dbsu_ssh_exchange`](#pg_dbsu_ssh_exchange)                 | [`PGSQL`](#pgsql) | [`PG_INSTALL`](#pg_install)           |    bool     |   C   | exchange postgres dbsu ssh key among same pgsql cluster                       |
+| 528 | [`pg_version`](#pg_version)                                     | [`PGSQL`](#pgsql) | [`PG_INSTALL`](#pg_install)           |    enum     |   C   | postgres major version to be installed, 15 by default                         |
+| 529 | [`pg_bin_dir`](#pg_bin_dir)                                     | [`PGSQL`](#pgsql) | [`PG_INSTALL`](#pg_install)           |    path     |   C   | postgres binary dir, `/usr/pgsql/bin` by default                              |
+| 530 | [`pg_log_dir`](#pg_log_dir)                                     | [`PGSQL`](#pgsql) | [`PG_INSTALL`](#pg_install)           |    path     |   C   | postgres log dir, `/pg/log/postgres` by default                               |
+| 531 | [`pg_packages`](#pg_packages)                                   | [`PGSQL`](#pgsql) | [`PG_INSTALL`](#pg_install)           |  string[]   |   C   | pg packages to be installed, `${pg_version}` will be replaced                 |
+| 532 | [`pg_extensions`](#pg_extensions)                               | [`PGSQL`](#pgsql) | [`PG_INSTALL`](#pg_install)           |  string[]   |   C   | pg extensions to be installed, `${pg_version}` will be replaced               |
+| 533 | [`pg_safeguard`](#pg_safeguard)                                 | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    bool     | G/C/A | prevent purging running postgres instance? false by default                   |
+| 534 | [`pg_clean`](#pg_clean)                                         | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    bool     | G/C/A | purging existing postgres during pgsql init? true by default                  |
+| 535 | [`pg_data`](#pg_data)                                           | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    path     |   C   | postgres data directory, `/pg/data` by default                                |
+| 536 | [`pg_fs_main`](#pg_fs_main)                                     | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    path     |   C   | mountpoint/path for postgres main data, `/data` by default                    |
+| 537 | [`pg_fs_bkup`](#pg_fs_bkup)                                     | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    path     |   C   | mountpoint/path for pg backup data, `/data/backup` by default                 |
+| 538 | [`pg_storage_type`](#pg_storage_type)                           | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    enum     |   C   | storage type for pg main data, SSD,HDD, SSD by default                        |
+| 539 | [`pg_dummy_filesize`](#pg_dummy_filesize)                       | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    size     |   C   | size of `/pg/dummy`, hold 64MB disk space for emergency use                   |
+| 540 | [`pg_listen`](#pg_listen)                                       | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |     ip      |   C   | postgres listen address, `0.0.0.0` (all ipv4 addr) by default                 |
+| 541 | [`pg_port`](#pg_port)                                           | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    port     |   C   | postgres listen port, 5432 by default                                         |
+| 542 | [`pg_localhost`](#pg_localhost)                                 | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    path     |   C   | postgres unix socket dir for localhost connection                             |
+| 543 | [`pg_namespace`](#pg_namespace)                                 | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    path     |   C   | top level key namespace in etcd, used by patroni & vip                        |
+| 544 | [`patroni_enabled`](#patroni_enabled)                           | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    bool     |   C   | if disabled, no postgres cluster will be created during init                  |
+| 545 | [`patroni_mode`](#patroni_mode)                                 | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    enum     |   C   | patroni working mode: default,pause,remove                                    |
+| 546 | [`patroni_port`](#patroni_port)                                 | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    port     |   C   | patroni listen port, 8008 by default                                          |
+| 547 | [`patroni_log_dir`](#patroni_log_dir)                           | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    path     |   C   | patroni log dir, `/pg/log/patroni` by default                                 |
+| 548 | [`patroni_ssl_enabled`](#patroni_ssl_enabled)                   | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    bool     |   G   | secure patroni RestAPI communications with SSL?                               |
+| 549 | [`patroni_watchdog_mode`](#patroni_watchdog_mode)               | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    enum     |   C   | patroni watchdog mode: automatic,required,off. off by default                 |
+| 550 | [`patroni_username`](#patroni_username)                         | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |  username   |   C   | patroni restapi username, `postgres` by default                               |
+| 551 | [`patroni_password`](#patroni_password)                         | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |  password   |   C   | patroni restapi password, `Patroni.API` by default                            |
+| 552 | [`pg_conf`](#pg_conf)                                           | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    enum     |   C   | config template: oltp,olap,crit,tiny. `oltp.yml` by default                   |
+| 553 | [`pg_max_conn`](#pg_max_conn)                                   | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |     int     |   C   | postgres max connections, `auto` will use recommended value                   |
+| 554 | [`pg_shmem_ratio`](#pg_shmem_ratio)                             | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    float    |   C   | postgres shared memory ratio, 0.25 by default, 0.1~0.4                        |
+| 555 | [`pg_rto`](#pg_rto)                                             | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |     int     |   C   | recovery time objective in seconds, `30s` by default                          |
+| 556 | [`pg_rpo`](#pg_rpo)                                             | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |     int     |   C   | recovery point objective in bytes, `1MiB` at most by default                  |
+| 557 | [`pg_libs`](#pg_libs)                                           | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |   string    |   C   | preloaded libraries, `pg_stat_statements,auto_explain` by default             |
+| 558 | [`pg_delay`](#pg_delay)                                         | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |  interval   |   I   | replication apply delay for standby cluster leader                            |
+| 559 | [`pg_checksum`](#pg_checksum)                                   | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    bool     |   C   | enable data checksum for postgres cluster?                                    |
+| 560 | [`pg_pwd_enc`](#pg_pwd_enc)                                     | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    enum     |   C   | passwords encryption algorithm: md5,scram-sha-256                             |
+| 561 | [`pg_encoding`](#pg_encoding)                                   | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    enum     |   C   | database cluster encoding, `UTF8` by default                                  |
+| 562 | [`pg_locale`](#pg_locale)                                       | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    enum     |   C   | database cluster local, `C` by default                                        |
+| 563 | [`pg_lc_collate`](#pg_lc_collate)                               | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    enum     |   C   | database cluster collate, `C` by default                                      |
+| 564 | [`pg_lc_ctype`](#pg_lc_ctype)                                   | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    enum     |   C   | database character type, `en_US.UTF8` by default                              |
+| 565 | [`pgbouncer_enabled`](#pgbouncer_enabled)                       | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    bool     |   C   | if disabled, pgbouncer will not be launched on pgsql host                     |
+| 566 | [`pgbouncer_port`](#pgbouncer_port)                             | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    port     |   C   | pgbouncer listen port, 6432 by default                                        |
+| 567 | [`pgbouncer_log_dir`](#pgbouncer_log_dir)                       | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    path     |   C   | pgbouncer log dir, `/pg/log/pgbouncer` by default                             |
+| 568 | [`pgbouncer_auth_query`](#pgbouncer_auth_query)                 | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    bool     |   C   | query postgres to retrieve unlisted business users?                           |
+| 569 | [`pgbouncer_poolmode`](#pgbouncer_poolmode)                     | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    enum     |   C   | pooling mode: transaction,session,statement, transaction by default           |
+| 570 | [`pgbouncer_sslmode`](#pgbouncer_sslmode)                       | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)       |    enum     |   C   | pgbouncer client ssl mode, disable by default                                 |
+| 571 | [`pg_provision`](#pg_provision)                                 | [`PGSQL`](#pgsql) | [`PG_PROVISION`](#pg_provision)       |    bool     |   C   | provision postgres cluster after bootstrap                                    |
+| 572 | [`pg_init`](#pg_init)                                           | [`PGSQL`](#pgsql) | [`PG_PROVISION`](#pg_provision)       |   string    |  G/C  | provision init script for cluster template, `pg-init` by default              |
+| 573 | [`pg_default_roles`](#pg_default_roles)                         | [`PGSQL`](#pgsql) | [`PG_PROVISION`](#pg_provision)       |   role[]    |  G/C  | default roles and users in postgres cluster                                   |
+| 574 | [`pg_default_privileges`](#pg_default_privileges)               | [`PGSQL`](#pgsql) | [`PG_PROVISION`](#pg_provision)       |  string[]   |  G/C  | default privileges when created by admin user                                 |
+| 575 | [`pg_default_schemas`](#pg_default_schemas)                     | [`PGSQL`](#pgsql) | [`PG_PROVISION`](#pg_provision)       |  string[]   |  G/C  | default schemas to be created                                                 |
+| 576 | [`pg_default_extensions`](#pg_default_extensions)               | [`PGSQL`](#pgsql) | [`PG_PROVISION`](#pg_provision)       | extension[] |  G/C  | default extensions to be created                                              |
+| 577 | [`pg_reload`](#pg_reload)                                       | [`PGSQL`](#pgsql) | [`PG_PROVISION`](#pg_provision)       |    bool     |   A   | reload postgres after hba changes                                             |
+| 578 | [`pg_default_hba_rules`](#pg_default_hba_rules)                 | [`PGSQL`](#pgsql) | [`PG_PROVISION`](#pg_provision)       |    hba[]    |  G/C  | postgres default host-based authentication rules                              |
+| 579 | [`pgb_default_hba_rules`](#pgb_default_hba_rules)               | [`PGSQL`](#pgsql) | [`PG_PROVISION`](#pg_provision)       |    hba[]    |  G/C  | pgbouncer default host-based authentication rules                             |
+| 580 | [`pg_default_service_dest`](#pg_default_service_dest)           | [`PGSQL`](#pgsql) | [`PG_PROVISION`](#pg_provision)       |    enum     |  G/C  | default service destination if svc.dest='default'                             |
+| 581 | [`pg_default_services`](#pg_default_services)                   | [`PGSQL`](#pgsql) | [`PG_PROVISION`](#pg_provision)       |  service[]  |  G/C  | postgres default service definitions                                          |
+| 582 | [`pgbackrest_enabled`](#pgbackrest_enabled)                     | [`PGSQL`](#pgsql) | [`PG_BACKUP`](#pg_backup)             |    bool     |   C   | enable pgbackrest on pgsql host?                                              |
+| 583 | [`pgbackrest_clean`](#pgbackrest_clean)                         | [`PGSQL`](#pgsql) | [`PG_BACKUP`](#pg_backup)             |    bool     |   C   | remove pg backup data during init?                                            |
+| 584 | [`pgbackrest_log_dir`](#pgbackrest_log_dir)                     | [`PGSQL`](#pgsql) | [`PG_BACKUP`](#pg_backup)             |    path     |   C   | pgbackrest log dir, `/pg/log/pgbackrest` by default                           |
+| 585 | [`pgbackrest_method`](#pgbackrest_method)                       | [`PGSQL`](#pgsql) | [`PG_BACKUP`](#pg_backup)             |    enum     |   C   | pgbackrest repo method: local,minio,etc...                                    |
+| 586 | [`pgbackrest_repo`](#pgbackrest_repo)                           | [`PGSQL`](#pgsql) | [`PG_BACKUP`](#pg_backup)             |    dict     |  G/C  | pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository |
+| 587 | [`pg_vip_enabled`](#pg_vip_enabled)                             | [`PGSQL`](#pgsql) | [`PG_VIP`](#pg_vip)                   |    bool     |   C   | enable a l2 vip for pgsql primary? false by default                           |
+| 588 | [`pg_vip_address`](#pg_vip_address)                             | [`PGSQL`](#pgsql) | [`PG_VIP`](#pg_vip)                   |    cidr4    |   C   | vip address in `<ipv4>/<mask>` format, require if vip is enabled              |
+| 589 | [`pg_vip_interface`](#pg_vip_interface)                         | [`PGSQL`](#pgsql) | [`PG_VIP`](#pg_vip)                   |   string    |  C/I  | vip network interface to listen, eth0 by default                              |
+| 590 | [`pg_dns_suffix`](#pg_dns_suffix)                               | [`PGSQL`](#pgsql) | [`PG_DNS`](#pg_dns)                   |   string    |   C   | pgsql dns suffix, '' by default                                               |
+| 591 | [`pg_dns_target`](#pg_dns_target)                               | [`PGSQL`](#pgsql) | [`PG_DNS`](#pg_dns)                   |    enum     |   C   | auto, primary, vip, none, or ad hoc ip                                        |
+| 592 | [`pg_exporter_enabled`](#pg_exporter_enabled)                   | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |    bool     |   C   | enable pg_exporter on pgsql hosts?                                            |
+| 593 | [`pg_exporter_config`](#pg_exporter_config)                     | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |   string    |   C   | pg_exporter configuration file name                                           |
+| 594 | [`pg_exporter_cache_ttls`](#pg_exporter_cache_ttls)             | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |   string    |   C   | pg_exporter collector ttl stage in seconds, '1,10,60,300' by default          |
+| 595 | [`pg_exporter_port`](#pg_exporter_port)                         | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |    port     |   C   | pg_exporter listen port, 9630 by default                                      |
+| 596 | [`pg_exporter_params`](#pg_exporter_params)                     | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |   string    |   C   | extra url parameters for pg_exporter dsn                                      |
+| 597 | [`pg_exporter_url`](#pg_exporter_url)                           | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |    pgurl    |   C   | overwrite auto-generate pg dsn if specified                                   |
+| 598 | [`pg_exporter_auto_discovery`](#pg_exporter_auto_discovery)     | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |    bool     |   C   | enable auto database discovery? enabled by default                            |
+| 599 | [`pg_exporter_exclude_database`](#pg_exporter_exclude_database) | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |   string    |   C   | csv of database that WILL NOT be monitored during auto-discovery              |
+| 600 | [`pg_exporter_include_database`](#pg_exporter_include_database) | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |   string    |   C   | csv of database that WILL BE monitored during auto-discovery                  |
+| 601 | [`pg_exporter_connect_timeout`](#pg_exporter_connect_timeout)   | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |     int     |   C   | pg_exporter connect timeout in ms, 200 by default                             |
+| 602 | [`pg_exporter_options`](#pg_exporter_options)                   | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |     arg     |   C   | overwrite extra options for pg_exporter                                       |
+| 603 | [`pgbouncer_exporter_enabled`](#pgbouncer_exporter_enabled)     | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |    bool     |   C   | enable pgbouncer_exporter on pgsql hosts?                                     |
+| 604 | [`pgbouncer_exporter_port`](#pgbouncer_exporter_port)           | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |    port     |   C   | pgbouncer_exporter listen port, 9631 by default                               |
+| 605 | [`pgbouncer_exporter_url`](#pgbouncer_exporter_url)             | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |    pgurl    |   C   | overwrite auto-generate pgbouncer dsn if specified                            |
+| 606 | [`pgbouncer_exporter_options`](#pgbouncer_exporter_options)     | [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#pg_exporter)         |     arg     |   C   | overwrite extra options for pgbouncer_exporter                                |
+| 701 | [`redis_cluster`](#redis_cluster)                               | [`REDIS`](#redis) | [`REDIS_ID`](#redis_id)               |   string    |   C   | redis cluster name, required identity parameter                               |
+| 702 | [`redis_instances`](#redis_instances)                           | [`REDIS`](#redis) | [`REDIS_ID`](#redis_id)               |    dict     |   I   | redis instances definition on this redis node                                 |
+| 703 | [`redis_node`](#redis_node)                                     | [`REDIS`](#redis) | [`REDIS_ID`](#redis_id)               |     int     |   I   | redis node sequence number, node int id required                              |
+| 704 | [`redis_fs_main`](#redis_fs_main)                               | [`REDIS`](#redis) | [`REDIS_NODE`](#redis_node)           |    path     |   C   | redis main data mountpoint, `/data` by default                                |
+| 705 | [`redis_exporter_enabled`](#redis_exporter_enabled)             | [`REDIS`](#redis) | [`REDIS_NODE`](#redis_node)           |    bool     |   C   | install redis exporter on redis nodes?                                        |
+| 706 | [`redis_exporter_port`](#redis_exporter_port)                   | [`REDIS`](#redis) | [`REDIS_NODE`](#redis_node)           |    port     |   C   | redis exporter listen port, 9121 by default                                   |
+| 707 | [`redis_exporter_options`](#redis_exporter_options)             | [`REDIS`](#redis) | [`REDIS_NODE`](#redis_node)           |   string    |  C/I  | cli args and extra options for redis exporter                                 |
+| 708 | [`redis_safeguard`](#redis_safeguard)                           | [`REDIS`](#redis) | [`REDIS_PROVISION`](#redis_provision) |    bool     |   C   | prevent purging running redis instance?                                       |
+| 709 | [`redis_clean`](#redis_clean)                                   | [`REDIS`](#redis) | [`REDIS_PROVISION`](#redis_provision) |    bool     |   C   | purging existing redis during init?                                           |
+| 710 | [`redis_rmdata`](#redis_rmdata)                                 | [`REDIS`](#redis) | [`REDIS_PROVISION`](#redis_provision) |    bool     |   A   | remove redis data when purging redis server?                                  |
+| 711 | [`redis_mode`](#redis_mode)                                     | [`REDIS`](#redis) | [`REDIS_PROVISION`](#redis_provision) |    enum     |   C   | redis mode: standalone,cluster,sentinel                                       |
+| 712 | [`redis_conf`](#redis_conf)                                     | [`REDIS`](#redis) | [`REDIS_PROVISION`](#redis_provision) |   string    |   C   | redis config template path, except sentinel                                   |
+| 713 | [`redis_bind_address`](#redis_bind_address)                     | [`REDIS`](#redis) | [`REDIS_PROVISION`](#redis_provision) |     ip      |   C   | redis bind address, empty string will use host ip                             |
+| 714 | [`redis_max_memory`](#redis_max_memory)                         | [`REDIS`](#redis) | [`REDIS_PROVISION`](#redis_provision) |    size     |  C/I  | max memory used by each redis instance                                        |
+| 715 | [`redis_mem_policy`](#redis_mem_policy)                         | [`REDIS`](#redis) | [`REDIS_PROVISION`](#redis_provision) |    enum     |   C   | redis memory eviction policy                                                  |
+| 716 | [`redis_password`](#redis_password)                             | [`REDIS`](#redis) | [`REDIS_PROVISION`](#redis_provision) |  password   |   C   | redis password, empty string will disable password                            |
+| 717 | [`redis_rdb_save`](#redis_rdb_save)                             | [`REDIS`](#redis) | [`REDIS_PROVISION`](#redis_provision) |  string[]   |   C   | redis rdb save directives, disable with empty list                            |
+| 718 | [`redis_aof_enabled`](#redis_aof_enabled)                       | [`REDIS`](#redis) | [`REDIS_PROVISION`](#redis_provision) |    bool     |   C   | enable redis append only file?                                                |
+| 719 | [`redis_rename_commands`](#redis_rename_commands)               | [`REDIS`](#redis) | [`REDIS_PROVISION`](#redis_provision) |    dict     |   C   | rename redis dangerous commands                                               |
+| 720 | [`redis_cluster_replicas`](#redis_cluster_replicas)             | [`REDIS`](#redis) | [`REDIS_PROVISION`](#redis_provision) |     int     |   C   | replica number for one master in redis cluster                                |
 
 
 ------------------------------------------------------------
@@ -321,7 +317,7 @@ default value:`10.10.10.10`
 
 Node with this ip address will be treated as admin node, usually point to the first node that install Pigsty.
 
-The default value `10.10.10.10` is a placeholder which will be replaced during [configure](Install#Configure)
+The default value `10.10.10.10` is a placeholder which will be replaced during [configure](INSTALL#Configure)
 
 This parameter is referenced by many other parameters, such as:
 
@@ -733,7 +729,7 @@ repo_url_packages:                # extra packages from url
   - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20221224152138.0.0.x86_64.rpm
 ```
 
-Currently these packages are downloaded via url rather than upstream yum repo
+Currently, these packages are downloaded via url rather than upstream yum repo
 
 * `pg_exporter`: **Required**, core components of the monitor system.
 * `vip-manager`: **Required**, package required to enable L2 VIP for managing VIP.
@@ -914,7 +910,7 @@ The `url` parameter specifies the URL PATH for the app, with the exception that 
 
 You can set a default DNSMASQ server on infra nodes to serve DNS inquiry.
 
-All records on infra nodes's  `/etc/hosts.d/*` will be resolved.
+All records on infra node's  `/etc/hosts.d/*` will be resolved.
 
 You have to add `nameserver {{ admin_ip }}` to your `/etc/resolv` to use this dns server
 
@@ -969,7 +965,7 @@ dns_records:                      # dynamic dns records resolved by dnsmasq
   - "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
 ```
 
-These auxiliary domain names will be write to `/etc/hosts.d/default`
+These auxiliary domain names will be written to `/etc/hosts.d/default`
 
 
 
@@ -1087,7 +1083,7 @@ prometheus extra server options
 
 default value: `--storage.tsdb.retention.time=15d`
 
-Extra cli args for prometheus server, the default value will setup a 15 day data retention to limit disk usage.
+Extra cli args for prometheus server, the default value will set up a 15-day data retention to limit disk usage.
 
 
 
@@ -1188,7 +1184,7 @@ default value: `none`
 
 Specify how to install Exporter:
 
-* `none`: No installation, (by default, the Exporter has been previously installed by the [`node.pkgs`](#node_packages_default) task)
+* `none`: No installation, (by default, the Exporter has been previously installed by the [`node.pkgs`](#node_default_packages) task)
 * `yum`: Install using yum (if yum installation is enabled, run yum to install [`node_exporter`](#node_exporter) and [`pg_exporter`](#pg_exporter) before deploying Exporter)
 * `binary`: Install using a copy binary (copy [`node_exporter`](#node_exporter) and [`pg_exporter`](#pg_exporter) binary directly from the meta node, not recommended)
 
@@ -1401,21 +1397,21 @@ Node module are tuning target nodes into desired state and take it into the Pigs
 
 Each node has **identity parameters** that are configured through the parameters in `<cluster>.hosts` and `<cluster>.vars`.
 
-Pigsty uses **IP** as a unique identifier for **database nodes**. **This IP must be the IP that the database instance listens to and serves externally**, But it would be inappropriate to use a publica IP address!
+Pigsty uses **IP** as a unique identifier for **database nodes**. **This IP must be the IP that the database instance listens to and serves externally**, But it would be inappropriate to use a public IP address!
 
 **This is very important**. The IP is the `inventory_hostname` of the host in the inventory, which is reflected as the `key` in the `<cluster>.hosts` object.
 
-You can use `ansible_*` parameters to overwrite `ssh` behavior, e.g. conenct via domain name / alias, but the primary IPv4 is still the core identity of the node.
+You can use `ansible_*` parameters to overwrite `ssh` behavior, e.g. connect via domain name / alias, but the primary IPv4 is still the core identity of the node.
 
 [`nodename`](#nodename) and [`node_cluster`](#node_cluster) are not **mandatory**; [`nodename`](#nodename) will use the node's current hostname by default, while [`node_cluster`](#node_cluster) will use the fixed default value: `nodes`.
 
-If [`node_id_from_pg`](#node_id_from_pg) is enabled, the node will borrow [`PGSQL`](PGSQL) [identity](PGSQL_ID) and use it as Node's identity, i.e. [`node_cluster`](#node_cluster) is set to [`pg_cluster`](#pg_cluster) if applicable, and [`nodename`](#nodename) is set to `${pg_cluster}-${pg_seq}`. If [`nodename_overwrite`](#nodename_overwrite) is enabled, node's hostname will be overwritten by [`nodename`](#nodename)
+If [`node_id_from_pg`](#node_id_from_pg) is enabled, the node will borrow [`PGSQL`](PGSQL) [identity](#pg_id) and use it as Node's identity, i.e. [`node_cluster`](#node_cluster) is set to [`pg_cluster`](#pg_cluster) if applicable, and [`nodename`](#nodename) is set to `${pg_cluster}-${pg_seq}`. If [`nodename_overwrite`](#nodename_overwrite) is enabled, node's hostname will be overwritten by [`nodename`](#nodename)
 
 Pigsty labels a node with identity parameters in the monitoring system. Which maps `nodename` to `ins`, and `node_cluster` into `cls`.
 
 
 |              Name               |   Type   | Level | Necessity    | Comment               |
-| :-----------------------------: | :------: | :---: | ------------ | --------------------- |
+|:-------------------------------:|:--------:|:-----:|--------------|-----------------------|
 |      `inventory_hostname`       |   `ip`   | **-** | **Required** | **Node IP**           |
 |     [`nodename`](#nodename)     | `string` | **I** | Optional     | **Node Name**         |
 | [`node_cluster`](#node_cluster) | `string` | **C** | Optional     | **Node cluster name** |
@@ -1453,7 +1449,7 @@ node instance identity, use hostname if missing, optional
 
 no default value, Null or empty string means `nodename` will be set to node's current hostname.
 
-If [`node_id_from_pg`](#node_id_from_pg) is `true`, [`nodename`](#nodename) will try to use `${pg_cluster}-${pg_seq}` first, if PGSQL is not defined on this node, it will fallback to default `HOSTNAME`.
+If [`node_id_from_pg`](#node_id_from_pg) is `true`, [`nodename`](#nodename) will try to use `${pg_cluster}-${pg_seq}` first, if PGSQL is not defined on this node, it will fall back to default `HOSTNAME`.
 
 If [`nodename_overwrite`](#nodename_overwrite) is `true`, the node name will also be used as the HOSTNAME.
 
@@ -1469,7 +1465,7 @@ node cluster identity, use 'nodes' if missing, optional
 
 default values: `nodes`
 
-If [`node_id_from_pg`](#node_id_from_pg) is `true`, [`node_cluster`](#nodename) will try to use `${pg_cluster}-${pg_seq}` first, if PGSQL is not defined on this node, it will fallback to default `HOSTNAME`.
+If [`node_id_from_pg`](#node_id_from_pg) is `true`, [`node_cluster`](#nodename) will try to use `${pg_cluster}-${pg_seq}` first, if PGSQL is not defined on this node, it will fall back to default `HOSTNAME`.
 
 If [`nodename_overwrite`](#nodename_overwrite) is `true`, the node name will also be used as the HOSTNAME.
 
@@ -1553,7 +1549,7 @@ default value:
 
 [`node_default_etc_hosts`](#node_default_etc_hosts) is an array. Each element is a DNS record with format `<ip> <name>`.
 
-It is used for global static DNS records. You can use [`node_etc_hosts`](#node_etc_hosts) for ad hoc records for each clusters.
+It is used for global static DNS records. You can use [`node_etc_hosts`](#node_etc_hosts) for ad hoc records for each cluster.
 
 Make sure to write a DNS record like `10.10.10.10 h.pigsty a.pigsty p.pigsty g.pigsty` to `/etc/hosts` to ensure that the local yum repo can be accessed using the domain name before the DNS Nameserver starts.
 
@@ -1690,7 +1686,7 @@ packages to be installed current nodes
 
 default values: `[]`
 
-Like [`node_packages_default`](#node_packages_default), but in addition to it. designed for overwritting in cluster/instance level.
+Like [`node_packages_default`](#node_default_packages), but in addition to it. designed for overwriting in cluster/instance level.
 
 
 
@@ -2267,7 +2263,7 @@ It will be rendered to `/etc/haproxy/<service.name>.cfg` and take effect after r
 
 ## `DOCKER`
 
-Pigsty install docker on infra nodes by default, which gives you the ability to run stateless softwares easily.
+Pigsty install docker on infra nodes by default, which gives you the ability to run stateless software programs easily.
 
 
 ```yaml
@@ -2389,7 +2385,7 @@ Pigsty enables `ntp`, `tcpstat`, `processes` three extra metrics, collectors, by
 
 ## `PROMTAIL`
 
-Promtail will collect logs from other modules, and send them to [`LOKI`](#LOKI)
+Promtail will collect logs from other modules, and send them to [`LOKI`](#loki)
 
 * `INFRA`: Infra logs, collected only on meta nodes.
     * `nginx-access`: `/var/log/nginx/access.log`
@@ -2410,7 +2406,7 @@ Promtail will collect logs from other modules, and send them to [`LOKI`](#LOKI)
 * `REDIS`: Redis logs, collected when a node is defined with `redis_cluster`.
     * `redis`: `/var/log/redis/*.log`
 
-!> Log directory are customizable according to [`pg_log_dir`](#pg_log_dir), [`patroni_log_dir`](#patroni_log_dir), [`pgbouncer_log_dir`](#pgbouncer_log_dir), [`pgbackrest_log_dir`](#pgbackrest_log_dir), [`redis_log_dir`](#redis_log_dir)
+!> Log directory are customizable according to [`pg_log_dir`](#pg_log_dir), [`patroni_log_dir`](#patroni_log_dir), [`pgbouncer_log_dir`](#pgbouncer_log_dir), [`pgbackrest_log_dir`](#pgbackrest_log_dir)
 
 
 
@@ -2548,7 +2544,7 @@ name: `etcd_clean`, type: `bool`, level: `G/C/A`
 
 purging existing etcd during initialization?
 
-default value is `true`, which will try to purge existing etcd instance during init,  which makes `etcd.yml` a truely idempotent playbook.
+default value is `true`, which will try to purge existing etcd instance during init,  which makes `etcd.yml` a truly idempotent playbook.
 
 But if [`etcd_safeguard`](#etcd_safeguard) is enabled, it will still abort on any running etcd instance.
 
@@ -2886,16 +2882,16 @@ pg_offline_query: false #INSTANCE # set to true to enable offline query on this 
 pg_weight: 100          #INSTANCE # relative load balance weight in service, 100 by default, 0-255
 ```
 
-There are some **identity parameters** require a explicit allocation.
+There are some **identity parameters** require explicit allocation.
 
 
-|            Name             |   Type   | Level | Description                                            |
-| :-------------------------: | :------: | :---: | ------------------------------------------------------ |
-| [`pg_cluster`](#pg_cluster) | `string` | **C** | **PG database cluster name**                           |
-|     [`pg_seq`](#pg_seq)     | `number` | **I** | **PG database ins serial number**                      |
-|    [`pg_role`](#pg_role)    |  `enum`  | **I** | **PG database ins role**                               |
-|   [`pg_shard`](#pg_shard)   | `string` | **C** | **PG database slice set cluster name** (reserved)      |
-|  [`pg_sindex`](#pg_sindex)  | `number` | **C** | **PG database slice set cluster number** (reserved)    |
+|            Name             |   Type   | Level | Description                                         |
+|:---------------------------:|:--------:|:-----:|-----------------------------------------------------|
+| [`pg_cluster`](#pg_cluster) | `string` | **C** | **PG database cluster name**                        |
+|     [`pg_seq`](#pg_seq)     | `number` | **I** | **PG database ins serial number**                   |
+|    [`pg_role`](#pg_role)    |  `enum`  | **I** | **PG database ins role**                            |
+|   [`pg_shard`](#pg_shard)   | `string` | **C** | **PG database slice set cluster name** (reserved)   |
+|  [`pg_sindex`](#pg_sindex)  | `number` | **C** | **PG database slice set cluster number** (reserved) |
 
 * [`pg_cluster`](#pg_cluster): It identifies the name of the cluster, which is configured at the cluster level.
 * [`pg_role`](#pg_role): Configured at the instance level, identifies the role of the ins. Only the `primary` role will be handled specially. If not filled in, the default is the `replica` role and the special `delayed` and `offline` roles.
@@ -2983,7 +2979,7 @@ repl upstream ip addr for standby cluster or cascade replica
 
 Setting `pg_upstream` is set on `primary` instance indicate that this cluster is a **Standby Cluster**, and will receiving changes from upstream instance, thus the `primary` is actually a `standby leader`.
 
-Setting `pg_upstream` for a non primary instance will explicitly setting a replication upstream instance, if it is different from the primary ip addr, this instance will be come a **cascade replica**.
+Setting `pg_upstream` for a non-primary instance will explicitly set a replication upstream instance, if it is different from the primary ip addr, this instance will become a **cascade replica**.
 
 
 
@@ -2995,7 +2991,7 @@ name: `pg_shard`, type: `string`, level: `C`
 
 pgsql shard name, optional identity for sharding clusters
 
-When multiple pgsql clusters serve the same business together in a horizontally sharded style, Pigsty will makr this group of clusters as a **Sharding Group**.
+When multiple pgsql clusters serve the same business together in a horizontally sharded style, Pigsty will mark this group of clusters as a **Sharding Group**.
 
 [`pg_shard`](#pg_shard) is the name of the shard group name. It's usually the prefix of [`pg_cluster`](#pg_cluster).
 
@@ -3161,7 +3157,7 @@ pg_users:                           # define business users/roles on this cluste
 * New users are **not** added to the Pgbouncer user list by default, and `pgbouncer: true` must be explicitly defined for the user to be added to the Pgbouncer user list.
 * Users/roles are created sequentially, and users defined later can belong to the roles defined earlier.
 * `pool_mode`, `pool_connlimit` are user-level pgbouncer parameters that will override default settings.
-* Users can add [default privilegs](#pg_default_privilegs) groups for business users via the `roles` field:
+* Users can use pre-defined [pg_default_roles](#pg_default_roles) with `roles` field:
     * `dbrole_readonly`: Default production read-only user with global read-only privileges. (Read-only production access)
     * `dbrole_offline`: Default offline read-only user with read-only access on a specific ins. (offline query, personal account, ETL)
     * `dbrole_readwrite`: Default production read/write user with global CRUD privileges. (Regular production use)
@@ -3214,7 +3210,7 @@ pg_databases:                       # define business databases on this cluster,
   - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
 ```
 
-In each DB definition, the DB  `name` is mandatory and the rest are optional.
+In each database definition, the DB  `name` is mandatory and the rest are optional.
 
 
 
@@ -3282,12 +3278,12 @@ Which are array of hba object, each hba object may look like
 or you can use another form
 
 ```yaml
-# PIGSTY HBA ALAIS
+# PIGSTY HBA ALIAS
 - addr: 'intra'    # world|intra|infra|admin|local|localhost|<cidr>
   auth: 'pwd'      # trust|pwd|ssl|cert|deny|<official auth method>
   user: 'all'      # all|${dbsu}|${repl}|${admin}|${monitor}|<user>|<group>
   db: 'all'        # all|replication|....
-  rules: []        # raw hba string precedance over above all
+  rules: []        # raw hba string precedence over above all
   title: allow intranet password access
 ```
 
@@ -3497,7 +3493,7 @@ postgres major version to be installed, 15 by default
 
 default values: `15`
 
-Note that PostgreSQL physical stream replication cannot span major versions, do not configure this on instance level.
+Note that PostgreSQL physical stream replication cannot cross major versions, do not configure this on instance level.
 
 
 
@@ -3510,7 +3506,7 @@ postgres binary dir, `/usr/pgsql/bin` by default
 
 default values: `/usr/pgsql/bin`
 
-The default value is a softlink created manually during the installation process, pointing to the specific Postgres version dir installed.
+The default value is a soft link created manually during the installation process, pointing to the specific Postgres version dir installed.
 
 For example `/usr/pgsql -> /usr/pgsql-14`. For more details, check [PGSQL File Structure](PGSQL-FHS) for details.
 
@@ -3578,7 +3574,7 @@ citus111_15  # EL8, EL9
 
 Bootstrap a postgres cluster with patroni, and setup pgbouncer connection pool along withit.
 
-It will also init cluster template databases with default roles, schemas & extensions & default privileges.
+It also init cluster template databases with default roles, schemas & extensions & default privileges.
 
 Then it will create business databases & users and add them to pgbouncer & monitoring system
 
@@ -3689,11 +3685,11 @@ mountpoint/path for pg backup data, `/data/backup` by default
 
 default values: `/data/backups`
 
-If you are using the default [`pgbackrest_method`](#pgbackrest_method) = `local`, It's wise to have a HDD (SSD is better of course) dedicate for backup storage.
+If you are using the default [`pgbackrest_method`](#pgbackrest_method) = `local`, It's wise to have a dedicated HDD (SSD is better of course) for backup storage.
 
 The disk should be 3x large that your database files to keep 3 full backup retention, otherwise you may have to use `minio` repo or reduce the retention period.
 
-You can use a normal dir instead of a dedicate disk, through it is not recommended.
+You can use a normal dir instead of a dedicated disk, through it is not recommended.
 
 
 
@@ -3731,7 +3727,7 @@ name: `pg_listen`, type: `ip`, level: `C`
 
 postgres listen address, `0.0.0.0` (all ipv4 addr) by defaul
 
-default values: `0.0.0.0`, which is all IPv4 address, if you want to including all IPv6 address, use `*` instead.
+default values: `0.0.0.0`, which is all IPv4 address, if you want to include all IPv6 address, use `*` instead.
 
 
 
@@ -3946,11 +3942,9 @@ name: `pg_libs`, type: `string`, level: `C`
 
 preloaded libraries, `pg_stat_statements,auto_explain` by default
 
-default value: 
+default value: `timescaledb, pg_stat_statements, auto_explain`
 
-```yaml
-"timescaledb, pg_stat_statements, auto_explain"
-```
+
 
 
 

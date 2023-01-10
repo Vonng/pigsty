@@ -1211,6 +1211,7 @@ COMMENT ON TABLE pglog.sample14 IS 'PostgreSQL 14/15 CSVLOG';
 --===========================================================--
 --                 default config entries                    --
 --===========================================================--
+TRUNCATE pigsty.default_var;
 INSERT INTO pigsty.default_var VALUES
 (101, 'version', '"v2.0.0-b4"', 'INFRA', 'META', 'string', 'G', 'pigsty version string', NULL),
 (102, 'admin_ip', '"10.10.10.10"', 'INFRA', 'META', 'ip', 'G', 'admin node ip address', NULL),
@@ -1388,7 +1389,7 @@ INSERT INTO pigsty.default_var VALUES
 (537, 'pg_fs_bkup', '"/data/backups"', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'mountpoint/path for pg backup data, `/data/backup` by default', NULL),
 (538, 'pg_storage_type', '"SSD"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'storage type for pg main data, SSD,HDD, SSD by default', NULL),
 (539, 'pg_dummy_filesize', '"64MiB"', 'PGSQL', 'PG_BOOTSTRAP', 'size', 'C', 'size of `/pg/dummy`, hold 64MB disk space for emergency use', NULL),
-(540, 'pg_listen', '"0.0.0.0"', 'PGSQL', 'PG_BOOTSTRAP', 'ip', 'C', 'postgres listen address, `0.0.0.0` (all ipv4 addr) by defaul', NULL),
+(540, 'pg_listen', '"0.0.0.0"', 'PGSQL', 'PG_BOOTSTRAP', 'ip', 'C', 'postgres listen address, `0.0.0.0` (all ipv4 addr) by default', NULL),
 (541, 'pg_port', '5432', 'PGSQL', 'PG_BOOTSTRAP', 'port', 'C', 'postgres listen port, 5432 by default', NULL),
 (542, 'pg_localhost', '"/var/run/postgresql"', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'postgres unix socket dir for localhost connection', NULL),
 (543, 'pg_namespace', '"/pg"', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'top level key namespace in etcd, used by patroni & vip', NULL),
@@ -1426,16 +1427,6 @@ INSERT INTO pigsty.default_var VALUES
 (575, 'pg_default_schemas', '["monitor"]', 'PGSQL', 'PG_PROVISION', 'string[]', 'G/C', 'default schemas to be created', NULL),
 (576, 'pg_default_extensions', '[{"name": "adminpack", "schema": "pg_catalog"}, {"name": "pg_stat_statements", "schema": "monitor"}, {"name": "pgstattuple", "schema": "monitor"}, {"name": "pg_buffercache", "schema": "monitor"}, {"name": "pageinspect", "schema": "monitor"}, {"name": "pg_prewarm", "schema": "monitor"}, {"name": "pg_visibility", "schema": "monitor"}, {"name": "pg_freespacemap", "schema": "monitor"}, {"name": "postgres_fdw", "schema": "public"}, {"name": "file_fdw", "schema": "public"}, {"name": "btree_gist", "schema": "public"}, {"name": "btree_gin", "schema": "public"}, {"name": "pg_trgm", "schema": "public"}, {"name": "intagg", "schema": "public"}, {"name": "intarray", "schema": "public"}, {"name": "pg_repack"}]', 'PGSQL', 'PG_PROVISION', 'extension[]', 'G/C', 'default extensions to be created', NULL),
 (577, 'pg_reload', 'true', 'PGSQL', 'PG_PROVISION', 'bool', 'A', 'reload postgres after hba changes', NULL),
-(702, 'redis_instances', NULL, 'REDIS', 'REDIS_ID', 'dict', 'I', 'redis instances definition on this redis node', NULL),
-(703, 'redis_node', NULL, 'REDIS', 'REDIS_ID', 'int', 'I', 'redis node sequence number, node int id required', NULL),
-(704, 'redis_fs_main', '"/data"', 'REDIS', 'REDIS_NODE', 'path', 'C', 'redis main data mountpoint, `/data` by default', NULL),
-(705, 'redis_exporter_enabled', 'true', 'REDIS', 'REDIS_NODE', 'bool', 'C', 'install redis exporter on redis nodes?', NULL),
-(706, 'redis_exporter_port', '9121', 'REDIS', 'REDIS_NODE', 'port', 'C', 'redis exporter listen port, 9121 by default', NULL),
-(707, 'redis_exporter_options', '""', 'REDIS', 'REDIS_NODE', 'string', 'C/I', 'cli args and extra options for redis exporter', NULL),
-(708, 'redis_safeguard', 'false', 'REDIS', 'REDIS_PROVISION', 'bool', 'C', 'prevent purging running redis instance?', NULL),
-(709, 'redis_clean', 'true', 'REDIS', 'REDIS_PROVISION', 'bool', 'C', 'purging existing redis during init?', NULL),
-(710, 'redis_rmdata', 'true', 'REDIS', 'REDIS_PROVISION', 'bool', 'A', 'remove redis data when purging redis server?', NULL),
-(711, 'redis_mode', '"standalone"', 'REDIS', 'REDIS_PROVISION', 'enum', 'C', 'redis mode: standalone,cluster,sentinel', NULL),
 (578, 'pg_default_hba_rules', '[{"db": "all", "addr": "local", "auth": "ident", "user": "${dbsu}", "title": "dbsu access via local os user ident"}, {"db": "replication", "addr": "local", "auth": "ident", "user": "${dbsu}", "title": "dbsu replication from local os ident"}, {"db": "replication", "addr": "localhost", "auth": "pwd", "user": "${repl}", "title": "replicator replication from localhost"}, {"db": "replication", "addr": "intra", "auth": "pwd", "user": "${repl}", "title": "replicator replication from intranet"}, {"db": "postgres", "addr": "intra", "auth": "pwd", "user": "${repl}", "title": "replicator postgres db from intranet"}, {"db": "all", "addr": "localhost", "auth": "pwd", "user": "${monitor}", "title": "monitor from localhost with password"}, {"db": "all", "addr": "infra", "auth": "pwd", "user": "${monitor}", "title": "monitor from infra host with password"}, {"db": "all", "addr": "infra", "auth": "ssl", "user": "${admin}", "title": "admin @ infra nodes with pwd & ssl"}, {"db": "all", "addr": "world", "auth": "cert", "user": "${admin}", "title": "admin @ everywhere with ssl & cert"}, {"db": "all", "addr": "localhost", "auth": "pwd", "user": "+dbrole_readonly", "title": "pgbouncer read/write via local socket"}, {"db": "all", "addr": "intra", "auth": "pwd", "user": "+dbrole_readonly", "title": "read/write biz user via password"}, {"db": "all", "addr": "intra", "auth": "pwd", "user": "+dbrole_offline", "title": "allow etl offline tasks from intranet"}]', 'PGSQL', 'PG_PROVISION', 'hba[]', 'G/C', 'postgres default host-based authentication rules', NULL),
 (579, 'pgb_default_hba_rules', '[{"db": "pgbouncer", "addr": "local", "auth": "peer", "user": "${dbsu}", "title": "dbsu local admin access with os ident"}, {"db": "all", "addr": "localhost", "auth": "pwd", "user": "all", "title": "allow all user local access with pwd"}, {"db": "pgbouncer", "addr": "intra", "auth": "pwd", "user": "${monitor}", "title": "monitor access via intranet with pwd"}, {"db": "all", "addr": "world", "auth": "deny", "user": "${monitor}", "title": "reject all other monitor access addr"}, {"db": "all", "addr": "intra", "auth": "pwd", "user": "${admin}", "title": "admin access via intranet with pwd"}, {"db": "all", "addr": "world", "auth": "deny", "user": "${admin}", "title": "reject all other admin access addr"}, {"db": "all", "addr": "intra", "auth": "pwd", "user": "all", "title": "allow all user intra access with pwd"}]', 'PGSQL', 'PG_PROVISION', 'hba[]', 'G/C', 'pgbouncer default host-based authentication rules', NULL),
 (580, 'pg_default_service_dest', '"pgbouncer"', 'PGSQL', 'PG_PROVISION', 'enum', 'G/C', 'default service destination if svc.dest=''default''', NULL),
@@ -1443,7 +1434,7 @@ INSERT INTO pigsty.default_var VALUES
 (582, 'pgbackrest_enabled', 'true', 'PGSQL', 'PG_BACKUP', 'bool', 'C', 'enable pgbackrest on pgsql host?', NULL),
 (583, 'pgbackrest_clean', 'true', 'PGSQL', 'PG_BACKUP', 'bool', 'C', 'remove pg backup data during init?', NULL),
 (584, 'pgbackrest_log_dir', '"/pg/log/pgbackrest"', 'PGSQL', 'PG_BACKUP', 'path', 'C', 'pgbackrest log dir, `/pg/log/pgbackrest` by default', NULL),
-(585, 'pgbackrest_method', '"local"', 'PGSQL', 'PG_BACKUP', 'enum', 'C', 'pgbackrest repo method: local,minio,[user-defined...]', NULL),
+(585, 'pgbackrest_method', '"local"', 'PGSQL', 'PG_BACKUP', 'enum', 'C', 'pgbackrest repo method: local,minio,etc...', NULL),
 (586, 'pgbackrest_repo', '{"local": {"path": "/pg/backup", "retention_full": 2, "retention_full_type": "count"}, "minio": {"path": "/pgbackrest", "type": "s3", "bundle": "y", "s3_key": "pgbackrest", "s3_bucket": "pgsql", "s3_region": "us-east-1", "cipher_pass": "pgBackRest", "cipher_type": "aes-256-cbc", "s3_endpoint": "sss.pigsty", "s3_uri_style": "path", "storage_port": 9000, "s3_key_secret": "S3User.Backup", "retention_full": 14, "storage_ca_file": "/etc/pki/ca.crt", "retention_full_type": "time"}}', 'PGSQL', 'PG_BACKUP', 'dict', 'G/C', 'pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository', NULL),
 (587, 'pg_vip_enabled', 'false', 'PGSQL', 'PG_VIP', 'bool', 'C', 'enable a l2 vip for pgsql primary? false by default', NULL),
 (588, 'pg_vip_address', '"127.0.0.1/24"', 'PGSQL', 'PG_VIP', 'cidr4', 'C', 'vip address in `<ipv4>/<mask>` format, require if vip is enabled', NULL),
@@ -1466,6 +1457,16 @@ INSERT INTO pigsty.default_var VALUES
 (605, 'pgbouncer_exporter_url', '""', 'PGSQL', 'PG_EXPORTER', 'pgurl', 'C', 'overwrite auto-generate pgbouncer dsn if specified', NULL),
 (606, 'pgbouncer_exporter_options', '""', 'PGSQL', 'PG_EXPORTER', 'arg', 'C', 'overwrite extra options for pgbouncer_exporter', NULL),
 (701, 'redis_cluster', NULL, 'REDIS', 'REDIS_ID', 'string', 'C', 'redis cluster name, required identity parameter', NULL),
+(702, 'redis_instances', NULL, 'REDIS', 'REDIS_ID', 'dict', 'I', 'redis instances definition on this redis node', NULL),
+(703, 'redis_node', NULL, 'REDIS', 'REDIS_ID', 'int', 'I', 'redis node sequence number, node int id required', NULL),
+(704, 'redis_fs_main', '"/data"', 'REDIS', 'REDIS_NODE', 'path', 'C', 'redis main data mountpoint, `/data` by default', NULL),
+(705, 'redis_exporter_enabled', 'true', 'REDIS', 'REDIS_NODE', 'bool', 'C', 'install redis exporter on redis nodes?', NULL),
+(706, 'redis_exporter_port', '9121', 'REDIS', 'REDIS_NODE', 'port', 'C', 'redis exporter listen port, 9121 by default', NULL),
+(707, 'redis_exporter_options', '""', 'REDIS', 'REDIS_NODE', 'string', 'C/I', 'cli args and extra options for redis exporter', NULL),
+(708, 'redis_safeguard', 'false', 'REDIS', 'REDIS_PROVISION', 'bool', 'C', 'prevent purging running redis instance?', NULL),
+(709, 'redis_clean', 'true', 'REDIS', 'REDIS_PROVISION', 'bool', 'C', 'purging existing redis during init?', NULL),
+(710, 'redis_rmdata', 'true', 'REDIS', 'REDIS_PROVISION', 'bool', 'A', 'remove redis data when purging redis server?', NULL),
+(711, 'redis_mode', '"standalone"', 'REDIS', 'REDIS_PROVISION', 'enum', 'C', 'redis mode: standalone,cluster,sentinel', NULL),
 (712, 'redis_conf', '"redis.conf"', 'REDIS', 'REDIS_PROVISION', 'string', 'C', 'redis config template path, except sentinel', NULL),
 (713, 'redis_bind_address', '"0.0.0.0"', 'REDIS', 'REDIS_PROVISION', 'ip', 'C', 'redis bind address, empty string will use host ip', NULL),
 (714, 'redis_max_memory', '"1GB"', 'REDIS', 'REDIS_PROVISION', 'size', 'C/I', 'max memory used by each redis instance', NULL),
@@ -1475,3 +1476,4 @@ INSERT INTO pigsty.default_var VALUES
 (718, 'redis_aof_enabled', 'false', 'REDIS', 'REDIS_PROVISION', 'bool', 'C', 'enable redis append only file?', NULL),
 (719, 'redis_rename_commands', '{}', 'REDIS', 'REDIS_PROVISION', 'dict', 'C', 'rename redis dangerous commands', NULL),
 (720, 'redis_cluster_replicas', '1', 'REDIS', 'REDIS_PROVISION', 'int', 'C', 'replica number for one master in redis cluster', NULL);
+

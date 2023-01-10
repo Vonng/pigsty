@@ -38,27 +38,30 @@ The [**identity parameters**](v-redis.md#redis_identity) are the information tha
 
 There are 3 sections, 20 parameters about [`REDIS`](PARAM#REDIS) module.
 
-- [`REDIS_ID`](PARAM#REDIS_ID) : REDIS Identity Parameters
-- [`REDIS_NODE`](PARAM#REDIS_NODE) : REDIS Node & Exporter
-- [`REDIS_PROVISION`](PARAM#REDIS_PROVISION) : Config & Launch Redis Instances
+- [`REDIS_ID`](PARAM#redis_id) : REDIS Identity Parameters
+- [`REDIS_NODE`](PARAM#redis_node) : REDIS Node & Exporter
+- [`REDIS_PROVISION`](PARAM#redis_provision) : Config & Launch Redis Instances
 
 
-| Parameter                                                  | Section                                | Type       | Level| Comment                                            |
-| -------------------------------------------------------- | ------------------------------------------ | -------- | ---- | -------------------------------------------------- |
-| [`redis_cluster`](PARAM#redis_cluster)                   | [`REDIS_ID`](PARAM#REDIS_ID)               | string   | C    | redis cluster name, required identity parameter    |
-| [`redis_instances`](PARAM#redis_instances)               | [`REDIS_ID`](PARAM#REDIS_ID)               | dict     | I    | redis instances definition on this redis node      |
-| [`redis_node`](PARAM#redis_node)                         | [`REDIS_ID`](PARAM#REDIS_ID)               | int      | I    | redis node sequence number, node int id required   |
-| [`redis_fs_main`](PARAM#redis_fs_main)                   | [`REDIS_NODE`](PARAM#REDIS_NODE)           | path     | C    | redis main data mountpoint, `/data` by default     |
-| [`redis_exporter_enabled`](PARAM#redis_exporter_enabled) | [`REDIS_NODE`](PARAM#REDIS_NODE)           | bool     | C    | install redis exporter on redis nodes?             |
-| [`redis_exporter_port`](PARAM#redis_exporter_port)       | [`REDIS_NODE`](PARAM#REDIS_NODE)           | port     | C    | redis exporter listen port, 9121 by default        |
-| [`redis_exporter_options`](PARAM#redis_exporter_options) | [`REDIS_NODE`](PARAM#REDIS_NODE)           | string   | C/I  | cli args and extra options for redis exporter      |
-| [`redis_safeguard`](PARAM#redis_safeguard)               | [`REDIS_PROVISION`](PARAM#REDIS_PROVISION) | bool     | C    | prevent purging running redis instance?            |
-| [`redis_clean`](PARAM#redis_clean)                       | [`REDIS_PROVISION`](PARAM#REDIS_PROVISION) | bool     | C    | purging existing redis during init?                |
-| [`redis_rmdata`](PARAM#redis_rmdata)                     | [`REDIS_PROVISION`](PARAM#REDIS_PROVISION) | bool     | A    | remove redis data when purging redis server?       |
-| [`redis_mode`](PARAM#redis_mode)                         | [`REDIS_PROVISION`](PARAM#REDIS_PROVISION) | enum     | C    | redis mode: standalone,cluster,sentinel            |
-| [`redis_conf`](PARAM#redis_conf)                         | [`REDIS_PROVISION`](PARAM#REDIS_PROVISION) | string   | C    | redis config template path, except sentinel        |
-| [`redis_bind_address`](PARAM#redis_bind_address)         | [`REDIS_PROVISION`](PARAM#REDIS_PROVISION) | ip       | C    | redis bind address, empty string will use host ip  |
-| [`redis_max_memory`](PARAM#redis_max_memory)             | [`REDIS_PROVISION`](PARAM#REDIS_PROVISION) | size     | C/I  | max memory used by each redis instance             |
-| [`redis_mem_policy`](PARAM#redis_mem_policy)             | [`REDIS_PROVISION`](PARAM#REDIS_PROVISION) | enum     | C    | redis memory eviction policy                       |
-| [`redis_password`](PARAM#redis_password)                 | [`REDIS_PROVISION`](PARAM#REDIS_PROVISION) | password | C    | redis password, empty string will disable password |
-| [`redis_rdb_save`](PARAM#redis_rdb_save)                 | [`REDIS_PROVISION`](PARAM#REDIS_PROVISION) | string[] | C    | redis 
+| Parameter                                                    |    Type     | Level | Comment                                                      |
+| ------------------------------------------------------------ | :---------: | :---: | ------------------------------------------------------------ |
+| [`redis_cluster`](PARAM#redis_cluster)                       |   string    |   C   | redis cluster name, required identity parameter              |
+| [`redis_instances`](PARAM#redis_instances)                   |    dict     |   I   | redis instances definition on this redis node                |
+| [`redis_node`](PARAM#redis_node)                             |     int     |   I   | redis node sequence number, node int id required             |
+| [`redis_fs_main`](PARAM#redis_fs_main)                       |    path     |   C   | redis main data mountpoint, `/data` by default               |
+| [`redis_exporter_enabled`](PARAM#redis_exporter_enabled)     |    bool     |   C   | install redis exporter on redis nodes?                       |
+| [`redis_exporter_port`](PARAM#redis_exporter_port)           |    port     |   C   | redis exporter listen port, 9121 by default                  |
+| [`redis_exporter_options`](PARAM#redis_exporter_options)     |   string    |  C/I  | cli args and extra options for redis exporter                |
+| [`redis_safeguard`](PARAM#redis_safeguard)                   |    bool     |   C   | prevent purging running redis instance?                      |
+| [`redis_clean`](PARAM#redis_clean)                           |    bool     |   C   | purging existing redis during init?                          |
+| [`redis_rmdata`](PARAM#redis_rmdata)                         |    bool     |   A   | remove redis data when purging redis server?                 |
+| [`redis_mode`](PARAM#redis_mode)                             |    enum     |   C   | redis mode: standalone,cluster,sentinel                      |
+| [`redis_conf`](PARAM#redis_conf)                             |   string    |   C   | redis config template path, except sentinel                  |
+| [`redis_bind_address`](PARAM#redis_bind_address)             |     ip      |   C   | redis bind address, empty string will use host ip            |
+| [`redis_max_memory`](PARAM#redis_max_memory)                 |    size     |  C/I  | max memory used by each redis instance                       |
+| [`redis_mem_policy`](PARAM#redis_mem_policy)                 |    enum     |   C   | redis memory eviction policy                                 |
+| [`redis_password`](PARAM#redis_password)                     |  password   |   C   | redis password, empty string will disable password           |
+| [`redis_rdb_save`](PARAM#redis_rdb_save)                     |  string[]   |   C   | redis rdb save directives, disable with empty list           |
+| [`redis_aof_enabled`](PARAM#redis_aof_enabled)               |    bool     |   C   | enable redis append only file?                               |
+| [`redis_rename_commands`](PARAM#redis_rename_commands)       |    dict     |   C   | rename redis dangerous commands                              |
+| [`redis_cluster_replicas`](PARAM#redis_cluster_replicas)     |     int     |   C   | replica number for one master in redis cluster               |

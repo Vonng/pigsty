@@ -294,7 +294,7 @@ pg-meta:
         parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
         pool_mode: transaction          # optional, pgbouncer pool mode at user level, transaction by default
         pool_connlimit: -1              # optional, max database connections at user level, default -1 disable limit
-       {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
+      - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
       - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database   }
       - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database  }
       - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway   }
@@ -420,7 +420,6 @@ redis-test: # redis native cluster: 3m x 3s
 
 </details>
 
-
 <details><summary>Example: ETCD 3 Node Cluster</summary>
 
 ```yaml
@@ -437,7 +436,6 @@ etcd: # dcs service for postgres/patroni ha consensus
 ```
 
 </details>
-
 
 <details><summary>Example: Minio 3 Node Deployment</summary>
 

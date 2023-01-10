@@ -67,7 +67,7 @@ For examples:
 
 ## Category
 
-Pigsty contains 241 parameters divided into four major categories: 
+Pigsty contains 260+ parameters divided by modules 
 [INFRA](INFRA), [NODE](NODE), [PGSQL](PGSQL), and [REDIS](REDIS) and 32 sub sections.
 
 
@@ -106,4 +106,4 @@ Pigsty contains 241 parameters divided into four major categories:
 | [`REDIS`](#redis) | [`REDIS_PROVISION`](#REDIS_PROVISION)         | REDIS Cluster Provisioning         |  14   |
 | [`REDIS`](#redis) | [`REDIS_EXPORTER`](#REDIS_EXPORTER)           | REDIS Indicator Exposer            |   3   |
 
-Check [parameter](Parameter) for detailed usage.
+Check [parameter](PARAM) for detailed usage.

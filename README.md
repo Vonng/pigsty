@@ -10,7 +10,7 @@
 
 > Latest Beta: [v2.0.0-b4](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b4) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
 >
-> Documentation:  [Wiki](https://github.com/Vonng/pigsty/wiki), [Website](https://pigsty.cc/en/) | [中文站点](https://pigsty.cc/zh/)
+> Documentation:  [Wiki](https://github.com/Vonng/pigsty/wiki), [Website](https://pigsty.cc/en/) | [中文站点](https://pigsty.cc/zh/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 
 
 [![pigsty-banner](https://user-images.githubusercontent.com/8587410/206971422-deb6dd88-c89e-43e4-8130-cf32a24b07b9.jpg)](https://pigsty.cc/en/)
@@ -247,7 +247,7 @@ Check [playbook](https://github.com/Vonng/pigsty/wiki/Playbook) & [admin](https:
 
 <details><summary>Example: Complex Postgres Customize</summary>
 
-```bash
+```yaml
 pg-meta:
   hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true } }
   vars:
@@ -257,25 +257,27 @@ pg-meta:
         baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
         pgbouncer: true                 # optional, add this database to pgbouncer database list? true by default
         schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
-        extensions: [{name: postgis}]   # optional, additional extensions to be installed: array of `{name[,schema]}`
+        extensions:                     # optional, additional extensions to be installed: array of `{name[,schema]}`
+          - { name: postgis , schema: public }
+          - { name: timescaledb }
         comment: pigsty meta database   # optional, comment string for this database
-        owner: postgres                 # optional, database owner, postgres by default
-        template: template1             # optional, which template to use, template1 by default
-        encoding: UTF8                  # optional, database encoding, UTF8 by default. (MUST same as template database)
-        locale: C                       # optional, database locale, C by default.  (MUST same as template database)
-        lc_collate: C                   # optional, database collate, C by default. (MUST same as template database)
-        lc_ctype: C                     # optional, database ctype, C by default.   (MUST same as template database)
-        tablespace: pg_default          # optional, default tablespace, 'pg_default' by default.
-        allowconn: true                 # optional, allow connection, true by default. false will disable connect at all
-        revokeconn: false               # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
-        register_datasource: true       # optional, register this database to grafana datasources? true by default
-        connlimit: -1                   # optional, database connection limit, default -1 disable limit
-        pool_auth_user: dbuser_meta     # optional, all connection to this pgbouncer database will be authenticated by this user
-        pool_mode: transaction          # optional, pgbouncer pool mode at database level, default transaction
-        pool_size: 64                   # optional, pgbouncer pool size at database level, default 64
-        pool_size_reserve: 32           # optional, pgbouncer pool size reserve at database level, default 32
-        pool_size_min: 0                # optional, pgbouncer pool size min at database level, default 0
-        pool_max_db_conn: 100           # optional, max database connections at database level, default 100
+        owner: postgres                # optional, database owner, postgres by default
+        template: template1            # optional, which template to use, template1 by default
+        encoding: UTF8                 # optional, database encoding, UTF8 by default. (MUST same as template database)
+        locale: C                      # optional, database locale, C by default.  (MUST same as template database)
+        lc_collate: C                  # optional, database collate, C by default. (MUST same as template database)
+        lc_ctype: C                    # optional, database ctype, C by default.   (MUST same as template database)
+        tablespace: pg_default         # optional, default tablespace, 'pg_default' by default.
+        allowconn: true                # optional, allow connection, true by default. false will disable connect at all
+        revokeconn: false              # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
+        register_datasource: true      # optional, register this database to grafana datasources? true by default
+        connlimit: -1                  # optional, database connection limit, default -1 disable limit
+        pool_auth_user: dbuser_meta    # optional, all connection to this pgbouncer database will be authenticated by this user
+        pool_mode: transaction         # optional, pgbouncer pool mode at database level, default transaction
+        pool_size: 64                  # optional, pgbouncer pool size at database level, default 64
+        pool_size_reserve: 32          # optional, pgbouncer pool size reserve at database level, default 32
+        pool_size_min: 0               # optional, pgbouncer pool size min at database level, default 0
+        pool_max_db_conn: 100          # optional, max database connections at database level, default 100
       - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
       - { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
       - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
@@ -300,7 +302,6 @@ pg-meta:
         parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
         pool_mode: transaction          # optional, pgbouncer pool mode at user level, transaction by default
         pool_connlimit: -1              # optional, max database connections at user level, default -1 disable limit
-        search_path: public             # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
       - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
       - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database   }
       - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database  }
@@ -313,7 +314,7 @@ pg-meta:
         port: 5435                      # required, service exposed port (work as kubernetes service node port mode)
         ip: "*"                         # optional, service bind ip address, `*` for all ip by default
         selector: "[]"                  # required, service member selector, use JMESPath to filter inventory
-        dest: default                   # optional, destination port, default|postgres|pgbouncer|<port_number>
+        dest: default                   # optional, destination port, default|postgres|pgbouncer|<port_number>, 'default' by default
         check: /sync                    # optional, health check url path, / by default
         backup: "[? pg_role == `primary`]"  # backup server selector
         maxconn: 3000                   # optional, max allowed front-end connection
@@ -324,8 +325,8 @@ pg-meta:
     pg_vip_enabled: true
     pg_vip_address: 10.10.10.2/24
     pg_vip_interface: eth1
-    node_crontab:
-      - '00 01 * * * postgres pgbackrest --stanza=pg-meta backup >> /pg/log/pgbackrest/backup.log 2>&1'
+    node_crontab:  # make a full backup 1 am everyday
+      - '00 01 * * * postgres /pg/bin/pg-backup full'
 
 ```
 
@@ -333,8 +334,8 @@ pg-meta:
 
 <details><summary>Example: Security Enhanced PG Cluster with Delayed Replica</summary>
 
-```bash
-pg-meta:                          # 3 instance postgres cluster `pg-meta`
+```yaml
+pg-meta:      # 3 instance postgres cluster `pg-meta`
   hosts:
     10.10.10.10: { pg_seq: 1, pg_role: primary }
     10.10.10.11: { pg_seq: 2, pg_role: replica }
@@ -346,13 +347,12 @@ pg-meta:                          # 3 instance postgres cluster `pg-meta`
       - { name: dbuser_meta , password: DBUser.Meta   , pgbouncer: true , roles: [ dbrole_admin ] , comment: pigsty admin user }
       - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
     pg_databases:
-      - { name: meta , baseline: cmdb.sql ,comment: pigsty meta database , schemas: [ pigsty ] , extensions: [{ name: postgis, schema: public }] }
+      - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
     pg_services:
-      - { name: standby ,src_ip: "*" ,src_port: 5435 , dst_port: postgres ,selector: "[]" , selector_backup: "[? pg_role == `primary`]" }
-    vip_mode: l2
-    vip_address: 10.10.10.2
-    vip_cidrmask: 8
-    vip_interface: eth1
+      - { name: standby ,src_ip: "*" ,port: 5435 , dest: default ,selector: "[]" , backup: "[? pg_role == `primary`]" }
+    pg_vip_enabled: true
+    pg_vip_address: 10.10.10.2/24
+    pg_vip_interface: eth1
 
 # OPTIONAL delayed cluster for pg-meta
 pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
@@ -364,18 +364,21 @@ pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
 
 <details><summary>Example: Citus Cluster: 1 Coordinator x 3 Data Nodes</summary>
 
-```bash
+```yaml
 # citus coordinator node
 pg-meta:
-  hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true } }
+  hosts:
+    10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true }
   vars:
     pg_cluster: pg-meta
     pg_users: [{ name: citus ,password: citus ,pgbouncer: true ,roles: [dbrole_admin]}]
-    pg_databases: [{ name: meta ,owner: citus , extensions: [{name: citus},{name: postgis, schema: public}]}]
+    pg_databases:
+      - { name: meta ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public},{ name: citus}] ,baseline: cmdb.sql ,comment: pigsty meta database}
 
 # citus data node 1,2,3
 pg-node1:
-  hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
+  hosts:
+    10.10.10.11: { pg_seq: 1, pg_role: primary }
   vars:
     pg_cluster: pg-node1
     vip_address: 10.10.10.3
@@ -383,7 +386,8 @@ pg-node1:
     pg_databases: [{ name: meta ,owner: citus , extensions: [{name: citus},{name: postgis, schema: public}]}]
 
 pg-node2:
-  hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary  , pg_offline_query: true } }
+  hosts:
+    10.10.10.12: { pg_seq: 1, pg_role: primary  , pg_offline_query: true }
   vars:
     pg_cluster: pg-node2
     vip_address: 10.10.10.4
@@ -391,7 +395,8 @@ pg-node2:
     pg_databases: [ { name: meta , owner: citus , extensions: [ { name: citus }, { name: postgis, schema: public } ] } ]
 
 pg-node3:
-  hosts: { 10.10.10.13: { pg_seq: 1, pg_role: primary  , pg_offline_query: true } }
+  hosts:
+    10.10.10.13: { pg_seq: 1, pg_role: primary  , pg_offline_query: true }
   vars:
     pg_cluster: pg-node3
     vip_address: 10.10.10.5
@@ -402,7 +407,7 @@ pg-node3:
 
 </details>
 
-<details><summary>Redis Cluster Example</summary>
+<details><summary>Example: Redis Cluster/Sentinel/Standalone</summary>
 
 ```yaml
 redis-ms: # redis classic primary & replica
@@ -418,10 +423,56 @@ redis-test: # redis native cluster: 3m x 3s
     10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
     10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
   vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
+
 ```
 
 </details>
 
+<details><summary>Example: ETCD 3 Node Cluster</summary>
+
+```yaml
+etcd: # dcs service for postgres/patroni ha consensus
+  hosts:  # 1 node for testing, 3 or 5 for production
+    10.10.10.10: { etcd_seq: 1 }  # etcd_seq required
+    10.10.10.11: { etcd_seq: 2 }  # assign from 1 ~ n
+    10.10.10.12: { etcd_seq: 3 }  # odd number please
+  vars: # cluster level parameter override roles/etcd
+    etcd_cluster: etcd  # mark etcd cluster name etcd
+    etcd_safeguard: false # safeguard against purging
+    etcd_clean: true # purge etcd during init process
+
+```
+
+</details>
+
+<details><summary>Example: Minio 3 Node Deployment</summary>
+
+```yaml
+minio:
+  hosts:
+    10.10.10.10: { minio_seq: 1 }
+    10.10.10.11: { minio_seq: 2 }
+    10.10.10.12: { minio_seq: 3 }
+  vars:
+    minio_cluster: minio
+    minio_data: '/data{1...2}'        # use two disk per node
+    minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio node name pattern
+    haproxy_services:
+      - name: minio                     # [REQUIRED] service name, unique
+        port: 9002                      # [REQUIRED] service port, unique
+        options:
+          - option httpchk
+          - option http-keep-alive
+          - http-check send meth OPTIONS uri /minio/health/live
+          - http-check expect status 200
+        servers:
+          - { name: minio-1 ,ip: 10.10.10.10 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+          - { name: minio-2 ,ip: 10.10.10.11 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+          - { name: minio-3 ,ip: 10.10.10.12 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+
+```
+
+</details>
 
 
 

@@ -4,8 +4,7 @@
 
 ## Parameters
 
-There are 10 parameters about [`ETCD`](PARAM#ETCD) module.
-
+There are 10 parameters about [`ETCD`](PARAM#etcd) module.
 
 | Parameter                                                  | Type   | Level| Comment                                            |
 | ---------------------------------------------------------- |:------:|:----:| -------------------------------------------------- |
