@@ -1,10 +1,10 @@
 # Get Started
 
-> It takes several steps to install Pigsty: [download](#download), [bootstrap](#bootstrap), [configure](#configure), [install](#install).
+> It takes four steps to install Pigsty: [Download](#download), [Bootstrap](#bootstrap), [Configure](#configure) and [Install](#install).
 
 ## Short Version
 
-Prepare a fresh node with Linux x86_64 EL compatible OS, then run as a **sudo-able** user:
+Prepare a new node with Linux x86_64 EL compatible OS, then run as a **sudo-able** user:
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  
@@ -14,11 +14,11 @@ cd ~/pigsty   # get pigsty source and entering dir
 ./install.yml # install pigsty according to pigsty.yml
 ```
 
-Then you will have a pigsty singleton meta node ready, with Web Services on port `80` and postgres on port `5432`.
+Then you will have a pigsty singleton node ready, with Web Services on port `80` and Postgres on port `5432`.
 
 <details><summary>Download via Git</summary>
 
-You can also download pigsty source with `git`, don't forget to checkout a specific version
+You can also download pigsty source with `git`, don't forget to checkout a specific version.
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
@@ -48,9 +48,9 @@ cd pigsty; git checkout v2.0.0-b5
 **Ansible**
 
 * Ansible is required and will be installed during [`bootstrap`](#bootstrap) procedure
-* You can also manually install with `yum` and `epel-release` enabled
+* You can also manually install with `yum,` and `epel-release` enabled
 
-> HINT: **Recommended Releases** are CentOS 7.9 / RockyLinux 8.6 / RockyLinux 9.0 , which are tested and verified.
+> HINT: **Recommended Releases** are CentOS 7.9 / RockyLinux 8.6 / RockyLinux 9.0, which are tested and verified.
 
 
 
@@ -59,7 +59,7 @@ cd pigsty; git checkout v2.0.0-b5
 
 ## Download
 
-You can get & extract pigsty source via following command:
+You can get & extract pigsty source via the following command:
 
 ```bash
 curl -fsSL http://download.pigsty.cc/get  | bash
@@ -67,16 +67,16 @@ curl -fsSL http://download.pigsty.cc/get  | bash
 
 > HINT: Get the latest beta release with `getb` instead of `get`.
 
-<details><summary>Download source with specific version directly</summary>
+<details><summary>Download Pigsty Source with Specific Version</summary>
 
-If you want to download specific version, use following urls:
+If you want to download a specific version, use the following URLs:
 
 ```bash
 VERSION=v2.0.0-b5
 https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty-${VERSION}.tgz
 ```
 
-For example Pigsty v2.0.0-b5 source can be acquired with:
+For example, Pigsty v2.0.0-b5 source can be acquired with:
 
 ```bash 
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0-b5/pigsty-v2.0.0-b5.tgz -o ~/pigsty.tgz
@@ -88,11 +88,11 @@ curl -L http://download.pigsty.cc/v2.0.0-b5/pigsty-v2.0.0-b5.tgz -o ~/pigsty.tgz
 
 ### Offline Packages
 
-Pigsty download rpm packages from upstream yum repo during installation.
+Pigsty downloads rpm packages from the upstream yum repo during installation.
 Which can be accelerated dramatically by using a local mirror: offline packages.
 It's also extremely useful when you have no Internet available.
 
-The [`bootstrap`](#bootstrap) script will ask for downloading corresponding offline package (`--yes|--no`) and setup everything for you.
+The [`bootstrap`](#bootstrap) script will ask for download the corresponding offline package (`--yes|--no`) and setup everything up for you.
 You can also download it manually and put it under `/tmp/pkg.tgz` for later use.
 
 <details><summary>Download offline packages manually</summary>
@@ -113,7 +113,7 @@ curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0-b5/pigsty-pkg-v
 curl -L http://download.pigsty.cc/v2.0.0-b5/pigsty-pkg-v2.0.0-b5.el7.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
 ```
 
-> Not all combinations of OS and architecture are supported yet, please check official release page.
+> Not all combinations of OS and architecture are supported yet. Please check the official release page.
 
 </details>
 
@@ -142,23 +142,24 @@ It will also download / extract / setup the offline [packages](#offline-packages
 
 <details><summary>bootstrap procedure detail</summary>
 
-1. check preconditions
+1. Check preconditions
 
-2. check local repo exists ?
+2. Check local repo exists ?
    * Y -> create `/etc/yum.repos.d/pigsty-local.repo` to enable it
-   * N -> Download offline package from Internet? 
+   * N -> Download offline package from the Internet? 
      * Y -> Download from Github / CDN and extract & enable it
      * N -> Add basic os upstream repo file manually ?
           * Y -> add according to region / releasever
           * N -> leave it to user's default configuration
-  * now we have available repo for installing ansible
-    * precendence: local `pkg.tgz` > downloaded `pkg.tgz` > upstream > user provide
+  * Now we have an available repo for installing ansible
+    * Precedence: local `pkg.tgz` > downloaded `pkg.tgz` > upstream > user provide
 
-3.install boot utils from available repo
+3. install boot utils from the available repo
+
    * el7,8,9: `nginx wget sshpass createrepo_c yum-utils`
    * el8,9 extra: `dnf-utils modulemd-tools python3-jmespath`
 
-4.Check ansible availability.
+4. Check ansible availability.
 
 </details>
 
@@ -365,12 +366,12 @@ localhost                  : ok=3    changed=0    unreachable=0    failed=0    s
 
 ## Interface
 
-Once installed, you'll have 4 module [**INFRA**](INFRA), [**NODE**](NODE), [**ETCD**](ETCD) , [**PGSQL**](PGSQL) installed on current node. 
+Once installed, you'll have 4 module [**INFRA**](INFRA), [**NODE**](NODE), [**ETCD**](ETCD) , [**PGSQL**](PGSQL) installed on the current node. 
 
 * [**INFRA**](INFRA): Monitoring infrastructure can be accessed via `http://<ip>:80`
 * [**PGSQL**](PGSQL): PostgreSQL cluster can be accessed via default PGURL: `postgres://dbuser_meta:DBUser.Meta@<ip>:5432/meta`
 
-There are several services are exposed by nginx (configured by [`infra_portal`](PARAM#infra_portal)):
+There are several services are exposed by Nginx (configured by [`infra_portal`](PARAM#infra_portal)):
 
 |    Component  | Port |    Domain    |     Comment              |     Public Demo          |
 | :-----------: | :--: | :----------: | ------------------------ | ------------------------ |
@@ -379,10 +380,10 @@ There are several services are exposed by nginx (configured by [`infra_portal`](
 |    Grafana    | 3000 |  `g.pigsty`  | Grafana Dashboard Home   |  [`demo.pigsty.cc`](http://demo.pigsty.cc) |
 |  Prometheus   | 9090 |  `p.pigsty`  | Prometheus Web UI        |  [`p.pigsty.cc`](http://p.pigsty.cc) |
 
-You can configure public domain names for these infra services, or just using local static DNS records & resolver.
-e.g. write records to `/etc/hosts` and access via DNS.
+You can configure public domain names for these infra services or just use local static DNS records & resolver.
+e.g., write records to `/etc/hosts` and access via DNS.
 
-If [`nginx_sslmode`](PARAM#nginx_sslmode) is set to `enabled` or `enforced`, you can trust self-signed ca: `files/pki/ca/ca.crt` to use https in your browser.
+If [`nginx_sslmode`](PARAM#nginx_sslmode) is set to `enabled` or `enforced`, you can trust self-signed ca: `files/pki/ca/ca.crt` to use `https` in your browser.
 
 ```
 http://g.pigsty ️-> http://10.10.10.10:80 (nginx) -> http://10.10.10.10:3000 (grafana)
@@ -407,4 +408,4 @@ bin/pgsql-add  pg-test      # init HA PGSQL Cluster pg-test
 bin/redis-add  redis-ms     # init redis cluster redis-ms
 ```
 
-Check [**PGSQL**](PGSQL), [**NODE**](NODE), [**REDIS**](REDIS) for detail.
+Check [**PGSQL**](PGSQL), [**NODE**](NODE), and [**REDIS**](REDIS) for detail.

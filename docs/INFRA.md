@@ -1,10 +1,8 @@
 # INFRA
 
-There are 241 available parameters divide into 4 categories and 32 sections.
+![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
 
-## Overview
 
-  ![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
 
 ## Parameters
 

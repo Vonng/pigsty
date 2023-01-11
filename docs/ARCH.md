@@ -32,9 +32,9 @@ You can compose them freely in a declarative manner. If you want host monitoring
 
 ## Singleton Meta
 
-Pigsty will install on a single **node** (BareMetal / VirtualMachine) by default, the [`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.yml) playbook will install [`INFRA`](INFRA), [`ETCD`](ETCD),  [`PGSQL`](PGSQL), and optional [`MINIO`](MINIO) modules on **current** node.  Which will gives you a full-featured observability infrastructure (Prometheus, Grafana, Loki, AlertManager, PushGateway, BlackboxExporter, etc... ) and a battery-included PostgreSQL Singleton Instance (Named `meta`).
+Pigsty will install on a single **node** (BareMetal / VirtualMachine) by default. The [`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.yml) playbook will install [`INFRA`](INFRA), [`ETCD`](ETCD),  [`PGSQL`](PGSQL), and optional [`MINIO`](MINIO) modules on the **current** node, which will give you a full-featured observability infrastructure (Prometheus, Grafana, Loki, AlertManager, PushGateway, BlackboxExporter, etc... ) and a battery-included PostgreSQL Singleton Instance (Named `meta`).
 
-This node now has a self-monitoring system, visualization toolsets, a  Postgres database with auto configured PITR. You can use this node for devbox, testing, running demos,doing data visualization & analysis. Or further more, adding more nodes into it!
+This node now has a self-monitoring system, visualization toolsets, and a  Postgres database with auto-configured PITR. You can use this node for devbox, testing, running demos, and doing data visualization & analysis. Or, furthermore, adding more nodes to it!
 
 ![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
 
@@ -75,7 +75,7 @@ $ bin/pgsql-add pg-test  # init cluster 'pg-test'
 
   Which will gives you a following cluster with monitoring , replica, backup all set.![pigsty-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)
 
-Hardware failures are coverd by self-healing HA architecture powered by `patroni`, `etcd`, and `haproxy`. Which will perform auto failover in case of leader failure in 30s.  With the self-healing traffic control powered by haproxy, the client may even not notice there's failure at all, in case of a switchover or replica failure.
+Hardware failures are covered by self-healing HA architecture powered by `patroni`, `etcd`, and `haproxy`, which will perform auto failover in case of leader failure under 30 seconds.  With the self-healing traffic control powered by haproxy, the client may not even notice there's a failure at all, in case of a switchover or replica failure.
 
 Software Failures, human errors, and DC Failure are covered by `pgbackrest`, and optional `MinIO` clusters. Which gives you the ability to perform point-in-time recovery to anytime (as long as your storage is capable)
 
@@ -130,7 +130,6 @@ $ bin/pgsql-add  pg-test 10.10.10.13
 ```
 
 You can even manage many PostgreSQL Entities using this approach: User/Role, Database, Service, HBA Rules, Extensions, Schemas, etc...
-
 
 
 
