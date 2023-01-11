@@ -114,6 +114,7 @@ COMMENT ON COLUMN pigsty.global_var.key IS 'global config entry name';
 COMMENT ON COLUMN pigsty.global_var.value IS 'global config entry value';
 COMMENT ON COLUMN pigsty.global_var.mtime IS 'global config entry last modified time';
 
+
 --===========================================================--
 --                       group_vars                          --
 --===========================================================--
@@ -257,6 +258,14 @@ SELECT coalesce(gv.key, dv.key) AS key, coalesce(gv.value, dv.value) AS value,
 COMMENT ON VIEW pigsty.global_config IS 'pigsty global config, default + global vars merged';
 
 
+CREATE OR REPLACE FUNCTION pigsty.get_param(_in TEXT) RETURNS TEXT
+AS $$
+SELECT value #>> '{}' FROM pigsty.global_config WHERE key = _in LIMIT 1;
+$$ LANGUAGE SQL STABLE;
+COMMENT ON FUNCTION pigsty.get_param(TEXT) IS 'get global param value string by name';
+
+
+
 --===========================================================--
 --                    pigsty.raw_config                      --
 --===========================================================--
@@ -337,13 +346,15 @@ CREATE OR REPLACE VIEW pigsty.pg_service AS
     SELECT cls,
            cls || '-' || (value ->> 'name') AS svc,
            value ->> 'name'                 AS name,
-           value ->> 'src_ip'               AS src_ip,
-           value ->> 'src_port'             AS src_port,
-           value ->> 'dst_port'             AS dst_port,
-           value ->> 'check_url'            AS check_url,
+           value ->> 'ip'                   AS src_ip,
+           value ->> 'port'                 AS src_port,
+           value ->> 'dest'                 AS dst_port,
+           value ->> 'check'                AS check_url,
            value ->> 'selector'             AS selector,
            value ->> 'selector_backup'      AS selector_backup,
-           value -> 'haproxy'               AS haproxy,
+           (value ->> 'maxconn')::INTEGER   AS maxconn,
+           (value ->> 'balance')            AS balance,
+           (value ->> 'options')            AS options,
            value                            AS service
     FROM pigsty.pg_cluster, jsonb_array_elements(pg_services) ORDER BY 1 ,3;
 COMMENT ON VIEW pigsty.pg_service IS 'pigsty service definition';
