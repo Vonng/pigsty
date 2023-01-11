@@ -3,7 +3,7 @@
 # File      :   public.yml
 # Desc      :   Pigsty Public Demo Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2023-01-02
+# Mtime     :   2023-01-11
 # Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -13,23 +13,14 @@
 all:
   children:
 
-    infra: # infra cluster for proxy, monitor, alert, etc
-      hosts: # 1 for common usage, 3 nodes for production
-        10.10.10.10: { infra_seq: 1 } # identity required
+    # infra cluster for proxy, monitor, alert, etc..
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } }, vars: { docker_enabled: true } }
 
-    etcd: # dcs service for postgres/patroni ha consensus
-      hosts:  # 1 node for testing, 3 or 5 for production
-        10.10.10.10: { etcd_seq: 1 }  # etcd_seq required
-        10.10.10.11: { etcd_seq: 2 }  # assign from 1 ~ n
-        10.10.10.12: { etcd_seq: 3 }  # odd number please
-      vars: # cluster level parameter override roles/etcd
-        etcd_cluster: etcd  # mark etcd cluster name etcd
-        etcd_safeguard: false # safeguard against purging
-        etcd_clean: true # purge etcd during init process
+    # minio cluster, s3 compatible object storage
+    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 
-    minio:  # minio cluster, s3 compatible object storage
-      hosts: { 10.10.10.10: { minio_seq: 1 } }
-      vars: { minio_cluster: minio }
+    # etcd cluster for ha postgres
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
 
     pg-meta:
       hosts:
@@ -72,8 +63,7 @@ all:
         pg_cluster: pg-test
         pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
         pg_databases: [{name: test}]  # demo database: test
-        pg_extensions: ['postgis33_${pg_version}* citus111_${pg_version} pg_repack_${pg_version} wal2json_${pg_version}']
-        pg_services: [{ name: standby ,src_ip: "*" ,port: 5435 , dest: default ,selector: "[]" , backup: "[? pg_role == `primary`]" }]
+        pg_services: [{ name: standby ,ip: "*" ,port: 5435 , dest: default ,selector: "[]" , backup: "[? pg_role == `primary`]" }]
         node_tune: tiny
         pg_conf: tiny.yml
         node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
@@ -132,9 +122,10 @@ all:
       - { name: Covid      , url : '${grafana}/d/covid-overview'    , comment: 'covid data visualization'    }
       - { name: Worktime   , url : '${grafana}/d/worktime-overview' , comment: 'worktime query'              }
       - { name: DBTrend    , url : '${grafana}/d/dbeng-trending'    , comment: 'DB Engine Trending Graph'    }
-    node_timezone: Asia/Hong_Kong     # default node timezone, empty will not change
-    node_ntp_servers:                 # NTP servers in /etc/chrony.conf
+    node_timezone: Asia/Hong_Kong
+    node_etc_hosts: ["${admin_ip} sss.pigsty"]
+    node_ntp_servers:
       - pool cn.pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
-
+    pgbackrest_method: minio
 ...
