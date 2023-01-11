@@ -33,7 +33,7 @@
 #--------------------------------------------------------------#
 - include_tasks: pg_exporter.yml
   tags: [ pg_exporters ]
-  when: pg_exporters is defined and pg_exporters|type_debug == "dict"
+  when: pg_exporters is defined and pg_exporters|type_debug == "dict" and (clsname == '' or (clsname != '' and clsname == item.value.pg_cluster))
   vars:
     pg_exporter_port: "{{ item.key|int|string }}" # <REQUIRED> pg_exporter_port
     pg_cluster: "{{ item.value.pg_cluster }}"     # <REQUIRED> identity: cls
@@ -58,8 +58,6 @@
 # /etc/prometheus/targets/pgsql/{{ pg_instance }}.yml
 - name: register pgsql exporter as prometheus target
   tags: [ pg_exporters, pg_register, register_prometheus ]
-  delegate_to: '{{ item }}'
-  with_items: '{{ groups["infra"] }}'
   copy:
     dest: /etc/prometheus/targets/pgsql/pg-remote.yml
     content: |
@@ -73,7 +71,5 @@
         targets: [ {{ inventory_hostname }}:{{ port }} ]
 
       {% endfor %}
-
-
 
 ...
