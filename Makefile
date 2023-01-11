@@ -46,6 +46,10 @@ link:
 get:
 	bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
 
+# serve a local docs with docsify or python http
+doc:
+	docs/serve
+
 #-------------------------------------------------------------#
 # there are 3 steps launching pigsty:
 all: bootstrap configure install
