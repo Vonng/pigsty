@@ -2,7 +2,7 @@
 
 | Version               |    Time    | Description                                             | Release                                                                                   |
 |:----------------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.0.0-b5](#v200-b5) | 2023-01-08  | Compatibility Security Maintainability Enhancement      | [v2.0.0-b5](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b5)                       |
+| [v2.0.0-b5](#v200-b5) | 2023-01-11  | Compatibility Security Maintainability Enhancement      | [v2.0.0-b5](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b5)                       |
 | [v1.5.1](#v151)       | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
 | [v1.5.0](#v150)       | 2022-05-31 | Docker Applications                                     | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
 | [v1.4.1](#v141)       | 2022-04-20 | Bug fix & Full translation of English documents.        | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |
@@ -32,7 +32,7 @@
 
 ## v2.0.0-b5
 
-v2.0.0 Beta4 Release
+v2.0.0 Beta5 Release
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty   
@@ -80,6 +80,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 * Use chrony instead of ntpd as NTP services
 * New signed apache ECharts 5.0 plugin for Grafana panels
 * Simplify roles implementation. merge into `pgsql`, `infra`, `node`, `node_monitor`
+* Refactor `pgsql-monitor.yml` & `pgsql-migration.yml` for new architecture.
 
 **Enhancement**
 
@@ -130,18 +131,22 @@ add 24 parameters, remove 8 parameters, rename 11 parameters
 - `INFRA`.`NGINX`.`nginx_ssl_enabled`           : nginx https enabled?
 - `INFRA`.`PROMTETHEUS`.`alertmanager_endpoint` : altermanager endpoint in (ip|domain):port format
 - `NODE`.`NODE_TUNE`.`node_hugepage_ratio`      : mem hugepage ratio, 0 disable it by default
+- `NODE`.`HAPROXY`.`haproxy_service`            : list of haproxy service to be exposed
 - `PGSQL`.`PG_INSTALL`.`pg_log_dir`             : postgres log dir, `/pg/data/log` by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_storage_type`      : SSD|HDD, SSD by default
 - `PGSQL`.`PG_BOOTSTRAP`.`patroni_log_dir`      : patroni log dir, `/pg/log` by default
 - `PGSQL`.`PG_BOOTSTRAP`.`patroni_ssl_enabled`  : secure patroni RestAPI communications with SSL?
 - `PGSQL`.`PG_BOOTSTRAP`.`patroni_username`     : patroni rest api username
 - `PGSQL`.`PG_BOOTSTRAP`.`patroni_password`     : patroni rest api password (IMPORTANT: CHANGE THIS)
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_max_conn`          : postgres max connections, `auto` will use recommended value
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_shmem_ratio`       : postgres shared memory ratio, 0.25 by default, 0.1~0.4
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_rto`               : recovery time objective, ttl to failover, 30s by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_rpo`               : recovery point objective, 1MB data loss at most by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_pwd_enc`           : algorithm for encrypting passwords: md5|scram-sha-256
 - `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_log_dir`    : pgbouncer log dir, `/var/log/pgbouncer` by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_auth_query` : if enabled, query pg_authid table to retrieve biz users instead of populating userlist
 - `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_sslmode`    : SSL for pgbouncer client: disable|allow|prefer|require|verify-ca|verify-full
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_default_service_dest` : default service destination if svc.dest='default'
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_enabled`      : pgbackrest enabled ?
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_clean`        : remove pgbackrest data during init ?
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_log_dir`      : pgbackrest log dir, `/pg/log` by default
@@ -149,9 +154,8 @@ add 24 parameters, remove 8 parameters, rename 11 parameters
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_repo`         : pgbackrest backup repo config
 - `PGSQL`.`PG_DNS`.`pg_dns_suffix`              : pgsql dns suffix, '' by default
 - `PGSQL`.`PG_DNS`.`pg_dns_target`              : auto, primary, vip, none, or ad hoc ip
-- `NODE`.`HAPROXY`.`haproxy_service`            : list of haproxy service to be exposed
-- `ETCD`: 8 parameters
-- `MINIO`: 10 parameters
+- `ETCD`: 10 parameters
+- `MINIO`: 15 parameters
 
 **Removed Parameters**
 
@@ -167,6 +171,7 @@ add 24 parameters, remove 8 parameters, rename 11 parameters
 
 **Renamed Parameters**
 
+- `nginx_upstream`            -> `infra_portal`
 - `repo_address`              -> `repo_endpoint`
 - `pg_hostname`               -> `node_id_from_pg`
 - `pg_services`               -> `pg_default_services`
@@ -183,8 +188,17 @@ add 24 parameters, remove 8 parameters, rename 11 parameters
 - `node_packages_meta_pip`    -> `infra_packages_pip`
 - `node_data_dir`             -> `node_data`
 
+**New Apps**
 
+* EdgeDB
 
+**Checksums**
+
+```
+MD5 (pigsty-pkg-v2.0.0-b5.el7.x86_64.tgz) = 815df1e34f9c5c04165a50e67d7606b9
+MD5 (pigsty-pkg-v2.0.0-b5.el8.x86_64.tgz) = 1466ed080a049d9b752b0582aa627ee5
+MD5 (pigsty-pkg-v2.0.0-b5.el9.x86_64.tgz) = c06f0e13dbcbf761154dc844fbb93367
+```
 
 
 ------------------------
