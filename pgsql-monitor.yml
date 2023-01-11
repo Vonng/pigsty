@@ -6,7 +6,6 @@
 # Mtime     :   2023-01-11
 # Desc      :   add remote pgsql instance to pigsty monitor
 # Path      :   pgsql-monitor.yml
-# Deps      :   files/pg_exporter.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
@@ -31,14 +30,9 @@
 #       10.10.10.10:    # k,v format, where k is distinct local port that is not used,
 #         pg_exporters: # list all remote instances here, alloc a unique unused local port as k
 #           20001: { pg_cluster: pg-foo, pg_seq: 1, pg_host: 10.10.10.10 }
-#           20004: { pg_cluster: pg-foo, pg_seq: 2, pg_host: 10.10.10.11 }
-#           20002: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.12 }
-#           20003: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.13 }
+#           20002: { pg_cluster: pg-foo, pg_seq: 2, pg_host: 10.10.10.11 }
 #
-#  ./pgsql-monitor                       # init all remote exporter
-#  ./pgsql-monitor -e clsname=pg-foo     # init one cluster 'pg-foo' only
-#
-#  bin/pgsql-rds <clsname>               # alias scripts for remote database surveillance
+#  bin/pgmon-add <clsname>   # which is: ./pgsql-monitor -e clsname=pg-foo
 #
 #     ------ infra ------
 #     |                 |
@@ -75,7 +69,7 @@
 #
 #    pg_exporters:
 #      20001: { pg_cluster: pg-foo, pg_seq: 1, pg_host: 10.10.10.10 , pg_monitor_username: monitor, pg_monitor_username: password}
-#      20004: { pg_cluster: pg-foo, pg_seq: 2, pg_host: 10.10.10.11 , pg_exporter_url: 'postgres://dbuser_monitor:DBUser.Monitor@:5432/postgres?sslmode=disable' }
+#      20002: { pg_cluster: pg-foo, pg_seq: 2, pg_host: 10.10.10.11 , pg_exporter_url: 'postgres://dbuser_monitor:DBUser.Monitor@:5432/postgres?sslmode=disable' }
 #
 # Limitation:
 #    postgres metrics only

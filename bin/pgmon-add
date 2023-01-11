@@ -1,12 +1,12 @@
 #!/bin/bash
 set -uo pipefail
 #==============================================================#
-# File      :   pgsql-rds
+# File      :   pgmon-add
 # Desc      :   Add remote database to surveillance
 # Ctime     :   2023-01-11
 # Mtime     :   2023-01-11
-# Path      :   bin/pgsql-rds
-# Deps      :   ansible-playbook, pgsql.yml
+# Path      :   bin/pgmon-add
+# Deps      :   ansible-playbook, pgsql-monitor.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
@@ -18,8 +18,8 @@ PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
 #--------------------------------------------------------------#
 # Usage
 #--------------------------------------------------------------#
-# bin/pgsql-rds <cls>          # monitor one remote pgsql cluster 'cls'
-# bin/pgsql-rds <cls>...       # monitor multiple pgsql clusters
+# bin/pgmon-add <cls>          # monitor one remote pgsql cluster 'cls'
+# bin/pgmon-add <cls>...       # monitor multiple pgsql clusters
 
 
 #--------------------------------------------------------------#
@@ -42,6 +42,11 @@ function is_valid_ip(){
     fi
 }
 
+if (($# < 1)); then
+    log_error "missing arguments: cluster name of remote postgres cluster"
+    log_hint "bin/pgmon-add <cls>..."
+    exit 1
+fi
 
 #--------------------------------------------------------------#
 # Execute
@@ -66,7 +71,5 @@ do
     fi
     log_line "SUMMARY"
     log_info "monitor remote pgsql cluster ${!i} complete!"
-    exit 0
-
 done
 exit 0

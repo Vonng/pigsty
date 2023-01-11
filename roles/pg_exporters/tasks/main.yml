@@ -1,36 +1,4 @@
 ---
-#--------------------------------------------------------------#
-# Usage
-#--------------------------------------------------------------#
-# Monitoring remote Postgres instances with local pg_exporter
-#
-#remote:
-#  hosts:          # a group contains any nodes that have prometheus enabled (infra nodes)
-#  10.10.10.10:    # k,v format, where k is distinct local port that is not used,
-#    pg_exporters: # list all remote instances here, alloc a unique unused local port as k
-#      20001: { pg_cluster: pg-foo, pg_seq: 1, pg_host: 10.10.10.10 }
-#      20004: { pg_cluster: pg-foo, pg_seq: 2, pg_host: 10.10.10.11 }
-#      20002: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.12 }
-#      20003: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.13 }
-#
-#     ------ infra ------
-#     |                 |
-#     |   prometheus    |            v---- pg-foo-1 ----v
-#     |       ^         |  metrics   |         ^        |
-#     |   pg_exporter <-|------------|----  postgres    |
-#     |   (port: 20001) |            | 10.10.10.10:5432 |
-#     |       ^         |            ^------------------^
-#     |       ^         |                      ^
-#     |       ^         |            v---- pg-foo-2 ----v
-#     |       ^         |  metrics   |         ^        |
-#     |   pg_exporter <-|------------|----  postgres    |
-#     |   (port: 20002) |            | 10.10.10.11:5433 |
-#     -------------------            ^------------------^
-#
-# Limitation:
-#    postgres metrics only
-#    node, pgbouncer, patroni, haproxy metrics not available
-#--------------------------------------------------------------#
 - include_tasks: pg_exporter.yml
   tags: [ pg_exporters ]
   when: pg_exporters is defined and pg_exporters|type_debug == "dict" and (clsname == '' or (clsname != '' and clsname == item.value.pg_cluster))
@@ -54,22 +22,23 @@
   with_dict: "{{ pg_exporters }}"
 
 
-# prometheus are idempotent on multiple meta nodes
-# /etc/prometheus/targets/pgsql/{{ pg_instance }}.yml
+# for each cluster defined in pg_exporters
 - name: register pgsql exporter as prometheus target
   tags: [ pg_exporters, pg_register, register_prometheus ]
+  with_items: '{{ pg_exporters | json_query("[@.*][0]|[*].pg_cluster") | unique | sort }}'
+  when: pg_exporters is defined and pg_exporters|type_debug == "dict" and (clsname == '' or (clsname != '' and clsname == item ))
   copy:
-    dest: /etc/prometheus/targets/pgsql/pg-remote.yml
+    dest: /etc/prometheus/targets/pgsql/{{ item }}.yml
     content: |
       # remote postgres instances
       
-      {% set exporter_list = pg_exporters.items()|sort(attribute='1.pg_cluster') %}
-
-      {% for port, conf in exporter_list %}
+      {% for port, conf in pg_exporters.items() %}
+      {% if conf.pg_cluster == item %}
       # {{ conf.pg_cluster }}-{{ conf.pg_seq }} @ {{ conf.pg_host }}:{{ conf.pg_port|default(pg_port)|default(5432) }}
       - labels: { cls: {{ conf.pg_cluster }}, ins: {{ conf.pg_cluster }}-{{ conf.pg_seq }}, ip: {{ conf.pg_host }} }
         targets: [ {{ inventory_hostname }}:{{ port }} ]
-
+      
+      {% endif %}
       {% endfor %}
 
 ...
