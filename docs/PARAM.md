@@ -4988,6 +4988,10 @@ redis mode: standalone,cluster,sentinel
 
 default values: `standalone`
 
+* `standalone`: setup redis as standalone (master-slave) mode
+* `cluster`: setup this redis cluster as a redis native cluster
+* `sentinel`: setup redis as sentinel for standalone redis HA 
+
 
 
 

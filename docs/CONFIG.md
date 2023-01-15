@@ -64,46 +64,44 @@ For examples:
 * If no `pg_version` is set, it will use the default value from role implementation
 
 
+## Reference
 
-## Category
+Pigsty have 260+ parameters, check [Parameter](PARAM) for details.
 
-Pigsty contains 260+ parameters divided by modules 
-[INFRA](INFRA), [NODE](NODE), [PGSQL](PGSQL), and [REDIS](REDIS) and 32 sub sections.
+|         Module         | Section                                    | Description                       | Count |
+|:----------------------:|--------------------------------------------|-----------------------------------|-------|
+| [`INFRA`](PARAM#infra) | [`META`](PARAM#meta)                       | Pigsty Metadata                   | 4     |
+| [`INFRA`](PARAM#infra) | [`CA`](PARAM#ca)                           | Self-Signed CA                    | 3     |
+| [`INFRA`](PARAM#infra) | [`INFRA_ID`](PARAM#infra_id)               | Infra Portals & Identity          | 2     |
+| [`INFRA`](PARAM#infra) | [`REPO`](PARAM#repo)                       | Local Yum Repo                    | 8     |
+| [`INFRA`](PARAM#infra) | [`INFRA_PACKAGE`](PARAM#infra_package)     | Infra Packages                    | 2     |
+| [`INFRA`](PARAM#infra) | [`NGINX`](PARAM#nginx)                     | Nginx Web Server                  | 6     |
+| [`INFRA`](PARAM#infra) | [`DNS`](PARAM#dns)                         | DNSMASQ Nameserver                | 3     |
+| [`INFRA`](PARAM#infra) | [`PROMETHEUS`](PARAM#prometheus)           | Prometheus Stack                  | 16    |
+| [`INFRA`](PARAM#infra) | [`GRAFANA`](PARAM#grafana)                 | Grafana Stack                     | 6     |
+| [`INFRA`](PARAM#infra) | [`LOKI`](PARAM#loki)                       | Loki Logging Service              | 4     |
+|  [`NODE`](PARAM#node)  | [`NODE_ID`](PARAM#node_id)                 | Node Identity Parameters          | 5     |
+|  [`NODE`](PARAM#node)  | [`NODE_DNS`](PARAM#node_dns)               | Node domain names & resolver      | 5     |
+|  [`NODE`](PARAM#node)  | [`NODE_PACKAGE`](PARAM#node_package)       | Node Repo & Packages              | 5     |
+|  [`NODE`](PARAM#node)  | [`NODE_TUNE`](PARAM#node_tune)             | Node Tuning & Kernel features     | 10    |
+|  [`NODE`](PARAM#node)  | [`NODE_ADMIN`](PARAM#node_admin)           | Admin User & Credentials          | 7     |
+|  [`NODE`](PARAM#node)  | [`NODE_TIME`](PARAM#node_time)             | Node Timezone, NTP, Crontabs      | 5     |
+|  [`NODE`](PARAM#node)  | [`HAPROXY`](PARAM#haproxy)                 | HAProxy the load balancer         | 10    |
+|  [`NODE`](PARAM#node)  | [`DOCKER`](PARAM#docker)                   | Node Docker Daemon                | 4     |
+|  [`NODE`](PARAM#node)  | [`NODE_EXPORTER`](PARAM#node_exporter)     | Node Monitoring Agent             | 3     |
+|  [`NODE`](PARAM#node)  | [`PROMTAIL`](PARAM#promtail)               | Promtail logging Agent            | 4     |
+|  [`ETCD`](PARAM#etcd)  | [`ETCD`](PARAM#etcd)                       | ETCD DCS Cluster                  | 10    |
+| [`MINIO`](PARAM#minio) | [`MINIO`](PARAM#minio)                     | MINIO S3 Object Storage           | 15    |
+| [`PGSQL`](PARAM#pgsql) | [`PG_ID`](PARAM#pg_id)                     | PG Identity Parameters            | 11    |
+| [`PGSQL`](PARAM#pgsql) | [`PG_BUSINESS`](PARAM#pg_business)         | PG Business Object Definition     | 11    |
+| [`PGSQL`](PARAM#pgsql) | [`PG_INSTALL`](PARAM#pg_install)           | Install PG Packages & Extensions  | 10    |
+| [`PGSQL`](PARAM#pgsql) | [`PG_BOOTSTRAP`](PARAM#pg_bootstrap)       | Init HA PG Cluster with Patroni   | 38    |
+| [`PGSQL`](PARAM#pgsql) | [`PG_PROVISION`](PARAM#pg_provision)       | Create in-database objects        | 11    |
+| [`PGSQL`](PARAM#pgsql) | [`PG_BACKUP`](PARAM#pg_backup)             | Setup Backup Repo with pgBackRest | 5     |
+| [`PGSQL`](PARAM#pgsql) | [`PG_VIP`](PARAM#pg_vip)                   | Bind an optional VIP address      | 3     |
+| [`PGSQL`](PARAM#pgsql) | [`PG_DNS`](PARAM#pg_dns)                   | Register PG DNS Records to Infra  | 2     |
+| [`PGSQL`](PARAM#pgsql) | [`PG_EXPORTER`](PARAM#pg_exporter)         | PG Monitor agent for Prometheus   | 15    |
+| [`REDIS`](PARAM#redis) | [`REDIS_ID`](PARAM#redis_id)               | Redis Identity Parameters         | 3     |
+| [`REDIS`](PARAM#redis) | [`REDIS_NODE`](PARAM#redis_ndoe)           | Redis Node & Exporters            | 4     |
+| [`REDIS`](PARAM#redis) | [`REDIS_PROVISION`](PARAM#redis_provision) | Config & Launch Redis Instances   | 13    |
 
-
-| Category          | Section                                       | Description                        | Count |
-|-------------------|-----------------------------------------------|------------------------------------|:-----:|
-| [`INFRA`](#infra) | [`META`](#META)                               | Metadata                           |   4   |
-| [`INFRA`](#infra) | [`REPO`](#REPO)                               | Local source infra                 |   7   |
-| [`INFRA`](#infra) | [`CA`](#CA)                                   | Public-Private Key Infra           |   5   |
-| [`INFRA`](#infra) | [`NGINX`](#NGINX)                             | Nginx Web Server                   |   5   |
-| [`INFRA`](#infra) | [`NAMESERVER`](#NAMESERVER)                   | DNS Server                         |   2   |
-| [`INFRA`](#infra) | [`PROMETHEUS`](#PROMETHEUS)                   | Monitoring Time Series Database    |   8   |
-| [`INFRA`](#infra) | [`EXPORTER`](#EXPORTER)                       | Universal Exporter Config          |   3   |
-| [`INFRA`](#infra) | [`GRAFANA`](#GRAFANA)                         | Grafana Visualization Platform     |   9   |
-| [`INFRA`](#infra) | [`LOKI`](#LOKI)                               | Loki log collection platform       |   6   |
-| [`INFRA`](#infra) | [`DCS`](#DCS)                                 | Distributed Config Storage Meta DB |   7   |
-| [`NODES`](#nodes) | [`NODE_IDENTITY`](#NODE_IDENTITY)             | Node identity parameters           |   5   |
-| [`NODES`](#nodes) | [`NODE_DNS`](#NODE_DNS)                       | Node Domain Name Resolution        |   5   |
-| [`NODES`](#nodes) | [`NODE_REPO`](#NODE_REPO)                     | Node Upstream Repo                 |   3   |
-| [`NODES`](#nodes) | [`NODE_PACKAGE`](#NODE_PACKAGE)               | Node Packages                      |   4   |
-| [`NODES`](#nodes) | [`NODE_KERNEL_MODULES`](#NODE_KERNEL_MODULES) | Node Kernel Module                 |   1   |
-| [`NODES`](#nodes) | [`NODE_TUNE`](#NODE_TUNE)                     | Node parameter tuning              |   9   |
-| [`NODES`](#nodes) | [`NODE_ADMIN`](#NODE_ADMIN)                   | Node Admin User                    |   7   |
-| [`NODES`](#nodes) | [`NODE_TIME`](#NODE_TIME)                     | Node time zone and time sync       |   6   |
-| [`NODES`](#nodes) | [`DOCKER`](#DOCKER)                           | Docker daemon on node              |   4   |
-| [`NODES`](#nodes) | [`NODE_EXPORTER`](#NODE_EXPORTER)             | Node Indicator Exposer             |   3   |
-| [`NODES`](#nodes) | [`PROMTAIL`](#PROMTAIL)                       | Log collection component           |   5   |
-| [`PGSQL`](#pgsql) | [`PG_IDENTITY`](#PG_IDENTITY)                 | PGSQL Identity Parameters          |  11   |
-| [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#PG_BUSINESS)                 | PGSQL Business Object Definition   |  11   |
-| [`PGSQL`](#pgsql) | [`PG_INSTALL`](#PG_INSTALL)                   | PGSQL Installation                 |  10   |
-| [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)               | PGSQL Cluster Initialization       |  38   |
-| [`PGSQL`](#pgsql) | [`PG_PROVISION`](#PG_PROVISION)               | PGSQL Cluster Provisioning         |   9   |
-| [`PGSQL`](#pgsql) | [`PG_BACKUP`](#PG_BACKUP)                     | PGSQL Backup Configuration         |   4   |
-| [`PGSQL`](#pgsql) | [`PG_EXPORTER`](#PG_EXPORTER)                 | PGSQL Indicator Exposer            |  13   |
-| [`PGSQL`](#pgsql) | [`PG_SERVICE`](#PG_SERVICE)                   | PGSQL Service Access               |  16   |
-| [`REDIS`](#redis) | [`REDIS_IDENTITY`](#REDIS_IDENTITY)           | REDIS Identity Parameters          |   3   |
-| [`REDIS`](#redis) | [`REDIS_PROVISION`](#REDIS_PROVISION)         | REDIS Cluster Provisioning         |  14   |
-| [`REDIS`](#redis) | [`REDIS_EXPORTER`](#REDIS_EXPORTER)           | REDIS Indicator Exposer            |   3   |
-
-Check [parameter](PARAM) for detailed usage.
