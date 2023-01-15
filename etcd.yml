@@ -9,11 +9,17 @@
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-
+- name: ETCD INIT
+  hosts: etcd
+  gather_facts: no
+  become: yes
+  roles: [{ role: etcd }]
 
 #---------------------------------------------------------------
-# ETCD CLUSTER EXAMPLE
+# Usage
 #---------------------------------------------------------------
+# 1. make sure etcd is defined
+#
 # etcd:
 #   hosts:
 #     10.10.10.10: { etcd_seq: 1 }
@@ -21,15 +27,23 @@
 #     10.10.10.12: { etcd_seq: 3 }
 #   vars:
 #     etcd_cluster: etcd
+#
+# 2. Run playbook: ./etcd.yml -l etcd
+#
 #---------------------------------------------------------------
-# ./etcd.yml         # run on pre-define group 'etcd' by default
+# Tasks
 #---------------------------------------------------------------
-# deploy etcd on ansible group etcd
-- name: ETCD INIT
-  hosts: etcd
-  gather_facts: no
-  become: yes
-  roles: [{ role: etcd }]
-
-
+# etcd_assert     : generate minio identity
+# etcd_install    : install etcd rpm packages
+# etcd_clean      : cleanup existing etcd
+#   - etcd_check  : check etcd instance is running
+#   - etcd_purge  : remove running etcd instance & data
+# etcd_dir        : create etcd data & conf dir
+# minio_dir       : create etcd directories
+# etcd_config     : generate etcd config
+#   - etcd_conf   : generate etcd main config
+#   - etcd_cert   : generate etcd ssl cert
+# etcd_launch     : launch etcd service
+# etcd_register   : register etcd to prometheus
+#---------------------------------------------------------------
 ...
