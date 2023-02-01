@@ -6,12 +6,14 @@
 
 * [Concept](PGSQL-CONCEPT.md)
 * [High Availability](PGSQL-HA.md)
+* [Administration](PGSQL-ADMIN.md)
 * [Databases](PGSQL-DB.md)
 * [Users](PGSQL-USER.md#users) & [Roles](PGSQL-USER.md#roles)
 * [Service](PGSQL-SVC.md#services) & [Access](PGSQL-SVC.md#access)
 * [Privileges](PGSQL-ACL.md#privilege) & [HBA Rules](PGSQL-ACL.md#hba)
 * [Backup](PGSQL-PITR.md#backup) & [PITR](PGSQL-PITR.md#pitr)
 * [Monitor](PGSQL-MONITOR.md) & [Migration](PGSQL-MIGRATION.md) Existing Postgres
+
 
 ![pigsty-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)
 
@@ -21,6 +23,30 @@
 ## Configuration
 
 ## Playbooks
+
+
+| Playbook                                                                           | Function                                                                            |
+|------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [install](https://github.com/vonng/pigsty/blob/master/install.yml)                 | Install Pigsty on current node in one-pass                                          |
+| [infra](https://github.com/vonng/pigsty/blob/master/infra.yml)                     | **Install pigsty infrastructure on meta nodes**                                     |
+| [infra-rm](https://github.com/vonng/pigsty/blob/master/infra-remove.yml)           | Remove infrastructure components from meta nodes                                    |
+| [node](https://github.com/vonng/pigsty/blob/master/node.yml)                       | **Node provisioning to include nodes in Pigsty for subsequent database deployment** |
+| [node-rm](https://github.com/vonng/pigsty/blob/master/node-remove.yml)             | Node remove, unloading node DCS and monitoring, no longer included in Pigsty        |
+| [pgsql](https://github.com/vonng/pigsty/blob/master/pgsql.yml)                     | **PostgreSQL cluster deploy, or expand**                                            |
+| [pgsql-rm](https://github.com/vonng/pigsty/blob/master/pgsql-remove.yml)           | PostgreSQL cluster destruction, or downsize                                         |
+| [pgsql-user](https://github.com/vonng/pigsty/blob/master/pgsql-createuser.yml)     | Creating PostgreSQL business users                                                  |
+| [pgsql-db](https://github.com/vonng/pigsty/blob/master/pgsql-createdb.yml)         | Creating a PostgreSQL Business Database                                             |
+| [pgsql-monitor](https://github.com/vonng/pigsty/blob/master/pgsql-monly.yml)       | Monly mode, with access to existing PostgreSQL instances or RDS                     |
+| [pgsql-migration](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml) | Generate PostgreSQL semi-automatic database migration solution (Beta)               |
+| [redis](https://github.com/vonng/pigsty/blob/master/redis.yml)                     | **Deploy a Redis database in cluster/standalone/Sentinel mode**                     |
+| [redis-rm](https://github.com/vonng/pigsty/blob/master/redis-remove.yml)           | Redis cluster/node destruction                                                      |
+
+
+| [infra-jupyter](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml)    | Adding the **optional** data analysis service component Jupyter Lab to the meta node | https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml    |
+
+## Administration
+
+
 
 ## Parameters
 

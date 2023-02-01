@@ -1,131 +1,140 @@
-> Pigsty consists of several [modules](#Module) that can be combined according to different scenarios.
+# Playbook
 
+> Pigsty use ansible playbook to install modules on nodes.
 
-Pigsty implements core control functions at the bottom through the [Ansible Playbook](#ansible-quick-start), and Pigsty provides pre-built playbooks in four main categories:
+Playbooks are used in Pigsty to install [modules](ARCH#modules) on nodes.
+To run playbooks, just treat them as executables, e.g. run with `./install.yml`.
 
-* [`infra`](/en/docs/infra/playbook): Use the `infra` series of playbooks to install Pigsty singleton on the meta node with optional features.
-* [`nodes`](/en/docs/nodes/playbook): Use the `nodes` series of playbooks to include more nodes in Pigsty monitoring and management and for subsequent use.
-* [`pgsql`](/en/docs/pgsql/playbook): Use the `pgsql` series of playbooks to deploy and manage PostgreSQL database clusters on existing nodes.
-* [`redis`](/en/docs/redis/playbook): Use the `redis` series of playbooks to deploy and manage various modes of Redis clusters on existing nodes.
+Here are default playbooks included in Pigsty.
 
-## Overview
+| Playbook                                                                                 | Function                                                    |
+|------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+| [`install.yml`](https://github.com/vonng/pigsty/blob/master/install.yml)                 | Install Pigsty on current node in one-pass                  |
+| [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infra.yml)                     | Init pigsty infrastructure on infra nodes                   |
+| [`infra-rm.yml`](https://github.com/vonng/pigsty/blob/master/infra-rm.yml)               | Remove infrastructure components from infra nodes           |
+| [`node.yml`](https://github.com/vonng/pigsty/blob/master/node.yml)                       | Init node for pigsty, tune node into desired status         |
+| [`node-rm.yml`](https://github.com/vonng/pigsty/blob/master/node-rm.yml)                 | Remove node from pigsty                                     |
+| [`pgsql.yml`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)                     | Init HA PostgreSQL clusters, or adding new replicas         |
+| [`pgsql-rm.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-rm.yml)               | Remove PostgreSQL cluster, or remove replicas               |
+| [`pgsql-user.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-user.yml)           | Add new business user to existing PostgreSQL cluster        |
+| [`pgsql-db.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-db.yml)               | Add new business database to existing PostgreSQL cluster    |
+| [`pgsql-monitor.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-monitor.yml)     | Monitor remote postgres instance with local exporters       |
+| [`pgsql-migration.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml) | Generate Migration manual & scripts for existing PostgreSQL |
+| [`redis.yml`](https://github.com/vonng/pigsty/blob/master/redis.yml)                     | Init redis cluster/node/instance                            |
+| [`redis-rm.yml`](https://github.com/vonng/pigsty/blob/master/redis-rm.yml)               | Remove redis cluster/node/instance                          |
+| [`etcd.yml`](https://github.com/vonng/pigsty/blob/master/etcd.yml)                       | Init etcd cluster (required for patroni HA DCS)             |
+| [`minio.yml`](https://github.com/vonng/pigsty/blob/master/minio.yml)                     | Init minio cluster (optional for pgbackrest repo)           |
 
-| Playbook                                                       | Function                                                                             | Link                                                                      |
-|----------------------------------------------------------------|--------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
-| [**infra**](/en/docs/infra/playbook#infra)                     | **Full installation of Pigsty on the meta node**                                     | [`src`](https://github.com/vonng/pigsty/blob/master/infra.yml)            |
-| [`infra-demo`](/en/docs/infra/playbook#infra-demo)             | Special playbook for complete initialization of a four-node demo sandbox in one go   | [`src`](https://github.com/vonng/pigsty/blob/master/infra-demo.yml)       |
-| [`infra-jupyter`](/en/docs/infra/playbook#infra-jupyter)       | Adding the **optional** data analysis service component Jupyter Lab to the meta node | [`src`](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml)    |
-| [**nodes**](/en/docs/nodes/playbook#nodes)                     | **Node provisioning to include nodes in Pigsty for subsequent database deployment**  | [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml)            |
-| [`nodes-remove`](/en/docs/nodes/playbook#nodes-remove)         | Node remove, unloading node DCS and monitoring, no longer included in Pigsty         | [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml)     |
-| [**pgsql**](/en/docs/pgsql/playbook#pgsql)                     | **PostgreSQL cluster deploy, or expand**                                             | [`src`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)            |
-| [`pgsql-rm`](/en/docs/pgsql/playbook#pgsql-rm)         | PostgreSQL cluster destruction, or downsize                                          | [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-rm.yml)     |
-| [`pgsql-user`](/en/docs/pgsql/playbook#pgsql-user) | Creating PostgreSQL business users                                                   | [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-user.yml) |
-| [`pgsql-db`](/en/docs/pgsql/playbook#pgsql-db)     | Creating a PostgreSQL Business Database                                              | [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-db.yml)   |
-| [`pgsql-monly`](/en/docs/pgsql/playbook#pgsql-monly)           | Monly mode, with access to existing PostgreSQL instances or RDS                      | [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-monly.yml)      |
-| [`pgsql-migration`](/en/docs/pgsql/playbook#pgsql-migration)   | Generate PostgreSQL semi-automatic database migration solution (Beta)                | [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml)  |
-| [`pgsql-matrix`](/en/docs/pgsql/playbook#pgsql-matrix)         | Reuse the PG role to deploy a MatrixDB data warehouse clusters (Beta)                | [`src`](https://github.com/vonng/pigsty/blob/master/pigsty-matrixdb.yml)  |
-| [**redis**](/en/docs/redis/playbook#redis)                     | **Deploy a Redis database in cluster/standalone/Sentinel mode**                      | [`src`](https://github.com/vonng/pigsty/blob/master/redis.yml)            |
-| [`redis-rm`](/en/docs/redis/playbook#redis-rm)         | Redis cluster/node destruction                                                       | [`src`](https://github.com/vonng/pigsty/blob/master/redis-rm.yml)     |
-
-The typical use process is as follows：
-
-1. Use the `infra` series of playbooks to install Pigsty on the meta node/local machine and deploy the infra.
-
-   All playbooks initiate execution on the meta node, and the `infra` series of playbooks only works on the meta node.
-
-2. Use the [`nodes`](/en/docs/nodes/playbook) series of playbooks to include or remove other nodes from Pigsty.
-
-   After a node is managed, node monitoring and logging can be accessed from the meta node Grafana, and the node joins the Consul cluster.
-
-3. Use the [`pgsql`](/en/docs/pgsql/playbook) series of playbooks to deploy a PostgreSQL cluster on managed nodes.
-
-   After deployment on the managed node, you can access PostgreSQL monitoring and logs from the meta node.
-
-4. Use the [`redis`](/en/docs/redis/playbook) series of playbooks to deploy a Redis cluster on managed nodes.
-
-   After deployment on the managed node, Redis monitoring and logs can be accessed from the meta node.
+The special playbook `install.yml` is actually a composed playbook that install everything on current environment.
 
 ```
-                                           meta     node
-[infra.yml]  ./infra.yml [-l meta]        +pigsty 
-[nodes.yml]  ./nodes.yml -l pg-test                 +consul +monitor
-[pgsql.yml]  ./pgsql.yml -l pg-test                 +pgsql
-[redis.yml]  ./redis.yml -l pg-test                 +redis
+  playbook  / command / group         infra       etcd      minio   nodes  pgsql
+[infra.yml] ./infra.yml [-l infra]   +infra/node 
+[node.yml]  ./node.yml                                       +node
+[etcd.yml]  ./etcd.yml -l etcd                    etcd
+[minio.yml] ./minio.yml -l minio                           +minio
+[pgsql.yml] ./pgsql.yml                                            +pgsql
 ```
+
+Note that there's a circular dependency between [`NODE`](NODE) and [`INFRA`](INFRA):
+to register a NODE to INFRA, the INFRA should already exist, while the INFRA module relies on NODE to work.
+
+The solution is that `INFRA` playbook will also install [`NODE`](NODE) module in addition to [`INFRA`](INFRA) on infra nodes.
+Make sure that infra nodes are init first.  
+
+
+
+
+## Ansible
+
+Playbooks require `ansible-playbook` executable to run, which is included in `ansible` package.
+
+Pigsty will install ansible on admin node during [bootstrap](INSTALL.md#bootstrap).
+
+You can install it by yourself with `yum install ansible` or `brew install ansible`, it is included in default OS repo.
+
+Knowledge about ansible is good but not required. Only three parameters needs attention:
+
+* `-l|--limit <pattern>` : Limit execution target on specific group/host/pattern (Where)
+* `-t|--tags <tags>`: Only run tasks with specific tags (What)     
+* `-e|--extra-vars <vars>`: Extra command line arguments (How) 
+
+
+### Limit Host
+
+The target of playbook can be limited with `-l|-limit <selector>`.
+
+Missing this value could be dangerous since most playbooks will execute on `all` host, DO USE WITH CAUTION.
+
+Here are some examples of host limit:
+
+```bash
+./pgsql.yml                 # run on all hosts (very dangerous!)
+./pgsql.yml -l pg-test      # run on pg-test cluster
+./pgsql.yml -l 10.10.10.10  # run on single host 10.10.10.10
+./pgsql.yml -l pg-*         # run on host/group matching glob pattern `pg-*`
+./pgsql.yml -l '10.10.10.11,&pg-test'     # run on 10.10.10.10 of group pg-test
+/pgsql-rm.yml -l 'pg-test,!10.10.10.11'   # run on pg-test, except 10.10.10.11
+./pgsql.yml -l pg-test      # Execute the pgsql playbook against the hosts in the pg-test cluster
+```
+
+
+### Limit Tags
+
+You can execute a subset of playbook with `-t|--tags <tags>`.
+
+You can specify multiple tags in comma separated list, e.g. `-t tag1,tag2`.
+
+If specified, tasks with given tags will be executed instead of entire playbook.
+
+Here are some examples of task limit:
+
+```bash
+./pgsql.yml -t pg_clean    # cleanup existing postgres if necessary
+./pgsql.yml -t pg_dbsu     # setup os user sudo for postgres dbsu
+./pgsql.yml -t pg_install  # install postgres packages & extensions
+./pgsql.yml -t pg_dir      # create postgres directories and setup fhs
+./pgsql.yml -t pg_util     # copy utils scripts, setup alias and env
+./pgsql.yml -t patroni     # bootstrap postgres with patroni
+./pgsql.yml -t pg_user     # provision postgres business users
+./pgsql.yml -t pg_db       # provision postgres business databases
+./pgsql.yml -t pg_backup   # init pgbackrest repo & basebackup
+./pgsql.yml -t pgbouncer   # deploy a pgbouncer sidecar with postgres
+./pgsql.yml -t pg_vip      # bind vip to pgsql primary with vip-manager
+./pgsql.yml -t pg_dns      # register dns name to infra dnsmasq
+./pgsql.yml -t pg_service  # expose pgsql service with haproxy
+./pgsql.yml -t pg_exporter # expose pgsql service with haproxy
+./pgsql.yml -t pg_register # register postgres to pigsty infrastructure
+
+# run multiple tasks: reload postgres & pgbouncer hba rules
+./pgsql.yml -t pg_hba,pgbouncer_hba,pgbouncer_reload
+
+# run multiple tasks: refresh haproxy config & reload it
+./node.yml -t haproxy_config,haproxy_reload
+```
+
+
+
+### Extra Vars
+
+Extra command-line args can be passing via `-e|-extra-vars KEY=VALUE`.
+
+It has the highest precedence over all other definition.
+
+Here are some examples of extra vars
+
+```bash
+./node.yml -e ansible_user=admin -k -K   # run playbook as another user (with admin sudo password)
+./pgsql.yml -e pg_clean=true             # force purging existing postgres when init a pgsql instance
+./pgsql-rm.yml -e pg_uninstall=true      # explicitly uninstall rpm after postgres instance is removed
+./redis.yml -l 10.10.10.11 -e redis_port=6501 -t redis  # init a specific redis instance: 10.10.10.11:6501
+./redis-rm.yml -l 10.10.10.13 -e redis_port=6501        # remove a specific redis instance: 10.10.10.11:6501
+```
+
+
 
 
 
 Most playbooks are idempotent, meaning that some deployment playbooks may erase existing databases and create new ones without the protection option turned on.
 
 Please read the documentation carefully, proofread the commands several times, and operate with caution. The author is not responsible for any loss of databases due to misuse.
-
-------------------
-
-
-
-## Ansible Quick Start
-
-The Pigsty playbooks are written in Ansible.
-
-* [Ansible Installation](#Installation): How to install Ansible? (Pigsty users usually don't have to worry about）
-* [Limit Host](#limit-host): How to execute a playbook for a limit host?
-* [Task Subset](#task-subset): How to perform certain specific tasks in the playbook？
-* [Extra Params](#extra-params): How to pass in extra command-line params to control playbook behavior？
-
-### Installation
-
-The Ansible playbook requires the `ansible-playbook` executable command, and Ansible can be installed on EL7-compatible systems with the following command.
-
-```bash
-yum install ansible
-```
-
-Pigsty will attempt to install ansible from the offline package when using offline packages during the Configure phase.
-
-There are three core params to focus on when executing the playbook：`-l|-t|-e`, which are used to restrict the host for execution, with the task to be performed and to pass in extra params, respectively.
-
-### Limit Host
-
-The target of execution can be selected with the `-l|-limit <selector>` param. When this param is not specified, most playbooks default to all hosts defined in the configuration file as the target of execution.
-It is highly recommended to specify the execution object when executing the playbook.
-
-There are two types of objects commonly used, clusters and hosts.
-
-```bash
-./pgsql.yml                 # Execute the pgsql playbook on all inventory hosts(this is dangerous!)
-./pgsql.yml -l pg-test      # Execute the pgsql playbook against the hosts in the pg-test cluster
-./pgsql.yml -l 10.10.10.10  # Execute the pgsql playbook against the host at 10.10.10.10
-./pgsql.yml -l pg-*         # Execute the playbook against a cluster that matches the pg-* pattern (glob)
-```
-
-
-### Task Subset
-
-You can select the task subset to be executed with `-t|--tags <tags>`. When this param is not specified, the full playbook will be executed, and the selected task subset will be executed when set.
-
-```bash
-./pgsql.yml -t pg_hba                            # Regenerate and apply cluster HBA rules
-```
-
-Users can separate each task by `,` and perform multiple tasks at once. For example, you can adjust the cluster LB configuration using the following command when the cluster role members change.
-
-```bash
-./pgsql.yml -t haproxy_config,haproxy_reload     # Regenerate the cluster LB configuration and apply
-```
-
-### Extra Params
-
-Extra command-line params can be passed in via `-e|-extra-vars KEY=VALUE` to override existing params or control some special behavior.
-
-For example, some of the behavior of the following playbooks can be controlled via command-line params.
-
-```bash
-./nodes.yml -e ansible_user=admin -k -K      # When configuring the node, use another admin user, and enter ssh with the sudo password
-./pgsql.yml -e pg_clean=clean        # Force erase existing running database instances when installing PG (dangerous)
-./infra-rm.yml -e rm_metadata=true       # Remove data when uninstalling Pigsty
-./infra-rm.yml -e rm_metadpkgs=true      # Uninstall the software when uninstalling Pigsty
-./nodes-rm.yml -e rm_dcs_server=true     # When removing a node, force removal even if there is a DCS server on it
-./pgsql-rm.yml -e rm_pgdata=true         # When removing PG, remove data together
-./pgsql-rm.yml -e rm_pgpkgs=true         # When removing the PG, uninstall the software as well
-```
-

@@ -4,14 +4,15 @@
 
 > <b>P</b>ostgreSQL <b>I</b>n <b>G</b>reat <b>STY</b>le</b>
 
+- Me-Better Open Source RDS PG Alternative!
+
 - Battery-Included PostgreSQL Distribution
 
-- Ultimate Observability with Modern Stack
+- Incredible Observability with Modern Stack
 
-- Battery-Included High Availability & PITR 
+- Self-Healing HA PG & Auto-Configured PITR 
 
-- Database as Code with Declarative Config 
+- Declarative Interface for Database as Code 
 
-- Free RDS Alternative!
 
 [Get Started!](#pigsty)
