@@ -1,6 +1,6 @@
 ![logo](icon.svg)
 
-# Pigsty <small>v2.0.0-b5</small>
+# Pigsty <small>v2.0.0-b6</small>
 
 > <b>P</b>ostgreSQL <b>I</b>n <b>G</b>reat <b>STY</b>le</b>
 

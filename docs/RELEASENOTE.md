@@ -2,7 +2,7 @@
 
 | Version               |    Time    | Description                                             | Release                                                                                   |
 |:----------------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.0.0-b5](#v200-b5) | 2023-01-11  | Compatibility Security Maintainability Enhancement      | [v2.0.0-b5](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b5)                       |
+| [v2.0.0-b6](#v200-b6) | 2023-01-11  | Compatibility Security Maintainability Enhancement      | [v2.0.0-b6](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b6)                       |
 | [v1.5.1](#v151)       | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
 | [v1.5.0](#v150)       | 2022-05-31 | Docker Applications                                     | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
 | [v1.4.1](#v141)       | 2022-04-20 | Bug fix & Full translation of English documents.        | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |
@@ -30,9 +30,9 @@
 
 ------------------------------
 
-## v2.0.0-b5
+## v2.0.0-b6
 
-v2.0.0 Beta5 Release
+v2.0.0 Beta6 Release
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty   
@@ -195,9 +195,9 @@ add 24 parameters, remove 8 parameters, rename 11 parameters
 **Checksums**
 
 ```
-MD5 (pigsty-pkg-v2.0.0-b5.el7.x86_64.tgz) = 815df1e34f9c5c04165a50e67d7606b9
-MD5 (pigsty-pkg-v2.0.0-b5.el8.x86_64.tgz) = 1466ed080a049d9b752b0582aa627ee5
-MD5 (pigsty-pkg-v2.0.0-b5.el9.x86_64.tgz) = c06f0e13dbcbf761154dc844fbb93367
+MD5 (pigsty-pkg-v2.0.0-b6.el7.x86_64.tgz) = 9340f06b6103154f9400b2e4811aab34
+MD5 (pigsty-pkg-v2.0.0-b6.el8.x86_64.tgz) = f0e69e9cb75851fa437e5090927b5b36
+MD5 (pigsty-pkg-v2.0.0-b6.el9.x86_64.tgz) = 51d6cce0c896d617afceb74ba3b4e4d3
 ```
 
 
