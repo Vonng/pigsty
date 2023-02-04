@@ -1,6 +1,6 @@
 # FAQ: Frequently Asked Questions
 
-> Here are some frequently asked questions. If you have some unlisted questions,  [Contact Us](community.md), or submit an [Issue](https://github.com/Vonng/pigsty/issues/new).
+> Here are some frequently asked questions. If you have any unlisted questions, please create an [Issue](https://github.com/Vonng/pigsty/issues/new).
 
 
 ---------------------------------
@@ -11,24 +11,22 @@
 * [Installation](#Installation)
 * [Sandbox](#Sandbox)
 * [Monitoring](#Monitoring)
-* [INFRA](#INFRA)
-* [NODES](#NODES)
-* [PGSQL](#PGSQL)
+* [INFRA](#infra)
+* [NODE](#node)
+* [PGSQL](#pgsql)
 
 
 ## Preparation
 
-> It would help if you ensured that the machine node hardware specifications and OS meet the installation requirements, see: [preparation](d-prepare.md).
+> It would help if you ensured that the machine node hardware specifications and OS meet the installation requirements
 
 
 
 ### Node Requirement
 
-!> At least **1Core/2GB** is required from [singleton meta](c-arch.md#singleton-deploy) installation. An **x86_64** Processor is needed. ARM is not supported yet.
+!> At least **1Core / 2GB** is required for [single node deployment](ARCH#singleton-meta). `x86_64` CPU is required, `arm` is not supported yet.   
 
-Pigsty installation requires at least one node: a minimum specification of 1 core and 2 GB.
-
-If you wish to deploy a self-managed HA PostgreSQL database cluster, it is recommended to use a minimum of 3 nodes with the exact specifications.
+It is recommended to use at least 3~4 nodes for a serious production deployment.
 
 
 
@@ -54,7 +52,7 @@ Pigsty plans to release a Minor Release every 1-3 months and a Major Release eve
 
 ### Sandbox provisioning
 
-!> Use Vagrant to pull up the [local sandbox](d-sandbox.md#local-sandbox) with one click, or use Terraform to create a [cloud sandbox](d-sandbox.md#cloud-sandbox) at public cloud vendors.
+!> Use Vagrant to pull up the [local sandbox](PROVISION#local-sandbox) with one click, or use Terraform to create a [cloud sandbox](PROVISION#cloud-sandbox) at public cloud vendors.
 
 Deploying Pigsty requires physical/VM nodes, and you can provide physical/VMs. However, Pigsty provides IaaS tier resource templates based on Vagrant and HashiCorp to get the VM resources needed to deploy Pigsty 4-node sandbox in one click.
 
@@ -74,58 +72,12 @@ make start   # Pull up a single meta node using Vagrant (4 nodes for start4)
 
 > The Pigsty source package is mandatory for installing Pigsty. The offline package is recommended. Please refer to the [software download](d-prepare.md#software-provisioning).
 
+
 ### Where to download Pigsty source code?
 
 !> `bash -c "$(curl -fsSL http://download.pigsty.cc/get)"`
 
 Executing the above command will automatically download the latest stable version of `pigsty.tgz` and extract it to the `~/pigsty` dir. You can also manually download a specific version of Pigsty [source code](d-prepare.md#Pigsty-source-code) from the following location. If you need to install it in an environment without Internet, you can download it in advance and upload it to the production server via scp/sftp, etc.
-
-
-
-```bash
-https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pigsty.tgz   # Github Release 
-http://download.pigsty.cc/v1.6.0-b2/pigsty.tgz                           # China CDN
-https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9                 # Baidu Yun
-```
-
-
-
-### Where to download other Pigsty packages?
-
-!> `./download pigsty pkg app matrix`
-
-A `download` script is provided inside the Pigsty source package for downloading Pigsty-related resources: Pigsty source package: `pigsty.tgz` / Offline software package: `pkg.tgz` / MatrixDB/Greenplum package: `matrix.tgz` / Some SaaS Mirroring and visualization application examples: `app.tgz`. The source package is mandatory, and the offline package `pkg.tgz` is recommended `. /download pkg` will automatically download and extract offline packages.
-
-```bash
-# download to /tmp/*.tgz
-./download pigsty.tgz   # download pigsty source tarball
-./download pkg.tgz      # download pigsty offline pkgs
-./download app.tgz      # download extra pigsty apps
-./download matrix.tgz   # download matrixdb packages
-# download and extract
-./download pigsty       # download and extract pigsty to ~/pigsty
-./download pkg          # download and extract pkg    to /www/pigsty
-./download app          # download and extract app    to ~/app
-./download matrix       # download and extract matrix to /www/matrix
-```
-
-
-
-
-
-### Where to download Pigsty offline software packages?
-
-!> `. /download pkg` or download it automatically when prompted during configuration.
-
-Pigsty's [offline package](d-prepare.md#Pigsty-offline-package) `pkg.tgz` packs the required software dependencies.
-
-In [`. /configure`](v-config.md#configure), if the offline package `/tmp/pkg.tgz` does not exist, the wizard will prompt the user to download it, "Y" will automatically download it from Github or CDN; "N ", the download will be skipped. You can also download the offline package manually from the following location and place it in `/tmp/pkg.tgz`. Then, it will be used automatically when installing.
-
-```bash
-curl https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pkg.tgz -o /tmp/pkg.tgz
-curl http://download.pigsty.cc/v1.6.0-b2/pkg.tgz -o /tmp/pkg.tgz         # China CDN
-https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9              # Baidu Yun
-```
 
 
 
@@ -292,17 +244,11 @@ ansible all -b -a 'yum remove -y nscd'
 
 The time within the VM may not be consistent with the host after the Virtualbox shutdown. You can try the following command: `make sync` to force NTP time sync.
 
-```bash
-sudo ntpdate -u pool.ntp.org
-make sync4 # Use NTP POOL
-make ss    # Synchronize with Aliyun NTP server
-```
-
 It can solve the problem of no data on the monitoring system after a long hibernation or shutdown and reboot. In addition, restarting the VM can also force a time reset without Internet access: `make dw4; make up4`.
 
 
 
-### Why not use containers to hold the database?
+### Why not using containers for database?
 
 !> Using Docker/Kubernetes to bloom databases is not mature.
 
@@ -322,7 +268,7 @@ Storage depends on the complexity of the user database (workload). For reference
 
 
 
-### Can you monitor existing PG instances?
+### Can Pigsty monitor existing PG instances?
 
 !> Pigsty does not commit to the quality of monitoring of external instances: PostgreSQL created by Pigsty performs significantly better than hand-crafted instances in most cases.
 
@@ -336,11 +282,13 @@ Suppose only the URL to access that database (e.g., RDS cloud database instance)
 
 ### How do we monitor existing PG instances?
 
-!> 
+!> Check [PGSQL Monitor](PGSQL-MONITOR) for details.
+
+
 
 ### Why can you still see the removed monitoring objects?
 
-!> Use [`pgsql-remove.yml`](p-pgsql.md#pgsql-remove) playbook to remove the monitor target.
+!> Use `pgmon-rm` to remove monitor target file from prometheus.
 
 
 
@@ -370,7 +318,7 @@ There is no correspondence between DCS Server and the meta node: by default, Pig
 
 
 
-## NODES
+## NODE
 
 
 -----------

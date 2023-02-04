@@ -11,16 +11,16 @@ PostgreSQL provides a standard access control mechanism: [Authentication](#Authe
 
 Pigsty's default role system contains four [default roles](#default-roles) and four [default users](#default-users)：
 
-| name             | attr                                                         | roles                                                   | desc                                                    |
-| ---------------- | ------------------------------------------------------------ | ------------------------------------------------------- | ------------------------------------------------------- |
-| dbrole_readonly  | Cannot login                                                 |                                                         | role for global readonly access                         |
-| dbrole_readwrite | Cannot login                                                 | dbrole_readonly                                         | role for global read-write access                       |
-| dbrole_offline   | Cannot login                                                 |                                                         | role for restricted read-only access (offline instance) |
-| dbrole_admin     | Cannot login<br /> Bypass RLS                                | pg_monitor<br />pg_signal_backend<br />dbrole_readwrite | role for object creation                                |
+| name             | attr                                                                       | roles                                                   | desc                                                    |
+|------------------|----------------------------------------------------------------------------|---------------------------------------------------------|---------------------------------------------------------|
+| dbrole_readonly  | Cannot login                                                               |                                                         | role for global readonly access                         |
+| dbrole_readwrite | Cannot login                                                               | dbrole_readonly                                         | role for global read-write access                       |
+| dbrole_offline   | Cannot login                                                               |                                                         | role for restricted read-only access (offline instance) |
+| dbrole_admin     | Cannot login<br /> Bypass RLS                                              | pg_monitor<br />pg_signal_backend<br />dbrole_readwrite | role for object creation                                |
 | postgres         | Superuser<br />Create role<br />Create DB<br />Replication<br />Bypass RLS |                                                         | system superuser                                        |
-| replicator       | Replication<br />Bypass RLS                                  | pg_monitor<br />dbrole_readonly                         | system replicator                                       |
-| dbuser_monitor   | 16 connections                                               | pg_monitor<br />dbrole_readonly                         | system monitor user                                     |
-| dbuser_dba     | Bypass RLS<br />Superuser                                    | dbrole_admin                                            | system admin user                                       |
+| replicator       | Replication<br />Bypass RLS                                                | pg_monitor<br />dbrole_readonly                         | system replicator                                       |
+| dbuser_monitor   | 16 connections                                                             | pg_monitor<br />dbrole_readonly                         | system monitor user                                     |
+| dbuser_dba       | Bypass RLS<br />Superuser                                                  | dbrole_admin                                            | system admin user                                       |
 
 
 ### Default Roles
