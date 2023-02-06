@@ -1,14 +1,19 @@
-# How to ?
+# How to...
 
-- monitoring an existing postgres instance ?
-- migration from an external postgres with logical replication?
-- fork an existing pgsql cluster?
-- create a delayed cluster of another pgsql cluster?
-- use minio as backup repo?
-- use dedicate etcd cluster?
-- use dedicate haproxy for pg_services 
-- deploy dedicate minio cluster?
-- use the `meta` postgres as cmdb inventory ?
-- use postgres as grafana backend storage ?
-- use postgres as prometheus backend storage ?
-- TBD
+- Monitoring an existing postgres instance?
+- Migration from an external PostgreSQL with logical replication?
+- Fork an existing PostgreSQL cluster
+- Create a standby cluster of an existing PostgreSQL cluster
+- Create a delayed cluster of another pgsql cluster?
+- Use MinIO as a central pgbackrest repo.
+- Use dedicate etcd cluster for DCS?
+- Use dedicated haproxy for exposing PostgreSQL Service
+- Deploy a multinode MinIO cluster?
+- Use CMDB instead of Config as inventory.
+- Use PostgreSQL as grafana backend storage ?
+- Use PostgreSQL as prometheus backend storage ?
+
+* ……
+
+
+

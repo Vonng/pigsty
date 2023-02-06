@@ -110,7 +110,7 @@ Pigsty also provides a toolset to help you manage your database and build data a
 
 **Pigsty is a free & open source software under AGPLv3. It was built for PostgreSQL with love.**
 
-Pigsty allows you to run production-grade RDS on **your** hardware without suffering from human resources. As a result, you can achieve the same or even better reliability & performance & maintainability with only 5% ~ 40% cost compared to Cloud RDS PG.
+Pigsty allows you to run production-grade RDS on **your** hardware without suffering from human resources. As a result, you can achieve the same or even better reliability & performance & maintainability with only 5% ~ 40% cost compared to Cloud RDS PG. You may have an RDS with a lower price even than ECS.
 
 There will be no vendor lock-in, annoying license fee, and node/CPU/core limit. You can have as many RDS as possible and run them as long as you want. All your data belongs to you and is under your control.
 

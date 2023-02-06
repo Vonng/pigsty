@@ -6,6 +6,9 @@
 
 ## Playbooks
 
+* [`node.yml`](https://github.com/vonng/pigsty/blob/master/node.yml) : Init node for pigsty
+* [`node-rm.yml`](https://github.com/vonng/pigsty/blob/master/node-rm.yml) : Remove node from pigsty
+
 ## Administration
 
 ## Parameters
