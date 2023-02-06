@@ -1,787 +1,435 @@
-# Administration
+# PGSQL ADMIN
+
+Here are 12 SOP for common pgsql admin tasks
+
+- Case 1:  [Create Cluster](#create-cluster)
+- Case 2:  [Create User](#create-user)
+- Case 3:  [Create Database](#create-database)
+- Case 4:  [Reload Service](#reload-service)
+- Case 5:  [Reload HBARule](#reload-hbarule)
+- Case 6:  [Config Cluster](#config-cluster)
+- Case 7:  [Append Replica](#append-replica)
+- Case 8:  [Remove Replica](#remove-replica)
+- Case 9:  [Remove Cluster](#remove-cluster)
+- Case 10: [Switchover](#switchover)
+- Case 11: [Backup Cluster](#backup-cluster)
+- Case 12: [Restore Cluster](#restore-cluster)
 
 
 ## Cheatsheet
 
-### Cluster Admin
-
-Manage PostgreSQL clusters and instances by executing the following commands on the meta node using the admin user.
+PGSQL playbooks and shortcuts:
 
 ```bash
-# Cluster creation/cluster expansion
-. /pgsql.yml -l pg-test # Create cluster: initialize pg-test cluster on new machine
-. /pgsql.yml -l 10.10.10.13 # Add instance (expansion), initialize 10.10.10.13 node in pg-test cluster
-
-# Cluster destruction/instance destruction
-. /pgsql-rm.yml -l pg-test # Cluster destruction: destroy the pg-test cluster, destroy all non-master instances first, and destroy the master instance last
-. /pgsql-rm.yml -l 10.10.10.13 # Instance destruction (shrinkage): destroy the 10.10.10.13 nodes in the pg-test cluster
-
-# Business database/user creation
-. /pgsql-user.yml -l pg-test -e pg_user=test # Create a user named test in the pg-test cluster
-. /pgsql-db.yml -l pg-test -e pg_database=test # Create a database named test in the pg-test cluster
-
-# Cluster membership adjustment
-. /pgsql.yml -l pg-test -t pg_hba # Adjust cluster HBA rules and apply
-. /pgsql.yml -l pg-test -t haproxy_config,haproxy_reload # Adjust cluster load balancer config and apply
-
-# Service registration information adjustment
-. /pgsql.yml -l pg-test -t register_prometheus # Register the cluster as a monitoring target to the Prometheus of the meta node
-. /pgsql.yml -l pg-test -t register_grafana # Register the cluster as a data source to Grafana on the meta node
+bin/pgsql-add   <cls>                   # create pgsql cluster <cls>
+bin/pgsql-user  <cls> <username>        # create pg user <username> on <cls>
+bin/pgsql-db    <cls> <dbname>          # create pg database <dbname> on <cls>
+bin/pgsql-svc   <cls> [...ip]           # reload pg service of cluster <cls>
+bin/pgsql-hba   <cls> [...ip]           # reload postgres/pgbouncer HBA rules of cluster <cls>
+bin/pgsql-add   <cls> [...ip]           # append replicas for cluster <cls>
+bin/pgsql-rm    <cls> [...ip]           # remove replicas from cluster <cls>
+bin/pgsql-rm    <cls>                   # remove pgsql cluster <cls>
 ```
 
-### Patroni Admin
-
-Pigsty uses Patroni to manage PostgreSQL instance databases by default. You need to use the `patronictl` command to manage Postgres clusters, including cluster config changes, restarts, Failover, Switchover, redoing specific instances, switching automatic/manual HA mode, etc.
-
-Users can use `patronictl` to manage all database clusters as `postgres` on the meta node, with alias `pt` already created on all hosted machines: `alias pt='patronictl -c /pg/bin/patroni.yml'`.
-
-The commonly used management commands are shown below. For more orders, please refer to `pg --help`.
+Patroni admin command and shortcuts:
 
 ```bash
-pg list [cluster] 				# Print cluster information
-pg edit-config [cluster] 		# Edit the config file for a cluster 
-
-pg reload [cluster] [instance] 	# reload the config of a cluster or instance
-pg restart [cluster] [instance] # Restart a cluster or instance 
-pg reinit [cluster] [instance] 	# reset an instance in a cluster (recreate the replica)
-
-pg pause [cluster] 				# enter maintenance mode (does not trigger automatic failover, Patroni no longer operates Postgres)
-pg resume [cluster]		 		# exit maintenance mode
-
-pg failover [cluster] 			# Manually trigger Failover for a cluster
-pg switchover [cluster] 		# Manually trigger a Switchover for a cluster
+pg list        <cls>                    # print cluster info
+pg edit-config <cls>                    # edit cluster config 
+pg reload      <cls> [ins]              # reload cluster config
+pg restart     <cls> [ins]              # restart pgsql cluster
+pg reinit      <cls> [ins]              # reinit cluster members
+pg pause       <cls>                    # entering maintenance mode (no auto failover)
+pg resume      <cls>                    # exiting maintenance mode
+pg switchover  <cls>                    # switchover on cluster <cls>
+pg failover    <cls>                    # failover on cluster <cls>
 ```
 
-### Component Admin
-
-In Pigsty deployments, all components are managed by `systemd`; except for PostgreSQL, which Patroni manages. 
-
-> Exception: exception when [`patroni_mode`](parameter.md#pgsqlpatroni_mode) is `remove`, Pigsty will use `systemd` to manage Postgres directly.
+pgBackRest backup & restore command and shortcuts:
 
 ```bash
-systemctl stop patroni               # Close Patroni & Postgres
-systemctl stop pgbouncer             # Close Pgbouncer 
-systemctl stop pg_exporter           # Close PG Exporter
-systemctl stop pgbouncer_exporter    # Close Pgbouncer Exporter
-systemctl stop node_exporter         # Close Node Exporter
-systemctl stop haproxy               # Close Haproxy
-systemctl stop vip-manager           # Close Vip-Manager
-systemctl stop consul                # Close Consul
-systemctl stop postgres              # Close Postgres (Use only when patroni_mode = remove)
+pb info                                 # print pgbackrest repo info
+pg-backup                               # make a backup, incr, or full backup if necessary
+pg-backup full                          # make a full backup
+pg-backup diff                          # make a differential backup
+pg-backup incr                          # make a incremental backup
+pg-pitr -i                              # restore to the time of latest backup complete (not often used)
+pg-pitr --time="2022-12-30 14:44:44+08" # restore to specific time point (in case of drop db, drop table)
+pg-pitr --name="my-restore-point"       # restore TO a named restore point create by pg_create_restore_point
+pg-pitr --lsn="0/7C82CB8" -X            # restore right BEFORE a LSN
+pg-pitr --xid="1234567" -X -P           # restore right BEFORE a specific transaction id, then promote
+pg-pitr --backup=latest                 # restore to latest backup set
+pg-pitr --backup=20221108-105325        # restore to a specific backup set, which can be checked with pgbackrest info
 ```
 
-The following components can be reloaded via `systemctl reload`.
+Systemd components quick reference
 
 ```bash
-systemctl reload patroni             # Overload config: Patroni
-systemctl reload postgres            # Overload config: Postgres （Use only when patroni_mode = Remove ）
-systemctl reload pgbouncer           # Overload config:  Pgbouncer 
-systemctl reload pg_exporter         # Overload config: PG Exporter
-systemctl reload pgbouncer_exporter  # Overload config:  Pgbouncer Exporter
-systemctl reload haproxy             # Overload config:  Haproxy
-systemctl reload vip-manager         # Overload config:  vip-manager
-systemctl reload consul              # Overload config: Consul
-```
-
-The config of the infra components can also be reloaded via `systemctl reload` on the meta node.
-
-```bash
-systemctl reload nginx          # Overload config: nginx (update the index of haproxy management interface and external access domain name)
-systemctl reload prometheus     # Overload config: Prometheus (update pre calculation index calculation logic and alarm rules)
-systemctl reload alertmanager   # Overload config: Alertmanager
-systemctl reload grafana-server # Overload config： Grafana
-```
-
-When Patroni manages Postgres, do not use `pg_ctl` to manipulate the database cluster (`/pg/data`).
-
-After entering maintenance mode via `pg pause <cluster>`, you can manually manage the database.
-
-### Common Tasks
-
-```bash
-./infra.yml -t environ             # Re-configure environment variables and access credentials on the meta node
-./infra.yml -t repo_upstream       # Re-add the upstream repo to the meta node
-./infra.yml -t repo_download       # Re-download the package on the meta node
-./infra.yml -t nginx_home          # Regenerate the Nginx home page content
-./infra.yml -t nginx_config,nginx_restart # Regenerate the Nginx config file and restart
-./infra.yml -t prometheus_config   # Reset Prometheus config
-./infra.yml -t grafana_provision   # Reset the Grafana monitoring dashboard
-```
-
-```bash
-./pgsql.yml -l pg-test -t=pgsql    # Complete database deployment: database, monitoring, services
-./pgsql.yml -l pg-test -t=postgres # Complete database deployment
-./pgsql.yml -l pg-test -t=monitor  # Complete the monitoring deployment
-./pgsql.yml -l pg-test -t=service  # Complete load balancing deployment, (Haproxy & VIP)
-./pgsql.yml -l pg-test -t=register # Register the service to the infrastructure
-./pgsql.yml -l pg-test -t=register # Register the service to the infrastructure
-./pgsql.yml -l pg-test -t=consul   # Reset the DCS server, you need to configure the cluster to maintenance mode first
+systemctl stop patroni                  # start stop restart reload
+systemctl stop pgbouncer                # start stop restart reload
+systemctl stop pg_exporter              # start stop restart reload
+systemctl stop pgbouncer_exporter       # start stop restart reload
+systemctl stop node_exporter            # start stop restart
+systemctl stop haproxy                  # start stop restart reload
+systemctl stop vip-manager              # start stop restart reload
+systemctl stop postgres                 # only when patroni_mode == 'remove'
 ```
 
 
 
------------------------
 
-# SOP Tasks
 
-## Case 1: Cluster Create and Expand
+## Create Cluster
 
-Cluster create/expand uses the playbook [`pgsql.yml`](p-pgsql.md#pgsql) to create a cluster using the cluster name as the execution object and to create a new instance/cluster expand using a single instance in the cluster as the execution object.
-
-### **Cluster Creation**
+To create a new Postgres cluster, define it in the inventory first, then init with:
 
 ```bash
-./nodes.yml -l pg-test      # Initialize the machine nodes contained in pg-test
-./pgsql.yml -l pg-test      # Initialize the pg-test database cluster
+bin/node-add <cls>                # init nodes for cluster <cls>           # ./node.yml  -l <cls> 
+bin/pgsql-add <cls>               # init pgsql instances of cluster <cls>  # ./pgsql.yml -l <cls>
 ```
 
-The above two playbooks can be simplified as follows.
+
+
+## Create User
+
+To create a new business user on the existing Postgres cluster, add user definition to `all.children.<cls>.pg_users`, then create the user as follows:
 
 ```bash
-bin/pgsql-add pg-test
+bin/pgsql-user <cls> <username>   # ./pgsql-user.yml -l <cls> -e username=<username>
 ```
 
-### Cluster Expansion
 
-Suppose you have a test cluster `pg-test` with two instances `10.10.10.11` and `10.10.10.12`, and now you expand one additional `10.10.10.13`.
 
-**Modify config**
 
-First, you need to modify the corresponding config in the inventory (`pigsty.yml` or CMDB). 
+## Create Database
 
-!> Please make sure to note that the `pg_seq` **must be unique** for each instance in the cluster.
+To create a new database user on the existing Postgres cluster, add database definition to `all.children.<cls>.pg_databases`, then create the database as follows:
 
-```yaml
+```bash
+bin/pgsql-db <cls> <dbname>       # ./pgsql-db.yml -l <cls> -e dbname=<dbname>
+```
+
+Note: If the database has specified an owner, the user should already exist, or you'll have to [Create User](#create-user) first.
+
+
+
+
+## Reload Service
+
+Services are exposed access point served by HAProxy.
+
+This task is used when cluster membership has changed, e.g., [append](#append-replica)/[remove](#remove-replica) replicas, [switchover](#switchover)/failover / exposing new service or updating existing service's config (e.g., LB Weight)
+
+To create new services or reload existing services on entire proxy cluster or specific instances:
+
+```bash
+bin/pgsql-svc <cls>               # pgsql.yml -l <cls> -t pg_service -e pg_reload=true
+bin/pgsql-svc <cls> [ip...]       # pgsql.yml -l ip... -t pg_service -e pg_reload=true
+```
+
+
+
+
+## Reload HBARule
+
+This task is used when your Postgres/Pgbouncer HBA rules have changed, you *may* have to reload hba to apply changes.
+
+If you have any role-specific HBA rules, you may have to reload hba after a switchover/failover, too.
+
+To reload postgres & pgbouncer HBA rules on entire cluster or specific instances:
+
+```bash
+bin/pgsql-hba <cls>               # pgsql.yml -l <cls> -t pg_hba,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
+bin/pgsql-hba <cls> [ip...]       # pgsql.yml -l ip... -t pg_hba,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
+```
+
+
+
+
+
+## Config Cluster
+
+To change the config of a existing Postgres cluster, you have to initiate control command on **admin node with admin user**:
+
+```bash
+pg edit-config <cls>              # interactive config a cluster with patronictl
+```
+
+Change patroni parameters & `postgresql.parameters`, save & apply changes with the wizard.
+
+<details><summary>Example: Change Cluster Config with Patroni REST API</summary>
+
+You can also use [Patroni REST API](https://patroni.readthedocs.io/en/latest/rest_api.html) to change the config in a non-interactive mode, for example:
+
+```bash
+$ curl -s 10.10.10.11:8008/config | jq .  # get current config
+$ curl -u 'postgres:Patroni.API' \
+        -d '{"postgresql":{"parameters": {"log_min_duration_statement":200}}}' \
+        -s -X PATCH http://10.10.10.11:8008/config | jq .
+```
+
+Note: patroni unsafe RestAPI access is limit from infra/admin nodes and protected with an HTTP basic auth username/password and an optional HTTPS mode.
+
+</details>
+
+
+
+
+
+## Append Replica
+
+To add a new replica to the existing Postgres cluster, you have to add its definition to the inventory: `all.children.<cls>.hosts`, then:
+
+```bash
+bin/node-add <ip>                 # init node <ip> for the new replica               
+bin/pgsql-add <cls> <ip>          # init pgsql instances on <ip> for cluster <cls>  
+```
+
+It will add node `<ip>` to pigsty and init it as a replica of the cluster `<cls>`. 
+
+Cluster services will be [reloaded](#reload-service) to adopt the new member  
+
+
+<details><summary>Example: Add replica to pg-test </summary>
+
+For example, if you want to add a `pg-test-3 / 10.10.10.13` to the existing cluster `pg-test`, you'll have to update the inventory first:
+
+```bash
 pg-test:
   hosts:
-    10.10.10.11: { pg_seq: 1, pg_role: primary }
-    10.10.10.12: { pg_seq: 2, pg_role: replica }
-    10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # New Forces
+    10.10.10.11: { pg_seq: 1, pg_role: primary } # existing member
+    10.10.10.12: { pg_seq: 2, pg_role: replica } # existing member
+    10.10.10.13: { pg_seq: 3, pg_role: replica } # <--- new member
   vars: { pg_cluster: pg-test }
 ```
 
-**Execute changes**
-
-Then, execute the following command to complete the initialization of cluster members.
+then apply the change as follows:
 
 ```bash
-./nodes.yml -l 10.10.10.13      # Initialize the pg-test machine node 10.10.10.13
-./pgsql.yml -l 10.10.10.13      # Initialize the pg-test instance pg-test-3
-
-# The above two commands can be simplified as follows:
-bin/pgsql-add 10.10.10.13
+bin/node-add          10.10.10.13   # add node to pigsty
+bin/pgsql-add pg-test 10.10.10.13   # init new replica on 10.10.10.13 for cluster pg-test
 ```
 
-**Adjusting Roles**
-
-Cluster expansion will result in changes in cluster membership. Please refer to [Case 8: Cluster Role Adjustment](#case-8-PGSQL-role-adjustment) to distribute the traffic to the new instance.
-
-### Frequently Asked Questions
-
-#### FAQ 1: Database and Consul already exist, execution aborted
-
-Pigsty uses a SafeGuard to avoid accidental deletion of running instances; please use the [`pgsql-rm`](p-pgsql.md#pgsql-rm) playbook to complete the instance destruction first and then reuse the node. For an emergency overwrite installation, you can use the following parameters to force the running instance to be erased during the installation (Danger!!!)
-
-* [`pg_clean`](parameter.md#pgsqlpg_clean) = clean
-* [`pg_safeguard`](parameter.md#pgsqlpg_safeguard) = false
-* [`dcs_clean`](parameter.md#pgsqlpg_clean) = clean
-* [`dcs_safeguard`](parameter.md#pgsqlpg_safeguard) = false
-
-For example: `. /pgsql.yml -l pg-test -e pg_exists_action=clean` will force an override install of the `pg-test` cluster.
-
-When the execution of a Consul instance is aborted, you can also take the above parameters to force the running instance to be erased.
-
-
-#### FAQ 2: The database is too extensive, waiting for the replica to come online timeout
-
-When an expansion operation gets stuck at the `Wait for postgres replica online` step and aborts, it is usually because the existing database instance is too large and exceeds Ansible's timeout wait time.
-
-If you abort with an error, the instance will continue to pull up the replica instance in the background. You can use the `pg list pg-test` command to list the current status of the cluster, and when the status of the new replica is `running`, you can use the following command to continue the Ansible Playbook from where it was aborted.
+which is similar to cluster init but only works on single instance。
 
 ```bash
-./pgsql.yml -l 10.10.10.13 --start-at-task 'Wait for postgres replica online'
-```
-
-Another way is to directly and explicitly specify subsequent tasks.
-
-```bash
-./pgsql.yml -l 10.10.10.13 -t pg_hba,pg_patroni,pgbouncer,pg_user,pg_db,monitor,service,register
-```
-
-If pulling up a new replica node is aborted due to some accident, please refer to FAQ 1.
-
-
-
-#### FAQ 3: The cluster is in maintenance mode, and the replica is not automatically pulled up.
-
-Solution 1: Use `pg resume pg-test` to configure the cluster in auto switchover mode and perform the replica creation operation.
-
-Solution 2, use `pg reinit pg-test pg-test-3` to manually complete the instance initialization. This command can also be used to **redo existing instances in the cluster**.
-
-
-
-#### FAQ 4: Cluster replica with `clonefrom` tag, but not suitable for use or pull failed due to data corruption
-
-Find the problem machine, switch to `postgres` user, modify the patroni config file and reload it to take effect。
-
-```bash
-sudo su postgres
-sed -ie 's/clonefrom: true/clonefrom: false/' /pg/bin/patroni.yml
-sudo systemctl reload patroni
-pg list -W # Check the cluster status and confirm that the failed instance does not have the clonefrom tag
-```
-
-
-
-#### FAQ 5: How to create a fixed admin user using an existing user
-
-By default, the system uses `dba` as the admin user, which should be able to ssh into the remote database node and execute sudo commands password-free from the admin machine.
-
-If the assigned machine does not have this user by default, but you have another admin user (e.g., `vagrant`) that can ssh into the remote node and execute sudo, you can run the following command to log into the remote machine using the other user and automatically create the standard admin user.
-
-```bash
-./nodes.yml -t node_admin -l pg-test -e ansible_user=vagrant -k -K
-SSH password:
-BECOME password[defaults to SSH password]:
-```
-
-If you specify the `-k|--ask-pass -K|--ask-become-pass` parameter, you should enter the admin user's SSH login password and sudo password before executing.
-
-Once executed, you can log in to the target database machine from the admin user on the meta node (default `dba`) and run other playbooks.
-
-
-
-#### FAQ 6: Cluster replica with clonefrom tag, but not usable or failed to pull due to data corruption
-
-Find the machine in question, switch to the `postgres` user, modify the patroni config file and reload it to take effect.
-
-```bash
-sudo su postgres
-sed -ie 's/clonefrom: true/clonefrom: false/' /pg/bin/patroni.yml
-sudo systemctl reload patroni
-pg list -W # Check the cluster status and confirm that the failed instance does not have the clonefrom tag
-```
-
-
-
-
-
------------------------
-
-## Case 2: Cluster Destruction and Downsize
-
-Cluster destruction/downsize uses a dedicated playbook [`pgsql-rm`](p-pgsql.md#pgsql-rm) that, when used against a cluster, will take the entire cluster destruction.
-
-When used against a single instance in the cluster, the instance will be removed from the cluster.
-
-Note that removing the cluster primary directly will cause the cluster to Failover, so please remove all replicas first when removing instances one by one.
-
-!> Note that the `pgsql-rm` playbook is not affected by the [security insurance](p-pgsql.md#SafeGuard) parameter and will remove the database instance and the cluster directly, so please use it carefully!
-
-### **Cluster Destruction**
-
-```bash
-# Destroy the pg-test cluster: destroy all non-primary instances first and the primary instance last
-. /pgsql-rm.yml -l pg-test
-
-# When destroying the cluster, remove the data dir and packages together
-. /pgsql-rm.yml -l pg-test -e rm_pgdata=true -e rm_pgpkgs=true
-
-# Remove the nodes contained in pg-test, optionally
-. /nodes-remove.yml -l pg-test 
-```
-
-### Cluster Downsize
-
-```bash
-. /pgsql-rm.yml -l 10.10.10.13  # Instance destruction (shrinkage): destroy the 10.10.10.13 node in the pg-test cluster 
-. /nodes-remove.yml -l 10.10.10.13  # Remove 10.10.10.13 nodes from Pigsty (optional)
-```
-
-**Adjustment of roles**
-
-Note: Cluster downsizing will result in a change in cluster membership. When downsizing, the health check of this instance is false, and the traffic carried initially by this instance will be immediately transferred to other members. However, you still need to refer to the instructions in Reference [Case 8: PGSQL Role Adjustment](#case-8-PGSQL-Role-Adjustment) to completely remove this offline instance from the cluster config.
-
-**Downline Offline Instance**
-
-Note that in the default config, if an instance with `pg_role = offline` or `pg_offline_query = true` is taken offline, only the `primary` instance remains in the cluster. Then there will be **no instances left to carry offline read traffic.**
-
-
-
------------------------
-
-
-
-## Case 3: Cluster Config Change and Restart
-
-### Cluster config modification
-
-Modifying the PostgreSQL cluster config needs to be done via `pg edit-config <cluster>`, especially for the synchronous replication option `synchronous_mode`, which must be changed in the Patroni config entry (`.synchronous_mode`), not (`postgresql. parameters.synchronous_mode` and other parameters).
-
-After the config is saved, configs that do not require a restart can take effect by confirmation.
-
-Please note that the parameters modified by `pg edit-config` are **cluster parameters**. The config parameters in the scope of individual instances (e.g., Patroni's Clonefrom tag, etc.) need to be modified directly in the Patroni config file (`/pg/bin/patroni.yml`), and `systemctl reload patroni` to take effect.
-
-!> Please note that HBA rules are created automatically by Pigsty. Please do not use Patroni to manage HBA rules.
-
-### Cluster reboot
-
-Configs that require a restart then need to schedule a database restart. Restarting the cluster can be done with the following command.
-
-```bash
-pg restart [cluster] [instance] # Restart a cluster or instance 
-```
-
-The ``pending restart`` notation is displayed in the ``pg list <cluster>` with the instances that need to be restarted to take effect.
-
-
-
-
-
------------------------
-
-
-
-## Case 4: Create PGSQL Biz User
-
-A new [business user](c-pgdbuser.md#default-users) can be created in an existing database via [`pgsql-user.yml`](p-pgsql.md#pgsql-user).
-
-Business users are usually those used by software programs in a production environment, and users who need to access the database through connection pools **must** be managed in this way. Other users can be created and managed using Pigsty or can be maintained and managed.
-
-```bash
-# Create a user named test in the pg-test cluster
-. /pgsql-user.yml -l pg-test -e pg_user=test
-```
-
-The above command can be abbreviated as:
-
-```bash
-bin/pgsql-user pg-test test # Create a user named test in the pg-test cluster
-```
-
-If you need to create both the business user and the business database, you should usually create the business user first.
-
-If the database is configured with an OWNER, create the corresponding OWNER user first and then make the corresponding database.
-
-
-
-
-
------------------------
-
-
-
-## Case 5: Create PGSQL BIZ DB
-
-A new [business database](c-pgdbuser.md#default-users) can be created in an existing database cluster by [`pgsql-db.yml`](p-pgsql.md#pgsql-db).
-
-A business database refers to a database object that is created and used by a user. If you wish to access this database through a connection pool, it must be created using the playbook provided by Pigsty to maintain the config in the connection pool consistent with PostgreSQL.
-
-```bash
-# Create a database named test in the pg-test cluster
-. /pgsql-db.yml -l pg-test -e pg_database=test
-```
-
-The above command can be abbreviated as:
-
-```bash
-bin/pgsql-db pg-test test # Create a database named test in the pg-test cluster
-```
-
-If the database is configured with an OWNER, please create the corresponding OWNER user first before creating the corresponding database.
-
-
-
-**Register the new database as a Grafana data source**
-
-Executing the following command will register all the business databases on all instances in the `pg-test` cluster into Grafana as PostgreSQL data sources for use by the PGCAT application.
-
-```bash
-./pgsql.yml -t register_grafana -l pg-test
-```
-
-
-
------------------------
-
-
-
-
-
-## Case 6: APPLY PGSQL HBA
-
-Users can adjust the HBA config of an existing database cluster/instance via the `pg_hba` subtask of [`pgsql.yml`](p-pgsql.md#pgsql).
-
-This task should be re-executed when the cluster undergoes Failover, Switchover, and HBA rule adjustments to adjust the cluster's IP black and white list rules to the expected behavior.
-
-Pigsty strongly recommends using config files to automatically manage HBA rules unless you know exactly what you do.
-
-The HBA config is generated by combining [`pg_hba_rules`](parameter.md#pgsqlpg_hba_rules) with [`pg_hba_rules_extra`](parameter.md#pgsqlpg_hba_rules_extra), both of which are arrays of rule config objects. The sample example is as follows.
-
-```yaml
-- title: allow internal infra service direct access
-  role: common
-  rules:
-    - host putong-confluence     dbuser_confluence     10.0.0.0/8  md5
-    - host putong-jira           dbuser_jira           10.0.0.0/8  md5
-    - host putong-newjira        dbuser_newjira        10.0.0.0/8  md5
-    - host putong-gitlab         dbuser_gitlab         10.0.0.0/8  md5
-```
-
-The following command will regenerate the HBA rule and apply it to take reloadable.
-
-```bash
-./pgsql.yml -t pg_hba -l pg-test
-```
-
-The above command can be abbreviated as follows:
-
-```bash
-bin/reloadhba pg-test
-```
-
-
-
------------------------
-
-
-
-
-
-## Case 7: PGSQL LB Traffic Control
-
-HAProxy controls the cluster traffic of PostgreSQL in Pigsty by default, and users can control the cluster traffic directly through the WebUI provided by HAProxy.
-
-
-
-**Controlling traffic using HAProxy Admin UI**
-
-Pigsty's HAProxy provides an Admin UI on port 9101 ([`haproxy_exporter_port`](parameter.md#pgsqlhaproxy_exporter_port) by default, which can be accessed by default via Pigsty's default domain name suffixed with the instance name (`pg_ cluster-pg_seq`) to access it. The admin UI comes with optional auth options enabled by the parameter ([`haproxy_auth_enabled`](v-pgsql#haproxy_auth_enabled)). Admin interface auth is not enabled by default, and when enabled, it is required to use the username specified by [`haproxy_admin_username`](parameter.md#pgsqlhaproxy_admin_username) and [`haproxy_admin_password`](parameter.md#pgsqlhaproxy_admin_password) with the username and password to log in.
-
-Use your browser to access `http://pigsty/<ins>` (the domain name varies by configuration, you can also click there from the PGSQL Cluster Dashboard) to access the LB admin interface on the corresponding instance. [Sample Interface](http://home.pigsty.cc/pg-meta-1/)
-
-Here you can control the traffic of one [service](c-service.md) per set of masses and each back-end server. For example, you can select that Server to drain the corresponding Server, set the `MAINT` state, and apply it. If you are using multiple HAProxy for load balancing simultaneously, you will need to perform this action on each LB in turn.
-
-
-
-**Modify Cluster Configuration**
-
-When a cluster changes its members, you should adjust the load balancing config of all cluster members at the appropriate time to faithfully reflect the cluster architecture changes, such as when a primary-replica switch occurs.
-
-In addition, by configuring the [`pg_weight`](parameter.md#pgsqlpg_weight) parameter, you can explicitly control the percentage of load carried by each instance in the cluster. The change requires regenerating the HAProxy config file in the cluster and reloading the reload to take effect. For example, this config reduces the relative weight of instance 2 in all services from the default of 100 to 0.
-
-```
-10.10.10.11: { pg_seq: 1, pg_role: primary}
-10.10.10.12: { pg_seq: 2, pg_role: replica, pg_weight: 0 }
-10.10.10.13: { pg_seq: 3, pg_role: replica,  }
-```
-
-Use the following command to adjust the cluster config and take effect.
-
-```bash
-# Regenerate the HAProxy config for pg-test (but not applied)
-. /pgsql.yml -l pg-test -t haproxy_config 
-
-# Reload the HAProxy config for pg-test and enable it to take effect
-. /pgsql.yml -l pg-test -t haproxy_config -e haproxy_reload=true 
-```
-
-The config and enable commands can be combined and abbreviated as follows:
-
-```bash
-bin/pgsql-svc pg-test  # Adjusting all HAPROXY for the pg-test cluster and reloading the config usually does not affect existing traffic.
-```
-
-
-
------------------------
-
-
-
-## Case 8: PGSQL Role Adjustment
-
-This describes Pigsty's default HAProxy access method, which may be different if you are using L4 VIP or other access methods.
-
-This adjustment is required when any kind of role change occurs in the cluster. The [`pg_role`](parameter.md#pgsqlpg_role)  parameter of the cluster and instance in the inventory does not truly reflect the server state.
-
-For example, when a cluster is scaled downsize, cluster load balancing immediately redistributes traffic **based on health checks** but **does not remove config entries** for downstream instances.
-
-After cluster expansion, **the LB config of existing instances will not change**. You can access all current cluster members via HAProxy on the new instance. Still, the HAProxy config on the old instance remains unchanged, so no traffic is distributed to the new instance.
-
-
-
-**1. Modify the config file pg_role**
-
-When a primary-replica switch of the cluster has occurred, the `pg_role` of the cluster members should be adjusted according to the current actual situation.
-For example, when `pg-test` has a Failover or Switchover that causes the `pg-test-3` instance to become the new primary, you should modify the role of `pg-test-3` to `primary` and configure the original primary `pg_role` to the `replica`.
-
-Also, you should ensure that at least one instance in the cluster can be used to provide Offline services, so configure the instance parameter for `pg-test-1`: `pg_offline_query: true`.
-It is highly discouraged to configure more than one Offline instance for a cluster, as slow queries and long transactions may cause online read-only traffic to suffer.
-
-```yaml
-10.10.10.11: { pg_seq: 1, pg_role: replica, pg_offline_query: true }
-10.10.10.12: { pg_seq: 2, pg_role: replica }
-10.10.10.13: { pg_seq: 3, pg_role: primary }
-```
-
-**2. Adjusting cluster instance HBAs**
-
-The HBA rules that apply to different roles should also be returned when the cluster role changes.
-
-Use the method described in [Case 6: APPLY PGSQL HBA](#case-6-APPLY-PGSQL-HBA) to adjust the cluster HBA rules
-
-**3. Adjusting the cluster load balancing config**
-
-HAProxy dynamically distributes request traffic based on the health check results returned by Patroni in the cluster, so node failure does not affect external requests. However, users should adjust the cluster load balancing config at the right time (e.g., after waking up in the morning). For example, take the failure out of the cluster config entirely instead of continuing to freeze in the cluster with a health check DOWN status.
-
-Use the method described in [Case 7: PGSQL LB Traffic Control](#case-7-PGSQL-LB-Traffic-control) to tune the cluster load balancing config.
-
-**4. Consolidation Operations**
-
-You can use the following commands after modifying the config to complete the tuning of the cluster roles.
-
-```bash
-. /pgsql.yml -l pg-test -t pg_hba,pgbouncer_hba,pgbouncer_reload,pg_service_config,pg_service_reload
-```
-
-Or just use the equivalent abbreviated script.
-
-```bash
-bin/pgsql-hba pg-test  # Adjust cluster HBA config
-bin/pgsql-svc pg-test  # Reload cluster HAProxy config
-```
-
-
-
------------------------
-
-
-
-
-
-## Case 9: Monitor Targets
-
-Pigsty manages Prometheus monitor objects by default using static file service discovery, default location: `/etc/prometheus/targets`.
-
-Using Consul service discovery is optional, and in this mode, there is usually no need to manage monitor objects manually. When using static file service discovery, all monitor objects are automatically handled together with the execution instance when it goes online and offline: registered or logged out. However, some particular scenarios cannot be fully covered (e.g., changing cluster names).
-
-**Adding Prometheus monitor objects manually.**
-
-```bash
-# Register all members of the pg-test cluster as prometheus monitor objects
-. /pgsql.yml -t register_prometheus -l pg-test
-```
-
-PostgreSQL service discovery object definitions are stored by default in the `/etc/prometheus/targets/pgsql` dir of all managed nodes. Each instance corresponds to a yml file containing the target's label, with the port exposed by the Exporter.
-
-```yaml
-# pg-meta-1 [primary] @ 10.10.10.10
-- labels: { cls: pg-meta, ins: pg-meta-1, ip: 10.10.10.10 }
-  targets: [10.10.10.10:9630, 10.10.10.10:9631, 10.10.10.10:9101, 10.10.10.10:8008]
-```
-
-**Manually remove Prometheus monitor objects.**
-
-```bash
-# Remove the monitor object file
-rm -rf /etc/prometheus/targets/pgsql/pg-test-*.yml
-```
-
-**Add Grafana data source manually**
-
-```bash
-# Register each database object in the pg-test cluster as a grafana data source
-. /pgsql.yml -t register_grafana -l pg-test
-```
-
-**Remove Grafana data source manually**
-
-In Grafana, click Data Source Management and manually remove it.
-
-
-
-
-
------------------------
-
-
-
-
-
-## Case 10: Cluster Switchover
-
-For example, if you want to perform a Failover on the three-node demo cluster `pg-test`, you can execute the following command.
-
-```
-pg failover <cluster>
-```
-
-Then follow the wizard prompts to execute Failover. After cluster Failover, you should refer to the instructions in [Case 8: Cluster Role Adjustment](#case-8-PGSQL-Role-Adjustment) to fix the cluster role.
-
-<details>
-<summary>Execute Failover's operation log</summary>
-
-
-
-```bash
-[08-05 17:00:30] postgres@pg-meta-1:~
-$ pg list pg-test
-+ Cluster: pg-test (6988888117682961035) -----+----+-----------+-----------------+-----------------+
-| Member    | Host        | Role    | State   | TL | Lag in MB | Pending restart | Tags            |
-+-----------+-------------+---------+---------+----+-----------+-----------------+-----------------+
-| pg-test-1 | 172.21.0.3  | Leader  | running |  1 |           |                 | clonefrom: true |
-| pg-test-2 | 172.21.0.4  | Replica | running |  1 |         0 | *               | clonefrom: true |
-| pg-test-3 | 172.21.0.16 | Replica | running |  1 |         0 | *               | clonefrom: true |
-+-----------+-------------+---------+---------+----+-----------+-----------------+-----------------+
-
-[08-05 17:00:34] postgres@pg-meta-1:~
-$ pg failover pg-test
-Candidate ['pg-test-2', 'pg-test-3'] []: pg-test-3
-Current cluster topology
-+ Cluster: pg-test (6988888117682961035) -----+----+-----------+-----------------+-----------------+
-| Member    | Host        | Role    | State   | TL | Lag in MB | Pending restart | Tags            |
-+-----------+-------------+---------+---------+----+-----------+-----------------+-----------------+
-| pg-test-1 | 172.21.0.3  | Leader  | running |  1 |           |                 | clonefrom: true |
-| pg-test-2 | 172.21.0.4  | Replica | running |  1 |         0 | *               | clonefrom: true |
-| pg-test-3 | 172.21.0.16 | Replica | running |  1 |         0 | *               | clonefrom: true |
-+-----------+-------------+---------+---------+----+-----------+-----------------+-----------------+
-Are you sure you want to failover cluster pg-test, demoting current master pg-test-1? [y/N]: y
-2021-08-05 17:00:46.04144 Successfully failed over to "pg-test-3"
-+ Cluster: pg-test (6988888117682961035) -----+----+-----------+-----------------+-----------------+
-| Member    | Host        | Role    | State   | TL | Lag in MB | Pending restart | Tags            |
-+-----------+-------------+---------+---------+----+-----------+-----------------+-----------------+
-| pg-test-1 | 172.21.0.3  | Replica | stopped |    |   unknown |                 | clonefrom: true |
-| pg-test-2 | 172.21.0.4  | Replica | running |  1 |         0 | *               | clonefrom: true |
-| pg-test-3 | 172.21.0.16 | Leader  | running |  1 |           | *               | clonefrom: true |
-+-----------+-------------+---------+---------+----+-----------+-----------------+-----------------+
-
-[08-05 17:00:46] postgres@pg-meta-1:~
-$ pg list pg-test
-+ Cluster: pg-test (6988888117682961035) -----+----+-----------+-----------------+-----------------+
-| Member    | Host        | Role    | State   | TL | Lag in MB | Pending restart | Tags            |
-+-----------+-------------+---------+---------+----+-----------+-----------------+-----------------+
-| pg-test-1 | 172.21.0.3  | Replica | running |  2 |         0 | *               | clonefrom: true |
-| pg-test-2 | 172.21.0.4  | Replica | running |  2 |         0 | *               | clonefrom: true |
-| pg-test-3 | 172.21.0.16 | Leader  | running |  2 |           | *               | clonefrom: true |
-+-----------+-------------+---------+---------+----+-----------+-----------------+-----------------+
+[ OK ] init instances  10.10.10.11 to pgsql cluster 'pg-test':
+[WARN]   reminder: add nodes to pigsty, then install additional module 'pgsql'
+[HINT]     $ bin/node-add  10.10.10.11  # run this ahead, except infra nodes
+[WARN]   init instances from cluster:
+[ OK ]     $ ./pgsql.yml -l '10.10.10.11,&pg-test'
+[WARN]   reload pg_service on existing instances:
+[ OK ]     $ ./pgsql.yml -l 'pg-test,!10.10.10.11' -t pg_service
 ```
 
 </details>
 
 
 
------------------------
 
 
 
+## Remove Replica
 
-
-## Case 11: Reset Component
-
-> As the saying goes, a reboot can solve 90% of the problems, while reinstallation can solve the remaining 10%.
-
-Resetting the problem component is a simple and effective means of stopping it. Using Pigsty's initialization playbook [`infra.yml `](p-infra.md#infra) with [`pgsql.yml `](p-pgsql.md#pgsql) can reset the infra with the database cluster, but usually, we only need to use specific subtasks to reset particular components.
-
-### Infrastructure Reset
-
-Common infra reconfig commands include.
+To remove a replica from the existing PostgreSQL cluster:
 
 ```bash
-./infra.yml -t repo_upstream       # Re-add the upstream repo to the meta node
-./infra.yml -t repo_download       # Re-download the package on the meta node
-./infra.yml -t nginx_home          # Regenerate the Nginx home page content
-./infra.yml -t prometheus_config   # Reset Prometheus configuration
-./infra.yml -t grafana_provision   # Reset the Grafana monitoring dashboard
+bin/pgsql-rm <cls> <ip...>        # ./pgsql-rm.yml -l <ip>
 ```
 
-You can also forcibly reinstall these components.
+It will remove instance `<ip>` from cluster `<cls>`.
+Cluster services will be [reloaded](#reload-service) to kick the removed instance from load balancer.
+
+<details><summary>Example: Remove replica from pg-test </summary>
+
+For example, if you want to remove `pg-test-3 / 10.10.10.13` from the existing cluster `pg-test`:
 
 ```bash
-./infra.yml -t nginx      # Reset Nginx
-./infra.yml -t prometheus # Reset Prometheus
-./infra.yml -t grafana    # Reset Grafana
-./infra-jupyter.yml       # Reset Jupyterlab
-./infra-pgweb.yml         # Reset PGWeb
+bin/pgsql-rm pg-test 10.10.10.13  # remove pgsql instance 10.10.10.13 from pg-test
+bin/node-rm  10.10.10.13          # remve that node from pigsty (optional)
 ```
 
-In addition, you can reset specific components on the database node using the following command.
+And remove instance definition from the inventory:
+
+```yaml
+pg-test:
+  hosts:
+    10.10.10.11: { pg_seq: 1, pg_role: primary }
+    10.10.10.12: { pg_seq: 2, pg_role: replica }
+    10.10.10.13: { pg_seq: 3, pg_role: replica } # <--- remove this after execution
+  vars: { pg_cluster: pg-test }
+```
 
 ```bash
-<<<<<<< HEAD
-# The more commonly used, safe reset command, re-install monitoring and re-registration will not affect the service
-. /pgsql.yml -l pg-test -t=monitor  # Redeploy monitoring
-. /pgsql.yml -l pg-test -t=register # Re-register the service to the infrastructure (Nginx, Prometheus, Grafana, CMDB...)
-. /nodes.yml -l pg-test -t=consul -e dcs_clean=clean # Reset DCS Agent in maintenance mode
-=======
-# The more commonly used, safe reset command, re-install monitor and re-registration will not affect the service
-. /pgsql.yml -l pg-test -t=monitor  # Redeploy monitor
-. /pgsql.yml -l pg-test -t=register # Re-register the service to the infra (Nginx, Prometheus, Grafana, CMDB...)
-. /nodes.yml -l pg-test -t=consul -e dcs_exists_action=clean # Reset DCS Agent in maintenance mode
->>>>>>> 3a8ad098dc81da2857a34806aca8b1c9065951c6
-
-# A slightly risky reset operation
-. /pgsql.yml -l pg-test -t=service   # Redeploy load balancing, may cause service to flash off
-. /pgsql.yml -l pg-test -t=pgbouncer  # Redeploy connection pooling, may cause service to flash
-
-# Very dangerous reset task
-. /pgsql.yml -l pg-test -t=postgres # Reset databases (including Patroni, Postgres, Pgbouncer)
-. /pgsql.yml -l pg-test -t=pgsql    # Redo the complete database deployment: database, monitoring, services
-. /nodes.yml -l pg-test -t=consul   # Reset DCS server directly when HA auto-switchover mode is enabled
-
-# Extremely dangerous reset task
-. /nodes.yml -l pg-test -t=consul -e rm_dcs_servers=true # Force wipe DCS servers, may cause all DB clusters to be unwritable
+[ OK ] remove pgsql instances from  10.10.10.13 of 'pg-test':
+[WARN]   remove instances from cluster:
+[ OK ]     $ ./pgsql-rm.yml -l '10.10.10.13,&pg-test'
+[WARN]   reload pg_service on existing instances:
+[ OK ]     $ ./pgsql.yml -l 'pg-test,!10.10.10.13' -t pg_service
 ```
 
-For example, if there is a problem with the cluster's connection pool, a default way to stop the damage is to restart or reinstall the Pgbouncer connection pool.
+</details>
+
+
+
+
+## Remove Cluster
+
+To remove the entire Postgres cluster, just run:
 
 ```bash
-. /pgsql.yml -l pg-test -t=pgbouncer # reinstall the connection pool (all users and DBs will be regenerated), manually modified config will be lost
+bin/pgsql-rm <cls>                # ./pgsql-rm.yml -l <cls>
 ```
 
+<details><summary>Example: Force removing a cluster</summary>
 
+Note: if [`pg_safeguard`](PARAM#pg_safeguard) is configured for this cluster (or globally configured to `true`), `pgsql-rm.yml` will abort to avoid removing a cluster by accident.
 
------------------------
-
-
-
-
-
-## Case 12: Switching DCS Servers
-
-DCS (Consul/Etcd) is a very reliable service.
-
-According to Patroni's working logic, once the cluster primary finds that the DCS server is unreachable, it will immediately follow the Fencing logic and downgrade itself to a normal replica, unable to write.
-
-### **Maintenance Mode**
-
-Unless the cluster is currently in "maintenance mode" (enter with `pg pause <cluster>` and exit with `pg resume <cluster>`).
+You can use playbook command line args to explicitly overwrite it to force the purge:
 
 ```bash
-# Put the target cluster into maintenance mode
-pg pause pg-test
-
-# Restore the target cluster to automatic failover mode (optional)
-pg resume pg-test
+./pgsql-rm.yml -l pg-meta -e pg_safeguard=false    # force removing pg cluster pg-meta
 ```
 
+</details>
 
 
-### **Reset DCS service for PGSQL Nodes**
 
-When DCS fails to be available, and you need to migrate to a new DCS (Consul) cluster, you can use the following actions.
 
-First, create the new DCS cluster, then edit the inventory [``dcs_servers``](parameter.md#dcs_servers) and fill in the new DCS Servers address.
+
+
+
+## Switchover
+
+You can perform a PostgreSQL cluster switchover with patroni cmd.
 
 ```bash
-# Force reset the Consul Agent on the target cluster (since HA is in maintenance mode and will not affect the new database cluster)
-. /nodes.yml -l pg-test -t consul -e dcs_clean=clean
-
+pg switchover <cls>
 ```
 
-When Patroni finishes restarting (in maintenance mode, Patroni restart will not cause Postgres shutdown), it will write the cluster metadata K-V to the new Consul cluster, so you must make sure the Patroni service on the original primary database finishes restarting first.
+<details><summary>Example: Switchover pg-test</summary>
 
 ```bash
-# Important! Restart Patroni on the target primary first, then restart Patroni on the remaining replica nodes
-ansible pg-test-1 -b -a 'sudo systemctl reload patroni'
-ansible pg-test-2,pg-test-3 -b -a 'sudo systemctl restart patroni'
+$ pg switchover pg-test
+Master [pg-test-1]:
+Candidate ['pg-test-2', 'pg-test-3'] []: pg-test-2
+When should the switchover take place (e.g. 2022-12-26T07:39 )  [now]: now
+Current cluster topology
++ Cluster: pg-test (7181325041648035869) -----+----+-----------+-----------------+
+| Member    | Host        | Role    | State   | TL | Lag in MB | Tags            |
++-----------+-------------+---------+---------+----+-----------+-----------------+
+| pg-test-1 | 10.10.10.11 | Leader  | running |  1 |           | clonefrom: true |
+|           |             |         |         |    |           | conf: tiny.yml  |
+|           |             |         |         |    |           | spec: 1C.2G.50G |
+|           |             |         |         |    |           | version: '15'   |
++-----------+-------------+---------+---------+----+-----------+-----------------+
+| pg-test-2 | 10.10.10.12 | Replica | running |  1 |         0 | clonefrom: true |
+|           |             |         |         |    |           | conf: tiny.yml  |
+|           |             |         |         |    |           | spec: 1C.2G.50G |
+|           |             |         |         |    |           | version: '15'   |
++-----------+-------------+---------+---------+----+-----------+-----------------+
+| pg-test-3 | 10.10.10.13 | Replica | running |  1 |         0 | clonefrom: true |
+|           |             |         |         |    |           | conf: tiny.yml  |
+|           |             |         |         |    |           | spec: 1C.2G.50G |
+|           |             |         |         |    |           | version: '15'   |
++-----------+-------------+---------+---------+----+-----------+-----------------+
+Are you sure you want to switchover cluster pg-test, demoting current master pg-test-1? [y/N]: y
+2022-12-26 06:39:58.02468 Successfully switched over to "pg-test-2"
++ Cluster: pg-test (7181325041648035869) -----+----+-----------+-----------------+
+| Member    | Host        | Role    | State   | TL | Lag in MB | Tags            |
++-----------+-------------+---------+---------+----+-----------+-----------------+
+| pg-test-1 | 10.10.10.11 | Replica | stopped |    |   unknown | clonefrom: true |
+|           |             |         |         |    |           | conf: tiny.yml  |
+|           |             |         |         |    |           | spec: 1C.2G.50G |
+|           |             |         |         |    |           | version: '15'   |
++-----------+-------------+---------+---------+----+-----------+-----------------+
+| pg-test-2 | 10.10.10.12 | Leader  | running |  1 |           | clonefrom: true |
+|           |             |         |         |    |           | conf: tiny.yml  |
+|           |             |         |         |    |           | spec: 1C.2G.50G |
+|           |             |         |         |    |           | version: '15'   |
++-----------+-------------+---------+---------+----+-----------+-----------------+
+| pg-test-3 | 10.10.10.13 | Replica | running |  1 |         0 | clonefrom: true |
+|           |             |         |         |    |           | conf: tiny.yml  |
+|           |             |         |         |    |           | spec: 1C.2G.50G |
+|           |             |         |         |    |           | version: '15'   |
++-----------+-------------+---------+---------+----+-----------+-----------------+
 ```
+
+To do so with Patroni API (schedule a switchover from 2 to 1 at a specific time):
+
+```bash
+curl -u 'postgres:Patroni.API' \
+  -d '{"leader":"pg-test-2", "candidate": "pg-test-1","scheduled_at":"2022-12-26T14:47+08"}' \
+  -s -X POST http://10.10.10.11:8008/switchover
+```
+
+
+</details>
+
+
+
+
+
+## Backup Cluster
+
+To create a backup with pgBackRest, run as local dbsu:
+
+```bash
+pg-backup                         # make a postgres base backup
+pg-backup full                    # make a full backup
+pg-backup diff                    # make a differential backup
+pg-backup incr                    # make a incremental backup
+pb info                           # check backup information
+```
+
+Check [Backup](PGSQL-PITR) & PITR for details.
+
+<details><summary>Example: Create routine backup crontab</summary>
+
+You can add crontab to [`node_crontab`](PARAM#node_crontab) to specify your backup policy. 
+
+```yaml
+# make a full backup 1 am everyday
+- '00 01 * * * postgres /pg/bin/pg-backup full'
+
+# rotate backup: make a full backup on monday 1am, and an incremental backup during weekdays
+- '00 01 * * 1 postgres /pg/bin/pg-backup full'
+- '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
+```
+
+</details>
+
+
+
+## Restore Cluster
+
+To restore a cluster to a previous time point (PITR), run as local dbsu:
+
+```bash
+pg-pitr -i                              # restore to the time of latest backup complete (not often used)
+pg-pitr --time="2022-12-30 14:44:44+08" # restore to specific time point (in case of drop db, drop table)
+pg-pitr --name="my-restore-point"       # restore TO a named restore point create by pg_create_restore_point
+pg-pitr --lsn="0/7C82CB8" -X            # restore right BEFORE a LSN
+pg-pitr --xid="1234567" -X -P           # restore right BEFORE a specific transaction id, then promote
+pg-pitr --backup=latest                 # restore to latest backup set
+pg-pitr --backup=20221108-105325        # restore to a specific backup set, which can be checked with pgbackrest info
+```
+
+And follow the instructions wizard, Check Backup & [PITR](PGSQL-PITR) for details.
+
+<details><summary>Example: PITR with raw pgBackRest Command</summary>
+
+```bash
+# restore to the latest available point (e.g. hardware failure)
+pgbackrest --stanza=pg-meta restore
+
+# PITR to specific time point (e.g. drop table by accident)
+pgbackrest --stanza=pg-meta --type=time --target="2022-11-08 10:58:48" \
+   --target-action=promote restore
+
+# restore specific backup point and then promote (or pause|shutdown)
+pgbackrest --stanza=pg-meta --type=immediate --target-action=promote \
+  --set=20221108-105325F_20221108-105938I restore
+```
+
+</details>
