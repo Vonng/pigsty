@@ -1,12 +1,18 @@
 # PGSQL
 
-> The most advanced open-source relational database in the world!
+> **The most advanced open-source relational database in the world!**
 >
-> **With battery-included observability, reliability and maintainability powered by Pigsty** 
+> With battery-included observability, reliability and maintainability powered by Pigsty 
 
-* [Concept](PGSQL-CONCEPT.md)
-* [High Availability](PGSQL-HA.md)
-* [Administration](PGSQL-ADMIN.md)
+
+## Concept
+
+> Overview of PostgreSQL in Pigsty
+
+* [Concept](PGSQL-CONCEPT)
+* [Architecture](PGSQL-HA)
+* [Configuration](PGSQL-CONF)
+* [Administration](PGSQL-ADMIN)
 * [Databases](PGSQL-DB.md)
 * [Users](PGSQL-USER.md#users) & [Roles](PGSQL-USER.md#roles)
 * [Service](PGSQL-SVC.md#services) & [Access](PGSQL-SVC.md#access)
@@ -15,43 +21,59 @@
 * [Monitor](PGSQL-MONITOR.md) & [Migration](PGSQL-MIGRATION.md) Existing Postgres
 
 
-![pigsty-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)
-
-
-## Overview
 
 ## Configuration
 
+> [Describe](PGSQL-CONF) the cluster you want
+
+- [Identity](PGSQL-CONF#identity): Parameters used for describing a PostgreSQL cluster
+- [Primary](PGSQL-CONF#primary): Define a single instance cluster
+- [Replica](PGSQL-CONF#replica): Define a basic HA cluster with one primary & one replica
+- [Offline](PGSQL-CONF#offline): Define a dedicated instance for OLAP/ETL/Interactive queries
+- [Sync Standby](PGSQL-CONF#sync-standby): Enable synchronous commit to ensure no data loss
+- [Quorum Commit](PGSQL-CONF#quorum-commit):   Use quorum sync commit for even higher consistency level
+- [Standby Cluster](PGSQL-CONF#standby-cluster): Clone an existing cluster and follow it
+- [Delayed Cluster](PGSQL-CONF#delayed-cluster): Clone an existing cluster for emergency data recovery
+- [Citus Cluster](PGSQL-CONF#citus-cluster): Define a Citus distributed database cluster
+
+
+
 ## Playbooks
 
+> Materialize the cluster you described
 
-| Playbook                                                                           | Function                                                                            |
-|------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [install](https://github.com/vonng/pigsty/blob/master/install.yml)                 | Install Pigsty on current node in one-pass                                          |
-| [infra](https://github.com/vonng/pigsty/blob/master/infra.yml)                     | **Install pigsty infrastructure on meta nodes**                                     |
-| [infra-rm](https://github.com/vonng/pigsty/blob/master/infra-remove.yml)           | Remove infrastructure components from meta nodes                                    |
-| [node](https://github.com/vonng/pigsty/blob/master/node.yml)                       | **Node provisioning to include nodes in Pigsty for subsequent database deployment** |
-| [node-rm](https://github.com/vonng/pigsty/blob/master/node-remove.yml)             | Node remove, unloading node DCS and monitoring, no longer included in Pigsty        |
-| [pgsql](https://github.com/vonng/pigsty/blob/master/pgsql.yml)                     | **PostgreSQL cluster deploy, or expand**                                            |
-| [pgsql-rm](https://github.com/vonng/pigsty/blob/master/pgsql-remove.yml)           | PostgreSQL cluster destruction, or downsize                                         |
-| [pgsql-user](https://github.com/vonng/pigsty/blob/master/pgsql-createuser.yml)     | Creating PostgreSQL business users                                                  |
-| [pgsql-db](https://github.com/vonng/pigsty/blob/master/pgsql-createdb.yml)         | Creating a PostgreSQL Business Database                                             |
-| [pgsql-monitor](https://github.com/vonng/pigsty/blob/master/pgsql-monly.yml)       | Monly mode, with access to existing PostgreSQL instances or RDS                     |
-| [pgsql-migration](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml) | Generate PostgreSQL semi-automatic database migration solution (Beta)               |
-| [redis](https://github.com/vonng/pigsty/blob/master/redis.yml)                     | **Deploy a Redis database in cluster/standalone/Sentinel mode**                     |
-| [redis-rm](https://github.com/vonng/pigsty/blob/master/redis-remove.yml)           | Redis cluster/node destruction                                                      |
+- [`pgsql.yml`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)                     : Init HA PostgreSQL clusters, or adding new replicas
+- [`pgsql-rm.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-rm.yml)               : Remove PostgreSQL cluster, or remove replicas
+- [`pgsql-user.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-user.yml)           : Add new business user to existing PostgreSQL cluster
+- [`pgsql-db.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-db.yml)               : Add new business database to existing PostgreSQL cluster
+- [`pgsql-monitor.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-monitor.yml)     : Monitor remote postgres instance with local exporters
+- [`pgsql-migration.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml) : Generate Migration manual & scripts for existing PostgreSQL
 
 
-| [infra-jupyter](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml)    | Adding the **optional** data analysis service component Jupyter Lab to the meta node | https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml    |
+
 
 ## Administration
 
+> [Admin](PGSQL-ADMIN) your existing clusters
+
+- [`Admin Cheatsheet`](PGSQL-ADMIN#cheatsheet)
+- [`Create Cluster`](PGSQL-ADMIN#create-cluster)
+- [`Create User`](PGSQL-ADMIN#create-user)
+- [`Create Database`](PGSQL-ADMIN#create-database)
+- [`Reload Service`](PGSQL-ADMIN#reload-service)
+- [`Reload HBARule`](PGSQL-ADMIN#reload-hbarule)
+- [`Config Cluster`](PGSQL-ADMIN#config-cluster)
+- [`Append Replica`](PGSQL-ADMIN#append-replica)
+- [`Remove Replica`](PGSQL-ADMIN#remove-replica)
+- [`Remove Cluster`](PGSQL-ADMIN#remove-cluster)
+- [`Switchover Cluster`](PGSQL-ADMIN#switchover)
+- [`Backup Cluster`](PGSQL-ADMIN#backup-cluster)
+- [`Restore Cluster`](PGSQL-ADMIN#restore-cluster)
 
 
 ## Parameters
 
-There are 9 sections, 106 parameters about [`PGSQL`](PARAM#PGSQL) module.
-
+> [API Reference](PARAM#pgsql) for PGSQL
 
 - [`PG_ID`](PARAM#pg_id)               : Calculate & Check Postgres Identity
 - [`PG_BUSINESS`](PARAM#pg_business)   : Postgres Business Object Definition
@@ -63,6 +85,8 @@ There are 9 sections, 106 parameters about [`PGSQL`](PARAM#PGSQL) module.
 - [`PG_DNS`](PARAM#pg_dns)             : Register DNS Record to Infra
 - [`PG_EXPORTER`](PARAM#pg_exporter)   : Add Monitor for PG & PGBOUNCER
 
+
+<details><summary>Parameters</summary>
 
 | Parameter                                                            | Section                              |    Type     | Level | Comment                                                                       |
 |----------------------------------------------------------------------|--------------------------------------|:-----------:|:-----:|-------------------------------------------------------------------------------|
@@ -172,3 +196,22 @@ There are 9 sections, 106 parameters about [`PGSQL`](PARAM#PGSQL) module.
 | [`pgbouncer_exporter_port`](PARAM#pgbouncer_exporter_port)           | [`PG_EXPORTER`](PARAM#pg_exporter)   |    port     |   C   | pgbouncer_exporter listen port, 9631 by default                               |
 | [`pgbouncer_exporter_url`](PARAM#pgbouncer_exporter_url)             | [`PG_EXPORTER`](PARAM#pg_exporter)   |    pgurl    |   C   | overwrite auto-generate pgbouncer dsn if specified                            |
 | [`pgbouncer_exporter_options`](PARAM#pgbouncer_exporter_options)     | [`PG_EXPORTER`](PARAM#pg_exporter)   |     arg     |   C   | overwrite extra options for pgbouncer_exporter                                |
+
+</details>
+
+
+
+## Tutorials
+
+- Fork an existing PostgreSQL cluster
+- Create a standby cluster of an existing PostgreSQL cluster
+- Create a delayed cluster of another pgsql cluster?
+- Monitoring an existing postgres instance?
+- Migration from an external PostgreSQL with logical replication?
+- Use MinIO as a central pgbackrest repo.
+- Use dedicate etcd cluster for DCS?
+- Use dedicated haproxy for exposing PostgreSQL Service
+- Deploy a multinode MinIO cluster?
+- Use CMDB instead of Config as inventory.
+- Use PostgreSQL as grafana backend storage ?
+- Use PostgreSQL as prometheus backend storage ?
