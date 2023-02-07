@@ -1,29 +1,20 @@
-# PGSQL Service & Access
+# PGSQL Service
 
-> Defining PostgreSQL [service](#Service) and achieving stable, reliable, and HA [access](#access) through LB and connection pooling.
+> Split read & write, route traffic to the right place, and achieve stable & reliable access to the PostgreSQL cluster.
 
-The concepts of [**Service**](#Service) and [**Access**](#Access) are proposed for HA PostgreSQL clusters.
-
+Service is an abstraction to seal the details of the underlying cluster, especially during cluster failover/switchover. 
 
 
 ---------------
 
-### Personal User
+## Personal User
 
-After completing the singleton deployment, port 5432 of this node provides PostgreSQL services, and port 80 provides UI class services.
-
-On the current meta node, executing `psql` with no parameters using the admin user can connect directly to the local pre-defined `meta` database.
-
-When accessing PG from the host using the client tool, you can use the URL.
+Service is meaningless to personal users. You can access the database with raw IP address directly or whatever method you like.
 
 ```bash
-psql postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta         # dbsu direct connection
-psql postgres://dbuser_meta:DBUser.Meta@10.10.10.10/meta       # business user direct connect
+psql postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta         # dbsu direct connect
+psql postgres://dbuser_meta:DBUser.Meta@10.10.10.10/meta       # bizuser direct connect
 ```
-
-You can use the admin user specified by [`pg_admin_username`](v-pgsql.md#pg_admin_username) and [`pg_admin_password`](v-pgsql.md#pg_admin_password) or a business user (`dbuser_meta`) pre-defined in the `meta` database to access this database.
-
-When using a HA database cluster deployed with Pigsty, it is not recommended to [access](#access) the database [service](#service) using IP direct connection.
 
 
 
@@ -31,297 +22,308 @@ When using a HA database cluster deployed with Pigsty, it is not recommended to 
 
 ## Service
 
-**Service** in the form of functionality that a database cluster provides.
+**Service** is a logical abstraction for PostgreSQL cluster abilities. Which consist of:
 
-In a production env, a replication-based primary-replica database cluster is used. There is one and only one primary in the cluster that can accept writes, while the other replicas will continuously get logs from the primary to keep up with it. Also, replicas can host read-only requests.
+1. Access Point via NodePort
+2. Target Instances via Selectors
 
-In addition, for production envs with short high-frequency connections, we also pool requests via Pgbouncer to reduce connection creation overhead. However, in ETL and change execution scenarios, we need to bypass the connection pool and access the database directly.
+It's quite like a Kubernetes service (NodePort mode), but it is implemented differently (haproxy on the nodes).
 
-In addition, HA clusters have a **failover** feature that causes changes to the cluster's primary. HA clustering solutions, therefore, require that write traffic can automatically adapt to changes in the cluster's primary.
+Here are the default PostgreSQL services and their definition:
 
-These different access requirements (read/write separation, pooling, and direct connection, failover auto-adaptation) are eventually abstracted into the concept of **Service**.
+| service | port | description                                      |
+| ------- | ---- | ------------------------------------------------ |
+| primary | 5433 | PROD read/write, connect to primary 5432 or 6432 |
+| replica | 5434 | PROD read-only, connect to replicas 5432/6432    |
+| default | 5436 | admin or direct access to primary                |
+| offline | 5438 | OLAP, ETL, personal user, interactive queries    |
 
-In general, a database cluster **must provide a service**.
+```yaml
+- { name: primary ,port: 5433 ,dest: default  ,check: /primary   ,selector: "[]" }
+- { name: replica ,port: 5434 ,dest: default  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
+- { name: default ,port: 5436 ,dest: postgres ,check: /primary   ,selector: "[]" }
+- { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
+```
 
-- **read-write service (primary)**: can write to the database
+![pgsql-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)
 
-For a production database cluster, **at least two services should be provided.**
 
-- **read-write service (primary)**: can write to the database
+Take the default `pg-meta` cluster & `meta` database as an example, it will have four default services:
 
-- **read-only service (replica)**: access to the replica
+```bash
+psql postgres://dbuser_meta:DBUser.Meta@pg-meta:5433/meta   # pg-meta-primary : production read/write via primary pgbouncer(6432)
+psql postgres://dbuser_meta:DBUser.Meta@pg-meta:5434/meta   # pg-meta-replica : production read-only via replica pgbouncer(6432)
+psql postgres://dbuser_dba:DBUser.DBA@pg-meta:5436/meta     # pg-meta-default : Direct connect primary via primary postgres(5432)
+psql postgres://dbuser_stats:DBUser.Stats@pg-meta:5438/meta # pg-meta-offline : Direct connect offline via offline postgres(5432)
+```
 
-There may be other services.
+EVERY INSTANCE of `pg-meta` cluster will have these four services exposed; you can access service via ANY / ALL of them.
 
-- **offline**: For ETL and personal queries.
-- **standby**: Read-only service with synchronous commit and no replication delay.
-- **delayed**: Allows to access old data before a fixed time interval.
-- **default**: Service that allows admin users to manage the database directly, bypassing the connection pool.
+
+
+---------------
+
+## Primary Service
+
+The primary service may be the most critical service for production usage.
+
+It will route traffic to the primary instance, depending on [`pg_default_service_dest`](PARAM#pg_default_service_dest):
+
+* `pgbouncer`: route traffic to primary pgbouncer port (6432), which is the default behavior
+* `postgres`: route traffic to primary postgres port (5432) directly, if you don't want to use pgbouncer
+
+```yaml
+- { name: primary ,port: 5433 ,dest: default  ,check: /primary   ,selector: "[]" }
+```
+
+It means all cluster members will be included in the primary service (`selector: "[]"`), but the one and only one instance that past health check (`check: /primary`) will be used as the primary instance.
+Patroni will guarantee that only one instance is primary at any time, so the primary service will always route traffic to THE primary instance.
+
+<details><summary>Example: pg-test-primary haproxy config</summary>
+
+```ini
+listen pg-test-primary
+    bind *:5433
+    mode tcp
+    maxconn 5000
+    balance roundrobin
+    option httpchk
+    option http-keep-alive
+    http-check send meth OPTIONS uri /primary
+    http-check expect status 200
+    default-server inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100
+    # servers
+    server pg-test-1 10.10.10.11:6432 check port 8008 weight 100
+    server pg-test-3 10.10.10.13:6432 check port 8008 weight 100
+    server pg-test-2 10.10.10.12:6432 check port 8008 weight 100
+```
+
+</details>
 
 
 
 
 ---------------
 
-## Default Services
+## Replica Service
 
-Pigsty provides four services by default: `primary`, `replica`, `default`, and `offline`.
+The replica service is used for production read-only traffics. 
 
-New services can be defined for global or individual clusters via config files.
+There may be many more read-only queries than read-write queries in real-world scenarios, you may have many replicas for that.
 
-| service | port | purpose | description |
-| ------- | ---- | ------------ | ---------------------------- |
-| primary | 5433 | production read/write | connect to primary via **connection pool** |
-| replica | 5434 | production read-only | connection to replica via **connection pool** |
-| default | 5436 | management | direct connection to primary |
-| offline | 5438 | ETL/personal user | direct connection to offline |
-
-Take the meta DB `pg-meta` as an example:
-
-```bash
-psql postgres://dbuser_meta:DBUser.Meta@pg-meta:5433/meta   # production read/write
-psql postgres://dbuser_meta:DBUser.Meta@pg-meta:5434/meta   # production read-only
-psql postgres://dbuser_dba:DBUser.DBA@pg-meta:5436/meta     # Direct connect primary
-psql postgres://dbuser_stats:DBUser.Stats@pg-meta:5438/meta # Direct connect offline
-```
-
-These four services are described in detail below.
-
-### Primary Service
-
-The Primary service is used for **online production read and write access,** and it maps the cluster's port 5433 to the **primary connection pool (default 6432)** port.
-
-The Primary service selects **all** instances in the cluster as members, but only the primary can take on traffic because there is one and only one instance `/primary` with a true health check.
+The replica service will route traffic to pgbouncer or postgres depending on [`pg_default_service_dest`](PARAM#pg_default_service_dest), just like [primary service](#primary-service).
 
 ```yaml
-# primary service will route {ip|name}:5433 to primary pgbouncer (5433->6432 rw)
-- name: primary           # service name {{ pg_cluster }}-primary
-  src_ip: "*"
-  src_port: 5433
-  dst_port: pgbouncer     # 5433 route to pgbouncer
-  check_url: /primary     # primary health check, success when instance is primary
-  selector: "[]"            # select all instance as primary service candidate
+- { name: replica ,port: 5434 ,dest: default  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
 ```
 
-The HA component Patroni on the primary returns 200 against the Primary health check and is used to ensure that the cluster does not have another primary.
+The `replica` service traffic will try to use common pg instances with [`pg_role`](PARAM#pg_role) = `replica` to alleviate the load on the `primary` instance as much as possible.
+And it will try NOT to use instances with [`pg_role`](PARAM#pg_role) = `offline` to avoid mixing OLAP & OLTP queries as much as possible.
 
-When the cluster fails over, the health check is true for the new primary and false for the old one, so traffic is migrated to the new primary. The business side will notice about 30 seconds of Primary service unavailability time.
+All cluster members will be included in the replica service (`selector: "[]"`) when it passes the read-only health check (`check: /read-only`). 
+While `primary` and `offline` instances are used as backup servers, which will take over in case of all `replica` instances are down.
 
 
+<details><summary>Example: pg-test-replica haproxy config</summary>
 
-### Replica Service
-
-The Replica service is used to **online produce read-only access**,  and it maps the cluster's port 5434, to the **replica connection pool (default 6432)** port.
-
-The Replica service selects **all** instances in the cluster as members, but only those with an accurate health check `/read-only` can take on traffic, and that health check returns success for all instances that can take on read-only traffic.
-
-By default, only replicas carry read-only requests, and the Replica service defines `selector_backup`, a selector that adds the cluster's primary as a **backup instance** to the Replica service. **The primary will only start taking read-only traffic when all replicas are down.**
-
-Another role as a **backup instance** is `offline`, which is usually dedicated to OLAP/ETL/personal queries and is not suitable for mixing with online queries, so `offline` is only used to take on read-only traffic when all `replica`s are down.
-
-```yaml
-# replica service will route {ip|name}:5434 to replica pgbouncer (5434->6432 ro)
-- name: replica           # service name {{ pg_cluster }}-replica
-  src_ip: "*"
-  src_port: 5434
-  dst_port: pgbouncer
-  check_url: /read-only   # read-only health check. (including primary)
-  selector: "[]"          # select all instance as replica service candidate
-  selector_backup: "[? pg_role == `primary` || pg_role == `offline` ]"
+```ini
+listen pg-test-replica
+    bind *:5434
+    mode tcp
+    maxconn 5000
+    balance roundrobin
+    option httpchk
+    option http-keep-alive
+    http-check send meth OPTIONS uri /read-only
+    http-check expect status 200
+    default-server inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100
+    # servers
+    server pg-test-1 10.10.10.11:6432 check port 8008 weight 100 backup
+    server pg-test-3 10.10.10.13:6432 check port 8008 weight 100
+    server pg-test-2 10.10.10.12:6432 check port 8008 weight 100
 ```
 
+</details>
 
+
+
+
+
+---------------
 
 ### Default Service
 
-The Default service is used for **online primary direct connections**, which map the cluster's port 5436 to the **primary Postgres (default 5432)** port.
+The default service will route to primary postgres (5432) by default.  
 
-Default service targets interactive read and writes access, including executing admin commands, performing DDL changes, connecting to the primary to perform DML, and performing CDC. Default service forwards traffic directly to Postgres, bypassing Pgbouncer.
-
-The Default service is similar to the Primary service, using the same config entry.
+It is quite like primary service, except that it will always bypass pgbouncer, regardless of [`pg_default_service_dest`](PARAM#pg_default_service_dest).
+Which is useful for administration connection, ETL writes, CDC changing data capture, etc... 
 
 ```yaml
-# default service will route {ip|name}:5436 to primary postgres (5436->5432 primary)
-- name: default           # service's actual name is {{ pg_cluster }}-default
-  src_ip: "*"             # service bind ip address, * for all, vip for cluster virtual ip address
-  src_port: 5436          # bind port, mandatory
-  dst_port: postgres      # target port: postgres|pgbouncer|port_number , pgbouncer(6432) by default
-  check_method: http      # health check method: only http is available for now
-  check_port: patroni     # health check port:  patroni|pg_exporter|port_number , patroni by default
-  check_url: /primary     # health check url path, / as default
-  check_code: 200         # health check http code, 200 as default
-  selector: "[]"          # instance selector
-  haproxy:                # haproxy specific fields
-    maxconn: 3000         # default front-end connection
-    balance: roundrobin   # load balance algorithm (roundrobin by default)
-    default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
+- { name: primary ,port: 5433 ,dest: default  ,check: /primary   ,selector: "[]" }
 ```
 
 
+<details><summary>Example: pg-test-default haproxy config</summary>
+
+```ini
+listen pg-test-default
+    bind *:5436
+    mode tcp
+    maxconn 5000
+    balance roundrobin
+    option httpchk
+    option http-keep-alive
+    http-check send meth OPTIONS uri /primary
+    http-check expect status 200
+    default-server inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100
+    # servers
+    server pg-test-1 10.10.10.11:5432 check port 8008 weight 100
+    server pg-test-3 10.10.10.13:5432 check port 8008 weight 100
+    server pg-test-2 10.10.10.12:5432 check port 8008 weight 100
+```
+
+</details>
+
+
+
+
+---------------
 
 ### Offline Service
 
-Offline service is used for offline access and personal queries. It maps the cluster's **5438** port, to the **offline Postgres (default 5432)** port.
 
-The Offline service targets interactive read-only access, including ETL, offline analytics queries, and individual user queries. Offline service also forwards traffic directly to Postgres, bypassing Pgbouncer.
+The Offline service will route traffic to dedicate postgres instance directly.
 
-Offline instances are those where [`pg_role`](v-pgsql.md#pg_role) is `offline` or tagged with [`pg_offline_query`](v-pgsql.md#pg_offline_query). The **other replica** outside the Offline will act as a backup instance for Offline and will still be able to get services from other replicas when the Offline is down.
+Which could be a [`pg_role`](PARAM#pg_role) = `offline` instance, or a [`pg_offline_query`](PARAM#pg_offline_query) flagged instance.
+
+If no such instance is found, it will fall back to any replica instances. the bottom line is: it will never route traffic to the primary instance.
 
 ```yaml
-# offline service will route {ip|name}:5438 to offline postgres (5438->5432 offline)
-- name: offline           # service name {{ pg_cluster }}-offline
-  src_ip: "*"
-  src_port: 5438
-  dst_port: postgres
-  check_url: /replica     # offline MUST be a replica
-  selector: "[? pg_role == `offline` || pg_offline_query ]"         # instances with pg_role == 'offline' or instance marked with 'pg_offline_query == true'
-  selector_backup: "[? pg_role == `replica` && !pg_offline_query]"  # replica are used as backup server in offline service
+- { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
 ```
+
+```ini
+listen pg-test-offline
+    bind *:5438
+    mode tcp
+    maxconn 5000
+    balance roundrobin
+    option httpchk
+    option http-keep-alive
+    http-check send meth OPTIONS uri /replica
+    http-check expect status 200
+    default-server inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100
+    # servers
+    server pg-test-3 10.10.10.13:5432 check port 8008 weight 100
+    server pg-test-2 10.10.10.12:5432 check port 8008 weight 100 backup
+```
+
 
 
 
 ---------------
 
-## User-Defined Service
+## Define Service
 
-In addition to the default services configured by [`pg_services`](v-pgsql.md#pg_services) above, users can define additional services for the PostgreSQL cluster in the [`pg_services_extra`](v-pgsql.md#pg_services_extra) config entry.
+The default services are defined in [`pg_default_services`](PARAM#pg_default_services).
 
-A cluster can define multiple services, each containing any number of cluster members, distinguished by **port**. The following code defines a new service `standby` that uses port `5435` to provide **sync read** functionality. This service will read from standby (or primary) in the cluster, thus ensuring that all reads are done without latency.
+While you can define your extra PostgreSQL services with [`pg_services`](PARAM#pg_services) @ the global or cluster level.
+
+These two parameters are both arrays of service objects. Each service definition will be rendered as a haproxy config in `/etc/haproxy/<svcname>.cfg`, check [`service.j2`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/service.j2) for details.
+
+Here is an example of an extra service definition: `standby`
 
 ```yaml
-# standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
 - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
-  src_ip: "*"                     # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
-  src_port: 5435                  # required, service exposed port (work as kubernetes service node port mode)
-  dst_port: postgres              # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
-  check_method: http              # optional, health check method: http is the only available method for now
-  check_port: patroni             # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
-  check_url: /read-only?lag=0     # optional, health check url path, / by default
-  check_code: 200                 # optional, health check expected http code, 200 by default
-  selector: "[]"                  # required, JMESPath to filter inventory ()
-  selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
-  haproxy:                        # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
-    maxconn: 3000                 # optional, max allowed front-end connection
-    balance: roundrobin           # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
-    default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
-
-
+  port: 5435                      # required, service exposed port (work as kubernetes service node port mode)
+  ip: "*"                         # optional, service bind ip address, `*` for all ip by default
+  selector: "[]"                  # required, service member selector, use JMESPath to filter inventory
+  dest: default                   # optional, destination port, default|postgres|pgbouncer|<port_number>, 'default' by default
+  check: /sync                    # optional, health check url path, / by default
+  backup: "[? pg_role == `primary`]"  # backup server selector
+  maxconn: 3000                   # optional, max allowed front-end connection
+  balance: roundrobin             # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
+  options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 ```
 
+And it will be translated to a haproxy config file `/etc/haproxy/pg-test-standby.conf`:
 
-#### Required
-
-- **Name (`service.name`)**.
-
-  The full name of the service is prefixed by the database cluster name and suffixed by `service.name`, connected by `-`.
-
-- **Port (`service.port`)**.
-
-  In Pigsty, services are exposed as NodePort by default, so the port is mandatory. However, if you use an LB service access scheme, you can also differentiate the services in other ways.
-
-- **selector (`service.selector`)**.
-
-  The **selector** specifies the instance members of the service, in the form of JMESPath, filtering variables from all cluster instances. The default `[]` selector picks all cluster members.
-
-#### Optional
-
-- **backup selector (`service.selector`)**.
-
-  The **backup selector** selects or marks the list of instances for service backup, i.e., the backup instance takes over the service only when all other members of the cluster fail.
-
-- **source_ip (`service.src_ip`)**.
-
-  Indicates the IP used externally by the **service**. The default is `*`, which is all IP on the localhost. Using `vip` will use the `vip_address` variable to take the value, or you can also fill in the specific IP supported by the NIC.
-
-- **Host port (`service.dst_port`)**.
-
-  Indicates which port the service's traffic will be directed to on the target instance. `postgres` will point to the port the database is listening on, `pgbouncer` will point to the port the connection pool is listening on, or you can fill in a fixed port.
-
-- **health check method (`service.check_method`)**:
-
-  How does the service check the health status of the instance? Currently, only HTTP is supported.
-
-- **Health check port (`service.check_port`)**:
-
-  Which port does the service check the instance on to get the health status of the instance? `patroni` will get it from Patroni (default 8008), `pg_exporter` will get it from PG Exporter (default 9630), or the user can fill in a custom port.
-
-- **Health check path (`service.check_url`)**:
-
-  The URL PATH is used by the service to perform HTTP checks. `/` is used by default for health checks, and PG Exporter and Patroni provide a variety of health check methods that can be used to differentiate between primary and replica traffic. For example, `/primary` will only return success for the primary, and `/replica` will only return success for the replica. `/read-only`, on the other hand, will return success for any instance that supports read-only (including the primary).
-
-- **health check code (`service.check_code`)**:
-
-  The code expected for HTTP health checks, default, is 200.
-
-- **Haproxy-specific configuration (`service.haproxy`)** :
-
-  Proprietary config entries about the service provisioning software (HAProxy).
-
-### Service Implementation
-
-Pigsty currently uses HAProxy-based service implementation by default and provides a sample implementation based on Layer 4 LB (L4VIP). For details, please refer to the section [access](#access).
-
-
+```ini
+#---------------------------------------------------------------------
+# service: pg-test-standby @ 10.10.10.11:5435
+#---------------------------------------------------------------------
+# service instances 10.10.10.11, 10.10.10.13, 10.10.10.12
+# service backups   10.10.10.11
+listen pg-test-standby
+    bind *:5435
+    mode tcp
+    maxconn 5000
+    balance roundrobin
+    option httpchk
+    option http-keep-alive
+    http-check send meth OPTIONS uri /
+    http-check expect status 200
+    default-server inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100
+    # servers
+    server pg-test-1 10.10.10.11:6432 check port 8008 weight 100 backup
+    server pg-test-3 10.10.10.13:6432 check port 8008 weight 100
+    server pg-test-2 10.10.10.12:6432 check port 8008 weight 100
+```
 
 
 
 
 ---------------
 
-## Access
+## Reload Service
 
-Access is designed to address high concurrency, HA, and high performance in **production envs**. **Individual users** can choose to ignore the access method and access the database directly via IP.
+When cluster membership has changed, such as append / remove replicas, switchover/failover, or adjust relative weight,
+You have to [reload service](PGSQL-ADMIN#reload-service) to make the changes take effect.
 
-> Access default database via `postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta` (replace IP & password)
-
-In Pigsty's default config, a fully functional LB(HAProxy) is deployed on each database instance/node, so that **any instance** can serve as an access point for the entire cluster. The delivery boundary of a Pigsty cluster stops at the access layer LB(HAProxy); it is up to you to decide Access Policy: **how to distribute business traffic to one, multiple, or all load balancing instances**.
-
-Pigsty provides a rich set of access methods. The Pigsty sandbox uses an L2 VIP bound to the primary and a domain name attached to that VIP as a sample. The application accesses the load-balancing instance on the primary through the L2 VIP via the domain name. When this node becomes unavailable, the VIP is transferred with the primary, and the traffic is carried by the LB on the new primary, as shown in the following figure.
-
-![](_media/HA-PGSQL.svg)
-
-Another classic policy is to use DNS polling to resolve DNS domain names to all instances, and several common access patterns will be given in this article.
+```bash
+bin/pgsql-svc <cls> [ip...]         # reload service for lb cluster or lb instance
+```
 
 
 
-## User Interface
+---------------
 
-The interface that Pigsty ultimately delivers to the user is a database connection string.
+## Access Service
 
-The formal difference between the different **access methods** is the difference between [host](#host) and [port](#port) in the connection string.
+Pigsty expose [service](#service) with haproxy. Which is enabled on all nodes by default.
 
-### Port
+haproxy load balancers are idempotent among same pg cluster by default, you use **ANY** / **ALL** of them by all means.
 
-Pigsty uses different **ports** to distinguish between [database services](c-service.md#service), which provide Postgres equivalent services, as follows
+The typical method is access via cluster domain name, which resolve to cluster L2 VIP, or all instances ip address in a round-robin manner.
 
-| port | service | type | description |
-| ---- | --------- | -------------------- | ------------------------------------ |
-| 5432 | postgres | database | Direct access to the current node database |
-| 6432 | pgbouncer | connection pool | Accessing the current node database through a connection pool |
-| 5433 | primary | [service](c-service.md#service) | Load-balancing and accessing the primary through a **connection pool** |
-| 5434 | replica | [service](c-service.md#service) | Load-balancing and accessing the primary through a **connection pool** |
-| 5436 | default | [service](c-service.md#service) | Direct access to the primary via load balancing |
-| 5438 | offline | [service](c-service.md#service) | Direct access to the offline via load balancing |
+Service can be implemented in different ways, You can even implement you own access method such as L4 LVS, F5, etc... instead of haproxy.
 
+You can use different combination of [host](#host) and [port](#port), they are provide PostgreSQL service in different ways.
 
-### Host
+**Host**
 
-| type | sample | description |
-| ------------ | ------------------- | ------------------------------------ |
-| Cluster domain name | `pg-test` | Direct access to the current node database |
-| Cluster VIP | `10.10.10.3` | Access the current node database through a connection pool |
-| Instance-specific domain name | `pg-test-1` | Load-balancing and accessing the primary through a **connection pool** |
-| Instance-specific IP | `10.10.10.11` | Load-balancing and accessing the primary through a **connection pool** |
-| All IP | `10.10,10.11,10.12` | Use Multihost feature |
-
-Depending on the contents of the `host` section and the available `port`, multiple connection strings can be combined.
+| type                | sample              | description                                                          |
+|---------------------|---------------------|----------------------------------------------------------------------|
+| Cluster Domain Name | `pg-test`           | via cluster domain name (resolved by dnsmasq @ infra nodes)          |
+| Cluster VIP Address | `10.10.10.3`        | via a L2 VIP address managed by `vip-manager`, bind to primary       |
+| Instance Hostname   | `pg-test-1`         | Access via any instance hostname (resolved by dnsmasq @ infra nodes) |
+| Instance IP Address | `10.10.10.11`       | Access any instance ip address                                       |
 
 
-### Available Combinations
+**Port**
 
-The following connection strings are available for the test database on the cluster pg-test in a singleton sandbox.
+Pigsty uses different **ports** to distinguish between [pg services](#service)
 
-<details><summary>Available Combinations</summary>			
+| port | service   | type       | description                                           |
+|------|-----------|------------|-------------------------------------------------------|
+| 5432 | postgres  | database   | Direct access to postgres server                      |
+| 6432 | pgbouncer | middleware | Go through connection pool middleware before postgres |
+| 5433 | primary   | service    | Access primary pgbouncer (or postgres)                |
+| 5434 | replica   | service    | Access replica pgbouncer (or postgres)                |
+| 5436 | default   | service    | Access primary postgres                               |
+| 5438 | offline   | service    | Access offline postgres                               |
+
+**Combinations**
 
 ```bash
 # Access via cluster domain
@@ -373,215 +375,3 @@ postgres://test@10.10.10.11:5432,10.10.10.12:5432,10.10.10.13:5432/test?target_s
 postgres://test@10.10.10.11:5432,10.10.10.12:5432,10.10.10.13:5432/test?target_session_attrs=prefer-standby
 
 ```
-
-</details>
-
-At the cluster level, users can access the four [**default services**](c-service.md#default-service) provided by the cluster via **cluster domain** + service port. Users can also bypass the domain name and access the database cluster directly using the cluster's VIP (L2 or L4).
-
-At the instance level, users can connect directly to Postgres via the node IP/domain name + port 5432 or port 6432 to access the database via Pgbouncer. Services provided by the cluster to which the instance belongs can also be accessed via Haproxy via 5433~543x.
-
-
-
-## Access Method
-
-Pigsty recommends using a Haproxy-based access solution (1/2) or, in production envs with infra support, an L4VIP (or equivalent load balancing service) based access solution (3).
-
-| Serial Number | Solution | Description |
-| ---- | ---------------------------------- | --------------------------------------------------------- |
-| 1 | [L2VIP + Haproxy](#l2-vip-haproxy) | Standard access policy, using L2 VIP to ensure HA of Haproxy |
-| 2 | [DNS + Haproxy](#dns-haproxy) | Standard HA access policy, no single node of system. |
-| 3 | [L4VIP + Haproxy](#l4-vip-haproxy) | A variant of Method 2, using L4 VIP to ensure Haprxoy is HA.    |
-| 4 | [L4 VIP](#l4-vip) | Large-scale **high-performance production envs** DPVS L4 VIP access is recommended |
-| 5 | [Consul DNS](#consul-dns) | Use Consul DNS for service discovery, bypassing VIPs and Haproxy |
-| 6 | [Static DNS](#static-dns) | Traditional static DNS Access |
-| 7 | [IP](#ip) | Using Smart Client Access |
-
-![](_media/ACCESS_EN.svg)
-
-
-
-### L2 VIP + Haproxy
-
-#### Solution Description
-
-The standard access method for Pigsty sandboxes uses a single domain name bound to a single L2 VIP, which points to the HAProxy.
-
-The Haproxy uses Node Port to expose [**service**](c-service.md) in a unified way. Each Haproxy is an idempotent instance, providing complete load balancing and service distribution. Haproxy is deployed on each database node so that each member of the entire cluster is idempotent.
-
-The availability of Haproxy **is achieved through idempotent replicas**. Each Haproxy can be used as an access portal, and users can use one, two, or more Haproxy instances, each providing exactly functionality.
-
-Each cluster is assigned **one** L2 VIP, which is fixedly bound to the primary. When a switchover of the primary occurs, that L2 VIP is moved to the new primary with it. This is achieved through `vip-manager`: `vip-manager` will query Consul to get the current primary information, and then listen to the VIP address on the primary.
-
-The L2 VIP of the cluster has a **domain name** corresponding to it. The domain name is fixed to resolve to that L2 VIP and remains unchanged during the lifecycle.
-
-#### Solution Superiority
-
-* No single point, HA
-
-* VIP fixed binding to the primary, can be flexible access.
-
-#### Solution limitations
-
-* One more hop
-
-* A client's IP is lost, and some HBA policies cannot take effect normally.
-
-* All candidate primary must **be located in the same Layer 2 network**.
-
-  * As an alternative, users can also bypass this restriction by using L4 VIP, but there will be one extra hop compared to L2 VIP.
-  * As an alternative, users can also choose not to use L2 VIP and use DNS to point directly to HAProxy, but may be affected by client DNS caching.
-
-
-#### Schematic of the solution
-
-![](_media/HA-PGSQL.svg)
-
-
-
-### DNS + Haproxy
-
-#### Solution Description
-
-Standard HA access method with no single point. A good balance of flexibility, applicability, and performance is achieved.
-
-Haproxy in a cluster uses Node Port to expose [**service**](c-service/) in a unified way. Each Haproxy is idempotent, providing complete load balancing and service distribution. Haproxy is deployed on each database node so that each member of the entire cluster is idempotent.
-
-The availability of Haproxy **is achieved through idempotent replicas**. Each Haproxy can be used as an access portal, and users can use one, two, or multiple Haproxy instances, each providing precisely the same functionality.
-
-**The user needs to ensure that the application can access any healthy Haproxy instances**. Users can resolve the DNS domain name of the database cluster to several Haproxy instances and enable DNS polling responses. And the client can choose not to cache DNS or use long connections and implement a mechanism to retry after a failed connection is established. Or refer to Method 2 and ensure HA of Haproxy with other L2/L4 VIPs on the architecture side.
-
-#### Solution Superiority
-
-* No single point, HA
-
-* VIP fixed binding to the primary can be flexible access
-
-#### Solution limitations
-
-* One more hop
-
-* A client's IP is lost, and some HBA policies can not take effect properly.
-
-* **Haproxy is HA through idempotent replica, DNS polling, and client reconnection**.
-
-  DNS should have a polling mechanism, clients should use long connections, and a failure retry mechanism should be in place. So that Haproxy failures can be transferred to other Haproxy instances in the cluster.
-
-#### Schematic of the solution
-
-
-
-
-### L4 VIP + Haproxy
-
-<details><summary>Four-layer load balancing + HAProxy access</summary>
-
-
-#### Solution overview
-
-Another variant of access method 1/2, ensuring HA of Haproxy via L4 VIP.
-
-#### Solution advantages
-
-* No single point, HA.
-* Can use **all** Haproxy instances simultaneously to carry traffic evenly
-* All candidate primary **does not need to** be located in the same Layer 2 network.
-* Can operate a single VIP to complete traffic switching.
-
-#### Solution limitations
-
-* You can use Method 4: L4 VIP direct access for two more hops, which is more wasteful.
-* The client's IP is lost; part of the HBA policy can not correctly take effect.
-
-</details>
-
-
-
-### L4 VIP
-
-<details><summary>Four-layer load-balanced access</summary>
-
-
-#### Program Description
-
-Large-scale **high-performance production env** recommended using L4 VIP access (FullNAT, DPVS).
-
-#### Solution Superiority
-
-* Good performance and high throughput
-* The correct client IP can be obtained through the `toa` module, and HBA can be fully effective.
-
-#### Solution limitation
-
-* Still one more article.
-* We need to rely on external infra, which is complicated to deploy.
-* Still lose client IP when the `toa` kernel module is not enabled.
-* No Haproxy to mask primary-replica differences, and each node is no longer "**idempotent**".
-
-</details>
-
-
-
-### Consul DNS
-
-<details><summary>Consul DNS access</summary>
-
-#### Solution Description
-
-The L2 VIP method is unavailable when all candidate primary must **be located on the same Layer 2 network**.
-In this case, DNS resolution can be used instead of L2 VIP
-
-#### Solution Superiority
-
-* One less hop
-
-#### Solution Limitations
-
-* Reliance on Consul DNS
-* User needs to configure DNS caching policy properly
-
-</details>
-
-
-
-### Static DNS
-
-<details><summary>Static DNS Access</summary>
-
-
-#### Solution Introduction
-
-Traditional static DNS access method
-
-#### Advantages of the solution
-
-* One less hop
-* Simple implementation
-
-#### Solution Limitations
-
-* No flexibility
-* Prone to traffic loss during primary-replica switching
-
-</details>
-
-
-
-### IP
-
-<details><summary>IP Direct Access</summary>
-
-#### Solution Introduction
-
-Direct database IP access using innovative clients
-
-#### Solution advantages
-
-* Direct connection to database/connection pool, one less
-* No reliance on additional components for primary-replica differentiation, reducing system complexity.
-
-#### Solution limitations
-
-* Too inflexible, cumbersome to expand and reduce cluster capacity.
-
-</details>
-

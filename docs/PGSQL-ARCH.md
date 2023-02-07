@@ -15,7 +15,7 @@ By default, Pigsty deploys clusters in **availability first** mode. When the pri
 
 
 
-![](_media/HA-PGSQL.svg)
+![pgsql-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)
 
 
 
