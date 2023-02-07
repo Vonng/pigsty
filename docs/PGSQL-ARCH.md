@@ -1,24 +1,7 @@
-# PGSQL Concept
+# PGSQL Architecture
 
 
 PGSQL for production environments is organized in **clusters**, which **clusters** are **logical entities** consisting of a set of database **instances** associated by **primary-replica**. Each **database cluster** is a **self-organizing** business service unit consisting of at least one **database instance**.
-
-### Sandbox
-
-Clusters are the basic business service units, and the following diagram shows the replication topology in a sandbox where `pg-meta-1` constitutes a database cluster `pg-meta`. In contrast, `pg-test-1`, `pg-test-2`, and `pg-test-3` form another logical cluster `pg-test`.
-
-```
-pg-meta-1
-(primary)
-
-pg-test-1 -------------> pg-test-2
-(primary)      |         (replica)
-               |
-               ^-------> pg-test-3
-                         (replica)
-```
-
-![](_media/SANDBOX.gif)
 
 
 
@@ -41,6 +24,8 @@ Pigsty's HA is achieved using Patroni + HAProxy, with the former failing over an
 Patroni uses DCS service for heartbeat preservation, and the primary will register a 15-second lease by default and renew it periodically. When the primary fails to renew the lease, the lease is released, and a new primary election round is triggered. Usually, the one with the lowest delay is elected as the new primary. The cluster enters a new timeline, and all other clusters, including the old primary, re-follow the new primary.
 
 HAProxy automatically detects the state of the instances and distributes the traffic correctly. Haproxy is stateless and deployed uniformly on each node/instance. All HAProxy can act as service access for the cluster. For example, the Primary service on port 5433 will use HTTP GET `ip:8008/primary` health check to get information from all Patroni in the cluster, find out the primary, and distribute traffic to the primary.
+
+
 
 
 
@@ -286,5 +271,23 @@ Note that **services are not enough to divide pairs of instances**. The same ser
 
 
 
+
+
+### Sandbox
+
+Clusters are the basic business service units, and the following diagram shows the replication topology in a sandbox where `pg-meta-1` constitutes a database cluster `pg-meta`. In contrast, `pg-test-1`, `pg-test-2`, and `pg-test-3` form another logical cluster `pg-test`.
+
+```
+pg-meta-1
+(primary)
+
+pg-test-1 -------------> pg-test-2
+(primary)      |         (replica)
+               |
+               ^-------> pg-test-3
+                         (replica)
+```
+
+![](_media/SANDBOX.gif)
 
 
