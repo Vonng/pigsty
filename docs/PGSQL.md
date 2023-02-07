@@ -2,7 +2,7 @@
 
 > **The most advanced open-source relational database in the world!**
 >
-> With battery-included observability, reliability and maintainability powered by Pigsty 
+> With battery-included observability, reliability, and maintainability powered by Pigsty 
 
 
 ## Concept
@@ -29,9 +29,9 @@
 - [Identity](PGSQL-CONF#identity): Parameters used for describing a PostgreSQL cluster
 - [Primary](PGSQL-CONF#primary): Define a single instance cluster
 - [Replica](PGSQL-CONF#replica): Define a basic HA cluster with one primary & one replica
-- [Offline](PGSQL-CONF#offline): Define a dedicated instance for OLAP/ETL/Interactive queries
+- [Offline](PGSQL-CONF#offline): Define a dedicated instance for OLAP/ETL/Interactive queries.
 - [Sync Standby](PGSQL-CONF#sync-standby): Enable synchronous commit to ensure no data loss
-- [Quorum Commit](PGSQL-CONF#quorum-commit):   Use quorum sync commit for even higher consistency level
+- [Quorum Commit](PGSQL-CONF#quorum-commit):   Use quorum sync commit for an even higher consistency level
 - [Standby Cluster](PGSQL-CONF#standby-cluster): Clone an existing cluster and follow it
 - [Delayed Cluster](PGSQL-CONF#delayed-cluster): Clone an existing cluster for emergency data recovery
 - [Citus Cluster](PGSQL-CONF#citus-cluster): Define a Citus distributed database cluster
@@ -42,7 +42,7 @@
 
 > Materialize the cluster you described
 
-- [`pgsql.yml`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)                     : Init HA PostgreSQL clusters, or adding new replicas
+- [`pgsql.yml`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)                     : Init HA PostgreSQL clusters or adding new replicas.
 - [`pgsql-rm.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-rm.yml)               : Remove PostgreSQL cluster, or remove replicas
 - [`pgsql-user.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-user.yml)           : Add new business user to existing PostgreSQL cluster
 - [`pgsql-db.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-db.yml)               : Add new business database to existing PostgreSQL cluster
@@ -79,7 +79,7 @@
 - [`PG_BUSINESS`](PARAM#pg_business)   : Postgres Business Object Definition
 - [`PG_INSTALL`](PARAM#pg_install)     : Install PGSQL Packages & Extensions
 - [`PG_BOOTSTRAP`](PARAM#pg_bootstrap) : Init a HA Postgres Cluster with Patroni
-- [`PG_PROVISION`](PARAM#pg_provision) : Create users, databases, in-database objects
+- [`PG_PROVISION`](PARAM#pg_provision) : Create users, databases, and in-database objects
 - [`PG_BACKUP`](PARAM#pg_backup)       : Setup backup repo with pgbackrest
 - [`PG_VIP`](PARAM#pg_vip)             : Bind an optional VIP on primary
 - [`PG_DNS`](PARAM#pg_dns)             : Register DNS Record to Infra
@@ -203,14 +203,14 @@
 
 ## Tutorials
 
-- Fork an existing PostgreSQL cluster
-- Create a standby cluster of an existing PostgreSQL cluster
+- Fork an existing PostgreSQL cluster.
+- Create a standby cluster of an existing PostgreSQL cluster.
 - Create a delayed cluster of another pgsql cluster?
 - Monitoring an existing postgres instance?
 - Migration from an external PostgreSQL with logical replication?
 - Use MinIO as a central pgbackrest repo.
 - Use dedicate etcd cluster for DCS?
-- Use dedicated haproxy for exposing PostgreSQL Service
+- Use dedicated haproxy for exposing PostgreSQL service.
 - Deploy a multinode MinIO cluster?
 - Use CMDB instead of Config as inventory.
 - Use PostgreSQL as grafana backend storage ?

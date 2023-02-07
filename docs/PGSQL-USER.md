@@ -1,6 +1,6 @@
 # PGSQL User
 
-> In this context, User refer to object create by SQL `CREATE USER/ROLE`.
+> In this context, the **User** refers to objects created by SQL `CREATE USER/ROLE`.
 
 
 
@@ -13,7 +13,7 @@ There are two parameters related to users:
 * [`pg_users`](PARAM#pg_users) : Define business users & roles at cluster level
 * [`pg_default_roles`](PARAM#pg_default_roles) : Define system-wide roles & global users at global level
 
-They are array of user/role definition, you can define multiple users/roles in one cluster.
+They are both arrays of user/role definition. You can define multiple users/roles in one cluster.
 
 ```yaml
 pg-meta:
@@ -55,22 +55,22 @@ And each user definition may look like:
 ```
 
 * The only required field is `name`, which should be a valid & unique username in PostgreSQL.
-* Role doesn't need a `password`, while it could be important for a login-able user. 
+* Roles don't need a `password`, while it could be necessary for a login-able user. 
 * The `password` can be plain text or a scram-sha-256 / md5 hash string.
 * User/Role are created one by one in array order. So make sure role/group definition is ahead of its members
 * `login`, `superuser`, `createdb`, `createrole`, `inherit`, `replication`, `bypassrls` are boolean flags
-* `pgbouncer` is disabled by default, to add a business user to pgbouncer user-list, you should set it to `true` explicitly. 
+* `pgbouncer` is disabled by default. To add a business user to the pgbouncer user-list, you should set it to `true` explicitly. 
 
 **ACL System**
 
 Pigsty has a battery-included [ACL](PGSQL-ACL) system, which can be easily used by assigning roles to users:
 
-* `dbrole_readonly` : role for global readonly access
-* `dbrole_readwrite` : role for global read-write access
-* `dbrole_admin` : role for object creation
-* `dbrole_offline` : role for restricted read-only access (on [offline](PGSQL-CONF#offline) instance)
+* `dbrole_readonly` : The role for global read-only access
+* `dbrole_readwrite` : The role for global read-write access
+* `dbrole_admin` : The role for object creation
+* `dbrole_offline` : The role for restricted read-only access ([offline](PGSQL-CONF#offline) instance)
 
-If you wish to re-design your own ACL system, check following parameters & templates
+If you wish to re-design your ACL system, check the following parameters & templates.
 
 * [`pg_default_roles`](PARAM#pg_default_roles) : System-wide roles & global users
 * [`pg_default_privileges`](PARAM#pg_default_privileges) : Default privileges for newly created objects
@@ -86,7 +86,7 @@ If you wish to re-design your own ACL system, check following parameters & templ
 
 Users & Roles [defined](#define-user) in [`pg_default_roles`](PARAM#pg_default_roles) and [`pg_users`](PARAM#pg_users) will be automatically created one by one during cluster bootstrap.
 
-If you wish to [create user](PGSQL-ADMIN#create-user) on existing cluster, the `bin/pgsql-user` util can be used.
+If you wish to [create user](PGSQL-ADMIN#create-user) on an existing cluster, the `bin/pgsql-user` util can be used.
 
 Add new user definition to `all.children.<cls>.pg_users`, and create that database with:
 
@@ -94,10 +94,10 @@ Add new user definition to `all.children.<cls>.pg_users`, and create that databa
 bin/pgsql-user <cls> <username>    # pgsql-user.yml -l <cls> -e username=<username>
 ```
 
-The playbook is idempotent, so it's ok to run this multiple times on existing cluster. 
+The playbook is idempotent, so it's ok to run this multiple times on the existing cluster. 
 
-If you are using the default pgbouncer as proxy, YOU MUST create new user with `pgsql-user` util or `pgsql-user.yml` playbook,
-Otherwise, the new user will not be added to [pgbouncer userlist](#pgbouncer-user).
+If you are using the default pgbouncer as proxy middleware, YOU MUST create a new user with `pgsql-user` util, or `pgsql-user.yml` playbook,
+Otherwise, the new user will not be added to the [pgbouncer userlist](#pgbouncer-user).
 
 
 
@@ -107,9 +107,9 @@ Otherwise, the new user will not be added to [pgbouncer userlist](#pgbouncer-use
 
 ## Pgbouncer User
 
-Pgbouncer is enabled by default and serve as a connection pool middleware, and its user is managed by default.
+Pgbouncer is enabled by default and serves as a connection pool middleware, and its user is managed by default.
 
-Pigsty will add all users in [`pg_users`](PARAM#pg_users) with `pgbouncer: true` flag to pgbouncer userlist by default.
+Pigsty will add all users in [`pg_users`](PARAM#pg_users) with `pgbouncer: true` flag to the pgbouncer userlist by default.
 
 The user is listed in `/etc/pgbouncer/userlist.txt`:
 
@@ -133,10 +133,9 @@ dbuser_dba                  = pool_mode=session max_user_connections=16
 dbuser_monitor              = pool_mode=session max_user_connections=8
 ```
 
-The userlist & useropts file will be updated automatically when you add new user with `pgsql-user` util or `pgsql-user.yml` playbook.
+The userlist & useropts file will be updated automatically when you add a new user with `pgsql-user` util, or `pgsql-user.yml` playbook.
 
 You can use [`pgbouncer_auth_query`](PARAM#pgbouncer_auth_query) to simplify pgbouncer user management (with the cost of reliability & security).
-
 
 
 

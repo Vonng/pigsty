@@ -2,19 +2,19 @@
 
 > [Min.IO](https://min.io/docs/minio/linux/reference/minio-mc/mc-mb.html): S3-Compatible Open-Source Multi-Cloud Object Storage
 
-It has native multi-node multi-driver support, can be used for storing documents, pictures, videos, backups.
+It has native multi-node multi-driver support, and can be used for storing documents, pictures, videos, and backups.
 
-Pigsty use MinIO as an optional PostgreSQL backup storage repo instead of local repo. 
-In that case, MINIO module should be installed ahead of all [`PGSQL`](PGSQL) module.
+Pigsty uses MinIO as an optional PostgreSQL backup storage repo instead of the local repo. 
+In that case, the MINIO module should be installed ahead of all [`PGSQL`](PGSQL) modules.
 
-And etcd require a trusted CA to work, so you have to install it after [`NODE`](NODE) module.
+And MinIO requires a trusted CA to work, so you have to install it after [`NODE`](NODE) module.
 
 
 
 
 ## Playbook
 
-There's a built-in playbook: `minio.yml` for installing minio cluster. But you have to define it first.
+There's a built-in playbook: `minio.yml` for installing MinIO cluster. But you have to define it first.
 
 ```bash
 ./minio.yml    # install minio cluster on group 'minio'
@@ -38,20 +38,20 @@ There's a built-in playbook: `minio.yml` for installing minio cluster. But you h
 
 Trusted ca file: `/etc/pki/ca.crt` should exist on all nodes already. which is generated in `role: ca` and loaded & trusted by default in `role: node`.
 
-You should install [`MINIO`](MINIO) module on Pigsty managed nodes (i.e. Install [`NODE`](NODE) first)
+You should install [`MINIO`](MINIO) module on Pigsty-managed nodes (i.e., Install [`NODE`](NODE) first)
 
 
 
 ## Configuration
 
-You have to define a minio cluster before deploying it. There some [parameters](#parameters) about minio.
+You have to define a MinIO cluster before deploying it. There are some [parameters](#parameters) about MinIO.
 
 
 **Single Node, Single Drive**
 
 https://min.io/docs/minio/linux/operations/install-deploy-manage/deploy-minio-single-node-single-drive.html
 
-To deploy a singleton minio instance:
+To deploy a singleton MinIO instance:
 
 ```yaml
 # 1 Node 1 Driver (DEFAULT)
@@ -60,7 +60,7 @@ minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio 
 
 [`minio_seq`](PARAM#minio_seq) and [`minio_cluster`](PARAM#minio_cluster) is required identity parameter.
 
-Single Node mode is for development purpose, you can set [`minio_data`](PARAM#minio_data) to a common directory (`/data/minio` by default).
+Single Node mode is for development purposes, you can set [`minio_data`](PARAM#minio_data) to a normal directory (`/data/minio` by default).
 
 
 
@@ -70,7 +70,7 @@ https://min.io/docs/minio/linux/operations/install-deploy-manage/deploy-minio-si
 
 If you have multiple disks/drivers, mount them in sequence order.
 
-If multiple drive is specified, MinIO will treat it as a serious production deployment, refues to start if volumn is a common dir rather than a mountpoint.
+If multiple drives are specified, MinIO will treat it as a serious production deployment, and refuses to start if the volume is a common dir rather than a mount point.
 
 
 ```bash
@@ -90,9 +90,9 @@ And set a [`minio_data`](PARAM#minio_data) on cluster level : `minio_data: '/dat
 
 https://min.io/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html
 
-To deploy a distributed minio cluster, you have to define them in following format.
+To deploy a distributed MinIO cluster, you have to define them in the following format.
 
-The [`minio_node`](PARAM#minio_node) param will define domain names for minio instances
+The [`minio_node`](PARAM#minio_node) param will define domain names for MinIO instances
 
 ```yaml
 minio:
@@ -109,9 +109,9 @@ minio:
 
 **Expose Service**
 
-You can expose a multi-node minio cluster with [`haproxy_service`](PARAM#haproxy_service)
+You can expose a multi-node MinIO cluster with [`haproxy_service`](PARAM#haproxy_service)
 
-Here's an example of expose a 3-node minio cluster on their nodes。
+Here's an example of exposing a 3-node MinIO cluster on their nodes。
 
 ```yaml
 minio:
@@ -137,8 +137,8 @@ minio:
             - { name: minio-3 ,ip: 10.10.10.12 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
 ```
 
-If minio cluster is defined in Pigsty inventory, you can materialize it with [`minio.yml`](playbook) playbook.
-An admin web portal is served on https://sss.pigsty:9001 by default, and you can interact with minio with [`mcli`](#administration)
+If MinIO cluster is defined in the Pigsty inventory, you can materialize it with [`minio.yml`](playbook) playbook.
+An admin web portal is served on https://sss.pigsty:9001 by default, and you can interact with MinIO with [`mcli`](#administration)
 
 
 
@@ -185,7 +185,7 @@ mcli cp sss/infra/repo/pg_exporter-0.5.0.x86_64.rpm /tmp/  # download file from 
 
 ## Parameters
 
-There are 15 parameters about [`MINIO`](PARAM#MINIO) module.
+There are 15 parameters in [`MINIO`](PARAM#MINIO) module.
 
 
 | Parameter                                    |   Type   | Level | Comment                                                 |

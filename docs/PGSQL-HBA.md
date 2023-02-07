@@ -1,9 +1,8 @@
 # PGSQL Authentication
 
-> Host Based Authentication in Pigsty
+> Host-Based Authentication in Pigsty
 
-PostgreSQL has various [authentication](https://www.postgresql.org/docs/current/client-authentication.html) methods.
-You can use all of them, while pigsty's battery-include ACL system focus on HBA, password, and SSL authentication.
+PostgreSQL has various [authentication](https://www.postgresql.org/docs/current/client-authentication.html) methods. You can use all of them, while pigsty's battery-include ACL system focuses on HBA, password, and SSL authentication.
 
 
 
@@ -11,19 +10,17 @@ You can use all of them, while pigsty's battery-include ACL system focus on HBA,
 
 ## Client Authentication
 
-To connect to a PostgreSQL database, the user has to be authenticated (with password by default).
+To connect to a PostgreSQL database, the user has to be authenticated (with a password by default).
 
-You can provide the password in the connection string (not secure), or use the `PGPASSWORD` env or `.pgpass` file.
-
-Check [`psql`](https://www.postgresql.org/docs/current/app-psql.html#usage) docs and [PostgreSQL connection string](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING) for more details.
+You can provide the password in the connection string (not secure) or use the `PGPASSWORD` env or `.pgpass` file. Check [`psql`](https://www.postgresql.org/docs/current/app-psql.html#usage) docs and [PostgreSQL connection string](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING) for more details.
 
 ```bash
 psql 'host=<host> port=<port> dbname=<dbname> user=<username> password=<password>'
 psql postgres://<username>:<password>@<host>:<port>/<dbname>
 PGPASSWORD=<password>; psql -U <username> -h <host> -p <port> -d <dbname>
-``` 
+```
 
-The default connection string for `meta` database:
+The default connection string for the `meta` database:
 
 ```bash
 psql 'host=10.10.10.10 port=5432 dbname=meta user=dbuser_dba password=DBUser.DBA'
@@ -31,7 +28,7 @@ psql postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta
 PGPASSWORD=DBUser.DBA; psql -U dbuser_dba -h 10.10.10.10 -p 5432 -d meta
 ```
 
-To connect with SSL certificate, you can use the `PGSSLCERT` and `PGSSLKEY` env or `sslkey` & `sslcert` parameters.
+To connect with the SSL certificate, you can use the `PGSSLCERT` and `PGSSLKEY` env or `sslkey` & `sslcert` parameters.
 
 ```bash
 psql 'postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta?sslkey=/path/to/dbuser_dba.key&sslcert=/path/to/dbuser_dba.crt'
@@ -46,16 +43,14 @@ While the client certificate (`CN` = username) can be issued with local CA & [ce
 
 ## Define HBA
 
-There are four parameters about HBA Rules in Pigsty:
+There are four parameters for HBA Rules in Pigsty:
 
 * [`pg_hba_rules`](PARAM#pg_hba_rules): postgres ad-hoc hba rules
 * [`pg_default_hba_rules`](PARAM#pg_default_hba_rules): postgres default hba rules
 * [`pgb_hba_rules`](PARAM#pgb_hba_rules): pgbouncer ad-hoc hba rules
 * [`pgb_default_hba_rules`](PARAM#pgb_default_hba_rules): pgbouncer default hba rules
 
-Which will be rendered as `/pg/data/pg_hba.conf` and 
-
-Which are array of hba rule, each hba rule is one of the following forms:
+Which are array of hba rule objects, and each hba rule is one of the following forms:
 
 ### 1. Raw Form
 
@@ -70,7 +65,7 @@ Which are array of hba rule, each hba rule is one of the following forms:
 
 In the form, the `title` will be rendered as a comment line, followed by the `rules` as hba string one by one.
 
-An HBA Rule is installed when the instance's [`pg_role`](PARAM#pg_role) is same as `role`.
+An HBA Rule is installed when the instance's [`pg_role`](PARAM#pg_role) is the same as the `role`.
 
 HBA Rule with `role: common` will be installed on all instances. 
 
@@ -91,15 +86,15 @@ The alias form, which replace `rules` with `addr`, `auth`, `user`, and `db` fiel
   title: allow intranet password access
 ```
 
-- `addr`: where 
-  - `world`: all ip addresses
+- `addr`: **where** 
+  - `world`: all IP addresses
   - `intra`: all intranet cidr: `'10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'`
-  - `infra`: ip addresses of infra nodes
+  - `infra`: IP addresses of infra nodes
   - `admin`: `admin_ip` address
   - `local`: local unix socket
   - `localhost`: local unix socket + tcp 127.0.0.1/32
-  - `<cidr>`: any common cidr blocks or ip addresses
-- `auth`: how
+  - `<cidr>`: any standard CIDR blocks or IP addresses
+- `auth`: **how**
   - `deny`: reject access
   - `trust`: trust authentication
   - `pwd`: use `md5` or `scram-sha-256` password auth according to [`pg_pwd_enc`](PARAM#pg_pwd_enc)
@@ -110,18 +105,20 @@ The alias form, which replace `rules` with `addr`, `auth`, `user`, and `db` fiel
   - `ssl-sha`: enforce host ssl in addition to `scram-sha-256` password auth
   - `os`/`ident`: use `ident` os user authentication 
   - `peer`: use `peer` authentication
-  - `cert`: use certificate based client authentication
-- `user`: who
+  - `cert`: use certificate-based client authentication
+- `user`: **who**
   - `all`: all users
   - `${dbsu}`: database superuser specified by [`pg_dbsu`](PARAM#pg_dbsu)
   - `${repl}`: replication user specified by [`pg_replication_username`](PARAM#pg_replication_username)
   - `${admin}`: admin user specified by [`pg_admin_username`](PARAM#pg_admin_username)
   - `${monitor}`: monitor user specified by [`pg_monitor_username`](PARAM#pg_monitor_username)
   - ad hoc users & roles. 
-- `db`: which
+- `db`: **which**
   - `all`: all databases
   - `replication`: replication database
   - ad hoc database name
+
+
 
 
 ---------------------
@@ -148,7 +145,7 @@ The underlying command: are:
 
 ## Default HBA
 
-Pigsty has a default set of hba rules, which is fairly secure for most cases.
+Pigsty has a default set of HBA rules, which is pretty secure for most cases.
 
 The rules are self-explained in alias form.
 
@@ -331,7 +328,7 @@ host     all                all                192.168.0.0/16     scram-sha-256
 
 ## Security Enhancement
 
-For those critical cases, we have a [security.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/security.yml) template with following hba rule set as a reference:
+For those critical cases, we have a [security.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/security.yml) template with the following hba rule set as a reference:
 
 ```yaml
 pg_default_hba_rules:             # postgres host-based auth rules by default
@@ -357,5 +354,3 @@ pgb_default_hba_rules:            # pgbouncer host-based authentication rules
   - {user: 'all'        ,db: all         ,addr: intra     ,auth: ssl   ,title: 'allow all user intra access with pwd' }
 ```
 
-
- 

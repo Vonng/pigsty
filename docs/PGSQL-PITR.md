@@ -14,7 +14,7 @@ Use the following command to perform [backup](https://pgbackrest.org/command.htm
 # stanza name = {{ pg_cluster }} by default
 pgbackrest --stanza=${stanza} --type=full|diff|incr backup
 
-# you can also use following command in pigsty (/pg/bin/pg-backup)
+# you can also use the following command in pigsty (/pg/bin/pg-backup)
 pg-backup       # make a backup, incr, or full backup if necessary
 pg-backup full  # make a full backup
 pg-backup diff  # make a differential backup

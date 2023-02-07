@@ -1,6 +1,6 @@
 # PGSQL Database
 
-> In this context, Database refer to object create by SQL `CREATE DATABASE`.
+> In this context, Database refers to object created by SQL `CREATE DATABASE`.
 
 A postgres server can serve multiple databases simultaneously. And you can customize each database with Pigsty API. 
 
@@ -10,7 +10,7 @@ A postgres server can serve multiple databases simultaneously. And you can custo
 
 ## Define Database
 
-Business databases are defined by [`pg_databases`](PARAM#pg_databases), it is a cluster level parameter, for example, the default `meta` database is defined in `pg-meta` cluster:
+Business databases are defined by [`pg_databases`](PARAM#pg_databases), which is a cluster-level parameter, for example, the default `meta` database is defined in the `pg-meta` cluster:
 
 ```yaml
 pg-meta:
@@ -26,7 +26,7 @@ pg-meta:
       - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
 ```
 
-Each database definition is a dict with following fields:
+Each database definition is a dict with the following fields:
 
 ```yaml
 - name: meta                      # REQUIRED, `name` is the only mandatory field of a database definition
@@ -58,7 +58,7 @@ Each database definition is a dict with following fields:
 
 The only required field is `name`, which should be a valid and unique database name in PostgreSQL.
 
-Newly created database are forked from `template1` database by default. which is customized by [`PG_PROVISION`](PARAM#PG_PROVISION) during cluster bootstrap.
+Newly created databases are forked from `template1` database by default. which is customized by [`PG_PROVISION`](PARAM#PG_PROVISION) during cluster bootstrap.
 
 
 
@@ -68,7 +68,7 @@ Newly created database are forked from `template1` database by default. which is
 
 Databases [defined](#define-database) in [`pg_databases`](PARAM#pg_databases) will be automatically created during cluster bootstrap.
 
-If you wish to [create database](PGSQL-ADMIN#create-database) on existing cluster, the `bin/pgsql-db` util can be used.
+If you wish to [create database](PGSQL-ADMIN#create-database) on an existing cluster, the `bin/pgsql-db` util can be used.
 
 Add new database definition to `all.children.<cls>.pg_databases`, and create that database with:
 
@@ -76,13 +76,12 @@ Add new database definition to `all.children.<cls>.pg_databases`, and create tha
 bin/pgsql-db <cls> <dbname>    # pgsql-db.yml -l <cls> -e dbname=<dbname>
 ```
 
-It's usually not a good idea to execute this on existing database again when a `baseline` script is used.  
+It's usually not a good idea to execute this on the existing database again when a `baseline` script is used.  
 
-If you are using the default pgbouncer as proxy, YOU MUST create new database with `pgsql-db` util or `pgsql-db.yml` playbook,
-Otherwise, the new database will not be added to [pgbouncer database](#pgbouncer-database) list.
+If you are using the default pgbouncer as the proxy middleware, YOU MUST create the new database with `pgsql-db` util or `pgsql-db.yml` playbook. Otherwise, the new database will not be added to the [pgbouncer database](#pgbouncer-database) list.
 
 Remember, if your database definition has a non-trivial `owner` (dbsu `postgres` by default ), make sure the owner user exists. 
-That is to say, always [create](PGSQL-ADMIN#create-user) [user](PGSQL-USER) before database.
+That is to say, always [create](PGSQL-ADMIN#create-user) the [user](PGSQL-USER) before the database.
 
 
 
@@ -91,10 +90,10 @@ That is to say, always [create](PGSQL-ADMIN#create-user) [user](PGSQL-USER) befo
 
 ## Pgbouncer Database
 
-Pgbouncer is enabled by default and serve as a connection pool middleware.
+Pgbouncer is enabled by default and serves as a connection pool middleware.
 
-Pigsty will add all database in [`pg_databases`](PARAM#pg_databases) to pgbouncer database list by default.
-You can disable pgbouncer proxy for a specific database by setting `pgbouncer: false` in database [definition](#define-database).
+Pigsty will add all databases in [`pg_databases`](PARAM#pg_databases) to the pgbouncer database list by default.
+You can disable the pgbouncer proxy for a specific database by setting `pgbouncer: false` in the database [definition](#define-database).
 
 The database is listed in `/etc/pgbouncer/database.txt`, with extra database-level parameters such as:
 
@@ -107,11 +106,11 @@ pool_size_min: 0                # optional, pgbouncer pool size min at database 
 pool_max_db_conn: 100           # optional, max database connections at database level, default 100
 ```
 
-Pgbouncer database list will be updated when [create database](#create-database) with Pigsty util & playbook. 
+The Pgbouncer database list will be updated when [create database](#create-database) with Pigsty util & playbook. 
 
 To access pgbouncer administration functionality, you can use the `pgb` alias as dbsu.
 
-There's a util function defined in `/etc/profile.d/pg-alias.sh`, that can allows you to reroute pgbouncer database traffic to a new host quickly, which can be used during zero-downtime migration.
+There's a util function defined in `/etc/profile.d/pg-alias.sh`, that can allow you to reroute pgbouncer database traffic to a new host quickly, which can be used during zero-downtime migration.
 
 ```bash
 # route pgbouncer traffic to another cluster member

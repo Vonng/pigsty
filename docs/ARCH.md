@@ -2,10 +2,10 @@
 
 > Modular Architecture and Declarative Interface!
 
-* Pigsty [deployment](#deployment) is described by config inventory and materialized with ansible playbooks.
+* Pigsty deployment is described by config inventory and materialized with ansible playbooks.
 
-* Pigsty works on common [nodes](#nodes) (x86_64 EL7/8/9), i.e., bare metals or virtual machines.
-* Pigsty uses a [modular](#modular) design that can be freely composed for different scenarios.
+* Pigsty works on common nodes (x86_64 EL7/8/9), i.e., bare metals or virtual machines.
+* Pigsty uses a modular design that can be freely composed for different scenarios.
 * The config controls **where** & **how** to install modules with **parameters**
 * The playbooks will adjust nodes into the desired status in an idempotent manner.
 
@@ -34,7 +34,7 @@ You can compose them freely in a declarative manner. If you want host monitoring
 
 Pigsty will install on a single **node** (BareMetal / VirtualMachine) by default. The [`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.yml) playbook will install [`INFRA`](INFRA), [`ETCD`](ETCD),  [`PGSQL`](PGSQL), and optional [`MINIO`](MINIO) modules on the **current** node, which will give you a full-featured observability infrastructure (Prometheus, Grafana, Loki, AlertManager, PushGateway, BlackboxExporter, etc... ) and a battery-included PostgreSQL Singleton Instance (Named `meta`).
 
-This node now has a self-monitoring system, visualization toolsets, and a  Postgres database with auto-configured PITR. You can use this node for devbox, testing, running demos, and doing data visualization & analysis. Or, furthermore, adding more nodes to it!
+This node now has a self-monitoring system, visualization toolsets, and a  Postgres database with autoconfigured PITR. You can use this node for devbox, testing, running demos, and doing data visualization & analysis. Or, furthermore, adding more nodes to it!
 
 ![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
 

@@ -9,7 +9,7 @@ You can define different types of instances & clusters.
 - [Replica](#replica): Define a basic HA cluster with one primary & one replica.
 - [Offline](#offline): Define a dedicated instance for OLAP/ETL/Interactive queries
 - [Sync Standby](#sync-standby): Enable synchronous commit to ensure no data loss.
-- [Quorum Commit](#quorum-commit):   Use quorum sync commit for even higher consistency level.
+- [Quorum Commit](#quorum-commit):   Use quorum sync commit for an even higher consistency level.
 - [Standby Cluster](#standby-cluster): Clone an existing cluster and follow it
 - [Delayed Cluster](#delayed-cluster): Clone an existing cluster for emergency data recovery
 - [Citus Cluster](#citus-cluster): Define a Citus distributed database cluster
@@ -53,7 +53,7 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-You can [create](PGSQL-ADMIN#create-cluster) entire cluster or [append](PGSQL-ADMIN#append-replica) replica to existing cluster:
+You can [create](PGSQL-ADMIN#create-cluster) an entire cluster or [append](PGSQL-ADMIN#append-replica) a replica to the existing cluster:
 
 ```bash
 bin/pgsql-add pg-test               # init entire cluster in one-pass
@@ -65,7 +65,7 @@ bin/pgsql-add pg-test 10.10.10.12   # add replica to existing cluster
 
 ## Offline
 
-Offline instance is a dedicated replica to serve slow queries, ETL, OLAP traffic and interactive queries, etc...
+The offline instance is a dedicated replica to serve slow queries, ETL, OLAP traffic and interactive queries, etc...
 
 To add an offline instance, assign a new instance with [`pg_role`](PARAM#pg_role) set to `offline`.
 
@@ -79,11 +79,11 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-Offline instance works like common replica instances, but it is used as backup server in `pg-test-replica` service.
+Offline instance works like common replica instances, but it is used as a backup server in `pg-test-replica` service.
 That is to say, offline and primary instance serves only when all `replica` instances are down.
 
-You can have ad hoc access control on offline with [`pg_default_hba_rules`](PARAM#pg_default_hba_rules) and [`pg_hba_rules`](PARAM#pg_hba_rules). 
-It will apply to offline instance, and any instances with [`pg_offline_query`](PARAM#pg_offline_query) flag.
+You can have ad hoc access control offline with [`pg_default_hba_rules`](PARAM#pg_default_hba_rules) and [`pg_hba_rules`](PARAM#pg_hba_rules). 
+It will apply to the offline instance and any instances with [`pg_offline_query`](PARAM#pg_offline_query) flag.
 
 
 
@@ -91,7 +91,7 @@ It will apply to offline instance, and any instances with [`pg_offline_query`](P
 
 ## Sync Standby
 
-PostgreSQL use asynchronous commit in stream replication by default. Which may have a small replication lag. (10KB / 10ms).
+PostgreSQL uses asynchronous commit in stream replication by default. Which may have a small replication lag. (10KB / 10ms).
 A small window of data loss may occur when the primary fails (can be controlled with [`pg_rpo`](PARAM#pg_rpo).), but it is acceptable for most scenarios. 
 
 But in some critical scenarios (e.g. financial transactions), data loss is totally unacceptable or read-your-write consistency is required.
@@ -128,10 +128,10 @@ Apply these changes? [y/N]: y
 
 ## Quorum Commit
 
-When [sync standby](#sync-standby) is enabled, PostgreSQL will pick one replica as the standby instance, and all other replicas as candidate.
+When [sync standby](#sync-standby) is enabled, PostgreSQL will pick one replica as the standby instance, and all other replicas as candidates.
 Primary will wait until the standby instance flushes to disk before a commit is confirmed, and the standby instance will always have the latest data without any lags.
 
-However, you can achieve even higher/lower consistency level with quorum commit (trade off with availability).
+However, you can achieve an even higher/lower consistency level with the quorum commit (trade-off with availability).
 
 For example, to have any 2 replicas to confirm a commit: 
 
@@ -192,11 +192,11 @@ After the application, the configuration takes effect, and two Sync Standby appe
 
 ## Standby Cluster
 
-You can clone an existing cluster with [standby cluster](#standby-cluster), which can be used for migration, horizontal split, multi-az deployment, or disaster recovery.
+You can clone an existing cluster and create a [standby cluster](#standby-cluster), which can be used for migration, horizontal split, multi-az deployment, or disaster recovery.
 
-A standby cluster's definition is just same as any other normal clusters, except there's a [`pg_upstream`](PARAM#pg_upstream) defined on primary instance.
+A standby cluster's definition is just the same as any other normal cluster, except there's a [`pg_upstream`](PARAM#pg_upstream) defined on the primary instance.
 
-For example, you have a `pg-test` cluster, to create a standby cluster `pg-test2`, the inventory may look like: 
+For example, you have a `pg-test` cluster, to create a standby cluster `pg-test2`, the inventory may look like this: 
 
 ```yaml
 # pg-test is the original cluster
@@ -213,13 +213,13 @@ pg-test2:
   vars: { pg_cluster: pg-test2 }
 ```
 
-And `pg-test2-1`, the primary of `pg-test2` will be a replica of `pg-test`, and serve as a **Standby Leader** in `pg-test2`.
+And `pg-test2-1`, the primary of `pg-test2` will be a replica of `pg-test` and serve as a **Standby Leader** in `pg-test2`.
 
 Just make sure that the [`pg_upstream`](/en/docs/pgsql/config#pg_upstream) parameter is configured on the primary of the backup cluster to pull backups from the original upstream automatically.
 
 ```bash
-bin/createpg pg-test     # Creating the original cluster
-bin/createpg pg-test2    # Creating a Backup Cluster
+bin/pgsql-add pg-test     # Creating the original cluster
+bin/pgsql-add pg-test2    # Creating a Backup Cluster
 ```
 
 
@@ -227,7 +227,7 @@ bin/createpg pg-test2    # Creating a Backup Cluster
 
 You can change the replication upstream of the standby cluster when necessary (e.g. upstream failover).
 
-To do so, just change the `standby_cluster.host` to the new upstream ip address and apply.
+To do so, just change the `standby_cluster.host` to the new upstream IP address and apply.
 
 ```bash
 $ pg edit-config pg-test2
@@ -248,9 +248,9 @@ $ pg edit-config pg-test2
 
 <details><summary>Example: Promote Standby Cluster</summary>
 
-You can promote standby cluster to a standalone cluster at any time.
+You can promote the standby cluster to a standalone cluster at any time.
 
-To do so, you have to [config](PGSQL-ADMIN#config-cluster) cluster and wipe the entire `standby_cluster` section then apply.
+To do so, you have to [config](PGSQL-ADMIN#config-cluster) the cluster and wipe the entire `standby_cluster` section then apply.
 
 ```bash
 $ pg edit-config pg-test2
@@ -269,7 +269,7 @@ Apply these changes? [y/N]: y
 
 <details><summary>Example: Cascade Replica</summary>
 
-If the [`pg_upstream`](PARAM#pg_upstream) is specified for **replica** rather than **primary**, the replica will be configured as a cascade replica with given upstream ip instead of the cluster primary
+If the [`pg_upstream`](PARAM#pg_upstream) is specified for **replica** rather than **primary**, the replica will be configured as a cascade replica with the given upstream ip instead of the cluster primary
 
 ```yaml
 pg-test:
@@ -291,9 +291,9 @@ pg-test:
 
 ## Delayed Cluster
 
-Delayed cluster is a special type of standby cluster, which is used to recover "drop-by-accident" ASAP.
+A delayed cluster is a special type of standby cluster, which is used to recover "drop-by-accident" ASAP.
 
-For example, if you wish to have a cluster `pg-testdelay` which has same data as 1-day ago `pg-test` cluster:
+For example, if you wish to have a cluster `pg-testdelay` which has the same data as 1-day ago `pg-test` cluster:
 
 ```yaml
 # pg-test is the original cluster
@@ -310,7 +310,7 @@ pg-testdelay:
   vars: { pg_cluster: pg-test2 }
 ```
 
-You can also [configure](PGSQL-ADMIN#config-cluster) a replication delay on existing [standby cluster](#standby-cluster). 
+You can also [configure](PGSQL-ADMIN#config-cluster) a replication delay on the existing [standby cluster](#standby-cluster). 
 
 ```bash
 $ pg edit-config pg-testdelay
@@ -324,9 +324,9 @@ $ pg edit-config pg-testdelay
 Apply these changes? [y/N]: y
 ```
 
-When some tuples & tables are dropped by accident, you can advance this delayed cluster to proper time point and select data from it.
+When some tuples & tables are dropped by accident, you can advance this delayed cluster to a proper time point and select data from it.
 
-It takes more resource, but can be much faster and less impact than [PITR](PGSQL-PITR.md)
+It takes more resources, but can be much faster and have less impact than [PITR](PGSQL-PITR.md)
 
 
 

@@ -2,7 +2,7 @@
 
 Pigsty has a built-in playbook [`pgsql-migration.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-migration.yml) to perform online database migration based on logical replication.
 
-With proper automation, the downtime could be minimize to several seconds. But beware that logical replication requires PostgreSQL 10+ to work. You can still use the facility here and use a pg_dump | psql instead of logical replication.
+With proper automation, the downtime could be minimized to several seconds. But beware that logical replication requires PostgreSQL 10+ to work. You can still use the facility here and use a pg_dump | psql instead of logical replication.
 
 
 
@@ -12,18 +12,17 @@ You have to create a migration task definition file to use this playbook.
 
 Check [`files/migration/pg-meta.yml`](https://github.com/Vonng/pigsty/blob/master/files/migration/pg-meta.yml) for example.
 
-It will try to the `pg-meta.meta` database to `pg-test.test`.
+It will try to migrate the `pg-meta.meta` to `pg-test.test`.
 
 ```bash
 pg-meta-1	10.10.10.10  --> pg-test-1	10.10.10.11 (10.10.10.12,10.10.10.13)
 ```
 
-You have to tell pigsty where is the source cluster and destination cluster. The database to be migrated, and the primary ip address.
+You have to tell pigsty where is the source cluster and destination cluster. The database to be migrated, and the primary IP address.
 
-You will have superuser privilege on both side to proceed
+You should have superuser privileges on both sides to proceed
 
-You can overwrite superuser connection to source cluster with `src_pg`, and logical replication connection string with `sub_conn`,
-Otherwise, pigsty default admin & replicator credential will be used.
+You can overwrite the superuser connection to the source cluster with `src_pg`, and logical replication connection string with `sub_conn`, Otherwise, pigsty default admin & replicator credentials will be used.
 
 
 ```yaml
@@ -72,11 +71,11 @@ pg_monitor_password: DBUser.Monitor
 
 ## Generate Migration Plan
 
-The playbook does not migration src to dst, but it will generate everything your need to do so.
+The playbook does not migrate src to dst, but it will generate everything your need to do so.
 
-After exectuion, you will find migration context dir under `~/migration/pg-meta.meta`  by default
+After the execution, you will find migration context dir under `~/migration/pg-meta.meta`  by default
 
-Following the `README.md` and execute these scripts one by one, you will do the trick!
+Following the `README.md` and executing these scripts one by one, you will do the trick!
 
 
 ```bash
@@ -115,15 +114,15 @@ Following the `README.md` and execute these scripts one by one, you will do the 
 
 **Caveats**
 
-You can use `./copy-seq 1000` to advance all sequence by a number (e.g. `1000`) after syncing sequences.
+You can use `./copy-seq 1000` to advance all sequences by a number (e.g. `1000`) after syncing sequences.
 Which may prevent potential serial primary key conflict in new clusters.
 
 You have to implement your own `./re-routing` script to route your application traffic from src to dst.
-Since we don't know how your traffic is routed (e.g dns, vip, haproxy or pgbouncer).
-Of course, you can always to that by hand...
+Since we don't know how your traffic is routed (e.g dns, VIP, haproxy, or pgbouncer).
+Of course, you can always do that by hand...
 
-You have to implement you own `./disable-src` script to restrict src cluster.
-You can do that by changing HBA rules & reload (recommended), or just shuttling down postgres, pgbouncer or haproxy...
+You have to implement your own `./disable-src` script to restrict the src cluster.
+You can do that by changing HBA rules & reload (recommended), or just shutting down postgres, pgbouncer, or haproxy...
 
 
 
