@@ -1,7 +1,6 @@
-# PGSQL ACL
+# PGSQL Access Control
 
 > Pigsty has a battery-included access control model based on [Role System](#role-system) and [Privileges](#privileges).
-
 
 
 

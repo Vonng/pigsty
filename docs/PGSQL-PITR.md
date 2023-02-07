@@ -1,7 +1,6 @@
-# Backup & Point-In-Time-Recovery
+# PGSQL Backup & Point-In-Time-Recovery
 
-
-Pigsty uses [pgbackrest](https://pgbackrest.org/) for PITR backup & restore.
+> Pigsty uses [pgbackrest](https://pgbackrest.org/) for PITR backup & restore.
 
 In the case of a hardware failure, a physical replica failover could be the best choice. whereas for data corruption scenarios (whether machine or human in origin), Point-in-Time Recovery (PITR) is often more appropriate.
 

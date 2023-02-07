@@ -1,4 +1,4 @@
-# PostgreSQL Database
+# PGSQL Database
 
 > In this context, Database refer to object create by SQL `CREATE DATABASE`.
 

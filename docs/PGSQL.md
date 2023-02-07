@@ -9,17 +9,17 @@
 
 > Overview of PostgreSQL in Pigsty
 
-* [Concept](PGSQL-CONCEPT)
-* [Architecture](PGSQL-HA)
+* [Architecture](PGSQL-ARCH)
 * [Configuration](PGSQL-CONF)
+* [Database](PGSQL-DB)
+* [User](PGSQL-USER)
+* [Service](PGSQL-SVC)
+* [Authentication](PGSQL-HBA)
+* [Access Control](PGSQL-ACL)
 * [Administration](PGSQL-ADMIN)
-* [Databases](PGSQL-DB.md)
-* [Users](PGSQL-USER.md#users) & [Roles](PGSQL-USER.md#roles)
-* [Service](PGSQL-SVC.md#services) & [Access](PGSQL-SVC.md#access)
-* [Privileges](PGSQL-ACL.md#privilege) & [HBA Rules](PGSQL-ACL.md#hba)
-* [Backup](PGSQL-PITR.md#backup) & [PITR](PGSQL-PITR.md#pitr)
-* [Monitor](PGSQL-MONITOR.md) & [Migration](PGSQL-MIGRATION.md) Existing Postgres
-
+* [Backup & PITR](PGSQL-PITR)
+* [Monitor](PGSQL-MONITOR)
+* [Migration](PGSQL-MIGRATION)
 
 
 ## Configuration

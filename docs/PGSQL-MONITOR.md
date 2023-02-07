@@ -1,6 +1,11 @@
-# Monitor Remote Postgres
+# PGSQL Monitor
 
 > How to use Pigsty to monitor remote (existing) PostgreSQL instances?
+
+
+
+## Monitor Remote Postgres
+
 
 For existing PostgreSQL instances, such as RDS, or homemade PostgreSQL that is not managed by Pigsty,
  some additional configuration is required if you wish to monitoring them with Pigsty

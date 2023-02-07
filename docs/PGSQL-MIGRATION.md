@@ -1,4 +1,4 @@
-# Migration
+# PGSQL Migration
 
 Pigsty has a built-in playbook [`pgsql-migration.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-migration.yml) to perform online database migration based on logical replication.
 

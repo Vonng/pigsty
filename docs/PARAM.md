@@ -3659,7 +3659,7 @@ default values: `/pg/data`, DO NOT CHANGE IT.
 
 It's a soft link that point to underlying data directory. 
 
-Check [PGSQL File Structure](PGSQL-FHS) for details. 
+Check [PGSQL File Structure](FHS) for details. 
 
 
 
