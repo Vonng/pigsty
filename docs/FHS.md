@@ -1,5 +1,7 @@
 # File Hierarchy Structure
 
+> How files are organized in Pigsty.
+
 ## Pigsty FHS
 
 ```bash
@@ -9,9 +11,13 @@
 #  ^-----@bin                    # bin scripts
 #  ^-----@docs                   # document (can be docsified)
 #  ^-----@files                  # ansible file resources 
-#            ^-----@conf         # config template files
-#            ^-----@rule         # soft link to prometheus rules
-#            ^-----@ui           # soft link to grafana dashboards
+#            ^-----@pigsty       # pigsty config template files
+#            ^-----@prometheus   # prometheus rules definition
+#            ^-----@grafana      # grafana dashboards
+#            ^-----@postgres     # /pg/bin/ scripts
+#            ^-----@migration    # pgsql migration task definition
+#            ^-----@pki          # self-signed CA & certs
+
 #  ^-----@roles                  # ansible business logic
 #  ^-----@templates              # ansible templates
 #  ^-----@vagrant                # sandbox resources
@@ -24,11 +30,30 @@
 # /etc/pigsty/
 #  ^-----@targets                # file based service discovery targets definition
 #  ^-----@dashboards             # static grafana dashboards
-#  ^-----@datasources            # static grafana datasources
+#  ^-----@datasources            # static grafana datasource
 #  ^-----@playbooks              # extra ansible playbooks
 #------------------------------------------------------------------------------
 ```
 
+
+
+## CA FHS
+
+Pigsty's self-signed CA is located on `files/pki/` directory under pigsty home.
+
+```bash
+# pigsty/files/pki
+#  ^-----@ca                      # self-signed CA key & cert
+#         ^-----@ca.key           # VERY IMPORTANT: keep it secret
+#         ^-----@ca.crt           # VERY IMPORTANT: trusted everywhere
+#  ^-----@csr                     # signing request csr
+#  ^-----@misc                    # misc certs, issued certs
+#  ^-----@etcd                    # etcd server certs
+#  ^-----@minio                   # minio server certs
+#  ^-----@nginx                   # nginx SSL certs
+#  ^-----@infra                   # infra client certs
+#  ^-----@pgsql                   # pgsql server certs
+```
 
 
 
@@ -40,20 +65,24 @@
 #------------------------------------------------------------------------------
 # /etc/prometheus/
 #  ^-----prometheus.yml              # prometheus main config file
-#  ^-----alertmanager.yml            # alertmanger main config file
 #  ^-----@bin                        # util scripts: check,reload,status,new
 #  ^-----@rules                      # record & alerting rules definition
 #            ^-----@infra            # infrastructure rules & alert
-#            ^-----@nodes            # nodes rules & alert
+#            ^-----@node             # nodes rules & alert
 #            ^-----@pgsql            # pgsql rules & alert
 #            ^-----@redis            # redis rules & alert
 #            ^-----@..........       # etc...
 #  ^-----@targets                    # file based service discovery targets definition
 #            ^-----@infra            # infra static targets definition
-#            ^-----@nodes            # nodes static targets definition
+#            ^-----@node             # nodes static targets definition
+#            ^-----@etcd             # etcd static targets definition
+#            ^-----@minio            # minio static targets definition
+#            ^-----@ping             # blackbox ping targets definition
 #            ^-----@pgsql            # pgsql static targets definition
 #            ^-----@redis            # redis static targets definition
 #            ^-----@.....            # other targets
+# /etc/alertmanager.yml              # alertmanager main config file
+# /etc/blackbox.yml                  # blackbox exporter main config file
 #------------------------------------------------------------------------------
 ```
 
@@ -63,41 +92,40 @@
 
 The following parameters are related to the PostgreSQL database dir:
 
-* [pg_dbsu_home](v-pgsql.md#pg_dbsu_home): Postgres default user's home dir, default is `/var/lib/pgsql`.
-* [pg_bin_dir](v-pgsql.md#pg_bin_dir): Postgres binary dir, defaults to `/usr/pgsql/bin/`.
-* [pg_data](v-pgsql.md#pg_data): Postgres database dir, default is `/pg/data`.
-* [pg_fs_main](v-pgsql.md#pg_fs_main): Postgres main data disk mount point, default is `/export`.
-* [pg_fs_bkup](v-pgsql.md#pg_fs_bkup): Postgres backup disk mount point, default is `/var/backups` (optional, you can also choose to backup to a subdirectory on the primary data disk).
+* [pg_dbsu_home](PARAM#pg_dbsu_home): Postgres default user's home dir, default is `/var/lib/pgsql`.
+* [pg_bin_dir](PARAM#pg_bin_dir): Postgres binary dir, defaults to `/usr/pgsql/bin/`.
+* [pg_data](PARAM#pg_data): Postgres database dir, default is `/pg/data`.
+* [pg_fs_main](PARAM#pg_fs_main): Postgres main data disk mount point, default is `/data`.
+* [pg_fs_bkup](PARAM#pg_fs_bkup): Postgres backup disk mount point, default is `/data/backups` (used when using local backup repo).
 
 ```yaml
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
 # Create Directory
-#------------------------------------------------------------------------------
-# this assumes that
-#   /pg is shortcut for postgres home
-#   {{ pg_fs_main }} contains the main data             (MUST ALREADY MOUNTED)
-#   {{ pg_fs_bkup }} contains archive and backup data   (MUST ALREADY MOUNTED)
-#   cluster-version is the default parent folder for pgdata (e.g pg-test-12)
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------#
+# assumption:
+#   {{ pg_fs_main }} for main data   , default: `/data`              [fast ssd]
+#   {{ pg_fs_bkup }} for backup data , default: `/data/backups`     [cheap hdd]
+#--------------------------------------------------------------#
 # default variable:
-#     pg_fs_main = /export           fast ssd
-#     pg_fs_bkup = /var/backups      cheap hdd
+#     pg_fs_main = /data             fast ssd
+#     pg_fs_bkup = /data/backups     cheap hdd (optional)
 #
-#     /pg      -> /export/postgres/pg-test-12
-#     /pg/data -> /export/postgres/pg-test-12/data
-#------------------------------------------------------------------------------
-- name: Create postgresql directories
+#     /pg      -> /data/postgres/pg-test-15    (soft link)
+#     /pg/data -> /data/postgres/pg-test-15/data
+#--------------------------------------------------------------#
+- name: create postgresql directories
   tags: pg_dir
   become: yes
   block:
-    - name: Make sure main and backup dir exists
+
+    - name: make main and backup data dir
       file: path={{ item }} state=directory owner=root mode=0777
       with_items:
         - "{{ pg_fs_main }}"
         - "{{ pg_fs_bkup }}"
 
     # pg_cluster_dir:    "{{ pg_fs_main }}/postgres/{{ pg_cluster }}-{{ pg_version }}"
-    - name: Create postgres directory structure
+    - name: create postgres directories
       file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
       with_items:
         - "{{ pg_fs_main }}/postgres"
@@ -105,94 +133,67 @@ The following parameters are related to the PostgreSQL database dir:
         - "{{ pg_cluster_dir }}/bin"
         - "{{ pg_cluster_dir }}/log"
         - "{{ pg_cluster_dir }}/tmp"
+        - "{{ pg_cluster_dir }}/cert"
         - "{{ pg_cluster_dir }}/conf"
         - "{{ pg_cluster_dir }}/data"
         - "{{ pg_cluster_dir }}/meta"
         - "{{ pg_cluster_dir }}/stat"
         - "{{ pg_cluster_dir }}/change"
-        - "{{ pg_backup_dir }}/postgres"
-        - "{{ pg_backup_dir }}/arcwal"
         - "{{ pg_backup_dir }}/backup"
-        - "{{ pg_backup_dir }}/remote"
 ```
 
 
+**Data FHS**
 
-## PG Binary FHS
+```bash
+# basic
+{{ pg_fs_main }}     /data                      # top level data directory, usually a SSD mountpoint
+{{ pg_dir_main }}    /data/postgres             # contains postgres data
+{{ pg_cluster_dir }} /data/postgres/pg-test-15  # contains cluster `pg-test` data (of version 13)
+                     /data/postgres/pg-test-15/bin            # bin scripts
+                     /data/postgres/pg-test-15/log            # logs: postgres/pgbouncer/patroni/pgbackrest
+                     /data/postgres/pg-test-15/tmp            # tmp, sql files, rendered results
+                     /data/postgres/pg-test-15/cert           # postgres server certificates
+                     /data/postgres/pg-test-15/conf           # patroni config, links to related config
+                     /data/postgres/pg-test-15/data           # main data directory
+                     /data/postgres/pg-test-15/meta           # identity information
+                     /data/postgres/pg-test-15/stat           # stats information, summary, log report
+                     /data/postgres/pg-test-15/change         # changing records
+                     /data/postgres/pg-test-15/backup         # soft link to backup dir
 
-On RedHat/CentOS, the default installation location for the Postgres distribution is:
+{{ pg_fs_bkup }}     /data/backups                            # could be a cheap & large HDD mountpoint
+                     /var/backups/postgres/pg-test-15/backup  # local backup repo path
+
+# links
+/pg             ->   /data/postgres/pg-test-15                # pg root link
+/pg/data        ->   /data/postgres/pg-test-15/data           # real data dir
+/pg/backup      ->   /var/backups/postgres/pg-test-15/backup  # base backup
+```
+
+
+**Binary FHS**
+
+On EL releases, the default path for PostgreSQL bin is:
 
 ```bash
 /usr/pgsql-${pg_version}/
 ```
 
-The installation playbook automatically creates a soft link to the currently installed version. For example, if version 14 of Postgres is installed, there are.
+Pigsty will create a softlink `/usr/pgsql` to the currently installed version specified by [`pg_version`](PARAM#pg_version).
 
 ```bash
-/usr/pgsql -> /usr/pgsql-14
+/usr/pgsql -> /usr/pgsql-15
 ```
 
-Therefore, the default `pg_bin_dir` is `/usr/pgsql/bin/`, and this path is added to the `PATH` environment variable for all users in `/etc/profile.d/pgsql.sh`.
-
-
-
-
-## PG Data FHS
-
-Pigsty assumes at least one primary data disk (`pg_fs_main`) and an optional backup data disk (`pg_fs_bkup`) on the single node used to deploy the database instance. Usually, the primary data disk is a high-performance SSD, while the backup disk is a high-capacity inexpensive HDD.
-
-```yaml
-#------------------------------------------------------------------------------
-# Create Directory
-#------------------------------------------------------------------------------
-# this assumes that
-#   /pg is shortcut for postgres home
-#   {{ pg_fs_main }} contains the main data             (MUST ALREADY MOUNTED)
-#   {{ pg_fs_bkup }} contains archive and backup data   (MAYBE ALREADY MOUNTED)
-#   {{ pg_cluster }}-{{ pg_version }} is the default parent folder 
-#    for pgdata (e.g pg-test-14)
-#------------------------------------------------------------------------------
-# default variable:
-#     pg_fs_main = /export           fast ssd
-#     pg_fs_bkup = /var/backups      cheap hdd
-#
-#     /pg      -> /export/postgres/pg-test-14
-#     /pg/data -> /export/postgres/pg-test-14/data
-```
-
-
-
-## PG Cluster FHS
+Therefore, the default [`pg_bin_dir`](PARAM#pg_bin_dir) will be `/usr/pgsql/bin/`, and this path is added to the `PATH` environment via `/etc/profile.d/pgsql.sh`.
 
 ```bash
-# basic
-{{ pg_fs_main }}     /data                      # contains all business data (pg,consul,etc..)
-{{ pg_dir_main }}    /data/postgres             # contains postgres main data
-{{ pg_cluster_dir }} /data/postgres/pg-test-14  # contains cluster `pg-test` data (of version 13)
-                     /data/postgres/pg-test-14/bin            # binary scripts
-                     /data/postgres/pg-test-14/log            # misc logs
-                     /data/postgres/pg-test-14/tmp            # tmp, sql files, records
-                     /data/postgres/pg-test-14/conf           # configurations
-                     /data/postgres/pg-test-14/data           # main data directory
-                     /data/postgres/pg-test-14/meta           # identity information
-                     /data/postgres/pg-test-14/stat           # stats information
-                     /data/postgres/pg-test-14/change         # changing records
-
-{{ pg_fs_bkup }}     /var/backups                      # contains all backup data (pg,consul,etc..)
-{{ pg_dir_bkup }}    /var/backups/postgres             # contains postgres backup data
-{{ pg_backup_dir }}  /var/backups/postgres/pg-test-14  # contains cluster `pg-test` backup (of version 13)
-                     /var/backups/postgres/pg-test-14/backup   # base backup
-                     /var/backups/postgres/pg-test-14/arcwal   # WAL archive
-                     /var/backups/postgres/pg-test-14/remote   # mount NFS/S3 remote resources here
-
-# links
-/pg             -> /data/postgres/pg-test-14                 # pg root link
-/pg/data        -> /data/postgres/pg-test-14/data            # real data dir
-/pg/backup      -> /var/backups/postgres/pg-test-14/backup   # base backup
-/pg/arcwal      -> /var/backups/postgres/pg-test-14/arcwal   # WAL archive
-/pg/remote      -> /var/backups/postgres/pg-test-14/remote   # mount NFS/S3 remote resources here
-
+export PATH="/usr/pgsql/bin:/pg/bin:$PATH"
+export PGHOME=/usr/pgsql
+export PGDATA=/pg/data
 ```
+
+
 
 
 
@@ -200,10 +201,13 @@ Pigsty assumes at least one primary data disk (`pg_fs_main`) and an optional bac
 
 Pgbouncer is run using the Postgres user, and the config file is located in `/etc/pgbouncer`. The config file includes.
 
-* `pgbouncer.ini`: the main config file
-* `userlist.txt`: lists the users in the connection pool
+* `pgbouncer.ini`: pgbouncer main config
+* `database.txt`: pgbouncer database list
+* `userlist.txt`: pgbouncer user list
+* `useropts.txt`: pgbouncer user options (user-level parameter overrides)
 * `pgb_hba.conf`: lists the access privileges of the connection pool users
-* `database.txt`: lists the databases in the connection pool
+
+
 
 
 
