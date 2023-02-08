@@ -73,7 +73,7 @@
 
 ## Parameters
 
-> [API Reference](PARAM#pgsql) for PGSQL
+> API Reference for [PGSQL](PARAM#pgsql) module:
 
 - [`PG_ID`](PARAM#pg_id)               : Calculate & Check Postgres Identity
 - [`PG_BUSINESS`](PARAM#pg_business)   : Postgres Business Object Definition
@@ -208,10 +208,10 @@
 - Create a delayed cluster of another pgsql cluster?
 - Monitoring an existing postgres instance?
 - Migration from an external PostgreSQL with logical replication?
-- Use MinIO as a central pgbackrest repo.
+- Use MinIO as a central pgBackRest repo.
 - Use dedicate etcd cluster for DCS?
 - Use dedicated haproxy for exposing PostgreSQL service.
-- Deploy a multinode MinIO cluster?
+- Deploy a multi-node MinIO cluster?
 - Use CMDB instead of Config as inventory.
 - Use PostgreSQL as grafana backend storage ?
 - Use PostgreSQL as prometheus backend storage ?

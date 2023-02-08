@@ -2,8 +2,12 @@
 
 > Pigsty use ansible playbook to install modules on nodes.
 
-Playbooks are used in Pigsty to install [modules](ARCH#modules) on nodes.
-To run playbooks, just treat them as executables, e.g. run with `./install.yml`.
+Playbooks are used in Pigsty to install [modules](ARCH#modules) on nodes.To run playbooks, just treat them as executables.
+
+e.g. run with `./install.yml`.
+
+
+## Playbooks
 
 Here are default playbooks included in Pigsty.
 
@@ -24,16 +28,21 @@ Here are default playbooks included in Pigsty.
 | [`redis-rm.yml`](https://github.com/vonng/pigsty/blob/master/redis-rm.yml)               | Remove redis cluster/node/instance                          |
 | [`etcd.yml`](https://github.com/vonng/pigsty/blob/master/etcd.yml)                       | Init etcd cluster (required for patroni HA DCS)             |
 | [`minio.yml`](https://github.com/vonng/pigsty/blob/master/minio.yml)                     | Init minio cluster (optional for pgbackrest repo)           |
+| [`cert.yml`](https://github.com/vonng/pigsty/blob/master/cert.yml)                       | Issue cert with pigsty self-signed CA (e.g. for pg clients) |
+
+
+**One-Pass Install**
 
 The special playbook `install.yml` is actually a composed playbook that install everything on current environment.
 
-```
-  playbook  / command / group         infra       etcd      minio   nodes  pgsql
-[infra.yml] ./infra.yml [-l infra]   +infra/node 
-[node.yml]  ./node.yml                                       +node
-[etcd.yml]  ./etcd.yml -l etcd                    etcd
-[minio.yml] ./minio.yml -l minio                           +minio
-[pgsql.yml] ./pgsql.yml                                            +pgsql
+```bash
+
+  playbook  / command / group         infra           nodes    etcd     minio     pgsql
+[infra.yml] ./infra.yml [-l infra]   [+infra][+node] 
+[node.yml]  ./node.yml                               [+node]  [+node]  [+node]   [+node]
+[etcd.yml]  ./etcd.yml  [-l etcd ]                            [+etcd]
+[minio.yml] ./minio.yml [-l minio]                                     [+minio]
+[pgsql.yml] ./pgsql.yml                                                          [+pgsql]
 ```
 
 Note that there's a circular dependency between [`NODE`](NODE) and [`INFRA`](INFRA):
@@ -47,20 +56,20 @@ Make sure that infra nodes are init first.
 
 ## Ansible
 
-Playbooks require `ansible-playbook` executable to run, which is included in `ansible` package.
+Playbooks require `ansible-playbook` executable to run, playbooks which is included in `ansible` package.
 
 Pigsty will install ansible on admin node during [bootstrap](INSTALL.md#bootstrap).
 
 You can install it by yourself with `yum install ansible` or `brew install ansible`, it is included in default OS repo.
 
-Knowledge about ansible is good but not required. Only three parameters needs attention:
+Knowledge about ansible is good but not required. Only three parameters needs your attention:
 
 * `-l|--limit <pattern>` : Limit execution target on specific group/host/pattern (Where)
 * `-t|--tags <tags>`: Only run tasks with specific tags (What)     
 * `-e|--extra-vars <vars>`: Extra command line arguments (How) 
 
 
-### Limit Host
+## Limit Host
 
 The target of playbook can be limited with `-l|-limit <selector>`.
 
@@ -79,7 +88,7 @@ Here are some examples of host limit:
 ```
 
 
-### Limit Tags
+## Limit Tags
 
 You can execute a subset of playbook with `-t|--tags <tags>`.
 
@@ -115,7 +124,7 @@ Here are some examples of task limit:
 
 
 
-### Extra Vars
+## Extra Vars
 
 Extra command-line args can be passing via `-e|-extra-vars KEY=VALUE`.
 
@@ -130,8 +139,6 @@ Here are some examples of extra vars
 ./redis.yml -l 10.10.10.11 -e redis_port=6501 -t redis  # init a specific redis instance: 10.10.10.11:6501
 ./redis-rm.yml -l 10.10.10.13 -e redis_port=6501        # remove a specific redis instance: 10.10.10.11:6501
 ```
-
-
 
 
 

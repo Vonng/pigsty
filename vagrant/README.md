@@ -14,7 +14,7 @@ Apple M1 now has arm64 support with Parallel Desktop.
 
 
 |         Templates         | Shortcut |      Spec       |               Comment               |
-|:-------------------------:| :------: |:---------------:|:-----------------------------------:|
+|:-------------------------:|:--------:|:---------------:|:-----------------------------------:|
 |  [meta.rb](spec/meta.rb)  |   `v1`   |    4C8G x 1     |          Single Meta Node           |
 |  [full.rb](spec/full.rb)  |   `v4`   | 2C4G + 1C2G x 3 |          Full 4 Node Demo           |
 | [build.rb](spec/build.rb) |   `vb`   |    2C4G x 3     | 3-Node EL7,8,9 Building Environment |

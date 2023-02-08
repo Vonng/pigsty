@@ -302,12 +302,12 @@ You can use different combination of [host](#host) and [port](#port), they are p
 
 **Host**
 
-| type                | sample              | description                                                          |
-|---------------------|---------------------|----------------------------------------------------------------------|
-| Cluster Domain Name | `pg-test`           | via cluster domain name (resolved by dnsmasq @ infra nodes)          |
-| Cluster VIP Address | `10.10.10.3`        | via a L2 VIP address managed by `vip-manager`, bind to primary       |
-| Instance Hostname   | `pg-test-1`         | Access via any instance hostname (resolved by dnsmasq @ infra nodes) |
-| Instance IP Address | `10.10.10.11`       | Access any instance ip address                                       |
+| type                | sample        | description                                                          |
+|---------------------|---------------|----------------------------------------------------------------------|
+| Cluster Domain Name | `pg-test`     | via cluster domain name (resolved by dnsmasq @ infra nodes)          |
+| Cluster VIP Address | `10.10.10.3`  | via a L2 VIP address managed by `vip-manager`, bind to primary       |
+| Instance Hostname   | `pg-test-1`   | Access via any instance hostname (resolved by dnsmasq @ infra nodes) |
+| Instance IP Address | `10.10.10.11` | Access any instance ip address                                       |
 
 
 **Port**

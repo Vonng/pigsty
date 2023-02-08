@@ -12,8 +12,6 @@
 - Use CMDB instead of Config as inventory.
 - Use PostgreSQL as grafana backend storage ?
 - Use PostgreSQL as prometheus backend storage ?
-
-* ……
-
+- .....
 
 

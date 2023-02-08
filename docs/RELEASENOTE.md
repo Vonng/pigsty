@@ -2,7 +2,7 @@
 
 | Version               |    Time    | Description                                             | Release                                                                                   |
 |:----------------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.0.0-b6](#v200-b6) | 2023-01-11  | Compatibility Security Maintainability Enhancement      | [v2.0.0-b6](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b6)                       |
+| [v2.0.0-b6](#v200-b6) | 2023-02-08 | Compatibility Security Maintainability Enhancement      | [v2.0.0-b6](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b6)                       |
 | [v1.5.1](#v151)       | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
 | [v1.5.0](#v150)       | 2022-05-31 | Docker Applications                                     | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
 | [v1.4.1](#v141)       | 2022-04-20 | Bug fix & Full translation of English documents.        | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |

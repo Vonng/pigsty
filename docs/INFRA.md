@@ -1,14 +1,22 @@
 # INFRA
 
+
+## Overview
+
 ![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
 
 
+## Playbooks
+
+- [`install.yml`](https://github.com/vonng/pigsty/blob/master/install.yml)   : Install Pigsty on current node in one-pass
+- [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infra.yml)       : Init pigsty infrastructure on infra nodes
+- [`infra-rm.yml`](https://github.com/vonng/pigsty/blob/master/infra-rm.yml) : Remove infrastructure components from infra nodes
 
 ## Parameters
 
-There are 10 sections and 54 parameters about [`INFRA`](PARAM#INFRA) module.
+API Reference for [`INFRA`](PARAM#INFRA) module:
 
-- [`META`](PARAM#meta): Pigsty meta data                 
+- [`META`](PARAM#meta): infra meta data
 - [`CA`](PARAM#ca): self-signed CA
 - [`INFRA_ID`](PARAM#infra_id) : Portals and identity
 - [`REPO`](PARAM#repo): local yum repo
@@ -19,6 +27,8 @@ There are 10 sections and 54 parameters about [`INFRA`](PARAM#INFRA) module.
 - [`GRAFANA`](PARAM#grafana) : Grafana, the visualization platform
 - [`LOKI`](PARAM#loki) : Loki, the logging server
 
+
+<details><summary>Parameters</summary>
 
 | Parameter                                                        | Section                                |    Type    | Level | Comment                                            |
 |------------------------------------------------------------------|----------------------------------------|:----------:|:-----:|----------------------------------------------------|
@@ -76,3 +86,6 @@ There are 10 sections and 54 parameters about [`INFRA`](PARAM#INFRA) module.
 | [`loki_clean`](PARAM#loki_clean)                                 | [`LOKI`](PARAM#loki)                   |    bool    |  G/A  | whether remove existing loki data?                 |
 | [`loki_data`](PARAM#loki_data)                                   | [`LOKI`](PARAM#loki)                   |    path    |   G   | loki data dir, `/data/loki` by default             |
 | [`loki_retention`](PARAM#loki_retention)                         | [`LOKI`](PARAM#loki)                   |  interval  |   G   | loki log retention period, 15d by default          |
+
+
+</details>

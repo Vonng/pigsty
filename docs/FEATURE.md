@@ -100,8 +100,6 @@ Pigsty also provides a toolset to help you manage your database and build data a
 ![APP](https://user-images.githubusercontent.com/8587410/198838829-f0ea4af2-d33f-4978-a31a-ed81897aa8d1.gif)
 
   > If your software requires a PostgreSQL, Pigsty may be the easiest way to get one.
-  > 
-
 
 
 

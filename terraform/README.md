@@ -1,10 +1,8 @@
 # Terraform Templates
 
-[Terraform](https://www.terraform.io/) is a popular IaC tool.
-You can create VMs on public cloud with one command.
+[Terraform](https://www.terraform.io/) is a popular IaC tool. You can create VMs on public cloud with one command.
 
-AWS & Aliyun templates are used as example providers. 
-You can modify `terraform.tf` file to use other cloud providers.
+AWS & Aliyun templates are used as example providers. You can modify `terraform.tf` file to use other cloud providers.
 
 
 
@@ -19,8 +17,8 @@ You can modify `terraform.tf` file to use other cloud providers.
 
 ```bash
 brew install terraform    # install via homebrew
-terraform init      # 安装 terraform provider: aliyun （仅第一次需要）
-terraform apply     # 生成执行计划：创建虚拟机，虚拟网段/交换机/安全组
+terraform init            # install terraform provider: aliyun , aws, only required for the first time
+terraform apply           # plan and apply: create VMs, etc...
 ```
 
 Print public IP Address:
@@ -33,7 +31,7 @@ terraform output | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
 
 ## AWS Credential
 
-You have to setup aws config & credential to use AWS provider. 
+You have to set up aws config & credential to use AWS provider. 
 
 ```bash
 # ~/.aws

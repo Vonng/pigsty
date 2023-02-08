@@ -21,7 +21,6 @@
   - [Backup & PITR](PGSQL-PITR)
   - [Monitoring](PGSQL-MONITOR)
   - [Migration](PGSQL-MIGRATION)
-- [**How To?**](HOWTO)
 - [**Parameter**](PARAM)
 - [**Playbook**](PLAYBOOK)
 - [**Application**](APP)
