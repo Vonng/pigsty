@@ -94,6 +94,15 @@
         rm -f /etc/profile.d/etcd.sh
         exit 0
 
+    - name: remove etcd register from prometheus target
+      tags: [ etcd_deregister ]
+      ignore_errors: true
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["infra"] }}'
+      file:
+        path: /etc/prometheus/targets/etcd/{{ etcd_cluster }}-{{ etcd_seq }}.yml
+        state: absent
+
 
 #--------------------------------------------------------------#
 # Create etcd directory                               [etcd_dir]
