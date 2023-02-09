@@ -1,16 +1,36 @@
 # INFRA
 
+> Pigsty has a battery-included, production-ready INFRA module, to provide ultimate observability.
+
+
 
 ## Overview
 
 ![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
 
+|     Component  | Port |     Domain     | Description                                    |
+| :------------: | :--: | :------------: | -----------------------------------------------|
+|  Nginx         |  80  |   `h.pigsty`   | Web Service Portal (Also used as Yum Repo)     |
+|  Grafana       | 3000 |   `g.pigsty`   | Visualization Platform                         |
+|  AlertManager  | 9093 |   `a.pigsty`   | Alert Aggregation and delivery                 |
+|  Prometheus    | 9090 |   `p.pigsty`   | Monitoring Time Series Database                |
+|  Loki          | 3100 |       -        | Logging Collection Server                      |
+|  PostgreSQL    | 5432 |       -        | Pigsty CMDB & default database                 |
+|  Ansible       |  -   |       -        | Run playbooks                                  |
+|  Dnsmasq       |  53  |       -        | DNS Server (optional)                          |
+|  NTP           | 123  |       -        | NTP Time Server (optional)                     |
+ 
 
-## Playbooks
+
+----------------
+
+# Playbooks
 
 - [`install.yml`](https://github.com/vonng/pigsty/blob/master/install.yml)   : Install Pigsty on current node in one-pass
 - [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infra.yml)       : Init pigsty infrastructure on infra nodes
 - [`infra-rm.yml`](https://github.com/vonng/pigsty/blob/master/infra-rm.yml) : Remove infrastructure components from infra nodes
+
+
 
 ## Parameters
 

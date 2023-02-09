@@ -2,6 +2,7 @@
 
 > Tune node into desired state and monitor it.
 
+----------------
 
 ## Concept
 
@@ -12,10 +13,20 @@ There are different types of node in pigsty:
 * common node, nodes that managed by pigsty
 * admin node, the node where pigsty is installed on and issue admin commands
 * infra node, the node where INFRA module installed, admin node is usually the first one of all infra nodes.
-* pgsql node, nodes that have [PGSQL](PGSQL) module installed
+
 
 **Common Node**
 
+You can manage nodes with Pigsty, and install modules on them. The `node.yml` playbook will adjust the node to desired state.
+
+Some service will be added to all nodes by default:
+
+|   Component   | Port | Description                        |
+| :-----------: | :--: | -----------------------------------|
+| Node Exporter | 9100 | Node Monitoring Metrics Exporter   |
+| HAProxy Admin | 9101 | HAProxy admin page                 |
+| Docker Daemon | 9323 | Docker daemon (disable by default) |
+|   Promtail    | 9080 | Log collecting agent               |
 
 
 **Admin Node**
@@ -32,23 +43,61 @@ Infra nodes are specified by the `infra` group in the inventory. and infra nodes
 
 The admin node is also used as the only one infra node by default, and infra nodes can be used as 'backup' admin nodes.
 
-
 **PGSQL Node**
 
+Node with [PGSQL](PGSQL) module installed is called PGSQL node, the node and pg instance are 1:1 deployed. And node instance can be borrowed from corresponding pg instances with [`node_id_from_pg`](PARAM#node_id_from_pg).
 
-## Admin
+|     Component      | Port | Description                                                |
+| :----------------: | :--: | ---------------------------------------------------------- |
+|      Postgres      | 5432 | Pigsty CMDB                                                |
+|     Pgbouncer      | 6432 | Pgbouncer Connection Pooling Service                       |
+|      Patroni       | 8008 | Patroni HA Component                                       |
+|  Haproxy Primary   | 5433 | Primary connection pool: Read/Write Service                |
+|  Haproxy Replica   | 5434 | Replica connection pool: Read-only Service                 |
+|  Haproxy Default   | 5436 | Primary Direct Connect Service                             |
+|  Haproxy Offline   | 5438 | Offline Direct Connect: Offline Read Service               |
+| Haproxy `service`  | 543x | Customized Services                                        |
+|   Haproxy Admin    | 9101 | Monitoring metrics and traffic management                  |
+|    PG Exporter     | 9630 | PG Monitoring Metrics Exporter                             |
+| PGBouncer Exporter | 9631 | PGBouncer Monitoring Metrics Exporter                      |
+|   Node Exporter    | 9100 | Node Monitoring Metrics Exporter                           |
+|      Promtail      | 9080 | Collection of Postgres, Pgbouncer, Patroni logs (Optional) |
+|    vip-manager     |  -   | Bind VIP to the primary                                    |
+
+
+
+----------------
+
+## Administration
+
+**Add Node**
 
 To add a node into pigsty, you need to have nopass ssh/sudo access to the node 
 
 ```bash
+bin/node-add [ip...]      # add node to pigsty:  ./node.yml -l <cls|ip|group>
+```
 
+**Remove Node**
+
+To remove node from pigsty, you can use:
+
+```bash
+bin/node-rm [ip...]       # remove node from pigsty: ./node-rm.yml -l <cls|ip|group>
+```
+
+**Create Admin**
+
+If current user does not have nopass ssh/sudo access to the node, you can use another admin user to bootstrap the node:
+
+```bash
+node.yml -t node_admin -k -K -e ansible_user=<another admin>   # input ssh/sudo password for another admin 
 ```
 
 
-## Identity
 
 
-
+----------------
 
 ## Playbooks
 
@@ -72,6 +121,7 @@ There are 10 sections, 58 parameters about [`NODE`](PARAM#node) module.
 - [`PROMTAIL`](PARAM#promtail)           : Promtail logging agent          
 
 
+<details><summary>Parameters</summary>
 
 | Parameter                                                  | Section                                |   Type    | Level | Comment                                                   |
 |------------------------------------------------------------|----------------------------------------|:---------:|:-----:|-----------------------------------------------------------|
@@ -133,3 +183,5 @@ There are 10 sections, 58 parameters about [`NODE`](PARAM#node) module.
 | [`promtail_clean`](PARAM#promtail_clean)                   | [`PROMTAIL`](PARAM#promtail)           |   bool    |  G/A  | purge existing promtail status file during init?          |
 | [`promtail_port`](PARAM#promtail_port)                     | [`PROMTAIL`](PARAM#promtail)           |   port    |   C   | promtail listen port, 9080 by default                     |
 | [`promtail_positions`](PARAM#promtail_positions)           | [`PROMTAIL`](PARAM#promtail)           |   path    |   C   | promtail position status file path                        |
+
+</details>
