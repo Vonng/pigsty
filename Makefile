@@ -7,8 +7,9 @@
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
+# pigsty version & default develop & testing el version
 VERSION?=v2.0.0-b6
-EL_VER=7
+EL_VER=9
 
 # local name
 SRC_PKG=pigsty-$(VERSION).tgz
@@ -358,7 +359,6 @@ copy-el7:
 	scp dist/${VERSION}/${EL7_PKG} meta:/tmp/pkg.tgz
 copy-el8:
 	scp dist/${VERSION}/${EL8_PKG} meta:/tmp/pkg.tgz
-
 copy-el9:
 	scp dist/${VERSION}/${EL9_PKG} meta:/tmp/pkg.tgz
 copy-matrix:
@@ -465,9 +465,9 @@ make-el9:
 ###############################################################
 #                     9. Environment                          #
 ###############################################################
-meta: v1 new ssh copy-el7 use-pkg
-	cp files/pigsty/el7.yml pigsty.yml
-full: v4 new ssh copy-el7 use-pkg
+meta: v1 new ssh copy-el9 use-pkg
+	cp files/pigsty/el9.yml pigsty.yml
+full: v4 new ssh copy-el9 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
 build: vb new ssh build-src
 	cp files/pigsty/build.yml pigsty.yml

@@ -14,15 +14,17 @@ There are different types of node in pigsty:
 * infra node, the node where INFRA module installed, admin node is usually the first one of all infra nodes.
 * pgsql node, nodes that have [PGSQL](PGSQL) module installed
 
-### **Common Node**
+**Common Node**
 
-### **Admin Node**
+
+
+**Admin Node**
 
 There is one and only one admin node in a pigsty deployment, which is specified by [`admin_ip`](PARAM#admin_ip), it is set to local primary IP during [configure](INSTALL#configure).
 
 The node will have ssh / sudo access to all other nodes, which is critical, make sure it's fully secured.
 
-### **INFRA Node**
+**INFRA Node**
 
 A pigsty deployment may have one or more infra nodes, usually 2 ~ 3 in large production environment.
 
@@ -31,8 +33,19 @@ Infra nodes are specified by the `infra` group in the inventory. and infra nodes
 The admin node is also used as the only one infra node by default, and infra nodes can be used as 'backup' admin nodes.
 
 
-### **PGSQL Node**
+**PGSQL Node**
 
+
+## Admin
+
+To add a node into pigsty, you need to have nopass ssh/sudo access to the node 
+
+```bash
+
+```
+
+
+## Identity
 
 
 

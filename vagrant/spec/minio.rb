@@ -6,9 +6,9 @@
 
 # pigsty default singleton vm (3C6G)
 Specs = [
-  {"name" => "meta",   "ip" => "10.10.10.10", "cpu" => "2",  "mem" => "4096", "image" => "generic/centos7" },
-  {"name" => "node-1", "ip" => "10.10.10.11", "cpu" => "2",  "mem" => "2048", "image" => "generic/centos7" },
-  {"name" => "node-2", "ip" => "10.10.10.12", "cpu" => "2",  "mem" => "2048", "image" => "generic/centos7" },
+  {"name" => "meta",   "ip" => "10.10.10.10", "cpu" => "2",  "mem" => "4096", "image" => "generic/rocky9" },
+  {"name" => "node-1", "ip" => "10.10.10.11", "cpu" => "2",  "mem" => "2048", "image" => "generic/rocky9" },
+  {"name" => "node-2", "ip" => "10.10.10.12", "cpu" => "2",  "mem" => "2048", "image" => "generic/rocky9" },
 ]
 
 # Get Preset SSH Key from vagrant/ssh dir (REGENERATE FOR NON-DEVELOPMENT USE)

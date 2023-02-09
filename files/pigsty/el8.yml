@@ -3,7 +3,7 @@
 # File      :   el8.yml
 # Desc      :   Pigsty auto generated config for el8 singleton
 # Ctime     :   2020-05-22
-# Mtime     :   2022-12-31
+# Mtime     :   2023-02-09
 # Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -22,7 +22,7 @@ all:
     # etcd cluster for ha postgres
     etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
 
-    # default postgres database (optional)
+    # postgres cluster 'pg-meta'
     pg-meta:
       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
       vars:
@@ -37,13 +37,13 @@ all:
   vars:                               # global variables
     version: v2.0.0-b6                # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
-    region: default                   # upstream mirror region: default|china|europe
+    region: default                   # upstream mirror region: default,china,europe
     repo_packages:                    # which packages to be included
       - grafana loki logcli promtail prometheus2 alertmanager pushgateway blackbox_exporter node_exporter redis_exporter
-      - nginx nginx_exporter wget createrepo_c sshpass ansible python3 python3-pip python3-requests mtail dnsmasq docker-ce etcd
-      - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned chrony perf flamegraph nvme-cli numactl grubby sysstat iotop htop
-      - netcat socat rsync ftp lrzsz s3cmd net-tools tcpdump ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal
-      - postgresql15* postgis33_15* citus_15* pglogical_15* pg_repack_15* pg_squeeze_15* wal2json_15* timescaledb-2-postgresql-15* timescaledb-tools
+      - nginx nginx_exporter wget createrepo_c sshpass ansible python3 python3-pip python3-requests python38-jmespath mtail dnsmasq docker-ce docker-compose-plugin etcd
+      - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned chrony perf flamegraph nvme-cli numactl grubby sysstat iotop htop modulemd-tools
+      - netcat socat rsync ftp lrzsz s3cmd net-tools tcpdump ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal haproxy redis
+      - postgresql15* postgis33_15* citus_15* pglogical_15* pg_squeeze_15* wal2json_15* pg_repack_15* timescaledb-2-postgresql-15* timescaledb-tools
       - patroni patroni-etcd pgbouncer pgbadger pgbackrest tail_n_mail pgloader pg_activity
       - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 pg_dbms_job_15
       - pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15 logerrors_15 pg_top_15
@@ -52,8 +52,7 @@ all:
       - pg_comparator_15 pg_ivm_15* pgsodium_15*  pgfincore_15* ddlx_15 credcheck_15 postgresql_anonymizer_15* postgresql_faker_15 safeupdate_15
       - pg_fkpart_15 pg_jobmon_15 pg_partman_15 pg_permissions_15 pgaudit17_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15*
       - pg_cron_15 pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pg_filedump_15 pgcryptokey_15
-      - modulemd-tools python38-jmespath haproxy redis docker-compose-plugin # el8
-    repo_url_packages:                # move haproxy, redis to repo_packages on el8
+    repo_url_packages:                # extra packages from url
       - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.0/vip-manager_2.1.0_Linux_x86_64.rpm
       - https://github.com/dalibo/pev2/releases/download/v1.7.0/index.html
