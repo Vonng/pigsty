@@ -58,7 +58,7 @@ Make sure that infra nodes are init first.
 
 Playbooks require `ansible-playbook` executable to run, playbooks which is included in `ansible` package.
 
-Pigsty will install ansible on admin node during [bootstrap](INSTALL.md#bootstrap).
+Pigsty will install ansible on admin node during [bootstrap](INSTALL#bootstrap).
 
 You can install it by yourself with `yum install ansible` or `brew install ansible`, it is included in default OS repo.
 

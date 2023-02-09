@@ -62,7 +62,7 @@ cd pigsty; git checkout v2.0.0-b6
 You can get & extract pigsty source via the following command:
 
 ```bash
-curl -fsSL http://download.pigsty.cc/get  |[ARCH.md](ARCH.md) bash
+curl -fsSL http://download.pigsty.cc/get  | bash
 ```
 
 > HINT: Get the latest beta release with `getb` instead of `get`.

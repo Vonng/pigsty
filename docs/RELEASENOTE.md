@@ -11,12 +11,11 @@
 | [v1.2.0](#v120)       | 2021-11-03 | Upgrade default Postgres to 14, monitoring existing pg  | [v1.2.0](https://github.com/Vonng/pigsty/releases/tag/v1.2.0)                             |
 | [v1.1.0](#v110)       | 2021-10-12 | HomePage, JupyterLab, Pgweb, Pev2 & Pgbadger            | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)                             |
 | [v1.0.0](#v100)       | 2021-07-26 | v1 GA, Monitoring System Overhaul                       | [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)                             |
-| [v0.9.1](#v091)       | 2021-04-20 | Accessibility and extensibility enhancement             | [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1)                             |
-| [v0.9.0](#v090)       | 2021-04-04 | Pigsty GUI, CLI, Logging Intergration                   | [v0.9.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.0)                             |
+| [v0.9.0](#v090)       | 2021-04-04 | Pigsty GUI, CLI, Logging Integration                    | [v0.9.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.0)                             |
 | [v0.8.0](#v080)       | 2021-03-28 | Service Provision                                       | [v0.8.0](https://github.com/Vonng/pigsty/releases/tag/v0.8.0)                             |
 | [v0.7.0](#v070)       | 2021-03-01 | Monitor only deployment                                 | [v0.7.0](https://github.com/Vonng/pigsty/releases/tag/v0.7.0)                             |
 | [v0.6.0](#v060)       | 2021-02-19 | Architecture Enhancement                                | [v0.6.0](https://github.com/Vonng/pigsty/releases/tag/v0.6.0)                             |
-| [v0.5.0](#v050)       | 2021-01-07 | Databaes Customize Template                             | [v0.5.0](https://github.com/Vonng/pigsty/releases/tag/v0.5.0)                             |
+| [v0.5.0](#v050)       | 2021-01-07 | Database Customize Template                             | [v0.5.0](https://github.com/Vonng/pigsty/releases/tag/v0.5.0)                             |
 | [v0.4.0](#v040)       | 2020-12-14 | PostgreSQL 13 Support, Official Documentation           | [v0.4.0](https://github.com/Vonng/pigsty/releases/tag/v0.4.0)                             |
 | [v0.3.0](#v030)       | 2020-10-22 | Provisioning Solution GA                                | [v0.3.0](https://github.com/Vonng/pigsty/releases/tag/v0.3.0)                             |
 | [v0.2.0](#)           | 2020-07-10 | PGSQL Monitoring v6 GA                                  | [v0.2.0](https://github.com/Vonng/pigsty/commit/385e33a62a19817e8ba19997260e6b77d99fe2ba) |
@@ -188,14 +187,12 @@ add 24 parameters, remove 8 parameters, rename 11 parameters
 - `node_packages_meta_pip`    -> `infra_packages_pip`
 - `node_data_dir`             -> `node_data`
 
-**New Apps**
-
-* EdgeDB
-
 **Checksums**
 
 ```
-
+MD5 (pigsty-pkg-v2.0.0-b6.el7.x86_64.tgz) = af4b5db9dc38c860de609956a8f1f0d3
+MD5 (pigsty-pkg-v2.0.0-b6.el8.x86_64.tgz) = 5b7152e142df3e3cbc06de30bd70e433
+MD5 (pigsty-pkg-v2.0.0-b6.el9.x86_64.tgz) = 1362e2a5680fc1a3a014cc4f304100bd
 ```
 
 

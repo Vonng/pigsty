@@ -2,18 +2,49 @@
 
 > Tune node into desired state and monitor it.
 
-## Configuration
+
+## Concept
+
+Node is an abstraction of hardware resource, which can be bare metal, virtual machine, or even k8s pods.
+
+There are different types of node in pigsty:
+
+* common node, nodes that managed by pigsty
+* admin node, the node where pigsty is installed on and issue admin commands
+* infra node, the node where INFRA module installed, admin node is usually the first one of all infra nodes.
+* pgsql node, nodes that have [PGSQL](PGSQL) module installed
+
+### **Common Node**
+
+### **Admin Node**
+
+There is one and only one admin node in a pigsty deployment, which is specified by [`admin_ip`](PARAM#admin_ip), it is set to local primary IP during [configure](INSTALL#configure).
+
+The node will have ssh / sudo access to all other nodes, which is critical, make sure it's fully secured.
+
+### **INFRA Node**
+
+A pigsty deployment may have one or more infra nodes, usually 2 ~ 3 in large production environment.
+
+Infra nodes are specified by the `infra` group in the inventory. and infra nodes will have [INFRA](INFRA) module installed (dns,nginx,prometheus,grafana,etc...),
+
+The admin node is also used as the only one infra node by default, and infra nodes can be used as 'backup' admin nodes.
+
+
+### **PGSQL Node**
+
+
+
+
 
 ## Playbooks
 
 * [`node.yml`](https://github.com/vonng/pigsty/blob/master/node.yml) : Init node for pigsty
 * [`node-rm.yml`](https://github.com/vonng/pigsty/blob/master/node-rm.yml) : Remove node from pigsty
 
-## Administration
-
 ## Parameters
 
-There are 10 sections, 58 parameters about [`NODE`](PARAM#NODE) module.
+There are 10 sections, 58 parameters about [`NODE`](PARAM#node) module.
 
 
 - [`NODE_ID`](PARAM#node_id)             : Node identity parameters        

@@ -326,7 +326,7 @@ Apply these changes? [y/N]: y
 
 When some tuples & tables are dropped by accident, you can advance this delayed cluster to a proper time point and select data from it.
 
-It takes more resources, but can be much faster and have less impact than [PITR](PGSQL-PITR.md)
+It takes more resources, but can be much faster and have less impact than [PITR](PGSQL-PITR)
 
 
 

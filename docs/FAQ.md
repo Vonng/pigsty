@@ -181,7 +181,7 @@ Pigsty has used domestic yum repos for downloads whenever possible. However, a f
 
 <details><summary>Remote nodes are not accessible via SSH commands</summary>
 
-!> Specify a different port via the host instance-level [`ansible connection parameters`](v-infra.md#ansible_host).
+!> Specify a different port via the host instance-level [`ansible connection parameters`](PARAM#ansible_host).
 
 Consider using **Ansible connection parameters** if the target machine is hidden behind an SSH springboard machine or if some customizations have been made that cannot be accessed directly using `ssh ip`. Additional SSH ports can be specified with `ansible_port` or `ansible_host` for SSH Alias.
 
@@ -201,7 +201,7 @@ pg-test:
 
 <details><summary>Password required for remote node SSH and SUDO</summary>
 
-!> Use the `-k` and `-K` parameters, enter the password at the prompt, and refer to [admin provisioning](d-prepare.md#admin-provisioning).
+!> Use the `-k` and `-K` parameters, enter the password at the prompt, and refer to admin provisioning.
 
 **When performing deployments and changes**, the admin user used **must** have `ssh` and `sudo` privileges for all nodes. Password-free is not required.
 You can pass in ssh and sudo passwords via the `-k|-K` parameter when executing the playbook or even use another user to run the playbook via `-e`[`ansible_host`](PARAM#connect)`=<another_user>`.
@@ -231,6 +231,7 @@ Using a proxy may increase the download speed. Downloading CentOS7 Box only need
 Users can also choose to create the required VM manually by downloading the CentOS 7 installation ISO repos.
 
 </details><br>
+
 
 
 <details><summary>Virtual machine time out of sync</summary>
@@ -272,10 +273,54 @@ ansible all -b -a 'yum remove -y nscd'
 ## Monitoring
 
 
+<br>
+<details><summary>Performance impact of monitoring exporter</summary>
+
+!> TBD
+
+Not very much, 200ms per 10 ~ 15 seconds.
+
+</details><br>
+
+
+<details><summary>How to monitoring an existing PostgreSQL instance?</summary>
+
+!> TBD
+
+Check [PGSQL Monitor](PGSQL-MONITOR) for details.
+
+</details><br>
+
+
+<details><summary>How to remove monitor targets from prometheus?</summary>
+
+!> TBD
+
+```bash
+./pgsql-remove.yml -t prometheus -l <cls>
+```
+
+Or
+
+```bash
+bin/pgmon-rm <ins>
+```
+
+</details><br>
+
 
 ----------------
 
 ## INFRA
+
+
+<br>
+<details><summary>Which components are included in INFRA?</summary>
+
+!> TBD
+
+</details><br>
+
 
 
 ----------------
@@ -283,15 +328,73 @@ ansible all -b -a 'yum remove -y nscd'
 ## NODE
 
 
+<details><summary>Create a dedicated admin user with an existing admin user?</summary>
+
+!> TBD
+
+</details><br>
+
+
+<br>
+<details><summary>How to expose service with node HAProxy</summary>
+
+!> TBD
+
+</details><br>
+
+
+
+
+
+
+
+
+
 ----------------
 
 ## ETCD
 
+<br>
+<details><summary>How to use existing external etcd cluster?</summary>
+
+!> TBD
+
+</details><br>
+
+
+<details><summary>How to add new member to existing etcd cluster?</summary>
+
+!> TBD
+
+</details><br>
+
+
+<details><summary>How to remove a member from existing etcd cluster?</summary>
+
+!> TBD
+
+</details><br>
 
 
 ----------------
 
 ## MINIO
+
+<br>
+<details><summary>How to deploy a multi-node multi-drive MinIO cluster?</summary>
+
+!> TBD
+
+</details><br>
+
+
+<details><summary>How to add a member to existing MinIO cluster?</summary>
+
+!> TBD
+
+</details><br>
+
+
 
 
 
@@ -299,7 +402,71 @@ ansible all -b -a 'yum remove -y nscd'
 
 ## REDIS
 
+<br>
+<details><summary>Abort due to redis exists?</summary>
+
+!> TBD
+
+</details><br>
+
+
+<br>
+<details><summary>How to add a single new redis instance on node?</summary>
+
+!> TBD
+
+</details><br>
+
+
+<details><summary>How to remove a single redis instance from node?</summary>
+
+!> TBD
+
+</details><br>
+
+
+
 
 ----------------
 
 ## PGSQL
+
+
+<br>
+<details><summary>Abort because postgres instance is running?</summary>
+
+!> TBD
+
+</details><br>
+
+
+<details><summary>How to create replica when data is corrupted?</summary>
+
+!> TBD
+
+</details><br>
+
+
+
+<details><summary>How to guarantee 0 data loss during failover?</summary>
+
+!> TBD
+
+</details><br>
+
+
+
+<details><summary>How to survive from disk full?</summary>
+
+!> TBD
+
+</details><br>
+
+
+
+<br>
+<details><summary>How to perform a major version upgrade</summary>
+
+!> TBD
+
+</details><br>

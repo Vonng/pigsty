@@ -8,10 +8,8 @@
 - Use MinIO as a central pgbackrest repo.
 - Use dedicate etcd cluster for DCS?
 - Use dedicated haproxy for exposing PostgreSQL Service
-- Deploy a multinode MinIO cluster?
+- Deploy a multi-node MinIO cluster?
 - Use CMDB instead of Config as inventory.
 - Use PostgreSQL as grafana backend storage ?
 - Use PostgreSQL as prometheus backend storage ?
 - .....
-
-
