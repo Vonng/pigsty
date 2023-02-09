@@ -2,7 +2,7 @@
 
 | Version               |    Time    | Description                                             | Release                                                                                   |
 |:----------------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.0.0-b6](#v200-b6) | 2023-02-08 | Compatibility Security Maintainability Enhancement      | [v2.0.0-b6](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b6)                       |
+| [v2.0.0-b6](#v200-b6) | 2023-02-09 | Compatibility Security Maintainability Enhancement      | [v2.0.0-b6](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b6)                       |
 | [v1.5.1](#v151)       | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
 | [v1.5.0](#v150)       | 2022-05-31 | Docker Applications                                     | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
 | [v1.4.1](#v141)       | 2022-04-20 | Bug fix & Full translation of English documents.        | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |
@@ -98,19 +98,18 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 * PostgreSQL 15.1
 * Patroni 2.1.7
 * Pgbouncer 1.18
-* HAProxy 2.6.6
-* vip-manager 2.0
+* HAProxy 2.7.0
+* vip-manager 2.1.0
 * PostGIS 3.3.2
-* Citus 11.1.5
-* TimescaleDB 2.9.1
-* Prometheus 2.41
+* Citus 11.2.0
+* TimescaleDB 2.9.3
+* Prometheus 2.42
 * Loki & Promtail 2.7.1
-* Grafana 9.3.2
+* Grafana 9.3.6
 * Node Exporter 1.5.0
 * ETCD 3.5.6
-* Minio 20230102
-* PEV v1.6
-* Add `grafana-agent`, `mimir`, `tempo` to packages
+* Minio 20230131022419 / MCLI 20230128202938
+* PEV v1.7
 * Use grafana official rpm for `loki`, `promtail`, `logcli`
 * Add `minio` & `mcli` to URL packages
 
@@ -195,9 +194,7 @@ add 24 parameters, remove 8 parameters, rename 11 parameters
 **Checksums**
 
 ```
-MD5 (pigsty-pkg-v2.0.0-b6.el7.x86_64.tgz) = 9340f06b6103154f9400b2e4811aab34
-MD5 (pigsty-pkg-v2.0.0-b6.el8.x86_64.tgz) = f0e69e9cb75851fa437e5090927b5b36
-MD5 (pigsty-pkg-v2.0.0-b6.el9.x86_64.tgz) = 51d6cce0c896d617afceb74ba3b4e4d3
+
 ```
 
 

@@ -570,7 +570,7 @@ repo_url_packages:                # extra packages from url
   - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
   - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
   - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm # redis.el7
-  - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.6/haproxy-2.6.6-1.el7.x86_64.rpm # haproxy.el7
+  - https://github.com/Vonng/haproxy-rpm/releases/download/v2.7.2/haproxy-2.7.2-1.el7.x86_64.rpm # haproxy.el7
   - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230131022419.0.0.x86_64.rpm
   - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230128202938.0.0.x86_64.rpm
 ```
@@ -724,7 +724,7 @@ repo_url_packages:                # extra packages from url
   - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
   - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
   - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm # redis.el7
-  - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.6/haproxy-2.6.6-1.el7.x86_64.rpm # haproxy.el7
+  - https://github.com/Vonng/haproxy-rpm/releases/download/v2.7.2/haproxy-2.7.2-1.el7.x86_64.rpm # haproxy.el7
   - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230131022419.0.0.x86_64.rpm
   - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230128202938.0.0.x86_64.rpm
 ```
