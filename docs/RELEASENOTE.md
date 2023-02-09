@@ -51,7 +51,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 * Simplified configuration templates
 * Replace consul with etcd completely
 * New HBA/Service API
-* Change license to AGPL 3.0 (infect by grafana & minio)
+* Change license to AGPL v3.0 (infect by grafana & minio)
 
 **Compatibility**
 
@@ -98,6 +98,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 * PostgreSQL 15.1
 * Patroni 2.1.7
 * Pgbouncer 1.18
+* pgBackRest 2.44
 * HAProxy 2.7.0
 * vip-manager 2.1.0
 * PostGIS 3.3.2
