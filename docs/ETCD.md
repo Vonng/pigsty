@@ -85,6 +85,15 @@ etcd: # dcs service for postgres/patroni ha consensus
 
 ## Administration
 
+**Cluster Management**
+
+
+- [Create Cluster](ETCD-ADMIN#create-cluster)
+- [Destroy Cluster](ETCD-ADMIN#destroy-cluster)
+- [Reload Config](ETCD-ADMIN#reload-config)
+- [Add Member](ETCD-ADMIN#add-member)
+- [Remove Member](ETCD-ADMIN#remove-member)
+- [Environment](ETCD-ADMIN#environment)
 
 **Environment**
 
@@ -109,75 +118,6 @@ You can do CRUD with following commands.
 ```bash
 e put a 10 ; e get a; e del a ; # V3 API
 ```
-
-**New cluster**
-
-```bash
-./etcd.yml                # deploy etcd cluster according to the definition
-```
-
-**Destroy cluster**
-
-```bash
-./etcd.yml -t etcd_purge  # purge existing etcd cluster
-```
-
-**Remove a member**
-
-Reference: [Remove a Member](https://etcd.io/docs/v3.5/op-guide/runtime-configuration/#remove-a-member)
-
-**Add a member**
-
-Reference: [Add a member](https://etcd.io/docs/v3.5/op-guide/runtime-configuration/#add-a-new-member)
-
-Use `member add` to safely add a member. 
-
-```bash
-# run on etcd server
-etcdctl member add --learner <name> <peerurl>
-
-# promote leaner to follower after catch-up
-etcdctl member promote <member_id>
-```
-
-EXAMPLE: upgrade etcd from 1 node to 2 node
-
-```yaml
-etcd:
-  hosts:
-    10.10.10.10: { etcd_seq: 1 }
-    10.10.10.11: { etcd_seq: 2 }  # newly added host
-  vars:
-    etcd_cluster: etcd
-```
-
-```bash
-# add new member name & peer url to existing cluster
-em add etcd-2 https://10.10.10.11:2380
-
-# setup a new member with initial-cluster-state=existing 
-./etcd.yml -e etcd_init=existing -l 10.10.10.11
-
-# update etcd server endpoint reference
-./etcd.yml -t etcd_conf   # then restart
-```
-
-**Update Client Config**
-
-You also need to update client config, if etcd cluster membership is changed.
-
-ETCD is used by `patroni` and `vip-manager` by default
-
-```bash
-# refresh config
-./pgsql.yml -t pg_conf       # re-generate patroni config
-./pgsql.yml -t pg_vip_config # re-generate vip-manager config 
-
-# reload config
-ansible all -b -a 'systemctl reload patroni;'
-ansible all -b -a 'systemctl reload vip-manager;'
-```
-
 
 
 
