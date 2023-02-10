@@ -260,6 +260,8 @@ v9:
 	vagrant/switch el9
 vb:
 	vagrant/switch build
+vc:
+	vagrant/switch citus
 vnew: new ssh copy-pkg use-pkg copy-src use-src
 
 ###############################################################
@@ -422,7 +424,7 @@ release-matrix:
 
 # release docker packages
 release-docker:
-	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb vonng/pg_exporter postgrest/postgrest bytebase/bytebase:1.10.0  | gzip -9 -c > /tmp/docker.tgz'
+	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb vonng/pg_exporter postgrest/postgrest bytebase/bytebase:1.12.0  | gzip -9 -c > /tmp/docker.tgz'
 	scp meta:/tmp/docker.tgz dist/${VERSION}/${DOCKER_PKG}
 
 # publish pigsty packages
@@ -466,7 +468,7 @@ make-el9:
 #                     9. Environment                          #
 ###############################################################
 meta: v1 new ssh copy-el9 use-pkg
-	cp files/pigsty/el9.yml pigsty.yml
+	cp files/pigsty/demo.yml pigsty.yml
 full: v4 new ssh copy-el9 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
 build: vb new ssh build-src
@@ -493,7 +495,7 @@ el9: v9 new ssh copy-el9 use-pkg
         infra pgsql repo repo-upstream repo-build prometheus grafana loki docker \
         deps dns start ssh demo \
         up dw del new clean up-test dw-test del-test new-test clean \
-        st status suspend resume v1 v4 v7 v8 v9 vb vnew \
+        st status suspend resume v1 v4 v7 v8 v9 vb vc vnew \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb \

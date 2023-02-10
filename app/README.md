@@ -10,7 +10,7 @@ Here are some docker compose templates for popular applications that works well 
 * [Gitea](gitea/) : Self-Hosting Git Services
 * [Wiki](wiki/) : Local Wiki Service
 * [FerretDB](ferretdb/) : MongoDB API over Postgres
-* EdgeDB...
+* [EdgeDB](edgedb): Graph database based on Postgres
 * SupaBase...
 
 
@@ -40,7 +40,7 @@ docker pull sosedoff/pgweb            # 192MB
 docker pull vonng/pg_exporter         # 7.64B
 docker pull postgrest/postgrest       # 16.3MB
 docker pull swaggerapi/swagger-ui     # 77MB
-docker pull bytebase/bytebase:1.10.0  # 287MB
+docker pull bytebase/bytebase:1.12.0  # 287MB
 docker pull ghcr.io/ferretdb/ferretdb # 18.1MB
 
 docker pull gitea/gitea               # latest # 256MB
@@ -53,7 +53,7 @@ docker pull andrewjones/schemaspy-postgres # latest
 
 ```bash
 # make image cache
-docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb vonng/pg_exporter postgrest/postgrest bytebase/bytebase:1.10.0  | gzip -9 -c > /tmp/docker.tgz
+docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb vonng/pg_exporter postgrest/postgrest bytebase/bytebase:1.12.0  | gzip -9 -c > /tmp/docker.tgz
 cat /tmp/docker.tgz | gzip -d -c - | docker load  
 ```
 
