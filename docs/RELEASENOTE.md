@@ -116,7 +116,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 
 **API Changes**
 
-add 24 parameters, remove 8 parameters, rename 11 parameters
+add 24 parameters, remove 8 parameters, rename 12 parameters
 
 - `INFRA`.`META`.`admin_ip`                     : primary meta node ip address
 - `INFRA`.`META`.`region`                       : upstream mirror region: default|china|europe
@@ -173,6 +173,7 @@ add 24 parameters, remove 8 parameters, rename 11 parameters
 - `nginx_upstream`            -> `infra_portal`
 - `repo_address`              -> `repo_endpoint`
 - `pg_hostname`               -> `node_id_from_pg`
+- `pg_sindex`                 -> `pg_group`
 - `pg_services`               -> `pg_default_services`
 - `pg_services_extra`         -> `pg_services`
 - `pg_hba_rules_extra`        -> `pg_hba_rules`

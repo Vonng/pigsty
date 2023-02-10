@@ -96,7 +96,7 @@
 | [`pg_instances`](PARAM#pg_instances)                                 | [`PG_ID`](PARAM#pg_id)               |    dict     |   I   | define multiple pg instances on node in `{port:ins_vars}` format              |
 | [`pg_upstream`](PARAM#pg_upstream)                                   | [`PG_ID`](PARAM#pg_id)               |     ip      |   I   | repl upstream ip addr for standby cluster or cascade replica                  |
 | [`pg_shard`](PARAM#pg_shard)                                         | [`PG_ID`](PARAM#pg_id)               |   string    |   C   | pgsql shard name, optional identity for sharding clusters                     |
-| [`pg_sindex`](PARAM#pg_sindex)                                       | [`PG_ID`](PARAM#pg_id)               |     int     |   C   | pgsql shard index, optional identity for sharding clusters                    |
+| [`pg_group`](PARAM#pg_group)                                         | [`PG_ID`](PARAM#pg_id)               |     int     |   C   | pgsql shard index number, optional identity for sharding clusters             |
 | [`gp_role`](PARAM#gp_role)                                           | [`PG_ID`](PARAM#pg_id)               |    enum     |   C   | greenplum role of this cluster, could be master or segment                    |
 | [`pg_exporters`](PARAM#pg_exporters)                                 | [`PG_ID`](PARAM#pg_id)               |    dict     |   C   | additional pg_exporters to monitor remote postgres instances                  |
 | [`pg_offline_query`](PARAM#pg_offline_query)                         | [`PG_ID`](PARAM#pg_id)               |    bool     |   G   | set to true to enable offline query on this instance                          |

@@ -1367,7 +1367,7 @@ INSERT INTO pigsty.default_var VALUES
 (504, 'pg_instances', NULL, 'PGSQL', 'PG_ID', 'dict', 'I', 'define multiple pg instances on node in `{port:ins_vars}` format', NULL),
 (505, 'pg_upstream', NULL, 'PGSQL', 'PG_ID', 'ip', 'I', 'repl upstream ip addr for standby cluster or cascade replica', NULL),
 (506, 'pg_shard', NULL, 'PGSQL', 'PG_ID', 'string', 'C', 'pgsql shard name, optional identity for sharding clusters', NULL),
-(507, 'pg_sindex', NULL, 'PGSQL', 'PG_ID', 'int', 'C', 'pgsql shard index, optional identity for sharding clusters', NULL),
+(507, 'pg_group', NULL, 'PGSQL', 'PG_ID', 'int', 'C', 'pgsql shard index number, optional identity for sharding clusters', NULL),
 (508, 'gp_role', '"master"', 'PGSQL', 'PG_ID', 'enum', 'C', 'greenplum role of this cluster, could be master or segment', NULL),
 (509, 'pg_exporters', '{}', 'PGSQL', 'PG_ID', 'dict', 'C', 'additional pg_exporters to monitor remote postgres instances', NULL),
 (510, 'pg_offline_query', 'false', 'PGSQL', 'PG_ID', 'bool', 'G', 'set to true to enable offline query on this instance', NULL),
