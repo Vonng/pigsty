@@ -31,7 +31,7 @@
 {% set hba_role = hba.role if 'role' in hba and hba.role != '' else 'default' %}
 {% if hba_role not in ['default', 'common', 'primary', 'replica', 'offline', 'standby', 'delayed' ] %}{{ abort("invalid hba role " + hba_role) }}{% endif %}
 {% set hba_enabled = '#' %}
-{% if hba_role == 'default' or hba_role == pg_role or (hba_role == 'offline' and pg_offline_query|bool)  %}{% set hba_enabled = '' %}{% endif %}
+{% if hba_role == 'default' or hba_role == 'common' or hba_role == pg_role or (hba_role == 'offline' and pg_offline_query|bool)  %}{% set hba_enabled = '' %}{% endif %}
 {% if 'rules' in hba and hba.rules|length > 0 %}
 # {% if 'title' in hba %}{{ hba.title }}{% endif %} [{{ hba_role }}] {% if hba_enabled != '' %}[DISABLED]{% endif %}
 
