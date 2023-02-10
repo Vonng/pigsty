@@ -23,6 +23,7 @@
 # admin     : {{ admin_ip }}
 # infra     : {{ groups['infra']|join(', ') }}
 # intra     : {{ intranet|join(', ') }}
+# cluster   : {{  pg_cluster_members|join(', ') }}
 
 # user alias
 # dbsu    :  {{ pg_dbsu }}
@@ -43,7 +44,7 @@
 {% endfor %}
 {% elif 'addr' in hba and hba.addr != '' %}
 {% set hba_addr = hba.addr %}
-{% if hba_addr not in ['local', 'localhost', 'admin', 'infra', 'intra', 'intranet', 'world', 'all'] and not hba_addr|regex_search('^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$') %}
+{% if hba_addr not in ['local', 'localhost', 'admin', 'infra', 'cluster', 'intra', 'intranet', 'world', 'all'] and not hba_addr|regex_search('^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$') %}
 {{ abort("invalid addr name: " + hba_addr) }}
 {% endif %}
 {% set hba_address = hba_addr %}
@@ -68,6 +69,10 @@
 {{ hba_enabled }}{{ "%-8s" | format(hba_conntype) }} {{ "%-18s" | format(hba_db) }} {{ "%-18s" | format(hba_user) }} {{ "%-18s" | format(admin_ip|string + '/32') }} {{ hba_auth }}
 {% elif hba_addr == 'infra' %}
 {% for ip in groups['infra']|sort %}
+{{ hba_enabled }}{{ "%-8s" | format(hba_conntype) }} {{ "%-18s" | format(hba_db) }} {{ "%-18s" | format(hba_user) }} {{ "%-18s" | format(ip|string + '/32') }} {{ hba_auth }}
+{% endfor %}
+{% elif hba_addr == 'cluster' %}
+{% for ip in pg_cluster_members %}
 {{ hba_enabled }}{{ "%-8s" | format(hba_conntype) }} {{ "%-18s" | format(hba_db) }} {{ "%-18s" | format(hba_user) }} {{ "%-18s" | format(ip|string + '/32') }} {{ hba_auth }}
 {% endfor %}
 {% elif hba_addr in ['intra','intranet'] %}

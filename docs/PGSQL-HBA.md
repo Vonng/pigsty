@@ -78,7 +78,7 @@ HBA Rule with `role: offline` will be installed on instances with [`pg_role`](PA
 The alias form, which replace `rules` with `addr`, `auth`, `user`, and `db` fields.
 
 ```yaml
-- addr: 'intra'    # world|intra|infra|admin|local|localhost|<cidr>
+- addr: 'intra'    # world|intra|infra|admin|local|localhost|cluster|<cidr>
   auth: 'pwd'      # trust|pwd|ssl|cert|deny|<official auth method>
   user: 'all'      # all|${dbsu}|${repl}|${admin}|${monitor}|<user>|<group>
   db: 'all'        # all|replication|....
@@ -93,6 +93,7 @@ The alias form, which replace `rules` with `addr`, `auth`, `user`, and `db` fiel
   - `admin`: `admin_ip` address
   - `local`: local unix socket
   - `localhost`: local unix socket + tcp 127.0.0.1/32
+  - `cluster`: all IP addresses of pg cluster members  
   - `<cidr>`: any standard CIDR blocks or IP addresses
 - `auth`: **how**
   - `deny`: reject access

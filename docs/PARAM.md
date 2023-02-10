@@ -3254,7 +3254,7 @@ business hba rules for postgres
 
 default values: `[]`, each object in array is an **HBA Rule** definition:
 
-Which are array of hba object, each hba object may look like
+Which are array of [hba](PGSQL-HBA#define-hba) object, each hba object may look like
 
 
 ```yaml
@@ -3274,11 +3274,10 @@ Which are array of hba object, each hba object may look like
   * `primary`, `replica`,`standby`, `offline`: apply on corresponding instances with that [`pg_role`](#pg_role).
   * special case: HBA rule with `role == 'offline'` will be installed on instance with [`pg_offline_query`](#pg_offline_query) flag
 
-or you can use another form
+or you can use another alias form
 
 ```yaml
-# PIGSTY HBA ALIAS
-- addr: 'intra'    # world|intra|infra|admin|local|localhost|<cidr>
+- addr: 'intra'    # world|intra|infra|admin|local|localhost|cluster|<cidr>
   auth: 'pwd'      # trust|pwd|ssl|cert|deny|<official auth method>
   user: 'all'      # all|${dbsu}|${repl}|${admin}|${monitor}|<user>|<group>
   db: 'all'        # all|replication|....
@@ -3302,7 +3301,7 @@ business hba rules for pgbouncer
 
 default values: `[]`
 
-Similar to [`pg_hba_rules`](#pg_hba_rules), except for pgbouncer.
+Similar to [`pg_hba_rules`](#pg_hba_rules), array of [hba](PGSQL-HBA#define-hba) rule object, except this is for pgbouncer.
 
 
 
@@ -4324,9 +4323,9 @@ default value is `true`
 
 name: `pg_default_hba_rules`, type: `hba[]`, level: `G/C`
 
-postgres default host-based authentication rules
+postgres default host-based authentication rules, array of [hba](PGSQL-HBA#define-hba) rule object.
 
-default value: 
+default value:
 
 ```yaml
 pg_default_hba_rules:             # postgres default host-based authentication rules
@@ -4351,7 +4350,7 @@ pg_default_hba_rules:             # postgres default host-based authentication r
 
 name: `pgb_default_hba_rules`, type: `hba[]`, level: `G/C`
 
-pgbouncer default host-based authentication rules
+pgbouncer default host-based authentication rules, array or [hba](PGSQL-HBA#define-hba) rule object.
 
 default value: 
 
