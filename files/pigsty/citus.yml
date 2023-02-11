@@ -28,43 +28,39 @@ all:
         10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true }
       vars: { pg_cluster: pg-citus0 , pg_group: 0 }
 
-    # citus data node, pg_group = 1
-    pg-citus1:
-      hosts:
-        10.10.10.11: { pg_seq: 1, pg_role: primary }
-        10.10.10.12: { pg_seq: 2, pg_role: replica }
-      vars: { pg_cluster: pg-citus1 , pg_group: 1 }
-
-    # citus data node, pg_group = 2
-    pg-citus2:
-      hosts:
-        10.10.10.13: { pg_seq: 1, pg_role: primary }
-        10.10.10.14: { pg_seq: 2, pg_role: replica }
-      vars: { pg_cluster: pg-citus2 , pg_group: 2 }
-
-
     # citus data node, pg_group = 1,2,3,4 (4 node instead of two p/s pair)
-    # pg-citus1:
-    #   hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
-    #   vars: { pg_cluster: pg-citus1 , pg_group: 1 }
-    # pg-citus2:
-    #   hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
-    #   vars: { pg_cluster: pg-citus2 , pg_group: 2 }
-    # pg-citus3:
-    #   hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
-    #   vars: { pg_cluster: pg-citus3 , pg_group: 3 }
-    # pg-citus4:
-    #   hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
-    #   vars: { pg_cluster: pg-citus4 , pg_group: 4 }
+    pg-citus1:
+      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
+      vars: { pg_cluster: pg-citus1 , pg_group: 1 }
+    pg-citus2:
+      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
+      vars: { pg_cluster: pg-citus2 , pg_group: 2 }
+    pg-citus3:
+      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
+      vars: { pg_cluster: pg-citus3 , pg_group: 3 }
+    pg-citus4:
+      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
+      vars: { pg_cluster: pg-citus4 , pg_group: 4 }
+
+    # citus data node, pg_group = 1,2
+    #pg-citus1:
+    #  hosts:
+    #    10.10.10.11: { pg_seq: 1, pg_role: primary }
+    #    10.10.10.12: { pg_seq: 2, pg_role: replica }
+    #  vars: { pg_cluster: pg-citus1 , pg_group: 1 }
+    #pg-citus2:
+    #  hosts:
+    #    10.10.10.13: { pg_seq: 1, pg_role: primary }
+    #    10.10.10.14: { pg_seq: 2, pg_role: replica }
+    #  vars: { pg_cluster: pg-citus2 , pg_group: 2 }
 
 
   vars: # global variables
-
     # global citus config for all citus clusters
     pg_mode: citus                    # pgsql cluster mode: pgsql,citus,gpsql
     pg_conf: citus.yml                # citus configuration
     pg_shard: pg-citus                # citus shard name
-    pg_citus_db: meta                 # citus distributed database name
+    patroni_citus_db: meta            # citus distributed database name
     pg_users: [ { name: citus ,password: citus ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
     pg_databases: [ { name: meta ,owner: citus , extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
     pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain'

@@ -131,12 +131,14 @@ add 24 parameters, remove 8 parameters, rename 12 parameters
 - `INFRA`.`PROMTETHEUS`.`alertmanager_endpoint` : altermanager endpoint in (ip|domain):port format
 - `NODE`.`NODE_TUNE`.`node_hugepage_ratio`      : mem hugepage ratio, 0 disable it by default
 - `NODE`.`HAPROXY`.`haproxy_service`            : list of haproxy service to be exposed
+- `PGSQL`.`PG_ID`.`pg_mode`                     : pgsql cluster mode: pgsql,citus,gpsql
 - `PGSQL`.`PG_INSTALL`.`pg_log_dir`             : postgres log dir, `/pg/data/log` by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_storage_type`      : SSD|HDD, SSD by default
 - `PGSQL`.`PG_BOOTSTRAP`.`patroni_log_dir`      : patroni log dir, `/pg/log` by default
 - `PGSQL`.`PG_BOOTSTRAP`.`patroni_ssl_enabled`  : secure patroni RestAPI communications with SSL?
 - `PGSQL`.`PG_BOOTSTRAP`.`patroni_username`     : patroni rest api username
 - `PGSQL`.`PG_BOOTSTRAP`.`patroni_password`     : patroni rest api password (IMPORTANT: CHANGE THIS)
+- `PGSQL`.`PG_BOOTSTRAP`.`patroni_citus_db`     : citus database managed by patroni, postgres by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_max_conn`          : postgres max connections, `auto` will use recommended value
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_shmem_ratio`       : postgres shared memory ratio, 0.25 by default, 0.1~0.4
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_rto`               : recovery time objective, ttl to failover, 30s by default

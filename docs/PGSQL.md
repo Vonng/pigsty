@@ -90,6 +90,7 @@
 
 | Parameter                                                            | Section                              |    Type     | Level | Comment                                                                       |
 |----------------------------------------------------------------------|--------------------------------------|:-----------:|:-----:|-------------------------------------------------------------------------------|
+| [`pg_mode`](PARAM#pg_mode)                                           | [`PG_ID`](PARAM#pg_id)               |    enum     |   C   | pgsql cluster mode: pgsql,citus,gpsql                                         |
 | [`pg_cluster`](PARAM#pg_cluster)                                     | [`PG_ID`](PARAM#pg_id)               |   string    |   C   | pgsql cluster name, REQUIRED identity parameter                               |
 | [`pg_seq`](PARAM#pg_seq)                                             | [`PG_ID`](PARAM#pg_id)               |     int     |   I   | pgsql instance seq number, REQUIRED identity parameter                        |
 | [`pg_role`](PARAM#pg_role)                                           | [`PG_ID`](PARAM#pg_id)               |    enum     |   I   | pgsql role, REQUIRED, could be primary,replica,offline                        |

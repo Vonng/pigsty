@@ -13,6 +13,8 @@
       connection: local
       set_fact:
         pg_meta: "{{ hostvars|json_query(cluster_query) }}"
+        pg_shard: "{% if pg_shard is defined %}{{ pg_shard }}{% else %}{{ pg_cluster }}{% endif %}"  # use pg_cluster as pg_shard if not defined
+        pg_group: "{% if pg_group is defined %}{{ pg_group|int }}{% else %}0{% endif %}"             # use 0 as default group number if not defined
         pg_instance: "{{ pg_cluster }}-{{ pg_seq }}"
         pg_service: "{{ pg_cluster }}-{{ pg_role }}"
       vars: { cluster_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']" }
