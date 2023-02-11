@@ -22,6 +22,7 @@
 {% set pg_max_parallel_workers = pg_max_worker_processes|int %}
 {% set pg_max_parallel_workers_per_gather = (pg_max_parallel_workers / 2)|round(0, 'ceil')|int %}
 {% set pg_max_parallel_mt_workers = ([(node_cpu|int / 8)|round(0,'ceil'),2])|max|int %}
+{% set pg_allow_list = ( pg_cluster_members|default([]) + groups["infra"]|default([]) )|sort|unique %}
 
 #==============================================================#
 # Summary for patroni OLAP config template (4-128 cpu cores)
@@ -88,7 +89,7 @@ restapi:
   authentication:
     username: '{{ patroni_username }}'
     password: '{{ patroni_password }}'
-  allowlist: [ {% for v in groups["infra"]|sort %}{% if not loop.first %}, {% endif %}{{ v }}{% endfor %} ]
+  allowlist: [ {{ pg_allow_list|join(', ') }} ]
 
 #--------------------------------------------------------------#
 # ctl
@@ -243,6 +244,15 @@ bootstrap:
     # prevents disabling synchronous replication if no synchronous replicas are available, blocking all client writes to the master
     synchronous_mode_strict: false
     # synchronous_node_count: 1  # edit-config only, when using quorum commit
+
+    # Postgres may continue to run as a primary if it can access all known members of the cluster via Patroni REST API.
+    failsafe_mode: true
+
+    # postgres cluster metadata
+    pg_version: {{ pg_version }}
+    pg_cluster: {{ pg_cluster }}
+    pg_shard:   {{ pg_shard|default(pg_cluster) }}
+    pg_group:   {{ pg_group|default(0) }}
 
     #----------------------------------------------------------#
     # postgres parameters
