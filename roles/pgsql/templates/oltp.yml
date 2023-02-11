@@ -10,6 +10,7 @@
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
+{% macro abort(error) %}{{ None['[ERROR] ' ~ error][0] }}{% endmacro %}
 {% if pg_max_conn != 'auto' and pg_max_conn|int >= 20 %}{% set pg_max_connections = pg_max_conn|int %}{% else %}{% if pg_default_service_dest|default('postgres') == 'pgbouncer' %}{% set pg_max_connections = 200 %}{% else %}{% set pg_max_connections = 1000 %}{% endif %}{% endif %}
 {% set pg_shared_buffers = (node_mem_mb|int * pg_shmem_ratio|float) | round(0, 'ceil') | int %}
 {% set pg_maintenance_mem = (pg_shared_buffers|int * 0.25)|round(0, 'ceil')|int %}
@@ -46,9 +47,25 @@
 #--------------------------------------------------------------#
 # identity
 #--------------------------------------------------------------#
-namespace: {{ pg_namespace }}/          # namespace
-scope: {{ pg_cluster }}                 # cluster name
-name: {{ pg_instance }}                 # instance name
+# namespace, instance, cluster/shard scope
+namespace: {{ pg_namespace }}/
+name: {{ pg_instance }}
+{% if pg_mode == 'pgsql' %}
+scope: {{ pg_cluster }}   # common pgsql cluster
+{% elif pg_mode == 'citus' %}
+scope: {{ pg_shard }}   # citus shard cluster: {{ pg_cluster }}
+{% else %}
+{{ abort("invalid pg_mode: " + pg_mode) }}
+{% endif %}
+
+{% if pg_mode == 'citus' %}
+#--------------------------------------------------------------#
+# citus
+#--------------------------------------------------------------#
+citus:
+  group: {{ pg_group }}
+  database: {{ patroni_citus_db }}
+{% endif %}
 
 #--------------------------------------------------------------#
 # log
@@ -222,9 +239,9 @@ bootstrap:
     # timeout for DCS and PostgreSQL operation retries (in seconds). DCS or network issues shorter than this will not cause Patroni to demote the leader. Default value: 10
     retry_timeout: {{ (pg_rto / 3)|round(0, 'ceil')|int }}
 
-    # the amount of time a master is allowed to recover from failures before failover is triggered (in seconds)
-    # Max RTO: 2 loop wait + master_start_timeout
-    master_start_timeout: {{ (pg_rto / 3)|round(0, 'ceil')|int }}
+    # the amount of time a primary is allowed to recover from failures before failover is triggered (in seconds)
+    # Max RTO: 2 loop wait + primary_start_timeout
+    primary_start_timeout: {{ (pg_rto / 3)|round(0, 'ceil')|int }}
 
     # import: candidate will not be promoted if replication lag is higher than this
     # maximum RPO: 1MB
@@ -234,14 +251,14 @@ bootstrap:
     maximum_lag_on_syncnode: -1
 
     # The number of seconds Patroni is allowed to wait when stopping Postgres and effective only when synchronous_mode is enabled
-    master_stop_timeout: 30
+    primary_stop_timeout: 30
 
     # turns on synchronous replication mode. In this mode a replica will be chosen as synchronous and only the latest leader and synchronous replica are able to participate in leader election
     # if crit template is used or RPO set to 0,1 , sync mode will be enabled
     synchronous_mode: {% if pg_rpo|int == 0 %}true{% else %}false{% endif %}
 
 
-    # prevents disabling synchronous replication if no synchronous replicas are available, blocking all client writes to the master
+    # prevents disabling synchronous replication if no synchronous replicas are available, blocking all client writes to the primary
     synchronous_mode_strict: false
     # synchronous_node_count: 1  # edit-config only, when using quorum commit
 
@@ -483,6 +500,7 @@ postgresql:
     keep_data: true
     no_params: true
     no_master: true
+    no_leader: true
 {% endif %}
 
   #------------------------------------------------------------#

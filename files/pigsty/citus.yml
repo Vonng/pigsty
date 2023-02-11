@@ -1,7 +1,7 @@
 ---
 #==============================================================#
 # File      :   citus.yml
-# Desc      :   pigsty citus demo with 1 coordinator and 4 data nodes
+# Desc      :   pigsty citus / etcd testing environment
 # Ctime     :   2020-05-22
 # Mtime     :   2023-02-11
 # Docs      :   https://github.com/Vonng/pigsty/wiki/Configuration
@@ -19,8 +19,15 @@ all:
     # minio cluster, s3 compatible object storage
     # minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 
-    # etcd cluster for ha postgres
-    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+    # etcd testing cluster: 5 members
+    etcd:
+      hosts:
+        10.10.10.10: { etcd_seq: 1 }
+        #10.10.10.11: { etcd_seq: 2 }
+        #10.10.10.12: { etcd_seq: 3 }
+        #10.10.10.13: { etcd_seq: 4 }
+        #10.10.10.14: { etcd_seq: 5 }
+      vars: { etcd_cluster: etcd } }
 
     # citus coordinator, pg_group = 0
     pg-citus0:
@@ -58,7 +65,7 @@ all:
   vars: # global variables
     # global citus config for all citus clusters
     pg_mode: citus                    # pgsql cluster mode: pgsql,citus,gpsql
-    pg_conf: citus.yml                # citus configuration
+    pg_conf: tiny.yml                 # use tiny for citus nodes
     pg_shard: pg-citus                # citus shard name
     patroni_citus_db: meta            # citus distributed database name
     pg_users: [ { name: citus ,password: citus ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
