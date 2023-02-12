@@ -16,6 +16,7 @@
   tags: [ pgbackrest, pgbackrest_clean ]
   when: pgbackrest_clean|bool and pg_role == 'primary'
   become: yes
+  ignore_errors: true
   become_user: "{{ pg_dbsu }}"
   shell: |
     if [[ -f /etc/pgbackrest/pgbackrest.conf ]]; then
@@ -32,6 +33,7 @@
 #--------------------------------------------------------------#
 # Init PgBackrest Repo                         [pgbackrest_init]
 #--------------------------------------------------------------#
+# make sure /pg/backup target dir exists (pg_dir)
 # if local repo is used, init a local repo on all cluster members
 # if minio repo is used, init a minio repo on primary only
 - name: create pgbackrest repo stanza
@@ -39,10 +41,13 @@
   when: pgbackrest_method == 'local' or (pgbackrest_method == 'minio' and pg_role == 'primary' and pg_upstream is not defined)
   become: yes
   become_user: "{{ pg_dbsu }}"
+  ignore_errors: true
   shell: |
-    /usr/bin/pgbackrest --stanza={{ pg_cluster }} start
-    /usr/bin/pgbackrest --stanza={{ pg_cluster }} --no-online stanza-create
-
+    if [[ -f /etc/pgbackrest/pgbackrest.conf ]]; then
+      rm -rf /tmp/pgbackrest/{{ pg_cluster }}.stop || /bin/true
+      /usr/bin/pgbackrest --stanza={{ pg_cluster }} --no-online stanza-create
+    fi
+    
 
 #--------------------------------------------------------------#
 # Create Initial Backup                      [pgbackrest_backup]
