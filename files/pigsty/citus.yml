@@ -3,7 +3,7 @@
 # File      :   citus.yml
 # Desc      :   pigsty citus / etcd testing environment
 # Ctime     :   2020-05-22
-# Mtime     :   2023-02-11
+# Mtime     :   2023-02-12
 # Docs      :   https://vonng.github.io/pigsty/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -28,31 +28,31 @@ all:
         10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true }
       vars: { pg_cluster: pg-citus0 , pg_group: 0 }
 
-    # citus data node, pg_group = 1,2,3,4 (4 node instead of two p/s pair)
+    # citus data node, pg_group = 1,2
     pg-citus1:
-      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
+      hosts:
+        10.10.10.11: { pg_seq: 1, pg_role: primary }
+        10.10.10.12: { pg_seq: 2, pg_role: replica }
       vars: { pg_cluster: pg-citus1 , pg_group: 1 }
     pg-citus2:
-      hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
+      hosts:
+        10.10.10.13: { pg_seq: 1, pg_role: primary }
+        10.10.10.14: { pg_seq: 2, pg_role: replica }
       vars: { pg_cluster: pg-citus2 , pg_group: 2 }
-    pg-citus3:
-      hosts: { 10.10.10.13: { pg_seq: 1, pg_role: primary } }
-      vars: { pg_cluster: pg-citus3 , pg_group: 3 }
-    pg-citus4:
-      hosts: { 10.10.10.14: { pg_seq: 1, pg_role: primary } }
-      vars: { pg_cluster: pg-citus4 , pg_group: 4 }
 
-    # citus data node, pg_group = 1,2
+    # citus data node, pg_group = 1,2,3,4 (4 node instead of two p/s pair)
     #pg-citus1:
-    #  hosts:
-    #    10.10.10.11: { pg_seq: 1, pg_role: primary }
-    #    10.10.10.12: { pg_seq: 2, pg_role: replica }
+    #  hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
     #  vars: { pg_cluster: pg-citus1 , pg_group: 1 }
     #pg-citus2:
-    #  hosts:
-    #    10.10.10.13: { pg_seq: 1, pg_role: primary }
-    #    10.10.10.14: { pg_seq: 2, pg_role: replica }
+    #  hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
     #  vars: { pg_cluster: pg-citus2 , pg_group: 2 }
+    #pg-citus3:
+    #  hosts: { 10.10.10.13: { pg_seq: 1, pg_role: primary } }
+    #  vars: { pg_cluster: pg-citus3 , pg_group: 3 }
+    #pg-citus4:
+    #  hosts: { 10.10.10.14: { pg_seq: 1, pg_role: primary } }
+    #  vars: { pg_cluster: pg-citus4 , pg_group: 4 }
 
 
   vars: # global variables
@@ -61,8 +61,8 @@ all:
     pg_conf: tiny.yml                 # use tiny for citus nodes
     pg_shard: pg-citus                # citus shard name
     patroni_citus_db: meta            # citus distributed database name
-    pg_users: [ { name: citus ,password: citus ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
-    pg_databases: [ { name: meta ,owner: citus , extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
+    pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] ,comment: pigsty admin user } ]
+    pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
     pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain'
     pg_hba_rules:
       - title: Allow dbsu db/meta ssl access from local/shard
