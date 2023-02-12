@@ -339,4 +339,46 @@ It takes more resources, but can be much faster and have less impact than [PITR]
 
 Pigsty has native citus support. Check [`files/pigsty/citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/citus.yml) for example.
 
-TBD for patroni 3.0 citus native support
+To define a citus cluster,
+
+- [`pg_mode`](PARAM#pg_mode) has to be set to `citus` instead of default `pgsql`
+- extra cluster level identity parameters: [`pg_shard`](PARAM#pg_shard) & [`pg_group`](PARAM#pg_group) has to be defined on each sharding cluster
+- [`patroni_citus_db`](PARAM#patroni_citus_db) has to be defined to specify the database to be managed
+
+```yaml
+children:
+  pg-citus0: # citus coordinator, pg_group = 0
+    hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+    vars: { pg_cluster: pg-citus0 , pg_group: 0 }
+  pg-citus1: # citus data node, pg_group = 1,2,3,4
+    hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
+    vars: { pg_cluster: pg-citus1 , pg_group: 1 }
+  pg-citus2:
+    hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
+    vars: { pg_cluster: pg-citus2 , pg_group: 2 }
+  pg-citus3:
+    hosts: { 10.10.10.13: { pg_seq: 1, pg_role: primary } }
+    vars: { pg_cluster: pg-citus3 , pg_group: 3 }
+  pg-citus4:
+    hosts: { 10.10.10.14: { pg_seq: 1, pg_role: primary } }
+    vars: { pg_cluster: pg-citus4 , pg_group: 4 }
+
+vars: # global variables
+  pg_mode: citus                    # pgsql cluster mode: pgsql,citus,gpsql
+  pg_conf: tiny.yml                 # use tiny for citus nodes
+  pg_shard: pg-citus                # citus shard name
+  patroni_citus_db: meta            # citus distributed database name
+  pg_users: [ { name: citus ,password: citus ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+  pg_databases: [ { name: meta ,owner: citus , extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
+  pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain'
+  pg_hba_rules:
+    - title: Allow dbsu db/meta ssl access from local/shard
+      role: common
+      rules:
+        - hostssl  meta  postgres  127.0.0.1/32    trust
+        - hostssl  meta  postgres  10.10.10.10/32  trust
+        - hostssl  meta  postgres  10.10.10.11/32  trust
+        - hostssl  meta  postgres  10.10.10.12/32  trust
+        - hostssl  meta  postgres  10.10.10.13/32  trust
+        - hostssl  meta  postgres  10.10.10.14/32  trust
+```

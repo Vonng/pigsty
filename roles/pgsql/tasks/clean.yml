@@ -94,15 +94,19 @@
       when: pg_role == 'primary'
       delegate_to: '{{ admin_ip }}'
       shell: |
+        {% if pg_mode == 'pgsql' %}
         META_DIR="{{ pg_namespace|default('/pg') }}/{{ pg_cluster }}"
+        {% elif pg_mode == 'citus '%}
+        META_DIR="{{ pg_namespace|default('/pg') }}/{{ pg_shard }}/{{ pg_group }}"
+        {% endif %}
+        
         export ETCDCTL_API=3
         export ETCDCTL_ENDPOINTS="{% for ip in groups['etcd']|sort %}{% if not loop.first %},{% endif %}https://{{ ip }}:{{ etcd_port }}{% endfor %}"
-        
         export ETCDCTL_CACERT=/etc/pki/ca.crt
         export ETCDCTL_CERT=/etc/pki/infra.crt
         export ETCDCTL_KEY=/etc/pki/infra.key
         etcdctl del "${META_DIR}" --prefix=true
-        
+        /bin/true
 
     - name: remove postgres data
       tags: pg_clean_data

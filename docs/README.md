@@ -232,44 +232,41 @@ pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
 <details><summary>Example: Citus Cluster: 1 Coordinator x 3 Data Nodes</summary>
 
 ```yaml
-# citus coordinator node
-pg-meta:
-  hosts:
-    10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true }
-  vars:
-    pg_cluster: pg-meta
-    pg_users: [{ name: citus ,password: citus ,pgbouncer: true ,roles: [dbrole_admin]}]
-    pg_databases:
-      - { name: meta ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public},{ name: citus}] ,baseline: cmdb.sql ,comment: pigsty meta database}
+children:
+  pg-citus0: # citus coordinator, pg_group = 0
+    hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+    vars: { pg_cluster: pg-citus0 , pg_group: 0 }
+  pg-citus1: # citus data node, pg_group = 1,2,3,4
+    hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
+    vars: { pg_cluster: pg-citus1 , pg_group: 1 }
+  pg-citus2:
+    hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
+    vars: { pg_cluster: pg-citus2 , pg_group: 2 }
+  pg-citus3:
+    hosts: { 10.10.10.13: { pg_seq: 1, pg_role: primary } }
+    vars: { pg_cluster: pg-citus3 , pg_group: 3 }
+  pg-citus4:
+    hosts: { 10.10.10.14: { pg_seq: 1, pg_role: primary } }
+    vars: { pg_cluster: pg-citus4 , pg_group: 4 }
 
-# citus data node 1,2,3
-pg-node1:
-  hosts:
-    10.10.10.11: { pg_seq: 1, pg_role: primary }
-  vars:
-    pg_cluster: pg-node1
-    vip_address: 10.10.10.3
-    pg_users: [{ name: citus ,password: citus ,pgbouncer: true ,roles: [dbrole_admin]}]
-    pg_databases: [{ name: meta ,owner: citus , extensions: [{name: citus},{name: postgis, schema: public}]}]
-
-pg-node2:
-  hosts:
-    10.10.10.12: { pg_seq: 1, pg_role: primary  , pg_offline_query: true }
-  vars:
-    pg_cluster: pg-node2
-    vip_address: 10.10.10.4
-    pg_users: [ { name: citus , password: citus , pgbouncer: true , roles: [ dbrole_admin ] } ]
-    pg_databases: [ { name: meta , owner: citus , extensions: [ { name: citus }, { name: postgis, schema: public } ] } ]
-
-pg-node3:
-  hosts:
-    10.10.10.13: { pg_seq: 1, pg_role: primary  , pg_offline_query: true }
-  vars:
-    pg_cluster: pg-node3
-    vip_address: 10.10.10.5
-    pg_users: [ { name: citus , password: citus , pgbouncer: true , roles: [ dbrole_admin ] } ]
-    pg_databases: [ { name: meta , owner: citus , extensions: [ { name: citus }, { name: postgis, schema: public } ] } ]
-
+vars: # global variables
+  pg_mode: citus                    # pgsql cluster mode: pgsql,citus,gpsql
+  pg_conf: tiny.yml                 # use tiny for citus nodes
+  pg_shard: pg-citus                # citus shard name
+  patroni_citus_db: meta            # citus distributed database name
+  pg_users: [ { name: citus ,password: citus ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+  pg_databases: [ { name: meta ,owner: citus , extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
+  pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain'
+  pg_hba_rules:
+    - title: Allow dbsu db/meta ssl access from local/shard
+      role: common
+      rules:
+        - hostssl  meta  postgres  127.0.0.1/32    trust
+        - hostssl  meta  postgres  10.10.10.10/32  trust
+        - hostssl  meta  postgres  10.10.10.11/32  trust
+        - hostssl  meta  postgres  10.10.10.12/32  trust
+        - hostssl  meta  postgres  10.10.10.13/32  trust
+        - hostssl  meta  postgres  10.10.10.14/32  trust
 ```
 
 </details>

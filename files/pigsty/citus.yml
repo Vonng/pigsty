@@ -19,15 +19,8 @@ all:
     # minio cluster, s3 compatible object storage
     # minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 
-    # etcd testing cluster: 5 members
-    etcd:
-      hosts:
-        10.10.10.10: { etcd_seq: 1 }
-        #10.10.10.11: { etcd_seq: 2 }
-        #10.10.10.12: { etcd_seq: 3 }
-        #10.10.10.13: { etcd_seq: 4 }
-        #10.10.10.14: { etcd_seq: 5 }
-      vars: { etcd_cluster: etcd } }
+    # etcd cluster for ha postgres
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
 
     # citus coordinator, pg_group = 0
     pg-citus0:
@@ -40,13 +33,13 @@ all:
       hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
       vars: { pg_cluster: pg-citus1 , pg_group: 1 }
     pg-citus2:
-      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
+      hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
       vars: { pg_cluster: pg-citus2 , pg_group: 2 }
     pg-citus3:
-      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
+      hosts: { 10.10.10.13: { pg_seq: 1, pg_role: primary } }
       vars: { pg_cluster: pg-citus3 , pg_group: 3 }
     pg-citus4:
-      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
+      hosts: { 10.10.10.14: { pg_seq: 1, pg_role: primary } }
       vars: { pg_cluster: pg-citus4 , pg_group: 4 }
 
     # citus data node, pg_group = 1,2
