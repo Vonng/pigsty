@@ -124,7 +124,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -133,7 +133,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by (version) (prometheus_build_info{instance=\"$ins\"})",
+                    "expr": "sum by (version) (prometheus_build_info{ins=\"$ins\"})",
                     "format": "time_series",
                     "instant": true,
                     "intervalFactor": 2,
@@ -235,7 +235,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -243,7 +243,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(prometheus_tsdb_head_series{instance=\"$ins\"})",
+                    "expr": "sum(prometheus_tsdb_head_series{ins=\"$ins\"})",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Series",
@@ -324,7 +324,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -332,7 +332,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "irate(prometheus_tsdb_head_samples_appended_total{instance=\"$ins\"}[1m])",
+                    "expr": "sum by (ins) (irate(prometheus_tsdb_head_samples_appended_total{ins=\"$ins\"}[1m]))",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Sample / s",
@@ -405,7 +405,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -413,7 +413,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "time() - process_start_time_seconds{type=\"prometheus\", instance=\"$ins\"}",
+                    "expr": "time() - process_start_time_seconds{cls=\"prometheus\", ins=\"$ins\"}",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Uptime",
@@ -486,7 +486,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -494,7 +494,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(irate(prometheus_http_requests_total{instance=\"$ins\"}[1m]))",
+                    "expr": "sum(irate(prometheus_http_requests_total{ins=\"$ins\"}[1m]))",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "QPS",
@@ -604,7 +604,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -613,7 +613,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "rate(process_cpu_seconds_total{instance=\"$ins\", instance=~\"$ins\"}[1m])",
+                    "expr": "rate(process_cpu_seconds_total{ins=\"$ins\"}[1m])",
                     "interval": "",
                     "legendFormat": "CPU",
                     "range": true,
@@ -684,7 +684,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -692,7 +692,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "process_resident_memory_bytes{instance=\"$ins\"}",
+                    "expr": "process_resident_memory_bytes{ins=\"$ins\"}",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Memory",
@@ -765,7 +765,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -773,7 +773,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "prometheus_tsdb_storage_blocks_bytes{instance=\"$ins\"}",
+                    "expr": "prometheus_tsdb_storage_blocks_bytes{ins=\"$ins\"}",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Storage",
@@ -826,7 +826,9 @@
                         "type": "loki",
                         "uid": "ds-loki"
                     },
-                    "expr": "{src=\"nginx\", filename=\"/var/log/nginx/prometheus.log\"}",
+                    "editorMode": "code",
+                    "expr": "{src=\"nginx\", filename=\"/var/log/nginx/prometheus.log\", ip=\"$ip\"}",
+                    "queryType": "range",
                     "refId": "A"
                 }
             ],
@@ -916,7 +918,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -924,7 +926,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "rate(prometheus_tsdb_head_series_created_total{instance=\"$ins\"}[1m])",
+                    "expr": "rate(prometheus_tsdb_head_series_created_total{ins=\"$ins\"}[1m])",
                     "format": "time_series",
                     "hide": false,
                     "intervalFactor": 2,
@@ -939,7 +941,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "rate(prometheus_tsdb_head_series_removed_total{instance=\"$ins\"}[1m])",
+                    "expr": "rate(prometheus_tsdb_head_series_removed_total{ins=\"$ins\"}[1m])",
                     "format": "time_series",
                     "hide": false,
                     "intervalFactor": 2,
@@ -954,7 +956,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(prometheus_tsdb_head_series{instance=\"$ins\"})",
+                    "expr": "sum(prometheus_tsdb_head_series{ins=\"$ins\"})",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Series",
@@ -1049,7 +1051,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(prometheus_tsdb_head_series{instance=\"$ins\"})",
+                    "expr": "sum(prometheus_tsdb_head_series{ins=\"$ins\"})",
                     "legendFormat": "{{ ip }}",
                     "range": true,
                     "refId": "A"
@@ -1186,7 +1188,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -1195,7 +1197,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk(10 , scrape_series_added{})",
+                    "expr": "topk(10 , scrape_series_added{ins=\"$ins\"})",
                     "format": "table",
                     "instant": true,
                     "range": false,
@@ -1336,7 +1338,7 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
-                    "expr": "sum(increase(prometheus_tsdb_head_series_created_total{instance=\"$ins\"}[1m]) )",
+                    "expr": "sum(increase(prometheus_tsdb_head_series_created_total{ins=\"$ins\"}[1m]) )",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "created",
@@ -1455,7 +1457,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -1463,7 +1465,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "prometheus_tsdb_head_samples_appended_total{instance=\"$ins\"}",
+                    "expr": "prometheus_tsdb_head_samples_appended_total{ins=\"$ins\"}",
                     "format": "time_series",
                     "hide": false,
                     "intervalFactor": 2,
@@ -1559,7 +1561,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "scrape_samples_scraped{instance=\"$ins\"}",
+                    "expr": "scrape_samples_scraped{ins=\"$ins\"}",
                     "legendFormat": "{{ job }}-{{ instance }}",
                     "range": true,
                     "refId": "A"
@@ -1651,7 +1653,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -1659,7 +1661,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "rate(prometheus_tsdb_head_samples_appended_total{instance=\"$ins\"}[1m])",
+                    "expr": "rate(prometheus_tsdb_head_samples_appended_total{ins=\"$ins\"}[1m])",
                     "format": "time_series",
                     "hide": false,
                     "intervalFactor": 2,
@@ -1754,7 +1756,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -1762,7 +1764,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(prometheus_sd_discovered_targets{instance=\"$ins\"})",
+                    "expr": "sum(prometheus_sd_discovered_targets{ins=\"$ins\"})",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Targets",
@@ -1861,7 +1863,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "scrape_duration_seconds{instance=\"$ins\"}",
+                    "expr": "scrape_duration_seconds{ins=\"$ins\"}",
                     "legendFormat": "{{ job }}-{{ instance }}",
                     "range": true,
                     "refId": "A"
@@ -1940,7 +1942,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -1949,7 +1951,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "prometheus_sd_discovered_targets{instance=\"$ins\", config!=\"config-0\"}",
+                    "expr": "prometheus_sd_discovered_targets{ins=\"$ins\", config!=\"config-0\"}",
                     "format": "time_series",
                     "instant": true,
                     "intervalFactor": 2,
@@ -2115,7 +2117,7 @@
                     }
                 ]
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -2124,7 +2126,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk(32 , scrape_duration_seconds )",
+                    "expr": "topk(32 , scrape_duration_seconds{ins=\"$ins\"})",
                     "format": "table",
                     "instant": true,
                     "range": false,
@@ -2256,7 +2258,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -2265,7 +2267,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "prometheus_rule_group_last_duration_seconds{instance=\"$ins\"}",
+                    "expr": "prometheus_rule_group_last_duration_seconds{ins=\"$ins\"}",
                     "format": "time_series",
                     "instant": true,
                     "intervalFactor": 2,
@@ -2457,7 +2459,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -2466,7 +2468,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by (rule_group) (prometheus_rule_group_rules{instance=\"$ins\"})",
+                    "expr": "sum by (rule_group) (prometheus_rule_group_rules{ins=\"$ins\"})",
                     "format": "table",
                     "instant": true,
                     "range": false,
@@ -2479,7 +2481,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by (rule_group) (prometheus_rule_evaluations_total{instance=\"$ins\"})",
+                    "expr": "sum by (rule_group) (prometheus_rule_evaluations_total{ins=\"$ins\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -2493,7 +2495,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by (rule_group) (prometheus_rule_group_interval_seconds{instance=\"$ins\"})",
+                    "expr": "sum by (rule_group) (prometheus_rule_group_interval_seconds{ins=\"$ins\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -2507,7 +2509,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by (rule_group) (prometheus_rule_group_last_duration_seconds{instance=\"$ins\"})",
+                    "expr": "sum by (rule_group) (prometheus_rule_group_last_duration_seconds{ins=\"$ins\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -2521,7 +2523,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by (rule_group) (prometheus_rule_group_last_evaluation_samples{instance=\"$ins\"})",
+                    "expr": "sum by (rule_group) (prometheus_rule_group_last_evaluation_samples{ins=\"$ins\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -2535,7 +2537,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by (rule_group) (prometheus_rule_evaluation_failures_total{instance=\"$ins\"})",
+                    "expr": "sum by (rule_group) (prometheus_rule_evaluation_failures_total{ins=\"$ins\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -2631,7 +2633,7 @@
                     "type": "prometheus",
                     "uid": "${ds}"
                 },
-                "definition": "label_values(prometheus_build_info, instance)",
+                "definition": "label_values(prometheus_build_info, ins)",
                 "description": "Prometheus Instance",
                 "hide": 0,
                 "includeAll": false,
@@ -2640,7 +2642,31 @@
                 "name": "ins",
                 "options": [],
                 "query": {
-                    "query": "label_values(prometheus_build_info, instance)",
+                    "query": "label_values(prometheus_build_info, ins)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "type": "query"
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${ds}"
+                },
+                "definition": "label_values(prometheus_build_info{ins=\"$ins\"}, ip)",
+                "description": "Prometheus Instance's corresponding IP address",
+                "hide": 0,
+                "includeAll": false,
+                "label": "IP",
+                "multi": false,
+                "name": "ip",
+                "options": [],
+                "query": {
+                    "query": "label_values(prometheus_build_info{ins=\"$ins\"}, ip)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 1,
@@ -2652,7 +2678,7 @@
         ]
     },
     "time": {
-        "from": "now-1h",
+        "from": "now-6h",
         "to": "now"
     },
     "timepicker": {

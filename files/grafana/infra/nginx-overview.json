@@ -118,7 +118,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "9.2.1",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -126,7 +126,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "nginx_up",
+                    "expr": "nginx_up{ins=\"$ins\"}",
                     "legendFormat": "{{ ip }}",
                     "range": true,
                     "refId": "A"
@@ -221,7 +221,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "irate(nginx_http_requests_total{}[5m])",
+                    "expr": "irate(nginx_http_requests_total{ins=\"$ins\"}[5m])",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "{{ ip }} REQ/s",
@@ -320,7 +320,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "irate(nginx_connections_accepted{}[5m])",
+                    "expr": "irate(nginx_connections_accepted{ins=\"$ins\"}[5m])",
                     "format": "time_series",
                     "instant": false,
                     "intervalFactor": 1,
@@ -333,7 +333,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "irate(nginx_connections_handled{}[5m])",
+                    "expr": "irate(nginx_connections_handled{ins=\"$ins\"}[5m])",
                     "format": "time_series",
                     "instant": false,
                     "intervalFactor": 1,
@@ -431,7 +431,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "nginx_connections_active{}",
+                    "expr": "nginx_connections_active{ins=\"$ins\"}",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "{{ ip }} active",
@@ -444,7 +444,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "nginx_connections_reading{}",
+                    "expr": "nginx_connections_reading{ins=\"$ins\"}",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "{{ ip }} reading",
@@ -457,7 +457,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "nginx_connections_waiting{}",
+                    "expr": "nginx_connections_waiting{ins=\"$ins\"}",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "{{ ip }} waiting",
@@ -470,7 +470,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "nginx_connections_writing{}",
+                    "expr": "nginx_connections_writing{ins=\"$ins\"}",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "{{ ip }} writing",
@@ -652,8 +652,10 @@
                         "type": "loki",
                         "uid": "ds-loki"
                     },
+                    "editorMode": "code",
                     "expr": "sum by (status) (count_over_time({src=\"nginx\"} | pattern `<_> - - <_> \"<method> <_> <_>\" <status> <_> <_> \"<_>\" <_>`[1m])) ",
                     "legendFormat": "{{ status }}",
+                    "queryType": "range",
                     "refId": "A"
                 }
             ],
@@ -957,8 +959,10 @@
                         "type": "loki",
                         "uid": "ds-loki"
                     },
-                    "expr": "sum(count_over_time(({src=\"nginx\"})[$__interval]))",
+                    "editorMode": "code",
+                    "expr": "sum(count_over_time(({src=\"nginx\", ip=\"$ip\"})[$__interval]))",
                     "legendFormat": "logs per $__interval",
+                    "queryType": "range",
                     "refId": "A"
                 }
             ],
@@ -993,7 +997,9 @@
                         "type": "loki",
                         "uid": "ds-loki"
                     },
-                    "expr": "{src=\"nginx\"}",
+                    "editorMode": "code",
+                    "expr": "{src=\"nginx\", ip=\"$ip\"}",
+                    "queryType": "range",
                     "refId": "A"
                 }
             ],
@@ -1104,8 +1110,10 @@
                         "type": "loki",
                         "uid": "ds-loki"
                     },
-                    "expr": "sum(count_over_time(({src=\"nginx-error\"})[$__interval]))",
+                    "editorMode": "code",
+                    "expr": "sum(count_over_time(({src=\"nginx-error\", ip=\"$ip\"})[$__interval]))",
                     "legendFormat": "logs per $__interval",
+                    "queryType": "range",
                     "refId": "A"
                 }
             ],
@@ -1140,7 +1148,9 @@
                         "type": "loki",
                         "uid": "ds-loki"
                     },
-                    "expr": "{src=\"nginx-error\"}",
+                    "editorMode": "code",
+                    "expr": "{src=\"nginx-error\", ip=\"$ip\"}",
+                    "queryType": "range",
                     "refId": "A"
                 }
             ],
@@ -1172,6 +1182,54 @@
                 "regex": "",
                 "skipUrlSync": false,
                 "type": "datasource"
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${ds}"
+                },
+                "definition": "label_values(nginx_http_requests_total, ins)",
+                "description": "Nginx Instance",
+                "hide": 0,
+                "includeAll": false,
+                "label": "Instance",
+                "multi": false,
+                "name": "ins",
+                "options": [],
+                "query": {
+                    "query": "label_values(nginx_http_requests_total, ins)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "type": "query"
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${ds}"
+                },
+                "definition": "label_values(nginx_http_requests_total{ins=\"$ins\"}, ip)",
+                "description": "Nginx Instance's corresponding IP address",
+                "hide": 2,
+                "includeAll": false,
+                "label": "IP",
+                "multi": false,
+                "name": "ip",
+                "options": [],
+                "query": {
+                    "query": "label_values(nginx_http_requests_total{ins=\"$ins\"}, ip)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "type": "query"
             }
         ]
     },
