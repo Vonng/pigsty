@@ -32,7 +32,7 @@ Two optional L2 VIP are bind on primary instances of  `pg-meta`  and `pg-test`:
 
 There's also a 1-instance `etcd` cluster, and 1-instance `minio` cluster on the `meta` node, too.
 
-  ![pigsty-sandbox](https://user-images.githubusercontent.com/8587410/206972073-f204fb7a-b91c-4f50-9d5e-3104ea2e7d70.gif)
+  ![pigsty-sandbox](https://user-images.githubusercontent.com/8587410/218279650-5d5e8b09-8907-42bf-a48c-4c28bcc73ddd.jpg)
 
 
 

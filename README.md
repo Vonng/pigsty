@@ -6,9 +6,9 @@
 
 ![icon](docs/icon.svg)
 
-> Latest Beta: [v2.0.0-b6](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b6) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc) | [GitHub Pages](https://vonng.github.io/pigsty/) |  [Website](https://pigsty.cc/en/)
+> Latest Beta: [v2.0.0-b6](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b6) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/) |  [Website](https://pigsty.cc/en/)
 >
-> **The current master branch is in beta (v2.0.0-b6). Check [v1.5.1](https://github.com/Vonng/pigsty/tree/v1.5.1) for the stable release.**
+> **The current master branch is in beta (v2.0.0-b6). Check [v1.5.1](https://github.com/Vonng/pigsty/tree/v1.5.1) for the latest stable release.**
 
 [![pigsty-banner](https://user-images.githubusercontent.com/8587410/206971422-deb6dd88-c89e-43e4-8130-cf32a24b07b9.jpg)](https://pigsty.cc/en/)
 
@@ -25,7 +25,7 @@ Pigsty is a **Me-Better Open Source RDS Alternative** with:
 - Self-healing HA PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/)...
 - Auto-Configured PITR, powered by [pgbackrest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) cluster
 - Declarative API, Database-as-Code implemented with [Ansible](https://www.ansible.com/) playbooks.
-- Versatile Usecases, Run [Docker](https://www.docker.com/) Apps, Run demos, Visualize data with [ECharts](https://echarts.apache.org/).
+- Versatile Use-cases, Run [Docker](https://www.docker.com/) Apps, Run demos, Visualize data with [ECharts](https://echarts.apache.org/).
 - Handy Tools, provision IaaS with [Terraform](https://www.terraform.io/), and try with local [Vagrant](https://www.vagrantup.com/) sandbox.
 
 [![pigsty-distro](https://user-images.githubusercontent.com/8587410/206971964-0035bbca-889e-44fc-9b0d-640d34573a95.gif)](docs/FEATURE.md)
@@ -38,13 +38,14 @@ Check [**Feature**](docs/FEATURE.md) for details.
 
 ## Get Started
 
-> It takes four steps to install Pigsty: [Download](#download), [Bootstrap](#bootstrap), [Configure](#configure) and [Install](#install).
+> It takes four steps to install Pigsty: [Download](docs/INSTALL#download), [Bootstrap](docs/INSTALL#bootstrap), [Configure](docs/INSTALL#configure) and [Install](docs/INSTALL#install).
 
-Prepare a new node with Linux x86_64 EL compatible OS, then run as a **sudo-able** user:
+Prepare a new node with Linux x86_64 EL 7/8/9 compatible OS, then run as a **sudo-able** user:
 
 ```bash
+# install the latest beta pigsty with:
 bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty   
-./bootstrap  && ./configure && ./install.yml # install latest pigsty
+./bootstrap  && ./configure && ./install.yml
 ```
 
 Then you will have a pigsty singleton node ready, with Web Services on port `80` and Postgres on port `5432`.
@@ -354,7 +355,7 @@ Check [**Configuration**](docs/CONFIG.md) for details.
 
 Wiki: https://github.com/Vonng/pigsty/wiki
 
-Official Site: https://pigsty.cc/en/ | https://pigsty.cc/zh/
+Website: https://pigsty.cc/en/ | https://pigsty.cc/zh/
 
 WeChat: Search `pigsty-cc` to join the WeChat group.
 
@@ -366,5 +367,5 @@ Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
 License: [AGPL-3.0](LICENSE)
 
-Copyright 2018-2022 rh@vonng.com
+Copyright 2018-2023 rh@vonng.com
 

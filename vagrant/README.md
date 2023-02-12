@@ -18,6 +18,7 @@ Apple M1 now has arm64 support with Parallel Desktop.
 |  [meta.rb](spec/meta.rb)  |   `v1`   |    4C8G x 1     |          Single Meta Node           |
 |  [full.rb](spec/full.rb)  |   `v4`   | 2C4G + 1C2G x 3 |          Full 4 Node Demo           |
 | [build.rb](spec/build.rb) |   `vb`   |    2C4G x 3     | 3-Node EL7,8,9 Building Environment |
+| [citus.rb](spec/citus.rb) |   `vc`   | 2C4G + 1C2G x 4 |    5-Node Citus/Etcd Testing Env    |
 |   [el7.rb](spec/el7.rb)   |   `v7`   | 2C4G + 1C2G x 3 |       EL7 4-nodes Testing Env       |
 |   [el8.rb](spec/el8.rb)   |   `v8`   | 2C4G + 1C2G x 3 |       EL8 4-nodes Testing Env       |
 |   [el9.rb](spec/el9.rb)   |   `v9`   | 2C4G + 1C2G x 3 |       EL9 4-nodes Testing Env       |
@@ -33,6 +34,7 @@ vagrant/switch <spec>
 vagrant/switch meta     # shortcut: make v1
 vagrant/switch full     # shortcut: make v4
 vagrant/switch build    # shortcut: make vb
+vagrant/switch citus    # shortcut: make vc
 vagrant/switch el7      # shortcut: make v7
 vagrant/switch el8      # shortcut: make v8
 vagrant/switch el9      # shortcut: make v9
@@ -79,6 +81,7 @@ Examples:
 make v1     # switch to Vagrantfile: default single node mode    
 make v4     # switch to Vagrantfile: 4-node full demo mode
 make vb     # switch to Vagrantfile: 3-node building environment
+make vb     # switch to Vagrantfile: 5-node citus/etcd testing
 make v7     # switch to Vagrantfile: el7 testing environment
 make v8     # switch to Vagrantfile: el8 testing environment
 make v9     # switch to Vagrantfile: el9 testing environment

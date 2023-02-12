@@ -26,7 +26,7 @@ You can compose them freely in a declarative manner. If you want host monitoring
 
 
 
-![pigsty-sandbox](https://user-images.githubusercontent.com/8587410/206972073-f204fb7a-b91c-4f50-9d5e-3104ea2e7d70.gif)
+![pigsty-sandbox](https://user-images.githubusercontent.com/8587410/218279650-5d5e8b09-8907-42bf-a48c-4c28bcc73ddd.jpg)
 
 
 
