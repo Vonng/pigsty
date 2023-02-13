@@ -653,7 +653,7 @@
                         "uid": "ds-loki"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (status) (count_over_time({src=\"nginx\"} | pattern `<_> - - <_> \"<method> <_> <_>\" <status> <_> <_> \"<_>\" <_>`[1m])) ",
+                    "expr": "sum by (status) (count_over_time({src=\"nginx\", ip=\"$ip\"} | pattern `<_> - - <_> \"<method> <_> <_>\" <status> <_> <_> \"<_>\" <_>`[1m])) ",
                     "legendFormat": "{{ status }}",
                     "queryType": "range",
                     "refId": "A"
@@ -756,8 +756,10 @@
                         "type": "loki",
                         "uid": "ds-loki"
                     },
-                    "expr": "sum(count_over_time(({src=\"nginx\"})[$__interval])) by (filename)",
+                    "editorMode": "code",
+                    "expr": "sum(count_over_time(({src=\"nginx\", ip=\"$ip\"})[$__interval])) by (filename)",
                     "legendFormat": "{{ filename }}",
+                    "queryType": "range",
                     "refId": "A"
                 }
             ],

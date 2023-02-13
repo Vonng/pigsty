@@ -637,7 +637,7 @@
                     },
                     "editorMode": "code",
                     "expr": "up{job=\"infra\"}",
-                    "legendFormat": "{{ type }} @ {{ ip }}",
+                    "legendFormat": "{{ ins }} @ {{ instance }}",
                     "range": true,
                     "refId": "A"
                 }
@@ -1565,7 +1565,7 @@
             },
             "gridPos": {
                 "h": 4,
-                "w": 6,
+                "w": 5,
                 "x": 0,
                 "y": 13
             },
@@ -1574,7 +1574,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -1662,8 +1662,8 @@
             },
             "gridPos": {
                 "h": 4,
-                "w": 7,
-                "x": 6,
+                "w": 8,
+                "x": 5,
                 "y": 13
             },
             "id": 52,
@@ -2001,7 +2001,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -2022,7 +2022,7 @@
                     "expr": "time() - process_start_time_seconds{cls=\"prometheus\"}",
                     "format": "time_series",
                     "intervalFactor": 2,
-                    "legendFormat": "Uptime",
+                    "legendFormat": "{{ ins }} Uptime",
                     "range": true,
                     "refId": "B",
                     "step": 40
@@ -2090,7 +2090,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -2108,7 +2108,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "max(prometheus_tsdb_head_series{cls=\"prometheus\"})",
+                    "expr": "prometheus_tsdb_head_series{cls=\"prometheus\"}",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Series",
@@ -2179,7 +2179,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -2197,7 +2197,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(irate(prometheus_tsdb_head_samples_appended_total{}[1m]))",
+                    "expr": "sum by (ins) (irate(prometheus_tsdb_head_samples_appended_total{}[1m]))",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Sample / s",
@@ -2268,7 +2268,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -2286,7 +2286,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(prometheus_sd_discovered_targets{})",
+                    "expr": "sum(prometheus_sd_discovered_targets{cls=\"prometheus\"}) by (ins)",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Targets",
@@ -2349,7 +2349,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -2367,7 +2367,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(process_resident_memory_bytes{cls=\"prometheus\"})",
+                    "expr": "sum(process_resident_memory_bytes{cls=\"prometheus\"}) by (ins)",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Memory",
@@ -2430,7 +2430,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -2448,7 +2448,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(prometheus_tsdb_storage_blocks_bytes{})",
+                    "expr": "sum(prometheus_tsdb_storage_blocks_bytes{cls=\"prometheus\"}) by (ins)",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Storage",
@@ -2611,7 +2611,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -2632,7 +2632,7 @@
                     "expr": "time() - process_start_time_seconds{cls=\"grafana\"}",
                     "format": "time_series",
                     "intervalFactor": 2,
-                    "legendFormat": "Uptime",
+                    "legendFormat": "{{ ins }} Uptime",
                     "range": true,
                     "refId": "B",
                     "step": 40
@@ -2700,7 +2700,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -2718,7 +2718,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(grafana_http_request_duration_seconds_count{}[1m]))",
+                    "expr": "sum(rate(grafana_http_request_duration_seconds_count{cls=\"grafana\"}[1m])) by (ins)",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "QPS",
@@ -2764,7 +2764,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -2825,7 +2825,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -2843,7 +2843,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "histogram_quantile(0.99, grafana_frontend_boot_load_time_seconds_bucket)",
+                    "expr": "histogram_quantile(0.99, grafana_frontend_boot_load_time_seconds_bucket{cls=\"grafana\"})",
                     "legendFormat": "Render Full",
                     "range": true,
                     "refId": "A"
@@ -2903,7 +2903,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -2921,7 +2921,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(process_resident_memory_bytes{cls=\"prometheus\"})",
+                    "expr": "sum(process_resident_memory_bytes{cls=\"grafana\"}) by (ins)",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Memory",
@@ -3015,7 +3015,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -3196,7 +3196,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -3217,7 +3217,7 @@
                     "expr": "time() - process_start_time_seconds{cls=\"loki\"}",
                     "format": "time_series",
                     "intervalFactor": 2,
-                    "legendFormat": "Uptime",
+                    "legendFormat": "{{ ins }} Uptime",
                     "range": true,
                     "refId": "B",
                     "step": 40
@@ -3260,7 +3260,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -3278,7 +3278,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(loki_distributor_bytes_received_total[5m])) by (tenant)",
+                    "expr": "sum(rate(loki_distributor_bytes_received_total{cls=\"loki\"}[5m])) by (ins)",
                     "interval": "",
                     "legendFormat": "Bytes / s",
                     "range": true,
@@ -3326,7 +3326,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -3344,7 +3344,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(loki_distributor_lines_received_total{cls=\"loki\"}[5m]))",
+                    "expr": "sum(rate(loki_distributor_lines_received_total{cls=\"loki\"}[5m])) by (ins)",
                     "interval": "",
                     "legendFormat": "Lines / s",
                     "range": true,
@@ -3388,7 +3388,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -3406,7 +3406,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(loki_store_series_total{cls=\"loki\"})",
+                    "expr": "sum(loki_store_series_total{cls=\"loki\"}) by (ins)",
                     "interval": "",
                     "legendFormat": "Series",
                     "range": true,
@@ -3467,7 +3467,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -3485,7 +3485,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(process_resident_memory_bytes{cls=\"prometheus\"})",
+                    "expr": "sum(process_resident_memory_bytes{cls=\"loki\"}) by (ins)",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "Memory",
@@ -3531,7 +3531,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -3549,7 +3549,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(loki_ingester_chunk_stored_bytes_total{cls=\"loki\"})",
+                    "expr": "sum(loki_ingester_chunk_stored_bytes_total{cls=\"loki\"}) by (ins)",
                     "interval": "",
                     "legendFormat": "Storage",
                     "range": true,
