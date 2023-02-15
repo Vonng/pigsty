@@ -170,6 +170,7 @@
 | [`pg_reload`](PARAM#pg_reload)                                       | [`PG_PROVISION`](PARAM#pg_provision) |    bool     |   A   | reload postgres after hba changes                                             |
 | [`pg_default_hba_rules`](PARAM#pg_default_hba_rules)                 | [`PG_PROVISION`](PARAM#pg_provision) |    hba[]    |  G/C  | postgres default host-based authentication rules                              |
 | [`pgb_default_hba_rules`](PARAM#pgb_default_hba_rules)               | [`PG_PROVISION`](PARAM#pg_provision) |    hba[]    |  G/C  | pgbouncer default host-based authentication rules                             |
+| [`pg_service_provider`](PARAM#pg_service_provider)                   | [`PG_PROVISION`](PARAM#pg_provision) |    enum     |  G/C  | dedicate haproxy node group name, or empty string for local nodes by default  |
 | [`pg_default_service_dest`](PARAM#pg_default_service_dest)           | [`PG_PROVISION`](PARAM#pg_provision) |    enum     |  G/C  | default service destination if svc.dest='default'                             |
 | [`pg_default_services`](PARAM#pg_default_services)                   | [`PG_PROVISION`](PARAM#pg_provision) |  service[]  |  G/C  | postgres default service definitions                                          |
 | [`pgbackrest_enabled`](PARAM#pgbackrest_enabled)                     | [`PG_BACKUP`](PARAM#pg_backup)       |    bool     |   C   | enable pgbackrest on pgsql host?                                              |

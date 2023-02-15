@@ -1,0 +1,41 @@
+---
+#--------------------------------------------------------------#
+# Register Haproxy Services                  [pg_service_config]
+#--------------------------------------------------------------#
+- name: render postgres service config
+  tags: [ pg_service, pg_service_config ]
+  block:
+
+    # remove service definition with pg_cluster are name prefix
+    - name: wipe existing postgres haproxy service from local haproxy
+      shell: "cd /etc/haproxy; rm -rf {{ pg_cluster }}-*.cfg;"
+
+    - name: render haproxy service config on local haproxy
+      template: src=service.j2 dest=/etc/haproxy/{{ service_name }}.cfg owner=root mode=0644
+      vars:
+        service: "{{ item }}"
+        service_name: "{{ pg_cluster }}-{{ item.name }}"
+        pg_cluster_members_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']"
+      with_items: "{{ pg_default_services + pg_services }}"
+
+
+#--------------------------------------------------------------#
+# Reload Haproxy                             [pg_service_reload]
+#--------------------------------------------------------------#
+# reload when pg_reload is true
+- name: reload haproxy to register pgsql services
+  tags: [ pg_service, pg_service_reload ]
+  when: pg_reload|bool
+  block:
+
+    # if check fail on this step, haproxy will not be reloaded
+    - name: check local haproxy config before reload
+      ignore_errors: false
+      command: /usr/sbin/haproxy -f /etc/haproxy/haproxy.cfg -c -q
+
+    # even if you perform haproxy reload on junk config, it will not fail
+    - name: reload local haproxy
+      ignore_errors: false
+      systemd: name=haproxy state=reloaded enabled=yes daemon_reload=yes
+
+...

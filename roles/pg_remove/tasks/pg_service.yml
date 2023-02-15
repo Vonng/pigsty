@@ -2,10 +2,11 @@
 #--------------------------------------------------------------#
 # Remove Services from HAProxy                      [pg_service]
 #--------------------------------------------------------------#
-- name: remove haproxy services
+- name: remove local haproxy services
   tags: pg_service
   become: yes
   ignore_errors: yes
+  when: pg_service_provider == '' or pg_service_provider not in groups
   block:
 
     # remove service definition with pg_cluster are name prefix
@@ -19,5 +20,37 @@
     # even if you perform haproxy reload on junk config, it will not fail
     - name: reload haproxy
       systemd: name=haproxy state=reloaded enabled=yes daemon_reload=yes
+
+
+#--------------------------------------------------------------#
+# Remove Services from Dedicated HAProxy            [pg_service]
+#--------------------------------------------------------------#
+- name: remove remote haproxy services
+  tags: pg_service
+  become: yes
+  ignore_errors: yes
+  when: pg_service_provider != '' and pg_service_provider in groups and pg_role == 'primary'
+  block:
+
+    # remove service definition with pg_cluster are name prefix
+    - name: wipe existing postgres haproxy service
+      shell: "cd /etc/haproxy; rm -rf {{ pg_cluster }}-*.cfg;"
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups[pg_service_provider] }}"
+
+    # WARNING: if centralized dedicate haproxy is used, it will fail if haproxy config is not valid!!
+    # if check fail on this step, haproxy will not be reloaded
+    - name: check haproxy config before reload
+      ignore_errors: false
+      any_errors_fatal: true
+      command: /usr/sbin/haproxy -f /etc/haproxy/haproxy.cfg -c -q
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups[pg_service_provider] }}"
+
+    # even if you perform haproxy reload on junk config, it will not fail
+    - name: reload haproxy
+      systemd: name=haproxy state=reloaded enabled=yes daemon_reload=yes
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups[pg_service_provider] }}"
 
 ...

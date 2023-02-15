@@ -651,8 +651,9 @@ all:
       - {user: '${admin}'   ,db: all         ,addr: intra     ,auth: pwd   ,title: 'admin access via intranet with pwd'   }
       - {user: '${admin}'   ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other admin access addr'   }
       - {user: 'all'        ,db: all         ,addr: intra     ,auth: pwd   ,title: 'allow all user intra access with pwd' }
+    pg_service_provider: ''           # dedicate haproxy node group name, or empty string for local nodes by default
     pg_default_service_dest: pgbouncer # default service destination if svc.dest='default'
-    pg_default_services:               # postgres default service definitions
+    pg_default_services:              # postgres default service definitions
       - { name: primary ,port: 5433 ,dest: default  ,check: /primary   ,selector: "[]" }
       - { name: replica ,port: 5434 ,dest: default  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
       - { name: default ,port: 5436 ,dest: postgres ,check: /primary   ,selector: "[]" }

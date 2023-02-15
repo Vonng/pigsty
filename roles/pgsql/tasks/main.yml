@@ -107,11 +107,20 @@
   tags: pg_dns
 
 #--------------------------------------------------------------#
-# Service                                           [pg_service]
+# Service (Local HAProxy Provider)                  [pg_service]
 #--------------------------------------------------------------#
 # pg_service_config, pg_service_reload
-- import_tasks: service.yml
+- import_tasks: service_local.yml
   tags: pg_service
+  when: pg_service_provider == '' or pg_service_provider not in groups
+
+#--------------------------------------------------------------#
+# Service (Remote HAProxy Provider)                  [pg_service]
+#--------------------------------------------------------------#
+# pg_service_config, pg_service_reload
+- import_tasks: service_remote.yml
+  tags: pg_service
+  when: pg_service_provider != '' and pg_service_provider in groups and pg_role == 'primary'
 
 #--------------------------------------------------------------#
 # Monitor                                          [pg_exporter]
