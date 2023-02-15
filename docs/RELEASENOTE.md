@@ -1,37 +1,37 @@
 # RELEASENOTE
 
-| Version               |    Time    | Description                                             | Release                                                                                   |
-|:----------------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.0.0-b6](#v200-b6) | 2023-02-09 | Compatibility Security Maintainability Enhancement      | [v2.0.0-b6](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-b6)                       |
-| [v1.5.1](#v151)       | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
-| [v1.5.0](#v150)       | 2022-05-31 | Docker Applications                                     | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
-| [v1.4.1](#v141)       | 2022-04-20 | Bug fix & Full translation of English documents.        | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |
-| [v1.4.0](#v140)       | 2022-03-31 | MatrixDB Support, Separated INFRA, NODES, PGSQL, REDIS  | [v1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)                             |
-| [v1.3.0](#v130)       | 2021-11-30 | PGCAT Overhaul & PGSQL Enhancement & Redis Support Beta | [v1.3.0](https://github.com/Vonng/pigsty/releases/tag/v1.3.0)                             |
-| [v1.2.0](#v120)       | 2021-11-03 | Upgrade default Postgres to 14, monitoring existing pg  | [v1.2.0](https://github.com/Vonng/pigsty/releases/tag/v1.2.0)                             |
-| [v1.1.0](#v110)       | 2021-10-12 | HomePage, JupyterLab, Pgweb, Pev2 & Pgbadger            | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)                             |
-| [v1.0.0](#v100)       | 2021-07-26 | v1 GA, Monitoring System Overhaul                       | [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)                             |
-| [v0.9.0](#v090)       | 2021-04-04 | Pigsty GUI, CLI, Logging Integration                    | [v0.9.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.0)                             |
-| [v0.8.0](#v080)       | 2021-03-28 | Service Provision                                       | [v0.8.0](https://github.com/Vonng/pigsty/releases/tag/v0.8.0)                             |
-| [v0.7.0](#v070)       | 2021-03-01 | Monitor only deployment                                 | [v0.7.0](https://github.com/Vonng/pigsty/releases/tag/v0.7.0)                             |
-| [v0.6.0](#v060)       | 2021-02-19 | Architecture Enhancement                                | [v0.6.0](https://github.com/Vonng/pigsty/releases/tag/v0.6.0)                             |
-| [v0.5.0](#v050)       | 2021-01-07 | Database Customize Template                             | [v0.5.0](https://github.com/Vonng/pigsty/releases/tag/v0.5.0)                             |
-| [v0.4.0](#v040)       | 2020-12-14 | PostgreSQL 13 Support, Official Documentation           | [v0.4.0](https://github.com/Vonng/pigsty/releases/tag/v0.4.0)                             |
-| [v0.3.0](#v030)       | 2020-10-22 | Provisioning Solution GA                                | [v0.3.0](https://github.com/Vonng/pigsty/releases/tag/v0.3.0)                             |
-| [v0.2.0](#)           | 2020-07-10 | PGSQL Monitoring v6 GA                                  | [v0.2.0](https://github.com/Vonng/pigsty/commit/385e33a62a19817e8ba19997260e6b77d99fe2ba) |
-| [v0.1.0](#)           | 2020-06-20 | Validation on Testing Environment                       | [v0.1.0](https://github.com/Vonng/pigsty/commit/1cf2ea5ee91db071de00ec805032928ff582453b) |
-| [v0.0.5](#)           | 2020-08-19 | Offline Installation Mode                               | [v0.0.5](https://github.com/Vonng/pigsty/commit/0fe9e829b298fe5e56307de3f78c95071de28245) |
-| [v0.0.4](#)           | 2020-07-27 | Refactor playbooks into ansible roles                   | [v0.0.4](https://github.com/Vonng/pigsty/commit/90b44259818d2c71e37df5250fe8ed1078a883d0) |
-| [v0.0.3](#)           | 2020-06-22 | Interface enhancement                                   | [v0.0.3](https://github.com/Vonng/pigsty/commit/4c5c68ccd57bc32a9e9c98aa3f264aa19f45c7ee) |
-| [v0.0.2](#)           | 2020-04-30 | First Commit                                            | [v0.0.2](https://github.com/Vonng/pigsty/commit/dd646775624ddb33aef7884f4f030682bdc371f8) |
-| [v0.0.1](#)           | 2019-05-15 | POC                                                     | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
+| Version                 |    Time    | Description                                             | Release                                                                                   |
+|:------------------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v2.0.0-rc1](#v200-rc1) | 2023-02-09 | Compatibility Security Maintainability Enhancement      | [v2.0.0-rc1](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-rc1)                     |
+| [v1.5.1](#v151)         | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
+| [v1.5.0](#v150)         | 2022-05-31 | Docker Applications                                     | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
+| [v1.4.1](#v141)         | 2022-04-20 | Bug fix & Full translation of English documents.        | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |
+| [v1.4.0](#v140)         | 2022-03-31 | MatrixDB Support, Separated INFRA, NODES, PGSQL, REDIS  | [v1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)                             |
+| [v1.3.0](#v130)         | 2021-11-30 | PGCAT Overhaul & PGSQL Enhancement & Redis Support Beta | [v1.3.0](https://github.com/Vonng/pigsty/releases/tag/v1.3.0)                             |
+| [v1.2.0](#v120)         | 2021-11-03 | Upgrade default Postgres to 14, monitoring existing pg  | [v1.2.0](https://github.com/Vonng/pigsty/releases/tag/v1.2.0)                             |
+| [v1.1.0](#v110)         | 2021-10-12 | HomePage, JupyterLab, Pgweb, Pev2 & Pgbadger            | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)                             |
+| [v1.0.0](#v100)         | 2021-07-26 | v1 GA, Monitoring System Overhaul                       | [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)                             |
+| [v0.9.0](#v090)         | 2021-04-04 | Pigsty GUI, CLI, Logging Integration                    | [v0.9.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.0)                             |
+| [v0.8.0](#v080)         | 2021-03-28 | Service Provision                                       | [v0.8.0](https://github.com/Vonng/pigsty/releases/tag/v0.8.0)                             |
+| [v0.7.0](#v070)         | 2021-03-01 | Monitor only deployment                                 | [v0.7.0](https://github.com/Vonng/pigsty/releases/tag/v0.7.0)                             |
+| [v0.6.0](#v060)         | 2021-02-19 | Architecture Enhancement                                | [v0.6.0](https://github.com/Vonng/pigsty/releases/tag/v0.6.0)                             |
+| [v0.5.0](#v050)         | 2021-01-07 | Database Customize Template                             | [v0.5.0](https://github.com/Vonng/pigsty/releases/tag/v0.5.0)                             |
+| [v0.4.0](#v040)         | 2020-12-14 | PostgreSQL 13 Support, Official Documentation           | [v0.4.0](https://github.com/Vonng/pigsty/releases/tag/v0.4.0)                             |
+| [v0.3.0](#v030)         | 2020-10-22 | Provisioning Solution GA                                | [v0.3.0](https://github.com/Vonng/pigsty/releases/tag/v0.3.0)                             |
+| [v0.2.0](#)             | 2020-07-10 | PGSQL Monitoring v6 GA                                  | [v0.2.0](https://github.com/Vonng/pigsty/commit/385e33a62a19817e8ba19997260e6b77d99fe2ba) |
+| [v0.1.0](#)             | 2020-06-20 | Validation on Testing Environment                       | [v0.1.0](https://github.com/Vonng/pigsty/commit/1cf2ea5ee91db071de00ec805032928ff582453b) |
+| [v0.0.5](#)             | 2020-08-19 | Offline Installation Mode                               | [v0.0.5](https://github.com/Vonng/pigsty/commit/0fe9e829b298fe5e56307de3f78c95071de28245) |
+| [v0.0.4](#)             | 2020-07-27 | Refactor playbooks into ansible roles                   | [v0.0.4](https://github.com/Vonng/pigsty/commit/90b44259818d2c71e37df5250fe8ed1078a883d0) |
+| [v0.0.3](#)             | 2020-06-22 | Interface enhancement                                   | [v0.0.3](https://github.com/Vonng/pigsty/commit/4c5c68ccd57bc32a9e9c98aa3f264aa19f45c7ee) |
+| [v0.0.2](#)             | 2020-04-30 | First Commit                                            | [v0.0.2](https://github.com/Vonng/pigsty/commit/dd646775624ddb33aef7884f4f030682bdc371f8) |
+| [v0.0.1](#)             | 2019-05-15 | POC                                                     | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
 
 ------------------------------
 
-## v2.0.0-b6
+## v2.0.0-rc1
 
-v2.0.0 Beta6 Release
+v2.0.0 RC1 Release
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty   
@@ -43,6 +43,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 * PostgreSQL 15.1, PostGIS 3.3, Citus 11.1, TimescaleDB 2.9
 * Compatibility: EL 7,8,9, PG 15 for RHEL, CentOS, Rocky, OracleLinux, AlmaLinux
 * Security Enhancement: CA, SSL for nginx/etcd/postgres/patroni, scram-sha-256 auth by default
+* Patroni 3.0 with native citus support and dcs fail safe mode
 * New module: `ETCD`,  Use `etcd` instead of `consul`
 * New module: `MINIO`, S3-Compatible Object Storage, optional backup center for pgbackrest
 * Battery-Included PITR with `pgbackrest`
@@ -95,7 +96,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 **Software Upgrade**
 
 * PostgreSQL 15.1
-* Patroni 2.1.7
+* Patroni 3.0.0
 * Pgbouncer 1.18
 * pgBackRest 2.44
 * HAProxy 2.7.0
@@ -148,6 +149,7 @@ add 24 parameters, remove 8 parameters, rename 12 parameters
 - `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_auth_query` : if enabled, query pg_authid table to retrieve biz users instead of populating userlist
 - `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_sslmode`    : SSL for pgbouncer client: disable|allow|prefer|require|verify-ca|verify-full
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_default_service_dest` : default service destination if svc.dest='default'
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_default_service_dest` : default service destination if svc.dest='default'
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_enabled`      : pgbackrest enabled ?
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_clean`        : remove pgbackrest data during init ?
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_log_dir`      : pgbackrest log dir, `/pg/log` by default
@@ -193,9 +195,9 @@ add 24 parameters, remove 8 parameters, rename 12 parameters
 **Checksums**
 
 ```
-MD5 (pigsty-pkg-v2.0.0-b6.el7.x86_64.tgz) = af4b5db9dc38c860de609956a8f1f0d3
-MD5 (pigsty-pkg-v2.0.0-b6.el8.x86_64.tgz) = 5b7152e142df3e3cbc06de30bd70e433
-MD5 (pigsty-pkg-v2.0.0-b6.el9.x86_64.tgz) = 1362e2a5680fc1a3a014cc4f304100bd
+MD5 (pigsty-pkg-v2.0.0-rc1.el7.x86_64.tgz) = af4b5db9dc38c860de609956a8f1f0d3
+MD5 (pigsty-pkg-v2.0.0-rc1.el8.x86_64.tgz) = 5b7152e142df3e3cbc06de30bd70e433
+MD5 (pigsty-pkg-v2.0.0-rc1.el9.x86_64.tgz) = 1362e2a5680fc1a3a014cc4f304100bd
 ```
 
 
