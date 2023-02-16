@@ -40,10 +40,10 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 
 **Highlights**
 
-* PostgreSQL 15.1, PostGIS 3.3, Citus 11.1, TimescaleDB 2.9
+* PostgreSQL 15.2, PostGIS 3.3, Citus 11.2, TimescaleDB 2.9
 * Compatibility: EL 7,8,9, PG 15 for RHEL, CentOS, Rocky, OracleLinux, AlmaLinux
-* Security Enhancement: CA, SSL for nginx/etcd/postgres/patroni, scram-sha-256 auth by default
-* Patroni 3.0 with native citus support and dcs fail safe mode
+* Security Enhancement: CA, SSL for nginx/etcd/postgres/patroni, `scram-sha-256` auth by default
+* Patroni 3.0 with native citus support and dcs failsafe mode
 * New module: `ETCD`,  Use `etcd` instead of `consul`
 * New module: `MINIO`, S3-Compatible Object Storage, optional backup center for pgbackrest
 * Battery-Included PITR with `pgbackrest`
@@ -95,11 +95,11 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 
 **Software Upgrade**
 
-* PostgreSQL 15.1
+* PostgreSQL 15.2
 * Patroni 3.0.0
 * Pgbouncer 1.18
 * pgBackRest 2.44
-* HAProxy 2.7.0
+* HAProxy 2.7.3 / 2.7.0
 * vip-manager 2.1.0
 * PostGIS 3.3.2
 * Citus 11.2.0
@@ -148,7 +148,7 @@ add 24 parameters, remove 8 parameters, rename 12 parameters
 - `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_log_dir`    : pgbouncer log dir, `/var/log/pgbouncer` by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_auth_query` : if enabled, query pg_authid table to retrieve biz users instead of populating userlist
 - `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_sslmode`    : SSL for pgbouncer client: disable|allow|prefer|require|verify-ca|verify-full
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_default_service_dest` : default service destination if svc.dest='default'
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_service_provider`  : dedicate haproxy node group name, or empty string for local nodes by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_default_service_dest` : default service destination if svc.dest='default'
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_enabled`      : pgbackrest enabled ?
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_clean`        : remove pgbackrest data during init ?
@@ -199,6 +199,8 @@ MD5 (pigsty-pkg-v2.0.0-rc1.el7.x86_64.tgz) = af4b5db9dc38c860de609956a8f1f0d3
 MD5 (pigsty-pkg-v2.0.0-rc1.el8.x86_64.tgz) = 5b7152e142df3e3cbc06de30bd70e433
 MD5 (pigsty-pkg-v2.0.0-rc1.el9.x86_64.tgz) = 1362e2a5680fc1a3a014cc4f304100bd
 ```
+
+Special thanks to @alemacci for his contribution!
 
 
 ------------------------
