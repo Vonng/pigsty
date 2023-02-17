@@ -31,6 +31,7 @@
 
 ## v2.0.0-rc1
 
+
 v2.0.0 RC1 Release
 
 ```bash
@@ -45,11 +46,11 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 * Security Enhancement: CA, SSL for nginx/etcd/postgres/patroni, `scram-sha-256` auth by default
 * Patroni 3.0 with native citus support and dcs failsafe mode
 * New module: `ETCD`,  Use `etcd` instead of `consul`
-* New module: `MINIO`, S3-Compatible Object Storage, optional backup center for pgbackrest
+* New module: `MINIO`, S3-Compatible Object Storage, an optional backup center for pgbackrest
 * Battery-Included PITR with `pgbackrest`
 * Adaptive tuning template for PostgreSQL and Node Tuned
 * Simplified configuration templates
-* Replace consul with etcd completely
+* Replace consul with etcd completely.
 * New HBA/Service API
 * Change license to AGPL v3.0 (infect by grafana & minio)
 
@@ -58,7 +59,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 * More compatible Linux distributions: RHEL, CentOS, RockyLinux, AlmaLinux.
 * RHEL 7, 8, 9 Support (build on 7.9, 8.6, 9.0 ), use versioning in pigsty & pkg name
 * Add support for PostgreSQL 15 & PostGIS 3.3
-* Add version & arch as part of the `pkg.tgz` name
+* Add version & arch as part of the `pkg.tgz` name.
 
 **Security**
 
@@ -67,7 +68,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 * SSL for etcd/consul by @alemacci
 * SSL for postgres/pgbouncer/patroni by @alemacci
 * scram-sha-256 auth for postgres by @alemacci
-* redact password in postgres logs
+* Redact password in postgres logs.
 
 **Maintainability**
 
@@ -75,22 +76,22 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 * configurable log dir for Patroni & Postgres & Pgbouncer & Pgbackrest by @alemacci
 * Use `${admin_ip}` in infra vars to switch the admin node.
 * Adaptive upstream repo definition, compatible with EL7/EL8/EL9
-* Vagrant templates examples for el8, el9, building environment.
-* Terraform Templates for AWS EC2
-* Use chrony instead of ntpd as NTP services
+* Vagrant templates: `meta`, `full`, `el7` `el8`, `el9`, `build`, `minio`, `citus`, etc...
+* Terraform Templates for AWS & Aliyun
+* Use chrony instead of ntpd as NTP services.
 * New signed apache ECharts 5.0 plugin for Grafana panels
-* Simplify roles implementation. merge into `pgsql`, `infra`, `node`, `node_monitor`
+* Simplify ansible role implementation. Merge into `pgsql`, `infra`, `node`, `node_monitor`
 * Refactor `pgsql-monitor.yml` & `pgsql-migration.yml` for new architecture.
 
 **Enhancement**
 
-* enable dns on infra nodes by default
-* add the nameserver on admin node to all node's resolver by default 
-* register pg dns name to infra nodes nameservers
-* HAProxy are part of `node` rather than `pgsql`, which can be used for other services
-* Support all pgbouncer db/user level parameters 
+* DNSMASQ is enabled on infra nodes by default
+* DNSMASQ on the admin node will be added to all node's `/etc/resolv.conf` by default
+* PGSQL DNS names are registered to nameservers on infra nodes
+* HAProxy is part of `NODE` rather than `PGSQL` module, which can be used for other services.
+* Support all pgbouncer db/user level parameters.
 * Upgrade vip-manager to v2 to enforce etcd v3 API
-* Use official loki, promtail rpm packages
+* Use official Loki, promtail rpm packages.
 
 
 **Software Upgrade**
@@ -112,12 +113,11 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 * Minio 20230131022419 / MCLI 20230128202938
 * PEV v1.7
 * Use grafana official rpm for `loki`, `promtail`, `logcli`
-* Add `minio` & `mcli` to URL packages
-
+* Add `minio` & `mcli` to URL packages.
 
 **API Changes**
 
-add 24 parameters, remove 8 parameters, rename 12 parameters
+Add 24 parameters, remove 8 parameters, rename 12 parameters
 
 - `INFRA`.`META`.`admin_ip`                        : primary meta node ip address
 - `INFRA`.`META`.`region`                          : upstream mirror region: default|china|europe
@@ -151,23 +151,23 @@ add 24 parameters, remove 8 parameters, rename 12 parameters
 - `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_sslmode`       : SSL for pgbouncer client: disable|allow|prefer|require|verify-ca|verify-full
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_service_provider`     : dedicate haproxy node group name, or empty string for local nodes by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_default_service_dest` : default service destination if svc.dest='default'
-- `PGSQL`.`PG_BACKUP`.`pgbackrest_enabled`         : pgbackrest enabled ?
+- `PGSQL`.`PG_BACKUP`.`pgbackrest_enabled`         : pgbackrest enabled?
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_clean`           : remove pgbackrest data during init ?
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_log_dir`         : pgbackrest log dir, `/pg/log` by default
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_method`          : pgbackrest backup repo method, local or minio
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_repo`            : pgbackrest backup repo config
 - `PGSQL`.`PG_DNS`.`pg_dns_suffix`                 : pgsql dns suffix, '' by default
 - `PGSQL`.`PG_DNS`.`pg_dns_target`                 : auto, primary, vip, none, or ad hoc ip
-- `ETCD`.`etcd_seq`                : etcd instance identifier, REQUIRED           
-- `ETCD`.`etcd_cluster`            : etcd cluster & group name, etcd by default   
-- `ETCD`.`etcd_safeguard`          : prevent purging running etcd instance?       
-- `ETCD`.`etcd_clean`              : purging existing etcd during initialization? 
-- `ETCD`.`etcd_data`               : etcd data directory, /data/etcd by default   
-- `ETCD`.`etcd_port`               : etcd client port, 2379 by default            
-- `ETCD`.`etcd_peer_port`          : etcd peer port, 2380 by default              
-- `ETCD`.`etcd_init`               : etcd initial cluster state, new or existing  
-- `ETCD`.`etcd_election_timeout`   : etcd election timeout, 1000ms by default     
-- `ETCD`.`etcd_heartbeat_interval` : etcd heartbeat interval, 100ms by default    
+- `ETCD`.`etcd_seq`                : etcd instance identifier, REQUIRED
+- `ETCD`.`etcd_cluster`            : etcd cluster & group name, etcd by default
+- `ETCD`.`etcd_safeguard`          : prevent purging running etcd instance?
+- `ETCD`.`etcd_clean`              : purging existing etcd during initialization?
+- `ETCD`.`etcd_data`               : etcd data directory, /data/etcd by default
+- `ETCD`.`etcd_port`               : etcd client port, 2379 by default
+- `ETCD`.`etcd_peer_port`          : etcd peer port, 2380 by default
+- `ETCD`.`etcd_init`               : etcd initial cluster state, new or existing
+- `ETCD`.`etcd_election_timeout`   : etcd election timeout, 1000ms by default
+- `ETCD`.`etcd_heartbeat_interval` : etcd heartbeat interval, 100ms by default
 - `MINIO`.`minio_seq`        :  minio instance identifier, REQUIRED
 - `MINIO`.`minio_cluster`    :  minio cluster name, minio by default
 - `MINIO`.`minio_clean`      :  cleanup minio during init?, false by default
@@ -230,6 +230,7 @@ MD5 (pigsty-pkg-v2.0.0-rc1.el9.x86_64.tgz) = 1362e2a5680fc1a3a014cc4f304100bd
 ```
 
 Special thanks to @alemacci for his contribution!
+
 
 
 ------------------------

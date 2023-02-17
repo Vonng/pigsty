@@ -5,7 +5,8 @@
 # Mtime     :   2020-09-17
 # Desc      :   generate ssh key pair in same dir
 # Path      :   vagrant/ssh/gen.sh
-# Copyright (C) 2018-2022 Ruohang Feng
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
 #==============================================================#
 
 PROG_NAME="$(basename $0)"

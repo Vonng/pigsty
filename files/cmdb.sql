@@ -4,7 +4,8 @@
 -- # Ctime     :   2021-04-21
 -- # Mtime     :   2023-01-07
 -- # License   :   AGPLv3
--- # Copyright (C) 2018-2022 Ruohang Feng
+-- # Author    :   Ruohang Feng (rh@vonng.com)
+-- # License   :   AGPLv3
 -- ######################################################################
 
 

@@ -15,7 +15,7 @@
 
 ## Features
 
-Pigsty is a **Me-Better Open Source RDS Alternative** with:
+Pigsty is a **Me-Better Open-Source RDS Alternative** with:
 
 - Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with [PostGIS](https://postgis.net/), [TimescaleDB](https://www.timescale.com/), [Citus](https://www.citusdata.com/) ...
 - Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack.
@@ -354,4 +354,4 @@ Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
 License: [AGPL-3.0](LICENSE)
 
-Copyright 2018-2022 rh@vonng.com
+Copyright 2018-2023 rh@vonng.com
