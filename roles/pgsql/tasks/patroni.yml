@@ -86,11 +86,11 @@
   become_user: "{{ pg_dbsu }}"
   block:
 
-    - name: Add dbsu password to pgpass if exists
+    - name: add dbsu password to pgpass if exists
       when: pg_dbsu_password is defined and pg_dbsu_password != ''
       shell: /bin/bash /pg/bin/pg-pass-add "{{ pg_dbsu }}" "{{ pg_dbsu_password }}"
 
-    - name: Add system user to pgpass
+    - name: add system user to pgpass
       shell: /bin/bash /pg/bin/pg-pass-add "{{ item.username }}" "{{ item.password }}"
       with_items:
         - { username: "{{ pg_replication_username }}", password: "{{ pg_replication_password }}" }

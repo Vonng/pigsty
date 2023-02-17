@@ -158,12 +158,13 @@ There are 260+ parameters in Pigsty describing all aspect of the deployment.
 | 522 | [`pg_services`](#pg_services)                                   | [`PG_BUSINESS`](#pg_business)         | service[]   | C     | postgres business services                                                    |
 | 523 | [`pg_hba_rules`](#pg_hba_rules)                                 | [`PG_BUSINESS`](#pg_business)         | hba[]       | C     | business hba rules for postgres                                               |
 | 524 | [`pgb_hba_rules`](#pgb_hba_rules)                               | [`PG_BUSINESS`](#pg_business)         | hba[]       | C     | business hba rules for pgbouncer                                              |
-| 530 | [`pg_replication_username`](#pg_replication_username)           | [`PG_BUSINESS`](#pg_business)         | username    | G     | postgres replication username, `replicator` by default                        |
-| 531 | [`pg_replication_password`](#pg_replication_password)           | [`PG_BUSINESS`](#pg_business)         | password    | G     | postgres replication password, `DBUser.Replicator` by default                 |
-| 532 | [`pg_admin_username`](#pg_admin_username)                       | [`PG_BUSINESS`](#pg_business)         | username    | G     | postgres admin username, `dbuser_dba` by default                              |
-| 533 | [`pg_admin_password`](#pg_admin_password)                       | [`PG_BUSINESS`](#pg_business)         | password    | G     | postgres admin password in plain text, `DBUser.DBA` by default                |
-| 534 | [`pg_monitor_username`](#pg_monitor_username)                   | [`PG_BUSINESS`](#pg_business)         | username    | G     | postgres monitor username, `dbuser_monitor` by default                        |
-| 535 | [`pg_monitor_password`](#pg_monitor_password)                   | [`PG_BUSINESS`](#pg_business)         | password    | G     | postgres monitor password, `DBUser.Monitor` by default                        |
+| 531 | [`pg_replication_username`](#pg_replication_username)           | [`PG_BUSINESS`](#pg_business)         | username    | G     | postgres replication username, `replicator` by default                        |
+| 532 | [`pg_replication_password`](#pg_replication_password)           | [`PG_BUSINESS`](#pg_business)         | password    | G     | postgres replication password, `DBUser.Replicator` by default                 |
+| 533 | [`pg_admin_username`](#pg_admin_username)                       | [`PG_BUSINESS`](#pg_business)         | username    | G     | postgres admin username, `dbuser_dba` by default                              |
+| 534 | [`pg_admin_password`](#pg_admin_password)                       | [`PG_BUSINESS`](#pg_business)         | password    | G     | postgres admin password in plain text, `DBUser.DBA` by default                |
+| 535 | [`pg_monitor_username`](#pg_monitor_username)                   | [`PG_BUSINESS`](#pg_business)         | username    | G     | postgres monitor username, `dbuser_monitor` by default                        |
+| 536 | [`pg_monitor_password`](#pg_monitor_password)                   | [`PG_BUSINESS`](#pg_business)         | password    | G     | postgres monitor password, `DBUser.Monitor` by default                        |
+| 537 | [`pg_dbsu_password`](#pg_dbsu_password)                         | [`PG_BUSINESS`](#pg_business)         |  password   | G/C   | dbsu password, empty string means no dbsu password by default                 |
 | 540 | [`pg_dbsu`](#pg_dbsu)                                           | [`PG_INSTALL`](#pg_install)           | username    | C     | os dbsu name, postgres by default, better not change it                       |
 | 541 | [`pg_dbsu_uid`](#pg_dbsu_uid)                                   | [`PG_INSTALL`](#pg_install)           | int         | C     | os dbsu uid and gid, 26 for default postgres users and groups                 |
 | 542 | [`pg_dbsu_sudo`](#pg_dbsu_sudo)                                 | [`PG_INSTALL`](#pg_install)           | enum        | C     | dbsu sudo privilege, none,limit,all,nopass. limit by default                  |
@@ -3110,6 +3111,7 @@ pg_services: []                   # postgres business services
 pg_hba_rules: []                  # business hba rules for postgres
 pgb_hba_rules: []                 # business hba rules for pgbouncer
 # global credentials, overwrite in global vars
+pg_dbsu_password: ''              # dbsu password, empty string means no dbsu password by default
 pg_replication_username: replicator
 pg_replication_password: DBUser.Replicator
 pg_admin_username: dbuser_dba
@@ -3317,6 +3319,7 @@ Similar to [`pg_hba_rules`](#pg_hba_rules), array of [hba](PGSQL-HBA#define-hba)
 
 
 
+
 ### `pg_replication_username`
 
 name: `pg_replication_username`, type: `username`, level: `G`
@@ -3392,6 +3395,17 @@ default values: `DBUser.Monitor`
 WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 
+
+
+### `pg_dbsu_password`
+
+name: `pg_dbsu_password`, type: `password`, level: `G/C`
+
+dbsu password, empty string means no dbsu password by default
+
+This is password for `PGSQL`, not for os user.
+
+WARNING: It is not recommend to setup dbsu password for common clusters, while it can be used for [`pg_mode`](#pg_mode) = `citus`.
 
 
 

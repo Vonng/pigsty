@@ -113,6 +113,7 @@
 | [`pg_admin_password`](PARAM#pg_admin_password)                       | [`PG_BUSINESS`](PARAM#pg_business)   |  password   |   G   | postgres admin password in plain text, `DBUser.DBA` by default                |
 | [`pg_monitor_username`](PARAM#pg_monitor_username)                   | [`PG_BUSINESS`](PARAM#pg_business)   |  username   |   G   | postgres monitor username, `dbuser_monitor` by default                        |
 | [`pg_monitor_password`](PARAM#pg_monitor_password)                   | [`PG_BUSINESS`](PARAM#pg_business)   |  password   |   G   | postgres monitor password, `DBUser.Monitor` by default                        |
+| [`pg_dbsu_password`](PARAM#pg_dbsu_password)                         | [`PG_BUSINESS`](PARAM#pg_business)   |  password   |  G/C  | dbsu password, empty string means no dbsu password by default                 |
 | [`pg_dbsu`](PARAM#pg_dbsu)                                           | [`PG_INSTALL`](PARAM#pg_install)     |  username   |   C   | os dbsu name, postgres by default, better not change it                       |
 | [`pg_dbsu_uid`](PARAM#pg_dbsu_uid)                                   | [`PG_INSTALL`](PARAM#pg_install)     |     int     |   C   | os dbsu uid and gid, 26 for default postgres users and groups                 |
 | [`pg_dbsu_sudo`](PARAM#pg_dbsu_sudo)                                 | [`PG_INSTALL`](PARAM#pg_install)     |    enum     |   C   | dbsu sudo privilege, none,limit,all,nopass. limit by default                  |
