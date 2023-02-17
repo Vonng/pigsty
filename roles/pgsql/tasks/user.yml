@@ -20,4 +20,10 @@
         role_exists=$(psql -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} -d postgres -AXtwqc "SELECT true WHERE EXISTS(SELECT * FROM pg_authid WHERE rolname = '{{ user.name }}' LIMIT 1)")
         [[ -z "${role_exists}" ]] && exit 1 || exit 0
 
+
+- name: write plain biz user password to pgpass for citus cluster
+  tags: pg_user
+  become_user: "{{ pg_dbsu|default('postgres') }}"
+  when: pg_mode == 'citus' and user.password is defined and user.password != '' and not user.password.startswith('md5')  and not user.password.startswith('scram')
+  shell: /bin/bash /pg/bin/pg-pass-add "{{ user.name }}" "{{ user.password }}"
 ...

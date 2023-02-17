@@ -115,6 +115,13 @@
       when: pg_role == 'primary'
       vars: { user: "{{ user_def }}" }
 
+    # write biz user plain password to .pgpass file for citus cluster
+    - name: write plain biz user password to pgpass for citus cluster
+      tags: postgres
+      become_user: "{{ pg_dbsu|default('postgres') }}"
+      when: pg_mode == 'citus' and user_def.password is defined and user_def.password != '' and not user_def.password.startswith('md5')  and not user_def.password.startswith('scram')
+      shell: /bin/bash /pg/bin/pg-pass-add "{{ user_def.name }}" "{{ user_def.password }}"
+
 
     #----------------------------------------------------------#
     # Refresh Pgbouncer User Configuration           [pgbouncer]
