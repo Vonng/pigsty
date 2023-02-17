@@ -229,45 +229,37 @@ pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
 
 </details>
 
-<details><summary>Example: Citus Cluster: 1 Coordinator x 3 Data Nodes</summary>
+<details><summary>Example: Citus Distributed Cluster: 5 Nodes</summary>
 
 ```yaml
-children:
-  pg-citus0: # citus coordinator, pg_group = 0
-    hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
-    vars: { pg_cluster: pg-citus0 , pg_group: 0 }
-  pg-citus1: # citus data node, pg_group = 1,2,3,4
-    hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
-    vars: { pg_cluster: pg-citus1 , pg_group: 1 }
-  pg-citus2:
-    hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
-    vars: { pg_cluster: pg-citus2 , pg_group: 2 }
-  pg-citus3:
-    hosts: { 10.10.10.13: { pg_seq: 1, pg_role: primary } }
-    vars: { pg_cluster: pg-citus3 , pg_group: 3 }
-  pg-citus4:
-    hosts: { 10.10.10.14: { pg_seq: 1, pg_role: primary } }
-    vars: { pg_cluster: pg-citus4 , pg_group: 4 }
-
-vars: # global variables
-  pg_mode: citus                    # pgsql cluster mode: pgsql,citus,gpsql
-  pg_conf: tiny.yml                 # use tiny for citus nodes
-  pg_shard: pg-citus                # citus shard name
-  patroni_citus_db: meta            # citus distributed database name
-  pg_users: [ { name: citus ,password: citus ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
-  pg_databases: [ { name: meta ,owner: citus , extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
-  pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain'
-  pg_hba_rules:
-    - title: Allow dbsu db/meta ssl access from local/shard
-      role: common
-      rules:
-        - hostssl  meta  postgres  127.0.0.1/32    trust
-        - hostssl  meta  postgres  10.10.10.10/32  trust
-        - hostssl  meta  postgres  10.10.10.11/32  trust
-        - hostssl  meta  postgres  10.10.10.12/32  trust
-        - hostssl  meta  postgres  10.10.10.13/32  trust
-        - hostssl  meta  postgres  10.10.10.14/32  trust
+all:
+  children:
+    pg-citus0: # citus coordinator, pg_group = 0
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      vars: { pg_cluster: pg-citus0 , pg_group: 0 }
+    pg-citus1: # citus data node 1
+      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
+      vars: { pg_cluster: pg-citus1 , pg_group: 1 }
+    pg-citus2: # citus data node 2
+      hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
+      vars: { pg_cluster: pg-citus2 , pg_group: 2 }
+    pg-citus3: # citus data node 3, with an extra replica
+      hosts:
+        10.10.10.13: { pg_seq: 1, pg_role: primary }
+        10.10.10.14: { pg_seq: 2, pg_role: replica }
+      vars: { pg_cluster: pg-citus3 , pg_group: 3 }
+  vars:                               # global parameters for all citus clusters
+    pg_mode: citus                    # pgsql cluster mode: citus
+    pg_shard: pg-citus                # citus shard name: pg-citus
+    patroni_citus_db: meta            # citus distributed database name
+    pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
+    pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+    pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
+    pg_hba_rules:
+      - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
+      - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet'  }
 ```
+
 
 </details>
 

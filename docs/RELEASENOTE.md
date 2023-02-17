@@ -119,44 +119,45 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 
 add 24 parameters, remove 8 parameters, rename 12 parameters
 
-- `INFRA`.`META`.`admin_ip`                     : primary meta node ip address
-- `INFRA`.`META`.`region`                       : upstream mirror region: default|china|europe
-- `INFRA`.`META`.`os_version`                   : enterprise linux release version: 7,8,9
-- `INFRA`.`CA`.`ca_cn`                          : ca common name, pigsty-ca by default
-- `INFRA`.`CA`.`cert_validity`                  : cert validity, 20 years by default
-- `INFRA`.`REPO`.`repo_enabled`                 : build a local yum repo on infra node?
-- `INFRA`.`REPO`.`repo_upstream`                : list of upstream yum repo definition
-- `INFRA`.`REPO`.`repo_home`                    : home dir of local yum repo, usually same as nginx_home '/www'
-- `INFRA`.`NGINX`.`nginx_ssl_port`              : https listen port
-- `INFRA`.`NGINX`.`nginx_ssl_enabled`           : nginx https enabled?
-- `INFRA`.`PROMTETHEUS`.`alertmanager_endpoint` : altermanager endpoint in (ip|domain):port format
-- `NODE`.`NODE_TUNE`.`node_hugepage_ratio`      : mem hugepage ratio, 0 disable it by default
-- `NODE`.`HAPROXY`.`haproxy_service`            : list of haproxy service to be exposed
-- `PGSQL`.`PG_ID`.`pg_mode`                     : pgsql cluster mode: pgsql,citus,gpsql
-- `PGSQL`.`PG_INSTALL`.`pg_log_dir`             : postgres log dir, `/pg/data/log` by default
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_storage_type`      : SSD|HDD, SSD by default
-- `PGSQL`.`PG_BOOTSTRAP`.`patroni_log_dir`      : patroni log dir, `/pg/log` by default
-- `PGSQL`.`PG_BOOTSTRAP`.`patroni_ssl_enabled`  : secure patroni RestAPI communications with SSL?
-- `PGSQL`.`PG_BOOTSTRAP`.`patroni_username`     : patroni rest api username
-- `PGSQL`.`PG_BOOTSTRAP`.`patroni_password`     : patroni rest api password (IMPORTANT: CHANGE THIS)
-- `PGSQL`.`PG_BOOTSTRAP`.`patroni_citus_db`     : citus database managed by patroni, postgres by default
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_max_conn`          : postgres max connections, `auto` will use recommended value
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_shmem_ratio`       : postgres shared memory ratio, 0.25 by default, 0.1~0.4
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_rto`               : recovery time objective, ttl to failover, 30s by default
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_rpo`               : recovery point objective, 1MB data loss at most by default
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_pwd_enc`           : algorithm for encrypting passwords: md5|scram-sha-256
-- `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_log_dir`    : pgbouncer log dir, `/var/log/pgbouncer` by default
-- `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_auth_query` : if enabled, query pg_authid table to retrieve biz users instead of populating userlist
-- `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_sslmode`    : SSL for pgbouncer client: disable|allow|prefer|require|verify-ca|verify-full
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_service_provider`  : dedicate haproxy node group name, or empty string for local nodes by default
+- `INFRA`.`META`.`admin_ip`                        : primary meta node ip address
+- `INFRA`.`META`.`region`                          : upstream mirror region: default|china|europe
+- `INFRA`.`META`.`os_version`                      : enterprise linux release version: 7,8,9
+- `INFRA`.`CA`.`ca_cn`                             : ca common name, pigsty-ca by default
+- `INFRA`.`CA`.`cert_validity`                     : cert validity, 20 years by default
+- `INFRA`.`REPO`.`repo_enabled`                    : build a local yum repo on infra node?
+- `INFRA`.`REPO`.`repo_upstream`                   : list of upstream yum repo definition
+- `INFRA`.`REPO`.`repo_home`                       : home dir of local yum repo, usually same as nginx_home '/www'
+- `INFRA`.`NGINX`.`nginx_ssl_port`                 : https listen port
+- `INFRA`.`NGINX`.`nginx_ssl_enabled`              : nginx https enabled?
+- `INFRA`.`PROMTETHEUS`.`alertmanager_endpoint`    : altermanager endpoint in (ip|domain):port format
+- `NODE`.`NODE_TUNE`.`node_hugepage_ratio`         : mem hugepage ratio, 0 disable it by default
+- `NODE`.`HAPROXY`.`haproxy_service`               : list of haproxy service to be exposed
+- `PGSQL`.`PG_ID`.`pg_mode`                        : pgsql cluster mode: pgsql,citus,gpsql
+- `PGSQL`.`PG_BUSINESS`.`pg_dbsu_password`         : dbsu password, empty string means no dbsu password by default
+- `PGSQL`.`PG_INSTALL`.`pg_log_dir`                : postgres log dir, `/pg/data/log` by default
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_storage_type`         : SSD|HDD, SSD by default
+- `PGSQL`.`PG_BOOTSTRAP`.`patroni_log_dir`         : patroni log dir, `/pg/log` by default
+- `PGSQL`.`PG_BOOTSTRAP`.`patroni_ssl_enabled`     : secure patroni RestAPI communications with SSL?
+- `PGSQL`.`PG_BOOTSTRAP`.`patroni_username`        : patroni rest api username
+- `PGSQL`.`PG_BOOTSTRAP`.`patroni_password`        : patroni rest api password (IMPORTANT: CHANGE THIS)
+- `PGSQL`.`PG_BOOTSTRAP`.`patroni_citus_db`        : citus database managed by patroni, postgres by default
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_max_conn`             : postgres max connections, `auto` will use recommended value
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_shmem_ratio`          : postgres shared memory ratio, 0.25 by default, 0.1~0.4
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_rto`                  : recovery time objective, ttl to failover, 30s by default
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_rpo`                  : recovery point objective, 1MB data loss at most by default
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_pwd_enc`              : algorithm for encrypting passwords: md5|scram-sha-256
+- `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_log_dir`       : pgbouncer log dir, `/var/log/pgbouncer` by default
+- `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_auth_query`    : if enabled, query pg_authid table to retrieve biz users instead of populating userlist
+- `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_sslmode`       : SSL for pgbouncer client: disable|allow|prefer|require|verify-ca|verify-full
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_service_provider`     : dedicate haproxy node group name, or empty string for local nodes by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_default_service_dest` : default service destination if svc.dest='default'
-- `PGSQL`.`PG_BACKUP`.`pgbackrest_enabled`      : pgbackrest enabled ?
-- `PGSQL`.`PG_BACKUP`.`pgbackrest_clean`        : remove pgbackrest data during init ?
-- `PGSQL`.`PG_BACKUP`.`pgbackrest_log_dir`      : pgbackrest log dir, `/pg/log` by default
-- `PGSQL`.`PG_BACKUP`.`pgbackrest_method`       : pgbackrest backup repo method, local or minio
-- `PGSQL`.`PG_BACKUP`.`pgbackrest_repo`         : pgbackrest backup repo config
-- `PGSQL`.`PG_DNS`.`pg_dns_suffix`              : pgsql dns suffix, '' by default
-- `PGSQL`.`PG_DNS`.`pg_dns_target`              : auto, primary, vip, none, or ad hoc ip
+- `PGSQL`.`PG_BACKUP`.`pgbackrest_enabled`         : pgbackrest enabled ?
+- `PGSQL`.`PG_BACKUP`.`pgbackrest_clean`           : remove pgbackrest data during init ?
+- `PGSQL`.`PG_BACKUP`.`pgbackrest_log_dir`         : pgbackrest log dir, `/pg/log` by default
+- `PGSQL`.`PG_BACKUP`.`pgbackrest_method`          : pgbackrest backup repo method, local or minio
+- `PGSQL`.`PG_BACKUP`.`pgbackrest_repo`            : pgbackrest backup repo config
+- `PGSQL`.`PG_DNS`.`pg_dns_suffix`                 : pgsql dns suffix, '' by default
+- `PGSQL`.`PG_DNS`.`pg_dns_target`                 : auto, primary, vip, none, or ad hoc ip
 - `ETCD`: 10 parameters
 - `MINIO`: 15 parameters
 
