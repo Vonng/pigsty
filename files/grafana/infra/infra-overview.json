@@ -1530,8 +1530,8 @@
                     },
                     "links": [
                         {
-                            "title": "Nginx Overview",
-                            "url": "/d/nginx-overview"
+                            "title": "Nginx Overview for ${__field.labels.ins}",
+                            "url": "/d/nginx-overview?var-ins=${__field.labels.ins}"
                         }
                     ],
                     "mappings": [
@@ -1592,8 +1592,8 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "nginx_up",
-                    "legendFormat": "Nginx Healthy @ {{ ip }}",
+                    "expr": "nginx_up{cls=\"nginx\"}",
+                    "legendFormat": "{{ ins }} @ {{ ip }}",
                     "range": true,
                     "refId": "A"
                 }
@@ -1876,8 +1876,8 @@
                     "decimals": 1,
                     "links": [
                         {
-                            "title": "Prometheus Overview for ${__field.labels.instance}",
-                            "url": "/d/prometheus-overview?var-ins=${__field.labels.instance}"
+                            "title": "Prometheus Overview for ${__field.labels.ins}",
+                            "url": "/d/prometheus-overview?var-ins=${__field.labels.ins}"
                         }
                     ],
                     "mappings": [
@@ -2486,8 +2486,8 @@
                     "decimals": 1,
                     "links": [
                         {
-                            "title": "Grafana Overview for ${__field.labels.instance}",
-                            "url": "/d/grafana-overview?var-ins=${__field.labels.instance}"
+                            "title": "Grafana Overview for ${__field.labels.ins}",
+                            "url": "/d/grafana-overview?var-ins=${__field.labels.ins}"
                         }
                     ],
                     "mappings": [
@@ -2739,7 +2739,19 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "mappings": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "nan",
+                                "result": {
+                                    "color": "#808080d9",
+                                    "index": 1,
+                                    "text": "N/A"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -2800,7 +2812,19 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "mappings": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "nan",
+                                "result": {
+                                    "color": "#808080d9",
+                                    "index": 1,
+                                    "text": "N/A"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -3071,8 +3095,8 @@
                     "decimals": 1,
                     "links": [
                         {
-                            "title": "Loki Overview for ${__field.labels.instance}",
-                            "url": "/d/loki-overview?var-ins=${__field.labels.instance}"
+                            "title": "Loki Overview for ${__field.labels.ins}",
+                            "url": "/d/loki-overview?var-ins=${__field.labels.ins}"
                         }
                     ],
                     "mappings": [
@@ -3091,8 +3115,12 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "light-orange",
+                                "color": "green",
                                 "value": null
+                            },
+                            {
+                                "color": "#ff780abf",
+                                "value": 0
                             }
                         ]
                     },
@@ -3363,7 +3391,19 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "mappings": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "nan",
+                                "result": {
+                                    "color": "#808080d9",
+                                    "index": 0,
+                                    "text": "N/A"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -3373,7 +3413,7 @@
                             }
                         ]
                     },
-                    "unit": "short"
+                    "unit": "percent"
                 },
                 "overrides": []
             },
@@ -3406,9 +3446,9 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(loki_store_series_total{cls=\"loki\"}) by (ins)",
+                    "expr": "histogram_quantile(0.95, sum(rate(loki_ingester_chunk_compression_ratio_bucket{cls=\"loki\"}[5m])) by (ins,le))",
                     "interval": "",
-                    "legendFormat": "Series",
+                    "legendFormat": "Compress",
                     "range": true,
                     "refId": "A"
                 }
@@ -3604,8 +3644,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red",
-                                "value": null
+                                "color": "red"
                             },
                             {
                                 "color": "green",
@@ -3717,8 +3756,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
-                                "value": null
+                                "color": "blue"
                             }
                         ]
                     }
@@ -3811,8 +3849,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             }
                         ]
                     }

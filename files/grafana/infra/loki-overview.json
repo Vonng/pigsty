@@ -22,7 +22,7 @@
         ]
     },
     "author": "Vonng (rh@vonng.com)",
-    "description": "Pigsty Loki Overview",
+    "description": "Pigsty Loki Overview: https://grafana.com/docs/loki/latest/operations/observability/",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
@@ -77,8 +77,8 @@
                     },
                     "links": [
                         {
-                            "title": "Grafana Home",
-                            "url": "http://g.pigsty"
+                            "title": "Infra Overview",
+                            "url": "/d/infra-overview"
                         }
                     ],
                     "mappings": [
@@ -174,22 +174,37 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "mappings": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null",
+                                "result": {
+                                    "text": "N/A"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "blue",
                                 "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
                             }
                         ]
                     },
-                    "unit": "short"
+                    "unit": "s"
                 },
                 "overrides": []
             },
@@ -199,7 +214,9 @@
                 "x": 3,
                 "y": 1
             },
-            "id": 110,
+            "id": 108,
+            "links": [],
+            "maxDataPoints": 100,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -222,9 +239,73 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(loki_store_series_total{ins=\"$ins\"})",
+                    "expr": "time() - process_start_time_seconds{ins=\"$ins\"}",
+                    "format": "time_series",
+                    "intervalFactor": 2,
+                    "legendFormat": "Uptime",
+                    "range": true,
+                    "refId": "B",
+                    "step": 40
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "Bps"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 6,
+                "y": 1
+            },
+            "id": 104,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "9.3.6",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(rate(loki_distributor_bytes_received_total{ins=\"$ins\"}[5m])) by (tenant)",
                     "interval": "",
-                    "legendFormat": "Series",
+                    "legendFormat": "Bytes / s",
                     "range": true,
                     "refId": "A"
                 }
@@ -262,7 +343,7 @@
             "gridPos": {
                 "h": 4,
                 "w": 3,
-                "x": 6,
+                "x": 9,
                 "y": 1
             },
             "id": 106,
@@ -317,84 +398,7 @@
                             }
                         ]
                     },
-                    "unit": "Bps"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 3,
-                "x": 9,
-                "y": 1
-            },
-            "id": 104,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "9.3.6",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "expr": "sum(rate(loki_distributor_bytes_received_total{ins=\"$ins\"}[5m])) by (tenant)",
-                    "interval": "",
-                    "legendFormat": "Bytes / s",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "blue",
-                                "value": null
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    "unit": "s"
+                    "unit": "percent"
                 },
                 "overrides": []
             },
@@ -404,9 +408,7 @@
                 "x": 12,
                 "y": 1
             },
-            "id": 108,
-            "links": [],
-            "maxDataPoints": 100,
+            "id": 110,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -429,13 +431,11 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "time() - process_start_time_seconds{ins=\"$ins\"}",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "legendFormat": "Uptime",
+                    "expr": "histogram_quantile(0.95, sum(rate(loki_ingester_chunk_compression_ratio_bucket{ins=\"$ins\"}[5m])) by (le))",
+                    "interval": "",
+                    "legendFormat": "Compress Ratio",
                     "range": true,
-                    "refId": "B",
-                    "step": 40
+                    "refId": "A"
                 }
             ],
             "type": "stat"
@@ -883,7 +883,7 @@
             },
             "gridPos": {
                 "h": 6,
-                "w": 6,
+                "w": 8,
                 "x": 0,
                 "y": 16
             },
@@ -915,7 +915,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "Received Lines / sec",
+            "title": "Received  Lines/s",
             "type": "timeseries"
         },
         {
@@ -978,8 +978,8 @@
             },
             "gridPos": {
                 "h": 6,
-                "w": 6,
-                "x": 6,
+                "w": 8,
+                "x": 8,
                 "y": 16
             },
             "id": 140,
@@ -1008,7 +1008,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "Distributor  Received bytes / sec",
+            "title": "Received bytes/s",
             "type": "timeseries"
         },
         {
@@ -1016,6 +1016,7 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
+            "description": "Batch appends sent to ingesters / sec",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1071,8 +1072,8 @@
             },
             "gridPos": {
                 "h": 6,
-                "w": 6,
-                "x": 12,
+                "w": 8,
+                "x": 16,
                 "y": 16
             },
             "id": 142,
@@ -1113,105 +1114,7 @@
                     "refId": "B"
                 }
             ],
-            "title": "Batch appends sent to ingesters / sec",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": true,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "links": [],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "short"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 6,
-                "x": 18,
-                "y": 16
-            },
-            "id": 144,
-            "interval": "",
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "8.5.2",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "expr": "sum by (status) (rate(loki_store_series_total{ins=\"$ins\"}[5m]))",
-                    "instant": false,
-                    "interval": "",
-                    "legendFormat": "{{status}}",
-                    "refId": "A"
-                }
-            ],
-            "title": "Store Series / sec",
+            "title": "Distributor Batchs/s",
             "type": "timeseries"
         },
         {
@@ -1566,10 +1469,6 @@
                             {
                                 "color": "green",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     },
@@ -1606,9 +1505,11 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "expr": "histogram_quantile(0.95, sum(rate(loki_ingester_chunk_compression_ratio_bucket{ins=\"$ins\"}[5m])) by (le))",
                     "interval": "",
                     "legendFormat": "ratio",
+                    "range": true,
                     "refId": "A"
                 }
             ],
