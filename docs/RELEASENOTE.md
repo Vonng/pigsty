@@ -9,7 +9,7 @@
 | [v1.4.0](#v140)         | 2022-03-31 | MatrixDB Support, Separated INFRA, NODES, PGSQL, REDIS  | [v1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)                             |
 | [v1.3.0](#v130)         | 2021-11-30 | PGCAT Overhaul & PGSQL Enhancement & Redis Support Beta | [v1.3.0](https://github.com/Vonng/pigsty/releases/tag/v1.3.0)                             |
 | [v1.2.0](#v120)         | 2021-11-03 | Upgrade default Postgres to 14, monitoring existing pg  | [v1.2.0](https://github.com/Vonng/pigsty/releases/tag/v1.2.0)                             |
-| [v1.1.0](#v110)         | 2021-10-12 | HomePage, JupyterLab, Pgweb, Pev2 & Pgbadger            | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)                             |
+| [v1.1.0](#v110)         | 2021-10-12 | HomePage, JupyterLab, PGWEB, Pev2 & Pgbadger            | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)                             |
 | [v1.0.0](#v100)         | 2021-07-26 | v1 GA, Monitoring System Overhaul                       | [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)                             |
 | [v0.9.0](#v090)         | 2021-04-04 | Pigsty GUI, CLI, Logging Integration                    | [v0.9.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.0)                             |
 | [v0.8.0](#v080)         | 2021-03-28 | Service Provision                                       | [v0.8.0](https://github.com/Vonng/pigsty/releases/tag/v0.8.0)                             |
@@ -99,7 +99,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 * Patroni 3.0.0
 * Pgbouncer 1.18
 * pgBackRest 2.44
-* HAProxy 2.7.3 / 2.7.0
+* HAProxy 2.7.2 / 2.7.0
 * vip-manager 2.1.0
 * PostGIS 3.3.2
 * Citus 11.2.0
@@ -158,8 +158,31 @@ add 24 parameters, remove 8 parameters, rename 12 parameters
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_repo`            : pgbackrest backup repo config
 - `PGSQL`.`PG_DNS`.`pg_dns_suffix`                 : pgsql dns suffix, '' by default
 - `PGSQL`.`PG_DNS`.`pg_dns_target`                 : auto, primary, vip, none, or ad hoc ip
-- `ETCD`: 10 parameters
-- `MINIO`: 15 parameters
+- `ETCD`.`etcd_seq`                : etcd instance identifier, REQUIRED           
+- `ETCD`.`etcd_cluster`            : etcd cluster & group name, etcd by default   
+- `ETCD`.`etcd_safeguard`          : prevent purging running etcd instance?       
+- `ETCD`.`etcd_clean`              : purging existing etcd during initialization? 
+- `ETCD`.`etcd_data`               : etcd data directory, /data/etcd by default   
+- `ETCD`.`etcd_port`               : etcd client port, 2379 by default            
+- `ETCD`.`etcd_peer_port`          : etcd peer port, 2380 by default              
+- `ETCD`.`etcd_init`               : etcd initial cluster state, new or existing  
+- `ETCD`.`etcd_election_timeout`   : etcd election timeout, 1000ms by default     
+- `ETCD`.`etcd_heartbeat_interval` : etcd heartbeat interval, 100ms by default    
+- `MINIO`.`minio_seq`        :  minio instance identifier, REQUIRED
+- `MINIO`.`minio_cluster`    :  minio cluster name, minio by default
+- `MINIO`.`minio_clean`      :  cleanup minio during init?, false by default
+- `MINIO`.`minio_user`       :  minio os user, `minio` by default
+- `MINIO`.`minio_node`       :  minio node name pattern
+- `MINIO`.`minio_data`       :  minio data dir(s), use {x...y} to specify multi drivers
+- `MINIO`.`minio_domain`     :  minio external domain name, `sss.pigsty` by default
+- `MINIO`.`minio_port`       :  minio service port, 9000 by default
+- `MINIO`.`minio_admin_port` :  minio console port, 9001 by default
+- `MINIO`.`minio_access_key` :  root access key, `minioadmin` by default
+- `MINIO`.`minio_secret_key` :  root secret key, `minioadmin` by default
+- `MINIO`.`minio_extra_vars` :  extra environment variables for minio server
+- `MINIO`.`minio_alias`      :  alias name for local minio deployment
+- `MINIO`.`minio_buckets`    :  list of minio bucket to be created
+- `MINIO`.`minio_users`      :  list of minio user to be created
 
 **Removed Parameters**
 
@@ -172,6 +195,11 @@ add 24 parameters, remove 8 parameters, rename 12 parameters
 - `PGSQL`.`PG_INSTALL`.`pg_add_repo`: now taken care by node playbooks
 - `PGSQL`.`PG_IDENTITY`.`pg_backup`: not used and conflict with section name
 - `PGSQL`.`PG_IDENTITY`.`pg_preflight_skip`: not used anymore, replace by `pg_id`
+- `DCS`.`dcs_name`      : removed due to using etcd
+- `DCS`.`dcs_servers`   : replaced by using ad hoc group `etcd`
+- `DCS`.`dcs_registry`  : removed due to using etcd
+- `DCS`.`dcs_safeguard` : replaced by `etcd_safeguard`
+- `DCS`.`dcs_clean`     : replaced by `etcd_clean`
 
 **Renamed Parameters**
 
