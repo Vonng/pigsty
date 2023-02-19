@@ -1254,7 +1254,7 @@ INSERT INTO pigsty.default_var VALUES
 (125, 'nginx_navbar', '[{"url": "/ca.crt", "desc": "pigsty self-signed ca.crt", "name": "CA Cert"}, {"url": "/pigsty", "desc": "local yum repo packages", "name": "Package"}, {"url": "/pev.html", "desc": "postgres explain visualizer", "name": "Explain"}, {"url": "/logs", "desc": "postgres raw csv logs", "name": "PG Logs"}, {"url": "/report", "desc": "pgbadger summary report", "name": "Reports"}]', 'INFRA', 'NGINX', 'index[]', 'G', 'nginx index page navigation links', NULL),
 (126, 'dns_enabled', 'true', 'INFRA', 'DNS', 'bool', 'G/I', 'setup dnsmasq on this infra node?', NULL),
 (127, 'dns_port', '53', 'INFRA', 'DNS', 'port', 'G', 'dns server listen port, 53 by default', NULL),
-(128, 'dns_records', '["${admin_ip} h.pigsty a.pigsty p.pigsty g.pigsty", "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"]', 'INFRA', 'DNS', 'string[]', 'G', 'dynamic dns records resolved by dnsmasq', NULL),
+(128, 'dns_records', '["${admin_ip} h.pigsty a.pigsty p.pigsty g.pigsty", "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty wiki.pigsty"]', 'INFRA', 'DNS', 'string[]', 'G', 'dynamic dns records resolved by dnsmasq', NULL),
 (129, 'prometheus_enabled', 'true', 'INFRA', 'PROMETHEUS', 'bool', 'G/I', 'enable prometheus on this infra node?', NULL),
 (130, 'prometheus_clean', 'true', 'INFRA', 'PROMETHEUS', 'bool', 'G/A', 'clean prometheus data during init?', NULL),
 (131, 'prometheus_data', '"/data/prometheus"', 'INFRA', 'PROMETHEUS', 'path', 'G', 'prometheus data dir, `/data/prometheus` by default', NULL),

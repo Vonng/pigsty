@@ -928,7 +928,7 @@ dns_enabled: true                 # setup dnsmasq on this infra node?
 dns_port: 53                      # dns server listen port, 53 by default
 dns_records:                      # dynamic dns records resolved by dnsmasq
   - "${admin_ip} h.pigsty a.pigsty p.pigsty g.pigsty"
-  - "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
+  - "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty wiki.pigsty"
 ```
 
 
@@ -966,7 +966,7 @@ default value:
 ```yaml
 dns_records:                      # dynamic dns records resolved by dnsmasq
   - "${admin_ip} h.pigsty a.pigsty p.pigsty g.pigsty"
-  - "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
+  - "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty wiki.pigsty"
 ```
 
 These auxiliary domain names will be written to `/etc/hosts.d/default`
