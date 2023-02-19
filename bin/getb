@@ -89,7 +89,7 @@ log_hint 'FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/
 #--------------------------------------------------------------#
 log_line "Downloading"
 log_info "download pigsty source code from ${SOURCE}"
-log_info "$ curl -SL ${SOURCE_URL} -o ${DOWNLOAD_TO}"
+log_info "$ curl -SL ${SOURCE_URL}"
 curl -SL "${SOURCE_URL}" -o "${DOWNLOAD_TO}"
 if [[ $? -ne 0 ]]; then
     log_error "fail to download pigsty source from ${SOURCE}"
@@ -98,6 +98,8 @@ if [[ $? -ne 0 ]]; then
     log_hint '$ SOURCE=GITHUB bash -c "$(curl -fsSL http://download.pigsty.cc/getb);"'
     exit 2
 fi
+# get md5 checksum of ${DOWNLOAD_TO}
+log_hint "MD5: $(md5sum ${DOWNLOAD_TO})"
 
 
 #--------------------------------------------------------------#
@@ -111,7 +113,7 @@ if [[ ! -d ${EXTRACT_TO} ]]; then
     log_hint 'cd ~/pigsty      # entering pigsty home directory before proceeding'
     tar -xf ${DOWNLOAD_TO} -C ~;
 else
-    log_warn "${EXTRACT_TO} dir already exists, you can overwrite with:"
+    log_warn "${EXTRACT_TO} dir already exists, you have to overwrite it with:"
     log_hint "rm -rf ${EXTRACT_TO};"
     log_hint "tar -xf ${DOWNLOAD_TO} -C ~;"
     log_hint 'cd ~/pigsty      # entering pigsty home directory before proceeding'
