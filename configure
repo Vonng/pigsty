@@ -304,9 +304,27 @@ function check_admin(){
 function check_mode(){
     local mode=${1-${MODE}}
     local primary_ip=${2-${PRIMARY_IP}}
-    # if mode is explicitly set, just use it, otherwise, auto is used
+    # if mode is explicitly set, just use it
     if [[ ! -z "${mode}" ]]; then
         log_info "mode = ${mode} (manually set)"
+        return 0
+    fi
+    # if username is vagrant, demo template is used
+    # if [[ "$(whoami)" == "vagrant" ]]; then
+    #     log_info "mode = demo (vagrant demo)"
+    #     MODE=demo
+    #     return 0
+    # fi
+    # otherwise, use el7, el8, el9 according to os version
+    local os_release=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
+    if [[ ${os_release} == "9" ]]; then
+        MODE=el9
+        return 0
+    elif [[ ${os_release} == "8" ]]; then
+        MODE=el8
+        return 0
+    elif [[ ${os_release} == "7" ]]; then
+        MODE=el7
         return 0
     fi
     MODE=auto
