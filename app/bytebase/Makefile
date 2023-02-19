@@ -19,7 +19,7 @@ run: pg
         --restart always --detach \
         --publish 8887:8887 \
         --volume /data/bytebase/data:/var/opt/bytebase \
-        bytebase/bytebase:1.12.0 \
+        bytebase/bytebase:1.12.1 \
         --data /var/opt/bytebase \
         --external-url http://ddl.pigsty \
         --port 8887 \
@@ -38,7 +38,7 @@ info:
 pg:
 	@echo "pg_users:     { name: dbuser_bytebase , password: DBUser.Bytebase, roles: [ dbrole_admin ] }"
 	@echo "pg_databases: { name: bytebase, owner: dbuser_bytebase, comment: bytebase primary database }"
-	@echo "bin/createuser pg-meta dbuser_bytebase ; bin/createdb pg-meta bytebase"
+	@echo "bin/pgsql-user pg-meta dbuser_bytebase ; bin/pgsql-db pg-meta bytebase"
 
 stop:
 	docker stop bytebase;
@@ -53,9 +53,10 @@ rmi:
 	docker rmi bytebase/bytebase4
 
 save:
-	docker save bytebase/bytebase4 | lz4 -c > /tmp/bytebase.tlz
+	mkdir -p /tmp/docker
+	docker save bytebase/bytebase:1.12.1 | gzip -9 -c > /tmp/docker/bytebase.tgz
 
 load:
-	cat /tmp/bytebase.tlz | lz4 -d -c - | docker load
+	cat /tmp/docker/bytebase.tgz | gzip -d -c - | docker load
 
 .PHONY: default up run view log info stop clean conf dump pull rmi save load

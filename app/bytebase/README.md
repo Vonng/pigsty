@@ -1,13 +1,38 @@
 # Bytebase
 
-Schema Migrator for PostgreSQL
+Bytebase: https://www.bytebase.com/
+
+open-source schema migrator for PostgreSQL (and other databases)
+
+Check public demo: http://ddl.pigsty.cc, username: `admin@pigsty.cc`, password: `pigsty`
+
+If you want to access bytebase through SSL, you have to trust `files/pki/ca/ca.crt` on your browser (or use the dirty hack `thisisunsafe` in chrome)
+
+
+
+## Get Started
+
+Check [`.env`](.env) file for configurable environment variables:
 
 ```bash
-cd app/bytebase; make up
+BB_VERSION=1.12.1
+BB_PORT=8887
+BB_DOMAIN=http://ddl.pigsty
+BB_PGURL="postgresql://dbuser_bytebase:DBUser.Bytebase@10.10.10.10:5432/bytebase?sslmode=prefer"
+```
+
+Then launch bytebase with
+
+```bash
+make up  # docker compose up
 ```
 
 Visit [http://ddl.pigsty](http://ddl.pigsty) or http://10.10.10.10:8887
 
+
+
+
+## Makefile
 
 ```bash
 make up         # pull up bytebase with docker-compose in minimal mode
@@ -24,17 +49,31 @@ make load       # load bytebase image from /tmp
 ```
 
 
+
 ## Use External PostgreSQL
 
 Bytebase use its internal PostgreSQL database by default, You can use external PostgreSQL for higher durability.
 
 ```yaml
-# postgres://dbuser_bytebase:DBUser.Bytebase@10.10.10.10:5432/bytebase
-db:   { name: bytebase, owner: dbuser_bytebase, comment: bytebase primary database }
-user: { name: dbuser_bytebase , password: DBUser.Bytebase, roles: [ dbrole_admin ] }
+pg_users:
+  - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
+pg_databases:
+  - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public},{name: timescaledb}]}
+  - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
+  - { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
+  - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
+  - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
 ```
 
+And create business user & database with:
+
 ```bash
-bin/createuser dbuser_bytebase
-bin/createdb   bytebase
+bin/pgsql-user  pg-meta  dbuser_bytebase
+bin/pgsql-db    pg-meta  bytebase
+```
+
+Check connectivity:
+
+```bash
+psql postgres://dbuser_bytebase:DBUser.Bytebase@10.10.10.10:5432/bytebase
 ```
