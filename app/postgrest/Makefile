@@ -19,7 +19,6 @@ ui:
 
 view:
 	@echo "visit http://10.10.10.10:8884 for API Spec"
-	@echo "visit http://10.10.10.10:8883 for API Docs"
 
 log:
 	docker logs -f postgrest

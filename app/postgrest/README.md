@@ -1,15 +1,21 @@
 # PostgREST
 
+PostgREST: https://postgrest.org/en/stable/index.html
+
+Serve a RESTful API from any Postgres database
+
 This is an example of creating pigsty cmdb API with PostgREST
 
 ```bash
-cd ~/pigsty/app/postgrest ; docker-compose up -d
+cd ~/pigsty/app/postgrest; make up
 ```
 
 http://10.10.10.10:8884 is the default endpoint for PostgREST
 
-http://10.10.10.10:8883 is the default api docs for PostgREST
+Public API: http://api.pigsty.cc
 
+
+## Makefile
 
 ```bash
 make up         # pull up postgrest with docker-compose
@@ -23,8 +29,8 @@ make clean      # remove postgrest container
 make rmui       # remove swagger ui container
 make pull       # pull latest postgrest image
 make rmi        # remove postgrest image
-make save       # save postgrest image to /tmp/postgrest.tgz
-make load       # load postgrest image from /tmp
+make save       # save postgrest image to /tmp/docker/postgrest.tgz
+make load       # load postgrest image from /tmp/docker/postgrest.tgz
 ```
 
 
