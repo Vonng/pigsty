@@ -1,15 +1,15 @@
+# check .env files before running
 version: "3"
 services:
   wiki:
     container_name: wiki
-    image: requarks/wiki:2
+    image: requarks/wiki
     environment:
-      DB_TYPE: postgres
-      DB_HOST: 10.10.10.10
-      DB_PORT: 5432
-      DB_USER: dbuser_wiki
-      DB_PASS: DBUser.Wiki
-      DB_NAME: wiki
+      DB_TYPE: ${WIKI_DB_TYPE}
+      DB_USER: ${WIKI_DB_USER}
+      DB_PASS: ${WIKI_DB_PASS}
+      DB_HOST: ${WIKI_DB_HOST}
+      DB_PORT: ${WIKI_DB_PORT}
+      DB_NAME: ${WIKI_DB_NAME}
     restart: unless-stopped
-    ports:
-      - "9002:3000"
+    ports: [ "${WIKI_PORT}:3000" ]

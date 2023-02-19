@@ -11,6 +11,9 @@ else
 	docker-compose up -d
 endif
 
+view:
+	@echo "visit http://wiki.pigsty  or  http://10.10.10.10:9002"
+
 log:
 	docker logs -f wiki
 
@@ -23,12 +26,11 @@ stop:
 clean:
 	docker stop wiki; docker rm -f wiki
 
-
 pull:
-	docker pull wiki
+	docker pull requarks/wiki
 
 rmi:
-	docker rmi wiki
+	docker rmi requarks/wiki
 
 save:
 	mkdir -p /tmp/docker

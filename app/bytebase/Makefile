@@ -47,10 +47,10 @@ clean:
 	docker stop bytebase; docker rm -f bytebase
 
 pull:
-	docker pull bytebase/bytebase4
+	docker pull bytebase/bytebase:1.12.1
 
 rmi:
-	docker rmi bytebase/bytebase4
+	docker rmi bytebase/bytebase:1.12.1
 
 save:
 	mkdir -p /tmp/docker
