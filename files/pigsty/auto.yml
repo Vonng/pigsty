@@ -10,17 +10,19 @@
 #==============================================================#
 
 
+# this is a simple singleton meta config template, check full details with
+# https://github.com/Vonng/pigsty/blob/master/files/pigsty/full.yml
 all:
   children:
 
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } }, vars: { docker_enabled: true } }
 
-    # minio cluster, optional backup repo for pgbackrest
-    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
-
     # etcd cluster for ha postgres
     etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+
+    # minio cluster, optional backup repo for pgbackrest
+    #minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 
     # postgres cluster 'pg-meta' with single primary instance
     pg-meta:
@@ -31,7 +33,7 @@ all:
         pg_users:
           - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
           - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
-        node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ]
+        node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ] # make a full backup every 1am
 
   vars:                               # global parameters
     version: v2.0.0-rc2               # pigsty version string
@@ -44,7 +46,8 @@ all:
       alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
+      #minio        : { domain: sss.pigsty ,endpoint: "127.0.0.1:9000" } # add your domains here
 
-    # if you want to use minio as backup repo instead of local fs, change this to `minio`
-    pgbackrest_method: local          # local or minio
+    # if you want to use minio as backup repo instead of local fs, uncomment minio related lines
+    #pgbackrest_method: minio
 ...
