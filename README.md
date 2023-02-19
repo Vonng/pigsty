@@ -6,9 +6,9 @@
 
 ![icon](docs/icon.svg)
 
-> Latest Release: [v2.0.0-rc2](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-rc2) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/) |  [Website](https://pigsty.cc/en/)
+> Latest Release: [v2.0.0-rc2](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-rc2)  |  [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/) |  [Website](https://pigsty.cc/en/)
 >
-> **The current master branch is in release candidate status: (v2.0.0-rc2). Check [v1.5.1](https://github.com/Vonng/pigsty/tree/v1.5.1) for the latest stable release.**
+> **Pigsty v2.0 is coming soon. Check [v1.5.1](https://github.com/Vonng/pigsty/tree/v1.5.1) for last stable release.**
 
 [![pigsty-banner](https://user-images.githubusercontent.com/8587410/206971422-deb6dd88-c89e-43e4-8130-cf32a24b07b9.jpg)](https://pigsty.cc/en/)
 

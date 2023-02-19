@@ -6,7 +6,7 @@
 
 ![](icon.svg)
 
-> Latest Version: [v2.0.0-rc2](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-rc2)  |  [Github Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc) | [Github Pages](https://vonng.github.io/pigsty/#/) | [Website](https://pigsty.cc/en/)
+> Latest Version: [v2.0.0-rc2](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-rc2)  |  [Github Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Website](https://pigsty.cc/en/)
 
 
 ![pigsty-banner](https://user-images.githubusercontent.com/8587410/206971422-deb6dd88-c89e-43e4-8130-cf32a24b07b9.jpg)
