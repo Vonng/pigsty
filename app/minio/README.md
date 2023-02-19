@@ -1,9 +1,9 @@
 # minio
 
-Launch minio (s3) service on 9000 & 9001
+Launch minio (s3) service on 9000 & 9001, you can also use the built-in minio support.
 
 ```bash
-cd ~/pigsty/app/minio ; docker-compose up -d
+cd ~/pigsty/app/minio ; make up
 ```
 
 ```bash
@@ -15,6 +15,8 @@ docker run -p 9000:9000 -p 9001:9001 \
 
 visit http://10.10.10.10:9000 with user `admin` and password `pigsty.minio`
 
+## Makefile
+
 ```bash
 make up         # pull up minio with docker-compose
 make run        # launch minio with docker
@@ -25,6 +27,6 @@ make stop       # stop minio container
 make clean      # remove minio container
 make pull       # pull latest minio image
 make rmi        # remove minio image
-make save       # save minio image to /tmp/minio.tgz
-make load       # load minio image from /tmp
+make save       # save minio image to /tmp/docker/minio.tgz
+make load       # load minio image from /tmp/docker/minio.tgz
 ```

@@ -7,11 +7,12 @@ Here are some docker compose templates for popular applications that works well 
 * [ByteBase](bytebase/) : Postgres DDL Migration
 * [PostgREST](postgrest/) : Auto-Generated PG Backend REST API
 * [Kong](kong/) : Kong API Gateway
+* [FerretDB](ferretdb/) : MongoDB API over Postgres
+* [EdgeDB](edgedb/): Graph database based on Postgres
 * [Gitea](gitea/) : Self-Hosting Git Services
 * [Wiki](wiki/) : Local Wiki Service
-* [FerretDB](ferretdb/) : MongoDB API over Postgres
-* [EdgeDB](edgedb): Graph database based on Postgres
-* SupaBase...
+* supabase
+* etc....
 
 
 **Portals**
@@ -32,29 +33,54 @@ wiki      : { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002"   }
 **Pull Image**
 
 ```bash
-docker pull kong                      # 164MB
-docker pull alpine                    # 7MB
-docker pull registry                  # 24.2MB
-docker pull dpage/pgadmin4            # 341MB
-docker pull sosedoff/pgweb            # 192MB
-docker pull vonng/pg_exporter         # 7.64B
-docker pull postgrest/postgrest       # 16.3MB
-docker pull swaggerapi/swagger-ui     # 77MB
-docker pull bytebase/bytebase:1.12.0  # 287MB
-docker pull ghcr.io/ferretdb/ferretdb # 18.1MB
-
-docker pull gitea/gitea               # latest # 256MB
-docker pull requarks/wiki             # latest 444 MB
-docker pull andrewjones/schemaspy-postgres # latest 
+docker pull dpage/pgadmin4                   
+docker pull sosedoff/pgweb                   
+docker pull vonng/pg_exporter                
+docker pull postgrest/postgrest              
+docker pull bytebase/bytebase:1.12.1         
+docker pull alpine                           
+docker pull registry                         
+docker pull andrewjones/schemaspy-postgres   
+docker pull requarks/wiki                    
+docker pull gitea/gitea                      
+docker pull kong                             
+docker pull ghcr.io/ferretdb/ferretdb        
 ```
 
 
 **Make Cache**
 
 ```bash
-# make image cache
-docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb vonng/pg_exporter postgrest/postgrest bytebase/bytebase:1.12.0  | gzip -9 -c > /tmp/docker.tgz
-cat /tmp/docker.tgz | gzip -d -c - | docker load  
+mkdir -p /tmp/docker
+docker save dpage/pgadmin4                   | gzip -9 -c > /tmp/docker/pgadmin4.tgz
+docker save sosedoff/pgweb                   | gzip -9 -c > /tmp/docker/pgweb.tgz
+docker save vonng/pg_exporter                | gzip -9 -c > /tmp/docker/pg_exporter.tgz
+docker save postgrest/postgrest              | gzip -9 -c > /tmp/docker/postgrest.tgz
+docker save bytebase/bytebase:1.12.1         | gzip -9 -c > /tmp/docker/bytebase.tgz
+docker save alpine                           | gzip -9 -c > /tmp/docker/alpine.tgz
+docker save registry                         | gzip -9 -c > /tmp/docker/registry.tgz
+docker save andrewjones/schemaspy-postgres   | gzip -9 -c > /tmp/docker/schemaspy.tgz
+docker save requarks/wiki                    | gzip -9 -c > /tmp/docker/wiki.tgz
+docker save gitea/gitea                      | gzip -9 -c > /tmp/docker/gitea.tgz
+docker save kong                             | gzip -9 -c > /tmp/docker/kong.tgz
+docker save ghcr.io/ferretdb/ferretdb        | gzip -9 -c > /tmp/docker/ferretdb.tgz
+```
+
+
+**Load Cache**
+
+```bash
+cat /tmp/docker/pg_exporter.tgz  | gzip -d -c - | docker load;
+cat /tmp/docker/postgrest.tgz    | gzip -d -c - | docker load;
+cat /tmp/docker/pgweb.tgz        | gzip -d -c - | docker load;
+cat /tmp/docker/pgadmin4.tgz     | gzip -d -c - | docker load;
+cat /tmp/docker/bytebase.tgz     | gzip -d -c - | docker load;
+cat /tmp/docker/wiki.tgz         | gzip -d -c - | docker load;
+cat /tmp/docker/gitea.tgz        | gzip -d -c - | docker load;
+cat /tmp/docker/kong.tgz         | gzip -d -c - | docker load;
+cat /tmp/docker/alpine.tgz       | gzip -d -c - | docker load;
+cat /tmp/docker/registry.tgz     | gzip -d -c - | docker load;
+cat /tmp/docker/schemaspy.tgz    | gzip -d -c - | docker load;
 ```
 
 

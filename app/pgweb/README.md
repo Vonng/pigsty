@@ -1,7 +1,12 @@
 # PGWEB
 
+PGWEB: https://github.com/sosedoff/pgweb
+
+Simple web-based and cross platform PostgreSQL database explorer.
+
+
 ```bash
-cd ~/pigsty/app/pgweb ; docker-compose up -d
+cd ~/pigsty/app/pgweb ; make up
 ```
 
 Visit [http://cli.pigsty](http://cli.pigsty) or http://10.10.10.10:8886 
@@ -23,6 +28,6 @@ make stop       # stop pgweb container
 make clean      # remove pgweb container
 make pull       # pull latest pgweb image
 make rmi        # remove pgweb image
-make save       # save pgweb image to /tmp/pgweb.tgz
-make load       # load pgweb image from /tmp
+make save       # save pgweb image to /tmp/docker/pgweb.tgz
+make load       # load pgweb image from /tmp/docker/pgweb.tgz
 ```

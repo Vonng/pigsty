@@ -1,11 +1,34 @@
-# PGWEB
+# Kong
 
+Kong the API Gateway: https://konghq.com/
+
+Build delightful customer experiences and unleash developer productivity with Kong, the fastest cloud native API
+platform.
 
 ## TL;DR
 
+Check [`.env](.env) for postgres credentials and ports:
+
 ```bash
-cd app/kong ; docker-compose up -d
+#https://hub.docker.com/_/kong
+KONG_DATABASE=postgres
+KONG_PG_HOST=10.10.10.10
+KONG_PG_USER=dbuser_kong
+KONG_PG_DATABASE=kong
+KONG_PG_PASSWORD=DBUser.Kong
+KONG_PORT=8000
+KONG_PORT_SSL=8443
+KONG_ADMIN_PORT=8001
 ```
+
+Then launch kong with:
+
+```bash
+cd app/kong ; make up
+```
+
+
+## Makefile
 
 ```bash
 make up         # pull up kong with docker-compose
@@ -17,17 +40,16 @@ make clean      # remove kong container
 make rmui       # remove swagger ui container
 make pull       # pull latest kong image
 make rmi        # remove kong image
-make save       # save kong image to /tmp/kong.tgz
-make load       # load kong image from /tmp
+make save       # save kong image to /tmp/docker/kong.tgz
+make load       # load kong image from /tmp/docker/kong.tgz
 ```
-
 
 ## Scripts
 
 * Default Port: 8000
 * Default SSL Port: 8443
 * Default Admin Port: 8001
-* Default Postgres Database: `postgres://dbuser_kong:DBUser.Kong@10.10.10.10:5432/kong` 
+* Default Postgres Database: `postgres://dbuser_kong:DBUser.Kong@10.10.10.10:5432/kong`
 
 ```yaml
 # postgres://dbuser_kong:DBUser.Kong@10.10.10.10:5432/kong

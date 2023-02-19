@@ -1,9 +1,19 @@
+ifeq (, $(shell which docker-compose 2>/dev/null))
+DOCKER_COMPOSE_PLUGIN="true"
+endif
+
 default: up view
-up:
+ifdef DOCKER_COMPOSE_PLUGIN
+	docker compose up -d
+else
 	docker-compose up -d
+endif
+
+view:
+	@echo "admin url: http://10.10.10.10:8001"
 
 ui:
-	docker run --init --name pgweb --name swagger -p 8882:8080 -e API_URL=http://10.10.10.10:8884 swaggerapi/swagger-ui
+	docker run --init --name pgweb --name swagger -p 8882:8080 -e API_URL=http://10.10.10.10:8001 swaggerapi/swagger-ui
 
 log:
 	docker logs -f kong
