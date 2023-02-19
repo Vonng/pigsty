@@ -1,22 +1,33 @@
+# check .env files before running
 version: "3"
 services:
   server:
     image: gitea/gitea
     container_name: gitea
     restart: always
-    environment:
-      DB_TYPE: postgres
-      DB_HOST: 10.10.10.10:5432
-      DB_NAME: meta
-      DB_USER: dbuser_meta
-      DB_PASSWD: DBUser.Meta
-      USER_UID: 1000
-      USER_GID: 1000
-      HTTP_PORT: 8889
+    environment:                            # # check https://docs.gitea.io/en-us/config-cheat-sheet/
+
+      # basic
+      USER_UID: ${GITEA_UID}                # use default uid = 1000
+      USER_GID: ${GITEA_UID}                # use same gid 1000 as uid
+
+      # server
+      GITEA__server__ROOT_URL: ${GITEA_DOMAIN}
+      GITEA__server__HTTP_PORT: ${GITEA_PORT}
+      GITEA__server__SSH_PORT: ${GITEA_SSH_PORT}
+
+      # database
+      GITEA__database__DB_TYPE: ${GITEA_DB_TYPE}
+      GITEA__database__USER: ${GITEA_DB_USER}
+      GITEA__database__PASSWD: ${GITEA_DB_PASSWORD}
+      GITEA__database__HOST: ${GITEA_DB_HOST}
+      GITEA__database__NAME: ${GITEA_DB_NAME}
+      GITEA__database__SSL_MODE: ${GITEA_DB_SSLMODE}
+
     volumes:
-      - /data/gitea:/var/lib/gitea
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
+      - ${GITEA_DATA}:/data                # gitea main data dir: /data/gitea by default
+      - /etc/timezone:/etc/timezone:ro     # read system timezone
+      - /etc/localtime:/etc/localtime:ro   # read system localtime
     ports:
-      - "8889:8889"   # web
-      - "222:2222"    # ssh
+      - "${GITEA_PORT}:${GITEA_PORT}"      # expose web service on 8889
+      - "${GITEA_SSH_PORT}:2222"           # expose ssh service on port 222

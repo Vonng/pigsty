@@ -6,9 +6,8 @@ open-source schema migrator for PostgreSQL (and other databases)
 
 Check public demo: http://ddl.pigsty.cc, username: `admin@pigsty.cc`, password: `pigsty`
 
-If you want to access bytebase through SSL, you have to trust `files/pki/ca/ca.crt` on your browser (or use the dirty hack `thisisunsafe` in chrome)
-
-
+If you want to access bytebase through SSL, you have to trust `files/pki/ca/ca.crt` on your browser (or use the dirty
+hack `thisisunsafe` in chrome)
 
 ## Get Started
 
@@ -21,16 +20,13 @@ BB_DOMAIN=http://ddl.pigsty
 BB_PGURL="postgresql://dbuser_bytebase:DBUser.Bytebase@10.10.10.10:5432/bytebase?sslmode=prefer"
 ```
 
-Then launch bytebase with
+Then launch bytebase with:
 
 ```bash
 make up  # docker compose up
 ```
 
 Visit [http://ddl.pigsty](http://ddl.pigsty) or http://10.10.10.10:8887
-
-
-
 
 ## Makefile
 
@@ -44,25 +40,17 @@ make stop       # stop bytebase container
 make clean      # remove bytebase container
 make pull       # pull latest bytebase image
 make rmi        # remove bytebase image
-make save       # save bytebase image to /tmp/bytebase.tgz
-make load       # load bytebase image from /tmp
+make save       # save bytebase image to /tmp/docker/bytebase.tgz
+make load       # load bytebase image from /tmp/docker/bytebase.tgz
 ```
-
-
 
 ## Use External PostgreSQL
 
 Bytebase use its internal PostgreSQL database by default, You can use external PostgreSQL for higher durability.
 
 ```yaml
-pg_users:
-  - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
-pg_databases:
-  - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public},{name: timescaledb}]}
-  - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
-  - { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
-  - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
-  - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
+pg_users: [ { name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: admin user for bytebase database } ]
+pg_databases: [ { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database } ]
 ```
 
 And create business user & database with:

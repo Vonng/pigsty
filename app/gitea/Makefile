@@ -24,7 +24,7 @@ info:
 pg:
 	@echo "pg_users:     { name: dbuser_gitea , password: DBUser.Gitea, roles: [ dbrole_admin ] }"
 	@echo "pg_databases: { name: gitea, owner: dbuser_gitea, comment: gitea primary database }"
-	@echo "bin/createuser pg-meta dbuser_gitea ; bin/createdb pg-meta gitea"
+	@echo "bin/pgsql-user pg-meta dbuser_gitea ; bin/pgsql-db pg-meta gitea"
 
 stop:
 	docker stop gitea;
@@ -37,6 +37,9 @@ pull:
 
 rmi:
 	docker rmi gitea/gitea
+
+rmdata:
+	rm -rf /data/gitea
 
 save:
 	mkdir -p /tmp/docker
