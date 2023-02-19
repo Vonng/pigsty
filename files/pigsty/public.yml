@@ -42,13 +42,6 @@ all:
           - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
           - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
           - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
-        pg_hba_rules:
-          - title: allow application database intranet access
-            role: common
-            rules:
-              - host    kong            dbuser_kong         10.0.0.0/8          md5
-              - host    bytebase        dbuser_bytebase     10.0.0.0/8          md5
-              - host    grafana         dbuser_grafana      10.0.0.0/8          md5
         node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
           - '00 01 * * 1 postgres /pg/bin/pg-backup full'
           - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
@@ -66,13 +59,14 @@ all:
         pg_services: [{ name: standby ,ip: "*" ,port: 5435 , dest: default ,selector: "[]" , backup: "[? pg_role == `primary`]" }]
         node_tune: tiny
         pg_conf: tiny.yml
+        node_hugepage_ratio: 0.27
         node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
           - '00 01 * * 1 postgres /pg/bin/pg-backup full'
           - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
 
     redis-ms: # redis classic primary & replica
-      hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.13 6501' } } } }
-      vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
+      hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.10 6501' } } } }
+      vars: { redis_cluster: redis-ms ,redis_max_memory: 64MB }
 
     redis-meta: # redis sentinel x 3
       hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 6001: { } ,6002: { } , 6003: { } } } }
