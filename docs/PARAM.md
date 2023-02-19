@@ -704,7 +704,7 @@ Each line is a set of package names separated by spaces, where the specified sof
 
 EL7, 8, 9 packages are slightly different, here are some ad hoc packages:
 
-* EL7:  `docker-compose citus111_15*`
+* EL7:  `docker-compose citus112_15*`
 * EL8:  `modulemd-tools python39-jmespath haproxy redis docker-compose-plugin citus_15* flamegraph citus_15*`
 * EL9:  `modulemd-tools python3-jmespath  haproxy redis docker-compose-plugin citus_15* flamegraph libuser openldap-compat`
 
@@ -3583,8 +3583,8 @@ pg_extensions:                    # pg extensions to be installed, `${pg_version
 Some extensions are not available, or have a different name in different EL release. for example:
 
 ```
-citus_15     # EL7
-citus111_15  # EL8, EL9
+citus_15*     # EL8, EL9, from pgdg official repo
+citus112_15*  # EL7, from citus official repo
 ```
 
 

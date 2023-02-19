@@ -20,10 +20,8 @@ There are several built-in templates:
 * [test.yml](test.yml) : config for different EL distribution testing
 
 
-If `-m <mode>` is specified, corresponding `<mode>.yml` is used, otherwise, `auto.yml` is used by default.
-
-If you wish to download packages from upstream directly rather than using pre-packed offline packages, just use `el7.yml` or `el8.yml` instead of `auto.yml`.
-There's no dedicate `el9.yml` template since the default `auto.yml` assume a EL9 system.
-
+* If `-m <mode>` is specified, corresponding `<mode>.yml` is used, otherwise:
+* If offline package exists, `auto.yml` is used by default.
+* If offline package not exists,  `el7.yml`, `el8.yml`, `el9.yml` are used according to the OS version. 
 
 The `configure` procedure is optional. You can always skip it and create `pigsty.yml` by yourself. 
