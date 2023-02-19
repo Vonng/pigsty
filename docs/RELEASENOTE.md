@@ -2,7 +2,7 @@
 
 | Version                 |    Time    | Description                                             | Release                                                                                   |
 |:------------------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.0.0-rc1](#v200-rc1) | 2023-02-09 | Compatibility Security Maintainability Enhancement      | [v2.0.0-rc1](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-rc1)                     |
+| [v2.0.0-rc2](#v200-rc2) | 2023-02-09 | Compatibility Security Maintainability Enhancement      | [v2.0.0-rc2](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-rc2)                     |
 | [v1.5.1](#v151)         | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
 | [v1.5.0](#v150)         | 2022-05-31 | Docker Applications                                     | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
 | [v1.4.1](#v141)         | 2022-04-20 | Bug fix & Full translation of English documents.        | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |
@@ -29,14 +29,14 @@
 
 ------------------------------
 
-## v2.0.0-rc1
+## v2.0.0-rc2
 
 
 "PIGSTY" is now the abbr of "PostgreSQL in Great STYle"
 
 > or "PostgreSQL & Infrastructure & Governance System allTogether for You".
 
-v2.0.0 RC1 Release can be downloaded via following command:
+v2.0.0 RC 2 Release can be downloaded via following command:
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/getb)"
@@ -225,9 +225,9 @@ Adding 64 parameters, removing 13 parameters, rename 17 parameters
 **Checksums**
 
 ```
-MD5 (pigsty-pkg-v2.0.0-rc1.el7.x86_64.tgz) = af4b5db9dc38c860de609956a8f1f0d3
-MD5 (pigsty-pkg-v2.0.0-rc1.el8.x86_64.tgz) = 5b7152e142df3e3cbc06de30bd70e433
-MD5 (pigsty-pkg-v2.0.0-rc1.el9.x86_64.tgz) = 1362e2a5680fc1a3a014cc4f304100bd
+MD5 (pigsty-pkg-v2.0.0-rc2.el7.x86_64.tgz) = d4f720ac7d6e4532ccbad4565dec4e28
+MD5 (pigsty-pkg-v2.0.0-rc2.el8.x86_64.tgz) = db7a817581b6f2bc88245e03b32e78fd
+MD5 (pigsty-pkg-v2.0.0-rc2.el9.x86_64.tgz) = 8aa6dbd043117803dcf346965c3bd72b
 ```
 
 Special thanks to @alemacci for his great contribution!

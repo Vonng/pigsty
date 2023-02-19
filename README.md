@@ -6,9 +6,9 @@
 
 ![icon](docs/icon.svg)
 
-> Latest Release: [v2.0.0-rc1](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-rc1) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/) |  [Website](https://pigsty.cc/en/)
+> Latest Release: [v2.0.0-rc2](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-rc2) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/) |  [Website](https://pigsty.cc/en/)
 >
-> **The current master branch is in release candidate status: (v2.0.0-rc1). Check [v1.5.1](https://github.com/Vonng/pigsty/tree/v1.5.1) for the latest stable release.**
+> **The current master branch is in release candidate status: (v2.0.0-rc2). Check [v1.5.1](https://github.com/Vonng/pigsty/tree/v1.5.1) for the latest stable release.**
 
 [![pigsty-banner](https://user-images.githubusercontent.com/8587410/206971422-deb6dd88-c89e-43e4-8130-cf32a24b07b9.jpg)](https://pigsty.cc/en/)
 
@@ -50,17 +50,17 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty
 
 Then you will have a pigsty singleton node ready, with Web Services on port `80` and Postgres on port `5432`.
 
->  `getb` will get the latest beta, v2.0.0-rc1, while `get` will use the last stable release, v1.5.1. 
+>  `getb` will get the latest beta, v2.0.0-rc2, while `get` will use the last stable release, v1.5.1. 
 
 <details><summary>Download Directly</summary>
 
 You can also download pigsty source and packages with `git` or `curl` directly:
 
 ```bash
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0-rc1/pigsty-v2.0.0-rc1.tgz -o ~/pigsty.tgz
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0-rc1/pigsty-pkg-v2.0.0-rc1.el7.x86_64.tgz  -o /tmp/pkg.tgz
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0-rc2/pigsty-v2.0.0-rc2.tgz -o ~/pigsty.tgz
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0-rc2/pigsty-pkg-v2.0.0-rc2.el7.x86_64.tgz  -o /tmp/pkg.tgz
 # or using git if curl not available
-git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.0.0-rc1
+git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.0.0-rc2
 ```
 
 </details>
