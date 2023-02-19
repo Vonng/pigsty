@@ -32,92 +32,93 @@
 ## v2.0.0-rc1
 
 
-v2.0.0 RC1 Release
+"PIGSTY" is now the abbr of "PostgreSQL in Great STYle"
+
+> or "PostgreSQL & Infrastructure & Governance System allTogether for You".
+
+v2.0.0 RC1 Release can be downloaded via following command:
 
 ```bash
-bash -c "$(curl -fsSL http://download.pigsty.cc/getb)" && cd ~/pigsty   
-./bootstrap  && ./configure && ./install.yml    # install latest beta
+bash -c "$(curl -fsSL http://download.pigsty.cc/getb)"
 ```
 
 **Highlights**
 
-* PostgreSQL 15.2, PostGIS 3.3, Citus 11.2, TimescaleDB 2.9
-* Compatibility: EL 7,8,9, PG 15 for RHEL, CentOS, Rocky, OracleLinux, AlmaLinux
-* Security Enhancement: CA, SSL for nginx/etcd/postgres/patroni, `scram-sha-256` auth by default
-* Patroni 3.0 with native citus support and dcs failsafe mode
-* New module: `ETCD`,  Use `etcd` instead of `consul`
-* New module: `MINIO`, S3-Compatible Object Storage, an optional backup center for pgbackrest
-* Battery-Included PITR with `pgbackrest`
-* Adaptive tuning template for PostgreSQL and Node Tuned
-* Simplified configuration templates
-* Replace consul with etcd completely.
-* New HBA/Service API
-* Change license to AGPL v3.0 (infect by grafana & minio)
+* PostgreSQL 15.2, PostGIS 3.3, Citus 11.2, TimescaleDB 2.9 now works together and unite as one.
+* Now works on EL 7,8,9 for RHEL, CentOS, Rocky, AlmaLinux, and other EL compatible distributions
+* Security enhancement with self-signed CA, full SSL support, `scram-sha-256` pwd encryption, and more.
+* Patroni 3.0 with native HA citus cluster support and dcs failsafe mode to prevent global DCS failures.
+* Auto-Configured, Battery-Included PITR for PostgreSQL powered by `pgbackrest`, local or S3/minio.
+* Dedicate module `ETCD` which can be easily deployed and scaled in/out. Used as DCS instead of Consul.
+* Dedicate module `MINIO`, local S3 alternative for the optional central backup repo for PGSQL PITR.
+* Better config templates with adaptive tuning for Node & PG according to your hardware spec.
+* Use AGPL v3.0 license instead of Apache 2.0 license due to Grafana & MinIO reference.
+
 
 **Compatibility**
 
-* More compatible Linux distributions: RHEL, CentOS, RockyLinux, AlmaLinux.
-* RHEL 7, 8, 9 Support (build on 7.9, 8.6, 9.0 ), use versioning in pigsty & pkg name
-* Add support for PostgreSQL 15 & PostGIS 3.3
-* Add version & arch as part of the `pkg.tgz` name.
+* Pigsty now works on EL7, EL8, EL9, and offers corresponding pre-packed offline packages.
+* Pigsty now works on EL compatible distributions: RHEL, CentOS, Rocky, AlmaLinux, OracleLinux,...
+* Pigsty now use RockyLinux 9 as default developing & testing environment instead of CentOS 7
+* EL version, CPU arch, and pigsty version string are part of source & offline package names.
+* PGSQL: PostgreSQL 15.2 / PostGIS 3.3 / TimescaleDB 2.9 / Citus 11.2 now works together.
+* PGSQL: Patroni 3.0 is used as default HA solution for PGSQL, and etcd is used as default DCS.
+  * Patroni 3.0 with DCS failsafe mode to prevent global DCS failures (demoting all primary)
+  * Patroni 3.0 with native HA citus cluster support, with entirely open sourced v11 citus.
+  * vip-manager 2.x with ETCDv3 API, ETCDv2 API is deprecated, so does patroni.
+* PGSQL: pgBackRest v2.44 is introduced to provide battery-include PITR for PGSQL.
+  * it will use local backup FS on primary by default for a two-day retention policy
+  * it will use S3/minio as an alternative central backup repo for a two-week retention policy
+* ETCD is used as default DCS instead of Consul, And V3 API is used instead of V2 API.
+* NODE module now consist of `node` itself, `haproxy`, `docker`, `node_exporter`, and `promtail`
+  * `chronyd` is used as default NTP client instead of `ntpd`
+  * HAPROXY now attach to `NODE` instead of `PGSQL`, which can be used for exposing services
+  * You can register PG Service to dedicate haproxy clusters rather than local cluster nodes.
+  * You can expose ad hoc service in a NodePort manner with haproxy, not limited to pg services.
+* INFRA now consist of `dnsmasq`, `nginx`, `prometheus`, `grafana`, `loki`
+  * DNSMASQ is enabled on all infra nodes, and added to all nodes as the default resolver.
+  * Add blackbox_exporter for ICMP probe, add pushgateway for batch job metrics.
+  * Switch to official loki & promtail rpm packages. Use official Grafana Echarts Panel.
+  * Add infra dashboards for self-monitoring, add patroni & pg15 metrics to monitoring system
+* Software Upgrade
+  * PostgreSQL 15.2 / PostGIS 3.3 / TimescaleDB 2.9 / Citus 11.2
+  * Patroni 3.0 / Pgbouncer 1.18 / pgBackRest 2.44 / vip-manager 2.1
+  * HAProxy 2.7 / Etcd 3.5 / MinIO 20230131022419 / mcli 20230128202938
+  * Prometheus 2.42 / Grafana 9.3 / Loki & Promtail 2.7 / Node Exporter 1.5
+
 
 **Security**
 
 * A full-featured self-signed CA enabled by default
-* Pgbouncer Auth Query  by @alemacci
-* SSL for etcd/consul by @alemacci
-* SSL for postgres/pgbouncer/patroni by @alemacci
-* scram-sha-256 auth for postgres by @alemacci
 * Redact password in postgres logs.
+* SSL for Nginx (you have to trust the self-signed CA or use `thisisunsafe` to dismiss warning)
+* SSL for etcd peer/client traffics by @alemacci
+* SSL for postgres/pgbouncer/patroni by @alemacci
+* `scram-sha-256` auth for postgres password encryption by @alemacci
+* Pgbouncer Auth Query  by @alemacci
+* Use `AES-256-CBC` for `pgbackrest` encryption by @alemacci
+* Adding a security enhancement config template which enforce global SSL
+* Now all hba rules are defined in config inventory, no default rules.
 
 **Maintainability**
 
 * Adaptive tuning template for PostgreSQL & Patroni by @Vonng, @alemacci
 * configurable log dir for Patroni & Postgres & Pgbouncer & Pgbackrest by @alemacci
-* Use `${admin_ip}` in infra vars to switch the admin node.
-* Adaptive upstream repo definition, compatible with EL7/EL8/EL9
-* Vagrant templates: `meta`, `full`, `el7` `el8`, `el9`, `build`, `minio`, `citus`, etc...
-* Terraform Templates for AWS & Aliyun
-* Use chrony instead of ntpd as NTP services.
-* New signed apache ECharts 5.0 plugin for Grafana panels
-* Simplify ansible role implementation. Merge into `pgsql`, `infra`, `node`, `node_monitor`
-* Refactor `pgsql-monitor.yml` & `pgsql-migration.yml` for new architecture.
-
-**Enhancement**
-
-* DNSMASQ is enabled on infra nodes by default
-* DNSMASQ on the admin node will be added to all node's `/etc/resolv.conf` by default
-* PGSQL DNS names are registered to nameservers on infra nodes
-* HAProxy is part of `NODE` rather than `PGSQL` module, which can be used for other services.
-* Support all pgbouncer db/user level parameters.
-* Upgrade vip-manager to v2 to enforce etcd v3 API
-* Use official Loki, promtail rpm packages.
+* Replace fixed ip placeholder `10.10.10.10` with `${admin_ip}` that can be referenced
+* Adaptive upstream repo definition that can be switched according ELver, `region` & arch.
+* Terraform Templates for AWS CN & Aliyun, which can be used for sandbox IaaS provisioning
+* Vagrant Templates: `meta`, `full`, `el7` `el8`, `el9`, `build`, `minio`, `citus`, etc...
+* New playbook `pgsql-monitor.yml` for monitoring existing pg instance or RDS PG.
+* New playbook `pgsql-migration.yml` for migrating existing pg instance to pigsty manged pg.
+* New shell utils under `bin/` to simplify the daily administration tasks.
+* Optimize ansible role implementation. which can be used without default parameter values.
+* Now you can define pgbouncer parameters on database & user level
 
 
-**Software Upgrade**
-
-* PostgreSQL 15.2
-* Patroni 3.0.0
-* Pgbouncer 1.18
-* pgBackRest 2.44
-* HAProxy 2.7.2 / 2.7.0
-* vip-manager 2.1.0
-* PostGIS 3.3.2
-* Citus 11.2.0
-* TimescaleDB 2.9.3
-* Prometheus 2.42
-* Loki & Promtail 2.7.1
-* Grafana 9.3.6
-* Node Exporter 1.5.0
-* ETCD 3.5.6
-* Minio 20230131022419 / MCLI 20230128202938
-* PEV v1.7
-* Use grafana official rpm for `loki`, `promtail`, `logcli`
-* Add `minio` & `mcli` to URL packages.
 
 **API Changes**
 
-Add 24 parameters, remove 8 parameters, rename 12 parameters
+Adding 64 parameters, removing 13 parameters, rename 17 parameters
 
 - `INFRA`.`META`.`admin_ip`                        : primary meta node ip address
 - `INFRA`.`META`.`region`                          : upstream mirror region: default|china|europe
@@ -229,7 +230,8 @@ MD5 (pigsty-pkg-v2.0.0-rc1.el8.x86_64.tgz) = 5b7152e142df3e3cbc06de30bd70e433
 MD5 (pigsty-pkg-v2.0.0-rc1.el9.x86_64.tgz) = 1362e2a5680fc1a3a014cc4f304100bd
 ```
 
-Special thanks to @alemacci for his contribution!
+Special thanks to @alemacci for his great contribution!
+
 
 
 
