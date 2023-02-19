@@ -705,7 +705,7 @@ Each line is a set of package names separated by spaces, where the specified sof
 EL7, 8, 9 packages are slightly different, here are some ad hoc packages:
 
 * EL7:  `docker-compose citus111_15*`
-* EL8:  `modulemd-tools python38-jmespath haproxy redis docker-compose-plugin citus_15* flamegraph citus_15*`
+* EL8:  `modulemd-tools python39-jmespath haproxy redis docker-compose-plugin citus_15* flamegraph citus_15*`
 * EL9:  `modulemd-tools python3-jmespath  haproxy redis docker-compose-plugin citus_15* flamegraph libuser openldap-compat`
 
 

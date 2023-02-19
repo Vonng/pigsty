@@ -454,11 +454,11 @@ build-el8:
 	scp bin/cache node-1:/tmp/cache ; ssh node-1 "sudo bash /tmp/cache"; scp node-1:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
 build-el9:
 	scp bin/cache node-2:/tmp/cache ; ssh node-2 "sudo bash /tmp/cache"; scp node-2:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
-make-el7:
+buildm-el7:
 	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
-make-el8:
+buildm-el8:
 	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
-make-el9:
+buildm-el9:
 	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
 ###############################################################
 
@@ -502,6 +502,6 @@ el9: v9 new ssh copy-el9 use-pkg
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb \
         r releast rp release-pkg cache release-matrix release-docker p publish \
-        build-vagrant build build-src build-repo build-boot build-release build-el7 build-el8 build-el9 make-el7 make-el8 make-el9 \
+        build-vagrant build build-src build-repo build-boot build-release build-el7 build-el8 build-el9 buildm-el7 buildm-el8 buildm-el9 \
         meta full build el7 el8 el9
 ###############################################################
