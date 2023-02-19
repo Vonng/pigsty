@@ -1,9 +1,9 @@
 ---
 #==============================================================#
-# File      :   demo.yml
+# File      :   pigsty.yml
 # Desc      :   Pigsty Local Sandbox 4-node Demo Config
 # Ctime     :   2020-05-22
-# Mtime     :   2023-02-17
+# Mtime     :   2023-02-19
 # Docs      :   https://vonng.github.io/pigsty/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -32,12 +32,14 @@ all:
           - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
           - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database    }
           - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
+          - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
           - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service       }
           - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
         pg_databases:
-          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public},{name: timescaledb}]}
+          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
           - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
           - { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
+          - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
           - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
           - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
         pg_hba_rules:
@@ -108,7 +110,7 @@ all:
       - { name: PostgREST  , url : 'http://api.pigsty'  , comment: 'Kong API Gateway'         }
       - { name: Gitea      , url : 'http://git.pigsty'  , comment: 'Gitea Git Service'        }
       - { name: Minio      , url : 'http://sss.pigsty'  , comment: 'Minio Object Storage'     }
-      - { name: Wiki       , url : 'http://wiki.pigsty' , comment: 'Local Wiki Pedia'         }
+      - { name: Wiki       , url : 'http://wiki.pigsty' , comment: 'Local Wikipedia'          }
       - { name: Explain    , url : '/pev.html'          , comment: 'pgsql explain visualizer' }
       - { name: Package    , url : '/pigsty'            , comment: 'local yum repo packages'  }
       - { name: PG Logs    , url : '/logs'              , comment: 'postgres raw csv logs'    }
