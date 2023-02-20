@@ -51,9 +51,9 @@ rmi:
 
 save:
 	mkdir -p /tmp/docker
-	docker save dpage/pgadmin4 | gzip -9 -c > /tmp/docker/pgadmin.tgz
+	docker save dpage/pgadmin4 | gzip -9 -c > /tmp/docker/pgadmin4.tgz
 
 load:
-	cat /tmp/docker/pgadmin.tgz | gzip -d -c - | docker load
+	cat /tmp/docker/pgadmin4.tgz | gzip -d -c - | docker load
 
 .PHONY: default up run view log info stop clean conf dump pull rmi save load
