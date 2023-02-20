@@ -67,5 +67,8 @@
     - name: load docker image cache if exists
       when: docker_cache.stat.exists
       shell: |
-        cat {{ docker_image_cache }}/*.tgz | gzip -d -c - | docker load
+        cat {{ item }} | gzip -d -c - | docker load
+      with_fileglob:
+        - "/tmp/docker/*.tgz"
+
 ...
