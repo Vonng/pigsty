@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2023-02-19
+# Mtime     :   2023-02-20
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -158,7 +158,7 @@ loki:
 
 # init docker
 docker:
-	./infra.yml --tags=docker -e docker_enabled=true
+	./docker.yml
 
 ###############################################################
 
@@ -369,7 +369,7 @@ copy-app:
 	scp dist/${VERSION}/${APP_PKG} meta:~/app.tgz
 	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
 copy-docker:
-	scp dist/${VERSION}/${DOCKER_PKG} meta:/tmp/docker.tgz
+	scp -r dist/docker meta:/tmp/
 load-docker:
 	ssh meta 'cat /tmp/docker.tgz | gzip -d -c - | docker load'
 copy-all: copy-src copy-pkg
@@ -424,8 +424,7 @@ release-matrix:
 
 # release docker packages
 release-docker:
-	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb vonng/pg_exporter postgrest/postgrest bytebase/bytebase:1.12.0  | gzip -9 -c > /tmp/docker.tgz'
-	scp meta:/tmp/docker.tgz dist/${VERSION}/${DOCKER_PKG}
+	scp meta:/tmp/docker/*.tgz dist/docker/
 
 # publish pigsty packages
 p: release publish

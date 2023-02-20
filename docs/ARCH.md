@@ -93,7 +93,7 @@ Take the default config snippet as an example, which describes a node `10.10.10.
 
 ```yaml
 # infra cluster for proxy, monitor, alert, etc...
-infra: { hosts: { 10.10.10.10: { infra_seq: 1 } }, vars: { docker_enabled: true } }
+infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
 # minio cluster, s3 compatible object storage
 minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }

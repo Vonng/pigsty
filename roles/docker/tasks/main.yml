@@ -4,7 +4,7 @@
 #--------------------------------------------------------------#
 - name: install docker and docker-compose
   tags: docker_install
-  when: docker_enabled|bool
+  #when: docker_enabled|bool
   ignore_errors: true  # HOTFIX for EL8 Docker installation
   package: name={{ item }} state=present
   with_items:
@@ -18,7 +18,7 @@
 - name: add admin user to docker group
   ignore_errors: true
   tags: docker_admin
-  when: docker_enabled|bool
+  #when: docker_enabled|bool
   user: name={{ item }} group=docker
   with_items:
     - "{{ node_user }}"
@@ -30,7 +30,7 @@
 #--------------------------------------------------------------#
 - name: config docker
   tags: docker_config
-  when: docker_enabled|bool
+  #when: docker_enabled|bool
   block:
     - name: create /etc/docker config dir
       file: path=/etc/docker state=directory mode=0755
@@ -46,7 +46,7 @@
 # only launch docker when enabled
 - name: launch docker systemd service
   tags: docker_launch
-  when: docker_enabled|bool
+  #when: docker_enabled|bool
   systemd: name=docker state=restarted enabled=yes daemon_reload=yes
 
 
@@ -56,7 +56,7 @@
 # only load docker images docker when enabled
 - name: load docker images
   tags: docker_image
-  when: docker_enabled|bool
+  #when: docker_enabled|bool
   ignore_errors: true
   block:
 

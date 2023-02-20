@@ -225,9 +225,9 @@ Adding 64 parameters, removing 13 parameters, rename 17 parameters
 **Checksums**
 
 ```
-MD5 (pigsty-pkg-v2.0.0-rc2.el7.x86_64.tgz) = 48da0235244c9203fe5e67cdb2c5431c
-MD5 (pigsty-pkg-v2.0.0-rc2.el8.x86_64.tgz) = 93c669d0342a40c7eee3a34057887bef
-MD5 (pigsty-pkg-v2.0.0-rc2.el9.x86_64.tgz) = add1b416086adc2c5a37e4d08670f949
+MD5 (pigsty-pkg-v2.0.0-rc2.el7.x86_64.tgz) = d66ee783e305195cafd58cc2d60b4344
+MD5 (pigsty-pkg-v2.0.0-rc2.el8.x86_64.tgz) = cf68663e39b312f09ae85a44d591cdb8
+MD5 (pigsty-pkg-v2.0.0-rc2.el9.x86_64.tgz) = 0f4b14360f46cdfde8cfe5323ae8b2a8
 ```
 
 Special thanks to @alemacci for his great contribution!
