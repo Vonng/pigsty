@@ -4411,6 +4411,17 @@ dedicate haproxy node group name, or empty string for local nodes by default.
 
 If specified, PostgreSQL Services will be registered to the dedicated haproxy node group instead of this pgsql cluster nodes.
 
+Do remember to allocate unique ports on dedicate haproxy nodes for each service!
+
+For example, if we define following parameters on 3-node `pg-test` cluster: 
+
+```yaml
+pg_service_provider: infra       # use load balancer on group `infra`
+pg_default_services:             # alloc port 10001 and 10002 for pg-test primary/replica service  
+  - { name: primary ,port: 10001 ,dest: postgres  ,check: /primary   ,selector: "[]" }
+  - { name: replica ,port: 10002 ,dest: postgres  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
+```
+
 
 
 

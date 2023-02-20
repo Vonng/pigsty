@@ -248,7 +248,17 @@ For example, if you want to remove `pg-test-3 / 10.10.10.13` from the existing c
 
 ```bash
 bin/pgsql-rm pg-test 10.10.10.13  # remove pgsql instance 10.10.10.13 from pg-test
-bin/node-rm  10.10.10.13          # remve that node from pigsty (optional)
+bin/node-rm  10.10.10.13          # remove that node from pigsty (optional)
+vi pigsty.yml                     # remove instance definition from inventory
+bin/pgsql-svc pg-test             # refresh pg_service on existing instances to kick removed instance from load balancer
+```
+
+```bash
+[ OK ] remove pgsql instances from  10.10.10.13 of 'pg-test':
+[WARN]   remove instances from cluster:
+[ OK ]     $ ./pgsql-rm.yml -l '10.10.10.13,&pg-test'
+[WARN]   reload pg_service on existing instances:
+[ OK ]     $ ./pgsql.yml -l 'pg-test,!10.10.10.13' -t pg_service
 ```
 
 And remove instance definition from the inventory:
@@ -262,12 +272,10 @@ pg-test:
   vars: { pg_cluster: pg-test }
 ```
 
+Finally, you can update pg service and kick the removed instance from load balancer:
+
 ```bash
-[ OK ] remove pgsql instances from  10.10.10.13 of 'pg-test':
-[WARN]   remove instances from cluster:
-[ OK ]     $ ./pgsql-rm.yml -l '10.10.10.13,&pg-test'
-[WARN]   reload pg_service on existing instances:
-[ OK ]     $ ./pgsql.yml -l 'pg-test,!10.10.10.13' -t pg_service
+bin/pgsql-svc pg-test             # reload pg service on pg-test
 ```
 
 </details>
