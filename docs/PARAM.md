@@ -4407,58 +4407,6 @@ pgb_default_hba_rules:            # pgbouncer default host-based authentication 
 
 
 
-### `pg_service_provider`
-
-name: `pg_service_provider`, type: `string`, level: `G/C`
-
-dedicate haproxy node group name, or empty string for local nodes by default.
-
-If specified, PostgreSQL Services will be registered to the dedicated haproxy node group instead of this pgsql cluster nodes.
-
-Do remember to allocate unique ports on dedicate haproxy nodes for each service!
-
-For example, if we define following parameters on 3-node `pg-test` cluster: 
-
-```yaml
-pg_service_provider: infra       # use load balancer on group `infra`
-pg_default_services:             # alloc port 10001 and 10002 for pg-test primary/replica service  
-  - { name: primary ,port: 10001 ,dest: postgres  ,check: /primary   ,selector: "[]" }
-  - { name: replica ,port: 10002 ,dest: postgres  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
-```
-
-
-
-
-### `pg_default_service_dest`
-
-name: `pg_default_service_dest`, type: `enum`, level: `G/C`
-
-default service destination if svc.dest='default'
-
-default values: `pgbouncer`
-
-
-
-
-
-### `pg_default_services`
-
-name: `pg_default_services`, type: `service[]`, level: `G/C`
-
-postgres default service definitions
-
-default value: 
-
-```yaml
-pg_default_services:               # postgres default service definitions
-  - { name: primary ,port: 5433 ,dest: default  ,check: /primary   ,selector: "[]" }
-  - { name: replica ,port: 5434 ,dest: default  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
-  - { name: default ,port: 5436 ,dest: postgres ,check: /primary   ,selector: "[]" }
-  - { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
-```
-
-
-
 
 
 
@@ -4583,13 +4531,84 @@ pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/conf
 
 ------------------------------
 
-## `PG_VIP`
+## `PG_SERVICE`
+
+This section is about exposing PostgreSQL service to outside world: including:
+
+* Exposing different PostgreSQL services on different ports with `haproxy`
+* Bind an optional L2 VIP to the primary instance with `vip-manager`
+* Register cluster/instance DNS records with to `dnsmasq` on infra nodes
 
 ```yaml
+pg_service_provider: ''           # dedicate haproxy node group name, or empty string for local nodes by default
+pg_default_service_dest: pgbouncer # default service destination if svc.dest='default'
+pg_default_services:              # postgres default service definitions
+  - { name: primary ,port: 5433 ,dest: default  ,check: /primary   ,selector: "[]" }
+  - { name: replica ,port: 5434 ,dest: default  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
+  - { name: default ,port: 5436 ,dest: postgres ,check: /primary   ,selector: "[]" }
+  - { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
 pg_vip_enabled: false             # enable a l2 vip for pgsql primary? false by default
 pg_vip_address: 127.0.0.1/24      # vip address in `<ipv4>/<mask>` format, require if vip is enabled
 pg_vip_interface: eth0            # vip network interface to listen, eth0 by default
+pg_dns_suffix: ''                 # pgsql dns suffix, '' by default
+pg_dns_target: auto               # auto, primary, vip, none, or ad hoc ip
+
 ```
+
+
+
+### `pg_service_provider`
+
+name: `pg_service_provider`, type: `string`, level: `G/C`
+
+dedicate haproxy node group name, or empty string for local nodes by default.
+
+If specified, PostgreSQL Services will be registered to the dedicated haproxy node group instead of this pgsql cluster nodes.
+
+Do remember to allocate unique ports on dedicate haproxy nodes for each service!
+
+For example, if we define following parameters on 3-node `pg-test` cluster:
+
+```yaml
+pg_service_provider: infra       # use load balancer on group `infra`
+pg_default_services:             # alloc port 10001 and 10002 for pg-test primary/replica service  
+  - { name: primary ,port: 10001 ,dest: postgres  ,check: /primary   ,selector: "[]" }
+  - { name: replica ,port: 10002 ,dest: postgres  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
+```
+
+
+
+
+### `pg_default_service_dest`
+
+name: `pg_default_service_dest`, type: `enum`, level: `G/C`
+
+default service destination if svc.dest='default'
+
+default values: `pgbouncer`
+
+
+
+
+
+### `pg_default_services`
+
+name: `pg_default_services`, type: `service[]`, level: `G/C`
+
+postgres default service definitions
+
+default value:
+
+```yaml
+pg_default_services:               # postgres default service definitions
+  - { name: primary ,port: 5433 ,dest: default  ,check: /primary   ,selector: "[]" }
+  - { name: replica ,port: 5434 ,dest: default  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
+  - { name: default ,port: 5436 ,dest: postgres ,check: /primary   ,selector: "[]" }
+  - { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
+```
+
+
+
 
 
 
@@ -4620,25 +4639,9 @@ default values: `127.0.0.1/24`
 
 name: `pg_vip_interface`, type: `string`, level: `C/I`
 
-vip network interface to listen, eth0 by default
-
-default values: `eth0`
+vip network interface to listen, `eth0` by default
 
 
-
-
-
-
-
-
-------------------------------
-
-## `PG_DNS`
-
-```yaml
-pg_dns_suffix: ''                 # pgsql dns suffix, '' by default
-pg_dns_target: auto               # auto, primary, vip, none, or ad hoc ip
-```
 
 
 
@@ -4648,7 +4651,9 @@ name: `pg_dns_suffix`, type: `string`, level: `C`
 
 pgsql dns suffix, '' by default
 
-default value is empty string
+default value is empty string, which will concat with `pg_cluster` and used as cluster name: `{{ pg_cluster }}{{ pg_dns_suffix }}`  
+
+For example, if you set `pg_dns_suffix` to `db.vip.company.tld` for cluster `pg-test`, then the cluster DNS name will be `pg-test.db.vip.company.tld`
 
 
 
@@ -4657,10 +4662,15 @@ default value is empty string
 
 name: `pg_dns_target`, type: `enum`, level: `C`
 
-auto, primary, vip, none, or ad hoc ip
+Could be: `auto`, `primary`, `vip`, `none`, or an ad hoc ip address 
 
-default values: `auto`
+default values: `auto` , which will bind to `pg_vip_address` if `pg_vip_enabled`, or fallback to cluster primary instance ip address.
 
+* `vip`: bind to `pg_vip_address`
+* `primary`: resolve to cluster primary instance ip address
+* `auto`: resolve to `pg_vip_address` if `pg_vip_enabled`, or fallback to cluster primary instance ip address.
+* `none`: do not bind to any ip address
+* `<ipv4>`: resolve to the given IP address
 
 
 

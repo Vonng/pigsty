@@ -81,9 +81,8 @@
 - [`PG_BOOTSTRAP`](PARAM#pg_bootstrap) : Init a HA Postgres Cluster with Patroni
 - [`PG_PROVISION`](PARAM#pg_provision) : Create users, databases, and in-database objects
 - [`PG_BACKUP`](PARAM#pg_backup)       : Setup backup repo with pgbackrest
-- [`PG_VIP`](PARAM#pg_vip)             : Bind an optional VIP on primary
-- [`PG_DNS`](PARAM#pg_dns)             : Register DNS Record to Infra
-- [`PG_EXPORTER`](PARAM#pg_exporter)   : Add Monitor for PG & PGBOUNCER
+- [`PG_SERVICE`](PARAM#pg_service)     : Exposing pg service, bind vip and register DNS
+- [`PG_EXPORTER`](PARAM#pg_exporter)   : Add Monitor for PGSQL Instance
 
 
 <details><summary>Parameters</summary>
@@ -171,19 +170,19 @@
 | [`pg_reload`](PARAM#pg_reload)                                       | [`PG_PROVISION`](PARAM#pg_provision) |    bool     |   A   | reload postgres after hba changes                                             |
 | [`pg_default_hba_rules`](PARAM#pg_default_hba_rules)                 | [`PG_PROVISION`](PARAM#pg_provision) |    hba[]    |  G/C  | postgres default host-based authentication rules                              |
 | [`pgb_default_hba_rules`](PARAM#pgb_default_hba_rules)               | [`PG_PROVISION`](PARAM#pg_provision) |    hba[]    |  G/C  | pgbouncer default host-based authentication rules                             |
-| [`pg_service_provider`](PARAM#pg_service_provider)                   | [`PG_PROVISION`](PARAM#pg_provision) |    enum     |  G/C  | dedicate haproxy node group name, or empty string for local nodes by default  |
-| [`pg_default_service_dest`](PARAM#pg_default_service_dest)           | [`PG_PROVISION`](PARAM#pg_provision) |    enum     |  G/C  | default service destination if svc.dest='default'                             |
-| [`pg_default_services`](PARAM#pg_default_services)                   | [`PG_PROVISION`](PARAM#pg_provision) |  service[]  |  G/C  | postgres default service definitions                                          |
 | [`pgbackrest_enabled`](PARAM#pgbackrest_enabled)                     | [`PG_BACKUP`](PARAM#pg_backup)       |    bool     |   C   | enable pgbackrest on pgsql host?                                              |
 | [`pgbackrest_clean`](PARAM#pgbackrest_clean)                         | [`PG_BACKUP`](PARAM#pg_backup)       |    bool     |   C   | remove pg backup data during init?                                            |
 | [`pgbackrest_log_dir`](PARAM#pgbackrest_log_dir)                     | [`PG_BACKUP`](PARAM#pg_backup)       |    path     |   C   | pgbackrest log dir, `/pg/log/pgbackrest` by default                           |
 | [`pgbackrest_method`](PARAM#pgbackrest_method)                       | [`PG_BACKUP`](PARAM#pg_backup)       |    enum     |   C   | pgbackrest repo method: local,minio,etc...                                    |
 | [`pgbackrest_repo`](PARAM#pgbackrest_repo)                           | [`PG_BACKUP`](PARAM#pg_backup)       |    dict     |  G/C  | pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository |
-| [`pg_vip_enabled`](PARAM#pg_vip_enabled)                             | [`PG_VIP`](PARAM#pg_vip)             |    bool     |   C   | enable a l2 vip for pgsql primary? false by default                           |
-| [`pg_vip_address`](PARAM#pg_vip_address)                             | [`PG_VIP`](PARAM#pg_vip)             |    cidr4    |   C   | vip address in `<ipv4>/<mask>` format, require if vip is enabled              |
-| [`pg_vip_interface`](PARAM#pg_vip_interface)                         | [`PG_VIP`](PARAM#pg_vip)             |   string    |  C/I  | vip network interface to listen, eth0 by default                              |
-| [`pg_dns_suffix`](PARAM#pg_dns_suffix)                               | [`PG_DNS`](PARAM#pg_dns)             |   string    |   C   | pgsql dns suffix, '' by default                                               |
-| [`pg_dns_target`](PARAM#pg_dns_target)                               | [`PG_DNS`](PARAM#pg_dns)             |    enum     |   C   | auto, primary, vip, none, or ad hoc ip                                        |
+| [`pg_service_provider`](PARAM#pg_service_provider)                   | [`PG_SERVICE`](PARAM#pg_service)     |    enum     |  G/C  | dedicate haproxy node group name, or empty string for local nodes by default  |
+| [`pg_default_service_dest`](PARAM#pg_default_service_dest)           | [`PG_SERVICE`](PARAM#pg_service)     |    enum     |  G/C  | default service destination if svc.dest='default'                             |
+| [`pg_default_services`](PARAM#pg_default_services)                   | [`PG_SERVICE`](PARAM#pg_service)     |  service[]  |  G/C  | postgres default service definitions                                          |
+| [`pg_vip_enabled`](PARAM#pg_vip_enabled)                             | [`PG_SERVICE`](PARAM#pg_service)     |    bool     |   C   | enable a l2 vip for pgsql primary? false by default                           |
+| [`pg_vip_address`](PARAM#pg_vip_address)                             | [`PG_SERVICE`](PARAM#pg_service)     |    cidr4    |   C   | vip address in `<ipv4>/<mask>` format, require if vip is enabled              |
+| [`pg_vip_interface`](PARAM#pg_vip_interface)                         | [`PG_SERVICE`](PARAM#pg_service)     |   string    |  C/I  | vip network interface to listen, eth0 by default                              |
+| [`pg_dns_suffix`](PARAM#pg_dns_suffix)                               | [`PG_SERVICE`](PARAM#pg_service)     |   string    |   C   | pgsql dns suffix, '' by default                                               |
+| [`pg_dns_target`](PARAM#pg_dns_target)                               | [`PG_SERVICE`](PARAM#pg_service)     |    enum     |   C   | auto, primary, vip, none, or ad hoc ip                                        |
 | [`pg_exporter_enabled`](PARAM#pg_exporter_enabled)                   | [`PG_EXPORTER`](PARAM#pg_exporter)   |    bool     |   C   | enable pg_exporter on pgsql hosts?                                            |
 | [`pg_exporter_config`](PARAM#pg_exporter_config)                     | [`PG_EXPORTER`](PARAM#pg_exporter)   |   string    |   C   | pg_exporter configuration file name                                           |
 | [`pg_exporter_cache_ttls`](PARAM#pg_exporter_cache_ttls)             | [`PG_EXPORTER`](PARAM#pg_exporter)   |   string    |   C   | pg_exporter collector ttl stage in seconds, '1,10,60,300' by default          |
