@@ -2,8 +2,8 @@
 #==============================================================#
 # File      :   node.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2022-11-29
-# Desc      :   Node Record Rules (Node/Haproxy/Docker/Promtail)
+# Mtime     :   2023-02-23
+# Desc      :   Node Record Rules (Node/Haproxy/Promtail)
 # Path      :   /etc/prometheus/rules/node.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -228,44 +228,58 @@ groups:
       #--------------------------------#
       #       Physical Memory          #
       #--------------------------------#
-      # application memory size
-      - record: node:ins:mem_app
+      # kernel memory size
+      - record: node:ins:mem_kernel
         expr: |
-            node_memory_MemTotal_bytes -
-            node_memory_MemFree_bytes -
-            node_memory_Buffers_bytes -
-            node_memory_Cached_bytes -
-            node_memory_Slab_bytes -
-            node_memory_PageTables_bytes -
-            node_memory_SwapCached_bytes
+          node_memory_KernelStack_bytes +
+          node_memory_VmallocUsed_bytes +
+          node_memory_HardwareCorrupted_bytes +
+          node_memory_PageTables_bytes +
+          node_memory_Slab_bytes +
+          node_memory_PageTables_bytes
 
-      # available memory
+      # application rss memory size
+      - record: node:ins:mem_rss
+        expr: |
+          node_memory_MemTotal_bytes -
+          (node_memory_KernelStack_bytes +
+          node_memory_VmallocUsed_bytes +
+          node_memory_HardwareCorrupted_bytes +
+          node_memory_PageTables_bytes +
+          node_memory_Slab_bytes +
+          node_memory_PageTables_bytes) - 
+          node_memory_Buffers_bytes -
+          (node_memory_Hugepagesize_bytes * node_memory_HugePages_Total) -
+          (node_memory_Cached_bytes - node_memory_Mapped_bytes ) -
+          node_memory_MemFree_bytes
+
+      # mem avail: avail / total
       - record: node:ins:mem_avail
         expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes
 
-      # free memory
-      - record: node:ins:mem_free
-        expr: node_memory_MemFree_bytes + node_memory_Cached_bytes
-
-      # memory usage by instance (application mem)
+      # mem usage: 1 - avail / total
       - record: node:ins:mem_usage
-        expr: node:ins:mem_app / node_memory_MemTotal_bytes
+        expr: 1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes
 
-      # memory usage by cluster (application mem)
-      - record: node:cls:mem_usage
-        expr: sum by (cls, job) (node:ins:mem_app) / sum by (cls, job) (node_memory_MemTotal_bytes)
+      # swap usage by instance (NaN if swap is disabled)
+      - record: node:ins:swap_usage
+        expr: 1 - node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes
 
-      # commit ratio
+      # instance commit ratio: commit_as / commit_limit
       - record: node:ins:mem_commit_ratio
         expr: node_memory_Committed_AS_bytes / node_memory_CommitLimit_bytes
+
+      # cluster memory usage agg
+      - record: node:cls:mem_usage
+        expr: 1 - sum by (cls, job) (node_memory_MemAvailable_bytes) / sum by (cls, job) (node_memory_MemTotal_bytes)
 
       # environment stats
       - record: node:env:mem_total
         expr: sum by (job) (node_memory_MemTotal_bytes)
-      - record: node:env:mem_app
-        expr: sum by (job) (node:ins:mem_app)
+      - record: node:env:mem_avail
+        expr: sum by (job) (node_memory_MemAvailable_bytes)
       - record: node:env:mem_usage
-        expr: node:env:mem_app / node:env:mem_total
+        expr: 1 - node:env:mem_avail / node:env:mem_total
 
       #--------------------------------#
       #        Virtual  Memory         #
@@ -294,12 +308,6 @@ groups:
       - record: node:ins:swapout_rate1m
         expr: rate(node_vmstat_pswpout[1m])
 
-      #--------------------------------#
-      #             Swap               #
-      #--------------------------------#
-      # swap memory usage by instance (NaN if swap is disabled)
-      - record: node:ins:swap_usage
-        expr: 1 - node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes
 
 
       ################################################################
@@ -747,6 +755,16 @@ groups:
           description: |
             node:ins:mem_avail[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} < 10%
 
+      # commit ratio > 90%
+      - alert: NodeMemCommitRatioHigh
+        expr: node:ins:mem_commit_ratio > 0.90
+        for: 1m
+        labels: { level: 1, severity: WARN, category: node }
+        annotations:
+          summary: 'WARN NodeMemCommitRatioHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          description: |
+            node:ins:mem_commit_ratio[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 90%
+
       # OPTIONAL: EDAC Errors
 
       #==============================================================#
@@ -863,7 +881,7 @@ groups:
         annotations:
           summary: 'WARN NodeTimeDrift {{ $labels.ins }}@{{ $labels.instance }}'
           description: |
-            abs(node_timex_offset_seconds)[ins={{ $labels.ins }}]) = {{ $value | printf "%.6f" }} > 60ms
+            abs(node_timex_offset_seconds)[ins={{ $labels.ins }}]) = {{ $value | printf "%.6f" }} > 64ms
 
 
 
