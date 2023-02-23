@@ -132,6 +132,7 @@ Adding 64 parameters, removing 13 parameters, rename 17 parameters
 - `INFRA`.`NGINX`.`nginx_ssl_enabled`              : nginx https enabled?
 - `INFRA`.`PROMTETHEUS`.`alertmanager_endpoint`    : altermanager endpoint in (ip|domain):port format
 - `NODE`.`NODE_TUNE`.`node_hugepage_ratio`         : mem hugepage ratio, 0 disable it by default
+- `NODE`.`NODE_TUNE`.`node_overcommit_ratio`       : node mem overcommit ratio, 0 disable it by default
 - `NODE`.`HAPROXY`.`haproxy_service`               : list of haproxy service to be exposed
 - `PGSQL`.`PG_ID`.`pg_mode`                        : pgsql cluster mode: pgsql,citus,gpsql
 - `PGSQL`.`PG_BUSINESS`.`pg_dbsu_password`         : dbsu password, empty string means no dbsu password by default
@@ -150,15 +151,18 @@ Adding 64 parameters, removing 13 parameters, rename 17 parameters
 - `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_log_dir`       : pgbouncer log dir, `/var/log/pgbouncer` by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_auth_query`    : if enabled, query pg_authid table to retrieve biz users instead of populating userlist
 - `PGSQL`.`PG_BOOTSTRAP`.`pgbouncer_sslmode`       : SSL for pgbouncer client: disable|allow|prefer|require|verify-ca|verify-full
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_service_provider`     : dedicate haproxy node group name, or empty string for local nodes by default
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_default_service_dest` : default service destination if svc.dest='default'
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_enabled`         : pgbackrest enabled?
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_clean`           : remove pgbackrest data during init ?
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_log_dir`         : pgbackrest log dir, `/pg/log` by default
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_method`          : pgbackrest backup repo method, local or minio
 - `PGSQL`.`PG_BACKUP`.`pgbackrest_repo`            : pgbackrest backup repo config
-- `PGSQL`.`PG_DNS`.`pg_dns_suffix`                 : pgsql dns suffix, '' by default
-- `PGSQL`.`PG_DNS`.`pg_dns_target`                 : auto, primary, vip, none, or ad hoc ip
+- `PGSQL`.`PG_SERVICE`.`pg_service_provider`       : dedicate haproxy node group name, or empty string for local nodes by default
+- `PGSQL`.`PG_SERVICE`.`pg_default_service_dest`   : default service destination if svc.dest='default'
+- `PGSQL`.`PG_SERVICE`.`pg_vip_enabled`            : enable a l2 vip for pgsql primary? false by default
+- `PGSQL`.`PG_SERVICE`.`pg_vip_address`            : vip address in `<ipv4>/<mask>` format, require if vip is enabled
+- `PGSQL`.`PG_SERVICE`.`pg_vip_interface`          : vip network interface to listen, eth0 by default
+- `PGSQL`.`PG_SERVICE`.`pg_dns_suffix`             : pgsql cluster dns name suffix, '' by default
+- `PGSQL`.`PG_SERVICE`.`pg_dns_target`             : auto, primary, vip, none, or ad hoc ip
 - `ETCD`.`etcd_seq`                : etcd instance identifier, REQUIRED
 - `ETCD`.`etcd_cluster`            : etcd cluster & group name, etcd by default
 - `ETCD`.`etcd_safeguard`          : prevent purging running etcd instance?
@@ -201,6 +205,10 @@ Adding 64 parameters, removing 13 parameters, rename 17 parameters
 - `DCS`.`dcs_registry`  : removed due to using etcd
 - `DCS`.`dcs_safeguard` : replaced by `etcd_safeguard`
 - `DCS`.`dcs_clean`     : replaced by `etcd_clean`
+- `PGSQL`.`PG_VIP`.vip_mode`         : replaced by `pg_vip_enabled`
+- `PGSQL`.`PG_VIP`.vip_address`      : replaced by `pg_vip_address`
+- `PGSQL`.`PG_VIP`.vip_interface`    : replaced by `pg_vip_interface`
+
 
 **Renamed Parameters**
 
@@ -214,9 +222,6 @@ Adding 64 parameters, removing 13 parameters, rename 17 parameters
 - `pg_hba_rules`              -> `pg_default_hba_rules`
 - `pgbouncer_hba_rules_extra` -> `pgb_hba_rules`
 - `pgbouncer_hba_rules`       -> `pgb_default_hba_rules`
-- `vip_mode`                  -> `pg_vip_enabled`
-- `vip_address`               -> `pg_vip_address`
-- `vip_interface`             -> `pg_vip_interface`
 - `node_packages_default`     -> `node_default_packages`
 - `node_packages_meta`        -> `infra_packages`
 - `node_packages_meta_pip`    -> `infra_packages_pip`

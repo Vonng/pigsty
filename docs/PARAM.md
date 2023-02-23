@@ -63,52 +63,49 @@ There are 260+ parameters in Pigsty describing all aspect of the deployment.
 | 203 | [`nodename_overwrite`](#nodename_overwrite)                     | [`NODE_ID`](#node_id)                 | bool        | C     | overwrite node's hostname with nodename?                                      |
 | 204 | [`nodename_exchange`](#nodename_exchange)                       | [`NODE_ID`](#node_id)                 | bool        | C     | exchange nodename among play hosts?                                           |
 | 205 | [`node_id_from_pg`](#node_id_from_pg)                           | [`NODE_ID`](#node_id)                 | bool        | C     | use postgres identity as node identity if applicable?                         |
-| 206 | [`node_default_etc_hosts`](#node_default_etc_hosts)             | [`NODE_DNS`](#node_dns)               | string[]    | G     | static dns records in `/etc/hosts`                                            |
-| 207 | [`node_etc_hosts`](#node_etc_hosts)                             | [`NODE_DNS`](#node_dns)               | string[]    | C     | extra static dns records in `/etc/hosts`                                      |
-| 208 | [`node_dns_method`](#node_dns_method)                           | [`NODE_DNS`](#node_dns)               | enum        | C     | how to handle dns servers: add,none,overwrite                                 |
-| 209 | [`node_dns_servers`](#node_dns_servers)                         | [`NODE_DNS`](#node_dns)               | string[]    | C     | dynamic nameserver in `/etc/resolv.conf`                                      |
-| 210 | [`node_dns_options`](#node_dns_options)                         | [`NODE_DNS`](#node_dns)               | string[]    | C     | dns resolv options in `/etc/resolv.conf`                                      |
-| 211 | [`node_repo_method`](#node_repo_method)                         | [`NODE_PACKAGE`](#node_package)       | enum        | C     | how to setup node repo: none,local,public                                     |
-| 212 | [`node_repo_remove`](#node_repo_remove)                         | [`NODE_PACKAGE`](#node_package)       | bool        | C     | remove existing repo on node?                                                 |
-| 213 | [`node_repo_local_urls`](#node_repo_local_urls)                 | [`NODE_PACKAGE`](#node_package)       | string[]    | C     | local repo url, if node_repo_method = local                                   |
-| 214 | [`node_packages`](#node_packages)                               | [`NODE_PACKAGE`](#node_package)       | string[]    | C     | packages to be installed current nodes                                        |
-| 215 | [`node_default_packages`](#node_default_packages)               | [`NODE_PACKAGE`](#node_package)       | string[]    | G     | default packages to be installed on all nodes                                 |
-| 216 | [`node_disable_firewall`](#node_disable_firewall)               | [`NODE_TUNE`](#node_tune)             | bool        | C     | disable node firewall? true by default                                        |
-| 217 | [`node_disable_selinux`](#node_disable_selinux)                 | [`NODE_TUNE`](#node_tune)             | bool        | C     | disable node selinux? true by default                                         |
-| 218 | [`node_disable_numa`](#node_disable_numa)                       | [`NODE_TUNE`](#node_tune)             | bool        | C     | disable node numa, reboot required                                            |
-| 219 | [`node_disable_swap`](#node_disable_swap)                       | [`NODE_TUNE`](#node_tune)             | bool        | C     | disable node swap, use with caution                                           |
-| 220 | [`node_static_network`](#node_static_network)                   | [`NODE_TUNE`](#node_tune)             | bool        | C     | preserve dns resolver settings after reboot                                   |
-| 221 | [`node_disk_prefetch`](#node_disk_prefetch)                     | [`NODE_TUNE`](#node_tune)             | bool        | C     | setup disk prefetch on HDD to increase performance                            |
-| 222 | [`node_kernel_modules`](#node_kernel_modules)                   | [`NODE_TUNE`](#node_tune)             | string[]    | C     | kernel modules to be enabled on this node                                     |
-| 223 | [`node_hugepage_ratio`](#node_hugepage_ratio)                   | [`NODE_TUNE`](#node_tune)             | float       | C     | node mem hugepage ratio, 0 disable it by default                              |
-| 224 | [`node_tune`](#node_tune)                                       | [`NODE_TUNE`](#node_tune)             | enum        | C     | node tuned profile: none,oltp,olap,crit,tiny                                  |
-| 225 | [`node_sysctl_params`](#node_sysctl_params)                     | [`NODE_TUNE`](#node_tune)             | dict        | C     | sysctl parameters in k:v format in addition to tuned                          |
-| 226 | [`node_data`](#node_data)                                       | [`NODE_ADMIN`](#node_admin)           | path        | C     | node main data directory, `/data` by default                                  |
-| 227 | [`node_admin_enabled`](#node_admin_enabled)                     | [`NODE_ADMIN`](#node_admin)           | bool        | C     | create a admin user on target node?                                           |
-| 228 | [`node_admin_uid`](#node_admin_uid)                             | [`NODE_ADMIN`](#node_admin)           | int         | C     | uid and gid for node admin user                                               |
-| 229 | [`node_admin_username`](#node_admin_username)                   | [`NODE_ADMIN`](#node_admin)           | username    | C     | name of node admin user, `dba` by default                                     |
-| 230 | [`node_admin_ssh_exchange`](#node_admin_ssh_exchange)           | [`NODE_ADMIN`](#node_admin)           | bool        | C     | exchange admin ssh key among node cluster                                     |
-| 231 | [`node_admin_pk_current`](#node_admin_pk_current)               | [`NODE_ADMIN`](#node_admin)           | bool        | C     | add current user's ssh pk to admin authorized_keys                            |
-| 232 | [`node_admin_pk_list`](#node_admin_pk_list)                     | [`NODE_ADMIN`](#node_admin)           | string[]    | C     | ssh public keys to be added to admin user                                     |
-| 233 | [`node_timezone`](#node_timezone)                               | [`NODE_TIME`](#node_time)             | string      | C     | setup node timezone, empty string to skip                                     |
-| 234 | [`node_ntp_enabled`](#node_ntp_enabled)                         | [`NODE_TIME`](#node_time)             | bool        | C     | enable chronyd time sync service?                                             |
-| 235 | [`node_ntp_servers`](#node_ntp_servers)                         | [`NODE_TIME`](#node_time)             | string[]    | C     | ntp servers in `/etc/chrony.conf`                                             |
-| 236 | [`node_crontab_overwrite`](#node_crontab_overwrite)             | [`NODE_TIME`](#node_time)             | bool        | C     | overwrite or append to `/etc/crontab`?                                        |
-| 237 | [`node_crontab`](#node_crontab)                                 | [`NODE_TIME`](#node_time)             | string[]    | C     | crontab entries in `/etc/crontab`                                             |
-| 260 | [`haproxy_enabled`](#haproxy_enabled)                           | [`HAPROXY`](#haproxy)                 | bool        | C     | enable haproxy on this node?                                                  |
-| 261 | [`haproxy_clean`](#haproxy_clean)                               | [`HAPROXY`](#haproxy)                 | bool        | G/C/A | cleanup all existing haproxy config?                                          |
-| 262 | [`haproxy_reload`](#haproxy_reload)                             | [`HAPROXY`](#haproxy)                 | bool        | A     | reload haproxy after config?                                                  |
-| 263 | [`haproxy_auth_enabled`](#haproxy_auth_enabled)                 | [`HAPROXY`](#haproxy)                 | bool        | G     | enable authentication for haproxy admin page                                  |
-| 264 | [`haproxy_admin_username`](#haproxy_admin_username)             | [`HAPROXY`](#haproxy)                 | username    | G     | haproxy admin username, `admin` by default                                    |
-| 265 | [`haproxy_admin_password`](#haproxy_admin_password)             | [`HAPROXY`](#haproxy)                 | password    | G     | haproxy admin password, `pigsty` by default                                   |
-| 266 | [`haproxy_exporter_port`](#haproxy_exporter_port)               | [`HAPROXY`](#haproxy)                 | port        | C     | haproxy admin/exporter port, 9101 by default                                  |
-| 267 | [`haproxy_client_timeout`](#haproxy_client_timeout)             | [`HAPROXY`](#haproxy)                 | interval    | C     | client side connection timeout, 24h by default                                |
-| 268 | [`haproxy_server_timeout`](#haproxy_server_timeout)             | [`HAPROXY`](#haproxy)                 | interval    | C     | server side connection timeout, 24h by default                                |
-| 269 | [`haproxy_services`](#haproxy_services)                         | [`HAPROXY`](#haproxy)                 | service[]   | C     | list of haproxy service to be exposed on node                                 |
-| 271 | [`docker_enabled`](#docker_enabled)                             | [`DOCKER`](#docker)                   | bool        | C     | enable docker on this node?                                                   |
-| 272 | [`docker_cgroups_driver`](#docker_cgroups_driver)               | [`DOCKER`](#docker)                   | enum        | C     | docker cgroup fs driver: cgroupfs,systemd                                     |
-| 273 | [`docker_registry_mirrors`](#docker_registry_mirrors)           | [`DOCKER`](#docker)                   | string[]    | C     | docker registry mirror list                                                   |
-| 274 | [`docker_image_cache`](#docker_image_cache)                     | [`DOCKER`](#docker)                   | path        | C     | docker image cache dir, `/tmp/docker` by default                              |
+| 210 | [`node_default_etc_hosts`](#node_default_etc_hosts)             | [`NODE_DNS`](#node_dns)               | string[]    | G     | static dns records in `/etc/hosts`                                            |
+| 211 | [`node_etc_hosts`](#node_etc_hosts)                             | [`NODE_DNS`](#node_dns)               | string[]    | C     | extra static dns records in `/etc/hosts`                                      |
+| 212 | [`node_dns_method`](#node_dns_method)                           | [`NODE_DNS`](#node_dns)               | enum        | C     | how to handle dns servers: add,none,overwrite                                 |
+| 213 | [`node_dns_servers`](#node_dns_servers)                         | [`NODE_DNS`](#node_dns)               | string[]    | C     | dynamic nameserver in `/etc/resolv.conf`                                      |
+| 214 | [`node_dns_options`](#node_dns_options)                         | [`NODE_DNS`](#node_dns)               | string[]    | C     | dns resolv options in `/etc/resolv.conf`                                      |
+| 220 | [`node_repo_method`](#node_repo_method)                         | [`NODE_PACKAGE`](#node_package)       | enum        | C     | how to setup node repo: none,local,public                                     |
+| 221 | [`node_repo_remove`](#node_repo_remove)                         | [`NODE_PACKAGE`](#node_package)       | bool        | C     | remove existing repo on node?                                                 |
+| 222 | [`node_repo_local_urls`](#node_repo_local_urls)                 | [`NODE_PACKAGE`](#node_package)       | string[]    | C     | local repo url, if node_repo_method = local                                   |
+| 223 | [`node_packages`](#node_packages)                               | [`NODE_PACKAGE`](#node_package)       | string[]    | C     | packages to be installed current nodes                                        |
+| 224 | [`node_default_packages`](#node_default_packages)               | [`NODE_PACKAGE`](#node_package)       | string[]    | G     | default packages to be installed on all nodes                                 |
+| 230 | [`node_disable_firewall`](#node_disable_firewall)               | [`NODE_TUNE`](#node_tune)             | bool        | C     | disable node firewall? true by default                                        |
+| 231 | [`node_disable_selinux`](#node_disable_selinux)                 | [`NODE_TUNE`](#node_tune)             | bool        | C     | disable node selinux? true by default                                         |
+| 232 | [`node_disable_numa`](#node_disable_numa)                       | [`NODE_TUNE`](#node_tune)             | bool        | C     | disable node numa, reboot required                                            |
+| 233 | [`node_disable_swap`](#node_disable_swap)                       | [`NODE_TUNE`](#node_tune)             | bool        | C     | disable node swap, use with caution                                           |
+| 234 | [`node_static_network`](#node_static_network)                   | [`NODE_TUNE`](#node_tune)             | bool        | C     | preserve dns resolver settings after reboot                                   |
+| 235 | [`node_disk_prefetch`](#node_disk_prefetch)                     | [`NODE_TUNE`](#node_tune)             | bool        | C     | setup disk prefetch on HDD to increase performance                            |
+| 236 | [`node_kernel_modules`](#node_kernel_modules)                   | [`NODE_TUNE`](#node_tune)             | string[]    | C     | kernel modules to be enabled on this node                                     |
+| 237 | [`node_hugepage_ratio`](#node_hugepage_ratio)                   | [`NODE_TUNE`](#node_tune)             | float       | C     | node mem hugepage ratio, 0 disable it by default                              |
+| 238 | [`node_overcommit_ratio`](#node_overcommit_ratio)               | [`NODE_TUNE`](#node_tune)             | int         | C     | node mem overcommit ratio, 0 disable it by default                            |
+| 239 | [`node_tune`](#node_tune)                                       | [`NODE_TUNE`](#node_tune)             | enum        | C     | node tuned profile: none,oltp,olap,crit,tiny                                  |
+| 240 | [`node_sysctl_params`](#node_sysctl_params)                     | [`NODE_TUNE`](#node_tune)             | dict        | C     | sysctl parameters in k:v format in addition to tuned                          |
+| 250 | [`node_data`](#node_data)                                       | [`NODE_ADMIN`](#node_admin)           | path        | C     | node main data directory, `/data` by default                                  |
+| 251 | [`node_admin_enabled`](#node_admin_enabled)                     | [`NODE_ADMIN`](#node_admin)           | bool        | C     | create a admin user on target node?                                           |
+| 252 | [`node_admin_uid`](#node_admin_uid)                             | [`NODE_ADMIN`](#node_admin)           | int         | C     | uid and gid for node admin user                                               |
+| 253 | [`node_admin_username`](#node_admin_username)                   | [`NODE_ADMIN`](#node_admin)           | username    | C     | name of node admin user, `dba` by default                                     |
+| 254 | [`node_admin_ssh_exchange`](#node_admin_ssh_exchange)           | [`NODE_ADMIN`](#node_admin)           | bool        | C     | exchange admin ssh key among node cluster                                     |
+| 255 | [`node_admin_pk_current`](#node_admin_pk_current)               | [`NODE_ADMIN`](#node_admin)           | bool        | C     | add current user's ssh pk to admin authorized_keys                            |
+| 256 | [`node_admin_pk_list`](#node_admin_pk_list)                     | [`NODE_ADMIN`](#node_admin)           | string[]    | C     | ssh public keys to be added to admin user                                     |
+| 260 | [`node_timezone`](#node_timezone)                               | [`NODE_TIME`](#node_time)             | string      | C     | setup node timezone, empty string to skip                                     |
+| 261 | [`node_ntp_enabled`](#node_ntp_enabled)                         | [`NODE_TIME`](#node_time)             | bool        | C     | enable chronyd time sync service?                                             |
+| 262 | [`node_ntp_servers`](#node_ntp_servers)                         | [`NODE_TIME`](#node_time)             | string[]    | C     | ntp servers in `/etc/chrony.conf`                                             |
+| 263 | [`node_crontab_overwrite`](#node_crontab_overwrite)             | [`NODE_TIME`](#node_time)             | bool        | C     | overwrite or append to `/etc/crontab`?                                        |
+| 264 | [`node_crontab`](#node_crontab)                                 | [`NODE_TIME`](#node_time)             | string[]    | C     | crontab entries in `/etc/crontab`                                             |
+| 270 | [`haproxy_enabled`](#haproxy_enabled)                           | [`HAPROXY`](#haproxy)                 | bool        | C     | enable haproxy on this node?                                                  |
+| 271 | [`haproxy_clean`](#haproxy_clean)                               | [`HAPROXY`](#haproxy)                 | bool        | G/C/A | cleanup all existing haproxy config?                                          |
+| 272 | [`haproxy_reload`](#haproxy_reload)                             | [`HAPROXY`](#haproxy)                 | bool        | A     | reload haproxy after config?                                                  |
+| 273 | [`haproxy_auth_enabled`](#haproxy_auth_enabled)                 | [`HAPROXY`](#haproxy)                 | bool        | G     | enable authentication for haproxy admin page                                  |
+| 274 | [`haproxy_admin_username`](#haproxy_admin_username)             | [`HAPROXY`](#haproxy)                 | username    | G     | haproxy admin username, `admin` by default                                    |
+| 275 | [`haproxy_admin_password`](#haproxy_admin_password)             | [`HAPROXY`](#haproxy)                 | password    | G     | haproxy admin password, `pigsty` by default                                   |
+| 276 | [`haproxy_exporter_port`](#haproxy_exporter_port)               | [`HAPROXY`](#haproxy)                 | port        | C     | haproxy admin/exporter port, 9101 by default                                  |
+| 277 | [`haproxy_client_timeout`](#haproxy_client_timeout)             | [`HAPROXY`](#haproxy)                 | interval    | C     | client side connection timeout, 24h by default                                |
+| 278 | [`haproxy_server_timeout`](#haproxy_server_timeout)             | [`HAPROXY`](#haproxy)                 | interval    | C     | server side connection timeout, 24h by default                                |
+| 279 | [`haproxy_services`](#haproxy_services)                         | [`HAPROXY`](#haproxy)                 | service[]   | C     | list of haproxy service to be exposed on node                                 |
 | 280 | [`node_exporter_enabled`](#node_exporter_enabled)               | [`NODE_EXPORTER`](#node_exporter)     | bool        | C     | setup node_exporter on this node?                                             |
 | 281 | [`node_exporter_port`](#node_exporter_port)                     | [`NODE_EXPORTER`](#node_exporter)     | port        | C     | node exporter listen port, 9100 by default                                    |
 | 282 | [`node_exporter_options`](#node_exporter_options)               | [`NODE_EXPORTER`](#node_exporter)     | arg         | C     | extra server options for node_exporter                                        |
@@ -164,7 +161,7 @@ There are 260+ parameters in Pigsty describing all aspect of the deployment.
 | 534 | [`pg_admin_password`](#pg_admin_password)                       | [`PG_BUSINESS`](#pg_business)         | password    | G     | postgres admin password in plain text, `DBUser.DBA` by default                |
 | 535 | [`pg_monitor_username`](#pg_monitor_username)                   | [`PG_BUSINESS`](#pg_business)         | username    | G     | postgres monitor username, `dbuser_monitor` by default                        |
 | 536 | [`pg_monitor_password`](#pg_monitor_password)                   | [`PG_BUSINESS`](#pg_business)         | password    | G     | postgres monitor password, `DBUser.Monitor` by default                        |
-| 537 | [`pg_dbsu_password`](#pg_dbsu_password)                         | [`PG_BUSINESS`](#pg_business)         |  password   | G/C   | dbsu password, empty string means no dbsu password by default                 |
+| 537 | [`pg_dbsu_password`](#pg_dbsu_password)                         | [`PG_BUSINESS`](#pg_business)         | password    | G/C   | dbsu password, empty string means no dbsu password by default                 |
 | 540 | [`pg_dbsu`](#pg_dbsu)                                           | [`PG_INSTALL`](#pg_install)           | username    | C     | os dbsu name, postgres by default, better not change it                       |
 | 541 | [`pg_dbsu_uid`](#pg_dbsu_uid)                                   | [`PG_INSTALL`](#pg_install)           | int         | C     | os dbsu uid and gid, 26 for default postgres users and groups                 |
 | 542 | [`pg_dbsu_sudo`](#pg_dbsu_sudo)                                 | [`PG_INSTALL`](#pg_install)           | enum        | C     | dbsu sudo privilege, none,limit,all,nopass. limit by default                  |
@@ -1731,6 +1728,7 @@ node_static_network: true         # preserve dns resolver settings after reboot
 node_disk_prefetch: false         # setup disk prefetch on HDD to increase performance
 node_kernel_modules: [ softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_wrr, ip_vs_sh ]
 node_hugepage_ratio: 0            # node mem hugepage ratio, 0 disable it by default
+node_overcommit_ratio: 0          # node mem overcommit ratio, 0 disable it by default
 node_tune: oltp                   # node tuned profile: none,oltp,olap,crit,tiny
 node_sysctl_params: { }           # sysctl parameters in k:v format in addition to tuned
 ```
@@ -1845,11 +1843,25 @@ name: `node_hugepage_ratio`, type: `float`, level: `C`
 
 node mem hugepage ratio, 0 disable it by default, valid range: 0 ~ 0.40
 
-default values: `0`
+default values: `0`, which will set `vm.nr_hugepages=0` and not use HugePage at all.
 
 Percent of this memory will be allocated as HugePage, and reserved for PostgreSQL.
 
-It should be slightly larger than [`pg_shmem_ratio`](#pg_shmem_ratio), if not zero.
+It should be equal or slightly larger than [`pg_shmem_ratio`](#pg_shmem_ratio), if not zero.
+
+
+
+
+### `node_overcommit_ratio`
+
+name: `node_overcommit_ratio`, type: `int`, level: `C`
+
+node mem overcommit ratio, 0 disable it by default. this is an integer from 0 to 100+ .
+
+default values: `0`, which will set `vm.overcommit_memory=0`, otherwise `vm.overcommit_memory=2` will be used,
+and this value will be used as `vm.overcommit_ratio`.
+
+It is recommended to set use a `vm.overcommit_ratio` on dedicated pgsql nodes. e.g. 50 ~ 100. 
 
 
 

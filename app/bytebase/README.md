@@ -9,6 +9,7 @@ Check public demo: http://ddl.pigsty.cc, username: `admin@pigsty.cc`, password: 
 If you want to access bytebase through SSL, you have to trust `files/pki/ca/ca.crt` on your browser (or use the dirty
 hack `thisisunsafe` in chrome)
 
+
 ## Get Started
 
 Check [`.env`](.env) file for configurable environment variables:

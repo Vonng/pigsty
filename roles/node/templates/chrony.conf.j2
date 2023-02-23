@@ -1,7 +1,9 @@
 # Use public servers from the pool.ntp.org project.
 {% for server in node_ntp_servers %}
 {% if '${admin_ip}' in server %}
+{% if inventory_hostname != admin_ip %}
 {{ server | replace('${admin_ip}', admin_ip) }}
+{% endif %}
 {% else %}
 {{ server }}
 {% endif %}

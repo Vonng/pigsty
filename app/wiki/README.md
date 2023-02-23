@@ -1,10 +1,24 @@
 # Wiki.js
 
+Wiki.js : https://js.wiki/
+
+The most powerful and extensible open source Wiki software.
+
+You can serve wiki with external PostgreSQL database.
+
+
 ## TL;DR
 
+Check configuration in [`.env`](.env), then launch wiki.js with
+
 ```bash
-cd app/wiki ; docker-compose up -d
+cd app/wiki ; make up
 ```
+
+Check http://10.10.10.10 or http://wiki.pigsty and following the wizard.
+
+Public demo: http://wiki.pigsty.cc , username: `admin@pigsty.cc` , password: `pigsty.wiki`
+
 
 ## Database
 
