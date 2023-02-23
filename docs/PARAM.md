@@ -2060,7 +2060,11 @@ default value:  `["pool pool.ntp.org iburst"]`
 
 It only takes effect if [`node_ntp_enabled`](#node_ntp_enabled) is true.
 
-You can use `${meta_ip}` to sync time with infra node ntp server.
+You can use `${admin_ip}` to sync time with ntp server on admin node rather than public ntp server.
+
+```yaml
+node_ntp_servers: [ 'pool ${admin_ip} iburst' ]
+```
 
 
 
