@@ -12,7 +12,7 @@
 #==============================================================#
 {% macro abort(error) %}{{ None['[ERROR] ' ~ error][0] }}{% endmacro %}
 {% if pg_max_conn != 'auto' and pg_max_conn|int >= 20 %}{% set pg_max_connections = pg_max_conn|int %}{% else %}{% if pg_default_service_dest|default('postgres') == 'pgbouncer' %}{% set pg_max_connections = 400 %}{% else %}{% set pg_max_connections = 1000 %}{% endif %}{% endif %}
-{% set pg_shared_buffers = (node_mem_mb|int * pg_shmem_ratio|float) | round(0, 'ceil') | int %}
+{% set pg_shared_buffers = (node_mem_mb|int * pg_shared_buffer_ratio|float) | round(0, 'ceil') | int %}
 {% set pg_maintenance_mem = (pg_shared_buffers|int * 0.25)|round(0, 'ceil')|int %}
 {% set pg_effective_cache_size = node_mem_mb|int - pg_shared_buffers|int  %}
 {% set pg_workmem =  ([ ([ (pg_shared_buffers / pg_max_connections)|round(0,'floor')|int , 64 ])|max|int , 1024])|min|int %}

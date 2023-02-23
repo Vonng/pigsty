@@ -16,7 +16,7 @@ max_connections:
 
 shared_buffers: 
 - 25% of RAM
-- user specified ratio (0.10 - 0.40) : `pg_shmem_ratio`
+- user specified ratio (0.10 - 0.40) : `pg_shared_buffer_ratio`
 - round to 1MB
 
 work_mem: (in ratio 0~1)
