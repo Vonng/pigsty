@@ -6824,7 +6824,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "orange",
@@ -6952,7 +6953,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "orange",
@@ -7078,7 +7080,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     }
                                 ]
                             },
@@ -7387,7 +7390,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -7543,7 +7547,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     }
                                 ]
                             },
@@ -7830,7 +7835,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     }
                                 ]
                             },
@@ -8117,7 +8123,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     }
                                 ]
                             },
@@ -8392,7 +8399,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -8679,7 +8687,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     }
                                 ]
                             },
@@ -8879,7 +8888,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "light-blue"
+                                        "color": "light-blue",
+                                        "value": null
                                     }
                                 ]
                             },
@@ -8902,7 +8912,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "green"
+                                                    "color": "green",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "blue",
@@ -8933,7 +8944,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "blue"
+                                                    "color": "blue",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "green",
@@ -8949,6 +8961,18 @@
                                                 }
                                             ]
                                         }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Total Pages"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "unit",
+                                        "value": "none"
                                     }
                                 ]
                             }
@@ -8970,10 +8994,10 @@
                         "orientation": "auto",
                         "reduceOptions": {
                             "calcs": [
-                                "lastNotNull"
+                                "last"
                             ],
                             "fields": "",
-                            "values": true
+                            "values": false
                         },
                         "text": {
                             "titleSize": 16,
@@ -8983,20 +9007,6 @@
                     },
                     "pluginVersion": "9.3.6",
                     "targets": [
-                        {
-                            "datasource": {
-                                "type": "prometheus",
-                                "uid": "ds-prometheus"
-                            },
-                            "editorMode": "code",
-                            "exemplar": true,
-                            "expr": "node_memory_HugePages_Free{ip=\"$ip\"} * node_memory_Hugepagesize_bytes{ip=\"$ip\"}",
-                            "hide": false,
-                            "instant": true,
-                            "interval": "",
-                            "legendFormat": "Free",
-                            "refId": "E"
-                        },
                         {
                             "datasource": {
                                 "type": "prometheus",
@@ -9017,11 +9027,11 @@
                             },
                             "editorMode": "code",
                             "exemplar": true,
-                            "expr": "node_memory_HugePages_Total{ip=\"$ip\"} * node_memory_Hugepagesize_bytes{ip=\"$ip\"}",
+                            "expr": "node_memory_HugePages_Total{ip=\"$ip\"}",
                             "hide": false,
                             "instant": true,
                             "interval": "",
-                            "legendFormat": "Total",
+                            "legendFormat": "Total Pages",
                             "refId": "B"
                         },
                         {
@@ -9031,12 +9041,26 @@
                             },
                             "editorMode": "code",
                             "exemplar": true,
-                            "expr": "(node_memory_HugePages_Total{ip=\"$ip\"} - node_memory_HugePages_Free{ip=\"$ip\"}) * node_memory_Hugepagesize_bytes{ip=\"$ip\"}",
+                            "expr": "(node_memory_HugePages_Total{ip=\"$ip\"} - node_memory_HugePages_Free{ip=\"$ip\"} + node_memory_HugePages_Rsvd{ip=\"$ip\"}) / node_memory_HugePages_Total{ip=\"$ip\"}",
                             "hide": false,
                             "instant": true,
                             "interval": "",
-                            "legendFormat": "Alloc",
-                            "refId": "C"
+                            "legendFormat": "Alloc%",
+                            "refId": "F"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "exemplar": true,
+                            "expr": "node_memory_HugePages_Free{ip=\"$ip\"} * node_memory_Hugepagesize_bytes{ip=\"$ip\"}",
+                            "hide": false,
+                            "instant": true,
+                            "interval": "",
+                            "legendFormat": "Free",
+                            "refId": "E"
                         },
                         {
                             "datasource": {
@@ -9059,12 +9083,12 @@
                             },
                             "editorMode": "code",
                             "exemplar": true,
-                            "expr": "(node_memory_HugePages_Total{ip=\"$ip\"} - node_memory_HugePages_Free{ip=\"$ip\"} + node_memory_HugePages_Rsvd{ip=\"$ip\"}) / node_memory_HugePages_Total{ip=\"$ip\"}",
+                            "expr": "(node_memory_HugePages_Total{ip=\"$ip\"} - node_memory_HugePages_Free{ip=\"$ip\"}) * node_memory_Hugepagesize_bytes{ip=\"$ip\"}",
                             "hide": false,
                             "instant": true,
                             "interval": "",
-                            "legendFormat": "Alloc%",
-                            "refId": "F"
+                            "legendFormat": "Alloc",
+                            "refId": "C"
                         }
                     ],
                     "type": "stat"
@@ -9104,7 +9128,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#56A64B"
+                                        "color": "#56A64B",
+                                        "value": null
                                     },
                                     {
                                         "color": "#E02F44",
@@ -9192,7 +9217,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#56A64B"
+                                        "color": "#56A64B",
+                                        "value": null
                                     },
                                     {
                                         "color": "#E02F44",

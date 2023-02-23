@@ -144,7 +144,7 @@ Adding 64 parameters, removing 13 parameters, rename 17 parameters
 - `PGSQL`.`PG_BOOTSTRAP`.`patroni_password`        : patroni rest api password (IMPORTANT: CHANGE THIS)
 - `PGSQL`.`PG_BOOTSTRAP`.`patroni_citus_db`        : citus database managed by patroni, postgres by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_max_conn`             : postgres max connections, `auto` will use recommended value
-- `PGSQL`.`PG_BOOTSTRAP`.`pg_shmem_ratio`          : postgres shared memory ratio, 0.25 by default, 0.1~0.4
+- `PGSQL`.`PG_BOOTSTRAP`.`pg_shared_buffer_ratio`  : postgres shared buffer memory ratio, 0.25 by default, 0.1~0.4
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_rto`                  : recovery time objective, ttl to failover, 30s by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_rpo`                  : recovery point objective, 1MB data loss at most by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_pwd_enc`              : algorithm for encrypting passwords: md5|scram-sha-256

@@ -59,7 +59,7 @@ all:
         pg_services: [{ name: standby ,ip: "*" ,port: 5435 , dest: default ,selector: "[]" , backup: "[? pg_role == `primary`]" }]
         node_tune: tiny
         pg_conf: tiny.yml
-        node_hugepage_ratio: 0.27
+        node_hugepage_ratio: 0.28
         node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
           - '00 01 * * 1 postgres /pg/bin/pg-backup full'
           - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
@@ -108,7 +108,6 @@ all:
       - { name: Wiki       , url: 'http://wiki.pigsty.cc'          , comment: 'Local Wikipedia'             }
       - { name: Explain    , url: '/pev.html'                      , comment: 'postgres explain visualizer' }
       - { name: Package    , url: '/pigsty'                        , comment: 'local yum repo packages'     }
-      - { name: Matrix Pkg , url: '/matrix'                        , comment: 'matrixdb repo packages'      }
       - { name: PG Logs    , url: '/logs'                          , comment: 'postgres raw csv logs'       }
       - { name: Schemas    , url: '/schema'                        , comment: 'schemaspy summary report'    }
       - { name: Reports    , url: '/report'                        , comment: 'pgbadger summary report'     }
@@ -120,7 +119,7 @@ all:
     node_etc_hosts: [ "${admin_ip} sss.pigsty" ]
     node_ntp_servers:
       - pool cn.pool.ntp.org iburst
-      - pool time.pool.aliyun.com iburst
+      - pool ${admin_ip} iburst       # assume non-admin nodes does not have internet access
     pgbackrest_method: minio
     docker_registry_mirrors: [ "https://mirror.ccs.tencentyun.com" ]  # use tencent cloud mirror
 ...

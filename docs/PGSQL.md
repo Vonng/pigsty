@@ -144,7 +144,7 @@
 | [`patroni_password`](PARAM#patroni_password)                         | [`PG_BOOTSTRAP`](PARAM#pg_bootstrap) |  password   |   C   | patroni restapi password, `Patroni.API` by default                            |
 | [`pg_conf`](PARAM#pg_conf)                                           | [`PG_BOOTSTRAP`](PARAM#pg_bootstrap) |    enum     |   C   | config template: oltp,olap,crit,tiny. `oltp.yml` by default                   |
 | [`pg_max_conn`](PARAM#pg_max_conn)                                   | [`PG_BOOTSTRAP`](PARAM#pg_bootstrap) |     int     |   C   | postgres max connections, `auto` will use recommended value                   |
-| [`pg_shmem_ratio`](PARAM#pg_shmem_ratio)                             | [`PG_BOOTSTRAP`](PARAM#pg_bootstrap) |    float    |   C   | postgres shared memory ratio, 0.25 by default, 0.1~0.4                        |
+| [`pg_shared_buffer_ratio`](PARAM#pg_shared_buffer_ratio)             | [`PG_BOOTSTRAP`](PARAM#pg_bootstrap) |    float    |   C   | postgres shared buffer memory ratio, 0.25 by default, 0.1~0.4                 |
 | [`pg_rto`](PARAM#pg_rto)                                             | [`PG_BOOTSTRAP`](PARAM#pg_bootstrap) |     int     |   C   | recovery time objective in seconds, `30s` by default                          |
 | [`pg_rpo`](PARAM#pg_rpo)                                             | [`PG_BOOTSTRAP`](PARAM#pg_bootstrap) |     int     |   C   | recovery point objective in bytes, `1MiB` at most by default                  |
 | [`pg_libs`](PARAM#pg_libs)                                           | [`PG_BOOTSTRAP`](PARAM#pg_bootstrap) |   string    |   C   | preloaded libraries, `pg_stat_statements,auto_explain` by default             |

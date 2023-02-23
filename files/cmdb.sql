@@ -1286,8 +1286,6 @@ INSERT INTO pigsty.default_var VALUES
 (204, 'nodename_exchange', 'false', 'NODE', 'NODE_ID', 'bool', 'C', 'exchange nodename among play hosts?', NULL),
 (205, 'node_id_from_pg', 'true', 'NODE', 'NODE_ID', 'bool', 'C', 'use postgres identity as node identity if applicable?', NULL),
 
-
-
 (210, 'node_default_etc_hosts', '["${admin_ip} h.pigsty a.pigsty p.pigsty g.pigsty"]', 'NODE', 'NODE_DNS', 'string[]', 'G', 'static dns records in `/etc/hosts`', NULL),
 (211, 'node_etc_hosts', '[]', 'NODE', 'NODE_DNS', 'string[]', 'C', 'extra static dns records in `/etc/hosts`', NULL),
 (212, 'node_dns_method', '"add"', 'NODE', 'NODE_DNS', 'enum', 'C', 'how to handle dns servers: add,none,overwrite', NULL),
@@ -1307,10 +1305,11 @@ INSERT INTO pigsty.default_var VALUES
 (234, 'node_static_network', 'true', 'NODE', 'NODE_TUNE', 'bool', 'C', 'preserve dns resolver settings after reboot', NULL),
 (235, 'node_disk_prefetch', 'false', 'NODE', 'NODE_TUNE', 'bool', 'C', 'setup disk prefetch on HDD to increase performance', NULL),
 (236, 'node_kernel_modules', '["softdog", "br_netfilter", "ip_vs", "ip_vs_rr", "ip_vs_wrr", "ip_vs_sh"]', 'NODE', 'NODE_TUNE', 'string[]', 'C', 'kernel modules to be enabled on this node', NULL),
-(237, 'node_hugepage_ratio', '0', 'NODE', 'NODE_TUNE', 'float', 'C', 'node mem hugepage ratio, 0 disable it by default', NULL),
-(238, 'node_overcommit_ratio', '0', 'NODE', 'NODE_TUNE', 'float', 'C', 'node mem overcommit ratio, 0 disable it by default', NULL),
-(239, 'node_tune', '"oltp"', 'NODE', 'NODE_TUNE', 'enum', 'C', 'node tuned profile: none,oltp,olap,crit,tiny', NULL),
-(240, 'node_sysctl_params', '{}', 'NODE', 'NODE_TUNE', 'dict', 'C', 'sysctl parameters in k:v format in addition to tuned', NULL),
+(237, 'node_hugepage_count', '0', 'NODE', 'NODE_TUNE', 'int', 'C', 'number of 2MB hugepage, take precedence over ratio', NULL),
+(238, 'node_hugepage_ratio', '0', 'NODE', 'NODE_TUNE', 'float', 'C', 'node mem hugepage ratio, 0 disable it by default', NULL),
+(239, 'node_overcommit_ratio', '0', 'NODE', 'NODE_TUNE', 'float', 'C', 'node mem overcommit ratio, 0 disable it by default', NULL),
+(240, 'node_tune', '"oltp"', 'NODE', 'NODE_TUNE', 'enum', 'C', 'node tuned profile: none,oltp,olap,crit,tiny', NULL),
+(241, 'node_sysctl_params', '{}', 'NODE', 'NODE_TUNE', 'dict', 'C', 'sysctl parameters in k:v format in addition to tuned', NULL),
 
 (250, 'node_data', '"/data"', 'NODE', 'NODE_ADMIN', 'path', 'C', 'node main data directory, `/data` by default', NULL),
 (251, 'node_admin_enabled', 'true', 'NODE', 'NODE_ADMIN', 'bool', 'C', 'create a admin user on target node?', NULL),
@@ -1428,7 +1427,7 @@ INSERT INTO pigsty.default_var VALUES
 (569, 'patroni_citus_db', '"postgres"', 'PGSQL', 'PG_BOOTSTRAP', 'string', 'C', 'citus database managed by patroni, postgres by default', NULL),
 (570, 'pg_conf', '"oltp.yml"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'config template: oltp,olap,crit,tiny. `oltp.yml` by default', NULL),
 (571, 'pg_max_conn', '"auto"', 'PGSQL', 'PG_BOOTSTRAP', 'int', 'C', 'postgres max connections, `auto` will use recommended value', NULL),
-(572, 'pg_shmem_ratio', '0.25', 'PGSQL', 'PG_BOOTSTRAP', 'float', 'C', 'postgres shared memory ratio, 0.25 by default, 0.1~0.4', NULL),
+(572, 'pg_shared_buffer_ratio', '0.25', 'PGSQL', 'PG_BOOTSTRAP', 'float', 'C', 'postgres shared buffer memory ratio, 0.25 by default, 0.1~0.4', NULL),
 (573, 'pg_rto', '30', 'PGSQL', 'PG_BOOTSTRAP', 'int', 'C', 'recovery time objective in seconds,  `30s` by default', NULL),
 (574, 'pg_rpo', '1048576', 'PGSQL', 'PG_BOOTSTRAP', 'int', 'C', 'recovery point objective in bytes, `1MiB` at most by default', NULL),
 (575, 'pg_libs', '"timescaledb, pg_stat_statements, auto_explain"', 'PGSQL', 'PG_BOOTSTRAP', 'string', 'C', 'preloaded libraries, `pg_stat_statements,auto_explain` by default', NULL),

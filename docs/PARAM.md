@@ -80,10 +80,11 @@ There are 260+ parameters in Pigsty describing all aspect of the deployment.
 | 234 | [`node_static_network`](#node_static_network)                   | [`NODE_TUNE`](#node_tune)             | bool        | C     | preserve dns resolver settings after reboot                                   |
 | 235 | [`node_disk_prefetch`](#node_disk_prefetch)                     | [`NODE_TUNE`](#node_tune)             | bool        | C     | setup disk prefetch on HDD to increase performance                            |
 | 236 | [`node_kernel_modules`](#node_kernel_modules)                   | [`NODE_TUNE`](#node_tune)             | string[]    | C     | kernel modules to be enabled on this node                                     |
-| 237 | [`node_hugepage_ratio`](#node_hugepage_ratio)                   | [`NODE_TUNE`](#node_tune)             | float       | C     | node mem hugepage ratio, 0 disable it by default                              |
-| 238 | [`node_overcommit_ratio`](#node_overcommit_ratio)               | [`NODE_TUNE`](#node_tune)             | int         | C     | node mem overcommit ratio, 0 disable it by default                            |
-| 239 | [`node_tune`](#node_tune)                                       | [`NODE_TUNE`](#node_tune)             | enum        | C     | node tuned profile: none,oltp,olap,crit,tiny                                  |
-| 240 | [`node_sysctl_params`](#node_sysctl_params)                     | [`NODE_TUNE`](#node_tune)             | dict        | C     | sysctl parameters in k:v format in addition to tuned                          |
+| 237 | [`node_hugepage_count`](#node_hugepage_count)                   | [`NODE_TUNE`](#node_tune)             | int         | C     | number of 2MB hugepage, take precedence over ratio                            |
+| 238 | [`node_hugepage_ratio`](#node_hugepage_ratio)                   | [`NODE_TUNE`](#node_tune)             | float       | C     | node mem hugepage ratio, 0 disable it by default                              |
+| 239 | [`node_overcommit_ratio`](#node_overcommit_ratio)               | [`NODE_TUNE`](#node_tune)             | int         | C     | node mem overcommit ratio, 0 disable it by default                            |
+| 240 | [`node_tune`](#node_tune)                                       | [`NODE_TUNE`](#node_tune)             | enum        | C     | node tuned profile: none,oltp,olap,crit,tiny                                  |
+| 241 | [`node_sysctl_params`](#node_sysctl_params)                     | [`NODE_TUNE`](#node_tune)             | dict        | C     | sysctl parameters in k:v format in addition to tuned                          |
 | 250 | [`node_data`](#node_data)                                       | [`NODE_ADMIN`](#node_admin)           | path        | C     | node main data directory, `/data` by default                                  |
 | 251 | [`node_admin_enabled`](#node_admin_enabled)                     | [`NODE_ADMIN`](#node_admin)           | bool        | C     | create a admin user on target node?                                           |
 | 252 | [`node_admin_uid`](#node_admin_uid)                             | [`NODE_ADMIN`](#node_admin)           | int         | C     | uid and gid for node admin user                                               |
@@ -194,7 +195,7 @@ There are 260+ parameters in Pigsty describing all aspect of the deployment.
 | 569 | [`patroni_citus_db`](#patroni_citus_db)                         | [`PG_BOOTSTRAP`](#pg_bootstrap)       | string      | C     | citus database managed by patroni, postgres by default                        |
 | 570 | [`pg_conf`](#pg_conf)                                           | [`PG_BOOTSTRAP`](#pg_bootstrap)       | enum        | C     | config template: oltp,olap,crit,tiny. `oltp.yml` by default                   |
 | 571 | [`pg_max_conn`](#pg_max_conn)                                   | [`PG_BOOTSTRAP`](#pg_bootstrap)       | int         | C     | postgres max connections, `auto` will use recommended value                   |
-| 572 | [`pg_shmem_ratio`](#pg_shmem_ratio)                             | [`PG_BOOTSTRAP`](#pg_bootstrap)       | float       | C     | postgres shared memory ratio, 0.25 by default, 0.1~0.4                        |
+| 572 | [`pg_shared_buffer_ratio`](#pg_shared_buffer_ratio)             | [`PG_BOOTSTRAP`](#pg_bootstrap)       | float       | C     | postgres shared buffers memory ratio, 0.25 by default, 0.1~0.4                |
 | 573 | [`pg_rto`](#pg_rto)                                             | [`PG_BOOTSTRAP`](#pg_bootstrap)       | int         | C     | recovery time objective in seconds,  `30s` by default                         |
 | 574 | [`pg_rpo`](#pg_rpo)                                             | [`PG_BOOTSTRAP`](#pg_bootstrap)       | int         | C     | recovery point objective in bytes, `1MiB` at most by default                  |
 | 575 | [`pg_libs`](#pg_libs)                                           | [`PG_BOOTSTRAP`](#pg_bootstrap)       | string      | C     | preloaded libraries, `pg_stat_statements,auto_explain` by default             |
@@ -1727,6 +1728,7 @@ node_disable_swap: false          # disable node swap, use with caution
 node_static_network: true         # preserve dns resolver settings after reboot
 node_disk_prefetch: false         # setup disk prefetch on HDD to increase performance
 node_kernel_modules: [ softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_wrr, ip_vs_sh ]
+node_hugepage_count: 0            # number of 2MB hugepage, take precedence over ratio
 node_hugepage_ratio: 0            # node mem hugepage ratio, 0 disable it by default
 node_overcommit_ratio: 0          # node mem overcommit ratio, 0 disable it by default
 node_tune: oltp                   # node tuned profile: none,oltp,olap,crit,tiny
@@ -1837,6 +1839,23 @@ An array consisting of kernel module names declaring the kernel modules that nee
 
 
 
+### `node_hugepage_count`
+
+name: `node_hugepage_count`, type: `int`, level: `C`
+
+number of 2MB hugepage, take precedence over ratio, 0 by default
+
+Take precedence over [`node_hugepage_ratio`](#node_hugepage_ratio). If a non-zero value is given, it will be written to `/etc/sysctl.d/hugepage.conf`
+
+If `node_hugepage_count` and `node_hugepage_ratio` are both `0` (default), hugepage will be disabled at all.
+
+Negative value will not work, and number higher than 90% node mem will be ceil to 90% of node mem. 
+
+It should slightly larger than [`pg_shared_buffer_ratio`](#pg_shared_buffer_ratio), if not zero.
+
+
+
+
 ### `node_hugepage_ratio`
 
 name: `node_hugepage_ratio`, type: `float`, level: `C`
@@ -1847,7 +1866,10 @@ default values: `0`, which will set `vm.nr_hugepages=0` and not use HugePage at 
 
 Percent of this memory will be allocated as HugePage, and reserved for PostgreSQL.
 
-It should be equal or slightly larger than [`pg_shmem_ratio`](#pg_shmem_ratio), if not zero.
+It should be equal or slightly larger than [`pg_shared_buffer_ratio`](#pg_shared_buffer_ratio), if not zero.
+
+For example, if you have default 25% mem for postgres shard buffers, you can set this value to 27 ~ 30.  Wasted hugepage can be reclaimed later with `/pg/bin/pg-tune-hugepage`
+
 
 
 
@@ -3642,7 +3664,7 @@ patroni_username: postgres        # patroni restapi username, `postgres` by defa
 patroni_password: Patroni.API     # patroni restapi password, `Patroni.API` by default
 pg_conf: oltp.yml                 # config template: oltp,olap,crit,tiny. `oltp.yml` by default
 pg_max_conn: auto                 # postgres max connections, `auto` will use recommended value
-pg_shmem_ratio: 0.25              # postgres shared memory ratio, 0.25 by default, 0.1~0.4
+pg_shared_buffer_ratio: 0.25      # postgres shared buffer memory ratio, 0.25 by default, 0.1~0.4
 pg_rto: 30                        # recovery time objective in seconds,  `30s` by default
 pg_rpo: 1048576                   # recovery point objective in bytes, `1MiB` at most by default
 pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
@@ -3948,13 +3970,15 @@ default values: `auto`
 
 
 
-### `pg_shmem_ratio`
+### `pg_shared_buffer_ratio`
 
-name: `pg_shmem_ratio`, type: `float`, level: `C`
+name: `pg_shared_buffer_ratio`, type: `float`, level: `C`
 
-postgres shared memory ratio, 0.25 by default, 0.1~0.4
+postgres shared buffer memory ratio, 0.25 by default, 0.1~0.4
 
-default values: `0.25`
+default values: `0.25`, means 25% of node memory will be used as PostgreSQL shard buffers.
+
+Setting this value greater than 0.4 (40%) is usually not a good idea. 
 
 
 

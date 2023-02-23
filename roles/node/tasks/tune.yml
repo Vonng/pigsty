@@ -66,10 +66,33 @@
       template: src=tuned-{{ item }}.conf dest=/etc/tuned/{{ item }}/tuned.conf mode=0644
       with_items: [ oltp, olap, crit, tiny ]
 
+    # if node_hugepage_count is given, use it (but can not exceed 90% of memory)
+    # otherwise, if node_hugepage_ratio is given, use it (can not exceed 90% mem too)
+    - name: render hugepage sysctl parameter
+      copy:
+        dest: /etc/sysctl.d/hugepage.conf
+        content: |
+          {% if node_hugepage_count is defined and node_hugepage_count|int > 0 %}
+          {% if node_hugepage_count|float >= node_mem_bytes|float / 2097152.0 * 0.90 %}
+          vm.nr_hugepages = {{ (node_mem_bytes|int / 2097152.0 * 0.90 )|round(0, 'ceil')|int }}
+          {% else %}
+          vm.nr_hugepages = {{ node_hugepage_count }}
+          {% endif %}
+          {% else %}
+          {% if node_hugepage_ratio|float > 0 and node_hugepage_ratio|float < 0.90 %}
+          vm.nr_hugepages = {{ (node_mem_bytes|int / 2097152.0 * node_hugepage_ratio )|round(0, 'ceil')|int }}
+          {% else %}
+          vm.nr_hugepages = 0
+          {% endif %}
+          {% endif %}
+
     - name: activate tuned profile
       tags: node_tune_active
       ignore_errors: true
-      command: tuned-adm profile {{ node_tune }}
+      shell: | 
+        tuned-adm profile {{ node_tune }}
+        sysctl -p /etc/sysctl.d/hugepage.conf
+
 
 
 #--------------------------------------------------------------#

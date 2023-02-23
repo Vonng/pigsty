@@ -1,9 +1,9 @@
 ---
 #==============================================================#
-# File      :   pigsty.yml
+# File      :   demo.yml
 # Desc      :   Pigsty Local Sandbox 4-node Demo Config
 # Ctime     :   2020-05-22
-# Mtime     :   2023-02-19
+# Mtime     :   2023-02-23
 # Docs      :   https://vonng.github.io/pigsty/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -60,18 +60,18 @@ all:
         pg_cluster: pg-test           # define pgsql cluster name
         pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
         pg_databases: [{ name: test }]
-        node_tune: tiny
-        pg_conf: tiny.yml
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.3/24
         pg_vip_interface: eth1
+        node_tune: tiny
+        pg_conf: tiny.yml
         node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
           - '00 01 * * 1 postgres /pg/bin/pg-backup full'
           - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
 
     redis-ms: # redis classic primary & replica
       hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.10 6501' } } } }
-      vars: { redis_cluster: redis-ms ,redis_max_memory: 64MB }
+      vars: { redis_cluster: redis-ms , redis_password: 'redis.ms' ,redis_max_memory: 64MB }
 
     redis-meta: # redis sentinel x 3
       hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 6001: { } ,6002: { } , 6003: { } } } }
@@ -88,6 +88,8 @@ all:
     version: v2.0.0-rc2               # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
+    node_tune: tiny                   # use tiny template for NODE  in demo environment
+    pg_conf: tiny.yml                 # use tiny template for PGSQL in demo environment
     infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
@@ -117,7 +119,9 @@ all:
       - { name: Schemas    , url : '/schema'            , comment: 'schemaspy summary report' }
       - { name: Reports    , url : '/report'            , comment: 'pgbadger summary report'  }
     node_timezone: Asia/Hong_Kong     # use Asia/Hong_Kong Timezone
+    node_hugepage_ratio: 0.30         # use 30% of total memory as hugepage for postgres
     node_ntp_servers:                 # NTP servers in /etc/chrony.conf
       - pool cn.pool.ntp.org iburst
+      - pool ${admin_ip} iburst       # assume non-admin nodes does not have internet access
     pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
 ...

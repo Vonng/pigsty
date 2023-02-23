@@ -147,6 +147,7 @@ There are 10 sections, 58 parameters about [`NODE`](PARAM#node) module.
 | [`node_static_network`](PARAM#node_static_network)         | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | preserve dns resolver settings after reboot                 |
 | [`node_disk_prefetch`](PARAM#node_disk_prefetch)           | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | setup disk prefetch on HDD to increase performance          |
 | [`node_kernel_modules`](PARAM#node_kernel_modules)         | [`NODE_TUNE`](PARAM#node_tune)         | string[]  |   C   | kernel modules to be enabled on this node                   |
+| [`node_hugepage_count`](PARAM#node_hugepage_count)         | [`NODE_TUNE`](PARAM#node_tune)         |    int    |   C   | number of 2MB hugepage, take precedence over ratio          |
 | [`node_hugepage_ratio`](PARAM#node_hugepage_ratio)         | [`NODE_TUNE`](PARAM#node_tune)         |   float   |   C   | node mem hugepage ratio, 0 disable it by default            |
 | [`node_overcommit_ratio`](PARAM#node_overcommit_ratio)     | [`NODE_TUNE`](PARAM#node_tune)         |    int    |   C   | node mem overcommit ratio (50-100), 0 disable it by default |
 | [`node_tune`](PARAM#node_tune)                             | [`NODE_TUNE`](PARAM#node_tune)         |   enum    |   C   | node tuned profile: none,oltp,olap,crit,tiny                |
