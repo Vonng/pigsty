@@ -1,0 +1,82 @@
+#!/bin/bash
+set -euo pipefail
+#==============================================================#
+# File      :   pg-tune-hugepage
+# Desc      :   tune nr_hugepages for postgresql
+# Ctime     :   2023-02-23
+# Mtime     :   2022-02-23
+# Path      :   /pg/bin/pg-tune-hugepage
+# Deps      :   psql
+# NOte      :   run as root
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+PROG_NAME="$(basename $0)"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+# pg-hugepage-tune
+#
+# it will query shared_memory_size_in_huge_pages from postgres
+# and set `vm.nr_hugepages` to that value in /etc/sysctl.conf
+#--------------------------------------------------------------#
+
+
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+if [[ "$(whoami)" != "root" ]]; then
+    # try access postgres from nr_hugepages
+    NR_HUGEPAGE=$(psql -qwAXtc 'show shared_memory_size_in_huge_pages')
+else
+    NR_HUGEPAGE=$(sudo -iu postgres psql -qwAXtc 'show shared_memory_size_in_huge_pages')
+fi
+
+# check if result is acquired
+if [[ -z "${NR_HUGEPAGE}" ]]; then
+    echo "[FAIL] fail to acquire shared_memory_size_in_huge_pages from postgres"
+    exit 1
+else
+    echo "echo vm.nr_hugepages=${NR_HUGEPAGE} >> /etc/sysctl.conf"
+fi
+
+#--------------------------------------------------------------#
+# Execute
+#--------------------------------------------------------------#
+function can_nopass_sudo(){
+    local current_user=$(whoami)
+    if [[ "${current_user}" == "root" ]]; then
+        return 0
+    fi
+    if sudo -n ls >/dev/null 2>/dev/null; then
+        return 0
+    fi
+    return 1
+}
+
+if ! can_nopass_sudo; then
+    echo "[FAIL] root or sudo is required to write sysctl parameter"
+    echo "[HINT] $ echo vm.nr_hugepages=${NR_HUGEPAGE} > /etc/sysctl.d/hugepage.conf"
+    echo "[HINT] $ sysctl -p /etc/sysctl.d/hugepage.conf"
+    exit 2
+fi
+
+echo "[BEFORE]============================"
+cat /proc/meminfo | grep HugePages
+sysctl -a | grep vm.nr_hugepages
+
+# write param
+DIRECTIVE="vm.nr_hugepages=${NR_HUGEPAGE}"
+echo "[EXEC] $ echo vm.nr_hugepages=${NR_HUGEPAGE} > /etc/sysctl.d/hugepage.conf"
+sudo bash -c "echo ${DIRECTIVE} > /etc/sysctl.d/hugepage.conf"
+
+# apply change
+echo "[HINT] $ sysctl -p /etc/sysctl.d/hugepage.conf"
+sudo sysctl -p /etc/sysctl.d/hugepage.conf
+
+echo "[AFTER]============================"
+cat /proc/meminfo | grep HugePages
+sysctl -a | grep vm.nr_hugepages
