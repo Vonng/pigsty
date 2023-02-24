@@ -474,7 +474,7 @@ citus: vc new ssh copy-el9 use-pkg
 	cp files/pigsty/citus.yml pigsty.yml
 minio: vc new ssh copy-el9 use-pkg
 	cp files/pigsty/citus.yml pigsty.yml
-build: vb new ssh build-src
+build: vb new ssh
 	cp files/pigsty/build.yml pigsty.yml
 build-test: vb new ssh build-repo build-src
 	cp files/pigsty/build.yml pigsty.yml
