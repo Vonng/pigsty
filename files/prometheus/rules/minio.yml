@@ -1,0 +1,50 @@
+---
+#==============================================================#
+# File      :   minio.yml
+# Ctime     :   2023-02-24
+# Mtime     :   2023-02-24
+# Desc      :   Record rules for minio
+# Path      :   /etc/prometheus/rules/minio.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+groups:
+  ################################################################
+  #                         MinIO Rules                          #
+  ################################################################
+  # - name: minio-rules
+  #   rules:
+
+
+  ################################################################
+  #                         MinIO Alert                          #
+  ################################################################
+  - name: minio-alert
+    rules:
+
+      #==============================================================#
+      #                         Error                                #
+      #==============================================================#
+      # MinIO node offline triggers a p1 alert
+      - alert: MinioNodeOffline
+        expr: avg_over_time(minio_cluster_nodes_offline_total{job="minio"}[5m]) > 0
+        for: 5min
+        labels: { level: 1, severity: WARN, category: minio }
+        annotations:
+          summary: "WARN MinioNodeOffline: {{ $labels.cls }} {{ $value }}"
+          description: |
+            minio_cluster_nodes_offline_total[cls={{ $labels.cls }}] = {{ $value }} > 0
+            http://g.pigsty/d/minio-overview?from=now-5m&to=now&var-cls={{$labels.cls}}
+
+      # MinIO disk offline triggers a p1 alert
+      - alert: MinioDiskOffline
+        expr: avg_over_time(minio_cluster_disk_offline_total{job="minio"}[5m]) > 0
+        for: 5min
+        labels: { level: 1, severity: WARN, category: minio }
+        annotations:
+          summary: "WARN MinioDiskOffline: {{ $labels.cls }} {{ $value }}"
+          description: |
+            minio_cluster_disk_offline_total[cls={{ $labels.cls }}] = {{ $value }} > 0
+            http://g.pigsty/d/minio-overview?from=now-5m&to=now&var-cls={{$labels.cls}}
