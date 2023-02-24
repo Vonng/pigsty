@@ -22,7 +22,7 @@
         ]
     },
     "author": "Vonng (rh@vonng.com)",
-    "description": "MinIO Overview",
+    "description": "Overview of single MinIO cluster",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
@@ -36,10 +36,10 @@
             "keepTime": true,
             "tags": [
                 "Pigsty",
-                "INFRA"
+                "MINIO"
             ],
             "targetBlank": false,
-            "title": "INFRA",
+            "title": "MINIO",
             "tooltip": "",
             "type": "dashboards",
             "url": ""
@@ -65,238 +65,211 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
-            "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
+            "description": "MinIO cluster members",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [],
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "color-background",
+                        "inspect": false
+                    },
                     "mappings": [],
+                    "max": 1.2,
+                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "#e3e3e3e0",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Instance"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "MinIO Instance : ${__data.fields.Instance}",
+                                        "url": "/d/minio-instance?var-ins=${__data.fields.Instance}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 140
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Node IP"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node Instance : ${__data.fields[\"Node IP\"]}",
+                                        "url": "/d/node-instance?var-id=${__data.fields[\"Node IP\"]}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "center"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Version"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 160
+                            },
+                            {
+                                "id": "unit",
+                                "value": "string"
+                            },
+                            {
+                                "id": "custom.inspect",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Address"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 140
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Server"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 180
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/Free|Used|Size/"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Usage"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 0.1
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 0.3
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 0.5
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 0.7
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 0.9
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "lcd-gauge"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 2,
-                "w": 3,
+                "h": 6,
+                "w": 24,
                 "x": 0,
                 "y": 1
             },
-            "id": 156,
-            "links": [
-                {
-                    "title": "PGSQL Cluster : ${cls}",
-                    "url": "/d/pgsql-cluster?var-cls=${cls}"
-                }
-            ],
+            "id": 163,
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
+                "footer": {
                     "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "9.2.4",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Cluster",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${cls}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 5,
-                "x": 3,
-                "y": 1
-            },
-            "id": 157,
-            "links": [
-                {
-                    "title": "PGSQL Cluster : ${cls}",
-                    "url": "/d/pgsql-cluster?var-cls=${cls}"
-                }
-            ],
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
+                    "reducer": [
+                        "sum"
                     ],
-                    "fields": "",
-                    "values": false
+                    "show": false
                 },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "9.2.4",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Instance",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${ins}"
-                        }
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Instance"
                     }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
+                ]
             },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "red",
-                                "value": null
-                            },
-                            {
-                                "color": "orange",
-                                "value": 300
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 3600
-                            },
-                            {
-                                "color": "green",
-                                "value": 86400
-                            }
-                        ]
-                    },
-                    "unit": "dtdurations"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 2,
-                "x": 8,
-                "y": 1
-            },
-            "id": 118,
-            "links": [],
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "mean"
-                    ],
-                    "fields": "",
-                    "values": true
-                },
-                "text": {},
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "9.2.4",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -304,19 +277,203 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "exemplar": true,
-                    "expr": "time() - max(minio_node_process_starttime_seconds{ins=\"$ins\"})",
-                    "format": "time_series",
+                    "exemplar": false,
+                    "expr": "group by (cls,server,version) (minio_software_version_info{job=\"minio\", cls=\"$cls\"})",
+                    "format": "table",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
-                    "intervalFactor": 1,
-                    "legendFormat": "UPTIME",
-                    "metric": "process_start_time_seconds",
-                    "refId": "A",
-                    "step": 60
+                    "legendFormat": "",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (server,ins,instance,ip) (minio_cluster_capacity_usable_total_bytes{job=\"minio\", cls=\"$cls\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (server) (minio_cluster_capacity_usable_free_bytes{job=\"minio\", cls=\"$cls\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (server) (minio_cluster_capacity_usable_total_bytes{job=\"minio\", cls=\"$cls\"})\n- max by (server) (minio_cluster_capacity_usable_free_bytes{job=\"minio\", cls=\"$cls\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1 - \nmax by (server) (minio_cluster_capacity_usable_free_bytes{job=\"minio\", cls=\"$cls\"}) /\nmax by (server) (minio_cluster_capacity_usable_total_bytes{job=\"minio\", cls=\"$cls\"})\n ",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "F"
                 }
             ],
-            "type": "stat"
+            "title": "MinIO Members",
+            "transformations": [
+                {
+                    "id": "seriesToColumns",
+                    "options": {
+                        "byField": "server",
+                        "mode": "outer"
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "Time 1": true,
+                            "Time 10": true,
+                            "Time 2": true,
+                            "Time 3": true,
+                            "Time 4": true,
+                            "Time 6": true,
+                            "Time 8": true,
+                            "Time 9": true,
+                            "Value": true,
+                            "Value #A": true,
+                            "Value #B": false,
+                            "Value #C": false,
+                            "Value #E": false,
+                            "Value #H": false,
+                            "__name__": true,
+                            "__name__ 1": true,
+                            "__name__ 2": true,
+                            "__name__ 3": true,
+                            "__name__ 5": true,
+                            "__name__ 7": true,
+                            "cls": true,
+                            "cls 1": true,
+                            "cls 2": true,
+                            "cls 3": true,
+                            "cls 4": true,
+                            "cls 5": true,
+                            "cls 6": true,
+                            "cls 7": true,
+                            "instance": false,
+                            "instance 1": true,
+                            "instance 2": false,
+                            "instance 3": true,
+                            "instance 4": true,
+                            "instance 5": true,
+                            "instance 6": true,
+                            "ip 2": true,
+                            "ip 3": true,
+                            "ip 4": true,
+                            "ip 5": true,
+                            "ip 6": true,
+                            "ip 7": true,
+                            "job": true,
+                            "job 1": true,
+                            "job 2": true,
+                            "job 3": true,
+                            "job 4": true,
+                            "job 5": true,
+                            "job 6": true,
+                            "job 7": true
+                        },
+                        "indexByName": {
+                            "Time 1": 10,
+                            "Time 2": 12,
+                            "Time 3": 13,
+                            "Time 4": 14,
+                            "Time 5": 15,
+                            "Value #A": 11,
+                            "Value #B": 5,
+                            "Value #C": 6,
+                            "Value #D": 7,
+                            "Value #E": 8,
+                            "cls": 9,
+                            "ins": 0,
+                            "instance": 3,
+                            "ip": 1,
+                            "server": 2,
+                            "version": 4
+                        },
+                        "renameByName": {
+                            "Time 4": "",
+                            "Value #A": "",
+                            "Value #B": "Size",
+                            "Value #C": "Free",
+                            "Value #D": "Used",
+                            "Value #E": "Usage",
+                            "Value #F": "RT",
+                            "Value #G": "LB Conn",
+                            "Value #H": "LB",
+                            "Value #I": "QPS",
+                            "Value #J": "LB Clients",
+                            "Value #K": "Lag",
+                            "cls 1": "",
+                            "cls 2": "",
+                            "ins": "Instance",
+                            "instance": "Address",
+                            "instance 2": "",
+                            "ip": "Node IP",
+                            "ip 1": "IP",
+                            "job": "",
+                            "server": "Server",
+                            "server_id": "Server ID",
+                            "server_version": "Version",
+                            "version": "Version"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
         },
         {
             "datasource": {
@@ -360,9 +517,9 @@
             },
             "gridPos": {
                 "h": 4,
-                "w": 2,
-                "x": 10,
-                "y": 1
+                "w": 3,
+                "x": 0,
+                "y": 7
             },
             "id": 153,
             "links": [],
@@ -382,7 +539,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.4",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -391,7 +548,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "minio_cluster_nodes_online_total{ins=\"$ins\"}",
+                    "expr": "minio_cluster_nodes_online_total{cls=\"$cls\", ins=\"$ins\"}",
                     "format": "time_series",
                     "instant": true,
                     "interval": "",
@@ -446,9 +603,9 @@
             },
             "gridPos": {
                 "h": 4,
-                "w": 2,
-                "x": 12,
-                "y": 1
+                "w": 3,
+                "x": 3,
+                "y": 7
             },
             "id": 154,
             "links": [],
@@ -468,7 +625,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.4",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -477,7 +634,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "minio_cluster_disk_online_total{ins=\"$ins\"}",
+                    "expr": "minio_cluster_disk_online_total{cls=\"$cls\", ins=\"$ins\"}",
                     "format": "time_series",
                     "instant": true,
                     "interval": "",
@@ -510,92 +667,26 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "light-blue",
+                                "color": "green",
                                 "value": null
-                            }
-                        ]
-                    },
-                    "unit": "decbytes"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 2,
-                "x": 14,
-                "y": 1
-            },
-            "id": 151,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "9.2.4",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "exemplar": true,
-                    "expr": "minio_cluster_capacity_usable_total_bytes{ins=\"$ins\"}",
-                    "interval": "",
-                    "legendFormat": "Size",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 1,
-                    "links": [],
-                    "mappings": [],
-                    "max": 1,
-                    "min": 0,
-                    "noValue": "\u2205",
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
+                            },
                             {
-                                "color": "light-blue",
-                                "value": null
+                                "color": "orange",
+                                "value": 1000
                             }
                         ]
                     },
-                    "unit": "decbytes"
+                    "unit": "reqps"
                 },
                 "overrides": []
             },
             "gridPos": {
                 "h": 4,
-                "w": 2,
-                "x": 16,
-                "y": 1
+                "w": 3,
+                "x": 6,
+                "y": 7
             },
-            "id": 152,
+            "id": 150,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -611,7 +702,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.4",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -620,9 +711,9 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "minio_cluster_capacity_usable_total_bytes{ins=\"$ins\"} - \nminio_cluster_capacity_usable_free_bytes{ins=\"$ins\"}",
+                    "expr": "sum(rate(minio_s3_requests_total{cls=\"$cls\", ins=\"$ins\"}[1m]))",
                     "interval": "",
-                    "legendFormat": "Used",
+                    "legendFormat": "QPS",
                     "range": true,
                     "refId": "A"
                 }
@@ -676,11 +767,11 @@
             },
             "gridPos": {
                 "h": 4,
-                "w": 2,
-                "x": 18,
-                "y": 1
+                "w": 3,
+                "x": 9,
+                "y": 7
             },
-            "id": 150,
+            "id": 165,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -696,7 +787,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.4",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -708,6 +799,145 @@
                     "expr": "1 - (minio_cluster_capacity_usable_free_bytes{ins=\"$ins\"} / minio_cluster_capacity_usable_total_bytes{ins=\"$ins\"})",
                     "interval": "",
                     "legendFormat": "Usage%",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "noValue": "\u2205",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "light-blue",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "decbytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 12,
+                "y": 7
+            },
+            "id": 151,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "9.3.6",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "minio_cluster_capacity_usable_total_bytes{cls=\"$cls\", ins=\"$ins\"}",
+                    "interval": "",
+                    "legendFormat": "Size",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 1,
+                    "links": [],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "noValue": "\u2205",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "light-blue",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "decbytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 15,
+                "y": 7
+            },
+            "id": 152,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "9.3.6",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "minio_cluster_capacity_usable_total_bytes{cls=\"$cls\", ins=\"$ins\"} - \nminio_cluster_capacity_usable_free_bytes{cls=\"$cls\", ins=\"$ins\"}",
+                    "interval": "",
+                    "legendFormat": "Used",
                     "range": true,
                     "refId": "A"
                 }
@@ -743,9 +973,9 @@
             },
             "gridPos": {
                 "h": 4,
-                "w": 2,
-                "x": 20,
-                "y": 1
+                "w": 3,
+                "x": 18,
+                "y": 7
             },
             "id": 147,
             "options": {
@@ -762,7 +992,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.4",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -770,7 +1000,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "count(count by (bucket) (minio_bucket_usage_total_bytes{ins=\"$ins\"}))",
+                    "expr": "count(count by (bucket) (minio_bucket_usage_total_bytes{cls=\"$cls\", ins=\"$ins\"}))",
                     "legendFormat": "Buckets",
                     "range": true,
                     "refId": "A"
@@ -803,9 +1033,9 @@
             },
             "gridPos": {
                 "h": 4,
-                "w": 2,
-                "x": 22,
-                "y": 1
+                "w": 3,
+                "x": 21,
+                "y": 7
             },
             "id": 148,
             "options": {
@@ -822,7 +1052,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.2.4",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -839,183 +1069,12 @@
             "type": "stat"
         },
         {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "node = ${node}. Node hostname",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "red",
-                                    "index": 0,
-                                    "text": "Down"
-                                },
-                                "1": {
-                                    "color": "green",
-                                    "index": 1,
-                                    "text": "Alive"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 0,
-                "y": 3
-            },
-            "id": 161,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "value"
-            },
-            "pluginVersion": "9.2.4",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "minio_up{ins=\"$ins\"}",
-                    "instant": false,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Status",
-            "transformations": [],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "ip = ${ip}. Unique identifier for corresponding node",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Node of ${ip}",
-                            "url": "/d/node-instance?var-ip=${ip}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 5,
-                "x": 3,
-                "y": 3
-            },
-            "id": 159,
-            "links": [
-                {
-                    "title": "PGSQL Node : ${ip}",
-                    "url": "/d/node-instance?var-id=${ip}&var-ip=${ip}"
-                }
-            ],
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "9.2.4",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "refId": "A"
-                }
-            ],
-            "title": "Node IP",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${ip}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
             "collapsed": false,
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 5
+                "y": 11
             },
             "id": 133,
             "panels": [],
@@ -1115,7 +1174,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 6
+                "y": 12
             },
             "id": 120,
             "options": {
@@ -1143,7 +1202,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "sum by (server,api) (increase(minio_s3_requests_total{ins=\"$ins\"}[$__rate_interval]))",
+                    "expr": "sum by (api) (increase(minio_s3_requests_total{cls=\"$cls\", ins=\"$ins\"}[$__rate_interval]))",
                     "interval": "1m",
                     "intervalFactor": 2,
                     "legendFormat": "{{ api }}",
@@ -1247,7 +1306,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 6
+                "y": 12
             },
             "id": 121,
             "options": {
@@ -1275,7 +1334,267 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "sum by (server,api) (increase(minio_s3_requests_errors_total{ins=\"$ins\"}[$__rate_interval]))",
+                    "expr": "sum by (api) (increase(minio_s3_requests_errors_total{cls=\"$cls\", ins=\"$ins\"}[$__rate_interval]))",
+                    "interval": "1m",
+                    "intervalFactor": 2,
+                    "legendFormat": "{{ api }}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "S3 ERROR QPS",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "S3 Errors"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "light-red",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "S3 Requests"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "light-green",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 20
+            },
+            "id": 164,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true,
+                    "sortBy": "Max",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "9.2.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "sum by (server) (increase(minio_s3_requests_total{ins=\"$ins\"}[$__rate_interval]))",
+                    "interval": "1m",
+                    "intervalFactor": 2,
+                    "legendFormat": "{{ api }}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "S3 API QPS",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "S3 Errors"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "light-red",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "S3 Requests"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "light-green",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 20
+            },
+            "id": 166,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true,
+                    "sortBy": "Max",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "9.2.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "sum by (server) (increase(minio_s3_requests_errors_total{cls=\"$cls\", ins=\"$ins\"}[$__rate_interval]))",
                     "interval": "1m",
                     "intervalFactor": 2,
                     "legendFormat": "{{ api }}",
@@ -1292,7 +1611,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 14
+                "y": 28
             },
             "id": 139,
             "panels": [],
@@ -1362,7 +1681,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 15
+                "y": 29
             },
             "id": 145,
             "options": {
@@ -1388,7 +1707,7 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum by(bucket) (minio_bucket_usage_object_total{ins=\"$ins\"})",
+                    "expr": "max by (bucket) (minio_bucket_usage_object_total{cls=\"$cls\", ins=\"$ins\"})",
                     "legendFormat": "__auto",
                     "range": true,
                     "refId": "A"
@@ -1425,7 +1744,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 15
+                "y": 29
             },
             "id": 144,
             "links": [],
@@ -1444,7 +1763,7 @@
                 "showUnfilled": false,
                 "text": {}
             },
-            "pluginVersion": "9.2.4",
+            "pluginVersion": "9.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -1529,7 +1848,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 22
+                "y": 36
             },
             "id": 141,
             "options": {
@@ -1629,7 +1948,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 22
+                "y": 36
             },
             "id": 142,
             "options": {
@@ -1672,7 +1991,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 29
+                "y": 43
             },
             "id": 127,
             "panels": [],
@@ -1741,7 +2060,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 30
+                "y": 44
             },
             "id": 129,
             "options": {
@@ -1767,7 +2086,7 @@
                     "exemplar": true,
                     "expr": "rate(minio_node_process_cpu_total_seconds{ins=\"$ins\"}[1m])",
                     "interval": "",
-                    "legendFormat": "{{ ins }}",
+                    "legendFormat": "{{ server }}",
                     "range": true,
                     "refId": "A"
                 }
@@ -1837,7 +2156,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 30
+                "y": 44
             },
             "id": 131,
             "options": {
@@ -1863,7 +2182,7 @@
                     "exemplar": true,
                     "expr": "minio_node_process_resident_memory_bytes{ins=\"$ins\"}",
                     "interval": "",
-                    "legendFormat": "{{ ins }}",
+                    "legendFormat": "{{ server }}",
                     "range": true,
                     "refId": "A"
                 }
@@ -1968,7 +2287,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 39
+                "y": 53
             },
             "id": 135,
             "links": [],
@@ -2082,7 +2401,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 39
+                "y": 53
             },
             "id": 137,
             "options": {
@@ -2164,16 +2483,16 @@
                     "type": "prometheus",
                     "uid": "${ds}"
                 },
-                "definition": "label_values(minio_node_process_uptime_seconds, ins)",
+                "definition": "label_values(minio_node_process_uptime_seconds{cls='$cls'}, ins)",
                 "description": "Minio Instance Name",
-                "hide": 0,
+                "hide": 2,
                 "includeAll": false,
                 "label": "Instance",
                 "multi": false,
                 "name": "ins",
                 "options": [],
                 "query": {
-                    "query": "label_values(minio_node_process_uptime_seconds, ins)",
+                    "query": "label_values(minio_node_process_uptime_seconds{cls='$cls'}, ins)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 1,
@@ -2188,16 +2507,16 @@
                     "type": "prometheus",
                     "uid": "${ds}"
                 },
-                "definition": "label_values(minio_node_process_uptime_seconds{ins=\"$ins\"}, cls)",
+                "definition": "label_values(minio_node_process_uptime_seconds,cls)",
                 "description": "Minio Cluster Name",
-                "hide": 2,
+                "hide": 0,
                 "includeAll": false,
                 "label": "Cluster",
                 "multi": false,
                 "name": "cls",
                 "options": [],
                 "query": {
-                    "query": "label_values(minio_node_process_uptime_seconds{ins=\"$ins\"}, cls)",
+                    "query": "label_values(minio_node_process_uptime_seconds,cls)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 1,
