@@ -57,7 +57,7 @@
             },
             "id": 118,
             "panels": [],
-            "title": "ETCD Metrics",
+            "title": "Overview",
             "type": "row"
         },
         {
@@ -70,105 +70,66 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "mappings": [],
-                    "noValue": "N/A",
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "green",
+                                    "index": 0,
+                                    "text": "Follower"
+                                },
+                                "1": {
+                                    "color": "blue",
+                                    "index": 1,
+                                    "text": "Learner"
+                                },
+                                "2": {
+                                    "color": "orange",
+                                    "index": 2,
+                                    "text": "Leader"
+                                },
+                                "3": {
+                                    "color": "purple",
+                                    "index": 3,
+                                    "text": "WTF?"
+                                }
+                            },
+                            "type": "value"
+                        },
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "purple",
+                                    "index": 4,
+                                    "text": "N/A"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red",
+                                "color": "blue",
                                 "value": null
                             }
                         ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Has Leader"
-                        },
-                        "properties": [
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "0": {
-                                                "color": "red",
-                                                "index": 0,
-                                                "text": "No"
-                                            },
-                                            "1": {
-                                                "color": "green",
-                                                "index": 1,
-                                                "text": "Yes"
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
-                                            "match": "null+nan",
-                                            "result": {
-                                                "color": "orange",
-                                                "index": 2,
-                                                "text": "Unknown"
-                                            }
-                                        },
-                                        "type": "special"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Members"
-                        },
-                        "properties": [
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "red",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "blue",
-                                            "value": 1
-                                        },
-                                        {
-                                            "color": "#EAB839",
-                                            "value": 2
-                                        },
-                                        {
-                                            "color": "green",
-                                            "value": 3
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
                     }
-                ]
+                },
+                "overrides": []
             },
             "gridPos": {
-                "h": 5,
-                "w": 4,
+                "h": 7,
+                "w": 7,
                 "x": 0,
                 "y": 1
             },
-            "id": 87,
-            "links": [],
-            "maxDataPoints": 100,
+            "id": 91,
             "options": {
                 "colorMode": "background",
-                "graphMode": "none",
+                "graphMode": "area",
                 "justifyMode": "auto",
                 "orientation": "horizontal",
                 "reduceOptions": {
@@ -178,7 +139,7 @@
                     "fields": "",
                     "values": false
                 },
-                "textMode": "auto"
+                "textMode": "value_and_name"
             },
             "pluginVersion": "9.3.6",
             "targets": [
@@ -189,34 +150,14 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max(etcd_server_has_leader{job=\"etcd\", cls=\"$cls\"})",
-                    "format": "time_series",
+                    "expr": "max by (ins,instance) (etcd_server_is_leader{job=\"etcd\", cls=\"$cls\"}*2 + etcd_server_is_learner{job=\"etcd\", cls=\"$cls\"})",
                     "instant": true,
-                    "intervalFactor": 2,
-                    "legendFormat": "Has Leader",
+                    "legendFormat": "{{ ins }} @ {{ instance }}",
                     "range": false,
-                    "refId": "A",
-                    "step": 600
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "sum(etcd_server_has_leader{job=\"etcd\", cls=\"$cls\"})",
-                    "format": "time_series",
-                    "hide": false,
-                    "instant": true,
-                    "intervalFactor": 2,
-                    "legendFormat": "Members",
-                    "range": false,
-                    "refId": "B",
-                    "step": 600
+                    "refId": "A"
                 }
             ],
-            "title": "ETCD Has Leader",
+            "title": "ETCD Members",
             "type": "stat"
         },
         {
@@ -374,9 +315,9 @@
                 ]
             },
             "gridPos": {
-                "h": 5,
-                "w": 20,
-                "x": 4,
+                "h": 7,
+                "w": 17,
+                "x": 7,
                 "y": 1
             },
             "id": 116,
@@ -563,68 +504,107 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "Follower"
-                                },
-                                "1": {
-                                    "color": "blue",
-                                    "index": 1,
-                                    "text": "Learner"
-                                },
-                                "2": {
-                                    "color": "orange",
-                                    "index": 2,
-                                    "text": "Leader"
-                                },
-                                "3": {
-                                    "color": "purple",
-                                    "index": 3,
-                                    "text": "WTF?"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "purple",
-                                    "index": 4,
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
+                    "mappings": [],
+                    "noValue": "N/A",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
+                                "color": "red",
                                 "value": null
                             }
                         ]
-                    }
+                    },
+                    "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Has Leader"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "red",
+                                                "index": 0,
+                                                "text": "No"
+                                            },
+                                            "1": {
+                                                "color": "green",
+                                                "index": 1,
+                                                "text": "Yes"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "orange",
+                                                "index": 2,
+                                                "text": "Unknown"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Members"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "blue",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "#EAB839",
+                                            "value": 2
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 3
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 7,
-                "w": 8,
+                "w": 3,
                 "x": 0,
-                "y": 6
+                "y": 8
             },
-            "id": 91,
+            "id": 87,
+            "links": [],
+            "maxDataPoints": 100,
             "options": {
                 "colorMode": "background",
-                "graphMode": "area",
+                "graphMode": "none",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "last"
@@ -632,7 +612,7 @@
                     "fields": "",
                     "values": false
                 },
-                "textMode": "value_and_name"
+                "textMode": "auto"
             },
             "pluginVersion": "9.3.6",
             "targets": [
@@ -643,14 +623,122 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (etcd_server_is_leader{job=\"etcd\", cls=\"$cls\"}*2+etcd_server_is_learner{job=\"etcd\", cls=\"$cls\"})",
+                    "expr": "min(etcd_server_has_leader{job=\"etcd\", cls=\"$cls\"})",
+                    "format": "time_series",
                     "instant": true,
-                    "legendFormat": "{{ ins }}",
+                    "intervalFactor": 2,
+                    "legendFormat": "Has Leader",
                     "range": false,
-                    "refId": "A"
+                    "refId": "A",
+                    "step": 600
                 }
             ],
-            "title": "ETCD Members",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "noValue": "N/A",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 4,
+                "x": 3,
+                "y": 8
+            },
+            "id": 129,
+            "links": [],
+            "maxDataPoints": 100,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "valueSize": 32
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "9.3.6",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": true,
+                    "intervalFactor": 2,
+                    "legendFormat": "Members",
+                    "range": false,
+                    "refId": "B",
+                    "step": 600
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
+                    "format": "time_series",
+                    "instant": true,
+                    "intervalFactor": 2,
+                    "legendFormat": "Quorum",
+                    "range": false,
+                    "refId": "A",
+                    "step": 600
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"}) - ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": true,
+                    "intervalFactor": 2,
+                    "legendFormat": "Tolerance",
+                    "range": false,
+                    "refId": "C",
+                    "step": 600
+                }
+            ],
             "type": "stat"
         },
         {
@@ -670,15 +758,260 @@
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "drawStyle": "line",
-                        "fillOpacity": 0,
+                        "fillOpacity": 50,
                         "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
                             "tooltip": false,
                             "viz": false
                         },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 2,
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "min": -1,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.stacking",
+                                "value": {
+                                    "group": "A",
+                                    "mode": "none"
+                                }
+                            },
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 3
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "text",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "C"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.stacking",
+                                "value": {
+                                    "group": "A",
+                                    "mode": "none"
+                                }
+                            },
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 3
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "red",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "aliveness"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "auto"
+                            },
+                            {
+                                "id": "custom.stacking",
+                                "value": {
+                                    "group": "A",
+                                    "mode": "none"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 100
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "dark-green",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "color": "green",
+                                                "index": 0,
+                                                "text": "OK"
+                                            },
+                                            "0": {
+                                                "color": "red",
+                                                "index": 1,
+                                                "text": "\ud83d\udd25NOLEADER"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 17,
+                "x": 7,
+                "y": 8
+            },
+            "id": 97,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true,
+                    "sortBy": "Min",
+                    "sortDesc": false
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "expr": "up{job=\"etcd\", cls=\"$cls\"}",
+                    "legendFormat": "{{ ins }} @ {{ ip }}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"})",
+                    "hide": false,
+                    "legendFormat": "etcd size",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "expr": "ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
+                    "hide": false,
+                    "legendFormat": "etcd quorum",
+                    "range": true,
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "expr": "- min(etcd_server_has_leader{job=\"etcd\", cls=\"$cls\"})",
+                    "hide": false,
+                    "legendFormat": "aliveness",
+                    "range": true,
+                    "refId": "D"
+                }
+            ],
+            "title": "ETCD Aliveness",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "hidden",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 83,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 1,
                         "pointSize": 5,
                         "scaleDistribution": {
                             "type": "linear"
@@ -713,10 +1046,10 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 7,
-                "w": 4,
-                "x": 8,
-                "y": 6
+                "h": 6,
+                "w": 3,
+                "x": 0,
+                "y": 15
             },
             "id": 106,
             "links": [],
@@ -749,7 +1082,7 @@
                     "step": 2
                 }
             ],
-            "title": "Rate Leader Elections",
+            "title": "Leader Elections",
             "type": "timeseries"
         },
         {
@@ -757,6 +1090,101 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "AlertInfo ${__field.labels.alertname}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Balertname%3D%22${__field.labels.alertname}%22%7D"
+                        }
+                    ],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "noValue": "OK",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 3
+                            },
+                            {
+                                "color": "purple",
+                                "value": 4
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 4,
+                "x": 3,
+                "y": 15
+            },
+            "id": 126,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 12
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "9.3.6",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(ALERTS{alertstate=\"firing\", job=\"etcd\"}) by (alertname, severity)",
+                    "interval": "",
+                    "legendFormat": "{{ alertname }}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "Alerting event graph. Each stripe represent an alerting Event. Gray transparent stipe are pending alerts.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -766,23 +1194,26 @@
                         "axisCenteredZero": false,
                         "axisColorMode": "text",
                         "axisLabel": "",
-                        "axisPlacement": "auto",
+                        "axisPlacement": "hidden",
+                        "axisSoftMax": 1.2,
+                        "axisSoftMin": 0,
                         "barAlignment": 0,
                         "drawStyle": "line",
-                        "fillOpacity": 50,
+                        "fillOpacity": 98,
                         "gradientMode": "none",
                         "hideFrom": {
+                            "graph": false,
                             "legend": false,
                             "tooltip": false,
                             "viz": false
                         },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 0,
+                        "pointSize": 1,
                         "scaleDistribution": {
                             "type": "linear"
                         },
-                        "showPoints": "auto",
+                        "showPoints": "never",
                         "spanNulls": false,
                         "stacking": {
                             "group": "A",
@@ -793,6 +1224,26 @@
                         }
                     },
                     "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "AlertInfo ${__field.labels.alertname} on Cluster ${cls}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Bcls%3D%22${cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "targetBlank": true,
+                            "title": "Silence ${__field.labels.alertname} on Cluster ${cls}",
+                            "url": "http://a.pigsty/#/silences/new?filter=%7Bcls%3D%22${cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "title": "PGSQL Instance for ${__field.labels.ins}",
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                        },
+                        {
+                            "title": "PGSQL Node for ${__field.labels.ins}",
+                            "url": "/d/node-instance?var-ins=${__field.labels.ins}"
+                        }
+                    ],
                     "mappings": [],
                     "min": 0,
                     "thresholds": {
@@ -803,572 +1254,132 @@
                                 "value": null
                             }
                         ]
-                    }
+                    },
+                    "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 66
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Firing\ud83d\udd25"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 25
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "rgba(128, 128, 128, 0.6)",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "Pend\u23f0"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Alert"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "red",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byType",
+                            "options": "time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "auto"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 7,
-                "w": 12,
-                "x": 12,
-                "y": 6
+                "h": 6,
+                "w": 17,
+                "x": 7,
+                "y": 15
             },
-            "id": 97,
+            "id": 124,
             "options": {
                 "legend": {
                     "calcs": [
-                        "min"
+                        "last"
                     ],
                     "displayMode": "table",
                     "placement": "right",
                     "showLegend": true,
-                    "sortBy": "Min",
-                    "sortDesc": false
-                },
-                "tooltip": {
-                    "mode": "single",
-                    "sort": "none"
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "expr": "up{job=\"etcd\", cls=\"$cls\"}",
-                    "legendFormat": "{{ ins }} @ {{ ip }}",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "ETCD Aliveness",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "auto",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "line"
-                        }
-                    },
-                    "mappings": [],
-                    "max": 0.05,
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 0.05
-                            }
-                        ]
-                    },
-                    "unit": "s"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 12,
-                "x": 0,
-                "y": 13
-            },
-            "id": 114,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "mode": "single",
-                    "sort": "none"
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "expr": "histogram_quantile(0.99, rate(etcd_network_peer_round_trip_time_seconds_bucket{job=\"etcd\", cls=\"$cls\"}[2m]))",
-                    "legendFormat": "{{ ins }} -> {{ To }}",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "Network RT",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "stepAfter",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "area"
-                        }
-                    },
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 0.01
-                            }
-                        ]
-                    },
-                    "unit": "s"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 12,
-                "x": 12,
-                "y": 13
-            },
-            "id": 99,
-            "links": [],
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right",
-                    "showLegend": true
+                    "sortBy": "Last",
+                    "sortDesc": true
                 },
                 "tooltip": {
                     "mode": "multi",
                     "sort": "none"
                 }
             },
-            "pluginVersion": "8.5.2",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
-                    "editorMode": "code",
-                    "expr": "histogram_quantile(0.99, sum(rate(etcd_disk_wal_fsync_duration_seconds_bucket{job=\"etcd\", cls=\"$cls\"}[5m])) by (ins, le))",
-                    "hide": false,
-                    "intervalFactor": 2,
-                    "legendFormat": "{{ ins }} WAL",
-                    "metric": "etcd_disk_wal_fsync_duration_seconds_bucket",
-                    "range": true,
-                    "refId": "A",
-                    "step": 4
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "expr": "histogram_quantile(0.99, sum(rate(etcd_disk_backend_commit_duration_seconds_bucket{job=\"etcd\", cls=\"$cls\"}[5m])) by (ins, le))",
-                    "intervalFactor": 2,
-                    "legendFormat": "{{ ins }} DB",
-                    "metric": "etcd_disk_backend_commit_duration_seconds_bucket",
-                    "range": true,
-                    "refId": "B",
-                    "step": 4
-                }
-            ],
-            "title": "Disk Sync Duration",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": true,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "short"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 19
-            },
-            "id": 89,
-            "links": [],
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean",
-                        "lastNotNull",
-                        "max"
-                    ],
-                    "displayMode": "table",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "8.5.2",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "expr": "rate(etcd_server_proposals_committed_total{job=\"etcd\", cls=\"$cls\"}[1m])",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "legendFormat": "{{ ins }}",
-                    "metric": "",
-                    "range": true,
-                    "refId": "A",
-                    "step": 60
-                }
-            ],
-            "title": "Proposal Committed",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": true,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "short"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 19
-            },
-            "id": 108,
-            "links": [],
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean",
-                        "lastNotNull",
-                        "max"
-                    ],
-                    "displayMode": "table",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "8.5.2",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "expr": "rate(etcd_server_proposals_applied_total{job=\"etcd\", cls=\"$cls\"}[1m])",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "legendFormat": "{{ ins }}",
-                    "metric": "",
-                    "range": true,
-                    "refId": "A",
-                    "step": 60
-                }
-            ],
-            "title": "Proposal Applied",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "\u25b2 for Sent, \u25bc for receive",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 30,
-                        "gradientMode": "opacity",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "smooth",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "Bps"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "/dfa/"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 40
-                            },
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 10
-                            },
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 2
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 12,
-                "x": 0,
-                "y": 27
-            },
-            "id": 110,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "8.0.0",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "exemplar": true,
-                    "expr": "sum(rate(etcd_network_client_grpc_sent_bytes_total{job=\"etcd\", cls=\"$cls\"}[1m])) by (ins)",
+                    "exemplar": false,
+                    "expr": "ALERTS{cls=\"$cls\", alertstate=\"firing\"}",
                     "interval": "",
-                    "legendFormat": "\u25b2{{ ins }}",
-                    "range": true,
+                    "legendFormat": "[{{ severity }}\ud83d\udd25] {{alertname}}  @ {{ ins }}",
                     "refId": "A"
                 },
                 {
@@ -1376,343 +1387,26 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
-                    "editorMode": "code",
-                    "exemplar": true,
-                    "expr": "- sum(rate(etcd_network_peer_received_bytes_total{job=\"etcd\", cls=\"$cls\"}[1m])) by (ins)",
+                    "exemplar": false,
+                    "expr": "ALERTS{cls=\"$cls\", alertstate=\"pending\"} ",
+                    "hide": true,
                     "interval": "",
-                    "legendFormat": "\u25bc{{ ins }}",
-                    "range": true,
+                    "legendFormat": "[{{ severity }}\u23f0] {{alertname}}  @ {{ ins }}",
                     "refId": "B"
-                }
-            ],
-            "title": "Client Traffic",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "\u25b2 for Sent, \u25bc for receive",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 50,
-                        "gradientMode": "opacity",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "smooth",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "Bps"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "/dfa/"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 40
-                            },
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 10
-                            },
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 2
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 12,
-                "x": 12,
-                "y": 27
-            },
-            "id": 111,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "8.0.0",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "exemplar": true,
-                    "expr": "sum(rate(etcd_network_peer_sent_bytes_total{job=\"etcd\", cls=\"$cls\"}[1m])) by (ins)",
-                    "interval": "",
-                    "legendFormat": "\u25b2{{ ins }}",
-                    "range": true,
-                    "refId": "A"
                 },
                 {
                     "datasource": {
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
-                    "editorMode": "code",
-                    "exemplar": true,
-                    "expr": "- sum(rate(etcd_network_client_grpc_received_bytes_total{job=\"etcd\", cls=\"$cls\"}[1m])) by (ins)",
-                    "interval": "",
-                    "legendFormat": "\u25bc{{ ins }}",
-                    "range": true,
-                    "refId": "B"
-                }
-            ],
-            "title": "Peer Traffic",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 2,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "bytes"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 7,
-                "w": 12,
-                "x": 0,
-                "y": 33
-            },
-            "id": 103,
-            "links": [],
-            "options": {
-                "legend": {
-                    "calcs": [],
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "showLegend": false
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "8.5.2",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "expr": "process_resident_memory_bytes{job=\"etcd\", cls=\"$cls\"}",
-                    "intervalFactor": 2,
-                    "legendFormat": "{{instance}} Resident Memory",
-                    "metric": "process_resident_memory_bytes",
-                    "range": true,
-                    "refId": "A",
-                    "step": 4
-                }
-            ],
-            "title": "Memory",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 2,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 7,
-                "w": 12,
-                "x": 12,
-                "y": 33
-            },
-            "id": 101,
-            "links": [],
-            "options": {
-                "legend": {
-                    "calcs": [],
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "showLegend": false
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "8.5.2",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "expr": "etcd_mvcc_db_total_size_in_bytes{job=\"etcd\", cls=\"$cls\"} / etcd_server_quota_backend_bytes{job=\"etcd\", cls=\"$cls\"}",
+                    "exemplar": false,
+                    "expr": "0",
                     "hide": false,
                     "interval": "",
-                    "intervalFactor": 2,
-                    "legendFormat": "{{instance}} DB Size",
-                    "metric": "",
-                    "range": true,
-                    "refId": "A",
-                    "step": 4
+                    "legendFormat": "Alert",
+                    "refId": "C"
                 }
             ],
-            "title": "DB Size: db / quota",
             "type": "timeseries"
         },
         {
@@ -1721,7 +1415,894 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 40
+                "y": 21
+            },
+            "id": 128,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "axisSoftMax": 0.05,
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 0,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "auto",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "area"
+                                }
+                            },
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    },
+                                    {
+                                        "color": "yellow",
+                                        "value": 0.1
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 0.2
+                                    }
+                                ]
+                            },
+                            "unit": "s"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 6,
+                        "w": 12,
+                        "x": 0,
+                        "y": 21
+                    },
+                    "id": 114,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "last"
+                            ],
+                            "displayMode": "table",
+                            "placement": "right",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "mode": "single",
+                            "sort": "none"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "expr": "histogram_quantile(0.99, rate(etcd_network_peer_round_trip_time_seconds_bucket{job=\"etcd\", cls=\"$cls\"}[2m]))",
+                            "legendFormat": "{{ ins }} -> {{ To }}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Network RT",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 0,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "stepAfter",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "area"
+                                }
+                            },
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    },
+                                    {
+                                        "color": "yellow",
+                                        "value": 0.01
+                                    },
+                                    {
+                                        "color": "orange",
+                                        "value": 0.1
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 0.5
+                                    }
+                                ]
+                            },
+                            "unit": "s"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 6,
+                        "w": 12,
+                        "x": 12,
+                        "y": 21
+                    },
+                    "id": 99,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "last"
+                            ],
+                            "displayMode": "table",
+                            "placement": "right",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.2",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "expr": "histogram_quantile(0.99, sum(rate(etcd_disk_wal_fsync_duration_seconds_bucket{job=\"etcd\", cls=\"$cls\"}[5m])) by (ins, le))",
+                            "hide": false,
+                            "intervalFactor": 2,
+                            "legendFormat": "{{ ins }} WAL",
+                            "metric": "etcd_disk_wal_fsync_duration_seconds_bucket",
+                            "range": true,
+                            "refId": "A",
+                            "step": 4
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "expr": "histogram_quantile(0.99, sum(rate(etcd_disk_backend_commit_duration_seconds_bucket{job=\"etcd\", cls=\"$cls\"}[5m])) by (ins, le))",
+                            "intervalFactor": 2,
+                            "legendFormat": "{{ ins }} DB",
+                            "metric": "etcd_disk_backend_commit_duration_seconds_bucket",
+                            "range": true,
+                            "refId": "B",
+                            "step": 4
+                        }
+                    ],
+                    "title": "Disk Sync Duration",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": true,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 27
+                    },
+                    "id": 89,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "lastNotNull",
+                                "max"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.2",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "expr": "rate(etcd_server_proposals_committed_total{job=\"etcd\", cls=\"$cls\"}[1m])",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "legendFormat": "{{ ins }}",
+                            "metric": "",
+                            "range": true,
+                            "refId": "A",
+                            "step": 60
+                        }
+                    ],
+                    "title": "Proposal Committed",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": true,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 12,
+                        "y": 27
+                    },
+                    "id": 108,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "lastNotNull",
+                                "max"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.2",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "expr": "rate(etcd_server_proposals_applied_total{job=\"etcd\", cls=\"$cls\"}[1m])",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "legendFormat": "{{ ins }}",
+                            "metric": "",
+                            "range": true,
+                            "refId": "A",
+                            "step": 60
+                        }
+                    ],
+                    "title": "Proposal Applied",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "\u25b2 for Sent, \u25bc for receive",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 30,
+                                "gradientMode": "opacity",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "smooth",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "Bps"
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "/dfa/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.fillOpacity",
+                                        "value": 40
+                                    },
+                                    {
+                                        "id": "custom.fillOpacity",
+                                        "value": 10
+                                    },
+                                    {
+                                        "id": "custom.lineWidth",
+                                        "value": 2
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 6,
+                        "w": 12,
+                        "x": 0,
+                        "y": 35
+                    },
+                    "id": 110,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean"
+                            ],
+                            "displayMode": "table",
+                            "placement": "right",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.0.0",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "exemplar": true,
+                            "expr": "sum(rate(etcd_network_client_grpc_sent_bytes_total{job=\"etcd\", cls=\"$cls\"}[1m])) by (ins)",
+                            "interval": "",
+                            "legendFormat": "\u25b2{{ ins }}",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "exemplar": true,
+                            "expr": "- sum(rate(etcd_network_peer_received_bytes_total{job=\"etcd\", cls=\"$cls\"}[1m])) by (ins)",
+                            "interval": "",
+                            "legendFormat": "\u25bc{{ ins }}",
+                            "range": true,
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "Client Traffic",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "\u25b2 for Sent, \u25bc for receive",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 50,
+                                "gradientMode": "opacity",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "smooth",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "Bps"
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "/dfa/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.fillOpacity",
+                                        "value": 40
+                                    },
+                                    {
+                                        "id": "custom.fillOpacity",
+                                        "value": 10
+                                    },
+                                    {
+                                        "id": "custom.lineWidth",
+                                        "value": 2
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 6,
+                        "w": 12,
+                        "x": 12,
+                        "y": 35
+                    },
+                    "id": 111,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean"
+                            ],
+                            "displayMode": "table",
+                            "placement": "right",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.0.0",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "exemplar": true,
+                            "expr": "sum(rate(etcd_network_peer_sent_bytes_total{job=\"etcd\", cls=\"$cls\"}[1m])) by (ins)",
+                            "interval": "",
+                            "legendFormat": "\u25b2{{ ins }}",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "exemplar": true,
+                            "expr": "- sum(rate(etcd_network_client_grpc_received_bytes_total{job=\"etcd\", cls=\"$cls\"}[1m])) by (ins)",
+                            "interval": "",
+                            "legendFormat": "\u25bc{{ ins }}",
+                            "range": true,
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "Peer Traffic",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 0,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 2,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "bytes"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 7,
+                        "w": 12,
+                        "x": 0,
+                        "y": 41
+                    },
+                    "id": 103,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "list",
+                            "placement": "bottom",
+                            "showLegend": false
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.2",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "expr": "process_resident_memory_bytes{job=\"etcd\", cls=\"$cls\"}",
+                            "intervalFactor": 2,
+                            "legendFormat": "{{instance}} Resident Memory",
+                            "metric": "process_resident_memory_bytes",
+                            "range": true,
+                            "refId": "A",
+                            "step": 4
+                        }
+                    ],
+                    "title": "Memory",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 0,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 2,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "percentunit"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 7,
+                        "w": 12,
+                        "x": 12,
+                        "y": 41
+                    },
+                    "id": 101,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "list",
+                            "placement": "bottom",
+                            "showLegend": false
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.2",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "expr": "etcd_mvcc_db_total_size_in_bytes{job=\"etcd\", cls=\"$cls\"} / etcd_server_quota_backend_bytes{job=\"etcd\", cls=\"$cls\"}",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "{{instance}} DB Size",
+                            "metric": "",
+                            "range": true,
+                            "refId": "A",
+                            "step": 4
+                        }
+                    ],
+                    "title": "DB Size: db / quota",
+                    "type": "timeseries"
+                }
+            ],
+            "title": "Metrics",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 22
             },
             "id": 120,
             "panels": [
@@ -1734,7 +2315,7 @@
                         "h": 18,
                         "w": 24,
                         "x": 0,
-                        "y": 41
+                        "y": 65
                     },
                     "id": 122,
                     "options": {
@@ -1767,7 +2348,7 @@
                     "type": "logs"
                 }
             ],
-            "title": "ETCD Logs",
+            "title": "Logs",
             "type": "row"
         }
     ],

@@ -76,8 +76,8 @@ ansible all -f 1 -b -a 'systemctl reload patroni' # reload patroni config
 To update etcd endpoints reference on `vip-manager`, (optional, if you are using a L2 vip)
 
 ```bash
-./pgsql.yml -t pg_vip_config                          # regenerate vip-manager config
-ansible all -f 1 -b -a 'systemctl reload vip-manager' # restart vip-manager to use new config 
+./pgsql.yml -t pg_vip_config                           # regenerate vip-manager config
+ansible all -f 1 -b -a 'systemctl restart vip-manager' # restart vip-manager to use new config 
 ```
 
 
@@ -92,7 +92,7 @@ You can add new members to existing etcd cluster in 4 steps:
 
 1. issue `etcdctl member add` command to tell existing cluster that a new member is coming (use learner mode)
 2. update inventory group `etcd` with new instance
-3. init the new member with `etcd_init=existing`, to join the existing cluster rather than create a new one
+3. init the new member with `etcd_init=existing`, to join the existing cluster rather than create a new one (**VERY IMPORTANT**)
 4. promote the new member from leaner to follower
 5. update etcd endpoints reference with [reload-config](#reload-config)
 
@@ -156,8 +156,9 @@ $ em list                # check again, the new member is started
 ```
 
 
-The new member is added, don't forget to [reload config](#reload-config)
+The new member is added, don't forget to [reload config](#reload-config).
 
+Repeat the steps above to add more members. remember to use at least 3 members for production.
 
 
 

@@ -1,0 +1,68 @@
+---
+#==============================================================#
+# File      :   etcd.yml
+# Ctime     :   2023-02-24
+# Mtime     :   2023-02-24
+# Desc      :   Record rules for etcd
+# Path      :   /etc/prometheus/rules/etcd.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+groups:
+  ################################################################
+  #                         Etcd Rules                           #
+  ################################################################
+  - name: etcd-rules
+    rules:
+
+      # etcd dist fsync duration
+      - record: etcd:ins:disk_fsync_rt_p99_5m
+        expr: histogram_quantile(0.99, rate(etcd_disk_wal_fsync_duration_seconds_bucket{job="etcd"}[5m]))
+
+      # etcd backend commit rt
+      - record: etcd:ins:backend_commit_rt_p99_5m
+        expr: histogram_quantile(0.99, rate(etcd_disk_backend_commit_duration_seconds_bucket{job="etcd"}[5m]))
+
+      # etcd network peer rt
+      - record: etcd:ins:network_peer_rt_p99_1m
+        expr: histogram_quantile(0.99, rate(etcd_network_peer_round_trip_time_seconds_bucket{job="etcd"}[1m]))
+
+
+  ################################################################
+  #                         Etcd Alert                           #
+  ################################################################
+  - name: etcd-alert
+    rules:
+
+      #==============================================================#
+      #                         Error                                #
+      #==============================================================#
+      # Etcd no Leader triggers a P0 alert immediately
+      # if dcs_failsafe mode is not enabled, this may lead to global outage
+      - alert: EtcdNoLeader
+        expr: min(etcd_server_has_leader) by (cls) < 1
+        for: 15s
+        labels: { level: 0, severity: CRIT, category: etcd }
+        annotations:
+          summary: "CRIT EtcdNoLeader: {{ $labels.cls }} {{ $value }}"
+          description: |
+            etcd_server_has_leader[cls={{ $labels.cls }}] = {{ $value }} < 1
+            http://g.pigsty/d/etcd-overview?from=now-5m&to=now&var-cls={{$labels.cls}}
+
+      #==============================================================#
+      #                         Latency                              #
+      #==============================================================#
+      # Etcd disk fsync rt p99 > 50ms or backend commit rt p99 > 100ms
+      - alert: EtcdSyncCommitSlow
+        expr: etcd:ins:disk_fsync_rt_p99_5m > 0.100 or etcd:ins:backend_commit_rt_p99_5m > 0.100
+        for: 1m
+        labels: { level: 1, severity: WARN, category: etcd }
+        annotations:
+          summary: "WARN EtcdSyncCommitSlow: {{ $labels.cls }} {{ $labels.ins }}"
+          description: |
+            etcd:ins:disk_fsync_rt_p99_5m[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 100ms or
+            etcd:ins:backend_commit_rt_p99_5m[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 100ms
+            http://g.pigsty/d/etcd-instance?from=now-10m&to=now&var-cls={{ $labels.cls }}
+
