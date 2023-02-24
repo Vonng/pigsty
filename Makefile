@@ -8,7 +8,7 @@
 # License   :   AGPLv3
 #==============================================================#
 # pigsty version & default develop & testing el version
-VERSION?=v2.0.0-rc2
+VERSION?=v2.0.0-rc3
 EL_VER=9
 
 # local name
