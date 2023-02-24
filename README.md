@@ -38,7 +38,7 @@ Check [**Feature**](docs/FEATURE.md) for details.
 
 ## Get Started
 
-> It takes four steps to install Pigsty: [Download](docs/INSTALL#download), [Bootstrap](docs/INSTALL#bootstrap), [Configure](docs/INSTALL#configure) and [Install](docs/INSTALL#install).
+> It takes four steps to install Pigsty: [Download](docs/INSTALL.md#download), [Bootstrap](docs/INSTALL.md#bootstrap), [Configure](docs/INSTALL.md#configure) and [Install](docs/INSTALL.md#install).
 
 Prepare a new node with Linux x86_64 EL 7/8/9 compatible OS, then run as a **sudo-able** user:
 
