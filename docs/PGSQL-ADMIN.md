@@ -257,8 +257,6 @@ bin/pgsql-svc pg-test             # refresh pg_service on existing instances to 
 [ OK ] remove pgsql instances from  10.10.10.13 of 'pg-test':
 [WARN]   remove instances from cluster:
 [ OK ]     $ ./pgsql-rm.yml -l '10.10.10.13,&pg-test'
-[WARN]   reload pg_service on existing instances:
-[ OK ]     $ ./pgsql.yml -l 'pg-test,!10.10.10.13' -t pg_service
 ```
 
 And remove instance definition from the inventory:

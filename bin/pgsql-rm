@@ -4,7 +4,7 @@ set -uo pipefail
 # File      :   pgsql-rm
 # Desc      :   Remove PostgreSQL Cluster / Remove Replicas
 # Ctime     :   2022-12-28
-# Mtime     :   2022-12-28
+# Mtime     :   2023-02-24
 # Path      :   bin/pgsql-rm
 # Deps      :   ansible-playbook, pgsql.yml, pgsql-rm.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -110,8 +110,7 @@ log_line "PLANNING"
 log_info "remove pgsql instances from ${IP_LIST} of '${PG_CLUSTER}':"
 log_warn "  remove instances from cluster:"
 log_info "    $ ./pgsql-rm.yml -l '${TARGET_PATTERN}'"
-log_warn "  reload pg_service on existing instances:"
-log_info "    $ ./pgsql.yml -l '${EXISTS_PATTERN}' -t pg_service"
+
 
 #---------------------------------#
 # Remove Instances
@@ -129,31 +128,20 @@ if [[ $? -ne 0 ]]; then
 fi
 log_info "remove pgsql instances from '${IP_LIST} of ${PG_CLUSTER} complete"
 
-#---------------------------------#
-# Reload Services
-#---------------------------------#
-log_line "EXECUTE"
-log_warn "reload pgsql services on ${EXISTS_PATTERN}"
-log_hint "$ ./pgsql.yml -l '${EXISTS_PATTERN}' -t pg_service"
-
-"${PIGSTY_HOME}/pgsql.yml" -l "${EXISTS_PATTERN}" -t pg_service
-
-if [[ $? -ne 0 ]]; then
-  log_line "FAILURE"
-  log_error "fail to reload pgsql services on ${EXISTS_PATTERN}"
-  log_warn "current traffic may not be affected immediately"
-  log_warn "BUT IT'S VERY IMPORTANT TO FIX THIS ASAP!"
-  exit 5
-fi
-log_info "reload pgsql services for ${IP_LIST} of ${PG_CLUSTER} complete"
 
 #---------------------------------#
 # Summary
 #---------------------------------#
 log_line "SUMMARY"
 log_info "remove pgsql instances from ${IP_LIST} of ${PG_CLUSTER} success"
-log_warn "please adjust your inventory accordingly"
-log_hint "remove ${IP_LIST}  from inventory: all.children.${PG_CLUSTER}.hosts"
+
 log_warn "nodes will not be removed from pigsty, to do so:"
 log_hint "$ bin/node-rm ${IP_LIST}"
+
+log_warn "please adjust your inventory accordingly"
+log_hint "remove ${IP_LIST}  from inventory: all.children.${PG_CLUSTER}.hosts"
+
+log_warn "then refresh pg_service with updated inventory"
+log_hint "$ bin/pgsql-svc ${PG_CLUSTER}"
+
 exit 0
