@@ -497,7 +497,11 @@ The `name` definition of the default record is fixed and referenced by other mod
 
 The `domain` is the domain name that should be used for external access to this upstream server. domain names will be added to Nginx SSL cert SAN.
 
-The `endpoint` is an internally reachable TCP port. and `${admin_ip}` will be replaced with actuall [`admin_ip`](#admin_ip) in runtime.
+The `endpoint` is an internally reachable TCP port. and `${admin_ip}` will be replaced with actual [`admin_ip`](#admin_ip) in runtime.
+
+If `websocket` is set to `true`, http protocol will be auto upgraded for ws connections.
+
+If `scheme` is given (`http` or `https`), it will be used as part of proxy_pass URL.
 
 
 
