@@ -67,8 +67,10 @@ GRANT USAGE ON SCHEMA pg_catalog TO "{{ pg_replication_username }}";
 GRANT EXECUTE ON FUNCTION pg_catalog.current_setting(text) TO "{{ pg_replication_username }}";
 GRANT EXECUTE ON FUNCTION pg_catalog.set_config(text, text, boolean) TO "{{ pg_replication_username }}";
 GRANT EXECUTE ON FUNCTION pg_catalog.pg_is_in_recovery() TO "{{ pg_replication_username }}";
+{% if pg_version < 15 %}
 GRANT EXECUTE ON FUNCTION pg_catalog.pg_start_backup(text, boolean, boolean) TO "{{ pg_replication_username }}";
 GRANT EXECUTE ON FUNCTION pg_catalog.pg_stop_backup(boolean, boolean) TO "{{ pg_replication_username }}";
+{% endif %}
 GRANT EXECUTE ON FUNCTION pg_catalog.pg_create_restore_point(text) TO "{{ pg_replication_username }}";
 GRANT EXECUTE ON FUNCTION pg_catalog.pg_switch_wal() TO "{{ pg_replication_username }}";
 GRANT EXECUTE ON FUNCTION pg_catalog.pg_last_wal_replay_lsn() TO "{{ pg_replication_username }}";
@@ -532,7 +534,43 @@ REVOKE ALL ON monitor.patroni FROM dbrole_readonly;
 REVOKE ALL ON monitor.patroni FROM dbrole_readwrite;
 GRANT SELECT ON monitor.patroni TO pg_monitor;
 
+-- get process status
+DROP FOREIGN TABLE IF EXISTS monitor.process_status CASCADE;
+CREATE FOREIGN TABLE monitor.process_status (
+  username TEXT,
+  pid      INTEGER,
+  cpu      NUMERIC,
+  mem      NUMERIC,
+  vsz      BIGINT,
+  rss      BIGINT,
+  tty      TEXT,
+  stat     TEXT,
+  start    TEXT,
+  uptime   TEXT,
+  command  TEXT
+) SERVER fs OPTIONS (PROGRAM $$
+ps aux | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,substr($0,index($0,$11))}' OFS='\037'
+$$ , FORMAT 'csv', DELIMITER E'\037', HEADER 'TRUE');
 
+-- get disk usage
+DROP FOREIGN TABLE IF EXISTS monitor.disk_free CASCADE;
+CREATE FOREIGN TABLE monitor.disk_free (
+  fsname      TEXT,
+  fstype      TEXT,
+  total_1m    BIGINT,
+  used_1m     BIGINT,
+  avail_1m    BIGINT,
+  percent     TEXT,
+  itotal      BIGINT,
+  iused       BIGINT,
+  ifree       BIGINT,
+  ipercent    TEXT,
+  mountpoint  TEXT
+) SERVER fs OPTIONS (PROGRAM $$
+df -ml --output=source,fstype,size,used,avail,pcent,itotal,iused,iavail,ipcent,target | tail -n +2 | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11}' OFS='\037'
+$$,
+FORMAT 'csv', DELIMITER E'\037'
+);
 
 --==================================================================--
 --                          Customize Logic                         --
