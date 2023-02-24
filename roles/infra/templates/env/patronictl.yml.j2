@@ -16,7 +16,11 @@
 #--------------------------------------------------------------#
 namespace: {{ pg_namespace }}/          # namespace
 etcd3:
+{% if 'etcd' in groups %}
   hosts: '{% for ip in groups['etcd']|sort %}{% if not loop.first %},{% endif %}{{ ip }}:{{ etcd_port }}{% endfor %}'
+{% else %}
+  hosts: '{{ admin_ip|default('10.10.10.10') }}:2379'
+{% endif %}
   protocol: https
   cacert: /etc/pki/ca.crt
   cert:   /etc/pki/infra.crt
