@@ -2,7 +2,7 @@
 
 | Version                 |    Time    | Description                                             | Release                                                                                   |
 |:------------------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.0.0-rc3](#v200-rc3) | 2023-02-09 | Compatibility Security Maintainability Enhancement      | [v2.0.0-rc3](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-rc3)                     |
+| [v2.0.0-rc3](#v200-rc3) | 2023-02-24 | Compatibility Security Maintainability Enhancement      | [v2.0.0-rc3](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-rc3)                     |
 | [v1.5.1](#v151)         | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
 | [v1.5.0](#v150)         | 2022-05-31 | Docker Applications                                     | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
 | [v1.4.1](#v141)         | 2022-04-20 | Bug fix & Full translation of English documents.        | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |
@@ -115,10 +115,9 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)"
 * Now you can define pgbouncer parameters on database & user level
 
 
-
 **API Changes**
 
-Adding 64 parameters, removing 13 parameters, rename 17 parameters
+69 parameters added, 16 parameters removed, rename 14 parameters
 
 - `INFRA`.`META`.`admin_ip`                        : primary meta node ip address
 - `INFRA`.`META`.`region`                          : upstream mirror region: default|china|europe
@@ -192,7 +191,6 @@ Adding 64 parameters, removing 13 parameters, rename 17 parameters
 
 **Removed Parameters**
 
-- `INFRA`.`DCS`: removed, replaced by `ETCD`
 - `INFRA`.`CA`.`ca_homedir`: ca home dir, now fixed as `/etc/pki/`
 - `INFRA`.`CA`.`ca_cert`: ca cert filename, now fixed as `ca.key`
 - `INFRA`.`CA`.`ca_key`: ca key filename, now fixed as `ca.key`
@@ -231,9 +229,9 @@ Adding 64 parameters, removing 13 parameters, rename 17 parameters
 **Checksums**
 
 ```
-MD5 (pigsty-pkg-v2.0.0-rc3.el7.x86_64.tgz) = d66ee783e305195cafd58cc2d60b4344
-MD5 (pigsty-pkg-v2.0.0-rc3.el8.x86_64.tgz) = cf68663e39b312f09ae85a44d591cdb8
-MD5 (pigsty-pkg-v2.0.0-rc3.el9.x86_64.tgz) = 0f4b14360f46cdfde8cfe5323ae8b2a8
+MD5 (pigsty-pkg-v2.0.0-rc3.el7.x86_64.tgz) = 7ccc92006b009ccbdd263f03eefabeff
+MD5 (pigsty-pkg-v2.0.0-rc3.el8.x86_64.tgz) = 981210d60a0c02be010159eda2672791
+MD5 (pigsty-pkg-v2.0.0-rc3.el9.x86_64.tgz) = 1133ffd5b4c67a9a65b7aabb78bf6ed3
 ```
 
 Special thanks to @alemacci for his great contribution!

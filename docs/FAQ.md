@@ -405,7 +405,7 @@ bin/pgmon-rm <ins>
 <br>
 <details><summary>Abort due to redis exists?</summary>
 
-!> TBD
+!> use `redis_clean = true` and `redis_safeguard = false` to force clean redis data
 
 </details><br>
 
@@ -413,14 +413,14 @@ bin/pgmon-rm <ins>
 <br>
 <details><summary>How to add a single new redis instance on node?</summary>
 
-!> TBD
+!> Use `bin/redis-add <ip> <port>` to deploy a new redis instance on node.
 
 </details><br>
 
 
 <details><summary>How to remove a single redis instance from node?</summary>
 
-!> TBD
+!> `bin/redis-rm <ip> <port>` to remove a single redis instance from node
 
 </details><br>
 
@@ -447,6 +447,23 @@ bin/pgmon-rm <ins>
 </details><br>
 
 
+<details><summary>How enable hugepage on the fly?</summary>
+
+!> use `node_hugepage_count` and `node_hugepage_ratio` or `/pg/bin/pg-tune-hugepage`
+
+If your planning to enable hugepage, consider using `node_hugepage_count` and `node_hugepage_ratio` and apply with `./node.yml -t node_tune` 
+
+If your postgres is already running, you can use `/pg/bin/pg-tune-hugepage` to enable hugepage on the fly.
+
+```bash
+sync; echo 3 > /proc/sys/vm/drop_caches   # drop system cache (ready for performance impact)
+sudo /pg/bin/pg-tune-hugepage             # write nr_hugepages to /etc/sysctl.d/hugepage.conf
+pg restart <cls>                          # restart postgres to use hugepage
+```
+
+</details><br>
+
+
 
 <details><summary>How to guarantee 0 data loss during failover?</summary>
 
@@ -458,7 +475,7 @@ bin/pgmon-rm <ins>
 
 <details><summary>How to survive from disk full?</summary>
 
-!> TBD
+!> `rm -rf /pg/dummy` will free some emergency space. 
 
 </details><br>
 
