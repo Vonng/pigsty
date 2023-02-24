@@ -1,14 +1,36 @@
 ---
 #==============================================================#
 # File      :   minio.yml
-# Desc      :   pigsty config for minio clusters
+# Desc      :   pigsty config for 3 node x 2 disk minio clusters
 # Ctime     :   2023-01-07
-# Mtime     :   2023-01-07
+# Mtime     :   2023-02-24
 # Docs      :   https://vonng.github.io/pigsty/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 # MINIO_VOLUMES="https://minio-{1...4}.pigsty:9000/data/minio"
+
+
+#==============================================================#
+# Business Traffic
+#==============================================================# (intranet dns record)
+# 1.  meta    :  10.10.10.10  minio-1 (9000)     (9002) svc <--# <--- sss.pigsty
+# 2.  node-1  :  10.10.10.11  minio-2 (9000)  x  (9002) svc <--#
+# 3.  node-2  :  10.10.10.12  minio-3 (9000)     (9002) svc <--#
+#==============================================================#
+# use minio load balancer service (9002) instead of direct access (9000)
+# $ mcli alias set sss https://sss.pigsty:9002 minioadmin minioadmin
+#==============================================================#
+
+
+#==============================================================#
+# Admin Traffic
+#==============================================================# (public domain name)
+# 1.  minio-1 : 10.10.10.10:9001 <-- sss.pigsty  < (80) nginx <# <--- sss.pigsty
+# 2.  minio-2 : 10.10.10.11:9001 <-- sss2.pigsty <             # <--- sss2.pigsty
+# 3.  minio-3 : 10.10.10.12:9001 <-- sss3.pigsty <             # <--- sss3.pigsty
+#==============================================================#
+
 
 all:
   children:
@@ -17,50 +39,86 @@ all:
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
 
-    # 1 Node 1 Driver (DEFAULT)
-    #minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
-
-
-    # 1 Node x 4 Driver
-    #minio:
-    #  hosts: { 10.10.10.10: { minio_seq: 1 } }
-    #  vars:
-    #    minio_cluster: minio              # minio cluster name, minio by default
-    #    minio_data: '/data{1...4}'        # minio data dir(s), use {x...y} to specify multi drivers
-
-
+    #==============================================================#
     # Multi Node & Multi Driver Example (3 Node x 2 Disk)
+    #==============================================================#
     minio:
       hosts:
-        10.10.10.10: { minio_seq: 1 }
-        10.10.10.11: { minio_seq: 2 }
-        10.10.10.12: { minio_seq: 3 }
+        10.10.10.10: { minio_seq: 1 , nodename: minio-1 }
+        10.10.10.11: { minio_seq: 2 , nodename: minio-2 }
+        10.10.10.12: { minio_seq: 3 , nodename: minio-3 }
       vars:
         minio_cluster: minio
-        minio_data: '/data{1...2}'        # use two disk per node
+        node_cluster: minio
+        minio_data: '/data{1...2}'         # use two disk per node
         minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio node name pattern
         haproxy_services:
-          - name: minio                     # [REQUIRED] service name, unique
-            port: 9002                      # [REQUIRED] service port, unique
-            options:
+          - name: minio                    # [REQUIRED] service name, unique
+            port: 9002                     # [REQUIRED] service port, unique
+            options:                       # [OPTIONAL] minio health check
               - option httpchk
               - option http-keep-alive
               - http-check send meth OPTIONS uri /minio/health/live
               - http-check expect status 200
             servers:
-              - { name: minio-1 ,ip: 10.10.10.10 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
-              - { name: minio-2 ,ip: 10.10.10.11 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
-              - { name: minio-3 ,ip: 10.10.10.12 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+              - { name: minio-1 ,ip: 10.10.10.10 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+              - { name: minio-2 ,ip: 10.10.10.11 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+              - { name: minio-3 ,ip: 10.10.10.12 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+
+    #==============================================================#
+    # MinIO: 1 Node 1 Driver Example
+    #==============================================================#
+    #minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+
+    #==============================================================#
+    # MinIO: 1 Node 4 Driver Example
+    #==============================================================#
+    #minio:
+    #  hosts: { 10.10.10.10: { minio_seq: 1 } }
+    #  vars:
+    #    minio_cluster: minio         # minio cluster name, minio by default
+    #    minio_data: '/data{1...4}'   # minio data dir(s), use {x...y} to specify multi drivers
+
+
+    #==============================================================#
+    # PGSQL cluster 'pg-meta', to use the new HA MinIO as backup repo
+    #==============================================================#
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+    pg-meta:
+      hosts:
+        10.10.10.10: { pg_seq: 1, pg_role: primary }
+        10.10.10.11: { pg_seq: 2, pg_role: replica }
+        10.10.10.12: { pg_seq: 3, pg_role: replica , pg_offline_query: true }
+      vars:
+        pg_cluster: pg-meta
+        pg_users:
+          - {name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
+          - {name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+        pg_databases:
+          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
+        node_crontab:  # make a backup every 10 minutes for testing purpose
+          - '0/10 01 * * * postgres /pg/bin/pg-backup'
+
 
   vars:
     version: v2.0.0-rc2               # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
+    infra_portal:                     # domain names and upstream servers
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
+      # exposing minio admin console with nginx portal, optional
+      minio1       : { domain: sss.pigsty  ,endpoint: 10.10.10.10:9001 ,scheme: https ,websocket: true }
+      minio2       : { domain: sss2.pigsty ,endpoint: 10.10.10.11:9001 ,scheme: https ,websocket: true }
+      minio3       : { domain: sss3.pigsty ,endpoint: 10.10.10.12:9001 ,scheme: https ,websocket: true }
 
-    #-----------------------------------------------------------------
-    # MINIO
-    #-----------------------------------------------------------------
-    #minio_seq: 1                     # minio instance identifier, REQUIRED
+    #==============================================================#
+    # MinIO Configuration
+    #==============================================================#
     minio_cluster: minio              # minio cluster name, minio by default
     minio_clean: false                # cleanup minio during init?, false by default
     minio_user: minio                 # minio os user, `minio` by default
@@ -76,6 +134,52 @@ all:
     minio_buckets: [ { name: pgsql }, { name: infra },  { name: redis } ]
     minio_users:
       - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
-      - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
+      - { access_key: pgbackrest , secret_key: S3User.SomeNewPassWord , policy: readwrite }
 
+    #==============================================================#
+    # TELL PGSQL to use the new HA MinIO through load balancers
+    #==============================================================#
+    pgbackrest_method: minio_ha       # USE THE HA MINIO THROUGH A LOAD BALANCER
+    pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+      # Local FS backup repo, not used
+      local:                          # default pgbackrest repo with local posix fs
+        path: /pg/backup              # local backup directory, `/pg/backup` by default
+        retention_full_type: count    # retention full backups by count
+        retention_full: 2             # keep 2, at most 3 full backup when using local fs repo
+
+      # This is the default/old MinIO singleton instance definition, NO LONGER USED
+      minio:                          # optional minio repo for pgbackrest
+        type: s3                      # minio is s3-compatible, so s3 is used
+        s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default
+        s3_region: us-east-1          # minio region, us-east-1 by default, useless for minio
+        s3_bucket: pgsql              # minio bucket name, `pgsql` by default
+        s3_key: pgbackrest            # minio user access key for pgbackrest
+        s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
+        s3_uri_style: path            # use path style uri for minio rather than host style
+        path: /pgbackrest             # minio backup path, default is `/pgbackrest`
+        storage_port: 9000            # minio port, 9000 by default
+        storage_ca_file: /etc/pki/ca.crt  # minio ca file path, `/etc/pki/ca.crt` by default
+        bundle: y                     # bundle small files into a single file
+        cipher_type: aes-256-cbc      # enable AES encryption for remote backup repo
+        cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
+        retention_full_type: time     # retention full backup by time on minio repo
+        retention_full: 14            # keep full backup for last 14 days
+
+      # This is the newly added HA MinIO Repo definition, USE THIS INSTEAD!
+      minio_ha:
+        type: s3
+        s3_endpoint: minio-1.pigsty   # s3_endpoint could be any load balancer: 10.10.10.1{0,1,2}, or domain names point to any of the 3 nodes
+        s3_region: us-east-1          # you could use external domain name: sss.pigsty , which resolve to any members  (`minio_domain`)
+        s3_bucket: pgsql              # instance & nodename can be used : minio-1.pigsty minio-1.pigsty minio-1.pigsty minio-1 minio-2 minio-3
+        s3_key: pgbackrest            # Better using a new password for MinIO pgbackrest user
+        s3_key_secret: S3User.SomeNewPassWord
+        s3_uri_style: path
+        path: /pgbackrest
+        storage_port: 9002            # Use the load balancer port 9002 instead of default 9000 (direct access)
+        storage_ca_file: /etc/pki/ca.crt
+        bundle: y
+        cipher_type: aes-256-cbc      # Better using a new cipher password for your production environment
+        cipher_pass: pgBackRest.With.Some.Extra.PassWord.And.Salt.${pg_cluster}
+        retention_full_type: time
+        retention_full: 14
 ...
