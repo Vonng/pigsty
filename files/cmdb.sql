@@ -1223,6 +1223,18 @@ COMMENT ON TABLE pglog.sample14 IS 'PostgreSQL 14/15 CSVLOG';
 --===========================================================--
 --                 default config entries                    --
 --===========================================================--
+DROP VIEW IF EXISTS pigsty.parameters;
+CREATE OR REPLACE VIEW pigsty.parameters AS
+    SELECT id AS "ID",
+           format('[`%s`](#%s)', key, key)                AS "Name",
+           format('[`%s`](#%s)', module, lower(module))   AS "Module",
+           format('[`%s`](#%s)', section, lower(section)) AS "Section",
+           type                                           AS "Type",
+           level                                          AS "Level",
+           summary                                        AS "Comment"
+    FROM pigsty.default_var
+    ORDER BY id;
+
 TRUNCATE pigsty.default_var;
 INSERT INTO pigsty.default_var VALUES
 (101, 'version', '"v2.0.0-rc3"', 'INFRA', 'META', 'string', 'G', 'pigsty version string', NULL),
@@ -1382,7 +1394,7 @@ INSERT INTO pigsty.default_var VALUES
 (509, 'gp_role', '"master"', 'PGSQL', 'PG_ID', 'enum', 'C', 'greenplum role of this cluster, could be master or segment', NULL),
 (510, 'pg_exporters', '{}', 'PGSQL', 'PG_ID', 'dict', 'C', 'additional pg_exporters to monitor remote postgres instances', NULL),
 (511, 'pg_offline_query', 'false', 'PGSQL', 'PG_ID', 'bool', 'G', 'set to true to enable offline query on this instance', NULL),
-(512, 'pg_weight', '100', 'PGSQL', 'PG_ID', 'int', 'G', 'relative load balance weight in service, 100 by default, 0-255', NULL),
+
 (520, 'pg_users', '[]', 'PGSQL', 'PG_BUSINESS', 'user[]', 'C', 'postgres business users', NULL),
 (521, 'pg_databases', '[]', 'PGSQL', 'PG_BUSINESS', 'database[]', 'C', 'postgres business databases', NULL),
 (522, 'pg_services', '[]', 'PGSQL', 'PG_BUSINESS', 'service[]', 'C', 'postgres business services', NULL),
@@ -1395,6 +1407,7 @@ INSERT INTO pigsty.default_var VALUES
 (535, 'pg_monitor_username', '"dbuser_monitor"', 'PGSQL', 'PG_BUSINESS', 'username', 'G', 'postgres monitor username, `dbuser_monitor` by default', NULL),
 (536, 'pg_monitor_password', '"DBUser.Monitor"', 'PGSQL', 'PG_BUSINESS', 'password', 'G', 'postgres monitor password, `DBUser.Monitor` by default', NULL),
 (537, 'pg_dbsu_password', '""', 'PGSQL', 'PG_BUSINESS', 'password', 'G/C', 'postgres replication password, `dbsu password, empty string means no dbsu password by default', NULL),
+
 (540, 'pg_dbsu', '"postgres"', 'PGSQL', 'PG_INSTALL', 'username', 'C', 'os dbsu name, postgres by default, better not change it', NULL),
 (541, 'pg_dbsu_uid', '26', 'PGSQL', 'PG_INSTALL', 'int', 'C', 'os dbsu uid and gid, 26 for default postgres users and groups', NULL),
 (542, 'pg_dbsu_sudo', '"limit"', 'PGSQL', 'PG_INSTALL', 'enum', 'C', 'dbsu sudo privilege, none,limit,all,nopass. limit by default', NULL),
@@ -1438,12 +1451,14 @@ INSERT INTO pigsty.default_var VALUES
 (580, 'pg_locale', '"C"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'database cluster local, `C` by default', NULL),
 (581, 'pg_lc_collate', '"C"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'database cluster collate, `C` by default', NULL),
 (582, 'pg_lc_ctype', '"en_US.UTF8"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'database character type, `en_US.UTF8` by default', NULL),
-(583, 'pgbouncer_enabled', 'true', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'C', 'if disabled, pgbouncer will not be launched on pgsql host', NULL),
-(584, 'pgbouncer_port', '6432', 'PGSQL', 'PG_BOOTSTRAP', 'port', 'C', 'pgbouncer listen port, 6432 by default', NULL),
-(585, 'pgbouncer_log_dir', '"/pg/log/pgbouncer"', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'pgbouncer log dir, `/pg/log/pgbouncer` by default', NULL),
-(586, 'pgbouncer_auth_query', 'false', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'C', 'query postgres to retrieve unlisted business users?', NULL),
-(587, 'pgbouncer_poolmode', '"transaction"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'pooling mode: transaction,session,statement, transaction by default', NULL),
-(588, 'pgbouncer_sslmode', '"disable"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'pgbouncer client ssl mode, disable by default', NULL),
+
+(590, 'pgbouncer_enabled', 'true', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'C', 'if disabled, pgbouncer will not be launched on pgsql host', NULL),
+(591, 'pgbouncer_port', '6432', 'PGSQL', 'PG_BOOTSTRAP', 'port', 'C', 'pgbouncer listen port, 6432 by default', NULL),
+(592, 'pgbouncer_log_dir', '"/pg/log/pgbouncer"', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'pgbouncer log dir, `/pg/log/pgbouncer` by default', NULL),
+(593, 'pgbouncer_auth_query', 'false', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'C', 'query postgres to retrieve unlisted business users?', NULL),
+(594, 'pgbouncer_poolmode', '"transaction"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'pooling mode: transaction,session,statement, transaction by default', NULL),
+(595, 'pgbouncer_sslmode', '"disable"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'pgbouncer client ssl mode, disable by default', NULL),
+
 (600, 'pg_provision', 'true', 'PGSQL', 'PG_PROVISION', 'bool', 'C', 'provision postgres cluster after bootstrap', NULL),
 (601, 'pg_init', '"pg-init"', 'PGSQL', 'PG_PROVISION', 'string', 'G/C', 'provision init script for cluster template, `pg-init` by default', NULL),
 (602, 'pg_default_roles', '[{"name": "dbrole_readonly", "login": false, "comment": "role for global read-only access"}, {"name": "dbrole_offline", "login": false, "comment": "role for restricted read-only access"}, {"name": "dbrole_readwrite", "login": false, "roles": ["dbrole_readonly"], "comment": "role for global read-write access"}, {"name": "dbrole_admin", "login": false, "roles": ["pg_monitor", "dbrole_readwrite"], "comment": "role for object creation"}, {"name": "postgres", "comment": "system superuser", "superuser": true}, {"name": "replicator", "roles": ["pg_monitor", "dbrole_readonly"], "comment": "system replicator", "replication": true}, {"name": "dbuser_dba", "roles": ["dbrole_admin"], "comment": "pgsql admin user", "pgbouncer": true, "pool_mode": "session", "superuser": true, "pool_connlimit": 16}, {"name": "dbuser_monitor", "roles": ["pg_monitor", "dbrole_readonly"], "comment": "pgsql monitor user", "pgbouncer": true, "pool_mode": "session", "parameters": {"log_min_duration_statement": 1000}, "pool_connlimit": 8}]', 'PGSQL', 'PG_PROVISION', 'role[]', 'G/C', 'default roles and users in postgres cluster', NULL),
@@ -1459,14 +1474,15 @@ INSERT INTO pigsty.default_var VALUES
 (613, 'pgbackrest_method', '"local"', 'PGSQL', 'PG_BACKUP', 'enum', 'C', 'pgbackrest repo method: local,minio,etc...', NULL),
 (614, 'pgbackrest_repo', '{"local": {"path": "/pg/backup", "retention_full": 2, "retention_full_type": "count"}, "minio": {"path": "/pgbackrest", "type": "s3", "bundle": "y", "s3_key": "pgbackrest", "s3_bucket": "pgsql", "s3_region": "us-east-1", "cipher_pass": "pgBackRest", "cipher_type": "aes-256-cbc", "s3_endpoint": "sss.pigsty", "s3_uri_style": "path", "storage_port": 9000, "s3_key_secret": "S3User.Backup", "retention_full": 14, "storage_ca_file": "/etc/pki/ca.crt", "retention_full_type": "time"}}', 'PGSQL', 'PG_BACKUP', 'dict', 'G/C', 'pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository', NULL),
 
-(620, 'pg_service_provider', '""', 'PGSQL', 'PG_SERVICE', 'string', 'G/C', 'dedicate haproxy node group name, or empty string for local nodes by default', NULL),
-(621, 'pg_default_service_dest', '"pgbouncer"', 'PGSQL', 'PG_SERVICE', 'enum', 'G/C', 'default service destination if svc.dest=''default''', NULL),
-(622, 'pg_default_services', '[{"dest": "default", "name": "primary", "port": 5433, "check": "/primary", "selector": "[]"}, {"dest": "default", "name": "replica", "port": 5434, "check": "/read-only", "backup": "[? pg_role == `primary` || pg_role == `offline` ]", "selector": "[]"}, {"dest": "postgres", "name": "default", "port": 5436, "check": "/primary", "selector": "[]"}, {"dest": "postgres", "name": "offline", "port": 5438, "check": "/replica", "backup": "[? pg_role == `replica` && !pg_offline_query]", "selector": "[? pg_role == `offline` || pg_offline_query ]"}]', 'PGSQL', 'PG_SERVICE', 'service[]', 'G/C', 'postgres default service definitions', NULL),
-(630, 'pg_vip_enabled', 'false', 'PGSQL', 'PG_SERVICE', 'bool', 'C', 'enable a l2 vip for pgsql primary? false by default', NULL),
-(631, 'pg_vip_address', '"127.0.0.1/24"', 'PGSQL', 'PG_SERVICE', 'cidr4', 'C', 'vip address in `<ipv4>/<mask>` format, require if vip is enabled', NULL),
-(632, 'pg_vip_interface', '"eth0"', 'PGSQL', 'PG_SERVICE', 'string', 'C/I', 'vip network interface to listen, eth0 by default', NULL),
-(633, 'pg_dns_suffix', '""', 'PGSQL', 'PG_SERVICE', 'string', 'C', 'pgsql dns suffix, '''' by default', NULL),
-(634, 'pg_dns_target', '"auto"', 'PGSQL', 'PG_SERVICE', 'enum', 'C', 'auto, primary, vip, none, or ad hoc ip', NULL),
+(621, 'pg_weight', '100', 'PGSQL', 'PG_SERVICE', 'int', 'I', 'relative load balance weight in service, 100 by default, 0-255', NULL),
+(622, 'pg_service_provider', '""', 'PGSQL', 'PG_SERVICE', 'string', 'G/C', 'dedicate haproxy node group name, or empty string for local nodes by default', NULL),
+(623, 'pg_default_service_dest', '"pgbouncer"', 'PGSQL', 'PG_SERVICE', 'enum', 'G/C', 'default service destination if svc.dest=''default''', NULL),
+(624, 'pg_default_services', '[{"dest": "default", "name": "primary", "port": 5433, "check": "/primary", "selector": "[]"}, {"dest": "default", "name": "replica", "port": 5434, "check": "/read-only", "backup": "[? pg_role == `primary` || pg_role == `offline` ]", "selector": "[]"}, {"dest": "postgres", "name": "default", "port": 5436, "check": "/primary", "selector": "[]"}, {"dest": "postgres", "name": "offline", "port": 5438, "check": "/replica", "backup": "[? pg_role == `replica` && !pg_offline_query]", "selector": "[? pg_role == `offline` || pg_offline_query ]"}]', 'PGSQL', 'PG_SERVICE', 'service[]', 'G/C', 'postgres default service definitions', NULL),
+(631, 'pg_vip_enabled', 'false', 'PGSQL', 'PG_SERVICE', 'bool', 'C', 'enable a l2 vip for pgsql primary? false by default', NULL),
+(632, 'pg_vip_address', '"127.0.0.1/24"', 'PGSQL', 'PG_SERVICE', 'cidr4', 'C', 'vip address in `<ipv4>/<mask>` format, require if vip is enabled', NULL),
+(633, 'pg_vip_interface', '"eth0"', 'PGSQL', 'PG_SERVICE', 'string', 'C/I', 'vip network interface to listen, eth0 by default', NULL),
+(634, 'pg_dns_suffix', '""', 'PGSQL', 'PG_SERVICE', 'string', 'C', 'pgsql dns suffix, '''' by default', NULL),
+(635, 'pg_dns_target', '"auto"', 'PGSQL', 'PG_SERVICE', 'enum', 'C', 'auto, primary, vip, none, or ad hoc ip', NULL),
 
 (640, 'pg_exporter_enabled', 'true', 'PGSQL', 'PG_EXPORTER', 'bool', 'C', 'enable pg_exporter on pgsql hosts?', NULL),
 (641, 'pg_exporter_config', '"pg_exporter.yml"', 'PGSQL', 'PG_EXPORTER', 'string', 'C', 'pg_exporter configuration file name', NULL),

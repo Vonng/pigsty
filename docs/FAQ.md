@@ -297,13 +297,13 @@ Check [PGSQL Monitor](PGSQL-MONITOR) for details.
 !> TBD
 
 ```bash
-./pgsql-remove.yml -t prometheus -l <cls>
+./pgsql-rm.yml -t prometheus -l <cls>     # remove prometheus targets of cluster 'cls'
 ```
 
 Or
 
 ```bash
-bin/pgmon-rm <ins>
+bin/pgmon-rm <ins>     # shortcut for removing prometheus targets of pgsql instance 'ins'
 ```
 
 </details><br>
@@ -317,7 +317,19 @@ bin/pgmon-rm <ins>
 <br>
 <details><summary>Which components are included in INFRA?</summary>
 
-!> TBD
+- Ansible for automation, deployment, administration;
+- Nginx for exposing any WebUI service and serve the yum repo;
+- Self-Signed CA for SSL/TLS certificates;
+- Prometheus for monitoring metrics
+- Grafana for monitoring/visualization
+- Loki for logging collection
+- AlertManager for alerts aggregation
+- Chronyd for NTP time sync
+- DNSMasq for dns registration and resolve
+- ETCD as DCS for PGSQL HA; (dedicate module)
+- PostgreSQL on meta nodes as CMDB; (optional)
+- Docker for stateless application & tools (optional) 
+
 
 </details><br>
 
@@ -328,11 +340,49 @@ bin/pgmon-rm <ins>
 ## NODE
 
 
+<br>
+<details><summary>How to configure NTP service?</summary>
+
+!> If NTP is not configured, use a public NTP service or sync time with the admin node.
+
+If your nodes already have NTP configured, you can leave it be by setting `node_ntp_enabled` to `false`.
+
+Otherwise, if you have the Internet access, you can use public NTP service such as `pool.ntp.org`.
+
+If you don't have Internet access, at least you can sync time with the admin node with:
+
+```bash
+node_ntp_servers:                 # NTP servers in /etc/chrony.conf
+  - pool cn.pool.ntp.org iburst
+  - pool ${admin_ip} iburst       # assume non-admin nodes does not have internet access
+```
+
+</details>
+
+
+<br>
+<details><summary>How to sync time on nodes?</summary>
+
+!> Use `chronyc` to sync time. You have to configure NTP service first.
+
+```bash
+ansible all -b -a 'chronyc -a makestep'     # sync time
+```
+
+You can replace `all` with any group or host IP address to limit execution scope.
+
+</details>
+
+
+
+<br>
 <details><summary>Create a dedicated admin user with an existing admin user?</summary>
 
-!> TBD
+!> `./node.yml -k -K -e ansible_user=<another_admin> -t node_admin`
 
-</details><br>
+This will create an admin user specified by [`node_admin_username`](PARAM#node_admin_username) on that node with existing admin user.
+
+</details>
 
 
 <br>
@@ -357,23 +407,39 @@ bin/pgmon-rm <ins>
 <br>
 <details><summary>How to use existing external etcd cluster?</summary>
 
-!> TBD
+!> Define them in the `etcd` group as usual. 
+
+The special group `etcd` will be used as pg dcs servers, you can initialize them with `etcd.yml` or use existing external etcd cluster.
 
 </details><br>
 
 
 <details><summary>How to add new member to existing etcd cluster?</summary>
 
-!> TBD
+!> Check [Add member to etcd cluster](ETCD-ADMIN#add-member)
+
+```bash
+etcdctl member add <etcd-?> --learner=true --peer-urls=https://<new_ins_ip>:2380 # on admin node
+./etcd.yml -l <new_ins_ip> -e etcd_init=existing                                 # init new etcd member
+etcdctl member promote <new_ins_server_id>                                       # on admin node
+```
 
 </details><br>
 
 
 <details><summary>How to remove a member from existing etcd cluster?</summary>
 
-!> TBD
+!> Check [Remove member from etcd cluster](ETCD-ADMIN#remove-member)
+
+```bash
+etcdctl member remove <etcd_server_id>   # kick member out of cluster (on admin node)
+./etcd.yml -l <ins_ip> -t etcd_purge     # purge etcd instance
+```
+
 
 </details><br>
+
+
 
 
 ----------------
@@ -407,7 +473,7 @@ bin/pgmon-rm <ins>
 
 !> use `redis_clean = true` and `redis_safeguard = false` to force clean redis data
 
-</details><br>
+</details>
 
 
 <br>
@@ -415,7 +481,7 @@ bin/pgmon-rm <ins>
 
 !> Use `bin/redis-add <ip> <port>` to deploy a new redis instance on node.
 
-</details><br>
+</details>
 
 
 <details><summary>How to remove a single redis instance from node?</summary>
@@ -433,25 +499,76 @@ bin/pgmon-rm <ins>
 
 
 <br>
-<details><summary>Abort because postgres instance is running?</summary>
+<details><summary>ABORT due to postgres exists</summary>
 
-!> TBD
+!> Set `pg_clean` = `true` and `pg_safeguard` = `false` to force clean postgres data during `pgsql.yml`
 
-</details><br>
+This is happened when you run `pgsql.yml` on a node that already has postgres running, and [`pg_clean`](PARAM#pg_clean) is set to `false`
+
+If `pg_clean` is true (and the `pg_safeguard` is `false`, too), the `pgsql.yml` playbook will remove the existing pgsql data and re-init it as new one, which makes this playbook fully idempotent.
+
+You can still purge the existing postgres data by using a special tag `pg_purge`
+
+```bash
+./pgsql.yml -t pg_clean      # honor pg_clean and pg_safeguard
+./pgsql.yml -t pg_purge      # ignore pg_clean and pg_safeguard
+```
+
+</details>
 
 
+
+<br>
+<details><summary>ABORT due to pg_safeguard enabled</summary>
+
+!> If [`pg_safeguard`](PARAM#pg_safeguard) is enabled, you can not run `bin/pgsql-rm` and `pgsql-rm.yml` playbook on that node. 
+
+To disable `pg_safeguard`, you can set `pg_safeguard` to `false` in the inventory, or just passing `-e pg_safeguard=false` as cli arg to playbook:
+
+```bash
+./pgsql-rm.yml -e pg_safeguard=false -l <cls_to_remove>    # force override pg_safeguard
+```
+
+</details>
+
+
+
+<br>
 <details><summary>How to create replica when data is corrupted?</summary>
 
-!> TBD
+!> Disable `clonefrom` on bad instances and reload patroni config.
 
-</details><br>
+Pigsty set the `cloneform: true` tag on all instances' patroni config, which marks the instance available for cloning replica.
+
+If this instance has corrupt data files, you can set `clonefrom: false` to avoid pulling data from the evil instance. To do so:
+
+```bash
+$ vi /pg/bin/patroni.yml
+
+tags:
+  nofailover: false
+  clonefrom: true      ----------> change to false
+  noloadbalance: false
+  nosync: false
+  version:  '15'
+  spec: '4C.8G.50G'
+  conf: 'oltp.yml'
+  
+$ systemctl reload patroni
+```
+
+</details>
 
 
-<details><summary>How enable hugepage on the fly?</summary>
+
+<br>
+<details><summary>How enable hugepage for PostgreSQL?</summary>
 
 !> use `node_hugepage_count` and `node_hugepage_ratio` or `/pg/bin/pg-tune-hugepage`
 
-If your planning to enable hugepage, consider using `node_hugepage_count` and `node_hugepage_ratio` and apply with `./node.yml -t node_tune` 
+If your planning to enable hugepage, consider using `node_hugepage_count` and `node_hugepage_ratio` and apply with `./node.yml -t node_tune` .
+
+It's a good practice to alloc **enough** hugepage before postgres start, and use `pg_tune_hugepage` to shrink them later.
 
 If your postgres is already running, you can use `/pg/bin/pg-tune-hugepage` to enable hugepage on the fly.
 
@@ -461,29 +578,30 @@ sudo /pg/bin/pg-tune-hugepage             # write nr_hugepages to /etc/sysctl.d/
 pg restart <cls>                          # restart postgres to use hugepage
 ```
 
-</details><br>
+</details>
 
 
-
+<br>
 <details><summary>How to guarantee 0 data loss during failover?</summary>
 
-!> TBD
+!> Use `crit.yml` template, or setting `pg_rpo` to `0`, or [config cluster](PGSQL-ADMIN#config-cluster) with synchronous mode.
 
-</details><br>
+Consider using [sync standby](PGSQL-CONF#sync-standby), [quorum-commit](PGSQL-CONF#quorum-commit) to guarantee 0 data loss during failover.
 
-
-
-<details><summary>How to survive from disk full?</summary>
-
-!> `rm -rf /pg/dummy` will free some emergency space. 
-
-</details><br>
+</details>
 
 
 
 <br>
-<details><summary>How to perform a major version upgrade</summary>
+<details><summary>How to survive from disk full?</summary>
 
-!> TBD
+!> `rm -rf /pg/dummy` will free some emergency space. 
 
-</details><br>
+The [`pg_dummy_filesize`](PARAM#pg_dummy_filesize) is set to `64MB` by default, consider increase it to `8GB` or larger in production environment.
+
+It will be placed on `/pg/dummy` same disk as postgres main data disk, you can remove that file to free some emergency space, at least you can run some shell scripts on that node.
+
+</details>
+
+
+

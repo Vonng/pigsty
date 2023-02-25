@@ -100,7 +100,6 @@
 | [`gp_role`](PARAM#gp_role)                                           | [`PG_ID`](PARAM#pg_id)               |    enum     |   C   | greenplum role of this cluster, could be master or segment                    |
 | [`pg_exporters`](PARAM#pg_exporters)                                 | [`PG_ID`](PARAM#pg_id)               |    dict     |   C   | additional pg_exporters to monitor remote postgres instances                  |
 | [`pg_offline_query`](PARAM#pg_offline_query)                         | [`PG_ID`](PARAM#pg_id)               |    bool     |   G   | set to true to enable offline query on this instance                          |
-| [`pg_weight`](PARAM#pg_weight)                                       | [`PG_ID`](PARAM#pg_id)               |     int     |   G   | relative load balance weight in service, 100 by default, 0-255                |
 | [`pg_users`](PARAM#pg_users)                                         | [`PG_BUSINESS`](PARAM#pg_business)   |   user[]    |   C   | postgres business users                                                       |
 | [`pg_databases`](PARAM#pg_databases)                                 | [`PG_BUSINESS`](PARAM#pg_business)   | database[]  |   C   | postgres business databases                                                   |
 | [`pg_services`](PARAM#pg_services)                                   | [`PG_BUSINESS`](PARAM#pg_business)   |  service[]  |   C   | postgres business services                                                    |
@@ -175,6 +174,7 @@
 | [`pgbackrest_log_dir`](PARAM#pgbackrest_log_dir)                     | [`PG_BACKUP`](PARAM#pg_backup)       |    path     |   C   | pgbackrest log dir, `/pg/log/pgbackrest` by default                           |
 | [`pgbackrest_method`](PARAM#pgbackrest_method)                       | [`PG_BACKUP`](PARAM#pg_backup)       |    enum     |   C   | pgbackrest repo method: local,minio,etc...                                    |
 | [`pgbackrest_repo`](PARAM#pgbackrest_repo)                           | [`PG_BACKUP`](PARAM#pg_backup)       |    dict     |  G/C  | pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository |
+| [`pg_weight`](PARAM#pg_weight)                                       | [`PG_SERVICE`](PARAM#PG_SERVICE)     |     int     |   I   | relative load balance weight in service, 100 by default, 0-255                |
 | [`pg_service_provider`](PARAM#pg_service_provider)                   | [`PG_SERVICE`](PARAM#pg_service)     |    enum     |  G/C  | dedicate haproxy node group name, or empty string for local nodes by default  |
 | [`pg_default_service_dest`](PARAM#pg_default_service_dest)           | [`PG_SERVICE`](PARAM#pg_service)     |    enum     |  G/C  | default service destination if svc.dest='default'                             |
 | [`pg_default_services`](PARAM#pg_default_services)                   | [`PG_SERVICE`](PARAM#pg_service)     |  service[]  |  G/C  | postgres default service definitions                                          |
