@@ -11,8 +11,7 @@
     mode: 0644
     content: "{{ inventory_hostname }} {{ pg_instance }}"
 
-
-# write dns records to infra nodes's /etc/hosts.d/<pg_cluster>
+# write dns records to infra nodes' /etc/hosts.d/<pg_cluster>
 - name: register postgres cluster dns
   tags: pg_dns_cls
   delegate_to: '{{ item }}'
@@ -33,7 +32,7 @@
       {% if pg_vip_enabled|bool %}
       # [VIP] {{ pg_dns_name }} -> {{ pg_vip_address.split('/')[0] }} 
       {{ pg_vip_address.split('/')[0] }} {{ pg_dns_name }}
-      {% elif pg_dns_target == 'primary' %}
+      {% else %}
       # [PRIMARY] {{ pg_dns_name }} -> {{ pg_primary_ip }}
       {{ pg_primary_ip }} {{ pg_dns_name }}
       {% endif %}
