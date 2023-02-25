@@ -50,6 +50,11 @@ redis-test: # redis native cluster: 3m x 3s
   vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
 ```
 
+**Limitation**
+
+* A redis node can only belong to one redis cluster
+* You can not set different password for redis instances on same redis node (since redis_exporter only allows one password)
+
 
 
 ## Playbook
@@ -121,6 +126,16 @@ bin/redis-rm 10.10.10.10 6501  # remove redis instance '10.10.10.10:6501'
 ```
 
 
+
+----------------
+
+## Dashboards
+
+There are three dashboards for [`REDIS`](REDIS) module.
+
+- [Redis Overview](http://demo.pigsty.cc/d/redis-overview): Overview of all Redis Instances
+- [Redis Cluster](http://demo.pigsty.cc/d/redis-cluster): Overview of a redis cluster
+- [Redis Instance](http://demo.pigsty.cc/d/redis-instance): Detail information about a single redis instance
 
 
 

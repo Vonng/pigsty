@@ -1373,7 +1373,7 @@ INSERT INTO pigsty.default_var VALUES
 (404, 'minio_user', '"minio"', 'MINIO', 'MINIO', 'username', 'C', 'minio os user, `minio` by default', NULL),
 (405, 'minio_node', '"${minio_cluster}-${minio_seq}.pigsty"', 'MINIO', 'MINIO', 'string', 'C', 'minio node name pattern', NULL),
 (406, 'minio_data', '"/data/minio"', 'MINIO', 'MINIO', 'path', 'C', 'minio data dir(s), use {x...y} to specify multi drivers', NULL),
-(407, 'minio_domain', '"sss.pigsty"', 'MINIO', 'MINIO', 'string', 'G', 'minio external domain name, `sss.pigsty` by default', NULL),
+(407, 'minio_domain', '"sss.pigsty"', 'MINIO', 'MINIO', 'string', 'G', 'minio service domain name, `sss.pigsty` by default', NULL),
 (408, 'minio_port', '9000', 'MINIO', 'MINIO', 'port', 'C', 'minio service port, 9000 by default', NULL),
 (409, 'minio_admin_port', '9001', 'MINIO', 'MINIO', 'port', 'C', 'minio console port, 9001 by default', NULL),
 (410, 'minio_access_key', '"minioadmin"', 'MINIO', 'MINIO', 'username', 'C', 'root access key, `minioadmin` by default', NULL),

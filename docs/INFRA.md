@@ -2,6 +2,7 @@
 
 > Pigsty has a battery-included, production-ready INFRA module, to provide ultimate observability.
 
+Check INFRA module dashboard for a live demo: [http://demo.pigsty.cc/d/infra-overview](http://demo.pigsty.cc/d/infra-overview)
 
 
 ## Overview
@@ -24,13 +25,28 @@
 
 ----------------
 
-# Playbooks
+## Playbooks
 
 - [`install.yml`](https://github.com/vonng/pigsty/blob/master/install.yml)   : Install Pigsty on current node in one-pass
 - [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infra.yml)       : Init pigsty infrastructure on infra nodes
 - [`infra-rm.yml`](https://github.com/vonng/pigsty/blob/master/infra-rm.yml) : Remove infrastructure components from infra nodes
 
 
+----------------
+
+## Dashboards
+
+- [INFRA Overview](http://demo.pigsty.cc/d/infra-overview)
+- [Nginx Overview](http://demo.pigsty.cc/d/nginx-overview)
+- [Grafana Overview](http://demo.pigsty.cc/d/grafana-overview)
+- [Prometheus Overview](http://demo.pigsty.cc/d/prometheus-overview)
+- [Loki Overview](http://demo.pigsty.cc/d/loki-overview)
+- [Logs Instance](http://demo.pigsty.cc/d/logs-instance)
+- [CMDB Overview](http://demo.pigsty.cc/d/cmdb-overview)
+- [ETCD Overview](http://demo.pigsty.cc/d/etcd-overview)
+
+
+----------------
 
 ## Parameters
 

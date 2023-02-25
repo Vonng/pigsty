@@ -130,7 +130,7 @@ There are 265 parameters in Pigsty describing all aspect of the deployment.
 | 404 | [`minio_user`](#minio_user)                                     | [`MINIO`](#minio) | [`MINIO`](#minio)                     | username    | C     | minio os user, `minio` by default                                                             |
 | 405 | [`minio_node`](#minio_node)                                     | [`MINIO`](#minio) | [`MINIO`](#minio)                     | string      | C     | minio node name pattern                                                                       |
 | 406 | [`minio_data`](#minio_data)                                     | [`MINIO`](#minio) | [`MINIO`](#minio)                     | path        | C     | minio data dir(s), use {x...y} to specify multi drivers                                       |
-| 407 | [`minio_domain`](#minio_domain)                                 | [`MINIO`](#minio) | [`MINIO`](#minio)                     | string      | G     | minio external domain name, `sss.pigsty` by default                                           |
+| 407 | [`minio_domain`](#minio_domain)                                 | [`MINIO`](#minio) | [`MINIO`](#minio)                     | string      | G     | minio service domain name, `sss.pigsty` by default                                            |
 | 408 | [`minio_port`](#minio_port)                                     | [`MINIO`](#minio) | [`MINIO`](#minio)                     | port        | C     | minio service port, 9000 by default                                                           |
 | 409 | [`minio_admin_port`](#minio_admin_port)                         | [`MINIO`](#minio) | [`MINIO`](#minio)                     | port        | C     | minio console port, 9001 by default                                                           |
 | 410 | [`minio_access_key`](#minio_access_key)                         | [`MINIO`](#minio) | [`MINIO`](#minio)                     | username    | C     | root access key, `minioadmin` by default                                                      |
@@ -2520,19 +2520,11 @@ Promtail records the consumption offsets of all logs, which are periodically wri
 
 # `ETCD`
 
-Distributed Configuration Store (DCS) is a distributed, highly available meta-database that provides HA consensus and service discovery.
+[ETCD](ETCD) is a distributed, reliable key-value store for the most critical data of a distributed system,
+and pigsty use **etcd** as **DCS**, Which is critical to PostgreSQL High-Availability.
 
-Pigsty use `etcd` as DCS. ETCD availability is critical for postgres HA. Special care needs to be taken when using the DCS service in a production env.
+Pigsty has a hard coded group name `etcd` for etcd cluster, it can be an existing & external etcd cluster, or a new etcd cluster created by pigsty with `etcd.yml`.
 
-Availability of ETCD itself is achieved through multiple peers. For example, a 3-node ETCD cluster allows up to one node to fail, while a 5-node ETCD cluster allows 2 nodes to fail.
-
-In a large-scale production env, it is recommended to use at least 3~5 ETCD Servers.
-
-
-
-------------------------------
-
-## `ETCD`
 
 ```yaml
 #etcd_seq: 1                      # etcd instance identifier, explicitly required
@@ -2554,8 +2546,19 @@ name: `etcd_seq`, type: `int`, level: `I`
 
 etcd instance identifier, REQUIRED
 
-no default value, you have to specify it explicitly.
+no default value, you have to specify it explicitly. Here is a 3-node etcd cluster example:
 
+```yaml
+etcd: # dcs service for postgres/patroni ha consensus
+  hosts:  # 1 node for testing, 3 or 5 for production
+    10.10.10.10: { etcd_seq: 1 }  # etcd_seq required
+    10.10.10.11: { etcd_seq: 2 }  # assign from 1 ~ n
+    10.10.10.12: { etcd_seq: 3 }  # odd number please
+  vars: # cluster level parameter override roles/etcd
+    etcd_cluster: etcd  # mark etcd cluster name etcd
+    etcd_safeguard: false # safeguard against purging
+    etcd_clean: true # purge etcd during init process
+```
 
 
 
@@ -2565,7 +2568,7 @@ name: `etcd_cluster`, type: `string`, level: `C`
 
 etcd cluster & group name, etcd by default
 
-default values: `etcd`, which is a fixed group name
+default values: `etcd`, which is a fixed group name, can be useful when you want to use deployed some extra etcd clusters
 
 
 
@@ -2575,11 +2578,9 @@ default values: `etcd`, which is a fixed group name
 
 name: `etcd_safeguard`, type: `bool`, level: `G/C/A`
 
-prevent purging running etcd instance?
+prevent purging running etcd instance? default value is `false`
 
-default value is `false`
-
-Assure that any running etcd instance will not be purged by init / remove playbooks.
+If enabled, running etcd instance will not be purged by `etcd.yml` playbook.
 
 
 
@@ -2588,9 +2589,9 @@ Assure that any running etcd instance will not be purged by init / remove playbo
 
 name: `etcd_clean`, type: `bool`, level: `G/C/A`
 
-purging existing etcd during initialization?
+purging existing etcd during initialization? default value is `true`
 
-default value is `true`, which will try to purge existing etcd instance during init,  which makes `etcd.yml` a truly idempotent playbook.
+If enabled, running etcd instance will be purged by `etcd.yml` playbook, which makes `etcd.yml` a truly idempotent playbook.
 
 But if [`etcd_safeguard`](#etcd_safeguard) is enabled, it will still abort on any running etcd instance.
 
@@ -2602,9 +2603,8 @@ But if [`etcd_safeguard`](#etcd_safeguard) is enabled, it will still abort on an
 
 name: `etcd_data`, type: `path`, level: `C`
 
-etcd data directory, /data/etcd by default
+etcd data directory, `/data/etcd` by default
 
-default values: `/data/etcd`
 
 
 
@@ -2614,9 +2614,7 @@ default values: `/data/etcd`
 
 name: `etcd_port`, type: `port`, level: `C`
 
-etcd client port, 2379 by default
-
-default values: `2379`
+etcd client port, `2379` by default
 
 
 
@@ -2626,9 +2624,7 @@ default values: `2379`
 
 name: `etcd_peer_port`, type: `port`, level: `C`
 
-etcd peer port, 2380 by default
-
-default values: `2380`
+etcd peer port, `2380` by default
 
 
 
@@ -2638,11 +2634,11 @@ default values: `2380`
 
 name: `etcd_init`, type: `enum`, level: `C`
 
-etcd initial cluster state, new or existing
+etcd initial cluster state, `new` or `existing`
 
-default values: `new`
+default values: `new`, which will create a standalone new etcd cluster.
 
-`existing` is used when trying to add new node to existing etcd cluster.
+The value `existing` is used when trying to [add new member](ETCD-ADMIN#add-member) to existing etcd cluster.
 
 
 
@@ -2652,9 +2648,7 @@ default values: `new`
 
 name: `etcd_election_timeout`, type: `int`, level: `C`
 
-etcd election timeout, 1000ms by default
-
-default values: `1000`
+etcd election timeout, `1000` (ms) by default
 
 
 
@@ -2664,9 +2658,7 @@ default values: `1000`
 
 name: `etcd_heartbeat_interval`, type: `int`, level: `C`
 
-etcd heartbeat interval, 100ms by default
-
-default values: `100`
+etcd heartbeat interval, `100` (ms) by default
 
 
 
@@ -2681,12 +2673,7 @@ default values: `100`
 
 Minio is a S3 compatible object storage service. Which is used as an optional central backup storage repo for PostgreSQL.
 
-But you can use it for other purpose such as store large files, document, pictures & videos.
-
-
-------------------------------
-
-## `MINIO`
+But you can use it for other purpose, such as storing large files, document, pictures & videos.
 
 
 ```yaml
@@ -2714,9 +2701,8 @@ minio_users:
 
 name: `minio_seq`, type: `int`, level: `I`
 
-minio instance identifier, REQUIRED identity parameters
+minio instance identifier, REQUIRED identity parameters. no default value, you have to assign it manually
 
-no default value
 
 
 
@@ -2725,9 +2711,9 @@ no default value
 
 name: `minio_cluster`, type: `string`, level: `C`
 
-minio cluster name, minio by default
+minio cluster name, `minio` by default. This is useful when deploying multiple MinIO clusters
 
-default values: `minio`
+
 
 
 
@@ -2737,9 +2723,8 @@ default values: `minio`
 
 name: `minio_clean`, type: `bool`, level: `G/C/A`
 
-cleanup minio during init?, false by default
+cleanup minio during init?, `false` by default
 
-default value is `false`
 
 
 
@@ -2749,9 +2734,8 @@ default value is `false`
 
 name: `minio_user`, type: `username`, level: `C`
 
-minio os user, `minio` by default
+minio os user name, `minio` by default
 
-default values: `minio`
 
 
 
@@ -2761,7 +2745,7 @@ default values: `minio`
 
 name: `minio_node`, type: `string`, level: `C`
 
-minio node name pattern
+minio node name pattern, this is used for [multi-node](MINIO#multi-node-multi-drive) deployment
 
 default values: `${minio_cluster}-${minio_seq}.pigsty`
 
@@ -2773,9 +2757,11 @@ default values: `${minio_cluster}-${minio_seq}.pigsty`
 
 name: `minio_data`, type: `path`, level: `C`
 
-minio data dir(s), use {x...y} to specify multi drivers
+minio data dir(s)
 
-default values: `/data/minio`
+default values: `/data/minio`, which is a common dir for [single-node](MINIO#single-node-single-drive) deployment.
+
+For a [multi-drive](MINIO#single-node-multi-drive) deployment, you can use `{x...y}` notion to specify multi drivers.
 
 
 
@@ -2785,9 +2771,10 @@ default values: `/data/minio`
 
 name: `minio_domain`, type: `string`, level: `G`
 
-minio external domain name, `sss.pigsty` by default
+minio service domain name, `sss.pigsty` by default.
 
-default values: `sss.pigsty`
+The client can access minio S3 service via this domain name. This name will be registered to local DNSMASQ and included in SSL certs.
+
 
 
 
@@ -2797,9 +2784,7 @@ default values: `sss.pigsty`
 
 name: `minio_port`, type: `port`, level: `C`
 
-minio service port, 9000 by default
-
-default values: `9000`
+minio service port, `9000` by default
 
 
 
@@ -2809,9 +2794,7 @@ default values: `9000`
 
 name: `minio_admin_port`, type: `port`, level: `C`
 
-minio console port, 9001 by default
-
-default values: `9001`
+minio console port, `9001` by default
 
 
 
@@ -2823,7 +2806,8 @@ name: `minio_access_key`, type: `username`, level: `C`
 
 root access key, `minioadmin` by default
 
-default values: `minioadmin`
+!> PLEASE CHANGE THIS IN YOUR DEPLOYMENT
+
 
 
 
@@ -2837,6 +2821,7 @@ root secret key, `minioadmin` by default
 
 default values: `minioadmin`
 
+!> PLEASE CHANGE THIS IN YOUR DEPLOYMENT
 
 
 
@@ -2845,9 +2830,9 @@ default values: `minioadmin`
 
 name: `minio_extra_vars`, type: `string`, level: `C`
 
-extra environment variables for minio server
+extra environment variables for minio server. Check [Minio Server](https://min.io/docs/minio/linux/reference/minio-server/minio-server.html) for the complete list.
 
-default value is empty string, you can use multiline string to passing multiple environment
+default value is empty string, you can use multiline string to passing multiple environment variables.
 
 
 
@@ -2857,9 +2842,9 @@ default value is empty string, you can use multiline string to passing multiple 
 
 name: `minio_alias`, type: `string`, level: `G`
 
-alias name for local minio deployment
+MinIO alias name for the local MinIO cluster
 
-default values: `sss`
+default values: `sss`, which will be written to infra nodes' / admin users' client alias profile.
 
 
 
@@ -2869,15 +2854,13 @@ default values: `sss`
 
 name: `minio_buckets`, type: `bucket[]`, level: `C`
 
-list of minio bucket to be created
-
-default value: 
+list of minio bucket to be created by default:
 
 ```yaml
 minio_buckets: [ { name: pgsql }, { name: infra },  { name: redis } ]
 ```
 
-3 default buckets are created for module [`PGSQL`](PGSQL), [`INFRA`](INFRA), and [`REDIS`](REDIS)
+Three default buckets are created for module [`PGSQL`](PGSQL), [`INFRA`](INFRA), and [`REDIS`](REDIS)
 
 
 
@@ -2886,9 +2869,7 @@ minio_buckets: [ { name: pgsql }, { name: infra },  { name: redis } ]
 
 name: `minio_users`, type: `user[]`, level: `C`
 
-list of minio user to be created
-
-default value: 
+list of minio user to be created, default value:
 
 ```yaml
 minio_users:
@@ -2896,7 +2877,9 @@ minio_users:
   - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
 ```
 
-Two default users are created for PostgreSQL backup usage.
+Two default users are created for PostgreSQL DBA and pgBackREST.
+
+!> PLEASE ADJUST THESE USERS & CREDENTIALS IN YOUR DEPLOYMENT!
 
 
 

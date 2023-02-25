@@ -50,6 +50,12 @@
 - [`pgsql-migration.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml) : Generate Migration manual & scripts for existing PostgreSQL
 
 
+## Dashboards
+
+Check NODE module dashboard for a live demo: [http://demo.pigsty.cc/d/pgsql-overview](http://demo.pigsty.cc/d/pgsql-overview)
+
+
+
 
 
 ## Administration
@@ -174,7 +180,7 @@
 | [`pgbackrest_log_dir`](PARAM#pgbackrest_log_dir)                     | [`PG_BACKUP`](PARAM#pg_backup)       |    path     |   C   | pgbackrest log dir, `/pg/log/pgbackrest` by default                           |
 | [`pgbackrest_method`](PARAM#pgbackrest_method)                       | [`PG_BACKUP`](PARAM#pg_backup)       |    enum     |   C   | pgbackrest repo method: local,minio,etc...                                    |
 | [`pgbackrest_repo`](PARAM#pgbackrest_repo)                           | [`PG_BACKUP`](PARAM#pg_backup)       |    dict     |  G/C  | pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository |
-| [`pg_weight`](PARAM#pg_weight)                                       | [`PG_SERVICE`](PARAM#PG_SERVICE)     |     int     |   I   | relative load balance weight in service, 100 by default, 0-255                |
+| [`pg_weight`](PARAM#pg_weight)                                       | [`PG_SERVICE`](PARAM#pg_service)     |     int     |   I   | relative load balance weight in service, 100 by default, 0-255                |
 | [`pg_service_provider`](PARAM#pg_service_provider)                   | [`PG_SERVICE`](PARAM#pg_service)     |    enum     |  G/C  | dedicate haproxy node group name, or empty string for local nodes by default  |
 | [`pg_default_service_dest`](PARAM#pg_default_service_dest)           | [`PG_SERVICE`](PARAM#pg_service)     |    enum     |  G/C  | default service destination if svc.dest='default'                             |
 | [`pg_default_services`](PARAM#pg_default_services)                   | [`PG_SERVICE`](PARAM#pg_service)     |  service[]  |  G/C  | postgres default service definitions                                          |

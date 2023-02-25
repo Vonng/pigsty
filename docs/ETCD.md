@@ -2,15 +2,18 @@
 
 > ETCD is a distributed, reliable key-value store for the most critical data of a distributed system
 
-Pigsty use etcd as DCS: Distributed configuration storage (or distributed consensus service). Which is critical to PostgreSQL High-Availability & Auto-Failover.
+Pigsty use **etcd** as **DCS**: Distributed configuration storage (or distributed consensus service). Which is critical to PostgreSQL High-Availability & Auto-Failover.
 
-You have to install [`ETCD`](ETCD) module before installing any [`PGSQL`](PGSQL) modules, since patroni & vip-manager will use etcd as DCS. You have to install it after [`NODE`](NODE) module is installed, because etcd require the trusted CA to work.
+You have to install [`ETCD`](ETCD) module before any [`PGSQL`](PGSQL) modules, since patroni & vip-manager will rely on etcd to work. Unless you are using an external etcd cluster.
+
+You have to install [`ETCD`](ETCD) after [`NODE`](NODE) module, since etcd require the trusted CA to work. Check [ETCD Administration SOP](ETCD-ADMIN) for more details. 
 
 
+----------------
 
 ## Playbook
 
-There's a built-in playbook: `etcd.yml` for installing etcd cluster. But you have to define it first.
+There's a built-in playbook: `etcd.yml` for installing etcd cluster. But you have to [define](#configuration) it first.
 
 ```bash
 ./etcd.yml    # install etcd cluster on group 'etcd'
@@ -33,39 +36,37 @@ Here are available sub tasks:
 
 
 
-If [`etcd_safeguard`](PARAM#etcd_safeguard) is enabled, or [`etcd_clean`](PARAM#etcd_clean) is false, the playbook will abort if any running etcd instance exists to prevent purge etcd accidently.
+If [`etcd_safeguard`](PARAM#etcd_safeguard) is `true`, or [`etcd_clean`](PARAM#etcd_clean) is `false`,
+the playbook will abort if any running etcd instance exists to prevent purge etcd by accident.
 
 
 
 
+
+----------------
 
 ## Configuration
 
 You have to define an etcd cluster before deploying it. There some [parameters](#parameters) about etcd.
 
-It is recommending to have 3 instances at least.
-Single node etcd is NOT Reliable enough for a serious production HA deployment. 
+It is recommending to have at least 3 instances for a serious production environment.
 
 
 **Single Node**
 
-Define a group `etcd` in the inventory
+Define a group `etcd` in the inventory, It will create a singleton etcd instance.
 
 ```yaml
 # etcd cluster for ha postgres
 etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
 ```
 
-It will create a singleton etcd instance.
-
-This is good enough for devbox, testing & demonstration, but not recommended in serious production environment.
+This is good enough for development, testing & demonstration, but not recommended in serious production environment.
 
 
 **Three Nodes**
 
-You can define etcd cluster with multiple nodes.
-
-Remember to use odd number for cluster size.
+You can define etcd cluster with multiple nodes. Remember to use odd number for cluster size.
 
 ```yaml
 etcd: # dcs service for postgres/patroni ha consensus
@@ -79,14 +80,25 @@ etcd: # dcs service for postgres/patroni ha consensus
     etcd_clean: true # purge etcd during init process
 ```
 
+**More Nodes**
+
+You can also add members to existing etcd cluster, and you have to tell the existing cluster with `etcdctl member add` first:  
+
+```bash
+etcdctl member add <etcd-?> --peer-urls=https://<new_ins_ip>:2380
+./etcd.yml -l <new_ins_ip> -e etcd_init=existing
+```
+
+Check [ETCD Administration](ETCD-ADMIN) for more details.
 
 
-
+----------------
 
 ## Administration
 
-**Cluster Management**
+Here are some useful commands for etcd administration, check [ETCD ADMIN](ETCD-ADMIN) for more details.
 
+**Cluster Management**
 
 - [Create Cluster](ETCD-ADMIN#create-cluster)
 - [Destroy Cluster](ETCD-ADMIN#destroy-cluster)
@@ -120,6 +132,20 @@ e put a 10 ; e get a; e del a ; # V3 API
 ```
 
 
+----------------
+
+## Dashboards
+
+There is one dashboard for ETCD module:
+
+- [ETCD Overview](http://demo.pigsty.cc/d/etcd-overview): Overview of the ETCD cluster 
+
+![etcd-dashboard](https://user-images.githubusercontent.com/8587410/221338269-305318ee-4116-4df2-80b1-23abc54f7d6a.jpg)
+
+
+
+
+----------------
 
 ## Parameters
 

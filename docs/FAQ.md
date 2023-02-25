@@ -547,7 +547,7 @@ $ vi /pg/bin/patroni.yml
 
 tags:
   nofailover: false
-  clonefrom: true      ----------> change to false
+  clonefrom: true      # ----------> change to false
   noloadbalance: false
   nosync: false
   version:  '15'
@@ -582,7 +582,7 @@ pg restart <cls>                          # restart postgres to use hugepage
 
 
 <br>
-<details><summary>How to guarantee 0 data loss during failover?</summary>
+<details><summary>How to guarantee zero data loss during failover?</summary>
 
 !> Use `crit.yml` template, or setting `pg_rpo` to `0`, or [config cluster](PGSQL-ADMIN#config-cluster) with synchronous mode.
 

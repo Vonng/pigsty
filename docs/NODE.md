@@ -2,6 +2,9 @@
 
 > Tune node into desired state and monitor it.
 
+Check NODE module dashboard for a live demo: [http://demo.pigsty.cc/d/node-overview](http://demo.pigsty.cc/d/node-overview)
+
+
 ----------------
 
 ## Concept
