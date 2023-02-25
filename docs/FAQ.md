@@ -1,6 +1,8 @@
 # Pigsty FAQ
 
-> Here are some frequently asked questions. If you have any unlisted questions or suggestions, please create an [Issue](https://github.com/Vonng/pigsty/issues/new).
+> Here are some frequently asked questions. 
+> 
+> If you have any unlisted questions or suggestions, please create an [Issue](https://github.com/Vonng/pigsty/issues/new) or ask the [community](README#about) for help.
 
 
 ----------------
@@ -315,7 +317,7 @@ bin/pgmon-rm <ins>     # shortcut for removing prometheus targets of pgsql insta
 
 
 <br>
-<details><summary>Which components are included in INFRA?</summary>
+<details><summary>Which components are included in INFRA</summary>
 
 - Ansible for automation, deployment, administration;
 - Nginx for exposing any WebUI service and serve the yum repo;
@@ -324,14 +326,90 @@ bin/pgmon-rm <ins>     # shortcut for removing prometheus targets of pgsql insta
 - Grafana for monitoring/visualization
 - Loki for logging collection
 - AlertManager for alerts aggregation
-- Chronyd for NTP time sync
+- Chronyd for NTP time sync on admin node
 - DNSMasq for dns registration and resolve
 - ETCD as DCS for PGSQL HA; (dedicate module)
 - PostgreSQL on meta nodes as CMDB; (optional)
 - Docker for stateless application & tools (optional) 
 
+</details>
 
-</details><br>
+
+<br>
+<details><summary>How to restore Prometheus targets</summary>
+
+If you accidentally deleted the Prometheus targets dir, you can register monitoring targets to prometheus again with:
+
+```bash
+./infra.yml -t register_prometheus  # register all infra targets to prometheus on infra nodes
+./node.yml  -t register_prometheus  # register all node  targets to prometheus on infra nodes
+./etcd.yml  -t register_prometheus  # register all etcd targets to prometheus on infra nodes
+./minio.yml -t register_prometheus  # register all minio targets to prometheus on infra nodes
+./pgsql.yml -t register_prometheus  # register all pgsql targets to prometheus on infra nodes
+```
+
+</details>
+
+
+
+<br>
+<details><summary>How to restore Grafana datasource</summary>
+
+PGSQL Databases in [`pg_databases`](PARAM#pg_databases) are registered as Grafana datasource by default.
+
+If you accidentally deleted the registered postgres datasource in Grafana, you can register them again with
+
+```bash
+./pgsql.yml -t register_grafana  # register all pgsql database (in pg_databases) as grafana datasource
+```
+
+</details>
+
+
+
+<br>
+<details><summary>How to restore HAProxy admin page proxy</summary>
+
+The haproxy admin page is proxied by Nginx under the default server. 
+
+If you accidentally deleted the registered haproxy proxy settings in `/etc/nginx/conf.d/haproxy`, you can restore them again with
+
+```bash
+./node.yml -t register_nginx     # register all haproxy admin page proxy settings to nginx on infra nodes
+```
+
+</details>
+
+
+
+<br>
+<details><summary>How to restore DNS registration</summary>
+
+PGSQL cluster / instance domain names are registered to `/etc/hosts.d/<name>` on infra nodes by default.
+
+You can restore them again with:
+
+```bash
+./pgsql.yml -t pg_dns   # register pg dns names to dnsmasq on infra nodes
+```
+
+</details>
+
+
+
+
+<br>
+<details><summary>How to expose new Nginx upstream service</summary>
+
+If you wish to expose a new WebUI service via the Nginx portal, you can add the service definition to the [`infra_portal`](PARAM#infra_portal) parameter.
+
+And re-run `./infra.yml -t nginx_config,nginx_launch` to update & apply the Nginx configuration.
+
+If you wish to access via HTTPS, you also have to remove `files/pki/csr/pigsty.csr`, `files/pki/nginx/pigsty.{key,crt}` to force re-generating the nginx SSL/TLS certificate to including the new upstream's domain name.
+
+</details>
+
+
 
 
 
@@ -376,7 +454,7 @@ You can replace `all` with any group or host IP address to limit execution scope
 
 
 <br>
-<details><summary>Create a dedicated admin user with an existing admin user?</summary>
+<details><summary>Create admin user with an existing admin user</summary>
 
 !> `./node.yml -k -K -e ansible_user=<another_admin> -t node_admin`
 
@@ -385,16 +463,27 @@ This will create an admin user specified by [`node_admin_username`](PARAM#node_a
 </details>
 
 
+
 <br>
-<details><summary>How to expose service with node HAProxy</summary>
+<details><summary>Exposing node services with HAProxy</summary>
 
-!> TBD
+!> You can expose service with [`haproxy_services`](PARAM#haproxy_services) in `node.yml`.
 
-</details><br>
+And here's an example of exposing MinIO service with it: [Expose MinIO Service](MINIO#expose-service)
+
+</details>
 
 
 
+<br>
+<details><summary>Why my node's /etc/yum.repos.d/* are nuked?</summary>
 
+Pigsty will try to include all dependencies in the local yum repo on infra nodes. This repo file will be added according to [`node_repo_local_urls`](PARAM#node_repo_local_urls).
+And existing repo files will be removed by default according to the default value of [`node_repo_remove`](PARAM#node_repo_remove). This will prevent the node from using the Internet repo or some stupid issues.
+
+If you want to keep existing repo files, just set [`node_repo_remove`](PARAM#node_repo_remove) to `false`.
+
+</details>
 
 
 
@@ -404,12 +493,28 @@ This will create an admin user specified by [`node_admin_username`](PARAM#node_a
 
 ## ETCD
 
+
+<br>
+<details><summary>What is the impact of ETCD failure?</summary>
+
+[ETCD](ETCD) availability is critical for the HA of PGSQL cluster, and that is guaranteed by using multiple nodes.
+With a 3-node ETCD cluster, if one node is down, the other 2 nodes can still function normally; and with a 5-node ETCD cluster, 2 nodes failure can still be tolerated.
+
+If more than half of the ETCD nodes are down, the ETCD cluster and its service will be unavailable.
+Before Patroni 3.0, this could lead to a global [PGSQL](PGSQL) outage, since all primary will be demoted and reject write requests.
+
+Since pigsty 2.0, the patroni 3.0 [DCS failsafe mode](https://patroni.readthedocs.io/en/master/dcs_failsafe_mode.html) is enabled by default. Which will **LOCK** PGSQL cluster status if the ETCD cluster is unavailable, and all PGSQL members are still known to the primary.
+That is to say: the PGSQL cluster can still function normally, but you still have to recover the ETCD cluster as soon as possible. (you can't configure pgsql cluster through patroni if etcd is down)
+
+</details>
+
+
+
 <br>
 <details><summary>How to use existing external etcd cluster?</summary>
 
-!> Define them in the `etcd` group as usual. 
-
-The special group `etcd` will be used as pg dcs servers, you can initialize them with `etcd.yml` or use existing external etcd cluster.
+The special group `etcd` will be used as DCS servers for PGSQL, you can initialize them with `etcd.yml` or use existing external etcd cluster.
+To use an existing external etcd cluster, just define them as usual and make sure your existing etcd cluster certificate is signed by the same CA as your self-signed CA for PGSQL.
 
 </details><br>
 
@@ -446,20 +551,45 @@ etcdctl member remove <etcd_server_id>   # kick member out of cluster (on admin 
 
 ## MINIO
 
+
+<br>
+<details><summary>Fail to launch multi-node / multi-driver MinIO cluster</summary>
+
+In [Multi-Driver](MINIO#single-node-multi-drive) or [Multi-Node](MINIO#multi-node-multi-drive) mode, MinIO will refuse to start if data dir is not a valid mount point.
+
+Make sure you are using mounted disk for MinIO data dir rather than some common directory. If you wish to do so, you can use the [single node, single drive](MINIO#single-node-single-drive) mode.
+
+</details>
+
+
 <br>
 <details><summary>How to deploy a multi-node multi-drive MinIO cluster?</summary>
 
-!> TBD
+!> Check [Create Multi-Node Multi-Driver MinIO Cluster](MINIO#multi-node-multi-drive)
 
-</details><br>
+</details>
 
 
+
+<br>
 <details><summary>How to add a member to existing MinIO cluster?</summary>
 
-!> TBD
+!> You'd better plan the MinIO cluster before deployment..., Since this require a global restart
 
-</details><br>
+Check this: [expand-minio-deployment](https://min.io/docs/minio/linux/operations/install-deploy-manage/expand-minio-deployment.html)
 
+</details>
+
+
+
+<br>
+<details><summary>How to use a HA MinIO deployment for PGSQL?</summary>
+
+!> You have to access HA MinIO cluster with an optional load balancer, and different port.
+
+Here is an example : [Access MinIO Service](MINIO#access-service)
+
+</details>
 
 
 
@@ -469,11 +599,26 @@ etcdctl member remove <etcd_server_id>   # kick member out of cluster (on admin 
 ## REDIS
 
 <br>
-<details><summary>Abort due to redis exists?</summary>
+<details><summary>ABORT due to existing redis instance</summary>
 
 !> use `redis_clean = true` and `redis_safeguard = false` to force clean redis data
 
+This is happened when you run `redis.yml` to init a redis instance that is already running, and [`redis_clean`](PARAM#redis_clean) is set to `false`.
+
+If `redis_clean` is set to `true` (and the `redis_safeguard` is set to `false`, too), the `redis.yml` playbook will remove the existing redis instance and re-init it as a new one, which makes the `redis.yml` playbook fully idempotent.
+
 </details>
+
+
+<br>
+<details><summary>ABORT due to redis_safeguard enabled</summary>
+
+!> This happens when removing a redis instance with [`redis_safeguard`](PARAM#redis_safeguard) set to `true`.
+
+You can disable [`redis_safeguard`](PARAM#redis_safeguard) to remove the redis instance. This is redis_safeguard is what it is for.
+
+</details>
+
 
 
 <br>
@@ -484,11 +629,13 @@ etcdctl member remove <etcd_server_id>   # kick member out of cluster (on admin 
 </details>
 
 
+
+<br>
 <details><summary>How to remove a single redis instance from node?</summary>
 
 !> `bin/redis-rm <ip> <port>` to remove a single redis instance from node
 
-</details><br>
+</details>
 
 
 
@@ -521,7 +668,9 @@ You can still purge the existing postgres data by using a special tag `pg_purge`
 <br>
 <details><summary>ABORT due to pg_safeguard enabled</summary>
 
-!> If [`pg_safeguard`](PARAM#pg_safeguard) is enabled, you can not run `bin/pgsql-rm` and `pgsql-rm.yml` playbook on that node. 
+!> Disable `pg_safeguard` to remove the postgres instance.
+
+If [`pg_safeguard`](PARAM#pg_safeguard) is enabled, you can not remove running pgsql instance with `bin/pgsql-rm` and `pgsql-rm.yml` playbook.
 
 To disable `pg_safeguard`, you can set `pg_safeguard` to `false` in the inventory, or just passing `-e pg_safeguard=false` as cli arg to playbook:
 

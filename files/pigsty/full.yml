@@ -3,7 +3,7 @@
 # File      :   full.yml
 # Desc      :   pigsty demo config with full default values
 # Ctime     :   2020-05-22
-# Mtime     :   2023-02-23
+# Mtime     :   2023-02-25
 # Docs      :   https://vonng.github.io/pigsty/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -36,7 +36,7 @@ all:
   # `hosts`: cluster members ip and instance level variables
   # `vars` : cluster level variables
   ##################################################################
-  children:                           # groups definition
+  children:                                 # groups definition
 
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
@@ -46,11 +46,6 @@ all:
 
     # minio cluster, s3 compatible object storage
     minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
-
-
-    #================================================================#
-    #                        PGSQL Clusters                          #
-    #================================================================#
 
     #----------------------------------#
     # pgsql cluster: pg-meta (CMDB)    #
@@ -179,9 +174,14 @@ all:
   ####################################################################
   vars:                               # global variables
 
+
     #================================================================#
-    #                         VARS: BASIC                            #
+    #                         VARS: INFRA                            #
     #================================================================#
+
+    #-----------------------------------------------------------------
+    # META
+    #-----------------------------------------------------------------
     version: v2.0.0-rc3               # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default,china,europe
@@ -198,10 +198,6 @@ all:
     ca_cn: pigsty-ca                  # ca common name, fixed as pigsty-ca
     cert_validity: 7300d              # cert validity, 20 years by default
 
-
-    #================================================================#
-    #                         VARS: INFRA                            #
-    #================================================================#
     #-----------------------------------------------------------------
     # INFRA_IDENTITY
     #-----------------------------------------------------------------
@@ -336,43 +332,6 @@ all:
 
 
     #================================================================#
-    #                         VARS: ETCD                             #
-    #================================================================#
-    #etcd_seq: 1                      # etcd instance identifier, explicitly required
-    #etcd_cluster: etcd               # etcd cluster & group name, etcd by default
-    etcd_safeguard: false             # prevent purging running etcd instance?
-    etcd_clean: true                  # purging existing etcd during initialization?
-    etcd_data: /data/etcd             # etcd data directory, /data/etcd by default
-    etcd_port: 2379                   # etcd client port, 2379 by default
-    etcd_peer_port: 2380              # etcd peer port, 2380 by default
-    etcd_init: new                    # etcd initial cluster state, new or existing
-    etcd_election_timeout: 1000       # etcd election timeout, 1000ms by default
-    etcd_heartbeat_interval: 100      # etcd heartbeat interval, 100ms by default
-
-
-    #================================================================#
-    #                         VARS: MINIO                            #
-    #================================================================#
-    #minio_seq: 1                     # minio instance identifier, REQUIRED
-    minio_cluster: minio              # minio cluster name, minio by default
-    minio_clean: false                # cleanup minio during init?, false by default
-    minio_user: minio                 # minio os user, `minio` by default
-    minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio node name pattern
-    minio_data: '/data/minio'         # minio data dir(s), use {x...y} to specify multi drivers
-    minio_domain: sss.pigsty          # minio external domain name, `sss.pigsty` by default
-    minio_port: 9000                  # minio service port, 9000 by default
-    minio_admin_port: 9001            # minio console port, 9001 by default
-    minio_access_key: minioadmin      # root access key, `minioadmin` by default
-    minio_secret_key: minioadmin      # root secret key, `minioadmin` by default
-    minio_extra_vars: ''              # extra environment variables
-    minio_alias: sss                  # alias name for local minio deployment
-    minio_buckets: [ { name: pgsql }, { name: infra },  { name: redis } ]
-    minio_users:
-      - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
-      - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
-
-
-    #================================================================#
     #                         VARS: NODE                             #
     #================================================================#
 
@@ -461,14 +420,6 @@ all:
     haproxy_services: []              # list of haproxy service to be exposed on node
 
     #-----------------------------------------------------------------
-    # DOCKER
-    #-----------------------------------------------------------------
-    docker_enabled: false             # enable docker on this node?
-    docker_cgroups_driver: systemd    # docker cgroup fs driver: cgroupfs,systemd
-    docker_registry_mirrors: []       # docker registry mirror list
-    docker_image_cache: /tmp/docker   # docker image cache dir, `/tmp/docker` by default
-
-    #-----------------------------------------------------------------
     # NODE_EXPORTER
     #-----------------------------------------------------------------
     node_exporter_enabled: true       # setup node_exporter on this node?
@@ -482,6 +433,77 @@ all:
     promtail_clean: false             # purge existing promtail status file during init?
     promtail_port: 9080               # promtail listen port, 9080 by default
     promtail_positions: /var/log/positions.yaml # promtail position status file path
+
+
+    #================================================================#
+    #                        VARS: DOCKER                            #
+    #================================================================#
+    docker_enabled: false             # enable docker on this node?
+    docker_cgroups_driver: systemd    # docker cgroup fs driver: cgroupfs,systemd
+    docker_registry_mirrors: []       # docker registry mirror list
+    docker_image_cache: /tmp/docker   # docker image cache dir, `/tmp/docker` by default
+
+
+    #================================================================#
+    #                         VARS: ETCD                             #
+    #================================================================#
+    #etcd_seq: 1                      # etcd instance identifier, explicitly required
+    #etcd_cluster: etcd               # etcd cluster & group name, etcd by default
+    etcd_safeguard: false             # prevent purging running etcd instance?
+    etcd_clean: true                  # purging existing etcd during initialization?
+    etcd_data: /data/etcd             # etcd data directory, /data/etcd by default
+    etcd_port: 2379                   # etcd client port, 2379 by default
+    etcd_peer_port: 2380              # etcd peer port, 2380 by default
+    etcd_init: new                    # etcd initial cluster state, new or existing
+    etcd_election_timeout: 1000       # etcd election timeout, 1000ms by default
+    etcd_heartbeat_interval: 100      # etcd heartbeat interval, 100ms by default
+
+
+    #================================================================#
+    #                         VARS: MINIO                            #
+    #================================================================#
+    #minio_seq: 1                     # minio instance identifier, REQUIRED
+    minio_cluster: minio              # minio cluster name, minio by default
+    minio_clean: false                # cleanup minio during init?, false by default
+    minio_user: minio                 # minio os user, `minio` by default
+    minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio node name pattern
+    minio_data: '/data/minio'         # minio data dir(s), use {x...y} to specify multi drivers
+    minio_domain: sss.pigsty          # minio external domain name, `sss.pigsty` by default
+    minio_port: 9000                  # minio service port, 9000 by default
+    minio_admin_port: 9001            # minio console port, 9001 by default
+    minio_access_key: minioadmin      # root access key, `minioadmin` by default
+    minio_secret_key: minioadmin      # root secret key, `minioadmin` by default
+    minio_extra_vars: ''              # extra environment variables
+    minio_alias: sss                  # alias name for local minio deployment
+    minio_buckets: [ { name: pgsql }, { name: infra },  { name: redis } ]
+    minio_users:
+      - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
+      - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
+
+
+    #================================================================#
+    #                         VARS: REDIS                            #
+    #================================================================#
+    #redis_cluster:        <CLUSTER> # redis cluster name, required identity parameter
+    #redis_node: 1            <NODE> # redis node sequence number, node int id required
+    #redis_instances: {}      <NODE> # redis instances definition on this redis node
+    redis_fs_main: /data              # redis main data mountpoint, `/data` by default
+    redis_exporter_enabled: true      # install redis exporter on redis nodes?
+    redis_exporter_port: 9121         # redis exporter listen port, 9121 by default
+    redis_exporter_options: ''        # cli args and extra options for redis exporter
+    redis_safeguard: false            # prevent purging running redis instance?
+    redis_clean: true                 # purging existing redis during init?
+    redis_rmdata: true                # remove redis data when purging redis server?
+    redis_mode: standalone            # redis mode: standalone,cluster,sentinel
+    redis_conf: redis.conf            # redis config template path, except sentinel
+    redis_bind_address: '0.0.0.0'     # redis bind address, empty string will use host ip
+    redis_max_memory: 1GB             # max memory used by each redis instance
+    redis_mem_policy: allkeys-lru     # redis memory eviction policy
+    redis_password: ''                # redis password, empty string will disable password
+    redis_rdb_save: ['1200 1']        # redis rdb save directives, disable with empty list
+    redis_aof_enabled: false          # enable redis append only file?
+    redis_rename_commands: {}         # rename redis dangerous commands
+    redis_cluster_replicas: 1         # replica number for one master in redis cluster
 
 
     #================================================================#
@@ -717,42 +739,5 @@ all:
     pgbouncer_exporter_port: 9631          # pgbouncer_exporter listen port, 9631 by default
     pgbouncer_exporter_url: ''             # overwrite auto-generate pgbouncer dsn if specified
     pgbouncer_exporter_options: ''         # overwrite extra options for pgbouncer_exporter
-
-
-    #================================================================#
-    #                         VARS: REDIS                            #
-    #================================================================#
-
-    #-----------------------------------------------------------------
-    # REDIS_IDENTITY
-    #-----------------------------------------------------------------
-    #redis_cluster:        <CLUSTER> # redis cluster name, required identity parameter
-    #redis_node: 1            <NODE> # redis node sequence number, node int id required
-    #redis_instances: {}      <NODE> # redis instances definition on this redis node
-
-    #-----------------------------------------------------------------
-    # REDIS_NODE
-    #-----------------------------------------------------------------
-    redis_fs_main: /data              # redis main data mountpoint, `/data` by default
-    redis_exporter_enabled: true      # install redis exporter on redis nodes?
-    redis_exporter_port: 9121         # redis exporter listen port, 9121 by default
-    redis_exporter_options: ''        # cli args and extra options for redis exporter
-
-    #-----------------------------------------------------------------
-    # REDIS_PROVISION
-    #-----------------------------------------------------------------
-    redis_safeguard: false            # prevent purging running redis instance?
-    redis_clean: true                 # purging existing redis during init?
-    redis_rmdata: true                # remove redis data when purging redis server?
-    redis_mode: standalone            # redis mode: standalone,cluster,sentinel
-    redis_conf: redis.conf            # redis config template path, except sentinel
-    redis_bind_address: '0.0.0.0'     # redis bind address, empty string will use host ip
-    redis_max_memory: 1GB             # max memory used by each redis instance
-    redis_mem_policy: allkeys-lru     # redis memory eviction policy
-    redis_password: ''                # redis password, empty string will disable password
-    redis_rdb_save: ['1200 1']        # redis rdb save directives, disable with empty list
-    redis_aof_enabled: false          # enable redis append only file?
-    redis_rename_commands: {}         # rename redis dangerous commands
-    redis_cluster_replicas: 1         # replica number for one master in redis cluster
 
 ...
