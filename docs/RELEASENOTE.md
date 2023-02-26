@@ -83,9 +83,8 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)"
 * Software Upgrade
   * PostgreSQL 15.2 / PostGIS 3.3 / TimescaleDB 2.10 / Citus 11.2
   * Patroni 3.0 / Pgbouncer 1.18 / pgBackRest 2.44 / vip-manager 2.1
-  * HAProxy 2.7 / Etcd 3.5 / MinIO 20230131022419 / mcli 20230128202938
+  * HAProxy 2.7 / Etcd 3.5 / MinIO 20230222182345 / mcli 20230216192011
   * Prometheus 2.42 / Grafana 9.3 / Loki & Promtail 2.7 / Node Exporter 1.5
-
 
 **Security**
 
