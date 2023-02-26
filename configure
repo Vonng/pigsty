@@ -107,15 +107,17 @@ function check_machine(){
 function check_release(){
     if [[ ! -f /etc/redhat-release ]]; then
         log_error "release = unknown, /etc/redhat-release not exists"
-        exit 3
+        log_error "pigsty works on RHEL and compatible distributions, use with caution!"
+        # exit 3
     fi
     local full=`cat /etc/redhat-release | tr -dc '0-9.'`
     local major=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f1)
     local minor=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f2)
     local asynchronous=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f3)
     if [[ ${major} != "7" && ${major} != "8" && ${major} != "9"  ]]; then
-        log_error "release = ${full} , only 7,8,9 is officially supported"
-        exit 4
+        log_error "release = ${full} , only EL 7,8,9 is officially supported, use with caution"
+        log_error "pigsty works on el 7,8,9, please use with caution!"
+        # exit 4
     fi
     return 0
 }

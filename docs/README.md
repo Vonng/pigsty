@@ -4,7 +4,7 @@
 
 **A battery-included, local-first, me-better open-source RDS alternative.**
 
-[![icon](docs/icon.svg)](https://pigsty.cc)
+[![icon](icon.svg)](https://pigsty.cc)
 
 > Latest Version: [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)  |  [Github Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Website](https://pigsty.cc/en/)
 
@@ -57,10 +57,6 @@ git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.0.0
 </details>
 
 Check [**Installation**](INSTALL) for details.
-
-
-
-
 
 
 
