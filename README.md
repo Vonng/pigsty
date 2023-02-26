@@ -2,9 +2,11 @@
 
 > **PostgreSQL in Great STYle**
 
-**A battery-included, open-source RDS alternative.**
+**A battery-included, local-first, me-better open-source RDS alternative.**
 
-![icon](docs/icon.svg)
+Get started with: `curl -fsSL http://download.pigsty.cc/get | bash`
+
+[![icon](docs/icon.svg)](https://pigsty.cc)
 
 > Latest Release: [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)  |  [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/) |  [Website](https://pigsty.cc/en/)
 
@@ -12,16 +14,14 @@
 
 
 
-
-
 ## Features
 
 Pigsty is a **Me-Better Open Source RDS Alternative** with:
 
-- Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with [PostGIS](https://postgis.net/), [TimescaleDB](https://www.timescale.com/), [Citus](https://www.citusdata.com/) ...
+- Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with [PostGIS](https://postgis.net/), [TimescaleDB](https://www.timescale.com/), [Citus](https://www.citusdata.com/),...
 - Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack.
-- Self-healing HA PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/)...
-- Auto-Configured PITR, powered by [pgbackrest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) cluster
+- Self-healing HA PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/).
+- Auto-Configured PITR, powered by [pgBackRest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) repo.
 - Declarative API, Database-as-Code implemented with [Ansible](https://www.ansible.com/) playbooks.
 - Versatile Use-cases, Run [Docker](https://www.docker.com/) Apps, Run demos, Visualize data with [ECharts](https://echarts.apache.org/).
 - Handy Tools, provision IaaS with [Terraform](https://www.terraform.io/), and try with local [Vagrant](https://www.vagrantup.com/) sandbox.
@@ -41,22 +41,26 @@ Check [**Feature**](docs/FEATURE.md) for details.
 Prepare a new node with Linux x86_64 EL 7/8/9 compatible OS, then run as a **sudo-able** user:
 
 ```bash
-# install the latest beta pigsty with:
-bash -c "$(curl -fsSL http://download.pigsty.cc/get)" && cd ~/pigsty   
-./bootstrap  && ./configure && ./install.yml
+bash -c "$(curl -fsSL http://download.pigsty.cc/get)";
+cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 ```
 
 Then you will have a pigsty singleton node ready, with Web Services on port `80` and Postgres on port `5432`.
- 
+
 <details><summary>Download Directly</summary>
 
 You can also download pigsty source and packages with `git` or `curl` directly:
 
 ```bash
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-v2.0.0.tgz -o ~/pigsty.tgz
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el7.x86_64.tgz  -o /tmp/pkg.tgz
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el9.x86_64.tgz  -o /tmp/pkg.tgz
+
 # or using git if curl not available
 git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.0.0
+
+# use corresponding pkg.tgz for EL7 and EL8
+# EL7: https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el7.x86_64.tgz
+# EL8: https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el8.x86_64.tgz
 ```
 
 </details>
@@ -92,7 +96,7 @@ Check [**Architecture**](docs/ARCH.md) for details.
 
 ## More Clusters
 
-To deploy a 3-node HA Postgres Cluster with streaming replication, [define](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L157) a new cluster on `all.children.pg-test` of [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml):
+To deploy a 3-node HA Postgres Cluster with streaming replication, [define](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L54) a new cluster on `all.children.pg-test` of [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml):
 
 ```yaml 
 pg-test:
@@ -266,18 +270,17 @@ all:
 ```yaml
 redis-ms: # redis classic primary & replica
   hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.10 6501' } } } }
-  vars: { redis_cluster: redis-ms ,redis_max_memory: 64MB }
+  vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
 
 redis-meta: # redis sentinel x 3
   hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 6001: { } ,6002: { } , 6003: { } } } }
-  vars: { redis_cluster: redis-meta, redis_mode: sentinel ,redis_max_memory: 16MB }
+  vars: { redis_cluster: redis-meta ,redis_password: 'redis.meta' ,redis_mode: sentinel ,redis_max_memory: 16MB }
 
 redis-test: # redis native cluster: 3m x 3s
   hosts:
     10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
     10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
-  vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
-
+  vars: { redis_cluster: redis-test ,redis_password: 'redis.test' ,redis_mode: cluster, redis_max_memory: 32MB }
 ```
 
 </details>
@@ -294,7 +297,6 @@ etcd: # dcs service for postgres/patroni ha consensus
     etcd_cluster: etcd  # mark etcd cluster name etcd
     etcd_safeguard: false # safeguard against purging
     etcd_clean: true # purge etcd during init process
-
 ```
 
 </details>
@@ -323,7 +325,6 @@ minio:
           - { name: minio-1 ,ip: 10.10.10.10 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
           - { name: minio-2 ,ip: 10.10.10.11 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
           - { name: minio-3 ,ip: 10.10.10.12 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
-
 ```
 
 </details>
@@ -336,6 +337,8 @@ Check [**Configuration**](docs/CONFIG.md) for details.
 ## About
 
 > Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "**P**ostgreSQL **I**n **G**reat **STY**le."
+
+Docs: https://vonng.github.io/pigsty/
 
 Wiki: https://github.com/Vonng/pigsty/wiki
 

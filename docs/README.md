@@ -2,9 +2,9 @@
 
 > **PostgreSQL in Great STYle**
 
-**A battery-included, open-source RDS alternative.**
+**A battery-included, local-first, me-better open-source RDS alternative.**
 
-![](icon.svg)
+[![icon](docs/icon.svg)](https://pigsty.cc)
 
 > Latest Version: [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)  |  [Github Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Website](https://pigsty.cc/en/)
 
@@ -91,7 +91,7 @@ Check [**Architecture**](ARCH) for details.
 
 ## More Clusters
 
-To deploy a 3-node HA Postgres Cluster with streaming replication, [define](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L157) a new cluster on `all.children.pg-test` of [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml):
+To deploy a 3-node HA Postgres Cluster with streaming replication, [define](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L54) a new cluster on `all.children.pg-test` of [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml):
 
 ```yaml 
 pg-test:
@@ -265,19 +265,18 @@ all:
 
 ```yaml
 redis-ms: # redis classic primary & replica
-  hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.13 6501' } } } }
+  hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.10 6501' } } } }
   vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
 
 redis-meta: # redis sentinel x 3
   hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 6001: { } ,6002: { } , 6003: { } } } }
-  vars: { redis_cluster: redis-meta, redis_mode: sentinel ,redis_max_memory: 16MB }
+  vars: { redis_cluster: redis-meta ,redis_password: 'redis.meta' ,redis_mode: sentinel ,redis_max_memory: 16MB }
 
 redis-test: # redis native cluster: 3m x 3s
   hosts:
     10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
     10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
-  vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
-
+  vars: { redis_cluster: redis-test ,redis_password: 'redis.test' ,redis_mode: cluster, redis_max_memory: 32MB }
 ```
 
 </details>
@@ -294,7 +293,6 @@ etcd: # dcs service for postgres/patroni ha consensus
     etcd_cluster: etcd  # mark etcd cluster name etcd
     etcd_safeguard: false # safeguard against purging
     etcd_clean: true # purge etcd during init process
-
 ```
 
 </details>
@@ -323,7 +321,6 @@ minio:
           - { name: minio-1 ,ip: 10.10.10.10 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
           - { name: minio-2 ,ip: 10.10.10.11 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
           - { name: minio-3 ,ip: 10.10.10.12 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
-
 ```
 
 </details>
@@ -336,17 +333,19 @@ Check [**Configuration**](CONFIG) for details.
 
 ## About
 
-> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Great STYle."
+> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "**P**ostgreSQL **I**n **G**reat **STY**le."
+
+Docs: https://vonng.github.io/pigsty/
 
 Wiki: https://github.com/Vonng/pigsty/wiki
 
-Official Site: https://pigsty.cc/en/ , https://pigsty.cc/zh/
+Website: https://pigsty.cc/en/ | https://pigsty.cc/zh/
 
-WeChat Group: Search `pigsty-cc` to join the WeChat group.
+WeChat: Search `pigsty-cc` to join the WeChat group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/wDzt5VyWEz
+Discord: https://discord.gg/wDzt5VyWEzr
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
