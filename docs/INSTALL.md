@@ -22,7 +22,7 @@ You can also download pigsty source with `git`, don't forget to checkout a speci
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
-cd pigsty; git checkout v2.0.0-rc3
+cd pigsty; git checkout v2.0.0
 ```
 
 </details>
@@ -72,15 +72,15 @@ curl -fsSL http://download.pigsty.cc/get  | bash
 If you want to download a specific version, use the following URLs:
 
 ```bash
-VERSION=v2.0.0-rc3
+VERSION=v2.0.0
 https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty-${VERSION}.tgz
 ```
 
-For example, Pigsty v2.0.0-rc3 source can be acquired with:
+For example, Pigsty v2.0.0 source can be acquired with:
 
 ```bash 
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0-rc3/pigsty-v2.0.0-rc3.tgz -o ~/pigsty.tgz
-curl -L http://download.pigsty.cc/v2.0.0-rc3/pigsty-v2.0.0-rc3.tgz -o ~/pigsty.tgz   # China CDN Mirror
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-v2.0.0.tgz -o ~/pigsty.tgz
+curl -L http://download.pigsty.cc/v2.0.0/pigsty-v2.0.0.tgz -o ~/pigsty.tgz   # China CDN Mirror
 ```
 
 </details>
@@ -98,7 +98,7 @@ You can also download it manually and put it under `/tmp/pkg.tgz` for later use.
 <details><summary>Download offline packages manually</summary>
 
 ```bash
-VERSION=v2.0.0-rc3
+VERSION=v2.0.0
 OS_VERSION=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
 ARCH=$(uname -m)
 FILENAME=pigsty-pkg-${VERSION}.el${OS_VERSION}.${ARCH}.tgz
@@ -106,11 +106,11 @@ PKG_URL="https://github.com/Vonng/pigsty/releases/download/${VERSION}/${FILENAME
 echo ${PKG_URL} && curl -L ${PKG_URL} -o /tmp/pkg.tgz
 ```
 
-For example, Pigsty v2.0.0-rc3 on EL7.x86_64 will have the following packages: 
+For example, Pigsty v2.0.0 on EL7.x86_64 will have the following packages: 
 
 ```bash
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0-rc3/pigsty-pkg-v2.0.0-rc3.el7.x86_64.tgz  -o /tmp/pkg.tgz
-curl -L http://download.pigsty.cc/v2.0.0-rc3/pigsty-pkg-v2.0.0-rc3.el7.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el7.x86_64.tgz  -o /tmp/pkg.tgz
+curl -L http://download.pigsty.cc/v2.0.0/pigsty-pkg-v2.0.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
 ```
 
 > Not all combinations of OS and architecture are supported yet. Please check the official release page.
@@ -169,7 +169,7 @@ It will also download / extract / setup the offline [packages](#offline-packages
 If `/tmp/pkg.tgz` already exists, bootstrap will use it directly:
 
 ```bash
-bootstrap pigsty v2.0.0-rc3 begin
+bootstrap pigsty v2.0.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -193,7 +193,7 @@ proceed with ./configure
 Download `pkg.tgz` from Github and extract it:
 
 ```bash
-bootstrap pigsty v2.0.0-rc3 begin
+bootstrap pigsty v2.0.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -201,7 +201,7 @@ bootstrap pigsty v2.0.0-rc3 begin
 [ OK ] sudo = vagrant ok
 [ IN ] Cache /tmp/pkg.tgz not exists, download? (y/n):
 => y
-[ OK ] download from Github http://download.pigsty.cc/v2.0.0-rc3/pigsty-pkg-v2.0.0-rc3.el7.x86_64.tgz to /tmp/pkg.tgz
+[ OK ] download from Github http://download.pigsty.cc/v2.0.0/pigsty-pkg-v2.0.0.el7.x86_64.tgz to /tmp/pkg.tgz
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100  913M  100  913M    0     0   661k      0  0:23:33  0:23:33 --:--:--  834k
@@ -289,7 +289,7 @@ When `-n|--non-interactive` is specified, you have to specify a primary IP addre
 
 ```bash
 [vagrant@meta pigsty]$ ./configure
-configure pigsty v2.0.0-rc3 begin
+configure pigsty v2.0.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64

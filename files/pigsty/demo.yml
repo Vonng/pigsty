@@ -3,7 +3,7 @@
 # File      :   demo.yml
 # Desc      :   Pigsty Local Sandbox 4-node Demo Config
 # Ctime     :   2020-05-22
-# Mtime     :   2023-02-23
+# Mtime     :   2023-02-26
 # Docs      :   https://vonng.github.io/pigsty/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -71,21 +71,21 @@ all:
 
     redis-ms: # redis classic primary & replica
       hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.10 6501' } } } }
-      vars: { redis_cluster: redis-ms , redis_password: 'redis.ms' ,redis_max_memory: 64MB }
+      vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
 
     redis-meta: # redis sentinel x 3
       hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 6001: { } ,6002: { } , 6003: { } } } }
-      vars: { redis_cluster: redis-meta, redis_mode: sentinel ,redis_max_memory: 16MB }
+      vars: { redis_cluster: redis-meta ,redis_password: 'redis.meta' ,redis_mode: sentinel ,redis_max_memory: 16MB }
 
     redis-test: # redis native cluster: 3m x 3s
       hosts:
         10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
         10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
-      vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
+      vars: { redis_cluster: redis-test ,redis_password: 'redis.test' ,redis_mode: cluster, redis_max_memory: 32MB }
 
 
   vars:                               # global variables
-    version: v2.0.0-rc3               # pigsty version string
+    version: v2.0.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     node_tune: tiny                   # use tiny template for NODE  in demo environment

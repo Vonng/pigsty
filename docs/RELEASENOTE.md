@@ -2,7 +2,7 @@
 
 | Version                 |    Time    | Description                                             | Release                                                                                   |
 |:------------------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.0.0-rc3](#v200-rc3) | 2023-02-24 | Compatibility Security Maintainability Enhancement      | [v2.0.0-rc3](https://github.com/Vonng/pigsty/releases/tag/v2.0.0-rc3)                     |
+| [v2.0.0](#v200-rc3) | 2023-02-24 | Compatibility Security Maintainability Enhancement      | [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)                     |
 | [v1.5.1](#v151)         | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
 | [v1.5.0](#v150)         | 2022-05-31 | Docker Applications                                     | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
 | [v1.4.1](#v141)         | 2022-04-20 | Bug fix & Full translation of English documents.        | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |
@@ -29,17 +29,17 @@
 
 ------------------------------
 
-## v2.0.0-rc3
+## v2.0.0
 
 
 "PIGSTY" is now the abbr of "PostgreSQL in Great STYle"
 
 > or "PostgreSQL & Infrastructure & Governance System allTogether for You".
 
-v2.0.0 RC 3 Release can be downloaded via following command:
+v2.0.0 Release can be downloaded via following command:
 
 ```bash
-bash -c "$(curl -fsSL http://download.pigsty.cc/getb)"
+bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
 ```
 
 **Highlights**
@@ -228,9 +228,9 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)"
 **Checksums**
 
 ```
-MD5 (pigsty-pkg-v2.0.0-rc3.el7.x86_64.tgz) = 7ccc92006b009ccbdd263f03eefabeff
-MD5 (pigsty-pkg-v2.0.0-rc3.el8.x86_64.tgz) = 981210d60a0c02be010159eda2672791
-MD5 (pigsty-pkg-v2.0.0-rc3.el9.x86_64.tgz) = 1133ffd5b4c67a9a65b7aabb78bf6ed3
+MD5 (pigsty-pkg-v2.0.0.el7.x86_64.tgz) = 
+MD5 (pigsty-pkg-v2.0.0.el8.x86_64.tgz) = 
+MD5 (pigsty-pkg-v2.0.0.el9.x86_64.tgz) = 
 ```
 
 Special thanks to @alemacci for his great contribution!
