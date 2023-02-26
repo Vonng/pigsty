@@ -52,9 +52,17 @@
 
 ## Dashboards
 
-Check NODE module dashboard for a live demo: [http://demo.pigsty.cc/d/pgsql-overview](http://demo.pigsty.cc/d/pgsql-overview)
+There are 23 default grafana dashboards about PostgreSQL and categorized into 4 levels, check [PGSQL Monitor](PGSQL-MONITOR) for details.
 
-
+|                              Overview                               |                               Cluster                                |                         Instance                          |                         Database                          |
+|:-------------------------------------------------------------------:|:--------------------------------------------------------------------:|:---------------------------------------------------------:|:---------------------------------------------------------:|
+|      [PGSQL Overview](http://demo.pigsty.cc/d/pgsql-overview)       |        [PGSQL Cluster](http://demo.pigsty.cc/d/pgsql-cluster)        | [PGSQL Instance](http://demo.pigsty.cc/d/pgsql-instance)  | [PGSQL Database](http://demo.pigsty.cc/d/pgsql-database)  |
+|         [PGSQL Alert](http://demo.pigsty.cc/d/pgsql-alert)          | [PGSQL Cluster-remote](http://demo.pigsty.cc/d/pgsql-cluster-remote) | [PGCAT Instance](http://demo.pigsty.cc/d/pgcat-instance)  | [PGCAT Database](http://demo.pigsty.cc/d/pgcat-database)  |
+|         [PGSQL Shard](http://demo.pigsty.cc/d/pgsql-shard)          |       [PGSQL Activity](http://demo.pigsty.cc/d/pgsql-activity)       |  [PGSQL Persist](http://demo.pigsty.cc/d/pgsql-persist)   |   [PGSQL Tables](http://demo.pigsty.cc/d/pgsql-tables)    |
+|                                                                     |    [PGSQL Replication](http://demo.pigsty.cc/d/pgsql-replication)    |    [PGSQL Proxy](http://demo.pigsty.cc/d/pgsql-proxy)     |    [PGSQL Table](http://demo.pigsty.cc/d/pgsql-table)     |
+|                                                                     |        [PGSQL Service](http://demo.pigsty.cc/d/pgsql-service)        |  [PGSQL Queries](http://demo.pigsty.cc/d/pgsql-queries)   |    [PGCAT Table](http://demo.pigsty.cc/d/pgcat-table)     |
+|                                                                     |      [PGSQL Databases](http://demo.pigsty.cc/d/pgsql-databases)      |  [PGSQL Session](http://demo.pigsty.cc/d/pgsql-session)   |    [PGSQL Query](http://demo.pigsty.cc/d/pgsql-query)     |
+|                                                                     |                                                                      |    [PGSQL Xacts](http://demo.pigsty.cc/d/pgsql-xacts)     |    [PGCAT Query](http://demo.pigsty.cc/d/pgcat-query)     |
 
 
 

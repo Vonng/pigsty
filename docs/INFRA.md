@@ -2,25 +2,45 @@
 
 > Pigsty has a battery-included, production-ready INFRA module, to provide ultimate observability.
 
-Check INFRA module dashboard for a live demo: [http://demo.pigsty.cc/d/infra-overview](http://demo.pigsty.cc/d/infra-overview)
 
+----------------
 
 ## Overview
 
+
+Each Pigsty deployment requires a set of infrastructure components to work properly. which including:
+
+|     Component     | Port |     Domain     | Description                                    |
+| :---------------: | :--: | :------------: | -----------------------------------------------|
+|  Nginx            |  80  |   `h.pigsty`   | Web Service Portal (Also used as Yum Repo)     |
+|  AlertManager     | 9093 |   `a.pigsty`   | Alert Aggregation and delivery                 |
+|  Prometheus       | 9090 |   `p.pigsty`   | Monitoring Time Series Database                |
+|  Grafana          | 3000 |   `g.pigsty`   | Visualization Platform                         |
+|  Loki             | 3100 |       -        | Logging Collection Server                      |
+|  PushGateway      | 3100 |       -        | Logging Collection Server                      |
+|  BlackboxExporter | 3100 |       -        | Logging Collection Server                      |
+|  Dnsmasq          |  53  |       -        | DNS Server (optional)                          |
+|  Dnsmasq          |  53  |       -        | DNS Server (optional)                          |
+|  Chronyd          | 123  |       -        | NTP Time Server (optional)                     |
+|  PostgreSQL       | 5432 |       -        | Pigsty CMDB & default database                 |
+|  Ansible          |  -   |       -        | Run playbooks                                  |
+
+Pigsty will set up these components for you on infra nodes. You can expose them to the outside world by configuring the [`infra_portal`](PARAM#infra_portal) parameter.
+
+```yaml
+infra_portal:  # domain names and upstream servers
+  home         : { domain: h.pigsty }
+  grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+  prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+  alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+  blackbox     : { endpoint: "${admin_ip}:9115" }
+  loki         : { endpoint: "${admin_ip}:3100" }
+  minio        : { domain: sss.pigsty  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
+```
+
 ![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
 
-|     Component  | Port |     Domain     | Description                                    |
-| :------------: | :--: | :------------: | -----------------------------------------------|
-|  Nginx         |  80  |   `h.pigsty`   | Web Service Portal (Also used as Yum Repo)     |
-|  Grafana       | 3000 |   `g.pigsty`   | Visualization Platform                         |
-|  AlertManager  | 9093 |   `a.pigsty`   | Alert Aggregation and delivery                 |
-|  Prometheus    | 9090 |   `p.pigsty`   | Monitoring Time Series Database                |
-|  Loki          | 3100 |       -        | Logging Collection Server                      |
-|  PostgreSQL    | 5432 |       -        | Pigsty CMDB & default database                 |
-|  Ansible       |  -   |       -        | Run playbooks                                  |
-|  Dnsmasq       |  53  |       -        | DNS Server (optional)                          |
-|  NTP           | 123  |       -        | NTP Time Server (optional)                     |
- 
+
 
 
 ----------------
@@ -36,14 +56,14 @@ Check INFRA module dashboard for a live demo: [http://demo.pigsty.cc/d/infra-ove
 
 ## Dashboards
 
-- [INFRA Overview](http://demo.pigsty.cc/d/infra-overview)
-- [Nginx Overview](http://demo.pigsty.cc/d/nginx-overview)
-- [Grafana Overview](http://demo.pigsty.cc/d/grafana-overview)
-- [Prometheus Overview](http://demo.pigsty.cc/d/prometheus-overview)
-- [Loki Overview](http://demo.pigsty.cc/d/loki-overview)
-- [Logs Instance](http://demo.pigsty.cc/d/logs-instance)
-- [CMDB Overview](http://demo.pigsty.cc/d/cmdb-overview)
-- [ETCD Overview](http://demo.pigsty.cc/d/etcd-overview)
+- [INFRA Overview](http://demo.pigsty.cc/d/infra-overview) : Overview of all infra components
+- [Nginx Overview](http://demo.pigsty.cc/d/nginx-overview) : Nginx metrics & logs
+- [Grafana Overview](http://demo.pigsty.cc/d/grafana-overview): Grafana metrics & logs
+- [Prometheus Overview](http://demo.pigsty.cc/d/prometheus-overview): Prometheus metrics & logs
+- [Loki Overview](http://demo.pigsty.cc/d/loki-overview): Loki metrics & logs
+- [Logs Instance](http://demo.pigsty.cc/d/logs-instance): Logs for a single instance
+- [CMDB Overview](http://demo.pigsty.cc/d/cmdb-overview): CMDB visualization
+- [ETCD Overview](http://demo.pigsty.cc/d/etcd-overview): etcd metrics & logs
 
 
 ----------------

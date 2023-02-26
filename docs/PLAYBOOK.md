@@ -29,6 +29,7 @@ Here are default playbooks included in Pigsty.
 | [`etcd.yml`](https://github.com/vonng/pigsty/blob/master/etcd.yml)                       | Init etcd cluster (required for patroni HA DCS)             |
 | [`minio.yml`](https://github.com/vonng/pigsty/blob/master/minio.yml)                     | Init minio cluster (optional for pgbackrest repo)           |
 | [`cert.yml`](https://github.com/vonng/pigsty/blob/master/cert.yml)                       | Issue cert with pigsty self-signed CA (e.g. for pg clients) |
+| [`docker.yml`](https://github.com/vonng/pigsty/blob/master/docker.yml)                   | Install docker on nodes                                     |
 
 
 **One-Pass Install**

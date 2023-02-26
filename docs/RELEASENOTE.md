@@ -44,7 +44,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)"
 
 **Highlights**
 
-* PostgreSQL 15.2, PostGIS 3.3, Citus 11.2, TimescaleDB 2.9 now works together and unite as one.
+* PostgreSQL 15.2, PostGIS 3.3, Citus 11.2, TimescaleDB 2.10 now works together and unite as one.
 * Now works on EL 7,8,9 for RHEL, CentOS, Rocky, AlmaLinux, and other EL compatible distributions
 * Security enhancement with self-signed CA, full SSL support, `scram-sha-256` pwd encryption, and more.
 * Patroni 3.0 with native HA citus cluster support and dcs failsafe mode to prevent global DCS failures.
@@ -61,7 +61,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)"
 * Pigsty now works on EL compatible distributions: RHEL, CentOS, Rocky, AlmaLinux, OracleLinux,...
 * Pigsty now use RockyLinux 9 as default developing & testing environment instead of CentOS 7
 * EL version, CPU arch, and pigsty version string are part of source & offline package names.
-* PGSQL: PostgreSQL 15.2 / PostGIS 3.3 / TimescaleDB 2.9 / Citus 11.2 now works together.
+* PGSQL: PostgreSQL 15.2 / PostGIS 3.3 / TimescaleDB 2.10 / Citus 11.2 now works together.
 * PGSQL: Patroni 3.0 is used as default HA solution for PGSQL, and etcd is used as default DCS.
   * Patroni 3.0 with DCS failsafe mode to prevent global DCS failures (demoting all primary)
   * Patroni 3.0 with native HA citus cluster support, with entirely open sourced v11 citus.
@@ -81,7 +81,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/getb)"
   * Switch to official loki & promtail rpm packages. Use official Grafana Echarts Panel.
   * Add infra dashboards for self-monitoring, add patroni & pg15 metrics to monitoring system
 * Software Upgrade
-  * PostgreSQL 15.2 / PostGIS 3.3 / TimescaleDB 2.9 / Citus 11.2
+  * PostgreSQL 15.2 / PostGIS 3.3 / TimescaleDB 2.10 / Citus 11.2
   * Patroni 3.0 / Pgbouncer 1.18 / pgBackRest 2.44 / vip-manager 2.1
   * HAProxy 2.7 / Etcd 3.5 / MinIO 20230131022419 / mcli 20230128202938
   * Prometheus 2.42 / Grafana 9.3 / Loki & Promtail 2.7 / Node Exporter 1.5

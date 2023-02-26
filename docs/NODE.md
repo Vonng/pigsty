@@ -1,54 +1,53 @@
 # NODE
 
-> Tune node into desired state and monitor it.
+> Tune nodes into the desired state and monitor it.
 
-Check NODE module dashboard for a live demo: [http://demo.pigsty.cc/d/node-overview](http://demo.pigsty.cc/d/node-overview)
+
 
 
 ----------------
 
 ## Concept
 
-Node is an abstraction of hardware resource, which can be bare metal, virtual machine, or even k8s pods.
+Node is an abstraction of hardware resources, which can be bare metal, virtual machines, or even k8s pods.
 
-There are different types of node in pigsty:
+There are different types of nodes in Pigsty:
 
-* common node, nodes that managed by pigsty
-* admin node, the node where pigsty is installed on and issue admin commands
-* infra node, the node where INFRA module installed, admin node is usually the first one of all infra nodes.
+* Common nodes, nodes that managed by Pigsty
+* Admin node, the node where pigsty is installed and issue admin commands
+* The Infra node, the node where the INFRA module is installed, admin node are usually the first of all infra nodes.
 
 
 **Common Node**
 
 You can manage nodes with Pigsty, and install modules on them. The `node.yml` playbook will adjust the node to desired state.
 
-Some service will be added to all nodes by default:
+Some services will be added to all nodes by default:
 
-|   Component   | Port | Description                        |
-| :-----------: | :--: | -----------------------------------|
-| Node Exporter | 9100 | Node Monitoring Metrics Exporter   |
-| HAProxy Admin | 9101 | HAProxy admin page                 |
-| Docker Daemon | 9323 | Docker daemon (disable by default) |
-|   Promtail    | 9080 | Log collecting agent               |
+|   Component   | Port | Description                      |
+| :-----------: | :--: | -------------------------------- |
+| Node Exporter | 9100 | Node Monitoring Metrics Exporter |
+| HAProxy Admin | 9101 | HAProxy admin page               |
+|   Promtail    | 9080 | Log collecting agent             |
 
 
 **Admin Node**
 
-There is one and only one admin node in a pigsty deployment, which is specified by [`admin_ip`](PARAM#admin_ip), it is set to local primary IP during [configure](INSTALL#configure).
+There is one and only one admin node in a pigsty deployment, which is specified by [`admin_ip`](PARAM#admin_ip). It is set to the local primary IP during [configure](INSTALL#configure).
 
-The node will have ssh / sudo access to all other nodes, which is critical, make sure it's fully secured.
+The node will have ssh / sudo access to all other nodes, which is critical; ensure it's fully secured.
 
 **INFRA Node**
 
-A pigsty deployment may have one or more infra nodes, usually 2 ~ 3 in large production environment.
+A pigsty deployment may have one or more infra nodes, usually 2 ~ 3, in a large production environment.
 
-Infra nodes are specified by the `infra` group in the inventory. and infra nodes will have [INFRA](INFRA) module installed (dns,nginx,prometheus,grafana,etc...),
+The `infra` group specifies infra nodes in the inventory. And infra nodes will have [INFRA](INFRA) module installed (DNS, Nginx, Prometheus, Grafana, etc...),
 
-The admin node is also used as the only one infra node by default, and infra nodes can be used as 'backup' admin nodes.
+The admin node is also the default and first infra node, and infra nodes can be used as 'backup' admin nodes.
 
 **PGSQL Node**
 
-Node with [PGSQL](PGSQL) module installed is called PGSQL node, the node and pg instance are 1:1 deployed. And node instance can be borrowed from corresponding pg instances with [`node_id_from_pg`](PARAM#node_id_from_pg).
+The node with [PGSQL](PGSQL) module installed is called a PGSQL node. The node and pg instance is 1:1 deployed. And node instance can be borrowed from corresponding pg instances with [`node_id_from_pg`](PARAM#node_id_from_pg).
 
 |     Component      | Port | Description                                                |
 | :----------------: | :--: | ---------------------------------------------------------- |
@@ -75,7 +74,7 @@ Node with [PGSQL](PGSQL) module installed is called PGSQL node, the node and pg 
 
 **Add Node**
 
-To add a node into pigsty, you need to have nopass ssh/sudo access to the node 
+To add a node into Pigsty, you need to have nopass ssh/sudo access to the node 
 
 ```bash
 bin/node-add [ip...]      # add node to pigsty:  ./node.yml -l <cls|ip|group>
@@ -83,7 +82,7 @@ bin/node-add [ip...]      # add node to pigsty:  ./node.yml -l <cls|ip|group>
 
 **Remove Node**
 
-To remove node from pigsty, you can use:
+To remove a node from Pigsty, you can use the following:
 
 ```bash
 bin/node-rm [ip...]       # remove node from pigsty: ./node-rm.yml -l <cls|ip|group>
@@ -91,7 +90,7 @@ bin/node-rm [ip...]       # remove node from pigsty: ./node-rm.yml -l <cls|ip|gr
 
 **Create Admin**
 
-If current user does not have nopass ssh/sudo access to the node, you can use another admin user to bootstrap the node:
+If the current user does not have nopass ssh/sudo access to the node, you can use another admin user to bootstrap the node:
 
 ```bash
 node.yml -t node_admin -k -K -e ansible_user=<another admin>   # input ssh/sudo password for another admin 
@@ -107,9 +106,26 @@ node.yml -t node_admin -k -K -e ansible_user=<another admin>   # input ssh/sudo 
 * [`node.yml`](https://github.com/vonng/pigsty/blob/master/node.yml) : Init node for pigsty
 * [`node-rm.yml`](https://github.com/vonng/pigsty/blob/master/node-rm.yml) : Remove node from pigsty
 
+
+
+----------------
+
+## Dashboards
+
+There are four dashboards for [`NODE`](NODE) module.
+
+- [NODE Overview](http://demo.pigsty.cc/d/node-overview): Overview of all nodes
+- [NODE Cluster](http://demo.pigsty.cc/d/node-cluster): Detail information about a node cluster
+- [NODE Instance](http://demo.pigsty.cc/d/node-instance): Detail information about a Node instance
+- [NODE HAProxy](http://demo.pigsty.cc/d/node-haproxy): Detail information about haproxy service on the node 
+
+
+
+----------------
+
 ## Parameters
 
-There are 10 sections, 58 parameters about [`NODE`](PARAM#node) module.
+There are 9 sections, 58 parameters about [`NODE`](PARAM#node) module.
 
 
 - [`NODE_ID`](PARAM#node_id)             : Node identity parameters        
@@ -119,7 +135,6 @@ There are 10 sections, 58 parameters about [`NODE`](PARAM#node) module.
 - [`NODE_ADMIN`](PARAM#node_admin)       : Admin User & SSH Keys           
 - [`NODE_TIME`](PARAM#node_time)         : Timezone, NTP, Crontab          
 - [`HAPROXY`](PARAM#haproxy)             : Expose services with HAProxy    
-- [`DOCKER`](PARAM#docker)               : Docker daemon on node           
 - [`NODE_EXPORTER`](PARAM#node_exporter) : Node monitoring agent           
 - [`PROMTAIL`](PARAM#promtail)           : Promtail logging agent          
 
@@ -127,7 +142,7 @@ There are 10 sections, 58 parameters about [`NODE`](PARAM#node) module.
 <details><summary>Parameters</summary>
 
 | Parameter                                                  | Section                                |   Type    | Level | Comment                                                     |
-|------------------------------------------------------------|----------------------------------------|:---------:|:-----:|-------------------------------------------------------------|
+| ---------------------------------------------------------- | -------------------------------------- | :-------: | :---: | ----------------------------------------------------------- |
 | [`nodename`](PARAM#nodename)                               | [`NODE_ID`](PARAM#node_id)             |  string   |   I   | node instance identity, use hostname if missing, optional   |
 | [`node_cluster`](PARAM#node_cluster)                       | [`NODE_ID`](PARAM#node_id)             |  string   |   C   | node cluster identity, use 'nodes' if missing, optional     |
 | [`nodename_overwrite`](PARAM#nodename_overwrite)           | [`NODE_ID`](PARAM#node_id)             |   bool    |   C   | overwrite node's hostname with nodename?                    |
@@ -177,10 +192,6 @@ There are 10 sections, 58 parameters about [`NODE`](PARAM#node) module.
 | [`haproxy_client_timeout`](PARAM#haproxy_client_timeout)   | [`HAPROXY`](PARAM#haproxy)             | interval  |   C   | client side connection timeout, 24h by default              |
 | [`haproxy_server_timeout`](PARAM#haproxy_server_timeout)   | [`HAPROXY`](PARAM#haproxy)             | interval  |   C   | server side connection timeout, 24h by default              |
 | [`haproxy_services`](PARAM#haproxy_services)               | [`HAPROXY`](PARAM#haproxy)             | service[] |   C   | list of haproxy service to be exposed on node               |
-| [`docker_enabled`](PARAM#docker_enabled)                   | [`DOCKER`](PARAM#docker)               |   bool    |   C   | enable docker on this node?                                 |
-| [`docker_cgroups_driver`](PARAM#docker_cgroups_driver)     | [`DOCKER`](PARAM#docker)               |   enum    |   C   | docker cgroup fs driver: cgroupfs,systemd                   |
-| [`docker_registry_mirrors`](PARAM#docker_registry_mirrors) | [`DOCKER`](PARAM#docker)               | string[]  |   C   | docker registry mirror list                                 |
-| [`docker_image_cache`](PARAM#docker_image_cache)           | [`DOCKER`](PARAM#docker)               |   path    |   C   | docker image cache dir, `/tmp/docker` by default            |
 | [`node_exporter_enabled`](PARAM#node_exporter_enabled)     | [`NODE_EXPORTER`](PARAM#node_exporter) |   bool    |   C   | setup node_exporter on this node?                           |
 | [`node_exporter_port`](PARAM#node_exporter_port)           | [`NODE_EXPORTER`](PARAM#node_exporter) |   port    |   C   | node exporter listen port, 9100 by default                  |
 | [`node_exporter_options`](PARAM#node_exporter_options)     | [`NODE_EXPORTER`](PARAM#node_exporter) |    arg    |   C   | extra server options for node_exporter                      |

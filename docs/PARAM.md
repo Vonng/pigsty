@@ -465,9 +465,7 @@ infra_portal:                     # infra services exposed via portal
 
 name: `infra_seq`, type: `int`, level: `I`
 
-infra node identity, REQUIRED
-
-no default value, you have to assign it explicitly.
+infra node identity, REQUIRED, no default value, you have to assign it explicitly.
 
 
 
@@ -493,19 +491,13 @@ infra_portal:                     # infra services exposed via portal
 
 
 Each record contains three subsections: key as `name`, representing the component name, the external access domain, and the internal TCP port, respectively.
+and the value contains `domain`, and `endpoint`,
 
-and the value contains `domain`, and `endpoint`, 
-
-
-The `name` definition of the default record is fixed and referenced by other modules, so do not modify the default entry names.
-
-The `domain` is the domain name that should be used for external access to this upstream server. domain names will be added to Nginx SSL cert SAN.
-
-The `endpoint` is an internally reachable TCP port. and `${admin_ip}` will be replaced with actual [`admin_ip`](#admin_ip) in runtime.
-
-If `websocket` is set to `true`, http protocol will be auto upgraded for ws connections.
-
-If `scheme` is given (`http` or `https`), it will be used as part of proxy_pass URL.
+* The `name` definition of the default record is fixed and referenced by other modules, so do not modify the default entry names.
+* The `domain` is the domain name that should be used for external access to this upstream server. domain names will be added to Nginx SSL cert SAN.
+* The `endpoint` is an internally reachable TCP port. and `${admin_ip}` will be replaced with actual [`admin_ip`](#admin_ip) in runtime.
+* If `websocket` is set to `true`, http protocol will be auto upgraded for ws connections.
+* If `scheme` is given (`http` or `https`), it will be used as part of proxy_pass URL.
 
 
 
@@ -586,9 +578,7 @@ repo_url_packages:                # extra packages from url
 
 name: `repo_enabled`, type: `bool`, level: `G/I`
 
-create a yum repo on this infra node?
-
-default value: `true`
+create a yum repo on this infra node? default value: `true`
 
 If you have multiple infra nodes, you can disable yum repo on other standby nodes to reduce Internet traffic.
 
@@ -601,8 +591,6 @@ name: `repo_home`, type: `path`, level: `G`
 
 repo home dir, `/www` by default
 
-default value:  `/www`
-
 
 
 
@@ -612,9 +600,8 @@ default value:  `/www`
 
 name: `repo_name`, type: `string`, level: `G`
 
-repo name, pigsty by default
+repo name, `pigsty` by default, it is not wise to change this value
 
-default value: `pigsty`
 
 
 
@@ -636,9 +623,9 @@ default value: `http://${admin_ip}:80`
 
 name: `repo_remove`, type: `bool`, level: `G/A`
 
-remove existing upstream repo
+remove existing upstream repo, default value: `true`
 
-default value: `true`
+If you want to keep existing upstream repo, set this value to `false`.
 
 
 
@@ -712,7 +699,7 @@ EL7, 8, 9 packages are slightly different, here are some ad hoc packages:
 
 * EL7:  `docker-compose citus112_15*`
 * EL8:  `modulemd-tools python39-jmespath haproxy redis docker-compose-plugin citus_15* flamegraph citus_15*`
-* EL9:  `modulemd-tools python3-jmespath  haproxy redis docker-compose-plugin citus_15* flamegraph libuser openldap-compat`
+* EL9:  `modulemd-tools python3-jmespath  haproxy redis docker-compose-plugin citus_15* flamegraph libuser openldap-compat annobin gcc-plugin-annobin`
 
 
 
@@ -787,9 +774,7 @@ infra_packages:                   # packages to be installed on infra nodes
 
 name: `infra_packages_pip`, type: `string`, level: `G`
 
-pip installed packages for infra nodes
-
-default value is empty string
+pip installed packages for infra nodes, default value is empty string
 
 
 
@@ -827,9 +812,7 @@ nginx_navbar:                     # nginx index page navigation links
 
 name: `nginx_enabled`, type: `bool`, level: `G/I`
 
-enable nginx on this infra node?
-
-default value: `true`
+enable nginx on this infra node? default value: `true`
 
 
 
@@ -857,8 +840,6 @@ name: `nginx_home`, type: `path`, level: `G`
 
 nginx content dir, `/www` by default
 
-default value: `/www`
-
 Nginx root directory which contains static resource and repo resource. It's wise to set this value same as [`repo_home`](#repo_home) so that local repo content is automatically served.
 
 
@@ -868,9 +849,8 @@ Nginx root directory which contains static resource and repo resource. It's wise
 
 name: `nginx_port`, type: `port`, level: `G`
 
-nginx listen port, 80 by default
+nginx listen port, `80` by default
 
-default value: `80`
 
 
 
@@ -880,9 +860,7 @@ default value: `80`
 
 name: `nginx_ssl_port`, type: `port`, level: `G`
 
-nginx ssl listen port, 443 by default
-
-default value: `443`
+nginx ssl listen port, `443` by default
 
 
 
@@ -942,9 +920,7 @@ dns_records:                      # dynamic dns records resolved by dnsmasq
 
 name: `dns_enabled`, type: `bool`, level: `G/I`
 
-setup dnsmasq on this infra node?
-
-default value: `true`
+setup dnsmasq on this infra node? default value: `true`
 
 
 
@@ -953,9 +929,7 @@ default value: `true`
 
 name: `dns_port`, type: `port`, level: `G`
 
-dns server listen port, 53 by default
-
-default value: `53`
+dns server listen port, `53` by default
 
 
 
@@ -965,9 +939,7 @@ default value: `53`
 
 name: `dns_records`, type: `string[]`, level: `G`
 
-dynamic dns records resolved by dnsmasq
-
-default value:
+dynamic dns records resolved by dnsmasq, Some auxiliary domain names will be written to `/etc/hosts.d/default` by default
 
 ```yaml
 dns_records:                      # dynamic dns records resolved by dnsmasq
@@ -975,7 +947,7 @@ dns_records:                      # dynamic dns records resolved by dnsmasq
   - "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty wiki.pigsty"
 ```
 
-These auxiliary domain names will be written to `/etc/hosts.d/default`
+
 
 
 
@@ -1024,9 +996,7 @@ default value: `true`
 
 name: `prometheus_clean`, type: `bool`, level: `G/A`
 
-clean prometheus data during init?
-
-default value: `true`
+clean prometheus data during init? default value: `true`
 
 
 
@@ -1039,8 +1009,6 @@ name: `prometheus_data`, type: `path`, level: `G`
 
 prometheus data dir, `/data/prometheus` by default
 
-default value: `/data/prometheus`
-
 
 
 
@@ -1049,9 +1017,8 @@ default value: `/data/prometheus`
 
 name: `prometheus_sd_interval`, type: `interval`, level: `G`
 
-prometheus target refresh interval, 5s by default
+prometheus target refresh interval, `5s` by default
 
-default value: `5s`
 
 
 
@@ -1062,9 +1029,8 @@ default value: `5s`
 
 name: `prometheus_scrape_interval`, type: `interval`, level: `G`
 
-prometheus scrape & eval interval, 10s by default
+prometheus scrape & eval interval, `10s` by default
 
-default value: `10s`
 
 
 
@@ -1075,9 +1041,7 @@ default value: `10s`
 
 name: `prometheus_scrape_timeout`, type: `interval`, level: `G`
 
-prometheus global scrape timeout, 8s by default
-
-default value: `8s`
+prometheus global scrape timeout, `8s` by default
 
 DO NOT set this larger than [`prometheus_scrape_interval`](#prometheus_scrape_interval)
 
@@ -1103,9 +1067,7 @@ Extra cli args for prometheus server, the default value will set up a 15-day dat
 
 name: `pushgateway_enabled`, type: `bool`, level: `G/I`
 
-setup pushgateway on this infra node?
-
-default value: `true`
+setup pushgateway on this infra node? default value: `true`
 
 
 
@@ -1115,9 +1077,7 @@ default value: `true`
 
 name: `pushgateway_options`, type: `arg`, level: `G`
 
-pushgateway extra server options
-
-default value: `--persistence.interval=1m`
+pushgateway extra server options, default value: `--persistence.interval=1m`
 
 
 
@@ -1127,9 +1087,7 @@ default value: `--persistence.interval=1m`
 
 name: `blackbox_enabled`, type: `bool`, level: `G/I`
 
-setup blackbox_exporter on this infra node?
-
-default value: `true`
+setup blackbox_exporter on this infra node? default value: `true`
 
 
 
@@ -1139,9 +1097,7 @@ default value: `true`
 
 name: `blackbox_options`, type: `arg`, level: `G`
 
-blackbox_exporter extra server options
-
-default value is empty string
+blackbox_exporter extra server options, default value is empty string
 
 
 
@@ -1152,9 +1108,7 @@ default value is empty string
 
 name: `alertmanager_enabled`, type: `bool`, level: `G/I`
 
-setup alertmanager on this infra node?
-
-default value: `true`
+setup alertmanager on this infra node? default value: `true`
 
 
 
@@ -1164,9 +1118,7 @@ default value: `true`
 
 name: `alertmanager_options`, type: `arg`, level: `G`
 
-alertmanager extra server options
-
-default value is empty string
+alertmanager extra server options, default value is empty string
 
 
 
@@ -1178,7 +1130,6 @@ name: `exporter_metrics_path`, type: `path`, level: `G`
 
 exporter metric path, `/metrics` by default
 
-default value: `/metrics`
 
 
 
@@ -1256,9 +1207,7 @@ loki_retention: 15d               # loki log retention period, 15d by default
 
 name: `grafana_enabled`, type: `bool`, level: `G/I`
 
-enable grafana on this infra node?
-
-default value: `true`
+enable grafana on this infra node? default value: `true`
 
 
 
@@ -1268,9 +1217,7 @@ default value: `true`
 
 name: `grafana_clean`, type: `bool`, level: `G/A`
 
-clean grafana data during init?
-
-default value: `true`
+clean grafana data during init? default value: `true`
 
 
 
@@ -1282,7 +1229,6 @@ name: `grafana_admin_username`, type: `username`, level: `G`
 
 grafana admin username, `admin` by default
 
-default value: `admin`
 
 
 
@@ -1296,6 +1242,8 @@ name: `grafana_admin_password`, type: `password`, level: `G`
 grafana admin password, `pigsty` by default
 
 default value: `pigsty`
+
+!> WARNING: Change this to a strong password before deploying to production environment 
 
 
 
@@ -1327,6 +1275,7 @@ default value:
 ["volkovlabs-echarts-panel", "marcusolsson-treemap-panel"]
 ```
 
+Which will install echarts panel & treemap panel for grafana
 
 
 
@@ -1342,9 +1291,7 @@ default value:
 
 name: `loki_enabled`, type: `bool`, level: `G/I`
 
-enable loki on this infra node?
-
-default value: `true`
+enable loki on this infra node? default value: `true`
 
 
 
@@ -1354,9 +1301,7 @@ default value: `true`
 
 name: `loki_clean`, type: `bool`, level: `G/A`
 
-whether remove existing loki data?
-
-default value: `false`
+whether remove existing loki data? default value: `false`
 
 
 
@@ -1366,9 +1311,7 @@ default value: `false`
 
 name: `loki_data`, type: `path`, level: `G`
 
-loki data dir
-
-default value: `/data/loki`
+loki data dir, default value: `/data/loki`
 
 
 
@@ -1379,10 +1322,7 @@ default value: `/data/loki`
 
 name: `loki_retention`, type: `interval`, level: `G`
 
-loki log retention period, 15d by default
-
-default value: `15d`
-
+loki log retention period, `15d` by default
 
 
 
@@ -1532,7 +1472,6 @@ It's useful to use same identity for postgres & node if there's a 1:1 relationsh
 Pigsty configs static DNS records and dynamic DNS resolver for nodes.
 
 If you already have a DNS server, set [`node_dns_method`](#node_dns_method) to `none` to disable dynamic DNS setup.
-\
 
 ```yaml
 node_default_etc_hosts:           # static dns records in `/etc/hosts`
@@ -1600,9 +1539,7 @@ name: `node_dns_servers`, type: `string[]`, level: `C`
 
 dynamic nameserver in `/etc/resolv.conf`
 
-default values: `["${admin_ip}"]`
-
-Default name server ip address to be added to `/etc/resolv.conf`
+default values: `["${admin_ip}"]` , the default nameserver on admin node will be added to `/etc/resolv.conf` as the first nameserver.
 
 
 
@@ -1651,12 +1588,12 @@ node_default_packages:            # default packages to be installed on all node
 
 name: `node_repo_method`, type: `enum`, level: `C`
 
-how to setup node repo: none,local,public
+how to setup node repo: `none`, `local`, `public`
 
 default values: `local`
 
 * `local`: Use the local Yum repo on the meta node, the default behavior (recommended).
-* `public`: To install using internet sources, write the public repo in `repo_upstream` to `/etc/yum.repos.d/`.
+* `public`: To install using internet sources, write the public repo in `repo_upstream` to `/etc/yum.repos.d/`. (obsolete)
 * `none`: No config and modification of local repos.
 
 
@@ -1746,7 +1683,6 @@ node_sysctl_params: { }           # sysctl parameters in k:v format in addition 
 
 
 
-
 ### `node_disable_firewall`
 
 name: `node_disable_firewall`, type: `bool`, level: `C`
@@ -1806,12 +1742,9 @@ If there is enough memory and the database is deployed exclusively. it may sligh
 
 name: `node_static_network`, type: `bool`, level: `C`
 
-preserve dns resolver settings after reboot
+preserve dns resolver settings after reboot, default value is `true`
 
-default value is `true`
-
-Enabling static networking means that machine reboots will not overwrite your DNS Resolv config with NIC changes. 
-It is recommended to enable it in production nodes.
+Enabling static networking means that machine reboots will not overwrite your DNS Resolv config with NIC changes. It is recommended to enable it in production environment.
 
 
 
@@ -1822,9 +1755,7 @@ name: `node_disk_prefetch`, type: `bool`, level: `C`
 
 setup disk prefetch on HDD to increase performance
 
-default value is `false`
-
-Consider enable this when using HDD.
+default value is `false`, Consider enable this when using HDD.
 
 
 

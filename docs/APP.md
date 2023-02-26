@@ -8,6 +8,8 @@ You can use Docker to deploy and launch software applications quickly. You can d
 
 ![APP](https://user-images.githubusercontent.com/8587410/198838829-f0ea4af2-d33f-4978-a31a-ed81897aa8d1.gif)
 
+Docker is not installed by default, You can install docker with `docker.yml` playbook, e.g.: `./docker.yml -l infra`
+
 
 ## PostgreSQL Administration
 

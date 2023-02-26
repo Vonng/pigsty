@@ -2,11 +2,11 @@
 
 > [Min.IO](https://min.io/docs/minio/linux/reference/minio-mc/mc-mb.html): S3-Compatible Open-Source Multi-Cloud Object Storage
 
-MinIO is a S3-compatible object storage server. It's designed to be scalable, secure, and easy to use.
-It has native multi-node multi-driver HA support, and can be used for storing documents, pictures, videos, and backups.
+MinIO is an S3-compatible object storage server. It's designed to be scalable, secure, and easy to use.
+It has native multi-node multi-driver HA support and can store documents, pictures, videos, and backups.
 
 Pigsty uses MinIO as an optional PostgreSQL backup storage repo, in addition to the default local posix FS repo. 
-If MinIO repo is used, the `MINIO` module should be installed before any [`PGSQL`](PGSQL) modules.
+If the MinIO repo is used, the `MINIO` module should be installed before any [`PGSQL`](PGSQL) modules.
 
 MinIO requires a trusted CA to work, so you have to install it in addition to [`NODE`](NODE) module.
 
@@ -17,7 +17,7 @@ MinIO requires a trusted CA to work, so you have to install it in addition to [`
 
 ## Playbook
 
-There's a built-in playbook: [`minio.yml`](https://github.com/Vonng/pigsty/blob/master/minio.yml) for installing MinIO cluster. But you have to [define](#configuration) it first.
+There's a built-in playbook: [`minio.yml`](https://github.com/Vonng/pigsty/blob/master/minio.yml) for installing the MinIO cluster. But you have to [define](#configuration) it first.
 
 ```bash
 ./minio.yml -l minio   # install minio cluster on group 'minio'
@@ -51,7 +51,7 @@ You should install [`MINIO`](MINIO) module on Pigsty-managed nodes (i.e., Instal
 
 ## Configuration
 
-You have to define a MinIO cluster before deploying it. There are some [parameters](#parameters) about MinIO.
+You have to define a MinIO cluster before deploying it. There are some [parameters](#parameters) for MinIO.
 
 And here are three typical deployment scenarios:
 
@@ -67,7 +67,7 @@ To define a singleton MinIO instance, it's straightforward:
 minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 ```
 
-The only required params are [`minio_seq`](PARAM#minio_seq) and [`minio_cluster`](PARAM#minio_cluster) which are used to generate a unique identity for each MinIO instance. 
+The only required params are [`minio_seq`](PARAM#minio_seq) and [`minio_cluster`](PARAM#minio_cluster), which generate a unique identity for each MinIO instance. 
 
 Single-Node Single-Driver mode is for development purposes, so you can use a common dir as the data dir, which is `/data/minio` by default.
 Beware that in multi-driver or multi-node mode, MinIO will refuse to start if using a common dir as the data dir rather than a mount point.
@@ -152,7 +152,7 @@ minio:
 
 ### Access Service
 
-To use the [exposed service](#expose-service), you have to update/append the minio credential in the [`pgbackrest_repo`](PARAM#pgbackrest_repo) section: 
+To use the [exposed service](#expose-service), you have to update/append the MinIO credential in the [`pgbackrest_repo`](PARAM#pgbackrest_repo) section: 
 
 ```yaml
 # This is the newly added HA MinIO Repo definition, USE THIS INSTEAD!
@@ -179,7 +179,7 @@ minio_ha:
 
 MinIO will serve an admin web portal on port `9001` by default.
 
-It's not wise to expose the admin portal to the public, but if you wish to do so, adding minio to the [`infra_portal`](PARAM#infra_portal) and refresh nginx server:
+It's not wise to expose the admin portal to the public, but if you wish to do so, add MinIO to the [`infra_portal`](PARAM#infra_portal) and refresh the nginx server:
 
 ```yaml
 infra_portal:   # domain names and upstream servers
@@ -189,7 +189,7 @@ infra_portal:   # domain names and upstream servers
   minio3       : { domain: sss3.pigsty ,endpoint: 10.10.10.12:9001 ,scheme: https ,websocket: true }
 ```
 
-Check the minio demo [config](https://github.com/Vonng/pigsty/blob/master/files/pigsty/minio.yml) and special [Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/minio.rb) for more details.
+Check the MinIO demo [config](https://github.com/Vonng/pigsty/blob/master/files/pigsty/minio.yml) and special [Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/minio.rb) for more details.
 
 
 
