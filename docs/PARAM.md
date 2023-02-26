@@ -173,7 +173,7 @@ There are 265 parameters in Pigsty describing all aspect of the deployment.
 | 808 | [`pg_group`](#pg_group)                                         | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | int         | C     | pgsql shard index number, optional identity for sharding clusters             |
 | 809 | [`gp_role`](#gp_role)                                           | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | enum        | C     | greenplum role of this cluster, could be master or segment                    |
 | 810 | [`pg_exporters`](#pg_exporters)                                 | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | dict        | C     | additional pg_exporters to monitor remote postgres instances                  |
-| 811 | [`pg_offline_query`](#pg_offline_query)                         | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | bool        | G     | set to true to enable offline query on this instance                          |
+| 811 | [`pg_offline_query`](#pg_offline_query)                         | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | bool        | I     | set to true to enable offline query on this instance                          |
 | 820 | [`pg_users`](#pg_users)                                         | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)     | user[]      | C     | postgres business users                                                       |
 | 821 | [`pg_databases`](#pg_databases)                                 | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)     | database[]  | C     | postgres business databases                                                   |
 | 822 | [`pg_services`](#pg_services)                                   | [`PGSQL`](#pgsql) | [`PG_BUSINESS`](#pg_business)     | service[]   | C     | postgres business services                                                    |
@@ -2661,274 +2661,7 @@ etcd heartbeat interval, `100` (ms) by default
 
 
 
-
-
-
-
-
 ------------------------------------------------------------
-
-# `REDIS`
-
-
-```yaml
-#redis_cluster:        <CLUSTER> # redis cluster name, required identity parameter
-#redis_node: 1            <NODE> # redis node sequence number, node int id required
-#redis_instances: {}      <NODE> # redis instances definition on this redis node
-redis_fs_main: /data              # redis main data mountpoint, `/data` by default
-redis_exporter_enabled: true      # install redis exporter on redis nodes?
-redis_exporter_port: 9121         # redis exporter listen port, 9121 by default
-redis_exporter_options: ''        # cli args and extra options for redis exporter
-redis_safeguard: false            # prevent purging running redis instance?
-redis_clean: true                 # purging existing redis during init?
-redis_rmdata: true                # remove redis data when purging redis server?
-redis_mode: standalone            # redis mode: standalone,cluster,sentinel
-redis_conf: redis.conf            # redis config template path, except sentinel
-redis_bind_address: '0.0.0.0'     # redis bind address, empty string will use host ip
-redis_max_memory: 1GB             # max memory used by each redis instance
-redis_mem_policy: allkeys-lru     # redis memory eviction policy
-redis_password: ''                # redis password, empty string will disable password
-redis_rdb_save: ['1200 1']        # redis rdb save directives, disable with empty list
-redis_aof_enabled: false          # enable redis append only file?
-redis_rename_commands: {}         # rename redis dangerous commands
-redis_cluster_replicas: 1         # replica number for one master in redis cluster
-```
-
-
-### `redis_instances`
-
-name: `redis_instances`, type: `dict`, level: `I`
-
-redis instances definition on this redis node
-
-no default value, you have to define redis instances on each redis node using this parameter explicitly.
-
-
-
-
-### `redis_node`
-
-name: `redis_node`, type: `int`, level: `I`
-
-redis node sequence number,  unique integer among redis cluster is required
-
-You have to explicitly define the node id for each redis node.
-
-
-
-
-### `redis_cluster`
-
-name: `redis_cluster`, type: `string`, level: `C`
-
-redis cluster name, required identity parameter
-
-no default value, you have to define it explicitly.
-
-
-
-
-### `redis_fs_main`
-
-name: `redis_fs_main`, type: `path`, level: `C`
-
-redis main data mountpoint, `/data` by default
-
-default values: `/data`, and `/data/redis` will be used as the redis data directory.
-
-
-
-
-
-### `redis_exporter_enabled`
-
-name: `redis_exporter_enabled`, type: `bool`, level: `C`
-
-install redis exporter on redis nodes?
-
-default value is `true`, which will launch a redis_exporter on this redis_node
-
-
-
-
-### `redis_exporter_port`
-
-name: `redis_exporter_port`, type: `port`, level: `C`
-
-redis exporter listen port, 9121 by default
-
-default values: `9121`
-
-
-
-
-
-### `redis_exporter_options`
-
-name: `redis_exporter_options`, type: `string`, level: `C/I`
-
-cli args and extra options for redis exporter
-
-default value is empty string
-
-
-
-
-
-
-### `redis_safeguard`
-
-name: `redis_safeguard`, type: `bool`, level: `C`
-
-prevent purging running redis instance?
-
-default value is `false`
-
-
-
-
-### `redis_clean`
-
-name: `redis_clean`, type: `bool`, level: `C`
-
-purging existing redis during init?
-
-default value is `true`
-
-
-
-
-### `redis_rmdata`
-
-name: `redis_rmdata`, type: `bool`, level: `A`
-
-remove redis data when purging redis server?
-
-default value is `true`
-
-
-
-
-### `redis_mode`
-
-name: `redis_mode`, type: `enum`, level: `C`
-
-redis mode: standalone,cluster,sentinel
-
-default values: `standalone`
-
-* `standalone`: setup redis as standalone (master-slave) mode
-* `cluster`: setup this redis cluster as a redis native cluster
-* `sentinel`: setup redis as sentinel for standalone redis HA
-
-
-
-
-
-### `redis_conf`
-
-name: `redis_conf`, type: `string`, level: `C`
-
-redis config template path, except sentinel
-
-default values: `redis.conf`
-
-
-
-
-
-### `redis_bind_address`
-
-name: `redis_bind_address`, type: `ip`, level: `C`
-
-redis bind address, empty string will use host ip
-
-default values: `0.0.0.0`
-
-
-
-
-
-### `redis_max_memory`
-
-name: `redis_max_memory`, type: `size`, level: `C/I`
-
-max memory used by each redis instance
-
-default values: `1GB`
-
-
-
-
-
-### `redis_mem_policy`
-
-name: `redis_mem_policy`, type: `enum`, level: `C`
-
-redis memory eviction policy
-
-default values: `allkeys-lru`
-
-
-
-
-
-### `redis_password`
-
-name: `redis_password`, type: `password`, level: `C`
-
-redis password, empty string will disable password
-
-default value is empty string
-
-
-
-
-### `redis_rdb_save`
-
-name: `redis_rdb_save`, type: `string[]`, level: `C`
-
-redis rdb save directives, disable with empty list
-
-default value:
-
-```yaml
-["1200 1"]
-```
-
-
-
-
-### `redis_aof_enabled`
-
-name: `redis_aof_enabled`, type: `bool`, level: `C`
-
-enable redis append only file?
-
-default value is `false`
-
-
-
-
-### `redis_rename_commands`
-
-name: `redis_rename_commands`, type: `dict`, level: `C`
-
-rename redis dangerous commands
-
-default values: `{}`
-
-
-
-
-
-### `redis_cluster_replicas`
-
-name: `redis_cluster_replicas`, type: `int`, level: `C`
-
-replica number for one master in redis cluster
-
-default values: `1`
 
 # `MINIO`
 
@@ -3147,17 +2880,324 @@ Two default users are created for PostgreSQL DBA and pgBackREST.
 
 
 
+------------------------------------------------------------
+
+# `REDIS`
+
+
+```yaml
+#redis_cluster:        <CLUSTER> # redis cluster name, required identity parameter
+#redis_node: 1            <NODE> # redis node sequence number, node int id required
+#redis_instances: {}      <NODE> # redis instances definition on this redis node
+redis_fs_main: /data              # redis main data mountpoint, `/data` by default
+redis_exporter_enabled: true      # install redis exporter on redis nodes?
+redis_exporter_port: 9121         # redis exporter listen port, 9121 by default
+redis_exporter_options: ''        # cli args and extra options for redis exporter
+redis_safeguard: false            # prevent purging running redis instance?
+redis_clean: true                 # purging existing redis during init?
+redis_rmdata: true                # remove redis data when purging redis server?
+redis_mode: standalone            # redis mode: standalone,cluster,sentinel
+redis_conf: redis.conf            # redis config template path, except sentinel
+redis_bind_address: '0.0.0.0'     # redis bind address, empty string will use host ip
+redis_max_memory: 1GB             # max memory used by each redis instance
+redis_mem_policy: allkeys-lru     # redis memory eviction policy
+redis_password: ''                # redis password, empty string will disable password
+redis_rdb_save: ['1200 1']        # redis rdb save directives, disable with empty list
+redis_aof_enabled: false          # enable redis append only file?
+redis_rename_commands: {}         # rename redis dangerous commands
+redis_cluster_replicas: 1         # replica number for one master in redis cluster
+```
+
+
+### `redis_instances`
+
+name: `redis_instances`, type: `dict`, level: `I`
+
+redis instances definition on this redis node
+
+no default value, you have to define redis instances on each redis node using this parameter explicitly.
+
+Here is an example for a native redis cluster definition
+
+```yaml
+redis-test: # redis native cluster: 3m x 3s
+  hosts:
+    10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+    10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+  vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
+```
+
+
+
+### `redis_node`
+
+name: `redis_node`, type: `int`, level: `I`
+
+redis node sequence number,  unique integer among redis cluster is required
+
+You have to explicitly define the node id for each redis node.
+
+
+
+
+### `redis_cluster`
+
+name: `redis_cluster`, type: `string`, level: `C`
+
+redis cluster name, required identity parameter
+
+no default value, you have to define it explicitly.
+
+
+
+
+### `redis_fs_main`
+
+name: `redis_fs_main`, type: `path`, level: `C`
+
+redis main data mountpoint, `/data` by default
+
+default values: `/data`, and `/data/redis` will be used as the redis data directory.
+
+
+
+
+
+### `redis_exporter_enabled`
+
+name: `redis_exporter_enabled`, type: `bool`, level: `C`
+
+install redis exporter on redis nodes?
+
+default value is `true`, which will launch a redis_exporter on this redis_node
+
+
+
+
+### `redis_exporter_port`
+
+name: `redis_exporter_port`, type: `port`, level: `C`
+
+redis exporter listen port, 9121 by default
+
+default values: `9121`
+
+
+
+
+
+### `redis_exporter_options`
+
+name: `redis_exporter_options`, type: `string`, level: `C/I`
+
+cli args and extra options for redis exporter
+
+default value is empty string
+
+
+
+
+
+
+### `redis_safeguard`
+
+name: `redis_safeguard`, type: `bool`, level: `C`
+
+prevent purging running redis instance?
+
+default value is `false`, if set to `true`, and redis instance is running, init / remove playbook will abort immediately.
+
+
+
+
+### `redis_clean`
+
+name: `redis_clean`, type: `bool`, level: `C`
+
+purging existing redis during init?
+
+default value is `true`, which will remove redis server during redis init or remove.
+
+
+
+
+### `redis_rmdata`
+
+name: `redis_rmdata`, type: `bool`, level: `A`
+
+remove redis data when purging redis server? 
+
+default value is `true`, which will remove redis rdb / aof along with redis instance.
+
+
+
+
+### `redis_mode`
+
+name: `redis_mode`, type: `enum`, level: `C`
+
+redis mode: standalone,cluster,sentinel
+
+default values: `standalone`
+
+* `standalone`: setup redis as standalone (master-slave) mode
+* `cluster`: setup this redis cluster as a redis native cluster
+* `sentinel`: setup redis as sentinel for standalone redis HA
+
+
+
+
+
+### `redis_conf`
+
+name: `redis_conf`, type: `string`, level: `C`
+
+redis config template path, except sentinel
+
+default values: `redis.conf`, which is a template file in [`roles/redis/templates/redis.conf`](https://github.com/Vonng/pigsty/blob/master/roles/redis/templates/redis.conf). 
+
+If you want to use your own redis config template, you can put it in `templates/` directory and set this parameter to the template file name.
+
+Note that redis sentinel are using a different template file, which is [`roles/redis/templates/redis-sentinel.conf`](https://github.com/Vonng/pigsty/blob/master/roles/redis/templates/redis-sentinel.conf)
+
+
+
+
+
+### `redis_bind_address`
+
+name: `redis_bind_address`, type: `ip`, level: `C`
+
+redis bind address, empty string will use inventory hostname
+
+default values: `0.0.0.0`, which will bind to all available IPv4 address on this host
+
+!> PLEASE bind to intranet IP only in production environment, i.e. set this value to `''`
+
+
+
+
+### `redis_max_memory`
+
+name: `redis_max_memory`, type: `size`, level: `C/I`
+
+max memory used by each redis instance, default values: `1GB`
+
+
+
+
+
+### `redis_mem_policy`
+
+name: `redis_mem_policy`, type: `enum`, level: `C`
+
+redis memory eviction policy
+
+default values: `allkeys-lru`, check redis [eviction policy](https://redis.io/docs/reference/eviction/) for more details
+
+- `noeviction`: New values aren’t saved when memory limit is reached. When a database uses replication, this applies to the primary database
+- `allkeys-lru`: Keeps most recently used keys; removes least recently used (LRU) keys
+- `allkeys-lfu`: Keeps frequently used keys; removes least frequently used (LFU) keys
+- `volatile-lru`: Removes least recently used keys with the expire field set to true.
+- `volatile-lfu`: Removes least frequently used keys with the expire field set to true.
+- `allkeys-random`: Randomly removes keys to make space for the new data added.
+- `volatile-random`: Randomly removes keys with expire field set to true.
+- `volatile-ttl`: Removes keys with expire field set to true and the shortest remaining time-to-live (TTL) value.
+
+
+
+
+### `redis_password`
+
+name: `redis_password`, type: `password`, level: `C/N`
+
+redis password, empty string will disable password, which is the default behavior
+
+Note that due to the implementation limitation of redis_exporter, you can only set one `redis_password` per node. 
+This is usually not a problem, because pigsty does not allow deploying two different redis cluster on the same node. 
+
+!> PLEASE use a strong password in production environment 
+
+
+
+
+### `redis_rdb_save`
+
+name: `redis_rdb_save`, type: `string[]`, level: `C`
+
+redis rdb save directives, disable with empty list, check redis [persist](https://redis.io/docs/management/persistence/) for details.
+
+the default value is  `["1200 1"]`: dump the dataset to disk every 20 minutes if at least 1 key changed: 
+
+
+
+
+
+### `redis_aof_enabled`
+
+name: `redis_aof_enabled`, type: `bool`, level: `C`
+
+enable redis append only file? default value is `false`.
+
+
+
+
+
+### `redis_rename_commands`
+
+name: `redis_rename_commands`, type: `dict`, level: `C`
+
+rename redis dangerous commands, which is a dict of k:v `old: new`
+
+default values: `{}`, you can hide dangerous commands like `FLUSHDB` and `FLUSHALL` by setting this value, here's an example:
+
+```yaml
+{
+  "keys": "op_keys",
+  "flushdb": "op_flushdb",
+  "flushall": "op_flushall",
+  "config": "op_config"  
+}
+```
+
+
+
+
+### `redis_cluster_replicas`
+
+name: `redis_cluster_replicas`, type: `int`, level: `C`
+
+replica number for one master/primary in redis cluster, default values: `1`
+
+
+
+
+
+
+
 
 ------------------------------------------------------------
 
 # `PGSQL`
 
+[`PGSQL`](PGSQL) module requires [`NODE`](NODE) module to be installed, and you also need a viable [`ETCD`](ETCD) cluster to store cluster meta data.
+
+Install `PGSQL` module on a single node will create a [primary](PGSQL-CONF#primary) instance which a standalone PGSQL server/instance.
+Install it on additional nodes will create [replicas](PGSQL-CONF#replica), which can be used for serving read-only traffics, or use as standby backup.
+You can also create [offline](PGSQL-CONF#offline) instance of ETL/OLAP/Interactive queries,
+use [Sync Standby](PGSQL-CONF#sync-standby) and [Quorum Commit](PGSQL-CONF#quorum-commit) to increase data consistency,
+or even form a [standby cluster](PGSQL-CONF#standby-cluster) and [delayed standby cluster](PGSQL-CONF#delayed-cluster) for disaster recovery.
+
+You can define multiple PGSQL clusters and form a horizontal sharding cluster, which is a group of PGSQL clusters running on different nodes.
+Pigsty has native [citus cluster group](PGSQL-CONF#citus-cluster) support, which can extend your PGSQL cluster to a distributed database sharding cluster.
 
 
 
 ------------------------------
 
 ## `PG_ID`
+
+Here are some common parameters used to identify PGSQL [entities](PGSQL-ARCH#er-diagram): instance, service, etc...
 
 ```yaml
 # pg_cluster:           #CLUSTER  # pgsql cluster name, required identity parameter
@@ -3171,7 +3211,7 @@ Two default users are created for PostgreSQL DBA and pgBackREST.
 pg_offline_query: false #INSTANCE # set to true to enable offline query on this instance
 ```
 
-There are some **identity parameters** require explicit allocation.
+You have to assign these **identity parameters** explicitly, there's no default value for them.
 
 |            Name             |   Type   | Level | Description                            |
 |:---------------------------:|:--------:|:-----:|----------------------------------------|
@@ -3186,7 +3226,7 @@ There are some **identity parameters** require explicit allocation.
 * [`pg_seq`](#pg_seq): Used to identify the ins within the cluster, usually with an integer number incremented from 0 or 1, which is not changed once it is assigned.
 * `{{ pg_cluster }}-{{ pg_seq }}` is used to uniquely identify the ins, i.e. `pg_instance`.
 * `{{ pg_cluster }}-{{ pg_role }}` is used to identify the services within the cluster, i.e. `pg_service`.
-* [`pg_shard`](#pg_shard) and [`pg_group`](#pg_group) are used for horizontally sharding clusters, reserved for citus, greenplum, and matrixdb.
+* [`pg_shard`](#pg_shard) and [`pg_group`](#pg_group) are used for horizontally sharding clusters, for citus, greenplum, and matrixdb only.
 
 [`pg_cluster`](#pg_cluster), [`pg_role`](#pg_role), [`pg_seq`](#pg_seq) are core **identity params**, which are **required** for any Postgres cluster, and must be explicitly specified. Here's an example:
 
@@ -3203,6 +3243,8 @@ pg-test:
 All other params can be inherited from the global config or the default config, but the identity params must be **explicitly specified** and **manually assigned**. The current PGSQL identity params are as follows:
 
 
+
+
 ### `pg_mode`
 
 name: `pg_mode`, type: `enum`, level: `C`
@@ -3213,14 +3255,17 @@ If `pg_mode` is set to `citus` or `gpsql`, [`pg_shard`](#pg_shard) and [`pg_grou
 
 
 
+
+
 ### `pg_cluster`
 
 name: `pg_cluster`, type: `string`, level: `C`
 
 pgsql cluster name, REQUIRED identity parameter
 
-The cluster name will be used as the namespace for postgres related resources within that cluster. 
-The naming needs to follow a specific naming pattern: `[a-z][a-z0-9-]*` to be compatible with the requirements of different constraints on the identity.
+The cluster name will be used as the namespace for PGSQL related resources within that cluster.
+
+The naming needs to follow the specific naming pattern: `[a-z][a-z0-9-]*` to be compatible with the requirements of different constraints on the identity.
 
 
 
@@ -3246,7 +3291,7 @@ Roles for PGSQL instance, can be: `primary`, `replica`, `standby` or `offline`.
 
 * `primary`: Primary, there is one and only one primary in a cluster.
 * `replica`: Replica for carrying online read-only traffic, there may be a slight replication delay through (10ms~100ms, 100KB).
-* `standby`: Special replica that is always synced with primary, there's no replication delay & data loss on this replica.
+* `standby`: Special replica that is always synced with primary, there's no replication delay & data loss on this replica. (currently same as `replica`)
 * `offline`: Offline replica for taking on offline read-only traffic, such as statistical analysis/ETL/personal queries, etc.
 
 **Identity params, required params, and instance-level params.**
@@ -3259,9 +3304,10 @@ Roles for PGSQL instance, can be: `primary`, `replica`, `standby` or `offline`.
 
 name: `pg_instances`, type: `dict`, level: `I`
 
-define multiple pg instances on node in `{port:ins_vars}` format
+define multiple pg instances on node in `{port:ins_vars}` format.
 
-Reserved for single-node multi instance deployment
+This parameter is reserved for multi-instance deployment on a single node which is not implemented in Pigsty yet. 
+
 
 
 
@@ -3270,11 +3316,11 @@ Reserved for single-node multi instance deployment
 
 name: `pg_upstream`, type: `ip`, level: `I`
 
-repl upstream ip addr for standby cluster or cascade replica
+Upstream ip address for standby cluster or cascade replica
 
-Setting `pg_upstream` is set on `primary` instance indicate that this cluster is a **Standby Cluster**, and will receiving changes from upstream instance, thus the `primary` is actually a `standby leader`.
+Setting `pg_upstream` is set on `primary` instance indicate that this cluster is a [**Standby Cluster**](PGSQL-CONF#standby-cluster), and will receiving changes from upstream instance, thus the `primary` is actually a `standby leader`.
 
-Setting `pg_upstream` for a non-primary instance will explicitly set a replication upstream instance, if it is different from the primary ip addr, this instance will become a **cascade replica**.
+Setting `pg_upstream` for a non-primary instance will explicitly set a replication upstream instance, if it is different from the primary ip addr, this instance will become a **cascade replica**. And it's user's responsibility to ensure that the upstream IP addr is another instance in the same cluster.
 
 
 
@@ -3284,18 +3330,20 @@ Setting `pg_upstream` for a non-primary instance will explicitly set a replicati
 
 name: `pg_shard`, type: `string`, level: `C`
 
-pgsql shard name, optional identity for sharding clusters
+pgsql shard name, required identity parameter for sharding clusters (e.g. citus cluster), optional for common pgsql clusters.
 
-When multiple pgsql clusters serve the same business together in a horizontally sharded style, Pigsty will mark this group of clusters as a **Sharding Group**.
+When multiple pgsql clusters serve the same business together in a horizontally sharding style, Pigsty will mark this group of clusters as a **Sharding Group**.
 
 [`pg_shard`](#pg_shard) is the name of the shard group name. It's usually the prefix of [`pg_cluster`](#pg_cluster).
 
+For example, if we have a sharding group `pg-citus`, and 4 clusters in it, there identity params will be: 
+
 ```
-sharding group:  pg-test
-cls sindex = 1:   pg-testshard1
-cls sindex = 2:   pg-testshard2
-cls sindex = 3:   pg-testshard3
-cls sindex = 4:   pg-testshard4
+cls pg_shard: pg-citus
+cls pg_group = 0:   pg-citus0
+cls pg_group = 1:   pg-citus1
+cls pg_group = 2:   pg-citus2
+cls pg_group = 3:   pg-citus3
 ```
 
 
@@ -3306,9 +3354,9 @@ cls sindex = 4:   pg-testshard4
 
 name: `pg_group`, type: `int`, level: `C`
 
-pgsql shard index number, optional identity for sharding clusters
+pgsql shard index number, required identity for sharding clusters, optional for common pgsql clusters.
 
-Sharding cluster index of sharding group, used in pair with [pg_shard](#pg_shard).
+Sharding cluster index of sharding group, used in pair with [pg_shard](#pg_shard). You can use any non-negative integer as the index number.
 
 
 
@@ -3318,11 +3366,13 @@ Sharding cluster index of sharding group, used in pair with [pg_shard](#pg_shard
 
 name: `gp_role`, type: `enum`, level: `C`
 
-greenplum role of this cluster, could be master or segment
+greenplum/matrixdb role of this cluster, could be `master` or `segment`
 
-default values: `master`, mark a postgres cluster as greenplum master.
+- `master`:  mark the postgres cluster as greenplum master, which is the default value
+- `segment`  mark the postgres cluster as greenplum segment
 
-`segment` will makr a postgres cluster as greenplum segment
+This parameter is only used for greenplum/matrixdb database, and is ignored for common pgsql cluster.
+
 
 
 
@@ -3331,9 +3381,9 @@ default values: `master`, mark a postgres cluster as greenplum master.
 
 name: `pg_exporters`, type: `dict`, level: `C`
 
-additional pg_exporters to monitor remote postgres instances
+additional pg_exporters to monitor remote postgres instances, default values: `{}`
 
-default values: `{}`
+If you wish to monitoring remote postgres instances, define them in `pg_exporters` and load them with `pgsql-monitor.yml` playbook.
 
 ```
 pg_exporters: # list all remote instances here, alloc a unique unused local port as k
@@ -3343,8 +3393,6 @@ pg_exporters: # list all remote instances here, alloc a unique unused local port
     20003: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.13 }
 ```
 
-If you wish to monitoring remote postgres instances, define them in `pg_exporters` and load them with `pgsql-monitor.yml` playbook.
-
 Check [PGSQL Monitoring](PGSQL-MONITOR) for details.
 
 
@@ -3352,7 +3400,7 @@ Check [PGSQL Monitoring](PGSQL-MONITOR) for details.
 
 ### `pg_offline_query`
 
-name: `pg_offline_query`, type: `bool`, level: `G`
+name: `pg_offline_query`, type: `bool`, level: `I`
 
 set to true to enable offline query on this instance
 
@@ -3373,6 +3421,8 @@ If you just have one replica or even one primary in your postgres cluster, addin
 ## `PG_BUSINESS`
 
 Database credentials, In-Database Objects that need to be taken care of by Users.
+
+!> WARNING: YOU HAVE TO CHANGE THESE DEFAULT **PASSWORD**s in production environment.
 
 
 ```yaml
@@ -3581,9 +3631,7 @@ or you can use another alias form
 
 name: `pgb_hba_rules`, type: `hba[]`, level: `C`
 
-business hba rules for pgbouncer
-
-default values: `[]`
+business hba rules for pgbouncer, default values: `[]`
 
 Similar to [`pg_hba_rules`](#pg_hba_rules), array of [hba](PGSQL-HBA#define-hba) rule object, except this is for pgbouncer.
 
@@ -3598,7 +3646,7 @@ name: `pg_replication_username`, type: `username`, level: `G`
 
 postgres replication username, `replicator` by default
 
-default values: `replicator`, This parameter is globally used.
+This parameter is globally used, it not wise to change it.
 
 
 
@@ -3610,9 +3658,7 @@ name: `pg_replication_password`, type: `password`, level: `G`
 
 postgres replication password, `DBUser.Replicator` by default
 
-default values: `DBUser.Replicator`
-
-WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+!> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 
 
@@ -3622,9 +3668,9 @@ WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 name: `pg_admin_username`, type: `username`, level: `G`
 
-postgres admin username, `dbuser_dba` by default
+postgres admin username, `dbuser_dba` by default, which is a global postgres superuser.
 
-default values: `dbuser_dba`, which is a global postgres superuser.
+default values: `dbuser_dba`
 
 
 
@@ -3636,9 +3682,7 @@ name: `pg_admin_password`, type: `password`, level: `G`
 
 postgres admin password in plain text, `DBUser.DBA` by default
 
-default values: `DBUser.DBA`
-
-WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+!> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 
 
@@ -3648,9 +3692,7 @@ WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 name: `pg_monitor_username`, type: `username`, level: `G`
 
-postgres monitor username, `dbuser_monitor` by default
-
-default values: `dbuser_monitor`, which is a global monitoring user.
+postgres monitor username, `dbuser_monitor` by default, which is a global monitoring user.
 
 
 
@@ -3660,11 +3702,9 @@ default values: `dbuser_monitor`, which is a global monitoring user.
 
 name: `pg_monitor_password`, type: `password`, level: `G`
 
-postgres monitor password, `DBUser.Monitor` by default
+postgres monitor password, `DBUser.Monitor` by default.
 
-default values: `DBUser.Monitor`
-
-WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+!> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 
 
@@ -3673,11 +3713,10 @@ WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 name: `pg_dbsu_password`, type: `password`, level: `G/C`
 
-dbsu password, empty string means no dbsu password by default
+PostgreSQL dbsu password for [`pg_dbsu`](#pg_dbsu), empty string means no dbsu password, which is the default behavior.
 
-This is password for `PGSQL`, not for os user.
+!> WARNING: It's not recommend to set a dbsu password for common PGSQL clusters, except for [`pg_mode`](#pg_mode) = `citus`.
 
-WARNING: It is not recommend to setup dbsu password for common clusters, while it can be used for [`pg_mode`](#pg_mode) = `citus`.
 
 
 
@@ -3689,10 +3728,9 @@ WARNING: It is not recommend to setup dbsu password for common clusters, while i
 
 ## `PG_INSTALL`
 
-PG Install is responsible for installing PostgreSQL & Extensions.
+This section is responsible for installing PostgreSQL & Extensions.
 
 If you wish to install a different major version, just make sure repo packages exists and overwrite [`pg_version`](#pg_version) on cluster level.
-
 
 
 ```yaml
@@ -3708,7 +3746,7 @@ pg_packages:                      # pg packages to be installed, `${pg_version}`
   - postgresql${pg_version}*
   - pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest
 pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-  - postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} timescaledb-2-postgresql-${pg_version}
+  - postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} timescaledb-2-postgresql-${pg_version} citus*${pg_version}*
 ```
 
 
@@ -3717,11 +3755,9 @@ pg_extensions:                    # pg extensions to be installed, `${pg_version
 
 name: `pg_dbsu`, type: `username`, level: `C`
 
-os dbsu name, postgres by default, better not change it
+os dbsu name, `postgres` by default, it's not wise to change it.
 
-default values: `postgres`
-
-When installing Greenplum / MatrixDB, modify this parameter to the corresponding recommended value: `gpadmin|mxadmin`.
+When installing Greenplum / MatrixDB, set this parameter to the corresponding default value: `gpadmin|mxadmin`.
 
 
 
@@ -3730,9 +3766,8 @@ When installing Greenplum / MatrixDB, modify this parameter to the corresponding
 
 name: `pg_dbsu_uid`, type: `int`, level: `C`
 
-os dbsu uid and gid, 26 for default postgres users and groups
+os dbsu uid and gid, `26` for default postgres users and groups, which is consistent with the official pgdg RPM.
 
-default values: `26`, which is consistent with the official pgdg RPM.
 
 
 
@@ -3742,14 +3777,14 @@ default values: `26`, which is consistent with the official pgdg RPM.
 
 name: `pg_dbsu_sudo`, type: `enum`, level: `C`
 
-dbsu sudo privilege, none,limit,all,nopass. limit by default
-
-default values: `limit`, which only allow `sudo systemctl <start|stop|reload> <postgres|patroni|pgbouncer|...> `
+dbsu sudo privilege, coud be `none`, `limit` ,`all` ,`nopass`. `limit` by default
 
 * `none`: No Sudo privilege
 * `limit`: Limited sudo privilege to execute systemctl commands for database-related components, default.
 * `all`: Full `sudo` privilege, password required.
 * `nopass`: Full `sudo` privileges without a password (not recommended).
+
+default values: `limit`, which only allow `sudo systemctl <start|stop|reload> <postgres|patroni|pgbouncer|...> `
 
 
 
@@ -3759,9 +3794,8 @@ default values: `limit`, which only allow `sudo systemctl <start|stop|reload> <p
 
 name: `pg_dbsu_home`, type: `path`, level: `C`
 
-postgresql home directory, `/var/lib/pgsql` by default
+postgresql home directory, `/var/lib/pgsql` by default, which is consistent with the official pgdg RPM.
 
-default values: `/var/lib/pgsql`
 
 
 
@@ -3771,9 +3805,9 @@ default values: `/var/lib/pgsql`
 
 name: `pg_dbsu_ssh_exchange`, type: `bool`, level: `C`
 
-exchange postgres dbsu ssh key among same pgsql cluster
+exchange postgres dbsu ssh key among same pgsql cluster?
 
-default value is `true`, means the dbsu can ssh to each other among same cluster.
+default value is `true`, means the dbsu can ssh to each other among the same cluster.
 
 
 
@@ -3783,11 +3817,12 @@ default value is `true`, means the dbsu can ssh to each other among same cluster
 
 name: `pg_version`, type: `enum`, level: `C`
 
-postgres major version to be installed, 15 by default
+postgres major version to be installed, `15` by default
 
-default values: `15`
+Note that PostgreSQL physical stream replication cannot cross major versions, so do not configure this on instance level.
 
-Note that PostgreSQL physical stream replication cannot cross major versions, do not configure this on instance level.
+You can use the parameters in [`pg_packages`](#pg_packages) and [`pg_extensions`](#pg_extensions) to install rpms for the specific pg major version.
+
 
 
 
@@ -3798,11 +3833,9 @@ name: `pg_bin_dir`, type: `path`, level: `C`
 
 postgres binary dir, `/usr/pgsql/bin` by default
 
-default values: `/usr/pgsql/bin`
-
 The default value is a soft link created manually during the installation process, pointing to the specific Postgres version dir installed.
 
-For example `/usr/pgsql -> /usr/pgsql-14`. For more details, check [PGSQL File Structure](PGSQL-FHS) for details.
+For example `/usr/pgsql -> /usr/pgsql-15`. For more details, check [PGSQL File Structure](FHS#postgres-fhs) for details.
 
 
 
@@ -3811,9 +3844,7 @@ For example `/usr/pgsql -> /usr/pgsql-14`. For more details, check [PGSQL File S
 
 name: `pg_log_dir`, type: `path`, level: `C`
 
-postgres log dir, `/pg/log/postgres` by default
-
-default values: `/pg/log/postgres`
+postgres log dir, `/pg/log/postgres` by default.
 
 !> caveat: if `pg_log_dir` is prefixed with `pg_data` it will not be created explicit (it will be created by postgres itself then).
 
@@ -3824,9 +3855,9 @@ default values: `/pg/log/postgres`
 
 name: `pg_packages`, type: `string[]`, level: `C`
 
-pg packages to be installed, `${pg_version}` will be replaced to [`pg_version`](#pg_version)
+pg packages to be installed, `${pg_version}` will be replaced to the actual value of [`pg_version`](#pg_version)
 
-default value: 
+PostgreSQL, pgbouncer, pg_exporter, pgbadger, vip-manager, patroni, pgbackrest are install by default.
 
 ```yaml
 pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
@@ -3845,19 +3876,14 @@ name: `pg_extensions`, type: `string[]`, level: `C`
 
 pg extensions to be installed, `${pg_version}` will be replaced to [`pg_version`](#pg_version)
 
-default value: 
+PostGIS, TimescaleDB, Citus, `pg_repack`, and `wal2json` will be installed by default.
 
 ```yaml
 pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
   - postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} timescaledb-2-postgresql-${pg_version}
 ```
 
-Some extensions are not available, or have a different name in different EL release. for example:
 
-```
-citus_15*     # EL8, EL9, from pgdg official repo
-citus112_15*  # EL7, from citus official repo
-```
 
 
 
@@ -3866,14 +3892,13 @@ citus112_15*  # EL7, from citus official repo
 
 ## `PG_BOOTSTRAP`
 
-Bootstrap a postgres cluster with patroni, and setup pgbouncer connection pool along withit.
+Bootstrap a postgres cluster with patroni, and setup pgbouncer connection pool along with it.
 
 It also init cluster template databases with default roles, schemas & extensions & default privileges.
 
 Then it will create business databases & users and add them to pgbouncer & monitoring system
 
 On a machine with Postgres, create a set of databases.
-
 
 
 ```yaml
@@ -3884,7 +3909,7 @@ pg_fs_main: /data                 # mountpoint/path for postgres main data, `/da
 pg_fs_bkup: /data/backups         # mountpoint/path for pg backup data, `/data/backup` by default
 pg_storage_type: SSD              # storage type for pg main data, SSD,HDD, SSD by default
 pg_dummy_filesize: 64MiB          # size of `/pg/dummy`, hold 64MB disk space for emergency use
-pg_listen: '0.0.0.0'              # postgres listen address, `0.0.0.0` (all ipv4 addr) by defaul
+pg_listen: '0.0.0.0'              # postgres listen address, `0.0.0.0` (all ipv4 addr) by default
 pg_port: 5432                     # postgres listen port, 5432 by default
 pg_localhost: /var/run/postgresql # postgres unix socket dir for localhost connection
 pg_namespace: /pg                 # top level key namespace in etcd, used by patroni & vip
@@ -3896,9 +3921,10 @@ patroni_ssl_enabled: false        # secure patroni RestAPI communications with S
 patroni_watchdog_mode: off        # patroni watchdog mode: automatic,required,off. off by default
 patroni_username: postgres        # patroni restapi username, `postgres` by default
 patroni_password: Patroni.API     # patroni restapi password, `Patroni.API` by default
+patroni_citus_db: postgres        # citus database managed by patroni, postgres by default
 pg_conf: oltp.yml                 # config template: oltp,olap,crit,tiny. `oltp.yml` by default
 pg_max_conn: auto                 # postgres max connections, `auto` will use recommended value
-pg_shared_buffer_ratio: 0.25      # postgres shared buffer memory ratio, 0.25 by default, 0.1~0.4
+pg_shared_buffer_ratio: 0.25      # postgres shared buffer ratio, 0.25 by default, 0.1~0.4
 pg_rto: 30                        # recovery time objective in seconds,  `30s` by default
 pg_rpo: 1048576                   # recovery point objective in bytes, `1MiB` at most by default
 pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
@@ -3965,7 +3991,11 @@ name: `pg_fs_main`, type: `path`, level: `C`
 
 mountpoint/path for postgres main data, `/data` by default
 
-default values: `/data`
+default values: `/data`, which will be used as parent dir of postgres main data directory: `/data/postgres`.
+
+It's recommended to use NVME SSD for postgres main data storage, Pigsty is optimized for SSD storage by default.
+But HDD is also supported, you can change [`pg_storage_type`](#pg_storage_type) to `HDD` to optimize for HDD storage.
+
 
 
 
@@ -3977,13 +4007,13 @@ name: `pg_fs_bkup`, type: `path`, level: `C`
 
 mountpoint/path for pg backup data, `/data/backup` by default
 
-default values: `/data/backups`
+If you are using the default [`pgbackrest_method`](#pgbackrest_method) = `local`, it is recommended to have a separate disk for backup storage.
 
-If you are using the default [`pgbackrest_method`](#pgbackrest_method) = `local`, It's wise to have a dedicated HDD (SSD is better of course) for backup storage.
+The backup disk should be large enough to hold all your backups, at least enough for 3 basebackups + 2 days WAL archive.
+This is usually not a problem since you can use cheap & large HDD for that.
 
-The disk should be 3x large that your database files to keep 3 full backup retention, otherwise you may have to use `minio` repo or reduce the retention period.
+It's recommended to use a separate disk for backup storage, otherwise pigsty will fall back to the main data disk.
 
-You can use a normal dir instead of a dedicated disk, through it is not recommended.
 
 
 
@@ -3992,9 +4022,9 @@ You can use a normal dir instead of a dedicated disk, through it is not recommen
 
 name: `pg_storage_type`, type: `enum`, level: `C`
 
-storage type for pg main data, SSD,HDD, SSD by default
+storage type for pg main data, `SSD`,`HDD`, `SSD` by default
 
-default values: `SSD`, it will affect some optimization parameters
+default values: `SSD`, it will affect some tuning parameters, such as `random_page_cost` & `effective_io_concurrency`
 
 
 
@@ -4004,12 +4034,9 @@ default values: `SSD`, it will affect some optimization parameters
 
 name: `pg_dummy_filesize`, type: `size`, level: `C`
 
-size of `/pg/dummy`, hold 64MB disk space for emergency use
+size of `/pg/dummy`, default values: `64MiB`, which hold 64MB disk space for emergency use
 
-default values: `64MiB`
-
-A placeholder file, a pre-allocated empty file that takes up disk space.
-When the disk is full, removing the placeholder file can free up some space for emergency use, it is recommended to use `4GiB`, `and 8GiB` for production env.
+When the disk is full, removing the placeholder file can free up some space for emergency use, it is recommended to use at least `8GiB` for production use.
 
 
 
@@ -4019,9 +4046,9 @@ When the disk is full, removing the placeholder file can free up some space for 
 
 name: `pg_listen`, type: `ip`, level: `C`
 
-postgres listen address, `0.0.0.0` (all ipv4 addr) by defaul
+postgres listen address, `0.0.0.0` (all ipv4 addr) by default
 
-default values: `0.0.0.0`, which is all IPv4 address, if you want to include all IPv6 address, use `*` instead.
+If you want to include all IPv6 address, use `*` instead. It's not wise to use this in node with public IP address.
 
 
 
@@ -4030,9 +4057,7 @@ default values: `0.0.0.0`, which is all IPv4 address, if you want to include all
 
 name: `pg_port`, type: `port`, level: `C`
 
-postgres listen port, 5432 by default
-
-default values: `5432`
+postgres listen port, `5432` by default.
 
 
 
@@ -4042,9 +4067,7 @@ default values: `5432`
 
 name: `pg_localhost`, type: `path`, level: `C`
 
-postgres unix socket dir for localhost connection
-
-default values: `/var/run/postgresql`
+postgres unix socket dir for localhost connection, default values: `/var/run/postgresql`
 
 The Unix socket dir for PostgreSQL and Pgbouncer local connection, which is used by [`pg_exporter`](#pg_exporter) and patroni.
 
@@ -4056,9 +4079,7 @@ The Unix socket dir for PostgreSQL and Pgbouncer local connection, which is used
 
 name: `pg_namespace`, type: `path`, level: `C`
 
-top level key namespace in etcd, used by patroni & vip
-
-default values: `/pg`
+top level key namespace in etcd, used by patroni & vip, default values is: `/pg` , and it's not recommended to change it.
 
 
 
@@ -4070,9 +4091,9 @@ name: `patroni_enabled`, type: `bool`, level: `C`
 
 if disabled, no postgres cluster will be created during init
 
-default value is `true`
+default value is `true`, If disabled, Pigsty will skip pulling up patroni (thus postgres).
 
-If disabled, Pigsty will skip pulling up patroni. This option is used when setting up extra staff for an existing ins.
+This option is useful when trying to add some components to an existing postgres instance.
 
 
 
@@ -4081,7 +4102,7 @@ If disabled, Pigsty will skip pulling up patroni. This option is used when setti
 
 name: `patroni_mode`, type: `enum`, level: `C`
 
-patroni working mode: default,pause,remove
+patroni working mode: `default`, `pause`, `remove`
 
 default values: `default`
 
@@ -4096,11 +4117,9 @@ default values: `default`
 
 name: `patroni_port`, type: `port`, level: `C`
 
-patroni listen port, 8008 by default
+patroni listen port, `8008` by default, changing it is not recommended.
 
-default values: `8008`
-
-The Patroni API server listens on this for health checking & unsafe API requests.
+The Patroni API server listens on this port for health checking & API requests.
 
 
 
@@ -4109,9 +4128,9 @@ The Patroni API server listens on this for health checking & unsafe API requests
 
 name: `patroni_log_dir`, type: `path`, level: `C`
 
-patroni log dir, `/pg/log/patroni` by default
+patroni log dir, `/pg/log/patroni` by default, which will be collected by [`promtail`](#promtail).
 
-default values: `/pg/log/patroni`
+
 
 
 
@@ -4121,9 +4140,14 @@ default values: `/pg/log/patroni`
 
 name: `patroni_ssl_enabled`, type: `bool`, level: `G`
 
-secure patroni RestAPI communications with SSL?
+Secure patroni RestAPI communications with SSL? default value is `false`
 
-default value is `false`, This parameter can only be set before deployment
+This parameter is a global flag that can only be set before deployment.
+
+Since if SSL is enabled for patroni, you'll have to perform healthcheck, metrics scrape and API call with HTTPS instead of HTTP. 
+
+
+
 
 
 
@@ -4132,17 +4156,18 @@ default value is `false`, This parameter can only be set before deployment
 
 name: `patroni_watchdog_mode`, type: `string`, level: `C`
 
-patroni watchdog mode: automatic,required,off. off by default
+In case of primary failure, patroni can use [watchdog](https://patroni.readthedocs.io/en/latest/watchdog.html) to shutdown the old primary node to avoid split-brain.
 
-default value is `off`
+patroni watchdog mode: `automatic`, `required`, `off`:
 
-* `off`: not using `watchdog`. avoid fencing node.
-* `automatic`: Enable `watchdog` if the kernel has `softdog` enabled, not forced, default behavior.
-* `required`: Force `watchdog`, or refuse to start if `softdog` is not enabled on the system.
+* `off`: not using `watchdog`. avoid fencing at all. This is the default value.
+* `automatic`: Enable `watchdog` if the kernel has `softdog` module enabled and watchdog is owned by dbsu 
+* `required`: Force `watchdog`, refuse to start if `softdog` is not available
 
-Enabling Watchdog means that the system prioritizes ensuring data consistency and drops availability.
+default value is `off`, you should not enable watchdog on infra nodes to avoid fencing.
 
-If availability is more important to your system, it is recommended to turn off Watchdog on the infra nodes.
+For those critical systems where data consistency prevails over availability, it is recommended to enable watchdog.
+
 
 
 
@@ -4152,10 +4177,9 @@ If availability is more important to your system, it is recommended to turn off 
 
 name: `patroni_username`, type: `username`, level: `C`
 
-patroni restapi username, `postgres` by default
+patroni restapi username, `postgres` by default, used in pair with [`patroni_password`](#patroni_password)
 
-default values: `postgres`
-
+Patroni unsafe RESTAPI is protected by username/password by default, check [Config Cluster](PGSQL-ADMIN#config-cluster) and [Patroni RESTAPI](https://patroni.readthedocs.io/en/latest/rest_api.html) for details. 
 
 
 
@@ -4166,7 +4190,8 @@ name: `patroni_password`, type: `password`, level: `C`
 
 patroni restapi password, `Patroni.API` by default
 
-default values: `Patroni.API`
+!> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+
 
 
 
@@ -4186,9 +4211,16 @@ Patroni 3.0's native citus will specify a managed database for citus. which is c
 
 name: `pg_conf`, type: `enum`, level: `C`
 
-config template: oltp,olap,crit,tiny. `oltp.yml` by default
+config template: `{oltp,olap,crit,tiny}.yml`, `oltp.yml` by default
 
-default values: `oltp.yml`
+- `tiny.yml`: optimize for tiny nodes, virtual machines, small demo, (1~8Core, 1~16GB)
+- `oltp.yml`: optimize for OLTP workloads and latency sensitive applications, (4C8GB+), which is the default template
+- `olap.yml`: optimize for OLAP workloads and throughput (4C8G+)
+- `crit.yml`: optimize for data consistency and critical applications (4C8G+) 
+
+default values: `oltp.yml`, but [configure](INSTALL#configure) procedure will set this value to `tiny.yml` if current node is a tiny node.
+
+You can have your own template, just put it under `templates/<mode>.yml` and set this value to the template name.
 
 
 
@@ -4198,9 +4230,22 @@ default values: `oltp.yml`
 
 name: `pg_max_conn`, type: `int`, level: `C`
 
-postgres max connections, `auto` will use recommended value
+postgres max connections, You can specify a value between 50 and 5000, or use `auto` to use recommended value.
 
-default values: `auto`
+default value is `auto`, which will set max connections according to the [`pg_conf`](#pg_conf) and [`pg_default_service_dest`](#pg_default_service_dest).
+
+- tiny: 100
+- olap: 200
+- oltp: 200 (pgbouncer) / 1000 (postgres)
+  - pg_default_service_dest = pgbouncer : 200
+  - pg_default_service_dest = postgres : 1000
+- crit: 200 (pgbouncer) / 1000 (postgres)
+  - pg_default_service_dest = pgbouncer : 200
+  - pg_default_service_dest = postgres : 1000
+
+It's not recommended to set this value greater than 5000, otherwise you have to increase the haproxy service connection limit manually as well.
+
+Pgbouncer transaction pooling can alleviate the problem of too many OLTP connections, but it's not recommended to use it in OLAP scenarios.
 
 
 
@@ -4216,6 +4261,7 @@ default values: `0.25`, means 25% of node memory will be used as PostgreSQL shar
 
 Setting this value greater than 0.4 (40%) is usually not a good idea. 
 
+Note that shared buffer is only part of shared memory in PostgreSQL, to calculate the total shared memory, use `show shared_memory_size_in_huge_pages;`.
 
 
 
@@ -4224,10 +4270,29 @@ Setting this value greater than 0.4 (40%) is usually not a good idea.
 
 name: `pg_rto`, type: `int`, level: `C`
 
-recovery time objective in seconds, `30`s by default.
+recovery time objective in seconds, This will be used as Patroni TTL value, `30`s by default.
 
-This will be used as Patroni TTL value, If a primary is missing for such a long time, a new leader election will be triggered.
+If a primary instance is missing for such a long time, a new leader election will be triggered.
 
+Decrease the value can reduce the unavailable time (unable to write) of the cluster during failover, 
+but it will make the cluster more sensitive to network jitter, thus increase the chance of false-positive failover.
+
+Config this according to your network condition and expectation to **trade-off between chance and impact**,
+the default value is 30s, and it will be populated to the following patroni parameters:
+
+```yaml
+# the TTL to acquire the leader lock (in seconds). Think of it as the length of time before initiation of the automatic failover process. Default value: 30
+ttl: {{ pg_rto }}
+
+# the number of seconds the loop will sleep. Default value: 10 , this is patroni check loop interval
+loop_wait: {{ (pg_rto / 3)|round(0, 'ceil')|int }}
+
+# timeout for DCS and PostgreSQL operation retries (in seconds). DCS or network issues shorter than this will not cause Patroni to demote the leader. Default value: 10
+retry_timeout: {{ (pg_rto / 3)|round(0, 'ceil')|int }}
+
+# the amount of time a primary is allowed to recover from failures before failover is triggered (in seconds), Max RTO: 2 loop wait + primary_start_timeout
+primary_start_timeout: {{ (pg_rto / 3)|round(0, 'ceil')|int }}
+```
 
 
 
@@ -4240,7 +4305,7 @@ recovery point objective in bytes, `1MiB` at most by default
 
 default values: `1048576`, which will tolerate at most 1MiB data loss during failover.
 
-when the primary is down and all replicas are lagged, you have to make a tough choice to trade off between Availability and Consistency:
+when the primary is down and all replicas are lagged, you have to make a tough choice to **trade off between Availability and Consistency**:
 
 * Promote a replica to be the new primary and bring system back online ASAP, with the price of an acceptable data loss (e.g. less than 1MB).
 * Wait for the primary to come back (which may never be) or human intervention to avoid any data loss.
@@ -4261,7 +4326,8 @@ preloaded libraries, `pg_stat_statements,auto_explain` by default
 
 default value: `timescaledb, pg_stat_statements, auto_explain`.
 
- 
+If you want to manage citus cluster by your own, add `citus` to the head of this list.
+If you are using patroni native citus cluster, patroni will add it automatically for you.
 
 
 
@@ -4275,6 +4341,8 @@ replication apply delay for standby cluster leader , default values: `0`.
 
 if this value is set to a positive value, the standby cluster leader will be delayed for this time before apply WAL changes.
 
+Check [delayed standby cluster](PGSQL-CONF#delayed-cluster) for details.
+
 
 
 
@@ -4283,11 +4351,11 @@ if this value is set to a positive value, the standby cluster leader will be del
 
 name: `pg_checksum`, type: `bool`, level: `C`
 
-enable data checksum for postgres cluster?
+enable data checksum for postgres cluster?, default value is `false`.
 
-default value is `false`, This parameter can only be set before deployment. (but you can enable it manually later)
+This parameter can only be set before PGSQL deployment. (but you can enable it manually later)
 
-If `crit.yml` template is used, data checksum is always enabled regardless of this parameter to ensure data integrity.
+If [`pg_conf`](#pg_conf) `crit.yml` template is used, data checksum is always enabled regardless of this parameter to ensure data integrity.
 
 
 
@@ -4310,8 +4378,6 @@ name: `pg_encoding`, type: `enum`, level: `C`
 
 database cluster encoding, `UTF8` by default
 
-default values: `UTF8`
-
 
 
 
@@ -4322,7 +4388,6 @@ name: `pg_locale`, type: `enum`, level: `C`
 
 database cluster local, `C` by default
 
-default values: `C`
 
 
 
@@ -4332,9 +4397,7 @@ default values: `C`
 
 name: `pg_lc_collate`, type: `enum`, level: `C`
 
-database cluster collate, `C` by default
-
-default values: `C`
+database cluster collate, `C` by default, It's not recommended to change this value unless you know what you are doing.
 
 
 
@@ -4346,7 +4409,6 @@ name: `pg_lc_ctype`, type: `enum`, level: `C`
 
 database character type, `en_US.UTF8` by default
 
-default values: `en_US.UTF8`
 
 
 
@@ -4356,9 +4418,9 @@ default values: `en_US.UTF8`
 
 name: `pgbouncer_enabled`, type: `bool`, level: `C`
 
-if disabled, pgbouncer will not be launched on pgsql host
+default value is `true`, if disabled, pgbouncer will not be launched on pgsql host
 
-default value is `true`
+
 
 
 
@@ -4389,9 +4451,10 @@ pgbouncer log dir, `/pg/log/pgbouncer` by default, referenced by promtail the lo
 
 name: `pgbouncer_auth_query`, type: `bool`, level: `C`
 
-query postgres to retrieve unlisted business users?
+query postgres to retrieve unlisted business users? default value is `false`
 
-default value is `false`
+If enabled, pgbouncer user will be authenticated against postgres database with `SELECT username, password FROM monitor.pgbouncer_auth($1)`, otherwise, only the users in `pgbouncer_users` will be allowed to connect to pgbouncer.
+
 
 
 
@@ -4414,21 +4477,17 @@ pooling mode: transaction,session,statement, `transaction` by default
 
 name: `pgbouncer_sslmode`, type: `enum`, level: `C`
 
-pgbouncer client ssl mode, disable by default
+pgbouncer client ssl mode, `disable` by default
 
 default values: `disable`, beware that this may have a huge performance impact on your pgbouncer.
 
+- `disable`: Plain TCP. If client requests TLS, it’s ignored. Default.
+- `allow`: If client requests TLS, it is used. If not, plain TCP is used. If the client presents a client certificate, it is not validated.
+- `prefer`: Same as allow.
+- `require`: Client must use TLS. If not, the client connection is rejected. If the client presents a client certificate, it is not validated.
+- `verify-ca`: Client must use TLS with valid client certificate.
+- `verify-full`: Same as verify-ca.
 
-
-
-
-### `pg_provision`
-
-name: `pg_provision`, type: `bool`, level: `C`
-
-provision postgres cluster after bootstrap
-
-default value is `true`
 
 
 
@@ -4440,6 +4499,7 @@ default value is `true`
 
 ## `PG_PROVISION`
 
+Init database roles, templates, default privileges, create schemas, extensions, and generate hba rules
 
 ```yaml
 pg_provision: true                # provision postgres cluster after bootstrap
@@ -4514,13 +4574,26 @@ pgb_default_hba_rules:            # pgbouncer default host-based authentication 
 ```
 
 
+### `pg_provision`
+
+name: `pg_provision`, type: `bool`, level: `C`
+
+provision postgres cluster after bootstrap, default value is `true`.
+
+If disabled, postgres cluster will not be provisioned after bootstrap.
+
+
+
+
+
 ### `pg_init`
 
 name: `pg_init`, type: `string`, level: `G/C`
 
-provision init script for cluster template, `pg-init` by default
+Provision init script for cluster template, `pg-init` by default, which is located in [`roles/pgsql/templates/pg-init`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/pg-init)
 
-default values: `pg-init`
+You can add your own logic in the init script, or provide a new one in `templates/` and set `pg_init` to the new script name.
+
 
 
 
@@ -4530,9 +4603,9 @@ default values: `pg-init`
 
 name: `pg_default_roles`, type: `role[]`, level: `G/C`
 
-default roles and users in postgres cluster
+default roles and users in postgres cluster.  
 
-default value: 
+Pigsty has a built-in role system, check [PGSQL Access Control](PGSQL-ACL#role-system) for details.
 
 ```yaml
 pg_default_roles:                 # default roles and users in postgres cluster
@@ -4553,9 +4626,7 @@ pg_default_roles:                 # default roles and users in postgres cluster
 
 name: `pg_default_privileges`, type: `string[]`, level: `G/C`
 
-default privileges when created by admin user
-
-default value: 
+default privileges for each databases:
 
 ```yaml
 pg_default_privileges:            # default privileges when created by admin user
@@ -4578,6 +4649,8 @@ pg_default_privileges:            # default privileges when created by admin use
   - GRANT CREATE     ON SCHEMAS   TO dbrole_admin
 ```
 
+Pigsty has a built-in privileges base on default role system, check [PGSQL Privileges](PGSQL-ACL#privileges) for details.
+
 
 
 
@@ -4585,9 +4658,7 @@ pg_default_privileges:            # default privileges when created by admin use
 
 name: `pg_default_schemas`, type: `string[]`, level: `G/C`
 
-default schemas to be created
-
-default values: `[ monitor ]`
+default schemas to be created, default values is: `[ monitor ]`, which will create a `monitor` schema on all databases.
 
 
 
@@ -4597,12 +4668,10 @@ default values: `[ monitor ]`
 
 name: `pg_default_extensions`, type: `extension[]`, level: `G/C`
 
-default extensions to be created
-
-default value: 
+default extensions to be created, default value: 
 
 ```yaml
-pg_default_extensions:            # default extensions to be created
+pg_default_extensions: # default extensions to be created
   - { name: adminpack          ,schema: pg_catalog }
   - { name: pg_stat_statements ,schema: monitor }
   - { name: pgstattuple        ,schema: monitor }
@@ -4621,6 +4690,10 @@ pg_default_extensions:            # default extensions to be created
   - { name: pg_repack }
 ```
 
+The only 3rd party extension is `pg_repack`, which is important for database maintenance, all other extensions are built-in postgres contrib extensions. 
+
+Monitor related extensions are installed in `monitor` schema, which is created by [`pg_default_schemas`](#pg_default_schemas).
+
 
 
 
@@ -4628,9 +4701,10 @@ pg_default_extensions:            # default extensions to be created
 
 name: `pg_reload`, type: `bool`, level: `A`
 
-reload postgres after hba changes
+reload postgres after hba changes, default value is `true`
 
-default value is `true`
+This is useful when you want to check before applying HBA changes, set it to `false` to disable reload.
+
 
 
 
@@ -4641,7 +4715,7 @@ name: `pg_default_hba_rules`, type: `hba[]`, level: `G/C`
 
 postgres default host-based authentication rules, array of [hba](PGSQL-HBA#define-hba) rule object.
 
-default value:
+default value provides a fair enough security level for common scenarios, check [PGSQL Authentication](PGSQL-HBA) for details.
 
 ```yaml
 pg_default_hba_rules:             # postgres default host-based authentication rules
@@ -4668,7 +4742,7 @@ name: `pgb_default_hba_rules`, type: `hba[]`, level: `G/C`
 
 pgbouncer default host-based authentication rules, array or [hba](PGSQL-HBA#define-hba) rule object.
 
-default value: 
+default value provides a fair enough security level for common scenarios, check [PGSQL Authentication](PGSQL-HBA) for details.
 
 ```yaml
 pgb_default_hba_rules:            # pgbouncer default host-based authentication rules
@@ -4691,6 +4765,11 @@ pgb_default_hba_rules:            # pgbouncer default host-based authentication 
 ------------------------------
 
 ## `PG_BACKUP`
+
+This section defines variables for [pgBackRest](https://pgbackrest.org/), which is used for PGSQL PITR (Point-In-Time-Recovery). 
+
+Check [PGSQL Backup & PITR](PGSQL-PITR) for details.
+
 
 ```yaml
 pgbackrest_enabled: true          # enable pgbackrest on pgsql host?
@@ -4726,9 +4805,8 @@ pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/conf
 
 name: `pgbackrest_enabled`, type: `bool`, level: `C`
 
-enable pgbackrest on pgsql host?
+enable pgBackRest on pgsql host? default value is `true`
 
-default value is `true`
 
 
 
@@ -4737,9 +4815,7 @@ default value is `true`
 
 name: `pgbackrest_clean`, type: `bool`, level: `C`
 
-remove pg backup data during init?
-
-default value is `true`
+remove pg backup data during init?  default value is `true`
 
 
 
@@ -4748,9 +4824,7 @@ default value is `true`
 
 name: `pgbackrest_log_dir`, type: `path`, level: `C`
 
-pgbackrest log dir, `/pg/log/pgbackrest` by default
-
-default values: `/pg/log/pgbackrest`
+pgBackRest log dir, `/pg/log/pgbackrest` by default, which is referenced by [`promtail`](#promtail) the logging agent.
 
 
 
@@ -4760,9 +4834,11 @@ default values: `/pg/log/pgbackrest`
 
 name: `pgbackrest_method`, type: `enum`, level: `C`
 
-pgbackrest repo method: local,minio,[user-defined...]
+pgBackRest repo method: `local`, `minio`, or other user-defined methods, `local` by default
 
-default values: `local`
+This parameter is used to determine which repo to use for pgBackRest, all available repo methods are defined in [`pgbackrest_repo`](#pgbackrest_repo).
+
+Pigsty will use `local` backup repo by default, which will create a backup repo on primary instance's `/pg/backup` directory. The underlying storage is specified by [`pg_fs_bkup`](#pg_fs_bkup).
 
 
 
@@ -4772,9 +4848,9 @@ default values: `local`
 
 name: `pgbackrest_repo`, type: `dict`, level: `G/C`
 
-pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+pgBackRest repo document: https://pgbackrest.org/configuration.html#section-repository
 
-default value: 
+default value includes two repo methods: `local` and `minio`, which are defined as follows: 
 
 ```yaml
 pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
@@ -4830,6 +4906,7 @@ pg_vip_interface: eth0            # vip network interface to listen, eth0 by def
 pg_dns_suffix: ''                 # pgsql dns suffix, '' by default
 pg_dns_target: auto               # auto, primary, vip, none, or ad hoc ip
 ```
+
 
 
 ### `pg_weight`
@@ -4910,6 +4987,7 @@ enable a l2 vip for pgsql primary?
 default value is `false`, means no L2 VIP is created for this cluster.
 
 L2 VIP can only be used in same L2 network, which may incurs extra restrictions on your network topology.
+
 
 
 
@@ -5205,8 +5283,3 @@ default value is empty string, which will fall back the following default option
 
 If you want to customize logging options or other pgbouncer_exporter options, you can set it here.
 
-
-
-
-
-------------------------------------------------------------

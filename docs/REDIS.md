@@ -4,6 +4,9 @@
 
 
 
+
+----------------
+
 ## Configuration
 
 **Redis Identity**
@@ -57,9 +60,14 @@ redis-test: # redis native cluster: 3m x 3s
 
 
 
+----------------
+
 ## Playbook
 
-There are two playbooks for redis: [`redis.yml`](https://github.com/Vonng/pigsty/blob/master/redis.yml) and [`redis-rm.yml`](https://github.com/Vonng/pigsty/blob/master/redis-rm.yml)
+There are two playbooks for redis:
+
+- [`redis.yml`](https://github.com/Vonng/pigsty/blob/master/redis.yml): create redis cluster / node / instance
+- [`redis-rm.yml`](https://github.com/Vonng/pigsty/blob/master/redis-rm.yml): remove redis cluster /node /instance
 
 You can also create & destroy redis cluster/node/instance with util scripts:
 
@@ -74,6 +82,8 @@ bin/redis-rm 10.10.10.10 6501   # remove redis instance '10.10.10.10:6501'
 ```
 
 
+
+-------------
 
 ## Administration
 
@@ -138,6 +148,9 @@ There are three dashboards for [`REDIS`](REDIS) module.
 - [Redis Instance](http://demo.pigsty.cc/d/redis-instance): Detail information about a single redis instance
 
 
+
+
+----------------
 
 ## Parameters
 

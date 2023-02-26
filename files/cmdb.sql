@@ -1427,7 +1427,7 @@ INSERT INTO pigsty.default_var VALUES
 (808, 'pg_group', NULL, 'PGSQL', 'PG_ID', 'int', 'C', 'pgsql shard index number, optional identity for sharding clusters', NULL),
 (809, 'gp_role', '"master"', 'PGSQL', 'PG_ID', 'enum', 'C', 'greenplum role of this cluster, could be master or segment', NULL),
 (810, 'pg_exporters', '{}', 'PGSQL', 'PG_ID', 'dict', 'C', 'additional pg_exporters to monitor remote postgres instances', NULL),
-(811, 'pg_offline_query', 'false', 'PGSQL', 'PG_ID', 'bool', 'G', 'set to true to enable offline query on this instance', NULL),
+(811, 'pg_offline_query', 'false', 'PGSQL', 'PG_ID', 'bool', 'I', 'set to true to enable offline query on this instance', NULL),
 
 (820, 'pg_users', '[]', 'PGSQL', 'PG_BUSINESS', 'user[]', 'C', 'postgres business users', NULL),
 (821, 'pg_databases', '[]', 'PGSQL', 'PG_BUSINESS', 'database[]', 'C', 'postgres business databases', NULL),

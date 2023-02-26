@@ -73,7 +73,7 @@ pg-test:
 $ bin/pgsql-add pg-test  # init cluster 'pg-test'
 ```
 
-  Which will gives you a following cluster with monitoring , replica, backup all set.![pigsty-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)
+Which will gives you a following cluster with monitoring , replica, backup all set.![pigsty-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)
 
 Hardware failures are covered by self-healing HA architecture powered by `patroni`, `etcd`, and `haproxy`, which will perform auto failover in case of leader failure under 30 seconds.  With the self-healing traffic control powered by haproxy, the client may not even notice there's a failure at all, in case of a switchover or replica failure.
 

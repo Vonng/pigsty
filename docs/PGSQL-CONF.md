@@ -4,7 +4,7 @@
 
 You can define different types of instances & clusters.
 
-- [Identity](#identity): Parameters used for describing a PostgreSQL cluster
+- [Identity](PARAM#pg_id): Parameters used for describing a PostgreSQL cluster
 - [Primary](#primary): Define a single instance cluster.
 - [Replica](#replica): Define a basic HA cluster with one primary & one replica.
 - [Offline](#offline): Define a dedicated instance for OLAP/ETL/Interactive queries
