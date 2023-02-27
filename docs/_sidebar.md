@@ -6,8 +6,8 @@
 - [**Provisioning**](PROVISION)
 - [**Module: INFRA**](INFRA)
 - [**Module: NODE**](NODE)
-- [**Module: MINIO**](MINIO)
 - [**Module: ETCD**](ETCD)
+- [**Module: MINIO**](MINIO)
 - [**Module: REDIS**](REDIS)
 - [**Module: PGSQL**](PGSQL)
   - [Architecture](PGSQL-ARCH)
@@ -28,4 +28,3 @@
 - [**Release Note**](RELEASENOTE)
 - [**License**](https://github.com/Vonng/pigsty/blob/master/LICENSE)
 - [**FAQ**](FAQ)
-

@@ -7,7 +7,6 @@
 
 ## Overview
 
-
 Each Pigsty deployment requires a set of infrastructure components to work properly. which including:
 
 |     Component     | Port |     Domain     | Description                                    |
@@ -17,11 +16,10 @@ Each Pigsty deployment requires a set of infrastructure components to work prope
 |  Prometheus       | 9090 |   `p.pigsty`   | Monitoring Time Series Database                |
 |  Grafana          | 3000 |   `g.pigsty`   | Visualization Platform                         |
 |  Loki             | 3100 |       -        | Logging Collection Server                      |
-|  PushGateway      | 3100 |       -        | Logging Collection Server                      |
-|  BlackboxExporter | 3100 |       -        | Logging Collection Server                      |
-|  Dnsmasq          |  53  |       -        | DNS Server (optional)                          |
-|  Dnsmasq          |  53  |       -        | DNS Server (optional)                          |
-|  Chronyd          | 123  |       -        | NTP Time Server (optional)                     |
+|  PushGateway      | 9091 |       -        | Logging Collection Server                      |
+|  BlackboxExporter | 9115 |       -        | Logging Collection Server                      |
+|  Dnsmasq          |  53  |       -        | DNS Server                                     |
+|  Chronyd          | 123  |       -        | NTP Time Server                                |
 |  PostgreSQL       | 5432 |       -        | Pigsty CMDB & default database                 |
 |  Ansible          |  -   |       -        | Run playbooks                                  |
 
@@ -35,7 +33,7 @@ infra_portal:  # domain names and upstream servers
   alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
   blackbox     : { endpoint: "${admin_ip}:9115" }
   loki         : { endpoint: "${admin_ip}:3100" }
-  minio        : { domain: sss.pigsty  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
+  #minio        : { domain: sss.pigsty  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
 ```
 
 ![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)

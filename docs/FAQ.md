@@ -108,7 +108,7 @@ https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el9.x
 
 After downloading the Pigsty source package and unpacking it, you may have to execute `./configure` to complete the environment [configuration](INSTALL#configure). This is optional if you already know how to configure Pigsty properly.
 
-The configure procedure will detect your node environment and generate a pigsty config file: `pigsty.yml` for you.
+The **configure** procedure will detect your node environment and generate a pigsty config file: `pigsty.yml` for you.
 
 </details>
 
@@ -425,8 +425,10 @@ node_ntp_servers:                 # NTP servers in /etc/chrony.conf
 
 </details>
 
-<br>
 
+
+
+<br>
 <details><summary>How to force sync time on nodes?</summary>
 
 !> Use `chronyc` to sync time. You have to configure the NTP service first.
@@ -463,6 +465,7 @@ pg-test:
 
 
 
+
 <br>
 <details><summary>Password required for remote node SSH and SUDO</summary>
 
@@ -472,12 +475,11 @@ pg-test:
 You can pass in ssh and sudo passwords via the `-k|-K` parameter when executing the playbook or even use another user to run the playbook via `-e`[`ansible_host`](PARAM#connect)`=<another_user>`.
 However, Pigsty strongly recommends configuring SSH **passwordless login** with passwordless `sudo` for the admin user.
 
-</details><br>
+</details>
 
 
 
 <br>
-
 <details><summary>Create an admin user with the existing admin user.</summary>
 
 !> `./node.yml -k -K -e ansible_user=<another_admin> -t node_admin`
@@ -488,8 +490,8 @@ This will create an admin user specified by [`node_admin_username`](PARAM#node_a
 
 
 
-<br>
 
+<br>
 <details><summary>Exposing node services with HAProxy</summary>
 
 !> You can expose service with [`haproxy_services`](PARAM#haproxy_services) in `node.yml`.
@@ -500,8 +502,8 @@ And here's an example of exposing MinIO service with it: [Expose MinIO Service](
 
 
 
-<br>
 
+<br>
 <details><summary>Why my nodes /etc/yum.repos.d/* are nuked?</summary>
 
 Pigsty will try to include all dependencies in the local yum repo on infra nodes. This repo file will be added according to [`node_repo_local_urls`](PARAM#node_repo_local_urls).
@@ -684,7 +686,6 @@ You can disable [`redis_safeguard`](PARAM#redis_safeguard) to remove the Redis i
 ## PGSQL
 
 <br>
-
 <details><summary>ABORT due to postgres exists</summary>
 
 !> Set `pg_clean` = `true` and `pg_safeguard` = `false` to force clean postgres data during `pgsql.yml`
@@ -722,30 +723,35 @@ To disable `pg_safeguard`, you can set `pg_safeguard` to `false` in the inventor
 
 
 <br>
-<details><summary>How to create replicas when data is corrupted?</summary>
+<details><summary>Fail to wait for postgres/patroni primary</summary>
 
-!> Disable `clonefrom` on bad instances and reload patroni config.
+This usually happens when the cluster is misconfigured, or the previous primary is improperly removed. (e.g., trash metadata in DCS with the same cluster name).
 
-Pigsty sets the `cloneform: true` tag on all instances' patroni config, which marks the instance available for cloning replica.
+You must check `/pg/log/*` to find the reason.
 
-If this instance has corrupt data files, you can set `clonefrom: false` to avoid pulling data from the evil instance. To do so:
+</details>
+
+
+
+
+<br>
+<details><summary>Fail to wait for postgres/patroni replica</summary>
+
+There are several possible reasons:
+
+**Failed Immediately**: Usually, this happens because of misconfiguration, network issues, broken DCS metadata, etc..., you have to inspect `/pg/log` to find out the actual reason.
+
+**Failed After a While**: This may be due to source instance data corruption. Check PGSQL FAQ: How to create replicas when data is corrupted?
+
+**Timeout**: If the `wait for postgres replica` task takes 30min or more and fails due to timeout, This is common for a huge cluster (e.g., 1TB+, which may take hours to create a replica). In this case, the underlying creating replica procedure is still proceeding. You can check cluster status with `pg list <cls>` and wait until the replica catches up with the primary. Then continue the following tasks:
 
 ```bash
-$ vi /pg/bin/patroni.yml
-
-tags:
-  nofailover: false
-  clonefrom: true      # ----------> change to false
-  noloadbalance: false
-  nosync: false
-  version:  '15'
-  spec: '4C.8G.50G'
-  conf: 'oltp.yml'
-  
-$ systemctl reload patroni
+./pgsql.yml -t pg_hba,pg_backup,pgbouncer,pg_vip,pg_dns,pg_service,pg_exporter,pg_register
 ```
 
 </details>
+
+
 
 
 
@@ -795,3 +801,62 @@ It will be placed on `/pg/dummy` same disk as the PGSQL main data disk. You can 
 
 
 
+
+
+
+<br>
+<details><summary>How to create replicas when data is corrupted?</summary>
+
+!> Disable `clonefrom` on bad instances and reload patroni config.
+
+Pigsty sets the `cloneform: true` tag on all instances' patroni config, which marks the instance available for cloning replica.
+
+If this instance has corrupt data files, you can set `clonefrom: false` to avoid pulling data from the evil instance. To do so:
+
+```bash
+$ vi /pg/bin/patroni.yml
+
+tags:
+  nofailover: false
+  clonefrom: true      # ----------> change to false
+  noloadbalance: false
+  nosync: false
+  version:  '15'
+  spec: '4C.8G.50G'
+  conf: 'oltp.yml'
+  
+$ systemctl reload patroni
+```
+
+</details>
+
+
+
+
+
+
+<br>
+<details><summary>How to create replicas when data is corrupted?</summary>
+
+!> Disable `clonefrom` on bad instances and reload patroni config.
+
+Pigsty sets the `cloneform: true` tag on all instances' patroni config, which marks the instance available for cloning replica.
+
+If this instance has corrupt data files, you can set `clonefrom: false` to avoid pulling data from the evil instance. To do so:
+
+```bash
+$ vi /pg/bin/patroni.yml
+
+tags:
+  nofailover: false
+  clonefrom: true      # ----------> change to false
+  noloadbalance: false
+  nosync: false
+  version:  '15'
+  spec: '4C.8G.50G'
+  conf: 'oltp.yml'
+  
+$ systemctl reload patroni
+```
+
+</details>

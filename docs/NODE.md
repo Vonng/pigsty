@@ -3,8 +3,6 @@
 > Tune nodes into the desired state and monitor it.
 
 
-
-
 ----------------
 
 ## Concept
