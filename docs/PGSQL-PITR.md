@@ -2,13 +2,13 @@
 
 > Pigsty uses [pgBackRest](https://pgbackrest.org/) for PITR backup & restore.
 
-In the case of a hardware failure, a physical replica failover could be the best choice. whereas for data corruption scenarios (whether machine or human in origin), Point-in-Time Recovery (PITR) is often more appropriate.
+In the case of a hardware failure, a physical replica failover could be the best choice. Whereas for data corruption scenarios (whether machine or human errors), Point-in-Time Recovery (PITR) is often more appropriate.
 
 
 
 ## Backup
 
-Use the following command to perform [backup](https://pgbackrest.org/command.html#command-backup):
+Use the following command to perform the [backup](https://pgbackrest.org/command.html#command-backup):
 
 ```bash
 # stanza name = {{ pg_cluster }} by default
@@ -26,6 +26,9 @@ Use the following command to print backup info:
 ```bash
 pb info  # print backup info
 ```
+
+You can also acquire backup info from the monitoring system: [PGCAT Instance - Backup](http://demo.pigsty.cc/d/pgcat-instance/pgcat-instance?from=now-1h&to=now&var-job=pgsql&var-ds=Prometheus&orgId=1&viewPanel=158)
+
 
 <details><summary>Backup Info Example</summary>
 
@@ -79,34 +82,47 @@ pg-pitr -l "0/7C82CB8" -X               # pgbackrest --stanza=pg-meta --type=lsn
 pg-pitr -x 1234567 -X -P                # pgbackrest --stanza=pg-meta --type=xid --target="0/7C82CB8" --target-exclusive --target-action=promote restore
 ```
 
+The `pg-pitr` script will generate instructions for you to perform PITR. 
 
-
-```bash
-# restore to the latest available point (e.g. hardware failure)
-pgbackrest --stanza=pg-meta restore
-
-# PITR to specific time point (e.g. drop table by accident)
-pgbackrest --stanza=pg-meta --type=time --target="2022-11-08 10:58:48" \
-   --target-action=promote restore
-
-# restore specific backup point and then promote (or pause|shutdown)
-pgbackrest --stanza=pg-meta --type=immediate --target-action=promote \
-  --set=20221108-105325F_20221108-105938I restore
-```
-
-Note: you have to stop postgres & patroni before restore, and start them after restore.
+For example, if you wish to rollback current cluster status back to `"2023-02-07 12:38:00+08"`:
 
 ```bash
-pg-dw      # sudo systemctl stop patroni
-pg-stop    # pg_ctl -D /pg/data stop
-pg-s       # print postgres status
-<restore>  # perform pgbackrest restore
-pg-start   # pg_ctl -D /pg/data start
-pg-up      # sudo systemctl start patroni
+$ pg-pitr -t "2023-02-07 12:38:00+08"
+pgbackrest --stanza=pg-meta --type=time --target='2023-02-07 12:38:00+08' restore
+Perform time PITR on pg-meta
+[1. Stop PostgreSQL] ===========================================
+   1.1 Pause Patroni (if there are any replicas)
+       $ pg pause <cls>  # pause patroni auto failover
+   1.2 Shutdown Patroni
+       $ pt-stop         # sudo systemctl stop patroni
+   1.3 Shutdown Postgres
+       $ pg-stop         # pg_ctl -D /pg/data stop -m fast
+
+[2. Perform PITR] ===========================================
+   2.1 Restore Backup
+       $ pgbackrest --stanza=pg-meta --type=time --target='2023-02-07 12:38:00+08' restore
+   2.2 Start PG to Replay WAL
+       $ pg-start        # pg_ctl -D /pg/data start
+   2.3 Validate and Promote
+     - If database content is ok, promote it to finish recovery, otherwise goto 2.1
+       $ pg-promote      # pg_ctl -D /pg/data promote
+
+[3. Restart Patroni] ===========================================
+   3.1 Start Patroni
+       $ pt-start;        # sudo systemctl start patroni
+   3.2 Enable Archive Again
+       $ psql -c 'ALTER SYSTEM SET archive_mode = on; SELECT pg_reload_conf();'
+   3.3 Restart Patroni
+       $ pt-restart      # sudo systemctl start patroni
+
+[4. Restore Cluster] ===========================================
+   3.1 Re-Init All Replicas (if any replicas)
+       $ pg reinit <cls> <ins>
+   3.2 Resume Patroni
+       $ pg resume <cls> # resume patroni auto failover
+   3.2 Make Full Backup (optional)
+       $ pg-backup full  # pgbackrest --stanza=pg-meta backup --type=full
 ```
-
-There is an util script `/pg/bin/pg-pitr` which will wrap `pgbackrest restore` and generate PITR manaul:
-
 
 
 
@@ -116,20 +132,20 @@ There is an util script `/pg/bin/pg-pitr` which will wrap `pgbackrest restore` a
 
 You can customize your backup policy with [`node_crontab`](PARAM#node_crontab) and [`pgbackrest_repo`](PARAM#pgbackrest_repo)
 
-* schedule full or incr backup with [`node_crontab`](PARAM#node_crontab)
-* setup backup retension policy with [`pgbackrest_repo`](PARAM#pgbackrest_repo)
+* Schedule full or incr backup with [`node_crontab`](PARAM#node_crontab)
+* setup backup retention policy with [`pgbackrest_repo`](PARAM#pgbackrest_repo)
 
 
 **local repo**
 
-For example, the default `pg-meta` will take a full backup every day 1 am
+For example, the default `pg-meta` will take a full backup every day at 1 am.
 
 ```
 node_crontab:  # make a full backup 1 am everyday
   - '00 01 * * * postgres /pg/bin/pg-backup full'
 ```
 
-With the default local repo retention policy, it will keep at most 2 full backups, and temporary allow 3 during backup.
+With the default local repo retention policy, it will keep at most two full backups and temporarily allow three during backup.
 
 ```yaml
 pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
@@ -139,14 +155,13 @@ pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/conf
     retention_full: 2             # keep 2, at most 3 full backup when using local fs repo
 ```
 
-Beware, this means your backup disk storage should be at least 3 times than the database file size.
+Your backup disk storage should be at least three x database file size + WAL archive in 3 days.
 
+**MinIO repo**
 
-**minio repo**
+When using MinIO, storage capacity is usually not a problem. You can keep backups as long as you want.
 
-When using minio, storage capacity is usually not a problem, you can keep backups as long as you want.
-
-For example, the default `pg-test` will take a full backup on monday, and incr backup on other weekdays
+For example, the default `pg-test` will take a full backup on Monday and incr backup on other weekdays.
 
 ```yaml
 node_crontab:  # make a full backup 1 am everyday
@@ -154,7 +169,7 @@ node_crontab:  # make a full backup 1 am everyday
   - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
 ```
 
-And with a 14 day time retention policy, backup in last two weeks will be kept. but beware this guarteen a week's PITR period.
+And with a 14-day time retention policy, backup in the last two weeks will be kept. But beware, this guarantees a week's PITR period only.
 
 ```yaml
 pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository=

@@ -1,8 +1,8 @@
 # PGSQL Database
 
-> In this context, Database refers to object created by SQL `CREATE DATABASE`.
+> In this context, Database refers to the object created by SQL `CREATE DATABASE`.
 
-A postgres server can serve multiple databases simultaneously. And you can customize each database with Pigsty API. 
+A PostgreSQL server can serve multiple databases simultaneously. And you can customize each database with Pigsty API. 
 
 
 
@@ -10,7 +10,9 @@ A postgres server can serve multiple databases simultaneously. And you can custo
 
 ## Define Database
 
-Business databases are defined by [`pg_databases`](PARAM#pg_databases), which is a cluster-level parameter, for example, the default `meta` database is defined in the `pg-meta` cluster:
+Business databases are defined by [`pg_databases`](PARAM#pg_databases), which is a cluster-level parameter. 
+
+For example, the default `meta` database is defined in the `pg-meta` cluster:
 
 ```yaml
 pg-meta:
@@ -110,7 +112,7 @@ The Pgbouncer database list will be updated when [create database](#create-datab
 
 To access pgbouncer administration functionality, you can use the `pgb` alias as dbsu.
 
-There's a util function defined in `/etc/profile.d/pg-alias.sh`, that can allow you to reroute pgbouncer database traffic to a new host quickly, which can be used during zero-downtime migration.
+There's a util function defined in `/etc/profile.d/pg-alias.sh`, allowing you to reroute pgbouncer database traffic to a new host quickly, which can be used during zero-downtime migration.
 
 ```bash
 # route pgbouncer traffic to another cluster member
