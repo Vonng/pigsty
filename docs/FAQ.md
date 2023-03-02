@@ -253,6 +253,21 @@ ansible all -b -a 'yum remove -y nscd'
 
 
 
+<br>
+
+<details><summary>Ansible command timeout (Timeout waiting for xxx）</summary>
+
+The default ssh timeout for ansible command is 10 seconds, some commands may take longer than that due to network latency or other reasons. 
+
+You can increase the timeout parameter in the ansible config file [`ansible.cfg`](https://github.com/Vonng/pigsty/blob/master/ansible.cfg):
+
+```ini
+[defaults]
+timeout = 10 # change to 60,120 or more
+```
+
+</details>
+
 
 
 

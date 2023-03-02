@@ -39,17 +39,19 @@
 Get pigsty v2.0.0 via the following command:
 
 ```bash
-curl -fsSL http://download.pigsty.cc/get) | bash
+curl -fsSL http://download.pigsty.cc/get | bash
 ```
 
 <details><summary>Download directly from GitHub Release</summary>
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
-
-# or download tarball directly with curl (EL9)
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-v2.0.0.tgz -o ~/pigsty.tgz
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el9.x86_64.tgz  -o /tmp/pkg.tgz
+
+# or using git if curl not available
+git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.0.0
+
+# use corresponding pkg.tgz for EL7 and EL8
 # EL7: https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el7.x86_64.tgz
 # EL8: https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el8.x86_64.tgz
 ```

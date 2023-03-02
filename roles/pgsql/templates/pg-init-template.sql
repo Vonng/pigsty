@@ -393,7 +393,7 @@ CREATE TYPE monitor.log_level AS ENUM (
 COMMENT ON TYPE monitor.log_level IS 'PostgreSQL Log Level';
 
 -- current log
-DROP FOREIGN TABLE monitor.pg_log;
+DROP FOREIGN TABLE IF EXISTS monitor.pg_log;
 CREATE FOREIGN TABLE monitor.pg_log
     (
         ts        TIMESTAMPTZ, -- ts
