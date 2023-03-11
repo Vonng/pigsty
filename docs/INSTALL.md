@@ -16,6 +16,8 @@ cd ~/pigsty   # get pigsty source and entering dir
 
 Then you will have a pigsty singleton node ready, with Web Services on port `80` and Postgres on port `5432`.
 
+[![asciicast](https://asciinema.org/a/566220.svg)](https://asciinema.org/a/566220)
+
 <details><summary>Download via Git</summary>
 
 You can also download pigsty source with `git`, don't forget to checkout a specific version.

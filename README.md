@@ -28,7 +28,7 @@ Pigsty is a **Me-Better Open Source RDS Alternative** with:
 
 [![pigsty-distro](https://user-images.githubusercontent.com/8587410/206971964-0035bbca-889e-44fc-9b0d-640d34573a95.gif)](docs/FEATURE.md)
 
-Check [**Feature**](docs/FEATURE.md) for details.
+Check [**Feature**](docs/FEATURE.md) and [**Demo**](http://demo.pigsty.cc) for details.
 
 
 
@@ -44,6 +44,8 @@ Prepare a new node with Linux x86_64 EL 7/8/9 compatible OS, then run as a **sud
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)";
 cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 ```
+
+[![asciicast](https://asciinema.org/a/566220.svg)](https://asciinema.org/a/566220)
 
 Then you will have a pigsty singleton node ready, with Web Services on port `80` and Postgres on port `5432`.
 

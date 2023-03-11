@@ -90,6 +90,13 @@ bin/node-add <cls>                # init nodes for cluster <cls>           # ./n
 bin/pgsql-add <cls>               # init pgsql instances of cluster <cls>  # ./pgsql.yml -l <cls>
 ```
 
+<details><summary>Example: Create Cluster</summary>
+
+[![asciicast](https://asciinema.org/a/566417.svg)](https://asciinema.org/a/566417)
+
+</details>
+
+
 
 
 ## Create User
@@ -194,6 +201,8 @@ Cluster services will be [reloaded](#reload-service) to adopt the new member
 
 <details><summary>Example: Add replica to pg-test </summary>
 
+[![asciicast](https://asciinema.org/a/566421.svg)](https://asciinema.org/a/566421)
+
 For example, if you want to add a `pg-test-3 / 10.10.10.13` to the existing cluster `pg-test`, you'll have to update the inventory first:
 
 ```bash
@@ -244,6 +253,8 @@ Cluster services will be [reloaded](#reload-service) to kick the removed instanc
 
 <details><summary>Example: Remove replica from pg-test </summary>
 
+[![asciicast](https://asciinema.org/a/566419.svg)](https://asciinema.org/a/566419)
+
 For example, if you want to remove `pg-test-3 / 10.10.10.13` from the existing cluster `pg-test`:
 
 ```bash
@@ -289,6 +300,12 @@ To remove the entire Postgres cluster, just run:
 bin/pgsql-rm <cls>                # ./pgsql-rm.yml -l <cls>
 ```
 
+<details><summary>Example: Remove Cluster</summary>
+
+[![asciicast](https://asciinema.org/a/566418.svg)](https://asciinema.org/a/566418)
+
+</details>
+
 <details><summary>Example: Force removing a cluster</summary>
 
 Note: if [`pg_safeguard`](PARAM#pg_safeguard) is configured for this cluster (or globally configured to `true`), `pgsql-rm.yml` will abort to avoid removing a cluster by accident.
@@ -305,8 +322,6 @@ You can use playbook command line args to explicitly overwrite it to force the p
 
 
 
-
-
 ## Switchover
 
 You can perform a PostgreSQL cluster switchover with patroni cmd.
@@ -316,6 +331,8 @@ pg switchover <cls>
 ```
 
 <details><summary>Example: Switchover pg-test</summary>
+
+[![asciicast](https://asciinema.org/a/566248.svg)](https://asciinema.org/a/566248)
 
 ```bash
 $ pg switchover pg-test
@@ -370,7 +387,6 @@ curl -u 'postgres:Patroni.API' \
   -d '{"leader":"pg-test-2", "candidate": "pg-test-1","scheduled_at":"2022-12-26T14:47+08"}' \
   -s -X POST http://10.10.10.11:8008/switchover
 ```
-
 
 </details>
 
