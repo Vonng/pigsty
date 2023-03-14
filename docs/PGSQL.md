@@ -49,6 +49,21 @@
 - [`pgsql-monitor.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-monitor.yml)     : Monitor remote postgres instance with local exporters
 - [`pgsql-migration.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml) : Generate Migration manual & scripts for existing PostgreSQL
 
+<details><summary>Example: Install PGSQL module</summary>
+
+[![asciicast](https://asciinema.org/a/566417.svg)](https://asciinema.org/a/566417)
+
+</details>
+
+
+<details><summary>Example: Remove PGSQL module</summary>
+
+[![asciicast](https://asciinema.org/a/566418.svg)](https://asciinema.org/a/566418)
+
+</details>
+
+
+
 
 ## Dashboards
 
