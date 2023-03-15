@@ -101,7 +101,7 @@
             owner: root
             content: |
               #!/bin/bash
-              /bin/redis-cli --cluster create --cluster-yes \
+              /bin/redis-cli {% if redis_password is defined and redis_password != '' %}-a {{ redis_password }}{% endif %} --cluster create --cluster-yes \
               {% for node in redis_cluster_members %}
               {% for port in node.redis_instances %}
                 {{ node.inventory_hostname }}:{{ port }} \
