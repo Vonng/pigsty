@@ -379,6 +379,8 @@ bootstrap:
         log_replication_commands: on            # log replication info
         log_statement: ddl                      # log ddl change
         log_min_duration_statement: 100         # log slow query (>100ms)
+        log_connections: on                     # log conn for compliance
+        log_disconnections: on                  # log disconn for compliance
 
         #------------------------------------------------------#
         # STATISTICS
@@ -409,7 +411,7 @@ bootstrap:
         # CUSTOMIZED OPTIONS
         #------------------------------------------------------#
         # extensions
-        shared_preload_libraries: '{{ pg_libs | default("pg_stat_statements, auto_explain") }}'
+        shared_preload_libraries: '{{ pg_libs | default("$libdir/passwordcheck, pg_stat_statements, auto_explain") }}'
 
         # auto_explain
         auto_explain.log_min_duration: 1s       # auto explain query slower than 1s

@@ -1,9 +1,9 @@
 ---
 #==============================================================#
 # File      :   security.yml
-# Desc      :   Pigsty security enhancement configuration
+# Desc      :   Pigsty security enhance template
 # Ctime     :   2020-05-22
-# Mtime     :   2023-02-26
+# Mtime     :   2023-03-17
 # Docs      :   https://vonng.github.io/pigsty/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -11,11 +11,15 @@
 
 
 # SECURITY ENHANCEMENT MODE
-#   * 3 node autonomous cluster with one delayed instance example
-#   * use crit templates, no data loss, checksum force enabled
-#   * use at least 3 dcs nodes, and enable ssl for etcd & consul
-#   * enforce ssl on postgres & pgbouncer
-#   * use a l2 vip for pgsql cluster
+#   * 3 infra nodes, 3 etcd nodes, single minio node
+#   * 3-instance pgsql cluster with an extra delayed instance
+#   * crit.yml templates, no data loss, checksum enforced
+#   * enforce ssl on postgres & pgbouncer, use postgres by default
+#   * enforce an expiration date for all users (20 years by default)
+#   * enforce strong password policy with passwordcheck extension
+#   * enforce changing default password for all users
+#   * log connections and disconnections
+#   * restrict listen ip address for postgres/patroni/pgbouncer
 
 
 all:
@@ -51,8 +55,8 @@ all:
         pg_cluster: pg-meta
         pg_conf: crit.yml
         pg_users:
-          - { name: dbuser_meta , password: DBUser.Meta   , pgbouncer: true , roles: [ dbrole_admin ] , comment: pigsty admin user }
-          - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
+          - { name: dbuser_meta , password: Pleas3-ChangeThisPwd ,expire_in: 7300 ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
+          - { name: dbuser_view , password: Make.3ure-Compl1ance  ,expire_in: 7300 ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
         pg_databases:
           - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
         pg_services:
@@ -76,22 +80,34 @@ all:
     region: default                   # upstream mirror region: default|china|europe
     patroni_ssl_enabled: true         # secure patroni RestAPI communications with SSL?
     pgbouncer_sslmode: require        # pgbouncer client ssl mode: disable|allow|prefer|require|verify-ca|verify-full, disable by default
+    pg_default_service_dest: postgres # default service destination to postgres instead of pgbouncer
     pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
 
-    # WARNING: CHANGE THESE PASSWORDS
     #grafana_admin_username: admin
-    grafana_admin_password: pigsty
+    grafana_admin_password: You.Have2Use-A_VeryStrongPassword
     #pg_admin_username: dbuser_dba
-    pg_admin_password: DBUser.DBA
+    pg_admin_password: PessWorb.Should8eStrong-eNough
     #pg_monitor_username: dbuser_monitor
-    pg_monitor_password: DBUser.Monitor
+    pg_monitor_password: MekeSuerYour.PassWordI5secured
     #pg_replication_username: replicator
-    pg_replication_password: DBUser.Replicator
+    pg_replication_password: doNotUseThis-PasswordFor.AnythingElse
     #patroni_username: postgres
-    patroni_password: Patroni.API
+    patroni_password: don.t-forget-to-change-thEs3-password
     #haproxy_admin_username: admin
-    haproxy_admin_password: pigsty
+    haproxy_admin_password: GneratePasswordWith-pwgen-s-16-1
 
+    # add passwordcheck extension to enforce strong password
+    pg_libs: 'timescaledb, $libdir/passwordcheck, pg_stat_statements, auto_explain'
+
+    pg_default_roles:                 # default roles and users in postgres cluster
+      - { name: dbrole_readonly  ,login: false ,comment: role for global read-only access     }
+      - { name: dbrole_offline   ,login: false ,comment: role for restricted read-only access }
+      - { name: dbrole_readwrite ,login: false ,roles: [dbrole_readonly]               ,comment: role for global read-write access }
+      - { name: dbrole_admin     ,login: false ,roles: [pg_monitor, dbrole_readwrite]  ,comment: role for object creation }
+      - { name: postgres     ,superuser: true  ,expire_in: 7300                        ,comment: system superuser }
+      - { name: replicator ,replication: true  ,expire_in: 7300 ,roles: [pg_monitor, dbrole_readonly]   ,comment: system replicator }
+      - { name: dbuser_dba   ,superuser: true  ,expire_in: 7300 ,roles: [dbrole_admin]  ,pgbouncer: true ,pool_mode: session, pool_connlimit: 16 , comment: pgsql admin user }
+      - { name: dbuser_monitor   ,roles: [pg_monitor] ,expire_in: 7300 ,pgbouncer: true ,parameters: {log_min_duration_statement: 1000 } ,pool_mode: session ,pool_connlimit: 8 ,comment: pgsql monitor user }
     pg_default_hba_rules:             # postgres host-based auth rules by default
       - {user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident'  }
       - {user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident' }
@@ -101,7 +117,7 @@ all:
       - {user: '${monitor}' ,db: all         ,addr: localhost ,auth: pwd   ,title: 'monitor from localhost with password' }
       - {user: '${monitor}' ,db: all         ,addr: infra     ,auth: ssl   ,title: 'monitor from infra host with password'}
       - {user: '${admin}'   ,db: all         ,addr: infra     ,auth: ssl   ,title: 'admin @ infra nodes with pwd & ssl'   }
-      - {user: '${admin}'   ,db: all         ,addr: world     ,auth: ssl   ,title: 'admin @ everywhere with ssl & cert'   }
+      - {user: '${admin}'   ,db: all         ,addr: world     ,auth: cert  ,title: 'admin @ everywhere with ssl & cert'   }
       - {user: '+dbrole_readonly',db: all    ,addr: localhost ,auth: ssl   ,title: 'pgbouncer read/write via local socket'}
       - {user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: ssl   ,title: 'read/write biz user via password'     }
       - {user: '+dbrole_offline' ,db: all    ,addr: intra     ,auth: ssl   ,title: 'allow etl offline tasks from intranet'}
