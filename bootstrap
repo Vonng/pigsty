@@ -3,7 +3,7 @@
 # File      :   bootstrap
 # Desc      :   setup local repo & install boot utils
 # Ctime     :   2022-10-16
-# Mtime     :   2023-02-26
+# Mtime     :   2023-03-17
 # Path      :   bootstrap
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -408,6 +408,10 @@ function check_utils(){
         sudo dnf install -y createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools
         sudo dnf install -y ansible python3-jmespath
     fi
+
+    # restore backup repo ?
+    sudo cp -f /etc/yum.repos.d/backup/*.repo /etc/yum.repos.d/ 2> /dev/null || true
+
     # check ansible is installed
     if command -v ansible-playbook >/dev/null ; then
         log_info "ansible = $(ansible --version | head -n1)"
