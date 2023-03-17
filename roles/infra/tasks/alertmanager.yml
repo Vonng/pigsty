@@ -22,7 +22,8 @@
       copy:
         dest: /etc/default/alertmanager
         content: |
-          ALERTMANAGER_OPTS="--config.file=/etc/alertmanager.yml --storage.path={{ prometheus_data }}/alertmanager {{ alertmanager_options }}"
+          ALERTMANAGER_OPTS="--config.file=/etc/alertmanager.yml --cluster.advertise-address=0.0.0.0:9093 --storage.path={{ prometheus_data }}/alertmanager {{ alertmanager_options }}"
+
 
 #--------------------------------------------------------------#
 # Launch AlertManager                      [alertmanager_launch]
@@ -31,9 +32,10 @@
 - name: launch alertmanager
   tags: alertmanager_launch
   when: alertmanager_enabled|bool
+  ignore_errors: yes
   block:
     - name: launch alertmanager systemd service
-      systemd: name=alertmanager state=restarted enabled=yes daemon_reload=yes
+      systemd: name=alertmanager state=restarted enabled=yes daemon_reload=yes no_block=yes
     - name: wait for alertmanager service online
-      wait_for: host=127.0.0.1 port=9093 state=started
+      wait_for: host=127.0.0.1 port=9093 state=started timeout=5
 ...
