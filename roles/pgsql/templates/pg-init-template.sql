@@ -183,6 +183,8 @@ FROM (
 WHERE NOT is_na;
 COMMENT ON VIEW monitor.pg_table_bloat IS 'postgres table bloat estimate';
 
+GRANT SELECT ON monitor.pg_table_bloat TO pg_monitor;
+
 ----------------------------------------------------------------------
 -- Index bloat estimate : monitor.pg_index_bloat
 ----------------------------------------------------------------------
@@ -227,6 +229,7 @@ FROM (
      ) est;
 COMMENT ON VIEW monitor.pg_index_bloat IS 'postgres index bloat estimate (btree-only)';
 
+GRANT SELECT ON monitor.pg_index_bloat TO pg_monitor;
 
 ----------------------------------------------------------------------
 -- Relation Bloat : monitor.pg_bloat
@@ -249,7 +252,7 @@ FROM monitor.pg_index_bloat ib
          FULL OUTER JOIN monitor.pg_table_bloat tb ON ib.tblid = tb.tblid;
 
 COMMENT ON VIEW monitor.pg_bloat IS 'postgres relation bloat detail';
-
+GRANT SELECT ON monitor.pg_bloat TO pg_monitor;
 
 ----------------------------------------------------------------------
 -- monitor.pg_index_bloat_human
@@ -268,6 +271,8 @@ SELECT idxname                            AS name,
 FROM monitor.pg_bloat
 WHERE idxname IS NOT NULL;
 COMMENT ON VIEW monitor.pg_index_bloat_human IS 'postgres index bloat info in human-readable format';
+GRANT SELECT ON monitor.pg_index_bloat_human TO pg_monitor;
+
 
 ----------------------------------------------------------------------
 -- monitor.pg_table_bloat_human
@@ -296,7 +301,7 @@ FROM (SELECT datname,
       GROUP BY 1, 2, 3
      ) d;
 COMMENT ON VIEW monitor.pg_table_bloat_human IS 'postgres table bloat info in human-readable format';
-
+GRANT SELECT ON monitor.pg_table_bloat_human TO pg_monitor;
 
 
 ----------------------------------------------------------------------
@@ -323,6 +328,7 @@ FROM (
          ORDER BY 1 NULLS FIRST
      ) t;
 COMMENT ON VIEW monitor.pg_session IS 'postgres activity group by session';
+GRANT SELECT ON monitor.pg_session TO pg_monitor;
 
 
 ----------------------------------------------------------------------
@@ -343,6 +349,7 @@ CREATE OR REPLACE VIEW monitor.pg_seq_scan AS
       and (n_live_tup + n_dead_tup) > 0
     ORDER BY seq_scan DESC;
 COMMENT ON VIEW monitor.pg_seq_scan IS 'table that have seq scan';
+GRANT SELECT ON monitor.pg_seq_scan TO pg_monitor;
 
 
 --==================================================================--
@@ -552,6 +559,13 @@ CREATE FOREIGN TABLE monitor.process_status (
 ps aux | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,substr($0,index($0,$11))}' OFS='\037'
 $$ , FORMAT 'csv', DELIMITER E'\037', HEADER 'TRUE');
 
+REVOKE ALL ON monitor.process_status FROM PUBLIC;
+REVOKE ALL ON monitor.process_status FROM dbrole_offline;
+REVOKE ALL ON monitor.process_status FROM dbrole_readonly;
+REVOKE ALL ON monitor.process_status FROM dbrole_readwrite;
+GRANT SELECT ON monitor.process_status TO pg_monitor;
+
+
 -- get disk usage
 DROP FOREIGN TABLE IF EXISTS monitor.disk_free CASCADE;
 CREATE FOREIGN TABLE monitor.disk_free (
@@ -571,6 +585,12 @@ df -ml --output=source,fstype,size,used,avail,pcent,itotal,iused,iavail,ipcent,t
 $$,
 FORMAT 'csv', DELIMITER E'\037'
 );
+
+REVOKE ALL ON monitor.disk_free FROM PUBLIC;
+REVOKE ALL ON monitor.disk_free FROM dbrole_offline;
+REVOKE ALL ON monitor.disk_free FROM dbrole_readonly;
+REVOKE ALL ON monitor.disk_free FROM dbrole_readwrite;
+GRANT SELECT ON monitor.disk_free TO pg_monitor;
 
 --==================================================================--
 --                          Customize Logic                         --
