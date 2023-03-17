@@ -1,5 +1,12 @@
 ---
 #--------------------------------------------------------------#
+# Install Grafana                              [grafana_install]
+#--------------------------------------------------------------#
+#- name: make sure grafana installed
+#  tags: grafana_install
+#  package: name=grafana state=present
+
+#--------------------------------------------------------------#
 # Cleanup Grafana                                [grafana_clean]
 #--------------------------------------------------------------#
 - name: cleanup grafana data and config
@@ -8,9 +15,10 @@
   ignore_errors: true
   block:
 
-    - name: stop grafana service
+    - name: Stop grafana service
+      ignore_errors: true
       tags: grafana_stop
-      shell: systemctl daemon-reload; systemctl stop grafana-server; systemctl stop grafana; /bin/true
+      systemd: name=grafana-server state=stopped enabled=yes daemon_reload=yes
 
     - name: remove grafana config
       tags: grafana_rmconf
@@ -18,11 +26,11 @@
       with_items:
         - /etc/grafana/provisioning/dashboards/pigsty.yml
         - /etc/grafana/provisioning/datasources/pigsty.yml
-        - /usr/lib/systemd/system/grafana-server.service
 
     - name: remove grafana data
       tags: grafana_rmdata
       file: path=/var/lib/grafana/grafana.db state=absent
+
 
 #--------------------------------------------------------------#
 # Create Grafana Dir                               [grafana_dir]
@@ -44,8 +52,9 @@
   tags: grafana_config
   block:
 
-    - name: copy grafana systemd service
-      copy: src=grafana.service dest=/usr/lib/systemd/system/grafana.service
+    # Use RPM default config
+    # - name: copy grafana systemd service
+    #   copy: src=grafana.service dest=/usr/lib/systemd/system/grafana-server.service
 
     - name: render /etc/grafana/grafana.ini
       template: src=grafana/grafana.ini.j2 dest=/etc/grafana/grafana.ini owner=grafana group=grafana
@@ -104,7 +113,7 @@
   when: grafana_enabled|bool
   block:
     - name: launch grafana systemd service
-      systemd: name=grafana state=restarted enabled=yes daemon_reload=yes
+      systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
     - name: wait for grafana service online
       wait_for: host=127.0.0.1 port=3000 state=started
 
@@ -120,11 +129,7 @@
     # sync files/grafana @ local -> /etc/dashboards @ infra
     - name: sync grafana dashboards
       tags: dashboard_sync
-      synchronize:
-        src: grafana/
-        owner: no
-        group: no
-        dest: /etc/pigsty/dashboards/
+      copy: src=grafana/ dest=/etc/pigsty/dashboards/
 
     - name: provisioning grafana with grafana.py
       when: inventory_hostname in groups["infra"]
@@ -147,6 +152,6 @@
         # run provisioning logic
         cd /etc/pigsty/dashboards/
         chown -R root:root /etc/pigsty/dashboards/
-        /etc/pigsty/dashboards/grafana.py init /etc/pigsty/dashboards/
+        python /etc/pigsty/dashboards/grafana.py init /etc/pigsty/dashboards/
 
 ...
