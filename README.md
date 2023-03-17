@@ -6,9 +6,7 @@
 
 Get started with: `curl -fsSL http://download.pigsty.cc/get | bash`
 
-[![icon](docs/icon.svg)](https://pigsty.cc)
-
-> Latest Release: [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)  |  [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/) |  [Website](https://pigsty.cc/en/)
+Latest Release: [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)  |  [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/) |  [Website](https://pigsty.cc/en/)
 
 [![pigsty-banner](https://user-images.githubusercontent.com/8587410/206971422-deb6dd88-c89e-43e4-8130-cf32a24b07b9.jpg)](https://pigsty.cc/en/)
 
@@ -28,8 +26,7 @@ Pigsty is a **Me-Better Open Source RDS Alternative** with:
 
 [![pigsty-distro](https://user-images.githubusercontent.com/8587410/206971964-0035bbca-889e-44fc-9b0d-640d34573a95.gif)](docs/FEATURE.md)
 
-Check [**Feature**](docs/FEATURE.md) and [**Demo**](http://demo.pigsty.cc) for details.
-
+Check [**Feature**](docs/FEATURE.md) / [亮点特性](docs/FEATURE_ZH.md) and [**Demo**](http://demo.pigsty.cc) for details.
 
 
 
@@ -45,29 +42,73 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/get)";
 cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 ```
 
-[![asciicast](https://asciinema.org/a/566220.svg)](https://asciinema.org/a/566220)
-
 Then you will have a pigsty singleton node ready, with Web Services on port `80` and Postgres on port `5432`.
 
-<details><summary>Download Directly</summary>
-
-You can also download pigsty source and packages with `git` or `curl` directly:
+<details><summary>Download with Get</summary>
 
 ```bash
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-v2.0.0.tgz -o ~/pigsty.tgz
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el9.x86_64.tgz  -o /tmp/pkg.tgz
-
-# or using git if curl not available
-git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.0.0
-
-# use corresponding pkg.tgz for EL7 and EL8
-# EL7: https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el7.x86_64.tgz
-# EL8: https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el8.x86_64.tgz
+$ curl http://download.pigsty.cc/get | bash
+...
+[Checking] ===========================================
+[ OK ] SOURCE from CDN due to GFW
+FROM CDN    : bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
+FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
+[Downloading] ===========================================
+[ OK ] download pigsty source code from CDN
+[ OK ] $ curl -SL http://download.pigsty.cc/v2.0.0/pigsty-v2.0.0.tgz
+...
+MD5: 78a6ae5ff9ab0b8aa3848805aeadd1d8  /tmp/pigsty-v2.0.0.tgz
+[Extracting] ===========================================
+[ OK ] extract '/tmp/pigsty-v2.0.0.tgz' to '/root/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.0.0.tgz -C ~;
+cd ~/pigsty      # entering pigsty home directory before proceeding
+[Proceeding] ===========================================
+./bootstrap      # install ansible & download the optional offline packages
+./configure      # preflight-check and generate config according to your env
+./install.yml    # install pigsty on this node and init it as the admin node
+[Reference] ===========================================
+Get Started:     https://vonng.github.io/pigsty/#/INSTALL
+Documentation:   https://vonng.github.io/pigsty
+Github Repo:     https://github.com/Vonng/pigsty
+Public Demo:     http://demo.pigsty.cc
+Official Site:   https://pigsty.cc
 ```
 
 </details>
 
-Check [**Installation**](docs/INSTALL.md) for details.
+
+<details><summary>Download with Git</summary>
+
+You can also download pigsty source with `git`, don't forget to checkout a specific version.
+
+```bash
+git clone https://github.com/Vonng/pigsty;
+cd pigsty; git checkout v2.0.0
+```
+
+</details>
+
+
+<details><summary>Download Directly</summary>
+
+You can also download pigsty source & offline pkgs directly from GitHub release page.
+
+```bash
+# get from GitHub
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
+
+# or download tarball directly with curl
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-v2.0.0.tgz -o ~/pigsty.tgz                 # SRC
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
+```
+
+</details>
+
+[![asciicast](https://asciinema.org/a/566220.svg)](https://asciinema.org/a/566220)
+
+Check [**Installation**](docs/INSTALL.md) / [安装部署](docs/INSTALL_ZH.md) for details.
 
 
 
@@ -350,7 +391,7 @@ WeChat: Search `pigsty-cc` to join the WeChat group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/wDzt5VyWEzr
+Discord: https://discord.gg/sfBqv7S5
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 

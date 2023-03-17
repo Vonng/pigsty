@@ -1,6 +1,7 @@
 # Get Started
 
-> It takes four steps to install Pigsty: [Download](#download), [Bootstrap](#bootstrap), [Configure](#configure) and [Install](#install).
+> [中文/ZH](INSTALL_ZH.md) : Install Pigsty with 4 steps: [Download](#download), [Bootstrap](#bootstrap), [Configure](#configure) and [Install](#install).
+
 
 ## Short Version
 
@@ -18,7 +19,41 @@ Then you will have a pigsty singleton node ready, with Web Services on port `80`
 
 [![asciicast](https://asciinema.org/a/566220.svg)](https://asciinema.org/a/566220)
 
-<details><summary>Download via Git</summary>
+
+<details><summary>Download with Get</summary>
+
+```bash
+$ curl http://download.pigsty.cc/get | bash
+...
+[Checking] ===========================================
+[ OK ] SOURCE from CDN due to GFW
+FROM CDN    : bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
+FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
+[Downloading] ===========================================
+[ OK ] download pigsty source code from CDN
+[ OK ] $ curl -SL http://download.pigsty.cc/v2.0.0/pigsty-v2.0.0.tgz
+...
+MD5: 78a6ae5ff9ab0b8aa3848805aeadd1d8  /tmp/pigsty-v2.0.0.tgz
+[Extracting] ===========================================
+[ OK ] extract '/tmp/pigsty-v2.0.0.tgz' to '/root/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.0.0.tgz -C ~;
+cd ~/pigsty      # entering pigsty home directory before proceeding
+[Proceeding] ===========================================
+./bootstrap      # install ansible & download the optional offline packages
+./configure      # preflight-check and generate config according to your env
+./install.yml    # install pigsty on this node and init it as the admin node
+[Reference] ===========================================
+Get Started:     https://vonng.github.io/pigsty/#/INSTALL
+Documentation:   https://vonng.github.io/pigsty
+Github Repo:     https://github.com/Vonng/pigsty
+Public Demo:     http://demo.pigsty.cc
+Official Site:   https://pigsty.cc
+```
+
+</details>
+
+
+<details><summary>Download with Git</summary>
 
 You can also download pigsty source with `git`, don't forget to checkout a specific version.
 
@@ -28,6 +63,25 @@ cd pigsty; git checkout v2.0.0
 ```
 
 </details>
+
+
+<details><summary>Download Directly</summary>
+
+You can also download pigsty source & offline pkgs directly from GitHub release page. 
+
+```bash
+# get from GitHub
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
+
+# or download tarball directly with curl
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-v2.0.0.tgz -o ~/pigsty.tgz                 # SRC
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
+```
+
+</details>
+
 
 
 
@@ -40,20 +94,20 @@ cd pigsty; git checkout v2.0.0
 * Linux RHEL or other compatible distributions
 * Vendor: RHEL, CentOS, Rocky, AlmaLinux, ...
 * Version: el7, el8, el9
+* Please use fresh nodes for installation to avoid unexpected issues 
+* It's recommended to RockeyLinux 9 and CentOS 7.9 for production use
 
 **Node**
 
-* `x86_64` architecture (`aarch64` is not officially supported)
-* 1 core & 1 GB RAM (at least 2C/4G is recommended for meta node)
-* nopass `ssh` access to `root` or any sudo-able user
+* `x86_64` architecture (`aarch64/arm64` is not officially supported yet)
+* 1 core & 1 GB RAM (at least 2GB mem for the admin node)
+* nopass `ssh` access to `root` or any sudo-able user on target nodes (including current node)
+* At least 3 nodes for a serious HA deployment, or 2 nodes with some limitations
 
 **Ansible**
 
 * Ansible is required and will be installed during [`bootstrap`](#bootstrap) procedure
 * You can also manually install with `yum,` and `epel-release` enabled
-
-> HINT: **Recommended Releases** are CentOS 7.9 / RockyLinux 8.6 / RockyLinux 9.0, which are tested and verified.
-
 
 
 

@@ -2,7 +2,8 @@
 
 | Version         |    Time    | Description                                             | Release                                                                                   |
 |:----------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.0.0](#v200) | 2023-02-24 | Compatibility Security Maintainability Enhancement      | [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)                             |
+| [v2.0.1](#v201) | 2023-03-31 | Working in progress with some minor bug fixes           |                                                                                           |
+| [v2.0.0](#v200) | 2023-02-28 | Compatibility Security Maintainability Enhancement      | [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)                             |
 | [v1.5.1](#v151) | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
 | [v1.5.0](#v150) | 2022-05-31 | Docker Applications                                     | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
 | [v1.4.1](#v141) | 2022-04-20 | Bug fix & Full translation of English documents.        | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |
@@ -27,6 +28,41 @@
 | v0.0.1          | 2019-05-15 | POC                                                     | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
 
+
+
+------------------------------
+
+## v2.0.1
+
+> WORKING IN PROGRESS!
+
+**Enhancement**
+
+* Bump grafana version to v9.4 with better UI and bugfix.
+* Bump patroni version to v3.0.1 with some bugfix.
+* New script `bin/upgrade` for pigsty self upgrade.
+* Change: rollback grafana systemd service file to rpm default.
+* Use slow `copy` instead of `rsync` to copy grafana dashboards.
+* enhancement: add back default repo files after bootstrap
+* Add asciinema video for administration tasks
+* Security Enhance Mode: restrict monitor user privilege.
+* New config template: `dual.yml` for two node deployment.
+* Enable `log_connections` and `log_disconnections` in `crit.yml` template
+* Enable `$lib/passwordcheck` in `pg_libs` in `crit.yml` template
+* Explicitly grant monitor view permission to `pg_monitor` role
+* Remove default `dbrole_readonly` from `dbuser_monitor` to limit monitor user privilege
+
+
+
+**Bug Fixes**
+
+* Add missing advertise address for alertmanager
+* Add `-a password` to redis-join task @ `redis.yml` 
+* Fix missing default value in `infra-rm.yml`.`remove infra data`
+* Fix prometheus targets file ownership to `prometheus`
+* Use admin user rather than root to delete metadata in dcs
+
+
 ------------------------------
 
 ## v2.0.0
@@ -45,15 +81,14 @@ curl -fsSL http://download.pigsty.cc/get | bash
 <details><summary>Download directly from GitHub Release</summary>
 
 ```bash
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-v2.0.0.tgz -o ~/pigsty.tgz
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el9.x86_64.tgz  -o /tmp/pkg.tgz
+# get from GitHub
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
 
-# or using git if curl not available
-git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.0.0
-
-# use corresponding pkg.tgz for EL7 and EL8
-# EL7: https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el7.x86_64.tgz
-# EL8: https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el8.x86_64.tgz
+# or download tarball directly with curl
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-v2.0.0.tgz -o ~/pigsty.tgz                 # SRC
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
 ```
 
 </details>
