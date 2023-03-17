@@ -18,6 +18,7 @@
   when: pg_exporter_enabled|bool or pgbouncer_exporter_enabled|bool or (patroni_enabled|bool and patroni_mode != 'remove')
   copy:
     dest: /etc/prometheus/targets/pgsql/{{ pg_cluster }}-{{ pg_seq }}.yml
+    owner: prometheus
     content: |
       # {{ pg_cluster }}-{{ pg_seq }} [{{ pg_role }}] @ {{ inventory_hostname }}
       - labels: { cls: {{ pg_cluster }}, ins: {{ pg_cluster }}-{{ pg_seq }}, ip: {{ inventory_hostname }} }
@@ -42,6 +43,7 @@
   when: patroni_ssl_enabled|bool and patroni_enabled|bool and patroni_mode != 'remove'
   copy:
     dest: /etc/prometheus/targets/patroni/{{ pg_cluster }}-{{ pg_seq }}.yml
+    owner: prometheus
     content: |
       # {{ pg_cluster }}-{{ pg_seq }} [{{ pg_role }}] @ {{ inventory_hostname }}
       - labels: { job: pgsql, cls: {{ pg_cluster }}, ins: {{ pg_cluster }}-{{ pg_seq }}, ip: {{ inventory_hostname }} }
