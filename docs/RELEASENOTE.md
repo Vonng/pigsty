@@ -51,7 +51,7 @@
 * Enable `$lib/passwordcheck` in `pg_libs` in `crit.yml` template
 * Explicitly grant monitor view permission to `pg_monitor` role
 * Remove default `dbrole_readonly` from `dbuser_monitor` to limit monitor user privilege
-
+* Replace the pig shape logo
 
 
 **Bug Fixes**

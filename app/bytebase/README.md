@@ -15,7 +15,7 @@ hack `thisisunsafe` in chrome)
 Check [`.env`](.env) file for configurable environment variables:
 
 ```bash
-BB_VERSION=1.12.1
+BB_VERSION=1.13.0
 BB_PORT=8887
 BB_DOMAIN=http://ddl.pigsty
 BB_PGURL="postgresql://dbuser_bytebase:DBUser.Bytebase@10.10.10.10:5432/bytebase?sslmode=prefer"

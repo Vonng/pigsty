@@ -24,7 +24,6 @@ postgrest : { domain: api.pigsty  ,endpoint: "127.0.0.1:8884"   }
 pgadmin   : { domain: adm.pigsty  ,endpoint: "127.0.0.1:8885"   }
 pgweb     : { domain: cli.pigsty  ,endpoint: "127.0.0.1:8886"   }
 bytebase  : { domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887"   }
-jupyter   : { domain: lab.pigsty  ,endpoint: "127.0.0.1:8888"   }
 gitea     : { domain: git.pigsty  ,endpoint: "127.0.0.1:8889"   }
 minio     : { domain: sss.pigsty  ,endpoint: "127.0.0.1:9000"   }
 wiki      : { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002"   }
@@ -37,7 +36,7 @@ docker pull dpage/pgadmin4
 docker pull sosedoff/pgweb                   
 docker pull vonng/pg_exporter                
 docker pull postgrest/postgrest              
-docker pull bytebase/bytebase:1.12.1         
+docker pull bytebase/bytebase:1.13.0         
 docker pull alpine                           
 docker pull registry                         
 docker pull andrewjones/schemaspy-postgres   
@@ -56,7 +55,7 @@ docker save dpage/pgadmin4                   | gzip -9 -c > /tmp/docker/pgadmin4
 docker save sosedoff/pgweb                   | gzip -9 -c > /tmp/docker/pgweb.tgz
 docker save vonng/pg_exporter                | gzip -9 -c > /tmp/docker/pg_exporter.tgz
 docker save postgrest/postgrest              | gzip -9 -c > /tmp/docker/postgrest.tgz
-docker save bytebase/bytebase:1.12.1         | gzip -9 -c > /tmp/docker/bytebase.tgz
+docker save bytebase/bytebase:1.13.0         | gzip -9 -c > /tmp/docker/bytebase.tgz
 docker save alpine                           | gzip -9 -c > /tmp/docker/alpine.tgz
 docker save registry                         | gzip -9 -c > /tmp/docker/registry.tgz
 docker save andrewjones/schemaspy-postgres   | gzip -9 -c > /tmp/docker/schemaspy.tgz
