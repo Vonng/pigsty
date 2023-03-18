@@ -104,6 +104,7 @@ node.yml -t node_admin -k -K -e ansible_user=<another admin>   # input ssh/sudo 
 * [`node.yml`](https://github.com/vonng/pigsty/blob/master/node.yml) : Init node for pigsty
 * [`node-rm.yml`](https://github.com/vonng/pigsty/blob/master/node-rm.yml) : Remove node from pigsty
 
+[![asciicast](https://asciinema.org/a/566413.svg)](https://asciinema.org/a/566413)
 
 
 ----------------

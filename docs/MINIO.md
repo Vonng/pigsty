@@ -43,7 +43,7 @@ Trusted ca file: `/etc/pki/ca.crt` should exist on all nodes already. which is g
 
 You should install [`MINIO`](MINIO) module on Pigsty-managed nodes (i.e., Install [`NODE`](NODE) first)
 
-
+[![asciicast](https://asciinema.org/a/566415.svg)](https://asciinema.org/a/566415)
 
 
 

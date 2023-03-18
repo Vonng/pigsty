@@ -389,8 +389,8 @@ localhost                  : ok=3    changed=0    unreachable=0    failed=0    s
 
 当安装完成后，当前节点会安装有四个模块： [**INFRA**](INFRA.md), [**NODE**](NODE.md), [**ETCD**](ETCD.md) , [**PGSQL**](PGSQL.md) 。
 
-* [**INFRA**](INFRA.md): Pigsty Web界面可以通过80端口访问 `http://<ip>:80` （如果第一次访问提示错误，请多刷新几次页面）
-* [**PGSQL**](PGSQL.md): 您可以使用默认连接串访问PGSQL数据库: `postgres://dbuser_meta:DBUser.Meta@<ip>:5432/meta`
+* [**INFRA**](INFRA.md): Pigsty Web界面可以通过 80 端口访问 `http://<ip>:80` 
+* [**PGSQL**](PGSQL.md): 您可以使用默认连接串[访问](PGSQL-SVC.md)PGSQL数据库: `postgres://dbuser_meta:DBUser.Meta@<ip>:5432/meta`
 
 一些基础设施服务组件会使用 Nginx 对外暴露 WebUI ( 可通过参数 [`infra_portal`](PARAM.md#infra_portal) 进行配置):
 
@@ -421,7 +421,7 @@ http://g.pigsty ️-> http://10.10.10.10:80 (nginx) -> http://10.10.10.10:3000 (
 Pigsty默认使用自动生成的自签名的CA证书为Nginx启用SSL，如果您希望使用 HTTPS 访问这些页面，而不弹窗提示"不安全"，通常有三个选择：
 
 * 在您的浏览器或操作系统中信任Pigsty自签名的CA证书： `files/pki/ca/ca.crt`
-* 如果您使用 Chrome，可以在提示不安全的窗口键盘输入 `thisisunsafe` 跳过提示
+* 如果您使用 Chrome，可以在提示不安全的窗口键入 `thisisunsafe` 跳过提示
 * 您可以考虑使用 Let's Encrypt 或其他免费的CA证书服务，为 Pigsty Nginx 生成正式的CA证书
 
 </details>

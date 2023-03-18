@@ -1,4 +1,3 @@
 - [Author](https://vonng.com/en/)
-- [Website](https://pigsty.cc)
+- [Blog](http://pigsty.cc/en/)
 - [Demo](http://demo.pigsty.cc)
-- [Repo](https://github.com/Vonng/pigsty)

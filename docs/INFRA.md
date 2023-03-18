@@ -49,6 +49,8 @@ infra_portal:  # domain names and upstream servers
 - [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infra.yml)       : Init pigsty infrastructure on infra nodes
 - [`infra-rm.yml`](https://github.com/vonng/pigsty/blob/master/infra-rm.yml) : Remove infrastructure components from infra nodes
 
+[![asciicast](https://asciinema.org/a/566412.svg)](https://asciinema.org/a/566412)
+
 
 ----------------
 

@@ -39,7 +39,7 @@ Here are available sub tasks:
 If [`etcd_safeguard`](PARAM#etcd_safeguard) is `true`, or [`etcd_clean`](PARAM#etcd_clean) is `false`,
 the playbook will abort if any running etcd instance exists to prevent purge etcd by accident.
 
-
+[![asciicast](https://asciinema.org/a/566414.svg)](https://asciinema.org/a/566414)
 
 
 

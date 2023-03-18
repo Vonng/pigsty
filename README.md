@@ -12,7 +12,7 @@
 
 ## Features
 
-Free RDS for PostgreSQL! check [**Feature**](docs/FEATURE.md) | [**亮点特性**](docs/FEATURE_ZH.md) for details.
+Free RDS for PostgreSQL! Check [**Feature**](docs/FEATURE.md) | [**亮点特性**](docs/FEATURE_ZH.md) for details.
 
 - Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with [PostGIS](https://postgis.net/), [TimescaleDB](https://www.timescale.com/), [Citus](https://www.citusdata.com/),...
 - Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack.
@@ -29,7 +29,7 @@ Free RDS for PostgreSQL! check [**Feature**](docs/FEATURE.md) | [**亮点特性*
 
 ## Get Started
 
-Setup everything in one command! Check [**Get Started**](docs/INSTALL.md) | [**快速上手**](docs/INSTALL_ZH.md) for details.
+Bootstrap with one command! Check [**Get Started**](docs/INSTALL.md) | [**快速上手**](docs/INSTALL_ZH.md) for details.
 
 ```bash
 # Linux x86_64 EL 7/8/9 compatible, with nopass sudo/ssh
