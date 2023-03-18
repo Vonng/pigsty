@@ -289,7 +289,7 @@ proceed with ./configure
 
 ## 配置
 
-[`configure`](CONFIG) 会根据您当前的环境，自动生成一个 [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) 配置文件。
+配置 / [`configure`](CONFIG.md) 会根据您当前的环境，自动生成一个 [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) 配置文件。
 
 ```bash
 ./configure [-n|--non-interactive] [-i|--ip <ipaddr>] [-m|--mode <name>] [-r|--region <default|china|europe>]
@@ -351,7 +351,7 @@ proceed with ./install.yml
 * `-e`: 传入额外的命令行参数
 * ...
 
-> 警告： 在已经初始化的环境中再次运行 [`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.yml) 会重置整个环境，所以请小心谨慎。
+> 警告： 在已经初始化的环境中再次运行 `install.yml` 会重置整个环境，所以请小心谨慎。
 >
 > 您可以 `chmod a-x install.yml` 避免误执行此剧本。
 
@@ -387,12 +387,12 @@ localhost                  : ok=3    changed=0    unreachable=0    failed=0    s
 
 ## 用户界面
 
-当安装完成后，当前节点会安装有四个模块： [**INFRA**](INFRA), [**NODE**](NODE), [**ETCD**](ETCD) , [**PGSQL**](PGSQL) 。
+当安装完成后，当前节点会安装有四个模块： [**INFRA**](INFRA.md), [**NODE**](NODE.md), [**ETCD**](ETCD.md) , [**PGSQL**](PGSQL.md) 。
 
-* [**INFRA**](INFRA): Pigsty Web界面可以通过80端口访问 `http://<ip>:80` （如果第一次访问提示错误，请多刷新几次页面）
-* [**PGSQL**](PGSQL): 您可以使用默认连接串访问PGSQL数据库: `postgres://dbuser_meta:DBUser.Meta@<ip>:5432/meta`
+* [**INFRA**](INFRA.md): Pigsty Web界面可以通过80端口访问 `http://<ip>:80` （如果第一次访问提示错误，请多刷新几次页面）
+* [**PGSQL**](PGSQL.md): 您可以使用默认连接串访问PGSQL数据库: `postgres://dbuser_meta:DBUser.Meta@<ip>:5432/meta`
 
-一些基础设施服务组件会使用 Nginx 对外暴露 WebUI ( 可通过参数 [`infra_portal`](PARAM#infra_portal) 进行配置):
+一些基础设施服务组件会使用 Nginx 对外暴露 WebUI ( 可通过参数 [`infra_portal`](PARAM.md#infra_portal) 进行配置):
 
 |   组件         | 端口 |    域名       |     说明                  |     Demo地址                                |
 | :-----------: | :--: | :----------: | ------------------------ | ------------------------------------------ |
@@ -440,4 +440,4 @@ bin/pgsql-add  pg-test      # 初始化一个3节点的 pg-test 高可用PG集�
 bin/redis-add  redis-ms     # 初始化 Redis 集群： redis-ms
 ```
 
-更多细节请参见： [**PGSQL**](PGSQL), [**NODE**](NODE), and [**REDIS**](REDIS).
+更多细节请参见： [**PGSQL**](PGSQL.md), [**NODE**](NODE.md), and [**REDIS**](REDIS.md).

@@ -338,7 +338,7 @@ proceed with ./configure
 
 When `-n|--non-interactive` is specified, you have to specify a primary IP address with `-i|--ip <ipaddr>` in case of multiple IP address, since there's no default value for primary IP address in this case.
 
-?> HINT: `configure` is **OPTIONAL** if you know how to [configure](Config) pigsty manually.
+?> HINT: `configure` is **OPTIONAL** if you know how to [configure](CONFIG.md) pigsty manually.
 
 
 <details><summary>configure example output</summary>
@@ -422,12 +422,12 @@ localhost                  : ok=3    changed=0    unreachable=0    failed=0    s
 
 ## Interface
 
-Once installed, you'll have 4 module [**INFRA**](INFRA), [**NODE**](NODE), [**ETCD**](ETCD) , [**PGSQL**](PGSQL) installed on the current node. 
+Once installed, you'll have 4 module [**INFRA**](INFRA.md), [**NODE**](NODE.md), [**ETCD**](ETCD.md) , [**PGSQL**](PGSQL.md) installed on the current node. 
 
-* [**INFRA**](INFRA): Monitoring infrastructure can be accessed via `http://<ip>:80`
-* [**PGSQL**](PGSQL): PostgreSQL cluster can be accessed via default PGURL: `postgres://dbuser_meta:DBUser.Meta@<ip>:5432/meta`
+* [**INFRA**](INFRA.md): Monitoring infrastructure can be accessed via `http://<ip>:80`
+* [**PGSQL**](PGSQL.md): PostgreSQL cluster can be accessed via default PGURL: `postgres://dbuser_meta:DBUser.Meta@<ip>:5432/meta`
 
-There are several services are exposed by Nginx (configured by [`infra_portal`](PARAM#infra_portal)):
+There are several services are exposed by Nginx (configured by [`infra_portal`](PARAM.md#infra_portal)):
 
 |    Component  | Port |    Domain    |     Comment              |     Public Demo          |
 | :-----------: | :--: | :----------: | ------------------------ | ------------------------ |
@@ -439,7 +439,7 @@ There are several services are exposed by Nginx (configured by [`infra_portal`](
 You can configure public domain names for these infra services or just use local static DNS records & resolver.
 e.g., write records to `/etc/hosts` and access via DNS.
 
-If [`nginx_sslmode`](PARAM#nginx_sslmode) is set to `enabled` or `enforced`, you can trust self-signed ca: `files/pki/ca/ca.crt` to use `https` in your browser.
+If [`nginx_sslmode`](PARAM.md#nginx_sslmode) is set to `enabled` or `enforced`, you can trust self-signed ca: `files/pki/ca/ca.crt` to use `https` in your browser.
 
 ```
 http://g.pigsty ️-> http://10.10.10.10:80 (nginx) -> http://10.10.10.10:3000 (grafana)
@@ -464,4 +464,4 @@ bin/pgsql-add  pg-test      # init HA PGSQL Cluster pg-test
 bin/redis-add  redis-ms     # init redis cluster redis-ms
 ```
 
-Check [**PGSQL**](PGSQL), [**NODE**](NODE), and [**REDIS**](REDIS) for detail.
+Check [**PGSQL**](PGSQL.md), [**NODE**](NODE.md), and [**REDIS**](REDIS.md) for detail.

@@ -1,20 +1,18 @@
 # Pigsty
 
-> **PostgreSQL in Great STYle**
-
-**A battery-included, local-first, me-better open-source RDS alternative.**
-
-Get started with: `curl -fsSL http://download.pigsty.cc/get | bash`
-
-Latest Release: [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)  |  [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/) |  [Website](https://pigsty.cc/en/)
-
-[![pigsty-banner](https://user-images.githubusercontent.com/8587410/206971422-deb6dd88-c89e-43e4-8130-cf32a24b07b9.jpg)](https://pigsty.cc/en/)
+> "**P**ostgreSQL **I**n **G**reat **STY**le."
+>
+> —— **A battery-included, local-first, open-source RDS PG alternative.**
+>
+> [Release v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Blog](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/sfBqv7S5)
+>
+> [Get Started](docs/INSTALL.md) with `curl -fsSL http://download.pigsty.cc/get | bash` 
 
 
 
 ## Features
 
-Pigsty is a **Me-Better Open Source RDS Alternative** with:
+Free RDS for PostgreSQL! check [**Feature**](docs/FEATURE.md) | [**亮点特性**](docs/FEATURE_ZH.md) for details.
 
 - Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with [PostGIS](https://postgis.net/), [TimescaleDB](https://www.timescale.com/), [Citus](https://www.citusdata.com/),...
 - Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack.
@@ -24,20 +22,17 @@ Pigsty is a **Me-Better Open Source RDS Alternative** with:
 - Versatile Use-cases, Run [Docker](https://www.docker.com/) Apps, Run demos, Visualize data with [ECharts](https://echarts.apache.org/).
 - Handy Tools, provision IaaS with [Terraform](https://www.terraform.io/), and try with local [Vagrant](https://www.vagrantup.com/) sandbox.
 
-[![pigsty-distro](https://user-images.githubusercontent.com/8587410/206971964-0035bbca-889e-44fc-9b0d-640d34573a95.gif)](docs/FEATURE.md)
-
-Check [**Feature**](docs/FEATURE.md) / [亮点特性](docs/FEATURE_ZH.md) and [**Demo**](http://demo.pigsty.cc) for details.
+[![pigsty-distro](https://user-images.githubusercontent.com/8587410/226076217-77e76e0c-94ac-4faa-9014-877b4a180e09.jpg)](docs/FEATURE.md)
 
 
 
 
 ## Get Started
 
-> It takes four steps to install Pigsty: [Download](docs/INSTALL.md#download), [Bootstrap](docs/INSTALL.md#bootstrap), [Configure](docs/INSTALL.md#configure) and [Install](docs/INSTALL.md#install).
-
-Prepare a new node with Linux x86_64 EL 7/8/9 compatible OS, then run as a **sudo-able** user:
+Setup everything in one command! Check [**Get Started**](docs/INSTALL.md) | [**快速上手**](docs/INSTALL_ZH.md) for details.
 
 ```bash
+# Linux x86_64 EL 7/8/9 compatible, with nopass sudo/ssh
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)";
 cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 ```
@@ -107,9 +102,6 @@ curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0
 </details>
 
 [![asciicast](https://asciinema.org/a/566220.svg)](https://asciinema.org/a/566220)
-
-Check [**Installation**](docs/INSTALL.md) / [安装部署](docs/INSTALL_ZH.md) for details.
-
 
 
 
@@ -261,11 +253,46 @@ pg-meta:      # 3 instance postgres cluster `pg-meta`
       - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
     pg_databases:
       - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
+    pg_default_service_dest: postgres
     pg_services:
       - { name: standby ,src_ip: "*" ,port: 5435 , dest: default ,selector: "[]" , backup: "[? pg_role == `primary`]" }
     pg_vip_enabled: true
     pg_vip_address: 10.10.10.2/24
     pg_vip_interface: eth1
+    patroni_ssl_enabled: true
+    pgbouncer_sslmode: require
+    pgbackrest_method: minio
+    pg_libs: 'timescaledb, $libdir/passwordcheck, pg_stat_statements, auto_explain' # add passwordcheck extension to enforce strong password
+    pg_default_roles:                 # default roles and users in postgres cluster
+      - { name: dbrole_readonly  ,login: false ,comment: role for global read-only access     }
+      - { name: dbrole_offline   ,login: false ,comment: role for restricted read-only access }
+      - { name: dbrole_readwrite ,login: false ,roles: [dbrole_readonly]               ,comment: role for global read-write access }
+      - { name: dbrole_admin     ,login: false ,roles: [pg_monitor, dbrole_readwrite]  ,comment: role for object creation }
+      - { name: postgres     ,superuser: true  ,expire_in: 7300                        ,comment: system superuser }
+      - { name: replicator ,replication: true  ,expire_in: 7300 ,roles: [pg_monitor, dbrole_readonly]   ,comment: system replicator }
+      - { name: dbuser_dba   ,superuser: true  ,expire_in: 7300 ,roles: [dbrole_admin]  ,pgbouncer: true ,pool_mode: session, pool_connlimit: 16 , comment: pgsql admin user }
+      - { name: dbuser_monitor ,roles: [pg_monitor] ,expire_in: 7300 ,pgbouncer: true ,parameters: {log_min_duration_statement: 1000 } ,pool_mode: session ,pool_connlimit: 8 ,comment: pgsql monitor user }
+    pg_default_hba_rules:             # postgres host-based auth rules by default
+      - {user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident'  }
+      - {user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident' }
+      - {user: '${repl}'    ,db: replication ,addr: localhost ,auth: ssl   ,title: 'replicator replication from localhost'}
+      - {user: '${repl}'    ,db: replication ,addr: intra     ,auth: ssl   ,title: 'replicator replication from intranet' }
+      - {user: '${repl}'    ,db: postgres    ,addr: intra     ,auth: ssl   ,title: 'replicator postgres db from intranet' }
+      - {user: '${monitor}' ,db: all         ,addr: localhost ,auth: pwd   ,title: 'monitor from localhost with password' }
+      - {user: '${monitor}' ,db: all         ,addr: infra     ,auth: ssl   ,title: 'monitor from infra host with password'}
+      - {user: '${admin}'   ,db: all         ,addr: infra     ,auth: ssl   ,title: 'admin @ infra nodes with pwd & ssl'   }
+      - {user: '${admin}'   ,db: all         ,addr: world     ,auth: cert  ,title: 'admin @ everywhere with ssl & cert'   }
+      - {user: '+dbrole_readonly',db: all    ,addr: localhost ,auth: ssl   ,title: 'pgbouncer read/write via local socket'}
+      - {user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: ssl   ,title: 'read/write biz user via password'     }
+      - {user: '+dbrole_offline' ,db: all    ,addr: intra     ,auth: ssl   ,title: 'allow etl offline tasks from intranet'}
+    pgb_default_hba_rules:            # pgbouncer host-based authentication rules
+      - {user: '${dbsu}'    ,db: pgbouncer   ,addr: local     ,auth: peer  ,title: 'dbsu local admin access with os ident'}
+      - {user: 'all'        ,db: all         ,addr: localhost ,auth: pwd   ,title: 'allow all user local access with pwd' }
+      - {user: '${monitor}' ,db: pgbouncer   ,addr: intra     ,auth: ssl   ,title: 'monitor access via intranet with pwd' }
+      - {user: '${monitor}' ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other monitor access addr' }
+      - {user: '${admin}'   ,db: all         ,addr: intra     ,auth: ssl   ,title: 'admin access via intranet with pwd'   }
+      - {user: '${admin}'   ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other admin access addr'   }
+      - {user: 'all'        ,db: all         ,addr: intra     ,auth: ssl   ,title: 'allow all user intra access with pwd' }
 
 # OPTIONAL delayed cluster for pg-meta
 pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
@@ -398,4 +425,3 @@ Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 License: [AGPL-3.0](LICENSE)
 
 Copyright 2018-2023 rh@vonng.com
-

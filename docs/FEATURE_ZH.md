@@ -1,4 +1,4 @@
-# Features
+# 亮点特性
 
 > [英文/EN](FEATURE.md)
 
@@ -23,12 +23,12 @@ PostgreSQL 是一个足够完美的数据库内核，但它需要更多工具与
 Pigsty 深度整合了 PostgreSQL 生态的三大核心扩展插件 PostGIS，TimescaleDB，Citus，并确保它们可以协同工作，提供分布式的时序地理空间数据库能力。
 Pigsty 还提供了运行企业级 RDS 服务的所需软件，打包所有依赖为离线软件包，所有组件均可在无需互联网访问的情况下一键完成安装部署，进入生产可用状态。
 
-在 Pigsty 中功能组件被抽象 [**模块**](ARCH#modules)，可以自由组合以应对多变的需求场景。[`INFRA`](INFRA) 模块带有完整的现代监控技术栈，而 [`NODE`](NODE) 模块则将节点调谐至指定状态并纳入监控。
-在多个节点上安装 [`PGSQL`](pgsql) 模块会自动组建出一个基于主从复制的高可用数据库集群，而同样的 [`ETCD`](ETCD) 模块则为数据库高可用提供共识与元数据存储。可选的 [`MINIO`](MINIO)模块可以用作图像视频等大文件存储并可选用为数据库备份仓库。
-与 PG 有着极佳相性的 [`REDIS`](REDIS) 亦为 Pigsty 所支持，更多的模块（如`GPSQL`, `MYSQL`, `KAFKA`）将会在后续加入，你也可以开发自己的模块并自行扩展 Pigsty 的能力。
+在 Pigsty 中功能组件被抽象 [**模块**](ARCH#modules)，可以自由组合以应对多变的需求场景。[`INFRA`](INFRA.md) 模块带有完整的现代监控技术栈，而 [`NODE`](NODE.md) 模块则将节点调谐至指定状态并纳入监控。
+在多个节点上安装 [`PGSQL`](PGSQL.md) 模块会自动组建出一个基于主从复制的高可用数据库集群，而同样的 [`ETCD`](ETCD.md) 模块则为数据库高可用提供共识与元数据存储。可选的 [`MINIO`](MINIO.md)模块可以用作图像视频等大文件存储并可选用为数据库备份仓库。
+与 PG 有着极佳相性的 [`REDIS`](REDIS.md) 亦为 Pigsty 所支持，更多的模块（如`GPSQL`, `MYSQL`, `KAFKA`）将会在后续加入，你也可以开发自己的模块并自行扩展 Pigsty 的能力。
 
 
-[![pigsty-distro](https://user-images.githubusercontent.com/8587410/206971964-0035bbca-889e-44fc-9b0d-640d34573a95.gif)](PGSQL)
+[![pigsty-distro](https://user-images.githubusercontent.com/8587410/226076217-77e76e0c-94ac-4faa-9014-877b4a180e09.jpg)](PGSQL.md)
 
 
 
@@ -62,7 +62,7 @@ Pigsty 内置了 HAProxy 负载均衡器用于自动流量切换，提供 DNS/VI
 许多大型组织与核心机构已经在生产环境中长时间使用 Pigsty ，最大的部署有 25K CPU 核心与 200+ PostgreSQL 实例，在这一部署案例中， Pigsty 在三年内经历了数十次硬件故障与各类事故，但依然可以保持 99.999% 以上的整体可用性。
 
 
-[![pigsty-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)](PGSQL-ARCH#high-availability)
+[![pigsty-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)](PGSQL-ARCH.md#high-availability)
 
 
 
@@ -81,7 +81,7 @@ Pigsty 使用声明式的接口对外提供服务，将系统的可控制性拔�
 除此之外，Pigsty 本身的安装部署也是一键傻瓜式的，所有依赖被预先打包，在安装时可以无需互联网访问。而安装所需的机器资源，也可以通过 Vagrant 或 Terraform 模板自动获取，让您在十几分钟内就可以从零在本地笔记本或云端虚拟机上拉起一套完整的 Pigsty 部署。本地沙箱环境可以跑在1核2G的微型虚拟机中，提供与生产环境完全一致的功能模拟，可以用于开发、测试、演示与学习。
 
 
-[![pigsty-iac](https://user-images.githubusercontent.com/8587410/206972039-e13746ab-72ae-4cab-8de7-7b2ef543f3e5.gif)](CONFIG)
+[![pigsty-iac](https://user-images.githubusercontent.com/8587410/206972039-e13746ab-72ae-4cab-8de7-7b2ef543f3e5.gif)](CONFIG.md)
 
 
 
@@ -113,7 +113,7 @@ Pigsty 提供了 Docker 模块与大量开箱即用的 Compose 模板。您可�
 
 Pigsty 也提供了与 PostgreSQL 紧密联系的应用开发工具集：PGAdmin4、PGWeb、ByteBase、PostgREST、Kong、以及 EdgeDB、FerretDB、Supabase 这些使用 PostgreSQL 作为存储的"上层数据库"。更奇妙的是，您完全可以基于 Pigsty 内置了的 Grafana 与 Postgres ，以低代码的方式快速搭建起一个交互式的数据应用来，甚至还可以使用 Pigsty 内置的 ECharts 面板创造更有表现力的交互可视化作品。
 
-[![pigsty-app](https://user-images.githubusercontent.com/8587410/198838829-f0ea4af2-d33f-4978-a31a-ed81897aa8d1.gif)](APP)
+[![pigsty-app](https://user-images.githubusercontent.com/8587410/198838829-f0ea4af2-d33f-4978-a31a-ed81897aa8d1.gif)](APP.md)
 
 
 
@@ -128,4 +128,4 @@ Pigsty 是完全开源免费的自由软件，它允许您在缺乏数据库专�
 
 Pigsty 本身旨在用数据库自动驾驶软件，替代大量无趣的人肉数据库运维工作，但再好的软件也没法解决所有的问题。总会有一些的冷门低频疑难杂症需要专家介入处理。这也是为什么我们也提供专业的订阅服务，来为有需要的企业级用户使用 PostgreSQL 提供兜底。几万块的订阅咨询费不到顶尖 DBA 每年工资的几十分之一，让您彻底免除后顾之忧，把成本真正花在刀刃上。当然对于社区用户，我们亦用爱发电，提供免费的支持与日常答疑。
 
-![pigsty-rds-cost](https://user-images.githubusercontent.com/8587410/225852971-577be00f-b2df-427c-a590-f8b4c5a63a4b.png)
+[![pigsty-rds-cost](https://user-images.githubusercontent.com/8587410/225852971-577be00f-b2df-427c-a590-f8b4c5a63a4b.png)](https://instances.vantage.sh/)
