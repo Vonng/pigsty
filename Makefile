@@ -442,7 +442,7 @@ build-repo:
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz node-2:/tmp/pkg.tgz ; ssh node-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 
 build-boot:
-	ssh meta   "cd pigsty; ./bootstrap -n ; ./configure -m auto -i 10.10.10.10 -n";
+	ssh meta   "cd pigsty; ./bootstrap -n ; ./configure -m el7  -i 10.10.10.10 -n";
 	ssh node-1 "cd pigsty; ./bootstrap -n ; ./configure -m el8  -i 10.10.10.11 -n";
 	ssh node-2 "cd pigsty; ./bootstrap -n ; ./configure -m el9  -i 10.10.10.12 -n";
 
