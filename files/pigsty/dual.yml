@@ -1,17 +1,26 @@
 ---
 #==============================================================#
-# File      :   auto.yml
-# Desc      :   Pigsty auto generated config for el9,8,7 singleton
+# File      :   dual.yml
+# Desc      :   Pigsty deployment example for two nodes
 # Ctime     :   2020-05-22
-# Mtime     :   2023-02-26
+# Mtime     :   2023-03-19
 # Docs      :   https://vonng.github.io/pigsty/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 
 
-# this is a simple singleton meta config template, check full details with
-# https://github.com/Vonng/pigsty/blob/master/files/pigsty/full.yml
+# It is recommended to use at least three nodes in production deployment.
+# But sometimes, there are only two nodes available, that's dual.yml for
+#
+# In this setup, we have two nodes, .10 (admin_node) and .11 (pgsql_priamry):
+#
+# If .11 is down, .10 will take over since the dcs:etcd is still alive
+# If .10 is down, .11 (pgsql primary) will still be functioning as a primary if:
+#   - Only dcs:etcd is down
+#   - Only pgsql is down
+# if both etcd & pgsql are down (e.g. node down), the primary will still demote itself.
+
 
 all:
   children:
@@ -27,7 +36,9 @@ all:
 
     # postgres cluster 'pg-meta' with single primary instance
     pg-meta:
-      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      hosts:
+        10.10.10.10: { pg_seq: 1, pg_role: replica }
+        10.10.10.11: { pg_seq: 2, pg_role: primary }  # <----- use this as primary by default
       vars:
         pg_cluster: pg-meta
         pg_databases: [ { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [ { name: postgis, schema: public }, { name: timescaledb } ] } ]
@@ -35,6 +46,9 @@ all:
           - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
           - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
         node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ] # make a full backup every 1am
+        #pg_vip_enabled: true
+        #pg_vip_address: 10.10.10.2/24
+        #pg_vip_interface: eth1
 
   vars:                               # global parameters
     version: v2.0.0                   # pigsty version string
@@ -49,24 +63,6 @@ all:
       loki         : { endpoint: "${admin_ip}:3100" }
       #minio        : { domain: sss.pigsty  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
 
-    # WARNING: CHANGE THESE PASSWORDS
-    #grafana_admin_username: admin
-    grafana_admin_password: pigsty
-    #pg_admin_username: dbuser_dba
-    pg_admin_password: DBUser.DBA
-    #pg_monitor_username: dbuser_monitor
-    pg_monitor_password: DBUser.Monitor
-    #pg_replication_username: replicator
-    pg_replication_password: DBUser.Replicator
-    #patroni_username: postgres
-    patroni_password: Patroni.API
-    #haproxy_admin_username: admin
-    haproxy_admin_password: pigsty
-
     # if you want to use minio as backup repo instead of local fs, uncomment minio related lines
     #pgbackrest_method: minio
-
-    # this config template assume you are using pre-packed offline packages
-    # If you wish to download upstream yum packages directly from internet,
-    # consider using ad hoc `el7.yml`, `el8.yml`, `el9.yml` config instead.
 ...
