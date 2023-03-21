@@ -203,7 +203,7 @@ There are 265 parameters in Pigsty describing all aspect of the deployment.
 | 854 | [`pg_fs_bkup`](#pg_fs_bkup)                                     | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | path        | C     | mountpoint/path for pg backup data, `/data/backup` by default                 |
 | 855 | [`pg_storage_type`](#pg_storage_type)                           | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | enum        | C     | storage type for pg main data, SSD,HDD, SSD by default                        |
 | 856 | [`pg_dummy_filesize`](#pg_dummy_filesize)                       | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | size        | C     | size of `/pg/dummy`, hold 64MB disk space for emergency use                   |
-| 857 | [`pg_listen`](#pg_listen)                                       | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | ip          | C     | postgres listen address, `0.0.0.0` (all ipv4 addr) by default                 |
+| 857 | [`pg_listen`](#pg_listen)                                       | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | ip(s)       | C/I   | postgres/pgbouncer listen addresses, comma separated list                     |
 | 858 | [`pg_port`](#pg_port)                                           | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | port        | C     | postgres listen port, 5432 by default                                         |
 | 859 | [`pg_localhost`](#pg_localhost)                                 | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | path        | C     | postgres unix socket dir for localhost connection                             |
 | 860 | [`pg_namespace`](#pg_namespace)                                 | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | path        | C     | top level key namespace in etcd, used by patroni & vip                        |
@@ -3977,9 +3977,16 @@ When the disk is full, removing the placeholder file can free up some space for 
 
 name: `pg_listen`, type: `ip`, level: `C`
 
-postgres listen address, `0.0.0.0` (all ipv4 addr) by default
+postgres/pgbouncer listen address, `0.0.0.0` (all ipv4 addr) by default
 
-If you want to include all IPv6 address, use `*` instead. It's not wise to use this in node with public IP address.
+You can use placeholder in this variable:
+
+* `${ip}`: translate to inventory_hostname, which is primary private IP address in the inventory
+* `${vip}`: if [`pg_vip_enabled`](#pg_vip_enabled), this will translate to host part of [`pg_vip_address`](#pg_vip_address)
+* `${lo}`: will translate to `127.0.0.1`
+
+For example: `'${ip},${lo}'` or `'${ip},${vip},${lo}'`.
+
 
 
 

@@ -24,6 +24,10 @@
 {% set pg_max_parallel_workers_per_gather = (pg_max_parallel_workers / 2)|round(0, 'ceil')|int %}
 {% set pg_max_parallel_mt_workers = ([(node_cpu|int / 8)|round(0,'ceil'),2])|max|int %}
 {% set pg_allow_list = ( pg_cluster_members|default([]) + groups["infra"]|default([]) )|sort|unique %}
+{% set pg_listen_address = pg_listen | replace('${ip}', inventory_hostname)  | replace('${lo}', '127.0.0.1') %}
+{% if pg_vip_enabled|bool and not pg_vip_address.startswith('127.0.0') and '/' in pg_vip_address %}
+{% set pg_listen_address = pg_listen_address | replace('${vip}', pg_vip_address.split('/')[0]) %}
+{% endif %}
 
 #==============================================================#
 # Summary for patroni OLAP config template (4-128 cpu cores)
@@ -92,9 +96,8 @@ etcd3:
 # api
 #--------------------------------------------------------------#
 # how to expose patroni service
-# listen on all ipv4, connect via public ip
 restapi:
-  listen: 0.0.0.0:{{ patroni_port }}
+  listen: {{ inventory_hostname }}:{{ patroni_port }}
   connect_address: {{ inventory_hostname }}:{{ patroni_port }}
 {% if patroni_ssl_enabled|bool %}
   cacert:   '/etc/pki/ca.crt'
@@ -448,7 +451,7 @@ postgresql:
   data_dir: {{ pg_data }}
   config_dir: {{ pg_data }}
   pgpass: {{ pg_dbsu_home }}/.pgpass
-  listen: {{ pg_listen }}:{{ pg_port }}
+  listen: {{ pg_listen_address }}:{{ pg_port }}
   connect_address: {{ inventory_hostname }}:{{ pg_port }}
   use_unix_socket: true # default: /var/run/postgresql, /tmp
 

@@ -2,7 +2,7 @@
 
 > How to maintain an existing PostgreSQL cluster with Pigsty?
 
-Here are 12 SOP for common pgsql admin tasks
+Here are some SOP for common pgsql admin tasks
 
 - Case 1:  [Create Cluster](#create-cluster)
 - Case 2:  [Create User](#create-user)
@@ -16,6 +16,11 @@ Here are 12 SOP for common pgsql admin tasks
 - Case 10: [Switchover](#switchover)
 - Case 11: [Backup Cluster](#backup-cluster)
 - Case 12: [Restore Cluster](#restore-cluster)
+- Case 13: Traffic Control
+- Case 14: Adding Packages
+- Case 15: Install Extension
+- Case 16: Minor Upgrade
+
 
 
 ## Cheatsheet

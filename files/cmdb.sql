@@ -1459,7 +1459,7 @@ INSERT INTO pigsty.default_var VALUES
 (854, 'pg_fs_bkup', '"/data/backups"', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'mountpoint/path for pg backup data, `/data/backup` by default', NULL),
 (855, 'pg_storage_type', '"SSD"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'storage type for pg main data, SSD,HDD, SSD by default', NULL),
 (856, 'pg_dummy_filesize', '"64MiB"', 'PGSQL', 'PG_BOOTSTRAP', 'size', 'C', 'size of `/pg/dummy`, hold 64MB disk space for emergency use', NULL),
-(857, 'pg_listen', '"0.0.0.0"', 'PGSQL', 'PG_BOOTSTRAP', 'ip', 'C', 'postgres listen address, `0.0.0.0` (all ipv4 addr) by default', NULL),
+(857, 'pg_listen', '"0.0.0.0"', 'PGSQL', 'PG_BOOTSTRAP', 'ip(s)', 'C/I', 'postgres/pgbouncer listen addresses, comma separated list', NULL),
 (858, 'pg_port', '5432', 'PGSQL', 'PG_BOOTSTRAP', 'port', 'C', 'postgres listen port, 5432 by default', NULL),
 (859, 'pg_localhost', '"/var/run/postgresql"', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'postgres unix socket dir for localhost connection', NULL),
 (860, 'pg_namespace', '"/pg"', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'top level key namespace in etcd, used by patroni & vip', NULL),

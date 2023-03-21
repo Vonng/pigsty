@@ -8,6 +8,14 @@
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
+{% if pg_listen == '0.0.0.0' or pg_listen == '*' %}
+{% set pg_listen_address = '*' %}
+{% else %}
+{% set pg_listen_address = pg_listen | replace('${ip}', inventory_hostname)  | replace('${lo}', '127.0.0.1') %}
+{% if pg_vip_enabled|bool and not pg_vip_address.startswith('127.0.0') and '/' in pg_vip_address %}
+{% set pg_listen_address = pg_listen_address | replace('${vip}', pg_vip_address.split('/')[0]) %}
+{% endif %}
+{% endif %}
 
 [users]
 %include /etc/pgbouncer/useropts.txt
@@ -17,7 +25,7 @@
 
 [pgbouncer]
 pool_mode                   = {{ pgbouncer_poolmode }}
-listen_addr                 = *
+listen_addr                 = {{ pg_listen_address }}
 listen_port                 = {{ pgbouncer_port }}
 auth_type                   = hba
 auth_file                   = /etc/pgbouncer/userlist.txt
