@@ -24,6 +24,7 @@
 - [**Parameter**](PARAM)
 - [**Playbook**](PLAYBOOK)
 - [**Application**](APP)
+- [**Security**](SECURITY)
 - [**File Structure**](FHS)
 - [**Release Note**](RELEASENOTE)
 - [**License**](https://github.com/Vonng/pigsty/blob/master/LICENSE)
