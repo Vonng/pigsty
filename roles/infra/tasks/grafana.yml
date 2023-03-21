@@ -25,7 +25,7 @@
       file: path={{ item }} state=absent
       with_items:
         - /etc/grafana/provisioning/dashboards/pigsty.yml
-        - /etc/grafana/provisioning/datasources/pigsty.yml
+        # - /etc/grafana/provisioning/datasources/pigsty.yml
 
     - name: remove grafana data
       tags: grafana_rmdata
@@ -55,12 +55,13 @@
     # Use RPM default config
     # - name: copy grafana systemd service
     #   copy: src=grafana.service dest=/usr/lib/systemd/system/grafana-server.service
+    #
+    # default datasources are registered in grafana.py since grafana 9.4 has a bug
+    # - name: render provisioning datasources
+    #   template: src=grafana/datasource.yml.j2 dest=/etc/grafana/provisioning/datasources/pigsty.yml owner=grafana group=grafana
 
     - name: render /etc/grafana/grafana.ini
       template: src=grafana/grafana.ini.j2 dest=/etc/grafana/grafana.ini owner=grafana group=grafana
-
-    - name: render provisioning datasources
-      template: src=grafana/datasource.yml.j2 dest=/etc/grafana/provisioning/datasources/pigsty.yml owner=grafana group=grafana
 
     - name: render provisioning dashboards
       template: src=grafana/dashboard.yml.j2 dest=/etc/grafana/provisioning/dashboards/pigsty.yml owner=grafana group=grafana

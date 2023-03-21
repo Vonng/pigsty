@@ -8,6 +8,15 @@ PASSWORD = os.environ.get("GRAFANA_PASSWORD", 'pigsty')
 PORTALS = os.environ.get("INFRA_PORTAL", "")
 USE_HTTPS = os.environ.get("USE_HTTPS", "false")
 
+METADB_PASSWORD = 'DBUser.Viewer'
+DEFAULT_DATASOURCES = {
+    'ds-prometheus': {'uid': 'ds-prometheus', 'orgId': 1, 'name': 'Prometheus', 'type': 'prometheus', 'typeName': 'Prometheus', 'typeLogoUrl': 'public/app/plugins/datasource/prometheus/img/prometheus_logo.svg', 'access': 'proxy',
+     'url': 'http://127.0.0.1:9090', 'user': '', 'database': '', 'basicAuth': False, 'isDefault': True, 'jsonData': {'queryTimeout': '60s', 'timeInterval': '2s', 'tlsAuth': False, 'tlsAuthWithCACert': False}, 'readOnly': False},
+    'ds-meta': {'uid': 'ds-meta', 'orgId': 1, 'name': 'Meta', 'type': 'postgres', 'typeName': 'PostgreSQL', 'access': 'proxy', 'url': '127.0.0.1:5432', 'user': 'dbuser_view', 'database': 'meta', 'basicAuth': False, 'isDefault': False, 'readOnly': True,
+     'jsonData': {'connMaxLifetime': 14400, 'maxIdleConns': 10, 'maxOpenConns': 64,  'postgresVersion': 1500, 'sslmode': 'require', 'tlsAuth': False, 'tlsAuthWithCACert': False}, 'secureJsonData': { 'password': METADB_PASSWORD }},
+    'ds-loki': {'uid': 'ds-loki', 'orgId': 1, 'name': 'Loki', 'type': 'loki', 'typeName': 'Loki', 'access': 'proxy', 'url': 'http://127.0.0.1:3100', 'basicAuth': False, 'isDefault': False, 'jsonData': {}, 'readOnly': False}}
+
+
 ##########################################
 # load dashboard
 ############################w##############
@@ -142,8 +151,11 @@ def get_datasource_id_by_name(name):
     return get('datasources/id/%s' % name).get('id')
 
 
-def add_datasource(ds):
-    return put('datasources', ds)
+def create_datasource(ds):
+    return post('datasources', ds)
+
+def update_datasource(uid, ds):
+    return put('datasources/uid/%s'% uid, ds)
 
 
 def ds_query(dsID, query):
@@ -332,6 +344,12 @@ def clean_all():
         print("clean: folder %s" % f)
         del_folder(f)
 
+def add_default_datasource():
+    for k, v in DEFAULT_DATASOURCES.items():
+        print("init: data source %s" % k)
+        create_datasource(v)
+        update_datasource(k, v)
+
 
 def usage():
     print("""
@@ -339,6 +357,7 @@ def usage():
                 init [dashboard_dir=.]  # provisioning grafana
                 load [dashboard_dir=.]  # load folders & dashboards 
                 dump [dashboard_dir=.]  # dump folders & dashboards
+                ds                      # init data sources
                 clean                   # clean folders & dashboards
     """)
 
@@ -367,11 +386,14 @@ if __name__ == '__main__':
         exit(2)
 
     if action == 'init':
+        add_default_datasource()
         init_all(dashboard_dir_path)
     elif action == 'load':
         load_all(dashboard_dir_path)
     elif action == 'dump':
         dump_all(dashboard_dir_path)
+    elif action == 'ds':
+        add_default_datasource()
     else:
         usage()
         exit(3)
