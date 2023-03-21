@@ -47,22 +47,22 @@ The admin node is also the default and first infra node, and infra nodes can be 
 
 The node with [PGSQL](PGSQL) module installed is called a PGSQL node. The node and pg instance is 1:1 deployed. And node instance can be borrowed from corresponding pg instances with [`node_id_from_pg`](PARAM#node_id_from_pg).
 
-|     Component      | Port | Description                                                |
-| :----------------: | :--: | ---------------------------------------------------------- |
-|      Postgres      | 5432 | Pigsty CMDB                                                |
-|     Pgbouncer      | 6432 | Pgbouncer Connection Pooling Service                       |
-|      Patroni       | 8008 | Patroni HA Component                                       |
-|  Haproxy Primary   | 5433 | Primary connection pool: Read/Write Service                |
-|  Haproxy Replica   | 5434 | Replica connection pool: Read-only Service                 |
-|  Haproxy Default   | 5436 | Primary Direct Connect Service                             |
-|  Haproxy Offline   | 5438 | Offline Direct Connect: Offline Read Service               |
-| Haproxy `service`  | 543x | Customized Services                                        |
-|   Haproxy Admin    | 9101 | Monitoring metrics and traffic management                  |
-|    PG Exporter     | 9630 | PG Monitoring Metrics Exporter                             |
-| PGBouncer Exporter | 9631 | PGBouncer Monitoring Metrics Exporter                      |
-|   Node Exporter    | 9100 | Node Monitoring Metrics Exporter                           |
-|      Promtail      | 9080 | Collection of Postgres, Pgbouncer, Patroni logs (Optional) |
-|    vip-manager     |  -   | Bind VIP to the primary                                    |
+|     Component      | Port | Description                                  |
+| :----------------: | :--: | ---------------------------------------------|
+|      Postgres      | 5432 | Pigsty CMDB                                  |
+|     Pgbouncer      | 6432 | Pgbouncer Connection Pooling Service         |
+|      Patroni       | 8008 | Patroni HA Component                         |
+|  Haproxy Primary   | 5433 | Primary connection pool: Read/Write Service  |
+|  Haproxy Replica   | 5434 | Replica connection pool: Read-only Service   |
+|  Haproxy Default   | 5436 | Primary Direct Connect Service               |
+|  Haproxy Offline   | 5438 | Offline Direct Connect: Offline Read Service |
+| Haproxy `service`  | 543x | Customized Services                          |
+|   Haproxy Admin    | 9101 | Monitoring metrics and traffic management    |
+|    PG Exporter     | 9630 | PG Monitoring Metrics Exporter               |
+| PGBouncer Exporter | 9631 | PGBouncer Monitoring Metrics Exporter        |
+|   Node Exporter    | 9100 | Node Monitoring Metrics Exporter             |
+|      Promtail      | 9080 | Collect Postgres, Pgbouncer, Patroni logs    |
+|    vip-manager     |  -   | Bind VIP to the primary                      |
 
 
 
@@ -104,7 +104,8 @@ node.yml -t node_admin -k -K -e ansible_user=<another admin>   # input ssh/sudo 
 * [`node.yml`](https://github.com/vonng/pigsty/blob/master/node.yml) : Init node for pigsty
 * [`node-rm.yml`](https://github.com/vonng/pigsty/blob/master/node-rm.yml) : Remove node from pigsty
 
-[![asciicast](https://asciinema.org/a/566413.svg)](https://asciinema.org/a/566413)
+[![asciicast](https://asciinema.org/a/568807.svg)](https://asciinema.org/a/568807)
+
 
 
 ----------------
@@ -141,7 +142,7 @@ There are 9 sections, 58 parameters about [`NODE`](PARAM#node) module.
 <details><summary>Parameters</summary>
 
 | Parameter                                                  | Section                                |   Type    | Level | Comment                                                     |
-| ---------------------------------------------------------- | -------------------------------------- | :-------: | :---: | ----------------------------------------------------------- |
+|------------------------------------------------------------|----------------------------------------|:---------:|:-----:|-------------------------------------------------------------|
 | [`nodename`](PARAM#nodename)                               | [`NODE_ID`](PARAM#node_id)             |  string   |   I   | node instance identity, use hostname if missing, optional   |
 | [`node_cluster`](PARAM#node_cluster)                       | [`NODE_ID`](PARAM#node_id)             |  string   |   C   | node cluster identity, use 'nodes' if missing, optional     |
 | [`nodename_overwrite`](PARAM#nodename_overwrite)           | [`NODE_ID`](PARAM#node_id)             |   bool    |   C   | overwrite node's hostname with nodename?                    |

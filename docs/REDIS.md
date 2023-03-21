@@ -82,6 +82,9 @@ bin/redis-rm 10.10.10.10 6501   # remove redis instance '10.10.10.10:6501'
 ```
 
 
+[![asciicast](https://asciinema.org/a/568808.svg)](https://asciinema.org/a/568808)
+
+
 
 -------------
 

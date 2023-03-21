@@ -96,7 +96,7 @@ bin/pgsql-add <cls>               # init pgsql instances of cluster <cls>  # ./p
 
 <details><summary>Example: Create Cluster</summary>
 
-[![asciicast](https://asciinema.org/a/566417.svg)](https://asciinema.org/a/566417)
+[![asciicast](https://asciinema.org/a/568810.svg)](https://asciinema.org/a/568810)
 
 </details>
 
@@ -111,6 +111,12 @@ To create a new business user on the existing Postgres cluster, add user definit
 bin/pgsql-user <cls> <username>   # ./pgsql-user.yml -l <cls> -e username=<username>
 ```
 
+<details><summary>Example: Create Business User</summary>
+
+[![asciicast](https://asciinema.org/a/568789.svg)](https://asciinema.org/a/568789)
+
+</details>
+
 
 
 
@@ -123,6 +129,12 @@ bin/pgsql-db <cls> <dbname>       # ./pgsql-db.yml -l <cls> -e dbname=<dbname>
 ```
 
 Note: If the database has specified an owner, the user should already exist, or you'll have to [Create User](#create-user) first.
+
+<details><summary>Example: Create Business Database</summary>
+
+[![asciicast](https://asciinema.org/a/568790.svg)](https://asciinema.org/a/568790)
+
+</details>
 
 
 
@@ -140,6 +152,13 @@ bin/pgsql-svc <cls>               # pgsql.yml -l <cls> -t pg_service -e pg_reloa
 bin/pgsql-svc <cls> [ip...]       # pgsql.yml -l ip... -t pg_service -e pg_reload=true
 ```
 
+<details><summary>Example: Reload PG Service to Kick one Instance</summary>
+
+[![asciicast](https://asciinema.org/a/568815.svg)](https://asciinema.org/a/568815)
+
+</details>
+
+
 
 
 
@@ -155,6 +174,12 @@ To reload postgres & pgbouncer HBA rules on entire cluster or specific instances
 bin/pgsql-hba <cls>               # pgsql.yml -l <cls> -t pg_hba,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
 bin/pgsql-hba <cls> [ip...]       # pgsql.yml -l ip... -t pg_hba,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
 ```
+
+<details><summary>Example: Reload Cluster HBA Rules</summary>
+
+[![asciicast](https://asciinema.org/a/568794.svg)](https://asciinema.org/a/568794)
+
+</details>
 
 
 
@@ -196,6 +221,11 @@ Note: patroni unsafe RestAPI access is limit from infra/admin nodes and protecte
 
 </details>
 
+<details><summary>Example: Config Cluster with PatroniCtl</summary>
+
+[![asciicast](https://asciinema.org/a/568799.svg)](https://asciinema.org/a/568799)
+
+</details>
 
 
 
@@ -424,6 +454,15 @@ pb info                           # check backup information
 
 Check [Backup](PGSQL-PITR) & PITR for details.
 
+<details><summary>Example: Make Backups</summary>
+
+You can add crontab to [`node_crontab`](PARAM#node_crontab) to specify your backup policy.
+
+[![asciicast](https://asciinema.org/a/568813.svg)](https://asciinema.org/a/568813)
+
+</details>
+
+
 <details><summary>Example: Create routine backup crontab</summary>
 
 You can add crontab to [`node_crontab`](PARAM#node_crontab) to specify your backup policy. 
@@ -438,6 +477,7 @@ You can add crontab to [`node_crontab`](PARAM#node_crontab) to specify your back
 ```
 
 </details>
+
 
 
 
