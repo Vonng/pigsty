@@ -16,11 +16,10 @@ Here are some SOP for common pgsql admin tasks
 - Case 10: [Switchover](#switchover)
 - Case 11: [Backup Cluster](#backup-cluster)
 - Case 12: [Restore Cluster](#restore-cluster)
-- Case 13: Traffic Control
-- Case 14: Adding Packages
-- Case 15: Install Extension
-- Case 16: Minor Upgrade
-
+- Case 13: [Adding Packages](#adding-packages)
+- Case 14: [Install Extension](#install-extension)
+- Case 15: [Minor Upgrade](#minor-upgrade)
+- Case 16: [Major Upgrade](#major-upgrade)
 
 
 ## Cheatsheet
@@ -170,6 +169,17 @@ pg edit-config <cls>              # interactive config a cluster with patronictl
 ```
 
 Change patroni parameters & `postgresql.parameters`, save & apply changes with the wizard.
+
+<details><summary>Example: Config Cluster in Non-Interactive Manner</summary>
+
+You can skip interactive mode and use `-p` option to override postgres parameters, for example: 
+
+```bash
+pg edit-config -p log_min_duration_statement=1000 pg-test
+pg edit-config --force -p shared_preload_libraries='timescaledb, pg_cron, pg_stat_statements, auto_explain'
+```
+
+</details>
 
 <details><summary>Example: Change Cluster Config with Patroni REST API</summary>
 
@@ -332,7 +342,8 @@ You can use playbook command line args to explicitly overwrite it to force the p
 You can perform a PostgreSQL cluster switchover with patroni cmd.
 
 ```bash
-pg switchover <cls>
+pg switchover <cls>   # interactive mode, you can skip that with following options
+pg switchover --leader pg-test-1 --candidate=pg-test-2 --scheduled=now --force pg-test
 ```
 
 <details><summary>Example: Switchover pg-test</summary>
@@ -462,3 +473,134 @@ pgbackrest --stanza=pg-meta --type=immediate --target-action=promote \
 ```
 
 </details>
+
+
+
+
+## Adding Packages
+
+To add newer version of RPM packages, you have to add them to [`repo_packages`](PARAM#repo_packages) and [`repo_url_packages`](PARAM#repo_url_packages)
+
+And remove `/www/pigsty/repo_complete` flag file then rebuild repo with `./infra.yml -t repo_build`. 
+
+Then you can install these packages with `ansible` module `package`:
+
+```bash
+ansible pg-test -b -m package -a "name=pg_cron_15,topn_15,pg_stat_monitor_15*"  # install some packages
+```
+
+<details><summary>Update Packages Manually</summary>
+
+```bash
+# add repo upstream on admin node, then download them manually
+cd ~/pigsty; ./infra.yml -t repo_upstream                 # add upstream repo (internet)
+cd /www/pigsty;  repotrack "some_new_package_name"        # download the latest RPMs
+cd ~/pigsty; ./infra.yml -t repo_create                   # re-create local yum repo
+ansible all -b -a 'yum clean all'                         # clean node repo cache
+ansible all -b -a 'yum makecache'                         # remake yum cache from the new repo
+```
+
+For example, you can then install or upgrade packages with:
+
+```bash
+ansible pg-test -b -m package -a "name=postgresql15* state=latest"
+```
+
+</details>
+
+
+
+
+## Install Extension
+
+If you want to install extension on pg clusters, Add them to [`pg_extensions`](PARAM#pg_extensions) and make sure them installed with:
+
+```bash
+./pgsql.yml -t pg_extension     # install extensions
+```
+
+Some extension needs to be loaded in `shared_preload_libraries`, You can add them to [`pg_libs`](PARAM#pg_libs), or [Config](#config-cluster) an existing cluster.
+
+Finally, `CREATE EXTENSION <extname>;` on the cluster primary instance to install it. 
+
+<details><summary>Example: Install pg_cron on pg-test cluster</summary>
+
+```bash
+ansible pg-test -b -m package -a "name=pg_cron_15"          # install pg_cron packages on all nodes
+# add pg_cron to shared_preload_libraries
+pg edit-config --force -p shared_preload_libraries='timescaledb, pg_cron, pg_stat_statements, auto_explain'
+pg restart --force pg-test                                  # restart cluster
+psql -h pg-test -d postgres -c 'CREATE EXTENSION pg_cron;'  # install pg_cron on primary
+```
+
+</details>
+
+
+
+
+## Minor Upgrade
+
+To perform a minor server version upgrade/downgrade, you have to [add packages](#adding-packages) to yum repo first.
+
+Then perform a rolling upgrade/downgrade from all replicas, then switchover the cluster to upgrade the leader.
+
+```bash
+ansible <cls> -b -a "yum upgrade/downgrade -y <pkg>"    # upgrade/downgrade packages
+pg restart --force <cls>                                # restart cluster
+```
+
+<details><summary>Example: Downgrade PostgreSQL 15.2 to 15.1</summary>
+
+Add 15.1 packages to yum repo and refresh node yum cache:
+
+```bash
+cd ~/pigsty; ./infra.yml -t repo_upstream               # add upstream repo backup
+cd /www/pigsty; repotrack postgresql15-*-15.1           # add 15.1 packages to yum repo
+cd ~/pigsty; ./infra.yml -t repo_create                 # re-create repo
+ansible pg-test -b -a 'yum clean all'                   # clean node repo cache
+ansible pg-test -b -a 'yum makecache'                   # remake yum cache from the new repo
+``` 
+
+Perform a downgrade and restart the cluster:
+
+```bash
+ansible pg-test -b -a "yum downgrade -y postgresql15*"  # downgrade packages
+pg restart --force pg-test                              # restart entire cluster to finish upgrade
+```
+
+</details>
+
+<details><summary>Example: Upgrade PostgreSQL 15.1 back to 15.2</summary>
+
+This time we upgrade in a rolling fashion:
+
+```bash
+ansible pg-test -b -a "yum upgrade -y postgresql15*"    # upgrade packages
+ansible pg-test -b -a '/usr/pgsql/bin/pg_ctl --version' # check binary version is 15.2
+pg restart --role replica --force pg-test               # restart replicas
+pg switchover --leader pg-test-1 --candidate=pg-test-2 --scheduled=now --force pg-test    # switchover
+pg restart --role primary --force pg-test               # restart primary
+```
+
+</details>
+
+
+
+
+## Major Upgrade
+
+The simplest way to achieve a major version upgrade is to create a new cluster with the new version, then [migration](PGSQL-MIGRATION) with logical replication. 
+
+You can also perform an in-place major upgrade, which is not recommended especially when certain extensions are installed. But it is possible.
+
+Assume you want to upgrade PostgreSQL 14 to 15, you have to [add packages](#adding-packages) to yum repo, and guarantee the extensions has exact same version too. 
+
+```bash
+./pgsql.yml -t pg_pkg -e pg_version=15                         # install packages for pg 15
+sudo su - postgres; mkdir -p /data/postgres/pg-meta-15/data/   # prepare directories for 15
+pg_upgrade -b /usr/pgsql-14/bin/ -B /usr/pgsql-15/bin/ -d /data/postgres/pg-meta-14/data/ -D /data/postgres/pg-meta-15/data/ -v -c # preflight
+pg_upgrade -b /usr/pgsql-14/bin/ -B /usr/pgsql-15/bin/ -d /data/postgres/pg-meta-14/data/ -D /data/postgres/pg-meta-15/data/ --link -j8 -v -c
+rm -rf /usr/pgsql; ln -s /usr/pgsql-15 /usr/pgsql;             # fix binary links 
+mv /data/postgres/pg-meta-14 /data/postgres/pg-meta-15         # rename data directory
+rm -rf /pg; ln -s /data/postgres/pg-meta-15 /pg                # fix data dir links
+```

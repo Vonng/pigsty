@@ -101,7 +101,7 @@ curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0
 
 </details>
 
-[![asciicast](https://asciinema.org/a/566220.svg)](https://asciinema.org/a/566220)
+[![asciicast](https://asciinema.org/a/568771.svg)](https://asciinema.org/a/568771)
 
 
 
@@ -261,6 +261,7 @@ pg-meta:      # 3 instance postgres cluster `pg-meta`
     pg_vip_enabled: true
     pg_vip_address: 10.10.10.2/24
     pg_vip_interface: eth1
+    pg_listen: '${ip},${vip},${lo}'
     patroni_ssl_enabled: true
     pgbouncer_sslmode: require
     pgbackrest_method: minio
@@ -401,6 +402,14 @@ minio:
 ```
 
 </details>
+
+
+<details><summary>Example: Install Pigsty 4-Node Sandbox</summary>
+
+[![asciicast](https://asciinema.org/a/566220.svg)](https://asciinema.org/a/566220)
+
+</details>
+
 
 Check [**Configuration**](CONFIG) for details.
 
