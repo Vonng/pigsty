@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2023-02-26
+# Mtime     :   2023-03-21
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -19,7 +19,6 @@ DOCKER_PKG=pigsty-docker-$(VERSION).tgz
 EL7_PKG=pigsty-pkg-$(VERSION).el7.x86_64.tgz
 EL8_PKG=pigsty-pkg-$(VERSION).el8.x86_64.tgz
 EL9_PKG=pigsty-pkg-$(VERSION).el9.x86_64.tgz
-MATRIX_PKG=pigsty-matrixdb-$(VERSION).el7.x86_64.tgz
 
 ###############################################################
 #                      1. Quick Start                         #
@@ -363,8 +362,6 @@ copy-el8:
 	scp dist/${VERSION}/${EL8_PKG} meta:/tmp/pkg.tgz
 copy-el9:
 	scp dist/${VERSION}/${EL9_PKG} meta:/tmp/pkg.tgz
-copy-matrix:
-	scp dist/${VERSION}/${MATRIX_PKG} meta:/tmp/matrix.tgz
 copy-app:
 	scp dist/${VERSION}/${APP_PKG} meta:~/app.tgz
 	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
@@ -379,10 +376,6 @@ use-src:
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 use-pkg:
 	ssh meta "sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www"
-use-matrix:
-	ssh meta 'sudo tar -xf /tmp/matrix.tgz -C /www'
-	scp files/matrix.repo meta:/tmp/matrix.repo
-	ssh meta sudo mv -f /tmp/matrix.repo /www/matrix.repo
 use-all: use-src use-pkg
 
 # load config into cmdb
@@ -415,12 +408,6 @@ release-pkg: cache
 cache:
 	scp bin/cache meta:/tmp/cache
 	ssh meta "sudo bash /tmp/cache"
-
-# release matrixdb packages
-release-matrix:
-	#ssh meta 'sudo cp -r /www/matrix /tmp/matrix; sudo chmod -R a+r /www/matrix'
-	ssh meta sudo tar zcvf /tmp/matrix.tgz -C /www matrix
-	scp meta:/tmp/matrix.tgz dist/${VERSION}/${MATRIX_PKG}.tgz
 
 # release docker packages
 release-docker:
@@ -501,8 +488,8 @@ el9: v9 new ssh copy-el9 use-pkg
         st status suspend resume v1 v4 v7 v8 v9 vb vc vnew \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
-        copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb \
-        r releast rp release-pkg cache release-matrix release-docker p publish \
+        copy copy-src copy-pkg copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
+        r releast rp release-pkg cache release-docker p publish \
         build-vagrant build build-src build-repo build-boot build-release build-el7 build-el8 build-el9 buildm-el7 buildm-el8 buildm-el9 \
         meta full build el7 el8 el9
 ###############################################################
