@@ -290,7 +290,7 @@ Parameters about pigsty infrastructure components: local yum repo, nginx, dnsmas
 This section contains some metadata of current pigsty deployments, such as version string, admin node IP address, repo mirror [`region`](#region) and http(s) proxy when downloading pacakges.
 
 ```yaml
-    version: v2.0.0                # pigsty version string
+    version: v2.0.1                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default,china,europe
     proxy_env:                        # global proxy env when downloading packages
@@ -306,7 +306,7 @@ name: `version`, type: `string`, level: `G`
 
 pigsty version string
 
-default value:`v2.0.0`
+default value:`v2.0.1`
 
 It will be used for pigsty introspection & content rendering.
 

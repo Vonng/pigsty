@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                             | Release                                                                                   |
 |:----------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.0.1](#v201) | 2023-03-31 | Working in progress with some minor bug fixes           | WIP                                                                                       |
+| [v2.0.1](#v201) | 2023-03-21 | v2 Bug Fix, security enhance and bump grafana version   | [v2.0.1](https://github.com/Vonng/pigsty/releases/tag/v2.0.1)                             |
 | [v2.0.0](#v200) | 2023-02-28 | Compatibility Security Maintainability Enhancement      | [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)                             |
 | [v1.5.1](#v151) | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
 | [v1.5.0](#v150) | 2022-05-31 | Docker Applications                                     | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
@@ -34,33 +34,50 @@
 
 ## v2.0.1
 
-> WORKING IN PROGRESS!
+Bug fix for v2.0.0, security improvement routine update. 
 
 **Enhancement**
 
+* Replace the pig shape logo for compliance with the PostgreSQL trademark policy.
 * Bump grafana version to v9.4 with better UI and bugfix.
 * Bump patroni version to v3.0.1 with some bugfix.
-* New script `bin/upgrade` for pigsty self upgrade.
 * Change: rollback grafana systemd service file to rpm default.
 * Use slow `copy` instead of `rsync` to copy grafana dashboards.
-* enhancement: add back default repo files after bootstrap
-* Add asciinema video for administration tasks
+* Enhancement: add back default repo files after bootstrap
+* Add asciinema video for various administration tasks.
 * Security Enhance Mode: restrict monitor user privilege.
-* New config template: `dual.yml` for two node deployment.
-* Enable `log_connections` and `log_disconnections` in `crit.yml` template
-* Enable `$lib/passwordcheck` in `pg_libs` in `crit.yml` template
-* Explicitly grant monitor view permission to `pg_monitor` role
+* New config template: `dual.yml` for two-node deployment.
+* Enable `log_connections` and `log_disconnections` in `crit.yml` template.
+* Enable `$lib/passwordcheck` in `pg_libs` in `crit.yml` template.
+* Explicitly grant monitor view permission to `pg_monitor` role.
 * Remove default `dbrole_readonly` from `dbuser_monitor` to limit monitor user privilege
-* Replace the pig shape logo
+* Now patroni listen on `{{ inventory_hostname }}` instead of `0.0.0.0`
+* Now you can control postgres/pgbouncer listen to address with `pg_listen`
+* Now you can use placeholder `${ip}`, `${lo}`, `${vip}` in `pg_listen`
+* Bump Aliyun terraform image to rocky Linux 9 instead of centos 7.9
+* Bump bytebase to v1.14.0
 
 
 **Bug Fixes**
 
 * Add missing advertise address for alertmanager
-* Add `-a password` to redis-join task @ `redis.yml` 
+* Fix missing `pg_mode` error when adding postgres user with `bin/pgsql-user`
+* Add `-a password` to redis-join task @ `redis.yml`
 * Fix missing default value in `infra-rm.yml`.`remove infra data`
 * Fix prometheus targets file ownership to `prometheus`
-* Use admin user rather than root to delete metadata in dcs
+* Use admin user rather than root to delete metadata in DCS
+* Fix Meta datasource missing database name due to grafana 9.4 bug.
+
+
+**Caveats**
+
+Official EL8 pgdg upstream is broken now, DO use it with caution!
+
+Affected packages: `postgis33_15, pgloader, postgresql_anonymizer_15*, postgresql_faker_15`
+
+
+
+
 
 
 ------------------------------
