@@ -24,6 +24,6 @@
 - name: write plain biz user password to pgpass for citus cluster
   tags: pg_user
   become_user: "{{ pg_dbsu|default('postgres') }}"
-  when: pg_mode == 'citus' and user.password is defined and user.password != '' and not user.password.startswith('md5')  and not user.password.startswith('scram')
+  when: pg_mode is defined and pg_mode|default('pgsql') == 'citus' and user.password is defined and user.password != '' and not user.password.startswith('md5')  and not user.password.startswith('scram')
   shell: /bin/bash /pg/bin/pg-pass-add "{{ user.name }}" "{{ user.password }}"
 ...
