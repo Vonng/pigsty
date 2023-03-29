@@ -122,7 +122,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.3.6",
+            "pluginVersion": "9.4.3",
             "targets": [
                 {
                     "datasource": {
@@ -194,7 +194,9 @@
                     },
                     "custom": {
                         "align": "center",
-                        "displayMode": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
                         "inspect": false
                     },
                     "mappings": [],
@@ -274,6 +276,7 @@
             "id": 179,
             "options": {
                 "footer": {
+                    "countRows": false,
                     "fields": "",
                     "reducer": [
                         "sum"
@@ -283,7 +286,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "9.3.6",
+            "pluginVersion": "9.4.3",
             "targets": [
                 {
                     "datasource": {
@@ -369,178 +372,9 @@
                     },
                     "custom": {
                         "align": "center",
-                        "displayMode": "auto",
-                        "inspect": false
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "IP"
+                        "cellOptions": {
+                            "type": "auto"
                         },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": []
-                            },
-                            {
-                                "id": "custom.align",
-                                "value": "center"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "ID"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 5,
-                "w": 6,
-                "x": 14,
-                "y": 1
-            },
-            "id": 221,
-            "options": {
-                "footer": {
-                    "fields": "",
-                    "reducer": [
-                        "sum"
-                    ],
-                    "show": false
-                },
-                "showHeader": false,
-                "sortBy": []
-            },
-            "pluginVersion": "9.3.6",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "postgres",
-                        "uid": "ds-meta"
-                    },
-                    "editorMode": "code",
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT key AS ip, (value ->> 'infra_seq')::INTEGER AS infra_seq, \n       'infra-' || (value ->> 'infra_seq') AS name\nFROM pigsty.group_config gc, jsonb_each(gc.hosts)\nWHERE cls = 'infra';",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "value"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "sql": {
-                        "columns": [
-                            {
-                                "parameters": [],
-                                "type": "function"
-                            }
-                        ],
-                        "groupBy": [
-                            {
-                                "property": {
-                                    "type": "string"
-                                },
-                                "type": "groupBy"
-                            }
-                        ],
-                        "limit": 50
-                    },
-                    "timeColumn": "time",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Infra Nodes",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "conf": true,
-                            "haproxy": true,
-                            "is_meta": true,
-                            "node_exporter": true,
-                            "pg_exporter": true,
-                            "pgb_exporter": true,
-                            "pgbouncer": true,
-                            "postgres": true,
-                            "promtail": true,
-                            "redis_exporter": true
-                        },
-                        "indexByName": {
-                            "infra_seq": 0,
-                            "ip": 2,
-                            "name": 1
-                        },
-                        "renameByName": {
-                            "consul": "Consul",
-                            "docker": "Docker",
-                            "etcd": "Etcd",
-                            "grafana": "Grafana",
-                            "groups": "Groups",
-                            "infra_seq": "ID",
-                            "ip": "IP",
-                            "is_meta": "",
-                            "key": "Name",
-                            "loki": "Loki",
-                            "name": "Name",
-                            "nameserver": "DNS",
-                            "nginx": "Nginx",
-                            "node_exporter": "",
-                            "prometheus": "Prometheus",
-                            "value": "IP"
-                        }
-                    }
-                }
-            ],
-            "type": "table"
-        },
-        {
-            "datasource": {
-                "type": "postgres",
-                "uid": "ds-meta"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
                         "inspect": false
                     },
                     "mappings": [],
@@ -562,8 +396,11 @@
                         },
                         "properties": [
                             {
-                                "id": "custom.displayMode",
-                                "value": "color-background"
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "gradient",
+                                    "type": "color-background"
+                                }
                             },
                             {
                                 "id": "custom.width",
@@ -600,12 +437,13 @@
             "gridPos": {
                 "h": 10,
                 "w": 4,
-                "x": 20,
+                "x": 14,
                 "y": 1
             },
             "id": 158,
             "options": {
                 "footer": {
+                    "countRows": false,
                     "fields": "",
                     "reducer": [
                         "sum"
@@ -614,7 +452,7 @@
                 },
                 "showHeader": false
             },
-            "pluginVersion": "9.3.6",
+            "pluginVersion": "9.4.3",
             "targets": [
                 {
                     "datasource": {
@@ -693,9 +531,17 @@
                     },
                     "custom": {
                         "align": "center",
-                        "displayMode": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
                         "inspect": false
                     },
+                    "links": [
+                        {
+                            "title": "Infra Overview",
+                            "url": "/d/infra-overview"
+                        }
+                    ],
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
@@ -716,7 +562,12 @@
                         "properties": [
                             {
                                 "id": "links",
-                                "value": []
+                                "value": [
+                                    {
+                                        "title": "Node Instance: ${__data.fields.IP}",
+                                        "url": "/d/node-instance?var-ip=${__data.fields.IP}"
+                                    }
+                                ]
                             },
                             {
                                 "id": "custom.align",
@@ -741,12 +592,13 @@
             "gridPos": {
                 "h": 5,
                 "w": 6,
-                "x": 14,
-                "y": 6
+                "x": 18,
+                "y": 1
             },
-            "id": 223,
+            "id": 221,
             "options": {
                 "footer": {
+                    "countRows": false,
                     "fields": "",
                     "reducer": [
                         "sum"
@@ -756,7 +608,193 @@
                 "showHeader": false,
                 "sortBy": []
             },
-            "pluginVersion": "9.3.6",
+            "pluginVersion": "9.4.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT key AS ip, (value ->> 'infra_seq')::INTEGER AS infra_seq, \n       'infra-' || (value ->> 'infra_seq') AS name\nFROM pigsty.group_config gc, jsonb_each(gc.hosts)\nWHERE cls = 'infra';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    },
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Infra Nodes",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "conf": true,
+                            "haproxy": true,
+                            "infra_seq": true,
+                            "is_meta": true,
+                            "node_exporter": true,
+                            "pg_exporter": true,
+                            "pgb_exporter": true,
+                            "pgbouncer": true,
+                            "postgres": true,
+                            "promtail": true,
+                            "redis_exporter": true
+                        },
+                        "indexByName": {
+                            "infra_seq": 0,
+                            "ip": 2,
+                            "name": 1
+                        },
+                        "renameByName": {
+                            "consul": "Consul",
+                            "docker": "Docker",
+                            "etcd": "Etcd",
+                            "grafana": "Grafana",
+                            "groups": "Groups",
+                            "infra_seq": "ID",
+                            "ip": "IP",
+                            "is_meta": "",
+                            "key": "Name",
+                            "loki": "Loki",
+                            "name": "Name",
+                            "nameserver": "DNS",
+                            "nginx": "Nginx",
+                            "node_exporter": "",
+                            "prometheus": "Prometheus",
+                            "value": "IP"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "links": [
+                        {
+                            "title": "ETCD Overview",
+                            "url": "/d/etcd-overview"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "IP"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node Instance: ${__data.fields.IP}",
+                                        "url": "/d/node-instance?var-ip=${__data.fields.IP}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "center"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "ID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 6,
+                "x": 18,
+                "y": 6
+            },
+            "id": 223,
+            "options": {
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": false,
+                "sortBy": []
+            },
+            "pluginVersion": "9.4.3",
             "targets": [
                 {
                     "datasource": {
@@ -824,7 +862,8 @@
                             "pgbouncer": true,
                             "postgres": true,
                             "promtail": true,
-                            "redis_exporter": true
+                            "redis_exporter": true,
+                            "seq": true
                         },
                         "indexByName": {
                             "cls": 3,
@@ -989,7 +1028,9 @@
                             },
                             "custom": {
                                 "align": "left",
-                                "displayMode": "auto",
+                                "cellOptions": {
+                                    "type": "auto"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -1361,7 +1402,9 @@
                             },
                             "custom": {
                                 "align": "left",
-                                "displayMode": "auto",
+                                "cellOptions": {
+                                    "type": "auto"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -1402,8 +1445,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             },
@@ -1565,7 +1610,9 @@
                             },
                             "custom": {
                                 "align": "left",
-                                "displayMode": "json-view",
+                                "cellOptions": {
+                                    "type": "json-view"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -1707,7 +1754,9 @@
                             },
                             "custom": {
                                 "align": "left",
-                                "displayMode": "json-view",
+                                "cellOptions": {
+                                    "type": "json-view"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -1849,7 +1898,9 @@
                             },
                             "custom": {
                                 "align": "left",
-                                "displayMode": "json-view",
+                                "cellOptions": {
+                                    "type": "json-view"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -1991,7 +2042,9 @@
                             },
                             "custom": {
                                 "align": "left",
-                                "displayMode": "json-view",
+                                "cellOptions": {
+                                    "type": "json-view"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -2265,7 +2318,9 @@
                             },
                             "custom": {
                                 "align": "left",
-                                "displayMode": "json-view",
+                                "cellOptions": {
+                                    "type": "json-view"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -2425,7 +2480,9 @@
                             },
                             "custom": {
                                 "align": "left",
-                                "displayMode": "json-view",
+                                "cellOptions": {
+                                    "type": "json-view"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -2585,7 +2642,9 @@
                             },
                             "custom": {
                                 "align": "left",
-                                "displayMode": "json-view",
+                                "cellOptions": {
+                                    "type": "json-view"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -2867,7 +2926,9 @@
                     },
                     "custom": {
                         "align": "auto",
-                        "displayMode": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
                         "inspect": false
                     },
                     "mappings": [],
@@ -2910,8 +2971,10 @@
                         },
                         "properties": [
                             {
-                                "id": "custom.displayMode",
-                                "value": "json-view"
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "json-view"
+                                }
                             }
                         ]
                     },
@@ -2938,6 +3001,7 @@
             "id": 163,
             "options": {
                 "footer": {
+                    "countRows": false,
                     "fields": "",
                     "reducer": [
                         "sum"
@@ -2947,7 +3011,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "9.3.6",
+            "pluginVersion": "9.4.3",
             "targets": [
                 {
                     "datasource": {
@@ -3032,7 +3096,9 @@
                             },
                             "custom": {
                                 "align": "center",
-                                "displayMode": "auto",
+                                "cellOptions": {
+                                    "type": "auto"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -3040,7 +3106,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -3057,8 +3124,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             },
@@ -3157,8 +3226,11 @@
                                         ]
                                     },
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     }
                                 ]
                             },
@@ -3173,8 +3245,11 @@
                                         "value": 100
                                     },
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     },
                                     {
                                         "id": "custom.inspect",
@@ -3218,7 +3293,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "red"
+                                                    "color": "red",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "orange",
@@ -3240,8 +3316,11 @@
                                         }
                                     },
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     }
                                 ]
                             },
@@ -3294,8 +3373,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             }
@@ -3305,11 +3386,12 @@
                         "h": 9,
                         "w": 24,
                         "x": 0,
-                        "y": 74
+                        "y": 16
                     },
                     "id": 164,
                     "options": {
                         "footer": {
+                            "countRows": false,
                             "fields": "",
                             "reducer": [
                                 "sum"
@@ -3319,7 +3401,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "9.3.2",
+                    "pluginVersion": "9.4.3",
                     "targets": [
                         {
                             "datasource": {
@@ -3412,7 +3494,9 @@
                             },
                             "custom": {
                                 "align": "center",
-                                "displayMode": "auto",
+                                "cellOptions": {
+                                    "type": "auto"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -3420,7 +3504,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -3509,8 +3594,11 @@
                                         ]
                                     },
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     }
                                 ]
                             },
@@ -3559,8 +3647,11 @@
                                         ]
                                     },
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     }
                                 ]
                             },
@@ -3595,8 +3686,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             },
@@ -3607,8 +3700,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             },
@@ -3639,8 +3734,11 @@
                                         ]
                                     },
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     },
                                     {
                                         "id": "custom.width",
@@ -3654,11 +3752,12 @@
                         "h": 10,
                         "w": 24,
                         "x": 0,
-                        "y": 84
+                        "y": 17
                     },
                     "id": 166,
                     "options": {
                         "footer": {
+                            "countRows": false,
                             "fields": "",
                             "reducer": [
                                 "sum"
@@ -3668,7 +3767,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "9.3.2",
+                    "pluginVersion": "9.4.3",
                     "targets": [
                         {
                             "datasource": {
@@ -3774,7 +3873,9 @@
                             },
                             "custom": {
                                 "align": "center",
-                                "displayMode": "auto",
+                                "cellOptions": {
+                                    "type": "auto"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -3799,8 +3900,11 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     },
                                     {
                                         "id": "custom.width",
@@ -3819,8 +3923,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             },
@@ -3897,8 +4003,11 @@
                                         "value": 100
                                     },
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     },
                                     {
                                         "id": "custom.inspect",
@@ -4158,7 +4267,9 @@
                             },
                             "custom": {
                                 "align": "auto",
-                                "displayMode": "auto",
+                                "cellOptions": {
+                                    "type": "auto"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -4200,8 +4311,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             },
@@ -4377,7 +4490,9 @@
                             },
                             "custom": {
                                 "align": "center",
-                                "displayMode": "auto",
+                                "cellOptions": {
+                                    "type": "auto"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -4402,8 +4517,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             },
@@ -4502,8 +4619,11 @@
                                         ]
                                     },
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     }
                                 ]
                             },
@@ -4518,8 +4638,11 @@
                                         "value": 100
                                     },
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     },
                                     {
                                         "id": "custom.inspect",
@@ -4585,8 +4708,11 @@
                                         }
                                     },
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     }
                                 ]
                             },
@@ -4639,8 +4765,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             },
@@ -4771,7 +4899,9 @@
                             },
                             "custom": {
                                 "align": "center",
-                                "displayMode": "auto",
+                                "cellOptions": {
+                                    "type": "auto"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -4796,8 +4926,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             },
@@ -4896,8 +5028,11 @@
                                         ]
                                     },
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     }
                                 ]
                             },
@@ -4912,8 +5047,11 @@
                                         "value": 100
                                     },
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     },
                                     {
                                         "id": "custom.inspect",
@@ -4979,8 +5117,11 @@
                                         }
                                     },
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "color-background"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
                                     }
                                 ]
                             },
@@ -5033,8 +5174,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             }
@@ -5156,7 +5299,9 @@
                             },
                             "custom": {
                                 "align": "auto",
-                                "displayMode": "auto",
+                                "cellOptions": {
+                                    "type": "auto"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -5198,8 +5343,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             },
@@ -5312,7 +5459,9 @@
                             },
                             "custom": {
                                 "align": "auto",
-                                "displayMode": "auto",
+                                "cellOptions": {
+                                    "type": "auto"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -5354,8 +5503,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             },
@@ -5471,7 +5622,9 @@
                             },
                             "custom": {
                                 "align": "auto",
-                                "displayMode": "auto",
+                                "cellOptions": {
+                                    "type": "auto"
+                                },
                                 "inspect": false
                             },
                             "mappings": [],
@@ -5513,8 +5666,10 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.displayMode",
-                                        "value": "json-view"
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
                                     }
                                 ]
                             },
@@ -5628,8 +5783,9 @@
             "type": "row"
         }
     ],
-    "refresh": false,
-    "schemaVersion": 37,
+    "refresh": "",
+    "revision": 1,
+    "schemaVersion": 38,
     "style": "light",
     "tags": [
         "Pigsty",
