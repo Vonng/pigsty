@@ -556,7 +556,7 @@ repo_packages:                    # which packages to be included
   - nginx nginx_exporter wget createrepo_c sshpass ansible python3 python3-pip python3-requests python3-jmespath mtail dnsmasq docker-ce docker-compose-plugin etcd
   - lz4 unzip bzip2 zlib yum dnf-utils pv jq git ncdu make patch bash lsof wget uuid tuned chrony perf flamegraph nvme-cli numactl grubby sysstat iotop htop modulemd-tools
   - netcat socat rsync ftp lrzsz s3cmd net-tools tcpdump ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal haproxy redis
-  - postgresql15* postgis33_15* citus_15* pglogical_15* pg_squeeze_15* wal2json_15* pg_repack_15* timescaledb-2-postgresql-15* timescaledb-tools
+  - postgresql15* postgis33_15* citus_15* pglogical_15* pg_squeeze_15* wal2json_15* pg_repack_15* pgvector_15* timescaledb-2-postgresql-15* timescaledb-tools
   - patroni patroni-etcd pgbouncer pgbadger pgbackrest tail_n_mail pgloader pg_activity libuser openldap-compat annobin gcc-plugin-annobin
   - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 pg_dbms_job_15
   - pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15 logerrors_15 pg_top_15
@@ -682,7 +682,7 @@ repo_packages:                    # which packages to be included
   - nginx nginx_exporter wget createrepo_c sshpass ansible python3 python3-pip python3-requests python3-jmespath mtail dnsmasq docker-ce docker-compose-plugin etcd
   - lz4 unzip bzip2 zlib yum dnf-utils pv jq git ncdu make patch bash lsof wget uuid tuned chrony perf flamegraph nvme-cli numactl grubby sysstat iotop htop modulemd-tools
   - netcat socat rsync ftp lrzsz s3cmd net-tools tcpdump ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal haproxy redis
-  - postgresql15* postgis33_15* citus_15* pglogical_15* pg_squeeze_15* wal2json_15* pg_repack_15* timescaledb-2-postgresql-15* timescaledb-tools
+  - postgresql15* postgis33_15* citus_15* pglogical_15* pg_squeeze_15* wal2json_15* pg_repack_15* pgvector_15* timescaledb-2-postgresql-15* timescaledb-tools
   - patroni patroni-etcd pgbouncer pgbadger pgbackrest tail_n_mail pgloader pg_activity libuser openldap-compat annobin gcc-plugin-annobin
   - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 pg_dbms_job_15
   - pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15 logerrors_15 pg_top_15
@@ -3677,7 +3677,7 @@ pg_packages:                      # pg packages to be installed, `${pg_version}`
   - postgresql${pg_version}*
   - pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest
 pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-  - postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} timescaledb-2-postgresql-${pg_version} citus*${pg_version}*
+  - postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} pgvector_${pg_version}* timescaledb-2-postgresql-${pg_version} citus*${pg_version}*
 ```
 
 
@@ -3811,7 +3811,7 @@ PostGIS, TimescaleDB, Citus, `pg_repack`, and `wal2json` will be installed by de
 
 ```yaml
 pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-  - postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} timescaledb-2-postgresql-${pg_version}
+  - postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} pgvector_${pg_version}* timescaledb-2-postgresql-${pg_version}
 ```
 
 
