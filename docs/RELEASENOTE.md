@@ -34,14 +34,23 @@
 
 ## v2.0.2
 
+**Highlight**
+
+* New extension [`pgvector`](https://github.com/pgvector/pgvecto)
+* MinIO CVE-2023-28432 fix, and upgrade to 20230324 with new policy API
+
+**Changes**
+
 * Add `pgvector` extension to support vector similarity search, now you can store OpenAI embedding with it!
 * [MinIO CVE-2023-28432]: https://github.com/Vonng/pigsty/issues/265
+* Add reload functionality to DNSMASQ systemd services
 * Bump pev to v1.8
 * Bump grafana to v9.4.7
-* Bump MinIO to 20230324
+* Bump MinIO and MCLI version to 20230324
+* Bump bytebase version to v1.15.0
 * Upgrade monitoring dashboards and fix dead links
 * Upgrade aliyun terraform template image to rockylinux 9
-* Following grafana provisioning API change since v9.4 
+* Adopt grafana provisioning API change since v9.4 
 * Add asciinema videos for various administration tasks
 * Fix broken EL8 pgsql deps: remove anonymizer_15 faker_15 and pgloader
 
