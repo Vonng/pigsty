@@ -3,7 +3,7 @@
 # File      :   public.yml
 # Desc      :   Pigsty Public Demo Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2023-02-26
+# Mtime     :   2023-03-31
 # Docs      :   https://vonng.github.io/pigsty/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -67,6 +67,7 @@ all:
         pg_services: [{ name: standby ,ip: "*" ,port: 5435 , dest: default ,selector: "[]" , backup: "[? pg_role == `primary`]" }]
         node_tune: tiny
         pg_conf: tiny.yml
+        node_hugepage_ratio: 0.30         # use 30% of total memory as hugepage for postgres
         node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
           - '00 01 * * 1 postgres /pg/bin/pg-backup full'
           - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
@@ -87,7 +88,7 @@ all:
 
 
   vars:                               # global variables
-    version: v2.0.1                   # pigsty version string
+    version: v2.0.2                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     infra_portal:                     # domain names and upstream servers

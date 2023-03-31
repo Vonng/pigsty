@@ -18,6 +18,10 @@ There are several built-in templates:
 * [build.yml](build.yml) : 3 nodes el7, el8, el9 for release building
 * [pubic.yml](public.yml) : config for [public demo](http://demo.pigsty.cc)
 * [test.yml](test.yml) : config for different EL distribution testing
+* [remote.yml](remote.yml) : example config for monitoring a remote pgsql cluster
+* [dual.yml](dual.yml) : example config for a two node deployment
+* [redis.yml](redis.yml) : example config for redis clusters
+* [minio.yml](minio.yml) : example config for a 3-node minio clusters
 
 
 * If `-m <mode>` is specified, corresponding `<mode>.yml` is used, otherwise:
