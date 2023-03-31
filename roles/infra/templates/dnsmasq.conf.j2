@@ -26,7 +26,7 @@ no-hosts
 
 # Uncomment these to enable DNSSEC validation and caching:
 # (Requires dnsmasq to be built with DNSSEC option.)
-#conf-file=%%PREFIX%%/share/dnsmasq/trust-anchors.conf
+#conf-file=/usr/share/dnsmasq/trust-anchors.conf
 #dnssec
 
 # Replies which are not DNSSEC signed may be legitimate, because the domain
@@ -89,16 +89,6 @@ no-hosts
 # subdomains to the vpn and search ipsets:
 #ipset=/yahoo.com/google.com/vpn,search
 
-# Add the IPs of all queries to yahoo.com, google.com, and their
-# subdomains to netfilters sets, which is equivalent to
-# 'nft add element ip test vpn { ... }; nft add element ip test search { ... }'
-#nftset=/yahoo.com/google.com/ip#test#vpn,ip#test#search
-
-# Use netfilters sets for both IPv4 and IPv6:
-# This adds all addresses in *.yahoo.com to vpn4 and vpn6 for IPv4 and IPv6 addresses.
-#nftset=/yahoo.com/4#ip#test#vpn4
-#nftset=/yahoo.com/6#ip#test#vpn6
-
 # You can control how dnsmasq talks to a server: this forces
 # queries to 10.1.2.3 to be routed via eth1
 # server=10.1.2.3@eth1
@@ -110,14 +100,16 @@ no-hosts
 
 # If you want dnsmasq to change uid and gid to something other
 # than the default, edit the following lines.
-#user=
-#group=
+user=dnsmasq
+group=dnsmasq
 
 # If you want dnsmasq to listen for DHCP and DNS requests only on
 # specified interfaces (and the loopback) give the name of the
 # interface (eg eth0) here.
 # Repeat the line for more than one interface.
 #interface=
+# Listen only on localhost by default
+#interface=lo
 # Or you can specify which interface _not_ to listen on
 #except-interface=
 # Or which to listen on by address (remember to include 127.0.0.1 if
@@ -128,6 +120,10 @@ no-hosts
 # disable DHCP and TFTP on it.
 #no-dhcp-interface=
 
+# Serve DNS and DHCP only to networks directly connected to this machine.
+# Any interface= line will override it.
+#local-service
+
 # On systems which support it, dnsmasq binds the wildcard address,
 # even when it is listening on only some interfaces. It then discards
 # requests that it shouldn't reply to. This has the advantage of
@@ -135,7 +131,11 @@ no-hosts
 # want dnsmasq to really bind only the interfaces it is listening on,
 # uncomment this option. About the only time you may need this is when
 # running another nameserver on the same machine.
-#bind-interfaces
+#
+# To listen only on localhost and do not receive packets on other
+# interfaces, bind only to lo device. Comment out to bind on single
+# wildcard socket.
+bind-interfaces
 
 # If you don't want dnsmasq to read /etc/hosts, uncomment the
 # following line.
@@ -549,7 +549,7 @@ no-hosts
 # The DHCP server needs somewhere on disk to keep its lease database.
 # This defaults to a sane location, but if you want to change it, use
 # the line below.
-#dhcp-leasefile=/var/lib/misc/dnsmasq.leases
+#dhcp-leasefile=/var/lib/dnsmasq/dnsmasq.leases
 
 # Set the DHCP server to authoritative mode. In this mode it will barge in
 # and take over the lease for any client which broadcasts on the network,
@@ -686,6 +686,9 @@ no-hosts
 
 # Include all files in a directory which end in .conf
 #conf-dir=/etc/dnsmasq.d/,*.conf
+
+# Include all files in /etc/dnsmasq.d except RPM backup files
+conf-dir=/etc/dnsmasq.d,.rpmnew,.rpmsave,.rpmorig
 
 # If a DHCP client claims that its name is "wpad", ignore that.
 # This fixes a security hole. see CERT Vulnerability VU#598349

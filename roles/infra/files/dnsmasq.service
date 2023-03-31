@@ -1,0 +1,14 @@
+[Unit]
+Description=DNS caching server.
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=forking
+PIDFile=/run/dnsmasq.pid
+ExecStart=/usr/sbin/dnsmasq
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

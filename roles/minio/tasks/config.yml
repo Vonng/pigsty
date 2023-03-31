@@ -79,19 +79,7 @@
 #--------------------------------------------------------------#
 # Copy minio certs                                   [minio_dns]
 #--------------------------------------------------------------#
-- name: write minio instance dns to infra nameserver
-  tags: [ minio_dns , register_dns ]
-  delegate_to: '{{ item }}'
-  with_items: "{{ groups['infra'] }}"
-  copy:
-    dest: /etc/hosts.d/{{ minio_instance }}
-    mode: 0644
-    content: |
-      {{ inventory_hostname }} {{ minio_nodename }}
-      {{ inventory_hostname }} {{ minio_cluster }}-{{ minio_seq }}
-
-
-- name: write minio instance dns to infra nameserver
+- name: write minio instance dns to local dns records
   tags: [ minio_dns , minio_dns_local ]
   block:
 
@@ -105,5 +93,25 @@
         line: "{{ item.strip() }} # minio dns"
       with_items: "{{ minio_member.split(',') }}"
 
+- name: write minio instance dns to infra nameserver
+  tags: [ minio_dns , register_dns ]
+  delegate_to: '{{ item }}'
+  with_items: "{{ groups['infra'] }}"
+  copy:
+    dest: /etc/hosts.d/{{ minio_instance }}
+    mode: 0644
+    owner: root
+    group: root
+    content: |
+      {{ inventory_hostname }} {{ minio_nodename }}
+      {{ inventory_hostname }} {{ minio_cluster }}-{{ minio_seq }}
+
+# reload meta node nginx (maybe not appropriate here)
+- name: reload dnsmasq on infra node
+  tags: [ minio_dns, register_dns ]
+  delegate_to: '{{ item }}'
+  run_once: true
+  with_items: '{{ groups["infra"] }}'
+  systemd: name=dnsmasq state=reloaded enabled=yes daemon_reload=yes
 
 ...

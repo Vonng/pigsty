@@ -9,6 +9,8 @@
   copy:
     dest: /etc/hosts.d/{{ pg_instance }}
     mode: 0644
+    owner: root
+    group: root
     content: "{{ inventory_hostname }} {{ pg_instance }}"
 
 # write dns records to infra nodes' /etc/hosts.d/<pg_cluster>
@@ -20,6 +22,8 @@
   copy:
     dest: /etc/hosts.d/{{ pg_cluster }}
     mode: 0644
+    owner: root
+    group: root
     content: |
       {% set pg_dns_name = pg_cluster + pg_dns_suffix|default('') %}
       {% if pg_dns_target == 'vip' and pg_vip_enabled|bool %}
@@ -40,4 +44,12 @@
       # [ADHOC] {{ pg_dns_name }} -> {{ pg_primary_ip }}
       {{ pg_dns_target }} {{ pg_dns_name }}
       {% endif %}
+
+# reload meta node nginx (maybe not appropriate here)
+- name: reload dnsmasq on infra node
+  tags: pg_dns_reload
+  delegate_to: '{{ item }}'
+  run_once: true
+  with_items: '{{ groups["infra"] }}'
+  systemd: name=dnsmasq state=reloaded enabled=yes daemon_reload=yes
 ...

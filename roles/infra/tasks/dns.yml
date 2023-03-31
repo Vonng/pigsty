@@ -1,15 +1,26 @@
 ---
 #--------------------------------------------------------------#
+# Create DNS Dir                                   [dns_install]
+#--------------------------------------------------------------#
+#- name: make sure dnsmasq installed
+#  tags: dns_install
+#  package: name=grafana state=latest
+
+#--------------------------------------------------------------#
 # Create DNS Dir                                       [dns_dir]
 #--------------------------------------------------------------#
 - name: create dns records dir
   tags: dns_dir
-  file: path=/etc/hosts.d/ state=directory mode=0755 owner=root
+  file: path=/etc/hosts.d/ state=directory mode=0755 owner=root group=root
 
 
 #--------------------------------------------------------------#
 # Config DNS                                        [dns_config]
 #--------------------------------------------------------------#
+- name: copy dnsmasq systemd service
+  tags: dns_config
+  copy: src=dnsmasq.service dest=/usr/lib/systemd/system/dnsmasq.service
+
 - name: render /etc/dnsmasq.d/config
   tags: dns_config
   template: src=dnsmasq.conf.j2 dest=/etc/dnsmasq.conf
@@ -22,6 +33,8 @@
   tags: dns_record
   copy:
     dest: /etc/hosts.d/default
+    owner: root
+    group: root
     mode: 0644
     content: |
       {% for rec in dns_records|default([]) %}
