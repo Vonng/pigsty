@@ -52,6 +52,12 @@ mcli admin user add sss pgbackrest S3User.Backup
 set -o history 
 ```
 
+```bash
+# attach policy to users
+mcli admin policy attach sss readwrite    --user=pgbackrest
+mcli admin policy attach sss consoleAdmin --user=dba
+```
+
 
 ### Bucket
 
@@ -65,6 +71,6 @@ mcli rb --force sss/hello            # remove bucket 'hello' with force
 ### CRUD
 
 ```bash
-mcli cp -r /www/pigsty/*.rpm sss/infra/repo/         # upload files to bucket 'infra' with prefix 'repo'
+mcli cp -r /www/pigsty/pev.html sss/infra/repo/            # upload files to bucket 'infra' with prefix 'repo'
 mcli cp sss/infra/repo/pg_exporter-0.5.0.x86_64.rpm /tmp/  # download file from minio to local
 ```
