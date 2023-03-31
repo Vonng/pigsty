@@ -34,7 +34,7 @@
 
 ## v2.0.1
 
-Bug fix for v2.0.0, security improvement routine update. 
+Bug fix for [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0) and security improvement.
 
 **Enhancement**
 
@@ -75,9 +75,23 @@ Official EL8 pgdg upstream is broken now, DO use it with caution!
 
 Affected packages: `postgis33_15, pgloader, postgresql_anonymizer_15*, postgresql_faker_15`
 
+**How to Upgrade**
 
+```bash
+cd ~/pigsty; tar -zcf /tmp/files.tgz files; rm -rf ~/pigsty    # backup files dir and remove
+cd ~; bash -c "$(curl -fsSL http://download.pigsty.cc/get)"    # get latest pigsty source
+cd ~/pigsty; rm -rf files; tar -xf /tmp/files.tgz -C ~/pigsty  # restore files dir
+```
 
+**Checksums**
 
+```bash
+MD5 (pigsty-pkg-v2.0.1.el7.x86_64.tgz) = 5cfbe98fd9706b9e0f15c1065971b3f6
+MD5 (pigsty-pkg-v2.0.1.el8.x86_64.tgz) = c34aa460925ae7548866bf51b8b8759c
+MD5 (pigsty-pkg-v2.0.1.el9.x86_64.tgz) = 055057cebd93c473a67fb63bcde22d33
+```
+
+Special thanks to [@cocoonkid](https://github.com/cocoonkid) for his feedback.
 
 
 ------------------------------
