@@ -802,10 +802,10 @@ nginx_ssl_port: 443               # nginx ssl listen port, 443 by default
 nginx_navbar:                     # nginx index page navigation links
   - { name: CA Cert ,url: '/ca.crt'   ,desc: 'pigsty self-signed ca.crt'   }
   - { name: Package ,url: '/pigsty'   ,desc: 'local yum repo packages'     }
-  - { name: Explain ,url: '/pev.html' ,desc: 'postgres explain visualizer' }
   - { name: PG Logs ,url: '/logs'     ,desc: 'postgres raw csv logs'       }
   - { name: Reports ,url: '/report'   ,desc: 'pgbadger summary report'     }
-```
+  - { name: Explain ,url: '/pigsty/pev.html' ,desc: 'postgres explain visualizer' }
+  ```
 
 
 ### `nginx_enabled`
@@ -878,9 +878,9 @@ default value:
 nginx_navbar:                     # nginx index page navigation links
   - { name: CA Cert ,url: '/ca.crt'   ,desc: 'pigsty self-signed ca.crt'   }
   - { name: Package ,url: '/pigsty'   ,desc: 'local yum repo packages'     }
-  - { name: Explain ,url: '/pev.html' ,desc: 'postgres explain visualizer' }
   - { name: PG Logs ,url: '/logs'     ,desc: 'postgres raw csv logs'       }
   - { name: Reports ,url: '/report'   ,desc: 'pgbadger summary report'     }
+  - { name: Explain ,url: '/pigsty/pev.html' ,desc: 'postgres explain visualizer' }
 ```
 
 Each record is rendered as a navigation link to the Pigsty home page App drop-down menu, and the apps are all optional, mounted by default on the Pigsty default server under `http://pigsty/`.
