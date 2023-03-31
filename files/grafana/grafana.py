@@ -386,7 +386,7 @@ if __name__ == '__main__':
         exit(2)
 
     if action == 'init':
-        add_default_datasource()
+        # add_default_datasource()
         init_all(dashboard_dir_path)
     elif action == 'load':
         load_all(dashboard_dir_path)
