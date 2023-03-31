@@ -4,7 +4,7 @@
 
 Pigsty 是一个更好的本地开源 RDS for PostgreSQL 替代：
 
-- 开箱即用的 [PostgreSQL](https://www.postgresql.org/) 发行版，深度整合地理时序分布式三大核心扩展： [PostGIS](https://postgis.net/), [TimescaleDB](https://www.timescale.com/), [Citus](https://www.citusdata.com/)。
+- 开箱即用的 [PostgreSQL](https://www.postgresql.org/) 发行版，深度整合地理时序分布式向量等核心扩展： [PostGIS](https://postgis.net/), [TimescaleDB](https://www.timescale.com/), [Citus](https://www.citusdata.com/)，[PGVector](https://github.com/pgvector/pgvector)……
 - 基于现代的 [Prometheus](https://prometheus.io/) 与 [Grafana](https://grafana.com/) 技术栈，提供令人惊艳，无可比拟的数据库观测能力：[演示站点](http://demo.pigsty.cc)
 - 基于 [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), 与[etcd](https://etcd.io/)，打造故障自愈的高可用架构：硬件故障自动切换，流量无缝衔接。
 - 基于 [pgBackRest](https://pgbackrest.org/) 与可选的 [MinIO](https://min.io/) 集群提供开箱即用的 PITR 时间点恢复，为软件缺陷与人为删库兜底。
@@ -20,8 +20,8 @@ Pigsty 是一个更好的本地开源 RDS for PostgreSQL 替代：
 
 PostgreSQL 是一个足够完美的数据库内核，但它需要更多工具与系统的配合，才能成为一个足够好的数据库服务（RDS），而 Pigsty 帮助 PostgreSQL 完成这一步飞跃。
 
-Pigsty 深度整合了 PostgreSQL 生态的三大核心扩展插件 PostGIS，TimescaleDB，Citus，并确保它们可以协同工作，提供分布式的时序地理空间数据库能力。
-Pigsty 还提供了运行企业级 RDS 服务的所需软件，打包所有依赖为离线软件包，所有组件均可在无需互联网访问的情况下一键完成安装部署，进入生产可用状态。
+Pigsty 深度整合 PostgreSQL 生态的核心扩展插件：您可以使用 **PostGIS** 处理地理空间数据，使用 **TimescaleDB** 分析时序/事件流数据，使用 **Citus** 原地进行分布式水平扩展，使用 **PGVector** 存储并搜索 AI Embedding，以及其他海量扩展插件。
+Pigsty 确保这些插件可以协同工作，提供开箱即用的分布式的时序地理空间向量数据库能力。此外，Pigsty 还提供了运行企业级 RDS 服务的所需软件，打包所有依赖为离线软件包，所有组件均可在无需互联网访问的情况下一键完成安装部署，进入生产可用状态。
 
 在 Pigsty 中功能组件被抽象 [**模块**](ARCH#modules)，可以自由组合以应对多变的需求场景。[`INFRA`](INFRA.md) 模块带有完整的现代监控技术栈，而 [`NODE`](NODE.md) 模块则将节点调谐至指定状态并纳入监控。
 在多个节点上安装 [`PGSQL`](PGSQL.md) 模块会自动组建出一个基于主从复制的高可用数据库集群，而同样的 [`ETCD`](ETCD.md) 模块则为数据库高可用提供共识与元数据存储。可选的 [`MINIO`](MINIO.md)模块可以用作图像视频等大文件存储并可选用为数据库备份仓库。

@@ -8,7 +8,7 @@
 # License   :   AGPLv3
 #==============================================================#
 # pigsty version & default develop & testing el version
-VERSION?=v2.0.1
+VERSION?=v2.0.2
 EL_VER=9
 
 # local name
@@ -296,9 +296,9 @@ test-rc:
 	psql -AXtw postgres://test:test@pg-test:5433/test -c 'DROP TABLE IF EXISTS pgbench_accounts, pgbench_branches, pgbench_history, pgbench_tellers;'
 # pgbench small read-write / read-only traffic (rw=64TPS, ro=512QPS)
 test-rw:
-	while true; do pgbench -nv -P1 -c4 --rate=64 -T10 postgres://test:test@pg-test:5433/test; done
+	while true; do pgbench -nv -P1 -c4 --rate=32 -T10 postgres://test:test@pg-test:5433/test; done
 test-ro:
-	while true; do pgbench -nv -P1 -c8 --select-only --rate=512 -T10 postgres://test:test@pg-test:5434/test; done
+	while true; do pgbench -nv -P1 -c8 --select-only --rate=256 -T10 postgres://test:test@pg-test:5434/test; done
 # pgbench read-write / read-only traffic (maximum speed)
 test-rw2:
 	while true; do pgbench -nv -P1 -c16 -T10 postgres://test:test@pg-test:5433/test; done

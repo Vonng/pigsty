@@ -2,6 +2,7 @@
 
 | Version         |    Time    | Description                                             | Release                                                                                   |
 |:----------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v2.0.2](#v202) | 2023-03-31 | Add pgvector support and fix MinIO CVE                  | [v2.0.2](https://github.com/Vonng/pigsty/releases/tag/v2.0.2)                             |
 | [v2.0.1](#v201) | 2023-03-21 | v2 Bug Fix, security enhance and bump grafana version   | [v2.0.1](https://github.com/Vonng/pigsty/releases/tag/v2.0.1)                             |
 | [v2.0.0](#v200) | 2023-02-28 | Compatibility Security Maintainability Enhancement      | [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)                             |
 | [v1.5.1](#v151) | 2022-06-18 | Grafana Security Hotfix                                 | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
@@ -28,6 +29,27 @@
 | v0.0.1          | 2019-05-15 | POC                                                     | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
 
+
+------------------------------
+
+## v2.0.2
+
+* Add `pgvector` extension to support vector similarity search, now you can store OpenAI embedding with it!
+* [MinIO CVE-2023-28432]: https://github.com/Vonng/pigsty/issues/265
+* Bump pev to v1.8
+* Bump grafana to v9.4.7
+* Bump MinIO to 20230324
+* Upgrade monitoring dashboards and fix dead links
+* Upgrade aliyun terraform template image to rockylinux 9
+* Following grafana provisioning API change since v9.4 
+* Add asciinema videos for various administration tasks
+* Fix broken EL8 pgsql deps: remove anonymizer_15 faker_15 and pgloader
+
+```bash
+MD5 (pigsty-pkg-v2.0.2.el7.x86_64.tgz) = d46440a115d741386d29d6de646acfe2
+MD5 (pigsty-pkg-v2.0.2.el8.x86_64.tgz) = 5fa268b5545ac96b40c444210157e1e1
+MD5 (pigsty-pkg-v2.0.2.el9.x86_64.tgz) = c8b113d57c769ee86a22579fc98e8345
+```
 
 
 ------------------------------

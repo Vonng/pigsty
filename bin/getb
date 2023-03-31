@@ -4,14 +4,14 @@ set -o pipefail
 # File      :   getb
 # Desc      :   get pigsty beta source code (from Github or CDN)
 # Ctime     :   2022-10-30
-# Mtime     :   2023-02-19
+# Mtime     :   2023-03-31
 # Path      :   http://download.pigsty.cc/getb
 # Usage     :   bash -c "$(curl -fsSL http://download.pigsty.cc/getb)"
 # Deps      :   curl
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-VERSION=v2.0.1
+VERSION=v2.0.2
 
 
 #--------------------------------------------------------------#
@@ -113,10 +113,10 @@ if [[ ! -d ${EXTRACT_TO} ]]; then
     log_hint 'cd ~/pigsty      # entering pigsty home directory before proceeding'
     tar -xf ${DOWNLOAD_TO} -C ~;
 else
-    log_warn "${EXTRACT_TO} dir already exists, you have to overwrite it with:"
-    log_hint "rm -rf ${EXTRACT_TO};"
-    log_hint "tar -xf ${DOWNLOAD_TO} -C ~;"
-    log_hint 'cd ~/pigsty      # entering pigsty home directory before proceeding'
+    log_warn "${EXTRACT_TO} already exists, you can backup files/pki and overwrite it with:"
+    log_hint "cd ~/pigsty/files && tar -zcf /tmp/pki.tgz pki;"
+    log_hint "cd ~; rm -rf ~/pigsty; tar -xf ${DOWNLOAD_TO} -C ."
+    log_hint 'cd ~/pigsty/files; rm -rf pki; tar -xvf /tmp/pki.tgz -C .'
 fi
 
 

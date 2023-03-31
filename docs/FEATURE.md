@@ -4,7 +4,7 @@
 
 Pigsty is a **Me-Better Open Source RDS Alternative** with:
 
-- Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with [PostGIS](https://postgis.net/), [TimescaleDB](https://www.timescale.com/), [Citus](https://www.citusdata.com/) ...
+- Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with [PostGIS](https://postgis.net/), [TimescaleDB](https://www.timescale.com/), [Citus](https://www.citusdata.com/), [PGVector](https://github.com/pgvector/pgvector) ...
 - Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack.
 - Self-healing HA PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/)...
 - Auto-Configured PITR, powered by [pgbackrest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) cluster
@@ -20,7 +20,8 @@ Pigsty is a **Me-Better Open Source RDS Alternative** with:
 
 PostgreSQL is a great database kernel but needs more to become a good enough Relational Database Service (RDS). And Pigsty helps you with that.
 
-Pigsty bundles PostgreSQL with popular extensions, such as PostGIS, TimescaleDB, Citus, and many others. It delivers all the software toolkits required to run a production-grade RDS and ansible playbooks to orchestrate them. Everything can be installed in one line of code, and all dependencies are packed into offline installation packages to eliminate Internet access.
+You can have all the powerful features of PostgreSQL ecosystem at once: Handle spatial data with **PostGIS**, analyze time-series and event stream with **TimescaleDB**, scale out with **Citus**, and search AI embedding with **PGVector**, and more...
+It delivers all the software toolkits required to run a production-grade RDS and ansible playbooks to orchestrate them. Everything can be installed in one line of code, and all dependencies are packed into offline installation packages to eliminate Internet access.
 
 All functionality is abstracted as Modules that can be freely composed for different scenarios. [`INFRA`](INFRA.md) gives you a modern observability stack, while [`NODE`](NODE.md) can be used for host monitoring. Installing the [`PGSQL`](PGSQL.md) module on multiple nodes will automatically form a HA cluster. And you can also have dedicated [`ETCD`](ETCD.md) clusters for distributed consensus & [`MinIO`](MINIO.md) clusters for backup storage. [`REDIS`](REDIS.md) are also supported since they work well with PostgreSQL. You can reuse Pigsty infra and extend it with your Modules (e.g. `GPSQL`, `KAFKA`, `MONGO`, `MYSQL`...).
 
