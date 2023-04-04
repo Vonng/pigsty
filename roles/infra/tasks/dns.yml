@@ -6,6 +6,18 @@
 #  tags: dns_install
 #  package: name=grafana state=latest
 
+
+#--------------------------------------------------------------#
+# Create DNS Dir                                      [dns_user]
+#--------------------------------------------------------------#
+- name: create os user group infra
+  group: name=dnsmasq
+
+- name: add infra user to group infra
+  ignore_errors: true
+  user: name=dnsmasq group=dnsmasq
+
+
 #--------------------------------------------------------------#
 # Create DNS Dir                                       [dns_dir]
 #--------------------------------------------------------------#
@@ -48,8 +60,8 @@
 - name: launch dnsmasq systemd service
   tags: dns_launch
   when: dns_enabled|bool
+  ignore_errors: yes
   block:
-
     - name: launch dnsmasq systemd service
       systemd: name=dnsmasq state=restarted enabled=yes daemon_reload=yes
     - name: wait for dnsmasq service online
