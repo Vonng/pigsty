@@ -67,7 +67,7 @@ GRANT USAGE ON SCHEMA pg_catalog TO "{{ pg_replication_username }}";
 GRANT EXECUTE ON FUNCTION pg_catalog.current_setting(text) TO "{{ pg_replication_username }}";
 GRANT EXECUTE ON FUNCTION pg_catalog.set_config(text, text, boolean) TO "{{ pg_replication_username }}";
 GRANT EXECUTE ON FUNCTION pg_catalog.pg_is_in_recovery() TO "{{ pg_replication_username }}";
-{% if pg_version < 15 %}
+{% if pg_version|int < 15 %}
 GRANT EXECUTE ON FUNCTION pg_catalog.pg_start_backup(text, boolean, boolean) TO "{{ pg_replication_username }}";
 GRANT EXECUTE ON FUNCTION pg_catalog.pg_stop_backup(boolean, boolean) TO "{{ pg_replication_username }}";
 {% endif %}
@@ -356,7 +356,7 @@ GRANT SELECT ON monitor.pg_seq_scan TO pg_monitor;
 --                            Functions                             --
 --==================================================================--
 
-{% if pg_version >= 13 %}
+{% if pg_version|int >= 13 %}
 ----------------------------------------------------------------------
 -- pg_shmem auxiliary function (PG13+ only)
 ----------------------------------------------------------------------
