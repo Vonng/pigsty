@@ -1307,9 +1307,9 @@ INSERT INTO pigsty.default_var VALUES
 (213, 'node_dns_servers', '["${admin_ip}"]', 'NODE', 'NODE_DNS', 'string[]', 'C', 'dynamic nameserver in `/etc/resolv.conf`', NULL),
 (214, 'node_dns_options', '["options single-request-reopen timeout:1"]', 'NODE', 'NODE_DNS', 'string[]', 'C', 'dns resolv options in `/etc/resolv.conf`', NULL),
 
-(220, 'node_repo_method', '"local"', 'NODE', 'NODE_PACKAGE', 'enum', 'C', 'how to setup node repo: none,local,public', NULL),
-(221, 'node_repo_remove', 'true', 'NODE', 'NODE_PACKAGE', 'bool', 'C', 'remove existing repo on node?', NULL),
-(222, 'node_repo_local_urls', '["http://${admin_ip}/pigsty.repo"]', 'NODE', 'NODE_PACKAGE', 'string[]', 'C', 'local repo url, if node_repo_method = local', NULL),
+(220, 'node_repo_method', '"local"', 'NODE', 'NODE_PACKAGE', 'enum', 'C/A', 'how to setup node repo: none,local,public,both', NULL),
+(221, 'node_repo_remove', 'true', 'NODE', 'NODE_PACKAGE', 'bool', 'C/A', 'remove existing repo on node?', NULL),
+(222, 'node_repo_local_urls', '["http://${admin_ip}/pigsty.repo"]', 'NODE', 'NODE_PACKAGE', 'string[]', 'C', 'local repo url, if node_repo_method = local,both', NULL),
 (223, 'node_packages', '[]', 'NODE', 'NODE_PACKAGE', 'string[]', 'C', 'packages to be installed current nodes', NULL),
 (224, 'node_default_packages', '["lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils", "wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,dnsmasq,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal", "node_exporter,etcd,mtail,python3-idna,python3-requests,haproxy"]', 'NODE', 'NODE_PACKAGE', 'string[]', 'G', 'default packages to be installed on all nodes', NULL),
 

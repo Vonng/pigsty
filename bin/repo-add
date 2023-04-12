@@ -1,0 +1,76 @@
+#!/bin/bash
+set -uo pipefail
+#==============================================================#
+# File      :   repo-add
+# Desc      :   Add repo to Pigsty nodes
+# Ctime     :   2023-04-12
+# Mtime     :   2023-04-12
+# Path      :   bin/repo-add
+# Deps      :   ansible-playbook, node.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+APP_NAME="$(basename $0)"
+APP_DIR="$(cd $(dirname $0) && pwd)"
+PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
+
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+# bin/repo-add <ip|selector> [modules]  # add repo for node
+# Example:
+#    bin/repo-add
+#    bin/repo-add 10.10.10.10           # add node repos for node 10.10.10.10
+#    bin/repo-add infra   node,infra    # add node and infra repos for group `infra`
+#    bin/repo-add pg-test node,pgsql    # add pgsql repos for group `pg-test`
+
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+function log_line()  { printf "${__CM}[$*] ===========================================${__CN}\n"; }
+
+
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+SELECTOR=${1-''}
+MODULES=${2-'node'}
+
+if [[ -z "${SELECTOR}" ]]; then
+    log_error "selector is empty"
+    log_hint "Usage:"
+    log_hint "    bin/repo-add <sel> [modules]"
+    log_hint "    bin/repo-add 10.10.10.10           # add node repos for node 10.10.10.10"
+    log_hint "    bin/repo-add infra   node,infra    # add node and infra repos for group infra"
+    log_hint "    bin/repo-add pg-test node,pgsql    # add node & pgsql repos for group pg-test"
+    exit 1
+fi
+
+
+#--------------------------------------------------------------#
+# Execute
+#--------------------------------------------------------------#
+log_line "EXECUTE"
+log_warn "add repo [${MODULES}] for ${SELECTOR}"
+log_hint "$ ./node.yml -l '${SELECTOR}' -t node_repo -e node_repo_method=both -e repo_modules='${MODULES}'"
+
+"${PIGSTY_HOME}/node.yml" -l "${SELECTOR}" -t node_repo -e node_repo_method=both -e repo_modules="${MODULES}"
+
+if [[ $? -ne 0 ]]; then
+  log_line "FAILURE"
+  log_error "fail to add repo ${MODULES} to ${SELECTOR}"
+  exit 4
+fi
+log_line "SUMMARY"
+log_info "add repo ${MODULES} to ${SELECTOR} complete"
+exit 0

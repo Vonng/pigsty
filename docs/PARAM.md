@@ -68,9 +68,9 @@ There are 265 parameters in Pigsty describing all aspect of the deployment.
 | 212 | [`node_dns_method`](#node_dns_method)                           | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | enum        | C     | how to handle dns servers: add,none,overwrite                                 |
 | 213 | [`node_dns_servers`](#node_dns_servers)                         | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | C     | dynamic nameserver in `/etc/resolv.conf`                                      |
 | 214 | [`node_dns_options`](#node_dns_options)                         | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | C     | dns resolv options in `/etc/resolv.conf`                                      |
-| 220 | [`node_repo_method`](#node_repo_method)                         | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | enum        | C     | how to setup node repo: none,local,public                                     |
+| 220 | [`node_repo_method`](#node_repo_method)                         | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | enum        | C     | how to setup node repo: none,local,public,both                                |
 | 221 | [`node_repo_remove`](#node_repo_remove)                         | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | bool        | C     | remove existing repo on node?                                                 |
-| 222 | [`node_repo_local_urls`](#node_repo_local_urls)                 | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string[]    | C     | local repo url, if node_repo_method = local                                   |
+| 222 | [`node_repo_local_urls`](#node_repo_local_urls)                 | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string[]    | C     | local repo url, if node_repo_method = local,both                              |
 | 223 | [`node_packages`](#node_packages)                               | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string[]    | C     | packages to be installed current nodes                                        |
 | 224 | [`node_default_packages`](#node_default_packages)               | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string[]    | G     | default packages to be installed on all nodes                                 |
 | 230 | [`node_disable_firewall`](#node_disable_firewall)               | [`NODE`](#node)   | [`NODE_TUNE`](#node_tune)         | bool        | C     | disable node firewall? true by default                                        |
@@ -732,7 +732,7 @@ There are two missing packages in EL7: haproxy & redis:
 
 ```bash
 - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm # redis.el7
-- https://github.com/Vonng/haproxy-rpm/releases/download/v2.7.2/haproxy-2.7.2-1.el7.x86_64.rpm # haproxy.el7
+- https://github.com/philyuchkoff/HAProxy-2-RPM-builder/releases/download/2.7.6/haproxy-2.7.6-1.el7.x86_64.rpm # haproxy.el7
 ```
 
 
@@ -1570,9 +1570,9 @@ default value:
 This section is about upstream yum repos & packages to be installed.
 
 ```yaml
-node_repo_method: local           # how to setup node repo: none,local,public
+node_repo_method: local           # how to setup node repo: none,local,public,both
 node_repo_remove: true            # remove existing repo on node?
-node_repo_local_urls:             # local repo url, if node_repo_method = local
+node_repo_local_urls:             # local repo url, if node_repo_method = local,both
   - http://${admin_ip}/pigsty.repo
 node_packages: [ ]                # packages to be installed current nodes
 node_default_packages:            # default packages to be installed on all nodes
@@ -1586,26 +1586,26 @@ node_default_packages:            # default packages to be installed on all node
 
 ### `node_repo_method`
 
-name: `node_repo_method`, type: `enum`, level: `C`
+name: `node_repo_method`, type: `enum`, level: `C/A`
 
-how to setup node repo: `none`, `local`, `public`
+how to setup node repo: `none`, `local`, `public`, `both`, default values: `local`
 
-default values: `local`
+Which repos are added to `/etc/yum.repos.d` on target nodes ?
 
-* `local`: Use the local Yum repo on the meta node, the default behavior (recommended).
-* `public`: To install using internet sources, write the public repo in `repo_upstream` to `/etc/yum.repos.d/`. (obsolete)
-* `none`: No config and modification of local repos.
-
+* `local`: Use the local yum repo on the admin node, default behavior.
+* `public`: Add public upstream repo directly to the target nodes, use this if you have Internet access. 
+* `both`: Add both local repo and public repo. Useful when some rpm are missing 
+* `none`: do not add any repo to target nodes.
 
 
 
 ### `node_repo_remove`
 
-name: `node_repo_remove`, type: `bool`, level: `C`
+name: `node_repo_remove`, type: `bool`, level: `C/A`
 
 remove existing repo on node?
 
-default value is `true`, and thus Pigsty will move existing repo file in `/etc/yum.repos.d` to backup dir: `/etc/yum.repos.d/backup` before adding upstream repos
+default value is `true`, and thus Pigsty will move existing repo file in `/etc/yum.repos.d` to a backup dir: `/etc/yum.repos.d/backup` before adding upstream repos
 
 
 

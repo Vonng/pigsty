@@ -218,6 +218,7 @@ all:
     repo_name: pigsty                 # repo name, pigsty by default
     repo_endpoint: http://${admin_ip}:80 # access point to this repo by domain or ip:port
     repo_remove: true                 # remove existing upstream repo
+    repo_module: node,infra,pgsql     # repo_upstream modules to be installed
     repo_upstream:                    # where to download #
       - { name: base           ,description: 'EL 7 Base'         ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/os/$basearch/'                    , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/'       , europe: 'https://mirrors.xtom.de/centos/$releasever/os/$basearch/'           }}
       - { name: updates        ,description: 'EL 7 Updates'      ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/updates/$basearch/'               , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/updates/$basearch/'  , europe: 'https://mirrors.xtom.de/centos/$releasever/updates/$basearch/'      }}
@@ -250,7 +251,7 @@ all:
       - patroni patroni-etcd pgbouncer pgbadger pgbackrest tail_n_mail pgloader pg_activity
       - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 pg_dbms_job_15
       - pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15 logerrors_15 pg_top_15
-      - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15*  pgtt_15 pgq_15* pgsql_tweaks_15 count_distinct_15 hypopg_15
+      - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15* pgtt_15 pgq_15* pgsql_tweaks_15 count_distinct_15 hypopg_15
       - timestamp9_15* semver_15* prefix_15* rum_15 geoip_15 periods_15 ip4r_15 tdigest_15 hll_15 pgmp_15 extra_window_functions_15 topn_15
       - pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15
       - pg_fkpart_15 pg_jobmon_15 pg_partman_15 pg_permissions_15 pgaudit17_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15*
@@ -358,9 +359,9 @@ all:
     #-----------------------------------------------------------------
     # NODE_PACKAGE
     #-----------------------------------------------------------------
-    node_repo_method: local           # how to setup node repo: none,local,public
+    node_repo_method: local           # how to setup node repo: none,local,public,both
     node_repo_remove: true            # remove existing repo on node?
-    node_repo_local_urls:             # local repo url, if node_repo_method = local
+    node_repo_local_urls:             # local repo url, if node_repo_method = local,both
       - http://${admin_ip}/pigsty.repo
     node_packages: [ ]                # packages to be installed current nodes
     node_default_packages:            # default packages to be installed on all nodes

@@ -13,19 +13,34 @@
         warn: no
         cmd: mkdir -p /etc/yum.repos.d/backup ; mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/; true
 
-    # install public repo (use this if you have public internet access)
-    - name: add public upstream repo
-      when: node_repo_method == "public"
-      yum_repository: "{{ item }}"
-      with_items: "{{ repo_upstreams }}"
-
     # install local repo from url (default behaviour)
     - name: add local repo file
-      when: node_repo_method == "local"
+      when: node_repo_method == 'local' or node_repo_method == 'both'
       get_url:
         url: "{{ item|replace('${admin_ip}', admin_ip) }}"
         dest: /etc/yum.repos.d/{{ item | basename }}
       with_items: "{{ node_repo_local_urls }}"
+
+    # install public repo (use this if you have public internet access)
+    - name: add public upstream repo file
+      copy:
+        dest: /etc/yum.repos.d/{{ item.name }}.repo
+        content: |
+          [{{ item.name }}]
+          name = {{ item.description }} $releasever - $basearch
+          {% if region in item.baseurl and item.baseurl[region] != '' %}
+          baseurl = {{ item.baseurl[region] | replace('$releasever', os_version|string )  }}
+          {% else %}
+          baseurl = {{ item.baseurl.default | replace('$releasever', os_version|string )  }}
+          {% endif %}
+          gpgcheck = 0
+          enabled = 1
+          {% if os_version|int >= 8 %}
+          module_hotfixes=1
+          {% endif %}
+      when: (node_repo_method == 'public' or node_repo_method == 'both') and os_version|int in item.releases and item.module in repo_modules.split(',')
+      with_items: "{{ repo_upstream }}"
+
 
 
 #--------------------------------------------------------------#
