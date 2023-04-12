@@ -1458,7 +1458,7 @@ INSERT INTO pigsty.default_var VALUES
 (846, 'pg_bin_dir', '"/usr/pgsql/bin"', 'PGSQL', 'PG_INSTALL', 'path', 'C', 'postgres binary dir, `/usr/pgsql/bin` by default', NULL),
 (847, 'pg_log_dir', '"/pg/log/postgres"', 'PGSQL', 'PG_INSTALL', 'path', 'C', 'postgres log dir, `/pg/log/postgres` by default', NULL),
 (848, 'pg_packages', '["postgresql${pg_version}*", "pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest"]', 'PGSQL', 'PG_INSTALL', 'string[]', 'C', 'pg packages to be installed, `${pg_version}` will be replaced', NULL),
-(849, 'pg_extensions', '["postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} pgvector_${pg_version}* timescaledb-2-postgresql-${pg_version} citus*${pg_version}*"]', 'PGSQL', 'PG_INSTALL', 'string[]', 'C', 'pg extensions to be installed, `${pg_version}` will be replaced', NULL),
+(849, 'pg_extensions', '["pg_repack_${pg_version} wal2json_${pg_version}", "postgis33_${pg_version} postgis33_${pg_version}-devel postgis33_${pg_version}-utils", "timescaledb-2-postgresql-${pg_version}", "citus*${pg_version}*", "pgvector_${pg_version}*"]', 'PGSQL', 'PG_INSTALL', 'string[]', 'C', 'pg extensions to be installed, `${pg_version}` will be replaced', NULL),
 (850, 'pg_safeguard', 'false', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'G/C/A', 'prevent purging running postgres instance? false by default', NULL),
 (851, 'pg_clean', 'true', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'G/C/A', 'purging existing postgres during pgsql init? true by default', NULL),
 (852, 'pg_data', '"/pg/data"', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'postgres data directory, `/pg/data` by default', NULL),

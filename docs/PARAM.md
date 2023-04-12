@@ -3691,7 +3691,12 @@ pg_packages:                      # pg packages to be installed, `${pg_version}`
   - postgresql${pg_version}*
   - pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest
 pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-  - postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} pgvector_${pg_version}* timescaledb-2-postgresql-${pg_version} citus*${pg_version}*
+  - pg_repack_${pg_version} wal2json_${pg_version}
+  - postgis33_${pg_version} postgis33_${pg_version}-devel postgis33_${pg_version}-utils
+  - timescaledb-2-postgresql-${pg_version}
+  - citus*${pg_version}*
+  - pgvector_${pg_version}*
+
 ```
 
 
@@ -3821,13 +3826,18 @@ name: `pg_extensions`, type: `string[]`, level: `C`
 
 pg extensions to be installed, `${pg_version}` will be replaced to [`pg_version`](#pg_version)
 
-PostGIS, TimescaleDB, Citus, `pg_repack`, and `wal2json` will be installed by default.
+PostGIS, TimescaleDB, Citus, PGVector, `pg_repack`, and `wal2json` will be installed by default.
 
 ```yaml
 pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-  - postgis33_${pg_version}* pg_repack_${pg_version} wal2json_${pg_version} pgvector_${pg_version}* timescaledb-2-postgresql-${pg_version}
+  - pg_repack_${pg_version} wal2json_${pg_version}
+  - postgis33_${pg_version} postgis33_${pg_version}-devel postgis33_${pg_version}-utils
+  - timescaledb-2-postgresql-${pg_version}
+  - citus*${pg_version}*
+  - pgvector_${pg_version}*
 ```
 
+Note: PostgreSQL 11 does not have corresponding EL9 citus and pgvector extensions for now.
 
 
 
