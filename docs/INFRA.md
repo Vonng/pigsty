@@ -102,6 +102,7 @@ API Reference for [`INFRA`](PARAM#INFRA) module:
 | [`repo_name`](PARAM#repo_name)                                   | [`REPO`](PARAM#repo)                   |   string   |   G   | repo name, pigsty by default                       |
 | [`repo_endpoint`](PARAM#repo_endpoint)                           | [`REPO`](PARAM#repo)                   |    url     |   G   | access point to this repo by domain or ip:port     |
 | [`repo_remove`](PARAM#repo_remove)                               | [`REPO`](PARAM#repo)                   |    bool    |  G/A  | remove existing upstream repo                      |
+| [`repo_modules`](#repo_modules)                                  | [`REPO`](PARAM#repo)                   |   string   |  G/A  | which repo modules are installed in repo_upstream  |
 | [`repo_upstream`](PARAM#repo_upstream)                           | [`REPO`](PARAM#repo)                   | upstream[] |   G   | where to download upstream packages                |
 | [`repo_packages`](PARAM#repo_packages)                           | [`REPO`](PARAM#repo)                   |  string[]  |   G   | which packages to be included                      |
 | [`repo_url_packages`](PARAM#repo_url_packages)                   | [`REPO`](PARAM#repo)                   |  string[]  |   G   | extra packages from url                            |

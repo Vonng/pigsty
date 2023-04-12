@@ -18,46 +18,47 @@ There are 265 parameters in Pigsty describing all aspect of the deployment.
 | 112 | [`repo_name`](#repo_name)                                       | [`INFRA`](#infra) | [`REPO`](#repo)                   | string      | G     | repo name, pigsty by default                                                  |
 | 113 | [`repo_endpoint`](#repo_endpoint)                               | [`INFRA`](#infra) | [`REPO`](#repo)                   | url         | G     | access point to this repo by domain or ip:port                                |
 | 114 | [`repo_remove`](#repo_remove)                                   | [`INFRA`](#infra) | [`REPO`](#repo)                   | bool        | G/A   | remove existing upstream repo                                                 |
-| 115 | [`repo_upstream`](#repo_upstream)                               | [`INFRA`](#infra) | [`REPO`](#repo)                   | upstream[]  | G     | where to download upstream packages                                           |
-| 116 | [`repo_packages`](#repo_packages)                               | [`INFRA`](#infra) | [`REPO`](#repo)                   | string[]    | G     | which packages to be included                                                 |
-| 117 | [`repo_url_packages`](#repo_url_packages)                       | [`INFRA`](#infra) | [`REPO`](#repo)                   | string[]    | G     | extra packages from url                                                       |
-| 118 | [`infra_packages`](#infra_packages)                             | [`INFRA`](#infra) | [`INFRA_PACKAGE`](#infra_package) | string[]    | G     | packages to be installed on infra nodes                                       |
-| 119 | [`infra_packages_pip`](#infra_packages_pip)                     | [`INFRA`](#infra) | [`INFRA_PACKAGE`](#infra_package) | string      | G     | pip installed packages for infra nodes                                        |
-| 120 | [`nginx_enabled`](#nginx_enabled)                               | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | bool        | G/I   | enable nginx on this infra node?                                              |
-| 121 | [`nginx_sslmode`](#nginx_sslmode)                               | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | enum        | G     | nginx ssl mode? disable,enable,enforce                                        |
-| 122 | [`nginx_home`](#nginx_home)                                     | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | path        | G     | nginx content dir, `/www` by default                                          |
-| 123 | [`nginx_port`](#nginx_port)                                     | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | port        | G     | nginx listen port, 80 by default                                              |
-| 124 | [`nginx_ssl_port`](#nginx_ssl_port)                             | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | port        | G     | nginx ssl listen port, 443 by default                                         |
-| 125 | [`nginx_navbar`](#nginx_navbar)                                 | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | index[]     | G     | nginx index page navigation links                                             |
-| 126 | [`dns_enabled`](#dns_enabled)                                   | [`INFRA`](#infra) | [`DNS`](#dns)                     | bool        | G/I   | setup dnsmasq on this infra node?                                             |
-| 127 | [`dns_port`](#dns_port)                                         | [`INFRA`](#infra) | [`DNS`](#dns)                     | port        | G     | dns server listen port, 53 by default                                         |
-| 128 | [`dns_records`](#dns_records)                                   | [`INFRA`](#infra) | [`DNS`](#dns)                     | string[]    | G     | dynamic dns records resolved by dnsmasq                                       |
-| 129 | [`prometheus_enabled`](#prometheus_enabled)                     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | enable prometheus on this infra node?                                         |
-| 130 | [`prometheus_clean`](#prometheus_clean)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/A   | clean prometheus data during init?                                            |
-| 131 | [`prometheus_data`](#prometheus_data)                           | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | path        | G     | prometheus data dir, `/data/prometheus` by default                            |
-| 132 | [`prometheus_sd_interval`](#prometheus_sd_interval)             | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | interval    | G     | prometheus target refresh interval, 5s by default                             |
-| 133 | [`prometheus_scrape_interval`](#prometheus_scrape_interval)     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | interval    | G     | prometheus scrape & eval interval, 10s by default                             |
-| 134 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)       | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | interval    | G     | prometheus global scrape timeout, 8s by default                               |
-| 135 | [`prometheus_options`](#prometheus_options)                     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | prometheus extra server options                                               |
-| 136 | [`pushgateway_enabled`](#pushgateway_enabled)                   | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | setup pushgateway on this infra node?                                         |
-| 137 | [`pushgateway_options`](#pushgateway_options)                   | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | pushgateway extra server options                                              |
-| 138 | [`blackbox_enabled`](#blackbox_enabled)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | setup blackbox_exporter on this infra node?                                   |
-| 139 | [`blackbox_options`](#blackbox_options)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | blackbox_exporter extra server options                                        |
-| 140 | [`alertmanager_enabled`](#alertmanager_enabled)                 | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | setup alertmanager on this infra node?                                        |
-| 141 | [`alertmanager_options`](#alertmanager_options)                 | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | alertmanager extra server options                                             |
-| 142 | [`exporter_metrics_path`](#exporter_metrics_path)               | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | path        | G     | exporter metric path, `/metrics` by default                                   |
-| 143 | [`exporter_install`](#exporter_install)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | enum        | G     | how to install exporter? none,yum,binary                                      |
-| 144 | [`exporter_repo_url`](#exporter_repo_url)                       | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | url         | G     | exporter repo file url if install exporter via yum                            |
-| 145 | [`grafana_enabled`](#grafana_enabled)                           | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | bool        | G/I   | enable grafana on this infra node?                                            |
-| 146 | [`grafana_clean`](#grafana_clean)                               | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | bool        | G/A   | clean grafana data during init?                                               |
-| 147 | [`grafana_admin_username`](#grafana_admin_username)             | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | username    | G     | grafana admin username, `admin` by default                                    |
-| 148 | [`grafana_admin_password`](#grafana_admin_password)             | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | password    | G     | grafana admin password, `pigsty` by default                                   |
-| 149 | [`grafana_plugin_cache`](#grafana_plugin_cache)                 | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | path        | G     | path to grafana plugins cache tarball                                         |
-| 150 | [`grafana_plugin_list`](#grafana_plugin_list)                   | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | string[]    | G     | grafana plugins to be downloaded with grafana-cli                             |
-| 151 | [`loki_enabled`](#loki_enabled)                                 | [`INFRA`](#infra) | [`LOKI`](#loki)                   | bool        | G/I   | enable loki on this infra node?                                               |
-| 152 | [`loki_clean`](#loki_clean)                                     | [`INFRA`](#infra) | [`LOKI`](#loki)                   | bool        | G/A   | whether remove existing loki data?                                            |
-| 153 | [`loki_data`](#loki_data)                                       | [`INFRA`](#infra) | [`LOKI`](#loki)                   | path        | G     | loki data dir, `/data/loki` by default                                        |
-| 154 | [`loki_retention`](#loki_retention)                             | [`INFRA`](#infra) | [`LOKI`](#loki)                   | interval    | G     | loki log retention period, 15d by default                                     |
+| 115 | [`repo_modules`](#repo_modules)                                 | [`INFRA`](#infra) | [`REPO`](#repo)                   | string      | G/A   | which repo modules are installed in repo_upstream                             |
+| 116 | [`repo_upstream`](#repo_upstream)                               | [`INFRA`](#infra) | [`REPO`](#repo)                   | upstream[]  | G     | where to download upstream packages                                           |
+| 117 | [`repo_packages`](#repo_packages)                               | [`INFRA`](#infra) | [`REPO`](#repo)                   | string[]    | G     | which packages to be included                                                 |
+| 118 | [`repo_url_packages`](#repo_url_packages)                       | [`INFRA`](#infra) | [`REPO`](#repo)                   | string[]    | G     | extra packages from url                                                       |
+| 120 | [`infra_packages`](#infra_packages)                             | [`INFRA`](#infra) | [`INFRA_PACKAGE`](#infra_package) | string[]    | G     | packages to be installed on infra nodes                                       |
+| 121 | [`infra_packages_pip`](#infra_packages_pip)                     | [`INFRA`](#infra) | [`INFRA_PACKAGE`](#infra_package) | string      | G     | pip installed packages for infra nodes                                        |
+| 130 | [`nginx_enabled`](#nginx_enabled)                               | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | bool        | G/I   | enable nginx on this infra node?                                              |
+| 131 | [`nginx_sslmode`](#nginx_sslmode)                               | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | enum        | G     | nginx ssl mode? disable,enable,enforce                                        |
+| 132 | [`nginx_home`](#nginx_home)                                     | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | path        | G     | nginx content dir, `/www` by default                                          |
+| 133 | [`nginx_port`](#nginx_port)                                     | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | port        | G     | nginx listen port, 80 by default                                              |
+| 134 | [`nginx_ssl_port`](#nginx_ssl_port)                             | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | port        | G     | nginx ssl listen port, 443 by default                                         |
+| 135 | [`nginx_navbar`](#nginx_navbar)                                 | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | index[]     | G     | nginx index page navigation links                                             |
+| 140 | [`dns_enabled`](#dns_enabled)                                   | [`INFRA`](#infra) | [`DNS`](#dns)                     | bool        | G/I   | setup dnsmasq on this infra node?                                             |
+| 141 | [`dns_port`](#dns_port)                                         | [`INFRA`](#infra) | [`DNS`](#dns)                     | port        | G     | dns server listen port, 53 by default                                         |
+| 142 | [`dns_records`](#dns_records)                                   | [`INFRA`](#infra) | [`DNS`](#dns)                     | string[]    | G     | dynamic dns records resolved by dnsmasq                                       |
+| 150 | [`prometheus_enabled`](#prometheus_enabled)                     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | enable prometheus on this infra node?                                         |
+| 151 | [`prometheus_clean`](#prometheus_clean)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/A   | clean prometheus data during init?                                            |
+| 152 | [`prometheus_data`](#prometheus_data)                           | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | path        | G     | prometheus data dir, `/data/prometheus` by default                            |
+| 153 | [`prometheus_sd_interval`](#prometheus_sd_interval)             | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | interval    | G     | prometheus target refresh interval, 5s by default                             |
+| 154 | [`prometheus_scrape_interval`](#prometheus_scrape_interval)     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | interval    | G     | prometheus scrape & eval interval, 10s by default                             |
+| 155 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)       | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | interval    | G     | prometheus global scrape timeout, 8s by default                               |
+| 156 | [`prometheus_options`](#prometheus_options)                     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | prometheus extra server options                                               |
+| 157 | [`pushgateway_enabled`](#pushgateway_enabled)                   | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | setup pushgateway on this infra node?                                         |
+| 158 | [`pushgateway_options`](#pushgateway_options)                   | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | pushgateway extra server options                                              |
+| 159 | [`blackbox_enabled`](#blackbox_enabled)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | setup blackbox_exporter on this infra node?                                   |
+| 160 | [`blackbox_options`](#blackbox_options)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | blackbox_exporter extra server options                                        |
+| 161 | [`alertmanager_enabled`](#alertmanager_enabled)                 | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | setup alertmanager on this infra node?                                        |
+| 162 | [`alertmanager_options`](#alertmanager_options)                 | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | alertmanager extra server options                                             |
+| 163 | [`exporter_metrics_path`](#exporter_metrics_path)               | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | path        | G     | exporter metric path, `/metrics` by default                                   |
+| 164 | [`exporter_install`](#exporter_install)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | enum        | G     | how to install exporter? none,yum,binary                                      |
+| 165 | [`exporter_repo_url`](#exporter_repo_url)                       | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | url         | G     | exporter repo file url if install exporter via yum                            |
+| 170 | [`grafana_enabled`](#grafana_enabled)                           | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | bool        | G/I   | enable grafana on this infra node?                                            |
+| 171 | [`grafana_clean`](#grafana_clean)                               | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | bool        | G/A   | clean grafana data during init?                                               |
+| 172 | [`grafana_admin_username`](#grafana_admin_username)             | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | username    | G     | grafana admin username, `admin` by default                                    |
+| 173 | [`grafana_admin_password`](#grafana_admin_password)             | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | password    | G     | grafana admin password, `pigsty` by default                                   |
+| 174 | [`grafana_plugin_cache`](#grafana_plugin_cache)                 | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | path        | G     | path to grafana plugins cache tarball                                         |
+| 175 | [`grafana_plugin_list`](#grafana_plugin_list)                   | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | string[]    | G     | grafana plugins to be downloaded with grafana-cli                             |
+| 176 | [`loki_enabled`](#loki_enabled)                                 | [`INFRA`](#infra) | [`LOKI`](#loki)                   | bool        | G/I   | enable loki on this infra node?                                               |
+| 177 | [`loki_clean`](#loki_clean)                                     | [`INFRA`](#infra) | [`LOKI`](#loki)                   | bool        | G/A   | whether remove existing loki data?                                            |
+| 178 | [`loki_data`](#loki_data)                                       | [`INFRA`](#infra) | [`LOKI`](#loki)                   | path        | G     | loki data dir, `/data/loki` by default                                        |
+| 179 | [`loki_retention`](#loki_retention)                             | [`INFRA`](#infra) | [`LOKI`](#loki)                   | interval    | G     | loki log retention period, 15d by default                                     |
 | 201 | [`nodename`](#nodename)                                         | [`NODE`](#node)   | [`NODE_ID`](#node_id)             | string      | I     | node instance identity, use hostname if missing, optional                     |
 | 202 | [`node_cluster`](#node_cluster)                                 | [`NODE`](#node)   | [`NODE_ID`](#node_id)             | string      | C     | node cluster identity, use 'nodes' if missing, optional                       |
 | 203 | [`nodename_overwrite`](#nodename_overwrite)                     | [`NODE`](#node)   | [`NODE_ID`](#node_id)             | bool        | C     | overwrite node's hostname with nodename?                                      |
@@ -527,6 +528,7 @@ repo_enabled: true                # create a yum repo on this infra node?
 repo_home: /www                   # repo home dir, `/www` by default
 repo_name: pigsty                 # repo name, pigsty by default
 repo_endpoint: http://${admin_ip}:80 # access point to this repo by domain or ip:port
+repo_modules: node,infra,pgsql    # which repo modules are installed in repo_upstream
 repo_remove: true                 # remove existing upstream repo
 repo_upstream:                    # where to download #
   - { name: base           ,description: 'EL 7 Base'         ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/os/$basearch/'                    , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/'       , europe: 'https://mirrors.xtom.de/centos/$releasever/os/$basearch/'           }}
@@ -614,6 +616,18 @@ name: `repo_endpoint`, type: `url`, level: `G`
 access point to this repo by domain or ip:port
 
 default value: `http://${admin_ip}:80`
+
+
+
+
+
+### `repo_modules`
+
+name: `repo_modules`, type: `string`, level: `G/A`
+
+which repo modules are installed in repo_upstream, default value: `node,infra,pgsql`
+
+This is a comma separated value string, it is used to filter entries in [`repo_upstream`] with corresponding `module` field. 
 
 
 
