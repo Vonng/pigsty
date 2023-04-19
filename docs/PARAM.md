@@ -1208,7 +1208,13 @@ grafana_admin_password: pigsty    # grafana admin password, `pigsty` by default
 grafana_plugin_cache: /www/pigsty/plugins.tgz # path to grafana plugins cache tarball
 grafana_plugin_list:              # grafana plugins to be downloaded with grafana-cli
   - volkovlabs-echarts-panel
+  - volkovlabs-image-panel
+  - volkovlabs-form-panel
+  - volkovlabs-grapi-datasource
+  - marcusolsson-dynamictext-panel
   - marcusolsson-treemap-panel
+  - marcusolsson-calendar-panel
+  - marcusolsson-static-datasource
 loki_enabled: true                # enable loki on this infra node?
 loki_clean: false                 # whether remove existing loki data?
 loki_data: /data/loki             # loki data dir, `/data/loki` by default
@@ -1286,7 +1292,15 @@ grafana plugins to be downloaded with grafana-cli
 default value:
 
 ```yaml
-["volkovlabs-echarts-panel", "marcusolsson-treemap-panel"]
+grafana_plugin_list:              # grafana plugins to be downloaded with grafana-cli
+  - volkovlabs-echarts-panel
+  - volkovlabs-image-panel
+  - volkovlabs-form-panel
+  - volkovlabs-grapi-datasource
+  - marcusolsson-dynamictext-panel
+  - marcusolsson-treemap-panel
+  - marcusolsson-calendar-panel
+  - marcusolsson-static-datasource
 ```
 
 Which will install echarts panel & treemap panel for grafana
