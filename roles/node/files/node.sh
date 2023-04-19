@@ -6,14 +6,17 @@ export PAGER="less"
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 #--------------------------------------------------------------#
-# Bash opts
-shopt -s nocaseglob # case-insensitive globbing
-shopt -s cdspell    # auto-correct typos in cd
-set -o pipefail     # pipe fail when component fail
-shopt -s histappend # append to history rather than overwrite
-for option in autocd globstar; do
-	shopt -s "$option" 2>/dev/null
-done
+# if bash is used, set shopt and prompt
+if [ -n "$BASH_VERSION" ]; then
+  shopt -s nocaseglob # case-insensitive globbing
+  shopt -s cdspell    # auto-correct typos in cd
+  set -o pipefail     # pipe fail when component fail
+  shopt -s histappend # append to history rather than overwrite
+  for option in autocd globstar; do
+    shopt -s "$option" 2>/dev/null
+  done
+  export PS1="\[\033]0;\w\007\]\[\]\n\[\e[1;36m\][\D{%m-%d %T}] \[\e[1;31m\]\u\[\e[1;33m\]@\H\[\e[1;32m\]:\w \n\[\e[1;35m\]\$ \[\e[0m\]"
+fi
 #--------------------------------------------------------------#
 # Bash settings
 export MANPAGER="less -X"
@@ -21,9 +24,6 @@ export HISTSIZE=65535
 export HISTFILESIZE=$HISTSIZE
 export HISTCONTROL=ignoredups
 export HISTIGNORE="l:ls:cd:cd -:pwd:exit:date:* --help"
-#--------------------------------------------------------------#
-# Prompt
-export PS1="\[\033]0;\w\007\]\[\]\n\[\e[1;36m\][\D{%m-%d %T}] \[\e[1;31m\]\u\[\e[1;33m\]@\H\[\e[1;32m\]:\w \n\[\e[1;35m\]\$ \[\e[0m\]"
 #--------------------------------------------------------------#
 # Path dedupe
 if [ -n "$PATH" ]; then
