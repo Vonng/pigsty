@@ -18,14 +18,15 @@
 #--------------------------------------------------------------#
 # Stage 3: Create data dir if not exists             [node_data]
 #--------------------------------------------------------------#
-# TODO: MOUNT DISK TO DATA DIR NOW LEAVES TO USER
 - name: assure node data dir exists
   tags: node_data
   when: node_data is defined and node_data != '' and node_data != '/'
-  shell: >-
-    mkdir -p "{{ node_data }}" -m 777;
-    chown root:root "{{ node_data }}"
-    /bin/true
+  file:
+    path: "{{ node_data }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0777'
 
 
 #--------------------------------------------------------------#
