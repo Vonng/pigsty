@@ -1,0 +1,47 @@
+#!/bin/bash
+set -uo pipefail
+#==============================================================#
+# File      :   profile
+# Desc      :   Profiling with perf and generate flamegraph
+# Ctime     :   2023-04-19
+# Mtime     :   2023-04-19
+# Path      :   bin/perf
+# Deps      :   perf, ssh, flamegraph, stackcollapse-perf
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+APP_NAME="$(basename $0)"
+APP_DIR="$(cd $(dirname $0) && pwd)"
+PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
+
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+# bin/profile <ip> <pid> [time=30]
+
+NODE_IP=${1}
+PROC_ID=${2}
+ELAPSE=${3-5}
+
+FILENAME="perf-${NODE_IP}-${PROC_ID}-$(date +%s)"
+
+# use timestamp as local filename
+LOCAL_FILENAME="/tmp/${FILENAME}.data"
+
+echo "profile ${PROC_ID} on ${NODE_IP} for ${ELAPSE} seconds"
+
+# run perf through ssh on given node with given pid and elapse and output to /tmp/perf.data
+ssh -t "${NODE_IP}" "cd /tmp; sudo perf record -F 99 -p ${PROC_ID} -g -- sleep ${ELAPSE}; sudo chmod a+r /tmp/perf.data"
+
+scp "${NODE_IP}:/tmp/perf.data" "/tmp/${FILENAME}.data"
+
+perf script -i "/tmp/${FILENAME}.data" &> "/tmp/${FILENAME}.unfolded"
+
+${APP_DIR}/stackcollapse-perf.pl "/tmp/${FILENAME}.unfolded" &> "/tmp/${FILENAME}.folded"
+
+flamegraph.pl "/tmp/${FILENAME}.folded" > "/tmp/${FILENAME}.svg"
+
+sudo mv "/tmp/${FILENAME}.svg" "/www/report/${FILENAME}.svg"
+
+echo "open http://h.pigsty/report/${FILENAME}.svg"
