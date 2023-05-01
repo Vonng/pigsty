@@ -1606,7 +1606,7 @@ node_packages: [ ]                # packages to be installed current nodes
 node_default_packages:            # default packages to be installed on all nodes
   - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils
   - wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,dnsmasq,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal
-  - node_exporter,etcd,mtail,python3-idna,python3-requests,haproxy
+  - node_exporter,etcd,mtail,python3,python3-pip,python3-idna,python3-requests,haproxy
 ```  
 
 
@@ -1678,7 +1678,7 @@ default value:
 node_default_packages:            # default packages to be installed on all nodes
   - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils
   - wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,dnsmasq,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal
-  - node_exporter,etcd,mtail,python3-idna,python3-requests,haproxy
+  - node_exporter,etcd,mtail,python3,python3-pip,python3-idna,python3-requests,haproxy
 ```
 
 

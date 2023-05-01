@@ -1318,7 +1318,7 @@ INSERT INTO pigsty.default_var VALUES
 (221, 'node_repo_remove', 'true', 'NODE', 'NODE_PACKAGE', 'bool', 'C/A', 'remove existing repo on node?', NULL),
 (222, 'node_repo_local_urls', '["http://${admin_ip}/pigsty.repo"]', 'NODE', 'NODE_PACKAGE', 'string[]', 'C', 'local repo url, if node_repo_method = local,both', NULL),
 (223, 'node_packages', '[]', 'NODE', 'NODE_PACKAGE', 'string[]', 'C', 'packages to be installed current nodes', NULL),
-(224, 'node_default_packages', '["lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils", "wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,dnsmasq,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal", "node_exporter,etcd,mtail,python3-idna,python3-requests,haproxy"]', 'NODE', 'NODE_PACKAGE', 'string[]', 'G', 'default packages to be installed on all nodes', NULL),
+(224, 'node_default_packages', '["lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils", "wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,dnsmasq,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal", "node_exporter,etcd,mtail,python3,python3-pip,python3-idna,python3-requests,haproxy"]', 'NODE', 'NODE_PACKAGE', 'string[]', 'G', 'default packages to be installed on all nodes', NULL),
 
 (230, 'node_disable_firewall', 'true', 'NODE', 'NODE_TUNE', 'bool', 'C', 'disable node firewall? true by default', NULL),
 (231, 'node_disable_selinux', 'true', 'NODE', 'NODE_TUNE', 'bool', 'C', 'disable node selinux? true by default', NULL),
