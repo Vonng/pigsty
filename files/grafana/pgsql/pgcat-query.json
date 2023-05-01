@@ -148,7 +148,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "9.4.7",
             "targets": [
                 {
                     "exemplar": false,
@@ -231,7 +231,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "9.4.7",
             "targets": [
                 {
                     "exemplar": false,
@@ -312,7 +312,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "9.4.7",
             "targets": [
                 {
                     "exemplar": false,
@@ -395,7 +395,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "9.4.7",
             "targets": [
                 {
                     "exemplar": false,
@@ -428,8 +428,8 @@
         },
         {
             "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
+                "type": "postgres",
+                "uid": "${dsn}"
             },
             "gridPos": {
                 "h": 12,
@@ -437,28 +437,53 @@
                 "x": 0,
                 "y": 2
             },
-            "id": 57,
+            "id": 89,
             "options": {
-                "code": {
-                    "language": "plaintext",
-                    "showLineNumbers": false,
-                    "showMiniMap": false
+                "content": "<pre style=\"word-wrap: break-word; font-family: monospace,Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;\"><code class=\"language-sql\">{{ query }}</pre></blockquote>",
+                "defaultContent": "The query didn't return any results.",
+                "editor": {
+                    "format": "auto",
+                    "height": 183,
+                    "language": "html"
                 },
-                "content": "```sql\n${qs}\n```",
-                "mode": "markdown"
+                "editors": [],
+                "everyRow": true,
+                "helpers": "",
+                "styles": ""
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "9.4.7",
             "targets": [
                 {
-                    "exemplar": false,
-                    "expr": "",
-                    "interval": "",
-                    "legendFormat": "",
-                    "refId": "A"
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "${dsn}"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT * FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query' LIMIT 1;",
+                    "refId": "A",
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    }
                 }
             ],
             "title": "Query String",
-            "type": "text"
+            "type": "marcusolsson-dynamictext-panel"
         },
         {
             "datasource": {
@@ -505,7 +530,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "9.4.7",
             "targets": [
                 {
                     "format": "table",
@@ -632,7 +657,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "9.4.7",
             "targets": [
                 {
                     "format": "table",
@@ -845,7 +870,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "9.4.7",
             "targets": [
                 {
                     "format": "table",
@@ -1042,7 +1067,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "9.4.7",
             "targets": [
                 {
                     "format": "table",
@@ -1890,7 +1915,7 @@
                     }
                 ]
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "9.4.7",
             "targets": [
                 {
                     "format": "table",
@@ -2364,7 +2389,7 @@
                     }
                 ]
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "9.4.7",
             "targets": [
                 {
                     "datasource": {
@@ -2599,29 +2624,6 @@
                 "name": "query",
                 "options": [],
                 "query": "SELECT distinct queryid::TEXT FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND userid != 10 LIMIT 1000;",
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 1,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-            },
-            {
-                "current": {},
-                "datasource": {
-                    "uid": "$dsn"
-                },
-                "definition": "SELECT query FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query' LIMIT 1;",
-                "description": "Query SQL Content",
-                "hide": 2,
-                "includeAll": false,
-                "label": "",
-                "multi": false,
-                "name": "qs",
-                "options": [],
-                "query": "SELECT query FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query' LIMIT 1;",
                 "refresh": 1,
                 "regex": "",
                 "skipUrlSync": false,
