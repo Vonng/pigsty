@@ -160,7 +160,7 @@ pg_default_hba_rules:             # postgres default host-based authentication r
   - {user: '${monitor}' ,db: all         ,addr: localhost ,auth: pwd   ,title: 'monitor from localhost with password' }
   - {user: '${monitor}' ,db: all         ,addr: infra     ,auth: pwd   ,title: 'monitor from infra host with password'}
   - {user: '${admin}'   ,db: all         ,addr: infra     ,auth: ssl   ,title: 'admin @ infra nodes with pwd & ssl'   }
-  - {user: '${admin}'   ,db: all         ,addr: world     ,auth: cert  ,title: 'admin @ everywhere with ssl & cert'   }
+  - {user: '${admin}'   ,db: all         ,addr: world     ,auth: ssl   ,title: 'admin @ everywhere with ssl & pwd'   }
   - {user: '+dbrole_readonly',db: all    ,addr: localhost ,auth: pwd   ,title: 'pgbouncer read/write via local socket'}
   - {user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: pwd   ,title: 'read/write biz user via password'     }
   - {user: '+dbrole_offline' ,db: all    ,addr: intra     ,auth: pwd   ,title: 'allow etl offline tasks from intranet'}
@@ -230,8 +230,8 @@ host     all                dbuser_monitor     10.10.10.10/32     scram-sha-256
 # admin @ infra nodes with pwd & ssl [default]
 hostssl  all                dbuser_dba         10.10.10.10/32     scram-sha-256
 
-# admin @ everywhere with ssl & cert [default]
-hostssl  all                dbuser_dba         0.0.0.0/0          cert
+# admin @ everywhere with ssl & pwd [default]
+hostssl  all                dbuser_dba         0.0.0.0/0          scram-sha-256
 
 # pgbouncer read/write via local socket [default]
 local    all                +dbrole_readonly                      scram-sha-256
