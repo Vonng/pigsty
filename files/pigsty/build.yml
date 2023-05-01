@@ -49,7 +49,7 @@ all:
       - { name: epel           ,description: 'EL 8+ EPEL'        ,module: node  ,releases: [  8,9] ,baseurl: { default: 'http://download.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/' , china: 'https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/Everything/$basearch/' , europe: 'https://mirrors.xtom.de/epel/$releasever/Everything/$basearch/'     }}
       - { name: powertools     ,description: 'EL 8 PowerTools'   ,module: node  ,releases: [  8  ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/PowerTools/$basearch/os/'     , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/PowerTools/$basearch/os/'  , europe: 'https://mirrors.xtom.de/rocky/$releasever/PowerTools/$basearch/os/' }}
       - { name: crb            ,description: 'EL 9 CRB'          ,module: node  ,releases: [    9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/CRB/$basearch/os/'            , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/CRB/$basearch/os/'         , europe: 'https://mirrors.xtom.de/rocky/$releasever/CRB/$basearch/os/'        }}
-      - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com' }}
+      - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com' }} #, china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
       - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' }}
       - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/'                }}
       - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable'           , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable'       }}
@@ -90,7 +90,8 @@ all:
         pg_cluster: pg-el7
         pg_vip_address: 10.10.10.2/24
         repo_packages:                    # which packages to be included
-          - grafana loki logcli promtail prometheus2 alertmanager pushgateway blackbox_exporter node_exporter redis_exporter
+          - grafana loki logcli promtail
+          - prometheus2 alertmanager pushgateway blackbox_exporter node_exporter redis_exporter
           - nginx nginx_exporter wget createrepo_c sshpass ansible python3 python3-pip python3-requests mtail dnsmasq docker-ce docker-compose etcd
           - lz4 unzip bzip2 zlib yum yum-utils pv jq git ncdu make patch bash lsof wget uuid tuned chrony perf nvme-cli numactl grubby sysstat iotop htop
           - netcat socat rsync ftp lrzsz s3cmd net-tools tcpdump ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal redis redis-stack-server
@@ -99,30 +100,31 @@ all:
           - postgresql13* citus112_13* pglogical_13* wal2json_13* pg_repack_13* pgvector_13* timescaledb-2-postgresql-13* postgis33_13 postgis33_13-devel postgis33_13-utils
           - postgresql12* citus112_12* pglogical_12* wal2json_12* pg_repack_12* pgvector_12* timescaledb-2-postgresql-12* postgis33_12 postgis33_12-devel postgis33_12-utils
           - postgresql11* citus112_11* pglogical_11* wal2json_11* pg_repack_11* pgvector_11* timescaledb-2-postgresql-11* postgis33_11 postgis33_11-devel postgis33_11-utils
-          - patroni-etcd pgbouncer pgbadger pgbackrest tail_n_mail pgloader pg_activity
+          - patroni-etcd pgbouncer pgbadger pgbackrest tail_n_mail pgloader pg_activity passwordcheck_cracklib_1* pg_cron_1*
           - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15*
           - powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15 logerrors_15 pg_top_15
           - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15*  pgtt_15 pgq_15* pgsql_tweaks_15 count_distinct_15 hypopg_15
           - timestamp9_15* semver_15* prefix_15* rum_15 geoip_15 periods_15 ip4r_15 tdigest_15 hll_15 pgmp_15 extra_window_functions_15 topn_15
-          - pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* passwordcheck_cracklib_15
+          - pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15*
           - pg_fkpart_15 pg_jobmon_15 pg_partman_15 pg_permissions_15 pgaudit17_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15*
-          - pg_cron_15 pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pg_filedump_15 pgcryptokey_15
+          - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pg_filedump_15 pgcryptokey_15
         repo_url_packages:                # add missing haproxy on el7
           - http://download.pigsty.cc/rpm/pg_exporter-0.5.0.x86_64.rpm
           - http://download.pigsty.cc/rpm/vip-manager_2.1.0_Linux_x86_64.rpm
           - http://download.pigsty.cc/rpm/pev.html
           - http://download.pigsty.cc/rpm/polysh-0.4-1.noarch.rpm
           - http://download.pigsty.cc/rpm/redis-7.0.10-1.el7.remi.x86_64.rpm
-          - http://download.pigsty.cc/rpm/minio-20230324214123.0.0.x86_64.rpm
-          - http://download.pigsty.cc/rpm/mcli-20230323200304.0.0.x86_64.rpm
+          - http://download.pigsty.cc/rpm/minio-20230428181117.0.0.x86_64.rpm
+          - http://download.pigsty.cc/rpm/mcli-20230412022151.0.0.x86_64.rpm
           - http://download.pigsty.cc/rpm/haproxy-2.7.6-1.el7.x86_64.rpm
+          - http://download.pigsty.cc/rpm/flamegraph-1.0.el8.noarch.rpm
           - http://download.pigsty.cc/rpm/plugins.tgz
           - http://download.pigsty.cc/rpm/chart.tgz
           #- https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
           #- https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.0/vip-manager_2.1.0_Linux_x86_64.rpm
           #- https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html
-          #- https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230324214123.0.0.x86_64.rpm
-          #- https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230323200304.0.0.x86_64.rpm
+          #- https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230428181117.0.0.x86_64.rpm
+          #- https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230412022151.0.0.x86_64.rpm
           #- https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm # redis.el7
           #- https://github.com/philyuchkoff/HAProxy-2-RPM-builder/releases/download/2.7.6/haproxy-2.7.6-1.el7.x86_64.rpm # haproxy.el7
 
@@ -135,7 +137,8 @@ all:
         pg_cluster: pg-el8
         pg_vip_address: 10.10.10.3/24
         repo_packages:                    # which packages to be included
-          - grafana loki logcli promtail prometheus2 alertmanager pushgateway blackbox_exporter node_exporter redis_exporter
+          - grafana loki logcli promtail
+          - prometheus2 alertmanager pushgateway blackbox_exporter node_exporter redis_exporter
           - nginx nginx_exporter wget createrepo_c sshpass ansible python3 python3-pip python3-requests python3-jmespath python39-jmespath mtail dnsmasq docker-ce docker-compose-plugin etcd
           - lz4 unzip bzip2 zlib yum dnf-utils pv jq git ncdu make patch bash lsof wget uuid tuned chrony perf flamegraph nvme-cli numactl grubby sysstat iotop htop modulemd-tools
           - netcat socat rsync ftp lrzsz s3cmd net-tools tcpdump ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal haproxy redis
@@ -157,15 +160,15 @@ all:
           - http://download.pigsty.cc/rpm/vip-manager_2.1.0_Linux_x86_64.rpm
           - http://download.pigsty.cc/rpm/pev.html
           - http://download.pigsty.cc/rpm/redis-7.0.10-1.el8.remi.x86_64.rpm
-          - http://download.pigsty.cc/rpm/minio-20230324214123.0.0.x86_64.rpm
-          - http://download.pigsty.cc/rpm/mcli-20230323200304.0.0.x86_64.rpm
+          - http://download.pigsty.cc/rpm/minio-20230428181117.0.0.x86_64.rpm
+          - http://download.pigsty.cc/rpm/mcli-20230412022151.0.0.x86_64.rpm
           - http://download.pigsty.cc/rpm/plugins.tgz
           - http://download.pigsty.cc/rpm/chart.tgz
           #- https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
           #- https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.0/vip-manager_2.1.0_Linux_x86_64.rpm
           #- https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html
-          #- https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230324214123.0.0.x86_64.rpm
-          #- https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230323200304.0.0.x86_64.rpm
+          #- https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230428181117.0.0.x86_64.rpm
+          #- https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230412022151.0.0.x86_64.rpm
 
 
     # build el9 packages on RockyLinux 9.0
@@ -176,7 +179,8 @@ all:
         pg_vip_address: 10.10.10.4/24
         pg_cluster: pg-el9
         repo_packages:                    # which packages to be included
-          - grafana loki logcli promtail prometheus2 alertmanager pushgateway blackbox_exporter node_exporter redis_exporter
+          - grafana loki logcli promtail
+          - prometheus2 alertmanager pushgateway blackbox_exporter node_exporter redis_exporter
           - nginx nginx_exporter wget createrepo_c sshpass ansible python3 python3-pip python3-requests python3-jmespath mtail dnsmasq docker-ce docker-compose-plugin etcd
           - lz4 unzip bzip2 zlib yum dnf-utils pv jq git ncdu make patch bash lsof wget uuid tuned chrony perf flamegraph nvme-cli numactl grubby sysstat iotop htop modulemd-tools
           - netcat socat rsync ftp lrzsz s3cmd net-tools tcpdump ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal haproxy redis
@@ -198,14 +202,14 @@ all:
           - http://download.pigsty.cc/rpm/vip-manager_2.1.0_Linux_x86_64.rpm
           - http://download.pigsty.cc/rpm/pev.html
           - http://download.pigsty.cc/rpm/redis-7.0.10-1.el9.remi.x86_64.rpm
-          - http://download.pigsty.cc/rpm/minio-20230324214123.0.0.x86_64.rpm
-          - http://download.pigsty.cc/rpm/mcli-20230323200304.0.0.x86_64.rpm
+          - http://download.pigsty.cc/rpm/minio-20230428181117.0.0.x86_64.rpm
+          - http://download.pigsty.cc/rpm/mcli-20230412022151.0.0.x86_64.rpm
           - http://download.pigsty.cc/rpm/plugins.tgz
           - http://download.pigsty.cc/rpm/chart.tgz
           #- https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
           #- https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.0/vip-manager_2.1.0_Linux_x86_64.rpm
           #- https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html
-          #- https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230324214123.0.0.x86_64.rpm
-          #- https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230323200304.0.0.x86_64.rpm
+          #- https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230428181117.0.0.x86_64.rpm
+          #- https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230412022151.0.0.x86_64.rpm
 
 ...
