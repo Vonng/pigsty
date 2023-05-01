@@ -571,8 +571,8 @@ repo_url_packages:                # extra packages from url
   - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
   - https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.0/vip-manager_2.1.0_Linux_x86_64.rpm
   - https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html
-  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230324214123.0.0.x86_64.rpm
-  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230323200304.0.0.x86_64.rpm
+  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230428181117.0.0.x86_64.rpm
+  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230412022151.0.0.x86_64.rpm
 ```
 
 
@@ -731,8 +731,8 @@ repo_url_packages:                # extra packages from url
   - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
   - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
   - https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html
-  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230324214123.0.0.x86_64.rpm
-  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230323200304.0.0.x86_64.rpm
+  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230428181117.0.0.x86_64.rpm
+  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230412022151.0.0.x86_64.rpm
 ```
 
 Currently, these packages are downloaded via url rather than upstream yum repo
