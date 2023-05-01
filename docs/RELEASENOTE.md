@@ -32,16 +32,23 @@
 
 ------------------------------
 
-## v2.1.0-a1
+## v2.1.0
 
 **Highlight**
 
 * Bump bytebase version to v1.16
 * Bump redis version to 7.0.10, add redis-stack support on el7
-* Add PostgreSQL 12 ~ 14 support 
+* Add PostgreSQL 11 ~ 14 support 
 * Add 6 extra panel & datasource plugins for grafana
 * Add `bin/profile` to profile remote process and generate flamegraph
 * Better observability
+
+**Software Upgrade**
+
+* Grafana v9.5.1
+* Prometheus 2.43
+* TimescaleDB 2.10.2
+* MinIO
 
 
 ------------------------------
