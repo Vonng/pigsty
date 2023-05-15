@@ -453,9 +453,9 @@ buildm-el9:
 ###############################################################
 #                     9. Environment                          #
 ###############################################################
-meta: v1 new ssh copy-el9 use-pkg
+meta: v1 new ssh copy-el7 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
-full: v4 new ssh copy-el9 use-pkg
+full: v4 new ssh copy-el7 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
 citus: vc new ssh copy-el9 use-pkg
 	cp files/pigsty/citus.yml pigsty.yml
