@@ -41,15 +41,21 @@
 * Add PostgreSQL 11 ~ 14 support 
 * Add 6 extra panel & datasource plugins for grafana
 * Add `bin/profile` to profile remote process and generate flamegraph
+* Add `bin/validate` to check pigsty.yml configuration file
 * Better observability
+
 
 **Software Upgrade**
 
-* Grafana v9.5.1
+* PostgreSQL 15.2 , 14.8, 13.11, 12.15
+* pgBackRest 2.45
+* pgbouncer 1.19
+* Grafana v9.5.2
+* Loki / Promtail / Logcli 2.8.2
 * Prometheus 2.43
-* TimescaleDB 2.10.2
-* MinIO
-
+* TimescaleDB 2.10.3
+* minio-20230428181117 / mcli-20230412022151
+* Bytebase v2.0.0
 
 ------------------------------
 
