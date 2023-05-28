@@ -82,10 +82,13 @@
       with_items:
         - "{{ node_admin_pk_list }}"
 
-    - name: add current user public key
+    # add current user public keys in ~/.ssh/id*.pub
+    - name: add current user public keys
       tags: node_admin_pk_current
       when: node_admin_pk_current|bool
       authorized_key:
         user: "{{ node_admin_username }}"
-        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+        key: "{{ lookup('file', item) }}"
+      with_fileglob:
+        - "~/.ssh/id*.pub"
 ...
