@@ -177,8 +177,8 @@ Bootstrap 的详细逻辑如下：
 
 3. 从上一步配置的软件源中，安装一些基本的重要软件，不同版本的软件略有不同：
 * el7: `ansible createrepo_c unzip wget yum-utils createrepo_c sshpass`
-* el8: `ansible python39-jmespath createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools`
-* el8: `ansible python3-jmespath createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools`
+* el8: `ansible python3.11-jmespath createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools`
+* el9: `ansible python3.11-jmespath createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools`
 
 4. 检查 `ansible` 是否成功安装。
 

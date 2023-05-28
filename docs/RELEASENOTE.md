@@ -36,26 +36,26 @@
 
 **Highlight**
 
-* Bump bytebase version to v1.16
-* Bump redis version to 7.0.10, add redis-stack support on el7
-* Add PostgreSQL 11 ~ 14 support 
+* PGVector for AI Embedding
+* Add PostgreSQL 11 ~ 15 support 
 * Add 6 extra panel & datasource plugins for grafana
 * Add `bin/profile` to profile remote process and generate flamegraph
 * Add `bin/validate` to check pigsty.yml configuration file
 * Better observability
 
-
 **Software Upgrade**
 
-* PostgreSQL 15.2 , 14.8, 13.11, 12.15
+* PostgreSQL 15.3 , 14.8, 13.11, 12.15, 11.20
 * pgBackRest 2.45
 * pgbouncer 1.19
+* Redis 7.0.11
 * Grafana v9.5.2
 * Loki / Promtail / Logcli 2.8.2
 * Prometheus 2.43
 * TimescaleDB 2.10.3
 * minio-20230428181117 / mcli-20230412022151
 * Bytebase v2.0.0
+
 
 ------------------------------
 

@@ -571,8 +571,8 @@ repo_url_packages:                # extra packages from url
   - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
   - https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.0/vip-manager_2.1.0_Linux_x86_64.rpm
   - https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html
-  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230428181117.0.0.x86_64.rpm
-  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230412022151.0.0.x86_64.rpm
+  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230518000536.0.0.x86_64.rpm
+  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230518165900.0.0.x86_64.rpm
 ```
 
 
@@ -693,7 +693,8 @@ default values:
 ```yaml
 repo_packages:                    # which packages to be included
   - grafana loki logcli promtail prometheus2 alertmanager pushgateway blackbox_exporter node_exporter redis_exporter
-  - nginx nginx_exporter wget createrepo_c sshpass ansible python3 python3-pip python3-requests python3-jmespath mtail dnsmasq docker-ce docker-compose-plugin etcd
+  - nginx nginx_exporter wget createrepo_c sshpass mtail dnsmasq docker-ce docker-compose-plugin etcd
+  - ansible python3 python3-pip python3-requests python3.11-jmespath
   - lz4 unzip bzip2 zlib yum dnf-utils pv jq git ncdu make patch bash lsof wget uuid tuned chrony perf flamegraph nvme-cli numactl grubby sysstat iotop htop modulemd-tools
   - netcat socat rsync ftp lrzsz s3cmd net-tools tcpdump ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal haproxy redis
   - postgresql15* postgis33_15* citus_15* pglogical_15* pg_squeeze_15* wal2json_15* pg_repack_15* pgvector_15* timescaledb-2-postgresql-15* timescaledb-tools
@@ -712,8 +713,8 @@ Each line is a set of package names separated by spaces, where the specified sof
 EL7, 8, 9 packages are slightly different, here are some ad hoc packages:
 
 * EL7:  `docker-compose citus112_15*`
-* EL8:  `modulemd-tools python39-jmespath haproxy redis docker-compose-plugin citus_15* flamegraph citus_15*`
-* EL9:  `modulemd-tools python3-jmespath  haproxy redis docker-compose-plugin citus_15* flamegraph libuser openldap-compat annobin gcc-plugin-annobin`
+* EL8:  `modulemd-tools python3.11-jmespath haproxy redis docker-compose-plugin citus_15* flamegraph citus_15*`
+* EL9:  `modulemd-tools python3.11-jmespath  haproxy redis docker-compose-plugin citus_15* flamegraph libuser openldap-compat annobin gcc-plugin-annobin`
 
 
 
@@ -731,8 +732,8 @@ repo_url_packages:                # extra packages from url
   - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
   - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
   - https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html
-  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230428181117.0.0.x86_64.rpm
-  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230412022151.0.0.x86_64.rpm
+  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230518000536.0.0.x86_64.rpm
+  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230518165900.0.0.x86_64.rpm
 ```
 
 Currently, these packages are downloaded via url rather than upstream yum repo
@@ -745,7 +746,7 @@ Currently, these packages are downloaded via url rather than upstream yum repo
 There are two missing packages in EL7: haproxy & redis:
 
 ```bash
-- https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm # redis.el7
+- https://rpmfind.net/linux/remi/enterprise/7/remi/x86_64/redis-7.0.11-1.el7.remi.x86_64.rpm
 - https://github.com/philyuchkoff/HAProxy-2-RPM-builder/releases/download/2.7.6/haproxy-2.7.6-1.el7.x86_64.rpm # haproxy.el7
 ```
 
@@ -1604,7 +1605,7 @@ node_repo_local_urls:             # local repo url, if node_repo_method = local,
   - http://${admin_ip}/pigsty.repo
 node_packages: [ ]                # packages to be installed current nodes
 node_default_packages:            # default packages to be installed on all nodes
-  - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils
+  - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils
   - wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,dnsmasq,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal
   - node_exporter,etcd,mtail,python3,python3-pip,python3-idna,python3-requests,haproxy
 ```  
@@ -1676,7 +1677,7 @@ default value:
 
 ```yaml
 node_default_packages:            # default packages to be installed on all nodes
-  - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,perf,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils
+  - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils
   - wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,dnsmasq,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal
   - node_exporter,etcd,mtail,python3,python3-pip,python3-idna,python3-requests,haproxy
 ```

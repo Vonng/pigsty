@@ -212,8 +212,9 @@ It will also download / extract / setup the offline [packages](#offline-packages
 
 3. install boot utils from the available repo
 
-   * el7,8,9: `nginx wget sshpass createrepo_c yum-utils`
-   * el8,9 extra: `dnf-utils modulemd-tools python3-jmespath`
+   * el7,8,9: `nginx wget sshpass createrepo_c yum-utils python2-jmespath`
+   * el8 extra: `dnf-utils modulemd-tools python3.11-jmespath`
+   * el9 extra: `dnf-utils modulemd-tools python3.11-jmespath`
 
 4. Check ansible availability.
 
