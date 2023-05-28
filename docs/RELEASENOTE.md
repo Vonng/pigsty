@@ -58,7 +58,7 @@
 
 **Enhancement**
 
-* Now use all `id*.pub` when installing local user's public key
+* Now use all `id*.pub` when installing local user's public key 
 
 
 ------------------------------
