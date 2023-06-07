@@ -348,8 +348,9 @@ bootstrap:
         # REPLICATION
         #------------------------------------------------------#
         # synchronous_standby_names: ''
-        vacuum_defer_cleanup_age: 500000        # 0->500000 last 500000 xact changes will not be vacuumed
-        promote_trigger_file: promote.signal    # default promote trigger file path
+{% if pg_version|int <= 15 %}
+        vacuum_defer_cleanup_age: 500000        # 0->500000 last 500000 xact changes will not be vacuumed (pg_version<=15)
+{% endif %}
         max_standby_archive_delay: 10min        # max delay before canceling queries when reading WAL from archive;
         max_standby_streaming_delay: 3min       # max delay before canceling queries when reading streaming WAL;
         wal_receiver_status_interval: 1s        # send replies at least this often
