@@ -8,7 +8,7 @@ Images = {
   "Alma"   => {                           "8"=> "generic/alma8"   , "9"=> "generic/alma9"   },
 }
 Specs = [
-  { "name" => "meta"  , "ip" => "10.10.10.10", "cpu" => "2", "mem" => "4096", "image" =>  Images["RHEL"][EL_VERSION]   },
-  { "name" => "node-1", "ip" => "10.10.10.11", "cpu" => "2", "mem" => "4096", "image" =>  Images["CentOS"][EL_VERSION] },
-  { "name" => "node-2", "ip" => "10.10.10.12", "cpu" => "2", "mem" => "4096", "image" =>  Images["CentOS"][EL_VERSION] },
+  { "name" => "meta"  , "ip" => "10.10.10.10", "cpu" => "2", "mem" => "4096", "image" =>  Images["CentOS"][EL_VERSION]   },
+  { "name" => "node-1", "ip" => "10.10.10.11", "cpu" => "2", "mem" => "4096", "image" =>  Images["RHEL"][EL_VERSION] },
+  { "name" => "node-2", "ip" => "10.10.10.12", "cpu" => "2", "mem" => "4096", "image" =>  Images["RHEL"][EL_VERSION] },
 ]
