@@ -37,15 +37,15 @@
 **Highlight**
 
 * Add PGVector for AI Embedding
-* Add PostgreSQL 11 ~ 15 support
+* Add PostgreSQL 11 ~ 15 support, and 16 beta1 support
 * Add 6 extra panel & datasource plugins for grafana
 * Add `bin/profile` to profile remote process and generate flamegraph
 * Add `bin/validate` to validate pigsty.yml configuration file
-* Better observability
+* Add pg 16 observability: `pg_stat_io` and corresponding dashboards 
 
 **Software Upgrade**
 
-* PostgreSQL 15.3 , 14.8, 13.11, 12.15, 11.20
+* PostgreSQL 15.3 , 14.8, 13.11, 12.15, 11.20, and 16 beta1
 * pgBackRest 2.45
 * pgbouncer 1.19
 * Redis 7.0.11

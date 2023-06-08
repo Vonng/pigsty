@@ -1,0 +1,131 @@
+---
+#==============================================================#
+# File      :   pg16.yml
+# Desc      :   Pigsty Local Sandbox 4-node Demo for pg 16 beta
+# Ctime     :   2023-06-07
+# Mtime     :   2023-06-07
+# Docs      :   https://vonng.github.io/pigsty/#/CONFIG
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+# same as demo.yml , but for PostgreSQL 16 beta
+
+all:
+  children:
+
+    # infra cluster for proxy, monitor, alert, etc..
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } }}
+
+    # minio cluster, s3 compatible object storage
+    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+
+    # etcd cluster for ha postgres
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+
+    # postgres example cluster: pg-meta
+    pg-meta:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-meta
+        pg_users:
+          - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
+          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+          - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database    }
+          - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
+          - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
+          - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service       }
+          - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
+        pg_databases:
+          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
+          - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
+          - { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
+          - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
+          - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
+          - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
+        pg_hba_rules:
+          - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.2/24
+        pg_vip_interface: eth1
+        node_crontab:  # make a full backup 1 am everyday
+          - '00 01 * * * postgres /pg/bin/pg-backup full'
+
+    # pgsql 3 node ha cluster: pg-test
+    pg-test:
+      hosts:
+        10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
+        10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
+        10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
+      vars:
+        pg_cluster: pg-test           # define pgsql cluster name
+        pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
+        pg_databases: [{ name: test }]
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.3/24
+        pg_vip_interface: eth1
+        node_tune: tiny
+        pg_conf: tiny.yml
+        node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
+          - '00 01 * * 1 postgres /pg/bin/pg-backup full'
+          - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
+
+    redis-ms: # redis classic primary & replica
+      hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.10 6501' } } } }
+      vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
+
+    redis-meta: # redis sentinel x 3
+      hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 6001: { } ,6002: { } , 6003: { } } } }
+      vars: { redis_cluster: redis-meta ,redis_password: 'redis.meta' ,redis_mode: sentinel ,redis_max_memory: 16MB }
+
+    redis-test: # redis native cluster: 3m x 3s
+      hosts:
+        10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+        10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
+      vars: { redis_cluster: redis-test ,redis_password: 'redis.test' ,redis_mode: cluster, redis_max_memory: 32MB }
+
+
+  vars:                               # global variables
+    version: v2.1.0                   # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default|china|europe
+    node_tune: tiny                   # use tiny template for NODE  in demo environment
+    pg_conf: tiny.yml                 # use tiny template for PGSQL in demo environment
+
+    pg_version: 16                    # install pg 16 in this template
+    pg_libs: 'pg_stat_statements, auto_explain' # remove timescaledb from pg 16 beta
+    pg_extensions: []                 # missing pg16 extensions for now
+
+    infra_portal:                     # domain names and upstream servers
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
+      minio        : { domain: sss.pigsty  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
+      postgrest    : { domain: api.pigsty  ,endpoint: "127.0.0.1:8884" }
+      pgadmin      : { domain: adm.pigsty  ,endpoint: "127.0.0.1:8885" }
+      pgweb        : { domain: cli.pigsty  ,endpoint: "127.0.0.1:8886" }
+      bytebase     : { domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887" }
+      gitea        : { domain: git.pigsty  ,endpoint: "127.0.0.1:8889" }
+      wiki         : { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002" }
+    nginx_navbar:                    # application nav links on home page
+      - { name: PgAdmin4   , url : 'http://adm.pigsty'  , comment: 'PgAdmin4 for PostgreSQL'  }
+      - { name: PGWeb      , url : 'http://cli.pigsty'  , comment: 'PGWEB Browser Client'     }
+      - { name: ByteBase   , url : 'http://ddl.pigsty'  , comment: 'ByteBase Schema Migrator' }
+      - { name: PostgREST  , url : 'http://api.pigsty'  , comment: 'Kong API Gateway'         }
+      - { name: Gitea      , url : 'http://git.pigsty'  , comment: 'Gitea Git Service'        }
+      - { name: Minio      , url : 'http://sss.pigsty'  , comment: 'Minio Object Storage'     }
+      - { name: Wiki       , url : 'http://wiki.pigsty' , comment: 'Local Wikipedia'          }
+      - { name: Explain    , url : '/pigsty/pev.html'   , comment: 'pgsql explain visualizer' }
+      - { name: Package    , url : '/pigsty'            , comment: 'local yum repo packages'  }
+      - { name: PG Logs    , url : '/logs'              , comment: 'postgres raw csv logs'    }
+      - { name: Schemas    , url : '/schema'            , comment: 'schemaspy summary report' }
+      - { name: Reports    , url : '/report'            , comment: 'pgbadger summary report'  }
+    node_timezone: Asia/Hong_Kong     # use Asia/Hong_Kong Timezone
+    node_ntp_servers:                 # NTP servers in /etc/chrony.conf
+      - pool cn.pool.ntp.org iburst
+      - pool ${admin_ip} iburst       # assume non-admin nodes does not have internet access
+    pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
+...
