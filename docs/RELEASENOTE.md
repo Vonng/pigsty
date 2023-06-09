@@ -36,25 +36,27 @@
 
 **Highlight**
 
+* PostgreSQL 16 beta support
+* PostgreSQL 12 ~ 15 support
 * Add PGVector for AI Embedding
-* Add PostgreSQL 11 ~ 15 support, and 16 beta1 support
 * Add 6 extra panel & datasource plugins for grafana
 * Add `bin/profile` to profile remote process and generate flamegraph
 * Add `bin/validate` to validate pigsty.yml configuration file
-* Add pg 16 observability: `pg_stat_io` and corresponding dashboards 
+* PostgreSQL 16 observability: `pg_stat_io` and corresponding dashboards 
 
 **Software Upgrade**
 
 * PostgreSQL 15.3 , 14.8, 13.11, 12.15, 11.20, and 16 beta1
-* pgBackRest 2.45
+* pgBackRest 2.46
 * pgbouncer 1.19
 * Redis 7.0.11
-* Grafana v9.5.2
+* Grafana v9.5.3
 * Loki / Promtail / Logcli 2.8.2
-* Prometheus 2.43
-* TimescaleDB 2.10.3
-* minio-20230428181117 / mcli-20230412022151
+* Prometheus 2.44
+* TimescaleDB 2.11.0
+* minio-20230518000536 / mcli-20230518165900
 * Bytebase v2.0.0
+
 
 **Enhancement**
 
