@@ -55,7 +55,7 @@
 * Prometheus 2.44
 * TimescaleDB 2.11.0
 * minio-20230518000536 / mcli-20230518165900
-* Bytebase v2.0.0
+* Bytebase v2.2.0
 
 
 **Enhancement**
