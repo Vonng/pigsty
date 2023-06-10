@@ -1,4 +1,4 @@
-# pigsty 4 nodes EL7 sandbox: rhel7, centos7, oracle7, alma7
+# pigsty 4 nodes EL9 sandbox: rhel9, centos9, alma9
 EL_VERSION = "9"
 Images = {
   "RHEL"   => { "7"=> "generic/rhel7"   , "8"=> "generic/rhel8"   , "9"=> "generic/rhel9"   },

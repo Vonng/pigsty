@@ -36,12 +36,12 @@
 
 **Highlight**
 
-* PostgreSQL 16 beta support
-* PostgreSQL 12 ~ 15 support
-* Add PGVector for AI Embedding
+* PostgreSQL 16 beta support, and 12 ~ 15 support.
+* Add PGVector for AI Embedding for 12 - 15
 * Add 6 extra panel & datasource plugins for grafana
 * Add `bin/profile` to profile remote process and generate flamegraph
 * Add `bin/validate` to validate pigsty.yml configuration file
+* Add `bin/repo-add` to add upstream repo files to /etc/yum.repos.d
 * PostgreSQL 16 observability: `pg_stat_io` and corresponding dashboards 
 
 **Software Upgrade**
@@ -61,6 +61,7 @@
 **Enhancement**
 
 * Now use all `id*.pub` when installing local user's public key 
+
 
 
 ------------------------------

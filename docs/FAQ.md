@@ -415,6 +415,23 @@ If you wish to access with HTTPS, you must remove `files/pki/csr/pigsty.csr`, `f
 
 
 
+<br>
+<details><summary>How to manually add upstream repo files</summary>
+
+Pigsty has a built-in wrap script `bin/repo-add`, which will invoke ansible playbook `node.yml` to adding repo files to corresponding nodes.
+
+```bash
+bin/repo-add <selector> [modules]
+bin/repo-add 10.10.10.10           # add node repos for node 10.10.10.10
+bin/repo-add infra   node,infra    # add node and infra repos for group infra
+bin/repo-add infra   node,local    # add node repos and local pigsty repo
+bin/repo-add pg-test node,pgsql    # add node & pgsql repos for group pg-test
+```
+
+</details>
+
+
+
 
 ----------------
 
@@ -769,9 +786,25 @@ There are several possible reasons:
 
 
 
+<br>
+<details><summary>Install PostgreSQL 12 - 14, and 16 beta</summary>
+
+To install PostgreSQL 12 - 15, you have to set `pg_version` to `12`, `13`, `14`, or `15` in the inventory. (usually at cluster level)
+
+To install PostgreSQL 16 beta, you have to change `pg_libs` and `pg_extensions` too, since most extensions are not available for pg16 yet.
+
+```yaml
+pg_version: 16                    # install pg 16 in this template
+pg_libs: 'pg_stat_statements, auto_explain' # remove timescaledb from pg 16 beta
+pg_extensions: []                 # missing pg16 extensions for now
+```
+
+</details>
+
+
+
 
 <br>
-
 <details><summary>How enable hugepage for PostgreSQL?</summary>
 
 !> use `node_hugepage_count` and `node_hugepage_ratio` or `/pg/bin/pg-tune-hugepage`
@@ -791,6 +824,8 @@ pg restart <cls>                          # restart postgres to use hugepage
 </details>
 
 
+
+
 <br>
 <details><summary>How to guarantee zero data loss during failover?</summary>
 
@@ -802,8 +837,8 @@ Consider using [Sync Standby](PGSQL-CONF#sync-standby) and [Quorum Comit](PGSQL-
 
 
 
-<br>
 
+<br>
 <details><summary>How to survive from disk full?</summary>
 
 !> `rm -rf /pg/dummy` will free some emergency space.

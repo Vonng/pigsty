@@ -4,7 +4,7 @@
 >
 > —— **A battery-included, local-first, open-source RDS PG alternative.**
 >
-> [Release v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Blog](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/sfBqv7S5)
+> [Release v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Blog](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/QDMZqV4a)
 >
 > [Get Started](INSTALL.md) with `curl -fsSL http://download.pigsty.cc/get | bash`
 
@@ -431,7 +431,7 @@ WeChat: Search `pigsty-cc` to join the WeChat group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/sfBqv7S5
+Discord: https://discord.gg/QDMZqV4a
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
