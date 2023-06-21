@@ -425,4 +425,6 @@ Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
 License: [AGPL-3.0](LICENSE)
 
+Sponsor: [Backers](BACKERS.md)
+
 Copyright 2018-2023 rh@vonng.com

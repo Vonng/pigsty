@@ -2,6 +2,7 @@
 
 | Version         |    Time    | Description                                             | Release                                                                                   |
 |:----------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v2.1.0](#v210) | 2023-06-10 | PostgreSQL 12 ~ 16beta support                          | [v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0)                             |
 | [v2.0.2](#v202) | 2023-03-31 | Add pgvector support and fix MinIO CVE                  | [v2.0.2](https://github.com/Vonng/pigsty/releases/tag/v2.0.2)                             |
 | [v2.0.1](#v201) | 2023-03-21 | v2 Bug Fix, security enhance and bump grafana version   | [v2.0.1](https://github.com/Vonng/pigsty/releases/tag/v2.0.1)                             |
 | [v2.0.0](#v200) | 2023-02-28 | Compatibility Security Maintainability Enhancement      | [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)                             |
