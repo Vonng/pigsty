@@ -83,7 +83,10 @@
   when: repo_exists|bool and repo_enabled|bool
   shell: |
     mkdir -p /etc/yum.repos.d/backup/
+    {% if repo_remove|bool %}
     mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ || /bin/true
+    yum clean all;
+    {% endif %}
     cat > /etc/yum.repos.d/{{ repo_name }}-local.repo <<-'EOF'
     [{{ repo_name }}-local]
     name={{ repo_name }}-local $releasever - $basearch
@@ -94,7 +97,6 @@
     module_hotfixes=1
     {% endif %}
     EOF
-    yum clean all;
     yum makecache;
     yum install -y wget nginx sshpass createrepo_c yum-utils;
 
