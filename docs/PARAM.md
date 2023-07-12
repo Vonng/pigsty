@@ -556,7 +556,6 @@ repo_upstream:                    # where to download #
   - { name: pgdg15         ,description: 'PostgreSQL 15'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg16beta     ,description: 'PostgreSQL 16 Beta',module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/testing/16/redhat/rhel-$releasever-$basearch', china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/16/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/testing/16/redhat/rhel-$releasever-$basearch' }}
   - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
-  - { name: citus          ,description: 'Citus Community'   ,module: pgsql ,releases: [7    ] ,baseurl: { default: 'https://repos.citusdata.com/community/el/$releasever/$basearch'          }}
   - { name: remi           ,description: 'Remi Redis'        ,module: redis ,releases: [7,8,9] ,baseurl: { default: 'http://rpms.remirepo.net/enterprise/$releasever/remi/$basearch/' , china: 'https://mirrors.tuna.tsinghua.edu.cn/remi/enterprise/$releasever/remi/$basearch/' }}
 repo_packages:                    # which packages to be included
   - grafana loki logcli promtail
@@ -582,8 +581,8 @@ repo_url_packages:                # extra packages from url
   - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
   - https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.0/vip-manager_2.1.0_Linux_x86_64.rpm
   - https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html
-  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230518000536.0.0.x86_64.rpm
-  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230518165900.0.0.x86_64.rpm
+  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230711212934.0.0.x86_64.rpm
+  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230711233044.0.0.x86_64.rpm
   - https://rpmfind.net/linux/remi/enterprise/9/modular/x86_64/redis-7.0.11-1.el9.remi.x86_64.rpm
 ```
 
@@ -753,8 +752,8 @@ repo_url_packages:                # extra packages from url
   - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
   - https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.0/vip-manager_2.1.0_Linux_x86_64.rpm
   - https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html
-  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230518000536.0.0.x86_64.rpm
-  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230518165900.0.0.x86_64.rpm
+  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230711212934.0.0.x86_64.rpm
+  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230711233044.0.0.x86_64.rpm
   - https://rpmfind.net/linux/remi/enterprise/9/modular/x86_64/redis-7.0.11-1.el9.remi.x86_64.rpm
 ```
 
