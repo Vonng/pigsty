@@ -2,6 +2,7 @@
 
 | Version         |    Time    | Description                                             | Release                                                                                   |
 |:----------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v2.1.1](#v211) | 2023-07-12 | Grafana CVE Fix, and software upgrade                   | [v2.1.1](https://github.com/Vonng/pigsty/releases/tag/v2.1.1)                             |
 | [v2.1.0](#v210) | 2023-06-10 | PostgreSQL 12 ~ 16beta support                          | [v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0)                             |
 | [v2.0.2](#v202) | 2023-03-31 | Add pgvector support and fix MinIO CVE                  | [v2.0.2](https://github.com/Vonng/pigsty/releases/tag/v2.0.2)                             |
 | [v2.0.1](#v201) | 2023-03-21 | v2 Bug Fix, security enhance and bump grafana version   | [v2.0.1](https://github.com/Vonng/pigsty/releases/tag/v2.0.1)                             |
@@ -28,6 +29,26 @@
 | v0.0.3          | 2020-06-22 | Interface enhancement                                   | [v0.0.3](https://github.com/Vonng/pigsty/commit/4c5c68ccd57bc32a9e9c98aa3f264aa19f45c7ee) |
 | v0.0.2          | 2020-04-30 | First Commit                                            | [v0.0.2](https://github.com/Vonng/pigsty/commit/dd646775624ddb33aef7884f4f030682bdc371f8) |
 | v0.0.1          | 2019-05-15 | POC                                                     | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
+
+
+------------------------------
+
+## v2.1.1
+
+**Highlight**
+
+* Fix grafana 9.x [CVE-2023-1410](https://grafana.com/blog/2023/03/22/grafana-security-release-new-versions-with-security-fixes-for-cve-2023-1410/) with 10.0.2
+* Use official pgdg citus distribution for el7
+
+**Software Upgrade**
+
+* PostgreSQL 16 beta2
+* PostGIS 3.3.3 / Citus 11.3 / TimescaleDB 2.11.1
+* Bump grafana version to 10.0.2
+* Bump haproxy version to v2.8.1
+* Bump redis version to v7.0.12
+* Bump patroni to v3.0.3
+* Bump MinIO/MCLI to 20230711212934 / 20230711233044
 
 
 
