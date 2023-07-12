@@ -783,8 +783,8 @@ These packages are installed on infra nodes only, including common rpm pacakges,
 
 ```yaml
 infra_packages:                   # packages to be installed on infra nodes
-  - grafana,loki,prometheus2,alertmanager,pushgateway,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
-  - nginx,ansible,python3-requests,redis,mcli,logcli,postgresql15
+  - grafana,loki,prometheus2,alertmanager,pushgateway,blackbox_exporter,nginx_exporter
+  - nginx,ansible,python3-requests,mcli,logcli #redis,postgresql15,redis_exporter,pg_exporter
 infra_packages_pip: ''            # pip installed packages for infra nodes
 ```
 
@@ -799,8 +799,8 @@ default value:
 
 ```yaml
 infra_packages:                   # packages to be installed on infra nodes
-  - grafana,loki,prometheus2,alertmanager,pushgateway,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
-  - nginx,ansible,python3-requests,redis,mcli,logcli,postgresql15
+  - grafana,loki,prometheus2,alertmanager,pushgateway,blackbox_exporter,nginx_exporter
+  - nginx,ansible,python3-requests,mcli,logcli #redis,postgresql15,redis_exporter,pg_exporter
 ```
 
 
