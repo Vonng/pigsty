@@ -291,7 +291,7 @@ Parameters about pigsty infrastructure components: local yum repo, nginx, dnsmas
 This section contains some metadata of current pigsty deployments, such as version string, admin node IP address, repo mirror [`region`](#region) and http(s) proxy when downloading pacakges.
 
 ```yaml
-    version: v2.1.0                   # pigsty version string
+    version: v2.1.1                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default,china,europe
     proxy_env:                        # global proxy env when downloading packages
@@ -307,7 +307,7 @@ name: `version`, type: `string`, level: `G`
 
 pigsty version string
 
-default value:`v2.1.0`
+default value:`v2.1.1`
 
 It will be used for pigsty introspection & content rendering.
 
@@ -579,7 +579,7 @@ repo_packages:                    # which packages to be included
   - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pg_filedump_15 pgcryptokey_15
 repo_url_packages:                # extra packages from url
   - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
-  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.0/vip-manager_2.1.0_Linux_x86_64.rpm
+  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.1/vip-manager_2.1.0_Linux_x86_64.rpm
   - https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html
   - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230711212934.0.0.x86_64.rpm
   - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230711233044.0.0.x86_64.rpm
@@ -750,7 +750,7 @@ default value:
 ```yaml
 repo_url_packages:                # extra packages from url
   - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
-  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.0/vip-manager_2.1.0_Linux_x86_64.rpm
+  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.1/vip-manager_2.1.0_Linux_x86_64.rpm
   - https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html
   - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230711212934.0.0.x86_64.rpm
   - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230711233044.0.0.x86_64.rpm
