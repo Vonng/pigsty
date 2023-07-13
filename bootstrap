@@ -3,12 +3,12 @@
 # File      :   bootstrap
 # Desc      :   setup local repo & install boot utils
 # Ctime     :   2022-10-16
-# Mtime     :   2023-03-17
+# Mtime     :   2023-07-12
 # Path      :   bootstrap
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-VERSION=v2.1.0
+VERSION=v2.1.1
 
 
 #--------------------------------------------------------------#
@@ -68,7 +68,7 @@ PIGSTY_HOME="$(cd $(dirname $0) && pwd)"
 REPO_NAME=pigsty
 NGINX_HOME=/www
 REPO_DIR=${NGINX_HOME}/${REPO_NAME}
-OS_VERSION=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
+OS_VERSION=${OS_VERSION-'7'}
 ARCH=$(uname -m)
 BASEURL="https://github.com/Vonng/pigsty/releases/download/${VERSION}"
 SRC_FILENAME="pigsty-${VERSION}.tgz"
@@ -111,6 +111,8 @@ function check_region(){
     else
         REGION=default     # otherwise use default mirror
     fi
+    SRC_FILENAME="pigsty-${VERSION}.tgz"
+    PKG_FILENAME="pigsty-pkg-${VERSION}.el${OS_VERSION}.x86_64.tgz"
     DEFAULT_SRC_URL="${BASEURL}/${SRC_FILENAME}"
     DEFAULT_PKG_URL="${BASEURL}/${PKG_FILENAME}"
     log_info "region = ${REGION}"
@@ -151,19 +153,21 @@ function check_machine(){
 function check_release(){
     if [[ ! -f /etc/redhat-release ]]; then
         log_error "release = unknown, /etc/redhat-release not exists"
-        log_error "pigsty works on RHEL and compatible distributions, use with caution!"
+        log_error "pigsty works on RHEL and compatible distributions, use with caution, assume OS_VERSION=${OS_VERSION}"
         #exit 3
+    else
+        local full=`cat /etc/redhat-release | tr -dc '0-9.'`
+        local major=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f1)
+        local minor=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f2)
+        local asynchronous=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f3)
+        if [[ ${major} != "7" && ${major} != "8" && ${major} != "9"  ]]; then
+            log_error "release = ${full} ,  supported release: el7,el8,el9"
+            log_error "pigsty works on el 7,8,9, please use with caution!"
+            #exit 4
+        fi
+        OS_VERSION=${major}
+        log_info "release = ${full}"
     fi
-    local full=`cat /etc/redhat-release | tr -dc '0-9.'`
-    local major=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f1)
-    local minor=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f2)
-    local asynchronous=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f3)
-    if [[ ${major} != "7" && ${major} != "8" && ${major} != "9"  ]]; then
-        log_error "release = ${full} ,  supported release: el7,el8,el9"
-        log_error "pigsty works on el 7,8,9, please use with caution!"
-        #exit 4
-    fi
-    log_info "release = ${full}"
     return 0
 }
 
@@ -351,7 +355,7 @@ EOF
 function add_local_repo(){
     local nginx_home=${1-${NGINX_HOME}}
     local repo_name=${2-${REPO_NAME}}
-    local releasever=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
+    local releasever=OS_VERSION
     cat > /tmp/pigsty-local.repo  <<-EOF
 [pigsty-local]
 name=pigsty local \$releasever - \$basearch
