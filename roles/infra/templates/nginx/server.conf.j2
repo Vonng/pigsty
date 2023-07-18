@@ -34,11 +34,13 @@ server {
         autoindex_format html;
     }
 
+{% if nginx_exporter_enabled|bool %}
     # liveness probe
     location /nginx {
         stub_status on;
         access_log off;
     }
+{% endif %}
 
     # proxy pass haproxy admin webui requests
     include /etc/nginx/conf.d/haproxy/location-*.conf;
