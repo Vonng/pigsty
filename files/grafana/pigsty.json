@@ -300,7 +300,7 @@
                 },
                 "textMode": "name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -428,7 +428,7 @@
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "palette-classic"
+                        "mode": "thresholds"
                     },
                     "links": [],
                     "mappings": [],
@@ -436,7 +436,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
@@ -461,7 +461,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "#e5b13d",
+                                    "fixedColor": "#e6b03ee6",
                                     "mode": "fixed"
                                 }
                             }
@@ -509,7 +509,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "#94be52",
+                                    "fixedColor": "#346f36cc",
                                     "mode": "fixed"
                                 }
                             }
@@ -533,7 +533,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "#cb4637",
+                                    "fixedColor": "#cc4637d9",
                                     "mode": "fixed"
                                 }
                             }
@@ -613,7 +613,7 @@
                 },
                 "textMode": "name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -651,6 +651,7 @@
                     "editorMode": "code",
                     "exemplar": false,
                     "expr": "count(up{job=\"node\"})",
+                    "hide": false,
                     "interval": "",
                     "legendFormat": "NODE",
                     "range": true,
@@ -708,20 +709,32 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
+            "description": "Blue: PostgreSQL\n\nRed: Redis\n\nYellow: Node\n\nAzure: etcd\n\nPink: MinIO\n\nGreen: Infra\n\n",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
                     "links": [],
-                    "mappings": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "index": 0,
+                                    "text": "No Instances"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
                     "max": 1.1,
                     "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#3e3e3e",
+                                "color": "#3e668f",
                                 "value": null
                             },
                             {
@@ -781,7 +794,7 @@
                                             "value": null
                                         },
                                         {
-                                            "color": "#cb4637",
+                                            "color": "#cc4637d9",
                                             "value": 1
                                         }
                                     ]
@@ -814,7 +827,7 @@
                                             "value": null
                                         },
                                         {
-                                            "color": "#e5b13d",
+                                            "color": "#e6b03ee6",
                                             "value": 1
                                         }
                                     ]
@@ -909,11 +922,11 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "#475a27",
+                                            "color": "#152c16",
                                             "value": null
                                         },
                                         {
-                                            "color": "#94be52",
+                                            "color": "#346f36cc",
                                             "value": 1
                                         }
                                     ]
@@ -954,15 +967,16 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (ins) (up{job=\"pgsql\"})",
+                    "expr": "min by (ins) (up{job=\"pgsql\"}) * min by (ins) (pg_up{job=\"pgsql\"}) # * min by (ins) (pgbouncer_up{job=\"pgsql\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
@@ -974,8 +988,9 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (ins) (up{job=\"redis\"})",
+                    "expr": "min by (ins) (redis_up{job=\"redis\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
@@ -1068,6 +1083,8 @@
             },
             "id": 51,
             "options": {
+                "includeVars": false,
+                "keepTime": false,
                 "maxItems": 50,
                 "query": "",
                 "showHeadings": false,
@@ -1079,7 +1096,7 @@
                     "Overview"
                 ]
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "title": "Apps",
             "type": "dashlist"
         },
@@ -1096,6 +1113,8 @@
             },
             "id": 10,
             "options": {
+                "includeVars": false,
+                "keepTime": false,
                 "maxItems": 50,
                 "query": "",
                 "showHeadings": false,
@@ -1106,7 +1125,7 @@
                     "Pigsty"
                 ]
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "title": "Dashboards",
             "type": "dashlist"
         },
@@ -1143,9 +1162,9 @@
                             "options": {
                                 "match": "null+nan",
                                 "result": {
-                                    "color": "gray",
+                                    "color": "#3e668f",
                                     "index": 0,
-                                    "text": "No Data"
+                                    "text": "No Clusters"
                                 }
                             },
                             "type": "special"
@@ -1206,7 +1225,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "#cb4637",
+                                    "fixedColor": "#cc4637d9",
                                     "mode": "fixed"
                                 }
                             }
@@ -1230,7 +1249,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "#e5b13d",
+                                    "fixedColor": "#e6b03ee6",
                                     "mode": "fixed"
                                 }
                             }
@@ -1268,8 +1287,8 @@
                                             "value": null
                                         },
                                         {
-                                            "color": "#324e64",
-                                            "value": 0.5
+                                            "color": "#b783af",
+                                            "value": 0.66666
                                         },
                                         {
                                             "color": "#5b9cd5",
@@ -1281,6 +1300,26 @@
                             {
                                 "id": "decimals",
                                 "value": 0
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "text",
+                                                "index": 1,
+                                                "text": "Dead"
+                                            },
+                                            "1": {
+                                                "color": "#5b9cd5",
+                                                "index": 0,
+                                                "text": "Healthy"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
                             }
                         ]
                     },
@@ -1332,7 +1371,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -1427,23 +1466,19 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#3e668f",
                                 "value": null
                             },
                             {
-                                "color": "yellow",
+                                "color": "#fcdb72",
                                 "value": 1
                             },
                             {
-                                "color": "orange",
-                                "value": 2
-                            },
-                            {
-                                "color": "red",
+                                "color": "#f5a673",
                                 "value": 4
                             },
                             {
-                                "color": "purple",
+                                "color": "#b783af",
                                 "value": 8
                             },
                             {
@@ -1514,7 +1549,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -1534,7 +1569,7 @@
                     },
                     "exemplar": false,
                     "expr": "count(ALERTS{alertstate=\"pending\"})",
-                    "hide": false,
+                    "hide": true,
                     "interval": "",
                     "legendFormat": "Pending Alert",
                     "refId": "B"
@@ -1569,23 +1604,19 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#3e668f",
                                 "value": null
                             },
                             {
-                                "color": "yellow",
+                                "color": "#fcdb72",
                                 "value": 1
                             },
                             {
-                                "color": "orange",
+                                "color": "#f5a673",
                                 "value": 2
                             },
                             {
-                                "color": "red",
-                                "value": 3
-                            },
-                            {
-                                "color": "purple",
+                                "color": "#b783af",
                                 "value": 4
                             }
                         ]
@@ -1618,7 +1649,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -1653,7 +1684,7 @@
                         "axisSoftMin": 0,
                         "barAlignment": 0,
                         "drawStyle": "line",
-                        "fillOpacity": 98,
+                        "fillOpacity": 75,
                         "gradientMode": "none",
                         "hideFrom": {
                             "graph": false,
@@ -1761,10 +1792,12 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "sum without (ins,instance,datname) (ALERTS{alertstate=\"firing\"})",
                     "interval": "",
                     "legendFormat": "[{{ severity }}] {{alertname}}  @ {{ cls }}",
+                    "range": true,
                     "refId": "A"
                 },
                 {
@@ -1784,7 +1817,7 @@
             "type": "timeseries"
         }
     ],
-    "refresh": "1m",
+    "refresh": "5s",
     "revision": 1,
     "schemaVersion": 38,
     "style": "light",

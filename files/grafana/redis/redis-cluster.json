@@ -130,7 +130,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "exemplar": false,
@@ -225,7 +225,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -276,7 +276,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
+                                "color": "#cc4637d9",
                                 "value": null
                             }
                         ]
@@ -286,12 +286,12 @@
                     {
                         "matcher": {
                             "id": "byRegexp",
-                            "options": "/Mem|Disk|Data/"
+                            "options": "/Mem|Spec|Disk|Data/"
                         },
                         "properties": [
                             {
                                 "id": "unit",
-                                "value": "decbytes"
+                                "value": "bytes"
                             },
                             {
                                 "id": "decimals",
@@ -384,7 +384,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -489,12 +489,13 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "sum(redis_memory_max_bytes{cls=\"$cls\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "Mem Max",
+                    "legendFormat": "Spec",
                     "queryType": "measurements",
                     "refId": "F"
                 }
@@ -530,16 +531,6 @@
                                 }
                             },
                             "type": "value"
-                        },
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "index": 3,
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
                         }
                     ],
                     "noValue": "N/A",
@@ -577,19 +568,20 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "max by (maxmemory_policy) (redis_instance_info{cls=\"$cls\"})",
                     "format": "table",
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "",
+                    "legendFormat": "{{ maxmemory_policy }}",
                     "queryType": "measurements",
                     "refId": "A"
                 }
@@ -674,7 +666,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -807,11 +799,15 @@
                         "properties": [
                             {
                                 "id": "unit",
-                                "value": "decbytes"
+                                "value": "bytes"
                             },
                             {
                                 "id": "custom.width",
                                 "value": 80
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
                             }
                         ]
                     },
@@ -870,7 +866,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -935,7 +931,7 @@
                             "Time 2": true,
                             "Time 3": true,
                             "Value": true,
-                            "Value #A": false,
+                            "Value #A": true,
                             "Value #B": false,
                             "__name__": true,
                             "__name__ 1": true,
@@ -1256,7 +1252,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 70
+                                "value": 80
                             },
                             {
                                 "id": "custom.cellOptions",
@@ -1378,6 +1374,22 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Spec"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            }
+                        ]
                     }
                 ]
             },
@@ -1406,7 +1418,7 @@
                     }
                 ]
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -1440,6 +1452,7 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "redis:ins:mem_usage{cls=\"$cls\"}",
                     "format": "table",
@@ -1462,6 +1475,21 @@
                     "interval": "",
                     "legendFormat": "",
                     "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "redis_memory_max_bytes{cls=\"$cls\"}",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "E"
                 }
             ],
             "title": "Instances",
@@ -1480,30 +1508,36 @@
                             "Time 1": true,
                             "Time 2": true,
                             "Time 3": true,
+                            "Time 5": true,
                             "Value #A": true,
                             "Value #B": false,
                             "__name__": true,
                             "__name__ 1": true,
                             "__name__ 2": true,
                             "__name__ 3": true,
+                            "__name__ 5": true,
                             "cls": false,
                             "cls 1": true,
                             "cls 2": true,
                             "cls 3": true,
                             "cls 4": true,
+                            "cls 5": true,
                             "instance": false,
                             "instance 1": false,
                             "instance 2": true,
                             "instance 3": true,
                             "instance 4": true,
+                            "instance 5": true,
                             "ip 2": true,
                             "ip 3": true,
                             "ip 4": true,
+                            "ip 5": true,
                             "job": true,
                             "job 1": true,
                             "job 2": true,
                             "job 3": true,
                             "job 4": true,
+                            "job 5": true,
                             "maxmemory_policy": true,
                             "os": true,
                             "process_id": true,
@@ -1513,50 +1547,58 @@
                             "tcp_port": true
                         },
                         "indexByName": {
-                            "Time 1": 19,
-                            "Time 2": 22,
-                            "Time 3": 26,
-                            "Time 4": 30,
-                            "Value #A": 18,
-                            "Value #B": 4,
-                            "Value #C": 5,
-                            "Value #D": 6,
-                            "__name__ 1": 20,
-                            "__name__ 2": 23,
-                            "__name__ 3": 27,
-                            "__name__ 4": 31,
+                            "Time 1": 20,
+                            "Time 2": 23,
+                            "Time 3": 27,
+                            "Time 4": 31,
+                            "Time 5": 39,
+                            "Value #A": 19,
+                            "Value #B": 5,
+                            "Value #C": 6,
+                            "Value #D": 8,
+                            "Value #E": 7,
+                            "__name__ 1": 21,
+                            "__name__ 2": 24,
+                            "__name__ 3": 28,
+                            "__name__ 4": 32,
+                            "__name__ 5": 40,
                             "cls 1": 0,
-                            "cls 2": 10,
-                            "cls 3": 17,
-                            "cls 4": 32,
+                            "cls 2": 11,
+                            "cls 3": 18,
+                            "cls 4": 33,
+                            "cls 5": 41,
                             "ins": 1,
                             "instance 1": 2,
-                            "instance 2": 24,
-                            "instance 3": 28,
-                            "instance 4": 33,
+                            "instance 2": 25,
+                            "instance 3": 29,
+                            "instance 4": 34,
+                            "instance 5": 42,
                             "ip 1": 3,
-                            "ip 2": 35,
-                            "ip 3": 36,
-                            "ip 4": 37,
-                            "job 1": 21,
-                            "job 2": 25,
-                            "job 3": 29,
-                            "job 4": 34,
-                            "maxmemory_policy": 11,
-                            "os": 12,
-                            "process_id": 13,
-                            "redis_build_id": 14,
-                            "redis_mode": 9,
-                            "redis_version": 8,
-                            "role": 7,
-                            "run_id": 15,
-                            "tcp_port": 16
+                            "ip 2": 36,
+                            "ip 3": 37,
+                            "ip 4": 38,
+                            "ip 5": 43,
+                            "job 1": 22,
+                            "job 2": 26,
+                            "job 3": 30,
+                            "job 4": 35,
+                            "job 5": 44,
+                            "maxmemory_policy": 12,
+                            "os": 13,
+                            "process_id": 14,
+                            "redis_build_id": 15,
+                            "redis_mode": 10,
+                            "redis_version": 9,
+                            "role": 4,
+                            "run_id": 16,
+                            "tcp_port": 17
                         },
                         "renameByName": {
                             "Value #A": "",
                             "Value #B": "CPU",
                             "Value #C": "MEM",
                             "Value #D": "QPS",
+                            "Value #E": "Spec",
                             "cls 1": "Cluster",
                             "ins": "Instance",
                             "instance": "",
@@ -1649,7 +1691,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -1741,7 +1783,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -1824,7 +1866,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -1925,7 +1967,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -1974,7 +2016,6 @@
             },
             "hiddenSeries": false,
             "id": 94,
-            "isNew": true,
             "legend": {
                 "alignAsTable": true,
                 "avg": false,
@@ -1996,7 +2037,7 @@
                 "alertThreshold": true
             },
             "percentage": false,
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "pointradius": 5,
             "points": false,
             "renderer": "flot",
@@ -2160,7 +2201,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -2262,7 +2303,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -2494,12 +2535,23 @@
             },
             "fieldConfig": {
                 "defaults": {
-                    "mappings": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "index": 0,
+                                    "text": "Nil Cluster"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#cc4637d9",
                                 "value": null
                             }
                         ]
@@ -2522,7 +2574,7 @@
                                             "value": null
                                         },
                                         {
-                                            "color": "green",
+                                            "color": "#346f36cc",
                                             "value": 16384
                                         }
                                     ]
@@ -2542,11 +2594,11 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "green",
+                                            "color": "#346f36cc",
                                             "value": null
                                         },
                                         {
-                                            "color": "red",
+                                            "color": "#cc4637d9",
                                             "value": 1
                                         }
                                     ]
@@ -2566,12 +2618,12 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "red",
+                                                "color": "#cc4637d9",
                                                 "index": 0,
                                                 "text": "FAIL"
                                             },
                                             "1": {
-                                                "color": "green",
+                                                "color": "#346f36cc",
                                                 "index": 1,
                                                 "text": "OK"
                                             }
@@ -2594,12 +2646,12 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "blue",
+                                                "color": "#3e668f",
                                                 "index": 0,
                                                 "text": "Disabled"
                                             },
                                             "1": {
-                                                "color": "green",
+                                                "color": "#346f36cc",
                                                 "index": 1,
                                                 "text": "Enabled"
                                             }
@@ -2607,6 +2659,78 @@
                                         "type": "value"
                                     }
                                 ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Shards"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 3
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Instances"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 6
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/Epoch.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": null
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     }
@@ -2634,9 +2758,13 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "exemplar": false,
                     "expr": "max(redis_cluster_enabled{cls=\"$cls\"})",
                     "hide": false,
@@ -2645,37 +2773,65 @@
                     "refId": "S"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "expr": "max(redis_cluster_state{cls=\"$cls\"})",
                     "interval": "",
                     "legendFormat": "Status",
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "expr": "avg(redis_cluster_size{cls=\"$cls\"})",
                     "interval": "",
-                    "legendFormat": "Size",
+                    "legendFormat": "Shards",
+                    "range": true,
                     "refId": "D"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min(redis_cluster_known_nodes{cls=\"$cls\"})",
+                    "interval": "",
+                    "legendFormat": "Instances",
+                    "range": true,
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "expr": "max(redis_cluster_current_epoch{cls=\"$cls\"})",
                     "interval": "",
                     "legendFormat": "Epoch",
                     "refId": "B"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "expr": "min(redis_cluster_my_epoch{cls=\"$cls\"})",
                     "interval": "",
                     "legendFormat": "Epoch Min",
                     "refId": "C"
                 },
                 {
-                    "exemplar": false,
-                    "expr": "min(redis_cluster_known_nodes{cls=\"$cls\"})",
-                    "interval": "",
-                    "legendFormat": "Known Ins",
-                    "refId": "E"
-                },
-                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "exemplar": false,
                     "expr": "max(redis_cluster_slots_assigned{cls=\"$cls\"})",
                     "interval": "",
@@ -2683,18 +2839,27 @@
                     "refId": "F"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "expr": "max(redis_cluster_slots_ok{cls=\"$cls\"})",
                     "interval": "",
                     "legendFormat": "Slot OK",
                     "refId": "G"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "expr": "max(redis_cluster_slots_fail{cls=\"$cls\"})",
                     "interval": "",
                     "legendFormat": "Slot Fail",
                     "refId": "H"
                 }
             ],
+            "transformations": [],
             "type": "stat"
         },
         {
@@ -2741,7 +2906,7 @@
                         "h": 18,
                         "w": 5,
                         "x": 0,
-                        "y": 2
+                        "y": 36
                     },
                     "id": 144,
                     "options": {
@@ -2759,7 +2924,7 @@
                         "text": {},
                         "textMode": "auto"
                     },
-                    "pluginVersion": "8.4.2",
+                    "pluginVersion": "10.0.2",
                     "targets": [
                         {
                             "datasource": {
@@ -2837,7 +3002,7 @@
                         "h": 9,
                         "w": 19,
                         "x": 5,
-                        "y": 2
+                        "y": 36
                     },
                     "id": 159,
                     "links": [],
@@ -2856,7 +3021,7 @@
                         "text": {},
                         "textMode": "auto"
                     },
-                    "pluginVersion": "8.4.2",
+                    "pluginVersion": "10.0.2",
                     "targets": [
                         {
                             "exemplar": false,
@@ -2931,7 +3096,7 @@
                         "h": 9,
                         "w": 19,
                         "x": 5,
-                        "y": 11
+                        "y": 45
                     },
                     "id": 91,
                     "links": [],
@@ -2950,7 +3115,7 @@
                         "text": {},
                         "textMode": "auto"
                     },
-                    "pluginVersion": "8.4.2",
+                    "pluginVersion": "10.0.2",
                     "targets": [
                         {
                             "expr": "redis:ins:mem_usage{cls=\"$cls\"}",
@@ -3065,7 +3230,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 37
+                        "y": 55
                     },
                     "id": 43,
                     "links": [],
@@ -3181,7 +3346,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 37
+                        "y": 55
                     },
                     "id": 53,
                     "links": [],
@@ -3325,7 +3490,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 44
+                        "y": 62
                     },
                     "id": 10,
                     "links": [],
@@ -3452,7 +3617,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 44
+                        "y": 62
                     },
                     "id": 7,
                     "links": [],
@@ -3561,10 +3726,6 @@
                                 "steps": [
                                     {
                                         "color": "green"
-                                    },
-                                    {
-                                        "color": "red",
-                                        "value": 80
                                     }
                                 ]
                             },
@@ -3669,7 +3830,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 52
+                        "y": 70
                     },
                     "id": 96,
                     "options": {
@@ -3680,7 +3841,7 @@
                             "showLegend": true
                         },
                         "tooltip": {
-                            "mode": "single",
+                            "mode": "multi",
                             "sort": "none"
                         }
                     },
@@ -3896,7 +4057,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 52
+                        "y": 70
                     },
                     "id": 97,
                     "options": {
@@ -3907,7 +4068,7 @@
                             "showLegend": true
                         },
                         "tooltip": {
-                            "mode": "single",
+                            "mode": "multi",
                             "sort": "none"
                         }
                     },
@@ -4016,7 +4177,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 59
+                        "y": 77
                     },
                     "id": 14,
                     "links": [],
@@ -4113,7 +4274,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 59
+                        "y": 77
                     },
                     "id": 93,
                     "links": [],
@@ -4211,7 +4372,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 66
+                        "y": 84
                     },
                     "id": 92,
                     "links": [],
@@ -4270,7 +4431,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 66
+                        "y": 84
                     },
                     "id": 66,
                     "links": [],
@@ -4372,7 +4533,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 72
+                        "y": 90
                     },
                     "id": 15,
                     "links": [],
@@ -4490,7 +4651,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 39
+                        "y": 98
                     },
                     "id": 50,
                     "links": [],
@@ -4588,7 +4749,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 39
+                        "y": 98
                     },
                     "id": 75,
                     "links": [],
@@ -4684,7 +4845,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 46
+                        "y": 105
                     },
                     "id": 51,
                     "links": [],
@@ -4743,11 +4904,10 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 46
+                        "y": 105
                     },
                     "hiddenSeries": false,
                     "id": 90,
-                    "isNew": true,
                     "legend": {
                         "alignAsTable": true,
                         "avg": false,
@@ -4769,7 +4929,7 @@
                         "alertThreshold": true
                     },
                     "percentage": false,
-                    "pluginVersion": "9.5.3",
+                    "pluginVersion": "10.0.2",
                     "pointradius": 5,
                     "points": false,
                     "renderer": "flot",
@@ -4890,7 +5050,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 54
+                        "y": 113
                     },
                     "id": 88,
                     "links": [],
@@ -4949,11 +5109,10 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 54
+                        "y": 113
                     },
                     "hiddenSeries": false,
                     "id": 54,
-                    "isNew": true,
                     "legend": {
                         "alignAsTable": true,
                         "avg": false,
@@ -4975,7 +5134,7 @@
                         "alertThreshold": true
                     },
                     "percentage": false,
-                    "pluginVersion": "9.5.3",
+                    "pluginVersion": "10.0.2",
                     "pointradius": 5,
                     "points": false,
                     "renderer": "flot",
@@ -5157,7 +5316,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 102
+                        "y": 120
                     },
                     "id": 8,
                     "links": [],
@@ -5255,7 +5414,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 102
+                        "y": 120
                     },
                     "id": 5,
                     "links": [],
@@ -5398,7 +5557,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 109
+                        "y": 127
                     },
                     "id": 87,
                     "links": [],
@@ -5494,7 +5653,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 109
+                        "y": 127
                     },
                     "id": 86,
                     "links": [],
@@ -5557,11 +5716,10 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 116
+                        "y": 134
                     },
                     "hiddenSeries": false,
                     "id": 58,
-                    "isNew": true,
                     "legend": {
                         "alignAsTable": true,
                         "avg": false,
@@ -5583,7 +5741,7 @@
                         "alertThreshold": true
                     },
                     "percentage": false,
-                    "pluginVersion": "9.4.3",
+                    "pluginVersion": "10.0.2",
                     "pointradius": 5,
                     "points": false,
                     "renderer": "flot",
@@ -5702,7 +5860,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 116
+                        "y": 134
                     },
                     "id": 69,
                     "links": [],
@@ -5768,7 +5926,8 @@
                                 "cellOptions": {
                                     "type": "auto"
                                 },
-                                "filterable": false
+                                "filterable": false,
+                                "inspect": false
                             },
                             "mappings": [],
                             "thresholds": {
@@ -5838,7 +5997,7 @@
                                 "properties": [
                                     {
                                         "id": "custom.width",
-                                        "value": 135
+                                        "value": 140
                                     },
                                     {
                                         "id": "links",
@@ -5859,7 +6018,7 @@
                                 "properties": [
                                     {
                                         "id": "custom.width",
-                                        "value": 135
+                                        "value": 140
                                     },
                                     {
                                         "id": "links",
@@ -5886,6 +6045,10 @@
                                                 "url": "/d/redis-instance?var-id=${__data.fields[\"Replica Ins\"]}"
                                             }
                                         ]
+                                    },
+                                    {
+                                        "id": "custom.minWidth",
+                                        "value": 180
                                     }
                                 ]
                             }
@@ -5895,12 +6058,14 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 7
+                        "y": 142
                     },
                     "id": 89,
                     "links": [],
                     "options": {
+                        "cellHeight": "sm",
                         "footer": {
+                            "countRows": false,
                             "fields": "",
                             "reducer": [
                                 "sum"
@@ -5910,7 +6075,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "8.3.1",
+                    "pluginVersion": "10.0.2",
                     "targets": [
                         {
                             "exemplar": false,
@@ -5980,6 +6145,8 @@
                                 "mode": "palette-classic"
                             },
                             "custom": {
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
                                 "axisLabel": "",
                                 "axisPlacement": "auto",
                                 "barAlignment": 0,
@@ -6030,7 +6197,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 7
+                        "y": 142
                     },
                     "id": 57,
                     "links": [],
@@ -6044,7 +6211,8 @@
                             "showLegend": true
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
