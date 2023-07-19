@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                             | Release                                                                                   |
 |:----------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.1.1](#v211) | 2023-07-12 | Grafana CVE Fix, and software upgrade                   | [v2.1.1](https://github.com/Vonng/pigsty/releases/tag/v2.1.1)                             |
+| [v2.2.0](#v220) | 2023-07-31 | Grafana & building overhaul, UOS compatibility          | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
 | [v2.1.0](#v210) | 2023-06-10 | PostgreSQL 12 ~ 16beta support                          | [v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0)                             |
 | [v2.0.2](#v202) | 2023-03-31 | Add pgvector support and fix MinIO CVE                  | [v2.0.2](https://github.com/Vonng/pigsty/releases/tag/v2.0.2)                             |
 | [v2.0.1](#v201) | 2023-03-21 | v2 Bug Fix, security enhance and bump grafana version   | [v2.0.1](https://github.com/Vonng/pigsty/releases/tag/v2.0.1)                             |
@@ -31,12 +31,16 @@
 | v0.0.1          | 2019-05-15 | POC                                                     | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
 
+
 ------------------------------
 
-## v2.1.1
+## v2.2.0 (Scheduled @ 2023-07-31 TBD)
 
 **Highlight**
 
+* Dashboards Overhaul
+* Pigsty EL Yum Repo
+* OS Compatibility: UOS-v20-1050e support
 * Fix grafana 9.x [CVE-2023-1410](https://grafana.com/blog/2023/03/22/grafana-security-release-new-versions-with-security-fixes-for-cve-2023-1410/) with 10.0.2
 * Use official pgdg citus distribution for el7
 
@@ -49,6 +53,53 @@
 * Bump redis version to v7.0.12
 * Bump patroni to v3.0.3
 * Bump MinIO/MCLI to 20230711212934 / 20230711233044
+
+
+**Bug Fix**
+
+* Fix docker group ownership issue [29434bd]https://github.com/Vonng/pigsty/commit/29434bdd39548d95d80a236de9099874ed564f9b
+* Fix redis sentinel systemd enable status [5c96feb](https://github.com/Vonng/pigsty/commit/5c96feb598ad6e44daa7a595e34c87e67952777b)
+* Loose `bootstrap` & `configure` if `/etc/redhat-release` not exists
+
+**API Change**
+
+1 parameters added
+
+- `INFRA`.`NGINX`.`nginx_exporter_enabled`        : now you can disable nginx_exporter with this parameter
+
+Default value changes:
+
+- `repo_modules`: `node,pgsql,infra` : redis is removed from it
+- `repo_upstream`: 
+  - add `pigsty-el`: distribution independent rpms: such as grafana, minio, pg_exporter, etc...
+  - add `pigsty-misc`: distribution aware rpms: such as redis, prometheus stack binaries, etc... 
+  - remove `grafana` in build config for acceleration 
+  - remove `citus` repo since pgdg now have full official citus support (on el7)
+  - remove `remi` , since redis is now included in `pigsty-misc`
+- `repo_packages`:
+  - ansible python3 python3-pip python3-requests python3.11-jmespath dnf-utils modulemd-tools # el7: python36-requests python36-idna yum-utils
+  - grafana loki logcli promtail prometheus2 alertmanager karma pushgateway node_exporter blackbox_exporter nginx_exporter redis_exporter
+  - redis etcd minio mcli haproxy vip-manager pg_exporter nginx createrepo_c sshpass chrony dnsmasq docker-ce docker-compose-plugin flamegraph
+  - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned perf nvme-cli numactl grubby sysstat iotop htop rsync tcpdump
+  - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal
+  - postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* postgresql16* timescaledb-tools
+  - postgresql15 postgresql15* citus_15* pglogical_15* wal2json_15* pg_repack_15* pgvector_15* timescaledb-2-postgresql-15* postgis33_15* passwordcheck_cracklib_15* pg_cron_15*
+  - postgresql14 postgresql14* citus_14* pglogical_14* wal2json_14* pg_repack_14* pgvector_14* timescaledb-2-postgresql-14* postgis33_14* passwordcheck_cracklib_14* pg_cron_14*
+  - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_partman_15 pg_permissions_15 pgaudit17_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15*
+  - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15
+  - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15*  pgtt_15 pgq_15* pgsql_tweaks_15 count_distinct_15 hypopg_15 timestamp9_15* semver_15* prefix_15* rum_15 geoip_15 periods_15 ip4r_15 tdigest_15 hll_15 pgmp_15 extra_window_functions_15 topn_15
+  - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pg_filedump_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15
+- `repo_url_packages`:
+  - http://download.pigsty.cc/rpm/pev.html
+  - http://download.pigsty.cc/rpm/chart.tgz 
+- `node_default_packages`:
+  - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump
+  - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3,python3-pip
+- `infra_packages`
+  - grafana,loki,logcli,promtail,prometheus2,alertmanager,karma,pushgateway
+  - node_exporter,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
+  - nginx,dnsmasq,ansible,postgresql15,redis,mcli,python3-requests
+
 
 
 

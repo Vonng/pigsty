@@ -25,11 +25,12 @@ There are 265 parameters in Pigsty describing all aspect of the deployment.
 | 120 | [`infra_packages`](#infra_packages)                             | [`INFRA`](#infra) | [`INFRA_PACKAGE`](#infra_package) | string[]    | G     | packages to be installed on infra nodes                                       |
 | 121 | [`infra_packages_pip`](#infra_packages_pip)                     | [`INFRA`](#infra) | [`INFRA_PACKAGE`](#infra_package) | string      | G     | pip installed packages for infra nodes                                        |
 | 130 | [`nginx_enabled`](#nginx_enabled)                               | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | bool        | G/I   | enable nginx on this infra node?                                              |
-| 131 | [`nginx_sslmode`](#nginx_sslmode)                               | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | enum        | G     | nginx ssl mode? disable,enable,enforce                                        |
-| 132 | [`nginx_home`](#nginx_home)                                     | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | path        | G     | nginx content dir, `/www` by default                                          |
-| 133 | [`nginx_port`](#nginx_port)                                     | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | port        | G     | nginx listen port, 80 by default                                              |
-| 134 | [`nginx_ssl_port`](#nginx_ssl_port)                             | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | port        | G     | nginx ssl listen port, 443 by default                                         |
-| 135 | [`nginx_navbar`](#nginx_navbar)                                 | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | index[]     | G     | nginx index page navigation links                                             |
+| 131 | [`nginx_exporter_enabled`](#nginx_enabled)                      | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | bool        | G/I   | enable nginx_exporter on this infra node?                                     |
+| 132 | [`nginx_sslmode`](#nginx_sslmode)                               | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | enum        | G     | nginx ssl mode? disable,enable,enforce                                        |
+| 133 | [`nginx_home`](#nginx_home)                                     | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | path        | G     | nginx content dir, `/www` by default                                          |
+| 134 | [`nginx_port`](#nginx_port)                                     | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | port        | G     | nginx listen port, 80 by default                                              |
+| 135 | [`nginx_ssl_port`](#nginx_ssl_port)                             | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | port        | G     | nginx ssl listen port, 443 by default                                         |
+| 136 | [`nginx_navbar`](#nginx_navbar)                                 | [`INFRA`](#infra) | [`NGINX`](#nginx)                 | index[]     | G     | nginx index page navigation links                                             |
 | 140 | [`dns_enabled`](#dns_enabled)                                   | [`INFRA`](#infra) | [`DNS`](#dns)                     | bool        | G/I   | setup dnsmasq on this infra node?                                             |
 | 141 | [`dns_port`](#dns_port)                                         | [`INFRA`](#infra) | [`DNS`](#dns)                     | port        | G     | dns server listen port, 53 by default                                         |
 | 142 | [`dns_records`](#dns_records)                                   | [`INFRA`](#infra) | [`DNS`](#dns)                     | string[]    | G     | dynamic dns records resolved by dnsmasq                                       |
@@ -529,7 +530,7 @@ repo_home: /www                   # repo home dir, `/www` by default
 repo_name: pigsty                 # repo name, pigsty by default
 repo_endpoint: http://${admin_ip}:80 # access point to this repo by domain or ip:port
 repo_remove: true                 # remove existing upstream repo
-repo_modules: node,infra,pgsql,redis # which repo modules are installed in repo_upstream
+repo_modules: node,pgsql,infra    # which repo modules are installed in repo_upstream
 repo_upstream:                    # where to download #
   - { name: base           ,description: 'EL 7 Base'         ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/os/$basearch/'                    , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/'       , europe: 'https://mirrors.xtom.de/centos/$releasever/os/$basearch/'           }}
   - { name: updates        ,description: 'EL 7 Updates'      ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/updates/$basearch/'               , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/updates/$basearch/'  , europe: 'https://mirrors.xtom.de/centos/$releasever/updates/$basearch/'      }}
@@ -543,47 +544,39 @@ repo_upstream:                    # where to download #
   - { name: epel           ,description: 'EL 8+ EPEL'        ,module: node  ,releases: [  8,9] ,baseurl: { default: 'http://download.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/' , china: 'https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/Everything/$basearch/' , europe: 'https://mirrors.xtom.de/epel/$releasever/Everything/$basearch/'     }}
   - { name: powertools     ,description: 'EL 8 PowerTools'   ,module: node  ,releases: [  8  ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/PowerTools/$basearch/os/'     , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/PowerTools/$basearch/os/'  , europe: 'https://mirrors.xtom.de/rocky/$releasever/PowerTools/$basearch/os/' }}
   - { name: crb            ,description: 'EL 9 CRB'          ,module: node  ,releases: [    9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/CRB/$basearch/os/'            , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/CRB/$basearch/os/'         , europe: 'https://mirrors.xtom.de/rocky/$releasever/CRB/$basearch/os/'        }}
-  - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com' }} #, china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
-  - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' }}
-  - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/'                }}
-  - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable'           , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable'       }}
   - { name: pgdg-common    ,description: 'PostgreSQL Common' ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg-el8fix    ,description: 'PostgreSQL EL8FIX' ,module: pgsql ,releases: [  8  ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' }}
+  - { name: pgdg-el9fix    ,description: 'PostgreSQL EL9FIX' ,module: pgsql ,releases: [    9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/'  , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/' }}
   - { name: pgdg12         ,description: 'PostgreSQL 12'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/12/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/12/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/12/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg13         ,description: 'PostgreSQL 13'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg14         ,description: 'PostgreSQL 14'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg15         ,description: 'PostgreSQL 15'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg16beta     ,description: 'PostgreSQL 16 Beta',module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/testing/16/redhat/rhel-$releasever-$basearch', china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/16/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/testing/16/redhat/rhel-$releasever-$basearch' }}
   - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
-  - { name: remi           ,description: 'Remi Redis'        ,module: redis ,releases: [7,8,9] ,baseurl: { default: 'http://rpms.remirepo.net/enterprise/$releasever/remi/$basearch/' , china: 'https://mirrors.tuna.tsinghua.edu.cn/remi/enterprise/$releasever/remi/$basearch/' }}
+  - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [ 7,8,9 ] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' } }
+  - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [ 7,8,9 ] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable'           , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' } }
+  - { name: pigsty-el      ,description: 'Pigsty EL Common'  ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://download.pigsty.cc/yum/el.x86_64' }}
+  - { name: pigsty-misc    ,description: 'Pigsty EL Misc'    ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://download.pigsty.cc/yum/el$releasever.$basearch' }}
+  - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' }}
+  #- { name: grafana       ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com', china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
 repo_packages:                    # which packages to be included
-  - grafana loki logcli promtail
-  - prometheus2 alertmanager pushgateway blackbox_exporter node_exporter redis_exporter
-  - nginx nginx_exporter wget createrepo_c sshpass mtail dnsmasq docker-ce docker-compose-plugin etcd
-  - ansible python3.11-jmespath python3 python3-pip python3-requests
-  - lz4 unzip bzip2 zlib yum dnf-utils pv jq git ncdu make patch bash lsof wget uuid tuned chrony perf flamegraph nvme-cli numactl grubby sysstat iotop htop modulemd-tools
-  - netcat socat rsync ftp lrzsz s3cmd net-tools tcpdump ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal haproxy redis
-  - postgresql15* citus_15* pglogical_15* wal2json_15* pg_repack_15* pgvector_15* timescaledb-2-postgresql-15* postgis33_15* timescaledb-tools passwordcheck_cracklib_15* pg_cron_15*
-  - postgresql14* citus_14* pglogical_14* wal2json_14* pg_repack_14* pgvector_14* timescaledb-2-postgresql-14* postgis33_14 postgis33_14-devel postgis33_14-utils passwordcheck_cracklib_14* pg_cron_14*
-  - postgresql13* citus_13* pglogical_13* wal2json_13* pg_repack_13* pgvector_13* timescaledb-2-postgresql-13* postgis33_13 postgis33_13-devel postgis33_13-utils passwordcheck_cracklib_13* pg_cron_13*
-  - postgresql12* citus_12* pglogical_12* wal2json_12* pg_repack_12* pgvector_12* timescaledb-2-postgresql-12* postgis33_12 postgis33_12-devel postgis33_12-utils passwordcheck_cracklib_12* pg_cron_12*
-  - postgresql16* # beta
-  - patroni patroni-etcd pgbouncer pgbadger pgbackrest tail_n_mail pgloader pg_activity libuser openldap-compat annobin gcc-plugin-annobin
-  - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* sequential_uuids_15
-  - powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15 logerrors_15 pg_top_15
-  - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15*  pgtt_15 pgq_15* pgsql_tweaks_15 count_distinct_15 hypopg_15
-  - timestamp9_15* semver_15* prefix_15* rum_15 geoip_15 periods_15 ip4r_15 tdigest_15 hll_15 pgmp_15 extra_window_functions_15 topn_15
-  - pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* passwordcheck_cracklib_15
-  - pg_fkpart_15 pg_jobmon_15 pg_partman_15 pg_permissions_15 pgaudit17_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15*
-  - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pg_filedump_15 pgcryptokey_15
-repo_url_packages:                # extra packages from url
-  - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
-  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.1/vip-manager_2.1.0_Linux_x86_64.rpm
-  - https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html
-  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230711212934.0.0.x86_64.rpm
-  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230711233044.0.0.x86_64.rpm
-  - https://rpmfind.net/linux/remi/enterprise/9/modular/x86_64/redis-7.0.11-1.el9.remi.x86_64.rpm
+  - ansible python3 python3-pip python3-requests python3.11-jmespath dnf-utils modulemd-tools # el7: python36-requests python36-idna yum-utils
+  - grafana loki logcli promtail prometheus2 alertmanager karma pushgateway node_exporter blackbox_exporter nginx_exporter redis_exporter
+  - redis etcd minio mcli haproxy vip-manager pg_exporter nginx createrepo_c sshpass chrony dnsmasq docker-ce docker-compose-plugin flamegraph
+  - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned perf nvme-cli numactl grubby sysstat iotop htop rsync tcpdump
+  - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal
+  - postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* postgresql16* timescaledb-tools
+  - postgresql15 postgresql15* citus_15* pglogical_15* wal2json_15* pg_repack_15* pgvector_15* timescaledb-2-postgresql-15* postgis33_15* passwordcheck_cracklib_15* pg_cron_15*
+  - postgresql14 postgresql14* citus_14* pglogical_14* wal2json_14* pg_repack_14* pgvector_14* timescaledb-2-postgresql-14* postgis33_14* passwordcheck_cracklib_14* pg_cron_14*
+  - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_partman_15 pg_permissions_15 pgaudit17_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15*
+  - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15
+  - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15*  pgtt_15 pgq_15* pgsql_tweaks_15 count_distinct_15 hypopg_15 timestamp9_15* semver_15* prefix_15* rum_15 geoip_15 periods_15 ip4r_15 tdigest_15 hll_15 pgmp_15 extra_window_functions_15 topn_15
+  - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pg_filedump_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15
+repo_url_packages:
+  - http://download.pigsty.cc/rpm/pev.html
+  - http://download.pigsty.cc/rpm/chart.tgz
+  #- http://download.pigsty.cc/rpm/plugins.tgz
 ```
 
 
@@ -646,7 +639,7 @@ If you want to keep existing upstream repo, set this value to `false`.
 
 name: `repo_modules`, type: `string`, level: `G/A`
 
-which repo modules are installed in repo_upstream, default value: `node,infra,pgsql,redis`
+which repo modules are installed in repo_upstream, default value: `node,pgsql,pgsql`
 
 This is a comma separated value string, it is used to filter entries in [`repo_upstream`] with corresponding `module` field. 
 
@@ -677,21 +670,22 @@ repo_upstream:                    # where to download #
   - { name: epel           ,description: 'EL 8+ EPEL'        ,module: node  ,releases: [  8,9] ,baseurl: { default: 'http://download.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/' , china: 'https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/Everything/$basearch/' , europe: 'https://mirrors.xtom.de/epel/$releasever/Everything/$basearch/'     }}
   - { name: powertools     ,description: 'EL 8 PowerTools'   ,module: node  ,releases: [  8  ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/PowerTools/$basearch/os/'     , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/PowerTools/$basearch/os/'  , europe: 'https://mirrors.xtom.de/rocky/$releasever/PowerTools/$basearch/os/' }}
   - { name: crb            ,description: 'EL 9 CRB'          ,module: node  ,releases: [    9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/CRB/$basearch/os/'            , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/CRB/$basearch/os/'         , europe: 'https://mirrors.xtom.de/rocky/$releasever/CRB/$basearch/os/'        }}
-  - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com' }} #, china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
-  - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' }}
-  - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/'                }}
-  - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable'           , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable'       }}
   - { name: pgdg-common    ,description: 'PostgreSQL Common' ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg-el8fix    ,description: 'PostgreSQL EL8FIX' ,module: pgsql ,releases: [  8  ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' }}
+  - { name: pgdg-el9fix    ,description: 'PostgreSQL EL9FIX' ,module: pgsql ,releases: [    9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/'  , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/' }}
   - { name: pgdg12         ,description: 'PostgreSQL 12'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/12/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/12/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/12/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg13         ,description: 'PostgreSQL 13'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg14         ,description: 'PostgreSQL 14'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg15         ,description: 'PostgreSQL 15'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg16beta     ,description: 'PostgreSQL 16 Beta',module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/testing/16/redhat/rhel-$releasever-$basearch', china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/16/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/testing/16/redhat/rhel-$releasever-$basearch' }}
   - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
-  - { name: citus          ,description: 'Citus Community'   ,module: pgsql ,releases: [7    ] ,baseurl: { default: 'https://repos.citusdata.com/community/el/$releasever/$basearch'          }}
-  - { name: remi           ,description: 'Remi Redis'        ,module: redis ,releases: [7,8,9] ,baseurl: { default: 'http://rpms.remirepo.net/enterprise/$releasever/remi/$basearch/' , china: 'https://mirrors.tuna.tsinghua.edu.cn/remi/enterprise/$releasever/remi/$basearch/' }}
+  - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [ 7,8,9 ] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' } }
+  - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [ 7,8,9 ] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable'           , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' } }
+  - { name: pigsty-el      ,description: 'Pigsty EL Common'  ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://download.pigsty.cc/yum/el.x86_64' }}
+  - { name: pigsty-misc    ,description: 'Pigsty EL Misc'    ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://download.pigsty.cc/yum/el$releasever.$basearch' }}
+  - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' }}
+  #- { name: grafana       ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com', china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
 ```
 
 
@@ -701,40 +695,30 @@ repo_upstream:                    # where to download #
 
 name: `repo_packages`, type: `string[]`, level: `G`
 
-which packages to be included
-
-default values: 
+which packages to be included, default values: 
 
 ```yaml
 repo_packages:                    # which packages to be included
-  - grafana loki logcli promtail
-  - prometheus2 alertmanager pushgateway blackbox_exporter node_exporter redis_exporter
-  - nginx nginx_exporter wget createrepo_c sshpass mtail dnsmasq docker-ce docker-compose-plugin etcd
-  - ansible python3.11-jmespath python3 python3-pip python3-requests
-  - lz4 unzip bzip2 zlib yum dnf-utils pv jq git ncdu make patch bash lsof wget uuid tuned chrony perf flamegraph nvme-cli numactl grubby sysstat iotop htop modulemd-tools
-  - netcat socat rsync ftp lrzsz s3cmd net-tools tcpdump ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal haproxy redis
-  - postgresql15* citus_15* pglogical_15* wal2json_15* pg_repack_15* pgvector_15* timescaledb-2-postgresql-15* postgis33_15* timescaledb-tools passwordcheck_cracklib_15* pg_cron_15*
-  - postgresql14* citus_14* pglogical_14* wal2json_14* pg_repack_14* pgvector_14* timescaledb-2-postgresql-14* postgis33_14 postgis33_14-devel postgis33_14-utils passwordcheck_cracklib_14* pg_cron_14*
-  - postgresql13* citus_13* pglogical_13* wal2json_13* pg_repack_13* pgvector_13* timescaledb-2-postgresql-13* postgis33_13 postgis33_13-devel postgis33_13-utils passwordcheck_cracklib_13* pg_cron_13*
-  - postgresql12* citus_12* pglogical_12* wal2json_12* pg_repack_12* pgvector_12* timescaledb-2-postgresql-12* postgis33_12 postgis33_12-devel postgis33_12-utils passwordcheck_cracklib_12* pg_cron_12*
-  - postgresql16* # beta
-  - patroni patroni-etcd pgbouncer pgbadger pgbackrest tail_n_mail pgloader pg_activity libuser openldap-compat annobin gcc-plugin-annobin
-  - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* sequential_uuids_15
-  - powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15 logerrors_15 pg_top_15
-  - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15*  pgtt_15 pgq_15* pgsql_tweaks_15 count_distinct_15 hypopg_15
-  - timestamp9_15* semver_15* prefix_15* rum_15 geoip_15 periods_15 ip4r_15 tdigest_15 hll_15 pgmp_15 extra_window_functions_15 topn_15
-  - pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* passwordcheck_cracklib_15
-  - pg_fkpart_15 pg_jobmon_15 pg_partman_15 pg_permissions_15 pgaudit17_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15*
-  - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pg_filedump_15 pgcryptokey_15
+  - ansible python3 python3-pip python3-requests python3.11-jmespath dnf-utils modulemd-tools # el7: python36-requests python36-idna yum-utils
+  - grafana loki logcli promtail prometheus2 alertmanager karma pushgateway node_exporter blackbox_exporter nginx_exporter redis_exporter
+  - redis etcd minio mcli haproxy vip-manager pg_exporter nginx createrepo_c sshpass chrony dnsmasq docker-ce docker-compose-plugin flamegraph
+  - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned perf nvme-cli numactl grubby sysstat iotop htop rsync tcpdump
+  - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal
+  - postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* postgresql16* timescaledb-tools
+  - postgresql15 postgresql15* citus_15* pglogical_15* wal2json_15* pg_repack_15* pgvector_15* timescaledb-2-postgresql-15* postgis33_15* passwordcheck_cracklib_15* pg_cron_15*
+  - postgresql14 postgresql14* citus_14* pglogical_14* wal2json_14* pg_repack_14* pgvector_14* timescaledb-2-postgresql-14* postgis33_14* passwordcheck_cracklib_14* pg_cron_14*
+  - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_partman_15 pg_permissions_15 pgaudit17_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15*
+  - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15
+  - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15*  pgtt_15 pgq_15* pgsql_tweaks_15 count_distinct_15 hypopg_15 timestamp9_15* semver_15* prefix_15* rum_15 geoip_15 periods_15 ip4r_15 tdigest_15 hll_15 pgmp_15 extra_window_functions_15 topn_15
+  - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pg_filedump_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15
 ```
 
 Each line is a set of package names separated by spaces, where the specified software will be downloaded via `repotrack`.
 
-EL7, 8, 9 packages are slightly different, here are some ad hoc packages:
+EL7 packages is slightly different, here are some ad hoc packages:
 
-* EL7:  `docker-compose citus112_15*`
-* EL8:  `modulemd-tools python3.11-jmespath haproxy redis docker-compose-plugin  citus_15* flamegraph`
-* EL9:  `modulemd-tools python3.11-jmespath  haproxy redis docker-compose-plugin citus_15* flamegraph libuser openldap-compat annobin gcc-plugin-annobin`
+* EL7:  `python36-requests python36-idna yum-utils yum-utils`
+* EL8 / EL9:  `python3.11-jmespath dnf-utils modulemd-tools`
 
 
 
@@ -743,18 +727,13 @@ EL7, 8, 9 packages are slightly different, here are some ad hoc packages:
 
 name: `repo_url_packages`, type: `string[]`, level: `G`
 
-extra packages from url
-
-default value:
+extra packages from url, default values:
 
 ```yaml
-repo_url_packages:                # extra packages from url
-  - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
-  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v2.1.1/vip-manager_2.1.0_Linux_x86_64.rpm
-  - https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html
-  - https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20230711212934.0.0.x86_64.rpm
-  - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli-20230711233044.0.0.x86_64.rpm
-  - https://rpmfind.net/linux/remi/enterprise/9/modular/x86_64/redis-7.0.11-1.el9.remi.x86_64.rpm
+repo_url_packages:
+  - http://download.pigsty.cc/rpm/pev.html
+  - http://download.pigsty.cc/rpm/chart.tgz
+  - http://download.pigsty.cc/rpm/plugins.tgz
 ```
 
 Currently, these packages are downloaded via url rather than upstream yum repo
@@ -783,8 +762,9 @@ These packages are installed on infra nodes only, including common rpm pacakges,
 
 ```yaml
 infra_packages:                   # packages to be installed on infra nodes
-  - grafana,loki,prometheus2,alertmanager,pushgateway,blackbox_exporter,nginx_exporter
-  - nginx,ansible,python3-requests,mcli,logcli #redis,postgresql15,redis_exporter,pg_exporter
+  - grafana,loki,logcli,promtail,prometheus2,alertmanager,karma,pushgateway
+  - node_exporter,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
+  - nginx,dnsmasq,ansible,postgresql15,redis,mcli,python3-requests
 infra_packages_pip: ''            # pip installed packages for infra nodes
 ```
 
@@ -793,14 +773,13 @@ infra_packages_pip: ''            # pip installed packages for infra nodes
 
 name: `infra_packages`, type: `string[]`, level: `G`
 
-packages to be installed on infra nodes
-
-default value:
+packages to be installed on infra nodes, default value:
 
 ```yaml
 infra_packages:                   # packages to be installed on infra nodes
-  - grafana,loki,prometheus2,alertmanager,pushgateway,blackbox_exporter,nginx_exporter
-  - nginx,ansible,python3-requests,mcli,logcli #redis,postgresql15,redis_exporter,pg_exporter
+  - grafana,loki,logcli,promtail,prometheus2,alertmanager,karma,pushgateway
+  - node_exporter,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
+  - nginx,dnsmasq,ansible,postgresql15,redis,mcli,python3-requests
 ```
 
 
@@ -831,6 +810,7 @@ This nginx also serves as a local yum repo.
 
 ```yaml
 nginx_enabled: true               # enable nginx on this infra node?
+nginx_exporter_enabled: true      # enable nginx_exporter on this infra node?
 nginx_sslmode: enable             # nginx ssl mode? disable,enable,enforce
 nginx_home: /www                  # nginx content dir, `/www` by default
 nginx_port: 80                    # nginx listen port, 80 by default
@@ -849,6 +829,18 @@ nginx_navbar:                     # nginx index page navigation links
 name: `nginx_enabled`, type: `bool`, level: `G/I`
 
 enable nginx on this infra node? default value: `true`
+
+
+
+
+
+### `nginx_exporter_enabled`
+
+name: `nginx_exporter_enabled`, type: `bool`, level: `G/I`
+
+enable nginx_exporter on this infra node? default value: `true`.
+
+set to false will disable `/nginx` health check stub too 
 
 
 
@@ -1698,9 +1690,8 @@ default value:
 
 ```yaml
 node_default_packages:            # default packages to be installed on all nodes
-  - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,chrony,nvme-cli,numactl,grubby,sysstat,iotop,htop,yum,yum-utils
-  - wget,netcat,socat,rsync,ftp,lrzsz,s3cmd,net-tools,tcpdump,ipvsadm,bind-utils,telnet,dnsmasq,audit,ca-certificates,openssl,openssh-clients,readline,vim-minimal
-  - node_exporter,etcd,mtail,python3,python3-pip,python3-idna,python3-requests,haproxy
+  - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump
+  - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3,python3-pip
 ```
 
 

@@ -109,6 +109,7 @@ API Reference for [`INFRA`](PARAM#INFRA) module:
 | [`infra_packages`](PARAM#infra_packages)                         | [`INFRA_PACKAGE`](PARAM#infra_package) |  string[]  |   G   | packages to be installed on infra nodes            |
 | [`infra_packages_pip`](PARAM#infra_packages_pip)                 | [`INFRA_PACKAGE`](PARAM#infra_package) |   string   |   G   | pip installed packages for infra nodes             |
 | [`nginx_enabled`](PARAM#nginx_enabled)                           | [`NGINX`](PARAM#nginx)                 |    bool    |  G/I  | enable nginx on this infra node?                   |
+| [`nginx_exporter_enabled`](PARAM#nginx_exporter_enabled)         | [`NGINX`](PARAM#nginx)                 |    bool    |  G/I  | enable nginx_exporter on this infra node?          |
 | [`nginx_sslmode`](PARAM#nginx_sslmode)                           | [`NGINX`](PARAM#nginx)                 |    enum    |   G   | nginx ssl mode? disable,enable,enforce             |
 | [`nginx_home`](PARAM#nginx_home)                                 | [`NGINX`](PARAM#nginx)                 |    path    |   G   | nginx content dir, `/www` by default               |
 | [`nginx_port`](PARAM#nginx_port)                                 | [`NGINX`](PARAM#nginx)                 |    port    |   G   | nginx listen port, 80 by default                   |
