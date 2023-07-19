@@ -3,7 +3,7 @@
 # File      :   bootstrap
 # Desc      :   setup local repo & install boot utils
 # Ctime     :   2022-10-16
-# Mtime     :   2023-07-12
+# Mtime     :   2023-07-19
 # Path      :   bootstrap
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -69,6 +69,7 @@ REPO_NAME=pigsty
 NGINX_HOME=/www
 REPO_DIR=${NGINX_HOME}/${REPO_NAME}
 OS_VERSION=${OS_VERSION-'7'}
+OS_VENDOR="RedHat"
 ARCH=$(uname -m)
 BASEURL="https://github.com/Vonng/pigsty/releases/download/${VERSION}"
 SRC_FILENAME="pigsty-${VERSION}.tgz"
@@ -154,6 +155,7 @@ function check_release(){
     if [[ ! -f /etc/redhat-release ]]; then
         log_error "release = unknown, /etc/redhat-release not exists"
         log_error "pigsty works on RHEL and compatible distributions, use with caution, assume OS_VERSION=${OS_VERSION}"
+        OS_VENDOR="Unknown"
         #exit 3
     else
         local full=`cat /etc/redhat-release | tr -dc '0-9.'`
@@ -376,13 +378,15 @@ function check_repo_file(){
     local nginx_home=${2-${NGINX_HOME}}
     local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
     if [[ ! -f ${nginx_home}/${repo_name}/repo_complete ]]; then
-        if [[ $OS_VERSION == "7" ]]; then
-            add_el7_repo ${REGION}
-        elif [[ $OS_VERSION == "8" ||  $OS_VERSION == "9" ]]; then
-            add_el89_repo ${REGION}
+        if [[ ${OS_VENDOR} == "RedHat" ]]; then
+            if [[ $OS_VERSION == "7" ]]; then
+                add_el7_repo ${REGION}
+            elif [[ $OS_VERSION == "8" ||  $OS_VERSION == "9" ]]; then
+                add_el89_repo ${REGION}
+            fi
+            log_warn "repo file = add el${OS_VERSION}.${ARCH} upstream"
+            return 0
         fi
-        log_warn "repo file = add el${OS_VERSION}.${ARCH} upstream"
-        return 0
     else
         add_local_repo
         log_info "repo file = use ${repo_file}"
@@ -401,20 +405,24 @@ function check_utils(){
     local nginx_home=${2-${NGINX_HOME}}
     local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
 
-    if [[ $OS_VERSION == "7" ]]; then
-        log_info "install el7 utils"
-        sudo yum install -y createrepo_c unzip wget yum-utils createrepo_c sshpass
-        sudo yum install -y ansible
-    elif [[ $OS_VERSION == "8" ]]; then
-        log_info "install el8 utils"
-        sudo dnf install -y createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools
-        sudo dnf install -y ansible python3.11-jmespath
-    elif [[ $OS_VERSION == "9" ]]; then
-        log_info "install el9 utils"
-        sudo dnf install -y createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools
-        sudo dnf install -y ansible python3.11-jmespath
+    if [[ $OS_VENDOR == "RedHat" ]]; then
+        if [[ $OS_VERSION == "7" ]]; then
+            log_info "install el7 utils"
+            sudo yum install -y createrepo_c unzip wget yum-utils sshpass
+            sudo yum install -y ansible
+        elif [[ $OS_VERSION == "8" ]]; then
+            log_info "install el8 utils"
+            sudo dnf install -y createrepo_c unzip wget yum-utils sshpass modulemd-tools
+            sudo dnf install -y ansible python3.11-jmespath
+        elif [[ $OS_VERSION == "9" ]]; then
+            log_info "install el9 utils"
+            sudo dnf install -y createrepo_c unzip wget yum-utils sshpass modulemd-tools
+            sudo dnf install -y ansible python3.11-jmespath
+        fi
+    else
+        log_warn "try install el utils"
+        sudo yum install -y createrepo_c unzip wget sshpass
     fi
-
     # restore backup repo ?
     sudo cp -f /etc/yum.repos.d/backup/*.repo /etc/yum.repos.d/ 2> /dev/null || true
 

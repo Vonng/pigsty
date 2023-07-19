@@ -53,9 +53,11 @@ all:
     node_default_packages:            # rename netcat to nc
       - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump
       - nc,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3,python3-pip
+      - python3-psycopg2,python3-pyyaml,python3-zipp,python3-importlib_metadata,python3-prettytable,python3-click,python3-prettytable,python3-wcwidth,python3-dns,python3-etcd,python3-ydiff
 
-    # remove patroni & postgis33_15 for now
-    pg_packages: [ 'postgresql15* pgbouncer pg_exporter vip-manager pgbackrest' ]
+    pg_packages:
+      - postgresql${pg_version}*
+      - pgbouncer pg_exporter vip-manager patroni patroni-etcd pgbackrest
     pg_extensions:
       - pg_repack_15
       - wal2json_15
@@ -64,6 +66,7 @@ all:
       - timescaledb-2-postgresql-15
       #- postgis33_${pg_version} postgis33_${pg_version}-devel postgis33_${pg_version}-utils
 
+    nginx_exporter_enabled: false     # uos nginx does not support metrics endpoint
     infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
@@ -76,6 +79,9 @@ all:
     # if you want to use minio as backup repo instead of local fs, uncomment minio related lines
     # don't forget to configure pgbackrest_repo and change credentials there!
     #pgbackrest_method: minio
+    #minio_users:
+    #  - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
+    #  - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
 
     # if disabled, original /etc/yum.repos.d will be kept
     repo_remove: false       # remove existing repo on admin node during repo bootstrap
