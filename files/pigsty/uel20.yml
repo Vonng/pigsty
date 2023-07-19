@@ -1,0 +1,112 @@
+---
+#==============================================================#
+# File      :   uel20.yml
+# Desc      :   Pigsty auto config for UnionTech v20 1050e
+# Ctime     :   2023-07-01
+# Mtime     :   2023-07-18
+# Docs      :   https://vonng.github.io/pigsty/#/CONFIG
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+# UOS caveats:
+#  * Recompiled PostgreSQL RPM
+#  * Remove nginx exporter and monitor endpoint /nginx
+#  * Remove node package `yum-utils` rename `netcat` to `nc`
+#  * Node: `hostname` module is unavailable：
+#  * Use `ansible_python_interpreter: /usr/bin/python3` in ansible.cfg and inventory
+#  * Install patroni with pip
+#  * remove pgbadger, patroni, patroni-etcd, postgis33_15 etc....
+
+all:
+  children:
+
+    # infra cluster for proxy, monitor, alert, etc..
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
+
+    # etcd cluster for ha postgres
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+
+    # minio cluster, optional backup repo for pgbackrest
+    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+
+    # postgres cluster 'pg-meta' with single primary instance
+    pg-meta:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-meta
+        pg_databases: [ { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [{ name: timescaledb } ] } ]
+        pg_users:
+          - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
+          - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
+        node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ] # make a full backup every 1am
+
+  vars:                               # global parameters
+    version: v2.1.1                   # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: china                     # upstream mirror region: default,china,europe
+    ansible_python_interpreter: /usr/bin/python3  # enforce using python3
+    infra_packages:
+      - grafana,loki,logcli,promtail,prometheus2,alertmanager,karma,pushgateway
+      - node_exporter,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
+      - nginx,dnsmasq,ansible,postgresql15,redis,mcli,python3-requests
+    node_default_packages:            # rename netcat to nc
+      - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump
+      - nc,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3,python3-pip
+
+    # remove patroni & postgis33_15 for now
+    pg_packages: [ 'postgresql15* pgbouncer pg_exporter vip-manager pgbackrest' ]
+    pg_extensions:
+      - pg_repack_15
+      - wal2json_15
+      - citus_15
+      - pgvector_15
+      - timescaledb-2-postgresql-15
+      #- postgis33_${pg_version} postgis33_${pg_version}-devel postgis33_${pg_version}-utils
+
+    infra_portal:                     # domain names and upstream servers
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
+      #minio        : { domain: sss.pigsty  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
+
+    # if you want to use minio as backup repo instead of local fs, uncomment minio related lines
+    # don't forget to configure pgbackrest_repo and change credentials there!
+    #pgbackrest_method: minio
+
+    # if disabled, original /etc/yum.repos.d will be kept
+    repo_remove: false       # remove existing repo on admin node during repo bootstrap
+    node_repo_remove: false  # remove existing node repo for node managed by pigsty
+
+    # WARNING: CHANGE THESE PASSWORDS
+    #grafana_admin_username: admin
+    grafana_admin_password: pigsty
+    #pg_admin_username: dbuser_dba
+    pg_admin_password: DBUser.DBA
+    #pg_monitor_username: dbuser_monitor
+    pg_monitor_password: DBUser.Monitor
+    #pg_replication_username: replicator
+    pg_replication_password: DBUser.Replicator
+    #patroni_username: postgres
+    patroni_password: Patroni.API
+    #haproxy_admin_username: admin
+    haproxy_admin_password: pigsty
+
+    # NOTICE: these variables are used when building repo from upstream on EL7
+    repo_packages:                    # which packages to be included
+      - alertmanager,ansible,audit,bash,bind,bind-libs,bind-libs-lite,bind-utils,blackbox_exporter,bzip2,bzip2-devel,ca-certificates,chrony,citus_15,clang,clang-resource-filesystem,compat-openssl10,createrepo_c,dnf,dnf-plugins-core,dnsmasq,etcd
+      - flamegraph,ftp,ftp-help,git,gperftools-libs,grafana,grubby,haproxy,htop,iotop,ipvsadm,ipvsadm-help,jq,jq-help,karma,readline,redis,redis_exporter,rpm-plugin-systemd-inhibit,rsync
+      - libdnf,libedit-devel,libmodulemd,librepo,libsodium,libsolv,llvm,llvm-devel,llvm-libs,lm_sensors,lm_sensors-help,logcli,loki,lrzsz,lsof,lz4,make,mcli,mesa-dri-drivers,mesa-filesystem,mesa-vulkan-drivers,minio,minizip,mtail,nc,ncdu,ncurses-devel,net-tools
+      - nginx,nginx-all-modules,nginx_exporter,nginx-filesystem,nginx-mod-http-image-filter,nginx-mod-http-perl,nginx-mod-http-xslt-filter,nginx-mod-mail,nginx-mod-stream,node_exporter,numactl,nvme-cli,nvme-cli-help
+      - openssh-clients,openssl,openssl-devel,openssl-help,openssl-libs,passwordcheck_cracklib_15,patch,perl-Error,perl-Git,perl-TermReadKey,pgbackrest,pgbouncer,pg_cron_15,pg_exporter,pglogical_15,pg_repack_15,pgvector_15,postgresql15*,prometheus2,promtail,pushgateway,pv
+      - python3,python3-asn1crypto,python3-babel,python3-bcrypt,python3-bind,python3-cffi,python3-cryptography,python3-dnf,python3-dnf-plugins-core,python3-hawkey,python3-idna,python3-invoke,python3-jinja2
+      - python3-jmespath,python3-libdnf,python3-lit,python3-markupsafe,python3-paramiko,python3-pip,python3-psycopg2,python3-pyasn1,python3-pycparser,python3-pynacl,python3-pyyaml,python3-requests
+      - socat,sshpass,sysstat,tcpdump,telnet,timescaledb-2-postgresql-15,timescaledb-tools,tuned,unzip,uuid,uuid-help,vim-minimal,vip-manager,wal2json_15,wget,yum,zlib,zlib-devel
+    repo_url_packages:                # add missing package redis & haproxy on el7
+      - http://download.pigsty.cc/rpm/pev.html
+      - http://download.pigsty.cc/rpm/plugins.tgz
+      - http://download.pigsty.cc/rpm/chart.tgz
+...

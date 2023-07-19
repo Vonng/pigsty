@@ -8,7 +8,7 @@
 # License   :   AGPLv3
 #==============================================================#
 # pigsty version & default develop & testing el version
-VERSION?=v2.1.1
+VERSION?=v2.2.0
 EL_VER=9
 
 # local name
@@ -419,27 +419,27 @@ publish:
 	bin/publish ${VERSION}
 
 build-src:
-	scp dist/${VERSION}/${SRC_PKG}   meta:~/pigsty.tgz ; ssh   meta "tar -xf pigsty.tgz";
-	scp dist/${VERSION}/${SRC_PKG} node-1:~/pigsty.tgz ; ssh node-1 "tar -xf pigsty.tgz";
-	scp dist/${VERSION}/${SRC_PKG} node-2:~/pigsty.tgz ; ssh node-2 "tar -xf pigsty.tgz";
+	scp dist/${VERSION}/${SRC_PKG} build-el7:~/pigsty.tgz ; ssh build-el7 "tar -xf pigsty.tgz";
+	scp dist/${VERSION}/${SRC_PKG} build-el8:~/pigsty.tgz ; ssh build-el8 "tar -xf pigsty.tgz";
+	scp dist/${VERSION}/${SRC_PKG} build-el9:~/pigsty.tgz ; ssh build-el9 "tar -xf pigsty.tgz";
 
 build-repo:
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz   meta:/tmp/pkg.tgz ; ssh   meta 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz node-1:/tmp/pkg.tgz ; ssh node-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz node-2:/tmp/pkg.tgz ; ssh node-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz build-el7:/tmp/pkg.tgz ; ssh build-el7 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz build-el8:/tmp/pkg.tgz ; ssh build-el8 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz build-el9:/tmp/pkg.tgz ; ssh build-el9 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 
 build-boot:
-	ssh meta   "cd pigsty; ./bootstrap -n ; ./configure -m el7  -i 10.10.10.10 -n";
-	ssh node-1 "cd pigsty; ./bootstrap -n ; ./configure -m el8  -i 10.10.10.11 -n";
-	ssh node-2 "cd pigsty; ./bootstrap -n ; ./configure -m el9  -i 10.10.10.12 -n";
+	ssh build-el7 "cd pigsty; ./bootstrap -n ; ./configure -m el7  -i 10.10.10.7 -n";
+	ssh build-el8 "cd pigsty; ./bootstrap -n ; ./configure -m el8  -i 10.10.10.8 -n";
+	ssh build-el9 "cd pigsty; ./bootstrap -n ; ./configure -m el9  -i 10.10.10.9 -n";
 
 build-release: r rr build-el7 build-el8 build-el9
 build-el7:
-	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
+	scp bin/cache build-el7:/tmp/cache ; ssh build-el7 "sudo bash /tmp/cache"; scp build-el7:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
 build-el8:
-	scp bin/cache node-1:/tmp/cache ; ssh node-1 "sudo bash /tmp/cache"; scp node-1:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
+	scp bin/cache build-el8:/tmp/cache ; ssh build-el8 "sudo bash /tmp/cache"; scp build-el8:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
 build-el9:
-	scp bin/cache node-2:/tmp/cache ; ssh node-2 "sudo bash /tmp/cache"; scp node-2:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
+	scp bin/cache build-el9:/tmp/cache ; ssh build-el9 "sudo bash /tmp/cache"; scp build-el9:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
 buildm-el7:
 	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
 buildm-el8:
