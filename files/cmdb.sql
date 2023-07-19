@@ -829,6 +829,7 @@ CREATE TYPE pglog.cmd_tag AS ENUM (
     'LISTEN',
     'LOAD',
     'LOCK TABLE',
+    'MERGE',
     'MOVE',
     'NOTIFY',
     'PREPARE',
@@ -976,6 +977,7 @@ CREATE TYPE pglog.code AS ENUM (
     '2203D', -- 	too_many_json_array_elements
     '2203E', -- 	too_many_json_object_members
     '2203F', -- 	sql_json_scalar_required
+    '2203G', --	    sql_json_item_cannot_be_cast_to_target_type
 -- Class 23 — Integrity Constraint Violation
     '23000', -- 	integrity_constraint_violation
     '23001', -- 	restrict_violation
@@ -1033,14 +1035,14 @@ CREATE TYPE pglog.code AS ENUM (
     '39P02', -- 	srf_protocol_violated
     '39P03', -- 	event_trigger_protocol_violated
 -- Class 3B — Savepoint Exception
-    '3B000', -- savepoint_exception
+    '3B000', --     savepoint_exception
     '3B001', -- 	invalid_savepoint_specification
 -- Class 3D — Invalid Catalog Name
     '3D000', -- 	invalid_catalog_name
 -- Class 3F — Invalid Schema Name
     '3F000', -- 	invalid_schema_name
 -- Class 40 — Transaction Rollback
-    '40000', -- transaction_rollback
+    '40000', --     transaction_rollback
     '40002', -- 	transaction_integrity_constraint_violation
     '40001', -- 	serialization_failure
     '40003', -- 	statement_completion_unknown
@@ -1164,8 +1166,8 @@ CREATE TYPE pglog.code AS ENUM (
 -- Class XX — Internal Error
     'XX000', -- 	internal_error
     'XX001', -- 	data_corrupted
-    'XX002'  -- 	ineedex_corrupted
-    );
+    'XX002'  -- 	index_corrupted
+);
 COMMENT ON TYPE pglog.code IS 'PostgreSQL Log SQL State Code (v14)';
 
 
