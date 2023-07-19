@@ -76,52 +76,83 @@
                         "mode": "thresholds"
                     },
                     "decimals": 0,
-                    "links": [
-                        {
-                            "targetBlank": true,
-                            "title": "Alertmanager",
-                            "url": "http://a.pigsty/#/alerts"
-                        }
-                    ],
+                    "links": [],
                     "mappings": [],
                     "max": 1,
                     "min": 0,
+                    "noValue": "OK",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#3e668f",
                                 "value": null
                             },
                             {
-                                "color": "yellow",
+                                "color": "#fcdb72",
                                 "value": 1
                             },
                             {
-                                "color": "orange",
-                                "value": 2
-                            },
-                            {
-                                "color": "red",
-                                "value": 3
-                            },
-                            {
-                                "color": "purple",
+                                "color": "#f5a673",
                                 "value": 4
+                            },
+                            {
+                                "color": "#b783af",
+                                "value": 8
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Pigsty Alertmanager",
+                                        "url": "http://a.pigsty"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Alert",
+                                        "url": "/d/pgsql-alert"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 7,
+                "h": 5,
                 "w": 2,
                 "x": 0,
                 "y": 1
             },
-            "id": 38,
+            "id": 87,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -137,17 +168,19 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "count(ALERTS{alertstate=\"firing\", job=\"node\"}) or on() vector(0)",
                     "interval": "",
-                    "legendFormat": "Firing",
+                    "legendFormat": "Firing Alert",
+                    "range": true,
                     "refId": "A"
                 },
                 {
@@ -155,11 +188,13 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "count(ALERTS{alertstate=\"pending\", job=\"node\"})",
-                    "hide": false,
+                    "hide": true,
                     "interval": "",
-                    "legendFormat": "Pending",
+                    "legendFormat": "Pending Alert",
+                    "range": true,
                     "refId": "B"
                 }
             ],
@@ -192,23 +227,19 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#3e668f",
                                 "value": null
                             },
                             {
-                                "color": "yellow",
+                                "color": "#fcdb72",
                                 "value": 1
                             },
                             {
-                                "color": "orange",
+                                "color": "#f5a673",
                                 "value": 2
                             },
                             {
-                                "color": "red",
-                                "value": 3
-                            },
-                            {
-                                "color": "purple",
+                                "color": "#b783af",
                                 "value": 4
                             }
                         ]
@@ -218,12 +249,12 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 7,
+                "h": 5,
                 "w": 4,
                 "x": 2,
                 "y": 1
             },
-            "id": 40,
+            "id": 86,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -236,20 +267,24 @@
                     "fields": "",
                     "values": false
                 },
-                "text": {},
+                "text": {
+                    "titleSize": 12
+                },
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "count(ALERTS{alertstate=\"firing\", job=\"node\"}) by (alertname, severity)",
                     "interval": "",
                     "legendFormat": "{{ alertname }}",
+                    "range": true,
                     "refId": "A"
                 }
             ],
@@ -357,7 +392,7 @@
                 ]
             },
             "gridPos": {
-                "h": 7,
+                "h": 5,
                 "w": 13,
                 "x": 6,
                 "y": 1
@@ -411,7 +446,7 @@
                 "uid": "ds-prometheus"
             },
             "gridPos": {
-                "h": 16,
+                "h": 14,
                 "w": 5,
                 "x": 19,
                 "y": 1
@@ -831,7 +866,7 @@
                 "h": 9,
                 "w": 19,
                 "x": 0,
-                "y": 8
+                "y": 6
             },
             "id": 36,
             "options": {
@@ -852,7 +887,7 @@
                     }
                 ]
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.2",
             "targets": [
                 {
                     "datasource": {
@@ -1007,7 +1042,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 17
+                "y": 15
             },
             "id": 18,
             "options": {
@@ -1054,7 +1089,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 25
+                "y": 23
             },
             "id": 82,
             "panels": [
@@ -1067,7 +1102,7 @@
                         "h": 10,
                         "w": 24,
                         "x": 0,
-                        "y": 26
+                        "y": 50
                     },
                     "id": 84,
                     "maxDataPoints": 100,
@@ -1108,7 +1143,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 26
+                "y": 24
             },
             "id": 53,
             "panels": [
@@ -1204,7 +1239,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 27
+                        "y": 51
                     },
                     "id": 11,
                     "options": {
@@ -1259,7 +1294,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 27
+                "y": 25
             },
             "id": 85,
             "panels": [
@@ -1343,7 +1378,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 28
+                        "y": 52
                     },
                     "id": 56,
                     "options": {
@@ -1400,7 +1435,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 28
+                "y": 26
             },
             "id": 55,
             "panels": [
@@ -1482,7 +1517,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 29
+                        "y": 53
                     },
                     "id": 57,
                     "options": {
@@ -1538,7 +1573,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 29
+                "y": 27
             },
             "id": 27,
             "panels": [
@@ -1628,7 +1663,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 30
+                        "y": 54
                     },
                     "id": 60,
                     "options": {
@@ -1683,7 +1718,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 30
+                "y": 28
             },
             "id": 29,
             "panels": [
@@ -1778,7 +1813,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 31
+                        "y": 55
                     },
                     "id": 23,
                     "options": {
@@ -1921,7 +1956,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 39
+                        "y": 63
                     },
                     "id": 78,
                     "options": {
@@ -2046,7 +2081,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 46
+                        "y": 70
                     },
                     "id": 58,
                     "options": {
@@ -2174,7 +2209,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 53
+                        "y": 77
                     },
                     "id": 59,
                     "options": {
@@ -2229,7 +2264,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 31
+                "y": 29
             },
             "id": 62,
             "panels": [
@@ -2309,7 +2344,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 40
+                        "y": 64
                     },
                     "id": 71,
                     "options": {
@@ -2441,7 +2476,7 @@
                         "h": 9,
                         "w": 24,
                         "x": 0,
-                        "y": 47
+                        "y": 71
                     },
                     "id": 70,
                     "options": {
@@ -2488,7 +2523,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 32
+                "y": 30
             },
             "id": 25,
             "panels": [
@@ -2562,7 +2597,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 9
+                        "y": 33
                     },
                     "id": 75,
                     "options": {
@@ -2684,7 +2719,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 16
+                        "y": 40
                     },
                     "id": 74,
                     "options": {

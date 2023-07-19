@@ -97,7 +97,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "#3274D9",
+                                    "fixedColor": "#3e668f",
                                     "mode": "fixed"
                                 }
                             },
@@ -122,7 +122,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "green",
+                                    "fixedColor": "#b783af",
                                     "mode": "fixed"
                                 }
                             },
@@ -206,7 +206,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "#13a39e",
+                                    "fixedColor": "#346f36cc",
                                     "mode": "fixed"
                                 }
                             }
@@ -687,52 +687,83 @@
                         "mode": "thresholds"
                     },
                     "decimals": 0,
-                    "links": [
-                        {
-                            "targetBlank": true,
-                            "title": "Alertmanager",
-                            "url": "http://a.pigsty/#/alerts"
-                        }
-                    ],
+                    "links": [],
                     "mappings": [],
                     "max": 1,
                     "min": 0,
+                    "noValue": "OK",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#3e668f",
                                 "value": null
                             },
                             {
-                                "color": "yellow",
+                                "color": "#fcdb72",
                                 "value": 1
                             },
                             {
-                                "color": "orange",
-                                "value": 2
-                            },
-                            {
-                                "color": "red",
-                                "value": 3
-                            },
-                            {
-                                "color": "purple",
+                                "color": "#f5a673",
                                 "value": 4
+                            },
+                            {
+                                "color": "#b783af",
+                                "value": 8
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Pigsty Alertmanager",
+                                        "url": "http://a.pigsty"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Alert",
+                                        "url": "/d/pgsql-alert"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 7,
-                "w": 2,
+                "w": 3,
                 "x": 0,
                 "y": 12
             },
-            "id": 38,
+            "id": 161,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -759,7 +790,7 @@
                     "exemplar": false,
                     "expr": "count(ALERTS{alertstate=\"firing\", job=~\"infra|etcd\"}) or on() vector(0)",
                     "interval": "",
-                    "legendFormat": "Firing",
+                    "legendFormat": "Firing Alert",
                     "range": true,
                     "refId": "A"
                 },
@@ -771,9 +802,9 @@
                     "editorMode": "code",
                     "exemplar": false,
                     "expr": "count(ALERTS{alertstate=\"pending\", job=~\"infra|etcd\"})",
-                    "hide": false,
+                    "hide": true,
                     "interval": "",
-                    "legendFormat": "Pending",
+                    "legendFormat": "Pending Alert",
                     "range": true,
                     "refId": "B"
                 }
@@ -807,23 +838,19 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#3e668f",
                                 "value": null
                             },
                             {
-                                "color": "yellow",
+                                "color": "#fcdb72",
                                 "value": 1
                             },
                             {
-                                "color": "orange",
+                                "color": "#f5a673",
                                 "value": 2
                             },
                             {
-                                "color": "red",
-                                "value": 3
-                            },
-                            {
-                                "color": "purple",
+                                "color": "#b783af",
                                 "value": 4
                             }
                         ]
@@ -834,11 +861,11 @@
             },
             "gridPos": {
                 "h": 7,
-                "w": 4,
-                "x": 2,
+                "w": 5,
+                "x": 3,
                 "y": 12
             },
-            "id": 40,
+            "id": 162,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -851,7 +878,9 @@
                     "fields": "",
                     "values": false
                 },
-                "text": {},
+                "text": {
+                    "titleSize": 12
+                },
                 "textMode": "auto"
             },
             "pluginVersion": "10.0.2",
@@ -975,8 +1004,8 @@
             },
             "gridPos": {
                 "h": 7,
-                "w": 13,
-                "x": 6,
+                "w": 11,
+                "x": 8,
                 "y": 12
             },
             "id": 34,
@@ -1027,7 +1056,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "gridPos": {
                 "h": 16,
@@ -1035,35 +1064,25 @@
                 "x": 19,
                 "y": 12
             },
-            "id": 42,
+            "id": 160,
             "options": {
                 "alertInstanceLabelFilter": "",
                 "alertName": "",
                 "dashboardAlerts": false,
-                "dashboardTitle": "",
                 "groupBy": [],
                 "groupMode": "default",
                 "maxItems": 20,
-                "showInstances": false,
-                "showOptions": "current",
                 "sortOrder": 1,
                 "stateFilter": {
-                    "alerting": true,
                     "error": true,
-                    "execution_error": true,
                     "firing": true,
                     "noData": false,
-                    "no_data": true,
                     "normal": false,
-                    "ok": true,
-                    "paused": true,
                     "pending": true
                 },
-                "tags": [],
                 "viewMode": "list"
             },
-            "pluginVersion": "8.3.1",
-            "title": "Grafana Alert",
+            "title": "Grafana Alerts",
             "type": "alertlist"
         },
         {
@@ -1589,7 +1608,7 @@
                                     "text": "No"
                                 },
                                 "1": {
-                                    "color": "green",
+                                    "color": "#346f36cc",
                                     "index": 1,
                                     "text": "Yes"
                                 }
@@ -1942,7 +1961,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red",
+                                "color": "#cc4637d9",
                                 "value": null
                             }
                         ]
@@ -2552,7 +2571,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "semi-dark-orange",
+                                "color": "#f5a673",
                                 "value": null
                             }
                         ]
@@ -3161,11 +3180,10 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             },
                             {
-                                "color": "#ff780abf",
+                                "color": "#f5a673",
                                 "value": 0
                             }
                         ]
@@ -3244,8 +3262,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
-                                "value": null
+                                "color": "blue"
                             },
                             {
                                 "color": "green",
@@ -3314,8 +3331,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             }
                         ]
                     },
@@ -3376,8 +3392,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             },
                             {
                                 "color": "red",
@@ -3454,8 +3469,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             }
                         ]
                     },
@@ -3527,8 +3541,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
-                                "value": null
+                                "color": "blue"
                             },
                             {
                                 "color": "green",
@@ -3597,8 +3610,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             }
                         ]
                     },
@@ -3667,56 +3679,28 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "ETCD Overview",
-                            "url": "/d/etcd-overview?var-cls=etcd"
-                        }
-                    ],
                     "mappings": [
                         {
                             "options": {
                                 "0": {
-                                    "color": "green",
+                                    "color": "#cc4637d9",
                                     "index": 0,
-                                    "text": "Follower"
+                                    "text": "Down"
                                 },
                                 "1": {
-                                    "color": "blue",
+                                    "color": "#346f36cc",
                                     "index": 1,
-                                    "text": "Learner"
-                                },
-                                "2": {
-                                    "color": "orange",
-                                    "index": 2,
-                                    "text": "Leader"
-                                },
-                                "3": {
-                                    "color": "purple",
-                                    "index": 3,
-                                    "text": "WTF?"
+                                    "text": "Alive"
                                 }
                             },
                             "type": "value"
-                        },
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "purple",
-                                    "index": 4,
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
                         }
                     ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
-                                "value": null
+                                "color": "blue"
                             }
                         ]
                     }
@@ -3724,12 +3708,12 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 7,
+                "h": 6,
                 "w": 7,
                 "x": 0,
                 "y": 49
             },
-            "id": 157,
+            "id": 159,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -3753,7 +3737,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins,instance) (etcd_server_is_leader{job=\"etcd\", cls=\"etcd\"}*2 + etcd_server_is_learner{job=\"etcd\", cls=\"etcd\"})",
+                    "expr": "max by (ins,instance) (up{job=\"etcd\", cls=\"etcd\"})",
                     "instant": true,
                     "legendFormat": "{{ ins }} @ {{ instance }}",
                     "range": false,
@@ -3771,37 +3755,12 @@
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "palette-classic"
+                        "mode": "thresholds"
                     },
                     "custom": {
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 50,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "stepBefore",
+                        "fillOpacity": 70,
                         "lineWidth": 0,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "auto",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "normal"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
+                        "spanNulls": false
                     },
                     "decimals": 0,
                     "mappings": [],
@@ -3810,8 +3769,11 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#cc4637d9"
+                            },
+                            {
+                                "color": "#346f36cc",
+                                "value": 1
                             }
                         ]
                     }
@@ -3819,138 +3781,66 @@
                 "overrides": [
                     {
                         "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "B"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.stacking",
-                                "value": {
-                                    "group": "A",
-                                    "mode": "none"
-                                }
-                            },
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 0
-                            },
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 3
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "text",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "C"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.stacking",
-                                "value": {
-                                    "group": "A",
-                                    "mode": "none"
-                                }
-                            },
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 0
-                            },
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 3
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "red",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
                             "id": "byName",
-                            "options": "aliveness"
+                            "options": "ETCD Has Leader?"
                         },
                         "properties": [
-                            {
-                                "id": "custom.axisPlacement",
-                                "value": "auto"
-                            },
-                            {
-                                "id": "custom.stacking",
-                                "value": {
-                                    "group": "A",
-                                    "mode": "none"
-                                }
-                            },
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 0
-                            },
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 100
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#346f36cc",
-                                    "mode": "fixed"
-                                }
-                            },
                             {
                                 "id": "mappings",
                                 "value": [
                                     {
                                         "options": {
-                                            "-1": {
-                                                "color": "#346f36cc",
-                                                "index": 0,
-                                                "text": "OK"
-                                            },
                                             "0": {
-                                                "color": "red",
+                                                "color": "#b783af",
                                                 "index": 1,
                                                 "text": "\ud83d\udd25NOLEADER"
+                                            },
+                                            "1": {
+                                                "color": "#fcdb72",
+                                                "index": 0,
+                                                "text": "OK"
                                             }
                                         },
                                         "type": "value"
                                     }
                                 ]
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#3e668f"
+                                        },
+                                        {
+                                            "color": "#fcdb72",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     }
                 ]
             },
             "gridPos": {
-                "h": 7,
+                "h": 6,
                 "w": 17,
                 "x": 7,
                 "y": 49
             },
-            "id": 155,
+            "id": 158,
             "options": {
+                "alignValue": "left",
                 "legend": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right",
-                    "showLegend": true,
-                    "sortBy": "Min",
-                    "sortDesc": false
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": false
                 },
+                "mergeValues": true,
+                "rowHeight": 0.96,
+                "showValue": "never",
                 "tooltip": {
                     "mode": "single",
                     "sort": "none"
@@ -3975,7 +3865,7 @@
                     },
                     "editorMode": "code",
                     "expr": "count(etcd_up{job=\"etcd\", cls=\"etcd\"})",
-                    "hide": false,
+                    "hide": true,
                     "legendFormat": "etcd size",
                     "range": true,
                     "refId": "B"
@@ -3987,7 +3877,7 @@
                     },
                     "editorMode": "code",
                     "expr": "ceil(count(etcd_up{job=\"etcd\", cls=\"etcd\"})/ 2 + 0.1)",
-                    "hide": false,
+                    "hide": true,
                     "legendFormat": "etcd quorum",
                     "range": true,
                     "refId": "C"
@@ -3998,15 +3888,15 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "- min(etcd_server_has_leader{job=\"etcd\", cls=\"etcd\"})",
+                    "expr": "min(etcd_server_has_leader{job=\"etcd\", cls=\"etcd\"}) or on() vector(0)",
                     "hide": false,
-                    "legendFormat": "aliveness",
+                    "legendFormat": "ETCD Has Leader?",
                     "range": true,
                     "refId": "D"
                 }
             ],
             "title": "ETCD Aliveness",
-            "type": "timeseries"
+            "type": "state-timeline"
         }
     ],
     "refresh": "1m",

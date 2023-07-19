@@ -2289,24 +2289,36 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
+            "description": "Blue: PostgreSQL\n\nRed: Redis\n\nYellow: Node\n\nAzure: etcd\n\nPink: MinIO\n\nGreen: Infra\n\n",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
                     "links": [],
-                    "mappings": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "index": 0,
+                                    "text": "No Instances"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
                     "max": 1.1,
                     "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "#3e668f",
                                 "value": null
                             },
                             {
-                                "color": "#3274D9",
+                                "color": "#aaaaaa",
                                 "value": 1
                             }
                         ]
@@ -2325,35 +2337,11 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "text",
+                                            "color": "#1f3347",
                                             "value": null
                                         },
                                         {
-                                            "color": "semi-dark-blue",
-                                            "value": 1
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "B"
-                        },
-                        "properties": [
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "text",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "#3c6388",
+                                            "color": "#3e668f",
                                             "value": 1
                                         }
                                     ]
@@ -2373,7 +2361,7 @@
                     {
                         "matcher": {
                             "id": "byFrameRefID",
-                            "options": "C"
+                            "options": "B"
                         },
                         "properties": [
                             {
@@ -2382,11 +2370,11 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "text",
+                                            "color": "#65231b",
                                             "value": null
                                         },
                                         {
-                                            "color": "#c13d30",
+                                            "color": "#cc4637d9",
                                             "value": 1
                                         }
                                     ]
@@ -2406,7 +2394,7 @@
                     {
                         "matcher": {
                             "id": "byFrameRefID",
-                            "options": "D"
+                            "options": "C"
                         },
                         "properties": [
                             {
@@ -2415,11 +2403,11 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "#000000",
+                                            "color": "#68511e",
                                             "value": null
                                         },
                                         {
-                                            "color": "#cc9d00",
+                                            "color": "#e6b03ee6",
                                             "value": 1
                                         }
                                     ]
@@ -2429,8 +2417,107 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "Node Instance: ${__field.labels.ip}",
-                                        "url": "/d/node-instance?var-id=${__field.labels.ip}"
+                                        "title": "Node Instance : ${__field.labels.ip}",
+                                        "url": "/d/node-instance?var-id=${__field.labels.ins}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "D"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#324e64",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#5b9cd5",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "ETCD Overview",
+                                        "url": "/d/etcd-overview"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "E"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#561c24",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#d0475799",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Minio Instance: ${__field.labels.ins}",
+                                        "url": "/d/minio-overview?var-ins=${__field.labels.ins}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "X"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#152c16",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Infra Overview",
+                                        "url": "/d/infra-overview"
                                     }
                                 ]
                             }
@@ -2444,7 +2531,7 @@
                 "x": 16,
                 "y": 7
             },
-            "id": 231,
+            "id": 255,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -2467,12 +2554,13 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (type,instance) (up{cls=\"$cls\", job=\"infra\"})",
+                    "expr": "min by (ins) (up{job=\"pgsql\", cls=\"$cls\"}) * min by (ins) (pg_up{job=\"pgsql\", cls=\"$cls\"}) # * min by (ins) (pgbouncer_up{job=\"pgsql\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "{{ type }}",
+                    "legendFormat": "{{ ins }}",
                     "refId": "A"
                 },
                 {
@@ -2482,20 +2570,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (ins,ip) (up{cls=\"$cls\", job=\"node\"})",
-                    "hide": false,
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "{{ ins }}",
-                    "refId": "D"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "exemplar": false,
-                    "expr": "min by (ins) (up{cls=\"$cls\", job=\"pgsql\"})",
+                    "expr": "min by (ins) (redis_up{job=\"redis\", cls=\"$cls\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
@@ -2507,8 +2582,9 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (ins) (up{cls=\"$cls\", job=\"redis\"})",
+                    "expr": "min by (ins) (up{job=\"node\", cls=\"$cls\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
@@ -2522,12 +2598,53 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (instance) (up{cls=\"$cls\", job!~\"(node|infra|pgsql|redis|ping)\"})",
+                    "expr": "min by (ins,instance) (up{job=\"etcd\", cls=\"$cls\"})",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min by (ins,instance) (up{job=\"minio\", cls=\"$cls\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min by (ins,instance) (up{job=\"infra\", cls=\"$cls\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "X"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min by (instance) (up{job!~\"(node|infra|etcd|pgsql|redis|minio|ping)\", cls=\"$cls\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
                     "legendFormat": "{{ instance }}",
-                    "refId": "E"
+                    "refId": "Z"
                 }
             ],
             "title": "Instances",
@@ -2980,8 +3097,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -3066,7 +3182,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 19
+                        "y": 27
                     },
                     "id": 172,
                     "options": {
@@ -3187,8 +3303,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -3375,7 +3490,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 19
+                        "y": 27
                     },
                     "id": 36,
                     "options": {
@@ -3476,8 +3591,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -3489,7 +3603,7 @@
                         "h": 9,
                         "w": 16,
                         "x": 0,
-                        "y": 25
+                        "y": 33
                     },
                     "id": 35,
                     "options": {
@@ -3553,8 +3667,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue",
-                                        "value": null
+                                        "color": "blue"
                                     },
                                     {
                                         "color": "green",
@@ -3590,7 +3703,7 @@
                         "h": 9,
                         "w": 8,
                         "x": 16,
-                        "y": 25
+                        "y": 33
                     },
                     "id": 180,
                     "links": [],
@@ -3691,8 +3804,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -3762,7 +3874,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 35
+                        "y": 43
                     },
                     "id": 186,
                     "options": {
@@ -3875,8 +3987,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -3888,7 +3999,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 35
+                        "y": 43
                     },
                     "id": 173,
                     "options": {
@@ -3977,8 +4088,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -3990,7 +4100,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 42
+                        "y": 50
                     },
                     "id": 30,
                     "options": {
@@ -4078,8 +4188,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -4091,7 +4200,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 42
+                        "y": 50
                     },
                     "id": 119,
                     "options": {
@@ -4178,8 +4287,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue",
-                                        "value": null
+                                        "color": "blue"
                                     }
                                 ]
                             },
@@ -4191,7 +4299,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 0,
-                        "y": 48
+                        "y": 56
                     },
                     "id": 187,
                     "options": {
@@ -4280,8 +4388,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -4293,7 +4400,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 12,
-                        "y": 48
+                        "y": 56
                     },
                     "id": 32,
                     "options": {
@@ -4385,8 +4492,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -4398,7 +4504,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 0,
-                        "y": 53
+                        "y": 61
                     },
                     "id": 79,
                     "options": {
@@ -4487,8 +4593,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -4500,7 +4605,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 12,
-                        "y": 53
+                        "y": 61
                     },
                     "id": 204,
                     "options": {
@@ -4630,8 +4735,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue",
-                                        "value": null
+                                        "color": "blue"
                                     },
                                     {
                                         "color": "green",
@@ -4667,7 +4771,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 59
+                        "y": 67
                     },
                     "id": 254,
                     "options": {
@@ -4759,8 +4863,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "orange",
@@ -4800,7 +4903,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 59
+                        "y": 67
                     },
                     "id": 188,
                     "options": {
@@ -4891,8 +4994,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -4904,7 +5006,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 65
+                        "y": 73
                     },
                     "id": 243,
                     "options": {
@@ -4986,8 +5088,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -5143,7 +5244,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 65
+                        "y": 73
                     },
                     "id": 252,
                     "options": {
@@ -5302,8 +5403,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -5315,7 +5415,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 71
+                        "y": 79
                     },
                     "id": 31,
                     "options": {
@@ -5414,8 +5514,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -5427,7 +5526,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 71
+                        "y": 79
                     },
                     "id": 205,
                     "options": {
@@ -5526,8 +5625,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -5539,7 +5637,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 77
+                        "y": 85
                     },
                     "id": 244,
                     "options": {
@@ -5626,8 +5724,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -5639,7 +5736,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 77
+                        "y": 85
                     },
                     "id": 91,
                     "options": {
@@ -5727,8 +5824,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -5740,7 +5836,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 83
+                        "y": 91
                     },
                     "id": 206,
                     "options": {
@@ -5822,8 +5918,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -5835,7 +5930,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 83
+                        "y": 91
                     },
                     "id": 88,
                     "options": {
@@ -5940,8 +6035,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -5953,7 +6047,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 90
+                        "y": 98
                     },
                     "id": 46,
                     "options": {
@@ -6050,8 +6144,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -6084,7 +6177,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 90
+                        "y": 98
                     },
                     "id": 45,
                     "options": {
@@ -6183,8 +6276,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -6213,7 +6305,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 96
+                        "y": 104
                     },
                     "id": 201,
                     "options": {
@@ -6310,8 +6402,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -6340,7 +6431,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 96
+                        "y": 104
                     },
                     "id": 47,
                     "options": {
@@ -6438,8 +6529,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -6468,7 +6558,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 102
+                        "y": 110
                     },
                     "id": 29,
                     "options": {
@@ -6565,8 +6655,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -6595,7 +6684,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 102
+                        "y": 110
                     },
                     "id": 202,
                     "options": {
@@ -6683,8 +6772,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -6696,7 +6784,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 108
+                        "y": 116
                     },
                     "id": 38,
                     "options": {
@@ -6784,8 +6872,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -6797,7 +6884,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 108
+                        "y": 116
                     },
                     "id": 84,
                     "options": {
@@ -6870,8 +6957,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue",
-                                        "value": null
+                                        "color": "blue"
                                     },
                                     {
                                         "color": "green",
@@ -6907,7 +6993,7 @@
                         "h": 14,
                         "w": 6,
                         "x": 0,
-                        "y": 115
+                        "y": 123
                     },
                     "id": 189,
                     "options": {
@@ -6978,8 +7064,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "text",
-                                        "value": null
+                                        "color": "text"
                                     },
                                     {
                                         "color": "purple",
@@ -7015,7 +7100,7 @@
                         "h": 14,
                         "w": 6,
                         "x": 6,
-                        "y": 115
+                        "y": 123
                     },
                     "id": 200,
                     "options": {
@@ -7073,8 +7158,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue",
-                                        "value": null
+                                        "color": "blue"
                                     },
                                     {
                                         "color": "green",
@@ -7106,7 +7190,7 @@
                         "h": 14,
                         "w": 6,
                         "x": 12,
-                        "y": 115
+                        "y": 123
                     },
                     "id": 174,
                     "options": {
@@ -7163,8 +7247,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -7180,7 +7263,7 @@
                         "h": 14,
                         "w": 6,
                         "x": 18,
-                        "y": 115
+                        "y": 123
                     },
                     "id": 198,
                     "options": {
@@ -7268,8 +7351,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "text",
-                                        "value": null
+                                        "color": "text"
                                     }
                                 ]
                             },
@@ -7281,7 +7363,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 129
+                        "y": 137
                     },
                     "id": 182,
                     "options": {
@@ -7364,8 +7446,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue",
-                                        "value": null
+                                        "color": "blue"
                                     },
                                     {
                                         "color": "green",
@@ -7401,7 +7482,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 129
+                        "y": 137
                     },
                     "id": 199,
                     "options": {
@@ -7510,8 +7591,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "text",
-                                        "value": null
+                                        "color": "text"
                                     },
                                     {
                                         "color": "purple",
@@ -7539,7 +7619,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 135
+                        "y": 143
                     },
                     "id": 51,
                     "options": {
@@ -7626,8 +7706,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -7639,7 +7718,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 135
+                        "y": 143
                     },
                     "id": 58,
                     "options": {
@@ -7744,8 +7823,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -7757,7 +7835,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 0,
-                        "y": 142
+                        "y": 150
                     },
                     "id": 183,
                     "options": {
@@ -7854,8 +7932,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -7867,7 +7944,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 12,
-                        "y": 142
+                        "y": 150
                     },
                     "id": 185,
                     "options": {
@@ -7964,8 +8041,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -7977,7 +8053,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 0,
-                        "y": 151
+                        "y": 159
                     },
                     "id": 53,
                     "options": {
@@ -8074,8 +8150,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -8087,7 +8162,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 12,
-                        "y": 151
+                        "y": 159
                     },
                     "id": 178,
                     "options": {
@@ -8201,8 +8276,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -8230,7 +8304,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 161
+                        "y": 169
                     },
                     "id": 49,
                     "options": {
@@ -8328,8 +8402,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -8341,7 +8414,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 161
+                        "y": 169
                     },
                     "id": 93,
                     "options": {
@@ -8441,8 +8514,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -8454,7 +8526,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 169
+                        "y": 177
                     },
                     "id": 54,
                     "options": {
@@ -8540,8 +8612,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -8553,7 +8624,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 169
+                        "y": 177
                     },
                     "id": 92,
                     "options": {
@@ -8638,8 +8709,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -8651,7 +8721,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 176
+                        "y": 184
                     },
                     "id": 246,
                     "options": {
@@ -8742,8 +8812,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -8755,7 +8824,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 176
+                        "y": 184
                     },
                     "id": 52,
                     "options": {
@@ -8841,8 +8910,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -8854,7 +8922,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 183
+                        "y": 191
                     },
                     "id": 56,
                     "options": {
@@ -8940,8 +9008,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -8953,7 +9020,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 183
+                        "y": 191
                     },
                     "id": 247,
                     "options": {
@@ -9039,8 +9106,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -9052,7 +9118,7 @@
                         "h": 5,
                         "w": 24,
                         "x": 0,
-                        "y": 190
+                        "y": 198
                     },
                     "id": 55,
                     "options": {
@@ -9160,8 +9226,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue",
-                                        "value": null
+                                        "color": "blue"
                                     },
                                     {
                                         "color": "green",
@@ -9197,7 +9262,7 @@
                         "h": 8,
                         "w": 3,
                         "x": 0,
-                        "y": 196
+                        "y": 204
                     },
                     "id": 212,
                     "options": {
@@ -9270,8 +9335,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue",
-                                        "value": null
+                                        "color": "blue"
                                     },
                                     {
                                         "color": "green",
@@ -9307,7 +9371,7 @@
                         "h": 8,
                         "w": 6,
                         "x": 3,
-                        "y": 196
+                        "y": 204
                     },
                     "id": 248,
                     "options": {
@@ -9384,8 +9448,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "red",
-                                        "value": null
+                                        "color": "red"
                                     }
                                 ]
                             },
@@ -9397,7 +9460,7 @@
                         "h": 8,
                         "w": 3,
                         "x": 9,
-                        "y": 196
+                        "y": 204
                     },
                     "id": 245,
                     "options": {
@@ -9489,8 +9552,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -9518,7 +9580,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 196
+                        "y": 204
                     },
                     "id": 70,
                     "options": {
@@ -9613,8 +9675,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -9630,7 +9691,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 204
+                        "y": 212
                     },
                     "id": 87,
                     "options": {
@@ -9718,8 +9779,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "transparent",
-                                        "value": null
+                                        "color": "transparent"
                                     },
                                     {
                                         "color": "red",
@@ -9735,7 +9795,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 204
+                        "y": 212
                     },
                     "id": 73,
                     "options": {

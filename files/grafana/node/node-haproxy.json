@@ -150,7 +150,7 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
-            "description": "Services powered by this proxy instance",
+            "description": "Service among cluster. Number of routes from proxy to server",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -187,12 +187,12 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "blue",
+                                                "color": "#3e668f",
                                                 "index": 0,
                                                 "text": "\u23fb"
                                             },
                                             "1": {
-                                                "color": "green",
+                                                "color": "#346f36cc",
                                                 "index": 1,
                                                 "text": "9999999"
                                             }
@@ -257,7 +257,7 @@
                             },
                             {
                                 "id": "custom.width",
-                                "value": 70
+                                "value": 60
                             },
                             {
                                 "id": "mappings",
@@ -265,7 +265,7 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "blue",
+                                                "color": "#3e668f",
                                                 "index": 1,
                                                 "text": "0"
                                             }
@@ -287,7 +287,7 @@
                                         "options": {
                                             "from": 1,
                                             "result": {
-                                                "color": "green",
+                                                "color": "#346f36cc",
                                                 "index": 2
                                             },
                                             "to": 9999999
@@ -306,7 +306,7 @@
                 "x": 6,
                 "y": 1
             },
-            "id": 208,
+            "id": 222,
             "options": {
                 "cellHeight": "sm",
                 "footer": {
@@ -328,6 +328,11 @@
             "pluginVersion": "10.0.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "sum by (proxy) (haproxy_backend_current_sessions{ins=\"$ins\", proxy!=\"stats\"})",
                     "format": "table",
@@ -337,6 +342,11 @@
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "sum by (proxy) (haproxy_server_status{ins=\"$ins\"})",
                     "format": "table",
@@ -376,352 +386,6 @@
                             "Value #A": "Session",
                             "Value #B": "Route",
                             "proxy": "Service"
-                        }
-                    }
-                }
-            ],
-            "type": "table"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "All postgres instance served by this proxy",
-            "fieldConfig": {
-                "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "cellOptions": {
-                            "type": "auto"
-                        },
-                        "filterable": false,
-                        "inspect": false
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Route"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "type": "color-text"
-                                }
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "orange",
-                                            "value": null
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "0": {
-                                                "color": "blue",
-                                                "index": 1,
-                                                "text": "0"
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
-                                            "match": "null+nan",
-                                            "result": {
-                                                "color": "gray",
-                                                "index": 0,
-                                                "text": "N/A"
-                                            }
-                                        },
-                                        "type": "special"
-                                    },
-                                    {
-                                        "options": {
-                                            "from": 1,
-                                            "result": {
-                                                "color": "green",
-                                                "index": 2
-                                            },
-                                            "to": 999999
-                                        },
-                                        "type": "range"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "basic",
-                                    "type": "color-background"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Session"
-                        },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": []
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "type": "color-text"
-                                }
-                            },
-                            {
-                                "id": "custom.width",
-                                "value": 70
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "basic",
-                                    "type": "color-background"
-                                }
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "0": {
-                                                "color": "blue",
-                                                "index": 1,
-                                                "text": "0"
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
-                                            "match": "null+nan",
-                                            "result": {
-                                                "color": "gray",
-                                                "index": 0,
-                                                "text": "N/A"
-                                            }
-                                        },
-                                        "type": "special"
-                                    },
-                                    {
-                                        "options": {
-                                            "from": 1,
-                                            "result": {
-                                                "color": "green",
-                                                "index": 2
-                                            },
-                                            "to": 9999999
-                                        },
-                                        "type": "range"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Server"
-                        },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "PGSQL Instance for ${__data.fields.Server}",
-                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.Server}"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.width"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Weight"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "red",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "blue",
-                                            "value": 1
-                                        },
-                                        {
-                                            "color": "green",
-                                            "value": 100
-                                        },
-                                        {
-                                            "color": "yellow",
-                                            "value": 101
-                                        },
-                                        {
-                                            "color": "orange",
-                                            "value": 200
-                                        },
-                                        {
-                                            "color": "red",
-                                            "value": 255
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "basic",
-                                    "type": "color-background"
-                                }
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 6,
-                "x": 12,
-                "y": 1
-            },
-            "id": 212,
-            "options": {
-                "cellHeight": "sm",
-                "footer": {
-                    "countRows": false,
-                    "fields": "",
-                    "reducer": [
-                        "sum"
-                    ],
-                    "show": false
-                },
-                "showHeader": true,
-                "sortBy": [
-                    {
-                        "desc": false,
-                        "displayName": "Server"
-                    }
-                ]
-            },
-            "pluginVersion": "10.0.2",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "sum by (server)(haproxy_server_status{ins=\"$ins\"})",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "Route",
-                    "refId": "A"
-                },
-                {
-                    "exemplar": false,
-                    "expr": "max by (server) (haproxy_server_weight{ins=\"$ins\"})",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "refId": "B"
-                },
-                {
-                    "exemplar": false,
-                    "expr": "sum by (server) (haproxy_server_current_sessions{ins=\"$ins\"})",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "refId": "C"
-                }
-            ],
-            "transformations": [
-                {
-                    "id": "seriesToColumns",
-                    "options": {
-                        "byField": "server"
-                    }
-                },
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true,
-                            "Time 1": true,
-                            "Time 2": true,
-                            "Time 3": true,
-                            "Value #A": false,
-                            "Value #C": false,
-                            "__name__": true,
-                            "cls": true,
-                            "ins": true,
-                            "instance": true,
-                            "ip": true,
-                            "job": true,
-                            "proxy": true
-                        },
-                        "indexByName": {
-                            "Time": 0,
-                            "Value #A": 9,
-                            "Value #B": 10,
-                            "__name__": 1,
-                            "cls": 2,
-                            "ins": 3,
-                            "instance": 4,
-                            "ip": 5,
-                            "job": 6,
-                            "proxy": 7,
-                            "server": 8
-                        },
-                        "renameByName": {
-                            "Value #A": "Route",
-                            "Value #B": "Weight",
-                            "Value #C": "Session",
-                            "proxy": "",
-                            "server": "Server"
                         }
                     }
                 }
@@ -796,7 +460,7 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "blue",
+                                                "color": "#3e668f",
                                                 "index": 0,
                                                 "text": "0"
                                             }
@@ -807,7 +471,7 @@
                                         "options": {
                                             "from": 1,
                                             "result": {
-                                                "color": "green",
+                                                "color": "#346f36cc",
                                                 "index": 1
                                             },
                                             "to": 9999999
@@ -967,11 +631,11 @@
             },
             "gridPos": {
                 "h": 6,
-                "w": 6,
-                "x": 18,
+                "w": 5,
+                "x": 12,
                 "y": 1
             },
-            "id": 210,
+            "id": 223,
             "options": {
                 "cellHeight": "sm",
                 "footer": {
@@ -993,6 +657,11 @@
             "pluginVersion": "10.0.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "sum by (ins) (haproxy_server_current_sessions{cls=\"$cls\"})",
                     "format": "table",
@@ -1030,6 +699,340 @@
                             "Value #A": "Session",
                             "Value #B": "Route",
                             "ins": "Proxy"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "All postgres instance served by this proxy",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "filterable": false,
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#346f36cc",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Route"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#3e668f",
+                                                "index": 1,
+                                                "text": "0"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "N/A"
+                                            }
+                                        },
+                                        "type": "special"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 1,
+                                            "result": {
+                                                "color": "#346f36cc",
+                                                "index": 2
+                                            },
+                                            "to": 999999
+                                        },
+                                        "type": "range"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Session"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": []
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 70
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "color-background"
+                                }
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#3e668f",
+                                                "index": 1,
+                                                "text": "0"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "N/A"
+                                            }
+                                        },
+                                        "type": "special"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 1,
+                                            "result": {
+                                                "color": "#346f36cc",
+                                                "index": 2
+                                            },
+                                            "to": 9999999
+                                        },
+                                        "type": "range"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Server"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Instance for ${__data.fields.Server}",
+                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.Server}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.width"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Weight"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 100
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 101
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 200
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 255
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 7,
+                "x": 17,
+                "y": 1
+            },
+            "id": 224,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Server"
+                    }
+                ]
+            },
+            "pluginVersion": "10.0.2",
+            "targets": [
+                {
+                    "exemplar": false,
+                    "expr": "sum by (server)(haproxy_server_status{ins=\"$ins\"})",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Route",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": false,
+                    "expr": "max by (server) (haproxy_server_weight{ins=\"$ins\"})",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "B"
+                },
+                {
+                    "exemplar": false,
+                    "expr": "sum by (server) (haproxy_server_current_sessions{ins=\"$ins\"})",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "C"
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "seriesToColumns",
+                    "options": {
+                        "byField": "server"
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "Time 1": true,
+                            "Time 2": true,
+                            "Time 3": true,
+                            "Value #A": false,
+                            "Value #C": false,
+                            "__name__": true,
+                            "cls": true,
+                            "ins": true,
+                            "instance": true,
+                            "ip": true,
+                            "job": true,
+                            "proxy": true
+                        },
+                        "indexByName": {
+                            "Time": 0,
+                            "Value #A": 9,
+                            "Value #B": 10,
+                            "__name__": 1,
+                            "cls": 2,
+                            "ins": 3,
+                            "instance": 4,
+                            "ip": 5,
+                            "job": 6,
+                            "proxy": 7,
+                            "server": 8
+                        },
+                        "renameByName": {
+                            "Value #A": "Route",
+                            "Value #B": "Weight",
+                            "Value #C": "Session",
+                            "proxy": "",
+                            "server": "Server"
                         }
                     }
                 }
@@ -2373,7 +2376,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 0,
-                        "y": 3
+                        "y": 27
                     },
                     "hiddenSeries": false,
                     "id": 75,
@@ -2497,7 +2500,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 12,
-                        "y": 3
+                        "y": 27
                     },
                     "hiddenSeries": false,
                     "id": 79,
@@ -2606,7 +2609,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 0,
-                        "y": 13
+                        "y": 37
                     },
                     "hiddenSeries": false,
                     "id": 81,
@@ -2768,7 +2771,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 12,
-                        "y": 13
+                        "y": 37
                     },
                     "hiddenSeries": false,
                     "id": 84,
@@ -2894,7 +2897,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 4
+                        "y": 28
                     },
                     "hiddenSeries": false,
                     "id": 27,
@@ -3003,7 +3006,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 4
+                        "y": 28
                     },
                     "hiddenSeries": false,
                     "id": 1,
@@ -3111,7 +3114,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 19
+                        "y": 43
                     },
                     "hiddenSeries": false,
                     "id": 42,
@@ -3219,7 +3222,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 19
+                        "y": 43
                     },
                     "hiddenSeries": false,
                     "id": 43,
@@ -3332,7 +3335,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 34
+                        "y": 58
                     },
                     "hiddenSeries": false,
                     "id": 131,
@@ -3430,7 +3433,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 34
+                        "y": 58
                     },
                     "hiddenSeries": false,
                     "id": 114,
@@ -3543,7 +3546,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 5
+                        "y": 29
                     },
                     "hiddenSeries": false,
                     "id": 30,
@@ -3654,7 +3657,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 5
+                        "y": 29
                     },
                     "hiddenSeries": false,
                     "id": 45,
@@ -3780,7 +3783,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 18
+                        "y": 42
                     },
                     "hiddenSeries": false,
                     "id": 34,
@@ -3890,7 +3893,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 18
+                        "y": 42
                     },
                     "hiddenSeries": false,
                     "id": 51,
@@ -3999,7 +4002,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 31
+                        "y": 55
                     },
                     "hiddenSeries": false,
                     "id": 33,
@@ -4095,7 +4098,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 31
+                        "y": 55
                     },
                     "hiddenSeries": false,
                     "id": 69,
@@ -4204,7 +4207,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 44
+                        "y": 68
                     },
                     "hiddenSeries": false,
                     "id": 124,
@@ -4307,7 +4310,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 44
+                        "y": 68
                     },
                     "hiddenSeries": false,
                     "id": 128,
@@ -4438,7 +4441,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 0,
-                        "y": 6
+                        "y": 30
                     },
                     "hiddenSeries": false,
                     "id": 38,
@@ -4533,7 +4536,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 12,
-                        "y": 6
+                        "y": 30
                     },
                     "hiddenSeries": false,
                     "id": 39,
@@ -4629,7 +4632,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 0,
-                        "y": 20
+                        "y": 44
                     },
                     "hiddenSeries": false,
                     "id": 142,
@@ -4725,7 +4728,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 12,
-                        "y": 20
+                        "y": 44
                     },
                     "hiddenSeries": false,
                     "id": 143,
@@ -4839,7 +4842,7 @@
                         "h": 13,
                         "w": 8,
                         "x": 0,
-                        "y": 179
+                        "y": 203
                     },
                     "hiddenSeries": false,
                     "id": 129,
@@ -4947,7 +4950,7 @@
                         "h": 13,
                         "w": 8,
                         "x": 8,
-                        "y": 179
+                        "y": 203
                     },
                     "hiddenSeries": false,
                     "id": 130,
@@ -5063,7 +5066,7 @@
                         "h": 13,
                         "w": 8,
                         "x": 16,
-                        "y": 179
+                        "y": 203
                     },
                     "hiddenSeries": false,
                     "id": 59,
@@ -5200,7 +5203,7 @@
                         "h": 16,
                         "w": 8,
                         "x": 0,
-                        "y": 16
+                        "y": 40
                     },
                     "hiddenSeries": false,
                     "id": 61,
@@ -5329,7 +5332,7 @@
                         "h": 16,
                         "w": 8,
                         "x": 8,
-                        "y": 16
+                        "y": 40
                     },
                     "hiddenSeries": false,
                     "id": 60,
@@ -5438,7 +5441,7 @@
                         "h": 16,
                         "w": 8,
                         "x": 16,
-                        "y": 16
+                        "y": 40
                     },
                     "hiddenSeries": false,
                     "id": 146,
@@ -5564,7 +5567,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 17
+                        "y": 41
                     },
                     "hiddenSeries": false,
                     "id": 62,
@@ -5660,7 +5663,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 17
+                        "y": 41
                     },
                     "hiddenSeries": false,
                     "id": 56,
@@ -5769,7 +5772,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 32
+                        "y": 56
                     },
                     "hiddenSeries": false,
                     "id": 57,
@@ -5865,7 +5868,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 32
+                        "y": 56
                     },
                     "hiddenSeries": false,
                     "id": 90,
@@ -5960,7 +5963,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 47
+                        "y": 71
                     },
                     "hiddenSeries": false,
                     "id": 91,
@@ -6054,7 +6057,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 47
+                        "y": 71
                     },
                     "hiddenSeries": false,
                     "id": 73,
@@ -6150,7 +6153,7 @@
                         "h": 9,
                         "w": 24,
                         "x": 0,
-                        "y": 62
+                        "y": 86
                     },
                     "hiddenSeries": false,
                     "id": 144,
@@ -6262,7 +6265,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 18
+                        "y": 42
                     },
                     "hiddenSeries": false,
                     "id": 87,
@@ -6379,7 +6382,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 18
+                        "y": 42
                     },
                     "hiddenSeries": false,
                     "id": 107,
@@ -6491,7 +6494,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 31
+                        "y": 55
                     },
                     "hiddenSeries": false,
                     "id": 89,
@@ -6595,7 +6598,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 31
+                        "y": 55
                     },
                     "hiddenSeries": false,
                     "id": 99,
@@ -6716,7 +6719,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 44
+                        "y": 68
                     },
                     "hiddenSeries": false,
                     "id": 86,
@@ -6819,7 +6822,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 44
+                        "y": 68
                     },
                     "hiddenSeries": false,
                     "id": 88,
@@ -6913,7 +6916,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 57
+                        "y": 81
                     },
                     "hiddenSeries": false,
                     "id": 108,
@@ -7007,7 +7010,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 57
+                        "y": 81
                     },
                     "hiddenSeries": false,
                     "id": 109,
@@ -7119,7 +7122,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 70
+                        "y": 94
                     },
                     "hiddenSeries": false,
                     "id": 110,
@@ -7222,7 +7225,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 70
+                        "y": 94
                     },
                     "hiddenSeries": false,
                     "id": 111,
@@ -7316,7 +7319,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 0,
-                        "y": 83
+                        "y": 107
                     },
                     "hiddenSeries": false,
                     "id": 101,
@@ -7434,7 +7437,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 12,
-                        "y": 83
+                        "y": 107
                     },
                     "hiddenSeries": false,
                     "id": 96,
@@ -7549,7 +7552,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 0,
-                        "y": 97
+                        "y": 121
                     },
                     "hiddenSeries": false,
                     "id": 100,
@@ -7667,7 +7670,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 12,
-                        "y": 97
+                        "y": 121
                     },
                     "hiddenSeries": false,
                     "id": 95,
