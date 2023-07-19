@@ -86,10 +86,10 @@ If a firewall or GFW blocks some repo, consider using a [`proxy_env`](PARAM#prox
 Offline packages can be downloaded during [`bootstrap`](INSTALL#bootstrap), or you can download them directly via:
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v2.1.1/pigsty-v2.1.1.tgz                   # source code
-https://github.com/Vonng/pigsty/releases/download/v2.1.1/pigsty-pkg-v2.1.1.el7.x86_64.tgz    # el7 packages
-https://github.com/Vonng/pigsty/releases/download/v2.1.1/pigsty-pkg-v2.1.1.el8.x86_64.tgz    # el8 packages
-https://github.com/Vonng/pigsty/releases/download/v2.1.1/pigsty-pkg-v2.1.1.el9.x86_64.tgz    # el9 packages
+https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-v2.2.0.tgz                   # source code
+https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz    # el7 packages
+https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el8.x86_64.tgz    # el8 packages
+https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el9.x86_64.tgz    # el9 packages
 ```
 
 </details><br>
