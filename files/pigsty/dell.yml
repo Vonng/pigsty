@@ -1,0 +1,310 @@
+---
+#==============================================================#
+# File      :   dell.yml
+# Desc      :   Pigsty config for a Dell R730 KVM host
+# Ctime     :   2023-07-19
+# Mtime     :   2023-07-19
+# Docs      :   https://vonng.github.io/pigsty/#/CONFIG
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+---
+all:
+  children:
+
+    master:
+      hosts:
+        10.10.10.1: { nodename: bm-dell }
+      vars:
+        node_cluster: bm
+
+    # vagrant ssh alias here
+    nodes:
+      hosts:
+        10.10.10.10: { ansible_host: meta          , cpu: 4 , mem: 32768 }
+        10.10.10.11: { ansible_host: pg-test-1     , cpu: 2 , mem: 8192 }
+        10.10.10.12: { ansible_host: pg-test-2     , cpu: 2 , mem: 8192 }
+        10.10.10.13: { ansible_host: pg-test-3     , cpu: 2 , mem: 8192 }
+        10.10.10.20: { ansible_host: minio-1       , cpu: 2 , mem: 4096 }
+        10.10.10.21: { ansible_host: etcd-1        , cpu: 2 , mem: 4096 }
+        10.10.10.22: { ansible_host: etcd-2        , cpu: 2 , mem: 4096 }
+        10.10.10.23: { ansible_host: etcd-3        , cpu: 2 , mem: 4096 }
+        10.10.10.51: { ansible_host: redis-test-1  , cpu: 2 , mem: 4096 }
+        10.10.10.52: { ansible_host: redis-test-2  , cpu: 2 , mem: 4096 }
+        10.10.10.53: { ansible_host: redis-test-3  , cpu: 2 , mem: 4096 }
+        10.10.10.54: { ansible_host: redis-test-4  , cpu: 2 , mem: 4096 }
+        10.10.10.55: { ansible_host: redis-test-5  , cpu: 2 , mem: 4096 }
+        10.10.10.56: { ansible_host: redis-test-6  , cpu: 2 , mem: 4096 }
+        10.10.10.64: { ansible_host: pg-citus0-1   , cpu: 2 , mem: 4096 }
+        10.10.10.65: { ansible_host: pg-citus0-2   , cpu: 2 , mem: 4096 }
+        10.10.10.66: { ansible_host: pg-citus1-1   , cpu: 2 , mem: 4096 }
+        10.10.10.67: { ansible_host: pg-citus1-2   , cpu: 2 , mem: 4096 }
+        10.10.10.68: { ansible_host: pg-citus2-1   , cpu: 2 , mem: 4096 }
+        10.10.10.69: { ansible_host: pg-citus2-2   , cpu: 2 , mem: 4096 }
+        10.10.10.70: { ansible_host: pg-citus3-1   , cpu: 2 , mem: 4096 }
+        10.10.10.71: { ansible_host: pg-citus3-2   , cpu: 2 , mem: 4096 }
+        10.10.10.72: { ansible_host: pg-citus4-1   , cpu: 2 , mem: 4096 }
+        10.10.10.73: { ansible_host: pg-citus4-2   , cpu: 2 , mem: 4096 }
+        10.10.10.74: { ansible_host: pg-citus5-1   , cpu: 2 , mem: 4096 }
+        10.10.10.75: { ansible_host: pg-citus5-2   , cpu: 2 , mem: 4096 }
+        10.10.10.76: { ansible_host: pg-citus6-1   , cpu: 2 , mem: 4096 }
+        10.10.10.77: { ansible_host: pg-citus6-2   , cpu: 2 , mem: 4096 }
+      vars:
+        node_etc_hosts:
+          - 10.10.10.10  meta admin
+          - 10.10.10.20  sss.pigsty
+          - 10.10.10.20  minio-1.pigsty
+
+
+    pg-citus0: # citus coordinator, pg_group = 0
+      hosts:
+        10.10.10.64: { pg_seq: 1, pg_role: primary }
+        10.10.10.65: { pg_seq: 2, pg_role: replica }
+      vars:
+        pg_cluster: pg-citus0
+        pg_group: 0
+        pg_mode: citus                    # pgsql cluster mode: citus
+        pg_shard: pg-citus                # citus shard name: pg-citus
+        patroni_citus_db: meta            # citus distributed database name
+        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
+        pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
+        pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
+        pg_hba_rules:
+          - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
+          - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet'  }
+
+    pg-citus1: # citus coordinator, pg_group = 0
+      hosts:
+        10.10.10.66: { pg_seq: 1, pg_role: primary }
+        10.10.10.67: { pg_seq: 2, pg_role: replica }
+      vars:
+        pg_cluster: pg-citus1
+        pg_group: 1
+        pg_mode: citus                    # pgsql cluster mode: citus
+        pg_shard: pg-citus                # citus shard name: pg-citus
+        patroni_citus_db: meta            # citus distributed database name
+        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
+        pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
+        pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
+        pg_hba_rules:
+          - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
+          - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet'  }
+
+    pg-citus2: # citus coordinator, pg_group = 0
+      hosts:
+        10.10.10.68: { pg_seq: 1, pg_role: primary }
+        10.10.10.69: { pg_seq: 2, pg_role: replica }
+      vars:
+        pg_cluster: pg-citus2
+        pg_group: 2
+        pg_mode: citus                    # pgsql cluster mode: citus
+        pg_shard: pg-citus                # citus shard name: pg-citus
+        patroni_citus_db: meta            # citus distributed database name
+        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
+        pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
+        pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
+        pg_hba_rules:
+          - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
+          - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet'  }
+
+    pg-citus3: # citus coordinator, pg_group = 0
+      hosts:
+        10.10.10.70: { pg_seq: 1, pg_role: primary }
+        10.10.10.71: { pg_seq: 2, pg_role: replica }
+      vars:
+        pg_cluster: pg-citus3
+        pg_group: 3
+        pg_mode: citus                    # pgsql cluster mode: citus
+        pg_shard: pg-citus                # citus shard name: pg-citus
+        patroni_citus_db: meta            # citus distributed database name
+        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
+        pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
+        pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
+        pg_hba_rules:
+          - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
+          - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet'  }
+
+    pg-citus4: # citus coordinator, pg_group = 0
+      hosts:
+        10.10.10.72: { pg_seq: 1, pg_role: primary }
+        10.10.10.73: { pg_seq: 2, pg_role: replica }
+      vars:
+        pg_cluster: pg-citus4
+        pg_group: 4
+        pg_mode: citus                    # pgsql cluster mode: citus
+        pg_shard: pg-citus                # citus shard name: pg-citus
+        patroni_citus_db: meta            # citus distributed database name
+        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
+        pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
+        pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
+        pg_hba_rules:
+          - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
+          - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet'  }
+
+    pg-citus5: # citus coordinator, pg_group = 0
+      hosts:
+        10.10.10.74: { pg_seq: 1, pg_role: primary }
+        10.10.10.75: { pg_seq: 2, pg_role: replica }
+      vars:
+        pg_cluster: pg-citus5
+        pg_group: 5
+        pg_mode: citus                    # pgsql cluster mode: citus
+        pg_shard: pg-citus                # citus shard name: pg-citus
+        patroni_citus_db: meta            # citus distributed database name
+        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
+        pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
+        pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
+        pg_hba_rules:
+          - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
+          - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet'  }
+
+    pg-citus6: # citus coordinator, pg_group = 0
+      hosts:
+        10.10.10.76: { pg_seq: 1, pg_role: primary }
+        10.10.10.77: { pg_seq: 2, pg_role: replica }
+      vars:
+        pg_cluster: pg-citus6
+        pg_group: 6
+        pg_mode: citus                    # pgsql cluster mode: citus
+        pg_shard: pg-citus                # citus shard name: pg-citus
+        patroni_citus_db: meta            # citus distributed database name
+        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
+        pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
+        pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
+        pg_hba_rules:
+          - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
+          - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet'  }
+
+
+
+    infra:
+      hosts:
+        10.10.10.10: { infra_seq: 1 }
+
+    # etcd 3 nodes
+    etcd:
+      hosts:
+        10.10.10.21: { etcd_seq: 1 }
+        10.10.10.22: { etcd_seq: 2 }
+        10.10.10.23: { etcd_seq: 3 }
+      vars: { etcd_cluster: etcd }
+
+    # minio object storage
+    minio:
+      hosts:
+        10.10.10.20: { minio_seq: 1 }
+      vars: { minio_cluster: minio }
+
+    # cmdb singleton
+    pg-meta:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-meta
+        pg_users:
+          - { name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
+          - { name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
+          - { name: rise ,password: rise ,pgbouncer: true ,roles: [ dbrole_admin] , createdb: true, login: true, replication: true }
+        pg_databases:
+          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [ { name: postgis, schema: public }, { name: timescaledb } ] }
+          - { name: rise, owner: rise ,comment: risingwave testing database ,schemas: [ rise ]  }
+        pg_hba_rules:
+          - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
+        node_id_from_pg: yes
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.2/24
+        pg_vip_interface: eth1
+        pgbackrest_method: minio
+        node_crontab: # make a full backup 1 am everyday
+          - '00 01 * * * postgres /pg/bin/pg-backup full'
+
+    # pg-test
+    pg-test:
+      hosts:
+        10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
+        10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
+        10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
+      vars:
+        pg_cluster: pg-test           # define pgsql cluster name
+        pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: test } ]
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.3/24
+        pg_vip_interface: eth1
+        node_tune: tiny
+        pg_conf: tiny.yml
+        pgbackrest_method: minio
+        node_crontab: # make a full backup on monday 1am, and an incremental backup during weekdays
+          - '00 01 * * 1 postgres /pg/bin/pg-backup full'
+          - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
+
+
+    # redis sentinel
+    redis-meta:
+      hosts:
+        10.10.10.21: { redis_node: 1 , redis_instances: { 6001: { } } }
+        10.10.10.22: { redis_node: 2 , redis_instances: { 6001: { } } }
+        10.10.10.23: { redis_node: 3 , redis_instances: { 6001: { } } }
+      vars: { redis_cluster: redis-meta ,redis_password: 'redis.meta' ,redis_mode: sentinel ,redis_max_memory: 16MB }
+
+    # redis cluster
+    redis-test:
+      hosts:
+        10.10.10.51: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } } }
+        10.10.10.52: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } } }
+        10.10.10.53: { redis_node: 3 ,redis_instances: { 6501: { } ,6502: { } } }
+        10.10.10.54: { redis_node: 4 ,redis_instances: { 6501: { } ,6502: { } } }
+        10.10.10.55: { redis_node: 5 ,redis_instances: { 6501: { } ,6502: { } } }
+        10.10.10.56: { redis_node: 6 ,redis_instances: { 6501: { } ,6502: { } } }
+      vars: { redis_cluster: redis-test ,redis_password: 'redis.test' ,redis_mode: cluster, redis_max_memory: 512MB }
+
+
+  vars: # global variables
+    version: v2.2.0                   # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default|china|europe
+    node_tune: tiny                   # use tiny template for NODE  in demo environment
+    pg_conf: tiny.yml                 # use tiny template for PGSQL in demo environment
+    docker_registry_mirrors:
+      - "https://hub-mirror.c.163.com"
+      - "https://mirror.baidubce.com"
+
+    infra_portal: # domain names and upstream servers
+      home: { domain: h.pigsty }
+      grafana: { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus: { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager: { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox: { endpoint: "${admin_ip}:9115" }
+      loki: { endpoint: "${admin_ip}:3100" }
+      minio: { domain: sss.pigsty  ,endpoint: "10.10.10.20:9001" ,scheme: https ,websocket: true }
+      postgrest: { domain: api.pigsty  ,endpoint: "127.0.0.1:8884" }
+      pgadmin: { domain: adm.pigsty  ,endpoint: "127.0.0.1:8885" }
+      pgweb: { domain: cli.pigsty  ,endpoint: "127.0.0.1:8886" }
+      bytebase: { domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887" }
+      gitea: { domain: git.pigsty  ,endpoint: "127.0.0.1:8889" }
+      wiki: { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002" }
+    nginx_navbar: # application nav links on home page
+      - { name: PgAdmin4   , url: 'http://adm.pigsty'  , comment: 'PgAdmin4 for PostgreSQL' }
+      - { name: PGWeb      , url: 'http://cli.pigsty'  , comment: 'PGWEB Browser Client' }
+      - { name: ByteBase   , url: 'http://ddl.pigsty'  , comment: 'ByteBase Schema Migrator' }
+      - { name: PostgREST  , url: 'http://api.pigsty'  , comment: 'Kong API Gateway' }
+      - { name: Gitea      , url: 'http://git.pigsty'  , comment: 'Gitea Git Service' }
+      - { name: Minio      , url: 'http://sss.pigsty'  , comment: 'Minio Object Storage' }
+      - { name: Wiki       , url: 'http://wiki.pigsty' , comment: 'Local Wikipedia' }
+      - { name: Explain    , url: '/pigsty/pev.html'   , comment: 'pgsql explain visualizer' }
+      - { name: Package    , url: '/pigsty'            , comment: 'local yum repo packages' }
+      - { name: PG Logs    , url: '/logs'              , comment: 'postgres raw csv logs' }
+      - { name: Schemas    , url: '/schema'            , comment: 'schemaspy summary report' }
+      - { name: Reports    , url: '/report'            , comment: 'pgbadger summary report' }
+    node_timezone: Asia/Hong_Kong     # use Asia/Hong_Kong Timezone
+    node_ntp_servers: # NTP servers in /etc/chrony.conf
+      - pool cn.pool.ntp.org iburst
+      - pool ${admin_ip} iburst       # assume non-admin nodes does not have internet access
+    pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
+...

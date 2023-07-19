@@ -80,7 +80,7 @@ cd pigsty; git checkout v2.2.0
 * Vendor: RHEL, CentOS, Rocky, AlmaLinux, ...
 * Version: el7, el8, el9, 或其他兼容的版本
 * 请使用全新的节点，以避免无谓的麻烦，1核云虚拟机也就几毛钱一小时。
-* 建议使用 RockyLinux 9.0 / RockyLinux 8.6 / CentOS 7.9 ，这是 Pigsty 的构建与测试环境。
+* 建议使用 RockyLinux 9.1 / RockyLinux 8.6 / CentOS 7.9 ，这是 Pigsty 的构建与测试环境。
 
 **机器节点**
 
