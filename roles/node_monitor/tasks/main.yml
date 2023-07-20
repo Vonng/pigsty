@@ -98,6 +98,8 @@
       
           {% if promtail_enabled|bool %}- {{ inventory_hostname }}:{{ promtail_port }}{% endif %}
 
+          {% if docker_enabled is defined and docker_enabled|bool %}- {{ inventory_hostname }}:9323{% endif %}
+
 
 - name: register node as blackbox exporter target
   tags: [ node_register, register_prometheus ]
@@ -171,7 +173,7 @@
 
 
 #--------------------------------------------------------------#
-# Launch Promtail                              [promtail_reload]
+# Reload Promtail                              [promtail_reload]
 #--------------------------------------------------------------#
 #- name: reload promtail systemd service
 #  tags: promtail_reload
