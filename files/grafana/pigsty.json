@@ -1018,11 +1018,26 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (ins,instance) (up{job=\"etcd\"})",
+                    "expr": "min by (ins,instance) (up{job=\"infra\"})",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
                     "legendFormat": "{{ ins }}",
-                    "refId": "D"
+                    "refId": "X"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min by (instance) (up{job!~\"(node|infra|etcd|pgsql|redis|minio)\"})",
+                    "hide": true,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ instance }}",
+                    "refId": "Z"
                 },
                 {
                     "datasource": {
@@ -1045,26 +1060,11 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (ins,instance) (up{job=\"infra\"})",
-                    "hide": false,
+                    "expr": "min by (ins,instance) (up{job=\"etcd\"})",
                     "instant": true,
                     "interval": "",
                     "legendFormat": "{{ ins }}",
-                    "refId": "X"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "min by (instance) (up{job!~\"(node|infra|etcd|pgsql|redis|minio)\"})",
-                    "hide": true,
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "{{ instance }}",
-                    "refId": "Z"
+                    "refId": "D"
                 }
             ],
             "title": "Instances",
@@ -1794,7 +1794,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum without (ins,instance,datname) (ALERTS{alertstate=\"firing\"})",
+                    "expr": "sum by (job,cls,severity,alertname) (ALERTS{alertstate=\"firing\"})",
                     "interval": "",
                     "legendFormat": "[{{ severity }}] {{alertname}}  @ {{ cls }}",
                     "range": true,
