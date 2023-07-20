@@ -259,6 +259,8 @@ v9:
 	vagrant/switch el9
 vb:
 	vagrant/switch build
+vb:
+	cd vagrant && cp -f spec/dell.rb Vagrantfile
 vc:
 	vagrant/switch citus
 vnew: new ssh copy-pkg use-pkg copy-src use-src
@@ -457,6 +459,8 @@ meta: v1 new ssh copy-el9 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
 full: v4 new ssh copy-el9 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
+dell: vd new
+	cp files/pigsty/dell.yml pigsty.yml
 citus: vc new ssh copy-el9 use-pkg
 	cp files/pigsty/citus.yml pigsty.yml
 minio: vc new ssh copy-el9 use-pkg
@@ -485,7 +489,7 @@ el9: v9 new ssh copy-el9 use-pkg
         infra pgsql repo repo-upstream repo-build prometheus grafana loki docker \
         deps dns start ssh demo \
         up dw del new clean up-test dw-test del-test new-test clean \
-        st status suspend resume v1 v4 v7 v8 v9 vb vc vnew \
+        st status suspend resume v1 v4 v7 v8 v9 vb vd vc vnew \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
