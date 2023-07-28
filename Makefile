@@ -259,7 +259,7 @@ v9:
 	vagrant/switch el9
 vb:
 	vagrant/switch build
-vb:
+vd:
 	cd vagrant && cp -f spec/dell.rb Vagrantfile
 vc:
 	vagrant/switch citus

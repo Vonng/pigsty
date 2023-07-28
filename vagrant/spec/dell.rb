@@ -3,9 +3,9 @@
 # powered by a Dell R730 72C 256G 4T bare metal
 # the host is running libvirtd and provisioned with vagrant-libvirtd plugin
 
-# scp ~/pigsty/dist/v2.2.0/pigsty-pkg-v2.2.0.el9.x86_64.tgz infra-1:/tmp/pkg.tgz; ssh infra-3 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+# scp ~/pigsty/dist/v2.2.0/pigsty-pkg-v2.2.0.el9.x86_64.tgz infra-1:/tmp/pkg.tgz; ssh infra-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 # scp ~/pigsty/dist/v2.2.0/pigsty-pkg-v2.2.0.el8.x86_64.tgz infra-2:/tmp/pkg.tgz; ssh infra-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-# scp ~/pigsty/dist/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz infra-3:/tmp/pkg.tgz; ssh infra-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+# scp ~/pigsty/dist/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz infra-3:/tmp/pkg.tgz; ssh infra-3 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 
 Specs = [
 
