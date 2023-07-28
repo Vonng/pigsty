@@ -1,12 +1,12 @@
 #!/bin/bash
 set -o pipefail
 #==============================================================#
-# File      :   getb
-# Desc      :   get pigsty beta source code (from Github or CDN)
+# File      :   install
+# Desc      :   install pigsty source code (from Github or CDN)
 # Ctime     :   2022-10-30
-# Mtime     :   2023-03-31
-# Path      :   http://get.pigsty.cc/getb
-# Usage     :   bash -c "$(curl -fsSL http://get.pigsty.cc/getb)"
+# Mtime     :   2023-07-28
+# Path      :   http://get.pigsty.cc/install
+# Usage     :   bash -c "$(curl -fsSL http://get.pigsty.cc/install)"
 # Deps      :   curl
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -17,10 +17,10 @@ VERSION=v2.2.0
 #--------------------------------------------------------------#
 # Usage
 #--------------------------------------------------------------#
-# bash -c "$(curl -fsSL http://get.pigsty.cc/getb)"                                 # get from CDN or Github
-# SOURCE=GITHUB bash -c "$(curl -fsSL http://get.pigsty.cc/getb)"                   # enforce download from github
-# SOURCE=CDN    bash -c "$(curl -fsSL http://get.pigsty.cc/getb)"                   # enforce download from CDN
-# bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/getb)" # get this from github directly
+# bash -c "$(curl -fsSL http://get.pigsty.cc/install)"                                  # get from CDN or Github
+# SOURCE=GITHUB bash -c "$(curl -fsSL http://get.pigsty.cc/install)"                    # enforce download from github
+# SOURCE=CDN    bash -c "$(curl -fsSL http://get.pigsty.cc/install)"                    # enforce download from CDN
+# bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)" # get this from github directly
 
 
 #--------------------------------------------------------------#
@@ -66,8 +66,8 @@ if [[ -n "${SOURCE}" ]]; then
        fi
     else
        log_error "invalid environment SOURCE=${SOURCE}, use 'CDN' or 'GITHUB'"
-       log_hint '$ SOURCE=GITHUB bash -c "$(curl -fsSL http://get.pigsty.cc/getb);"'
-       log_hint '$ SOURCE=CDN    bash -c "$(curl -fsSL http://get.pigsty.cc/getb);"'
+       log_hint '$ SOURCE=GITHUB bash -c "$(curl -fsSL http://get.pigsty.cc/install);"'
+       log_hint '$ SOURCE=CDN    bash -c "$(curl -fsSL http://get.pigsty.cc/install);"'
        exit 1
     fi
 else
@@ -80,9 +80,8 @@ else
         SOURCE="GITHUB"
     fi
 fi
-log_hint 'FROM CDN    : bash -c "$(curl -fsSL http://get.pigsty.cc/getb)"'
-log_hint 'FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/getb)"'
-
+log_hint 'FROM CDN    : bash -c "$(curl -fsSL http://get.pigsty.cc/install)"'
+log_hint 'FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"'
 
 #--------------------------------------------------------------#
 # Download
@@ -94,13 +93,12 @@ curl -SL "${SOURCE_URL}" -o "${DOWNLOAD_TO}"
 if [[ $? -ne 0 ]]; then
     log_error "fail to download pigsty source from ${SOURCE}"
     log_info "check https://vonng.github.io/pigsty/#/INSTALL , or try with CDN/GITHUB"
-    log_hint '$ SOURCE=CDN    bash -c "$(curl -fsSL http://get.pigsty.cc/getb);"'
-    log_hint '$ SOURCE=GITHUB bash -c "$(curl -fsSL http://get.pigsty.cc/getb);"'
+    log_hint '$ SOURCE=CDN    bash -c "$(curl -fsSL http://get.pigsty.cc/install);"'
+    log_hint '$ SOURCE=GITHUB bash -c "$(curl -fsSL http://get.pigsty.cc/install);"'
     exit 2
 fi
 # get md5 checksum of ${DOWNLOAD_TO}
 log_hint "MD5: $(md5sum ${DOWNLOAD_TO})"
-
 
 #--------------------------------------------------------------#
 # Extract

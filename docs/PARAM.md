@@ -554,12 +554,12 @@ repo_upstream:                    # where to download #
   - { name: pgdg15         ,description: 'PostgreSQL 15'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' }}
   - { name: pgdg16beta     ,description: 'PostgreSQL 16 Beta',module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/testing/16/redhat/rhel-$releasever-$basearch', china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/16/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/testing/16/redhat/rhel-$releasever-$basearch' }}
   - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
-  - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [ 7,8,9 ] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' } }
-  - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [ 7,8,9 ] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable'           , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' } }
-  - { name: pigsty-el      ,description: 'Pigsty EL Common'  ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://download.pigsty.cc/yum/el.x86_64' }}
-  - { name: pigsty-misc    ,description: 'Pigsty EL Misc'    ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://download.pigsty.cc/yum/el$releasever.$basearch' }}
+  - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' } }
+  - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable'           , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' } }
+  - { name: pigsty-el      ,description: 'Pigsty EL Common'  ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://get.pigsty.cc/yum/el.x86_64' }}
+  - { name: pigsty-misc    ,description: 'Pigsty EL Misc'    ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://get.pigsty.cc/yum/el$releasever.$basearch' }}
   - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' }}
-  #- { name: grafana       ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com', china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
+  - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com'}} #, china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
 repo_packages:                    # which packages to be included
   - ansible python3 python3-pip python3-requests python3.11-jmespath dnf-utils modulemd-tools # el7: python36-requests python36-idna yum-utils
   - grafana loki logcli promtail prometheus2 alertmanager karma pushgateway node_exporter blackbox_exporter nginx_exporter redis_exporter
@@ -574,9 +574,9 @@ repo_packages:                    # which packages to be included
   - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15*  pgtt_15 pgq_15* pgsql_tweaks_15 count_distinct_15 hypopg_15 timestamp9_15* semver_15* prefix_15* rum_15 geoip_15 periods_15 ip4r_15 tdigest_15 hll_15 pgmp_15 extra_window_functions_15 topn_15
   - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pg_filedump_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15
 repo_url_packages:
-  - http://download.pigsty.cc/rpm/pev.html
-  - http://download.pigsty.cc/rpm/chart.tgz
-  #- http://download.pigsty.cc/rpm/plugins.tgz
+  - http://get.pigsty.cc/rpm/pev.html
+  - http://get.pigsty.cc/rpm/chart.tgz
+  #- http://get.pigsty.cc/rpm/plugins.tgz
 ```
 
 
@@ -682,10 +682,10 @@ repo_upstream:                    # where to download #
   - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
   - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' } }
   - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable'           , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' } }
-  - { name: pigsty-el      ,description: 'Pigsty EL Common'  ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://download.pigsty.cc/yum/el.x86_64' }}
-  - { name: pigsty-misc    ,description: 'Pigsty EL Misc'    ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://download.pigsty.cc/yum/el$releasever.$basearch' }}
+  - { name: pigsty-el      ,description: 'Pigsty EL Common'  ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://get.pigsty.cc/yum/el.x86_64' }}
+  - { name: pigsty-misc    ,description: 'Pigsty EL Misc'    ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://get.pigsty.cc/yum/el$releasever.$basearch' }}
   - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' }}
-  - { name: grafana       ,description: 'Grafana'            ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com', china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
+  - { name: grafana       ,description: 'Grafana'            ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com'}} #, china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
 ```
 
 
@@ -731,9 +731,8 @@ extra packages from url, default values:
 
 ```yaml
 repo_url_packages:
-  - http://download.pigsty.cc/rpm/pev.html
-  - http://download.pigsty.cc/rpm/chart.tgz
-  - http://download.pigsty.cc/rpm/plugins.tgz
+  - http://get.pigsty.cc/rpm/pev.html
+  - http://get.pigsty.cc/rpm/chart.tgz
 ```
 
 Currently, these packages are downloaded via url rather than upstream yum repo

@@ -60,7 +60,7 @@ Pigsty tries to release a Minor Release every 1-3 months and a Major Release eve
 <br>
 <details><summary>Where to download the Pigsty source code?</summary>
 
-!> `bash -c "$(curl -fsSL http://download.pigsty.cc/get)"`
+!> `bash -c "$(curl -fsSL http://get.pigsty.cc/get)"`
 
 The above command will automatically download the latest stable version of `pigsty.tgz` and extract it to the `~/pigsty` dir.
 You can also manually download a specific version of Pigsty source code from the following location.
@@ -250,6 +250,24 @@ ansible all -b -a 'yum remove -y nscd'
 ```
 
 </details>
+
+
+
+<br>
+
+<details><summary>RPMs error on Tencent Qcloud Rocky 9.1</summary>
+
+!> Tencent Qcloud Rocky 9.1 require extra `annobin` packages
+
+```bash
+./infra.yml -t repo_upstream      # add upstream repos
+cd /www/pigsty;                   # download missing packages
+repotrack annobin gcc-plugin-annobin libuser
+./infra.yml -t repo_create        # create repo
+```
+
+</details>
+
 
 
 

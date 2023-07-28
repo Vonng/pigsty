@@ -47,12 +47,12 @@
 **Software Upgrade**
 
 * PostgreSQL 16 beta2
-* PostGIS 3.3.3 / Citus 11.3 / TimescaleDB 2.11.1
-* Bump grafana version to 10.0.2
-* Bump haproxy version to v2.8.1
-* Bump redis version to v7.0.12
-* Bump patroni to v3.0.3
-* Bump MinIO/MCLI to 20230711212934 / 20230711233044
+* Citus 12 / PostGIS 3.3.3 / TimescaleDB 2.11.1 / PGVector 0.44
+* patroni 3.0.4 / pgbackrest 2.47 / pgbouncer 1.20
+* grafana 10.0.3 / loki/promtail/logcli 2.8.3
+* etcd 3.5.9 / haproxy v2.8.1 / redis v7.0.12
+* minio 20230711212934 / mcli 20230711233044
+
 
 
 **Bug Fix**
@@ -60,6 +60,7 @@
 * Fix docker group ownership issue [29434bd]https://github.com/Vonng/pigsty/commit/29434bdd39548d95d80a236de9099874ed564f9b
 * Fix redis sentinel systemd enable status [5c96feb](https://github.com/Vonng/pigsty/commit/5c96feb598ad6e44daa7a595e34c87e67952777b)
 * Loose `bootstrap` & `configure` if `/etc/redhat-release` not exists
+
 
 **API Change**
 
@@ -72,10 +73,10 @@ Default value changes:
 - `repo_modules`: `node,pgsql,infra` : redis is removed from it
 - `repo_upstream`: 
   - add `pigsty-el`: distribution independent rpms: such as grafana, minio, pg_exporter, etc...
-  - add `pigsty-misc`: distribution aware rpms: such as redis, prometheus stack binaries, etc... 
-  - remove `grafana` in build config for acceleration 
+  - add `pigsty-misc`: distribution aware rpms: such as redis, prometheus stack binaries, etc...  
   - remove `citus` repo since pgdg now have full official citus support (on el7)
   - remove `remi` , since redis is now included in `pigsty-misc`
+  - remove `grafana` in build config for acceleration
 - `repo_packages`:
   - ansible python3 python3-pip python3-requests python3.11-jmespath dnf-utils modulemd-tools # el7: python36-requests python36-idna yum-utils
   - grafana loki logcli promtail prometheus2 alertmanager karma pushgateway node_exporter blackbox_exporter nginx_exporter redis_exporter
@@ -90,8 +91,8 @@ Default value changes:
   - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15*  pgtt_15 pgq_15* pgsql_tweaks_15 count_distinct_15 hypopg_15 timestamp9_15* semver_15* prefix_15* rum_15 geoip_15 periods_15 ip4r_15 tdigest_15 hll_15 pgmp_15 extra_window_functions_15 topn_15
   - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pg_filedump_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15
 - `repo_url_packages`:
-  - http://download.pigsty.cc/rpm/pev.html
-  - http://download.pigsty.cc/rpm/chart.tgz 
+  - http://get.pigsty.cc/rpm/pev.html
+  - http://get.pigsty.cc/rpm/chart.tgz 
 - `node_default_packages`:
   - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump
   - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3,python3-pip
@@ -219,7 +220,7 @@ Affected packages: `postgis33_15, pgloader, postgresql_anonymizer_15*, postgresq
 
 ```bash
 cd ~/pigsty; tar -zcf /tmp/files.tgz files; rm -rf ~/pigsty    # backup files dir and remove
-cd ~; bash -c "$(curl -fsSL http://download.pigsty.cc/get)"    # get latest pigsty source
+cd ~; bash -c "$(curl -fsSL http://get.pigsty.cc/get)"    # get latest pigsty source
 cd ~/pigsty; rm -rf files; tar -xf /tmp/files.tgz -C ~/pigsty  # restore files dir
 ```
 
@@ -246,7 +247,7 @@ Special thanks to [@cocoonkid](https://github.com/cocoonkid) for his feedback.
 Get pigsty v2.0.0 via the following command:
 
 ```bash
-curl -fsSL http://download.pigsty.cc/get | bash
+curl -fsSL http://get.pigsty.cc/get | bash
 ```
 
 <details><summary>Download directly from GitHub Release</summary>
@@ -679,7 +680,7 @@ English document is available now.
 **Accessibility**
 
 * CDN for mainland China.
-* Get the latest source with `bash -c "$(curl -fsSL http://download.pigsty.cc/get)"`
+* Get the latest source with `bash -c "$(curl -fsSL http://get.pigsty.cc/get)"`
 * Download & Extract packages with new `download` script.
 
 
