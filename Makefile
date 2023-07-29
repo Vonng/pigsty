@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2023-07-12
+# Mtime     :   2023-07-29
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -41,10 +41,6 @@ link:
 	@echo "[CDN Download]"
 	@echo "curl -SL http://get.pigsty.cc/${VERSION}/${SRC_PKG} | gzip -d | tar -xC ~ ; cd ~/pigsty"
 	@echo "curl -SL http://get.pigsty.cc/${VERSION}/${REPO_PKG} -o /tmp/pkg.tgz # [optional]"
-
-# get pigsty source from CDN
-get:
-	bash -c "$(curl -fsSL http://get.pigsty.cc/get)"
 
 # serve a local docs with docsify or python http
 doc:
@@ -112,11 +108,6 @@ pkg:
 
 # common interactive configuration procedure
 c: config
-
-# config with parameters
-# IP=10.10.10.10 MODE=oltp make conf
-conf:
-	./configure --ip ${IP} --mode ${MODE}
 ###############################################################
 
 
@@ -261,6 +252,10 @@ vb:
 	vagrant/switch build
 vp:
 	vagrant/switch prod
+vm:
+	vagrant/switch minio
+vc:
+	vagrant/switch citus
 vnew: new ssh copy-pkg use-pkg copy-src use-src
 
 ###############################################################
@@ -318,6 +313,7 @@ test-rb2:
 test-rb3:
 	ssh -t node-3 "sudo reboot"
 ###############################################################
+
 
 
 
@@ -390,62 +386,47 @@ cmdb:
 ###############################################################
 #                       8. Release                            #
 ###############################################################
-# make pigsty source release
+# make pigsty release (source code tarball)
 r: release
 release:
 	bin/release ${VERSION}
 
-rr: release copy-src use-src
+rr: remote-release
+remote-release: release copy-src use-src
 	ssh meta "cd pigsty; make release"
 	scp meta:~/pigsty/dist/${VERSION}/${SRC_PKG} dist/${VERSION}/${SRC_PKG}
 
-# release-pkg will make cache and copy to dist dir
-rp: release-pkg
-release-pkg: cache
-	scp meta:/tmp/pkg.tgz dist/${VERSION}/${REPO_PKG}
+# release offline packages with build environment
+rp: release-package
+release-package: release-el7 release-el8 release-el9
+release-el7:
+	scp bin/cache build-el7:/tmp/cache; ssh build-el7 "sudo bash /tmp/cache"; scp build-el7:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
+release-el8:
+	scp bin/cache build-el8:/tmp/cache; ssh build-el8 "sudo bash /tmp/cache"; scp build-el8:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
+release-el9:
+	scp bin/cache build-el9:/tmp/cache; ssh build-el9 "sudo bash /tmp/cache"; scp build-el9:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
 
-# create pkg.tgz on initialized meta node
-cache:
-	scp bin/cache meta:/tmp/cache
-	ssh meta "sudo bash /tmp/cache"
 
-# release docker packages
-release-docker:
-	scp meta:/tmp/docker/*.tgz dist/docker/
-
-# publish pigsty packages
-p: release publish
-publish:
-	bin/publish ${VERSION}
-
-build-src:
+# validate offline packages with build environment
+check: build-src build-repo build-boot
+check-src:
 	scp dist/${VERSION}/${SRC_PKG} build-el7:~/pigsty.tgz ; ssh build-el7 "tar -xf pigsty.tgz";
 	scp dist/${VERSION}/${SRC_PKG} build-el8:~/pigsty.tgz ; ssh build-el8 "tar -xf pigsty.tgz";
 	scp dist/${VERSION}/${SRC_PKG} build-el9:~/pigsty.tgz ; ssh build-el9 "tar -xf pigsty.tgz";
-
-build-repo:
+check-repo:
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz build-el7:/tmp/pkg.tgz ; ssh build-el7 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz build-el8:/tmp/pkg.tgz ; ssh build-el8 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz build-el9:/tmp/pkg.tgz ; ssh build-el9 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-
-build-boot:
+check-boot:
 	ssh build-el7 "cd pigsty; ./bootstrap -n ; ./configure -m el7  -i 10.10.10.7 -n";
 	ssh build-el8 "cd pigsty; ./bootstrap -n ; ./configure -m el8  -i 10.10.10.8 -n";
 	ssh build-el9 "cd pigsty; ./bootstrap -n ; ./configure -m el9  -i 10.10.10.9 -n";
 
-build-release: r build-el7 build-el8 build-el9
-build-el7:
-	scp bin/cache build-el7:/tmp/cache ; ssh build-el7 "sudo bash /tmp/cache"; scp build-el7:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
-build-el8:
-	scp bin/cache build-el8:/tmp/cache ; ssh build-el8 "sudo bash /tmp/cache"; scp build-el8:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
-build-el9:
-	scp bin/cache build-el9:/tmp/cache ; ssh build-el9 "sudo bash /tmp/cache"; scp build-el9:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
-buildm-el7:
-	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
-buildm-el8:
-	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
-buildm-el9:
-	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
+
+# publish pigsty packages to http://get.pigsty.cc
+p: publish
+publish:
+	bin/publish ${VERSION}
 ###############################################################
 
 
@@ -457,15 +438,13 @@ meta: v1 new ssh copy-el9 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
 full: v4 new ssh copy-el9 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
-dell: vd new
-	cp files/pigsty/dell.yml pigsty.yml
 citus: vc new ssh copy-el9 use-pkg
 	cp files/pigsty/citus.yml pigsty.yml
-minio: vc new ssh copy-el9 use-pkg
+minio: vm new ssh copy-el9 use-pkg
 	cp files/pigsty/citus.yml pigsty.yml
 build: vb new ssh
 	cp files/pigsty/build.yml pigsty.yml
-build-test: vb new ssh build-repo build-src
+build-check: build check
 	cp files/pigsty/build.yml pigsty.yml
 el7: v7 new ssh copy-el7 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
@@ -473,25 +452,28 @@ el8: v8 new ssh copy-el8 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
 el9: v9 new ssh copy-el9 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
+prod: vp new ssh
+	cp files/pigsty/prod.yml pigsty.yml
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 
 ###############################################################
 
 
 
 ###############################################################
-#                         Appendix                            #
+#                        Inventory                            #
 ###############################################################
-.PHONY: default tip link get all bootstrap config install \
+.PHONY: default tip link doc all bootstrap config install \
         src pkg \
-        c conf \
+        c \
         infra pgsql repo repo-upstream repo-build prometheus grafana loki docker \
         deps dns start ssh demo \
         up dw del new clean up-test dw-test del-test new-test clean \
-        st status suspend resume v1 v4 v7 v8 v9 vb vd vc vnew \
+        st status suspend resume v1 v4 v7 v8 v9 vb vp vm vc vnew \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
-        r releast rp release-pkg cache release-docker p publish \
-        build-vagrant build build-src build-repo build-boot build-release build-el7 build-el8 build-el9 buildm-el7 buildm-el8 buildm-el9 \
-        meta full build el7 el8 el9
+        r release rr remote-release rp release-pkg release-el7 release-el8 release-el9 check check-src check-repo check-boot p publish \
+        meta full citus minio build build-check el7 el8 el9 prod
 ###############################################################

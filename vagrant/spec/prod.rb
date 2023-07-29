@@ -49,12 +49,12 @@ Specs = [
   { "name" => "pg-citus4-2"   , "ip" => "10.10.10.59"   , "cpu" => "1"    , "mem" => "2048"    , "image" =>  "generic/rocky9"  },
 
   # redis primary-replica(2) & native cluster(4)
-  { "name" => "redis-test-1"  , "ip" => "10.10.10.81"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rocky9"  },
-  { "name" => "redis-test-2"  , "ip" => "10.10.10.82"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rocky9"  },
-  { "name" => "redis-test-3"  , "ip" => "10.10.10.83"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rocky9"  },
-  { "name" => "redis-test-4"  , "ip" => "10.10.10.84"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rocky9"  },
-  { "name" => "redis-ms-1"    , "ip" => "10.10.10.85"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rocky9"  },
-  { "name" => "redis-ms-2"    , "ip" => "10.10.10.86"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rocky9"  },
+  { "name" => "redis-test-1"  , "ip" => "10.10.10.81"   , "cpu" => "1"    , "mem" => "2048"    , "image" =>  "generic/rocky9"  },
+  { "name" => "redis-test-2"  , "ip" => "10.10.10.82"   , "cpu" => "1"    , "mem" => "2048"    , "image" =>  "generic/rocky9"  },
+  { "name" => "redis-test-3"  , "ip" => "10.10.10.83"   , "cpu" => "1"    , "mem" => "2048"    , "image" =>  "generic/rocky9"  },
+  { "name" => "redis-test-4"  , "ip" => "10.10.10.84"   , "cpu" => "1"    , "mem" => "2048"    , "image" =>  "generic/rocky9"  },
+  { "name" => "redis-test-5"  , "ip" => "10.10.10.85"   , "cpu" => "1"    , "mem" => "2048"    , "image" =>  "generic/rocky9"  },
+  { "name" => "redis-test-6"  , "ip" => "10.10.10.86"   , "cpu" => "1"    , "mem" => "2048"    , "image" =>  "generic/rocky9"  },
 
 ]
 
