@@ -1,14 +1,8 @@
-# pigsty 4 nodes EL9 sandbox: rhel9, centos9, alma9
-EL_VERSION = "9"
-Images = {
-  "RHEL"   => { "7"=> "generic/rhel7"   , "8"=> "generic/rhel8"   , "9"=> "generic/rhel9"   },
-  "CentOS" => { "7"=> "generic/centos7"                                                     },
-  "Rocky"  => {                           "8"=> "generic/rocky8"  , "9"=> "generic/rocky9"  },
-  "Oracle" => { "7"=> "generic/oracle7" , "8"=> "generic/oracle8" , "9"=> "generic/oracle9" },
-  "Alma"   => { "7"=> "generic/alma7"   , "8"=> "generic/alma8"   , "9"=> "generic/alma9"   },
-}
+# pigsty el8 testing environment with 3 nodes: rhel, rocky, and alma linux, 3 x 2C4G
+
 Specs = [
-  { "name" => "meta"  , "ip" => "10.10.10.10", "cpu" => "2", "mem" => "4096", "image" =>  Images["RHEL"][EL_VERSION]   },
-  { "name" => "node-1", "ip" => "10.10.10.11", "cpu" => "2", "mem" => "4096", "image" =>  Images["Rocky"][EL_VERSION]  },
-  { "name" => "node-2", "ip" => "10.10.10.12", "cpu" => "2", "mem" => "4096", "image" =>  Images["Alma"][EL_VERSION]   },
+  { "name" => "meta"          , "ip" => "10.10.10.10"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rhel9"   },
+  { "name" => "node-1"        , "ip" => "10.10.10.11"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rocky9"  },
+  { "name" => "node-2"        , "ip" => "10.10.10.12"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/alma9"   },
 ]
+

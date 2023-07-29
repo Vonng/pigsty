@@ -1,22 +1,15 @@
-# pigsty 4 nodes EL7 sandbox: rhel7, centos7, oracle7, alma7
-EL_VERSION = "9"
-Images = {
-  "RHEL"   => { "7"=> "generic/rhel7"   , "8"=> "generic/rhel8"   , "9"=> "generic/rhel9"   },
-  "CentOS" => { "7"=> "generic/centos7"                                                     },
-  "Rocky"  => {                           "8"=> "generic/rocky8"  , "9"=> "generic/rocky9"  },
-  "Oracle" => { "7"=> "generic/oracle7" , "8"=> "generic/oracle8" , "9"=> "generic/oracle9" },
-  "Alma"   => { "7"=> "generic/alma7"   , "8"=> "generic/alma8"   , "9"=> "generic/alma9"   },
-}
+# pigsty singleton-meta environment (4C8G)
+
 Specs = [
-  { "name" => "meta"  , "ip" => "10.10.10.10", "cpu" => "2", "mem" => "4096", "image" =>  Images["RHEL"][EL_VERSION]   },
-  { "name" => "node-1", "ip" => "10.10.10.11", "cpu" => "2", "mem" => "4096", "image" =>  Images["Rocky"][EL_VERSION]  },
-  { "name" => "node-2", "ip" => "10.10.10.12", "cpu" => "2", "mem" => "4096", "image" =>  Images["Alma"][EL_VERSION]   },
+  { "name" => "meta"          , "ip" => "10.10.10.10"   , "cpu" => "4"    , "mem" => "8192"    , "image" =>  "generic/rocky9"   },
 ]
 
 
-# Get Preset SSH Key from vagrant/ssh dir (REGENERATE FOR NON-DEVELOPMENT USE)
-ssh_prv_key = File.read(File.join(__dir__, 'ssh', 'id_rsa'))
-ssh_pub_key = File.readlines(File.join(__dir__, 'ssh', 'id_rsa.pub')).first.strip
+# This is the Vagrantfile template for the default virtualbox provider
+
+# read ssh key from current user's ~/.ssh
+ssh_prv_key = File.read(File.join(ENV['HOME'], '.ssh', 'id_rsa'))
+ssh_pub_key = File.readlines(File.join(ENV['HOME'], '.ssh', 'id_rsa.pub')).first.strip
 
 Vagrant.configure("2") do |config|
     config.ssh.insert_key = false
@@ -45,13 +38,23 @@ Vagrant.configure("2") do |config|
             node.vm.box = spec["image"]
             node.vm.network "private_network", ip: spec["ip"]
             node.vm.hostname = spec["name"]
+
+            # provision an additional disk for minio nodes
+            if spec["name"].start_with?("minio")
+                node.vm.disk :disk, name: "main", size: "128GB", primary: true
+                node.vm.disk :disk, name: "data1", size: "32GB"
+                node.vm.provision "shell" do |s|
+                  s.inline = <<-SHELL
+                    mkdir /data; mkfs.xfs /dev/sdb;
+                    mount -o noatime -o nodiratime -t xfs /dev/sdb /data;
+                    echo "/dev/sdb /data xfs defaults,noatime,nodiratime 0 0" >> /etc/fstab;
+                  SHELL
+                end
+            end
+
             node.vm.provider "virtualbox" do |v|
                 v.linked_clone = true
-                v.customize [
-                    "modifyvm", :id, "--cpus", spec["cpu"], "--memory", spec["mem"],
-                    "--nictype1", "virtio", "--nictype2", "virtio", "--hwvirtex", "on", "--ioapic", "on",
-                     "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
-                  ]
+                v.customize ["modifyvm", :id, "--cpus", spec["cpu"], "--memory", spec["mem"], "--nictype1", "virtio", "--nictype2", "virtio", "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"]
                 v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000]
             end
         end

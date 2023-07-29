@@ -1,19 +1,10 @@
-#!/usr/bin/ruby
 
-# powered by a Dell R730 72C 256G 4T bare metal
-# the host is running libvirtd and provisioned with vagrant-libvirtd plugin
+# This is the Vagrantfile template for libvirt (KVM) which require vagrant-libvirt plugin to work
+# check https://vagrant-libvirt.github.io/vagrant-libvirt/ for details
 
-Specs = [
-
-    { "name" => "build-el7"     , "ip" => "10.10.10.7",  "cpu" => "8",   "mem" => "32768" , "image" =>  "generic/rocky9"  },
-    { "name" => "build-el8"     , "ip" => "10.10.10.8",  "cpu" => "8",   "mem" => "32768" , "image" =>  "generic/rocky8"  },
-    { "name" => "build-el9"     , "ip" => "10.10.10.9",  "cpu" => "8",   "mem" => "32768" , "image" =>  "generic/centos7" },
-
-]
-
-# Get Preset SSH Key from vagrant/ssh dir (REGENERATE FOR NON-DEVELOPMENT USE)
-ssh_prv_key = File.read(File.join('/root', '.ssh', 'id_rsa'))
-ssh_pub_key = File.readlines(File.join('/root', '.ssh', 'id_rsa.pub')).first.strip
+# read ssh key from current user's ~/.ssh
+ssh_prv_key = File.read(File.join(ENV['HOME'], '.ssh', 'id_rsa'))
+ssh_pub_key = File.readlines(File.join(ENV['HOME'], '.ssh', 'id_rsa.pub')).first.strip
 
 Vagrant.configure("2") do |config|
     config.ssh.insert_key = false
@@ -45,13 +36,15 @@ Vagrant.configure("2") do |config|
             node.vm.provider "libvirt" do |v|
                 v.cpus   =  spec["cpu"]
                 v.memory =  spec["mem"]
+
+                # provision an additional disk for minio nodes
                 if spec["name"].start_with?("minio")
                     v.storage :file, :size => '128G', :device => 'vdb'
                     node.vm.provision "shell" do |s|
                       s.inline = <<-SHELL
-                        mkdir -p /data; mkfs.ext4 /dev/vdb;
-                        mount -o noatime -o nodiratime -t ext4 /dev/vdb /data;
-                        echo "/dev/vdb /data ext4 defaults,noatime,nodiratime 0 0" >> /etc/fstab;
+                        mkdir -p /data; mkfs.xfs /dev/vdb;
+                        mount -o noatime -o nodiratime -t xfs /dev/vdb /data;
+                        echo "/dev/vdb /data xfs defaults,noatime,nodiratime 0 0" >> /etc/fstab;
                       SHELL
                     end
                 end

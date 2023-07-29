@@ -1,13 +1,8 @@
-# pigsty 3 nodes building environment: centos7 / rocky8 / rocky9
+# pigsty building environment with 3 nodes: centos7.9 / rocky8.7 / rocky9.1 , 3 x 4C8G
+
 Specs = [
-  {"name" => "meta",   "ip" => "10.10.10.10", "cpu" => "2",  "mem" => "8192", "image" => "generic/centos7" },
-  {"name" => "node-1", "ip" => "10.10.10.11", "cpu" => "2",  "mem" => "8192", "image" => "generic/rocky8"  },
-  {"name" => "node-2", "ip" => "10.10.10.12", "cpu" => "2",  "mem" => "8192", "image" => "generic/rocky9"  },
+  { "name" => "build-el7"     , "ip" => "10.10.10.7"    , "cpu" => "4"    , "mem" => "8182"    , "image" =>  "generic/centos7" },
+  { "name" => "build-el8"     , "ip" => "10.10.10.8"    , "cpu" => "4"    , "mem" => "8192"    , "image" =>  "generic/rocky8"  },
+  { "name" => "build-el9"     , "ip" => "10.10.10.9"    , "cpu" => "4"    , "mem" => "8192"    , "image" =>  "generic/rocky9"  },
 ]
 
-# Alternative building env: rhel7 / rhel8 / rhel9
-# Specs = [
-#   {"name" => "meta",   "ip" => "10.10.10.10", "cpu" => "2",  "mem" => "4096", "image" => "generic/rhel7" },
-#   {"name" => "node-1", "ip" => "10.10.10.11", "cpu" => "2",  "mem" => "4096", "image" => "generic/rhel8" },
-#   {"name" => "node-2", "ip" => "10.10.10.12", "cpu" => "2",  "mem" => "4096", "image" => "generic/rhel9" },
-# ]

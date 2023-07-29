@@ -194,7 +194,7 @@ deps:
 #------------------------------#
 # write static dns records (sudo password required) (only run on first time)
 dns:
-	sudo bin/dns
+	sudo vagrant/dns
 
 #------------------------------#
 # 3. start
@@ -203,7 +203,7 @@ dns:
 # it may take a while to download centos/7 box for the first time
 start: up ssh      # 1-node version
 ssh:               # add node ssh config to your ~/.ssh/config
-	bin/ssh
+	vagrant/ssh
 
 #------------------------------#
 # 4. demo
@@ -259,10 +259,8 @@ v9:
 	vagrant/switch el9
 vb:
 	vagrant/switch build
-vd:
-	cd vagrant && cp -f spec/dell.rb Vagrantfile
-vc:
-	vagrant/switch citus
+vp:
+	vagrant/switch prod
 vnew: new ssh copy-pkg use-pkg copy-src use-src
 
 ###############################################################

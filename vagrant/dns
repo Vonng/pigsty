@@ -1,0 +1,96 @@
+#!/usr/bin/python3
+# ==============================================================#
+# File      :   dns
+# Desc      :   setup vagrant dns config
+# Ctime     :   2021-04-20
+# Mtime     :   2023-07-29
+# Path      :   vagrant/dns
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+# ==============================================================#
+# this script will generate vagrant nodes DNS records
+# and write to /etc/hosts of current machine
+# sudo privilege is required for writing /etc/hosts
+# DNS records without DNS_MARKER (suffix '# pigsty dns') will be kept
+
+import os, re, sys
+
+DNS_MARKER = '# pigsty dns'
+STATIC_DNS = 'meta h.pigsty a.pigsty p.pigsty g.pigsty api.pigsty cli.pigsty sss.pigsty adm.pigsty lab.pigsty wiki.pigsty git.pigsty'
+
+# get the node name and ip mapping from Vagrantfile
+def parse_vagrant_spec(vagrant_filepath):
+    specs = []
+    result = {}
+    with open(vagrant_filepath, 'r') as f:
+        raw_lines = f.readlines()
+
+    activate = False
+    for line in raw_lines:
+        if line.startswith('Specs'):
+            activate = True
+            continue
+        elif line.startswith(']'):
+            activate = False
+            break
+        if activate and '"name"' in line and '"ip"' in line:
+            name = re.findall('"name"\s*=>\s*"([^"]+)"', line)[0]
+            ip = re.findall('"ip"\s*=>\s*"([^"]+)"', line)[0]
+            result[name] = ip
+            specs.append((ip, name))
+    return result, specs
+
+
+def build_dns_records(specs):
+    etc_hosts = []
+    with open('/etc/hosts', 'r') as f:
+        for line in f.readlines():
+            if DNS_MARKER not in line:
+                etc_hosts.append(line)
+
+    if not specs or len(specs) > 0:
+        etc_hosts.append('\n\n' + DNS_MARKER + '\n')
+        etc_hosts.append('%-16s %s %s\n' % (specs[0][0], STATIC_DNS, DNS_MARKER))
+        for ip, name in specs:
+            etc_hosts.append('%-16s %s %s\n' % (ip, name, DNS_MARKER))
+    return etc_hosts
+
+
+def write_etc_hosts(records):
+    # check if I have write permission to /etc/hosts
+    if not os.access('/etc/hosts', os.W_OK):
+        print("you don't have write permission to /etc/hosts, try sudo")
+        sys.exit(1)
+    with open('/etc/hosts', 'w') as f:
+        f.write(''.join(records))
+    print("write /etc/hosts complete!")
+
+
+def main():
+    # check vagrantfile exists
+    vagrant_dir = os.path.dirname(os.path.realpath(__file__))
+    os.chdir(vagrant_dir)
+    vagrant_file = os.path.join(vagrant_dir, 'Vagrantfile')
+    if not os.path.exists(vagrant_file):
+        print("Vagrantfile not found in %s" % vagrant_file)
+        sys.exit(1)
+
+    # parse vagrantfile and generate ssh config
+    mapping, specs = parse_vagrant_spec(vagrant_file)
+    print("\n============= Vagrant nodes:\n")
+    for ip, name in specs:
+        print("%-16s %s" % (ip, name))
+    print("\n\n")
+
+    # build /etc/hosts records
+    etc_hosts = build_dns_records(specs)
+    print("\n============= DNS RECORDS @ /etc/hosts \n")
+    print(''.join(etc_hosts))
+    print('\n\n')
+
+    write_etc_hosts(etc_hosts)
+
+
+# main
+if __name__ == '__main__':
+    main()
