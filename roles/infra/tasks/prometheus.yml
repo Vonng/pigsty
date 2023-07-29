@@ -48,9 +48,13 @@
 #--------------------------------------------------------------#
 # Create Prometheus Dir                         [prometheus_dir]
 #--------------------------------------------------------------#
-- name: create prometheus directories
+- name: create prometheus data dir
   tags: prometheus_dir
-  file: path={{ item }} state=directory owner=prometheus group=prometheus mode=700
+  file: path="{{ prometheus_data }}/data" state=directory owner=prometheus group=prometheus mode=700
+
+- name: create prometheus conf dir
+  tags: prometheus_dir
+  file: path={{ item }} state=directory owner=prometheus group=prometheus mode=750
   with_items:
     - /etc/prometheus
     - /etc/prometheus/bin
@@ -64,7 +68,6 @@
     - /etc/prometheus/targets/redis
     - /etc/prometheus/targets/minio
     - /etc/prometheus/targets/patroni
-    - "{{ prometheus_data }}/data"
 
 
 #--------------------------------------------------------------#

@@ -379,6 +379,14 @@ cmdb:
 	bin/inventory_load
 	bin/inventory_cmdb
 
+#------------------------------#
+# push / pull
+#------------------------------#
+push:
+	rsync -avz ./ sv:~/pigsty/ --delete --exclude-from 'vagrant/Vagrantfile'
+pull:
+	rsync -avz sv:~/pigsty/ ./ --exclude-from 'vagrant/Vagrantfile' --exclude-from 'vagrant/.vagrant'
+
 ###############################################################
 
 
@@ -434,28 +442,28 @@ publish:
 ###############################################################
 #                     9. Environment                          #
 ###############################################################
-meta: v1 new ssh copy-el9 use-pkg
+meta:  del v1 new ssh copy-el9 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
-full: v4 new ssh copy-el9 use-pkg
+full: del v4 new ssh copy-el9 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
-citus: vc new ssh copy-el9 use-pkg
+citus: del vc new ssh copy-el9 use-pkg
 	cp files/pigsty/citus.yml pigsty.yml
-minio: vm new ssh copy-el9 use-pkg
+minio: del vm new ssh copy-el9 use-pkg
 	cp files/pigsty/citus.yml pigsty.yml
-build: vb new ssh
-	cp files/pigsty/build.yml pigsty.yml
-build-check: build check
-	cp files/pigsty/build.yml pigsty.yml
-el7: v7 new ssh copy-el7 use-pkg
+el7: del v7 new ssh copy-el7 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
-el8: v8 new ssh copy-el8 use-pkg
+el8: del v8 new ssh copy-el8 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
-el9: v9 new ssh copy-el9 use-pkg
+el9: del v9 new ssh copy-el9 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
-prod: vp new ssh
+prod: del vp new ssh
 	cp files/pigsty/prod.yml pigsty.yml
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+build: del vb new ssh
+	cp files/pigsty/build.yml pigsty.yml
+build-check: build check
+	cp files/pigsty/build.yml pigsty.yml
 
 ###############################################################
 
