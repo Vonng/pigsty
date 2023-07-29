@@ -51,7 +51,8 @@ clean: destroy
 del: destroy
 destroy:
 	vagrant destroy -f
-
+nuke:
+	./nuke
 #------------------------------#
 # status
 #------------------------------#

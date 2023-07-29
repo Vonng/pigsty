@@ -37,6 +37,7 @@ make citus    # 5-node citus env
 |   [el9.rb](spec/el9.rb)   |   `v9`   | 2C4G + 1C2G x 3 |       EL9 3-node Testing Env        |
 | [build.rb](spec/build.rb) |   `vb`   |    2C4G x 3     | 3-Node EL7,8,9 Building Environment |
 | [citus.rb](spec/citus.rb) |   `vc`   | 2C4G + 1C2G x 4 |    5-Node Citus/Etcd Testing Env    |
+| [minio.rb](spec/minio.rb) |   `vm`   | 2C4G x 3 + Disk |    3-Node MinIO/etcd Testing Env    |
 |  [prod.rb](spec/prod.rb)  |   `vp`   |    45 nodes     |    Prod simulation with 45 Nodes    |
 
 
@@ -83,35 +84,26 @@ Make sure you have a valid ssh key pair before you start, you can generate one b
 
 There are some makefile shortcuts that wrap the vagrant commands, you can use them to manage the VMs.
 
-```makefile
-new: del up  # destroy & recreate VMs
-clean: del
-up:
-	cd vagrant && vagrant up
-dw:
-	cd vagrant && vagrant halt
-del:
-	cd vagrant && vagrant destroy -f
-status:
-	cd vagrant && vagrant status
-suspend:
-	cd vagrant && vagrant suspend
-resume:
-	cd vagrant && vagrant resume
-```
-
-Examples:
-
 ```bash
-make new    # create Vagrant VM nodes
-make ssh    # write Vagrant VM nodes ssh host config to ~/.ssh/
-make dns    # write dns configuration to local host
+make         # = make start
+make new     # destroy existing vm and create new ones
+make ssh     # write VM ssh config to ~/.ssh/     (required)
+make dns     # write VM DNS records to /etc/hosts (optional)
+make start   # launch VMs and write ssh config    (up + ssh) 
+make up      # launch VMs with vagrant up
+make halt    # shutdown VMs (down,dw)
+make clean   # destroy VMs (clean/del/destroy)
+make status  # show VM status (st)
+make pause   # pause VMs (suspend,pause)
+make resume  # pause VMs (resume)
+make nuke    # destroy all vm & volumes with virsh (if using libvirt) 
 ```
-
 
 
 
 ## Available Images
+
+Pigsty on EL 7 ~ 9, you can use following OS images from vagrant cloud. It is recommended to use rocky9, rocky8, and centos7.
 
 ```ruby
 Images = {

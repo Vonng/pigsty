@@ -216,6 +216,8 @@ dw:
 	cd vagrant && vagrant halt
 del:
 	cd vagrant && vagrant destroy -f
+nuke:
+	cd vagrant && ./nuke
 new: del up
 clean: del
 #------------------------------#
