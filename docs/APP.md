@@ -8,7 +8,7 @@ You can use Docker to deploy and launch software applications quickly. You can d
 
 ![APP](https://user-images.githubusercontent.com/8587410/198838829-f0ea4af2-d33f-4978-a31a-ed81897aa8d1.gif)
 
-Docker is not installed by default, You can install docker with `docker.yml` playbook, e.g.: `./docker.yml -l infra`
+Docker is **not** installed by default, You can install docker with `docker.yml` playbook, e.g.: `./docker.yml -l infra`
 
 
 ## PostgreSQL Administration
@@ -56,9 +56,9 @@ Docker is not installed by default, You can install docker with `docker.yml` pla
 
 > Perform data visualization with PostgreSQL, Grafana & Echarts.
 
-* pglog: PostgreSQL CSVLOG sample analyzer.
+* isd: noaa weather data visualization: [github.com/Vonng/isd](https://github.com/Vonng/isd), [Demo](http://demo.pigsty.cc/d/isd-overview)
+* pglog: PostgreSQL CSVLOG sample analyzer.  [Demo](http://demo.pigsty.cc/d/pglog-overview)
 * covid: Covid-19 data visualization
-* isd: noaa weather data visualization
 * dbeng: Database popularity visualization
 * price: RDS, ECS price comparison
 

@@ -103,6 +103,7 @@ Default value changes:
   - grafana,loki,logcli,promtail,prometheus2,alertmanager,karma,pushgateway
   - node_exporter,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
   - nginx,dnsmasq,ansible,postgresql15,redis,mcli,python3-requests
+- `PGSERVICE` in `.pigsty` is removed, replaced with `PGDATABASE=postgres`.
 
 FHS Changes:
 
