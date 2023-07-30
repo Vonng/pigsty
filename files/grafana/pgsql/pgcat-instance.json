@@ -296,6 +296,7 @@
         },
         {
             "datasource": {
+                "type": "postgres",
                 "uid": "${dsn}"
             },
             "fieldConfig": {
@@ -317,7 +318,7 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 4,
+                "h": 6,
                 "w": 13,
                 "x": 11,
                 "y": 1
@@ -341,11 +342,16 @@
             "pluginVersion": "10.0.3",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
+                    },
+                    "editorMode": "code",
                     "format": "table",
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT *\nFROM (SELECT count(*) AS databases FROM pg_database) d,\n     (SELECT count(*) AS roles FROM pg_roles) r,\n     (SELECT count(*) AS tablespaces FROM pg_tablespace) tsp,\n     (SELECT count(*) AS schemas FROM pg_namespace) nsp,\n     (SELECT count(*) AS relations FROM pg_class WHERE relkind in ('r','m','p')) rc,\n     (SELECT count(*) AS indexes FROM pg_class WHERE relkind = 'i') ic,\n     (SELECT count(*) AS sequences FROM pg_class WHERE relkind = 'S') sc,\n     (SELECT count(*) AS views FROM pg_class WHERE relkind = 'v') vc;\n;",
+                    "rawSql": "SELECT *\nFROM (SELECT count(*) AS databases FROM pg_database) d,\n     (SELECT count(*) AS roles FROM pg_roles) r,\n     (SELECT count(*) AS tablespaces FROM pg_tablespace) tsp,\n          (SELECT count(*) AS session FROM pg_stat_activity) proc,\n          (SELECT current_setting('max_connections')::INTEGER AS maxconn) mc\n;",
                     "refId": "A",
                     "select": [
                         [
@@ -357,6 +363,23 @@
                             }
                         ]
                     ],
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    },
                     "timeColumn": "time",
                     "where": [
                         {
@@ -372,24 +395,36 @@
                     "id": "organize",
                     "options": {
                         "excludeByName": {
+                            "current_setting": false,
                             "indexes": true,
+                            "maxconn": false,
                             "relations": true,
                             "schemas": true,
                             "sequences": true,
+                            "session": false,
                             "views": true
                         },
-                        "indexByName": {},
+                        "indexByName": {
+                            "databases": 0,
+                            "maxconn": 3,
+                            "roles": 1,
+                            "session": 4,
+                            "tablespaces": 2
+                        },
                         "renameByName": {
+                            "current_setting": "fsd",
                             "databases": "Databases",
                             "foreign_tables": "Foreign Tables",
                             "indexes": "Indexes",
                             "materialized_views": "Materialized Views",
+                            "maxconn": "MaxConn",
                             "partitioned_indexes": "Partitioned Indexes",
                             "partitioned_tables": "Partitioned Tables",
                             "relations": "Relations",
                             "roles": "Roles",
                             "schemas": "Scheamas",
                             "sequences": "Sequences",
+                            "session": "Processes",
                             "tablespaces": "Tablespaces",
                             "views": "Views"
                         }
@@ -589,6 +624,110 @@
         },
         {
             "datasource": {
+                "uid": "${dsn}"
+            },
+            "description": "Recovery status of this instance",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "blue",
+                                    "index": 1,
+                                    "text": "Leader"
+                                },
+                                "1": {
+                                    "color": "green",
+                                    "index": 0,
+                                    "text": "Follower"
+                                }
+                            },
+                            "type": "value"
+                        },
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "index": 2,
+                                    "text": "N/A"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 4,
+                "x": 0,
+                "y": 5
+            },
+            "id": 70,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "value"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT pg_is_in_recovery()::INTEGER AS recovery",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Status",
+            "transformations": [],
+            "type": "stat"
+        },
+        {
+            "datasource": {
                 "type": "prometheus",
                 "uid": "${ds}"
             },
@@ -620,7 +759,7 @@
             "gridPos": {
                 "h": 2,
                 "w": 7,
-                "x": 11,
+                "x": 4,
                 "y": 5
             },
             "id": 151,
@@ -680,217 +819,7 @@
         },
         {
             "datasource": {
-                "uid": "${dsn}"
-            },
-            "description": "Recovery status of this instance",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "blue",
-                                    "index": 1,
-                                    "text": "Leader"
-                                },
-                                "1": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "Follower"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "index": 2,
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 18,
-                "y": 5
-            },
-            "id": 70,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "value"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT pg_is_in_recovery()::INTEGER AS recovery",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "value"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "timeColumn": "time",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Status",
-            "transformations": [],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "uid": "$dsn"
-            },
-            "description": "Database OID of ${datname}",
-            "fieldConfig": {
-                "defaults": {
-                    "mappings": [
-                        {
-                            "options": {
-                                "I": {
-                                    "text": "(I) Partition Index"
-                                },
-                                "c": {
-                                    "text": "(c) Compose Type"
-                                },
-                                "f": {
-                                    "text": "(f) Foreign Table"
-                                },
-                                "i": {
-                                    "text": "(i) Index"
-                                },
-                                "m": {
-                                    "text": "(m) Materialized View"
-                                },
-                                "p": {
-                                    "text": "(p) Partition Table"
-                                },
-                                "r": {
-                                    "text": "(r) Table"
-                                },
-                                "t": {
-                                    "text": "(t) Toast"
-                                },
-                                "v": {
-                                    "text": "(v) View"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 21,
-                "y": 5
-            },
-            "id": 34,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "/.*/",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT oid FROM pg_database WHERE datname = '$datname';",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "value"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "timeColumn": "time",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "OID",
-            "type": "stat"
-        },
-        {
-            "datasource": {
+                "type": "postgres",
                 "uid": "${dsn}"
             },
             "description": "Databases of this instance\nTmpl: is this database a template?\nConn: is this database connectable?",
@@ -1194,7 +1123,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 95
+                                "value": 110
                             }
                         ]
                     },
@@ -1292,7 +1221,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 139
+                                "value": 150
                             }
                         ]
                     },
@@ -1409,11 +1338,16 @@
             "pluginVersion": "10.0.3",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "da87a3b4-a8de-4e54-b515-40f3e54d18cc"
+                    },
+                    "editorMode": "code",
                     "format": "table",
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT d.datname, d.oid, d.datconnlimit, d.datfrozenxid, age(d.datfrozenxid) AS age, datistemplate,datallowconn,  1 - (datistemplate)::INTEGER + 2 * d.datallowconn::INTEGER AS status, psd.numbackends AS sessions,\n       pg_catalog.pg_get_userbyid(d.datdba) as owner, pg_catalog.pg_encoding_to_char(d.encoding) as encoding,\n       d.datcollate, d.datctype,  pg_catalog.array_to_string(d.datacl, E'\\n') AS acl,\n       CASE WHEN pg_catalog.has_database_privilege(d.datname, 'CONNECT') THEN pg_catalog.pg_database_size(d.datname) ELSE -1 END AS size,\n       t.spcname as tablespace,\n       pg_catalog.shobj_description(d.oid, 'pg_database') as description\nFROM pg_catalog.pg_database d JOIN pg_catalog.pg_tablespace t on d.dattablespace = t.oid JOIN pg_stat_database psd on d.oid = psd.datid\nORDER BY 1;",
+                    "rawSql": "SELECT d.datname, d.oid::INTEGER, d.datconnlimit, d.datfrozenxid, age(d.datfrozenxid) AS age, datistemplate,datallowconn,  1 - (datistemplate)::INTEGER + 2 * d.datallowconn::INTEGER AS status, psd.numbackends AS sessions,\n       pg_catalog.pg_get_userbyid(d.datdba) as owner, pg_catalog.pg_encoding_to_char(d.encoding) as encoding,\n       d.datcollate, d.datctype,  pg_catalog.array_to_string(d.datacl, E'\\n') AS acl,\n       CASE WHEN pg_catalog.has_database_privilege(d.datname, 'CONNECT') THEN pg_catalog.pg_database_size(d.datname) ELSE -1 END AS size,\n       t.spcname as tablespace,\n       pg_catalog.shobj_description(d.oid, 'pg_database') as description\nFROM pg_catalog.pg_database d JOIN pg_catalog.pg_tablespace t on d.dattablespace = t.oid JOIN pg_stat_database psd on d.oid = psd.datid\nORDER BY 1;",
                     "refId": "A",
                     "select": [
                         [
@@ -1425,6 +1359,23 @@
                             }
                         ]
                     ],
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    },
                     "timeColumn": "time",
                     "where": [
                         {
@@ -1523,1081 +1474,6 @@
             "type": "table"
         },
         {
-            "collapsed": false,
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 13
-            },
-            "id": 96,
-            "panels": [],
-            "title": "Activity",
-            "type": "row"
-        },
-        {
-            "datasource": {
-                "uid": "${dsn}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "cellOptions": {
-                            "type": "auto"
-                        },
-                        "filterable": false,
-                        "inspect": false,
-                        "width": 60
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "super-light-green",
-                                "value": 0.0001
-                            },
-                            {
-                                "color": "green",
-                                "value": 0.01
-                            },
-                            {
-                                "color": "light-yellow",
-                                "value": 0.1
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 1
-                            },
-                            {
-                                "color": "super-light-orange",
-                                "value": 10
-                            },
-                            {
-                                "color": "orange",
-                                "value": 60
-                            },
-                            {
-                                "color": "super-light-red",
-                                "value": 600
-                            },
-                            {
-                                "color": "red",
-                                "value": 1800
-                            },
-                            {
-                                "color": "super-light-purple",
-                                "value": 3600
-                            },
-                            {
-                                "color": "purple",
-                                "value": 7200
-                            }
-                        ]
-                    }
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Database"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 130
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "postgres": {
-                                                "color": "#7f7f7fe0",
-                                                "index": 0
-                                            },
-                                            "template0": {
-                                                "color": "#808080e0",
-                                                "index": 1
-                                            },
-                                            "template1": {
-                                                "color": "#787878e0",
-                                                "index": 2
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
-                                            "match": "null",
-                                            "result": {
-                                                "color": "#e3e3e3e0",
-                                                "index": 3
-                                            }
-                                        },
-                                        "type": "special"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "#3275d9b8",
-                                            "value": null
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "PGCAT Database : ${dsn}",
-                                        "url": "/d/pgcat-database?var-dsn=${dsn}"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "User"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 120
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "dbuser_dba": {
-                                                "color": "red",
-                                                "index": 1
-                                            },
-                                            "dbuser_monitor": {
-                                                "color": "yellow",
-                                                "index": 3
-                                            },
-                                            "postgres": {
-                                                "color": "purple",
-                                                "index": 0
-                                            },
-                                            "replicator": {
-                                                "color": "orange",
-                                                "index": 2
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
-                                            "match": "null",
-                                            "result": {
-                                                "color": "#e3e3e3e0",
-                                                "index": 4
-                                            }
-                                        },
-                                        "type": "special"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "blue",
-                                            "value": null
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "App"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 185
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "Patroni": {
-                                                "color": "orange",
-                                                "index": 0
-                                            },
-                                            "Postgres JDBC Driver": {
-                                                "color": "super-light-red",
-                                                "index": 2
-                                            },
-                                            "pg_exporter": {
-                                                "color": "yellow",
-                                                "index": 3
-                                            },
-                                            "psql": {
-                                                "color": "red",
-                                                "index": 1
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
-                                            "match": "null",
-                                            "result": {
-                                                "color": "#e3e3e3e0",
-                                                "index": 4
-                                            }
-                                        },
-                                        "type": "special"
-                                    },
-                                    {
-                                        "options": {
-                                            "match": "empty",
-                                            "result": {
-                                                "color": "#e3e3e3e0",
-                                                "index": 5
-                                            }
-                                        },
-                                        "type": "special"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "light-blue",
-                                            "value": null
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "IP"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 120
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "127.0.0.1": {
-                                                "color": "#808080e0",
-                                                "index": 1,
-                                                "text": "local"
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
-                                            "match": "null",
-                                            "result": {
-                                                "color": "#e3e3e3e0",
-                                                "index": 0
-                                            }
-                                        },
-                                        "type": "special"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "blue",
-                                            "value": null
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Port"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 60
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "-1": {
-                                                "color": "#808080e0",
-                                                "index": 1,
-                                                "text": "Socket"
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
-                                            "match": "null",
-                                            "result": {
-                                                "color": "#e3e3e3e0",
-                                                "index": 0
-                                            }
-                                        },
-                                        "type": "special"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "#00000000",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "blue",
-                                            "value": 0
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Backend Type"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 120
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            " autovacuum worker": {
-                                                "color": "super-light-yellow",
-                                                "index": 10,
-                                                "text": "Vacuum Worker"
-                                            },
-                                            "archiver": {
-                                                "color": "super-light-red",
-                                                "index": 3,
-                                                "text": "Archiver"
-                                            },
-                                            "autovacuum launcher": {
-                                                "color": "dark-yellow",
-                                                "index": 9,
-                                                "text": "Vacuum Main"
-                                            },
-                                            "background writer": {
-                                                "color": "super-light-red",
-                                                "index": 2,
-                                                "text": "BGWriter"
-                                            },
-                                            "checkpointer": {
-                                                "color": "light-red",
-                                                "index": 1,
-                                                "text": "Ckpointer"
-                                            },
-                                            "client backend": {
-                                                "color": "blue",
-                                                "index": 4,
-                                                "text": "Client"
-                                            },
-                                            "logical replication launcher": {
-                                                "color": "purple",
-                                                "index": 11,
-                                                "text": "Logical Main"
-                                            },
-                                            "logical replication worker": {
-                                                "color": "super-light-purple",
-                                                "index": 12,
-                                                "text": "Logical Worker"
-                                            },
-                                            "parallel worker": {
-                                                "color": "super-light-blue",
-                                                "index": 5,
-                                                "text": "Worker"
-                                            },
-                                            "startup": {
-                                                "color": "super-light-orange",
-                                                "index": 7,
-                                                "text": "Startup"
-                                            },
-                                            "walreceiver": {
-                                                "color": "green",
-                                                "index": 8,
-                                                "text": "WAL Receiver"
-                                            },
-                                            "walsender": {
-                                                "color": "orange",
-                                                "index": 6,
-                                                "text": "WAL Sender"
-                                            },
-                                            "walwriter": {
-                                                "color": "dark-red",
-                                                "index": 0,
-                                                "text": "WAL Writer"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "#80808080",
-                                            "value": null
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "State"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 60
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "active": {
-                                                "color": "green",
-                                                "index": 0
-                                            },
-                                            "disabled": {
-                                                "color": "#7f7f7fe0",
-                                                "index": 5
-                                            },
-                                            "fastpath function call": {
-                                                "color": "yellow",
-                                                "index": 4
-                                            },
-                                            "idle": {
-                                                "color": "#5795f2bf",
-                                                "index": 1
-                                            },
-                                            "idle in transaction": {
-                                                "color": "#e02f44b3",
-                                                "index": 2
-                                            },
-                                            "idle in transaction (aborted)": {
-                                                "color": "purple",
-                                                "index": 3
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
-                                            "match": "null",
-                                            "result": {
-                                                "color": "#e3e3e3e0",
-                                                "index": 6
-                                            }
-                                        },
-                                        "type": "special"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Wait"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "Activity": {
-                                                "color": "green",
-                                                "index": 0
-                                            },
-                                            "BufferPin": {
-                                                "color": "light-purple",
-                                                "index": 6
-                                            },
-                                            "Client": {
-                                                "color": "#5795f2b0",
-                                                "index": 1
-                                            },
-                                            "Extension": {
-                                                "color": "super-light-green",
-                                                "index": 2
-                                            },
-                                            "IO": {
-                                                "color": "semi-dark-orange",
-                                                "index": 3
-                                            },
-                                            "IPC": {
-                                                "color": "super-light-orange",
-                                                "index": 4
-                                            },
-                                            "LWLock": {
-                                                "color": "#cb95e69e",
-                                                "index": 7
-                                            },
-                                            "Lock": {
-                                                "color": "dark-purple",
-                                                "index": 5
-                                            },
-                                            "Timeout": {
-                                                "color": "red",
-                                                "index": 8
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Event"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 150
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "#e3e3e3e0",
-                                            "value": null
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Query"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width"
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "type": "json-view"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "PID"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 60
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "#e3e3e3e0",
-                                            "value": null
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "uid"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 58
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "ConnTime"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 100
-                            },
-                            {
-                                "id": "unit",
-                                "value": "s"
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "match": "null",
-                                            "result": {
-                                                "color": "#80808059",
-                                                "index": 0
-                                            }
-                                        },
-                                        "type": "special"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "super-light-blue",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "light-blue",
-                                            "value": 1
-                                        },
-                                        {
-                                            "color": "dark-blue",
-                                            "value": 10
-                                        },
-                                        {
-                                            "color": "super-light-green",
-                                            "value": 60
-                                        },
-                                        {
-                                            "color": "semi-dark-green",
-                                            "value": 300
-                                        },
-                                        {
-                                            "color": "dark-green",
-                                            "value": 1800
-                                        },
-                                        {
-                                            "color": "super-light-yellow",
-                                            "value": 3600
-                                        },
-                                        {
-                                            "color": "semi-dark-yellow",
-                                            "value": 21600
-                                        },
-                                        {
-                                            "color": "dark-yellow",
-                                            "value": 86400
-                                        },
-                                        {
-                                            "color": "orange",
-                                            "value": 1209600
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "XactTime"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 81
-                            },
-                            {
-                                "id": "unit",
-                                "value": "s"
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "match": "null",
-                                            "result": {
-                                                "color": "#e3e3e3e0",
-                                                "index": 0
-                                            }
-                                        },
-                                        "type": "special"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "QueryTime"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 85
-                            },
-                            {
-                                "id": "unit",
-                                "value": "s"
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "match": "null",
-                                            "result": {
-                                                "color": "#e3e3e3e0",
-                                                "index": 0
-                                            }
-                                        },
-                                        "type": "special"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "StateTime"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 89
-                            },
-                            {
-                                "id": "unit",
-                                "value": "s"
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "match": "null",
-                                            "result": {
-                                                "color": "#e3e3e3e0",
-                                                "index": 0
-                                            }
-                                        },
-                                        "type": "special"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 15,
-                "w": 24,
-                "x": 0,
-                "y": 14
-            },
-            "id": 59,
-            "options": {
-                "cellHeight": "sm",
-                "footer": {
-                    "countRows": false,
-                    "fields": "",
-                    "reducer": [
-                        "sum"
-                    ],
-                    "show": false
-                },
-                "showHeader": true,
-                "sortBy": [
-                    {
-                        "desc": true,
-                        "displayName": "Database"
-                    }
-                ]
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT *,\n  extract(epoch from now() - backend_start) AS conn_time,\n  extract(epoch from now() - xact_start)    AS xact_time,\n  extract(epoch from now() - query_start)   AS query_time,\n  extract(epoch from now() - state_change)  AS state_time\nFROM pg_stat_activity;",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "value"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "timeColumn": "time",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Activity",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "backend_start": true,
-                            "backend_xid": true,
-                            "backend_xmin": true,
-                            "client_hostname": true,
-                            "datid": true,
-                            "leader_pid": true,
-                            "query_id": true,
-                            "query_start": true,
-                            "state_change": true,
-                            "usesysid": true,
-                            "xact_start": true
-                        },
-                        "indexByName": {
-                            "application_name": 3,
-                            "backend_start": 21,
-                            "backend_type": 6,
-                            "backend_xid": 17,
-                            "backend_xmin": 18,
-                            "client_addr": 4,
-                            "client_hostname": 20,
-                            "client_port": 5,
-                            "conn_time": 13,
-                            "datid": 12,
-                            "datname": 1,
-                            "leader_pid": 19,
-                            "pid": 10,
-                            "query": 0,
-                            "query_start": 23,
-                            "query_time": 15,
-                            "state": 7,
-                            "state_change": 24,
-                            "state_time": 16,
-                            "usename": 2,
-                            "usesysid": 11,
-                            "wait_event": 9,
-                            "wait_event_type": 8,
-                            "xact_start": 22,
-                            "xact_time": 14
-                        },
-                        "renameByName": {
-                            "application_name": "App",
-                            "backend_start": "BackendStart",
-                            "backend_type": "Backend Type",
-                            "backend_xid": "XID",
-                            "backend_xmin": "XMIN",
-                            "client_addr": "IP",
-                            "client_hostname": "ClientHostname",
-                            "client_port": "Port",
-                            "conn_time": "ConnTime",
-                            "datid": "DBID",
-                            "datname": "Database",
-                            "leader_pid": "LeaderPID",
-                            "pid": "PID",
-                            "query": "Query",
-                            "query_id": "QueryID",
-                            "query_start": "Query Start",
-                            "query_time": "QueryTime",
-                            "state": "State",
-                            "state_change": "Stage Change",
-                            "state_time": "StateTime",
-                            "usename": "User",
-                            "usesysid": "UID",
-                            "wait_event": "Event",
-                            "wait_event_type": "Wait",
-                            "xact_start": "Xact Start",
-                            "xact_time": "XactTime"
-                        }
-                    }
-                }
-            ],
-            "type": "table"
-        },
-        {
             "collapsed": true,
             "datasource": {
                 "type": "prometheus",
@@ -2607,7 +1483,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 29
+                "y": 13
             },
             "id": 94,
             "panels": [
@@ -2620,7 +1496,7 @@
                     "fieldConfig": {
                         "defaults": {
                             "color": {
-                                "fixedColor": "#e3e3e3e0",
+                                "fixedColor": "#3e668f",
                                 "mode": "fixed"
                             },
                             "custom": {
@@ -2636,8 +1512,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "#3e668f"
                                     }
                                 ]
                             }
@@ -2651,7 +1526,7 @@
                                 "properties": [
                                     {
                                         "id": "custom.width",
-                                        "value": 85
+                                        "value": 90
                                     },
                                     {
                                         "id": "custom.cellOptions",
@@ -2669,7 +1544,7 @@
                                             {
                                                 "options": {
                                                     "-1": {
-                                                        "color": "blue",
+                                                        "color": "#3e668f",
                                                         "index": 1,
                                                         "text": "NO LIMIT"
                                                     }
@@ -2691,7 +1566,7 @@
                                                 "options": {
                                                     "from": 0,
                                                     "result": {
-                                                        "color": "orange",
+                                                        "color": "#f5a673",
                                                         "index": 2
                                                     },
                                                     "to": 99999999
@@ -2723,7 +1598,7 @@
                                         "id": "color",
                                         "value": {
                                             "fixedColor": "text",
-                                            "mode": "palette-classic"
+                                            "mode": "thresholds"
                                         }
                                     },
                                     {
@@ -2732,19 +1607,19 @@
                                             {
                                                 "options": {
                                                     "dbuser_dba": {
-                                                        "color": "#E02F44",
+                                                        "color": "#cc4637d9",
                                                         "index": 1
                                                     },
                                                     "dbuser_monitor": {
-                                                        "color": "super-light-orange",
+                                                        "color": "#f5a673",
                                                         "index": 3
                                                     },
                                                     "postgres": {
-                                                        "color": "purple",
+                                                        "color": "#b783af",
                                                         "index": 0
                                                     },
                                                     "replicator": {
-                                                        "color": "orange",
+                                                        "color": "#fcdb72",
                                                         "index": 2
                                                     }
                                                 },
@@ -2752,112 +1627,50 @@
                                             },
                                             {
                                                 "options": {
-                                                    "pattern": "",
+                                                    "pattern": "dbrole.*",
                                                     "result": {
-                                                        "color": "blue",
-                                                        "index": 4,
-                                                        "text": "$1"
+                                                        "color": "#3e668f",
+                                                        "index": 4
+                                                    }
+                                                },
+                                                "type": "regex"
+                                            },
+                                            {
+                                                "options": {
+                                                    "pattern": "dbuser.*",
+                                                    "result": {
+                                                        "color": "#346f36cc",
+                                                        "index": 5
+                                                    }
+                                                },
+                                                "type": "regex"
+                                            },
+                                            {
+                                                "options": {
+                                                    "pattern": "pg_database_owner",
+                                                    "result": {
+                                                        "color": "#5b9cd5",
+                                                        "index": 6
                                                     }
                                                 },
                                                 "type": "regex"
                                             }
                                         ]
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Login"
-                                },
-                                "properties": [
+                                    },
                                     {
-                                        "id": "custom.width",
-                                        "value": 55
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Inherit"
-                                },
-                                "properties": [
+                                        "id": "custom.minWidth",
+                                        "value": 180
+                                    },
                                     {
-                                        "id": "custom.width",
-                                        "value": 70
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Superuser"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 85
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Replication"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 88
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "BypassRLS"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 88
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "CreateRole"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 90
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "CreateDB"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 80
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "ExpireAt"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 86
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "#346f36cc"
+                                                }
+                                            ]
+                                        }
                                     }
                                 ]
                             },
@@ -2880,12 +1693,12 @@
                                             {
                                                 "options": {
                                                     "false": {
-                                                        "color": "blue",
+                                                        "color": "#3e668f",
                                                         "index": 0,
                                                         "text": "F"
                                                     },
                                                     "true": {
-                                                        "color": "orange",
+                                                        "color": "#f5a673",
                                                         "index": 1,
                                                         "text": "T"
                                                     }
@@ -2893,6 +1706,10 @@
                                                 "type": "value"
                                             }
                                         ]
+                                    },
+                                    {
+                                        "id": "custom.width",
+                                        "value": 100
                                     }
                                 ]
                             },
@@ -2932,19 +1749,43 @@
                                     {
                                         "id": "color",
                                         "value": {
-                                            "fixedColor": "blue",
+                                            "fixedColor": "#3e668f",
                                             "mode": "fixed"
                                         }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Login"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 70
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Inherit"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 70
                                     }
                                 ]
                             }
                         ]
                     },
                     "gridPos": {
-                        "h": 8,
+                        "h": 11,
                         "w": 24,
                         "x": 0,
-                        "y": 28
+                        "y": 14
                     },
                     "id": 84,
                     "options": {
@@ -2958,24 +1799,22 @@
                             "show": false
                         },
                         "showHeader": true,
-                        "sortBy": [
-                            {
-                                "desc": true,
-                                "displayName": "ExpireAt"
-                            }
-                        ]
+                        "sortBy": []
                     },
                     "pluginVersion": "10.0.3",
                     "targets": [
                         {
                             "datasource": {
                                 "type": "postgres",
-                                "uid": "k_mjtJ14k"
+                                "uid": "${dsn}"
                             },
                             "editorMode": "code",
+                            "expr": "",
                             "format": "table",
                             "group": [],
+                            "legendFormat": "__auto",
                             "metricColumn": "none",
+                            "range": true,
                             "rawQuery": true,
                             "rawSql": "SELECT r.oid, r.rolname, r.rolsuper, r.rolinherit,\n       r.rolcreaterole, r.rolcreatedb, r.rolcanlogin,\n       r.rolconnlimit, -- r.rolvaliduntil,\n       ARRAY(SELECT b.rolname\n             FROM pg_catalog.pg_auth_members m\n                      JOIN pg_catalog.pg_roles b ON (m.roleid = b.oid)\n             WHERE m.member = r.oid) as memberof\n        , pg_catalog.shobj_description(r.oid, 'pg_authid') AS description\n        , r.rolreplication\n        , r.rolbypassrls\nFROM pg_catalog.pg_roles r\nWHERE r.rolname !~ '^pg_'\nORDER BY 1;",
                             "refId": "A",
@@ -3123,7 +1962,1136 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 30
+                "y": 14
+            },
+            "id": 96,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "${dsn}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "custom": {
+                                "align": "center",
+                                "cellOptions": {
+                                    "type": "auto"
+                                },
+                                "filterable": false,
+                                "inspect": false
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "super-light-green",
+                                        "value": 0.0001
+                                    },
+                                    {
+                                        "color": "green",
+                                        "value": 0.01
+                                    },
+                                    {
+                                        "color": "light-yellow",
+                                        "value": 0.1
+                                    },
+                                    {
+                                        "color": "yellow",
+                                        "value": 1
+                                    },
+                                    {
+                                        "color": "super-light-orange",
+                                        "value": 10
+                                    },
+                                    {
+                                        "color": "orange",
+                                        "value": 60
+                                    },
+                                    {
+                                        "color": "super-light-red",
+                                        "value": 600
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 1800
+                                    },
+                                    {
+                                        "color": "super-light-purple",
+                                        "value": 3600
+                                    },
+                                    {
+                                        "color": "purple",
+                                        "value": 7200
+                                    }
+                                ]
+                            }
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Database"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 130
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "postgres": {
+                                                        "color": "#7f7f7fe0",
+                                                        "index": 0
+                                                    },
+                                                    "template0": {
+                                                        "color": "#808080e0",
+                                                        "index": 1
+                                                    },
+                                                    "template1": {
+                                                        "color": "#787878e0",
+                                                        "index": 2
+                                                    }
+                                                },
+                                                "type": "value"
+                                            },
+                                            {
+                                                "options": {
+                                                    "match": "null",
+                                                    "result": {
+                                                        "color": "#e3e3e3e0",
+                                                        "index": 3
+                                                    }
+                                                },
+                                                "type": "special"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "#3275d9b8",
+                                                    "value": null
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGCAT Database : ${dsn}",
+                                                "url": "/d/pgcat-database?var-dsn=${dsn}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "User"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 120
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "dbuser_dba": {
+                                                        "color": "red",
+                                                        "index": 1
+                                                    },
+                                                    "dbuser_monitor": {
+                                                        "color": "yellow",
+                                                        "index": 3
+                                                    },
+                                                    "postgres": {
+                                                        "color": "purple",
+                                                        "index": 0
+                                                    },
+                                                    "replicator": {
+                                                        "color": "orange",
+                                                        "index": 2
+                                                    }
+                                                },
+                                                "type": "value"
+                                            },
+                                            {
+                                                "options": {
+                                                    "match": "null",
+                                                    "result": {
+                                                        "color": "#e3e3e3e0",
+                                                        "index": 4
+                                                    }
+                                                },
+                                                "type": "special"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "blue",
+                                                    "value": null
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "App"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 185
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "Patroni": {
+                                                        "color": "orange",
+                                                        "index": 0
+                                                    },
+                                                    "Postgres JDBC Driver": {
+                                                        "color": "super-light-red",
+                                                        "index": 2
+                                                    },
+                                                    "pg_exporter": {
+                                                        "color": "yellow",
+                                                        "index": 3
+                                                    },
+                                                    "psql": {
+                                                        "color": "red",
+                                                        "index": 1
+                                                    }
+                                                },
+                                                "type": "value"
+                                            },
+                                            {
+                                                "options": {
+                                                    "match": "null",
+                                                    "result": {
+                                                        "color": "#e3e3e3e0",
+                                                        "index": 4
+                                                    }
+                                                },
+                                                "type": "special"
+                                            },
+                                            {
+                                                "options": {
+                                                    "match": "empty",
+                                                    "result": {
+                                                        "color": "#e3e3e3e0",
+                                                        "index": 5
+                                                    }
+                                                },
+                                                "type": "special"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "light-blue",
+                                                    "value": null
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "IP"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 120
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "127.0.0.1": {
+                                                        "color": "#808080e0",
+                                                        "index": 1,
+                                                        "text": "local"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            },
+                                            {
+                                                "options": {
+                                                    "match": "null",
+                                                    "result": {
+                                                        "color": "#e3e3e3e0",
+                                                        "index": 0
+                                                    }
+                                                },
+                                                "type": "special"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "blue",
+                                                    "value": null
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Port"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 60
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "-1": {
+                                                        "color": "#808080e0",
+                                                        "index": 1,
+                                                        "text": "Socket"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            },
+                                            {
+                                                "options": {
+                                                    "match": "null",
+                                                    "result": {
+                                                        "color": "#e3e3e3e0",
+                                                        "index": 0
+                                                    }
+                                                },
+                                                "type": "special"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "#00000000",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "blue",
+                                                    "value": 0
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Type"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 120
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    " autovacuum worker": {
+                                                        "color": "super-light-yellow",
+                                                        "index": 10,
+                                                        "text": "Vacuum Worker"
+                                                    },
+                                                    "archiver": {
+                                                        "color": "super-light-red",
+                                                        "index": 5,
+                                                        "text": "Archiver"
+                                                    },
+                                                    "autovacuum launcher": {
+                                                        "color": "dark-yellow",
+                                                        "index": 9,
+                                                        "text": "Vacuum Main"
+                                                    },
+                                                    "background writer": {
+                                                        "color": "#a4757d",
+                                                        "index": 4,
+                                                        "text": "BGWriter"
+                                                    },
+                                                    "checkpointer": {
+                                                        "color": "#b783af",
+                                                        "index": 3,
+                                                        "text": "Checkpointer"
+                                                    },
+                                                    "client backend": {
+                                                        "color": "#3e668f",
+                                                        "index": 0,
+                                                        "text": "Client"
+                                                    },
+                                                    "logical replication launcher": {
+                                                        "color": "purple",
+                                                        "index": 11,
+                                                        "text": "Logical Main"
+                                                    },
+                                                    "logical replication worker": {
+                                                        "color": "super-light-purple",
+                                                        "index": 12,
+                                                        "text": "Logical Worker"
+                                                    },
+                                                    "parallel worker": {
+                                                        "color": "#5b9cd5",
+                                                        "index": 1,
+                                                        "text": "Worker"
+                                                    },
+                                                    "startup": {
+                                                        "color": "super-light-orange",
+                                                        "index": 8,
+                                                        "text": "Startup"
+                                                    },
+                                                    "walreceiver": {
+                                                        "color": "green",
+                                                        "index": 7,
+                                                        "text": "WAL Receiver"
+                                                    },
+                                                    "walsender": {
+                                                        "color": "orange",
+                                                        "index": 6,
+                                                        "text": "WAL Sender"
+                                                    },
+                                                    "walwriter": {
+                                                        "color": "#cc4637d9",
+                                                        "index": 2,
+                                                        "text": "WAL Writer"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "#80808080",
+                                                    "value": null
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "State"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 80
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "active": {
+                                                        "color": "#346f36cc",
+                                                        "index": 0
+                                                    },
+                                                    "disabled": {
+                                                        "color": "#7f7f7fe0",
+                                                        "index": 5
+                                                    },
+                                                    "fastpath function call": {
+                                                        "color": "#fcdb72",
+                                                        "index": 4
+                                                    },
+                                                    "idle": {
+                                                        "color": "#3e668f",
+                                                        "index": 1
+                                                    },
+                                                    "idle in transaction": {
+                                                        "color": "#cc4637d9",
+                                                        "index": 2
+                                                    },
+                                                    "idle in transaction (aborted)": {
+                                                        "color": "#b783af",
+                                                        "index": 3
+                                                    }
+                                                },
+                                                "type": "value"
+                                            },
+                                            {
+                                                "options": {
+                                                    "match": "null",
+                                                    "result": {
+                                                        "color": "transparent",
+                                                        "index": 6
+                                                    }
+                                                },
+                                                "type": "special"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Wait"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 80
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "Activity": {
+                                                        "color": "green",
+                                                        "index": 0
+                                                    },
+                                                    "BufferPin": {
+                                                        "color": "light-purple",
+                                                        "index": 6
+                                                    },
+                                                    "Client": {
+                                                        "color": "#5795f2b0",
+                                                        "index": 1
+                                                    },
+                                                    "Extension": {
+                                                        "color": "super-light-green",
+                                                        "index": 2
+                                                    },
+                                                    "IO": {
+                                                        "color": "semi-dark-orange",
+                                                        "index": 3
+                                                    },
+                                                    "IPC": {
+                                                        "color": "super-light-orange",
+                                                        "index": 4
+                                                    },
+                                                    "LWLock": {
+                                                        "color": "#cb95e69e",
+                                                        "index": 7
+                                                    },
+                                                    "Lock": {
+                                                        "color": "dark-purple",
+                                                        "index": 5
+                                                    },
+                                                    "Timeout": {
+                                                        "color": "red",
+                                                        "index": 8
+                                                    }
+                                                },
+                                                "type": "value"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Event"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 150
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "#e3e3e3e0",
+                                                    "value": null
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "PID"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 70
+                                    },
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#3e668f",
+                                            "mode": "fixed"
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "uid"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 58
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "ConnTime"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 100
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "s"
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "match": "null",
+                                                    "result": {
+                                                        "color": "#80808059",
+                                                        "index": 0
+                                                    }
+                                                },
+                                                "type": "special"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "super-light-blue",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "light-blue",
+                                                    "value": 1
+                                                },
+                                                {
+                                                    "color": "dark-blue",
+                                                    "value": 10
+                                                },
+                                                {
+                                                    "color": "super-light-green",
+                                                    "value": 60
+                                                },
+                                                {
+                                                    "color": "semi-dark-green",
+                                                    "value": 300
+                                                },
+                                                {
+                                                    "color": "dark-green",
+                                                    "value": 1800
+                                                },
+                                                {
+                                                    "color": "super-light-yellow",
+                                                    "value": 3600
+                                                },
+                                                {
+                                                    "color": "semi-dark-yellow",
+                                                    "value": 21600
+                                                },
+                                                {
+                                                    "color": "dark-yellow",
+                                                    "value": 86400
+                                                },
+                                                {
+                                                    "color": "orange",
+                                                    "value": 1209600
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "XactTime"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 81
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "s"
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "match": "null",
+                                                    "result": {
+                                                        "color": "#e3e3e3e0",
+                                                        "index": 0
+                                                    }
+                                                },
+                                                "type": "special"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "QueryTime"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 85
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "s"
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "match": "null",
+                                                    "result": {
+                                                        "color": "#e3e3e3e0",
+                                                        "index": 0
+                                                    }
+                                                },
+                                                "type": "special"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "StateTime"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 89
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "s"
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "match": "null",
+                                                    "result": {
+                                                        "color": "#e3e3e3e0",
+                                                        "index": 0
+                                                    }
+                                                },
+                                                "type": "special"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Query"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 200
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "auto"
+                                        }
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "${__data.fields.SQL}",
+                                                "url": "/d/pgcat-query?var-dsn=${dsn}&var-query=${__data.fields.Query}"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "string"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "SQL"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.inspect",
+                                        "value": true
+                                    },
+                                    {
+                                        "id": "custom.minWidth",
+                                        "value": 200
+                                    },
+                                    {
+                                        "id": "custom.align",
+                                        "value": "left"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 18,
+                        "w": 24,
+                        "x": 0,
+                        "y": 15
+                    },
+                    "id": 59,
+                    "options": {
+                        "cellHeight": "sm",
+                        "footer": {
+                            "countRows": false,
+                            "fields": "",
+                            "reducer": [
+                                "sum"
+                            ],
+                            "show": false
+                        },
+                        "showHeader": true,
+                        "sortBy": [
+                            {
+                                "desc": false,
+                                "displayName": "PID"
+                            }
+                        ]
+                    },
+                    "pluginVersion": "10.0.3",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "postgres",
+                                "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
+                            },
+                            "editorMode": "code",
+                            "format": "table",
+                            "group": [],
+                            "metricColumn": "none",
+                            "rawQuery": true,
+                            "rawSql": "SELECT *,\n  extract(epoch from now() - backend_start) AS conn_time,\n  extract(epoch from now() - xact_start)    AS xact_time,\n  extract(epoch from now() - query_start)   AS query_time,\n  extract(epoch from now() - state_change)  AS state_time,\n  query_id::TEXT AS qid\nFROM pg_stat_activity;",
+                            "refId": "A",
+                            "select": [
+                                [
+                                    {
+                                        "params": [
+                                            "value"
+                                        ],
+                                        "type": "column"
+                                    }
+                                ]
+                            ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
+                            "timeColumn": "time",
+                            "where": [
+                                {
+                                    "name": "$__timeFilter",
+                                    "params": [],
+                                    "type": "macro"
+                                }
+                            ]
+                        }
+                    ],
+                    "title": "Activity",
+                    "transformations": [
+                        {
+                            "id": "organize",
+                            "options": {
+                                "excludeByName": {
+                                    "backend_start": true,
+                                    "backend_xid": true,
+                                    "backend_xmin": true,
+                                    "client_hostname": true,
+                                    "datid": true,
+                                    "leader_pid": true,
+                                    "query_id": true,
+                                    "query_start": true,
+                                    "state_change": true,
+                                    "usesysid": true,
+                                    "xact_start": true
+                                },
+                                "indexByName": {
+                                    "application_name": 5,
+                                    "backend_start": 23,
+                                    "backend_type": 1,
+                                    "backend_xid": 19,
+                                    "backend_xmin": 20,
+                                    "client_addr": 9,
+                                    "client_hostname": 22,
+                                    "client_port": 10,
+                                    "conn_time": 15,
+                                    "datid": 14,
+                                    "datname": 3,
+                                    "leader_pid": 21,
+                                    "pid": 0,
+                                    "qid": 6,
+                                    "query": 8,
+                                    "query_id": 7,
+                                    "query_start": 25,
+                                    "query_time": 17,
+                                    "state": 2,
+                                    "state_change": 26,
+                                    "state_time": 18,
+                                    "usename": 4,
+                                    "usesysid": 13,
+                                    "wait_event": 12,
+                                    "wait_event_type": 11,
+                                    "xact_start": 24,
+                                    "xact_time": 16
+                                },
+                                "renameByName": {
+                                    "application_name": "App",
+                                    "backend_start": "BackendStart",
+                                    "backend_type": "Type",
+                                    "backend_xid": "XID",
+                                    "backend_xmin": "XMIN",
+                                    "client_addr": "IP",
+                                    "client_hostname": "ClientHostname",
+                                    "client_port": "Port",
+                                    "conn_time": "ConnTime",
+                                    "datid": "DBID",
+                                    "datname": "Database",
+                                    "leader_pid": "LeaderPID",
+                                    "pid": "PID",
+                                    "qid": "Query",
+                                    "query": "SQL",
+                                    "query_id": "QueryID",
+                                    "query_start": "Query Start",
+                                    "query_time": "QueryTime",
+                                    "state": "State",
+                                    "state_change": "Stage Change",
+                                    "state_time": "StateTime",
+                                    "usename": "User",
+                                    "usesysid": "UID",
+                                    "wait_event": "Event",
+                                    "wait_event_type": "Wait",
+                                    "xact_start": "Xact Start",
+                                    "xact_time": "XactTime"
+                                }
+                            }
+                        }
+                    ],
+                    "type": "table"
+                }
+            ],
+            "title": "Activity",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 15
             },
             "id": 153,
             "panels": [
@@ -3332,7 +3300,7 @@
                         "h": 8,
                         "w": 8,
                         "x": 0,
-                        "y": 23
+                        "y": 16
                     },
                     "id": 105,
                     "options": {
@@ -3461,7 +3429,7 @@
                         "h": 8,
                         "w": 8,
                         "x": 8,
-                        "y": 23
+                        "y": 16
                     },
                     "id": 104,
                     "options": {
@@ -3575,7 +3543,7 @@
                         "h": 8,
                         "w": 8,
                         "x": 16,
-                        "y": 23
+                        "y": 16
                     },
                     "id": 103,
                     "options": {
@@ -3749,7 +3717,7 @@
                         "h": 8,
                         "w": 8,
                         "x": 0,
-                        "y": 31
+                        "y": 24
                     },
                     "id": 107,
                     "options": {
@@ -3938,7 +3906,7 @@
                         "h": 8,
                         "w": 8,
                         "x": 8,
-                        "y": 31
+                        "y": 24
                     },
                     "id": 109,
                     "options": {
@@ -4127,7 +4095,7 @@
                         "h": 8,
                         "w": 8,
                         "x": 16,
-                        "y": 31
+                        "y": 24
                     },
                     "id": 106,
                     "options": {
@@ -4200,7 +4168,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 31
+                "y": 16
             },
             "id": 133,
             "panels": [
@@ -4751,7 +4719,7 @@
                         "h": 18,
                         "w": 24,
                         "x": 0,
-                        "y": 30
+                        "y": 17
                     },
                     "id": 172,
                     "options": {
@@ -5062,7 +5030,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 0,
-                        "y": 48
+                        "y": 35
                     },
                     "id": 149,
                     "options": {
@@ -5243,7 +5211,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 12,
-                        "y": 48
+                        "y": 35
                     },
                     "id": 173,
                     "options": {
@@ -5335,7 +5303,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 32
+                "y": 17
             },
             "id": 90,
             "panels": [
@@ -5354,7 +5322,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue"
+                                        "color": "#3e668f"
                                     }
                                 ]
                             }
@@ -5365,7 +5333,7 @@
                         "h": 22,
                         "w": 6,
                         "x": 0,
-                        "y": 39
+                        "y": 29
                     },
                     "id": 130,
                     "links": [],
@@ -5381,7 +5349,10 @@
                             "fields": "/^value$/",
                             "values": true
                         },
-                        "text": {},
+                        "text": {
+                            "titleSize": 12,
+                            "valueSize": 12
+                        },
                         "textMode": "auto"
                     },
                     "pluginVersion": "10.0.3",
@@ -5432,7 +5403,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue"
+                                        "color": "#3e668f"
                                     }
                                 ]
                             }
@@ -5443,7 +5414,7 @@
                         "h": 13,
                         "w": 6,
                         "x": 6,
-                        "y": 39
+                        "y": 29
                     },
                     "id": 131,
                     "links": [],
@@ -5459,7 +5430,10 @@
                             "fields": "/^value$/",
                             "values": true
                         },
-                        "text": {},
+                        "text": {
+                            "titleSize": 12,
+                            "valueSize": 12
+                        },
                         "textMode": "auto"
                     },
                     "pluginVersion": "10.0.3",
@@ -5542,8 +5516,12 @@
                                                         "color": "orange",
                                                         "index": 2
                                                     },
+                                                    "command line": {
+                                                        "color": "#b783af",
+                                                        "index": 6
+                                                    },
                                                     "configuration file": {
-                                                        "color": "green",
+                                                        "color": "#346f36cc",
                                                         "index": 1
                                                     },
                                                     "database": {
@@ -5551,7 +5529,7 @@
                                                         "index": 4
                                                     },
                                                     "default": {
-                                                        "color": "blue",
+                                                        "color": "#3e668f",
                                                         "index": 0
                                                     },
                                                     "environment variable": {
@@ -5559,7 +5537,7 @@
                                                         "index": 3
                                                     },
                                                     "override": {
-                                                        "color": "red",
+                                                        "color": "#cc4637d9",
                                                         "index": 5
                                                     }
                                                 },
@@ -5599,31 +5577,31 @@
                                             {
                                                 "options": {
                                                     "backend": {
-                                                        "color": "super-light-yellow",
+                                                        "color": "#f5a673",
                                                         "index": 2
                                                     },
                                                     "internal": {
-                                                        "color": "blue",
+                                                        "color": "#3e668f",
                                                         "index": 0
                                                     },
                                                     "postmaster": {
-                                                        "color": "red",
+                                                        "color": "#cc4637d9",
                                                         "index": 6
                                                     },
                                                     "sighup": {
-                                                        "color": "green",
+                                                        "color": "#346f36cc",
                                                         "index": 1
                                                     },
                                                     "superuser": {
-                                                        "color": "dark-yellow",
+                                                        "color": "#f5a673",
                                                         "index": 3
                                                     },
                                                     "superuser-backend": {
-                                                        "color": "orange",
+                                                        "color": "#f5a673",
                                                         "index": 5
                                                     },
                                                     "user": {
-                                                        "color": "super-light-orange",
+                                                        "color": "#f5a673",
                                                         "index": 4
                                                     }
                                                 },
@@ -5641,7 +5619,7 @@
                                 "properties": [
                                     {
                                         "id": "custom.width",
-                                        "value": 70
+                                        "value": 80
                                     },
                                     {
                                         "id": "mappings",
@@ -5649,12 +5627,12 @@
                                             {
                                                 "options": {
                                                     "false": {
-                                                        "color": "blue",
+                                                        "color": "#3e668f",
                                                         "index": 0,
                                                         "text": "F"
                                                     },
                                                     "true": {
-                                                        "color": "red",
+                                                        "color": "#cc4637d9",
                                                         "index": 1,
                                                         "text": "T *"
                                                     }
@@ -5669,6 +5647,10 @@
                                             "mode": "basic",
                                             "type": "color-background"
                                         }
+                                    },
+                                    {
+                                        "id": "custom.align",
+                                        "value": "center"
                                     }
                                 ]
                             },
@@ -5681,14 +5663,14 @@
                                     {
                                         "id": "custom.cellOptions",
                                         "value": {
-                                            "mode": "basic",
+                                            "mode": "gradient",
                                             "type": "color-background"
                                         }
                                     },
                                     {
                                         "id": "color",
                                         "value": {
-                                            "fixedColor": "blue",
+                                            "fixedColor": "#3e668f",
                                             "mode": "fixed"
                                         }
                                     }
@@ -5703,14 +5685,14 @@
                                     {
                                         "id": "custom.cellOptions",
                                         "value": {
-                                            "mode": "basic",
+                                            "mode": "gradient",
                                             "type": "color-background"
                                         }
                                     },
                                     {
                                         "id": "color",
                                         "value": {
-                                            "fixedColor": "blue",
+                                            "fixedColor": "#3e668f",
                                             "mode": "fixed"
                                         }
                                     }
@@ -5722,7 +5704,7 @@
                         "h": 22,
                         "w": 12,
                         "x": 12,
-                        "y": 39
+                        "y": 29
                     },
                     "id": 92,
                     "links": [],
@@ -5817,7 +5799,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue"
+                                        "color": "#3e668f"
                                     }
                                 ]
                             }
@@ -5828,7 +5810,7 @@
                         "h": 9,
                         "w": 6,
                         "x": 6,
-                        "y": 52
+                        "y": 42
                     },
                     "id": 129,
                     "options": {
@@ -5841,7 +5823,10 @@
                             "fields": "/.*/",
                             "values": false
                         },
-                        "text": {},
+                        "text": {
+                            "titleSize": 12,
+                            "valueSize": 12
+                        },
                         "textMode": "auto"
                     },
                     "pluginVersion": "10.0.3",
@@ -5879,6 +5864,7 @@
                 },
                 {
                     "datasource": {
+                        "type": "postgres",
                         "uid": "${dsn}"
                     },
                     "description": "",
@@ -5892,7 +5878,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue"
+                                        "color": "#3e668f"
                                     }
                                 ]
                             }
@@ -5903,7 +5889,7 @@
                         "h": 2,
                         "w": 24,
                         "x": 0,
-                        "y": 61
+                        "y": 51
                     },
                     "id": 134,
                     "links": [],
@@ -5919,12 +5905,20 @@
                             "fields": "/^value$/",
                             "values": true
                         },
-                        "text": {},
+                        "text": {
+                            "titleSize": 12,
+                            "valueSize": 12
+                        },
                         "textMode": "auto"
                     },
                     "pluginVersion": "10.0.3",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "postgres",
+                                "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
+                            },
+                            "editorMode": "code",
                             "format": "time_series",
                             "group": [],
                             "metricColumn": "none",
@@ -5941,6 +5935,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -5968,7 +5979,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 33
+                "y": 18
             },
             "id": 98,
             "panels": [
@@ -5995,8 +6006,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0",
-                                        "value": null
+                                        "color": "#e3e3e3e0"
                                     }
                                 ]
                             }
@@ -6225,8 +6235,7 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "green",
-                                                    "value": null
+                                                    "color": "green"
                                                 },
                                                 {
                                                     "color": "yellow",
@@ -6276,8 +6285,7 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "green",
-                                                    "value": null
+                                                    "color": "green"
                                                 },
                                                 {
                                                     "color": "yellow",
@@ -6329,7 +6337,7 @@
                         "h": 6,
                         "w": 24,
                         "x": 0,
-                        "y": 32
+                        "y": 30
                     },
                     "id": 140,
                     "options": {
@@ -6493,8 +6501,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0",
-                                        "value": null
+                                        "color": "#e3e3e3e0"
                                     }
                                 ]
                             }
@@ -6516,8 +6523,7 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc",
-                                                    "value": null
+                                                    "color": "#346f36cc"
                                                 },
                                                 {
                                                     "color": "#f5a673",
@@ -6811,7 +6817,7 @@
                         "h": 6,
                         "w": 24,
                         "x": 0,
-                        "y": 38
+                        "y": 36
                     },
                     "id": 142,
                     "options": {
@@ -6947,8 +6953,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0",
-                                        "value": null
+                                        "color": "#e3e3e3e0"
                                     }
                                 ]
                             }
@@ -6970,8 +6975,7 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "green",
-                                                    "value": null
+                                                    "color": "green"
                                                 },
                                                 {
                                                     "color": "orange",
@@ -7233,7 +7237,7 @@
                         "h": 6,
                         "w": 24,
                         "x": 0,
-                        "y": 44
+                        "y": 42
                     },
                     "id": 144,
                     "options": {
@@ -7359,8 +7363,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     }
                                 ]
                             }
@@ -7371,7 +7374,7 @@
                         "h": 14,
                         "w": 8,
                         "x": 0,
-                        "y": 50
+                        "y": 48
                     },
                     "id": 146,
                     "links": [],
@@ -7452,8 +7455,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     }
                                 ]
                             }
@@ -7464,7 +7466,7 @@
                         "h": 14,
                         "w": 8,
                         "x": 8,
-                        "y": 50
+                        "y": 48
                     },
                     "id": 147,
                     "links": [],
@@ -7545,8 +7547,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     }
                                 ]
                             }
@@ -7557,7 +7558,7 @@
                         "h": 14,
                         "w": 8,
                         "x": 16,
-                        "y": 50
+                        "y": 48
                     },
                     "id": 148,
                     "links": [],
@@ -7637,7 +7638,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 34
+                "y": 19
             },
             "id": 121,
             "panels": [
@@ -7662,8 +7663,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0",
-                                        "value": null
+                                        "color": "#e3e3e3e0"
                                     }
                                 ]
                             }
@@ -7710,7 +7710,7 @@
                         "h": 10,
                         "w": 8,
                         "x": 0,
-                        "y": 33
+                        "y": 31
                     },
                     "id": 118,
                     "options": {
@@ -7909,7 +7909,7 @@
                         "h": 10,
                         "w": 16,
                         "x": 8,
-                        "y": 33
+                        "y": 31
                     },
                     "id": 122,
                     "options": {
@@ -7993,8 +7993,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             }
@@ -8005,7 +8004,7 @@
                         "h": 10,
                         "w": 8,
                         "x": 0,
-                        "y": 43
+                        "y": 41
                     },
                     "id": 127,
                     "options": {
@@ -8083,8 +8082,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0",
-                                        "value": null
+                                        "color": "#e3e3e3e0"
                                     }
                                 ]
                             }
@@ -8118,8 +8116,7 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#e3e3e3e0",
-                                                    "value": null
+                                                    "color": "#e3e3e3e0"
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -8143,7 +8140,7 @@
                         "h": 10,
                         "w": 16,
                         "x": 8,
-                        "y": 43
+                        "y": 41
                     },
                     "id": 113,
                     "options": {
@@ -8213,7 +8210,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 35
+                "y": 20
             },
             "id": 115,
             "panels": [
@@ -8231,8 +8228,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     }
                                 ]
                             }
@@ -8270,7 +8266,7 @@
                         "h": 16,
                         "w": 6,
                         "x": 0,
-                        "y": 34
+                        "y": 32
                     },
                     "id": 116,
                     "options": {
@@ -8338,8 +8334,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     }
                                 ]
                             }
@@ -8350,7 +8345,7 @@
                         "h": 8,
                         "w": 6,
                         "x": 6,
-                        "y": 34
+                        "y": 32
                     },
                     "id": 126,
                     "options": {
@@ -8416,8 +8411,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     }
                                 ]
                             }
@@ -8428,7 +8422,7 @@
                         "h": 16,
                         "w": 6,
                         "x": 12,
-                        "y": 34
+                        "y": 32
                     },
                     "id": 123,
                     "options": {
@@ -8496,8 +8490,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     }
                                 ]
                             }
@@ -8508,7 +8501,7 @@
                         "h": 16,
                         "w": 6,
                         "x": 18,
-                        "y": 34
+                        "y": 32
                     },
                     "id": 119,
                     "options": {
@@ -8577,8 +8570,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     }
                                 ]
                             }
@@ -8616,7 +8608,7 @@
                         "h": 8,
                         "w": 6,
                         "x": 6,
-                        "y": 42
+                        "y": 40
                     },
                     "id": 125,
                     "options": {
@@ -8700,7 +8692,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 36
+                "y": 21
             },
             "id": 160,
             "panels": [
@@ -8726,8 +8718,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             }
@@ -9019,7 +9010,7 @@
                         "h": 10,
                         "w": 24,
                         "x": 0,
-                        "y": 35
+                        "y": 33
                     },
                     "id": 158,
                     "options": {
@@ -9137,7 +9128,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 37
+                "y": 22
             },
             "id": 164,
             "panels": [
@@ -9163,8 +9154,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             }
@@ -9199,7 +9189,7 @@
                         "h": 16,
                         "w": 10,
                         "x": 0,
-                        "y": 72
+                        "y": 34
                     },
                     "id": 170,
                     "options": {
@@ -9339,8 +9329,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             }
@@ -9379,7 +9368,7 @@
                         "h": 16,
                         "w": 14,
                         "x": 10,
-                        "y": 72
+                        "y": 34
                     },
                     "id": 171,
                     "options": {
@@ -9512,7 +9501,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 38
+                "y": 23
             },
             "id": 166,
             "panels": [
@@ -9539,8 +9528,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             }
@@ -9613,7 +9601,7 @@
                         "h": 15,
                         "w": 24,
                         "x": 0,
-                        "y": 37
+                        "y": 35
                     },
                     "id": 162,
                     "options": {
@@ -9746,7 +9734,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 39
+                "y": 24
             },
             "id": 169,
             "panels": [
@@ -9772,8 +9760,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             }
@@ -9901,7 +9888,7 @@
                         "h": 9,
                         "w": 24,
                         "x": 0,
-                        "y": 38
+                        "y": 36
                     },
                     "id": 167,
                     "options": {
@@ -10072,7 +10059,7 @@
                 "name": "dsn",
                 "options": [],
                 "query": "postgres",
-                "queryValue": "meta",
+                "queryValue": "",
                 "refresh": 1,
                 "regex": "/.*\\..*/",
                 "skipUrlSync": false,

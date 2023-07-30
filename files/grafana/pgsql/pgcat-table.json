@@ -2709,15 +2709,16 @@
         },
         {
             "datasource": {
-                "uid": "$dsn"
+                "type": "postgres",
+                "uid": "${dsn}"
             },
+            "description": "Read = Returned Rows\n\nFetch = Scanned Rows",
             "fieldConfig": {
                 "defaults": {
                     "custom": {
                         "align": "center",
                         "cellOptions": {
-                            "mode": "gradient",
-                            "type": "color-background"
+                            "type": "auto"
                         },
                         "filterable": false,
                         "inspect": false
@@ -2742,7 +2743,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 78
+                                "value": 90
                             }
                         ]
                     },
@@ -2754,7 +2755,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 80
+                                "value": 90
                             }
                         ]
                     },
@@ -2781,73 +2782,38 @@
                                 "value": [
                                     {
                                         "title": "Relation detail for ${__data.fields.Table}",
-                                        "url": "/d/pg-table-metrics?$var-ins=${ins}&$var-datname=${datname}&$var-relname=${__data.fields.Table}"
+                                        "url": "/d/pgcat-table?var-dsn=${dsn}&var-relname=${__data.fields.Table}"
                                     }
                                 ]
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "left"
                             }
                         ]
                     },
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Name"
+                            "options": "Index"
                         },
                         "properties": [
                             {
                                 "id": "links",
-                                "value": []
+                                "value": [
+                                    {
+                                        "title": "${__data.fields.Define}",
+                                        "url": "/d/pgcat-table?var-dsn=${dsn}&var-relname=${__data.fields.Index}"
+                                    }
+                                ]
                             },
                             {
-                                "id": "custom.width",
-                                "value": 220
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Scan"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
+                                "id": "custom.minWidth",
+                                "value": 240
                             },
                             {
-                                "id": "unit",
-                                "value": "short"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Tup Read"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "unit",
-                                "value": "short"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Tup Fetch"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "unit",
-                                "value": "short"
+                                "id": "custom.align",
+                                "value": "left"
                             }
                         ]
                     },
@@ -2860,7 +2826,57 @@
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "type": "json-view"
+                                    "type": "auto"
+                                }
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "left"
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 400
+                            },
+                            {
+                                "id": "custom.inspect",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/Scan|Tup Read|Tup Fetch/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            },
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#747474b3",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
                                 }
                             }
                         ]
@@ -2868,12 +2884,12 @@
                 ]
             },
             "gridPos": {
-                "h": 5,
+                "h": 9,
                 "w": 24,
                 "x": 0,
                 "y": 32
             },
-            "id": 54,
+            "id": 55,
             "links": [],
             "options": {
                 "cellHeight": "sm",
@@ -2888,19 +2904,24 @@
                 "showHeader": true,
                 "sortBy": [
                     {
-                        "desc": false,
-                        "displayName": "Define"
+                        "desc": true,
+                        "displayName": "Scan"
                     }
                 ]
             },
             "pluginVersion": "10.0.3",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "${dsn}"
+                    },
+                    "editorMode": "code",
                     "format": "table",
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT schemaname || '.' || indexrelname   AS \"Name\",\n       *,\n       pg_get_indexdef(indexrelid) AS def\nFROM pg_stat_user_indexes\nWHERE relid = '${oid}';",
+                    "rawSql": "SELECT schemaname || '.' || indexrelname AS \"Index\", \n       schemaname || '.' || relname AS \"Table\", \n       *,\n       pg_get_indexdef(indexrelid) AS def\nFROM pg_stat_user_indexes\nWHERE relid = '${oid}' AND\nschemaname !~ '^pg_' AND schemaname !~ '^_' AND schemaname !~ '^timescaledb' AND schemaname !~ '^citus' AND schemaname !~ '^columnar' \nAND schemaname NOT IN ('pg_catalog','information_schema');",
                     "refId": "A",
                     "select": [
                         [
@@ -2912,6 +2933,23 @@
                             }
                         ]
                     ],
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    },
                     "timeColumn": "time",
                     "where": [
                         {
@@ -2928,33 +2966,37 @@
                     "id": "organize",
                     "options": {
                         "excludeByName": {
+                            "Table": true,
                             "indexrelname": true,
                             "relname": true,
                             "schemaname": true
                         },
                         "indexByName": {
-                            "Name": 0,
-                            "def": 3,
-                            "idx_scan": 7,
-                            "idx_tup_fetch": 9,
-                            "idx_tup_read": 8,
-                            "indexrelid": 5,
-                            "indexrelname": 2,
-                            "relid": 6,
-                            "relname": 4,
-                            "schemaname": 1
+                            "Index": 1,
+                            "Table": 0,
+                            "def": 2,
+                            "idx_scan": 8,
+                            "idx_tup_fetch": 10,
+                            "idx_tup_read": 9,
+                            "indexrelid": 6,
+                            "indexrelname": 5,
+                            "relid": 7,
+                            "relname": 3,
+                            "schemaname": 4
                         },
                         "renameByName": {
+                            "Index": "Index",
                             "Name": "Name",
+                            "Table": "Table",
                             "def": "Define",
                             "idx_scan": "Scan",
                             "idx_tup_fetch": "Tup Fetch",
                             "idx_tup_read": "Tup Read",
                             "indexrelid": "Index ID",
-                            "indexrelname": "Index",
+                            "indexrelname": "",
                             "relid": "Table ID",
-                            "relname": "Table",
-                            "schemaname": "Schema"
+                            "relname": "",
+                            "schemaname": ""
                         }
                     }
                 }
@@ -3372,7 +3414,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 37
+                "y": 41
             },
             "id": 52,
             "links": [],
@@ -3601,7 +3643,7 @@
                 "datasource": {
                     "uid": "$dsn"
                 },
-                "definition": "SELECT nspname || '.' || relname FROM pg_namespace nsp JOIN pg_class rel ON nsp.oid = rel.relnamespace\nWHERE nspname NOT IN ('pg_catalog', 'monitor', 'information_schema','pg_toast') AND relkind = ANY(ARRAY['r', 'm', 't' ] );",
+                "definition": "SELECT nspname || '.' || relname FROM pg_namespace nsp JOIN pg_class rel ON nsp.oid = rel.relnamespace\nWHERE nspname NOT IN ('pg_catalog', 'monitor', 'information_schema','pg_toast') AND relkind = ANY(ARRAY['r', 'm', 't', 'p'] )\nAND nspname !~ '^pg_' AND nspname !~ '^_' AND nspname !~ '^timescaledb' AND nspname !~ '^citus' AND nspname !~ '^columnar'",
                 "description": "Schema qualified relation name",
                 "hide": 0,
                 "includeAll": false,
@@ -3609,7 +3651,7 @@
                 "multi": false,
                 "name": "relname",
                 "options": [],
-                "query": "SELECT nspname || '.' || relname FROM pg_namespace nsp JOIN pg_class rel ON nsp.oid = rel.relnamespace\nWHERE nspname NOT IN ('pg_catalog', 'monitor', 'information_schema','pg_toast') AND relkind = ANY(ARRAY['r', 'm', 't' ] );",
+                "query": "SELECT nspname || '.' || relname FROM pg_namespace nsp JOIN pg_class rel ON nsp.oid = rel.relnamespace\nWHERE nspname NOT IN ('pg_catalog', 'monitor', 'information_schema','pg_toast') AND relkind = ANY(ARRAY['r', 'm', 't', 'p'] )\nAND nspname !~ '^pg_' AND nspname !~ '^_' AND nspname !~ '^timescaledb' AND nspname !~ '^citus' AND nspname !~ '^columnar'",
                 "refresh": 1,
                 "regex": "",
                 "skipUrlSync": false,
