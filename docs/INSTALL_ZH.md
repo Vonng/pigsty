@@ -8,7 +8,7 @@
 准备一个使用 Linux x86_64 EL 7，8，9 兼容系统的全新节点，使用带有免密 `sudo` 权限的用户执行：
 
 ```bash
-curl http://get.pigsty.cc/get | bash
+curl http://get.pigsty.cc/latest | bash
 ```
 
 该命令会[下载](#下载)并解压 Pigsty 源码至家目录，按提示完成 [Bootstrap](#准备)，[配置](#配置)，[安装](#安装)三个步骤即可完成安装。
@@ -28,11 +28,11 @@ cd ~/pigsty      # 进入 Pigsty 源码目录，完成后续 准备、配置、�
 <details><summary>Get脚本安装</summary>
 
 ```bash
-$ curl http://get.pigsty.cc/get | bash
+$ curl http://get.pigsty.cc/latest | bash
 ...
 [Checking] ===========================================
 [ OK ] SOURCE from CDN due to GFW
-FROM CDN    : bash -c "$(curl -fsSL http://get.pigsty.cc/get)"
+FROM CDN    : bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
@@ -105,10 +105,10 @@ cd pigsty; git checkout v2.2.0
 您可以使用以下命令获取 Pigsty 源码包：
 
 ```bash
-curl http://get.pigsty.cc/get  | bash
+curl http://get.pigsty.cc/latest  | bash
 ```
 
-> 提示: 如果您需要下载最新的测试版本（Alpha/Beta/RC），请使用 `getb` 替代 `get`
+> 提示: 如果您需要下载最新的测试版本（Alpha/Beta/RC），请使用 `beta` 替代 `latest`
 
 
 如果您的安装环境没有互联网访问，您也可以提前下载好特定版本的源码包手工上传。

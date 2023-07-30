@@ -8,7 +8,7 @@
 Prepare a new node with Linux x86_64 EL compatible OS, then run as a **sudo-able** user:
 
 ```bash
-bash -c "$(curl -fsSL http://get.pigsty.cc/get)"  
+bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"  
 cd ~/pigsty   # get pigsty source and entering dir
 ./bootstrap   # download bootstrap pkgs & ansible [optional]
 ./configure   # pre-check and config templating   [optional] 
@@ -23,11 +23,11 @@ Then you will have a pigsty singleton node ready, with Web Services on port `80`
 <details><summary>Download with Get</summary>
 
 ```bash
-$ curl http://get.pigsty.cc/get | bash
+$ curl http://get.pigsty.cc/latest | bash
 ...
 [Checking] ===========================================
 [ OK ] SOURCE from CDN due to GFW
-FROM CDN    : bash -c "$(curl -fsSL http://get.pigsty.cc/get)"
+FROM CDN    : bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
@@ -118,10 +118,10 @@ curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2
 You can get & extract pigsty source via the following command:
 
 ```bash
-curl -fsSL http://get.pigsty.cc/get  | bash
+curl -fsSL http://get.pigsty.cc/latest  | bash
 ```
 
-> HINT: Get the latest beta release with `getb` instead of `get`.
+> HINT: Get the latest beta release with `beta` instead of `latest`.
 
 <details><summary>Download Pigsty Source with Specific Version</summary>
 

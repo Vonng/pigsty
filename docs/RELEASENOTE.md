@@ -38,10 +38,11 @@
 
 **Highlight**
 
-* Dashboards Overhaul
-* Pigsty EL Yum Repo
+* Dashboards Overhaul: Grafana 10+ support
+* Vagrant Sandbox Overhaul: libvirt support
+* Pigsty EL Yum Repo: Building simplified
 * OS Compatibility: UOS-v20-1050e support
-* Fix grafana 9.x [CVE-2023-1410](https://grafana.com/blog/2023/03/22/grafana-security-release-new-versions-with-security-fixes-for-cve-2023-1410/) with 10.0.2
+* New config template: prod simulation with 42 nodes
 * Use official pgdg citus distribution for el7
 
 **Software Upgrade**
@@ -54,17 +55,19 @@
 * minio 20230711212934 / mcli 20230711233044
 
 
-
 **Bug Fix**
 
 * Fix docker group ownership issue [29434bd]https://github.com/Vonng/pigsty/commit/29434bdd39548d95d80a236de9099874ed564f9b
+* Append infra os group rather than set it as primary group
 * Fix redis sentinel systemd enable status [5c96feb](https://github.com/Vonng/pigsty/commit/5c96feb598ad6e44daa7a595e34c87e67952777b)
 * Loose `bootstrap` & `configure` if `/etc/redhat-release` not exists
+* Fix grafana 9.x [CVE-2023-1410](https://grafana.com/blog/2023/03/22/grafana-security-release-new-versions-with-security-fixes-for-cve-2023-1410/) with 10.0.2
+* Add PG 14 - 16 new command tags and error codes for `pglog` schema
 
 
 **API Change**
 
-1 parameters added
+Add 1 new parameter
 
 - `INFRA`.`NGINX`.`nginx_exporter_enabled`        : now you can disable nginx_exporter with this parameter
 
@@ -100,6 +103,11 @@ Default value changes:
   - grafana,loki,logcli,promtail,prometheus2,alertmanager,karma,pushgateway
   - node_exporter,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
   - nginx,dnsmasq,ansible,postgresql15,redis,mcli,python3-requests
+
+FHS Changes:
+
+- `bin/dns` and `bin/ssh` now moved to `vagrant/`
+
 
 
 
@@ -220,7 +228,7 @@ Affected packages: `postgis33_15, pgloader, postgresql_anonymizer_15*, postgresq
 
 ```bash
 cd ~/pigsty; tar -zcf /tmp/files.tgz files; rm -rf ~/pigsty    # backup files dir and remove
-cd ~; bash -c "$(curl -fsSL http://get.pigsty.cc/get)"    # get latest pigsty source
+cd ~; bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"    # get latest pigsty source
 cd ~/pigsty; rm -rf files; tar -xf /tmp/files.tgz -C ~/pigsty  # restore files dir
 ```
 
@@ -247,7 +255,7 @@ Special thanks to [@cocoonkid](https://github.com/cocoonkid) for his feedback.
 Get pigsty v2.0.0 via the following command:
 
 ```bash
-curl -fsSL http://get.pigsty.cc/get | bash
+curl -fsSL http://get.pigsty.cc/latest | bash
 ```
 
 <details><summary>Download directly from GitHub Release</summary>
@@ -680,7 +688,7 @@ English document is available now.
 **Accessibility**
 
 * CDN for mainland China.
-* Get the latest source with `bash -c "$(curl -fsSL http://get.pigsty.cc/get)"`
+* Get the latest source with `bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"`
 * Download & Extract packages with new `download` script.
 
 

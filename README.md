@@ -6,7 +6,7 @@
 >
 > [Release v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Blog](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/NMQHW6DW)
 >
-> [Get Started](docs/INSTALL.md) with `curl -fsSL http://get.pigsty.cc/get | bash` 
+> [Get Started](docs/INSTALL.md) with `curl -fsSL http://get.pigsty.cc/latest | bash` 
 
 
 
@@ -33,7 +33,7 @@ Bootstrap with one command! Check [**Get Started**](docs/INSTALL.md) | [**快速
 
 ```bash
 # Linux x86_64 EL 7/8/9 compatible, with nopass sudo/ssh
-bash -c "$(curl -fsSL http://get.pigsty.cc/get)";
+bash -c "$(curl -fsSL http://get.pigsty.cc/latest)";
 cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 ```
 
@@ -42,11 +42,11 @@ Then you will have a pigsty singleton node ready, with Web Services on port `80`
 <details><summary>Download with Get</summary>
 
 ```bash
-$ curl http://get.pigsty.cc/get | bash
+$ curl http://get.pigsty.cc/latest | bash
 ...
 [Checking] ===========================================
 [ OK ] SOURCE from CDN due to GFW
-FROM CDN    : bash -c "$(curl -fsSL http://get.pigsty.cc/get)"
+FROM CDN    : bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
