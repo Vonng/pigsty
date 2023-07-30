@@ -452,7 +452,7 @@ GRANT SELECT ON monitor.pg_log TO pg_monitor;
 ----------------------------------------------------------------------
 DROP FOREIGN TABLE IF EXISTS monitor.pgbackrest_info CASCADE;
 CREATE FOREIGN TABLE IF NOT EXISTS monitor.pgbackrest_info (data JSONB)
-    SERVER fs OPTIONS (PROGRAM $$pgbackrest --output=json info$$ , FORMAT 'text');
+    SERVER fs OPTIONS (PROGRAM $$pgbackrest --stanza={{ pg_cluster }} --output=json info$$ , FORMAT 'text');
 
 REVOKE ALL ON monitor.pgbackrest_info FROM PUBLIC;
 REVOKE ALL ON monitor.pgbackrest_info FROM dbrole_offline;
