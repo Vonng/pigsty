@@ -54,6 +54,113 @@
                     "color": {
                         "mode": "thresholds"
                     },
+                    "mappings": [],
+                    "noValue": "N/A",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#3e668f",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 3,
+                "x": 0,
+                "y": 1
+            },
+            "id": 129,
+            "links": [],
+            "maxDataPoints": 100,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "valueSize": 32
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": true,
+                    "intervalFactor": 2,
+                    "legendFormat": "Members",
+                    "range": false,
+                    "refId": "B",
+                    "step": 600
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
+                    "format": "time_series",
+                    "instant": true,
+                    "intervalFactor": 2,
+                    "legendFormat": "Quorum",
+                    "range": false,
+                    "refId": "A",
+                    "step": 600
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"}) - ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": true,
+                    "intervalFactor": 2,
+                    "legendFormat": "Tolerance",
+                    "range": false,
+                    "refId": "C",
+                    "step": 600
+                }
+            ],
+            "title": "ETCD SPEC",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
                     "mappings": [
                         {
                             "options": {
@@ -85,8 +192,8 @@
             },
             "gridPos": {
                 "h": 7,
-                "w": 7,
-                "x": 0,
+                "w": 4,
+                "x": 3,
                 "y": 1
             },
             "id": 91,
@@ -104,7 +211,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
@@ -373,7 +480,7 @@
                     }
                 ]
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
@@ -567,22 +674,130 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
+                                "color": "red",
                                 "value": null
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "ETCD Health"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#b783af",
+                                                "index": 0,
+                                                "text": "All Dead"
+                                            },
+                                            "1": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "Healthy"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "#b783af",
+                                                "index": 2,
+                                                "text": "Unknown"
+                                            }
+                                        },
+                                        "type": "special"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 0.49999,
+                                            "result": {
+                                                "color": "#cc4637d9",
+                                                "index": 3,
+                                                "text": "1 / 2"
+                                            },
+                                            "to": 0.50001
+                                        },
+                                        "type": "range"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 0.66666,
+                                            "result": {
+                                                "color": "#f5a673",
+                                                "index": 4,
+                                                "text": "2 / 3"
+                                            },
+                                            "to": 0.66667
+                                        },
+                                        "type": "range"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 0.33333,
+                                            "result": {
+                                                "color": "#b783af",
+                                                "index": 5,
+                                                "text": "1 / 3"
+                                            },
+                                            "to": 0.33334
+                                        },
+                                        "type": "range"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#b783af",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 0.5
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 0.66
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 6,
-                "w": 4,
+                "w": 3,
                 "x": 0,
                 "y": 8
             },
-            "id": 129,
+            "id": 134,
             "links": [],
             "maxDataPoints": 100,
             "options": {
@@ -597,12 +812,9 @@
                     "fields": "",
                     "values": false
                 },
-                "text": {
-                    "valueSize": 32
-                },
                 "textMode": "auto"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
@@ -611,47 +823,13 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"})",
-                    "format": "time_series",
-                    "hide": false,
-                    "instant": true,
-                    "intervalFactor": 2,
-                    "legendFormat": "Members",
-                    "range": false,
-                    "refId": "B",
-                    "step": 600
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
+                    "expr": "sum(up{job=\"etcd\", cls=\"$cls\"}) by (cls) /\n count(up{job=\"etcd\", cls=\"$cls\"}) by (cls)\nor on() vector(0)",
                     "format": "time_series",
                     "instant": true,
                     "intervalFactor": 2,
-                    "legendFormat": "Quorum",
+                    "legendFormat": "ETCD Health",
                     "range": false,
                     "refId": "A",
-                    "step": 600
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"}) - ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
-                    "format": "time_series",
-                    "hide": false,
-                    "instant": true,
-                    "intervalFactor": 2,
-                    "legendFormat": "Tolerance",
-                    "range": false,
-                    "refId": "C",
                     "step": 600
                 }
             ],
@@ -723,9 +901,9 @@
                 ]
             },
             "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 4,
+                "h": 6,
+                "w": 4,
+                "x": 3,
                 "y": 8
             },
             "id": 87,
@@ -745,7 +923,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
@@ -918,183 +1096,6 @@
             ],
             "title": "ETCD Aliveness",
             "type": "state-timeline"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "noValue": "N/A",
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "red",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "ETCD Health"
-                        },
-                        "properties": [
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "0": {
-                                                "color": "#b783af",
-                                                "index": 0,
-                                                "text": "All Dead"
-                                            },
-                                            "1": {
-                                                "color": "#346f36cc",
-                                                "index": 1,
-                                                "text": "Healthy"
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
-                                            "match": "null+nan",
-                                            "result": {
-                                                "color": "#b783af",
-                                                "index": 2,
-                                                "text": "Unknown"
-                                            }
-                                        },
-                                        "type": "special"
-                                    },
-                                    {
-                                        "options": {
-                                            "from": 0.49999,
-                                            "result": {
-                                                "color": "#cc4637d9",
-                                                "index": 3,
-                                                "text": "1 / 2"
-                                            },
-                                            "to": 0.50001
-                                        },
-                                        "type": "range"
-                                    },
-                                    {
-                                        "options": {
-                                            "from": 0.66666,
-                                            "result": {
-                                                "color": "#f5a673",
-                                                "index": 4,
-                                                "text": "2 / 3"
-                                            },
-                                            "to": 0.66667
-                                        },
-                                        "type": "range"
-                                    },
-                                    {
-                                        "options": {
-                                            "from": 0.33333,
-                                            "result": {
-                                                "color": "#b783af",
-                                                "index": 5,
-                                                "text": "1 / 3"
-                                            },
-                                            "to": 0.33334
-                                        },
-                                        "type": "range"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "#b783af",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "#cc4637d9",
-                                            "value": 0.5
-                                        },
-                                        {
-                                            "color": "#f5a673",
-                                            "value": 0.66
-                                        },
-                                        {
-                                            "color": "#346f36cc",
-                                            "value": 1
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "id": "unit",
-                                "value": "percentunit"
-                            },
-                            {
-                                "id": "decimals",
-                                "value": 0
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 4,
-                "y": 11
-            },
-            "id": 134,
-            "links": [],
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "textMode": "auto"
-            },
-            "pluginVersion": "10.0.2",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "sum(up{job=\"etcd\", cls=\"$cls\"}) by (cls) /\n count(up{job=\"etcd\", cls=\"$cls\"}) by (cls)\nor on() vector(0)",
-                    "format": "time_series",
-                    "instant": true,
-                    "intervalFactor": 2,
-                    "legendFormat": "ETCD Health",
-                    "range": false,
-                    "refId": "A",
-                    "step": 600
-                }
-            ],
-            "type": "stat"
         },
         {
             "datasource": {
@@ -2339,7 +2340,7 @@
                         "h": 18,
                         "w": 24,
                         "x": 0,
-                        "y": 31
+                        "y": 47
                     },
                     "id": 122,
                     "options": {
@@ -2769,7 +2770,7 @@
             "type": "row"
         }
     ],
-    "refresh": false,
+    "refresh": "",
     "revision": 1,
     "schemaVersion": 38,
     "style": "dark",

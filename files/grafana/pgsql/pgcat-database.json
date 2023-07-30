@@ -118,7 +118,7 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
-            "description": "Instance identifier ${ins}",
+            "description": "Database identifier ${ins}.${datname}",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -171,7 +171,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "exemplar": false,
@@ -775,7 +775,7 @@
                     }
                 ]
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "format": "table",
@@ -995,7 +995,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "format": "table",
@@ -1151,7 +1151,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "format": "table",
@@ -1319,7 +1319,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "exemplar": false,
@@ -1352,7 +1352,7 @@
             "datasource": {
                 "uid": "${dsn}"
             },
-            "description": "Recovery status of this instance",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1419,7 +1419,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "format": "table",
@@ -1510,7 +1510,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "exemplar": false,
@@ -1545,7 +1545,7 @@
             "datasource": {
                 "uid": "$dsn"
             },
-            "description": "Database OID of ${datname}",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "mappings": [
@@ -1616,7 +1616,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "format": "table",
@@ -1690,7 +1690,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "format": "table",
@@ -1797,7 +1797,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "format": "table",
@@ -2225,7 +2225,7 @@
                     }
                 ]
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "format": "table",
@@ -2338,7 +2338,7 @@
             "type": "table"
         },
         {
-            "collapsed": true,
+            "collapsed": false,
             "datasource": {
                 "type": "prometheus",
                 "uid": "${ds}"
@@ -2350,844 +2350,1211 @@
                 "y": 20
             },
             "id": 152,
-            "panels": [
+            "panels": [],
+            "title": "Table",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "${dsn}"
+            },
+            "description": "Tables of current database ${datname}",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "blue",
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "cellOptions": {
+                            "type": "color-text"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Schema"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": []
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "monitor": {
+                                                "color": "#cc4637d9",
+                                                "index": 1
+                                            },
+                                            "public": {
+                                                "color": "#3e668f",
+                                                "index": 0
+                                            },
+                                            "repack": {
+                                                "color": "#cc4637d9",
+                                                "index": 2
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "pattern": "_.*",
+                                            "result": {
+                                                "color": "#f5a673",
+                                                "index": 3
+                                            }
+                                        },
+                                        "type": "regex"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#3e668f",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": []
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 180
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 200
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.align",
+                                "value": "left"
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 300
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGCAT Table : ${__data.fields.Name}",
+                                        "url": "/d/pgcat-table?var-dsn=${dsn}&var-relname=${__data.fields.Name}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "OID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "blue",
+                                    "mode": "thresholds"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byType",
+                            "options": "number"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 70
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#3e668f",
+                                            "value": null
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Age"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 70
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#fcdb72",
+                                            "value": 0.05
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 0.1
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 0.3
+                                        },
+                                        {
+                                            "color": "#b783af",
+                                            "value": 0.9
+                                        },
+                                        {
+                                            "color": "#000000",
+                                            "value": 0.99
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "color"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Tuples"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 10000
+                                        },
+                                        {
+                                            "color": "#fcdb72",
+                                            "value": 1000000
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 100000000
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 10000000000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "color": "transparent",
+                                                "index": 0,
+                                                "text": "N/A"
+                                            },
+                                            "0": {
+                                                "color": "#00000000",
+                                                "index": 1,
+                                                "text": "0"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Size"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            },
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 8193
+                                        },
+                                        {
+                                            "color": "#fcdb72",
+                                            "value": 10000000000
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 100000000000
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 1000000000000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "color"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "nAttr"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 16
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 32
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byType",
+                            "options": "time"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "dateTimeFromNow"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 160
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Seq Scan"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            },
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#FF780A",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 1000
+                                        },
+                                        {
+                                            "color": "#b783af",
+                                            "value": 1000000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Kind"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "I": {
+                                                "color": "super-light-green",
+                                                "index": 9,
+                                                "text": "Partitioned Index"
+                                            },
+                                            "P": {
+                                                "color": "#3274D9",
+                                                "index": 10,
+                                                "text": "Partition Table"
+                                            },
+                                            "S": {
+                                                "color": "#fcdb72",
+                                                "index": 2,
+                                                "text": "Sequence"
+                                            },
+                                            "c": {
+                                                "color": "super-light-orange",
+                                                "index": 6,
+                                                "text": "Componse Type"
+                                            },
+                                            "f": {
+                                                "color": "orange",
+                                                "index": 7,
+                                                "text": "Foreign table"
+                                            },
+                                            "i": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "Index"
+                                            },
+                                            "m": {
+                                                "color": "dark-blue",
+                                                "index": 5,
+                                                "text": "Materialized View"
+                                            },
+                                            "p": {
+                                                "color": "#284766",
+                                                "index": 8,
+                                                "text": "Partitioned Table"
+                                            },
+                                            "r": {
+                                                "color": "#3e668f",
+                                                "index": 0,
+                                                "text": "Table"
+                                            },
+                                            "t": {
+                                                "color": "#808080",
+                                                "index": 3,
+                                                "text": "Toast Table"
+                                            },
+                                            "v": {
+                                                "color": "red",
+                                                "index": 4,
+                                                "text": "View"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Insert"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            },
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Update"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            },
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Delete"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 63
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Live"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 128
+                            },
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 10000
+                                        },
+                                        {
+                                            "color": "#fcdb72",
+                                            "value": 1000000
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 100000000
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 10000000000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Dead"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 10000
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/Scan|Seq ScanIdx Scan|Inserted|Updated|Deleted|Scan Rows|Index Rows|HOT Update|Modified/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            },
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#7f7f7fc4",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Deleted"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#7f7f7fc4",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Updated"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#7f7f7fc4",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#b783af",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Scan Rows"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Index Rows"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Filenode"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#3e668f",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/(.*Analyze|Vacuum).*Count/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 160
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#7f7f7fc4",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "nInsSinceVacuum"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 140
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#7f7f7fc4",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 80
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "nModSinceAnalyze"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 140
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#7f7f7fc4",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 14,
+                "w": 24,
+                "x": 0,
+                "y": 21
+            },
+            "id": 189,
+            "links": [
+                {
+                    "title": "",
+                    "url": "/d/pgcat-tables?var-dsn=${dsn:queryparam}"
+                }
+            ],
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "enablePagination": true,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Size"
+                    }
+                ]
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
                 {
                     "datasource": {
                         "type": "postgres",
                         "uid": "${dsn}"
                     },
-                    "description": "Tables of current database ${datname}",
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "fixedColor": "blue",
-                                "mode": "thresholds"
-                            },
-                            "custom": {
-                                "align": "center",
-                                "cellOptions": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                },
-                                "inspect": false
-                            },
-                            "mappings": [],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "#e3e3e3e0"
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": [
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "SELECT * FROM pg_class;",
+                    "format": "table",
+                    "group": [],
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT c.oid,\n       n.nspname,\n       n.nspname || '.' || c.relname AS name,\n       CASE WHEN relispartition THEN 'P' ELSE c.relkind END AS kind,\n       age(c.relfrozenxid)::FLOAT / 2147483648 AS relage,\n       (n_tup_ins + n_tup_upd + n_tup_del) AS n_tup_mod,\n       seq_scan + idx_scan AS tbl_scan, seq_tup_read + idx_tup_fetch AS tup_read,\n       reltuples,\n       relpages,\n       relfilenode,\n       pg_table_size(c.oid)                                 AS size,\n       relnatts,\n       s.*\nFROM pg_catalog.pg_class c\n         LEFT JOIN pg_namespace n ON n.oid = c.relnamespace\n         LEFT JOIN pg_stat_user_tables s ON c.oid = s.relid\nWHERE c.relkind IN ('r', 'p', '')\nAND schemaname !~ '^pg_' AND schemaname !~ '^_' AND schemaname !~ '^timescaledb' AND schemaname !~ '^citus' AND schemaname !~ '^columnar' \nAND schemaname NOT IN ('pg_catalog','information_schema')\nORDER BY 1, 2;",
+                    "refId": "A",
+                    "select": [
+                        [
                             {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Schema"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "links",
-                                        "value": []
-                                    },
-                                    {
-                                        "id": "mappings",
-                                        "value": [
-                                            {
-                                                "options": {
-                                                    "monitor": {
-                                                        "color": "#e3e3e3e0",
-                                                        "index": 1
-                                                    },
-                                                    "public": {
-                                                        "color": "light-blue",
-                                                        "index": 0
-                                                    },
-                                                    "repack": {
-                                                        "color": "#e3e3e3e0",
-                                                        "index": 2
-                                                    }
-                                                },
-                                                "type": "value"
-                                            },
-                                            {
-                                                "options": {
-                                                    "pattern": "",
-                                                    "result": {
-                                                        "color": "blue",
-                                                        "index": 3
-                                                    }
-                                                },
-                                                "type": "regex"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "mode": "gradient",
-                                            "type": "color-background"
-                                        }
-                                    },
-                                    {
-                                        "id": "color",
-                                        "value": {
-                                            "fixedColor": "#8d8d8d",
-                                            "mode": "fixed"
-                                        }
-                                    },
-                                    {
-                                        "id": "links",
-                                        "value": []
-                                    },
-                                    {
-                                        "id": "custom.width",
-                                        "value": 80
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Name"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.align",
-                                        "value": "left"
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "mode": "gradient",
-                                            "type": "color-background"
-                                        }
-                                    },
-                                    {
-                                        "id": "custom.minWidth",
-                                        "value": 250
-                                    },
-                                    {
-                                        "id": "links",
-                                        "value": [
-                                            {
-                                                "title": "PGCAT Table : ${__data.fields.Name}",
-                                                "url": "/d/pgcat-table?var-dsn=${dsn}&var-relname=${__data.fields.Name}"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "OID"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 80
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "mode": "gradient",
-                                            "type": "color-background"
-                                        }
-                                    },
-                                    {
-                                        "id": "color",
-                                        "value": {
-                                            "fixedColor": "blue",
-                                            "mode": "thresholds"
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byType",
-                                    "options": "number"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 70
-                                    },
-                                    {
-                                        "id": "mappings",
-                                        "value": [
-                                            {
-                                                "options": {
-                                                    "0": {
-                                                        "color": "#e3e3e3e0",
-                                                        "index": 0
-                                                    }
-                                                },
-                                                "type": "value"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "mode": "gradient",
-                                            "type": "color-background"
-                                        }
-                                    },
-                                    {
-                                        "id": "thresholds",
-                                        "value": {
-                                            "mode": "absolute",
-                                            "steps": [
-                                                {
-                                                    "color": "blue"
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Age"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 70
-                                    },
-                                    {
-                                        "id": "unit",
-                                        "value": "percentunit"
-                                    },
-                                    {
-                                        "id": "thresholds",
-                                        "value": {
-                                            "mode": "absolute",
-                                            "steps": [
-                                                {
-                                                    "color": "green"
-                                                },
-                                                {
-                                                    "color": "yellow",
-                                                    "value": 0.05
-                                                },
-                                                {
-                                                    "color": "orange",
-                                                    "value": 0.1
-                                                },
-                                                {
-                                                    "color": "red",
-                                                    "value": 0.3
-                                                },
-                                                {
-                                                    "color": "purple",
-                                                    "value": 0.9
-                                                },
-                                                {
-                                                    "color": "#000000",
-                                                    "value": 0.99
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "mode": "gradient",
-                                            "type": "color-background"
-                                        }
-                                    },
-                                    {
-                                        "id": "color"
-                                    },
-                                    {
-                                        "id": "decimals",
-                                        "value": 1
-                                    },
-                                    {
-                                        "id": "color",
-                                        "value": {
-                                            "mode": "thresholds"
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Tuples"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 80
-                                    },
-                                    {
-                                        "id": "unit",
-                                        "value": "short"
-                                    },
-                                    {
-                                        "id": "thresholds",
-                                        "value": {
-                                            "mode": "absolute",
-                                            "steps": [
-                                                {
-                                                    "color": "blue"
-                                                },
-                                                {
-                                                    "color": "green",
-                                                    "value": 1000
-                                                },
-                                                {
-                                                    "color": "#EAB839",
-                                                    "value": 1000000
-                                                },
-                                                {
-                                                    "color": "orange",
-                                                    "value": 10000000
-                                                },
-                                                {
-                                                    "color": "red",
-                                                    "value": 100000000
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Size"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 80
-                                    },
-                                    {
-                                        "id": "unit",
-                                        "value": "decbytes"
-                                    },
-                                    {
-                                        "id": "thresholds",
-                                        "value": {
-                                            "mode": "absolute",
-                                            "steps": [
-                                                {
-                                                    "color": "blue"
-                                                },
-                                                {
-                                                    "color": "blue",
-                                                    "value": 8192
-                                                },
-                                                {
-                                                    "color": "super-light-green",
-                                                    "value": 8193
-                                                },
-                                                {
-                                                    "color": "green",
-                                                    "value": 1000000
-                                                },
-                                                {
-                                                    "color": "#EAB839",
-                                                    "value": 1000000000
-                                                },
-                                                {
-                                                    "color": "orange",
-                                                    "value": 10000000000
-                                                },
-                                                {
-                                                    "color": "red",
-                                                    "value": 100000000000
-                                                },
-                                                {
-                                                    "color": "text",
-                                                    "value": 1000000000000
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "mode": "gradient",
-                                            "type": "color-background"
-                                        }
-                                    },
-                                    {
-                                        "id": "color"
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "nAttr"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 50
-                                    },
-                                    {
-                                        "id": "thresholds",
-                                        "value": {
-                                            "mode": "absolute",
-                                            "steps": [
-                                                {
-                                                    "color": "blue"
-                                                },
-                                                {
-                                                    "color": "yellow",
-                                                    "value": 12
-                                                },
-                                                {
-                                                    "color": "orange",
-                                                    "value": 18
-                                                },
-                                                {
-                                                    "color": "red",
-                                                    "value": 32
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byType",
-                                    "options": "time"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "unit",
-                                        "value": "dateTimeFromNow"
-                                    },
-                                    {
-                                        "id": "custom.minWidth",
-                                        "value": 110
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Seq Scan"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 110
-                                    },
-                                    {
-                                        "id": "unit",
-                                        "value": "locale"
-                                    },
-                                    {
-                                        "id": "thresholds",
-                                        "value": {
-                                            "mode": "absolute",
-                                            "steps": [
-                                                {
-                                                    "color": "blue"
-                                                },
-                                                {
-                                                    "color": "yellow",
-                                                    "value": 1
-                                                },
-                                                {
-                                                    "color": "orange",
-                                                    "value": 100
-                                                },
-                                                {
-                                                    "color": "red",
-                                                    "value": 10000
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Idx Scan"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 110
-                                    },
-                                    {
-                                        "id": "unit",
-                                        "value": "locale"
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Kind"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 120
-                                    },
-                                    {
-                                        "id": "mappings",
-                                        "value": [
-                                            {
-                                                "options": {
-                                                    "I": {
-                                                        "color": "super-light-green",
-                                                        "index": 9,
-                                                        "text": "Partitioned Index"
-                                                    },
-                                                    "P": {
-                                                        "color": "blue",
-                                                        "index": 10,
-                                                        "text": "Partition Table"
-                                                    },
-                                                    "S": {
-                                                        "color": "yellow",
-                                                        "index": 2,
-                                                        "text": "Sequence"
-                                                    },
-                                                    "c": {
-                                                        "color": "super-light-orange",
-                                                        "index": 6,
-                                                        "text": "Componse Type"
-                                                    },
-                                                    "f": {
-                                                        "color": "orange",
-                                                        "index": 7,
-                                                        "text": "Foreign table"
-                                                    },
-                                                    "i": {
-                                                        "color": "green",
-                                                        "index": 1,
-                                                        "text": "Index"
-                                                    },
-                                                    "m": {
-                                                        "color": "dark-blue",
-                                                        "index": 5,
-                                                        "text": "Materialized View"
-                                                    },
-                                                    "p": {
-                                                        "color": "super-light-blue",
-                                                        "index": 8,
-                                                        "text": "Partitioned Table"
-                                                    },
-                                                    "r": {
-                                                        "color": "blue",
-                                                        "index": 0,
-                                                        "text": "Table"
-                                                    },
-                                                    "t": {
-                                                        "color": "#808080",
-                                                        "index": 3,
-                                                        "text": "Toast Table"
-                                                    },
-                                                    "v": {
-                                                        "color": "red",
-                                                        "index": 4,
-                                                        "text": "View"
-                                                    }
-                                                },
-                                                "type": "value"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "mode": "gradient",
-                                            "type": "color-background"
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Insert"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 100
-                                    },
-                                    {
-                                        "id": "unit",
-                                        "value": "locale"
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Update"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 100
-                                    },
-                                    {
-                                        "id": "unit",
-                                        "value": "locale"
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Delete"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 63
-                                    }
-                                ]
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
                             }
                         ]
-                    },
-                    "gridPos": {
-                        "h": 14,
-                        "w": 24,
-                        "x": 0,
-                        "y": 21
-                    },
-                    "id": 165,
-                    "options": {
-                        "cellHeight": "sm",
-                        "footer": {
-                            "countRows": false,
-                            "fields": "",
-                            "reducer": [
-                                "sum"
-                            ],
-                            "show": false
-                        },
-                        "showHeader": true,
-                        "sortBy": [
+                    ],
+                    "sql": {
+                        "columns": [
                             {
-                                "desc": true,
-                                "displayName": "Size"
+                                "parameters": [],
+                                "type": "function"
                             }
-                        ]
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
                     },
-                    "pluginVersion": "10.0.2",
-                    "targets": [
+                    "timeColumn": "time",
+                    "where": [
                         {
-                            "datasource": {
-                                "type": "postgres",
-                                "uid": "${dsn}"
-                            },
-                            "exemplar": false,
-                            "expr": "SELECT * FROM pg_class;",
-                            "format": "table",
-                            "group": [],
-                            "instant": true,
-                            "interval": "",
-                            "legendFormat": "",
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT c.oid                                                AS \"OID\",\n       n.nspname                                            as \"Schema\",\n       n.nspname || '.' || c.relname                        as \"Name\",\n       CASE WHEN relispartition THEN 'P' ELSE c.relkind END AS \"Kind\",\n       age(c.relfrozenxid)::FLOAT / 2147483648              AS relage,\n       reltuples,\n       relpages,\n       relfilenode,\n       pg_table_size(c.oid)                                 AS \"Size\",\n       relnatts, s.*\nFROM pg_catalog.pg_class c\n         LEFT JOIN pg_namespace n ON n.oid = c.relnamespace\n         LEFT JOIN pg_stat_user_tables s ON c.oid = s.relid\nWHERE c.relkind IN ('r', 'p', '')\n  AND n.nspname <> 'pg_catalog'\n  AND n.nspname !~ '^pg_toast'\n  AND n.nspname <> 'information_schema'\nORDER BY 1, 2;",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
                         }
-                    ],
-                    "title": "Tables",
-                    "transformations": [
-                        {
-                            "id": "seriesToColumns",
-                            "options": {
-                                "byField": "datname"
-                            }
-                        },
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {
-                                    "Time 1": true,
-                                    "Time 10": true,
-                                    "Time 2": true,
-                                    "Time 3": true,
-                                    "Time 4": true,
-                                    "Time 5": true,
-                                    "Time 6": true,
-                                    "Time 7": true,
-                                    "Time 8": true,
-                                    "Time 9": true,
-                                    "acl": true,
-                                    "analyze_count": true,
-                                    "autoanalyze_count": true,
-                                    "autovacuum_count": true,
-                                    "datcollate": true,
-                                    "datctype": true,
-                                    "datfrozenxid": true,
-                                    "description": true,
-                                    "encoding": true,
-                                    "idx_tup_fetch": true,
-                                    "n_ins_since_vacuum": true,
-                                    "n_mod_since_analyze": true,
-                                    "n_tup_hot_upd": true,
-                                    "relam": true,
-                                    "relfilenode": true,
-                                    "relid": true,
-                                    "relname": true,
-                                    "relnamespace": true,
-                                    "reloftype": true,
-                                    "relpages": true,
-                                    "reltype": true,
-                                    "schemaname": true,
-                                    "seq_tup_read": true,
-                                    "tablespace": true,
-                                    "vacuum_count": true
-                                },
-                                "indexByName": {
-                                    "Kind": 4,
-                                    "Name": 0,
-                                    "OID": 1,
-                                    "Schema": 2,
-                                    "Size": 6,
-                                    "analyze_count": 31,
-                                    "autoanalyze_count": 32,
-                                    "autovacuum_count": 30,
-                                    "idx_scan": 12,
-                                    "idx_tup_fetch": 18,
-                                    "last_analyze": 27,
-                                    "last_autoanalyze": 28,
-                                    "last_autovacuum": 26,
-                                    "last_vacuum": 25,
-                                    "n_dead_tup": 10,
-                                    "n_ins_since_vacuum": 24,
-                                    "n_live_tup": 9,
-                                    "n_mod_since_analyze": 23,
-                                    "n_tup_del": 21,
-                                    "n_tup_hot_upd": 22,
-                                    "n_tup_ins": 19,
-                                    "n_tup_upd": 20,
-                                    "relage": 7,
-                                    "relfilenode": 3,
-                                    "relid": 14,
-                                    "relname": 16,
-                                    "relnatts": 5,
-                                    "relpages": 11,
-                                    "reltuples": 8,
-                                    "schemaname": 15,
-                                    "seq_scan": 13,
-                                    "seq_tup_read": 17,
-                                    "vacuum_count": 29
-                                },
-                                "renameByName": {
-                                    "I": "Partitioned Index",
-                                    "Kind": "Kind",
-                                    "S": "Sequence",
-                                    "Size": "Size",
-                                    "Time 1": "",
-                                    "Time 7": "",
-                                    "Value #A": "Size",
-                                    "Value #B": "Age",
-                                    "Value #C": "Status",
-                                    "Value #D": "Session",
-                                    "Value #E": "TPS",
-                                    "Value #F": "ConnLimit",
-                                    "Value #G": "Reserve",
-                                    "Value #H": "Current",
-                                    "Value #I": "Disable",
-                                    "Value #J": "Pause",
-                                    "acl": "Privileges",
-                                    "age": "Age",
-                                    "c": "Compose Type",
-                                    "datallowconn": "Conn",
-                                    "datcollate": "Collate",
-                                    "datconnlimit": "ConnLimit",
-                                    "datctype": "Ctype",
-                                    "datfrozenxid": "FronzenXID",
-                                    "datistemplate": "Tmpl",
-                                    "datname": "Database",
-                                    "description": "Description",
-                                    "encoding": "Encoding",
-                                    "f": "Foreign Table",
-                                    "host": "Target",
-                                    "i": "Index",
-                                    "idx_scan": "Idx Scan",
-                                    "last_analyze": "Last Analyze",
-                                    "last_autoanalyze": "Last AnalyzeA",
-                                    "last_autovacuum": "Last VacuumA",
-                                    "last_vacuum": "Last Vacuum",
-                                    "m": "Materialized View",
-                                    "n_dead_tup": "Dead",
-                                    "n_live_tup": "Live",
-                                    "n_mod_since_analyze": "",
-                                    "n_tup_del": "Delete",
-                                    "n_tup_hot_upd": "",
-                                    "n_tup_ins": "Insert",
-                                    "n_tup_upd": "Update",
-                                    "nspname": "Schema",
-                                    "oid": "OID",
-                                    "owner": "Owner",
-                                    "p": "Partitioned Table",
-                                    "pg_table_size": "Size",
-                                    "r": "Table",
-                                    "real_datname": "Datname",
-                                    "rel": "Table",
-                                    "relage": "Age",
-                                    "relfilenode": "Filenode",
-                                    "relhasindex": "",
-                                    "relid": "",
-                                    "relkind": "Kind",
-                                    "relname": "",
-                                    "relnatts": "nAttr",
-                                    "relpages": "Pages",
-                                    "relpersistence": "Persist",
-                                    "reltuples": "Tuples",
-                                    "seq_scan": "Seq Scan",
-                                    "seq_tup_read": "",
-                                    "sessions": "Session",
-                                    "size": "Size",
-                                    "status": "Status",
-                                    "t": "Toast",
-                                    "tablespace": "Tablespace",
-                                    "v": "View",
-                                    "vacuum_count": ""
-                                }
-                            }
-                        }
-                    ],
-                    "type": "table"
+                    ]
                 }
             ],
-            "title": "Table",
-            "type": "row"
+            "title": "Tables",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time 1": true,
+                            "Time 10": true,
+                            "Time 2": true,
+                            "Time 3": true,
+                            "Time 4": true,
+                            "Time 5": true,
+                            "Time 6": true,
+                            "Time 7": true,
+                            "Time 8": true,
+                            "Time 9": true,
+                            "acl": true,
+                            "analyze_count": false,
+                            "autoanalyze_count": false,
+                            "autovacuum_count": false,
+                            "datcollate": true,
+                            "datctype": true,
+                            "datfrozenxid": true,
+                            "description": true,
+                            "encoding": true,
+                            "idx_tup_fetch": false,
+                            "n_ins_since_vacuum": false,
+                            "n_mod_since_analyze": false,
+                            "n_tup_hot_upd": false,
+                            "relam": true,
+                            "relfilenode": false,
+                            "relid": true,
+                            "relname": true,
+                            "relnamespace": true,
+                            "reloftype": true,
+                            "relpages": true,
+                            "reltype": true,
+                            "schemaname": true,
+                            "seq_tup_read": false,
+                            "tablespace": true,
+                            "vacuum_count": false
+                        },
+                        "indexByName": {
+                            "analyze_count": 32,
+                            "autoanalyze_count": 34,
+                            "autovacuum_count": 29,
+                            "idx_scan": 14,
+                            "idx_tup_fetch": 16,
+                            "kind": 3,
+                            "last_analyze": 33,
+                            "last_autoanalyze": 35,
+                            "last_autovacuum": 30,
+                            "last_vacuum": 28,
+                            "n_dead_tup": 10,
+                            "n_ins_since_vacuum": 26,
+                            "n_live_tup": 9,
+                            "n_mod_since_analyze": 31,
+                            "n_tup_del": 20,
+                            "n_tup_hot_upd": 22,
+                            "n_tup_ins": 19,
+                            "n_tup_mod": 18,
+                            "n_tup_upd": 21,
+                            "name": 1,
+                            "nspname": 2,
+                            "oid": 0,
+                            "relage": 7,
+                            "relfilenode": 5,
+                            "relid": 23,
+                            "relname": 25,
+                            "relnatts": 6,
+                            "relpages": 11,
+                            "reltuples": 8,
+                            "schemaname": 24,
+                            "seq_scan": 13,
+                            "seq_tup_read": 15,
+                            "size": 4,
+                            "tbl_scan": 12,
+                            "tup_read": 17,
+                            "vacuum_count": 27
+                        },
+                        "renameByName": {
+                            "I": "Partitioned Index",
+                            "Kind": "Kind",
+                            "S": "Sequence",
+                            "Size": "Size",
+                            "Time 1": "",
+                            "Time 7": "",
+                            "Value #A": "Size",
+                            "Value #B": "Age",
+                            "Value #C": "Status",
+                            "Value #D": "Session",
+                            "Value #E": "TPS",
+                            "Value #F": "ConnLimit",
+                            "Value #G": "Reserve",
+                            "Value #H": "Current",
+                            "Value #I": "Disable",
+                            "Value #J": "Pause",
+                            "acl": "Privileges",
+                            "age": "Age",
+                            "analyze_count": "Analyze Count",
+                            "autoanalyze_count": "AutoAnalyze Count",
+                            "autovacuum_count": "AutoVacuum Count",
+                            "c": "Compose Type",
+                            "datallowconn": "Conn",
+                            "datcollate": "Collate",
+                            "datconnlimit": "ConnLimit",
+                            "datctype": "Ctype",
+                            "datfrozenxid": "FronzenXID",
+                            "datistemplate": "Tmpl",
+                            "datname": "Database",
+                            "description": "Description",
+                            "encoding": "Encoding",
+                            "f": "Foreign Table",
+                            "host": "Target",
+                            "i": "Index",
+                            "idx_scan": "Idx Scan",
+                            "idx_tup_fetch": "Index Rows",
+                            "kind": "Kind",
+                            "last_analyze": "Last Analyze",
+                            "last_autoanalyze": "Last AutoAnalyze",
+                            "last_autovacuum": "Last AutoVacuum",
+                            "last_vacuum": "Last Vacuum",
+                            "m": "Materialized View",
+                            "n_dead_tup": "Dead",
+                            "n_ins_since_vacuum": "nInsSinceVacuum",
+                            "n_live_tup": "Live",
+                            "n_mod_since_analyze": "nModSinceAnalyze",
+                            "n_tup_del": "Deleted",
+                            "n_tup_hot_upd": "HOT Update",
+                            "n_tup_ins": "Inserted",
+                            "n_tup_mod": "Modified",
+                            "n_tup_upd": "Updated",
+                            "name": "Name",
+                            "nspname": "Schema",
+                            "oid": "OID",
+                            "owner": "Owner",
+                            "p": "Partitioned Table",
+                            "pg_table_size": "Size",
+                            "r": "Table",
+                            "real_datname": "Datname",
+                            "rel": "Table",
+                            "relage": "Age",
+                            "relfilenode": "Filenode",
+                            "relhasindex": "",
+                            "relid": "",
+                            "relkind": "Kind",
+                            "relname": "",
+                            "relnatts": "nAttr",
+                            "relpages": "Pages",
+                            "relpersistence": "Persist",
+                            "reltuples": "Tuples",
+                            "seq_scan": "Seq Scan",
+                            "seq_tup_read": "Scan Rows",
+                            "sessions": "Session",
+                            "size": "Size",
+                            "status": "Status",
+                            "t": "Toast",
+                            "tablespace": "Tablespace",
+                            "tbl_scan": "Scan",
+                            "tup_read": "Scanned",
+                            "v": "View",
+                            "vacuum_count": "Vacuum Count"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
         },
         {
             "collapsed": true,
@@ -3199,7 +3566,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 21
+                "y": 35
             },
             "id": 154,
             "panels": [
@@ -3367,7 +3734,7 @@
                         "h": 11,
                         "w": 24,
                         "x": 0,
-                        "y": 36
+                        "y": 62
                     },
                     "id": 184,
                     "links": [],
@@ -3389,7 +3756,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.2",
+                    "pluginVersion": "10.0.3",
                     "targets": [
                         {
                             "datasource": {
@@ -3475,7 +3842,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 22
+                "y": 36
             },
             "id": 171,
             "panels": [
@@ -3684,7 +4051,7 @@
                         "h": 12,
                         "w": 12,
                         "x": 0,
-                        "y": 48
+                        "y": 45
                     },
                     "id": 167,
                     "options": {
@@ -3705,7 +4072,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.2",
+                    "pluginVersion": "10.0.3",
                     "targets": [
                         {
                             "datasource": {
@@ -3973,7 +4340,7 @@
                         "h": 12,
                         "w": 12,
                         "x": 12,
-                        "y": 48
+                        "y": 45
                     },
                     "id": 181,
                     "options": {
@@ -3994,7 +4361,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.2",
+                    "pluginVersion": "10.0.3",
                     "targets": [
                         {
                             "datasource": {
@@ -4175,7 +4542,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 60
+                        "y": 57
                     },
                     "id": 169,
                     "options": {
@@ -4363,7 +4730,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 60
+                        "y": 57
                     },
                     "id": 182,
                     "options": {
@@ -4450,7 +4817,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 23
+                "y": 37
             },
             "id": 156,
             "panels": [],
@@ -4467,7 +4834,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 24
+                "y": 38
             },
             "id": 96,
             "panels": [
@@ -5363,7 +5730,7 @@
                         "h": 11,
                         "w": 24,
                         "x": 0,
-                        "y": 77
+                        "y": 65
                     },
                     "id": 59,
                     "options": {
@@ -5384,7 +5751,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.2",
+                    "pluginVersion": "10.0.3",
                     "targets": [
                         {
                             "format": "table",
@@ -5697,7 +6064,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 0,
-                        "y": 88
+                        "y": 76
                     },
                     "id": 105,
                     "options": {
@@ -5825,7 +6192,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 8,
-                        "y": 88
+                        "y": 76
                     },
                     "id": 104,
                     "options": {
@@ -5923,7 +6290,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 16,
-                        "y": 88
+                        "y": 76
                     },
                     "id": 103,
                     "options": {
@@ -6096,7 +6463,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 0,
-                        "y": 95
+                        "y": 83
                     },
                     "id": 107,
                     "options": {
@@ -6284,7 +6651,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 8,
-                        "y": 95
+                        "y": 83
                     },
                     "id": 109,
                     "options": {
@@ -6457,7 +6824,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 16,
-                        "y": 95
+                        "y": 83
                     },
                     "id": 106,
                     "options": {
@@ -6529,7 +6896,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 25
+                "y": 39
             },
             "id": 133,
             "panels": [
@@ -6538,13 +6905,13 @@
                         "type": "postgres",
                         "uid": "${dsn}"
                     },
+                    "description": "pg_stat_statements of database ${datname}, order by total_exec_time DESC.",
                     "fieldConfig": {
                         "defaults": {
                             "custom": {
                                 "align": "center",
                                 "cellOptions": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
+                                    "type": "auto"
                                 },
                                 "filterable": false,
                                 "inspect": false
@@ -6554,7 +6921,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -6563,7 +6931,7 @@
                             {
                                 "matcher": {
                                     "id": "byRegexp",
-                                    "options": "(RT|RT:min|RT:max)"
+                                    "options": "(RT:avg)"
                                 },
                                 "properties": [
                                     {
@@ -6587,7 +6955,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "super-light-blue"
+                                                    "color": "super-light-blue",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "blue",
@@ -6638,7 +7007,7 @@
                                 "properties": [
                                     {
                                         "id": "custom.width",
-                                        "value": 170
+                                        "value": 200
                                     },
                                     {
                                         "id": "unit",
@@ -6652,6 +7021,12 @@
                                                 "url": "/d/pgcat-query?var-dsn=${dsn}&var-query=${__data.fields.Query}"
                                             }
                                         ]
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "auto"
+                                        }
                                     }
                                 ]
                             },
@@ -6663,7 +7038,7 @@
                                 "properties": [
                                     {
                                         "id": "custom.width",
-                                        "value": 170
+                                        "value": 110
                                     },
                                     {
                                         "id": "links",
@@ -6684,7 +7059,17 @@
                                 "properties": [
                                     {
                                         "id": "custom.width",
-                                        "value": 150
+                                        "value": 120
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "auto"
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.align",
+                                        "value": "left"
                                     }
                                 ]
                             },
@@ -6701,12 +7086,20 @@
                                     {
                                         "id": "custom.cellOptions",
                                         "value": {
-                                            "type": "json-view"
+                                            "type": "auto"
                                         }
                                     },
                                     {
                                         "id": "custom.minWidth",
-                                        "value": 300
+                                        "value": 256
+                                    },
+                                    {
+                                        "id": "custom.inspect",
+                                        "value": true
+                                    },
+                                    {
+                                        "id": "custom.align",
+                                        "value": "left"
                                     }
                                 ]
                             },
@@ -6718,11 +7111,17 @@
                                 "properties": [
                                     {
                                         "id": "custom.width",
-                                        "value": 111
+                                        "value": 120
                                     },
                                     {
                                         "id": "unit",
                                         "value": "locale"
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "auto"
+                                        }
                                     }
                                 ]
                             },
@@ -6734,11 +7133,17 @@
                                 "properties": [
                                     {
                                         "id": "custom.width",
-                                        "value": 80
+                                        "value": 100
                                     },
                                     {
                                         "id": "unit",
                                         "value": "short"
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "auto"
+                                        }
                                     }
                                 ]
                             },
@@ -6750,67 +7155,29 @@
                                 "properties": [
                                     {
                                         "id": "custom.width",
-                                        "value": 80
+                                        "value": 100
                                     },
                                     {
                                         "id": "unit",
                                         "value": "ms"
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "RT"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 77
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "WAL Recs"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 80
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "WAL FPIs"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 90
                                     },
                                     {
-                                        "id": "unit",
-                                        "value": "locale"
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "WAL Bytes"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 90
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "color-background"
+                                        }
                                     },
                                     {
-                                        "id": "unit",
-                                        "value": "decbytes"
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "#3e668f",
+                                                    "value": null
+                                                }
+                                            ]
+                                        }
                                     }
                                 ]
                             },
@@ -6821,40 +7188,283 @@
                                 },
                                 "properties": [
                                     {
-                                        "id": "custom.width",
-                                        "value": 50
-                                    },
-                                    {
                                         "id": "mappings",
                                         "value": [
                                             {
                                                 "options": {
                                                     "false": {
-                                                        "color": "orange",
-                                                        "index": 1,
+                                                        "color": "#f5a673",
+                                                        "index": 0,
                                                         "text": "F"
                                                     },
                                                     "true": {
-                                                        "color": "green",
-                                                        "index": 0,
+                                                        "color": "#346f36cc",
+                                                        "index": 1,
                                                         "text": "T"
                                                     }
                                                 },
                                                 "type": "value"
                                             }
                                         ]
+                                    },
+                                    {
+                                        "id": "custom.width",
+                                        "value": 40
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "/Plan:.*|RT:.*|.*Time/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "unit",
+                                        "value": "ms"
+                                    },
+                                    {
+                                        "id": "custom.width",
+                                        "value": 100
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "/.*Blks.*/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "unit",
+                                        "value": "locale"
+                                    },
+                                    {
+                                        "id": "custom.width",
+                                        "value": 100
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "transparent",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "#7a7a7a40",
+                                                    "value": 1
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Plan"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 40
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "short"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "/WAL.*/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 100
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "short"
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "transparent",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "#7d7d7d33",
+                                                    "value": 1
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "/JIT.*Count/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 150
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "transparent",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "#7d7d7d33",
+                                                    "value": 1
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "/JIT.*Time/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 150
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "transparent",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "#7d7d7d33",
+                                                    "value": 1e-09
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "JIT Functions"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "transparent",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "#7d7d7d33",
+                                                    "value": 1
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "/.*Blk.*Time/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "transparent",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "#7d7d7d33",
+                                                    "value": 1e-07
+                                                }
+                                            ]
+                                        }
                                     }
                                 ]
                             }
                         ]
                     },
                     "gridPos": {
-                        "h": 14,
+                        "h": 18,
                         "w": 24,
                         "x": 0,
-                        "y": 103
+                        "y": 40
                     },
-                    "id": 173,
+                    "id": 186,
+                    "links": [
+                        {
+                            "title": "PGCAT Queries",
+                            "url": "/d/pgcat-queries?var-dsn=${dsn}"
+                        }
+                    ],
                     "options": {
                         "cellHeight": "sm",
                         "footer": {
@@ -6869,22 +7479,26 @@
                         "sortBy": [
                             {
                                 "desc": true,
-                                "displayName": "Calls"
+                                "displayName": "Time"
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.2",
+                    "pluginVersion": "10.0.3",
                     "targets": [
                         {
                             "datasource": {
                                 "type": "postgres",
                                 "uid": "${dsn}"
                             },
+                            "editorMode": "code",
+                            "expr": "",
                             "format": "table",
                             "group": [],
+                            "legendFormat": "__auto",
                             "metricColumn": "none",
+                            "range": true,
                             "rawQuery": true,
-                            "rawSql": "SELECT queryid::TEXT AS qid, d.datname, r.rolname, s.*\nFROM monitor.pg_stat_statements s\nLEFT JOIN pg_database d ON s.dbid = d.oid\n     LEFT JOIN pg_roles r ON s.userid = r.oid \nWHERE datname='$datname'     \nORDER BY rows DESC LIMIT 200;",
+                            "rawSql": "SELECT queryid::TEXT AS qid, d.datname, r.rolname, s.*\nFROM monitor.pg_stat_statements s\n         LEFT JOIN pg_database d ON s.dbid = d.oid\n         LEFT JOIN pg_roles r ON s.userid = r.oid\nWHERE datname='$datname'\nORDER BY total_exec_time DESC\nLIMIT 100;",
                             "refId": "A",
                             "select": [
                                 [
@@ -6896,6 +7510,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -6906,101 +7537,137 @@
                             ]
                         }
                     ],
-                    "title": "Query Statements",
+                    "title": "Top SQL by Time",
                     "transformations": [
                         {
                             "id": "organize",
                             "options": {
                                 "excludeByName": {
-                                    "blk_read_time": true,
-                                    "blk_write_time": true,
-                                    "datname": true,
+                                    "blk_read_time": false,
+                                    "blk_write_time": false,
+                                    "datname": false,
                                     "dbid": true,
-                                    "local_blks_dirtied": true,
-                                    "local_blks_hit": true,
-                                    "local_blks_read": true,
-                                    "local_blks_written": true,
-                                    "max_plan_time": true,
-                                    "mean_plan_time": true,
-                                    "min_plan_time": true,
-                                    "plans": true,
+                                    "local_blks_dirtied": false,
+                                    "local_blks_hit": false,
+                                    "local_blks_read": false,
+                                    "local_blks_written": false,
+                                    "max_plan_time": false,
+                                    "mean_plan_time": false,
+                                    "min_plan_time": false,
+                                    "plans": false,
                                     "queryid": true,
-                                    "shared_blks_dirtied": true,
-                                    "shared_blks_hit": true,
-                                    "shared_blks_read": true,
-                                    "shared_blks_written": true,
-                                    "stddev_exec_time": true,
-                                    "stddev_plan_time": true,
-                                    "temp_blks_read": true,
-                                    "temp_blks_written": true,
-                                    "total_plan_time": true,
+                                    "shared_blks_dirtied": false,
+                                    "shared_blks_hit": false,
+                                    "shared_blks_read": false,
+                                    "shared_blks_written": false,
+                                    "stddev_exec_time": false,
+                                    "stddev_plan_time": false,
+                                    "temp_blk_read_time": false,
+                                    "temp_blk_write_time": false,
+                                    "temp_blks_read": false,
+                                    "temp_blks_written": false,
+                                    "total_plan_time": false,
                                     "userid": true
                                 },
                                 "indexByName": {
-                                    "blk_read_time": 30,
-                                    "blk_write_time": 31,
-                                    "calls": 7,
+                                    "blk_read_time": 34,
+                                    "blk_write_time": 35,
+                                    "calls": 8,
                                     "datname": 1,
-                                    "dbid": 4,
-                                    "local_blks_dirtied": 26,
-                                    "local_blks_hit": 24,
-                                    "local_blks_read": 25,
-                                    "local_blks_written": 27,
-                                    "max_exec_time": 17,
-                                    "max_plan_time": 13,
-                                    "mean_exec_time": 16,
-                                    "mean_plan_time": 14,
-                                    "min_exec_time": 18,
-                                    "min_plan_time": 12,
-                                    "plans": 10,
-                                    "qid": 0,
-                                    "query": 6,
-                                    "queryid": 5,
-                                    "rolname": 2,
-                                    "rows": 8,
-                                    "shared_blks_dirtied": 22,
-                                    "shared_blks_hit": 20,
-                                    "shared_blks_read": 21,
-                                    "shared_blks_written": 23,
-                                    "stddev_exec_time": 19,
-                                    "stddev_plan_time": 15,
-                                    "temp_blks_read": 28,
-                                    "temp_blks_written": 29,
-                                    "toplevel": 35,
-                                    "total_exec_time": 9,
-                                    "total_plan_time": 11,
-                                    "userid": 3,
-                                    "wal_bytes": 34,
-                                    "wal_fpi": 33,
-                                    "wal_records": 32
+                                    "dbid": 6,
+                                    "jit_emission_count": 44,
+                                    "jit_emission_time": 45,
+                                    "jit_functions": 38,
+                                    "jit_generation_time": 39,
+                                    "jit_inlining_count": 40,
+                                    "jit_inlining_time": 41,
+                                    "jit_optimization_count": 42,
+                                    "jit_optimization_time": 43,
+                                    "local_blks_dirtied": 30,
+                                    "local_blks_hit": 28,
+                                    "local_blks_read": 29,
+                                    "local_blks_written": 31,
+                                    "max_exec_time": 13,
+                                    "max_plan_time": 20,
+                                    "mean_exec_time": 12,
+                                    "mean_plan_time": 18,
+                                    "min_exec_time": 14,
+                                    "min_plan_time": 19,
+                                    "plans": 16,
+                                    "qid": 2,
+                                    "query": 3,
+                                    "queryid": 7,
+                                    "rolname": 4,
+                                    "rows": 9,
+                                    "shared_blks_dirtied": 26,
+                                    "shared_blks_hit": 24,
+                                    "shared_blks_read": 25,
+                                    "shared_blks_written": 27,
+                                    "stddev_exec_time": 15,
+                                    "stddev_plan_time": 21,
+                                    "temp_blk_read_time": 36,
+                                    "temp_blk_write_time": 37,
+                                    "temp_blks_read": 32,
+                                    "temp_blks_written": 33,
+                                    "toplevel": 0,
+                                    "total_exec_time": 11,
+                                    "total_plan_time": 17,
+                                    "userid": 5,
+                                    "wal_bytes": 10,
+                                    "wal_fpi": 23,
+                                    "wal_records": 22
                                 },
                                 "renameByName": {
-                                    "blk_read_time": "",
+                                    "blk_read_time": "Blk RTime",
+                                    "blk_write_time": "TBlk WTime",
                                     "calls": "Calls",
                                     "datname": "Database",
                                     "dbid": "DBID",
+                                    "jit_emission_count": "JIT Emission Count",
+                                    "jit_emission_time": "JIT Emission Time",
+                                    "jit_functions": "JIT Functions",
+                                    "jit_generation_time": "JIT Generate Time",
+                                    "jit_inlining_count": "JIT Inline Count",
+                                    "jit_inlining_time": "JIT Inline Time",
+                                    "jit_optimization_count": "JIT Optimize Count",
+                                    "jit_optimization_time": "JIT Optimize Time",
+                                    "local_blks_dirtied": "LBlks Dirty",
+                                    "local_blks_hit": "LBlks Hit",
+                                    "local_blks_read": "LBlks Read",
+                                    "local_blks_written": "LBlks Write",
                                     "max_exec_time": "RT:max",
-                                    "mean_exec_time": "RT",
+                                    "max_plan_time": "Plan:max",
+                                    "mean_exec_time": "RT:avg",
+                                    "mean_plan_time": "Plan:avg",
                                     "min_exec_time": "RT:min",
-                                    "plans": "",
+                                    "min_plan_time": "Plan:min",
+                                    "plans": "Plan",
                                     "qid": "Query",
                                     "query": "SQL",
                                     "queryid": "QID",
                                     "rolname": "User",
                                     "rows": "Rows",
-                                    "stddev_exec_time": "",
+                                    "shared_blks_dirtied": "SBlks Dirty",
+                                    "shared_blks_hit": "SBlks Hit",
+                                    "shared_blks_read": "SBlks Read",
+                                    "shared_blks_written": "SBlks Write",
+                                    "stddev_exec_time": "RT:\u03c3",
+                                    "stddev_plan_time": "Plan:\u03c3",
+                                    "temp_blk_read_time": "TBlk RTime",
+                                    "temp_blk_write_time": "TBlk WTime",
+                                    "temp_blks_read": "TBlks Read",
+                                    "temp_blks_written": "TBlks Write",
                                     "toplevel": "Top",
                                     "total_exec_time": "Time",
-                                    "total_plan_time": "",
+                                    "total_plan_time": "Plan:sum",
                                     "userid": "UserID",
-                                    "wal_bytes": "WAL Bytes",
+                                    "wal_bytes": "WAL",
                                     "wal_fpi": "WAL FPIs",
                                     "wal_records": "WAL Recs"
                                 }
                             }
                         }
                     ],
-                    "transparent": true,
                     "type": "table"
                 },
                 {
@@ -7008,7 +7675,7 @@
                         "type": "postgres",
                         "uid": "${dsn}"
                     },
-                    "description": "Area represent time spent\ncolor represent RT of this query",
+                    "description": "pg_stat_statements of instance ${ins}\n\ngroup by queryid \n\norder by total_exec_time DESC.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -7103,12 +7770,12 @@
                         ]
                     },
                     "gridPos": {
-                        "h": 10,
+                        "h": 14,
                         "w": 12,
                         "x": 0,
-                        "y": 117
+                        "y": 58
                     },
-                    "id": 179,
+                    "id": 187,
                     "options": {
                         "colorByField": "rt",
                         "colorField": "rt",
@@ -7121,13 +7788,14 @@
                         {
                             "datasource": {
                                 "type": "postgres",
-                                "uid": "${dsn}"
+                                "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
                             },
+                            "editorMode": "code",
                             "format": "table",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT queryid::TEXT                     AS query,\n       sum(total_exec_time)              AS time_spent,\n       sum(calls)                        AS calls,\n       sum(total_exec_time) / sum(calls) AS rt\nFROM (\n         SELECT queryid, total_exec_time, calls\n         FROM monitor.pg_stat_statements s\n         WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '$datname')\n         ORDER BY rows DESC\n         LIMIT 200\n     ) raw\nWHERE calls > 0\nGROUP BY 1\nORDER BY 2 DESC;",
+                            "rawSql": "SELECT queryid::TEXT                     AS query,\n       sum(total_exec_time)              AS time_spent,\n       sum(calls)                        AS calls,\n       sum(total_exec_time) / sum(calls) AS rt\nFROM (\n         SELECT queryid, total_exec_time, calls\n         FROM monitor.pg_stat_statements s\n         WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '$datname')\n         ORDER BY total_exec_time DESC\n         LIMIT 100\n     ) raw\nWHERE calls > 0\nGROUP BY 1\nORDER BY 2 DESC;",
                             "refId": "A",
                             "select": [
                                 [
@@ -7139,6 +7807,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "table": "predefined_message_translations1",
                             "timeColumn": "created_time",
                             "timeColumnType": "timestamp",
@@ -7151,7 +7836,7 @@
                             ]
                         }
                     ],
-                    "title": "Query (by Time Spent)",
+                    "title": "Top SQL by Time Spent",
                     "transformations": [
                         {
                             "id": "organize",
@@ -7164,7 +7849,6 @@
                             }
                         }
                     ],
-                    "transparent": true,
                     "type": "marcusolsson-treemap-panel"
                 },
                 {
@@ -7172,7 +7856,7 @@
                         "type": "postgres",
                         "uid": "${dsn}"
                     },
-                    "description": "Area represent call counts\ncolor represent RT of this query",
+                    "description": "pg_stat_statements of instance ${ins}\n\ngroup by queryid \n\norder by calls DESC.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -7263,28 +7947,16 @@
                                         "value": "ms"
                                     }
                                 ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "calls"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "unit",
-                                        "value": "locale"
-                                    }
-                                ]
                             }
                         ]
                     },
                     "gridPos": {
-                        "h": 10,
+                        "h": 14,
                         "w": 12,
                         "x": 12,
-                        "y": 117
+                        "y": 58
                     },
-                    "id": 177,
+                    "id": 188,
                     "options": {
                         "colorByField": "rt",
                         "colorField": "rt",
@@ -7297,13 +7969,14 @@
                         {
                             "datasource": {
                                 "type": "postgres",
-                                "uid": "${dsn}"
+                                "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
                             },
+                            "editorMode": "code",
                             "format": "table",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT queryid::TEXT                     AS query,\n       sum(total_exec_time)              AS time_spent,\n       sum(calls)                        AS calls,\n       sum(total_exec_time) / sum(calls) AS rt\nFROM (\n         SELECT queryid, total_exec_time, calls\n         FROM monitor.pg_stat_statements s\n         WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '$datname')\n         ORDER BY rows DESC\n         LIMIT 200\n     ) raw\nWHERE calls > 0\nGROUP BY 1\nORDER BY 2 DESC;",
+                            "rawSql": "SELECT queryid::TEXT                     AS query,\n       -- sum(total_exec_time)              AS time_spent,\n       sum(calls)                        AS calls,\n       sum(total_exec_time) / sum(calls) AS rt\nFROM (\n         SELECT queryid, total_exec_time, calls\n         FROM monitor.pg_stat_statements s\n         WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '$datname')\n         ORDER BY calls DESC\n         LIMIT 100\n     ) raw\nWHERE calls > 0\nGROUP BY 1\nORDER BY 2 DESC;",
                             "refId": "A",
                             "select": [
                                 [
@@ -7315,6 +7988,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "table": "predefined_message_translations1",
                             "timeColumn": "created_time",
                             "timeColumnType": "timestamp",
@@ -7327,7 +8017,7 @@
                             ]
                         }
                     ],
-                    "title": "Query (by Total Calls)",
+                    "title": "Top SQL by Total Calls",
                     "transformations": [
                         {
                             "id": "organize",
@@ -7340,7 +8030,6 @@
                             }
                         }
                     ],
-                    "transparent": true,
                     "type": "marcusolsson-treemap-panel"
                 }
             ],
@@ -7357,7 +8046,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 26
+                "y": 40
             },
             "id": 98,
             "panels": [
@@ -7666,7 +8355,7 @@
                         "h": 6,
                         "w": 24,
                         "x": 0,
-                        "y": 128
+                        "y": 168
                     },
                     "id": 144,
                     "options": {
@@ -7803,7 +8492,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 0,
-                        "y": 134
+                        "y": 174
                     },
                     "id": 147,
                     "links": [],
@@ -7892,7 +8581,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 12,
-                        "y": 134
+                        "y": 174
                     },
                     "id": 148,
                     "links": [],
@@ -7997,7 +8686,7 @@
                 "name": "dsn",
                 "options": [],
                 "query": "postgres",
-                "queryValue": "",
+                "queryValue": "meta",
                 "refresh": 1,
                 "regex": "/.*\\..*/",
                 "skipUrlSync": false,

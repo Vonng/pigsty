@@ -107,7 +107,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
@@ -266,7 +266,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
@@ -510,7 +510,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "exemplar": false,
@@ -536,8 +536,7 @@
                     "custom": {
                         "align": "center",
                         "cellOptions": {
-                            "mode": "gradient",
-                            "type": "color-background"
+                            "type": "auto"
                         },
                         "inspect": false
                     },
@@ -566,7 +565,7 @@
                                 "value": [
                                     {
                                         "title": "Redis Instance ${__data.fields.Instance}",
-                                        "url": "/d/redis-instance?var-ins=${__data.fields.Instance}"
+                                        "url": "/d/redis-instance?var-id=${__data.fields.Instance}"
                                     }
                                 ]
                             },
@@ -579,19 +578,19 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "IP"
+                            "options": "Address"
                         },
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 130
+                                "value": 160
                             },
                             {
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "Node Instance : ${__data.fields.IP}",
-                                        "url": "/d/node-instance?var-id=${__data.fields.IP}"
+                                        "title": "Redis Instance : ${__data.fields.Address} (${__data.fields.Instance})",
+                                        "url": "/d/redis-instance?var-id=${__data.fields.Address}"
                                     }
                                 ]
                             }
@@ -605,7 +604,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 78
+                                "value": 80
                             },
                             {
                                 "id": "mappings",
@@ -613,17 +612,17 @@
                                     {
                                         "options": {
                                             "cluster": {
-                                                "color": "blue",
+                                                "color": "#3e668f",
                                                 "index": 1,
                                                 "text": "Cluster"
                                             },
                                             "sentinel": {
-                                                "color": "orange",
+                                                "color": "#f5a673",
                                                 "index": 2,
                                                 "text": "Sentinel"
                                             },
                                             "standalone": {
-                                                "color": "green",
+                                                "color": "#346f36cc",
                                                 "index": 0,
                                                 "text": "Normal"
                                             }
@@ -717,29 +716,12 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Cluster"
-                        },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "Redis Cluster for ${__data.fields.Cluster}",
-                                        "url": "/d/redis-cluster?var-cls=${__data.fields.Cluster}"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
                             "options": "MEM"
                         },
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 150
+                                "value": 120
                             },
                             {
                                 "id": "unit",
@@ -817,12 +799,12 @@
                                     {
                                         "options": {
                                             "master": {
-                                                "color": "blue",
+                                                "color": "#3e668f",
                                                 "index": 0,
                                                 "text": "primary"
                                             },
                                             "slave": {
-                                                "color": "green",
+                                                "color": "#346f36cc",
                                                 "index": 1,
                                                 "text": "replica"
                                             }
@@ -848,16 +830,161 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Address"
+                            "options": "QPS"
                         },
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 140
+                                "value": 60
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#3e668f",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 10
+                                        },
+                                        {
+                                            "color": "#EAB839",
+                                            "value": 30000
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 100000
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 200000
+                                        },
+                                        {
+                                            "color": "text",
+                                            "value": 400000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            },
+                            {
+                                "id": "decimals"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "IP"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 110
                             },
                             {
                                 "id": "links",
-                                "value": []
+                                "value": [
+                                    {
+                                        "title": "Node Instance : ${__data.fields.IP}",
+                                        "url": "/d/node-instance?var-ip=${__data.fields.IP}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Spec"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#929592",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1024000000
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 4096000000
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 8192000000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "transparent",
+                                                "index": 0,
+                                                "text": "N/A"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 150
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Redis Cluster : ${__data.fields.Cluster}",
+                                        "url": "/d/redis-cluster?var-cls=${__data.fields.Cluster}"
+                                    }
+                                ]
                             }
                         ]
                     }
@@ -869,7 +996,7 @@
                 "x": 9,
                 "y": 3
             },
-            "id": 152,
+            "id": 161,
             "options": {
                 "cellHeight": "sm",
                 "footer": {
@@ -881,15 +1008,21 @@
                     "show": false
                 },
                 "showHeader": true,
-                "sortBy": []
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Instance"
+                    }
+                ]
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "redis_instance_info{job=\"$job\"}",
                     "format": "table",
@@ -903,6 +1036,7 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "redis:ins:cpu_usage{job=\"$job\"}",
                     "format": "table",
@@ -917,6 +1051,7 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "redis:ins:mem_usage{job=\"$job\"}",
                     "format": "table",
@@ -925,6 +1060,36 @@
                     "interval": "",
                     "legendFormat": "",
                     "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "redis:ins:qps{job=\"$job\"}",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "redis_memory_max_bytes{job=\"$job\"}",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "E"
                 }
             ],
             "title": "Instances",
@@ -943,70 +1108,97 @@
                             "Time 1": true,
                             "Time 2": true,
                             "Time 3": true,
+                            "Time 5": true,
                             "Value #A": true,
                             "Value #B": false,
                             "__name__": true,
                             "__name__ 1": true,
                             "__name__ 2": true,
                             "__name__ 3": true,
+                            "__name__ 5": true,
                             "cls": false,
                             "cls 1": false,
                             "cls 2": true,
                             "cls 3": true,
+                            "cls 4": true,
+                            "cls 5": true,
                             "instance": false,
                             "instance 1": false,
                             "instance 2": true,
                             "instance 3": true,
+                            "instance 4": true,
+                            "instance 5": true,
                             "ip 2": true,
                             "ip 3": true,
+                            "ip 4": true,
+                            "ip 5": true,
                             "job": true,
                             "job 1": true,
                             "job 2": true,
                             "job 3": true,
+                            "job 4": true,
+                            "job 5": true,
                             "maxmemory_policy": true,
                             "os": true,
                             "process_id": true,
                             "redis_build_id": true,
+                            "redis_mode": false,
                             "run_id": true,
                             "tcp_port": true
                         },
                         "indexByName": {
-                            "Time 1": 18,
-                            "Time 2": 21,
-                            "Time 3": 25,
-                            "Value #A": 17,
-                            "Value #B": 4,
-                            "Value #C": 5,
-                            "__name__ 1": 19,
-                            "__name__ 2": 22,
-                            "__name__ 3": 26,
-                            "cls 1": 0,
-                            "cls 2": 9,
-                            "cls 3": 16,
-                            "ins": 1,
-                            "instance 1": 2,
-                            "instance 2": 23,
-                            "instance 3": 27,
-                            "ip 1": 3,
-                            "ip 2": 29,
-                            "ip 3": 30,
-                            "job 1": 20,
-                            "job 2": 24,
-                            "job 3": 28,
-                            "maxmemory_policy": 10,
-                            "os": 11,
-                            "process_id": 12,
-                            "redis_build_id": 13,
-                            "redis_mode": 6,
-                            "redis_version": 8,
-                            "role": 7,
-                            "run_id": 14,
-                            "tcp_port": 15
+                            "Time 1": 20,
+                            "Time 2": 23,
+                            "Time 3": 27,
+                            "Time 4": 31,
+                            "Time 5": 39,
+                            "Value #A": 19,
+                            "Value #B": 6,
+                            "Value #C": 7,
+                            "Value #D": 9,
+                            "Value #E": 8,
+                            "__name__ 1": 21,
+                            "__name__ 2": 24,
+                            "__name__ 3": 28,
+                            "__name__ 4": 32,
+                            "__name__ 5": 40,
+                            "cls 1": 2,
+                            "cls 2": 11,
+                            "cls 3": 18,
+                            "cls 4": 33,
+                            "cls 5": 41,
+                            "ins": 3,
+                            "instance 1": 4,
+                            "instance 2": 25,
+                            "instance 3": 29,
+                            "instance 4": 34,
+                            "instance 5": 42,
+                            "ip 1": 5,
+                            "ip 2": 36,
+                            "ip 3": 37,
+                            "ip 4": 38,
+                            "ip 5": 43,
+                            "job 1": 22,
+                            "job 2": 26,
+                            "job 3": 30,
+                            "job 4": 35,
+                            "job 5": 44,
+                            "maxmemory_policy": 12,
+                            "os": 13,
+                            "process_id": 14,
+                            "redis_build_id": 15,
+                            "redis_mode": 0,
+                            "redis_version": 10,
+                            "role": 1,
+                            "run_id": 16,
+                            "tcp_port": 17
                         },
                         "renameByName": {
                             "Value #A": "",
                             "Value #B": "CPU",
                             "Value #C": "MEM",
+                            "Value #D": "QPS",
+                            "Value #E": "Spec",
                             "cls 1": "Cluster",
                             "ins": "Instance",
                             "instance": "",
@@ -1128,7 +1320,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
@@ -1232,7 +1424,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "10.0.2",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
@@ -1779,7 +1971,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 30
+                        "y": 46
                     },
                     "id": 43,
                     "links": [],
@@ -1894,7 +2086,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 30
+                        "y": 46
                     },
                     "id": 53,
                     "links": [],
@@ -2023,7 +2215,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 37
+                        "y": 53
                     },
                     "id": 10,
                     "links": [],
@@ -2156,7 +2348,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 37
+                        "y": 53
                     },
                     "id": 7,
                     "links": [],
@@ -2383,7 +2575,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 45
+                        "y": 61
                     },
                     "id": 137,
                     "options": {
@@ -2619,7 +2811,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 45
+                        "y": 61
                     },
                     "id": 138,
                     "options": {
@@ -2743,7 +2935,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 52
+                        "y": 68
                     },
                     "id": 123,
                     "options": {
@@ -2833,7 +3025,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 52
+                        "y": 68
                     },
                     "id": 135,
                     "options": {
@@ -2923,7 +3115,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 59
+                        "y": 75
                     },
                     "id": 124,
                     "options": {
@@ -3014,7 +3206,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 59
+                        "y": 75
                     },
                     "id": 134,
                     "options": {
@@ -3104,7 +3296,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 66
+                        "y": 82
                     },
                     "id": 132,
                     "options": {
@@ -3195,7 +3387,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 66
+                        "y": 82
                     },
                     "id": 125,
                     "options": {
@@ -3286,7 +3478,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 73
+                        "y": 89
                     },
                     "id": 133,
                     "options": {
@@ -3377,7 +3569,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 73
+                        "y": 89
                     },
                     "id": 126,
                     "options": {
@@ -3489,7 +3681,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 81
+                        "y": 97
                     },
                     "id": 50,
                     "links": [],
@@ -3584,7 +3776,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 81
+                        "y": 97
                     },
                     "id": 75,
                     "links": [],
@@ -3678,7 +3870,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 88
+                        "y": 104
                     },
                     "id": 51,
                     "links": [],
@@ -3773,7 +3965,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 88
+                        "y": 104
                     },
                     "id": 90,
                     "links": [],
@@ -3870,7 +4062,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 96
+                        "y": 112
                     },
                     "id": 88,
                     "links": [],
@@ -3968,7 +4160,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 96
+                        "y": 112
                     },
                     "id": 54,
                     "links": [],
@@ -4128,7 +4320,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 103
+                        "y": 119
                     },
                     "id": 8,
                     "links": [],
@@ -4226,7 +4418,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 103
+                        "y": 119
                     },
                     "id": 5,
                     "links": [],
@@ -4369,7 +4561,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 110
+                        "y": 126
                     },
                     "id": 87,
                     "links": [],
@@ -4465,7 +4657,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 110
+                        "y": 126
                     },
                     "id": 86,
                     "links": [],
@@ -4608,7 +4800,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 117
+                        "y": 133
                     },
                     "id": 58,
                     "links": [],
@@ -4707,7 +4899,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 117
+                        "y": 133
                     },
                     "id": 69,
                     "links": [],
@@ -4824,7 +5016,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 0,
-                        "y": 125
+                        "y": 141
                     },
                     "id": 57,
                     "links": [],
@@ -4922,7 +5114,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 12,
-                        "y": 125
+                        "y": 141
                     },
                     "id": 56,
                     "links": [],
