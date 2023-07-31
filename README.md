@@ -4,7 +4,7 @@
 >
 > —— **A battery-included, local-first, open-source RDS PG alternative.**
 >
-> [Release v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Blog](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/NMQHW6DW)
+> [Release v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Blog](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/98EjFRqV)
 >
 > [Get Started](docs/INSTALL.md) with `curl -fsSL http://get.pigsty.cc/latest | bash` 
 
@@ -419,12 +419,12 @@ WeChat: Search `pigsty-cc` to join the WeChat group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/NMQHW6DW
+Discord: https://discord.gg/98EjFRqV
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
 License: [AGPL-3.0](LICENSE)
 
-Sponsor: [Backers](BACKERS.md)
+Sponsor: [Backers](docs/BACKERS.md)
 
 Copyright 2018-2023 rh@vonng.com

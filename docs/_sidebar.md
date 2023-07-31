@@ -28,4 +28,5 @@
 - [**File Structure**](FHS)
 - [**Release Note**](RELEASENOTE)
 - [**License**](https://github.com/Vonng/pigsty/blob/master/LICENSE)
+- [**Backers**](BACKERS)
 - [**FAQ**](FAQ)

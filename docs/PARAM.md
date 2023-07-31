@@ -4233,7 +4233,7 @@ default value is `auto`, which will set max connections according to the [`pg_co
 
 It's not recommended to set this value greater than 5000, otherwise you have to increase the haproxy service connection limit manually as well.
 
-Pgbouncer transaction pooling can alleviate the problem of too many OLTP connections, but it's not recommended to use it in OLAP scenarios.
+Pgbouncer's transaction pooling can alleviate the problem of too many OLTP connections, but it's not recommended to use it in OLAP scenarios.
 
 
 

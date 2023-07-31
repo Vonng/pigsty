@@ -80,7 +80,7 @@ cd pigsty; git checkout v2.2.0
 * Vendor: RHEL, CentOS, Rocky, AlmaLinux, ...
 * Version: el7, el8, el9, 或其他兼容的版本
 * 请使用全新的节点，以避免无谓的麻烦，1核云虚拟机也就几毛钱一小时。
-* 建议使用 RockyLinux 9.1 / RockyLinux 8.6 / CentOS 7.9 ，这是 Pigsty 的构建与测试环境。
+* 建议使用 RockyLinux 9.1 / RockyLinux 8.7 / CentOS 7.9 ，这是 Pigsty 的构建与测试环境。
 
 **机器节点**
 
@@ -295,7 +295,7 @@ proceed with ./configure
 ./configure [-n|--non-interactive] [-i|--ip <ipaddr>] [-m|--mode <name>] [-r|--region <default|china|europe>]
 ```
 
-* `-m|--mode`: 直接指定配置[模板](https://github.com/Vonng/pigsty/tree/master/files/pigsty) : (`auto|demo|sec|citus|el8|el9|...`)
+* `-m|--mode`: 直接指定配置[模板](https://github.com/Vonng/pigsty/tree/master/files/pigsty) : (`auto|demo|sec|citus|el8|el9|prod...`)
 * `-i|--ip`: 用于替换IP地址占位符 `10.10.10.10` 的IP地址，即当前主机的首要内网IP地址（特别是在有多块网卡与多个IP地址时）
 * `-r|--region`: 用于指定上游源的区域： (`default|china|europe`)
 * `-n|--non-interactive`: 直接使用命令行参数提供首要IP地址，跳过交互式向导。
