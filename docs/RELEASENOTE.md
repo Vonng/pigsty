@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                             | Release                                                                                   |
 |:----------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.2.0](#v220) | 2023-07-31 | Grafana & building overhaul, UOS compatibility          | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
+| [v2.2.0](#v220) | 2023-08-01 | Grafana & building overhaul, UOS compatibility          | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
 | [v2.1.0](#v210) | 2023-06-10 | PostgreSQL 12 ~ 16beta support                          | [v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0)                             |
 | [v2.0.2](#v202) | 2023-03-31 | Add pgvector support and fix MinIO CVE                  | [v2.0.2](https://github.com/Vonng/pigsty/releases/tag/v2.0.2)                             |
 | [v2.0.1](#v201) | 2023-03-21 | v2 Bug Fix, security enhance and bump grafana version   | [v2.0.1](https://github.com/Vonng/pigsty/releases/tag/v2.0.1)                             |
@@ -38,7 +38,7 @@
 
 **Highlight**
 
-* Dashboards Overhaul: Grafana 10+ support
+* Monitoring Dashboards Overhaul
 * Vagrant Sandbox Overhaul: libvirt support
 * Pigsty EL Yum Repo: Building simplified
 * OS Compatibility: UOS-v20-1050e support
@@ -109,7 +109,12 @@ FHS Changes:
 
 - `bin/dns` and `bin/ssh` now moved to `vagrant/`
 
-
+```bash
+MD5 (pigsty-pkg-v2.2.0.el7.x86_64.tgz) = 5fb6a449a234e36c0d895a35c76add3c
+MD5 (pigsty-pkg-v2.2.0.el8.x86_64.tgz) = c7211730998d3b32671234e91f529fd0
+MD5 (pigsty-pkg-v2.2.0.el9.x86_64.tgz) = 385432fe86ee0f8cbccbbc9454472fdd
+MD5 (pigsty-pkg-v2.2.0.uel20.x86_64.tgz) = 33085582c437191ca840af54cbcce8a3
+```
 
 
 
