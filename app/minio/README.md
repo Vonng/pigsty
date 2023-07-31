@@ -18,7 +18,7 @@ visit http://10.10.10.10:9000 with user `admin` and password `pigsty.minio`
 ## Makefile
 
 ```bash
-make up         # pull up minio with docker-compose
+make up         # pull up minio with docker compose
 make run        # launch minio with docker
 make view       # print minio access point
 make log        # tail -f minio logs

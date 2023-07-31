@@ -32,7 +32,7 @@ username: `admin@pigsty.cc` and password: `pigsty`
 ## Makefile
 
 ```bash
-make up         # pull up pgadmin with docker-compose
+make up         # pull up pgadmin with docker compose
 make run        # launch pgadmin with docker
 make view       # print pgadmin access point
 make log        # tail -f pgadmin logs

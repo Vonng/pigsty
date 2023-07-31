@@ -18,7 +18,7 @@ Public API: http://api.pigsty.cc
 ## Makefile
 
 ```bash
-make up         # pull up postgrest with docker-compose
+make up         # pull up postgrest with docker compose
 make run        # launch postgrest with docker
 make ui         # run swagger ui container
 make view       # print postgrest access point

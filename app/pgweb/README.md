@@ -19,7 +19,7 @@ postgres://test:test@10.10.10.11:5432/test?sslmode=disable
 ```
 
 ```bash
-make up         # pull up pgweb with docker-compose
+make up         # pull up pgweb with docker compose
 make run        # launch pgweb with docker
 make view       # print pgweb access point
 make log        # tail -f pgweb logs

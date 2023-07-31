@@ -8,10 +8,10 @@ Here are some docker compose templates for popular applications that works well 
 * [PostgREST](postgrest/) : Auto-Generated PG Backend REST API
 * [Kong](kong/) : Kong API Gateway
 * [FerretDB](ferretdb/) : MongoDB API over Postgres
-* [EdgeDB](edgedb/): Graph database based on Postgres
 * [Gitea](gitea/) : Self-Hosting Git Services
 * [Wiki](wiki/) : Local Wiki Service
-* supabase
+* supabase: Firebase open source alternative
+* edge: Graph database based on Postgres
 * etc....
 
 
@@ -122,3 +122,5 @@ cat /tmp/docker.tgz | gzip -d -c - | docker load
 Check [pigsty-app](https://github.com/Vonng/pigsty-app) for details.
 
 Pigsty has one embed visualization app: [pglog](http://demo.pigsty.cc/d/pglog-overview) which is used for pg csv log analysis.
+
+There's another visualization app works on pigsty: ISD : noaa weather data visualization: [github.com/Vonng/isd](https://github.com/Vonng/isd), [Demo](http://demo.pigsty.cc/d/isd-overview)

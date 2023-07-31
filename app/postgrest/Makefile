@@ -1,15 +1,7 @@
-ifeq (, $(shell which docker-compose 2>/dev/null))
-DOCKER_COMPOSE_PLUGIN="true"
-endif
-
 default: up view
 
 up: view
-ifdef DOCKER_COMPOSE_PLUGIN
 	docker compose up -d
-else
-	docker-compose up -d
-endif
 
 run:
 	docker run --init --name postgrest --restart always --detach --publish 8884:8081 postgrest/postgrest

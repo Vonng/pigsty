@@ -6,8 +6,7 @@ open-source schema migrator for PostgreSQL (and other databases)
 
 Check public demo: http://ddl.pigsty.cc, username: `admin@pigsty.cc`, password: `pigsty`
 
-If you want to access bytebase through SSL, you have to trust `files/pki/ca/ca.crt` on your browser (or use the dirty
-hack `thisisunsafe` in chrome)
+If you want to access bytebase through SSL, you have to trust `files/pki/ca/ca.crt` on your browser (or use the dirty hack `thisisunsafe` in chrome)
 
 
 ## Get Started
@@ -32,7 +31,7 @@ Visit [http://ddl.pigsty](http://ddl.pigsty) or http://10.10.10.10:8887
 ## Makefile
 
 ```bash
-make up         # pull up bytebase with docker-compose in minimal mode
+make up         # pull up bytebase with docker compose in minimal mode
 make run        # launch bytebase with docker , local data dir and external PostgreSQL
 make view       # print bytebase access point
 make log        # tail -f bytebase logs

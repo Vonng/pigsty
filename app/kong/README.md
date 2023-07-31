@@ -31,7 +31,7 @@ cd app/kong ; make up
 ## Makefile
 
 ```bash
-make up         # pull up kong with docker-compose
+make up         # pull up kong with docker compose
 make ui         # run swagger ui container
 make log        # tail -f kong logs
 make info       # introspect kong with jq

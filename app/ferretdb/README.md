@@ -3,11 +3,11 @@
 MongoDB API for PostgreSQL
 
 ```bash
-cd app/ferretdb; docker-compose up -d
+cd app/ferretdb; docker compose up -d
 ```
 
 ```bash
-make up         # pull up ferretdb with docker-compose in minimal mode
+make up         # pull up ferretdb with docker compose in minimal mode
 make run        # launch ferretdb with docker , local data dir and external PostgreSQL
 make view       # print ferretdb access point
 make log        # tail -f ferretdb logs
