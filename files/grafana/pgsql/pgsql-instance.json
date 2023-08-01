@@ -370,7 +370,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 72
+                                "value": 80
                             },
                             {
                                 "id": "mappings",
@@ -378,24 +378,14 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "#e02f44",
+                                                "color": "#3e668f",
                                                 "index": 0,
-                                                "text": "replica"
+                                                "text": "primary"
                                             },
                                             "1": {
-                                                "color": "#b783af",
-                                                "index": 1,
-                                                "text": "primary"
-                                            },
-                                            "2": {
                                                 "color": "#346f36cc",
-                                                "index": 2,
+                                                "index": 1,
                                                 "text": "replica"
-                                            },
-                                            "3": {
-                                                "color": "#3e668f",
-                                                "index": 3,
-                                                "text": "primary"
                                             }
                                         },
                                         "type": "value"
@@ -860,6 +850,44 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Up"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#cc4637d9",
+                                                "index": 0,
+                                                "text": "Dead"
+                                            },
+                                            "1": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "Alive"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
                     }
                 ]
             },
@@ -869,11 +897,11 @@
                 "x": 6,
                 "y": 1
             },
-            "id": 105,
+            "id": 109,
             "links": [
                 {
-                    "title": "PGSQL Cluster : ${cls}",
-                    "url": "/d/pgsql-cluster?var-cls=${cls}&${__url_time_range}"
+                    "title": "PGSQL Instance : ${primary}",
+                    "url": "/d/pgsql-instance?var-ins=${primary}&${__url_time_range}"
                 }
             ],
             "options": {
@@ -901,8 +929,9 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (ins,ip) (pg:ins:status{cls=\"$cls\"})",
+                    "expr": "min by (ins,ip) (up{job=\"pgsql\", cls=\"$cls\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -938,6 +967,21 @@
                     "interval": "",
                     "legendFormat": "",
                     "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min by (ins,ip) (pg_in_recovery{cls=\"$cls\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "D"
                 },
                 {
                     "datasource": {
@@ -982,6 +1026,7 @@
                     "refId": "G"
                 }
             ],
+            "title": "Members",
             "transformations": [
                 {
                     "id": "seriesToColumns",
@@ -1004,9 +1049,6 @@
                             "Time 9": true,
                             "Value #A": false,
                             "Value #B": false,
-                            "Value #E": false,
-                            "Value #F": true,
-                            "Value #G": false,
                             "Value #H": false,
                             "__name__": true,
                             "__name__ 1": true,
@@ -1050,23 +1092,24 @@
                             "Time 3": 11,
                             "Time 4": 12,
                             "Time 5": 13,
-                            "Time 6": 14,
+                            "Time 6": 15,
                             "Value #A": 0,
-                            "Value #B": 3,
-                            "Value #C": 4,
-                            "Value #E": 6,
-                            "Value #F": 8,
-                            "Value #G": 5,
-                            "ins": 1,
-                            "instance": 7,
-                            "ip": 2
+                            "Value #B": 4,
+                            "Value #C": 5,
+                            "Value #D": 1,
+                            "Value #E": 7,
+                            "Value #G": 6,
+                            "ins": 2,
+                            "instance": 8,
+                            "ip 1": 3,
+                            "ip 2": 14
                         },
                         "renameByName": {
                             "Time 4": "",
-                            "Value #A": "Role",
+                            "Value #A": "Up",
                             "Value #B": "Load",
                             "Value #C": "TPS",
-                            "Value #D": "Proxy",
+                            "Value #D": "Role",
                             "Value #E": "DB Conn",
                             "Value #F": "RT",
                             "Value #G": "LB Conn",
@@ -4354,8 +4397,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -4371,7 +4413,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 29
+                        "y": 37
                     },
                     "id": 72,
                     "options": {
@@ -4453,8 +4495,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             },
@@ -4466,7 +4507,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 29
+                        "y": 37
                     },
                     "id": 92,
                     "options": {
@@ -4559,8 +4600,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             },
@@ -4613,7 +4653,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 36
+                        "y": 44
                     },
                     "id": 68,
                     "options": {
@@ -4709,8 +4749,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             }
@@ -4799,7 +4838,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 36
+                        "y": 44
                     },
                     "id": 94,
                     "options": {
@@ -4898,8 +4937,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             },
@@ -4911,7 +4949,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 44
+                        "y": 52
                     },
                     "id": 66,
                     "options": {
@@ -4991,8 +5029,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             },
@@ -5065,7 +5102,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 44
+                        "y": 52
                     },
                     "id": 96,
                     "links": [
@@ -5196,8 +5233,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             },
@@ -5209,7 +5245,7 @@
                         "h": 9,
                         "w": 10,
                         "x": 0,
-                        "y": 51
+                        "y": 59
                     },
                     "id": 90,
                     "links": [
@@ -5300,8 +5336,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -5317,7 +5352,7 @@
                         "h": 9,
                         "w": 14,
                         "x": 10,
-                        "y": 51
+                        "y": 59
                     },
                     "id": 88,
                     "options": {
@@ -5421,8 +5456,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             },
@@ -5531,7 +5565,7 @@
                         "h": 7,
                         "w": 4,
                         "x": 0,
-                        "y": 61
+                        "y": 69
                     },
                     "id": 103,
                     "interval": "1s",
@@ -5650,8 +5684,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             },
@@ -5724,7 +5757,7 @@
                         "h": 7,
                         "w": 20,
                         "x": 4,
-                        "y": 61
+                        "y": 69
                     },
                     "id": 100,
                     "interval": "1s",
@@ -5805,7 +5838,7 @@
                         "h": 12,
                         "w": 24,
                         "x": 0,
-                        "y": 68
+                        "y": 76
                     },
                     "id": 102,
                     "options": {
