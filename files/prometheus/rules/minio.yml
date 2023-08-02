@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   minio.yml
 # Ctime     :   2023-02-24
-# Mtime     :   2023-02-24
+# Mtime     :   2023-08-02
 # Desc      :   Record rules for minio
 # Path      :   /etc/prometheus/rules/minio.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -23,6 +23,20 @@ groups:
   ################################################################
   - name: minio-alert
     rules:
+
+      #==============================================================#
+      #                         Aliveness                            #
+      #==============================================================#
+      # etcd server instance down
+      - alert: MinioServerDown
+        expr: minio_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: minio }
+        annotations:
+          summary: "CRIT MinioServerDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            minio_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/minio-overview
 
       #==============================================================#
       #                         Error                                #

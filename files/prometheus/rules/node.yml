@@ -709,7 +709,55 @@ groups:
   ################################################################
   - name: node-alert
     rules:
-      
+
+      #==============================================================#
+      #                          Aliveness                           #
+      #==============================================================#
+      # node exporter is dead indicate node is down
+      - alert: NodeDown
+        expr: node_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: node }
+        annotations:
+          summary: "CRIT NodeDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            node_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/node-instance?var-ins={{ $labels.ins }}
+
+      # haproxy the load balancer
+      - alert: HaproxyDown
+        expr: haproxy_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: node }
+        annotations:
+          summary: "CRIT HaproxyDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            haproxy_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/node-haproxy?var-ins={{ $labels.ins }}
+
+      # promtail the logging agent
+      - alert: PromtailDown
+        expr: promtail_up < 1
+        for: 1m
+        labels: { level: 1, severity: WARN, category: node }
+        annotations:
+          summary: "CRIT PromtailDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            promtail_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/node-instance?var-ins={{ $labels.ins }}
+
+      # docker the container engine
+      - alert: DockerDown
+        expr: docker_up < 1
+        for: 1m
+        labels: { level: 1, severity: WARN, category: node }
+        annotations:
+          summary: "CRIT DockerDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            docker_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/node-instance?var-ins={{ $labels.ins }}
+
+
       #==============================================================#
       #                          Node : CPU                          #
       #==============================================================#

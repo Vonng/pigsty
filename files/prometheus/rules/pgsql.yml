@@ -1343,6 +1343,21 @@ groups:
     rules:
 
       #==============================================================#
+      #                        DCS Failsafe                          #
+      #==============================================================#
+      # dcs:etcd cluster is down
+      - alert: PatroniFailSafeActive
+        expr: sum(patroni_failsafe_mode_is_active{}) > 0
+        # for: 1m
+        labels: { level: 0, severity: CRIT, category: pgsql }
+        annotations:
+          summary: "CRIT PatroniFailSafeActive {{ $value }}"
+          description: |
+            sum(patroni_failsafe_mode_is_active{}) > 0
+            http://g.pigsty/d/pgsql-overview  
+
+
+      #==============================================================#
       #                          Aliveness                           #
       #==============================================================#
 
@@ -1357,7 +1372,6 @@ groups:
             pg_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
             http://g.pigsty/d/pgsql-instance?var-ins={{ $labels.ins }}
 
-
       # database connection pool down
       - alert: PgbouncerDown
         expr: pgbouncer_up < 1
@@ -1367,6 +1381,39 @@ groups:
           summary: "CRIT PostgresDown {{ $labels.ins }}@{{ $labels.instance }}"
           description: |
             pgbouncer_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/pgsql-instance?var-ins={{ $labels.ins }}
+
+      # patroni HA agent is down
+      - alert: PatroniDown
+        expr: patroni_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: pgsql }
+        annotations:
+          summary: "CRIT PatroniDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            patroni_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/pgsql-instance?var-ins={{ $labels.ins }}
+
+      # pg exporter monitor agent down
+      - alert: PgExporterDown
+        expr: pg_exporter_agent_up < 1
+        for: 1m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PgExporterDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            pg_exporter_agent_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/pgsql-instance?var-ins={{ $labels.ins }}
+
+      # pg exporter monitor agent down
+      - alert: PgbouncerExporterDown
+        expr: pgbouncer_exporter_agent_up < 1
+        for: 1m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PgExporterDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            pgbouncer_exporter_agent_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
             http://g.pigsty/d/pgsql-instance?var-ins={{ $labels.ins }}
 
       # database server restart (uptime < 5min)

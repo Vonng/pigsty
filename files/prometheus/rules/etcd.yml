@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   etcd.yml
 # Ctime     :   2023-02-24
-# Mtime     :   2023-02-24
+# Mtime     :   2023-08-02
 # Desc      :   Record rules for etcd
 # Path      :   /etc/prometheus/rules/etcd.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -35,6 +35,20 @@ groups:
   ################################################################
   - name: etcd-alert
     rules:
+
+      #==============================================================#
+      #                         Aliveness                            #
+      #==============================================================#
+      # etcd server instance down
+      - alert: EtcdServerDown
+        expr: etcd_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: etcd }
+        annotations:
+          summary: "CRIT EtcdServerDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            etcd_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/etcd-overview
 
       #==============================================================#
       #                         Error                                #
