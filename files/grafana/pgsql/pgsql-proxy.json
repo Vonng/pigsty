@@ -118,43 +118,180 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "ins = ${ins}, used as unique instance identifier. Formed as {{ cls }}-{{ seq }}. ",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "PGSQL Instance for ${ins}",
-                            "url": "/d/pgsql-instance?var-ins=${ins}&var-cls=${cls}&${__url_time_range}"
-                        }
-                    ],
                     "mappings": [],
+                    "max": 2.5,
+                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${cls}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Cluster"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster : ${cls}",
+                                        "url": "/d/pgsql-cluster?var-cls=${cls}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Instance"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${ins}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Instance"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Instance : ${ins}",
+                                        "url": "/d/pgsql-instance?var-ins=${ins}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "IP"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Node IP"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "displayName",
+                                "value": "${ip}"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node Instance : ${ip}",
+                                        "url": "/d/node-instance?var-id=${ip}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${node}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Hostname"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node Instance : ${node}",
+                                        "url": "/d/node-instance?var-id=${node}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 2,
+                "h": 6,
                 "w": 6,
                 "x": 0,
                 "y": 1
             },
-            "id": 191,
+            "id": 220,
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -162,36 +299,76 @@
                     "fields": "",
                     "values": false
                 },
-                "text": {},
-                "textMode": "name"
+                "text": {
+                    "titleSize": 20,
+                    "valueSize": 16
+                },
+                "textMode": "value_and_name"
             },
             "pluginVersion": "10.0.3",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "1",
-                    "format": "table",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "",
-                    "refId": "A"
-                }
-            ],
-            "title": "Instance",
-            "transformations": [
+                    "legendFormat": "Instance",
+                    "queryType": "measurements",
+                    "refId": "B"
+                },
                 {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Value": "${ins}"
-                        }
-                    }
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Cluster",
+                    "queryType": "measurements",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "IP",
+                    "queryType": "measurements",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Name",
+                    "queryType": "measurements",
+                    "refId": "D"
                 }
             ],
+            "transformations": [],
             "type": "stat"
         },
         {
@@ -1087,251 +1264,6 @@
                 }
             ],
             "type": "table"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Cluster for ${cls}",
-                            "url": "/d/pgsql-cluster?var-cls=${cls}&${__url_time_range}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 0,
-                "y": 3
-            },
-            "id": 189,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Cluster",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Value": "${cls}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "ip = ${ip}. Unique identifier for corresponding node",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Node of ${ip}",
-                            "url": "/d/node-instance?var-ip=${ip}&${__url_time_range}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 3,
-                "y": 3
-            },
-            "id": 195,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "refId": "A"
-                }
-            ],
-            "title": "Node IP",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${ip}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "Hostname = ${node}",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Node of ${node}",
-                            "url": "/d/node-instance?var-id=${node}&${__url_time_range}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 6,
-                "x": 0,
-                "y": 5
-            },
-            "id": 193,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "refId": "A"
-                }
-            ],
-            "title": "Node Name",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Value": "${node}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
         },
         {
             "datasource": {
@@ -2627,8 +2559,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -2644,7 +2575,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 31
+                        "y": 39
                     },
                     "id": 85,
                     "links": [],
@@ -2735,8 +2666,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -2752,7 +2682,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 31
+                        "y": 39
                     },
                     "id": 187,
                     "links": [],
@@ -2805,8 +2735,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             }
@@ -2830,8 +2759,7 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#f5a673",
-                                                    "value": null
+                                                    "color": "#f5a673"
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -2903,7 +2831,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 37
+                        "y": 45
                     },
                     "id": 177,
                     "options": {
@@ -2975,8 +2903,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             }
@@ -3000,8 +2927,7 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#f5a673",
-                                                    "value": null
+                                                    "color": "#f5a673"
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -3073,7 +2999,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 37
+                        "y": 45
                     },
                     "id": 180,
                     "options": {
@@ -3141,7 +3067,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 44
+                        "y": 52
                     },
                     "hiddenSeries": false,
                     "id": 185,
@@ -3231,7 +3157,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 44
+                        "y": 52
                     },
                     "hiddenSeries": false,
                     "id": 186,
@@ -3342,7 +3268,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 0,
-                        "y": 51
+                        "y": 59
                     },
                     "hiddenSeries": false,
                     "id": 75,
@@ -3466,7 +3392,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 12,
-                        "y": 51
+                        "y": 59
                     },
                     "hiddenSeries": false,
                     "id": 79,
@@ -3575,7 +3501,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 0,
-                        "y": 61
+                        "y": 69
                     },
                     "hiddenSeries": false,
                     "id": 81,
@@ -3737,7 +3663,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 12,
-                        "y": 61
+                        "y": 69
                     },
                     "hiddenSeries": false,
                     "id": 84,
@@ -3863,7 +3789,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 72
+                        "y": 80
                     },
                     "hiddenSeries": false,
                     "id": 27,
@@ -3972,7 +3898,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 72
+                        "y": 80
                     },
                     "hiddenSeries": false,
                     "id": 1,
@@ -4080,7 +4006,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 87
+                        "y": 95
                     },
                     "hiddenSeries": false,
                     "id": 42,
@@ -4188,7 +4114,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 87
+                        "y": 95
                     },
                     "hiddenSeries": false,
                     "id": 43,
@@ -4301,7 +4227,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 102
+                        "y": 110
                     },
                     "hiddenSeries": false,
                     "id": 131,
@@ -4399,7 +4325,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 102
+                        "y": 110
                     },
                     "hiddenSeries": false,
                     "id": 114,
@@ -4512,7 +4438,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 118
+                        "y": 126
                     },
                     "hiddenSeries": false,
                     "id": 30,
@@ -4623,7 +4549,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 118
+                        "y": 126
                     },
                     "hiddenSeries": false,
                     "id": 45,
@@ -4749,7 +4675,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 131
+                        "y": 139
                     },
                     "hiddenSeries": false,
                     "id": 34,
@@ -4859,7 +4785,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 131
+                        "y": 139
                     },
                     "hiddenSeries": false,
                     "id": 51,
@@ -4968,7 +4894,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 144
+                        "y": 152
                     },
                     "hiddenSeries": false,
                     "id": 33,
@@ -5064,7 +4990,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 144
+                        "y": 152
                     },
                     "hiddenSeries": false,
                     "id": 69,
@@ -5173,7 +5099,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 157
+                        "y": 165
                     },
                     "hiddenSeries": false,
                     "id": 124,
@@ -5276,7 +5202,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 157
+                        "y": 165
                     },
                     "hiddenSeries": false,
                     "id": 128,
@@ -5407,7 +5333,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 0,
-                        "y": 171
+                        "y": 179
                     },
                     "hiddenSeries": false,
                     "id": 38,
@@ -5502,7 +5428,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 12,
-                        "y": 171
+                        "y": 179
                     },
                     "hiddenSeries": false,
                     "id": 39,
@@ -5598,7 +5524,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 0,
-                        "y": 185
+                        "y": 193
                     },
                     "hiddenSeries": false,
                     "id": 142,
@@ -5694,7 +5620,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 12,
-                        "y": 185
+                        "y": 193
                     },
                     "hiddenSeries": false,
                     "id": 143,
@@ -5808,7 +5734,7 @@
                         "h": 13,
                         "w": 8,
                         "x": 0,
-                        "y": 200
+                        "y": 208
                     },
                     "hiddenSeries": false,
                     "id": 129,
@@ -5916,7 +5842,7 @@
                         "h": 13,
                         "w": 8,
                         "x": 8,
-                        "y": 200
+                        "y": 208
                     },
                     "hiddenSeries": false,
                     "id": 130,
@@ -6032,7 +5958,7 @@
                         "h": 13,
                         "w": 8,
                         "x": 16,
-                        "y": 200
+                        "y": 208
                     },
                     "hiddenSeries": false,
                     "id": 59,
@@ -6169,7 +6095,7 @@
                         "h": 16,
                         "w": 8,
                         "x": 0,
-                        "y": 214
+                        "y": 222
                     },
                     "hiddenSeries": false,
                     "id": 61,
@@ -6298,7 +6224,7 @@
                         "h": 16,
                         "w": 8,
                         "x": 8,
-                        "y": 214
+                        "y": 222
                     },
                     "hiddenSeries": false,
                     "id": 60,
@@ -6407,7 +6333,7 @@
                         "h": 16,
                         "w": 8,
                         "x": 16,
-                        "y": 214
+                        "y": 222
                     },
                     "hiddenSeries": false,
                     "id": 146,
@@ -6533,7 +6459,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 231
+                        "y": 239
                     },
                     "hiddenSeries": false,
                     "id": 62,
@@ -6629,7 +6555,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 231
+                        "y": 239
                     },
                     "hiddenSeries": false,
                     "id": 56,
@@ -6738,7 +6664,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 246
+                        "y": 254
                     },
                     "hiddenSeries": false,
                     "id": 57,
@@ -6834,7 +6760,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 246
+                        "y": 254
                     },
                     "hiddenSeries": false,
                     "id": 90,
@@ -6929,7 +6855,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 261
+                        "y": 269
                     },
                     "hiddenSeries": false,
                     "id": 91,
@@ -7023,7 +6949,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 261
+                        "y": 269
                     },
                     "hiddenSeries": false,
                     "id": 73,
@@ -7119,7 +7045,7 @@
                         "h": 9,
                         "w": 24,
                         "x": 0,
-                        "y": 276
+                        "y": 284
                     },
                     "hiddenSeries": false,
                     "id": 144,
@@ -7231,7 +7157,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 286
+                        "y": 294
                     },
                     "hiddenSeries": false,
                     "id": 87,
@@ -7348,7 +7274,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 286
+                        "y": 294
                     },
                     "hiddenSeries": false,
                     "id": 107,
@@ -7460,7 +7386,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 299
+                        "y": 307
                     },
                     "hiddenSeries": false,
                     "id": 89,
@@ -7564,7 +7490,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 299
+                        "y": 307
                     },
                     "hiddenSeries": false,
                     "id": 99,
@@ -7685,7 +7611,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 312
+                        "y": 320
                     },
                     "hiddenSeries": false,
                     "id": 86,
@@ -7788,7 +7714,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 312
+                        "y": 320
                     },
                     "hiddenSeries": false,
                     "id": 88,
@@ -7882,7 +7808,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 325
+                        "y": 333
                     },
                     "hiddenSeries": false,
                     "id": 108,
@@ -7976,7 +7902,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 325
+                        "y": 333
                     },
                     "hiddenSeries": false,
                     "id": 109,
@@ -8088,7 +8014,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 338
+                        "y": 346
                     },
                     "hiddenSeries": false,
                     "id": 110,
@@ -8191,7 +8117,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 338
+                        "y": 346
                     },
                     "hiddenSeries": false,
                     "id": 111,
@@ -8285,7 +8211,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 0,
-                        "y": 351
+                        "y": 359
                     },
                     "hiddenSeries": false,
                     "id": 101,
@@ -8403,7 +8329,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 12,
-                        "y": 351
+                        "y": 359
                     },
                     "hiddenSeries": false,
                     "id": 96,
@@ -8518,7 +8444,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 0,
-                        "y": 365
+                        "y": 373
                     },
                     "hiddenSeries": false,
                     "id": 100,
@@ -8636,7 +8562,7 @@
                         "h": 14,
                         "w": 12,
                         "x": 12,
-                        "y": 365
+                        "y": 373
                     },
                     "hiddenSeries": false,
                     "id": 95,
