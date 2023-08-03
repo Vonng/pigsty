@@ -110,7 +110,7 @@
             },
             "id": 24,
             "panels": [],
-            "title": "Catalog",
+            "title": "$relname (${oid})",
             "type": "row"
         },
         {
@@ -118,43 +118,215 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "Relation Name",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "PGSQL Table for ${relname}",
-                            "url": "/d/pgsql-table?var-ins=${ins}&var-datname=${datname}&var-relname=${relname}&${__url_time_range}"
-                        }
-                    ],
                     "mappings": [],
+                    "max": 2.5,
+                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${cls}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Cluster"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node Cluster : ${cls}",
+                                        "url": "/d/node-cluster?var-cls=${cls}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Instance"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${ins}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Instance"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGCAT Instance : ${ins}.${datname}",
+                                        "url": "/d/pgcat-instance?var-dsn=${ins}.${datname}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${datname}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Database"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGCAT Database : ${ins}.${datname}",
+                                        "url": "/d/pgcat-database?var-dsn=$ins.$datname"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Table"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${tblname}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Table"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Table : ${tblname}",
+                                        "url": "/d/pgsql-table?var-ins=${ins}&var-datname=${datname}&var-relname=${relname}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Schema"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Schema"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "displayName",
+                                "value": "${nspname}"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGCAT Schema : ${ins}\ufeff.\ufeff${datname}.${nspname}",
+                                        "url": "/d/pgcat-schema?var-dsn=${ins}.${datname}&var-schema=${nspname}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 2,
+                "h": 7,
                 "w": 6,
                 "x": 0,
                 "y": 1
             },
-            "id": 50,
+            "id": 61,
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -162,38 +334,76 @@
                     "fields": "",
                     "values": false
                 },
-                "text": {},
-                "textMode": "name"
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 16
+                },
+                "textMode": "value_and_name"
             },
             "pluginVersion": "10.0.3",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "1",
-                    "format": "table",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "",
+                    "legendFormat": "Table",
                     "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Relation",
-            "transformations": [
+                    "refId": "C"
+                },
                 {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${relname}"
-                        }
-                    }
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Schema",
+                    "queryType": "measurements",
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Database",
+                    "queryType": "measurements",
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Instance",
+                    "queryType": "measurements",
+                    "refId": "B"
                 }
             ],
+            "transformations": [],
             "type": "stat"
         },
         {
@@ -230,13 +440,12 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 40
+                                "value": 60
                             },
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
+                                    "type": "auto"
                                 }
                             }
                         ]
@@ -260,7 +469,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 80
+                                "value": 85
                             },
                             {
                                 "id": "mappings",
@@ -295,9 +504,12 @@
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
+                                    "type": "color-text"
                                 }
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
                             }
                         ]
                     },
@@ -340,13 +552,16 @@
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
+                                    "type": "color-text"
                                 }
                             },
                             {
                                 "id": "custom.width",
-                                "value": 60
+                                "value": 75
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
                             }
                         ]
                     },
@@ -413,13 +628,16 @@
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
+                                    "type": "color-text"
                                 }
                             },
                             {
                                 "id": "custom.width",
-                                "value": 60
+                                "value": 75
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
                             }
                         ]
                     },
@@ -439,17 +657,17 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "#e3e3e3e0",
+                                                "color": "transparent",
                                                 "index": 0,
                                                 "text": "N"
                                             },
                                             "1": {
-                                                "color": "super-light-green",
+                                                "color": "#3e668f",
                                                 "index": 1,
                                                 "text": "1"
                                             },
                                             "2": {
-                                                "color": "super-light-blue",
+                                                "color": "#f5a673",
                                                 "index": 2,
                                                 "text": "2"
                                             }
@@ -483,12 +701,12 @@
                                     {
                                         "options": {
                                             "false": {
-                                                "color": "#e3e3e3e0",
+                                                "color": "transparent",
                                                 "index": 0,
                                                 "text": "F"
                                             },
                                             "true": {
-                                                "color": "red",
+                                                "color": "#cc4637d9",
                                                 "index": 1,
                                                 "text": "T"
                                             }
@@ -526,13 +744,12 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 90
+                                "value": 110
                             },
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
+                                    "type": "color-text"
                                 }
                             },
                             {
@@ -541,12 +758,12 @@
                                     {
                                         "options": {
                                             "false": {
-                                                "color": "#e3e3e3e0",
+                                                "color": "transparent",
                                                 "index": 0,
                                                 "text": "NULLABLE"
                                             },
                                             "true": {
-                                                "color": "#b8b8b8e0",
+                                                "color": "#f5a673",
                                                 "index": 1,
                                                 "text": "NOT NULL"
                                             }
@@ -554,6 +771,10 @@
                                         "type": "value"
                                     }
                                 ]
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
                             }
                         ]
                     },
@@ -578,13 +799,17 @@
                             {
                                 "id": "custom.minWidth",
                                 "value": 140
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
                             }
                         ]
                     }
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 10,
                 "w": 18,
                 "x": 6,
                 "y": 1
@@ -719,21 +944,16 @@
         },
         {
             "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
+                "type": "postgres",
+                "uid": "${dsn}"
             },
-            "description": "Database name",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
+                        "fixedColor": "#3e668f",
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "PGCAT Database for ${datname}",
-                            "url": "/d/pgcat-database?var-dsn=${dsn}"
-                        }
-                    ],
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
@@ -745,138 +965,348 @@
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Kind"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "I": {
+                                                "color": "super-light-green",
+                                                "index": 9,
+                                                "text": "Partitioned Index"
+                                            },
+                                            "P": {
+                                                "color": "#3274D9",
+                                                "index": 10,
+                                                "text": "Partition Table"
+                                            },
+                                            "S": {
+                                                "color": "#fcdb72",
+                                                "index": 2,
+                                                "text": "Sequence"
+                                            },
+                                            "c": {
+                                                "color": "super-light-orange",
+                                                "index": 6,
+                                                "text": "Componse Type"
+                                            },
+                                            "f": {
+                                                "color": "#f5a673",
+                                                "index": 7,
+                                                "text": "Foreign table"
+                                            },
+                                            "i": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "Regular Index"
+                                            },
+                                            "m": {
+                                                "color": "dark-blue",
+                                                "index": 5,
+                                                "text": "Materialized View"
+                                            },
+                                            "p": {
+                                                "color": "#284766",
+                                                "index": 8,
+                                                "text": "Partitioned Table"
+                                            },
+                                            "r": {
+                                                "color": "#3e668f",
+                                                "index": 0,
+                                                "text": "Regular Table"
+                                            },
+                                            "t": {
+                                                "color": "#808080",
+                                                "index": 3,
+                                                "text": "Toast Table"
+                                            },
+                                            "v": {
+                                                "color": "red",
+                                                "index": 4,
+                                                "text": "Regular View"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 2,
+                "h": 3,
                 "w": 6,
                 "x": 0,
-                "y": 3
+                "y": 8
             },
-            "id": 48,
+            "id": 62,
+            "links": [],
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
                 "orientation": "auto",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
                     ],
-                    "fields": "",
+                    "fields": "/.*/",
                     "values": false
                 },
-                "text": {},
-                "textMode": "name"
+                "textMode": "value"
             },
             "pluginVersion": "10.0.3",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "${dsn}"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "1",
+                    "expr": "SELECT * FROM pg_class;",
                     "format": "table",
+                    "group": [],
                     "instant": true,
                     "interval": "",
                     "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Database",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${datname}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "Schema Name",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT relkind FROM pg_class WHERE relname = '$tblname';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
                     },
-                    "links": [
+                    "timeColumn": "time",
+                    "where": [
                         {
-                            "title": "PGCAT Schema : ${nspname}",
-                            "url": "/d/pgcat-schema?var-dsn=${dsn}&var-schema=${nspname}"
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
                         }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 4,
-                "x": 0,
-                "y": 5
-            },
-            "id": 49,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
+                    ]
                 }
             ],
-            "title": "Schema",
             "transformations": [
                 {
                     "id": "organize",
                     "options": {
                         "excludeByName": {
-                            "Time": true
+                            "Time 1": true,
+                            "Time 10": true,
+                            "Time 2": true,
+                            "Time 3": true,
+                            "Time 4": true,
+                            "Time 5": true,
+                            "Time 6": true,
+                            "Time 7": true,
+                            "Time 8": true,
+                            "Time 9": true,
+                            "acl": true,
+                            "analyze_count": false,
+                            "autoanalyze_count": false,
+                            "autovacuum_count": false,
+                            "datcollate": true,
+                            "datctype": true,
+                            "datfrozenxid": true,
+                            "description": true,
+                            "encoding": true,
+                            "idx_tup_fetch": false,
+                            "n_ins_since_vacuum": false,
+                            "n_mod_since_analyze": false,
+                            "n_tup_hot_upd": false,
+                            "nspname": true,
+                            "relallvisible": false,
+                            "relam": true,
+                            "relfilenode": false,
+                            "relid": true,
+                            "relname": true,
+                            "relnamespace": true,
+                            "reloftype": true,
+                            "relowner": true,
+                            "relpages": false,
+                            "relrewrite": true,
+                            "reltablespace": true,
+                            "reltype": true,
+                            "schemaname": true,
+                            "seq_tup_read": false,
+                            "tablespace": true,
+                            "vacuum_count": false
                         },
-                        "indexByName": {},
+                        "indexByName": {
+                            "Name": 2,
+                            "Owner": 4,
+                            "age": 14,
+                            "oid": 0,
+                            "relacl": 34,
+                            "relallvisible": 10,
+                            "relam": 21,
+                            "relchecks": 23,
+                            "relfilenode": 5,
+                            "relforcerowsecurity": 30,
+                            "relfrozenxid": 15,
+                            "relhasindex": 25,
+                            "relhasrules": 26,
+                            "relhassubclass": 28,
+                            "relhastriggers": 27,
+                            "relispartition": 32,
+                            "relispopulated": 31,
+                            "relisshared": 24,
+                            "relkind": 1,
+                            "relminmxid": 16,
+                            "relname": 3,
+                            "relnamespace": 17,
+                            "relnatts": 6,
+                            "reloftype": 19,
+                            "reloptions": 35,
+                            "relowner": 20,
+                            "relpages": 9,
+                            "relpartbound": 36,
+                            "relpersistence": 11,
+                            "relreplident": 12,
+                            "relrewrite": 33,
+                            "relrowsecurity": 29,
+                            "reltablespace": 22,
+                            "reltoastrelid": 13,
+                            "reltuples": 7,
+                            "reltype": 18,
+                            "size": 8
+                        },
                         "renameByName": {
-                            "Time": "",
-                            "Value": "${nspname}"
+                            "I": "Partitioned Index",
+                            "Kind": "Kind",
+                            "Name": "Name",
+                            "Owner": "Owner",
+                            "S": "Sequence",
+                            "Size": "Size",
+                            "Time 1": "",
+                            "Time 7": "",
+                            "Value #A": "Size",
+                            "Value #B": "Age",
+                            "Value #C": "Status",
+                            "Value #D": "Session",
+                            "Value #E": "TPS",
+                            "Value #F": "ConnLimit",
+                            "Value #G": "Reserve",
+                            "Value #H": "Current",
+                            "Value #I": "Disable",
+                            "Value #J": "Pause",
+                            "acl": "Privileges",
+                            "age": "Age",
+                            "analyze_count": "Analyze Count",
+                            "autoanalyze_count": "AutoAnalyze Count",
+                            "autovacuum_count": "AutoVacuum Count",
+                            "c": "Compose Type",
+                            "datallowconn": "Conn",
+                            "datcollate": "Collate",
+                            "datconnlimit": "ConnLimit",
+                            "datctype": "Ctype",
+                            "datfrozenxid": "FronzenXID",
+                            "datistemplate": "Tmpl",
+                            "datname": "Database",
+                            "description": "Description",
+                            "encoding": "Encoding",
+                            "f": "Foreign Table",
+                            "host": "Target",
+                            "i": "Index",
+                            "idx_scan": "Idx Scan",
+                            "idx_tup_fetch": "Index Rows",
+                            "kind": "Kind",
+                            "last_analyze": "Last Analyze",
+                            "last_autoanalyze": "Last AutoAnalyze",
+                            "last_autovacuum": "Last AutoVacuum",
+                            "last_vacuum": "Last Vacuum",
+                            "m": "Materialized View",
+                            "n_dead_tup": "Dead",
+                            "n_ins_since_vacuum": "nInsSinceVacuum",
+                            "n_live_tup": "Live",
+                            "n_mod_since_analyze": "nModSinceAnalyze",
+                            "n_tup_del": "Deleted",
+                            "n_tup_hot_upd": "HOT Update",
+                            "n_tup_ins": "Inserted",
+                            "n_tup_mod": "Modified",
+                            "n_tup_upd": "Updated",
+                            "name": "Name",
+                            "nspname": "Schema",
+                            "oid": "OID",
+                            "owner": "Owner",
+                            "p": "Partitioned Table",
+                            "pg_table_size": "Size",
+                            "r": "Table",
+                            "real_datname": "Datname",
+                            "rel": "Table",
+                            "relacl": "ACL",
+                            "relage": "Age",
+                            "relallvisible": "nVisible",
+                            "relchecks": "nChecks",
+                            "relfilenode": "Filenode",
+                            "relforcerowsecurity": "EnfoceRLS",
+                            "relfrozenxid": "FrozenXID",
+                            "relhasindex": "HasIndex",
+                            "relhasrules": "HasRule",
+                            "relhassubclass": "HasSubClass",
+                            "relhastriggers": "HasTrigger",
+                            "relid": "",
+                            "relispartition": "IsPartition",
+                            "relispopulated": "IsPopulated",
+                            "relisshared": "IsShared",
+                            "relkind": "Kind",
+                            "relminmxid": "MinXmin",
+                            "relname": "",
+                            "relnatts": "nAttr",
+                            "reloptions": "Options",
+                            "relpages": "Pages",
+                            "relpartbound": "PartBound",
+                            "relpersistence": "Persist",
+                            "relreplident": "Identity",
+                            "relrewrite": "",
+                            "relrowsecurity": "EnableRLS",
+                            "reltablespace": "",
+                            "reltoastrelid": "ToastID",
+                            "reltuples": "Tuples",
+                            "seq_scan": "Seq Scan",
+                            "seq_tup_read": "Scan Rows",
+                            "sessions": "Session",
+                            "size": "Size",
+                            "status": "Status",
+                            "t": "Toast",
+                            "tablespace": "Tablespace",
+                            "tbl_scan": "Scan",
+                            "tup_read": "Scanned",
+                            "v": "View",
+                            "vacuum_count": "Vacuum Count"
                         }
                     }
                 }
@@ -884,82 +1314,17 @@
             "type": "stat"
         },
         {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "Relation OID",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
+            "collapsed": false,
             "gridPos": {
-                "h": 2,
-                "w": 2,
-                "x": 4,
-                "y": 5
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 11
             },
-            "id": 51,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "OID",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${oid}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
+            "id": 56,
+            "panels": [],
+            "title": "Class Meta",
+            "type": "row"
         },
         {
             "datasource": {
@@ -967,35 +1332,14 @@
             },
             "fieldConfig": {
                 "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
                     "mappings": [
                         {
                             "options": {
-                                "I": {
-                                    "text": "(I) Partition Index"
-                                },
-                                "c": {
-                                    "text": "(c) Compose Type"
-                                },
-                                "f": {
-                                    "text": "(f) Foreign Table"
-                                },
-                                "i": {
-                                    "text": "(i) Index"
-                                },
-                                "m": {
-                                    "text": "(m) Materialized View"
-                                },
-                                "p": {
-                                    "text": "(p) Partition Table"
-                                },
-                                "r": {
-                                    "text": "(r) Table"
-                                },
-                                "t": {
-                                    "text": "(t) Toast"
-                                },
-                                "v": {
-                                    "text": "(v) View"
+                                "0": {
+                                    "text": ""
                                 }
                             },
                             "type": "value"
@@ -1005,7 +1349,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
+                                "color": "#e3e3e3e0",
                                 "value": null
                             }
                         ]
@@ -1014,25 +1358,26 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 2,
+                "h": 10,
                 "w": 6,
                 "x": 0,
-                "y": 7
+                "y": 12
             },
-            "id": 34,
+            "id": 53,
+            "links": [],
             "options": {
-                "colorMode": "value",
+                "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "/.*/",
-                    "values": false
+                    "calcs": [],
+                    "fields": "",
+                    "values": true
                 },
-                "text": {},
+                "text": {
+                    "valueSize": 16
+                },
                 "textMode": "auto"
             },
             "pluginVersion": "10.0.3",
@@ -1042,7 +1387,7 @@
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT relkind FROM pg_class WHERE relname = '$tblname';",
+                    "rawSql": "SELECT oid, relnamespace, reltype, reloftype, relowner, relam, relfilenode, reltablespace, reltoastrelid FROM pg_class c WHERE oid = '$oid';",
                     "refId": "A",
                     "select": [
                         [
@@ -1064,8 +1409,693 @@
                     ]
                 }
             ],
-            "title": "Relation Kind",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
+                            "oid": "Relation OID",
+                            "relam": "Access Method ID",
+                            "relfilenode": "Rel Filenode",
+                            "relnamespace": "Schema OID",
+                            "reloftype": "Comptype OID",
+                            "relowner": "Owner OID",
+                            "reltablespace": "Tablespace OID",
+                            "reltoastrelid": "Toast Table OID",
+                            "reltype": "Reltype OID",
+                            "value": "\u53d6\u503c"
+                        }
+                    }
+                },
+                {
+                    "id": "reduce",
+                    "options": {
+                        "reducers": [
+                            "lastNotNull"
+                        ]
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Field": "Identifier",
+                            "Last (not null)": "Value"
+                        }
+                    }
+                }
+            ],
             "type": "stat"
+        },
+        {
+            "datasource": {
+                "uid": "$dsn"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": "FALSE"
+                                },
+                                "1": {
+                                    "text": "TRUE"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#3e668f",
+                                "value": null
+                            },
+                            {
+                                "color": "#346f36cc",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byType",
+                            "options": "boolean"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "false": {
+                                                "color": "#e3e3e3e0",
+                                                "index": 0,
+                                                "text": "False"
+                                            },
+                                            "true": {
+                                                "color": "#abababeb",
+                                                "index": 1,
+                                                "text": "True"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 6,
+                "x": 6,
+                "y": 12
+            },
+            "id": 10,
+            "links": [],
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "text": {
+                    "valueSize": 16
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT relhasindex,\n       relispartition,\n       relisshared,\n       relhasrules,\n       relhastriggers,\n       relhassubclass,\n       relrowsecurity,\n       relforcerowsecurity,\n       relispopulated\nFROM pg_class c\nWHERE oid = '${oid}'",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "key": "\u5c5e\u6027\u540d\u79f0",
+                            "relforcerowsecurity": "Force RLS",
+                            "relhasindex": "Has Index",
+                            "relhasrules": "Has Rule",
+                            "relhassubclass": "Has Subclass",
+                            "relhastriggers": "Has Trigger",
+                            "relispartition": "Is Partitioned",
+                            "relispopulated": "Is Populated",
+                            "relisshared": "Is Shared",
+                            "relrowsecurity": "Row level security",
+                            "reltemporary": "\u4e34\u65f6\u8868",
+                            "relunlogged": "\u4e0d\u8bb0\u5165WAL",
+                            "value": "\u5c5e\u6027\u53d6\u503c"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "uid": "$dsn"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 6,
+                "x": 12,
+                "y": 12
+            },
+            "id": 30,
+            "links": [],
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "text": {
+                    "valueSize": 16
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT relpages ::BIGINT, (relpages * 8192::REAL) AS relsize, reltuples ::REAL, relallvisible ::BIGINT, relnatts ::BIGINT, relchecks ::BIGINT, relfrozenxid, age(relfrozenxid) ::BIGINT AS age, relminmxid FROM pg_class c WHERE oid = '${oid}';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "age": "Age",
+                            "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
+                            "oid": "\u5173\u7cfbID",
+                            "relallvisible": "Rel All Visible",
+                            "relam": "\u8bbf\u95ee\u65b9\u6cd5ID",
+                            "relchecks": "Checks",
+                            "relfilenode": "\u8868\u6587\u4ef6\u8282\u70b9",
+                            "relforcerowsecurity": "\u5f3a\u5236\u884c\u7ea7\u5b89\u5168",
+                            "relfrozenxid": "Fronzen XID",
+                            "relhasindex": "\u62e5\u6709\u7d22\u5f15",
+                            "relhasrules": "\u5e26\u6709\u89c4\u5219",
+                            "relhassubclass": "\u62e5\u6709\u5b50\u7c7b",
+                            "relhastriggers": "\u5e26\u89e6\u53d1\u5668",
+                            "relispopulated": "\u5df2\u88ab\u586b\u5145",
+                            "relisshared": "\u8de8\u5e93\u5171\u4eab",
+                            "relminmxid": "Min XID",
+                            "relnamespace": "\u6a21\u5f0fID",
+                            "relnatts": "Columns",
+                            "reloftype": "\u590d\u5408\u7c7b\u578bID",
+                            "relowner": "\u8868\u5c5e\u4e3bID",
+                            "relpages": "Rel Pages",
+                            "relrowsecurity": "\u884c\u7ea7\u5b89\u5168",
+                            "relsize": "Rel Bytes",
+                            "reltablespace": "\u8868\u7a7a\u95f4ID",
+                            "reltoastrelid": "TOAST\u8868ID",
+                            "reltuples": "Rel Tuples",
+                            "reltype": "\u884c\u7c7b\u578bID",
+                            "value": "\u53d6\u503c"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "uid": "$dsn"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": "FALSE"
+                                },
+                                "1": {
+                                    "text": "TRUE"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": null
+                            },
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": 0
+                            },
+                            {
+                                "color": "#f5a673",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 6,
+                "x": 18,
+                "y": 12
+            },
+            "id": 37,
+            "links": [],
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "text": {
+                    "valueSize": 16
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT \n   CASE relpersistence WHEN 'u' THEN 1 ELSE 0 END AS relunlogged,\n   CASE relpersistence WHEN 't' THEN 1 ELSE 0 END AS reltemporary\nFROM pg_class c WHERE oid = '${oid}'",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "acl": "ACL",
+                            "age": "\u8868\u5e74\u9f84",
+                            "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
+                            "oid": "\u5173\u7cfbID",
+                            "opt": "\u8868\u53c2\u6570/\u9009\u9879",
+                            "relallvisible": "\u53ef\u89c1\u9875\u6570",
+                            "relam": "\u8bbf\u95ee\u65b9\u6cd5ID",
+                            "relchecks": "CHECK\u7ea6\u675f\u6570\u91cf",
+                            "relfilenode": "\u8868\u6587\u4ef6\u8282\u70b9",
+                            "relforcerowsecurity": "\u5f3a\u5236\u884c\u7ea7\u5b89\u5168",
+                            "relfrozenxid": "\u51bb\u7ed3\u4e8b\u52a1ID",
+                            "relhasindex": "\u62e5\u6709\u7d22\u5f15",
+                            "relhasrules": "\u5e26\u6709\u89c4\u5219",
+                            "relhassubclass": "\u62e5\u6709\u5b50\u7c7b",
+                            "relhastriggers": "\u5e26\u89e6\u53d1\u5668",
+                            "relispopulated": "\u5df2\u88ab\u586b\u5145",
+                            "relisshared": "\u8de8\u5e93\u5171\u4eab",
+                            "relminmxid": "\u4e8c\u9636\u6bb5\u4e8b\u52a1ID",
+                            "relnamespace": "\u6a21\u5f0fID",
+                            "relnatts": "\u5217\u6570",
+                            "reloftype": "\u590d\u5408\u7c7b\u578bID",
+                            "relowner": "\u8868\u5c5e\u4e3bID",
+                            "relpages": "\u9875\u9762\u6570\u91cf",
+                            "relrowsecurity": "\u884c\u7ea7\u5b89\u5168",
+                            "reltablespace": "\u8868\u7a7a\u95f4ID",
+                            "reltemporary": "Temporary",
+                            "reltoastrelid": "TOAST\u8868ID",
+                            "reltuples": "\u5143\u7ec4\u6570\u91cf",
+                            "reltype": "\u884c\u7c7b\u578bID",
+                            "relunlogged": "Unlogged",
+                            "value": "\u53d6\u503c"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "uid": "$dsn"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 6,
+                "x": 18,
+                "y": 15
+            },
+            "id": 36,
+            "links": [],
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "text": {
+                    "valueSize": 14
+                },
+                "textMode": "value"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT unnest(relacl) AS acl FROM pg_class c WHERE oid = '${oid}';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "acl": "ACL",
+                            "age": "\u8868\u5e74\u9f84",
+                            "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
+                            "oid": "\u5173\u7cfbID",
+                            "relallvisible": "\u53ef\u89c1\u9875\u6570",
+                            "relam": "\u8bbf\u95ee\u65b9\u6cd5ID",
+                            "relchecks": "CHECK\u7ea6\u675f\u6570\u91cf",
+                            "relfilenode": "\u8868\u6587\u4ef6\u8282\u70b9",
+                            "relforcerowsecurity": "\u5f3a\u5236\u884c\u7ea7\u5b89\u5168",
+                            "relfrozenxid": "\u51bb\u7ed3\u4e8b\u52a1ID",
+                            "relhasindex": "\u62e5\u6709\u7d22\u5f15",
+                            "relhasrules": "\u5e26\u6709\u89c4\u5219",
+                            "relhassubclass": "\u62e5\u6709\u5b50\u7c7b",
+                            "relhastriggers": "\u5e26\u89e6\u53d1\u5668",
+                            "relispopulated": "\u5df2\u88ab\u586b\u5145",
+                            "relisshared": "\u8de8\u5e93\u5171\u4eab",
+                            "relminmxid": "\u4e8c\u9636\u6bb5\u4e8b\u52a1ID",
+                            "relnamespace": "\u6a21\u5f0fID",
+                            "relnatts": "\u5217\u6570",
+                            "reloftype": "\u590d\u5408\u7c7b\u578bID",
+                            "relowner": "\u8868\u5c5e\u4e3bID",
+                            "relpages": "\u9875\u9762\u6570\u91cf",
+                            "relrowsecurity": "\u884c\u7ea7\u5b89\u5168",
+                            "reltablespace": "\u8868\u7a7a\u95f4ID",
+                            "reltoastrelid": "TOAST\u8868ID",
+                            "reltuples": "\u5143\u7ec4\u6570\u91cf",
+                            "reltype": "\u884c\u7c7b\u578bID",
+                            "value": "\u53d6\u503c"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "uid": "$dsn"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "noValue": "nil options",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 6,
+                "x": 18,
+                "y": 20
+            },
+            "id": 35,
+            "links": [],
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {
+                    "valueSize": 16
+                },
+                "textMode": "value"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT unnest(reloptions) AS opt FROM pg_class c WHERE oid = '${oid}';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "acl": "ACL",
+                            "age": "\u8868\u5e74\u9f84",
+                            "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
+                            "oid": "\u5173\u7cfbID",
+                            "opt": "Options",
+                            "relallvisible": "\u53ef\u89c1\u9875\u6570",
+                            "relam": "\u8bbf\u95ee\u65b9\u6cd5ID",
+                            "relchecks": "CHECK\u7ea6\u675f\u6570\u91cf",
+                            "relfilenode": "\u8868\u6587\u4ef6\u8282\u70b9",
+                            "relforcerowsecurity": "\u5f3a\u5236\u884c\u7ea7\u5b89\u5168",
+                            "relfrozenxid": "\u51bb\u7ed3\u4e8b\u52a1ID",
+                            "relhasindex": "\u62e5\u6709\u7d22\u5f15",
+                            "relhasrules": "\u5e26\u6709\u89c4\u5219",
+                            "relhassubclass": "\u62e5\u6709\u5b50\u7c7b",
+                            "relhastriggers": "\u5e26\u89e6\u53d1\u5668",
+                            "relispopulated": "\u5df2\u88ab\u586b\u5145",
+                            "relisshared": "\u8de8\u5e93\u5171\u4eab",
+                            "relminmxid": "\u4e8c\u9636\u6bb5\u4e8b\u52a1ID",
+                            "relnamespace": "\u6a21\u5f0fID",
+                            "relnatts": "\u5217\u6570",
+                            "reloftype": "\u590d\u5408\u7c7b\u578bID",
+                            "relowner": "\u8868\u5c5e\u4e3bID",
+                            "relpages": "\u9875\u9762\u6570\u91cf",
+                            "relrowsecurity": "\u884c\u7ea7\u5b89\u5168",
+                            "reltablespace": "\u8868\u7a7a\u95f4ID",
+                            "reltoastrelid": "TOAST\u8868ID",
+                            "reltuples": "\u5143\u7ec4\u6570\u91cf",
+                            "reltype": "\u884c\u7c7b\u578bID",
+                            "value": "\u53d6\u503c"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 22
+            },
+            "id": 63,
+            "panels": [],
+            "title": "Table Meta",
+            "type": "row"
         },
         {
             "datasource": {
@@ -1075,6 +2105,7 @@
             "fieldConfig": {
                 "defaults": {
                     "mappings": [],
+                    "noValue": "N/A",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -1174,7 +2205,7 @@
                         "properties": [
                             {
                                 "id": "unit",
-                                "value": "decbytes"
+                                "value": "bytes"
                             }
                         ]
                     },
@@ -1186,7 +2217,21 @@
                         "properties": [
                             {
                                 "id": "unit",
-                                "value": "short"
+                                "value": "locale"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "index": 0,
+                                                "text": "Unknown"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
                             }
                         ]
                     },
@@ -1253,7 +2298,7 @@
                 "h": 4,
                 "w": 24,
                 "x": 0,
-                "y": 9
+                "y": 23
             },
             "id": 45,
             "options": {
@@ -1381,1340 +2426,578 @@
             "type": "stat"
         },
         {
-            "collapsed": true,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 13
+            "datasource": {
+                "uid": "$dsn"
             },
-            "id": 56,
-            "panels": [
-                {
-                    "datasource": {
-                        "uid": "$dsn"
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
                     },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "mappings": [
-                                {
-                                    "options": {
-                                        "0": {
-                                            "text": ""
-                                        }
-                                    },
-                                    "type": "value"
-                                }
-                            ],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "#e3e3e3e0"
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 10,
-                        "w": 6,
-                        "x": 0,
-                        "y": 14
-                    },
-                    "id": 53,
-                    "links": [],
-                    "options": {
-                        "colorMode": "background",
-                        "graphMode": "area",
-                        "justifyMode": "auto",
-                        "orientation": "horizontal",
-                        "reduceOptions": {
-                            "calcs": [],
-                            "fields": "",
-                            "values": true
-                        },
-                        "text": {
-                            "valueSize": 16
-                        },
-                        "textMode": "auto"
-                    },
-                    "pluginVersion": "10.0.3",
-                    "targets": [
-                        {
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT oid, relnamespace, reltype, reloftype, relowner, relam, relfilenode, reltablespace, reltoastrelid FROM pg_class c WHERE oid = '$oid';",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {},
-                                "indexByName": {},
-                                "renameByName": {
-                                    "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
-                                    "oid": "Relation OID",
-                                    "relam": "Access Method ID",
-                                    "relfilenode": "Rel Filenode",
-                                    "relnamespace": "Schema OID",
-                                    "reloftype": "Comptype OID",
-                                    "relowner": "Owner OID",
-                                    "reltablespace": "Tablespace OID",
-                                    "reltoastrelid": "Toast Table OID",
-                                    "reltype": "Reltype OID",
-                                    "value": "\u53d6\u503c"
-                                }
-                            }
-                        },
-                        {
-                            "id": "reduce",
-                            "options": {
-                                "reducers": [
-                                    "lastNotNull"
-                                ]
-                            }
-                        },
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {},
-                                "indexByName": {},
-                                "renameByName": {
-                                    "Field": "Identifier",
-                                    "Last (not null)": "Value"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "stat"
-                },
-                {
-                    "datasource": {
-                        "uid": "$dsn"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "mappings": [
-                                {
-                                    "options": {
-                                        "0": {
-                                            "text": "FALSE"
-                                        },
-                                        "1": {
-                                            "text": "TRUE"
-                                        }
-                                    },
-                                    "type": "value"
-                                }
-                            ],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "#3e668f"
-                                    },
-                                    {
-                                        "color": "#346f36cc",
-                                        "value": 1
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": [
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
                             {
-                                "matcher": {
-                                    "id": "byType",
-                                    "options": "boolean"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "mappings",
-                                        "value": [
-                                            {
-                                                "options": {
-                                                    "false": {
-                                                        "color": "#e3e3e3e0",
-                                                        "index": 0,
-                                                        "text": "False"
-                                                    },
-                                                    "true": {
-                                                        "color": "#abababeb",
-                                                        "index": 1,
-                                                        "text": "True"
-                                                    }
-                                                },
-                                                "type": "value"
-                                            }
-                                        ]
-                                    }
-                                ]
+                                "color": "#e3e3e3e0",
+                                "value": null
                             }
                         ]
-                    },
-                    "gridPos": {
-                        "h": 10,
-                        "w": 6,
-                        "x": 6,
-                        "y": 14
-                    },
-                    "id": 10,
-                    "links": [],
-                    "options": {
-                        "colorMode": "background",
-                        "graphMode": "area",
-                        "justifyMode": "auto",
-                        "orientation": "horizontal",
-                        "reduceOptions": {
-                            "calcs": [
-                                "lastNotNull"
-                            ],
-                            "fields": "/.*/",
-                            "values": true
-                        },
-                        "text": {
-                            "valueSize": 16
-                        },
-                        "textMode": "auto"
-                    },
-                    "pluginVersion": "10.0.3",
-                    "targets": [
-                        {
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT relhasindex,\n       relispartition,\n       relisshared,\n       relhasrules,\n       relhastriggers,\n       relhassubclass,\n       relrowsecurity,\n       relforcerowsecurity,\n       relispopulated\nFROM pg_class c\nWHERE oid = '${oid}'",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {},
-                                "indexByName": {},
-                                "renameByName": {
-                                    "key": "\u5c5e\u6027\u540d\u79f0",
-                                    "relforcerowsecurity": "Force RLS",
-                                    "relhasindex": "Has Index",
-                                    "relhasrules": "Has Rule",
-                                    "relhassubclass": "Has Subclass",
-                                    "relhastriggers": "Has Trigger",
-                                    "relispartition": "Is Partitioned",
-                                    "relispopulated": "Is Populated",
-                                    "relisshared": "Is Shared",
-                                    "relrowsecurity": "Row level security",
-                                    "reltemporary": "\u4e34\u65f6\u8868",
-                                    "relunlogged": "\u4e0d\u8bb0\u5165WAL",
-                                    "value": "\u5c5e\u6027\u53d6\u503c"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "stat"
+                    }
                 },
-                {
-                    "datasource": {
-                        "uid": "$dsn"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "mappings": [],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "#e3e3e3e0"
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 10,
-                        "w": 6,
-                        "x": 12,
-                        "y": 14
-                    },
-                    "id": 30,
-                    "links": [],
-                    "options": {
-                        "colorMode": "background",
-                        "graphMode": "area",
-                        "justifyMode": "auto",
-                        "orientation": "horizontal",
-                        "reduceOptions": {
-                            "calcs": [],
-                            "fields": "/.*/",
-                            "values": true
-                        },
-                        "text": {
-                            "valueSize": 16
-                        },
-                        "textMode": "auto"
-                    },
-                    "pluginVersion": "10.0.3",
-                    "targets": [
-                        {
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT relpages ::BIGINT, (relpages * 8192::REAL) AS relsize, reltuples ::REAL, relallvisible ::BIGINT, relnatts ::BIGINT, relchecks ::BIGINT, relfrozenxid, age(relfrozenxid) ::BIGINT AS age, relminmxid FROM pg_class c WHERE oid = '${oid}';",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 0,
+                "y": 27
+            },
+            "id": 11,
+            "links": [],
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
                     ],
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {},
-                                "indexByName": {},
-                                "renameByName": {
-                                    "age": "Age",
-                                    "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
-                                    "oid": "\u5173\u7cfbID",
-                                    "relallvisible": "Rel All Visible",
-                                    "relam": "\u8bbf\u95ee\u65b9\u6cd5ID",
-                                    "relchecks": "Checks",
-                                    "relfilenode": "\u8868\u6587\u4ef6\u8282\u70b9",
-                                    "relforcerowsecurity": "\u5f3a\u5236\u884c\u7ea7\u5b89\u5168",
-                                    "relfrozenxid": "Fronzen XID",
-                                    "relhasindex": "\u62e5\u6709\u7d22\u5f15",
-                                    "relhasrules": "\u5e26\u6709\u89c4\u5219",
-                                    "relhassubclass": "\u62e5\u6709\u5b50\u7c7b",
-                                    "relhastriggers": "\u5e26\u89e6\u53d1\u5668",
-                                    "relispopulated": "\u5df2\u88ab\u586b\u5145",
-                                    "relisshared": "\u8de8\u5e93\u5171\u4eab",
-                                    "relminmxid": "Min XID",
-                                    "relnamespace": "\u6a21\u5f0fID",
-                                    "relnatts": "Columns",
-                                    "reloftype": "\u590d\u5408\u7c7b\u578bID",
-                                    "relowner": "\u8868\u5c5e\u4e3bID",
-                                    "relpages": "Rel Pages",
-                                    "relrowsecurity": "\u884c\u7ea7\u5b89\u5168",
-                                    "relsize": "Rel Bytes",
-                                    "reltablespace": "\u8868\u7a7a\u95f4ID",
-                                    "reltoastrelid": "TOAST\u8868ID",
-                                    "reltuples": "Rel Tuples",
-                                    "reltype": "\u884c\u7c7b\u578bID",
-                                    "value": "\u53d6\u503c"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "stat"
+                    "fields": "",
+                    "values": true
                 },
-                {
-                    "datasource": {
-                        "uid": "$dsn"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "mappings": [
-                                {
-                                    "options": {
-                                        "0": {
-                                            "text": "FALSE"
-                                        },
-                                        "1": {
-                                            "text": "TRUE"
-                                        }
-                                    },
-                                    "type": "value"
-                                }
-                            ],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "#e3e3e3e0"
-                                    },
-                                    {
-                                        "color": "#e3e3e3e0",
-                                        "value": 0
-                                    },
-                                    {
-                                        "color": "#f5a673",
-                                        "value": 1
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 3,
-                        "w": 6,
-                        "x": 18,
-                        "y": 14
-                    },
-                    "id": 37,
-                    "links": [],
-                    "options": {
-                        "colorMode": "background",
-                        "graphMode": "area",
-                        "justifyMode": "auto",
-                        "orientation": "horizontal",
-                        "reduceOptions": {
-                            "calcs": [],
-                            "fields": "/.*/",
-                            "values": true
-                        },
-                        "text": {
-                            "valueSize": 16
-                        },
-                        "textMode": "auto"
-                    },
-                    "pluginVersion": "10.0.3",
-                    "targets": [
-                        {
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT \n   CASE relpersistence WHEN 'u' THEN 1 ELSE 0 END AS relunlogged,\n   CASE relpersistence WHEN 't' THEN 1 ELSE 0 END AS reltemporary\nFROM pg_class c WHERE oid = '${oid}'",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {},
-                                "indexByName": {},
-                                "renameByName": {
-                                    "acl": "ACL",
-                                    "age": "\u8868\u5e74\u9f84",
-                                    "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
-                                    "oid": "\u5173\u7cfbID",
-                                    "opt": "\u8868\u53c2\u6570/\u9009\u9879",
-                                    "relallvisible": "\u53ef\u89c1\u9875\u6570",
-                                    "relam": "\u8bbf\u95ee\u65b9\u6cd5ID",
-                                    "relchecks": "CHECK\u7ea6\u675f\u6570\u91cf",
-                                    "relfilenode": "\u8868\u6587\u4ef6\u8282\u70b9",
-                                    "relforcerowsecurity": "\u5f3a\u5236\u884c\u7ea7\u5b89\u5168",
-                                    "relfrozenxid": "\u51bb\u7ed3\u4e8b\u52a1ID",
-                                    "relhasindex": "\u62e5\u6709\u7d22\u5f15",
-                                    "relhasrules": "\u5e26\u6709\u89c4\u5219",
-                                    "relhassubclass": "\u62e5\u6709\u5b50\u7c7b",
-                                    "relhastriggers": "\u5e26\u89e6\u53d1\u5668",
-                                    "relispopulated": "\u5df2\u88ab\u586b\u5145",
-                                    "relisshared": "\u8de8\u5e93\u5171\u4eab",
-                                    "relminmxid": "\u4e8c\u9636\u6bb5\u4e8b\u52a1ID",
-                                    "relnamespace": "\u6a21\u5f0fID",
-                                    "relnatts": "\u5217\u6570",
-                                    "reloftype": "\u590d\u5408\u7c7b\u578bID",
-                                    "relowner": "\u8868\u5c5e\u4e3bID",
-                                    "relpages": "\u9875\u9762\u6570\u91cf",
-                                    "relrowsecurity": "\u884c\u7ea7\u5b89\u5168",
-                                    "reltablespace": "\u8868\u7a7a\u95f4ID",
-                                    "reltemporary": "Temporary",
-                                    "reltoastrelid": "TOAST\u8868ID",
-                                    "reltuples": "\u5143\u7ec4\u6570\u91cf",
-                                    "reltype": "\u884c\u7c7b\u578bID",
-                                    "relunlogged": "Unlogged",
-                                    "value": "\u53d6\u503c"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "stat"
+                "text": {
+                    "valueSize": 16
                 },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
                 {
-                    "datasource": {
-                        "uid": "$dsn"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "mappings": [],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "#e3e3e3e0"
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 5,
-                        "w": 6,
-                        "x": 18,
-                        "y": 17
-                    },
-                    "id": 36,
-                    "links": [],
-                    "options": {
-                        "colorMode": "background",
-                        "graphMode": "area",
-                        "justifyMode": "auto",
-                        "orientation": "horizontal",
-                        "reduceOptions": {
-                            "calcs": [],
-                            "fields": "/.*/",
-                            "values": true
-                        },
-                        "text": {
-                            "valueSize": 14
-                        },
-                        "textMode": "value"
-                    },
-                    "pluginVersion": "10.0.3",
-                    "targets": [
-                        {
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT unnest(relacl) AS acl FROM pg_class c WHERE oid = '${oid}';",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {},
-                                "indexByName": {},
-                                "renameByName": {
-                                    "acl": "ACL",
-                                    "age": "\u8868\u5e74\u9f84",
-                                    "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
-                                    "oid": "\u5173\u7cfbID",
-                                    "relallvisible": "\u53ef\u89c1\u9875\u6570",
-                                    "relam": "\u8bbf\u95ee\u65b9\u6cd5ID",
-                                    "relchecks": "CHECK\u7ea6\u675f\u6570\u91cf",
-                                    "relfilenode": "\u8868\u6587\u4ef6\u8282\u70b9",
-                                    "relforcerowsecurity": "\u5f3a\u5236\u884c\u7ea7\u5b89\u5168",
-                                    "relfrozenxid": "\u51bb\u7ed3\u4e8b\u52a1ID",
-                                    "relhasindex": "\u62e5\u6709\u7d22\u5f15",
-                                    "relhasrules": "\u5e26\u6709\u89c4\u5219",
-                                    "relhassubclass": "\u62e5\u6709\u5b50\u7c7b",
-                                    "relhastriggers": "\u5e26\u89e6\u53d1\u5668",
-                                    "relispopulated": "\u5df2\u88ab\u586b\u5145",
-                                    "relisshared": "\u8de8\u5e93\u5171\u4eab",
-                                    "relminmxid": "\u4e8c\u9636\u6bb5\u4e8b\u52a1ID",
-                                    "relnamespace": "\u6a21\u5f0fID",
-                                    "relnatts": "\u5217\u6570",
-                                    "reloftype": "\u590d\u5408\u7c7b\u578bID",
-                                    "relowner": "\u8868\u5c5e\u4e3bID",
-                                    "relpages": "\u9875\u9762\u6570\u91cf",
-                                    "relrowsecurity": "\u884c\u7ea7\u5b89\u5168",
-                                    "reltablespace": "\u8868\u7a7a\u95f4ID",
-                                    "reltoastrelid": "TOAST\u8868ID",
-                                    "reltuples": "\u5143\u7ec4\u6570\u91cf",
-                                    "reltype": "\u884c\u7c7b\u578bID",
-                                    "value": "\u53d6\u503c"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "stat"
-                },
-                {
-                    "datasource": {
-                        "uid": "$dsn"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "mappings": [],
-                            "noValue": "nil options",
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "#e3e3e3e0"
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 2,
-                        "w": 6,
-                        "x": 18,
-                        "y": 22
-                    },
-                    "id": 35,
-                    "links": [],
-                    "options": {
-                        "colorMode": "background",
-                        "graphMode": "area",
-                        "justifyMode": "auto",
-                        "orientation": "horizontal",
-                        "reduceOptions": {
-                            "calcs": [],
-                            "fields": "",
-                            "values": true
-                        },
-                        "text": {
-                            "valueSize": 16
-                        },
-                        "textMode": "value"
-                    },
-                    "pluginVersion": "10.0.3",
-                    "targets": [
-                        {
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT unnest(reloptions) AS opt FROM pg_class c WHERE oid = '${oid}';",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {},
-                                "indexByName": {},
-                                "renameByName": {
-                                    "acl": "ACL",
-                                    "age": "\u8868\u5e74\u9f84",
-                                    "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
-                                    "oid": "\u5173\u7cfbID",
-                                    "opt": "Options",
-                                    "relallvisible": "\u53ef\u89c1\u9875\u6570",
-                                    "relam": "\u8bbf\u95ee\u65b9\u6cd5ID",
-                                    "relchecks": "CHECK\u7ea6\u675f\u6570\u91cf",
-                                    "relfilenode": "\u8868\u6587\u4ef6\u8282\u70b9",
-                                    "relforcerowsecurity": "\u5f3a\u5236\u884c\u7ea7\u5b89\u5168",
-                                    "relfrozenxid": "\u51bb\u7ed3\u4e8b\u52a1ID",
-                                    "relhasindex": "\u62e5\u6709\u7d22\u5f15",
-                                    "relhasrules": "\u5e26\u6709\u89c4\u5219",
-                                    "relhassubclass": "\u62e5\u6709\u5b50\u7c7b",
-                                    "relhastriggers": "\u5e26\u89e6\u53d1\u5668",
-                                    "relispopulated": "\u5df2\u88ab\u586b\u5145",
-                                    "relisshared": "\u8de8\u5e93\u5171\u4eab",
-                                    "relminmxid": "\u4e8c\u9636\u6bb5\u4e8b\u52a1ID",
-                                    "relnamespace": "\u6a21\u5f0fID",
-                                    "relnatts": "\u5217\u6570",
-                                    "reloftype": "\u590d\u5408\u7c7b\u578bID",
-                                    "relowner": "\u8868\u5c5e\u4e3bID",
-                                    "relpages": "\u9875\u9762\u6570\u91cf",
-                                    "relrowsecurity": "\u884c\u7ea7\u5b89\u5168",
-                                    "reltablespace": "\u8868\u7a7a\u95f4ID",
-                                    "reltoastrelid": "TOAST\u8868ID",
-                                    "reltuples": "\u5143\u7ec4\u6570\u91cf",
-                                    "reltype": "\u884c\u7c7b\u578bID",
-                                    "value": "\u53d6\u503c"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "stat"
-                },
-                {
-                    "datasource": {
-                        "uid": "$dsn"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "mappings": [],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "#e3e3e3e0"
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 9,
-                        "w": 6,
-                        "x": 0,
-                        "y": 24
-                    },
-                    "id": 11,
-                    "links": [],
-                    "options": {
-                        "colorMode": "background",
-                        "graphMode": "area",
-                        "justifyMode": "auto",
-                        "orientation": "horizontal",
-                        "reduceOptions": {
-                            "calcs": [
-                                "lastNotNull"
-                            ],
-                            "fields": "",
-                            "values": true
-                        },
-                        "text": {
-                            "valueSize": 16
-                        },
-                        "textMode": "value_and_name"
-                    },
-                    "pluginVersion": "10.0.3",
-                    "targets": [
-                        {
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT seq_scan,\n       seq_tup_read,\n       idx_scan,\n       idx_tup_fetch,\n       n_tup_ins,\n       n_tup_upd,\n       n_tup_del,\n       n_tup_hot_upd\nFROM pg_stat_user_tables\nWHERE relid = '$oid' LIMIT 1;",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {
-                                    "analyze_count": true,
-                                    "autoanalyze_count": true,
-                                    "autovacuum_count": true,
-                                    "last_analyze": true,
-                                    "last_autoanalyze": true,
-                                    "last_autovacuum": true,
-                                    "last_vacuum": true,
-                                    "n_ins_since_vacuum": true,
-                                    "n_mod_since_analyze": true,
-                                    "relid": true,
-                                    "relname": true,
-                                    "schemaname": true,
-                                    "vacuum_count": true
-                                },
-                                "indexByName": {
-                                    "analyze_count": 21,
-                                    "autoanalyze_count": 22,
-                                    "autovacuum_count": 20,
-                                    "idx_scan": 7,
-                                    "idx_tup_fetch": 8,
-                                    "last_analyze": 17,
-                                    "last_autoanalyze": 18,
-                                    "last_autovacuum": 16,
-                                    "last_vacuum": 15,
-                                    "n_dead_tup": 1,
-                                    "n_ins_since_vacuum": 14,
-                                    "n_live_tup": 0,
-                                    "n_mod_since_analyze": 13,
-                                    "n_tup_del": 10,
-                                    "n_tup_hot_upd": 12,
-                                    "n_tup_ins": 9,
-                                    "n_tup_upd": 11,
-                                    "relid": 2,
-                                    "relname": 4,
-                                    "schemaname": 3,
-                                    "seq_scan": 5,
-                                    "seq_tup_read": 6,
-                                    "vacuum_count": 19
-                                },
-                                "renameByName": {
-                                    "analyze_count": "Analyze Count",
-                                    "autoanalyze_count": "AutoAnalyze Count",
-                                    "autovacuum_count": "AutoVacuum Count",
-                                    "idx_scan": "Index Scan",
-                                    "idx_tup_fetch": "Index Scan Tuples",
-                                    "key": "Item",
-                                    "last_analyze": "Last Analyze",
-                                    "last_autoanalyze": "Last AutoAnalyze",
-                                    "last_autovacuum": "Last AutoVacuum",
-                                    "last_vacuum": "Last Vacuum",
-                                    "n_dead_tup": "Dead Tuples",
-                                    "n_ins_since_vacuum": "Insert Since Vacuum",
-                                    "n_live_tup": "Live Tuples",
-                                    "n_mod_since_analyze": "Modify Since Analyze",
-                                    "n_tup_del": "Deleted Tuples",
-                                    "n_tup_hot_upd": "Hot-Updated Tuples",
-                                    "n_tup_ins": "Inserted Tuples",
-                                    "n_tup_upd": "Updated Tuples",
-                                    "relid": "",
-                                    "relname": "",
-                                    "schemaname": "",
-                                    "seq_scan": "Seq Scan",
-                                    "seq_tup_read": "Seq Scan Tuples",
-                                    "vacuum_count": "Vacuum Count",
-                                    "value": "Value"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "stat"
-                },
-                {
-                    "datasource": {
-                        "uid": "$dsn"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "mappings": [],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "#e3e3e3e0"
-                                    }
-                                ]
-                            },
-                            "unit": "locale"
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 9,
-                        "w": 6,
-                        "x": 6,
-                        "y": 24
-                    },
-                    "id": 39,
-                    "links": [],
-                    "options": {
-                        "colorMode": "background",
-                        "graphMode": "area",
-                        "justifyMode": "auto",
-                        "orientation": "horizontal",
-                        "reduceOptions": {
-                            "calcs": [
-                                "lastNotNull"
-                            ],
-                            "fields": "",
-                            "values": true
-                        },
-                        "text": {
-                            "valueSize": 16
-                        },
-                        "textMode": "auto"
-                    },
-                    "pluginVersion": "10.0.3",
-                    "targets": [
-                        {
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT * FROM pg_statio_user_tables WHERE relid = '${oid}'",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {
-                                    "relid": true,
-                                    "relname": true,
-                                    "schemaname": true
-                                },
-                                "indexByName": {},
-                                "renameByName": {
-                                    "analyze_count": "Analyze Count",
-                                    "autoanalyze_count": "AutoAnalyze Count",
-                                    "autovacuum_count": "AutoVacuum Count",
-                                    "heap_blks_hit": "Heap Blocks Hit",
-                                    "heap_blks_read": "Heap Blocks Read",
-                                    "idx_blks_hit": "Index Blocks Hit",
-                                    "idx_blks_read": "Index Blocks Read",
-                                    "idx_scan": "Index Scan",
-                                    "idx_tup_fetch": "Idxscan Tuples",
-                                    "key": "Item",
-                                    "last_analyze": "Last Analyze",
-                                    "last_autoanalyze": "Last AutoAnalyze",
-                                    "last_autovacuum": "Last AutoVacuum",
-                                    "last_vacuum": "Last Vacuum",
-                                    "n_dead_tup": "Dead Tuples",
-                                    "n_ins_since_vacuum": "Insert Since Vacuum",
-                                    "n_live_tup": "Live Tuples",
-                                    "n_mod_since_analyze": "Modify Since Analyze",
-                                    "n_tup_del": "Deleted Tuples",
-                                    "n_tup_hot_upd": "Hot-Updated Tuples",
-                                    "n_tup_ins": "Inserted Tuples",
-                                    "n_tup_upd": "Updated Tuples",
-                                    "relid": "",
-                                    "relname": "",
-                                    "schemaname": "",
-                                    "seq_scan": "Sequential Scan",
-                                    "seq_tup_read": "Seqscan Tuples",
-                                    "tidx_blks_hit": "Toast Index Blocks Hit",
-                                    "tidx_blks_read": "Toast Index Blocks Read",
-                                    "toast_blks_hit": "Toast Blocks Hit",
-                                    "toast_blks_read": "Toast Blocks Read",
-                                    "vacuum_count": "Vacuum Count",
-                                    "value": "Value"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "stat"
-                },
-                {
-                    "datasource": {
-                        "uid": "$dsn"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "mappings": [],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "#e3e3e3e0"
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": [
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT seq_scan,\n       seq_tup_read,\n       idx_scan,\n       idx_tup_fetch,\n       n_tup_ins,\n       n_tup_upd,\n       n_tup_del,\n       n_tup_hot_upd\nFROM pg_stat_user_tables\nWHERE relid = '$oid' LIMIT 1;",
+                    "refId": "A",
+                    "select": [
+                        [
                             {
-                                "matcher": {
-                                    "id": "byRegexp",
-                                    "options": ""
-                                },
-                                "properties": [
-                                    {
-                                        "id": "unit",
-                                        "value": "dateTimeFromNow"
-                                    }
-                                ]
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
                             }
                         ]
-                    },
-                    "gridPos": {
-                        "h": 9,
-                        "w": 6,
-                        "x": 12,
-                        "y": 24
-                    },
-                    "id": 40,
-                    "links": [],
-                    "options": {
-                        "colorMode": "background",
-                        "graphMode": "area",
-                        "justifyMode": "auto",
-                        "orientation": "horizontal",
-                        "reduceOptions": {
-                            "calcs": [
-                                "lastNotNull"
-                            ],
-                            "fields": "/.*/",
-                            "values": true
-                        },
-                        "text": {
-                            "valueSize": 16
-                        },
-                        "textMode": "auto"
-                    },
-                    "pluginVersion": "10.0.3",
-                    "targets": [
-                        {
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT vacuum_count + autovacuum_count                   AS vacuum_total,\n       vacuum_count,\n       to_char(last_vacuum, 'YYYY-MM-DD HH24:MI:SS')     AS last_vacuum,\n       date_trunc('second', now() - last_vacuum)         AS since_last_vacuum,\n       autovacuum_count,\n       to_char(last_autovacuum, 'YYYY-MM-DD HH24:MI:SS') AS last_autovacuum,\n       date_trunc('second', now() - last_autovacuum)     AS since_last_autovacuum,\n       n_ins_since_vacuum\nFROM pg_stat_user_tables\nWHERE relid = '$oid'\nLIMIT 1;",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
                     ],
-                    "transformations": [
+                    "timeColumn": "time",
+                    "where": [
                         {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {
-                                    "idx_scan": true,
-                                    "idx_tup_fetch": true,
-                                    "n_dead_tup": true,
-                                    "n_live_tup": true,
-                                    "n_tup_del": true,
-                                    "n_tup_hot_upd": true,
-                                    "n_tup_ins": true,
-                                    "n_tup_upd": true,
-                                    "relid": true,
-                                    "relname": true,
-                                    "schemaname": true,
-                                    "seq_scan": true,
-                                    "seq_tup_read": true
-                                },
-                                "indexByName": {
-                                    "autovacuum_count": 4,
-                                    "last_autovacuum": 5,
-                                    "last_vacuum": 2,
-                                    "n_ins_since_vacuum": 7,
-                                    "since_last_autovacuum": 6,
-                                    "since_last_vacuum": 3,
-                                    "vacuum_count": 1,
-                                    "vacuum_total": 0
-                                },
-                                "renameByName": {
-                                    "analyze_count": "Analyze Count",
-                                    "autoanalyze_count": "AutoAnalyze Count",
-                                    "autovacuum_count": "AutoVacuum Count",
-                                    "idx_scan": "Index Scan",
-                                    "idx_tup_fetch": "Idxscan Tuples",
-                                    "key": "Item",
-                                    "last_analyze": "Last Analyze",
-                                    "last_autoanalyze": "Last AutoAnalyze",
-                                    "last_autovacuum": "Last AutoVacuum",
-                                    "last_vacuum": "Last Vacuum",
-                                    "n_dead_tup": "Dead Tuples",
-                                    "n_ins_since_vacuum": "Inserts since Last Vacuum",
-                                    "n_live_tup": "Live Tuples",
-                                    "n_mod_since_analyze": "Modify Since Analyze",
-                                    "n_tup_del": "Deleted Tuples",
-                                    "n_tup_hot_upd": "Hot-Updated Tuples",
-                                    "n_tup_ins": "Inserted Tuples",
-                                    "n_tup_upd": "Updated Tuples",
-                                    "relid": "",
-                                    "relname": "",
-                                    "schemaname": "",
-                                    "seq_scan": "Sequential Scan",
-                                    "seq_tup_read": "Seqscan Tuples",
-                                    "since_last_autovacuum": "Since Last AutoVacuum",
-                                    "since_last_vacuum": "Since Last Vacuum",
-                                    "vacuum_count": "Vacuum Count",
-                                    "vacuum_total": "Vacuums",
-                                    "value": "Value"
-                                }
-                            }
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
                         }
-                    ],
-                    "type": "stat"
-                },
-                {
-                    "datasource": {
-                        "uid": "$dsn"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "mappings": [],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "#e3e3e3e0"
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 9,
-                        "w": 6,
-                        "x": 18,
-                        "y": 24
-                    },
-                    "id": 41,
-                    "links": [],
-                    "options": {
-                        "colorMode": "background",
-                        "graphMode": "area",
-                        "justifyMode": "auto",
-                        "orientation": "horizontal",
-                        "reduceOptions": {
-                            "calcs": [
-                                "lastNotNull"
-                            ],
-                            "fields": "/.*/",
-                            "values": true
-                        },
-                        "text": {
-                            "valueSize": 16
-                        },
-                        "textMode": "auto"
-                    },
-                    "pluginVersion": "10.0.3",
-                    "targets": [
-                        {
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT analyze_count + autoanalyze_count                   AS analyze_total,\n       analyze_count,\n       to_char(last_analyze, 'YYYY-MM-DD HH24:MI:SS')     AS last_analyze,\n       date_trunc('second', now() - last_analyze)         AS since_last_analyze,\n       autoanalyze_count,\n       to_char(last_autoanalyze, 'YYYY-MM-DD HH24:MI:SS') AS last_autoanalyze,\n       date_trunc('second', now() - last_autoanalyze)     AS since_last_autoanalyze,\n       n_mod_since_analyze\nFROM pg_stat_user_tables\nWHERE relid = '${oid}'\nLIMIT 1;",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {
-                                    "idx_scan": true,
-                                    "idx_tup_fetch": true,
-                                    "n_dead_tup": true,
-                                    "n_live_tup": true,
-                                    "n_tup_del": true,
-                                    "n_tup_hot_upd": true,
-                                    "n_tup_ins": true,
-                                    "n_tup_upd": true,
-                                    "relid": true,
-                                    "relname": true,
-                                    "schemaname": true,
-                                    "seq_scan": true,
-                                    "seq_tup_read": true
-                                },
-                                "indexByName": {
-                                    "analyze_count": 1,
-                                    "analyze_total": 0,
-                                    "autoanalyze_count": 4,
-                                    "last_analyze": 2,
-                                    "last_autoanalyze": 5,
-                                    "n_mod_since_analyze": 7,
-                                    "since_last_analyze": 3,
-                                    "since_last_autoanalyze": 6
-                                },
-                                "renameByName": {
-                                    "analyze_count": "Analyze Count",
-                                    "analyze_total": "Analyzes",
-                                    "autoanalyze_count": "AutoAnalyze Count",
-                                    "autovacuum_count": "AutoVacuum Count",
-                                    "idx_scan": "Index Scan",
-                                    "idx_tup_fetch": "Idxscan Tuples",
-                                    "key": "Item",
-                                    "last_analyze": "Last Analyze",
-                                    "last_autoanalyze": "Last AutoAnalyze",
-                                    "last_autovacuum": "Last AutoVacuum",
-                                    "last_vacuum": "Last Vacuum",
-                                    "n_dead_tup": "Dead Tuples",
-                                    "n_ins_since_vacuum": "Inserts since Last Vacuum",
-                                    "n_live_tup": "Live Tuples",
-                                    "n_mod_since_analyze": "Modify Since Analyze",
-                                    "n_tup_del": "Deleted Tuples",
-                                    "n_tup_hot_upd": "Hot-Updated Tuples",
-                                    "n_tup_ins": "Inserted Tuples",
-                                    "n_tup_upd": "Updated Tuples",
-                                    "relid": "",
-                                    "relname": "",
-                                    "schemaname": "",
-                                    "seq_scan": "Sequential Scan",
-                                    "seq_tup_read": "Seqscan Tuples",
-                                    "since_last_analyze": "Last Analyze Elapse",
-                                    "since_last_autoanalyze": "Last AutoAnalyze Elapse",
-                                    "since_last_autovacuum": "Last AutoVacuum Elapse",
-                                    "since_last_vacuum": "Last Vacuum Elapse",
-                                    "vacuum_count": "Vacuum Count",
-                                    "value": "Value"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "stat"
+                    ]
                 }
             ],
-            "title": "Metadata",
-            "type": "row"
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "analyze_count": true,
+                            "autoanalyze_count": true,
+                            "autovacuum_count": true,
+                            "last_analyze": true,
+                            "last_autoanalyze": true,
+                            "last_autovacuum": true,
+                            "last_vacuum": true,
+                            "n_ins_since_vacuum": true,
+                            "n_mod_since_analyze": true,
+                            "relid": true,
+                            "relname": true,
+                            "schemaname": true,
+                            "vacuum_count": true
+                        },
+                        "indexByName": {
+                            "analyze_count": 21,
+                            "autoanalyze_count": 22,
+                            "autovacuum_count": 20,
+                            "idx_scan": 7,
+                            "idx_tup_fetch": 8,
+                            "last_analyze": 17,
+                            "last_autoanalyze": 18,
+                            "last_autovacuum": 16,
+                            "last_vacuum": 15,
+                            "n_dead_tup": 1,
+                            "n_ins_since_vacuum": 14,
+                            "n_live_tup": 0,
+                            "n_mod_since_analyze": 13,
+                            "n_tup_del": 10,
+                            "n_tup_hot_upd": 12,
+                            "n_tup_ins": 9,
+                            "n_tup_upd": 11,
+                            "relid": 2,
+                            "relname": 4,
+                            "schemaname": 3,
+                            "seq_scan": 5,
+                            "seq_tup_read": 6,
+                            "vacuum_count": 19
+                        },
+                        "renameByName": {
+                            "analyze_count": "Analyze Count",
+                            "autoanalyze_count": "AutoAnalyze Count",
+                            "autovacuum_count": "AutoVacuum Count",
+                            "idx_scan": "Index Scan",
+                            "idx_tup_fetch": "Index Scan Tuples",
+                            "key": "Item",
+                            "last_analyze": "Last Analyze",
+                            "last_autoanalyze": "Last AutoAnalyze",
+                            "last_autovacuum": "Last AutoVacuum",
+                            "last_vacuum": "Last Vacuum",
+                            "n_dead_tup": "Dead Tuples",
+                            "n_ins_since_vacuum": "Insert Since Vacuum",
+                            "n_live_tup": "Live Tuples",
+                            "n_mod_since_analyze": "Modify Since Analyze",
+                            "n_tup_del": "Deleted Tuples",
+                            "n_tup_hot_upd": "Hot-Updated Tuples",
+                            "n_tup_ins": "Inserted Tuples",
+                            "n_tup_upd": "Updated Tuples",
+                            "relid": "",
+                            "relname": "",
+                            "schemaname": "",
+                            "seq_scan": "Seq Scan",
+                            "seq_tup_read": "Seq Scan Tuples",
+                            "vacuum_count": "Vacuum Count",
+                            "value": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "uid": "$dsn"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "locale"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 6,
+                "y": 27
+            },
+            "id": 39,
+            "links": [],
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {
+                    "valueSize": 16
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT * FROM pg_statio_user_tables WHERE relid = '${oid}'",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "relid": true,
+                            "relname": true,
+                            "schemaname": true
+                        },
+                        "indexByName": {},
+                        "renameByName": {
+                            "analyze_count": "Analyze Count",
+                            "autoanalyze_count": "AutoAnalyze Count",
+                            "autovacuum_count": "AutoVacuum Count",
+                            "heap_blks_hit": "Heap Blocks Hit",
+                            "heap_blks_read": "Heap Blocks Read",
+                            "idx_blks_hit": "Index Blocks Hit",
+                            "idx_blks_read": "Index Blocks Read",
+                            "idx_scan": "Index Scan",
+                            "idx_tup_fetch": "Idxscan Tuples",
+                            "key": "Item",
+                            "last_analyze": "Last Analyze",
+                            "last_autoanalyze": "Last AutoAnalyze",
+                            "last_autovacuum": "Last AutoVacuum",
+                            "last_vacuum": "Last Vacuum",
+                            "n_dead_tup": "Dead Tuples",
+                            "n_ins_since_vacuum": "Insert Since Vacuum",
+                            "n_live_tup": "Live Tuples",
+                            "n_mod_since_analyze": "Modify Since Analyze",
+                            "n_tup_del": "Deleted Tuples",
+                            "n_tup_hot_upd": "Hot-Updated Tuples",
+                            "n_tup_ins": "Inserted Tuples",
+                            "n_tup_upd": "Updated Tuples",
+                            "relid": "",
+                            "relname": "",
+                            "schemaname": "",
+                            "seq_scan": "Sequential Scan",
+                            "seq_tup_read": "Seqscan Tuples",
+                            "tidx_blks_hit": "Toast Index Blocks Hit",
+                            "tidx_blks_read": "Toast Index Blocks Read",
+                            "toast_blks_hit": "Toast Blocks Hit",
+                            "toast_blks_read": "Toast Blocks Read",
+                            "vacuum_count": "Vacuum Count",
+                            "value": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "uid": "$dsn"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": ""
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "dateTimeFromNow"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 12,
+                "y": 27
+            },
+            "id": 40,
+            "links": [],
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "text": {
+                    "valueSize": 16
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT vacuum_count + autovacuum_count                   AS vacuum_total,\n       vacuum_count,\n       to_char(last_vacuum, 'YYYY-MM-DD HH24:MI:SS')     AS last_vacuum,\n       date_trunc('second', now() - last_vacuum)         AS since_last_vacuum,\n       autovacuum_count,\n       to_char(last_autovacuum, 'YYYY-MM-DD HH24:MI:SS') AS last_autovacuum,\n       date_trunc('second', now() - last_autovacuum)     AS since_last_autovacuum,\n       n_ins_since_vacuum\nFROM pg_stat_user_tables\nWHERE relid = '$oid'\nLIMIT 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "idx_scan": true,
+                            "idx_tup_fetch": true,
+                            "n_dead_tup": true,
+                            "n_live_tup": true,
+                            "n_tup_del": true,
+                            "n_tup_hot_upd": true,
+                            "n_tup_ins": true,
+                            "n_tup_upd": true,
+                            "relid": true,
+                            "relname": true,
+                            "schemaname": true,
+                            "seq_scan": true,
+                            "seq_tup_read": true
+                        },
+                        "indexByName": {
+                            "autovacuum_count": 4,
+                            "last_autovacuum": 5,
+                            "last_vacuum": 2,
+                            "n_ins_since_vacuum": 7,
+                            "since_last_autovacuum": 6,
+                            "since_last_vacuum": 3,
+                            "vacuum_count": 1,
+                            "vacuum_total": 0
+                        },
+                        "renameByName": {
+                            "analyze_count": "Analyze Count",
+                            "autoanalyze_count": "AutoAnalyze Count",
+                            "autovacuum_count": "AutoVacuum Count",
+                            "idx_scan": "Index Scan",
+                            "idx_tup_fetch": "Idxscan Tuples",
+                            "key": "Item",
+                            "last_analyze": "Last Analyze",
+                            "last_autoanalyze": "Last AutoAnalyze",
+                            "last_autovacuum": "Last AutoVacuum",
+                            "last_vacuum": "Last Vacuum",
+                            "n_dead_tup": "Dead Tuples",
+                            "n_ins_since_vacuum": "Inserts since Last Vacuum",
+                            "n_live_tup": "Live Tuples",
+                            "n_mod_since_analyze": "Modify Since Analyze",
+                            "n_tup_del": "Deleted Tuples",
+                            "n_tup_hot_upd": "Hot-Updated Tuples",
+                            "n_tup_ins": "Inserted Tuples",
+                            "n_tup_upd": "Updated Tuples",
+                            "relid": "",
+                            "relname": "",
+                            "schemaname": "",
+                            "seq_scan": "Sequential Scan",
+                            "seq_tup_read": "Seqscan Tuples",
+                            "since_last_autovacuum": "Since Last AutoVacuum",
+                            "since_last_vacuum": "Since Last Vacuum",
+                            "vacuum_count": "Vacuum Count",
+                            "vacuum_total": "Vacuums",
+                            "value": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "uid": "$dsn"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 18,
+                "y": 27
+            },
+            "id": 41,
+            "links": [],
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "text": {
+                    "valueSize": 16
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT analyze_count + autoanalyze_count                   AS analyze_total,\n       analyze_count,\n       to_char(last_analyze, 'YYYY-MM-DD HH24:MI:SS')     AS last_analyze,\n       date_trunc('second', now() - last_analyze)         AS since_last_analyze,\n       autoanalyze_count,\n       to_char(last_autoanalyze, 'YYYY-MM-DD HH24:MI:SS') AS last_autoanalyze,\n       date_trunc('second', now() - last_autoanalyze)     AS since_last_autoanalyze,\n       n_mod_since_analyze\nFROM pg_stat_user_tables\nWHERE relid = '${oid}'\nLIMIT 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "idx_scan": true,
+                            "idx_tup_fetch": true,
+                            "n_dead_tup": true,
+                            "n_live_tup": true,
+                            "n_tup_del": true,
+                            "n_tup_hot_upd": true,
+                            "n_tup_ins": true,
+                            "n_tup_upd": true,
+                            "relid": true,
+                            "relname": true,
+                            "schemaname": true,
+                            "seq_scan": true,
+                            "seq_tup_read": true
+                        },
+                        "indexByName": {
+                            "analyze_count": 1,
+                            "analyze_total": 0,
+                            "autoanalyze_count": 4,
+                            "last_analyze": 2,
+                            "last_autoanalyze": 5,
+                            "n_mod_since_analyze": 7,
+                            "since_last_analyze": 3,
+                            "since_last_autoanalyze": 6
+                        },
+                        "renameByName": {
+                            "analyze_count": "Analyze Count",
+                            "analyze_total": "Analyzes",
+                            "autoanalyze_count": "AutoAnalyze Count",
+                            "autovacuum_count": "AutoVacuum Count",
+                            "idx_scan": "Index Scan",
+                            "idx_tup_fetch": "Idxscan Tuples",
+                            "key": "Item",
+                            "last_analyze": "Last Analyze",
+                            "last_autoanalyze": "Last AutoAnalyze",
+                            "last_autovacuum": "Last AutoVacuum",
+                            "last_vacuum": "Last Vacuum",
+                            "n_dead_tup": "Dead Tuples",
+                            "n_ins_since_vacuum": "Inserts since Last Vacuum",
+                            "n_live_tup": "Live Tuples",
+                            "n_mod_since_analyze": "Modify Since Analyze",
+                            "n_tup_del": "Deleted Tuples",
+                            "n_tup_hot_upd": "Hot-Updated Tuples",
+                            "n_tup_ins": "Inserted Tuples",
+                            "n_tup_upd": "Updated Tuples",
+                            "relid": "",
+                            "relname": "",
+                            "schemaname": "",
+                            "seq_scan": "Sequential Scan",
+                            "seq_tup_read": "Seqscan Tuples",
+                            "since_last_analyze": "Last Analyze Elapse",
+                            "since_last_autoanalyze": "Last AutoAnalyze Elapse",
+                            "since_last_autovacuum": "Last AutoVacuum Elapse",
+                            "since_last_vacuum": "Last Vacuum Elapse",
+                            "vacuum_count": "Vacuum Count",
+                            "value": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
         },
         {
             "collapsed": false,
@@ -2722,7 +3005,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 14
+                "y": 36
             },
             "id": 57,
             "panels": [],
@@ -2734,7 +3017,7 @@
                 "type": "postgres",
                 "uid": "${dsn}"
             },
-            "description": "Read = Returned Rows\n\nFetch = Scanned Rows",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "custom": {
@@ -2757,18 +3040,6 @@
                     }
                 },
                 "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Table ID"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 90
-                            }
-                        ]
-                    },
                     {
                         "matcher": {
                             "id": "byName",
@@ -2796,27 +3067,6 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Table"
-                        },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "Relation detail for ${__data.fields.Table}",
-                                        "url": "/d/pgcat-table?var-dsn=${dsn}&var-relname=${__data.fields.Table}"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.align",
-                                "value": "left"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
                             "options": "Index"
                         },
                         "properties": [
@@ -2831,7 +3081,7 @@
                             },
                             {
                                 "id": "custom.minWidth",
-                                "value": 240
+                                "value": 200
                             },
                             {
                                 "id": "custom.align",
@@ -2857,7 +3107,7 @@
                             },
                             {
                                 "id": "custom.minWidth",
-                                "value": 400
+                                "value": 350
                             },
                             {
                                 "id": "custom.inspect",
@@ -2906,10 +3156,10 @@
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 7,
                 "w": 24,
                 "x": 0,
-                "y": 15
+                "y": 37
             },
             "id": 55,
             "links": [],
@@ -2982,7 +3232,6 @@
                     ]
                 }
             ],
-            "title": "Indexes",
             "transformations": [
                 {
                     "id": "organize",
@@ -2990,6 +3239,7 @@
                         "excludeByName": {
                             "Table": true,
                             "indexrelname": true,
+                            "relid": true,
                             "relname": true,
                             "schemaname": true
                         },
@@ -3031,15 +3281,16 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 23
+                "y": 44
             },
             "id": 58,
             "panels": [],
-            "title": "Statistics",
+            "title": "Column Stat",
             "type": "row"
         },
         {
             "datasource": {
+                "type": "postgres",
                 "uid": "$dsn"
             },
             "fieldConfig": {
@@ -3087,13 +3338,12 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 40
+                                "value": 60
                             },
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
+                                    "type": "auto"
                                 }
                             }
                         ]
@@ -3111,8 +3361,7 @@
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
+                                    "type": "auto"
                                 }
                             }
                         ]
@@ -3133,7 +3382,7 @@
                                     {
                                         "options": {
                                             "false": {
-                                                "color": "#e3e3e3e0",
+                                                "color": "transparent",
                                                 "index": 1,
                                                 "text": "False"
                                             },
@@ -3181,7 +3430,7 @@
                             },
                             {
                                 "id": "custom.width",
-                                "value": 110
+                                "value": 120
                             },
                             {
                                 "id": "min",
@@ -3329,9 +3578,13 @@
                         },
                         "properties": [
                             {
+                                "id": "custom.inspect",
+                                "value": true
+                            },
+                            {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "type": "json-view"
+                                    "type": "auto"
                                 }
                             }
                         ]
@@ -3411,7 +3664,43 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 86
+                                "value": 100
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "color": "#f5a673",
+                                                "index": 0,
+                                                "text": "Distinct"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": -1,
+                                            "result": {
+                                                "color": "#3e668f",
+                                                "index": 1
+                                            },
+                                            "to": 0
+                                        },
+                                        "type": "range"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 0,
+                                            "result": {
+                                                "color": "#346f36cc",
+                                                "index": 2
+                                            }
+                                        },
+                                        "type": "range"
+                                    }
+                                ]
                             }
                         ]
                     },
@@ -3424,8 +3713,12 @@
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "type": "json-view"
+                                    "type": "auto"
                                 }
+                            },
+                            {
+                                "id": "custom.inspect",
+                                "value": true
                             }
                         ]
                     },
@@ -3438,18 +3731,22 @@
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "type": "json-view"
+                                    "type": "auto"
                                 }
+                            },
+                            {
+                                "id": "custom.inspect",
+                                "value": true
                             }
                         ]
                     }
                 ]
             },
             "gridPos": {
-                "h": 17,
+                "h": 13,
                 "w": 24,
                 "x": 0,
-                "y": 24
+                "y": 45
             },
             "id": 52,
             "links": [],
@@ -3474,6 +3771,11 @@
             "pluginVersion": "10.0.3",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "f5cbdb82-0e9e-4c7c-8586-2bc16a1647ca"
+                    },
+                    "editorMode": "code",
                     "format": "table",
                     "group": [],
                     "hide": false,
@@ -3491,6 +3793,23 @@
                             }
                         ]
                     ],
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    },
                     "timeColumn": "time",
                     "where": [
                         {
@@ -3501,7 +3820,6 @@
                     ]
                 }
             ],
-            "title": "Column Stats",
             "transformations": [
                 {
                     "id": "organize",
@@ -3533,7 +3851,7 @@
                         "indexByName": {
                             "attname": 1,
                             "attnum": 0,
-                            "avg_width": 5,
+                            "avg_width": 6,
                             "correlation": 3,
                             "elem_count_histogram": 12,
                             "histogram_bounds": 9,
@@ -3542,7 +3860,7 @@
                             "most_common_elems": 10,
                             "most_common_freqs": 8,
                             "most_common_vals": 7,
-                            "n_distinct": 6,
+                            "n_distinct": 5,
                             "null_frac": 4,
                             "schemaname": 13,
                             "tablename": 14
@@ -3587,11 +3905,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 41
+                "y": 58
             },
             "id": 59,
             "panels": [],
-            "title": "Queries",
+            "title": "Relate SQL",
             "type": "row"
         },
         {
@@ -3764,6 +4082,10 @@
                             {
                                 "id": "custom.align",
                                 "value": "left"
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
                             }
                         ]
                     },
@@ -3903,13 +4225,17 @@
                             },
                             {
                                 "id": "custom.width",
-                                "value": 40
+                                "value": 60
                             },
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
                                     "type": "color-background"
                                 }
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
                             }
                         ]
                     },
@@ -4147,10 +4473,10 @@
                 ]
             },
             "gridPos": {
-                "h": 15,
+                "h": 11,
                 "w": 24,
                 "x": 0,
-                "y": 42
+                "y": 59
             },
             "id": 60,
             "options": {
@@ -4225,7 +4551,6 @@
                     ]
                 }
             ],
-            "title": "Related SQL",
             "transformations": [
                 {
                     "id": "organize",
@@ -4382,7 +4707,7 @@
                 "name": "dsn",
                 "options": [],
                 "query": "postgres",
-                "queryValue": "",
+                "queryValue": "meta",
                 "refresh": 1,
                 "regex": "/.*\\..*/",
                 "skipUrlSync": false,

@@ -98,162 +98,280 @@
     "panels": [
         {
             "datasource": {
-                "type": "postgres",
-                "uid": "${dsn}"
+                "type": "prometheus",
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "fixedColor": "#3e668f",
-                        "mode": "fixed"
+                        "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "PGCAT Instance : ${ins}",
-                            "url": "/d/pgcat-instance?var-dsn=${dsn}"
-                        }
-                    ],
                     "mappings": [],
+                    "max": 2.5,
+                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${cls}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Cluster"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node Cluster : ${cls}",
+                                        "url": "/d/node-cluster?var-cls=${cls}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Instance"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${ins}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Instance"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGCAT Instance : ${ins}.${datname}",
+                                        "url": "/d/pgcat-instance?var-dsn=${ins}.${datname}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${datname}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Database"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGCAT Database : ${ins}.${datname}",
+                                        "url": "/d/pgcat-database?var-dsn=$ins.$datname"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Table"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${tblname}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Table"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Table : ${tblname}",
+                                        "url": "/d/pgsql-table?var-ins=${ins}&var-datname=${datname}&var-relname=${relname}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Schema"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Schema"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "displayName",
+                                "value": "${schema}"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGCAT Schema : ${ins}\ufeff.\ufeff${datname}.${nspname}",
+                                        "url": "/d/pgcat-schema?var-dsn=${ins}.${datname}&var-schema=${schema}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
-            "id": 149,
+            "gridPos": {
+                "h": 6,
+                "w": 6,
+                "x": 0,
+                "y": 0
+            },
+            "id": 199,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
                 "orientation": "horizontal",
                 "reduceOptions": {
-                    "calcs": [],
-                    "fields": "/.*/",
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
                     "values": false
                 },
                 "text": {
                     "titleSize": 16,
                     "valueSize": 16
                 },
-                "textMode": "value"
+                "textMode": "value_and_name"
             },
             "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
-                        "type": "postgres",
-                        "uid": "${dsn}"
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "format": "table",
-                    "rawQuery": true,
-                    "rawSql": "SELECT '$ins';",
-                    "refId": "A",
-                    "sql": {
-                        "columns": [
-                            {
-                                "parameters": [],
-                                "type": "function"
-                            }
-                        ],
-                        "groupBy": [
-                            {
-                                "property": {
-                                    "type": "string"
-                                },
-                                "type": "groupBy"
-                            }
-                        ],
-                        "limit": 50
-                    }
-                }
-            ],
-            "transformations": [
-                {
-                    "id": "seriesToColumns",
-                    "options": {
-                        "byField": "datname"
-                    }
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Schema",
+                    "queryType": "measurements",
+                    "refId": "E"
                 },
                 {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time 1": true,
-                            "Time 10": true,
-                            "Time 2": true,
-                            "Time 3": true,
-                            "Time 4": true,
-                            "Time 5": true,
-                            "Time 6": true,
-                            "Time 7": true,
-                            "Time 8": true,
-                            "Time 9": true,
-                            "age": true,
-                            "datconnlimit": true,
-                            "datfrozenxid": true,
-                            "datname": false,
-                            "sessions": true,
-                            "size": true,
-                            "status": true
-                        },
-                        "indexByName": {
-                            "acl": 12,
-                            "age": 3,
-                            "datcollate": 8,
-                            "datconnlimit": 6,
-                            "datctype": 9,
-                            "datfrozenxid": 10,
-                            "datname": 0,
-                            "description": 13,
-                            "encoding": 7,
-                            "owner": 1,
-                            "sessions": 5,
-                            "size": 4,
-                            "status": 2,
-                            "tablespace": 11
-                        },
-                        "renameByName": {
-                            "Time 1": "",
-                            "Time 7": "",
-                            "Value #A": "Size",
-                            "Value #B": "Age",
-                            "Value #C": "Status",
-                            "Value #D": "Session",
-                            "Value #E": "TPS",
-                            "Value #F": "ConnLimit",
-                            "Value #G": "Reserve",
-                            "Value #H": "Current",
-                            "Value #I": "Disable",
-                            "Value #J": "Pause",
-                            "acl": "Privileges",
-                            "age": "Age",
-                            "datallowconn": "AllowConn",
-                            "datcollate": "Collate",
-                            "datconnlimit": "ConnLimit",
-                            "datctype": "Ctype",
-                            "datfrozenxid": "FronzenXID",
-                            "datname": "Database",
-                            "description": "Description",
-                            "encoding": "Encoding",
-                            "host": "Target",
-                            "owner": "Owner",
-                            "real_datname": "Datname",
-                            "sessions": "Session",
-                            "size": "Size",
-                            "status": "Status",
-                            "tablespace": "Tablespace"
-                        }
-                    }
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Database",
+                    "queryType": "measurements",
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Instance",
+                    "queryType": "measurements",
+                    "refId": "B"
                 }
             ],
+            "transformations": [],
             "type": "stat"
         },
         {
@@ -261,25 +379,27 @@
                 "type": "postgres",
                 "uid": "${dsn}"
             },
-            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "fixedColor": "#3e668f",
-                        "mode": "fixed"
+                        "mode": "thresholds"
                     },
-                    "links": [
+                    "mappings": [
                         {
-                            "title": "PGCAT Database : ${ins}.${datname}",
-                            "url": "/d/pgcat-database?var-dsn=${dsn}"
+                            "options": {
+                                "0": {
+                                    "color": "#6c6c6ce0",
+                                    "index": 0
+                                }
+                            },
+                            "type": "value"
                         }
                     ],
-                    "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
@@ -288,27 +408,24 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 3,
-                "w": 6,
+                "h": 6,
+                "w": 12,
                 "x": 6,
                 "y": 0
             },
-            "id": 197,
+            "id": 53,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "horizontal",
+                "orientation": "auto",
                 "reduceOptions": {
                     "calcs": [],
                     "fields": "/.*/",
-                    "values": false
+                    "values": true
                 },
-                "text": {
-                    "titleSize": 16,
-                    "valueSize": 16
-                },
-                "textMode": "value"
+                "text": {},
+                "textMode": "auto"
             },
             "pluginVersion": "10.0.3",
             "targets": [
@@ -322,7 +439,7 @@
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT '$datname';",
+                    "rawSql": "SELECT coalesce((data ->> 'r')::INTEGER, 0) AS \"r\",\n       coalesce((data ->> 'i')::INTEGER, 0) AS \"i\",\n       coalesce((data ->> 'S')::INTEGER, 0) AS \"S\",\n       coalesce((data ->> 't')::INTEGER, 0) AS \"t\",\n       coalesce((data ->> 'v')::INTEGER, 0) AS \"v\",\n       coalesce((data ->> 'm')::INTEGER, 0) AS \"m\",\n       coalesce((data ->> 'c')::INTEGER, 0) AS \"c\",\n       coalesce((data ->> 'f')::INTEGER, 0) AS \"f\",\n       coalesce((data ->> 'p')::INTEGER, 0) AS \"p\",\n       coalesce((data ->> 'I')::INTEGER, 0) AS \"I\"\nFROM (\n         SELECT json_object_agg(kind, count) AS data\n         FROM (SELECT relkind::TEXT AS kind, count(*) AS count FROM pg_class \n         WHERE relnamespace = '$nspid'\n         GROUP BY 1) d\n     ) j;",
                     "refId": "A",
                     "select": [
                         [
@@ -363,265 +480,32 @@
             ],
             "transformations": [
                 {
-                    "id": "seriesToColumns",
-                    "options": {
-                        "byField": "datname"
-                    }
-                },
-                {
                     "id": "organize",
                     "options": {
-                        "excludeByName": {
-                            "Time 1": true,
-                            "Time 10": true,
-                            "Time 2": true,
-                            "Time 3": true,
-                            "Time 4": true,
-                            "Time 5": true,
-                            "Time 6": true,
-                            "Time 7": true,
-                            "Time 8": true,
-                            "Time 9": true,
-                            "age": true,
-                            "datconnlimit": true,
-                            "datfrozenxid": true,
-                            "datname": false,
-                            "sessions": true,
-                            "size": true,
-                            "status": true
-                        },
+                        "excludeByName": {},
                         "indexByName": {
-                            "acl": 12,
-                            "age": 3,
-                            "datcollate": 8,
-                            "datconnlimit": 6,
-                            "datctype": 9,
-                            "datfrozenxid": 10,
-                            "datname": 0,
-                            "description": 13,
-                            "encoding": 7,
-                            "owner": 1,
-                            "sessions": 5,
-                            "size": 4,
-                            "status": 2,
-                            "tablespace": 11
+                            "I": 9,
+                            "S": 2,
+                            "c": 5,
+                            "f": 7,
+                            "i": 1,
+                            "m": 4,
+                            "p": 8,
+                            "r": 0,
+                            "t": 6,
+                            "v": 3
                         },
                         "renameByName": {
-                            "Time 1": "",
-                            "Time 7": "",
-                            "Value #A": "Size",
-                            "Value #B": "Age",
-                            "Value #C": "Status",
-                            "Value #D": "Session",
-                            "Value #E": "TPS",
-                            "Value #F": "ConnLimit",
-                            "Value #G": "Reserve",
-                            "Value #H": "Current",
-                            "Value #I": "Disable",
-                            "Value #J": "Pause",
-                            "acl": "Privileges",
-                            "age": "Age",
-                            "datallowconn": "AllowConn",
-                            "datcollate": "Collate",
-                            "datconnlimit": "ConnLimit",
-                            "datctype": "Ctype",
-                            "datfrozenxid": "FronzenXID",
-                            "datname": "Database",
-                            "description": "Description",
-                            "encoding": "Encoding",
-                            "host": "Target",
-                            "owner": "Owner",
-                            "real_datname": "Datname",
-                            "sessions": "Session",
-                            "size": "Size",
-                            "status": "Status",
-                            "tablespace": "Tablespace"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "postgres",
-                "uid": "${dsn}"
-            },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "fixedColor": "#3e668f",
-                        "mode": "fixed"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Tables : ${ins}.${datname}",
-                            "url": "/d/pgsql-tables?var-ins=${ins}&var-datname=${datname}&${__url_time_range}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#346f36cc",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 6,
-                "x": 12,
-                "y": 0
-            },
-            "id": 196,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "reduceOptions": {
-                    "calcs": [],
-                    "fields": "/.*/",
-                    "values": false
-                },
-                "text": {
-                    "titleSize": 16,
-                    "valueSize": 16
-                },
-                "textMode": "value"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "postgres",
-                        "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
-                    },
-                    "editorMode": "code",
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT '$schema';",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "value"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "sql": {
-                        "columns": [
-                            {
-                                "parameters": [],
-                                "type": "function"
-                            }
-                        ],
-                        "groupBy": [
-                            {
-                                "property": {
-                                    "type": "string"
-                                },
-                                "type": "groupBy"
-                            }
-                        ],
-                        "limit": 50
-                    },
-                    "timeColumn": "time",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "transformations": [
-                {
-                    "id": "seriesToColumns",
-                    "options": {
-                        "byField": "datname"
-                    }
-                },
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time 1": true,
-                            "Time 10": true,
-                            "Time 2": true,
-                            "Time 3": true,
-                            "Time 4": true,
-                            "Time 5": true,
-                            "Time 6": true,
-                            "Time 7": true,
-                            "Time 8": true,
-                            "Time 9": true,
-                            "age": true,
-                            "datconnlimit": true,
-                            "datfrozenxid": true,
-                            "datname": false,
-                            "sessions": true,
-                            "size": true,
-                            "status": true
-                        },
-                        "indexByName": {
-                            "acl": 12,
-                            "age": 3,
-                            "datcollate": 8,
-                            "datconnlimit": 6,
-                            "datctype": 9,
-                            "datfrozenxid": 10,
-                            "datname": 0,
-                            "description": 13,
-                            "encoding": 7,
-                            "owner": 1,
-                            "sessions": 5,
-                            "size": 4,
-                            "status": 2,
-                            "tablespace": 11
-                        },
-                        "renameByName": {
-                            "Time 1": "",
-                            "Time 7": "",
-                            "Value #A": "Size",
-                            "Value #B": "Age",
-                            "Value #C": "Status",
-                            "Value #D": "Session",
-                            "Value #E": "TPS",
-                            "Value #F": "ConnLimit",
-                            "Value #G": "Reserve",
-                            "Value #H": "Current",
-                            "Value #I": "Disable",
-                            "Value #J": "Pause",
-                            "acl": "Privileges",
-                            "age": "Age",
-                            "datallowconn": "AllowConn",
-                            "datcollate": "Collate",
-                            "datconnlimit": "ConnLimit",
-                            "datctype": "Ctype",
-                            "datfrozenxid": "FronzenXID",
-                            "datname": "Database",
-                            "description": "Description",
-                            "encoding": "Encoding",
-                            "host": "Target",
-                            "owner": "Owner",
-                            "real_datname": "Datname",
-                            "sessions": "Session",
-                            "size": "Size",
-                            "status": "Status",
-                            "tablespace": "Tablespace"
+                            "I": "P Index",
+                            "S": "Seq",
+                            "c": "C Type",
+                            "f": "F Table",
+                            "i": "Index",
+                            "m": "M View",
+                            "p": "P Table",
+                            "r": "Table",
+                            "t": "Toast",
+                            "v": "View"
                         }
                     }
                 }
@@ -802,144 +686,6 @@
                             "size": "Size",
                             "status": "Status",
                             "tablespace": "Tablespace"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "postgres",
-                "uid": "${dsn}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "#6c6c6ce0",
-                                    "index": 0
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#3e668f",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 18,
-                "x": 0,
-                "y": 3
-            },
-            "id": 53,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [],
-                    "fields": "/.*/",
-                    "values": true
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "postgres",
-                        "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
-                    },
-                    "editorMode": "code",
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT coalesce((data ->> 'r')::INTEGER, 0) AS \"r\",\n       coalesce((data ->> 'i')::INTEGER, 0) AS \"i\",\n       coalesce((data ->> 'S')::INTEGER, 0) AS \"S\",\n       coalesce((data ->> 't')::INTEGER, 0) AS \"t\",\n       coalesce((data ->> 'v')::INTEGER, 0) AS \"v\",\n       coalesce((data ->> 'm')::INTEGER, 0) AS \"m\",\n       coalesce((data ->> 'c')::INTEGER, 0) AS \"c\",\n       coalesce((data ->> 'f')::INTEGER, 0) AS \"f\",\n       coalesce((data ->> 'p')::INTEGER, 0) AS \"p\",\n       coalesce((data ->> 'I')::INTEGER, 0) AS \"I\"\nFROM (\n         SELECT json_object_agg(kind, count) AS data\n         FROM (SELECT relkind::TEXT AS kind, count(*) AS count FROM pg_class \n         WHERE relnamespace = '$nspid'\n         GROUP BY 1) d\n     ) j;",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "value"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "sql": {
-                        "columns": [
-                            {
-                                "parameters": [],
-                                "type": "function"
-                            }
-                        ],
-                        "groupBy": [
-                            {
-                                "property": {
-                                    "type": "string"
-                                },
-                                "type": "groupBy"
-                            }
-                        ],
-                        "limit": 50
-                    },
-                    "timeColumn": "time",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {
-                            "I": 9,
-                            "S": 2,
-                            "c": 5,
-                            "f": 7,
-                            "i": 1,
-                            "m": 4,
-                            "p": 8,
-                            "r": 0,
-                            "t": 6,
-                            "v": 3
-                        },
-                        "renameByName": {
-                            "I": "P Index",
-                            "S": "Seq",
-                            "c": "C Type",
-                            "f": "F Table",
-                            "i": "Index",
-                            "m": "M View",
-                            "p": "P Table",
-                            "r": "Table",
-                            "t": "Toast",
-                            "v": "View"
                         }
                     }
                 }
@@ -1397,6 +1143,10 @@
                                 "value": {
                                     "type": "color-text"
                                 }
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
                             }
                         ]
                     },
@@ -1434,6 +1184,10 @@
                                         "type": "value"
                                     }
                                 ]
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
                             }
                         ]
                     },
@@ -1476,6 +1230,10 @@
                             {
                                 "id": "custom.width",
                                 "value": 100
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
                             }
                         ]
                     },
@@ -1614,6 +1372,22 @@
                         "properties": [
                             {
                                 "id": "custom.inspect",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Owner"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 120
+                            },
+                            {
+                                "id": "custom.filterable",
                                 "value": true
                             }
                         ]
@@ -2489,6 +2263,10 @@
                                 "value": {
                                     "type": "color-text"
                                 }
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
                             }
                         ]
                     },
@@ -2878,7 +2656,7 @@
                 "cellHeight": "sm",
                 "footer": {
                     "countRows": false,
-                    "enablePagination": true,
+                    "enablePagination": false,
                     "fields": "",
                     "reducer": [
                         "sum"
@@ -3168,6 +2946,10 @@
                                     {
                                         "id": "custom.width",
                                         "value": 90
+                                    },
+                                    {
+                                        "id": "custom.filterable",
+                                        "value": true
                                     }
                                 ]
                             },
@@ -3213,6 +2995,10 @@
                                     {
                                         "id": "custom.align",
                                         "value": "left"
+                                    },
+                                    {
+                                        "id": "custom.filterable",
+                                        "value": true
                                     }
                                 ]
                             },
@@ -3310,7 +3096,7 @@
                         "h": 11,
                         "w": 24,
                         "x": 0,
-                        "y": 32
+                        "y": 40
                     },
                     "id": 184,
                     "links": [],
@@ -3644,7 +3430,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 44
+                        "y": 52
                     },
                     "id": 190,
                     "options": {
@@ -3865,7 +3651,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 44
+                        "y": 52
                     },
                     "id": 191,
                     "options": {
@@ -4161,7 +3947,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 0,
-                        "y": 52
+                        "y": 60
                     },
                     "id": 192,
                     "options": {
@@ -4382,7 +4168,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 12,
-                        "y": 52
+                        "y": 60
                     },
                     "id": 193,
                     "options": {
@@ -4639,6 +4425,10 @@
                                         "value": {
                                             "type": "color-text"
                                         }
+                                    },
+                                    {
+                                        "id": "custom.filterable",
+                                        "value": true
                                     }
                                 ]
                             },
@@ -4663,6 +4453,10 @@
                                     {
                                         "id": "custom.width",
                                         "value": 120
+                                    },
+                                    {
+                                        "id": "custom.filterable",
+                                        "value": true
                                     }
                                 ]
                             },
@@ -4706,6 +4500,31 @@
                                         "value": {
                                             "type": "color-text"
                                         }
+                                    },
+                                    {
+                                        "id": "custom.filterable",
+                                        "value": true
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Schema"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.minWidth",
+                                        "value": 120
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGCAT Schema : ${dsn}.${schema}",
+                                                "url": "/d/pgcat-schema?var-dsn=${dsn}&var-schema=${__data.fields.Schema}&${__url_time_range}"
+                                            }
+                                        ]
                                     }
                                 ]
                             }
@@ -4715,7 +4534,7 @@
                         "h": 5,
                         "w": 24,
                         "x": 0,
-                        "y": 23
+                        "y": 71
                     },
                     "id": 194,
                     "links": [],
@@ -4749,7 +4568,7 @@
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT schemaname || '.' || sequencename AS \"Sequence\", *\nFROM pg_sequences\nWHERE schemaname = '$schema';",
+                            "rawSql": "SELECT schemaname || '.' || sequencename AS \"Sequence\",  *\nFROM pg_sequences\nWHERE schemaname = '$schema';",
                             "refId": "A",
                             "select": [
                                 [
@@ -4801,22 +4620,23 @@
                                     "sequencename": true
                                 },
                                 "indexByName": {
-                                    "Sequence": 1,
-                                    "cache_size": 11,
-                                    "cycle": 10,
-                                    "data_type": 4,
-                                    "increment_by": 9,
-                                    "last_value": 5,
-                                    "max_value": 8,
-                                    "min_value": 7,
-                                    "schemaname": 0,
-                                    "sequencename": 2,
-                                    "sequenceowner": 3,
-                                    "start_value": 6
+                                    "Sequence": 0,
+                                    "cache_size": 10,
+                                    "cycle": 9,
+                                    "data_type": 3,
+                                    "increment_by": 8,
+                                    "last_value": 4,
+                                    "max_value": 7,
+                                    "min_value": 6,
+                                    "schemaname": 1,
+                                    "sequencename": 11,
+                                    "sequenceowner": 2,
+                                    "start_value": 5
                                 },
                                 "renameByName": {
                                     "Index": "Index",
                                     "Name": "Name",
+                                    "Sequence": "Sequence",
                                     "Table": "Table",
                                     "cache_size": "Cache Size",
                                     "cycle": "Cycle",
@@ -4833,7 +4653,7 @@
                                     "min_value": "Min",
                                     "relid": "Table ID",
                                     "relname": "",
-                                    "schemaname": "",
+                                    "schemaname": "Schema",
                                     "sequenceowner": "Owner",
                                     "start_value": "Start"
                                 }
@@ -4869,7 +4689,7 @@
                 "name": "dsn",
                 "options": [],
                 "query": "postgres",
-                "queryValue": "pg-meta",
+                "queryValue": "meta",
                 "refresh": 1,
                 "regex": "/.*\\..*/",
                 "skipUrlSync": false,

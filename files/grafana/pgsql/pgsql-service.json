@@ -118,38 +118,101 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "Service = ${svc}. Which is unique identifier of service",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [],
                     "mappings": [],
+                    "max": 2.5,
+                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${cls}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Cluster"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster : ${cls}",
+                                        "url": "/d/pgsql-cluster?var-cls=${cls}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${svc}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Service"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 2,
+                "h": 6,
                 "w": 6,
                 "x": 0,
                 "y": 1
             },
-            "id": 65,
+            "id": 96,
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -157,38 +220,46 @@
                     "fields": "",
                     "values": false
                 },
-                "text": {},
-                "textMode": "name"
+                "text": {
+                    "titleSize": 20,
+                    "valueSize": 16
+                },
+                "textMode": "value_and_name"
             },
             "pluginVersion": "10.0.3",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "1",
-                    "format": "table",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "",
+                    "legendFormat": "Service",
+                    "queryType": "measurements",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Cluster",
                     "queryType": "measurements",
                     "refId": "A"
                 }
             ],
-            "title": "Service",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${svc}"
-                        }
-                    }
-                }
-            ],
+            "transformations": [],
             "type": "stat"
         },
         {
@@ -793,339 +864,6 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Cluster for ${cls}",
-                            "url": "/d/pgsql-cluster?var-cls=${cls}&${__url_time_range}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 0,
-                "y": 3
-            },
-            "id": 64,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Cluster",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${cls}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "Role is service identifier among cluster. e.g primary, replica, standby, offline, delayed, etc....",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 3,
-                "y": 3
-            },
-            "id": 66,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Role",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${role}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "Number of haproxy instance among this cluster that provide service for ${svc}",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "unknown"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "red",
-                                "value": null
-                            },
-                            {
-                                "color": "#3e668f",
-                                "value": 1
-                            },
-                            {
-                                "color": "#346f36cc",
-                                "value": 2
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 0,
-                "y": 5
-            },
-            "id": 68,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "value"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "count(count(haproxy_server_check_status{cls=\"$cls\", proxy=\"$svc\"}) by (ins))",
-                    "instant": false,
-                    "interval": "",
-                    "legendFormat": "{{ cls }}",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Proxy",
-            "transformations": [],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "Number of postgres instance among this cluster that provide service ${svc}",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "unknown"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "red",
-                                "value": null
-                            },
-                            {
-                                "color": "#3e668f",
-                                "value": 1
-                            },
-                            {
-                                "color": "#346f36cc",
-                                "value": 2
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 3,
-                "y": 5
-            },
-            "id": 69,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "value"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "max(count(haproxy_server_current_sessions{cls=\"$cls\", proxy=\"$svc\"}) by (ins))",
-                    "instant": false,
-                    "interval": "",
-                    "legendFormat": "{{ cls }}",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Server",
-            "transformations": [],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1173,26 +911,44 @@
             "pluginVersion": "10.0.3",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum(haproxy_server_current_sessions{cls=\"$cls\", proxy=\"$svc\"})",
+                    "expr": "sum(haproxy_server_current_sessions{proxy=\"$svc\"})",
                     "interval": "",
                     "legendFormat": "Active Session",
+                    "range": true,
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "count(sum by (server) (haproxy_server_current_sessions{cls=\"$cls\", proxy=\"$svc\"}) > 0)",
+                    "expr": "count(sum by (server) (haproxy_server_current_sessions{proxy=\"$svc\"}))",
                     "hide": false,
                     "interval": "",
                     "legendFormat": "Active Server",
+                    "range": true,
                     "refId": "B"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "count(sum by (ins)(haproxy_server_current_sessions{cls=\"$cls\", proxy=\"$svc\"} > 0))",
+                    "expr": "count(sum by (ins)(haproxy_server_current_sessions{proxy=\"$svc\"}))",
                     "hide": false,
                     "interval": "",
                     "legendFormat": "Active Proxy",
+                    "range": true,
                     "refId": "C"
                 }
             ],
@@ -1467,6 +1223,11 @@
             "pluginVersion": "10.0.3",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "sum by (server)(haproxy_server_status{proxy=~\"$svc\"})",
                     "format": "table",
@@ -1476,6 +1237,10 @@
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "exemplar": false,
                     "expr": "max by (server) (haproxy_server_weight{proxy=~\"$svc\"})",
                     "format": "table",
@@ -1485,6 +1250,10 @@
                     "refId": "B"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "exemplar": false,
                     "expr": "sum by (server) (haproxy_server_current_sessions{proxy=~\"$svc\"})",
                     "format": "table",
@@ -1558,7 +1327,7 @@
                     "custom": {
                         "align": "center",
                         "cellOptions": {
-                            "type": "color-background"
+                            "type": "auto"
                         },
                         "inspect": false,
                         "minWidth": 60
@@ -1868,7 +1637,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (proxy,server) (\n    haproxy_server_current_sessions{proxy=~\"$cls.*\"}\n)",
+                    "expr": "max by (proxy,server) (\n    haproxy_server_current_sessions{proxy=\"$svc\"}\n)",
                     "format": "time_series",
                     "instant": true,
                     "interval": "",
@@ -2513,7 +2282,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },
@@ -2615,7 +2385,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc"
+                                "color": "#346f36cc",
+                                "value": null
                             },
                             {
                                 "color": "#EAB839",
