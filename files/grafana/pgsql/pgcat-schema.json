@@ -124,41 +124,6 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Cluster"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "${cls}"
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "index": 0,
-                                                "text": "Cluster"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "Node Cluster : ${cls}",
-                                        "url": "/d/node-cluster?var-cls=${cls}&${__url_time_range}"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
                             "options": "Instance"
                         },
                         "properties": [
@@ -289,8 +254,8 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "PGCAT Schema : ${ins}\ufeff.\ufeff${datname}.${nspname}",
-                                        "url": "/d/pgcat-schema?var-dsn=${ins}.${datname}&var-schema=${schema}&${__url_time_range}"
+                                        "title": "PGSQL Tables : ${ins}\ufeff.\ufeff${datname}",
+                                        "url": "/d/pgsql-tables?var-ins=${ins}&var-datname=${datname}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -379,33 +344,361 @@
                 "type": "postgres",
                 "uid": "${dsn}"
             },
+            "description": "Schemas of current database ${datname}",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "#6c6c6ce0",
-                                    "index": 0
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
+                    "custom": {
+                        "align": "center",
+                        "cellOptions": {
+                            "mode": "gradient",
+                            "type": "color-background"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#3e668f",
+                                "color": "#e3e3e3e0",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Schema"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": []
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "monitor": {
+                                                "color": "#cc4637d9",
+                                                "index": 1
+                                            },
+                                            "public": {
+                                                "color": "#5b9cd5",
+                                                "index": 0
+                                            },
+                                            "repack": {
+                                                "color": "#b783af",
+                                                "index": 2
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "pattern": "_.*",
+                                            "result": {
+                                                "color": "#f5a673",
+                                                "index": 3
+                                            }
+                                        },
+                                        "type": "regex"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#3e668f",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGCAT Schema : ${ins}.${datname}.${__data.fields.Schema}",
+                                        "url": "/d/pgcat-schema?var-dsn=${ins}.${datname}&var-schema=${__data.fields.Schema}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 200
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Owner"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.align",
+                                "value": "center"
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "dbuser_dba": {
+                                                "color": "#cc4637d9",
+                                                "index": 1
+                                            },
+                                            "postgres": {
+                                                "color": "#b783af",
+                                                "index": 0
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "pattern": "replicator",
+                                            "result": {
+                                                "color": "#fcdb72",
+                                                "index": 2
+                                            }
+                                        },
+                                        "type": "regex"
+                                    },
+                                    {
+                                        "options": {
+                                            "pattern": "dbuser_monitor",
+                                            "result": {
+                                                "color": "#f5a673",
+                                                "index": 3
+                                            }
+                                        },
+                                        "type": "regex"
+                                    },
+                                    {
+                                        "options": {
+                                            "pattern": "dbrole.*",
+                                            "result": {
+                                                "color": "#3e668f",
+                                                "index": 4
+                                            }
+                                        },
+                                        "type": "regex"
+                                    },
+                                    {
+                                        "options": {
+                                            "pattern": "dbuser.*",
+                                            "result": {
+                                                "color": "#346f36cc",
+                                                "index": 5
+                                            }
+                                        },
+                                        "type": "regex"
+                                    },
+                                    {
+                                        "options": {
+                                            "pattern": "pg_database_owner",
+                                            "result": {
+                                                "color": "#5b9cd5",
+                                                "index": 6
+                                            }
+                                        },
+                                        "type": "regex"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 200
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#346f36cc",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Objects"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "OID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#3e668f",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byType",
+                            "options": "number"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#7a7a7a40",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/Table|Index|Toast|View/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Sequence"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Materialized View"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 145
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Compose Type"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 140
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Partitioned Table"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 145
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Partitioned Index"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 145
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Foreign Table"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 6,
@@ -413,33 +706,38 @@
                 "x": 6,
                 "y": 0
             },
-            "id": 53,
+            "id": 200,
             "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [],
-                    "fields": "/.*/",
-                    "values": true
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
                 },
-                "text": {},
-                "textMode": "auto"
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Schema"
+                    }
+                ]
             },
             "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "postgres",
-                        "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
+                        "uid": "${dsn}"
                     },
                     "editorMode": "code",
                     "format": "table",
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT coalesce((data ->> 'r')::INTEGER, 0) AS \"r\",\n       coalesce((data ->> 'i')::INTEGER, 0) AS \"i\",\n       coalesce((data ->> 'S')::INTEGER, 0) AS \"S\",\n       coalesce((data ->> 't')::INTEGER, 0) AS \"t\",\n       coalesce((data ->> 'v')::INTEGER, 0) AS \"v\",\n       coalesce((data ->> 'm')::INTEGER, 0) AS \"m\",\n       coalesce((data ->> 'c')::INTEGER, 0) AS \"c\",\n       coalesce((data ->> 'f')::INTEGER, 0) AS \"f\",\n       coalesce((data ->> 'p')::INTEGER, 0) AS \"p\",\n       coalesce((data ->> 'I')::INTEGER, 0) AS \"I\"\nFROM (\n         SELECT json_object_agg(kind, count) AS data\n         FROM (SELECT relkind::TEXT AS kind, count(*) AS count FROM pg_class \n         WHERE relnamespace = '$nspid'\n         GROUP BY 1) d\n     ) j;",
+                    "rawSql": "SELECT\n       relnamespace AS \"OID\", nspname AS \"Schema\", nspowner::RegRole::TEXT AS \"Owner\",\n       coalesce((data ->> 'r')::INTEGER, 0) AS \"r\",\n       coalesce((data ->> 'i')::INTEGER, 0) AS \"i\",\n       coalesce((data ->> 'S')::INTEGER, 0) AS \"S\",\n       coalesce((data ->> 't')::INTEGER, 0) AS \"t\",\n       coalesce((data ->> 'v')::INTEGER, 0) AS \"v\",\n       coalesce((data ->> 'm')::INTEGER, 0) AS \"m\",\n       coalesce((data ->> 'c')::INTEGER, 0) AS \"c\",\n       coalesce((data ->> 'f')::INTEGER, 0) AS \"f\",\n       coalesce((data ->> 'p')::INTEGER, 0) AS \"p\",\n       coalesce((data ->> 'I')::INTEGER, 0) AS \"I\"\nFROM (\n         SELECT relnamespace, json_object_agg(kind, count) AS data\n         FROM (SELECT relnamespace, relkind::TEXT AS kind, count(*) AS count FROM pg_class GROUP BY 1,2) d\n         GROUP BY 1\n     ) j LEFT JOIN pg_namespace nsp ON j.relnamespace = nsp.oid\nWHERE nspname NOT IN ('pg_toast', 'information_schema', 'pg_catalog');",
                     "refId": "A",
                     "select": [
                         [
@@ -482,35 +780,89 @@
                 {
                     "id": "organize",
                     "options": {
-                        "excludeByName": {},
+                        "excludeByName": {
+                            "Time 1": true,
+                            "Time 10": true,
+                            "Time 2": true,
+                            "Time 3": true,
+                            "Time 4": true,
+                            "Time 5": true,
+                            "Time 6": true,
+                            "Time 7": true,
+                            "Time 8": true,
+                            "Time 9": true,
+                            "acl": true,
+                            "datcollate": true,
+                            "datctype": true,
+                            "datfrozenxid": true,
+                            "description": true,
+                            "encoding": true,
+                            "tablespace": true
+                        },
                         "indexByName": {
-                            "I": 9,
-                            "S": 2,
-                            "c": 5,
-                            "f": 7,
-                            "i": 1,
-                            "m": 4,
-                            "p": 8,
-                            "r": 0,
+                            "I": 12,
+                            "OID": 0,
+                            "Owner": 2,
+                            "S": 5,
+                            "Schema": 1,
+                            "c": 9,
+                            "f": 10,
+                            "i": 4,
+                            "m": 8,
+                            "p": 11,
+                            "r": 3,
                             "t": 6,
-                            "v": 3
+                            "v": 7
                         },
                         "renameByName": {
-                            "I": "P Index",
-                            "S": "Seq",
-                            "c": "C Type",
-                            "f": "F Table",
+                            "I": "Partitioned Index",
+                            "OID": "OID",
+                            "Owner": "Owner",
+                            "S": "Sequence",
+                            "Schema": "Schema",
+                            "Time 1": "",
+                            "Time 7": "",
+                            "Value #A": "Size",
+                            "Value #B": "Age",
+                            "Value #C": "Status",
+                            "Value #D": "Session",
+                            "Value #E": "TPS",
+                            "Value #F": "ConnLimit",
+                            "Value #G": "Reserve",
+                            "Value #H": "Current",
+                            "Value #I": "Disable",
+                            "Value #J": "Pause",
+                            "acl": "Privileges",
+                            "age": "Age",
+                            "c": "Compose Type",
+                            "datallowconn": "Conn",
+                            "datcollate": "Collate",
+                            "datconnlimit": "ConnLimit",
+                            "datctype": "Ctype",
+                            "datfrozenxid": "FronzenXID",
+                            "datistemplate": "Tmpl",
+                            "datname": "Database",
+                            "description": "Description",
+                            "encoding": "Encoding",
+                            "f": "Foreign Table",
+                            "host": "Target",
                             "i": "Index",
-                            "m": "M View",
-                            "p": "P Table",
+                            "m": "Materialized View",
+                            "owner": "Owner",
+                            "p": "Partitioned Table",
                             "r": "Table",
+                            "real_datname": "Datname",
+                            "sessions": "Session",
+                            "size": "Size",
+                            "status": "Status",
                             "t": "Toast",
+                            "tablespace": "Tablespace",
                             "v": "View"
                         }
                     }
                 }
             ],
-            "type": "stat"
+            "type": "table"
         },
         {
             "datasource": {
@@ -686,6 +1038,144 @@
                             "size": "Size",
                             "status": "Status",
                             "tablespace": "Tablespace"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "${dsn}"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "#6c6c6ce0",
+                                    "index": 0
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#3e668f",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 24,
+                "x": 0,
+                "y": 6
+            },
+            "id": 53,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT coalesce((data ->> 'r')::INTEGER, 0) AS \"r\",\n       coalesce((data ->> 'i')::INTEGER, 0) AS \"i\",\n       coalesce((data ->> 'S')::INTEGER, 0) AS \"S\",\n       coalesce((data ->> 't')::INTEGER, 0) AS \"t\",\n       coalesce((data ->> 'v')::INTEGER, 0) AS \"v\",\n       coalesce((data ->> 'm')::INTEGER, 0) AS \"m\",\n       coalesce((data ->> 'c')::INTEGER, 0) AS \"c\",\n       coalesce((data ->> 'f')::INTEGER, 0) AS \"f\",\n       coalesce((data ->> 'p')::INTEGER, 0) AS \"p\",\n       coalesce((data ->> 'I')::INTEGER, 0) AS \"I\"\nFROM (\n         SELECT json_object_agg(kind, count) AS data\n         FROM (SELECT relkind::TEXT AS kind, count(*) AS count FROM pg_class \n         WHERE relnamespace = '$nspid'\n         GROUP BY 1) d\n     ) j;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    },
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {
+                            "I": 9,
+                            "S": 2,
+                            "c": 5,
+                            "f": 7,
+                            "i": 1,
+                            "m": 4,
+                            "p": 8,
+                            "r": 0,
+                            "t": 6,
+                            "v": 3
+                        },
+                        "renameByName": {
+                            "I": "P Index",
+                            "S": "Seq",
+                            "c": "C Type",
+                            "f": "F Table",
+                            "i": "Index",
+                            "m": "M View",
+                            "p": "P Table",
+                            "r": "Table",
+                            "t": "Toast",
+                            "v": "View"
                         }
                     }
                 }
@@ -1398,7 +1888,7 @@
                 "h": 13,
                 "w": 24,
                 "x": 0,
-                "y": 6
+                "y": 9
             },
             "id": 198,
             "links": [],
@@ -1682,7 +2172,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 19
+                "y": 22
             },
             "id": 152,
             "panels": [],
@@ -2640,18 +3130,13 @@
                 ]
             },
             "gridPos": {
-                "h": 11,
+                "h": 9,
                 "w": 24,
                 "x": 0,
-                "y": 20
+                "y": 23
             },
             "id": 189,
-            "links": [
-                {
-                    "title": "",
-                    "url": "/d/pgcat-tables?var-dsn=${dsn:queryparam}"
-                }
-            ],
+            "links": [],
             "options": {
                 "cellHeight": "sm",
                 "footer": {
@@ -2906,7 +3391,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 31
+                "y": 32
             },
             "id": 154,
             "panels": [
@@ -3096,7 +3581,7 @@
                         "h": 11,
                         "w": 24,
                         "x": 0,
-                        "y": 40
+                        "y": 48
                     },
                     "id": 184,
                     "links": [],
@@ -3221,7 +3706,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 32
+                "y": 33
             },
             "id": 195,
             "panels": [
@@ -3430,7 +3915,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 52
+                        "y": 60
                     },
                     "id": 190,
                     "options": {
@@ -3651,7 +4136,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 52
+                        "y": 60
                     },
                     "id": 191,
                     "options": {
@@ -3947,7 +4432,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 0,
-                        "y": 60
+                        "y": 68
                     },
                     "id": 192,
                     "options": {
@@ -4168,7 +4653,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 12,
-                        "y": 60
+                        "y": 68
                     },
                     "id": 193,
                     "options": {
@@ -4273,7 +4758,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 33
+                "y": 34
             },
             "id": 156,
             "panels": [
@@ -4534,7 +5019,7 @@
                         "h": 5,
                         "w": 24,
                         "x": 0,
-                        "y": 71
+                        "y": 79
                     },
                     "id": 194,
                     "links": [],
