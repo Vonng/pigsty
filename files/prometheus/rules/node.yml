@@ -694,6 +694,15 @@ groups:
       - record: haproxy:ins:uptime
         expr: time() - haproxy_process_start_time_seconds
 
+      # SLI: aliveness
+      - record: haproxy:ins:service_up
+        expr: sum by (ins,proxy) (haproxy_server_status{state="UP", proxy!='stats'}) > bool 0
+      - record: haproxy:cls:service_up
+        expr: sum by (cls,proxy) (haproxy_server_status{state="UP", proxy!='stats'}) > bool 0
+
+
+
+
       ################################################################
       #                          Docker                              #
       ################################################################
