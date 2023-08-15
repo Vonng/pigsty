@@ -10,7 +10,7 @@ run: pg
         --restart always --detach \
         --publish 8887:8887 \
         --volume /data/bytebase/data:/var/opt/bytebase \
-        bytebase/bytebase:2.5.0 \
+        bytebase/bytebase:2.6.0 \
         --data /var/opt/bytebase \
         --external-url http://ddl.pigsty \
         --port 8887 \
@@ -38,14 +38,14 @@ clean:
 	docker stop bytebase; docker rm -f bytebase
 
 pull:
-	docker pull bytebase/bytebase:2.5.0
+	docker pull bytebase/bytebase:2.6.0
 
 rmi:
-	docker rmi bytebase/bytebase:2.5.0
+	docker rmi bytebase/bytebase:2.6.0
 
 save:
 	mkdir -p /tmp/docker
-	docker save bytebase/bytebase:2.5.0 | gzip -9 -c > /tmp/docker/bytebase.tgz
+	docker save bytebase/bytebase:2.6.0 | gzip -9 -c > /tmp/docker/bytebase.tgz
 
 load:
 	cat /tmp/docker/bytebase.tgz | gzip -d -c - | docker load
