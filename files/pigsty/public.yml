@@ -3,7 +3,7 @@
 # File      :   public.yml
 # Desc      :   Pigsty Public Demo Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2023-05-28
+# Mtime     :   2023-08-15
 # Docs      :   https://vonng.github.io/pigsty/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -43,6 +43,7 @@ all:
           - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
           - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service       }
           - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
+          - {name: dbuser_noco     ,password: DBUser.Noco     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for nocodb service      }
         pg_databases:
           - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
           - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
@@ -50,6 +51,7 @@ all:
           - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
           - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
           - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
+          - { name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database }
         node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
           - '00 01 * * 1 postgres /pg/bin/pg-backup full'
           - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
@@ -105,6 +107,7 @@ all:
       bytebase     : { domain: ddl.pigsty.cc  ,endpoint: "127.0.0.1:8887"   }
       gitea        : { domain: git.pigsty.cc  ,endpoint: "127.0.0.1:8889"   }
       wiki         : { domain: wiki.pigsty.cc ,endpoint: "127.0.0.1:9002"   }
+      noco         : { domain: noco.pigsty.cc ,endpoint: "127.0.0.1:9003" }
     nginx_navbar:                     # application nav links on home page
       - { name: PgAdmin4   , url: 'http://adm.pigsty.cc'           , comment: 'PgAdmin4 for PostgreSQL'     }
       - { name: PGWeb      , url: 'http://cli.pigsty.cc'           , comment: 'PGWEB Browser Client'        }
@@ -113,6 +116,7 @@ all:
       - { name: Gitea      , url: 'http://git.pigsty.cc'           , comment: 'Gitea Git Service'           }
       - { name: Minio      , url: 'http://sss.pigsty.cc'           , comment: 'Minio Object Storage'        }
       - { name: Wiki       , url: 'http://wiki.pigsty.cc'          , comment: 'Local Wikipedia'             }
+      - { name: Nocodb     , url: 'http://noco.pigsty.cc'          , comment: 'Nocodb Example'              }
       - { name: Explain    , url: '/pigsty/pev.html'               , comment: 'postgres explain visualizer' }
       - { name: Package    , url: '/pigsty'                        , comment: 'local yum repo packages'     }
       - { name: PG Logs    , url: '/logs'                          , comment: 'postgres raw csv logs'       }
