@@ -211,10 +211,9 @@ It will also download / extract / setup the offline [packages](#offline-packages
     * Precedence: local `pkg.tgz` > downloaded `pkg.tgz` > upstream > user provide
 
 3. install boot utils from the available repo
-
-   * el7,8,9: `nginx wget sshpass createrepo_c yum-utils python2-jmespath`
-   * el8 extra: `dnf-utils modulemd-tools python3.11-jmespath`
-   * el9 extra: `dnf-utils modulemd-tools python3.11-jmespath`
+   * el7,8,9: `ansible createrepo_c unzip wget yum-utils sshpass`
+   * el8 extra: `ansible python3.11-jmespath createrepo_c unzip wget dnf-utils sshpass modulemd-tools`
+   * el9 extra: `ansible python3.11-jmespath createrepo_c unzip wget dnf-utils sshpass modulemd-tools`
 
 4. Check ansible availability.
 

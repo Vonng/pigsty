@@ -11,7 +11,7 @@ Pigsty is a **Me-Better Open Source RDS Alternative** with:
 - Declarative API, Database-as-Code implemented with [Ansible](https://www.ansible.com/) playbooks.
 - Versatile UseCases, Run [Docker](https://www.docker.com/) Apps, Run demos, Visualize data with [ECharts](https://echarts.apache.org/).
 - Handy Tools, provision IaaS with [Terraform](https://www.terraform.io/), and try with local [Vagrant](https://www.vagrantup.com/) sandbox.
-
+- Run [Redis](https://redis.io/) (standalone, sentinel, cluster), MinIO, Etcd, Haproxy, MongoDB([FerretDB](https://www.ferretdb.io/)) clusters
 
 
 ## Powerful Distribution
@@ -42,14 +42,14 @@ There are over 3K+ metrics that describe every aspect of your environment, from 
 
 Check the [public demo](https://demo.pigsty.cc) for an interactive experience!
 
-[![pigsty-dashboard](https://user-images.githubusercontent.com/8587410/198838834-1bd30b7e-47c9-4e35-90cb-5a75a2e6f6c6.jpg)](http://demo.pigsty.cc)
-  
+![Dashboards](https://github-production-user-asset-6210df.s3.amazonaws.com/8587410/258681605-cf6b99e5-9c8f-4db2-9bce-9ded95407c0c.jpg)
+
 
 
 
 ## Proven Reliability
 
-**Pigsty has auto-configured HA & PITR for PostgreSQL to ensure your database service is always reliable.**
+**Pigsty has pre-configured HA & PITR for PostgreSQL to ensure your database service is always reliable.**
 
 Hardware failures are covered by self-healing HA architecture powered by `patroni`, `etcd`, and `haproxy`, which will perform auto failover in case of leader failure (RTO < 30s), and there will be no data loss (RPO = 0) in **sync** mode. Moreover, with the self-healing traffic control proxy, the client may not even notice a switchover/replica failure. 
 
@@ -62,13 +62,14 @@ Large organizations have used Pigsty for several years. One of the largest deplo
 
 
 
+
 ## Great Maintainability
 
 **Infra as Code, Database as Code, Declarative API & Idempotent Playbooks, GitOPS works like a charm.**
 
 Pigsty provides a **declarative** interface: Describe everything in a config file, and Pigsty operates it to the desired state. It works like Kubernetes CRDs & Operators but for databases and infrastructures on any nodes: bare metal or virtual machines. 
 
-To create cluster/database/user/extension, expose services, or add replicas. All you need to do is to modify the cluster definition and run the idempotent playbook. Databases & Nodes are tuned automatically according to their hardware specs, and monitoring & alerting is auto-configured. As a result, database administration becomes much more manageable. 
+To create cluster/database/user/extension, expose services, or add replicas. All you need to do is to modify the cluster definition and run the idempotent playbook. Databases & Nodes are tuned automatically according to their hardware specs, and monitoring & alerting is pre-configured. As a result, database administration becomes much more manageable. 
 
 Pigsty has a full-featured sandbox powered by **Vagrant**, a pre-configured one or 4-node environment for testing & demonstration purposes. You can also provision required IaaS resources from cloud vendors with **Terraform** templates.
 
@@ -95,7 +96,7 @@ Your entire network communication can be secured with SSL. Pigsty will automatic
 
 **Lots of applications work well with PostgreSQL. Run them in one command with docker.**
 
-The database is usually the most tricky part of most software. Since Pigsty already provides the RDS. It could be nice to have a series of docker templates to run software in stateless mode and persist their data with Pigsty-managed HA PostgreSQL (or Redis, MinIO), including Gitlab, Gitea, Wiki.js, Odoo, Jira, Confluence, Habour, Mastodon, Discourse, and KeyCloak.
+The database is usually the most tricky part of most software. Since Pigsty already provides the RDS. It could be nice to have a series of docker templates to run software in stateless mode and persist their data with Pigsty-managed HA PostgreSQL (or Redis, MinIO), including Gitlab, Gitea, Wiki.js, Odoo, Jira, Confluence, Harbour, Mastodon, Discourse, and KeyCloak.
 
 Pigsty also provides a toolset to help you manage your database and build data applications in a low-code fashion: PGAdmin4, PGWeb, ByteBase, PostgREST, Kong, and higher "Database" that use Postgres as underlying storage, such as EdgeDB, FerretDB, and Supabase. And since you already have Grafana & Postgres, You can quickly make an interactive data application demo with them. In addition, advanced visualization can be achieved with the built-in ECharts panel.
 
