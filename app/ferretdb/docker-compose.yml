@@ -4,6 +4,10 @@ services:
     image: ghcr.io/ferretdb/ferretdb:latest
     container_name: ferretdb
     restart: on-failure
+    environment:
+      - FERRETDB_POSTGRESQL_URL=${FERRETDB_POSTGRESQL_URL}
+      - FERRETDB_LISTEN_ADDR=:27017
+      - FERRETDB_TELEMETRY=undecided    # enabled|disabled|undecided
     ports:
-      - 27017:27017
-    command: ["-listen-addr=:27017", "-postgresql-url=postgres://dbuser_meta:DBUser.Meta@10.10.10.10:5432/meta"]
+      - 27017:27017                     # expose default mongodb port
+      # - 28088:8080                    # expose metrics port

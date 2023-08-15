@@ -7,7 +7,7 @@ Here are some docker compose templates for popular applications that works well 
 * [ByteBase](bytebase/) : Postgres DDL Migration
 * [PostgREST](postgrest/) : Auto-Generated PG Backend REST API
 * [Kong](kong/) : Kong API Gateway
-* [FerretDB](ferretdb/) : MongoDB API over Postgres
+* [FerretDB](ferretdb/) : Open Source MongoDB alternative, built on Postgres.
 * [Gitea](gitea/) : Self-Hosting Git Services
 * [Wiki](wiki/) : Local Wiki Service
 * [NocoDB](nocodb/) : Open source airtable alternative
