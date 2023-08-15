@@ -418,7 +418,7 @@ release-el9:
 
 
 # validate offline packages with build environment
-check: build-src build-repo build-boot
+check: check-src check-repo check-boot
 check-src:
 	scp dist/${VERSION}/${SRC_PKG} build-el7:~/pigsty.tgz ; ssh build-el7 "tar -xf pigsty.tgz";
 	scp dist/${VERSION}/${SRC_PKG} build-el8:~/pigsty.tgz ; ssh build-el8 "tar -xf pigsty.tgz";
