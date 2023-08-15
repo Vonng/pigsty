@@ -36,12 +36,12 @@ FROM CDN    : bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL http://get.pigsty.cc/v2.2.0/pigsty-v2.2.0.tgz
+[ OK ] $ curl -SL http://get.pigsty.cc/v2.2.1/pigsty-v2.2.1.tgz
 ...
-MD5: abcdef1234567890abcdef1234567890  /tmp/pigsty-v2.2.0.tgz
+MD5: abcdef1234567890abcdef1234567890  /tmp/pigsty-v2.2.1.tgz
 [Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.2.0.tgz' to '/root/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.2.0.tgz -C ~;
+[ OK ] extract '/tmp/pigsty-v2.2.1.tgz' to '/root/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.2.1.tgz -C ~;
 cd ~/pigsty      # entering pigsty home directory before proceeding
 [Proceeding] ===========================================
 ./bootstrap      # install ansible & download the optional offline packages
@@ -63,7 +63,7 @@ You can also download pigsty source with `git`, don't forget to checkout a speci
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
-cd pigsty; git checkout v2.2.0
+cd pigsty; git checkout v2.2.1
 ```
 
 </details>
@@ -115,11 +115,11 @@ curl http://get.pigsty.cc/latest  | bash
 
 ```bash
 # 从 CDN 或 Github 下载源码包
-curl -L http://get.pigsty.cc/v2.2.0/pigsty-v2.2.0.tgz
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-v2.2.0.tgz
+curl -L http://get.pigsty.cc/v2.2.1/pigsty-v2.2.1.tgz
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.1/pigsty-v2.2.1.tgz
 
 # 如果 curl 不可用，git clone 也可以
-git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.2.0
+git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.2.1
 ```
 
 ### 离线软件包
@@ -132,14 +132,14 @@ Pigsty 会在 [Bootstrap/准备](#准备) 时，提示下载对应的离线软�
 
 ```bash
 # CDN EL 7,8,9
-curl -L http://get.pigsty.cc/v2.2.0/pigsty-pkg-v2.2.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
-curl -L http://get.pigsty.cc/v2.2.0/pigsty-pkg-v2.2.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
-curl -L http://get.pigsty.cc/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
+curl -L http://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
+curl -L http://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
+curl -L http://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
 
 # GITHUB EL 7,8,9
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.1/pigsty-pkg-v2.2.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.1/pigsty-pkg-v2.2.1.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.1/pigsty-pkg-v2.2.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
 ```
 
 
@@ -189,7 +189,7 @@ Bootstrap 的详细逻辑如下：
 如果离线软件包存在于 `/tmp/pkg.tgz`， bootstrap 会直接使用它：
 
 ```bash
-bootstrap pigsty v2.2.0 begin
+bootstrap pigsty v2.2.1 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -213,7 +213,7 @@ proceed with ./configure
 从 Github/CDN 下载 `pkg.tgz` 并解压使用：
 
 ```bash
-bootstrap pigsty v2.2.0 begin
+bootstrap pigsty v2.2.1 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -221,7 +221,7 @@ bootstrap pigsty v2.2.0 begin
 [ OK ] sudo = vagrant ok
 [ IN ] Cache /tmp/pkg.tgz not exists, download? (y/n):
 => y
-[ OK ] download from Github http://get.pigsty.cc/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz to /tmp/pkg.tgz
+[ OK ] download from Github http://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el7.x86_64.tgz to /tmp/pkg.tgz
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100  913M  100  913M    0     0   661k      0  0:23:33  0:23:33 --:--:--  834k
@@ -310,7 +310,7 @@ proceed with ./configure
 
 ```bash
 [vagrant@meta pigsty]$ ./configure
-configure pigsty v2.2.0 begin
+configure pigsty v2.2.1 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
