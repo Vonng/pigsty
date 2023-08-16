@@ -261,7 +261,6 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.4/24
         pg_vip_interface: eth1
-        node_hugepage_ratio: 0.3
         pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
         pg_databases: [{ name: src }]
 
@@ -279,6 +278,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.5/24
         pg_vip_interface: eth1
+        node_hugepage_ratio: 0.3
         pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
         pg_databases: [ { name: dst } ]
 
@@ -423,13 +423,13 @@ all:
     # ./redis.yml -l redis-src
     redis-src:
       hosts:
-        10.10.10.85: { redis_node: 1 , redis_instances: {6501: {  }                               }}
-        10.10.10.46: { redis_node: 2 , redis_instances: {6501: { replica_of: '10.10.10.45 6501' } }}
-        10.10.10.47: { redis_node: 3 , redis_instances: {6501: { replica_of: '10.10.10.45 6501' } }}
+        10.10.10.45: { redis_node: 1 , redis_instances: {6501: {  }                               }}
+        10.10.10.46: { redis_node: 2 , redis_instances: {6501: { replica_of: '10.10.10.45 6501' }, 6502: { replica_of: '10.10.10.46 6501' } }}
+        10.10.10.47: { redis_node: 3 , redis_instances: {6501: { replica_of: '10.10.10.45 6501' }, 6502: { replica_of: '10.10.10.47 6501' } }}
       vars:
         redis_cluster: redis-src
         redis_password: 'redis.src'
-        redis_max_memory: 128MB
+        redis_max_memory: 64MB
 
     #==========================================================#
     # redis-dst: reuse pg-dst 2 nodes for redis
@@ -442,7 +442,7 @@ all:
       vars:
         redis_cluster: redis-dst
         redis_password: 'redis.dst'
-        redis_max_memory: 128MB
+        redis_max_memory: 64MB
 
     #==========================================================#
     # redis-test: redis native cluster in 6 nodes, 24 instances

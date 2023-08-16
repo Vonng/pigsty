@@ -1252,7 +1252,7 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "All instances in pgsql cluster ${cls}",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1353,6 +1353,16 @@
                                             }
                                         },
                                         "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null",
+                                            "result": {
+                                                "color": "transparent",
+                                                "index": 3
+                                            }
+                                        },
+                                        "type": "special"
                                     }
                                 ]
                             },
@@ -1535,6 +1545,26 @@
                                             }
                                         },
                                         "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "transparent",
+                                                "index": 2
+                                            }
+                                        },
+                                        "type": "special"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "empty",
+                                            "result": {
+                                                "color": "transparent",
+                                                "index": 3
+                                            }
+                                        },
+                                        "type": "special"
                                     }
                                 ]
                             }
@@ -1673,6 +1703,22 @@
                                 "value": {
                                     "type": "color-background"
                                 }
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "transparent",
+                                                "index": 0,
+                                                "text": "N/A"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
                             }
                         ]
                     },
@@ -1696,6 +1742,44 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Alive"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#cc4637d9",
+                                                "index": 0,
+                                                "text": "Down"
+                                            },
+                                            "1": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "Up"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            }
+                        ]
                     }
                 ]
             },
@@ -1705,7 +1789,7 @@
                 "x": 8,
                 "y": 7
             },
-            "id": 120,
+            "id": 166,
             "options": {
                 "cellHeight": "sm",
                 "footer": {
@@ -1731,8 +1815,9 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "redis_instance_info{cls=\"$cls\"}",
+                    "expr": "redis_up{cls=\"$cls\"}",
                     "format": "table",
                     "instant": true,
                     "interval": "",
@@ -1744,6 +1829,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "redis:ins:cpu_usage{cls=\"$cls\"}",
                     "format": "table",
@@ -1797,9 +1883,23 @@
                     "interval": "",
                     "legendFormat": "",
                     "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "redis_instance_info{cls=\"$cls\"}",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "F"
                 }
             ],
-            "title": "Instances",
             "transformations": [
                 {
                     "id": "seriesToColumns",
@@ -1815,36 +1915,47 @@
                             "Time 1": true,
                             "Time 2": true,
                             "Time 3": true,
+                            "Time 4": true,
                             "Time 5": true,
-                            "Value #A": true,
+                            "Time 6": true,
+                            "Value #A": false,
                             "Value #B": false,
+                            "Value #F": true,
                             "__name__": true,
                             "__name__ 1": true,
                             "__name__ 2": true,
                             "__name__ 3": true,
+                            "__name__ 4": true,
                             "__name__ 5": true,
+                            "__name__ 6": true,
                             "cls": false,
                             "cls 1": false,
                             "cls 2": true,
                             "cls 3": true,
                             "cls 4": true,
                             "cls 5": true,
+                            "cls 6": true,
+                            "ins": false,
                             "instance": false,
                             "instance 1": false,
                             "instance 2": true,
                             "instance 3": true,
                             "instance 4": true,
                             "instance 5": true,
+                            "instance 6": true,
+                            "ip 1": false,
                             "ip 2": true,
                             "ip 3": true,
                             "ip 4": true,
                             "ip 5": true,
+                            "ip 6": true,
                             "job": true,
                             "job 1": true,
                             "job 2": true,
                             "job 3": true,
                             "job 4": true,
                             "job 5": true,
+                            "job 6": true,
                             "maxmemory_policy": true,
                             "os": true,
                             "process_id": true,
@@ -1859,49 +1970,56 @@
                             "Time 3": 27,
                             "Time 4": 31,
                             "Time 5": 39,
-                            "Value #A": 19,
-                            "Value #B": 6,
-                            "Value #C": 7,
-                            "Value #D": 9,
-                            "Value #E": 8,
+                            "Time 6": 45,
+                            "Value #A": 0,
+                            "Value #B": 7,
+                            "Value #C": 8,
+                            "Value #D": 10,
+                            "Value #E": 9,
+                            "Value #F": 51,
                             "__name__ 1": 21,
                             "__name__ 2": 24,
                             "__name__ 3": 28,
                             "__name__ 4": 32,
                             "__name__ 5": 40,
-                            "cls 1": 2,
-                            "cls 2": 11,
-                            "cls 3": 18,
+                            "__name__ 6": 46,
+                            "cls 1": 3,
+                            "cls 2": 12,
+                            "cls 3": 19,
                             "cls 4": 33,
                             "cls 5": 41,
-                            "ins": 3,
-                            "instance 1": 4,
+                            "cls 6": 47,
+                            "ins": 4,
+                            "instance 1": 5,
                             "instance 2": 25,
                             "instance 3": 29,
                             "instance 4": 34,
                             "instance 5": 42,
-                            "ip 1": 5,
+                            "instance 6": 48,
+                            "ip 1": 6,
                             "ip 2": 36,
                             "ip 3": 37,
                             "ip 4": 38,
                             "ip 5": 43,
+                            "ip 6": 49,
                             "job 1": 22,
                             "job 2": 26,
                             "job 3": 30,
                             "job 4": 35,
                             "job 5": 44,
-                            "maxmemory_policy": 12,
-                            "os": 13,
-                            "process_id": 14,
-                            "redis_build_id": 15,
-                            "redis_mode": 0,
-                            "redis_version": 10,
-                            "role": 1,
-                            "run_id": 16,
-                            "tcp_port": 17
+                            "job 6": 50,
+                            "maxmemory_policy": 13,
+                            "os": 14,
+                            "process_id": 15,
+                            "redis_build_id": 16,
+                            "redis_mode": 1,
+                            "redis_version": 11,
+                            "role": 2,
+                            "run_id": 17,
+                            "tcp_port": 18
                         },
                         "renameByName": {
-                            "Value #A": "",
+                            "Value #A": "Alive",
                             "Value #B": "CPU",
                             "Value #C": "MEM",
                             "Value #D": "QPS",
@@ -2879,7 +2997,7 @@
                         "h": 18,
                         "w": 5,
                         "x": 0,
-                        "y": 52
+                        "y": 60
                     },
                     "id": 144,
                     "options": {
@@ -2975,7 +3093,7 @@
                         "h": 9,
                         "w": 19,
                         "x": 5,
-                        "y": 52
+                        "y": 60
                     },
                     "id": 159,
                     "links": [],
@@ -3069,7 +3187,7 @@
                         "h": 9,
                         "w": 19,
                         "x": 5,
-                        "y": 61
+                        "y": 69
                     },
                     "id": 91,
                     "links": [],
@@ -3203,7 +3321,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 71
+                        "y": 79
                     },
                     "id": 43,
                     "links": [],
@@ -3319,7 +3437,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 71
+                        "y": 79
                     },
                     "id": 53,
                     "links": [],
@@ -3463,7 +3581,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 78
+                        "y": 86
                     },
                     "id": 10,
                     "links": [],
@@ -3590,7 +3708,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 78
+                        "y": 86
                     },
                     "id": 7,
                     "links": [],
@@ -3803,7 +3921,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 86
+                        "y": 94
                     },
                     "id": 96,
                     "options": {
@@ -4030,7 +4148,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 86
+                        "y": 94
                     },
                     "id": 97,
                     "options": {
@@ -4150,7 +4268,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 93
+                        "y": 101
                     },
                     "id": 14,
                     "links": [],
@@ -4247,7 +4365,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 93
+                        "y": 101
                     },
                     "id": 93,
                     "links": [],
@@ -4345,7 +4463,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 100
+                        "y": 108
                     },
                     "id": 92,
                     "links": [],
@@ -4404,7 +4522,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 100
+                        "y": 108
                     },
                     "id": 66,
                     "links": [],
@@ -4506,7 +4624,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 106
+                        "y": 114
                     },
                     "id": 15,
                     "links": [],
@@ -4624,7 +4742,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 114
+                        "y": 122
                     },
                     "id": 50,
                     "links": [],
@@ -4722,7 +4840,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 114
+                        "y": 122
                     },
                     "id": 75,
                     "links": [],
@@ -4818,7 +4936,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 121
+                        "y": 129
                     },
                     "id": 51,
                     "links": [],
@@ -4877,7 +4995,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 121
+                        "y": 129
                     },
                     "hiddenSeries": false,
                     "id": 90,
@@ -5023,7 +5141,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 129
+                        "y": 137
                     },
                     "id": 88,
                     "links": [],
@@ -5082,7 +5200,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 129
+                        "y": 137
                     },
                     "hiddenSeries": false,
                     "id": 54,
@@ -5289,7 +5407,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 136
+                        "y": 144
                     },
                     "id": 8,
                     "links": [],
@@ -5387,7 +5505,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 136
+                        "y": 144
                     },
                     "id": 5,
                     "links": [],
@@ -5530,7 +5648,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 143
+                        "y": 151
                     },
                     "id": 87,
                     "links": [],
@@ -5626,7 +5744,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 143
+                        "y": 151
                     },
                     "id": 86,
                     "links": [],
@@ -5689,7 +5807,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 150
+                        "y": 158
                     },
                     "hiddenSeries": false,
                     "id": 58,
@@ -5833,7 +5951,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 150
+                        "y": 158
                     },
                     "id": 69,
                     "links": [],
@@ -6031,7 +6149,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 158
+                        "y": 166
                     },
                     "id": 89,
                     "links": [],
@@ -6170,7 +6288,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 158
+                        "y": 166
                     },
                     "id": 57,
                     "links": [],

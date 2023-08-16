@@ -586,6 +586,30 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "MONGO"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#806c52",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "MongoDB Overview",
+                                        "url": "/d/mongo-overview?${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -684,6 +708,20 @@
                     "legendFormat": "ETCD",
                     "range": true,
                     "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(up{job=\"mongo\"})",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "MONGO",
+                    "range": true,
+                    "refId": "F"
                 },
                 {
                     "datasource": {
@@ -942,6 +980,42 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "F"
+                        },
+                        "properties": [
+                            {
+                                "id": "color"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#342c22",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#806c52",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "MongoDB Instance : ${__field.labels.ins}",
+                                        "url": "/d/mongo-overview?var-ins=${__field.labels.ins}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -1004,6 +1078,20 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
+                    "expr": "min by (ins,instance) (up{job=\"mongo\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "F"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
                     "expr": "min by (ins) (up{job=\"node\"})",
                     "hide": false,
                     "instant": true,
@@ -1018,12 +1106,12 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (ins,instance) (up{job=\"infra\"})",
-                    "hide": false,
+                    "expr": "min by (instance) (up{job!~\"(node|infra|etcd|pgsql|redis|minio)\"})",
+                    "hide": true,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "{{ ins }}",
-                    "refId": "X"
+                    "legendFormat": "{{ instance }}",
+                    "refId": "Z"
                 },
                 {
                     "datasource": {
@@ -1032,12 +1120,12 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (instance) (up{job!~\"(node|infra|etcd|pgsql|redis|minio)\"})",
-                    "hide": true,
+                    "expr": "min by (ins,instance) (up{job=\"infra\"})",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "{{ instance }}",
-                    "refId": "Z"
+                    "legendFormat": "{{ ins }}",
+                    "refId": "X"
                 },
                 {
                     "datasource": {
