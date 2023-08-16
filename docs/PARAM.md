@@ -735,19 +735,6 @@ repo_url_packages:
   - http://get.pigsty.cc/rpm/chart.tgz
 ```
 
-Currently, these packages are downloaded via url rather than upstream yum repo
-
-* `pg_exporter`: **Required**, core components of the monitor system.
-* `vip-manager`: **Required**, package required to enable L2 VIP for managing VIP.
-* `pev2`: Optional, PostgreSQL execution plan visualization
-* `minio/mcli`: Optional, Setup minio clusters for PostgreSQL backup cente
-* `redis`: Optional
-
-haproxy.el7 is missing in official rpm
-
-```bash
-- https://github.com/philyuchkoff/HAProxy-2-RPM-builder/releases/download/2.7.6/haproxy-2.7.6-1.el7.x86_64.rpm # haproxy.el7
-```
 
 
 
@@ -3722,7 +3709,6 @@ pg_extensions:                    # pg extensions to be installed, `${pg_version
   - timescaledb-2-postgresql-${pg_version}
   - citus*${pg_version}*
   - pgvector_${pg_version}*
-
 ```
 
 
@@ -3863,7 +3849,7 @@ pg_extensions:                    # pg extensions to be installed, `${pg_version
   - pgvector_${pg_version}*
 ```
 
-Note: PostgreSQL 11 does not have corresponding EL9 citus and pgvector extensions for now.
+Note that citus 12 is only available for pg 14, 15.
 
 
 

@@ -831,7 +831,7 @@ If you plan to enable hugepage, consider using `node_hugepage_count` and `node_h
 
 It's good to allocate **enough** hugepage before postgres start, and use `pg_tune_hugepage` to shrink them later.
 
-If your postgres is already running, you can use `/pg/bin/pg-tune-hugepage` to enable hugepage on the fly.
+If your postgres is already running, you can use `/pg/bin/pg-tune-hugepage` to enable hugepage on the fly. Note that this only works on PostgreSQL 15+
 
 ```bash
 sync; echo 3 > /proc/sys/vm/drop_caches   # drop system cache (ready for performance impact)

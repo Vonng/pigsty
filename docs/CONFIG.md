@@ -73,9 +73,9 @@ Pigsty have 260+ parameters, check [Parameter](PARAM) for details.
 |  [`INFRA`](PARAM#infra)  | [`META`](PARAM#meta)                   | Pigsty Metadata                  | 4     |
 |  [`INFRA`](PARAM#infra)  | [`CA`](PARAM#ca)                       | Self-Signed CA                   | 3     |
 |  [`INFRA`](PARAM#infra)  | [`INFRA_ID`](PARAM#infra_id)           | Infra Portals & Identity         | 2     |
-|  [`INFRA`](PARAM#infra)  | [`REPO`](PARAM#repo)                   | Local Yum Repo                   | 8     |
+|  [`INFRA`](PARAM#infra)  | [`REPO`](PARAM#repo)                   | Local Yum Repo                   | 9     |
 |  [`INFRA`](PARAM#infra)  | [`INFRA_PACKAGE`](PARAM#infra_package) | Infra Packages                   | 2     |
-|  [`INFRA`](PARAM#infra)  | [`NGINX`](PARAM#nginx)                 | Nginx Web Server                 | 6     |
+|  [`INFRA`](PARAM#infra)  | [`NGINX`](PARAM#nginx)                 | Nginx Web Server                 | 7     |
 |  [`INFRA`](PARAM#infra)  | [`DNS`](PARAM#dns)                     | DNSMASQ Nameserver               | 3     |
 |  [`INFRA`](PARAM#infra)  | [`PROMETHEUS`](PARAM#prometheus)       | Prometheus Stack                 | 16    |
 |  [`INFRA`](PARAM#infra)  | [`GRAFANA`](PARAM#grafana)             | Grafana Stack                    | 6     |

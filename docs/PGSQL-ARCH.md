@@ -99,7 +99,7 @@ Here is how PostgreSQL module components and their interactions. From top to bot
   * HAProxy will route traffic based on health check information provided by `patroni`. 
 * Pgbouncer is a connection pool middleware that buffers connections, exposes extra metrics, and brings extra flexibility @ port 6432
   * Pgbouncer is stateless and deployed with the Postgres server in a 1:1 manner through a local unix socket.
-  * Production traffic (Primary/Replica) will go through pgbouncer by default (can be skipped by [`pg_default_service_dest`](PARAM#pg_default_service_dest)) 
+  * Production traffic (Primary/Replica) will go through pgbouncer by default (can be skipped by [`pg_default_service_dest`](PARAM#pg_default_service_dest) ) 
   * Default/Offline service will always bypass pgbouncer and connect to target Postgres directly.
 * Postgres provides relational database services @ port 5432
   * Install PGSQL module on multiple nodes will automatically form a HA cluster based on streaming replication
@@ -112,7 +112,7 @@ Here is how PostgreSQL module components and their interactions. From top to bot
 * PG Exporter will expose postgres metrics @ port 9630
   * PostgreSQL's metrics will be scraped by prometheus on infra nodes
 * Pgbouncer Exporter will expose pgbouncer metrics @ port 9631
-  * Pgbouncer metrics will be scraped by prometheus on infra nodes
+  * Pgbouncer's metrics will be scraped by prometheus on infra nodes
 * pgBackRest will work on the local repo by default ([`pgbackrest_method`](PARAM#pgbackrest_method))
   * If `local` (default) is used as the backup repo, pgBackRest will create local repo under the primary's [`pg_fs_bkup`](PARAM#pg_fs_bkup) 
   * If `minio` is used as the backup repo, pgBackRest will create the repo on the dedicated MinIO cluster in [`pgbackrest_repo`.`minio`](PARAM#pgbackrest_repo)

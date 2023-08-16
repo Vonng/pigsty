@@ -55,7 +55,7 @@ Official Site:   https://pigsty.cc
 
 <details><summary>Download with Git</summary>
 
-You can also download pigsty source with `git`, don't forget to checkout a specific version.
+You can also download pigsty source with `git`, don't forget to check out a specific version.
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
@@ -95,7 +95,7 @@ curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.1/pigsty-pkg-v2.2
 * Vendor: RHEL, CentOS, Rocky, AlmaLinux, ...
 * Version: el7, el8, el9
 * Please use fresh nodes for installation to avoid unexpected issues 
-* It's recommended to RockeyLinux 9 and CentOS 7.9 for production use
+* It's recommended to RockeyLinux 9.1, Rocky 8.6 and CentOS 7.9 for production use
 
 **Node**
 
@@ -118,10 +118,11 @@ curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.1/pigsty-pkg-v2.2
 You can get & extract pigsty source via the following command:
 
 ```bash
-curl -fsSL http://get.pigsty.cc/latest  | bash
+curl -fsSL http://get.pigsty.cc/latest | bash
 ```
 
 > HINT: Get the latest beta release with `beta` instead of `latest`.
+
 
 <details><summary>Download Pigsty Source with Specific Version</summary>
 
@@ -214,7 +215,6 @@ It will also download / extract / setup the offline [packages](#offline-packages
    * el7,8,9: `ansible createrepo_c unzip wget yum-utils sshpass`
    * el8 extra: `ansible python3.11-jmespath createrepo_c unzip wget dnf-utils sshpass modulemd-tools`
    * el9 extra: `ansible python3.11-jmespath createrepo_c unzip wget dnf-utils sshpass modulemd-tools`
-
 4. Check ansible availability.
 
 </details>
@@ -246,7 +246,7 @@ proceed with ./configure
 
 <details><summary>bootstrap download from internet output</summary>
 
-Download `pkg.tgz` from Github and extract it:
+Download `pkg.tgz` from GitHub and extract it:
 
 ```bash
 bootstrap pigsty v2.2.1 begin
@@ -429,12 +429,12 @@ Once installed, you'll have 4 module [**INFRA**](INFRA.md), [**NODE**](NODE.md),
 
 There are several services are exposed by Nginx (configured by [`infra_portal`](PARAM.md#infra_portal)):
 
-|    Component  | Port |    Domain    |     Comment              |     Public Demo          |
-| :-----------: | :--: | :----------: | ------------------------ | ------------------------ |
-|     Nginx     |  80  |  `h.pigsty`  | Web Service Portal, Repo |  [`home.pigsty.cc`](http://home.pigsty.cc) |
-| AlertManager  | 9093 |  `a.pigsty`  | Alter Aggregator         |  [`a.pigsty.cc`](http://a.pigsty.cc) |
-|    Grafana    | 3000 |  `g.pigsty`  | Grafana Dashboard Home   |  [`demo.pigsty.cc`](http://demo.pigsty.cc) |
-|  Prometheus   | 9090 |  `p.pigsty`  | Prometheus Web UI        |  [`p.pigsty.cc`](http://p.pigsty.cc) |
+|  Component   | Port |   Domain   | Comment                  | Public Demo                               |
+|:------------:|:----:|:----------:|--------------------------|-------------------------------------------|
+|    Nginx     |  80  | `h.pigsty` | Web Service Portal, Repo | [`home.pigsty.cc`](http://home.pigsty.cc) |
+| AlertManager | 9093 | `a.pigsty` | Alter Aggregator         | [`a.pigsty.cc`](http://a.pigsty.cc)       |
+|   Grafana    | 3000 | `g.pigsty` | Grafana Dashboard Home   | [`demo.pigsty.cc`](http://demo.pigsty.cc) |
+|  Prometheus  | 9090 | `p.pigsty` | Prometheus Web UI        | [`p.pigsty.cc`](http://p.pigsty.cc)       |
 
 You can configure public domain names for these infra services or just use local static DNS records & resolver.
 e.g., write records to `/etc/hosts` and access via DNS.
