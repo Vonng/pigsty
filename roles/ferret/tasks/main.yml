@@ -1,0 +1,91 @@
+---
+#--------------------------------------------------------------#
+# Check MongoDB                                    [mongo_check]
+#--------------------------------------------------------------#
+- name: assert mongo identity
+  tags: mongo_check
+  assert:
+    that:
+      - mongo_cluster is defined and mongo_cluster != ''
+      - mongo_seq is defined and mongo_seq|int >= 0
+      - mongo_pgurl is defined and mongo_pgurl != ''
+    fail_msg: variable 'mongo_cluster' & 'mongo_seq' & 'mongo_pgurl' are required for mongo playbook
+
+
+#--------------------------------------------------------------#
+# MongoDB User                                      [mongo_user]
+#--------------------------------------------------------------#
+# - dbsu user and group - #
+- name: create os user mongod
+  tags: mongo_dbsu
+  block:
+    - name: create os group mongo
+      group: name=mongod state=present
+    - name: create os user mongo
+      user: name=mongod home=/var/lib/mongod group=mongod
+
+
+#--------------------------------------------------------------#
+# Install MongoDB                                [mongo_install]
+#--------------------------------------------------------------#
+# FerretDB is a MongoDB wire protocol compatible database based on PostgreSQL.
+- name: install mongo/ferretdb
+  tags: mongo_install
+  package: name=ferretdb state=present
+
+
+#--------------------------------------------------------------#
+# Config MongoDB                                  [mongo_config]
+#--------------------------------------------------------------#
+- name: render mongo/ferretdb config
+  tags: mongo_config
+  block:
+
+    - name: render mongo config
+      copy:
+        dest: /etc/default/ferretdb
+        owner: root
+        group: mongod
+        mode: 0644
+        content: |
+          FERRETDB_POSTGRESQL_URL={{ mongo_pgurl|default('postgres:///') }}
+          FERRETDB_LISTEN_ADDR={{ mongo_listen|default('') }}:{{ mongo_port|default('27017') }}
+          FERRETDB_DEBUG_ADDR={{ mongo_listen|default('') }}:{{ mongo_exporter_port|default('9216') }}
+          FERRETDB_TELEMETRY=disabled
+          
+          {{ mongo_extra_vars }}
+
+    - name: create ferretdb systemd service
+      template: src=ferretdb.service.j2 dest=/etc/systemd/system/ferretdb.service owner=root group=root
+
+
+#--------------------------------------------------------------#
+# Launch MongoDB                                  [mongo_launch]
+#--------------------------------------------------------------#
+- name: launch mongo/ferretdb server
+  tags: mongo_launch
+  block:
+
+    - name: launch mongo/ferretdb server service
+      systemd: name=ferretdb state=restarted enabled=yes daemon_reload=yes
+    - name: wait for mongo/ferretdb server online
+      wait_for: host=127.0.0.1 port={{ mongo_port|default('27017') }} state=started timeout=10
+
+
+#--------------------------------------------------------------#
+# Register MongoDB                              [mongo_register]
+#--------------------------------------------------------------#
+- name: register mongodb as prometheus target
+  tags: [ mongo_register, register_prometheus ]
+  ignore_errors: true
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
+  copy:
+    dest: /etc/prometheus/targets/mongo/{{ mongo_cluster }}-{{ mongo_seq }}.yml
+    owner: prometheus
+    content: |
+      # {{ mongo_cluster }}-{{ mongo_seq }} @ {{ inventory_hostname }}
+      - labels: { ip: {{ inventory_hostname }} , ins: {{ mongo_cluster }}-{{ mongo_seq }} , cls: {{ mongo_cluster }} }
+        targets: [ {{ inventory_hostname }}:{{ mongo_exporter_port }} ]
+
+...

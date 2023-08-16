@@ -1,0 +1,58 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   mongo.yml
+# Desc      :   init mongo/ferretdb on pigsty nodes
+# Ctime     :   2023-08-16
+# Mtime     :   2023-08-16
+# Path      :   mongo.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+- name: MONGO
+  become: yes
+  hosts: all
+  gather_facts: no
+
+  vars:
+    # mongo_pgurl: 'postgres:///'       # mongo/ferretdb underlying postgresql url, required
+    # mongo_listen: ''                  # mongo/ferretdb listen address, '' for all addr
+    # mongo_port: 27017                 # mongo/ferretdb listen port, 27017 by default
+    # mongo_exporter_port: 9216         # mongo/ferretdb exporter port, 9216 by default
+    # mongo_extra_vars: ''              # extra environment variables for mongo/ferretdb
+
+  roles:
+    - { role: node_id , tags: node-id } # get node identity (always)
+    - { role: ferret  , tags: ferret  }  # init mongo/ferretdb on nodes
+
+#---------------------------------------------------------------
+# Usage
+#---------------------------------------------------------------
+# 1. Define mongo/ferret cluster in pigsty.yml
+# 2. run ./mongo.yml -l <cls> to deploy mongo/ferret cluster
+#
+#---------------------------------------------------------------
+# Example
+#---------------------------------------------------------------
+# Single Node Single Driver (DEFAULT)
+#  minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+#
+# ferret:
+#   hosts:
+#     10.10.10.45: { mongo_seq: 1 }
+#     10.10.10.46: { mongo_seq: 2 }
+#     10.10.10.47: { mongo_seq: 3 }
+#   vars:
+#     mongo_cluster: ferret
+#     mongo_pgurl: 'postgres://test:test@10.10.10.3:5436/test'
+#---------------------------------------------------------------
+# Tasks
+#---------------------------------------------------------------
+# mongo_check     : check mongo identity
+# mongo_dbsu      : create os user mongod
+# mongo_install   : install mongo/ferretdb rpm
+# mongo_config    : config mongo/ferretdb
+# mongo_launch    : launch mongo/ferretdb service
+# mongo_register  : register mongo/ferretdb to prometheus
+#---------------------------------------------------------------
+...
