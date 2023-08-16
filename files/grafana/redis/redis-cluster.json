@@ -77,49 +77,75 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "Redis Cluster for ${cls}",
-                            "url": "/d/redis-cluster?var-cls=${cls}&${__url_time_range}"
-                        }
-                    ],
                     "mappings": [],
+                    "max": 2.5,
+                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${cls}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Cluster"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Redis Cluster : ${cls}",
+                                        "url": "/d/redis-cluster?var-cls=${cls}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 2,
-                "w": 4,
+                "h": 3,
+                "w": 8,
                 "x": 0,
                 "y": 1
             },
-            "id": 154,
-            "links": [
-                {
-                    "title": "PGSQL Cluster : ${cls}",
-                    "url": "/d/pgsql-cluster?var-cls=${cls}&${__url_time_range}"
-                }
-            ],
+            "id": 164,
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -127,103 +153,11 @@
                     "fields": "",
                     "values": false
                 },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Cluster",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${cls}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "Redis Mode: Cluster|Sentinel|Normal(standalone)",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "cluster": {
-                                    "index": 0,
-                                    "text": "Cluster"
-                                },
-                                "sentinel": {
-                                    "index": 1,
-                                    "text": "Sentinel"
-                                },
-                                "standalone": {
-                                    "index": 2,
-                                    "text": "Normal"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
+                "text": {
+                    "titleSize": 20,
+                    "valueSize": 16
                 },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 4,
-                "x": 4,
-                "y": 1
-            },
-            "id": 156,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": true
-                },
-                "text": {},
-                "textMode": "name"
+                "textMode": "value_and_name"
             },
             "pluginVersion": "10.0.3",
             "targets": [
@@ -232,30 +166,18 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (redis_mode) (redis_instance_info{cls=\"$cls\"})",
-                    "format": "table",
+                    "expr": "1",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "",
+                    "legendFormat": "Cluster",
                     "queryType": "measurements",
                     "refId": "A"
                 }
             ],
-            "title": "Mode",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "standalone": "",
-                            "{redis_mode=\"standalone\"}": ""
-                        }
-                    }
-                }
-            ],
+            "transformations": [],
             "type": "stat"
         },
         {
@@ -360,7 +282,7 @@
                 ]
             },
             "gridPos": {
-                "h": 4,
+                "h": 3,
                 "w": 16,
                 "x": 8,
                 "y": 1
@@ -508,65 +430,111 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "Redis MaxMemory Policy:\nvolatile-lru\nallkeys-lru\nvolatile-lfu\nallkeys-lfu\nvolatile-random\nallkeys-random\nvolatile-ttl\nnoeviction",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "mappings": [
-                        {
-                            "options": {
-                                "cluster": {
-                                    "index": 0,
-                                    "text": "Cluster"
-                                },
-                                "sentinel": {
-                                    "index": 1,
-                                    "text": "Sentinel"
-                                },
-                                "standalone": {
-                                    "index": 2,
-                                    "text": "Normal"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
-                    "noValue": "N/A",
+                    "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
-                    }
+                    },
+                    "unit": "string"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Role"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "master": {
+                                                "color": "#f5a673",
+                                                "index": 0,
+                                                "text": "Primary"
+                                            },
+                                            "slave": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "Replica"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Mode"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "cluster": {
+                                                "color": "#3e668f",
+                                                "index": 2,
+                                                "text": "Cluster"
+                                            },
+                                            "sentinel": {
+                                                "color": "#f5a673",
+                                                "index": 0,
+                                                "text": "Sentinel"
+                                            },
+                                            "standalone": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "Normal"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 2,
-                "w": 4,
+                "h": 3,
+                "w": 8,
                 "x": 0,
-                "y": 3
+                "y": 4
             },
-            "id": 157,
+            "id": 165,
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
-                        "last"
+                        "lastNotNull"
                     ],
-                    "fields": "",
-                    "values": true
+                    "fields": "/.*/",
+                    "values": false
                 },
-                "text": {},
-                "textMode": "name"
+                "text": {
+                    "titleSize": 12
+                },
+                "textMode": "value_and_name"
             },
             "pluginVersion": "10.0.3",
             "targets": [
@@ -577,25 +545,80 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (maxmemory_policy) (redis_instance_info{cls=\"$cls\"})",
+                    "expr": "max by (redis_mode,maxmemory_policy,redis_version) (redis_instance_info{cls=\"$cls\"})",
                     "format": "table",
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "{{ maxmemory_policy }}",
-                    "queryType": "measurements",
+                    "legendFormat": "",
+                    "range": false,
                     "refId": "A"
                 }
             ],
-            "title": "Memory Policy",
             "transformations": [
                 {
                     "id": "organize",
                     "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
+                        "excludeByName": {
+                            "Time": true,
+                            "Value": true,
+                            "Value #A": true,
+                            "__name__": true,
+                            "cls": true,
+                            "cluster_name": true,
+                            "extensions": true,
+                            "ins": true,
+                            "instance": true,
+                            "ip": true,
+                            "job": true,
+                            "os": true,
+                            "primary_conninfo": true,
+                            "redis_build_id": true,
+                            "run_id": true,
+                            "ver_num": true,
+                            "version": false
+                        },
+                        "indexByName": {
+                            "Time": 4,
+                            "Value": 10,
+                            "__name__": 5,
+                            "cls": 3,
+                            "ins": 6,
+                            "instance": 7,
+                            "ip": 9,
+                            "job": 8,
+                            "maxmemory_policy": 2,
+                            "os": 14,
+                            "process_id": 11,
+                            "redis_build_id": 15,
+                            "redis_mode": 1,
+                            "redis_version": 12,
+                            "role": 0,
+                            "run_id": 16,
+                            "tcp_port": 13
+                        },
                         "renameByName": {
-                            "standalone": "",
-                            "{redis_mode=\"standalone\"}": ""
+                            "Time": "",
+                            "cls": "",
+                            "cluster_id": "ClusterID",
+                            "cluster_name": "CLS",
+                            "conf_path": "Config",
+                            "data_dir": "Data",
+                            "extensions": "Library",
+                            "hba_path": "HBA",
+                            "listen_port": "Port",
+                            "maxmemory_policy": "Policy",
+                            "os": "OS",
+                            "primary_conninfo": "Primary",
+                            "process_id": "PID",
+                            "redis_build_id": "Build ID",
+                            "redis_mode": "Mode",
+                            "redis_version": "Version",
+                            "role": "Role",
+                            "run_id": "Run ID",
+                            "tcp_port": "Port",
+                            "ver_num": "Ver Num",
+                            "version": "Version",
+                            "wal_level": "WAL"
                         }
                     }
                 }
@@ -607,64 +630,230 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "Redis Version",
             "fieldConfig": {
                 "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
                     "mappings": [
                         {
                             "options": {
-                                "cluster": {
+                                "match": "null+nan",
+                                "result": {
                                     "index": 0,
-                                    "text": "Cluster"
-                                },
-                                "sentinel": {
-                                    "index": 1,
-                                    "text": "Sentinel"
-                                },
-                                "standalone": {
-                                    "index": 2,
-                                    "text": "Normal"
+                                    "text": "Nil Cluster"
                                 }
                             },
-                            "type": "value"
+                            "type": "special"
                         }
                     ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "#cc4637d9",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/Slot Assigned|OK/"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 16384
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Slot Fail"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Status"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#cc4637d9",
+                                                "index": 0,
+                                                "text": "FAIL"
+                                            },
+                                            "1": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "OK"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#3e668f",
+                                                "index": 0,
+                                                "text": "Disabled"
+                                            },
+                                            "1": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "Enabled"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Shards"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 3
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Instances"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 6
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/Epoch.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": null
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 2,
-                "w": 4,
-                "x": 4,
-                "y": 3
+                "h": 3,
+                "w": 16,
+                "x": 8,
+                "y": 4
             },
-            "id": 158,
+            "id": 161,
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "vertical",
                 "reduceOptions": {
                     "calcs": [
-                        "last"
+                        "lastNotNull"
                     ],
                     "fields": "",
-                    "values": true
+                    "values": false
                 },
                 "text": {},
-                "textMode": "name"
+                "textMode": "auto"
             },
             "pluginVersion": "10.0.3",
             "targets": [
@@ -674,29 +863,100 @@
                         "uid": "ds-prometheus"
                     },
                     "exemplar": false,
-                    "expr": "max by (redis_version) (redis_instance_info{cls=\"$cls\"})",
-                    "format": "table",
-                    "instant": true,
+                    "expr": "max(redis_cluster_enabled{cls=\"$cls\"})",
+                    "hide": false,
                     "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Version",
-            "transformations": [
+                    "legendFormat": "Cluster",
+                    "refId": "S"
+                },
                 {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "standalone": "",
-                            "{redis_mode=\"standalone\"}": ""
-                        }
-                    }
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "expr": "max(redis_cluster_state{cls=\"$cls\"})",
+                    "interval": "",
+                    "legendFormat": "Status",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "avg(redis_cluster_size{cls=\"$cls\"})",
+                    "interval": "",
+                    "legendFormat": "Shards",
+                    "range": true,
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min(redis_cluster_known_nodes{cls=\"$cls\"})",
+                    "interval": "",
+                    "legendFormat": "Instances",
+                    "range": true,
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "expr": "max(redis_cluster_current_epoch{cls=\"$cls\"})",
+                    "interval": "",
+                    "legendFormat": "Epoch",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "expr": "min(redis_cluster_my_epoch{cls=\"$cls\"})",
+                    "interval": "",
+                    "legendFormat": "Epoch Min",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "max(redis_cluster_slots_assigned{cls=\"$cls\"})",
+                    "interval": "",
+                    "legendFormat": "Slot Assigned",
+                    "refId": "F"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "expr": "max(redis_cluster_slots_ok{cls=\"$cls\"})",
+                    "interval": "",
+                    "legendFormat": "Slot OK",
+                    "refId": "G"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "expr": "max(redis_cluster_slots_fail{cls=\"$cls\"})",
+                    "interval": "",
+                    "legendFormat": "Slot Fail",
+                    "refId": "H"
                 }
             ],
+            "transformations": [],
             "type": "stat"
         },
         {
@@ -704,7 +964,7 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "All instances in pgsql cluster ${cls}",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -713,8 +973,7 @@
                     "custom": {
                         "align": "center",
                         "cellOptions": {
-                            "mode": "gradient",
-                            "type": "color-background"
+                            "type": "auto"
                         },
                         "inspect": false
                     },
@@ -847,10 +1106,10 @@
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 6,
                 "w": 8,
                 "x": 0,
-                "y": 5
+                "y": 7
             },
             "id": 152,
             "options": {
@@ -914,7 +1173,6 @@
                     "refId": "C"
                 }
             ],
-            "title": "Nodes",
             "transformations": [
                 {
                     "id": "seriesToColumns",
@@ -1442,10 +1700,10 @@
                 ]
             },
             "gridPos": {
-                "h": 14,
+                "h": 12,
                 "w": 16,
                 "x": 8,
-                "y": 5
+                "y": 7
             },
             "id": 120,
             "options": {
@@ -2578,340 +2836,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "index": 0,
-                                    "text": "Nil Cluster"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#cc4637d9",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byRegexp",
-                            "options": "/Slot Assigned|OK/"
-                        },
-                        "properties": [
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "red",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "#346f36cc",
-                                            "value": 16384
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Slot Fail"
-                        },
-                        "properties": [
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "#346f36cc",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "#cc4637d9",
-                                            "value": 1
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Status"
-                        },
-                        "properties": [
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "0": {
-                                                "color": "#cc4637d9",
-                                                "index": 0,
-                                                "text": "FAIL"
-                                            },
-                                            "1": {
-                                                "color": "#346f36cc",
-                                                "index": 1,
-                                                "text": "OK"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Cluster"
-                        },
-                        "properties": [
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "0": {
-                                                "color": "#3e668f",
-                                                "index": 0,
-                                                "text": "Disabled"
-                                            },
-                                            "1": {
-                                                "color": "#346f36cc",
-                                                "index": 1,
-                                                "text": "Enabled"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Shards"
-                        },
-                        "properties": [
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "#cc4637d9",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "#f5a673",
-                                            "value": 1
-                                        },
-                                        {
-                                            "color": "#346f36cc",
-                                            "value": 3
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Instances"
-                        },
-                        "properties": [
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "#cc4637d9",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "#346f36cc",
-                                            "value": 6
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byRegexp",
-                            "options": "/Epoch.*/"
-                        },
-                        "properties": [
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "#346f36cc",
-                                            "value": null
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 24,
-                "x": 0,
-                "y": 31
-            },
-            "id": 161,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "vertical",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "max(redis_cluster_enabled{cls=\"$cls\"})",
-                    "hide": false,
-                    "interval": "",
-                    "legendFormat": "Cluster",
-                    "refId": "S"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "expr": "max(redis_cluster_state{cls=\"$cls\"})",
-                    "interval": "",
-                    "legendFormat": "Status",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "expr": "avg(redis_cluster_size{cls=\"$cls\"})",
-                    "interval": "",
-                    "legendFormat": "Shards",
-                    "range": true,
-                    "refId": "D"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "min(redis_cluster_known_nodes{cls=\"$cls\"})",
-                    "interval": "",
-                    "legendFormat": "Instances",
-                    "range": true,
-                    "refId": "E"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "expr": "max(redis_cluster_current_epoch{cls=\"$cls\"})",
-                    "interval": "",
-                    "legendFormat": "Epoch",
-                    "refId": "B"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "expr": "min(redis_cluster_my_epoch{cls=\"$cls\"})",
-                    "interval": "",
-                    "legendFormat": "Epoch Min",
-                    "refId": "C"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "max(redis_cluster_slots_assigned{cls=\"$cls\"})",
-                    "interval": "",
-                    "legendFormat": "Slot Assigned",
-                    "refId": "F"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "expr": "max(redis_cluster_slots_ok{cls=\"$cls\"})",
-                    "interval": "",
-                    "legendFormat": "Slot OK",
-                    "refId": "G"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "expr": "max(redis_cluster_slots_fail{cls=\"$cls\"})",
-                    "interval": "",
-                    "legendFormat": "Slot Fail",
-                    "refId": "H"
-                }
-            ],
-            "transformations": [],
-            "type": "stat"
-        },
-        {
             "collapsed": true,
             "datasource": {
                 "type": "prometheus",
@@ -2921,7 +2845,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 35
+                "y": 31
             },
             "id": 151,
             "panels": [
@@ -2943,8 +2867,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     }
                                 ]
                             },
@@ -2956,7 +2879,7 @@
                         "h": 18,
                         "w": 5,
                         "x": 0,
-                        "y": 36
+                        "y": 52
                     },
                     "id": 144,
                     "options": {
@@ -3016,8 +2939,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     },
                                     {
                                         "color": "#346f36cc",
@@ -3053,7 +2975,7 @@
                         "h": 9,
                         "w": 19,
                         "x": 5,
-                        "y": 36
+                        "y": 52
                     },
                     "id": 159,
                     "links": [],
@@ -3115,8 +3037,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     },
                                     {
                                         "color": "#346f36cc",
@@ -3148,7 +3069,7 @@
                         "h": 9,
                         "w": 19,
                         "x": 5,
-                        "y": 45
+                        "y": 61
                     },
                     "id": 91,
                     "links": [],
@@ -3198,7 +3119,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 36
+                "y": 32
             },
             "id": 25,
             "panels": [
@@ -3250,8 +3171,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -3283,7 +3203,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 55
+                        "y": 71
                     },
                     "id": 43,
                     "links": [],
@@ -3367,8 +3287,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -3400,7 +3319,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 55
+                        "y": 71
                     },
                     "id": 53,
                     "links": [],
@@ -3482,8 +3401,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -3545,7 +3463,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 62
+                        "y": 78
                     },
                     "id": 10,
                     "links": [],
@@ -3640,8 +3558,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -3673,7 +3590,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 62
+                        "y": 78
                     },
                     "id": 7,
                     "links": [],
@@ -3730,7 +3647,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 37
+                "y": 33
             },
             "id": 31,
             "panels": [
@@ -3781,8 +3698,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             },
@@ -3887,7 +3803,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 70
+                        "y": 86
                     },
                     "id": 96,
                     "options": {
@@ -3990,8 +3906,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             },
@@ -4115,7 +4030,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 70
+                        "y": 86
                     },
                     "id": 97,
                     "options": {
@@ -4219,8 +4134,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -4236,7 +4150,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 77
+                        "y": 93
                     },
                     "id": 14,
                     "links": [],
@@ -4317,8 +4231,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -4334,7 +4247,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 77
+                        "y": 93
                     },
                     "id": 93,
                     "links": [],
@@ -4416,8 +4329,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -4433,7 +4345,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 84
+                        "y": 100
                     },
                     "id": 92,
                     "links": [],
@@ -4492,7 +4404,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 84
+                        "y": 100
                     },
                     "id": 66,
                     "links": [],
@@ -4578,8 +4490,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -4595,7 +4506,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 90
+                        "y": 106
                     },
                     "id": 15,
                     "links": [],
@@ -4645,7 +4556,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 38
+                "y": 34
             },
             "id": 47,
             "panels": [
@@ -4697,8 +4608,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -4714,7 +4624,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 98
+                        "y": 114
                     },
                     "id": 50,
                     "links": [],
@@ -4796,8 +4706,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -4813,7 +4722,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 98
+                        "y": 114
                     },
                     "id": 75,
                     "links": [],
@@ -4893,8 +4802,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -4910,7 +4818,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 105
+                        "y": 121
                     },
                     "id": 51,
                     "links": [],
@@ -4969,7 +4877,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 105
+                        "y": 121
                     },
                     "hiddenSeries": false,
                     "id": 90,
@@ -5099,8 +5007,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -5116,7 +5023,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 113
+                        "y": 129
                     },
                     "id": 88,
                     "links": [],
@@ -5175,7 +5082,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 113
+                        "y": 129
                     },
                     "hiddenSeries": false,
                     "id": 54,
@@ -5269,7 +5176,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 39
+                "y": 35
             },
             "id": 29,
             "panels": [
@@ -5320,8 +5227,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -5383,7 +5289,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 120
+                        "y": 136
                     },
                     "id": 8,
                     "links": [],
@@ -5465,8 +5371,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -5482,7 +5387,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 120
+                        "y": 136
                     },
                     "id": 5,
                     "links": [],
@@ -5563,8 +5468,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -5626,7 +5530,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 127
+                        "y": 143
                     },
                     "id": 87,
                     "links": [],
@@ -5706,8 +5610,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -5723,7 +5626,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 127
+                        "y": 143
                     },
                     "id": 86,
                     "links": [],
@@ -5786,7 +5689,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 134
+                        "y": 150
                     },
                     "hiddenSeries": false,
                     "id": 58,
@@ -5914,8 +5817,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -5931,7 +5833,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 134
+                        "y": 150
                     },
                     "id": 69,
                     "links": [],
@@ -5981,7 +5883,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 40
+                "y": 36
             },
             "id": 27,
             "panels": [
@@ -6005,8 +5907,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             }
@@ -6024,8 +5925,7 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc",
-                                                    "value": null
+                                                    "color": "#346f36cc"
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -6131,7 +6031,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 142
+                        "y": 158
                     },
                     "id": 89,
                     "links": [],
@@ -6254,8 +6154,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -6271,7 +6170,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 142
+                        "y": 158
                     },
                     "id": 57,
                     "links": [],

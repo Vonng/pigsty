@@ -77,49 +77,215 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "Used as an unique instance identifier",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "Redis Cluster for ${cls}",
-                            "url": "/d/redis-cluster?var-cls=${cls}&${__url_time_range}"
-                        }
-                    ],
                     "mappings": [],
+                    "max": 2.5,
+                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${cls}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Cluster"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Redis Cluster : ${cls}",
+                                        "url": "/d/redis-cluster?var-cls=${cls}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Instance"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${ins}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Instance"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Redis Instance : ${ins}",
+                                        "url": "/d/redis-instance?var-id=${ins}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "IP"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Node IP"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "displayName",
+                                "value": "${ip}"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node Instance : ${ip}",
+                                        "url": "/d/node-instance?var-id=${ip}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${node}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Hostname"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node Instance : ${node}",
+                                        "url": "/d/node-instance?var-id=${node}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Addr"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Address"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "displayName",
+                                "value": "$addr"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Redis Instance: ${addr}",
+                                        "url": "/d/redis-instance?var-id=${addr}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 2,
-                "w": 5,
+                "h": 6,
+                "w": 8,
                 "x": 0,
                 "y": 1
             },
-            "id": 152,
-            "links": [
-                {
-                    "title": "PGSQL Cluster : ${cls}",
-                    "url": "/d/pgsql-cluster?var-cls=${cls}&${__url_time_range}"
-                }
-            ],
+            "id": 190,
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -127,8 +293,11 @@
                     "fields": "",
                     "values": false
                 },
-                "text": {},
-                "textMode": "name"
+                "text": {
+                    "titleSize": 20,
+                    "valueSize": 16
+                },
+                "textMode": "value_and_name"
             },
             "pluginVersion": "10.0.3",
             "targets": [
@@ -137,125 +306,78 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "1",
-                    "format": "table",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "",
+                    "legendFormat": "Instance",
                     "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Instance",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${ins}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "Redis Cluster for ${cls}",
-                            "url": "/d/redis-cluster?var-cls=${cls}&${__url_time_range}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
+                    "refId": "B"
                 },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 5,
-                "y": 1
-            },
-            "id": 144,
-            "links": [
-                {
-                    "title": "PGSQL Cluster : ${cls}",
-                    "url": "/d/pgsql-cluster?var-cls=${cls}&${__url_time_range}"
-                }
-            ],
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "1",
-                    "format": "table",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "",
+                    "legendFormat": "Addr",
+                    "queryType": "measurements",
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Cluster",
                     "queryType": "measurements",
                     "refId": "A"
-                }
-            ],
-            "title": "Cluster",
-            "transformations": [
+                },
                 {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${cls}"
-                        }
-                    }
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "IP",
+                    "queryType": "measurements",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Name",
+                    "queryType": "measurements",
+                    "refId": "D"
                 }
             ],
+            "transformations": [],
             "type": "stat"
         },
         {
@@ -263,7 +385,7 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "All instances in pgsql cluster ${cls}",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -662,7 +784,7 @@
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 6,
                 "w": 16,
                 "x": 8,
                 "y": 1
@@ -760,7 +882,6 @@
                     "refId": "E"
                 }
             ],
-            "title": "Instances",
             "transformations": [
                 {
                     "id": "seriesToColumns",
@@ -889,225 +1010,13 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "Host:Port of this redis instance",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "Node Instance: ${ip}",
-                            "url": "/d/node-instance?var-id=${ip}&${__url_time_range}"
-                        }
-                    ],
                     "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 5,
-                "x": 0,
-                "y": 3
-            },
-            "id": 153,
-            "links": [
-                {
-                    "title": "PGSQL Cluster : ${cls}",
-                    "url": "/d/pgsql-cluster?var-cls=${cls}&${__url_time_range}"
-                }
-            ],
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Address",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${addr}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "Redis Mode: Cluster|Sentinel|Normal(standalone)",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "cluster": {
-                                    "index": 0,
-                                    "text": "Cluster"
-                                },
-                                "sentinel": {
-                                    "index": 1,
-                                    "text": "Sentinel"
-                                },
-                                "standalone": {
-                                    "index": 2,
-                                    "text": "Normal"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 5,
-                "y": 3
-            },
-            "id": 151,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": true
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "max by (redis_mode) (redis_instance_info{ins=\"$ins\"})",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Mode",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "standalone": "",
-                            "{redis_mode=\"standalone\"}": ""
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "Primary|master address of this replica redid instance",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "Redis Instance ${__data.fields.upstream}",
-                            "url": "/d/redis-instance?var-id=${__data.fields.upstream}&${__url_time_range}"
-                        }
-                    ],
-                    "mappings": [
-                        {
-                            "options": {
-                                "master": {
-                                    "color": "#3e668f",
-                                    "index": 0,
-                                    "text": "Role: Primary"
-                                },
-                                "slave": {
-                                    "color": "#346f36cc",
-                                    "index": 1,
-                                    "text": "Role: Replica"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -1116,223 +1025,96 @@
                                 "value": null
                             }
                         ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 5,
-                "x": 0,
-                "y": 5
-            },
-            "id": 186,
-            "options": {
-                "colorMode": "none",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": true
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
                     },
-                    "exemplar": false,
-                    "expr": "max by (upstream) (label_join(redis_slave_info{ins=\"$ins\"}, 'upstream', ':', 'master_host', 'master_port'))",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Upstream",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "standalone": "",
-                            "{redis_mode=\"standalone\"}": ""
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "Role of this redid instance: primary|replica",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "master": {
-                                    "color": "#346f36cc",
-                                    "index": 0,
-                                    "text": "Primary"
-                                },
-                                "slave": {
-                                    "color": "#3e668f",
-                                    "index": 1,
-                                    "text": "Replica"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
+                    "unit": "string"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Role"
+                        },
+                        "properties": [
                             {
-                                "color": "text",
-                                "value": null
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "master": {
+                                                "color": "#f5a673",
+                                                "index": 0,
+                                                "text": "Primary"
+                                            },
+                                            "slave": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "Replica"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Mode"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "cluster": {
+                                                "color": "#3e668f",
+                                                "index": 2,
+                                                "text": "Cluster"
+                                            },
+                                            "sentinel": {
+                                                "color": "#f5a673",
+                                                "index": 0,
+                                                "text": "Sentinel"
+                                            },
+                                            "standalone": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "Normal"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
                             }
                         ]
                     }
-                },
-                "overrides": []
+                ]
             },
             "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 5,
-                "y": 5
-            },
-            "id": 187,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": true
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "max by (role) (redis_instance_info{ins=\"$ins\"})",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Role",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "standalone": "",
-                            "{redis_mode=\"standalone\"}": ""
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "Redis MaxMemory Policy:\nvolatile-lru\nallkeys-lru\nvolatile-lfu\nallkeys-lfu\nvolatile-random\nallkeys-random\nvolatile-ttl\nnoeviction",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "cluster": {
-                                    "index": 0,
-                                    "text": "Cluster"
-                                },
-                                "sentinel": {
-                                    "index": 1,
-                                    "text": "Sentinel"
-                                },
-                                "standalone": {
-                                    "index": 2,
-                                    "text": "Normal"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 5,
+                "h": 6,
+                "w": 4,
                 "x": 0,
                 "y": 7
             },
-            "id": 148,
+            "id": 192,
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
-                        "last"
+                        "lastNotNull"
                     ],
-                    "fields": "",
-                    "values": true
+                    "fields": "/.*/",
+                    "values": false
                 },
-                "text": {},
-                "textMode": "name"
+                "text": {
+                    "titleSize": 12
+                },
+                "textMode": "value_and_name"
             },
             "pluginVersion": "10.0.3",
             "targets": [
@@ -1341,123 +1123,83 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (maxmemory_policy) (redis_instance_info{ins=\"$ins\"})",
+                    "expr": "redis_instance_info{ins=\"$ins\"}",
                     "format": "table",
                     "instant": true,
                     "interval": "",
                     "legendFormat": "",
-                    "queryType": "measurements",
+                    "range": false,
                     "refId": "A"
                 }
             ],
-            "title": "Policy",
+            "title": "Config",
             "transformations": [
                 {
                     "id": "organize",
                     "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
+                        "excludeByName": {
+                            "Time": true,
+                            "Value": true,
+                            "Value #A": true,
+                            "__name__": true,
+                            "cls": true,
+                            "cluster_name": true,
+                            "extensions": true,
+                            "ins": true,
+                            "instance": true,
+                            "ip": true,
+                            "job": true,
+                            "os": true,
+                            "primary_conninfo": true,
+                            "redis_build_id": true,
+                            "run_id": true,
+                            "ver_num": true,
+                            "version": false
+                        },
+                        "indexByName": {
+                            "Time": 4,
+                            "Value": 10,
+                            "__name__": 5,
+                            "cls": 3,
+                            "ins": 6,
+                            "instance": 7,
+                            "ip": 9,
+                            "job": 8,
+                            "maxmemory_policy": 2,
+                            "os": 14,
+                            "process_id": 11,
+                            "redis_build_id": 15,
+                            "redis_mode": 1,
+                            "redis_version": 12,
+                            "role": 0,
+                            "run_id": 16,
+                            "tcp_port": 13
+                        },
                         "renameByName": {
-                            "standalone": "",
-                            "{redis_mode=\"standalone\"}": ""
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "Redis Version",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "cluster": {
-                                    "index": 0,
-                                    "text": "Cluster"
-                                },
-                                "sentinel": {
-                                    "index": 1,
-                                    "text": "Sentinel"
-                                },
-                                "standalone": {
-                                    "index": 2,
-                                    "text": "Normal"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 5,
-                "y": 7
-            },
-            "id": 158,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": true
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "max by (redis_version) (redis_instance_info{ins=\"$ins\"})",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Version",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "standalone": "",
-                            "{redis_mode=\"standalone\"}": ""
+                            "Time": "",
+                            "cls": "",
+                            "cluster_id": "ClusterID",
+                            "cluster_name": "CLS",
+                            "conf_path": "Config",
+                            "data_dir": "Data",
+                            "extensions": "Library",
+                            "hba_path": "HBA",
+                            "listen_port": "Port",
+                            "maxmemory_policy": "Policy",
+                            "os": "OS",
+                            "primary_conninfo": "Primary",
+                            "process_id": "PID",
+                            "redis_build_id": "Build ID",
+                            "redis_mode": "Mode",
+                            "redis_version": "Version",
+                            "role": "Role",
+                            "run_id": "Run ID",
+                            "tcp_port": "Port",
+                            "ver_num": "Ver Num",
+                            "version": "Version",
+                            "wal_level": "WAL"
                         }
                     }
                 }
@@ -1510,13 +1252,40 @@
                 "overrides": [
                     {
                         "matcher": {
-                            "id": "byName",
-                            "options": "Mem Usage"
+                            "id": "byFrameRefID",
+                            "options": "B"
                         },
                         "properties": [
                             {
-                                "id": "unit",
-                                "value": "percentunit"
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#f5a673",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Redis Instance : ${__field.labels.upstream}",
+                                        "url": "/d/redis-instance?var-id=${__field.labels.upstream}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#346f36cc",
+                                    "mode": "fixed"
+                                }
                             }
                         ]
                     }
@@ -1525,8 +1294,8 @@
             "gridPos": {
                 "h": 6,
                 "w": 4,
-                "x": 0,
-                "y": 9
+                "x": 4,
+                "y": 7
             },
             "id": 185,
             "options": {
@@ -1551,17 +1320,33 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "redis_slave_info{master_host=\"$ip\", master_port=\"$port\"}",
                     "format": "time_series",
                     "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "{{ instance }}",
-                    "refId": "D"
+                    "legendFormat": "Leading {{ instance }}",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (upstream) (label_join(redis_slave_info{ins=\"$ins\"}, 'upstream', ':', 'master_host', 'master_port'))",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Following {{ upstream }}",
+                    "refId": "B"
                 }
             ],
-            "title": "Replicas",
+            "title": "Replication",
             "transformations": [
                 {
                     "id": "organize",
@@ -1643,8 +1428,8 @@
             "gridPos": {
                 "h": 6,
                 "w": 4,
-                "x": 4,
-                "y": 9
+                "x": 8,
+                "y": 7
             },
             "id": 184,
             "options": {
@@ -1659,7 +1444,10 @@
                     "fields": "",
                     "values": false
                 },
-                "text": {},
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 16
+                },
                 "textMode": "value_and_name"
             },
             "pluginVersion": "10.0.3",
@@ -1786,9 +1574,9 @@
             },
             "gridPos": {
                 "h": 6,
-                "w": 10,
-                "x": 8,
-                "y": 9
+                "w": 12,
+                "x": 12,
+                "y": 7
             },
             "id": 166,
             "links": [],
@@ -1822,74 +1610,6 @@
             ],
             "title": "QPS",
             "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        }
-                    },
-                    "mappings": [],
-                    "unit": "reqps"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 6,
-                "x": 18,
-                "y": 9
-            },
-            "id": 168,
-            "links": [],
-            "maxDataPoints": 3,
-            "options": {
-                "legend": {
-                    "displayMode": "table",
-                    "placement": "right",
-                    "showLegend": true,
-                    "values": []
-                },
-                "pieType": "pie",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "tooltip": {
-                    "mode": "single",
-                    "sort": "none"
-                }
-            },
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "redis:ins:cmd_qps{ins=\"$ins\"}",
-                    "format": "time_series",
-                    "instant": true,
-                    "interval": "",
-                    "intervalFactor": 2,
-                    "legendFormat": "{{ cmd }}",
-                    "metric": "redis_command_calls_total",
-                    "refId": "A",
-                    "step": 240
-                }
-            ],
-            "title": "CMD",
-            "type": "piechart"
         },
         {
             "datasource": {
@@ -1945,10 +1665,10 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 6,
+                "h": 4,
                 "w": 4,
                 "x": 0,
-                "y": 15
+                "y": 13
             },
             "id": 170,
             "options": {
@@ -2037,10 +1757,10 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 6,
+                "h": 4,
                 "w": 4,
                 "x": 4,
-                "y": 15
+                "y": 13
             },
             "id": 172,
             "options": {
@@ -2120,10 +1840,10 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 6,
+                "h": 4,
                 "w": 4,
                 "x": 8,
-                "y": 15
+                "y": 13
             },
             "id": 179,
             "options": {
@@ -2222,10 +1942,10 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 6,
+                "h": 4,
                 "w": 4,
                 "x": 12,
-                "y": 15
+                "y": 13
             },
             "id": 174,
             "options": {
@@ -2323,10 +2043,10 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 6,
+                "h": 4,
                 "w": 4,
                 "x": 16,
-                "y": 15
+                "y": 13
             },
             "id": 176,
             "options": {
@@ -2432,10 +2152,10 @@
                 ]
             },
             "gridPos": {
-                "h": 6,
+                "h": 4,
                 "w": 4,
                 "x": 20,
-                "y": 15
+                "y": 13
             },
             "id": 182,
             "options": {
@@ -2472,6 +2192,441 @@
             ],
             "transformations": [],
             "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "noValue": "OK",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#346f36cc",
+                                "value": null
+                            },
+                            {
+                                "color": "#fcdb72",
+                                "value": 1
+                            },
+                            {
+                                "color": "#f5a673",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 4
+                            },
+                            {
+                                "color": "#b783af",
+                                "value": 8
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Pigsty Alertmanager",
+                                        "url": "http://a.pigsty"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Alert",
+                                        "url": "/d/pgsql-alert?${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 0,
+                "y": 17
+            },
+            "id": 163,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "count(ALERTS{alertstate=\"firing\", ins=\"$ins\"}) or on() vector(0)",
+                    "interval": "",
+                    "legendFormat": "Firing Alert",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "count(ALERTS{alertstate=\"pending\", ins=\"$ins\"})",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Pending Alert",
+                    "refId": "B"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "AlertInfo ${__field.labels.alertname}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Balertname%3D%22${__field.labels.alertname}%22%7D"
+                        }
+                    ],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "noValue": "OK",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#346f36cc",
+                                "value": null
+                            },
+                            {
+                                "color": "#fcdb72",
+                                "value": 1
+                            },
+                            {
+                                "color": "#f5a673",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 3
+                            },
+                            {
+                                "color": "#b783af",
+                                "value": 4
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 4,
+                "y": 17
+            },
+            "id": 165,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "count(ALERTS{alertstate=\"firing\", ins=\"$ins\"}) by (alertname, severity)",
+                    "interval": "",
+                    "legendFormat": "{{ alertname }}",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "description": "Alerting event graph. Each stripe represent an alerting Event. Gray transparent stipe are pending alerts.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "hidden",
+                        "axisSoftMax": 1.2,
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 98,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 0,
+                        "pointSize": 1,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "AlertInfo ${__field.labels.alertname} on Cluster ${cls}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Bcls%3D%22${cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "targetBlank": true,
+                            "title": "Silence ${__field.labels.alertname} on Cluster ${cls}",
+                            "url": "http://a.pigsty/#/silences/new?filter=%7Bcls%3D%22${cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "title": "Redis Instance for ${__field.labels.ins}",
+                            "url": "/d/redis-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#346f36cc",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 66
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Firing\ud83d\udd25"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 25
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "rgba(128, 128, 128, 0.5)",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "Pend\u23f0"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byType",
+                            "options": "time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "auto"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 16,
+                "x": 8,
+                "y": 17
+            },
+            "id": 161,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "ALERTS{ins=\"$ins\", alertstate=\"firing\"}",
+                    "interval": "",
+                    "legendFormat": "[{{ severity }}\ud83d\udd25] {{alertname}}  @ {{ ins }}",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "ALERTS{ins=\"$ins\", alertstate=\"pending\"} ",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "[{{ severity }}\u23f0] {{alertname}}  @ {{ ins }}",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "0",
+                    "hide": true,
+                    "interval": "",
+                    "legendFormat": "Alert",
+                    "refId": "C"
+                }
+            ],
+            "type": "timeseries"
         },
         {
             "datasource": {
@@ -2682,7 +2837,7 @@
                 ]
             },
             "gridPos": {
-                "h": 4,
+                "h": 3,
                 "w": 24,
                 "x": 0,
                 "y": 21
@@ -2808,441 +2963,6 @@
             "type": "stat"
         },
         {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 0,
-                    "links": [],
-                    "mappings": [],
-                    "max": 1,
-                    "min": 0,
-                    "noValue": "OK",
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#346f36cc",
-                                "value": null
-                            },
-                            {
-                                "color": "#fcdb72",
-                                "value": 1
-                            },
-                            {
-                                "color": "#f5a673",
-                                "value": 2
-                            },
-                            {
-                                "color": "red",
-                                "value": 4
-                            },
-                            {
-                                "color": "#b783af",
-                                "value": 8
-                            },
-                            {
-                                "color": "text",
-                                "value": 16
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "A"
-                        },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "targetBlank": true,
-                                        "title": "Pigsty Alertmanager",
-                                        "url": "http://a.pigsty"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "B"
-                        },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "PGSQL Alert",
-                                        "url": "/d/pgsql-alert?${__url_time_range}"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 4,
-                "x": 0,
-                "y": 25
-            },
-            "id": 163,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "count(ALERTS{alertstate=\"firing\", ins=\"$ins\"}) or on() vector(0)",
-                    "interval": "",
-                    "legendFormat": "Firing Alert",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "count(ALERTS{alertstate=\"pending\", ins=\"$ins\"})",
-                    "hide": false,
-                    "interval": "",
-                    "legendFormat": "Pending Alert",
-                    "refId": "B"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 0,
-                    "links": [
-                        {
-                            "targetBlank": true,
-                            "title": "AlertInfo ${__field.labels.alertname}",
-                            "url": "http://a.pigsty/#/alerts?filter=%7Balertname%3D%22${__field.labels.alertname}%22%7D"
-                        }
-                    ],
-                    "mappings": [],
-                    "max": 1,
-                    "min": 0,
-                    "noValue": "OK",
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#346f36cc",
-                                "value": null
-                            },
-                            {
-                                "color": "#fcdb72",
-                                "value": 1
-                            },
-                            {
-                                "color": "#f5a673",
-                                "value": 2
-                            },
-                            {
-                                "color": "red",
-                                "value": 3
-                            },
-                            {
-                                "color": "#b783af",
-                                "value": 4
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 4,
-                "x": 4,
-                "y": 25
-            },
-            "id": 165,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "count(ALERTS{alertstate=\"firing\", ins=\"$ins\"}) by (alertname, severity)",
-                    "interval": "",
-                    "legendFormat": "{{ alertname }}",
-                    "refId": "A"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "Alerting event graph. Each stripe represent an alerting Event. Gray transparent stipe are pending alerts.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "hidden",
-                        "axisSoftMax": 1.2,
-                        "axisSoftMin": 0,
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 98,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "graph": false,
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "stepBefore",
-                        "lineWidth": 0,
-                        "pointSize": 1,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "normal"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "decimals": 0,
-                    "links": [
-                        {
-                            "targetBlank": true,
-                            "title": "AlertInfo ${__field.labels.alertname} on Cluster ${cls}",
-                            "url": "http://a.pigsty/#/alerts?filter=%7Bcls%3D%22${cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
-                        },
-                        {
-                            "targetBlank": true,
-                            "title": "Silence ${__field.labels.alertname} on Cluster ${cls}",
-                            "url": "http://a.pigsty/#/silences/new?filter=%7Bcls%3D%22${cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
-                        },
-                        {
-                            "title": "Redis Instance for ${__field.labels.ins}",
-                            "url": "/d/redis-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
-                        }
-                    ],
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#346f36cc",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "A"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 66
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "index": 0,
-                                                "text": "Firing\ud83d\udd25"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "B"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 25
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "rgba(128, 128, 128, 0.5)",
-                                    "mode": "fixed"
-                                }
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "color": "gray",
-                                                "index": 0,
-                                                "text": "Pend\u23f0"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byType",
-                            "options": "time"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.axisPlacement",
-                                "value": "auto"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 16,
-                "x": 8,
-                "y": 25
-            },
-            "id": 161,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "ALERTS{ins=\"$ins\", alertstate=\"firing\"}",
-                    "interval": "",
-                    "legendFormat": "[{{ severity }}\ud83d\udd25] {{alertname}}  @ {{ ins }}",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "ALERTS{ins=\"$ins\", alertstate=\"pending\"} ",
-                    "hide": false,
-                    "interval": "",
-                    "legendFormat": "[{{ severity }}\u23f0] {{alertname}}  @ {{ ins }}",
-                    "refId": "B"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "0",
-                    "hide": true,
-                    "interval": "",
-                    "legendFormat": "Alert",
-                    "refId": "C"
-                }
-            ],
-            "type": "timeseries"
-        },
-        {
             "collapsed": true,
             "datasource": {
                 "type": "prometheus",
@@ -3252,7 +2972,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 29
+                "y": 24
             },
             "id": 25,
             "panels": [
@@ -3334,7 +3054,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 30
+                        "y": 46
                     },
                     "id": 43,
                     "links": [],
@@ -3449,7 +3169,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 30
+                        "y": 46
                     },
                     "id": 116,
                     "links": [],
@@ -3547,7 +3267,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 37
+                        "y": 53
                     },
                     "id": 10,
                     "links": [],
@@ -3719,7 +3439,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 37
+                        "y": 53
                     },
                     "id": 7,
                     "links": [],
@@ -3788,7 +3508,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 30
+                "y": 25
             },
             "id": 31,
             "panels": [
@@ -3963,7 +3683,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 45
+                        "y": 61
                     },
                     "id": 96,
                     "options": {
@@ -4194,7 +3914,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 45
+                        "y": 61
                     },
                     "id": 97,
                     "options": {
@@ -4315,7 +4035,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 52
+                        "y": 68
                     },
                     "id": 14,
                     "links": [],
@@ -4413,7 +4133,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 52
+                        "y": 68
                     },
                     "id": 120,
                     "links": [],
@@ -4509,7 +4229,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 59
+                        "y": 75
                     },
                     "id": 118,
                     "options": {
@@ -4599,7 +4319,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 59
+                        "y": 75
                     },
                     "id": 119,
                     "options": {
@@ -4655,7 +4375,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 66
+                        "y": 82
                     },
                     "id": 66,
                     "links": [],
@@ -4725,7 +4445,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 66
+                        "y": 82
                     },
                     "id": 122,
                     "links": [],
@@ -4783,7 +4503,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 31
+                "y": 26
             },
             "id": 47,
             "panels": [
@@ -4867,7 +4587,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 74
+                        "y": 90
                     },
                     "id": 50,
                     "links": [],
@@ -4965,7 +4685,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 74
+                        "y": 90
                     },
                     "id": 75,
                     "links": [],
@@ -5062,7 +4782,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 80
+                        "y": 96
                     },
                     "id": 51,
                     "links": [],
@@ -5175,7 +4895,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 80
+                        "y": 96
                     },
                     "id": 123,
                     "links": [],
@@ -5289,7 +5009,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 86
+                        "y": 102
                     },
                     "id": 88,
                     "links": [],
@@ -5403,7 +5123,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 86
+                        "y": 102
                     },
                     "id": 54,
                     "links": [],
@@ -5451,7 +5171,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 32
+                "y": 27
             },
             "id": 29,
             "panels": [
@@ -5579,7 +5299,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 93
+                        "y": 109
                     },
                     "id": 8,
                     "links": [],
@@ -5677,7 +5397,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 93
+                        "y": 109
                     },
                     "id": 86,
                     "links": [],
@@ -5835,7 +5555,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 100
+                        "y": 116
                     },
                     "id": 87,
                     "links": [],
@@ -5930,7 +5650,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 100
+                        "y": 116
                     },
                     "id": 5,
                     "links": [],
@@ -6088,7 +5808,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 107
+                        "y": 123
                     },
                     "id": 58,
                     "links": [],
@@ -6149,7 +5869,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 107
+                        "y": 123
                     },
                     "hiddenSeries": false,
                     "id": 69,
@@ -6249,7 +5969,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 33
+                "y": 28
             },
             "id": 45,
             "panels": [
@@ -6332,7 +6052,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 115
+                        "y": 131
                     },
                     "id": 56,
                     "links": [],
@@ -6447,7 +6167,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 115
+                        "y": 131
                     },
                     "id": 59,
                     "links": [],
@@ -6502,7 +6222,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 34
+                "y": 29
             },
             "id": 27,
             "panels": [
@@ -6642,7 +6362,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 0,
-                        "y": 123
+                        "y": 139
                     },
                     "id": 157,
                     "links": [],
@@ -6782,7 +6502,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 12,
-                        "y": 123
+                        "y": 139
                     },
                     "id": 57,
                     "links": [],
