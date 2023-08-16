@@ -99,23 +99,27 @@ There are 265 parameters in Pigsty describing all aspect of the deployment.
 | 262 | [`node_ntp_servers`](#node_ntp_servers)                         | [`NODE`](#node)   | [`NODE_TIME`](#node_time)         | string[]    | C     | ntp servers in `/etc/chrony.conf`                                             |
 | 263 | [`node_crontab_overwrite`](#node_crontab_overwrite)             | [`NODE`](#node)   | [`NODE_TIME`](#node_time)         | bool        | C     | overwrite or append to `/etc/crontab`?                                        |
 | 264 | [`node_crontab`](#node_crontab)                                 | [`NODE`](#node)   | [`NODE_TIME`](#node_time)         | string[]    | C     | crontab entries in `/etc/crontab`                                             |
-| 270 | [`haproxy_enabled`](#haproxy_enabled)                           | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | bool        | C     | enable haproxy on this node?                                                  |
-| 271 | [`haproxy_clean`](#haproxy_clean)                               | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | bool        | G/C/A | cleanup all existing haproxy config?                                          |
-| 272 | [`haproxy_reload`](#haproxy_reload)                             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | bool        | A     | reload haproxy after config?                                                  |
-| 273 | [`haproxy_auth_enabled`](#haproxy_auth_enabled)                 | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | bool        | G     | enable authentication for haproxy admin page                                  |
-| 274 | [`haproxy_admin_username`](#haproxy_admin_username)             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | username    | G     | haproxy admin username, `admin` by default                                    |
-| 275 | [`haproxy_admin_password`](#haproxy_admin_password)             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | password    | G     | haproxy admin password, `pigsty` by default                                   |
-| 276 | [`haproxy_exporter_port`](#haproxy_exporter_port)               | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | port        | C     | haproxy admin/exporter port, 9101 by default                                  |
-| 277 | [`haproxy_client_timeout`](#haproxy_client_timeout)             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | interval    | C     | client side connection timeout, 24h by default                                |
-| 278 | [`haproxy_server_timeout`](#haproxy_server_timeout)             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | interval    | C     | server side connection timeout, 24h by default                                |
-| 279 | [`haproxy_services`](#haproxy_services)                         | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | service[]   | C     | list of haproxy service to be exposed on node                                 |
-| 280 | [`node_exporter_enabled`](#node_exporter_enabled)               | [`NODE`](#node)   | [`NODE_EXPORTER`](#node_exporter) | bool        | C     | setup node_exporter on this node?                                             |
-| 281 | [`node_exporter_port`](#node_exporter_port)                     | [`NODE`](#node)   | [`NODE_EXPORTER`](#node_exporter) | port        | C     | node exporter listen port, 9100 by default                                    |
-| 282 | [`node_exporter_options`](#node_exporter_options)               | [`NODE`](#node)   | [`NODE_EXPORTER`](#node_exporter) | arg         | C     | extra server options for node_exporter                                        |
-| 283 | [`promtail_enabled`](#promtail_enabled)                         | [`NODE`](#node)   | [`PROMTAIL`](#promtail)           | bool        | C     | enable promtail logging collector?                                            |
-| 284 | [`promtail_clean`](#promtail_clean)                             | [`NODE`](#node)   | [`PROMTAIL`](#promtail)           | bool        | G/A   | purge existing promtail status file during init?                              |
-| 285 | [`promtail_port`](#promtail_port)                               | [`NODE`](#node)   | [`PROMTAIL`](#promtail)           | port        | C     | promtail listen port, 9080 by default                                         |
-| 286 | [`promtail_positions`](#promtail_positions)                     | [`NODE`](#node)   | [`PROMTAIL`](#promtail)           | path        | C     | promtail position status file path                                            |
+| 270 | [`node_vip_enabled`](#node_vip_enabled)                         | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | bool        | C     | enable a l2 vip among node cluster?                                           |
+| 271 | [`node_vip_role`](#node_vip_role)                               | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | enum        | I     | node vip role: master,backup                                                  |
+| 272 | [`node_vip_address`](#node_vip_address)                         | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | ip          | C     | node vip address in `<ipv4>` format, require if node vip is enabled           |
+| 273 | [`node_vip_interface`](#node_vip_interface)                     | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | string      | C/I   | node vip network interface to listen, eth0 by default                         |
+| 280 | [`haproxy_enabled`](#haproxy_enabled)                           | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | bool        | C     | enable haproxy on this node?                                                  |
+| 281 | [`haproxy_clean`](#haproxy_clean)                               | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | bool        | G/C/A | cleanup all existing haproxy config?                                          |
+| 282 | [`haproxy_reload`](#haproxy_reload)                             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | bool        | A     | reload haproxy after config?                                                  |
+| 283 | [`haproxy_auth_enabled`](#haproxy_auth_enabled)                 | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | bool        | G     | enable authentication for haproxy admin page                                  |
+| 284 | [`haproxy_admin_username`](#haproxy_admin_username)             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | username    | G     | haproxy admin username, `admin` by default                                    |
+| 285 | [`haproxy_admin_password`](#haproxy_admin_password)             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | password    | G     | haproxy admin password, `pigsty` by default                                   |
+| 286 | [`haproxy_exporter_port`](#haproxy_exporter_port)               | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | port        | C     | haproxy admin/exporter port, 9101 by default                                  |
+| 287 | [`haproxy_client_timeout`](#haproxy_client_timeout)             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | interval    | C     | client side connection timeout, 24h by default                                |
+| 288 | [`haproxy_server_timeout`](#haproxy_server_timeout)             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | interval    | C     | server side connection timeout, 24h by default                                |
+| 289 | [`haproxy_services`](#haproxy_services)                         | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | service[]   | C     | list of haproxy service to be exposed on node                                 |
+| 290 | [`node_exporter_enabled`](#node_exporter_enabled)               | [`NODE`](#node)   | [`NODE_EXPORTER`](#node_exporter) | bool        | C     | setup node_exporter on this node?                                             |
+| 291 | [`node_exporter_port`](#node_exporter_port)                     | [`NODE`](#node)   | [`NODE_EXPORTER`](#node_exporter) | port        | C     | node exporter listen port, 9100 by default                                    |
+| 292 | [`node_exporter_options`](#node_exporter_options)               | [`NODE`](#node)   | [`NODE_EXPORTER`](#node_exporter) | arg         | C     | extra server options for node_exporter                                        |
+| 293 | [`promtail_enabled`](#promtail_enabled)                         | [`NODE`](#node)   | [`PROMTAIL`](#promtail)           | bool        | C     | enable promtail logging collector?                                            |
+| 294 | [`promtail_clean`](#promtail_clean)                             | [`NODE`](#node)   | [`PROMTAIL`](#promtail)           | bool        | G/A   | purge existing promtail status file during init?                              |
+| 295 | [`promtail_port`](#promtail_port)                               | [`NODE`](#node)   | [`PROMTAIL`](#promtail)           | port        | C     | promtail listen port, 9080 by default                                         |
+| 296 | [`promtail_positions`](#promtail_positions)                     | [`NODE`](#node)   | [`PROMTAIL`](#promtail)           | path        | C     | promtail position status file path                                            |
 | 401 | [`docker_enabled`](#docker_enabled)                             | [`NODE`](#node)   | [`DOCKER`](#docker)               | bool        | C     | enable docker on this node?                                                   |
 | 402 | [`docker_cgroups_driver`](#docker_cgroups_driver)               | [`NODE`](#node)   | [`DOCKER`](#docker)               | enum        | C     | docker cgroup fs driver: cgroupfs,systemd                                     |
 | 403 | [`docker_registry_mirrors`](#docker_registry_mirrors)           | [`NODE`](#node)   | [`DOCKER`](#docker)               | string[]    | C     | docker registry mirror list                                                   |
@@ -292,14 +296,14 @@ Parameters about pigsty infrastructure components: local yum repo, nginx, dnsmas
 This section contains some metadata of current pigsty deployments, such as version string, admin node IP address, repo mirror [`region`](#region) and http(s) proxy when downloading pacakges.
 
 ```yaml
-    version: v2.2.1                   # pigsty version string
-    admin_ip: 10.10.10.10             # admin node ip address
-    region: default                   # upstream mirror region: default,china,europe
-    proxy_env:                        # global proxy env when downloading packages
-      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
-      # http_proxy:  # set your proxy here: e.g http://user:pass@proxy.xxx.com
-      # https_proxy: # set your proxy here: e.g http://user:pass@proxy.xxx.com
-      # all_proxy:   # set your proxy here: e.g http://user:pass@proxy.xxx.com
+version: v2.2.1                   # pigsty version string
+admin_ip: 10.10.10.10             # admin node ip address
+region: default                   # upstream mirror region: default,china,europe
+proxy_env:                        # global proxy env when downloading packages
+  no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
+  # http_proxy:  # set your proxy here: e.g http://user:pass@proxy.xxx.com
+  # https_proxy: # set your proxy here: e.g http://user:pass@proxy.xxx.com
+  # all_proxy:   # set your proxy here: e.g http://user:pass@proxy.xxx.com
 ```
 
 ### `version`
@@ -2091,6 +2095,71 @@ crontab entries in `/etc/crontab`
 default values: `[]`
 
 
+
+
+
+------------------------------
+
+## `NODE_VIP`
+
+You can bind an optional L2 VIP among one node cluster, which is disabled by default, and must be set explicitly to enable.
+
+It is user's responsibility to ensure that the VIP is not used by other services in the deployment.
+
+```yaml
+node_vip_enabled: false           # enable a l2 vip among node cluster?
+node_vip_role: master             # node vip role: master,backup
+node_vip_address: 127.0.0.1       # node vip address in `<ipv4>` format, require if node vip is enabled
+node_vip_interface: eth0          # node vip network interface to listen, eth0 by default
+```
+
+
+
+
+### `node_vip_enabled`
+
+name: `pg_vip_enabled`, type: `bool`, level: `C`
+
+enable a l2 vip for pgsql primary?
+
+default value is `false`, means no L2 VIP is created for this node cluster.
+
+L2 VIP can only be used in same L2 network, which may incurs extra restrictions on your network topology.
+
+
+
+
+### `node_vip_role`
+
+name: `pg_vip_role`, type: `enum`, level: `I`
+
+node vip role, could be `master` or `backup`, will be used as initial keepalived state.
+
+
+
+
+
+### `node_vip_address`
+
+name: `pg_vip_address`, type: `ip`, level: `C`
+
+node vip address in `<ipv4>` format, require if node vip is enabled
+
+default values: `127.0.0.1`. This value must be explicitly assigned and globally unique in the deployment.
+
+
+
+
+
+### `node_vip_interface`
+
+name: `pg_vip_interface`, type: `string`, level: `C/I`
+
+node vip network interface to listen, `eth0` by default.
+
+It should be the same primary intranet interface of your node, which is the IP address you used in the inventory file.
+
+If your node have different interface, you can override it on instance vars
 
 
 

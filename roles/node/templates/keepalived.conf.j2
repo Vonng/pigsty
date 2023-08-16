@@ -1,0 +1,34 @@
+{% set node_cluster_members = hostvars|json_query(node_cluster_members_query) %}
+
+global_defs {
+  router_id {{ node_cluster }}
+   enable_script_security
+   script_user root
+}
+
+vrrp_instance {{ node_cluster }} {
+  state {{ node_vip_role | upper }}
+  interface {{ node_vip_interface }}
+  virtual_router_id {{ (node_cluster | hash('md5'))[0:2] | int }}
+  priority {% if node_vip_role == 'master' %}128{% else %}100{% endif %}
+
+  advert_int 1
+  unicast_src_ip {{ inventory_hostname }}
+  unicast_peer {
+
+{% for host in node_cluster_members %}
+{% if host.inventory_hostname != inventory_hostname %}     {{ host.inventory_hostname }}
+{% endif %}
+{% endfor %}
+
+  }
+
+  authentication {
+    auth_type PASS
+    auth_pass {{ node_cluster }}
+  }
+
+  virtual_ipaddress {
+    {{ node_vip_address }}
+  }
+}
