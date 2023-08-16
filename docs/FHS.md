@@ -111,6 +111,8 @@ While the main config file is located on [`roles/infra/templates/prometheus/prom
 #            ^-----@ping             # blackbox ping targets definition
 #            ^-----@pgsql            # pgsql static targets definition
 #            ^-----@redis            # redis static targets definition
+#            ^-----@mongo            # mongo static targets definition
+#            ^-----@mysql            # mysql static targets definition
 #            ^-----@.....            # other targets
 # /etc/alertmanager.yml              # alertmanager main config file
 # /etc/blackbox.yml                  # blackbox exporter main config file

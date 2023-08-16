@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   prometheus.yml
 # Ctime     :   2020-04-03
-# Mtime     :   2022-12-04
+# Mtime     :   2023-08-16
 # Desc      :   Prometheus Configuration File
 # Path      :   /etc/prometheus/prometheus.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -27,6 +27,8 @@
 #            ^-----@etcd   # etcd static targets definition
 #            ^-----@minio  # minio static targets definition
 #            ^-----@infra  # infra static targets definition
+#            ^-----@mongo   # mongo static targets definition
+#            ^-----@mysql   # mysql static targets definition
 #--------------------------------------------------------------#
 
 
@@ -205,5 +207,27 @@ scrape_configs:
         regex: ^redis://(.*):\d+$
         replacement: $1:9121
         target_label: __address__
+
+  #--------------------------------------------------------------#
+  # job: mysql
+  # labels: [cls, ins, ip, instance]
+  # path: targets/mysql/<mysql_instance>.yml
+  #--------------------------------------------------------------#
+  - job_name: mysql
+    metrics_path: {{ exporter_metrics_path }}
+    file_sd_configs:
+      - refresh_interval: {{ prometheus_sd_interval }}
+        files: [ targets/mysql/*.yml ]
+
+  #--------------------------------------------------------------#
+  # job: mongo (ferretdb)
+  # labels: [cls, ins, ip, instance]
+  # path: targets/mongo/<mongo_instance>.yml
+  #--------------------------------------------------------------#
+  - job_name: mongo
+    metrics_path: /debug/metrics
+    file_sd_configs:
+      - refresh_interval: {{ prometheus_sd_interval }}
+        files: [ targets/mongo/*.yml ]
 
 ...
