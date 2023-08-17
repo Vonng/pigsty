@@ -193,8 +193,10 @@ dns:
 # start will pull-up node and write ssh-config
 # it may take a while to download centos/7 box for the first time
 start: up ssh      # 1-node version
-ssh:               # add node ssh config to your ~/.ssh/config
+ssh:               # add current ssh config to your ~/.ssh/pigsty_config
 	vagrant/ssh
+sshb:              # add build ssh config to your ~/.ssh/build_config
+	vagrant/ssh build
 
 #------------------------------#
 # 4. demo
@@ -478,7 +480,7 @@ build-check: build check
         src pkg \
         c \
         infra pgsql repo repo-upstream repo-build prometheus grafana loki docker \
-        deps dns start ssh demo \
+        deps dns start ssh sshb demo \
         up dw del new clean up-test dw-test del-test new-test clean \
         st status suspend resume v1 v4 v7 v8 v9 vb vp vm vc vnew \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \

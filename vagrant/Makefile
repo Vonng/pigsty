@@ -28,6 +28,8 @@ dns:
 #------------------------------#
 ssh:
 	./ssh
+sshb:
+	./ssh build
 
 #------------------------------#
 # Start & Up
@@ -106,5 +108,6 @@ minio: del vm up ssh
 #------------------------------#
 # inventory
 #------------------------------#
-.PHONY: default new ssh dns start up down dw halt clean del destroy nuke st status pause suspend resume \
-        v1 v4 v7 v8 v9 vb vp vc vm meta full el7 el8 el9 build prod citus minio
+.PHONY: default new ssh sshb dns \
+	start up down dw halt clean del destroy nuke st status pause suspend resume \
+	v1 v4 v7 v8 v9 vb vp vc vm meta full el7 el8 el9 build prod citus minio
