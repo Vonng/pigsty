@@ -17,4 +17,15 @@
   ignore_errors: true
   when: patroni_ssl_enabled|bool
   file: state=absent path=/etc/prometheus/targets/patroni/{{ pg_cluster }}-{{ pg_seq }}.yml
+
+- name: remove pg vip ping target from prometheus
+  when: pg_vip_enabled|bool and pg_vip_address is defined and pg_vip_address != ''
+  become: yes
+  ignore_errors: yes
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
+  file: state=absent path=/etc/prometheus/targets/ping/{{ pg_vip_address_ip }}---{{ inventory_hostname }}.yml
+  vars:
+    pg_vip_address_ip:  "{{ pg_vip_address.split('/')[0] }}"
+
 ...
