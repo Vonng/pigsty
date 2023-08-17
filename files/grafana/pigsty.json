@@ -610,6 +610,30 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "MYSQL"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#6a8d9d",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "MySQL Overview",
+                                        "url": "/d/mysql-overview?${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -652,6 +676,20 @@
                     "legendFormat": "PGSQL",
                     "range": true,
                     "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(up{job=\"mysql\"})",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "MYSQL",
+                    "range": true,
+                    "refId": "M"
                 },
                 {
                     "datasource": {
@@ -1016,6 +1054,39 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "M"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#252f34",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#6a8d9d",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "MySQL Instance : ${__field.labels.ins}",
+                                        "url": "/d/mysql-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -1056,6 +1127,20 @@
                     "interval": "",
                     "legendFormat": "{{ ins }}",
                     "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min by (ins,instance) (up{job=\"mysql\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "M"
                 },
                 {
                     "datasource": {

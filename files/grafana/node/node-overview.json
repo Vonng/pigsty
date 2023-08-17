@@ -841,7 +841,7 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "Yellow : Node\n\nGreen: HAProxy\n\nRed: Promtail Logging Agent\n\nGreen: Docker\n",
+            "description": "Yellow : Node\n\nGreen: HAProxy\n\nRed: Promtail Logging Agent\n\nGreen: Docker\n\nPurple: Keepalived",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -999,6 +999,30 @@
                                 }
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "K"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#b783af",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "NODE VIP : ${__field.labels.ins}",
+                                        "url": "/d/node-vip?var-ins=${__field.labels.ins}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -1081,6 +1105,20 @@
                     "interval": "",
                     "legendFormat": "{{ ins }}",
                     "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min by (ins) (keepalived_up{job=\"node\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "K"
                 }
             ],
             "type": "stat"
@@ -2613,8 +2651,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     },
                                     {
                                         "color": "green",
@@ -2763,8 +2800,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     },
                                     {
                                         "color": "green",
@@ -2914,8 +2950,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     },
                                     {
                                         "color": "green",
@@ -3041,8 +3076,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             },
@@ -3156,8 +3190,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             },
@@ -3258,8 +3291,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             },
@@ -3356,8 +3388,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     },
                                     {
                                         "color": "#346f36cc",
@@ -3460,8 +3491,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     },
                                     {
                                         "color": "#346f36cc",
@@ -3754,7 +3784,7 @@
                         "h": 10,
                         "w": 8,
                         "x": 0,
-                        "y": 79
+                        "y": 29
                     },
                     "id": 130,
                     "options": {
@@ -3981,7 +4011,7 @@
                         "h": 10,
                         "w": 8,
                         "x": 8,
-                        "y": 79
+                        "y": 29
                     },
                     "id": 128,
                     "options": {
@@ -4092,8 +4122,12 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
+                                        "color": "#3e668f",
                                         "value": null
+                                    },
+                                    {
+                                        "color": "#346f36cc",
+                                        "value": 1
                                     }
                                 ]
                             }
@@ -4104,7 +4138,7 @@
                         "h": 10,
                         "w": 8,
                         "x": 16,
-                        "y": 79
+                        "y": 29
                     },
                     "id": 132,
                     "options": {
@@ -4130,7 +4164,7 @@
                             },
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "sum by (proxy) (haproxy_backend_current_sessions{proxy!=\"stats\"}) > 0",
+                            "expr": "sum by (proxy) (haproxy_backend_current_sessions{proxy!=\"stats\"})",
                             "instant": true,
                             "legendFormat": "__auto",
                             "range": false,
@@ -4192,7 +4226,7 @@
                         "h": 17,
                         "w": 24,
                         "x": 0,
-                        "y": 89
+                        "y": 39
                     },
                     "id": 141,
                     "options": {
@@ -4232,7 +4266,7 @@
             "type": "row"
         }
     ],
-    "refresh": "1m",
+    "refresh": "",
     "revision": 1,
     "schemaVersion": 38,
     "style": "light",

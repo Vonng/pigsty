@@ -1672,7 +1672,7 @@
                     {
                         "matcher": {
                             "id": "byFrameRefID",
-                            "options": "G"
+                            "options": "M"
                         },
                         "properties": [
                             {
@@ -1681,7 +1681,7 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "green",
+                                            "color": "text",
                                             "value": null
                                         },
                                         {
@@ -1697,6 +1697,72 @@
                                     {
                                         "title": "Mongo Instance : ${__field.labels.ins}",
                                         "url": "/d/mongo-overview?var-ins=${__field.labels.ins}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "K"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "text",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#b783af",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node VIP : ${__field.labels.ins}",
+                                        "url": "/d/node-vip?var-ins=${__field.labels.ins}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "Y"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "text",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#6a8d9d",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "MySQL Instance : ${__field.labels.ins}",
+                                        "url": "/d/mysql-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -1763,6 +1829,20 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
+                    "expr": "min by (ins,instance) (mysql_up{ip=~'$members'})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "Y"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
                     "expr": "min by (ins) (up{job=\"node\", ip=~\"$members\"})",
                     "hide": false,
                     "instant": true,
@@ -1818,7 +1898,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (instance) (up{job!~\"(node|infra|etcd|pgsql|redis|minio|ping)\", ip=~\"$members\"})",
+                    "expr": "min by (instance) (up{job!~\"(node|infra|etcd|pgsql|redis|minio|mongo|mysql|ping)\", ip=~\"$members\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
@@ -1837,7 +1917,21 @@
                     "instant": true,
                     "interval": "",
                     "legendFormat": "{{ ins }}",
-                    "refId": "G"
+                    "refId": "M"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min by (ins,instance) (keepalived_up{cls='$cls'})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "K"
                 }
             ],
             "type": "stat"
