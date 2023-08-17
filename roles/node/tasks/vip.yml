@@ -1,22 +1,35 @@
 ---
-- name: install keepalived
-  tags: [node_vip, node_vip_install]
-  package: name=keepalived state=present
+#--------------------------------------------------------------#
+# Install keepalived                               [vip_install]
+#--------------------------------------------------------------#
+#- name: install keepalived
+#  tags: [node_vip, vip_install]
+#  package: name=keepalived state=present
 
+#--------------------------------------------------------------#
+# Config keepalived                                 [vip_config]
+#--------------------------------------------------------------#
 - name: render node vip conf keepalived.conf
-  tags: [node_vip, node_vip_config]
+  tags: [node_vip, vip_config]
   template:
     src: keepalived.conf.j2
     dest: /etc/keepalived/keepalived.conf
     mode: 0644
   vars:
-    node_cluster_members_query: "[@.*][0][?node_cluster=='{{ node_cluster }}']"
+    vip_cluster_members_query: "[@.*][0][?vip_cluster=='{{ vip_cluster }}']"
 
+#--------------------------------------------------------------#
+# Launch keepalived                                 [vip_launch]
+#--------------------------------------------------------------#
 - name: launch keepalived service unit
-  tags: [node_vip, node_vip_launch]
+  tags: [node_vip, vip_launch]
   systemd: name=keepalived enabled=true state=restarted
 
+#--------------------------------------------------------------#
+# Reload keepalived                                 [vip_reload]
+#--------------------------------------------------------------#
 - name: launch keepalived service unit
-  tags: [node_vip, node_vip_reload]
+  tags: [node_vip, vip_reload]
   systemd: name=keepalived enabled=true state=reloaded
+
 ...

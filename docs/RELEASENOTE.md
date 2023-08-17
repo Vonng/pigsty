@@ -52,13 +52,14 @@ Get started with `bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"`
 
 **API Change**
 
-Add 1 new section `NODE`.`NODE_VIP` with 4 new parameter
+Add 1 new section `NODE`.`NODE_VIP` with 6 new parameter
 
-- `node_vip_enabled` : enable a l2 vip among node cluster?
-- `node_vip_role` : node vip role: master,backup
-- `node_vip_address` : node vip address in `<ipv4>` format, require if node vip is enabled
-- `node_vip_interface` : node vip network interface to listen, eth0 by default
-
+- `NODE`.`VIP`.`vip_cluster` : required, if defined, vip is enabled for this cluster
+- `NODE`.`VIP`.`vip_vrid` : required, integer, 1-255 should be unique among same VLAN
+- `NODE`.`VIP`.`vip_role` : optional, `master|backup`, backup by default, use as init role
+- `NODE`.`VIP`.`vip_address` : node vip address in `<ipv4>` format, require if vip is enabled
+- `NODE`.`VIP`.`vip_interface` : node vip network interface to listen, `eth0` by default
+- `NODE`.`VIP`.`vip_exporter_port` : keepalived exporter listen port, 9650 by default
 
 
 ------------------------------
