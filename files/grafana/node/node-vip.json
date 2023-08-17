@@ -70,7 +70,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Cluster"
+                            "options": "Node Cluster"
                         },
                         "properties": [
                             {
@@ -84,7 +84,7 @@
                                         "options": {
                                             "1": {
                                                 "index": 0,
-                                                "text": "Cluster"
+                                                "text": "Node Cluster"
                                             }
                                         },
                                         "type": "value"
@@ -119,7 +119,7 @@
                                         "options": {
                                             "1": {
                                                 "index": 0,
-                                                "text": "Instance"
+                                                "text": "VIP Address"
                                             }
                                         },
                                         "type": "value"
@@ -128,12 +128,7 @@
                             },
                             {
                                 "id": "links",
-                                "value": [
-                                    {
-                                        "title": "PGSQL Instance : ${pg_ins}",
-                                        "url": "/d/pgsql-instance?var-ins=${pg_ins}&${__url_time_range}"
-                                    }
-                                ]
+                                "value": []
                             }
                         ]
                     },
@@ -206,6 +201,32 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "VIP Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${vip_cls}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "VIP Cluster"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -262,7 +283,7 @@
                     "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "Cluster",
+                    "legendFormat": "Node Cluster",
                     "queryType": "measurements",
                     "refId": "A"
                 },
@@ -277,6 +298,21 @@
                     "hide": false,
                     "instant": true,
                     "interval": "",
+                    "legendFormat": "VIP Cluster",
+                    "queryType": "measurements",
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": true,
+                    "instant": true,
+                    "interval": "",
                     "legendFormat": "IP",
                     "queryType": "measurements",
                     "refId": "C"
@@ -289,7 +325,7 @@
                     "editorMode": "code",
                     "exemplar": false,
                     "expr": "1",
-                    "hide": false,
+                    "hide": true,
                     "instant": true,
                     "interval": "",
                     "legendFormat": "Name",
@@ -3677,6 +3713,32 @@
                 "options": [],
                 "query": {
                     "query": "label_values(node:ins{ip=~\"$ip\"},nodename)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ds-prometheus"
+                },
+                "definition": "label_values(keepalived_up{ins=\"$ins\"},cls)",
+                "hide": 2,
+                "includeAll": false,
+                "label": "VIP Cluster",
+                "multi": false,
+                "name": "vip_cls",
+                "options": [],
+                "query": {
+                    "query": "label_values(keepalived_up{ins=\"$ins\"},cls)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 1,
