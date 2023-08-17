@@ -61,11 +61,10 @@
         content: |
           NODE_EXPORTER_OPTS="--web.listen-address=':{{ node_exporter_port }}' --web.telemetry-path='{{ exporter_metrics_path }}' {{ node_exporter_options }}"
 
-
 #--------------------------------------------------------------#
 # Launch node_exporter                    [node_exporter_launch]
 #--------------------------------------------------------------#
-- name: Launch node_exporter
+- name: launch node_exporter
   tags: [ node_exporter, node_exporter_launch ]
   when: node_exporter_enabled|bool
   block:
@@ -73,6 +72,37 @@
       systemd: name=node_exporter state=restarted enabled=yes daemon_reload=yes
     - name: wait for node_exporter service online
       wait_for: host=127.0.0.1 port={{ node_exporter_port }} state=started timeout=10
+
+
+
+#--------------------------------------------------------------#
+# Config keepalived_exporter               [vip_exporter_config]
+#--------------------------------------------------------------#
+- name: config keepalived_exporter
+  tags: [ vip_exporter, vip_exporter_config ]
+  when: vip_cluster is defined and vip_cluster != ''
+  block:
+
+    - name: config keepalived_exporter systemd unit
+      copy: src=keepalived_exporter.service dest=/usr/lib/systemd/system/keepalived_exporter.service
+    - name: config default keepalived_exporter options
+      copy:
+        dest: /etc/default/keepalived_exporter
+        content: |
+          KEEPALIVED_EXPORTER_OPTS="--web.listen-address=':{{ vip_exporter_port }}' --web.telemetry-path='{{ exporter_metrics_path }}'"
+
+#--------------------------------------------------------------#
+# Launch keepalived_exporter               [vip_exporter_launch]
+#--------------------------------------------------------------#
+- name: launch keepalived_exporter
+  tags: [ vip_exporter, vip_exporter_launch ]
+  when: vip_cluster is defined and vip_cluster != ''
+  block:
+    - name: launch keepalived_exporter systemd service
+      systemd: name=keepalived_exporter state=restarted enabled=yes daemon_reload=yes
+    - name: wait for keepalived_exporter service online
+      wait_for: host=127.0.0.1 port={{ vip_exporter_port }} state=started timeout=10
+
 
 
 #--------------------------------------------------------------#
@@ -98,7 +128,10 @@
       
           {% if promtail_enabled|bool %}- {{ inventory_hostname }}:{{ promtail_port }}{% endif %}
 
+          {% if vip_cluster is defined and vip_cluster != '' %}- {{ inventory_hostname }}:{{ vip_exporter_port }}{% endif %}
+
           {% if docker_enabled is defined and docker_enabled|bool %}- {{ inventory_hostname }}:9323{% endif %}
+
 
 
 - name: register node as blackbox exporter target
