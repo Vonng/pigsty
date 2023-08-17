@@ -1,0 +1,42 @@
+---
+#==============================================================#
+# File      :   mysql.yml
+# Ctime     :   2023-08-17
+# Mtime     :   2023-08-17
+# Desc      :   Rules for mysql (placeholder)
+# Path      :   /etc/prometheus/rules/mysql.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+# This is a prometheus rules/alert placeholder example for MySQL
+
+groups:
+
+  ################################################################
+  #                        MySQL Rules                           #
+  ################################################################
+  - name: mysql-rules
+    rules:
+
+  ################################################################
+  #                         MySQL Alert                          #
+  ################################################################
+  - name: mysql-alert
+    rules:
+
+      #==============================================================#
+      #                          Aliveness                           #
+      #==============================================================#
+
+      # database server down
+      - alert: MySQLDown
+        expr: mysql_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: mysql }
+        annotations:
+          summary: "CRIT MySQLDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            mysql_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/mysql-instance?var-ins={{ $labels.ins }}
+
+...
