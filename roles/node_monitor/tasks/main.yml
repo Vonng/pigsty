@@ -91,6 +91,7 @@
         content: |
           KEEPALIVED_EXPORTER_OPTS="--web.listen-address=':{{ vip_exporter_port }}' --web.telemetry-path='{{ exporter_metrics_path }}'"
 
+
 #--------------------------------------------------------------#
 # Launch keepalived_exporter               [vip_exporter_launch]
 #--------------------------------------------------------------#
@@ -102,7 +103,6 @@
       systemd: name=keepalived_exporter state=restarted enabled=yes daemon_reload=yes
     - name: wait for keepalived_exporter service online
       wait_for: host=127.0.0.1 port={{ vip_exporter_port }} state=started timeout=10
-
 
 
 #--------------------------------------------------------------#
@@ -119,22 +119,31 @@
     owner: prometheus
     content: |
       # {{ inventory_hostname }}
+      # node, haproxy, promtail
       - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }} }
         targets: {% if not node_exporter_enabled|bool and not haproxy_enabled|bool and not promtail_enabled|bool %}[]{% endif %} 
-
           {% if node_exporter_enabled|bool %}- {{ inventory_hostname }}:{{ node_exporter_port }}{% endif %}
       
           {% if haproxy_enabled|bool %}- {{ inventory_hostname }}:{{ haproxy_exporter_port }}{% endif %}
       
           {% if promtail_enabled|bool %}- {{ inventory_hostname }}:{{ promtail_port }}{% endif %}
 
-          {% if vip_cluster is defined and vip_cluster != '' %}- {{ inventory_hostname }}:{{ vip_exporter_port }}{% endif %}
 
-          {% if docker_enabled is defined and docker_enabled|bool %}- {{ inventory_hostname }}:9323{% endif %}
+      {% if docker_enabled is defined and docker_enabled|bool %}
+      # docker
+      - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }}  }
+        targets: [ {{ inventory_hostname }}:9323 ]
+      {% endif %}
+
+      
+      {% if vip_cluster is defined and vip_cluster != '' and vip_address is defined and vip_address != '' %}
+      # keepalived
+      - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }}, vip: {{ vip_address }} }
+        targets: [ {{ inventory_hostname }}:{{ vip_exporter_port }} ]
+      {% endif %}
 
 
-
-- name: register node as blackbox exporter target
+- name: register node as ping target
   tags: [ node_register, register_prometheus ]
   ignore_errors: true
   delegate_to: '{{ item }}'
@@ -147,6 +156,19 @@
       - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }} }
         targets: [ {{inventory_hostname }} ]
 
+- name: register node vip as ping target
+  tags: [ node_register, register_prometheus ]
+  when: vip_cluster is defined and vip_cluster != '' and vip_address is defined and vip_address != ''
+  ignore_errors: true
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
+  copy:
+    dest: /etc/prometheus/targets/ping/{{ vip_address }}---{{ inventory_hostname }}.yml
+    owner: prometheus
+    content: |
+      # {{ vip_address }}@{{ inventory_hostname }}
+      - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }}, vip: {{ vip_address }} , job: node-vip }
+        targets: [ {{ vip_address }} ]
 
 
 #--------------------------------------------------------------#

@@ -10,7 +10,7 @@
   with_items: '{{ groups["infra"] }}'
   file: state=absent path=/etc/prometheus/targets/node/{{ inventory_hostname }}.yml
 
-- name: remove node target from prometheus
+- name: remove node ping target from prometheus
   tags: [ register, prometheus ]
   become: yes
   ignore_errors: yes
@@ -18,11 +18,30 @@
   with_items: '{{ groups["infra"] }}'
   file: state=absent path=/etc/prometheus/targets/ping/{{ inventory_hostname }}.yml
 
+- name: remove vip ping target from prometheus
+  tags: [ register, prometheus ]
+  when: vip_cluster is defined and vip_cluster != '' and vip_address is defined and vip_address != ''
+  become: yes
+  ignore_errors: yes
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
+  file: state=absent path=/etc/prometheus/targets/ping/{{ vip_address }}---{{ inventory_hostname }}.yml
+
+
 #--------------------------------------------------------------#
 # remove nginx register (haproxy admin page)             [nginx]
 #--------------------------------------------------------------#
 - import_tasks: nginx.yml
   tags: [ register, nginx ]
+
+#--------------------------------------------------------------#
+# remove keepalived_exporter                               [vip]
+#--------------------------------------------------------------#
+- name: stop and disable keepalived_exporter service
+  tags: vip
+  when: vip_cluster is defined and vip_cluster != ''
+  ignore_errors: yes
+  systemd: name=keepalived state=stopped enabled=no daemon_reload=yes
 
 #--------------------------------------------------------------#
 # remove haproxy services                              [haproxy]
@@ -37,12 +56,21 @@
       file: state=absent path=/etc/haproxy
 
 #--------------------------------------------------------------#
-# remove exporter                                [node_exporter]
+# remove node exporter                           [node_exporter]
 #--------------------------------------------------------------#
 - name: stop and disable node_exporter service
   tags: node_exporter
   ignore_errors: yes
   systemd: name=node_exporter state=stopped enabled=no daemon_reload=yes
+
+#--------------------------------------------------------------#
+# remove keepalived_exporter                      [vip_exporter]
+#--------------------------------------------------------------#
+- name: stop and disable keepalived_exporter service
+  tags: vip_exporter
+  when: vip_cluster is defined and vip_cluster != ''
+  ignore_errors: yes
+  systemd: name=keepalived_exporter state=stopped enabled=no daemon_reload=yes
 
 #--------------------------------------------------------------#
 # remove promtail                                     [promtail]
