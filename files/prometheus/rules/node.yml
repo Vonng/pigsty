@@ -766,6 +766,18 @@ groups:
             docker_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
             http://g.pigsty/d/node-instance?var-ins={{ $labels.ins }}
 
+      # keepalived daemon
+      - alert: KeepalivedDown
+        expr: keepalived_up < 1
+        for: 1m
+        labels: { level: 1, severity: WARN, category: node }
+        annotations:
+          summary: "CRIT KeepalivedDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            keepalived_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/node-instance?var-ins={{ $labels.ins }}
+
+  
 
       #==============================================================#
       #                          Node : CPU                          #
