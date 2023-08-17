@@ -260,6 +260,18 @@ vm:
 	vagrant/switch minio
 vc:
 	vagrant/switch citus
+# switch to production env with rocky8
+vp8:
+	vagrant/switch prod
+	sed -ie 's/rocky9/rocky8/g' vagrant/Vagrantfile
+	rm -rf vagrant/Vagrantfilee
+
+# switch to prod env with centos7
+vp7:
+	vagrant/switch prod
+	sed -ie 's/rocky9/centos7/g' vagrant/Vagrantfile
+	rm -rf vagrant/Vagrantfilee
+
 vnew: new ssh copy-pkg use-pkg copy-src use-src
 
 ###############################################################
@@ -469,6 +481,15 @@ build: del vb new ssh
 build-check: build check
 	cp files/pigsty/build.yml pigsty.yml
 
+prod8: del vp8 new ssh
+	cp files/pigsty/prod.yml pigsty.yml
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+prod7: del vp7 new ssh
+	cp files/pigsty/prod.yml pigsty.yml
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+
 ###############################################################
 
 
@@ -482,10 +503,10 @@ build-check: build check
         infra pgsql repo repo-upstream repo-build prometheus grafana loki docker \
         deps dns start ssh sshb demo \
         up dw del new clean up-test dw-test del-test new-test clean \
-        st status suspend resume v1 v4 v7 v8 v9 vb vp vm vc vnew \
+        st status suspend resume v1 v4 v7 v8 v9 vb vp vm vc vp8 vp7 vnew \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
         r release rr remote-release rp release-pkg release-el7 release-el8 release-el9 check check-src check-repo check-boot p publish \
-        meta full citus minio build build-check el7 el8 el9 prod
+        meta full citus minio build build-check el7 el8 el9 prod prod7 prod8
 ###############################################################

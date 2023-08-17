@@ -95,6 +95,18 @@ vc:
 vm:
 	./switch minio
 
+# switch to production env with rocky8
+vp8:
+	./switch prod
+	sed -ie 's/rocky9/rocky8/g' Vagrantfile
+	rm -rf Vagrantfilee
+
+# switch to prod env with centos7
+vp7:
+	./switch prod
+	sed -ie 's/rocky9/centos7/g' Vagrantfile
+	rm -rf Vagrantfilee
+
 meta:  del v1 up ssh
 full:  del v4 up ssh
 el7:   del v7 up ssh
@@ -104,10 +116,14 @@ build: del vb up ssh
 prod:  del vp up ssh
 citus: del vc up ssh
 minio: del vm up ssh
+prod8: del vp8 up ssh
+prod7: del vp7 up ssh
 
-#------------------------------#
-# inventory
-#------------------------------#
+
+###############################################################
+#                        Inventory                            #
+###############################################################
 .PHONY: default new ssh sshb dns \
 	start up down dw halt clean del destroy nuke st status pause suspend resume \
-	v1 v4 v7 v8 v9 vb vp vc vm meta full el7 el8 el9 build prod citus minio
+	v1 v4 v7 v8 v9 vb vp vc vm vp8 vp7 meta full el7 el8 el9 build prod citus minio prod8 prod7
+###############################################################
