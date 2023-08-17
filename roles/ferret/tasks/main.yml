@@ -19,9 +19,9 @@
 - name: create os user mongod
   tags: mongo_dbsu
   block:
-    - name: create os group mongo
+    - name: create os group mongod
       group: name=mongod state=present
-    - name: create os user mongo
+    - name: create os user mongod
       user: name=mongod home=/var/lib/mongod group=mongod
 
 
@@ -41,22 +41,25 @@
   tags: mongo_config
   block:
 
-    - name: render mongo config
-      copy:
+    - name: render mongo/ferretdb config
+      template:
+        src: ferretdb.default.j2
         dest: /etc/default/ferretdb
         owner: root
         group: mongod
         mode: 0644
-        content: |
-          FERRETDB_POSTGRESQL_URL={{ mongo_pgurl|default('postgres:///') }}
-          FERRETDB_LISTEN_ADDR={{ mongo_listen|default('') }}:{{ mongo_port|default('27017') }}
-          FERRETDB_DEBUG_ADDR={{ mongo_listen|default('') }}:{{ mongo_exporter_port|default('9216') }}
-          FERRETDB_TELEMETRY=disabled
-          
-          {{ mongo_extra_vars }}
 
-    - name: create ferretdb systemd service
+    - name: create mongo/ferretdb systemd service
       template: src=ferretdb.service.j2 dest=/etc/systemd/system/ferretdb.service owner=root group=root
+
+
+#--------------------------------------------------------------#
+# Config MongoDB SSL Certs                          [mongo_cert]
+#--------------------------------------------------------------#
+- import_tasks: cert.yml
+  when: mongo_ssl_enabled|bool
+  tags: [ mongo_config, mongo_cert ]
+  vars: { mongo_instance: "{{ mongo_cluster }}-{{ mongo_seq }}" }
 
 
 #--------------------------------------------------------------#
@@ -65,7 +68,6 @@
 - name: launch mongo/ferretdb server
   tags: mongo_launch
   block:
-
     - name: launch mongo/ferretdb server service
       systemd: name=ferretdb state=restarted enabled=yes daemon_reload=yes
     - name: wait for mongo/ferretdb server online
@@ -75,7 +77,7 @@
 #--------------------------------------------------------------#
 # Register MongoDB                              [mongo_register]
 #--------------------------------------------------------------#
-- name: register mongodb as prometheus target
+- name: register mongo/ferretdb as prometheus target
   tags: [ mongo_register, register_prometheus ]
   ignore_errors: true
   delegate_to: '{{ item }}'

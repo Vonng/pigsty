@@ -22,6 +22,7 @@ all:
     # infra: 2 nodes
     #==========================================================#
     # ./infra.yml -l infra
+    # ./docker.yml -l infra (optional)
     infra:
       hosts:
         10.10.10.10: { infra_seq: 1 ,nodename: infra-1 }
@@ -466,6 +467,21 @@ all:
         redis_mode: cluster
         redis_max_memory: 512MB
         node_cluster: redis-test
+
+
+    #==========================================================#
+    # ferret: reuse pg-src as mongo (ferretdb)
+    #==========================================================#
+    # ./mongo.yml -l ferret
+    ferret:
+      hosts:
+        10.10.10.45: { mongo_seq: 1 }
+        10.10.10.46: { mongo_seq: 2 }
+        10.10.10.47: { mongo_seq: 3 }
+      vars:
+        mongo_cluster: ferret
+        mongo_pgurl: 'postgres://test:test@10.10.10.45:5432/src'
+        #mongo_pgurl: 'postgres://test:test@10.10.10.3:5436/test'
 
 
   #============================================================#
