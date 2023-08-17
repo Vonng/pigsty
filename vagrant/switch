@@ -1,26 +1,63 @@
 #!/bin/bash
 #==============================================================#
 # File      :   switch
-# Desc      :   render Vagrant file according to spec & template
+# Desc      :   Vagrantfile according to spec & provider
 # Ctime     :   2022-10-16
-# Mtime     :   2022-10-17
+# Mtime     :   2023-07-29
 # Path      :   vagrant/switch
-# Usage     :   vagrant/switch [spec=default]
-#                              (build|full|el7|el8|el9|...)
+# Usage     :   vagrant/switch [spec] [provider]
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 SCRIPT_NAME="$(basename $0)"
 SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
 
-SPEC=${1-'default'}
-SPEC_DIR="${SCRIPT_DIR}/spec"
-SPEC_FILENAME="${SPEC}.rb"
-SPEC_FILEPATH="${SPEC_DIR}/${SPEC_FILENAME}"
-TEMPLATE_PATH="${SPEC_DIR}/Vagrantfile"
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+# ./switch [spec] [provider]
+#        - meta  : single node
+#        - full  : 4 node sandbox environment
+#        - prod  : 44 kvm nodes prod simulation env
+#        - el7   : 3 el7 nodes testing environment
+#        - el8   : 3 el8 nodes testing environment
+#        - el9   : 3 el9 nodes testing environment
+#        - build : el7 el8 el9 building environment
+#        - minio : 3 node minio environment
+#        - minio : 3 node minio environment
+#     where provider could be:
+#        - virtualbox (default provider)
+#        - libvirt    (KVM provider)
+#==============================================================#
+
+
+# setup default parameters
+DEFAULT_SPEC='meta'              # use singleton meta node spec by default
+DEFAULT_PROVIDER='virtualbox'    # if KVM is used, use `libvirt` instead
+
+# build parameters
+SPEC=${1-${DEFAULT_SPEC}}
+PROVIDER=${2-${DEFAULT_PROVIDER}}
+
+# override with env VAGRANT_PROVIDER
+if [ -n "${VAGRANT_PROVIDER}" ]; then
+    PROVIDER="${VAGRANT_PROVIDER}"
+fi
+
+# generate spec/provider path
+SPEC_FILEPATH="${SCRIPT_DIR}/spec/${SPEC}.rb"
+PROVIDER_PATH="${SCRIPT_DIR}/Vagrantfile.${PROVIDER}"
+
+# generate vagrant template file
+printf "\033[0;32m[INFO] switch to ${SPEC} @ ${PROVIDER} : \033[0m\n" >&2
 VAGRANTFILE_PATH="${SCRIPT_DIR}/Vagrantfile"
 
-printf "\033[0;32m[INFO] switch to ${SPEC} => ${SPEC_FILEPATH} \033[0m\n" >&2
-cat ${SPEC_FILEPATH} > ${VAGRANTFILE_PATH};
-cat ${TEMPLATE_PATH} >> ${VAGRANTFILE_PATH}
-cat ${SPEC_FILEPATH}
+printf "\033[0;34m       +  ${SPEC_FILEPATH}\033[0m\n" >&2
+printf "\033[0;34m       +  ${PROVIDER_PATH}\033[0m\n" >&2
+printf "\033[0;34m[PATH] -> ${VAGRANTFILE_PATH}\033[0m\n" >&2
+cat ${SPEC_FILEPATH} >  ${VAGRANTFILE_PATH};
+cat ${PROVIDER_PATH} >> ${VAGRANTFILE_PATH};
+
+# print the final spec
+cat ${VAGRANTFILE_PATH}

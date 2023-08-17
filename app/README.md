@@ -7,11 +7,12 @@ Here are some docker compose templates for popular applications that works well 
 * [ByteBase](bytebase/) : Postgres DDL Migration
 * [PostgREST](postgrest/) : Auto-Generated PG Backend REST API
 * [Kong](kong/) : Kong API Gateway
-* [FerretDB](ferretdb/) : MongoDB API over Postgres
-* [EdgeDB](edgedb/): Graph database based on Postgres
+* [FerretDB](ferretdb/) : Open Source MongoDB alternative, built on Postgres.
 * [Gitea](gitea/) : Self-Hosting Git Services
 * [Wiki](wiki/) : Local Wiki Service
-* supabase
+* [NocoDB](nocodb/) : Open source airtable alternative
+* supabase: Firebase open source alternative
+* edge: Graph database based on Postgres
 * etc....
 
 
@@ -27,23 +28,24 @@ bytebase  : { domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887"   }
 gitea     : { domain: git.pigsty  ,endpoint: "127.0.0.1:8889"   }
 minio     : { domain: sss.pigsty  ,endpoint: "127.0.0.1:9000"   }
 wiki      : { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002"   }
+noco      : { domain: noco.pigsty ,endpoint: "127.0.0.1:9003"   }
 ```
 
 **Pull Image**
 
 ```bash
-docker pull dpage/pgadmin4                   
-docker pull sosedoff/pgweb                   
-docker pull vonng/pg_exporter                
-docker pull postgrest/postgrest              
-docker pull bytebase/bytebase:2.2.0         
-docker pull alpine                           
-docker pull registry                         
-docker pull andrewjones/schemaspy-postgres   
-docker pull requarks/wiki                    
-docker pull gitea/gitea                      
-docker pull kong                             
-docker pull ghcr.io/ferretdb/ferretdb        
+docker pull dpage/pgadmin4
+docker pull sosedoff/pgweb
+docker pull vonng/pg_exporter
+docker pull postgrest/postgrest
+docker pull bytebase/bytebase:2.6.0
+docker pull alpine
+docker pull registry
+docker pull andrewjones/schemaspy-postgres
+docker pull requarks/wiki
+docker pull gitea/gitea
+docker pull kong
+docker pull ghcr.io/ferretdb/ferretdb
 ```
 
 
@@ -55,7 +57,7 @@ docker save dpage/pgadmin4                   | gzip -9 -c > /tmp/docker/pgadmin4
 docker save sosedoff/pgweb                   | gzip -9 -c > /tmp/docker/pgweb.tgz
 docker save vonng/pg_exporter                | gzip -9 -c > /tmp/docker/pg_exporter.tgz
 docker save postgrest/postgrest              | gzip -9 -c > /tmp/docker/postgrest.tgz
-docker save bytebase/bytebase:2.2.0         | gzip -9 -c > /tmp/docker/bytebase.tgz
+docker save bytebase/bytebase:2.6.0          | gzip -9 -c > /tmp/docker/bytebase.tgz
 docker save alpine                           | gzip -9 -c > /tmp/docker/alpine.tgz
 docker save registry                         | gzip -9 -c > /tmp/docker/registry.tgz
 docker save andrewjones/schemaspy-postgres   | gzip -9 -c > /tmp/docker/schemaspy.tgz
@@ -63,6 +65,7 @@ docker save requarks/wiki                    | gzip -9 -c > /tmp/docker/wiki.tgz
 docker save gitea/gitea                      | gzip -9 -c > /tmp/docker/gitea.tgz
 docker save kong                             | gzip -9 -c > /tmp/docker/kong.tgz
 docker save ghcr.io/ferretdb/ferretdb        | gzip -9 -c > /tmp/docker/ferretdb.tgz
+docker save nocodb/nocodb                    | gzip -9 -c > /tmp/docker/nocodb.tgz
 ```
 
 
@@ -80,6 +83,7 @@ cat /tmp/docker/kong.tgz         | gzip -d -c - | docker load;
 cat /tmp/docker/alpine.tgz       | gzip -d -c - | docker load;
 cat /tmp/docker/registry.tgz     | gzip -d -c - | docker load;
 cat /tmp/docker/schemaspy.tgz    | gzip -d -c - | docker load;
+cat /tmp/docker/nocodb.tgz       | gzip -d -c - | docker load;
 ```
 
 
@@ -122,3 +126,5 @@ cat /tmp/docker.tgz | gzip -d -c - | docker load
 Check [pigsty-app](https://github.com/Vonng/pigsty-app) for details.
 
 Pigsty has one embed visualization app: [pglog](http://demo.pigsty.cc/d/pglog-overview) which is used for pg csv log analysis.
+
+There's another visualization app works on pigsty: ISD : noaa weather data visualization: [github.com/Vonng/isd](https://github.com/Vonng/isd), [Demo](http://demo.pigsty.cc/d/isd-overview)

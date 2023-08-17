@@ -27,9 +27,9 @@ Using at least 3~4 x (2C / 4G / 100G) nodes for serious production deployment is
 
 <details><summary>OS Requirement</summary>
 
-Pigsty is now developed and tested on CentOS 7.9, Rocky 8.6 & 9.0. RHEL, Alma, Oracle, and any EL-compatible distribution also work.
+Pigsty is now developed and tested on CentOS 7.9, Rocky 8.6 & 9.1. RHEL, Alma, Oracle, and any EL-compatible distribution also work.
 
-We strongly recommend using EL 7.9, 8.6, and 9.0 to avoid meaningless efforts on RPM troubleshooting.
+We strongly recommend using EL 7.9, 8.6, and 9.1 to avoid meaningless efforts on RPM troubleshooting.
 
 And PLEASE USE FRESH NEW NODES to avoid any unexpected issues.
 
@@ -60,7 +60,7 @@ Pigsty tries to release a Minor Release every 1-3 months and a Major Release eve
 <br>
 <details><summary>Where to download the Pigsty source code?</summary>
 
-!> `bash -c "$(curl -fsSL http://download.pigsty.cc/get)"`
+!> `bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"`
 
 The above command will automatically download the latest stable version of `pigsty.tgz` and extract it to the `~/pigsty` dir.
 You can also manually download a specific version of Pigsty source code from the following location.
@@ -86,10 +86,10 @@ If a firewall or GFW blocks some repo, consider using a [`proxy_env`](PARAM#prox
 Offline packages can be downloaded during [`bootstrap`](INSTALL#bootstrap), or you can download them directly via:
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-v2.1.0.tgz                   # source code
-https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-pkg-v2.1.0.el7.x86_64.tgz    # el7 packages
-https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-pkg-v2.1.0.el8.x86_64.tgz    # el8 packages
-https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-pkg-v2.1.0.el9.x86_64.tgz    # el9 packages
+https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-v2.2.0.tgz                   # source code
+https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz    # el7 packages
+https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el8.x86_64.tgz    # el8 packages
+https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el9.x86_64.tgz    # el9 packages
 ```
 
 </details><br>
@@ -250,6 +250,24 @@ ansible all -b -a 'yum remove -y nscd'
 ```
 
 </details>
+
+
+
+<br>
+
+<details><summary>RPMs error on Tencent Qcloud Rocky 9.1</summary>
+
+!> Tencent Qcloud Rocky 9.1 require extra `annobin` packages
+
+```bash
+./infra.yml -t repo_upstream      # add upstream repos
+cd /www/pigsty;                   # download missing packages
+repotrack annobin gcc-plugin-annobin libuser
+./infra.yml -t repo_create        # create repo
+```
+
+</details>
+
 
 
 

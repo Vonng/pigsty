@@ -35,6 +35,7 @@ all:
           - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
           - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service       }
           - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
+          - {name: dbuser_noco     ,password: DBUser.Noco     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for nocodb service      }
         pg_databases:
           - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
           - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
@@ -42,6 +43,7 @@ all:
           - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
           - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
           - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
+          - { name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database }
         pg_hba_rules:
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
         pg_vip_enabled: true
@@ -85,7 +87,7 @@ all:
 
 
   vars:                               # global variables
-    version: v2.1.0                   # pigsty version string
+    version: v2.2.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     node_tune: tiny                   # use tiny template for NODE  in demo environment
@@ -104,6 +106,7 @@ all:
       bytebase     : { domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887" }
       gitea        : { domain: git.pigsty  ,endpoint: "127.0.0.1:8889" }
       wiki         : { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002" }
+      noco         : { domain: noco.pigsty ,endpoint: "127.0.0.1:9003" }
     nginx_navbar:                    # application nav links on home page
       - { name: PgAdmin4   , url : 'http://adm.pigsty'  , comment: 'PgAdmin4 for PostgreSQL'  }
       - { name: PGWeb      , url : 'http://cli.pigsty'  , comment: 'PGWEB Browser Client'     }

@@ -20,7 +20,7 @@ Pigsty uses a modular design, and there are six default modules: [`PGSQL`](PGSQL
 * [`NODE`](NODE): Tune node into the desired state, name, timezone, NTP, ssh, sudo, haproxy, docker, promtail...
 * [`ETCD`](ETCD): Distributed key-value store will be used as DCS for high-available Postgres clusters.
 * [`REDIS`](REDIS): Redis servers in standalone master-replica, sentinel, cluster mode with Redis exporter.
-* [`MINO`](MINIO): S3 compatible simple object storage server, can be used as an optional backup center for Postgres.
+* [`MINIO`](MINIO): S3 compatible simple object storage server, can be used as an optional backup center for Postgres.
 
 You can compose them freely in a declarative manner. If you want host monitoring, [`INFRA`](INFRA) & [`NODE`](NODE) will suffice. Add additional [`ETCD`](ETCD) and [`PGSQL`](PGSQL) are used for HA PG Clusters. Deploying them on multiple nodes will form a ha cluster. You can reuse pigsty infra and develop your modules, considering optional [`REDIS`](REDIS) and [`MINIO`](MINIO) as examples.
 

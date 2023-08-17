@@ -3,11 +3,11 @@
 This is an example of running pg_exporter inside docker
 
 ```bash
-cd ~/pigsty/app/pg_exporter ; docker-compose up -d
+cd ~/pigsty/app/pg_exporter ; docker compose up -d
 ```
 
 ```bash
-make up         # pull up pg_exporter with docker-compose
+make up         # pull up pg_exporter with docker compose
 make run        # launch pg_exporter with docker
 make view       # curl pg_exporter metrics
 make log        # tail -f pg_exporter logs

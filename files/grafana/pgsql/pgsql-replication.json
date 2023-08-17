@@ -100,7 +100,7 @@
             "collapsed": false,
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "gridPos": {
                 "h": 1,
@@ -116,45 +116,112 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
-            "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "PGSQL Cluster for ${cls}",
-                            "url": "/d/pgsql-cluster?var-cls=${cls}"
-                        }
-                    ],
                     "mappings": [],
+                    "max": 2.5,
+                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${cls}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Cluster"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster : ${cls}",
+                                        "url": "/d/pgsql-cluster?var-cls=${cls}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Leader"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${primary}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Leader"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Instance : ${primary}",
+                                        "url": "/d/pgsql-instance?var-ins=${primary}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 2,
-                "w": 3,
+                "h": 6,
+                "w": 6,
                 "x": 0,
                 "y": 1
             },
-            "id": 9,
+            "id": 114,
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -162,125 +229,52 @@
                     "fields": "",
                     "values": false
                 },
-                "text": {},
-                "textMode": "name"
+                "text": {
+                    "titleSize": 20,
+                    "valueSize": 16
+                },
+                "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "1",
-                    "format": "table",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "",
+                    "legendFormat": "Cluster",
                     "queryType": "measurements",
                     "refId": "A"
-                }
-            ],
-            "title": "Cluster",
-            "transformations": [
+                },
                 {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${cls}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "Leader of cluster ${cls} is ${primary}",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
                     },
-                    "links": [
-                        {
-                            "title": "PGSQL Instance for cluster leader ${primary}",
-                            "url": "/d/pgsql-instance?var-ins=${primary}&var-cls=${cls}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 3,
-                "y": 1
-            },
-            "id": 10,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "9.5.3",
-            "targets": [
-                {
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "1",
-                    "format": "table",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "",
-                    "refId": "A"
+                    "legendFormat": "Leader",
+                    "queryType": "measurements",
+                    "refId": "B"
                 }
             ],
-            "title": "Leader",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Value": "${primary}"
-                        }
-                    }
-                }
-            ],
+            "transformations": [],
             "type": "stat"
         },
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "All instances among pgsql cluster ${cls}\n\nInstance: Goto PGSQL Instance\n\nIP: Goto PGSQL Node\n\nStatus: Goto PGSQL Service\n\nLoad: max(cpu,postgres,pgbouncer)\n\nSpace: Disk space usage max(all device)\n\nProxy: session number, Goto Haproxy Admin Page",
             "fieldConfig": {
@@ -291,8 +285,7 @@
                     "custom": {
                         "align": "center",
                         "cellOptions": {
-                            "mode": "gradient",
-                            "type": "color-background"
+                            "type": "auto"
                         },
                         "inspect": false
                     },
@@ -321,7 +314,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Instance ${__data.fields.Instance}",
-                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.Instance}"
+                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.Instance}&${__url_time_range}"
                                     }
                                 ]
                             },
@@ -333,7 +326,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Node IP"
+                            "options": "IP"
                         },
                         "properties": [
                             {
@@ -344,8 +337,8 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "Node Instance : ${__data.fields[\"Node IP\"]}",
-                                        "url": "/d/node-instance?var-id=${__data.fields[\"Node IP\"]}"
+                                        "title": "Node Instance : ${__data.fields.IP}",
+                                        "url": "/d/node-instance?var-id=${__data.fields.IP}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -359,7 +352,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 72
+                                "value": 80
                             },
                             {
                                 "id": "mappings",
@@ -367,24 +360,14 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "#e02f44",
+                                                "color": "#3e668f",
                                                 "index": 0,
-                                                "text": "replica"
+                                                "text": "primary"
                                             },
                                             "1": {
-                                                "color": "purple",
+                                                "color": "#346f36cc",
                                                 "index": 1,
-                                                "text": "primary"
-                                            },
-                                            "2": {
-                                                "color": "#55a64bbf",
-                                                "index": 2,
                                                 "text": "replica"
-                                            },
-                                            "3": {
-                                                "color": "#3275d9bd",
-                                                "index": 3,
-                                                "text": "primary"
                                             }
                                         },
                                         "type": "value"
@@ -403,7 +386,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Service for ${cls}-${__data.fields.Role}",
-                                        "url": "/d/pgsql-service?var-svc=${cls}-${__data.fields.Role}"
+                                        "url": "/d/pgsql-service?var-svc=${cls}-${__data.fields.Role}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -442,19 +425,19 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "blue",
+                                            "color": "#3e668f",
                                             "value": null
                                         },
                                         {
-                                            "color": "green",
+                                            "color": "#346f36cc",
                                             "value": 0.1
                                         },
                                         {
-                                            "color": "yellow",
+                                            "color": "#fcdb72",
                                             "value": 0.3
                                         },
                                         {
-                                            "color": "orange",
+                                            "color": "#f5a673",
                                             "value": 0.5
                                         },
                                         {
@@ -462,7 +445,7 @@
                                             "value": 0.7
                                         },
                                         {
-                                            "color": "purple",
+                                            "color": "#b783af",
                                             "value": 0.9
                                         },
                                         {
@@ -489,68 +472,9 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Cluster for ${__data.fields.Cluster}",
-                                        "url": "/d/pgsql-cluster?var-cls=${__data.fields.Cluster}"
+                                        "url": "/d/pgsql-cluster?var-cls=${__data.fields.Cluster}&${__url_time_range}"
                                     }
                                 ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Proxy"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "HAProxy Admin Page for ${__data.fields.Instance}",
-                                        "url": "http://h.pigsty/${__data.fields.Instance}/"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "#e3e3e3e0",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "#3275d9bf",
-                                            "value": 0
-                                        },
-                                        {
-                                            "color": "#55a64bbf",
-                                            "value": 1
-                                        },
-                                        {
-                                            "color": "#f2cc0c",
-                                            "value": 1000
-                                        },
-                                        {
-                                            "color": "orange",
-                                            "value": 2000
-                                        },
-                                        {
-                                            "color": "red",
-                                            "value": 3000
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "type": "color-text"
-                                }
                             }
                         ]
                     },
@@ -570,15 +494,15 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "blue",
+                                            "color": "#3e668f",
                                             "value": null
                                         },
                                         {
-                                            "color": "blue",
+                                            "color": "#3e668f",
                                             "value": 32
                                         },
                                         {
-                                            "color": "orange",
+                                            "color": "#f5a673",
                                             "value": 32000
                                         }
                                     ]
@@ -608,15 +532,15 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "blue",
+                                            "color": "#3e668f",
                                             "value": null
                                         },
                                         {
-                                            "color": "blue",
+                                            "color": "#3e668f",
                                             "value": 32
                                         },
                                         {
-                                            "color": "orange",
+                                            "color": "#f5a673",
                                             "value": 32000
                                         }
                                     ]
@@ -638,7 +562,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 72
+                                "value": 80
                             },
                             {
                                 "id": "thresholds",
@@ -646,11 +570,11 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "blue",
+                                            "color": "#3e668f",
                                             "value": null
                                         },
                                         {
-                                            "color": "green",
+                                            "color": "#346f36cc",
                                             "value": 4
                                         },
                                         {
@@ -666,7 +590,7 @@
                                             "value": 80
                                         },
                                         {
-                                            "color": "purple",
+                                            "color": "#b783af",
                                             "value": 100
                                         },
                                         {
@@ -719,15 +643,15 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "green",
+                                            "color": "#346f36cc",
                                             "value": null
                                         },
                                         {
-                                            "color": "yellow",
+                                            "color": "#fcdb72",
                                             "value": 1
                                         },
                                         {
-                                            "color": "orange",
+                                            "color": "#f5a673",
                                             "value": 2
                                         },
                                         {
@@ -735,7 +659,7 @@
                                             "value": 4
                                         },
                                         {
-                                            "color": "purple",
+                                            "color": "#b783af",
                                             "value": 8
                                         },
                                         {
@@ -769,19 +693,19 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "blue",
+                                            "color": "#3e668f",
                                             "value": null
                                         },
                                         {
-                                            "color": "green",
+                                            "color": "#346f36cc",
                                             "value": 1
                                         },
                                         {
-                                            "color": "yellow",
+                                            "color": "#fcdb72",
                                             "value": 1000
                                         },
                                         {
-                                            "color": "orange",
+                                            "color": "#f5a673",
                                             "value": 2000
                                         },
                                         {
@@ -815,7 +739,7 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "green",
+                                            "color": "#346f36cc",
                                             "value": null
                                         },
                                         {
@@ -849,6 +773,44 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Up"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#cc4637d9",
+                                                "index": 0,
+                                                "text": "Dead"
+                                            },
+                                            "1": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "Alive"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
                     }
                 ]
             },
@@ -858,7 +820,13 @@
                 "x": 6,
                 "y": 1
             },
-            "id": 112,
+            "id": 113,
+            "links": [
+                {
+                    "title": "PGSQL Instance : ${primary}",
+                    "url": "/d/pgsql-instance?var-ins=${primary}&${__url_time_range}"
+                }
+            ],
             "options": {
                 "cellHeight": "sm",
                 "footer": {
@@ -877,15 +845,16 @@
                     }
                 ]
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (ins,ip) (pg:ins:status{cls=\"$cls\"})",
+                    "expr": "min by (ins,ip) (up{job=\"pgsql\", cls=\"$cls\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -896,7 +865,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": false,
@@ -911,7 +880,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "sum by (ins) (pg:ins:xact_total_rate1m{cls=\"$cls\"})",
@@ -925,7 +894,22 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min by (ins,ip) (pg_in_recovery{cls=\"$cls\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "max by (ins) (pg:ins:num_backends{cls=\"$cls\"})",
@@ -939,7 +923,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "max by (ins) (pgbouncer:ins:xact_rt_1m{cls=\"$cls\"})",
@@ -953,7 +937,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "sum by (ins,instance) (haproxy_backend_current_sessions{cls=\"$cls\", proxy!=\"stats\"})",
@@ -965,7 +949,6 @@
                     "refId": "G"
                 }
             ],
-            "title": "Members",
             "transformations": [
                 {
                     "id": "seriesToColumns",
@@ -1026,26 +1009,29 @@
                             "job 7": true
                         },
                         "indexByName": {
-                            "Time 1": 8,
-                            "Time 2": 9,
-                            "Time 3": 10,
-                            "Time 4": 11,
-                            "Time 5": 12,
+                            "Time 1": 9,
+                            "Time 2": 10,
+                            "Time 3": 11,
+                            "Time 4": 12,
+                            "Time 5": 13,
+                            "Time 6": 15,
                             "Value #A": 0,
-                            "Value #B": 3,
-                            "Value #C": 4,
-                            "Value #E": 6,
-                            "Value #G": 5,
-                            "ins": 1,
-                            "instance": 7,
-                            "ip": 2
+                            "Value #B": 4,
+                            "Value #C": 5,
+                            "Value #D": 1,
+                            "Value #E": 7,
+                            "Value #G": 6,
+                            "ins": 2,
+                            "instance": 8,
+                            "ip 1": 3,
+                            "ip 2": 14
                         },
                         "renameByName": {
                             "Time 4": "",
-                            "Value #A": "Role",
+                            "Value #A": "Up",
                             "Value #B": "Load",
                             "Value #C": "TPS",
-                            "Value #D": "Proxy",
+                            "Value #D": "Role",
                             "Value #E": "DB Conn",
                             "Value #F": "RT",
                             "Value #G": "LB Conn",
@@ -1058,7 +1044,7 @@
                             "ins": "Instance",
                             "instance": "HAProxy",
                             "instance 2": "",
-                            "ip": "Node IP",
+                            "ip": "IP",
                             "ip 1": "IP"
                         }
                     }
@@ -1069,310 +1055,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "ip = ${ip}. Unique identifier for corresponding node",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 0,
-                "y": 3
-            },
-            "id": 11,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "9.5.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "max by (cluster_id)(pg_meta_info{ins=\"$primary\"})",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "{{ cluster_id }}",
-                    "refId": "A"
-                }
-            ],
-            "title": "CLS ID",
-            "transformations": [],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "node = ${node}. Node hostname",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 3,
-                "y": 3
-            },
-            "id": 12,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "9.5.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "max by (version) (pg_meta_info{ins=\"$primary\"})",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "{{ version }}",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Version",
-            "transformations": [],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "Cluster Status: 0 : Leaderless,  1 : OK,  2+ : Partitioned",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "red",
-                                    "index": 0,
-                                    "text": "Leaderless \u26a1\ufe0f"
-                                },
-                                "1": {
-                                    "color": "green",
-                                    "index": 1,
-                                    "text": "OK"
-                                },
-                                "1.1": {
-                                    "color": "purple",
-                                    "index": 2,
-                                    "text": "Partitioned \u26a1\ufe0f"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 3,
-                                    "text": "unknown"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 0,
-                "y": 5
-            },
-            "id": 14,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "value"
-            },
-            "pluginVersion": "9.5.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "pg:cls:partition{cls=\"$cls\"}",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "{{ cls }}",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Status",
-            "transformations": [],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "Cluster size ",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "unknown"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "red",
-                                "value": null
-                            },
-                            {
-                                "color": "blue",
-                                "value": 1
-                            },
-                            {
-                                "color": "green",
-                                "value": 2
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 3,
-                "y": 5
-            },
-            "id": 13,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "value"
-            },
-            "pluginVersion": "9.5.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "count(pg:cls:members{cls=\"$cls\"})",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "{{ cls }}",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Size",
-            "transformations": [],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Replication Status among cluster ${cls}",
             "fieldConfig": {
@@ -1383,8 +1066,7 @@
                     "custom": {
                         "align": "center",
                         "cellOptions": {
-                            "mode": "gradient",
-                            "type": "color-background"
+                            "type": "auto"
                         },
                         "filterable": false,
                         "inspect": false
@@ -1422,7 +1104,7 @@
                                                 "text": "unknown"
                                             },
                                             "0": {
-                                                "color": "#55a64bbf",
+                                                "color": "#346f36cc",
                                                 "index": 1,
                                                 "text": "streaming"
                                             },
@@ -1489,7 +1171,7 @@
                                                 "text": "unknown"
                                             },
                                             "0": {
-                                                "color": "#55a64bbf",
+                                                "color": "#346f36cc",
                                                 "index": 0,
                                                 "text": "async"
                                             },
@@ -1537,7 +1219,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Instance for replication source instance ${__data.fields.SRC}",
-                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.SRC}"
+                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.SRC}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -1554,7 +1236,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Instance for replication destination instance ${__data.fields.DST}",
-                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.DST}"
+                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.DST}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -1575,7 +1257,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Node : ${__data.fields[\"SRC IP\"]}",
-                                        "url": "/d/node-instance?var-id=${__data.fields[\"SRC IP\"]}"
+                                        "url": "/d/node-instance?var-id=${__data.fields[\"SRC IP\"]}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -1596,7 +1278,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Node: ${__data.fields[\"DST IP\"]}",
-                                        "url": "/d/node-instance?var-id=${__data.fields[\"DST IP\"]}"
+                                        "url": "/d/node-instance?var-id=${__data.fields[\"DST IP\"]}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -1624,12 +1306,12 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "pg:cls:sender{cls=\"$cls\"}",
@@ -1643,7 +1325,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "pg:cls:receiver{cls=\"$cls\"}",
@@ -1733,7 +1415,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Leadership shows who is in charge of this cluster ${cls}",
             "fieldConfig": {
@@ -1780,7 +1462,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -1836,7 +1518,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1855,7 +1537,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -1878,11 +1560,11 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "green",
+                                            "color": "#346f36cc",
                                             "value": null
                                         },
                                         {
-                                            "color": "orange",
+                                            "color": "#f5a673",
                                             "value": 1000000000
                                         },
                                         {
@@ -1920,12 +1602,12 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "orange",
+                                                "color": "#f5a673",
                                                 "index": 0,
                                                 "text": "Inactive"
                                             },
                                             "1": {
-                                                "color": "green",
+                                                "color": "#346f36cc",
                                                 "index": 1,
                                                 "text": "Active"
                                             }
@@ -1958,12 +1640,12 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "green",
+                                                "color": "#346f36cc",
                                                 "index": 0,
                                                 "text": "Perm"
                                             },
                                             "1": {
-                                                "color": "orange",
+                                                "color": "#f5a673",
                                                 "index": 1,
                                                 "text": "Temp"
                                             }
@@ -1996,22 +1678,22 @@
                                     {
                                         "options": {
                                             "-1": {
-                                                "color": "rgba(127, 127, 127, 1)",
+                                                "color": "rgba(128, 128, 128, 1)",
                                                 "index": 4,
                                                 "text": "Unknown"
                                             },
                                             "0": {
-                                                "color": "green",
+                                                "color": "#346f36cc",
                                                 "index": 0,
                                                 "text": "Reserved"
                                             },
                                             "1": {
-                                                "color": "yellow",
+                                                "color": "#fcdb72",
                                                 "index": 1,
                                                 "text": "Extended"
                                             },
                                             "2": {
-                                                "color": "orange",
+                                                "color": "#f5a673",
                                                 "index": 2,
                                                 "text": "Unreserved"
                                             },
@@ -2072,7 +1754,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "exemplar": false,
@@ -2174,7 +1856,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2189,7 +1871,7 @@
                         "barAlignment": 0,
                         "drawStyle": "line",
                         "fillOpacity": 25,
-                        "gradientMode": "none",
+                        "gradientMode": "hue",
                         "hideFrom": {
                             "legend": false,
                             "tooltip": false,
@@ -2211,18 +1893,15 @@
                             "mode": "off"
                         }
                     },
+                    "decimals": 0,
                     "mappings": [],
                     "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     },
@@ -2266,7 +1945,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2306,7 +1985,7 @@
                     "links": [
                         {
                             "title": "PGSQL Instance for ${__field.labels.appname}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.appname}"
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.appname}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -2315,7 +1994,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -2361,7 +2040,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -2372,7 +2051,7 @@
                     "links": [
                         {
                             "title": "PGSQL Replication lag in bytes for Cluster ${cls}",
-                            "url": "/d/pgsql-replication?var-cls=${cls}&viewPanel=73"
+                            "url": "/d/pgsql-replication?var-cls=${cls}&viewPanel=73&${__url_time_range}"
                         }
                     ],
                     "mappings": [
@@ -2393,15 +2072,15 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
-                                "color": "yellow",
+                                "color": "#fcdb72",
                                 "value": 1000
                             },
                             {
-                                "color": "orange",
+                                "color": "#f5a673",
                                 "value": 100000
                             },
                             {
@@ -2409,7 +2088,7 @@
                                 "value": 1000000
                             },
                             {
-                                "color": "purple",
+                                "color": "#b783af",
                                 "value": 10000000
                             },
                             {
@@ -2447,7 +2126,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "exemplar": false,
@@ -2462,7 +2141,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -2473,7 +2152,7 @@
                     "links": [
                         {
                             "title": "PGSQL Replication Detail in seconds for Cluster ${cls}",
-                            "url": "/d/pgsql-replication?var-cls=${cls}&viewPanel=74"
+                            "url": "/d/pgsql-replication?var-cls=${cls}&viewPanel=74&${__url_time_range}"
                         }
                     ],
                     "mappings": [
@@ -2494,15 +2173,15 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
-                                "color": "yellow",
+                                "color": "#fcdb72",
                                 "value": 0.1
                             },
                             {
-                                "color": "orange",
+                                "color": "#f5a673",
                                 "value": 1
                             },
                             {
@@ -2510,7 +2189,7 @@
                                 "value": 4
                             },
                             {
-                                "color": "purple",
+                                "color": "#b783af",
                                 "value": 16
                             },
                             {
@@ -2548,7 +2227,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "exemplar": false,
@@ -2564,7 +2243,7 @@
             "collapsed": false,
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "gridPos": {
                 "h": 1,
@@ -2580,7 +2259,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2620,7 +2299,7 @@
                     "links": [
                         {
                             "title": "PGSQL Instance for ${__field.labels.appname}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.appname}"
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.appname}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -2629,7 +2308,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -2675,7 +2354,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2715,7 +2394,7 @@
                     "links": [
                         {
                             "title": "PGSQL Instance for ${__field.labels.appname}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.appname}"
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.appname}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -2724,7 +2403,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -2770,7 +2449,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2813,7 +2492,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
@@ -2887,7 +2566,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2930,7 +2609,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -2977,7 +2656,7 @@
             "collapsed": false,
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "gridPos": {
                 "h": 1,
@@ -2993,7 +2672,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -3035,7 +2714,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
@@ -3129,7 +2808,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -3171,8 +2850,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             },
                             {
                                 "color": "red",
@@ -3215,7 +2893,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "green",
+                                    "fixedColor": "#346f36cc",
                                     "mode": "fixed"
                                 }
                             }
@@ -3283,7 +2961,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Rate of lsn in last minute",
             "fieldConfig": {
@@ -3326,8 +3004,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             },
                             {
                                 "color": "red",
@@ -3376,7 +3053,7 @@
             "collapsed": false,
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "gridPos": {
                 "h": 1,
@@ -3392,7 +3069,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -3434,8 +3111,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -3474,7 +3150,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "green",
+                                    "fixedColor": "#346f36cc",
                                     "mode": "fixed"
                                 }
                             }
@@ -3526,7 +3202,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -3568,8 +3244,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -3608,7 +3283,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "green",
+                                    "fixedColor": "#346f36cc",
                                     "mode": "fixed"
                                 }
                             }
@@ -3652,7 +3327,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -3694,8 +3369,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -3734,7 +3408,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "green",
+                                    "fixedColor": "#346f36cc",
                                     "mode": "fixed"
                                 }
                             }
@@ -3794,7 +3468,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -3836,8 +3510,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -3876,7 +3549,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "green",
+                                    "fixedColor": "#346f36cc",
                                     "mode": "fixed"
                                 }
                             }
@@ -3921,7 +3594,7 @@
             "collapsed": false,
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "gridPos": {
                 "h": 1,
@@ -3937,7 +3610,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -3980,8 +3653,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             },
                             {
                                 "color": "red",
@@ -4031,7 +3703,7 @@
             "collapsed": true,
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "gridPos": {
                 "h": 1,
@@ -4044,7 +3716,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "description": "",
                     "fieldConfig": {
@@ -4066,7 +3738,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             }
@@ -4102,7 +3774,7 @@
                         "h": 4,
                         "w": 24,
                         "x": 0,
-                        "y": 105
+                        "y": 121
                     },
                     "id": 106,
                     "options": {
@@ -4120,7 +3792,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "${ds}"
+                                "uid": "ds-prometheus"
                             },
                             "exemplar": false,
                             "expr": "max by (subname) (pg_sub_id{ins=\"$primary\"})",
@@ -4135,7 +3807,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "${ds}"
+                                "uid": "ds-prometheus"
                             },
                             "exemplar": false,
                             "expr": "max by (subname) (pg_sub_pid{ins=\"$primary\"})",
@@ -4150,7 +3822,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "${ds}"
+                                "uid": "ds-prometheus"
                             },
                             "exemplar": false,
                             "expr": "max by (subname) (pg_sub_received_lsn{ins=\"$primary\"})",
@@ -4165,7 +3837,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "${ds}"
+                                "uid": "ds-prometheus"
                             },
                             "exemplar": false,
                             "expr": "max by (subname) (pg_sub_reported_lsn{ins=\"$primary\"})",
@@ -4180,7 +3852,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "${ds}"
+                                "uid": "ds-prometheus"
                             },
                             "exemplar": false,
                             "expr": "max by (subname) (pg_sub_msg_send_time{ins=\"$primary\"})",
@@ -4195,7 +3867,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "${ds}"
+                                "uid": "ds-prometheus"
                             },
                             "exemplar": false,
                             "expr": "max by (subname) (pg_sub_msg_recv_time{ins=\"$primary\"})",
@@ -4210,7 +3882,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "${ds}"
+                                "uid": "ds-prometheus"
                             },
                             "exemplar": false,
                             "expr": "max by (subname) (pg_sub_reported_time{ins=\"$primary\"})",
@@ -4262,7 +3934,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "description": "",
                     "fieldConfig": {
@@ -4273,7 +3945,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Replication for ${cls}",
-                                    "url": "/d/pgsql-replication?var-cls=${cls}"
+                                    "url": "/d/pgsql-replication?var-cls=${cls}&${__url_time_range}"
                                 }
                             ],
                             "mappings": [],
@@ -4283,7 +3955,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             }
@@ -4301,12 +3973,12 @@
                                             {
                                                 "options": {
                                                     "0": {
-                                                        "color": "blue",
+                                                        "color": "#3e668f",
                                                         "index": 0,
                                                         "text": "No"
                                                     },
                                                     "1": {
-                                                        "color": "green",
+                                                        "color": "#346f36cc",
                                                         "index": 1,
                                                         "text": "Yes"
                                                     }
@@ -4329,12 +4001,12 @@
                                             {
                                                 "options": {
                                                     "0": {
-                                                        "color": "blue",
+                                                        "color": "#3e668f",
                                                         "index": 0,
                                                         "text": "No"
                                                     },
                                                     "1": {
-                                                        "color": "green",
+                                                        "color": "#346f36cc",
                                                         "index": 1,
                                                         "text": "Yes"
                                                     }
@@ -4357,10 +4029,10 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "blue"
+                                                    "color": "#3e668f"
                                                 },
                                                 {
-                                                    "color": "green",
+                                                    "color": "#346f36cc",
                                                     "value": 1
                                                 }
                                             ]
@@ -4380,7 +4052,7 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "green"
+                                                    "color": "#346f36cc"
                                                 }
                                             ]
                                         }
@@ -4391,12 +4063,12 @@
                                             {
                                                 "options": {
                                                     "0": {
-                                                        "color": "green",
+                                                        "color": "#346f36cc",
                                                         "index": 0,
                                                         "text": "Parent"
                                                     },
                                                     "1": {
-                                                        "color": "green",
+                                                        "color": "#346f36cc",
                                                         "index": 1,
                                                         "text": "Parent"
                                                     }
@@ -4419,10 +4091,10 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "blue"
+                                                    "color": "#3e668f"
                                                 },
                                                 {
-                                                    "color": "green",
+                                                    "color": "#346f36cc",
                                                     "value": 1
                                                 }
                                             ]
@@ -4442,10 +4114,10 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "blue"
+                                                    "color": "#3e668f"
                                                 },
                                                 {
-                                                    "color": "green",
+                                                    "color": "#346f36cc",
                                                     "value": 1
                                                 }
                                             ]
@@ -4459,7 +4131,7 @@
                         "h": 7,
                         "w": 3,
                         "x": 0,
-                        "y": 109
+                        "y": 125
                     },
                     "id": 105,
                     "options": {
@@ -4508,7 +4180,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "fieldConfig": {
                         "defaults": {
@@ -4549,7 +4221,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -4564,7 +4236,7 @@
                         "h": 7,
                         "w": 9,
                         "x": 3,
-                        "y": 109
+                        "y": 125
                     },
                     "id": 103,
                     "options": {
@@ -4595,7 +4267,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "description": "i = init , d = data sync , r = ready",
                     "fieldConfig": {
@@ -4637,7 +4309,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "#346f36cc"
                                     },
                                     {
                                         "color": "red",
@@ -4652,7 +4324,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 109
+                        "y": 125
                     },
                     "id": 102,
                     "options": {
@@ -4697,24 +4369,9 @@
         "list": [
             {
                 "current": {},
-                "description": "Prometheus datasource used by this dashboard",
-                "hide": 2,
-                "includeAll": false,
-                "label": "Data Source",
-                "multi": false,
-                "name": "ds",
-                "options": [],
-                "query": "prometheus",
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "type": "datasource"
-            },
-            {
-                "current": {},
                 "datasource": {
                     "type": "prometheus",
-                    "uid": "${ds}"
+                    "uid": "ds-prometheus"
                 },
                 "definition": "label_values(pg_up, cls)",
                 "description": "Cluster identifier for this postgres instance, cls should be unique among entire environment. such as pg-meta, pg-test",
@@ -4738,7 +4395,7 @@
                 "current": {},
                 "datasource": {
                     "type": "prometheus",
-                    "uid": "${ds}"
+                    "uid": "ds-prometheus"
                 },
                 "definition": "label_values(pg:cls:leader{cls=\"$cls\"}, ins)",
                 "description": "Unique instance identifier (e.g pg-meta-1)",
@@ -4762,7 +4419,7 @@
                 "current": {},
                 "datasource": {
                     "type": "prometheus",
-                    "uid": "${ds}"
+                    "uid": "ds-prometheus"
                 },
                 "definition": "label_values(pg_up{cls=\"$cls\"}, ip)",
                 "description": "Unique instance identifier (e.g pg-meta-1)",

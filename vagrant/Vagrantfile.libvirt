@@ -1,8 +1,10 @@
 
+# This is the Vagrantfile template for libvirt (KVM) which require vagrant-libvirt plugin to work
+# check https://vagrant-libvirt.github.io/vagrant-libvirt/ for details
 
-# Get Preset SSH Key from vagrant/ssh dir (REGENERATE FOR NON-DEVELOPMENT USE)
-ssh_prv_key = File.read(File.join(__dir__, 'ssh', 'id_rsa'))
-ssh_pub_key = File.readlines(File.join(__dir__, 'ssh', 'id_rsa.pub')).first.strip
+# read ssh key from current user's ~/.ssh
+ssh_prv_key = File.read(File.join(ENV['HOME'], '.ssh', 'id_rsa'))
+ssh_pub_key = File.readlines(File.join(ENV['HOME'], '.ssh', 'id_rsa.pub')).first.strip
 
 Vagrant.configure("2") do |config|
     config.ssh.insert_key = false
@@ -31,14 +33,21 @@ Vagrant.configure("2") do |config|
             node.vm.box = spec["image"]
             node.vm.network "private_network", ip: spec["ip"]
             node.vm.hostname = spec["name"]
-            node.vm.provider "virtualbox" do |v|
-                v.linked_clone = true
-                v.customize [
-                    "modifyvm", :id, "--cpus", spec["cpu"], "--memory", spec["mem"],
-                    "--nictype1", "virtio", "--nictype2", "virtio", "--hwvirtex", "on", "--ioapic", "on",
-                     "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
-                  ]
-                v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000]
+            node.vm.provider "libvirt" do |v|
+                v.cpus   =  spec["cpu"]
+                v.memory =  spec["mem"]
+
+                # provision an additional disk for minio nodes
+                if spec["name"].start_with?("minio")
+                    v.storage :file, :size => '128G', :device => 'vdb'
+                    node.vm.provision "shell" do |s|
+                      s.inline = <<-SHELL
+                        mkdir -p /data; mkfs.xfs /dev/vdb;
+                        mount -o noatime -o nodiratime -t xfs /dev/vdb /data;
+                        echo "/dev/vdb /data xfs defaults,noatime,nodiratime 0 0" >> /etc/fstab;
+                      SHELL
+                    end
+                end
             end
         end
     end

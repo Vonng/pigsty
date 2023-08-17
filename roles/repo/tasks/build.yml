@@ -97,16 +97,6 @@
       repo2module -s stable . modules.yaml
       modifyrepo_c --mdtype=modules modules.yaml repodata/
       {% endif %}
-      
-      # handle pev2 index page and generate md5 checksums
-      cd {{ repo_home }}/{{ repo_name }}
-      if [[ -f index.html ]]; then
-          cp -f ./index.html ../pev.html; /bin/true
-          mv -f ./index.html ./pev.html;  /bin/true
-      fi
-      if [[ -f pev.html ]]; then
-          cp -f ./pev.html ../pev.html; /bin/true
-      fi
       md5sum *.rpm > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
     chdir: "{{ repo_home }}/{{ repo_name }}"
 
@@ -130,5 +120,7 @@
     EOF
     yum clean all;
     yum makecache;
-    yum install -y wget sshpass createrepo_c yum-utils nginx;
+    yum install -y wget sshpass createrepo_c nginx;
+    yum install -t yum-utils || /bin/true
+    /bin/true;
 ...

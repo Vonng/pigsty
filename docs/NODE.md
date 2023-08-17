@@ -23,7 +23,7 @@ You can manage nodes with Pigsty, and install modules on them. The `node.yml` pl
 Some services will be added to all nodes by default:
 
 |   Component   | Port | Description                      |
-| :-----------: | :--: | -------------------------------- |
+|:-------------:|:----:|----------------------------------|
 | Node Exporter | 9100 | Node Monitoring Metrics Exporter |
 | HAProxy Admin | 9101 | HAProxy admin page               |
 |   Promtail    | 9080 | Log collecting agent             |
@@ -48,7 +48,7 @@ The admin node is also the default and first infra node, and infra nodes can be 
 The node with [PGSQL](PGSQL) module installed is called a PGSQL node. The node and pg instance is 1:1 deployed. And node instance can be borrowed from corresponding pg instances with [`node_id_from_pg`](PARAM#node_id_from_pg).
 
 |     Component      | Port | Description                                  |
-| :----------------: | :--: | ---------------------------------------------|
+|:------------------:|:----:|----------------------------------------------|
 |      Postgres      | 5432 | Pigsty CMDB                                  |
 |     Pgbouncer      | 6432 | Pgbouncer Connection Pooling Service         |
 |      Patroni       | 8008 | Patroni HA Component                         |

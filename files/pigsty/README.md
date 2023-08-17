@@ -13,6 +13,7 @@ There are several built-in templates:
 * [el7.yml](el7.yml) : If you wish to download packages from upstream directly on EL7
 * [el8.yml](el8.yml) : If you wish to download packages from upstream directly on EL8
 * [el8.yml](el8.yml) : If you wish to download packages from upstream directly on EL9
+* [prod.yml](prod.yml) : Production emulated config with 42 nodes and 71C
 * [security.yml](security.yml) : security enhanced config (on el7)
 * [citus.yml](citus.yml) : citus cluster example: 1 coordinator and 3 data nodes
 * [build.yml](build.yml) : 3 nodes el7, el8, el9 for release building
@@ -22,6 +23,8 @@ There are several built-in templates:
 * [dual.yml](dual.yml) : example config for a two node deployment
 * [redis.yml](redis.yml) : example config for redis clusters
 * [minio.yml](minio.yml) : example config for a 3-node minio clusters
+* [uel20.yml](uel20.yml) : uel20 1050e example config 
+
 
 
 * If `-m <mode>` is specified, corresponding `<mode>.yml` is used, otherwise:

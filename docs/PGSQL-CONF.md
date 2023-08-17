@@ -13,7 +13,7 @@ You can define different types of instances & clusters.
 - [Standby Cluster](#standby-cluster): Clone an existing cluster and follow it
 - [Delayed Cluster](#delayed-cluster): Clone an existing cluster for emergency data recovery
 - [Citus Cluster](#citus-cluster): Define a Citus distributed database cluster
-
+- [Major Version](#major-version): Create postgres cluster with different major version
 
 
 ----------------
@@ -339,7 +339,7 @@ It takes more resources, but can be much faster and have less impact than [PITR]
 
 Pigsty has native citus support. Check [`files/pigsty/citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/citus.yml) for example.
 
-To define a citus cluster,
+To define a citus cluster, you have to specify the following parameters:
 
 - [`pg_mode`](PARAM#pg_mode) has to be set to `citus` instead of default `pgsql`
 - [`pg_shard`](PARAM#pg_shard) & [`pg_group`](PARAM#pg_group) has to be defined on each sharding cluster
@@ -386,3 +386,71 @@ SELECT create_reference_table('pgbench_branches')         ; SELECT truncate_loca
 SELECT create_reference_table('pgbench_history')          ; SELECT truncate_local_data_after_distributing_table($$public.pgbench_history$$);
 SELECT create_reference_table('pgbench_tellers')          ; SELECT truncate_local_data_after_distributing_table($$public.pgbench_tellers$$);
 ```
+
+
+
+
+
+
+----------------
+
+## Major Version
+
+Pigsty works on PostgreSQL 10+. While the pre-packaged packages only includes 12 - 16(beta) for now.
+
+| version | Comment                                                          | Packages         |
+|---------|------------------------------------------------------------------|------------------|
+| 16beta  | The latest beta with postgres cores only                         | Core             |
+| 15      | The stable major version, with full extension support, (default) | Core, L1, L2, L3 |
+| 14      | The old stable major version, with L1, L2 extension support      | Core, L1, L2     |
+| 13      | Older major version, with L1 extension support only              | Core, L1         |
+| 12      | Older major version, with L1 extension support only              | Core, L1         |
+
+- Core: `postgresql*`
+- L1 extensions: `wal2json`, `pg_repack`, `passwordcheck_cracklib`  (Available on PG 12, 13, 14, 15)
+- L2 extensions: `postgis`, `citus`, `timescaledb`, `pgvector`, `pg_logical`, `pg_cron` (Available on PG 14,15)
+- L3 extensions: Other miscellaneous extensions (Available on PG 15 only)
+
+Since some extensions are not available on PG 12,13,16, you may have to change [`pg_extensions`](PARAM#pg_extensions) and [`pg_libs`](PARAM#pg_extensions) to fit your needs.
+
+Here are some example cluster definition with different major versions.
+
+```yaml
+pg-v12:
+  hosts: { 10.10.10.12: { pg_seq: 1 ,pg_role: primary } }
+  vars:
+    pg_cluster: pg-v12
+    pg_version: 12
+    pg_libs: 'pg_stat_statements, auto_explain'
+    pg_extensions: [ 'wal2json_13* pg_repack_13* passwordcheck_cracklib_13*' ]
+
+pg-v13:
+  hosts: { 10.10.10.13: { pg_seq: 1 ,pg_role: primary } }
+  vars:
+    pg_cluster: pg-v13
+    pg_version: 13
+    pg_libs: 'pg_stat_statements, auto_explain'
+    pg_extensions: [ 'wal2json_13* pg_repack_13* passwordcheck_cracklib_13*' ]
+
+pg-v14:
+  hosts: { 10.10.10.14: { pg_seq: 1 ,pg_role: primary } }
+  vars:
+    pg_cluster: pg-v14
+    pg_version: 14
+
+pg-v15:
+  hosts: { 10.10.10.15: { pg_seq: 1 ,pg_role: primary } }
+  vars:
+    pg_cluster: pg-v15
+    pg_version: 15
+
+pg-v16:
+  hosts: { 10.10.10.16: { pg_seq: 1 ,pg_role: primary } }
+  vars:
+    pg_cluster: pg-v16
+    pg_version: 16
+    pg_libs: 'pg_stat_statements, auto_explain'
+    pg_extensions: [ ]
+```
+
+Beware that these extensions are just not included in Pigsty's default repo. You can have these extensions on older pg version with proper configuration. 

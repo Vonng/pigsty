@@ -3,12 +3,12 @@
 # File      :   configure
 # Desc      :   generate pigsty.yml config according to env
 # Ctime     :   2021-05-17
-# Mtime     :   2023-02-26
+# Mtime     :   2023-07-19
 # Path      :   configure
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-VERSION=v2.1.0
+VERSION=v2.2.0
 
 
 #--------------------------------------------------------------#
@@ -43,6 +43,7 @@ REPO_DIR=${NGINX_HOME}/${REPO_NAME}
 BIN_DIR=${PIGSTY_HOME}/files/bin
 # os & region
 REGION=""
+OS_VERSION=${OS_VERSION-'7'}
 
 
 #--------------------------------------------------------------#
@@ -107,20 +108,24 @@ function check_machine(){
 function check_release(){
     if [[ ! -f /etc/redhat-release ]]; then
         log_error "release = unknown, /etc/redhat-release not exists"
-        log_error "pigsty works on RHEL and compatible distributions, use with caution!"
-        # exit 3
-    fi
-    local full=`cat /etc/redhat-release | tr -dc '0-9.'`
-    local major=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f1)
-    local minor=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f2)
-    local asynchronous=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f3)
-    if [[ ${major} != "7" && ${major} != "8" && ${major} != "9"  ]]; then
-        log_error "release = ${full} , only EL 7,8,9 is officially supported, use with caution"
-        log_error "pigsty works on el 7,8,9, please use with caution!"
-        # exit 4
+        log_error "pigsty works on RHEL and compatible distributions, use with caution, assume OS_VERSION=${OS_VERSION}"
+        #exit 3
+    else
+        local full=`cat /etc/redhat-release | tr -dc '0-9.'`
+        local major=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f1)
+        local minor=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f2)
+        local asynchronous=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f3)
+        if [[ ${major} != "7" && ${major} != "8" && ${major} != "9"  ]]; then
+            log_error "release = ${full} ,  supported release: el7,el8,el9"
+            log_error "pigsty works on el 7,8,9, please use with caution!"
+            #exit 4
+        fi
+        OS_VERSION=${major}
+        log_info "release = ${full}"
     fi
     return 0
 }
+
 
 #----------------------------------------------#
 # sudo
@@ -318,7 +323,7 @@ function check_mode(){
         return 0
     fi
     # otherwise, use el7, el8, el9 according to os version
-    local os_release=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
+    local os_release=${OS_VERSION}
     if [[ ${os_release} == "9" ]]; then
         MODE=el9
         return 0

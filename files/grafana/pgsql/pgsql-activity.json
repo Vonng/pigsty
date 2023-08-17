@@ -97,16 +97,261 @@
     "liveNow": false,
     "panels": [
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "max": 2.5,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#3e668f",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${cls}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Cluster"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster : ${cls}",
+                                        "url": "/d/pgsql-cluster?var-cls=${cls}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Leader"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${primary}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Leader"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Instance : ${primary}",
+                                        "url": "/d/pgsql-instance?var-ins=${primary}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 8,
+                "x": 0,
+                "y": 0
+            },
+            "id": 151,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 20,
+                    "valueSize": 16
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Cluster",
+                    "queryType": "measurements",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Leader",
+                    "queryType": "measurements",
+                    "refId": "B"
+                }
+            ],
+            "transformations": [],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "fillOpacity": 60,
+                        "lineWidth": 0,
+                        "spanNulls": false
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Service : ${__field.labels.proxy}",
+                            "url": "/d/pgsql-service?var-svc=${__field.labels.proxy}&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "#808080",
+                                    "index": 1
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#cc4637d9",
+                                "value": null
+                            },
+                            {
+                                "color": "#346f36cc",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 16,
+                "x": 8,
+                "y": 0
+            },
+            "id": 152,
+            "options": {
+                "alignValue": "left",
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": false
+                },
+                "mergeValues": true,
+                "rowHeight": 0.9,
+                "showValue": "never",
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (cls,proxy) (haproxy_server_status{proxy=~\"$cls-.*\", state=\"UP\"}) > bool 0",
+                    "instant": false,
+                    "legendFormat": "{{ proxy }}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "type": "state-timeline"
+        },
+        {
             "collapsed": false,
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 0
+                "y": 4
             },
             "id": 140,
             "panels": [],
@@ -116,7 +361,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Overall pressure for this PostgreSQL Node and Instance. \nmax(node:ins:cpu_usage, pg:ins:load, pgbouncer:ins:load)",
             "fieldConfig": {
@@ -173,7 +418,7 @@
                                 "value": 0.7
                             },
                             {
-                                "color": "purple",
+                                "color": "#b783af",
                                 "value": 1
                             }
                         ]
@@ -190,7 +435,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "orange",
+                                    "fixedColor": "#f5a673",
                                     "mode": "fixed"
                                 }
                             },
@@ -203,7 +448,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Cluster Primary Instance ${__field.labels.ins}",
-                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${cls}"
+                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${cls}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -247,7 +492,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Cluster follower instance ${__field.labels.ins}",
-                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${cls}"
+                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${cls}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -259,7 +504,7 @@
                 "h": 11,
                 "w": 12,
                 "x": 0,
-                "y": 1
+                "y": 5
             },
             "id": 127,
             "options": {
@@ -326,7 +571,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -383,7 +628,7 @@
                                 "value": 0.7
                             },
                             {
-                                "color": "purple",
+                                "color": "#b783af",
                                 "value": 1
                             }
                         ]
@@ -400,7 +645,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "orange",
+                                    "fixedColor": "#f5a673",
                                     "mode": "fixed"
                                 }
                             },
@@ -413,7 +658,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Cluster Primary Instance ${__field.labels.ins}",
-                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${cls}"
+                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${cls}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -457,7 +702,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Cluster follower instance ${__field.labels.ins}",
-                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${cls}"
+                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${cls}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -469,7 +714,7 @@
                 "h": 11,
                 "w": 12,
                 "x": 12,
-                "y": 1
+                "y": 5
             },
             "id": 138,
             "options": {
@@ -491,7 +736,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "pg:cls:cpu_usage_1m{cls=\"$cls\"}",
@@ -503,7 +748,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "pg:ins:cpu_usage_1m{cls=\"$cls\", ins=\"$primary\"}",
@@ -514,7 +759,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "pg:ins:cpu_usage_1m{cls=\"$cls\", ins!=\"$primary\"}",
@@ -530,7 +775,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "\u25b2 for read bandwidth, \u25bc for write bandwidth",
             "fieldConfig": {
@@ -571,7 +816,7 @@
                     "links": [
                         {
                             "title": "PGSQL Node : Disk Bandwidth for ${__field.labels.ins}",
-                            "url": "/d/node-instance?var-id=${__field.labels.ins}&viewPanel=45"
+                            "url": "/d/node-instance?var-id=${__field.labels.ins}&viewPanel=45&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -579,7 +824,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
@@ -596,7 +841,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 12
+                "y": 16
             },
             "id": 142,
             "options": {
@@ -618,7 +863,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "pg_up{cls=\"$cls\"} * 0 + on(ip) node:ins:disk_read_bytes_rate1m",
@@ -629,7 +874,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "pg_up{cls=\"$cls\"} * 0 - on(ip) node:ins:disk_write_bytes_rate1m",
@@ -644,7 +889,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "\u25b2 for transmit (out) and \u25bc for receive (in)",
             "fieldConfig": {
@@ -685,7 +930,7 @@
                     "links": [
                         {
                             "title": "PGSQL Node : Network for ${__field.labels.ins}",
-                            "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=178"
+                            "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=178&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -693,7 +938,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -706,7 +951,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 12
+                "y": 16
             },
             "id": 144,
             "options": {
@@ -728,7 +973,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "node:ins:network_tx_bytes_rate1m{ip=~\"$members\"}",
@@ -739,7 +984,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "- node:ins:network_rx_bytes_rate1m{ip=~\"$members\"}",
@@ -755,13 +1000,13 @@
             "collapsed": false,
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 21
+                "y": 25
             },
             "id": 125,
             "panels": [],
@@ -771,7 +1016,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -813,7 +1058,7 @@
                     "links": [
                         {
                             "title": "PGSQL Database for ${__field.labels.datname}",
-                            "url": "/d/pgsql-database?var-ins=$ins&var-datname=${__field.labels.datname}"
+                            "url": "/d/pgsql-database?var-ins=$ins&var-datname=${__field.labels.datname}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -821,7 +1066,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
+                                "color": "#3e668f",
                                 "value": null
                             },
                             {
@@ -829,11 +1074,11 @@
                                 "value": 0.1
                             },
                             {
-                                "color": "yellow",
+                                "color": "#fcdb72",
                                 "value": 0.3
                             },
                             {
-                                "color": "orange",
+                                "color": "#f5a673",
                                 "value": 0.5
                             },
                             {
@@ -841,7 +1086,7 @@
                                 "value": 0.7
                             },
                             {
-                                "color": "purple",
+                                "color": "#b783af",
                                 "value": 0.9
                             }
                         ]
@@ -854,7 +1099,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 22
+                "y": 26
             },
             "id": 121,
             "options": {
@@ -886,7 +1131,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -928,7 +1173,7 @@
                     "links": [
                         {
                             "title": "PGSQL Database for ${__field.labels.datname}",
-                            "url": "/d/pgsql-database?var-ins=$ins&var-datname=${__field.labels.datname}"
+                            "url": "/d/pgsql-database?var-ins=$ins&var-datname=${__field.labels.datname}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -936,7 +1181,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
+                                "color": "#3e668f",
                                 "value": null
                             },
                             {
@@ -944,11 +1189,11 @@
                                 "value": 0.1
                             },
                             {
-                                "color": "yellow",
+                                "color": "#fcdb72",
                                 "value": 0.3
                             },
                             {
-                                "color": "orange",
+                                "color": "#f5a673",
                                 "value": 0.5
                             },
                             {
@@ -956,7 +1201,7 @@
                                 "value": 0.7
                             },
                             {
-                                "color": "purple",
+                                "color": "#b783af",
                                 "value": 0.9
                             }
                         ]
@@ -969,7 +1214,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 22
+                "y": 26
             },
             "id": 130,
             "options": {
@@ -1001,7 +1246,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1041,7 +1286,7 @@
                     "links": [
                         {
                             "title": "PGSQL Instance for ${__field.labels.ins}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -1050,7 +1295,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
@@ -1066,7 +1311,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 29
+                "y": 33
             },
             "id": 132,
             "options": {
@@ -1098,7 +1343,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1138,7 +1383,7 @@
                     "links": [
                         {
                             "title": "PGSQL Instance for ${__field.labels.ins}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -1147,7 +1392,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -1159,7 +1404,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 29
+                "y": 33
             },
             "id": 146,
             "options": {
@@ -1191,7 +1436,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1231,7 +1476,7 @@
                     "links": [
                         {
                             "title": "PGSQL Instance for ${__field.labels.ins}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -1240,12 +1485,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     }
@@ -1256,7 +1497,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 37
+                "y": 41
             },
             "id": 133,
             "options": {
@@ -1288,7 +1529,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1328,7 +1569,7 @@
                     "links": [
                         {
                             "title": "PGSQL Instance for ${__field.labels.ins}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -1337,12 +1578,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     }
@@ -1353,7 +1590,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 37
+                "y": 41
             },
             "id": 145,
             "options": {
@@ -1385,7 +1622,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1425,7 +1662,7 @@
                     "links": [
                         {
                             "title": "PGSQL Instance for ${__field.labels.server}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.server}"
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.server}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -1434,8 +1671,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             },
                             {
                                 "color": "red",
@@ -1450,7 +1686,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 44
+                "y": 48
             },
             "id": 134,
             "options": {
@@ -1482,7 +1718,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Session by postgres instance",
             "fieldConfig": {
@@ -1524,11 +1760,11 @@
                     "links": [
                         {
                             "title": "PGSQL Proxy for ${__field.labels.ins}",
-                            "url": "/d/pgsql-proxy?var-ins=${__field.labels.ins}"
+                            "url": "/d/pgsql-proxy?var-ins=${__field.labels.ins}&${__url_time_range}"
                         },
                         {
                             "title": "PGSQL Instance for ${__field.labels.server}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.server}"
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.server}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -1537,8 +1773,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -1550,7 +1785,7 @@
                 "h": 16,
                 "w": 12,
                 "x": 12,
-                "y": 44
+                "y": 48
             },
             "id": 137,
             "options": {
@@ -1583,7 +1818,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1623,7 +1858,7 @@
                     "links": [
                         {
                             "title": "PGSQL Instance for ${__field.labels.server}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.server}"
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.server}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -1632,8 +1867,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             },
                             {
                                 "color": "red",
@@ -1648,7 +1882,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 52
+                "y": 56
             },
             "id": 135,
             "options": {
@@ -1681,13 +1915,13 @@
             "collapsed": false,
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 60
+                "y": 64
             },
             "id": 123,
             "panels": [],
@@ -1697,7 +1931,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Postgres transactions per second according to last 1m, 5m, 15m",
             "fieldConfig": {
@@ -1742,8 +1976,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -1825,7 +2058,7 @@
                 "h": 12,
                 "w": 12,
                 "x": 0,
-                "y": 61
+                "y": 65
             },
             "id": 104,
             "options": {
@@ -1878,7 +2111,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Postgres rollbacked transactions per second according to last 1m, 5m, 15m",
             "fieldConfig": {
@@ -1923,8 +2156,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -1948,7 +2180,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "yellow",
+                                    "fixedColor": "#fcdb72",
                                     "mode": "fixed"
                                 }
                             }
@@ -1967,7 +2199,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "orange",
+                                    "fixedColor": "#f5a673",
                                     "mode": "fixed"
                                 }
                             }
@@ -1982,7 +2214,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "red",
+                                    "fixedColor": "#cc4637d9",
                                     "mode": "fixed"
                                 }
                             },
@@ -2006,7 +2238,7 @@
                 "h": 12,
                 "w": 12,
                 "x": 12,
-                "y": 61
+                "y": 65
             },
             "id": 106,
             "options": {
@@ -2059,7 +2291,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2100,7 +2332,7 @@
                     "links": [
                         {
                             "title": "PGSQL Xacts for ${__field.labels.ins}",
-                            "url": "/d/pgsql-xacts?var-ins=${__field.labels.ins}"
+                            "url": "/d/pgsql-xacts?var-ins=${__field.labels.ins}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -2109,8 +2341,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -2139,7 +2370,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 73
+                "y": 77
             },
             "id": 110,
             "options": {
@@ -2183,7 +2414,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2224,7 +2455,7 @@
                     "links": [
                         {
                             "title": "PGSQL Database for ${__field.labels.datname}",
-                            "url": "/d/pgsql-database?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}"
+                            "url": "/d/pgsql-database?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -2233,8 +2464,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -2263,7 +2493,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 73
+                "y": 77
             },
             "id": 108,
             "options": {
@@ -2298,7 +2528,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2339,7 +2569,7 @@
                     "links": [
                         {
                             "title": "PGSQL Xacts for ${__field.labels.ins}",
-                            "url": "/d/pgsql-xacts?var-ins=${__field.labels.ins}"
+                            "url": "/d/pgsql-xacts?var-ins=${__field.labels.ins}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -2348,8 +2578,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -2378,7 +2607,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 82
+                "y": 86
             },
             "id": 111,
             "options": {
@@ -2413,7 +2642,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2454,7 +2683,7 @@
                     "links": [
                         {
                             "title": "PGSQL Database for ${__field.labels.datname}",
-                            "url": "/d/pgsql-database?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}"
+                            "url": "/d/pgsql-database?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -2463,8 +2692,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -2493,7 +2721,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 82
+                "y": 86
             },
             "id": 109,
             "options": {
@@ -2528,7 +2756,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Pgbouncer transactions per second according to last 1m, 5m, 15m",
             "fieldConfig": {
@@ -2573,8 +2801,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -2656,7 +2883,7 @@
                 "h": 10,
                 "w": 12,
                 "x": 0,
-                "y": 91
+                "y": 95
             },
             "id": 148,
             "options": {
@@ -2709,7 +2936,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Pgbouncer average transaction response time in last 1m, 5m, 15m",
             "fieldConfig": {
@@ -2754,8 +2981,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -2837,7 +3063,7 @@
                 "h": 10,
                 "w": 12,
                 "x": 12,
-                "y": 91
+                "y": 95
             },
             "id": 150,
             "options": {
@@ -2893,13 +3119,13 @@
             "collapsed": false,
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 101
+                "y": 105
             },
             "id": 129,
             "panels": [],
@@ -2909,7 +3135,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Pgbouncer Queries per second according to last 1m, 5m, 15m",
             "fieldConfig": {
@@ -2954,8 +3180,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -3037,7 +3262,7 @@
                 "h": 10,
                 "w": 12,
                 "x": 0,
-                "y": 102
+                "y": 106
             },
             "id": 112,
             "options": {
@@ -3090,7 +3315,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Pgbouncer query average response time in last 1m, 5m, 15m",
             "fieldConfig": {
@@ -3135,8 +3360,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -3218,7 +3442,7 @@
                 "h": 10,
                 "w": 12,
                 "x": 12,
-                "y": 102
+                "y": 106
             },
             "id": 113,
             "options": {
@@ -3273,7 +3497,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Pgbouncer Queries per second according to last 1m, 5m, 15m",
             "fieldConfig": {
@@ -3318,8 +3542,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -3401,7 +3624,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 112
+                "y": 116
             },
             "id": 66,
             "options": {
@@ -3452,7 +3675,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Pgbouncer query average response time in last 1m, 5m, 15m",
             "fieldConfig": {
@@ -3497,8 +3720,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -3580,7 +3802,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 112
+                "y": 116
             },
             "id": 68,
             "options": {
@@ -3633,7 +3855,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -3674,7 +3896,7 @@
                     "links": [
                         {
                             "title": "PGSQL Instance for ${__field.labels.ins}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${__field.labels.cls}"
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${__field.labels.cls}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -3683,8 +3905,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -3716,7 +3937,7 @@
                 "h": 10,
                 "w": 12,
                 "x": 0,
-                "y": 120
+                "y": 124
             },
             "id": 119,
             "options": {
@@ -3759,7 +3980,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -3804,8 +4025,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -3829,7 +4049,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "blue",
+                                    "fixedColor": "#3e668f",
                                     "mode": "fixed"
                                 }
                             },
@@ -3842,7 +4062,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Cluster for ${__field.labels.cls}",
-                                        "url": "/d/pgsql-instance?var-cls=${__field.labels.cls}"
+                                        "url": "/d/pgsql-instance?var-cls=${__field.labels.cls}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -3859,7 +4079,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Instance for ${__field.labels.ins}",
-                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -3871,7 +4091,7 @@
                 "h": 10,
                 "w": 12,
                 "x": 12,
-                "y": 120
+                "y": 124
             },
             "id": 117,
             "options": {
@@ -3925,24 +4145,9 @@
         "list": [
             {
                 "current": {},
-                "description": "Prometheus datasource used by this dashboard",
-                "hide": 2,
-                "includeAll": false,
-                "label": "Data Source",
-                "multi": false,
-                "name": "ds",
-                "options": [],
-                "query": "prometheus",
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "type": "datasource"
-            },
-            {
-                "current": {},
                 "datasource": {
                     "type": "prometheus",
-                    "uid": "${ds}"
+                    "uid": "ds-prometheus"
                 },
                 "definition": "label_values(pg_up, cls)",
                 "description": "Cluster identifier for this postgres instance, cls should be unique among entire environment. such as pg-meta, pg-test",
@@ -3966,7 +4171,7 @@
                 "current": {},
                 "datasource": {
                     "type": "prometheus",
-                    "uid": "${ds}"
+                    "uid": "ds-prometheus"
                 },
                 "definition": "label_values(pg:cls:leader{cls=\"$cls\"}, ins)",
                 "description": "Unique instance identifier (e.g pg-meta-1)",
@@ -3990,7 +4195,7 @@
                 "current": {},
                 "datasource": {
                     "type": "prometheus",
-                    "uid": "${ds}"
+                    "uid": "ds-prometheus"
                 },
                 "definition": "label_values(pg_up{cls=\"$cls\"}, ip)",
                 "description": "Unique instance identifier (e.g pg-meta-1)",

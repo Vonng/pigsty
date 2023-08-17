@@ -32,7 +32,7 @@ It's quite like a Kubernetes service (NodePort mode), but it is implemented diff
 Here are the default PostgreSQL services and their definition:
 
 | service | port | description                                      |
-| ------- | ---- | ------------------------------------------------ |
+|---------|------|--------------------------------------------------|
 | primary | 5433 | PROD read/write, connect to primary 5432 or 6432 |
 | replica | 5434 | PROD read-only, connect to replicas 5432/6432    |
 | default | 5436 | admin or direct access to primary                |
@@ -282,6 +282,7 @@ You have to [reload service](PGSQL-ADMIN#reload-service) to make the changes tak
 
 ```bash
 bin/pgsql-svc <cls> [ip...]         # reload service for lb cluster or lb instance
+# ./pgsql.yml -t pg_service         # the actual ansible task to reload service
 ```
 
 
@@ -373,5 +374,52 @@ postgres://test@10.10.10.11:6432,10.10.10.12:6432,10.10.10.13:6432/test?target_s
 # Intelligent client automatic read/write separation (database)
 postgres://test@10.10.10.11:5432,10.10.10.12:5432,10.10.10.13:5432/test?target_session_attrs=primary
 postgres://test@10.10.10.11:5432,10.10.10.12:5432,10.10.10.13:5432/test?target_session_attrs=prefer-standby
-
 ```
+
+
+
+---------------
+
+## Override Service
+
+You can override default service configuration with several ways:
+
+**Bypass Pgbouncer**
+
+When defining a service, if `svc.dest='default'`, this parameter [`pg_default_service_dest`](PARAM#pg_default_service_dest) will be used as the default value.
+`pgbouncer` is used by default, you can use `postgres` instead, so the default primary & replica service will bypass pgbouncer and route traffic to postgres directly
+
+If you don't need connection pooling at all, you can change [`pg_default_service_dest`](PARAM#pg_default_service_dest) to `postgres`, and remove `default` and `offline` services.
+
+If you don't need read-only replicas for online traffic, you can remove `replica` from `pg_default_services` too.  
+
+```yaml
+pg_default_services:
+  - { name: primary ,port: 5433 ,dest: default  ,check: /primary   ,selector: "[]" }
+  - { name: replica ,port: 5434 ,dest: default  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
+  - { name: default ,port: 5436 ,dest: postgres ,check: /primary   ,selector: "[]" }
+  - { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
+```
+
+
+
+
+---------------
+
+## Delegate Service
+
+Pigsty expose PostgreSQL services with haproxy on node. All haproxy instances among the cluster are configured with the same service definition.
+
+However, you can delegate pg service to a specific node group (e.g. dedicate haproxy lb cluster) rather than cluster members. 
+
+To do so, you will have to override the default service definition with [`pg_default_services`](PARAM#pg_default_services) and set [`pg_service_provider`](PARAM#pg_service_provider) to the proxy group name.
+
+For example, this configuration will expose pg cluster primary service on haproxy node group `proxy` with port 10013. 
+
+```yaml
+pg_service_provider: proxy       # use load balancer on group `proxy` with port 10013
+pg_default_services:  [{ name: primary ,port: 10013 ,dest: postgres  ,check: /primary   ,selector: "[]" }]
+```
+
+It's user's responsibility to make sure each delegate service port is **unique** among the proxy cluster.
+

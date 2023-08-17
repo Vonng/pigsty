@@ -8,7 +8,7 @@
 Prepare a new node with Linux x86_64 EL compatible OS, then run as a **sudo-able** user:
 
 ```bash
-bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  
+bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"  
 cd ~/pigsty   # get pigsty source and entering dir
 ./bootstrap   # download bootstrap pkgs & ansible [optional]
 ./configure   # pre-check and config templating   [optional] 
@@ -23,20 +23,20 @@ Then you will have a pigsty singleton node ready, with Web Services on port `80`
 <details><summary>Download with Get</summary>
 
 ```bash
-$ curl http://download.pigsty.cc/get | bash
+$ curl http://get.pigsty.cc/latest | bash
 ...
 [Checking] ===========================================
 [ OK ] SOURCE from CDN due to GFW
-FROM CDN    : bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
+FROM CDN    : bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL http://download.pigsty.cc/v2.1.0/pigsty-v2.1.0.tgz
+[ OK ] $ curl -SL http://get.pigsty.cc/v2.2.0/pigsty-v2.2.0.tgz
 ...
-MD5: abcdef1234567890abcdef1234567890  /tmp/pigsty-v2.1.0.tgz
+MD5: abcdef1234567890abcdef1234567890  /tmp/pigsty-v2.2.0.tgz
 [Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.1.0.tgz' to '/root/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.1.0.tgz -C ~;
+[ OK ] extract '/tmp/pigsty-v2.2.0.tgz' to '/root/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.2.0.tgz -C ~;
 cd ~/pigsty      # entering pigsty home directory before proceeding
 [Proceeding] ===========================================
 ./bootstrap      # install ansible & download the optional offline packages
@@ -59,7 +59,7 @@ You can also download pigsty source with `git`, don't forget to checkout a speci
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
-cd pigsty; git checkout v2.1.0
+cd pigsty; git checkout v2.2.0
 ```
 
 </details>
@@ -74,10 +74,10 @@ You can also download pigsty source & offline pkgs directly from GitHub release 
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
 
 # or download tarball directly with curl
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-v2.1.0.tgz -o ~/pigsty.tgz                 # SRC
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-pkg-v2.1.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-pkg-v2.1.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-pkg-v2.1.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-v2.2.0.tgz -o ~/pigsty.tgz                 # SRC
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
 ```
 
 </details>
@@ -118,25 +118,25 @@ curl -L https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-pkg-v2.1
 You can get & extract pigsty source via the following command:
 
 ```bash
-curl -fsSL http://download.pigsty.cc/get  | bash
+curl -fsSL http://get.pigsty.cc/latest  | bash
 ```
 
-> HINT: Get the latest beta release with `getb` instead of `get`.
+> HINT: Get the latest beta release with `beta` instead of `latest`.
 
 <details><summary>Download Pigsty Source with Specific Version</summary>
 
 If you want to download a specific version, use the following URLs:
 
 ```bash
-VERSION=v2.1.0
+VERSION=v2.2.0
 https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty-${VERSION}.tgz
 ```
 
-For example, Pigsty v2.1.0 source can be acquired with:
+For example, Pigsty v2.2.0 source can be acquired with:
 
 ```bash 
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-v2.1.0.tgz -o ~/pigsty.tgz
-curl -L http://download.pigsty.cc/v2.1.0/pigsty-v2.1.0.tgz -o ~/pigsty.tgz   # China CDN Mirror
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-v2.2.0.tgz -o ~/pigsty.tgz
+curl -L http://get.pigsty.cc/v2.2.0/pigsty-v2.2.0.tgz -o ~/pigsty.tgz   # China CDN Mirror
 ```
 
 </details>
@@ -154,7 +154,7 @@ You can also download it manually and put it under `/tmp/pkg.tgz` for later use.
 <details><summary>Download offline packages manually</summary>
 
 ```bash
-VERSION=v2.1.0
+VERSION=v2.2.0
 OS_VERSION=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
 ARCH=$(uname -m)
 FILENAME=pigsty-pkg-${VERSION}.el${OS_VERSION}.${ARCH}.tgz
@@ -162,11 +162,11 @@ PKG_URL="https://github.com/Vonng/pigsty/releases/download/${VERSION}/${FILENAME
 echo ${PKG_URL} && curl -L ${PKG_URL} -o /tmp/pkg.tgz
 ```
 
-For example, Pigsty v2.1.0 on EL7.x86_64 will have the following packages: 
+For example, Pigsty v2.2.0 on EL7.x86_64 will have the following packages: 
 
 ```bash
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-pkg-v2.1.0.el7.x86_64.tgz  -o /tmp/pkg.tgz
-curl -L http://download.pigsty.cc/v2.1.0/pigsty-pkg-v2.1.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz  -o /tmp/pkg.tgz
+curl -L http://get.pigsty.cc/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
 ```
 
 > Not all combinations of OS and architecture are supported yet. Please check the official release page.
@@ -211,10 +211,9 @@ It will also download / extract / setup the offline [packages](#offline-packages
     * Precedence: local `pkg.tgz` > downloaded `pkg.tgz` > upstream > user provide
 
 3. install boot utils from the available repo
-
-   * el7,8,9: `nginx wget sshpass createrepo_c yum-utils python2-jmespath`
-   * el8 extra: `dnf-utils modulemd-tools python3.11-jmespath`
-   * el9 extra: `dnf-utils modulemd-tools python3.11-jmespath`
+   * el7,8,9: `ansible createrepo_c unzip wget yum-utils sshpass`
+   * el8 extra: `ansible python3.11-jmespath createrepo_c unzip wget dnf-utils sshpass modulemd-tools`
+   * el9 extra: `ansible python3.11-jmespath createrepo_c unzip wget dnf-utils sshpass modulemd-tools`
 
 4. Check ansible availability.
 
@@ -226,7 +225,7 @@ It will also download / extract / setup the offline [packages](#offline-packages
 If `/tmp/pkg.tgz` already exists, bootstrap will use it directly:
 
 ```bash
-bootstrap pigsty v2.1.0 begin
+bootstrap pigsty v2.2.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -250,7 +249,7 @@ proceed with ./configure
 Download `pkg.tgz` from Github and extract it:
 
 ```bash
-bootstrap pigsty v2.1.0 begin
+bootstrap pigsty v2.2.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -258,7 +257,7 @@ bootstrap pigsty v2.1.0 begin
 [ OK ] sudo = vagrant ok
 [ IN ] Cache /tmp/pkg.tgz not exists, download? (y/n):
 => y
-[ OK ] download from Github http://download.pigsty.cc/v2.1.0/pigsty-pkg-v2.1.0.el7.x86_64.tgz to /tmp/pkg.tgz
+[ OK ] download from Github http://get.pigsty.cc/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz to /tmp/pkg.tgz
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100  913M  100  913M    0     0   661k      0  0:23:33  0:23:33 --:--:--  834k
@@ -332,7 +331,7 @@ proceed with ./configure
 ./configure [-n|--non-interactive] [-i|--ip <ipaddr>] [-m|--mode <name>] [-r|--region <default|china|europe>]
 ```
 
-* `-m|--mode`: Generate config from [templates](https://github.com/Vonng/pigsty/tree/master/files/pigsty) according to `mode`: (`auto|demo|sec|citus|el8|el9|...`)
+* `-m|--mode`: Generate config from [templates](https://github.com/Vonng/pigsty/tree/master/files/pigsty) according to `mode`: (`auto|demo|sec|citus|el8|el9|prod...`)
 * `-i|--ip`: Replace IP address placeholder `10.10.10.10` with your primary ipv4 address of current node.
 * `-r|--region`: Set upstream repo mirror according to `region` (`default|china|europe`)
 * `-n|--non-interactive`: skip interactive wizard and using default/arg values
@@ -346,7 +345,7 @@ When `-n|--non-interactive` is specified, you have to specify a primary IP addre
 
 ```bash
 [vagrant@meta pigsty]$ ./configure
-configure pigsty v2.1.0 begin
+configure pigsty v2.2.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64

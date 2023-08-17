@@ -8,7 +8,7 @@
 准备一个使用 Linux x86_64 EL 7，8，9 兼容系统的全新节点，使用带有免密 `sudo` 权限的用户执行：
 
 ```bash
-curl http://download.pigsty.cc/get | bash
+curl http://get.pigsty.cc/latest | bash
 ```
 
 该命令会[下载](#下载)并解压 Pigsty 源码至家目录，按提示完成 [Bootstrap](#准备)，[配置](#配置)，[安装](#安装)三个步骤即可完成安装。
@@ -28,20 +28,20 @@ cd ~/pigsty      # 进入 Pigsty 源码目录，完成后续 准备、配置、�
 <details><summary>Get脚本安装</summary>
 
 ```bash
-$ curl http://download.pigsty.cc/get | bash
+$ curl http://get.pigsty.cc/latest | bash
 ...
 [Checking] ===========================================
 [ OK ] SOURCE from CDN due to GFW
-FROM CDN    : bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
+FROM CDN    : bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL http://download.pigsty.cc/v2.1.0/pigsty-v2.1.0.tgz
+[ OK ] $ curl -SL http://get.pigsty.cc/v2.2.0/pigsty-v2.2.0.tgz
 ...
-MD5: abcdef1234567890abcdef1234567890  /tmp/pigsty-v2.1.0.tgz
+MD5: abcdef1234567890abcdef1234567890  /tmp/pigsty-v2.2.0.tgz
 [Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.1.0.tgz' to '/root/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.1.0.tgz -C ~;
+[ OK ] extract '/tmp/pigsty-v2.2.0.tgz' to '/root/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.2.0.tgz -C ~;
 cd ~/pigsty      # entering pigsty home directory before proceeding
 [Proceeding] ===========================================
 ./bootstrap      # install ansible & download the optional offline packages
@@ -63,7 +63,7 @@ You can also download pigsty source with `git`, don't forget to checkout a speci
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
-cd pigsty; git checkout v2.1.0
+cd pigsty; git checkout v2.2.0
 ```
 
 </details>
@@ -80,7 +80,7 @@ cd pigsty; git checkout v2.1.0
 * Vendor: RHEL, CentOS, Rocky, AlmaLinux, ...
 * Version: el7, el8, el9, 或其他兼容的版本
 * 请使用全新的节点，以避免无谓的麻烦，1核云虚拟机也就几毛钱一小时。
-* 建议使用 RockyLinux 9.0 / RockyLinux 8.6 / CentOS 7.9 ，这是 Pigsty 的构建与测试环境。
+* 建议使用 RockyLinux 9.1 / RockyLinux 8.7 / CentOS 7.9 ，这是 Pigsty 的构建与测试环境。
 
 **机器节点**
 
@@ -105,21 +105,21 @@ cd pigsty; git checkout v2.1.0
 您可以使用以下命令获取 Pigsty 源码包：
 
 ```bash
-curl http://download.pigsty.cc/get  | bash
+curl http://get.pigsty.cc/latest  | bash
 ```
 
-> 提示: 如果您需要下载最新的测试版本（Alpha/Beta/RC），请使用 `getb` 替代 `get`
+> 提示: 如果您需要下载最新的测试版本（Alpha/Beta/RC），请使用 `beta` 替代 `latest`
 
 
 如果您的安装环境没有互联网访问，您也可以提前下载好特定版本的源码包手工上传。
 
 ```bash
 # 从 CDN 或 Github 下载源码包
-curl -L http://download.pigsty.cc/v2.1.0/pigsty-v2.1.0.tgz
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-v2.1.0.tgz
+curl -L http://get.pigsty.cc/v2.2.0/pigsty-v2.2.0.tgz
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-v2.2.0.tgz
 
 # 如果 curl 不可用，git clone 也可以
-git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.1.0
+git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.2.0
 ```
 
 ### 离线软件包
@@ -132,14 +132,14 @@ Pigsty 会在 [Bootstrap/准备](#准备) 时，提示下载对应的离线软�
 
 ```bash
 # CDN EL 7,8,9
-curl -L http://download.pigsty.cc/v2.1.0/pigsty-pkg-v2.1.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
-curl -L http://download.pigsty.cc/v2.1.0/pigsty-pkg-v2.1.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
-curl -L http://download.pigsty.cc/v2.1.0/pigsty-pkg-v2.1.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
+curl -L http://get.pigsty.cc/v2.2.0/pigsty-pkg-v2.2.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
+curl -L http://get.pigsty.cc/v2.2.0/pigsty-pkg-v2.2.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
+curl -L http://get.pigsty.cc/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
 
 # GITHUB EL 7,8,9
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-pkg-v2.1.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-pkg-v2.1.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.1.0/pigsty-pkg-v2.1.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
 ```
 
 
@@ -176,9 +176,9 @@ Bootstrap 的详细逻辑如下：
     * 优先级顺序: 本地的 `pkg.tgz` > 下载的 `pkg.tgz` > 原始上游 > 默认配置
 
 3. 从上一步配置的软件源中，安装一些基本的重要软件，不同版本的软件略有不同：
-* el7: `ansible createrepo_c unzip wget yum-utils createrepo_c sshpass`
-* el8: `ansible python3.11-jmespath createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools`
-* el9: `ansible python3.11-jmespath createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools`
+  * el7: `ansible createrepo_c unzip wget yum-utils sshpass`
+  * el8: `ansible python3.11-jmespath createrepo_c unzip wget dnf-utils sshpass modulemd-tools`
+  * el9: `ansible python3.11-jmespath createrepo_c unzip wget dnf-utils sshpass modulemd-tools`
 
 4. 检查 `ansible` 是否成功安装。
 
@@ -189,7 +189,7 @@ Bootstrap 的详细逻辑如下：
 如果离线软件包存在于 `/tmp/pkg.tgz`， bootstrap 会直接使用它：
 
 ```bash
-bootstrap pigsty v2.1.0 begin
+bootstrap pigsty v2.2.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -213,7 +213,7 @@ proceed with ./configure
 从 Github/CDN 下载 `pkg.tgz` 并解压使用：
 
 ```bash
-bootstrap pigsty v2.1.0 begin
+bootstrap pigsty v2.2.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -221,7 +221,7 @@ bootstrap pigsty v2.1.0 begin
 [ OK ] sudo = vagrant ok
 [ IN ] Cache /tmp/pkg.tgz not exists, download? (y/n):
 => y
-[ OK ] download from Github http://download.pigsty.cc/v2.1.0/pigsty-pkg-v2.1.0.el7.x86_64.tgz to /tmp/pkg.tgz
+[ OK ] download from Github http://get.pigsty.cc/v2.2.0/pigsty-pkg-v2.2.0.el7.x86_64.tgz to /tmp/pkg.tgz
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100  913M  100  913M    0     0   661k      0  0:23:33  0:23:33 --:--:--  834k
@@ -295,7 +295,7 @@ proceed with ./configure
 ./configure [-n|--non-interactive] [-i|--ip <ipaddr>] [-m|--mode <name>] [-r|--region <default|china|europe>]
 ```
 
-* `-m|--mode`: 直接指定配置[模板](https://github.com/Vonng/pigsty/tree/master/files/pigsty) : (`auto|demo|sec|citus|el8|el9|...`)
+* `-m|--mode`: 直接指定配置[模板](https://github.com/Vonng/pigsty/tree/master/files/pigsty) : (`auto|demo|sec|citus|el8|el9|prod...`)
 * `-i|--ip`: 用于替换IP地址占位符 `10.10.10.10` 的IP地址，即当前主机的首要内网IP地址（特别是在有多块网卡与多个IP地址时）
 * `-r|--region`: 用于指定上游源的区域： (`default|china|europe`)
 * `-n|--non-interactive`: 直接使用命令行参数提供首要IP地址，跳过交互式向导。
@@ -310,7 +310,7 @@ proceed with ./configure
 
 ```bash
 [vagrant@meta pigsty]$ ./configure
-configure pigsty v2.1.0 begin
+configure pigsty v2.2.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64

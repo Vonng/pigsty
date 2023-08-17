@@ -63,7 +63,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "MinIO cluster members",
             "fieldConfig": {
@@ -74,8 +74,7 @@
                     "custom": {
                         "align": "center",
                         "cellOptions": {
-                            "mode": "gradient",
-                            "type": "color-background"
+                            "type": "auto"
                         },
                         "inspect": false
                     },
@@ -104,7 +103,7 @@
                                 "value": [
                                     {
                                         "title": "MinIO Instance : ${__data.fields.Instance}",
-                                        "url": "/d/minio-instance?var-ins=${__data.fields.Instance}"
+                                        "url": "/d/minio-instance?var-ins=${__data.fields.Instance}&${__url_time_range}"
                                     }
                                 ]
                             },
@@ -117,7 +116,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Node IP"
+                            "options": "IP"
                         },
                         "properties": [
                             {
@@ -128,8 +127,8 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "Node Instance : ${__data.fields[\"Node IP\"]}",
-                                        "url": "/d/node-instance?var-id=${__data.fields[\"Node IP\"]}"
+                                        "title": "Node Instance : ${__data.fields.IP}",
+                                        "url": "/d/node-instance?var-id=${__data.fields.IP}&${__url_time_range}"
                                     }
                                 ]
                             },
@@ -211,19 +210,19 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "blue",
+                                            "color": "#3e668f",
                                             "value": null
                                         },
                                         {
-                                            "color": "green",
+                                            "color": "#346f36cc",
                                             "value": 0.1
                                         },
                                         {
-                                            "color": "yellow",
+                                            "color": "#fcdb72",
                                             "value": 0.3
                                         },
                                         {
-                                            "color": "orange",
+                                            "color": "#f5a673",
                                             "value": 0.5
                                         },
                                         {
@@ -231,7 +230,7 @@
                                             "value": 0.7
                                         },
                                         {
-                                            "color": "purple",
+                                            "color": "#b783af",
                                             "value": 0.9
                                         }
                                     ]
@@ -277,12 +276,12 @@
                     }
                 ]
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": false,
@@ -297,7 +296,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": false,
@@ -312,7 +311,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": false,
@@ -327,7 +326,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": false,
@@ -342,7 +341,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": false,
@@ -357,7 +356,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": false,
@@ -470,7 +469,7 @@
                             "ins": "Instance",
                             "instance": "Address",
                             "instance 2": "",
-                            "ip": "Node IP",
+                            "ip": "IP",
                             "ip 1": "IP",
                             "job": "",
                             "server": "Server",
@@ -486,7 +485,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -510,11 +509,11 @@
                                 "value": null
                             },
                             {
-                                "color": "light-blue",
+                                "color": "#3e668f",
                                 "value": 1
                             },
                             {
-                                "color": "light-green",
+                                "color": "#346f36cc",
                                 "value": 2
                             }
                         ]
@@ -524,7 +523,7 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 4,
+                "h": 6,
                 "w": 3,
                 "x": 0,
                 "y": 7
@@ -536,7 +535,7 @@
                 "colorMode": "background",
                 "graphMode": "none",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "mean"
@@ -547,16 +546,16 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "minio_cluster_nodes_online_total{cls=\"$cls\", ins=\"$ins\"}",
+                    "expr": "sum(minio_cluster_nodes_online_total{cls=\"$cls\"})",
                     "format": "time_series",
                     "instant": true,
                     "interval": "",
@@ -572,7 +571,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -596,11 +595,11 @@
                                 "value": null
                             },
                             {
-                                "color": "light-blue",
+                                "color": "#3e668f",
                                 "value": 1
                             },
                             {
-                                "color": "light-green",
+                                "color": "#346f36cc",
                                 "value": 2
                             }
                         ]
@@ -610,7 +609,7 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 4,
+                "h": 6,
                 "w": 3,
                 "x": 3,
                 "y": 7
@@ -622,7 +621,7 @@
                 "colorMode": "background",
                 "graphMode": "none",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "mean"
@@ -633,16 +632,16 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "minio_cluster_disk_online_total{cls=\"$cls\", ins=\"$ins\"}",
+                    "expr": "sum(minio_cluster_disk_online_total{cls=\"$cls\"})",
                     "format": "time_series",
                     "instant": true,
                     "interval": "",
@@ -658,7 +657,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -669,7 +668,7 @@
                     "links": [
                         {
                             "title": "MinIO API QPS",
-                            "url": "/d/minio-overview?viewPanel=120"
+                            "url": "/d/minio-overview?viewPanel=120&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -680,11 +679,11 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
-                                "color": "orange",
+                                "color": "#f5a673",
                                 "value": 1000
                             }
                         ]
@@ -694,7 +693,7 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 4,
+                "h": 6,
                 "w": 3,
                 "x": 6,
                 "y": 7
@@ -704,7 +703,7 @@
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -715,7 +714,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
@@ -724,7 +723,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "sum(rate(minio_s3_requests_total{cls=\"$cls\", ins=\"$ins\"}[1m]))",
+                    "expr": "sum(rate(minio_s3_requests_total{cls=\"$cls\"}[1m]))",
                     "interval": "",
                     "legendFormat": "QPS",
                     "range": true,
@@ -736,7 +735,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -753,11 +752,11 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
-                                "color": "orange",
+                                "color": "#f5a673",
                                 "value": 0.8
                             },
                             {
@@ -765,7 +764,7 @@
                                 "value": 0.9
                             },
                             {
-                                "color": "purple",
+                                "color": "#b783af",
                                 "value": 0.95
                             },
                             {
@@ -779,7 +778,7 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 4,
+                "h": 6,
                 "w": 3,
                 "x": 9,
                 "y": 7
@@ -800,7 +799,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
@@ -821,7 +820,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -838,7 +837,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "light-blue",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
@@ -848,7 +847,7 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 4,
+                "h": 6,
                 "w": 3,
                 "x": 12,
                 "y": 7
@@ -869,7 +868,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
@@ -878,9 +877,9 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "minio_cluster_capacity_usable_total_bytes{cls=\"$cls\", ins=\"$ins\"}",
+                    "expr": "max(minio_cluster_capacity_usable_total_bytes{cls=\"$cls\"})",
                     "interval": "",
-                    "legendFormat": "Size",
+                    "legendFormat": "Size Max",
                     "range": true,
                     "refId": "A"
                 }
@@ -890,7 +889,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -908,7 +907,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "light-blue",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
@@ -918,7 +917,7 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 4,
+                "h": 6,
                 "w": 3,
                 "x": 15,
                 "y": 7
@@ -939,7 +938,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
@@ -948,7 +947,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "minio_cluster_capacity_usable_total_bytes{cls=\"$cls\", ins=\"$ins\"} - \nminio_cluster_capacity_usable_free_bytes{cls=\"$cls\", ins=\"$ins\"}",
+                    "expr": "max(minio_cluster_capacity_usable_total_bytes{cls=\"$cls\"} - \nminio_cluster_capacity_usable_free_bytes{cls=\"$cls\"})",
                     "interval": "",
                     "legendFormat": "Used",
                     "range": true,
@@ -960,7 +959,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -976,7 +975,7 @@
                                 "value": null
                             },
                             {
-                                "color": "light-blue",
+                                "color": "#3e668f",
                                 "value": 1
                             }
                         ]
@@ -985,7 +984,7 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 4,
+                "h": 6,
                 "w": 3,
                 "x": 18,
                 "y": 7
@@ -1005,15 +1004,15 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "count(count by (bucket) (minio_bucket_usage_total_bytes{cls=\"$cls\", ins=\"$ins\"}))",
+                    "expr": "count(count by (bucket) (minio_bucket_usage_total_bytes{cls=\"$cls\"}))",
                     "legendFormat": "Buckets",
                     "range": true,
                     "refId": "A"
@@ -1024,7 +1023,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1034,7 +1033,7 @@
                     "links": [
                         {
                             "title": "MinIO Object Count",
-                            "url": "/d/minio-overview?viewPanel=145"
+                            "url": "/d/minio-overview?viewPanel=145&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -1042,7 +1041,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "light-blue",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
@@ -1051,7 +1050,7 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 4,
+                "h": 6,
                 "w": 3,
                 "x": 21,
                 "y": 7
@@ -1071,15 +1070,15 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum(minio_bucket_usage_object_total{ins=\"$ins\"})",
+                    "expr": "max(minio_bucket_usage_object_total{cls=\"$cls\"})",
                     "legendFormat": "Objects",
                     "range": true,
                     "refId": "A"
@@ -1093,7 +1092,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 11
+                "y": 13
             },
             "id": 133,
             "panels": [],
@@ -1103,7 +1102,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1145,7 +1144,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
@@ -1193,7 +1192,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 12
+                "y": 14
             },
             "id": 120,
             "options": {
@@ -1217,7 +1216,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
@@ -1235,7 +1234,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1277,7 +1276,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
@@ -1325,7 +1324,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 12
+                "y": 14
             },
             "id": 121,
             "options": {
@@ -1349,7 +1348,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
@@ -1367,7 +1366,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1409,7 +1408,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -1453,7 +1452,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 20
+                "y": 22
             },
             "id": 164,
             "options": {
@@ -1477,7 +1476,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
@@ -1495,7 +1494,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1537,7 +1536,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
@@ -1585,7 +1584,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 20
+                "y": 22
             },
             "id": 166,
             "options": {
@@ -1609,7 +1608,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
@@ -1630,7 +1629,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 28
+                "y": 30
             },
             "id": 139,
             "panels": [],
@@ -1640,7 +1639,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -1683,7 +1682,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
@@ -1700,7 +1699,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 29
+                "y": 31
             },
             "id": 145,
             "options": {
@@ -1723,7 +1722,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "expr": "max by (bucket) (minio_bucket_usage_object_total{cls=\"$cls\", ins=\"$ins\"})",
@@ -1738,7 +1737,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1747,12 +1746,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
-                            },
-                            {
-                                "color": "semi-dark-red",
-                                "value": 80
                             }
                         ]
                     }
@@ -1763,7 +1758,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 29
+                "y": 31
             },
             "id": 144,
             "links": [],
@@ -1783,12 +1778,12 @@
                 "text": {},
                 "valueMode": "color"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
@@ -1808,7 +1803,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -1851,7 +1846,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
@@ -1868,7 +1863,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 36
+                "y": 38
             },
             "id": 141,
             "options": {
@@ -1893,7 +1888,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "expr": "sum by(bucket) (minio_bucket_traffic_sent_bytes{ins=\"$ins\"})",
@@ -1908,7 +1903,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -1951,7 +1946,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
@@ -1968,7 +1963,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 36
+                "y": 38
             },
             "id": 142,
             "options": {
@@ -1993,7 +1988,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "expr": "sum by(bucket) (minio_bucket_traffic_sent_bytes{ins=\"$ins\"})",
@@ -2011,7 +2006,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 43
+                "y": 45
             },
             "id": 127,
             "panels": [],
@@ -2021,7 +2016,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2063,7 +2058,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
@@ -2080,7 +2075,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 44
+                "y": 46
             },
             "id": 129,
             "options": {
@@ -2100,7 +2095,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
@@ -2117,7 +2112,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2159,7 +2154,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
@@ -2176,7 +2171,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 44
+                "y": 46
             },
             "id": 131,
             "options": {
@@ -2196,7 +2191,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
@@ -2213,7 +2208,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Number of online disks per MinIO Server",
             "fieldConfig": {
@@ -2259,7 +2254,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "#346f36cc"
                             },
                             {
                                 "color": "red",
@@ -2294,7 +2289,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "blue",
+                                    "fixedColor": "#3e668f",
                                     "mode": "fixed"
                                 }
                             }
@@ -2306,7 +2301,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 53
+                "y": 55
             },
             "id": 135,
             "links": [],
@@ -2327,7 +2322,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
@@ -2344,7 +2339,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
@@ -2403,7 +2398,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "#346f36cc"
                             },
                             {
                                 "color": "red",
@@ -2419,7 +2414,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 53
+                "y": 55
             },
             "id": 137,
             "options": {
@@ -2482,24 +2477,9 @@
         "list": [
             {
                 "current": {},
-                "description": "Prometheus datasource used by this dashboard",
-                "hide": 2,
-                "includeAll": false,
-                "label": "Source",
-                "multi": false,
-                "name": "ds",
-                "options": [],
-                "query": "prometheus",
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "type": "datasource"
-            },
-            {
-                "current": {},
                 "datasource": {
                     "type": "prometheus",
-                    "uid": "${ds}"
+                    "uid": "ds-prometheus"
                 },
                 "definition": "label_values(minio_node_process_uptime_seconds{cls='$cls'}, ins)",
                 "description": "Minio Instance Name",
@@ -2523,7 +2503,7 @@
                 "current": {},
                 "datasource": {
                     "type": "prometheus",
-                    "uid": "${ds}"
+                    "uid": "ds-prometheus"
                 },
                 "definition": "label_values(minio_node_process_uptime_seconds,cls)",
                 "description": "Minio Cluster Name",
@@ -2547,7 +2527,7 @@
                 "current": {},
                 "datasource": {
                     "type": "prometheus",
-                    "uid": "${ds}"
+                    "uid": "ds-prometheus"
                 },
                 "definition": "label_values(minio_node_process_uptime_seconds{ins=\"$ins\"}, ip)",
                 "description": "Minio IP Address",

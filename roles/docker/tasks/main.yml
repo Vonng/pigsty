@@ -9,7 +9,7 @@
   package: name={{ item }} state=present
   with_items:
     - docker-ce
-    - docker-compose*
+    - docker-compose-plugin
 
 
 #--------------------------------------------------------------#
@@ -19,9 +19,9 @@
   ignore_errors: true
   tags: docker_admin
   #when: docker_enabled|bool
-  user: name={{ item }} group=docker
+  user: name={{ item }} append=true groups=docker
   with_items:
-    - "{{ node_user }}"
+    - "{% if node_user == 'root' %}{{ node_admin_username }}{% else %}{{ node_user }}{% endif %}"
     - "{{ node_admin_username }}"
 
 

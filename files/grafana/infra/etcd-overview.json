@@ -47,7 +47,115 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "noValue": "N/A",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#346f36cc",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 3,
+                "x": 0,
+                "y": 1
+            },
+            "id": 129,
+            "links": [],
+            "maxDataPoints": 100,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 18,
+                    "valueSize": 32
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": true,
+                    "intervalFactor": 2,
+                    "legendFormat": "Members",
+                    "range": false,
+                    "refId": "B",
+                    "step": 600
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
+                    "format": "time_series",
+                    "instant": true,
+                    "intervalFactor": 2,
+                    "legendFormat": "Quorum",
+                    "range": false,
+                    "refId": "A",
+                    "step": 600
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"}) - ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": true,
+                    "intervalFactor": 2,
+                    "legendFormat": "Tolerance",
+                    "range": false,
+                    "refId": "C",
+                    "step": 600
+                }
+            ],
+            "title": "ETCD Spec",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -58,45 +166,24 @@
                         {
                             "options": {
                                 "0": {
-                                    "color": "green",
+                                    "color": "#cc4637d9",
                                     "index": 0,
-                                    "text": "Follower"
+                                    "text": "Down"
                                 },
                                 "1": {
-                                    "color": "blue",
+                                    "color": "#346f36cc",
                                     "index": 1,
-                                    "text": "Learner"
-                                },
-                                "2": {
-                                    "color": "orange",
-                                    "index": 2,
-                                    "text": "Leader"
-                                },
-                                "3": {
-                                    "color": "purple",
-                                    "index": 3,
-                                    "text": "WTF?"
+                                    "text": "Alive"
                                 }
                             },
                             "type": "value"
-                        },
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "purple",
-                                    "index": 4,
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
                         }
                     ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
@@ -106,8 +193,8 @@
             },
             "gridPos": {
                 "h": 7,
-                "w": 7,
-                "x": 0,
+                "w": 4,
+                "x": 3,
                 "y": 1
             },
             "id": 91,
@@ -125,16 +212,16 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins,instance) (etcd_server_is_leader{job=\"etcd\", cls=\"$cls\"}*2 + etcd_server_is_learner{job=\"etcd\", cls=\"$cls\"})",
+                    "expr": "max by (ins,instance) (up{job=\"etcd\", cls=\"$cls\"})",
                     "instant": true,
                     "legendFormat": "{{ ins }} @ {{ instance }}",
                     "range": false,
@@ -147,7 +234,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "All instances among etcd cluster ${cls}\n\nInstance: Goto PGSQL Instance\n\nIP: Goto PGSQL Node\n\nStatus: Goto PGSQL Service\n\nLoad: max(cpu,postgres,pgbouncer)\n\nSpace: Disk space usage max(all device)\n\nProxy: session number, Goto Haproxy Admin Page",
             "fieldConfig": {
@@ -158,8 +245,7 @@
                     "custom": {
                         "align": "center",
                         "cellOptions": {
-                            "mode": "gradient",
-                            "type": "color-background"
+                            "type": "auto"
                         },
                         "inspect": false
                     },
@@ -195,31 +281,6 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Node IP"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 130
-                            },
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "Node Instance : ${__data.fields[\"Node IP\"]}",
-                                        "url": "/d/node-instance?var-id=${__data.fields[\"Node IP\"]}"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.align",
-                                "value": "center"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
                             "options": "Status"
                         },
                         "properties": [
@@ -233,22 +294,22 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "green",
+                                                "color": "#346f36cc",
                                                 "index": 0,
                                                 "text": "Follower"
                                             },
                                             "1": {
-                                                "color": "blue",
+                                                "color": "#3e668f",
                                                 "index": 1,
                                                 "text": "Learner"
                                             },
                                             "2": {
-                                                "color": "orange",
+                                                "color": "#f5a673",
                                                 "index": 2,
                                                 "text": "Leader"
                                             },
                                             "3": {
-                                                "color": "purple",
+                                                "color": "#b783af",
                                                 "index": 3,
                                                 "text": "LeaderLearner"
                                             }
@@ -301,6 +362,77 @@
                                 "value": true
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Alive"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#cc4637d9",
+                                                "index": 1,
+                                                "text": "Dead"
+                                            },
+                                            "1": {
+                                                "color": "#346f36cc",
+                                                "index": 0,
+                                                "text": "Alive"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "IP"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node Instance : ${__data.fields.Instance} @ ${__data.fields.IP}",
+                                        "url": "/d/node-instance?var-id=${__data.fields.IP}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Address"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            }
+                        ]
                     }
                 ]
             },
@@ -312,6 +444,7 @@
             },
             "id": 116,
             "options": {
+                "cellHeight": "sm",
                 "footer": {
                     "countRows": false,
                     "fields": "",
@@ -328,16 +461,16 @@
                     }
                 ]
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "etcd_server_id{job=\"etcd\", cls=\"$cls\"}",
+                    "expr": "up{job=\"etcd\", cls=\"$cls\"}",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -348,7 +481,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": false,
@@ -363,17 +496,32 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (etcd_server_is_leader{job=\"etcd\", cls=\"$cls\"}*2+etcd_server_is_learner{job=\"etcd\", cls=\"$cls\"})",
+                    "expr": "max by (ins) (etcd_server_is_leader{job=\"etcd\", cls=\"$cls\"} * 2 \n+ etcd_server_is_learner{job=\"etcd\", cls=\"$cls\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
                     "interval": "",
                     "legendFormat": "",
                     "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "etcd_server_id{job=\"etcd\", cls=\"$cls\"}",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "D"
                 }
             ],
             "title": "Members",
@@ -397,9 +545,10 @@
                             "Time 6": true,
                             "Time 8": true,
                             "Time 9": true,
-                            "Value #A": true,
+                            "Value #A": false,
                             "Value #B": true,
                             "Value #C": false,
+                            "Value #D": true,
                             "Value #E": true,
                             "Value #H": false,
                             "__name__": true,
@@ -418,7 +567,7 @@
                             "cls 7": true,
                             "instance": false,
                             "instance 1": true,
-                            "instance 2": false,
+                            "instance 2": true,
                             "instance 3": true,
                             "instance 4": true,
                             "instance 5": true,
@@ -439,29 +588,34 @@
                             "job 7": true
                         },
                         "indexByName": {
-                            "Time 1": 9,
-                            "Time 2": 11,
-                            "Time 3": 13,
-                            "Time 4": 14,
-                            "Value #A": 10,
-                            "Value #B": 12,
-                            "Value #C": 5,
-                            "Value #E": 15,
-                            "__name__": 6,
-                            "cls": 7,
+                            "Time 1": 6,
+                            "Time 2": 7,
+                            "Time 3": 9,
+                            "Time 4": 10,
+                            "Value #A": 5,
+                            "Value #B": 8,
+                            "Value #C": 4,
+                            "Value #D": 20,
+                            "__name__ 1": 11,
+                            "__name__ 2": 15,
+                            "cls 1": 12,
+                            "cls 2": 16,
                             "ins": 0,
-                            "instance": 1,
-                            "ip": 2,
-                            "job": 8,
-                            "server_id": 3,
-                            "server_version": 4
+                            "instance 1": 13,
+                            "instance 2": 17,
+                            "ip 1": 2,
+                            "ip 2": 18,
+                            "job 1": 14,
+                            "job 2": 19,
+                            "server_id": 1,
+                            "server_version": 3
                         },
                         "renameByName": {
                             "Time 4": "",
-                            "Value #A": "",
+                            "Value #A": "Alive",
                             "Value #B": "",
                             "Value #C": "Status",
-                            "Value #D": "Proxy",
+                            "Value #D": "",
                             "Value #E": "",
                             "Value #F": "RT",
                             "Value #G": "LB Conn",
@@ -488,7 +642,187 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "noValue": "N/A",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "ETCD Health"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#b783af",
+                                                "index": 0,
+                                                "text": "All Dead"
+                                            },
+                                            "1": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "Healthy"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "#b783af",
+                                                "index": 2,
+                                                "text": "Unknown"
+                                            }
+                                        },
+                                        "type": "special"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 0.49999,
+                                            "result": {
+                                                "color": "#cc4637d9",
+                                                "index": 3,
+                                                "text": "1 / 2"
+                                            },
+                                            "to": 0.50001
+                                        },
+                                        "type": "range"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 0.66666,
+                                            "result": {
+                                                "color": "#f5a673",
+                                                "index": 4,
+                                                "text": "2 / 3"
+                                            },
+                                            "to": 0.66667
+                                        },
+                                        "type": "range"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 0.33333,
+                                            "result": {
+                                                "color": "#b783af",
+                                                "index": 5,
+                                                "text": "1 / 3"
+                                            },
+                                            "to": 0.33334
+                                        },
+                                        "type": "range"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#b783af",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 0.5
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 0.66
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 3,
+                "x": 0,
+                "y": 8
+            },
+            "id": 134,
+            "links": [],
+            "maxDataPoints": 100,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "valueSize": 32
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "sum(up{job=\"etcd\", cls=\"$cls\"}) by (cls) /\n count(up{job=\"etcd\", cls=\"$cls\"}) by (cls)\nor on() vector(0)",
+                    "format": "time_series",
+                    "instant": true,
+                    "intervalFactor": 2,
+                    "legendFormat": "ETCD Health",
+                    "range": false,
+                    "refId": "A",
+                    "step": 600
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -521,12 +855,12 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "red",
+                                                "color": "#cc4637d9",
                                                 "index": 0,
                                                 "text": "No"
                                             },
                                             "1": {
-                                                "color": "green",
+                                                "color": "#346f36cc",
                                                 "index": 1,
                                                 "text": "Yes"
                                             }
@@ -537,7 +871,7 @@
                                         "options": {
                                             "match": "null+nan",
                                             "result": {
-                                                "color": "orange",
+                                                "color": "#b783af",
                                                 "index": 2,
                                                 "text": "Unknown"
                                             }
@@ -547,117 +881,16 @@
                                 ]
                             }
                         ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Members"
-                        },
-                        "properties": [
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "red",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "blue",
-                                            "value": 1
-                                        },
-                                        {
-                                            "color": "#EAB839",
-                                            "value": 2
-                                        },
-                                        {
-                                            "color": "green",
-                                            "value": 3
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
                     }
                 ]
             },
             "gridPos": {
-                "h": 7,
-                "w": 3,
-                "x": 0,
-                "y": 8
-            },
-            "id": 87,
-            "links": [],
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "textMode": "auto"
-            },
-            "pluginVersion": "9.4.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "min(etcd_server_has_leader{job=\"etcd\", cls=\"$cls\"})",
-                    "format": "time_series",
-                    "instant": true,
-                    "intervalFactor": 2,
-                    "legendFormat": "Has Leader",
-                    "range": false,
-                    "refId": "A",
-                    "step": 600
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "noValue": "N/A",
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "blue",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 7,
+                "h": 6,
                 "w": 4,
                 "x": 3,
                 "y": 8
             },
-            "id": 129,
+            "id": 87,
             "links": [],
             "maxDataPoints": 100,
             "options": {
@@ -677,56 +910,22 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "9.4.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"})",
-                    "format": "time_series",
-                    "hide": false,
-                    "instant": true,
-                    "intervalFactor": 2,
-                    "legendFormat": "Members",
-                    "range": false,
-                    "refId": "B",
-                    "step": 600
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
+                    "expr": "min(etcd_server_has_leader{job=\"etcd\", cls=\"$cls\"}) or on() vector(0)",
                     "format": "time_series",
                     "instant": true,
                     "intervalFactor": 2,
-                    "legendFormat": "Quorum",
+                    "legendFormat": "Has Leader",
                     "range": false,
                     "refId": "A",
-                    "step": 600
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"}) - ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
-                    "format": "time_series",
-                    "hide": false,
-                    "instant": true,
-                    "intervalFactor": 2,
-                    "legendFormat": "Tolerance",
-                    "range": false,
-                    "refId": "C",
                     "step": 600
                 }
             ],
@@ -735,7 +934,160 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "fillOpacity": 70,
+                        "lineWidth": 0,
+                        "spanNulls": false
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "min": -1,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#cc4637d9",
+                                "value": null
+                            },
+                            {
+                                "color": "#346f36cc",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "ETCD Has Leader?"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#b783af",
+                                                "index": 1,
+                                                "text": "\ud83d\udd25NOLEADER"
+                                            },
+                                            "1": {
+                                                "color": "#fcdb72",
+                                                "index": 0,
+                                                "text": "OK"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#3e668f",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#fcdb72",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 17,
+                "x": 7,
+                "y": 8
+            },
+            "id": 132,
+            "options": {
+                "alignValue": "left",
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": false
+                },
+                "mergeValues": true,
+                "rowHeight": 0.96,
+                "showValue": "never",
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "up{job=\"etcd\", cls=\"$cls\"}",
+                    "legendFormat": "{{ ins }} @ {{ ip }}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"})",
+                    "hide": true,
+                    "legendFormat": "etcd size",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
+                    "hide": true,
+                    "legendFormat": "etcd quorum",
+                    "range": true,
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "min(etcd_server_has_leader{job=\"etcd\", cls=\"$cls\"}) or on() vector(0)",
+                    "hide": false,
+                    "legendFormat": "ETCD Has Leader?",
+                    "range": true,
+                    "refId": "D"
+                }
+            ],
+            "title": "ETCD Aliveness",
+            "type": "state-timeline"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -747,9 +1099,10 @@
                         "axisColorMode": "text",
                         "axisLabel": "",
                         "axisPlacement": "auto",
+                        "axisSoftMin": 0,
                         "barAlignment": 0,
                         "drawStyle": "line",
-                        "fillOpacity": 50,
+                        "fillOpacity": 20,
                         "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
@@ -763,251 +1116,6 @@
                             "type": "linear"
                         },
                         "showPoints": "auto",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "normal"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "decimals": 0,
-                    "mappings": [],
-                    "min": -1,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "B"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.stacking",
-                                "value": {
-                                    "group": "A",
-                                    "mode": "none"
-                                }
-                            },
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 0
-                            },
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 3
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "text",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "C"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.stacking",
-                                "value": {
-                                    "group": "A",
-                                    "mode": "none"
-                                }
-                            },
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 0
-                            },
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 3
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "red",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "aliveness"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.axisPlacement",
-                                "value": "auto"
-                            },
-                            {
-                                "id": "custom.stacking",
-                                "value": {
-                                    "group": "A",
-                                    "mode": "none"
-                                }
-                            },
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 0
-                            },
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 100
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "dark-green",
-                                    "mode": "fixed"
-                                }
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "-1": {
-                                                "color": "green",
-                                                "index": 0,
-                                                "text": "OK"
-                                            },
-                                            "0": {
-                                                "color": "red",
-                                                "index": 1,
-                                                "text": "\ud83d\udd25NOLEADER"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 7,
-                "w": 17,
-                "x": 7,
-                "y": 8
-            },
-            "id": 97,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right",
-                    "showLegend": true,
-                    "sortBy": "Min",
-                    "sortDesc": false
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "expr": "up{job=\"etcd\", cls=\"$cls\"}",
-                    "legendFormat": "{{ ins }} @ {{ ip }}",
-                    "range": true,
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"})",
-                    "hide": false,
-                    "legendFormat": "etcd size",
-                    "range": true,
-                    "refId": "B"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "expr": "ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
-                    "hide": false,
-                    "legendFormat": "etcd quorum",
-                    "range": true,
-                    "refId": "C"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "expr": "- min(etcd_server_has_leader{job=\"etcd\", cls=\"$cls\"})",
-                    "hide": false,
-                    "legendFormat": "aliveness",
-                    "range": true,
-                    "refId": "D"
-                }
-            ],
-            "title": "ETCD Aliveness",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "hidden",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 83,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "stepBefore",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
                         "spanNulls": false,
                         "stacking": {
                             "group": "A",
@@ -1025,25 +1133,19 @@
                             {
                                 "color": "green",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
-                    },
-                    "unit": "short"
+                    }
                 },
                 "overrides": []
             },
             "gridPos": {
-                "h": 6,
-                "w": 3,
+                "h": 4,
+                "w": 7,
                 "x": 0,
-                "y": 15
+                "y": 14
             },
-            "id": 106,
-            "links": [],
+            "id": 135,
             "options": {
                 "legend": {
                     "calcs": [],
@@ -1056,21 +1158,18 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "8.5.2",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "expr": "etcd_server_leader_changes_seen_total{job=\"etcd\", cls=\"$cls\"}",
-                    "intervalFactor": 2,
-                    "legendFormat": "{{instance}} Leader Change Seen",
-                    "metric": "etcd_server_leader_changes_seen_total",
+                    "instant": false,
+                    "legendFormat": "{{ ins }} @ {{ instance }}",
                     "range": true,
-                    "refId": "A",
-                    "step": 2
+                    "refId": "A"
                 }
             ],
             "title": "Leader Elections",
@@ -1079,101 +1178,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 0,
-                    "links": [
-                        {
-                            "targetBlank": true,
-                            "title": "AlertInfo ${__field.labels.alertname}",
-                            "url": "http://a.pigsty/#/alerts?filter=%7Balertname%3D%22${__field.labels.alertname}%22%7D"
-                        }
-                    ],
-                    "mappings": [],
-                    "max": 1,
-                    "min": 0,
-                    "noValue": "OK",
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 1
-                            },
-                            {
-                                "color": "orange",
-                                "value": 2
-                            },
-                            {
-                                "color": "red",
-                                "value": 3
-                            },
-                            {
-                                "color": "purple",
-                                "value": 4
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 4,
-                "x": 3,
-                "y": 15
-            },
-            "id": 126,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {
-                    "titleSize": 12
-                },
-                "textMode": "auto"
-            },
-            "pluginVersion": "9.4.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "count(ALERTS{alertstate=\"firing\", job=\"etcd\"}) by (alertname, severity)",
-                    "interval": "",
-                    "legendFormat": "{{ alertname }}",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Alerting event graph. Each stripe represent an alerting Event. Gray transparent stipe are pending alerts.",
             "fieldConfig": {
@@ -1190,7 +1195,7 @@
                         "axisSoftMin": 0,
                         "barAlignment": 0,
                         "drawStyle": "line",
-                        "fillOpacity": 98,
+                        "fillOpacity": 70,
                         "gradientMode": "none",
                         "hideFrom": {
                             "graph": false,
@@ -1228,11 +1233,11 @@
                         },
                         {
                             "title": "PGSQL Instance for ${__field.labels.ins}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
                         },
                         {
                             "title": "PGSQL Node for ${__field.labels.ins}",
-                            "url": "/d/node-instance?var-ins=${__field.labels.ins}"
+                            "url": "/d/node-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -1241,7 +1246,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -1257,7 +1262,7 @@
                         "properties": [
                             {
                                 "id": "custom.fillOpacity",
-                                "value": 66
+                                "value": 70
                             },
                             {
                                 "id": "mappings",
@@ -1283,12 +1288,12 @@
                         "properties": [
                             {
                                 "id": "custom.fillOpacity",
-                                "value": 25
+                                "value": 30
                             },
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "rgba(128, 128, 128, 0.6)",
+                                    "fixedColor": "rgba(128, 128, 128, 0.5)",
                                     "mode": "fixed"
                                 }
                             },
@@ -1318,7 +1323,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "red",
+                                    "fixedColor": "#cc4637d9",
                                     "mode": "fixed"
                                 }
                             }
@@ -1339,10 +1344,10 @@
                 ]
             },
             "gridPos": {
-                "h": 6,
+                "h": 4,
                 "w": 17,
                 "x": 7,
-                "y": 15
+                "y": 14
             },
             "id": 124,
             "options": {
@@ -1365,7 +1370,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "ALERTS{cls=\"$cls\", alertstate=\"firing\"}",
@@ -1376,7 +1381,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "ALERTS{cls=\"$cls\", alertstate=\"pending\"} ",
@@ -1388,7 +1393,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "exemplar": false,
                     "expr": "0",
@@ -1406,7 +1411,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 21
+                "y": 18
             },
             "id": 128,
             "panels": [],
@@ -1416,7 +1421,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1481,7 +1486,7 @@
                 "h": 6,
                 "w": 12,
                 "x": 0,
-                "y": 22
+                "y": 19
             },
             "id": 114,
             "options": {
@@ -1491,7 +1496,9 @@
                     ],
                     "displayMode": "table",
                     "placement": "right",
-                    "showLegend": true
+                    "showLegend": true,
+                    "sortBy": "Last",
+                    "sortDesc": false
                 },
                 "tooltip": {
                     "mode": "single",
@@ -1502,7 +1509,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "expr": "histogram_quantile(0.99, rate(etcd_network_peer_round_trip_time_seconds_bucket{job=\"etcd\", cls=\"$cls\"}[2m]))",
@@ -1517,7 +1524,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1585,7 +1592,7 @@
                 "h": 6,
                 "w": 12,
                 "x": 12,
-                "y": 22
+                "y": 19
             },
             "id": 99,
             "links": [],
@@ -1608,7 +1615,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "expr": "histogram_quantile(0.99, sum(rate(etcd_disk_wal_fsync_duration_seconds_bucket{job=\"etcd\", cls=\"$cls\"}[5m])) by (ins, le))",
@@ -1623,7 +1630,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "expr": "histogram_quantile(0.99, sum(rate(etcd_disk_backend_commit_duration_seconds_bucket{job=\"etcd\", cls=\"$cls\"}[5m])) by (ins, le))",
@@ -1641,7 +1648,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -1670,7 +1677,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -1684,7 +1691,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },
@@ -1696,7 +1704,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 28
+                "y": 25
             },
             "id": 89,
             "links": [],
@@ -1721,7 +1729,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "expr": "rate(etcd_server_proposals_committed_total{job=\"etcd\", cls=\"$cls\"}[1m])",
@@ -1740,7 +1748,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -1769,7 +1777,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -1783,7 +1791,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },
@@ -1795,7 +1804,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 28
+                "y": 25
             },
             "id": 108,
             "links": [],
@@ -1820,7 +1829,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "expr": "rate(etcd_server_proposals_applied_total{job=\"etcd\", cls=\"$cls\"}[1m])",
@@ -1839,7 +1848,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "\u25b2 for Sent, \u25bc for receive",
             "fieldConfig": {
@@ -1915,7 +1924,7 @@
                 "h": 6,
                 "w": 12,
                 "x": 0,
-                "y": 36
+                "y": 33
             },
             "id": 110,
             "options": {
@@ -1937,7 +1946,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
@@ -1950,7 +1959,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
@@ -1967,7 +1976,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "\u25b2 for Sent, \u25bc for receive",
             "fieldConfig": {
@@ -2010,7 +2019,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -2043,7 +2052,7 @@
                 "h": 6,
                 "w": 12,
                 "x": 12,
-                "y": 36
+                "y": 33
             },
             "id": 111,
             "options": {
@@ -2065,7 +2074,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
@@ -2078,7 +2087,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": true,
@@ -2095,7 +2104,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2137,7 +2146,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "#346f36cc"
                             },
                             {
                                 "color": "red",
@@ -2153,7 +2162,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 42
+                "y": 39
             },
             "id": 103,
             "links": [],
@@ -2174,7 +2183,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "expr": "process_resident_memory_bytes{job=\"etcd\", cls=\"$cls\"}",
@@ -2192,7 +2201,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2234,7 +2243,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "#346f36cc"
                             },
                             {
                                 "color": "red",
@@ -2250,7 +2259,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 42
+                "y": 39
             },
             "id": 101,
             "links": [],
@@ -2271,7 +2280,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
                     "expr": "etcd_mvcc_db_total_size_in_bytes{job=\"etcd\", cls=\"$cls\"} / etcd_server_quota_backend_bytes{job=\"etcd\", cls=\"$cls\"}",
@@ -2289,62 +2298,61 @@
             "type": "timeseries"
         },
         {
-            "collapsed": true,
+            "collapsed": false,
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 49
+                "y": 46
             },
             "id": 120,
-            "panels": [
+            "panels": [],
+            "title": "Logs",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "loki",
+                "uid": "ds-loki"
+            },
+            "gridPos": {
+                "h": 18,
+                "w": 24,
+                "x": 0,
+                "y": 47
+            },
+            "id": 122,
+            "options": {
+                "dedupStrategy": "none",
+                "enableLogDetails": true,
+                "prettifyLogMessage": false,
+                "showCommonLabels": false,
+                "showLabels": false,
+                "showTime": true,
+                "sortOrder": "Descending",
+                "wrapLogMessage": false
+            },
+            "pluginVersion": "7.5.4",
+            "targets": [
                 {
                     "datasource": {
                         "type": "loki",
                         "uid": "ds-loki"
                     },
-                    "gridPos": {
-                        "h": 18,
-                        "w": 24,
-                        "x": 0,
-                        "y": 65
-                    },
-                    "id": 122,
-                    "options": {
-                        "dedupStrategy": "none",
-                        "enableLogDetails": true,
-                        "prettifyLogMessage": false,
-                        "showCommonLabels": false,
-                        "showLabels": false,
-                        "showTime": true,
-                        "sortOrder": "Descending",
-                        "wrapLogMessage": false
-                    },
-                    "pluginVersion": "7.5.4",
-                    "targets": [
-                        {
-                            "datasource": {
-                                "type": "loki",
-                                "uid": "ds-loki"
-                            },
-                            "editorMode": "code",
-                            "expr": "{src=\"syslog\"} |~ \"etcd\"",
-                            "instant": false,
-                            "legendFormat": "{{ ins }}",
-                            "queryType": "range",
-                            "range": true,
-                            "refId": "A"
-                        }
-                    ],
-                    "title": "ETCD Logs",
-                    "type": "logs"
+                    "editorMode": "code",
+                    "expr": "{src=\"syslog\"} |~ \"etcd\"",
+                    "instant": false,
+                    "legendFormat": "{{ ins }}",
+                    "queryType": "range",
+                    "range": true,
+                    "refId": "A"
                 }
             ],
-            "title": "Logs",
-            "type": "row"
+            "title": "ETCD Logs",
+            "type": "logs"
         }
     ],
-    "refresh": "1m",
+    "refresh": "",
     "revision": 1,
     "schemaVersion": 38,
     "style": "dark",
@@ -2358,24 +2366,9 @@
         "list": [
             {
                 "current": {},
-                "description": "Prometheus datasource used by this dashboard",
-                "hide": 2,
-                "includeAll": false,
-                "label": "Source",
-                "multi": false,
-                "name": "ds",
-                "options": [],
-                "query": "prometheus",
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "type": "datasource"
-            },
-            {
-                "current": {},
                 "datasource": {
                     "type": "prometheus",
-                    "uid": "${ds}"
+                    "uid": "ds-prometheus"
                 },
                 "definition": "label_values(etcd_cluster_version, cls)",
                 "description": "etcd cluster name",

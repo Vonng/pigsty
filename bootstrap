@@ -3,12 +3,12 @@
 # File      :   bootstrap
 # Desc      :   setup local repo & install boot utils
 # Ctime     :   2022-10-16
-# Mtime     :   2023-03-17
+# Mtime     :   2023-07-19
 # Path      :   bootstrap
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-VERSION=v2.1.0
+VERSION=v2.2.0
 
 
 #--------------------------------------------------------------#
@@ -68,7 +68,8 @@ PIGSTY_HOME="$(cd $(dirname $0) && pwd)"
 REPO_NAME=pigsty
 NGINX_HOME=/www
 REPO_DIR=${NGINX_HOME}/${REPO_NAME}
-OS_VERSION=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
+OS_VERSION=${OS_VERSION-'7'}
+OS_VENDOR="RedHat"
 ARCH=$(uname -m)
 BASEURL="https://github.com/Vonng/pigsty/releases/download/${VERSION}"
 SRC_FILENAME="pigsty-${VERSION}.tgz"
@@ -108,10 +109,12 @@ function check_region(){
   if [ "${REGION}" == "" ]; then
     if behind_gfw; then
         REGION=china       # mainland china is behind GFW
-        BASEURL="http://download.pigsty.cc/${VERSION}"
+        BASEURL="http://get.pigsty.cc/${VERSION}"
     else
         REGION=default     # otherwise use default mirror
     fi
+    SRC_FILENAME="pigsty-${VERSION}.tgz"
+    PKG_FILENAME="pigsty-pkg-${VERSION}.el${OS_VERSION}.x86_64.tgz"
     DEFAULT_SRC_URL="${BASEURL}/${SRC_FILENAME}"
     DEFAULT_PKG_URL="${BASEURL}/${PKG_FILENAME}"
     log_info "region = ${REGION}"
@@ -152,19 +155,22 @@ function check_machine(){
 function check_release(){
     if [[ ! -f /etc/redhat-release ]]; then
         log_error "release = unknown, /etc/redhat-release not exists"
-        log_error "pigsty works on RHEL and compatible distributions, use with caution!"
+        log_error "pigsty works on RHEL and compatible distributions, use with caution, assume OS_VERSION=${OS_VERSION}"
+        OS_VENDOR="Unknown"
         #exit 3
+    else
+        local full=`cat /etc/redhat-release | tr -dc '0-9.'`
+        local major=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f1)
+        local minor=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f2)
+        local asynchronous=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f3)
+        if [[ ${major} != "7" && ${major} != "8" && ${major} != "9"  ]]; then
+            log_error "release = ${full} ,  supported release: el7,el8,el9"
+            log_error "pigsty works on el 7,8,9, please use with caution!"
+            #exit 4
+        fi
+        OS_VERSION=${major}
+        log_info "release = ${full}"
     fi
-    local full=`cat /etc/redhat-release | tr -dc '0-9.'`
-    local major=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f1)
-    local minor=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f2)
-    local asynchronous=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f3)
-    if [[ ${major} != "7" && ${major} != "8" && ${major} != "9"  ]]; then
-        log_error "release = ${full} ,  supported release: el7,el8,el9"
-        log_error "pigsty works on el 7,8,9, please use with caution!"
-        #exit 4
-    fi
-    log_info "release = ${full}"
     return 0
 }
 
@@ -352,7 +358,7 @@ EOF
 function add_local_repo(){
     local nginx_home=${1-${NGINX_HOME}}
     local repo_name=${2-${REPO_NAME}}
-    local releasever=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
+    local releasever=OS_VERSION
     cat > /tmp/pigsty-local.repo  <<-EOF
 [pigsty-local]
 name=pigsty local \$releasever - \$basearch
@@ -373,13 +379,15 @@ function check_repo_file(){
     local nginx_home=${2-${NGINX_HOME}}
     local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
     if [[ ! -f ${nginx_home}/${repo_name}/repo_complete ]]; then
-        if [[ $OS_VERSION == "7" ]]; then
-            add_el7_repo ${REGION}
-        elif [[ $OS_VERSION == "8" ||  $OS_VERSION == "9" ]]; then
-            add_el89_repo ${REGION}
+        if [[ ${OS_VENDOR} == "RedHat" ]]; then
+            if [[ $OS_VERSION == "7" ]]; then
+                add_el7_repo ${REGION}
+            elif [[ $OS_VERSION == "8" ||  $OS_VERSION == "9" ]]; then
+                add_el89_repo ${REGION}
+            fi
+            log_warn "repo file = add el${OS_VERSION}.${ARCH} upstream"
+            return 0
         fi
-        log_warn "repo file = add el${OS_VERSION}.${ARCH} upstream"
-        return 0
     else
         add_local_repo
         log_info "repo file = use ${repo_file}"
@@ -398,20 +406,24 @@ function check_utils(){
     local nginx_home=${2-${NGINX_HOME}}
     local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
 
-    if [[ $OS_VERSION == "7" ]]; then
-        log_info "install el7 utils"
-        sudo yum install -y createrepo_c unzip wget yum-utils createrepo_c sshpass
-        sudo yum install -y ansible
-    elif [[ $OS_VERSION == "8" ]]; then
-        log_info "install el8 utils"
-        sudo dnf install -y createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools
-        sudo dnf install -y ansible python3.11-jmespath
-    elif [[ $OS_VERSION == "9" ]]; then
-        log_info "install el9 utils"
-        sudo dnf install -y createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools
-        sudo dnf install -y ansible python3.11-jmespath
+    if [[ $OS_VENDOR == "RedHat" ]]; then
+        if [[ $OS_VERSION == "7" ]]; then
+            log_info "install el7 utils"
+            sudo yum install -y createrepo_c unzip wget yum-utils sshpass
+            sudo yum install -y ansible
+        elif [[ $OS_VERSION == "8" ]]; then
+            log_info "install el8 utils"
+            sudo dnf install -y createrepo_c unzip wget yum-utils sshpass modulemd-tools
+            sudo dnf install -y ansible python3.11-jmespath
+        elif [[ $OS_VERSION == "9" ]]; then
+            log_info "install el9 utils"
+            sudo dnf install -y createrepo_c unzip wget yum-utils sshpass modulemd-tools
+            sudo dnf install -y ansible python3.11-jmespath
+        fi
+    else
+        log_warn "try install el utils"
+        sudo yum install -y createrepo_c unzip wget sshpass ansible
     fi
-
     # restore backup repo ?
     sudo cp -f /etc/yum.repos.d/backup/*.repo /etc/yum.repos.d/ 2> /dev/null || true
 

@@ -76,52 +76,83 @@
                         "mode": "thresholds"
                     },
                     "decimals": 0,
-                    "links": [
-                        {
-                            "targetBlank": true,
-                            "title": "Alertmanager",
-                            "url": "http://a.pigsty/#/alerts"
-                        }
-                    ],
+                    "links": [],
                     "mappings": [],
                     "max": 1,
                     "min": 0,
+                    "noValue": "OK",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#3e668f",
                                 "value": null
                             },
                             {
-                                "color": "yellow",
+                                "color": "#fcdb72",
                                 "value": 1
                             },
                             {
-                                "color": "orange",
-                                "value": 2
-                            },
-                            {
-                                "color": "red",
-                                "value": 3
-                            },
-                            {
-                                "color": "purple",
+                                "color": "#f5a673",
                                 "value": 4
+                            },
+                            {
+                                "color": "#b783af",
+                                "value": 8
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Pigsty Alertmanager",
+                                        "url": "http://a.pigsty"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Alert",
+                                        "url": "/d/pgsql-alert?${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 7,
+                "h": 5,
                 "w": 2,
                 "x": 0,
                 "y": 1
             },
-            "id": 38,
+            "id": 87,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -137,17 +168,19 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "count(ALERTS{alertstate=\"firing\", job=\"node\"}) or on() vector(0)",
                     "interval": "",
-                    "legendFormat": "Firing",
+                    "legendFormat": "Firing Alert",
+                    "range": true,
                     "refId": "A"
                 },
                 {
@@ -155,11 +188,13 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "count(ALERTS{alertstate=\"pending\", job=\"node\"})",
-                    "hide": false,
+                    "hide": true,
                     "interval": "",
-                    "legendFormat": "Pending",
+                    "legendFormat": "Pending Alert",
+                    "range": true,
                     "refId": "B"
                 }
             ],
@@ -192,23 +227,19 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#3e668f",
                                 "value": null
                             },
                             {
-                                "color": "yellow",
+                                "color": "#fcdb72",
                                 "value": 1
                             },
                             {
-                                "color": "orange",
+                                "color": "#f5a673",
                                 "value": 2
                             },
                             {
-                                "color": "red",
-                                "value": 3
-                            },
-                            {
-                                "color": "purple",
+                                "color": "#b783af",
                                 "value": 4
                             }
                         ]
@@ -218,12 +249,12 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 7,
+                "h": 5,
                 "w": 4,
                 "x": 2,
                 "y": 1
             },
-            "id": 40,
+            "id": 86,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -236,20 +267,24 @@
                     "fields": "",
                     "values": false
                 },
-                "text": {},
+                "text": {
+                    "titleSize": 12
+                },
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "count(ALERTS{alertstate=\"firing\", job=\"node\"}) by (alertname, severity)",
                     "interval": "",
                     "legendFormat": "{{ alertname }}",
+                    "range": true,
                     "refId": "A"
                 }
             ],
@@ -313,7 +348,7 @@
                         },
                         {
                             "title": "Node Cluster for ${__field.labels.cls} : Alerts",
-                            "url": "/d/node-cluster?var-cls=${__field.labels.cls}&viewPanel=227"
+                            "url": "/d/node-cluster?var-cls=${__field.labels.cls}&viewPanel=227&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -322,7 +357,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -357,7 +392,7 @@
                 ]
             },
             "gridPos": {
-                "h": 7,
+                "h": 5,
                 "w": 13,
                 "x": 6,
                 "y": 1
@@ -411,7 +446,7 @@
                 "uid": "ds-prometheus"
             },
             "gridPos": {
-                "h": 16,
+                "h": 14,
                 "w": 5,
                 "x": 19,
                 "y": 1
@@ -460,8 +495,7 @@
                     "custom": {
                         "align": "center",
                         "cellOptions": {
-                            "mode": "gradient",
-                            "type": "color-background"
+                            "type": "auto"
                         },
                         "inspect": false
                     },
@@ -563,12 +597,12 @@
                                                 "text": "P0"
                                             },
                                             "1": {
-                                                "color": "orange",
+                                                "color": "#f5a673",
                                                 "index": 1,
                                                 "text": "P1"
                                             },
                                             "2": {
-                                                "color": "yellow",
+                                                "color": "#fcdb72",
                                                 "index": 2,
                                                 "text": "P2"
                                             }
@@ -646,12 +680,12 @@
                                     {
                                         "options": {
                                             "infra": {
-                                                "color": "orange",
+                                                "color": "#f5a673",
                                                 "index": 2,
                                                 "text": "INFRA"
                                             },
                                             "node": {
-                                                "color": "green",
+                                                "color": "#346f36cc",
                                                 "index": 1,
                                                 "text": "NODE"
                                             },
@@ -712,7 +746,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Cluster for ${cls}",
-                                        "url": "/d/pgsql-cluster?var-cls=${__data.fields.Cluster}"
+                                        "url": "/d/pgsql-cluster?var-cls=${__data.fields.Cluster}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -729,7 +763,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Instance for ${__data.fields.Instance}",
-                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.Instance}"
+                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.Instance}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -750,7 +784,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Database for ${__data.fields.Database} on ${__data.fields.Instance}",
-                                        "url": "/d/pgsql-database?var-ins=${__data.fields.Instance}&var-datname=${__data.fields.Database}"
+                                        "url": "/d/pgsql-database?var-ins=${__data.fields.Instance}&var-datname=${__data.fields.Database}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -819,7 +853,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Node: ${__data.fields.IP}",
-                                        "url": "/d/node-instance?var-id=${__data.fields.IP}"
+                                        "url": "/d/node-instance?var-id=${__data.fields.IP}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -831,7 +865,7 @@
                 "h": 9,
                 "w": 19,
                 "x": 0,
-                "y": 8
+                "y": 6
             },
             "id": 36,
             "options": {
@@ -852,7 +886,7 @@
                     }
                 ]
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
@@ -960,7 +994,7 @@
                     "links": [
                         {
                             "title": "PGSQL Node : CPU for ${__field.labels.ins}",
-                            "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=172"
+                            "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=172&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -970,7 +1004,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
+                                "color": "#3e668f",
                                 "value": null
                             },
                             {
@@ -1007,7 +1041,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 17
+                "y": 15
             },
             "id": 18,
             "options": {
@@ -1054,7 +1088,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 25
+                "y": 23
             },
             "id": 82,
             "panels": [
@@ -1067,7 +1101,7 @@
                         "h": 10,
                         "w": 24,
                         "x": 0,
-                        "y": 26
+                        "y": 24
                     },
                     "id": 84,
                     "maxDataPoints": 100,
@@ -1108,7 +1142,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 26
+                "y": 24
             },
             "id": 53,
             "panels": [
@@ -1159,7 +1193,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Node: Load for ${__field.labels.ins}",
-                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=173"
+                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=173&${__url_time_range}"
                                 }
                             ],
                             "mappings": [],
@@ -1168,7 +1202,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue"
+                                        "color": "#3e668f",
+                                        "value": null
                                     },
                                     {
                                         "color": "green",
@@ -1204,7 +1239,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 27
+                        "y": 35
                     },
                     "id": 11,
                     "options": {
@@ -1259,7 +1294,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 27
+                "y": 25
             },
             "id": 85,
             "panels": [
@@ -1309,7 +1344,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Node: Memory for ${__field.labels.ins}",
-                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=40"
+                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=40&${__url_time_range}"
                                 }
                             ],
                             "mappings": [],
@@ -1319,7 +1354,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "purple"
+                                        "color": "purple",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -1343,7 +1379,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 28
+                        "y": 44
                     },
                     "id": 56,
                     "options": {
@@ -1400,7 +1436,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 28
+                "y": 26
             },
             "id": 55,
             "panels": [
@@ -1449,7 +1485,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Node: Swap for ${__field.labels.ins}",
-                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=33"
+                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=33&${__url_time_range}"
                                 }
                             ],
                             "mappings": [],
@@ -1458,7 +1494,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "orange",
@@ -1482,7 +1519,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 29
+                        "y": 53
                     },
                     "id": 57,
                     "options": {
@@ -1538,7 +1575,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 29
+                "y": 27
             },
             "id": 27,
             "panels": [
@@ -1587,7 +1624,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Node: Disk Latency for ${__field.labels.ins}",
-                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=29"
+                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=29&${__url_time_range}"
                                 }
                             ],
                             "mappings": [],
@@ -1596,7 +1633,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue"
+                                        "color": "#3e668f",
+                                        "value": null
                                     },
                                     {
                                         "color": "green",
@@ -1628,7 +1666,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 30
+                        "y": 62
                     },
                     "id": 60,
                     "options": {
@@ -1683,7 +1721,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 30
+                "y": 28
             },
             "id": 29,
             "panels": [
@@ -1732,7 +1770,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Node: Space Usage for ${__field.labels.ins}",
-                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=199"
+                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=199&${__url_time_range}"
                                 }
                             ],
                             "mappings": [],
@@ -1742,14 +1780,15 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue"
+                                        "color": "#3e668f",
+                                        "value": null
                                     },
                                     {
                                         "color": "green",
                                         "value": 0.1
                                     },
                                     {
-                                        "color": "#EAB839",
+                                        "color": "yellow",
                                         "value": 0.8
                                     },
                                     {
@@ -1778,7 +1817,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 31
+                        "y": 71
                     },
                     "id": 23,
                     "options": {
@@ -1863,7 +1902,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Node: Space Exhaust for ${__field.labels.ins}",
-                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=51"
+                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=51&${__url_time_range}"
                                 }
                             ],
                             "mappings": [
@@ -1893,7 +1932,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "text"
+                                        "color": "text",
+                                        "value": null
                                     },
                                     {
                                         "color": "purple",
@@ -1908,7 +1948,7 @@
                                         "value": 604800
                                     },
                                     {
-                                        "color": "green",
+                                        "color": "#346f36cc",
                                         "value": 126230400
                                     }
                                 ]
@@ -1921,7 +1961,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 39
+                        "y": 79
                     },
                     "id": 78,
                     "options": {
@@ -2000,7 +2040,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Node: iNode Usage for ${__field.labels.ins}",
-                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=174"
+                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=174&${__url_time_range}"
                                 }
                             ],
                             "mappings": [],
@@ -2010,14 +2050,15 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue"
+                                        "color": "#3e668f",
+                                        "value": null
                                     },
                                     {
                                         "color": "green",
                                         "value": 0.1
                                     },
                                     {
-                                        "color": "#EAB839",
+                                        "color": "yellow",
                                         "value": 0.8
                                     },
                                     {
@@ -2046,7 +2087,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 46
+                        "y": 86
                     },
                     "id": 58,
                     "options": {
@@ -2128,7 +2169,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Node: FD for ${__field.labels.ins}",
-                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=58"
+                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=58&${__url_time_range}"
                                 }
                             ],
                             "mappings": [],
@@ -2138,14 +2179,15 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue"
+                                        "color": "#3e668f",
+                                        "value": null
                                     },
                                     {
                                         "color": "green",
                                         "value": 0.1
                                     },
                                     {
-                                        "color": "#EAB839",
+                                        "color": "orange",
                                         "value": 0.8
                                     },
                                     {
@@ -2174,7 +2216,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 53
+                        "y": 93
                     },
                     "id": 59,
                     "options": {
@@ -2229,7 +2271,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 31
+                "y": 29
             },
             "id": 62,
             "panels": [
@@ -2279,7 +2321,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Node: TCP Errors for ${__field.labels.ins}",
-                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=55"
+                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=55&${__url_time_range}"
                                 }
                             ],
                             "mappings": [],
@@ -2289,7 +2331,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "orange",
@@ -2309,7 +2352,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 40
+                        "y": 101
                     },
                     "id": 71,
                     "options": {
@@ -2396,7 +2439,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Node: TCP Retransmit for ${__field.labels.ins}",
-                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=52"
+                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=52&${__url_time_range}"
                                 }
                             ],
                             "mappings": [],
@@ -2405,15 +2448,12 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue"
+                                        "color": "#3e668f",
+                                        "value": null
                                     },
                                     {
                                         "color": "green",
                                         "value": 1e-06
-                                    },
-                                    {
-                                        "color": "super-light-green",
-                                        "value": 1e-05
                                     },
                                     {
                                         "color": "yellow",
@@ -2441,7 +2481,7 @@
                         "h": 9,
                         "w": 24,
                         "x": 0,
-                        "y": 47
+                        "y": 108
                     },
                     "id": 70,
                     "options": {
@@ -2488,7 +2528,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 32
+                "y": 30
             },
             "id": 25,
             "panels": [
@@ -2536,7 +2576,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Node: NTP Sanity for ${__field.labels.ins}",
-                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=70"
+                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=70&${__url_time_range}"
                                 }
                             ],
                             "mappings": [],
@@ -2546,7 +2586,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "red"
+                                        "color": "red",
+                                        "value": null
                                     },
                                     {
                                         "color": "green",
@@ -2640,7 +2681,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Node: Time Offset for ${__field.labels.ins}",
-                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=83"
+                                    "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=83&${__url_time_range}"
                                 }
                             ],
                             "mappings": [],
@@ -2648,7 +2689,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue"
+                                        "color": "#3e668f",
+                                        "value": null
                                     },
                                     {
                                         "color": "green",

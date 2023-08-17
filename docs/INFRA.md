@@ -9,19 +9,19 @@
 
 Each Pigsty deployment requires a set of infrastructure components to work properly. which including:
 
-|     Component     | Port |     Domain     | Description                                    |
-| :---------------: | :--: | :------------: | -----------------------------------------------|
-|  Nginx            |  80  |   `h.pigsty`   | Web Service Portal (Also used as Yum Repo)     |
-|  AlertManager     | 9093 |   `a.pigsty`   | Alert Aggregation and delivery                 |
-|  Prometheus       | 9090 |   `p.pigsty`   | Monitoring Time Series Database                |
-|  Grafana          | 3000 |   `g.pigsty`   | Visualization Platform                         |
-|  Loki             | 3100 |       -        | Logging Collection Server                      |
-|  PushGateway      | 9091 |       -        | Logging Collection Server                      |
-|  BlackboxExporter | 9115 |       -        | Logging Collection Server                      |
-|  Dnsmasq          |  53  |       -        | DNS Server                                     |
-|  Chronyd          | 123  |       -        | NTP Time Server                                |
-|  PostgreSQL       | 5432 |       -        | Pigsty CMDB & default database                 |
-|  Ansible          |  -   |       -        | Run playbooks                                  |
+|    Component     | Port |   Domain   | Description                                |
+|:----------------:|:----:|:----------:|--------------------------------------------|
+|      Nginx       |  80  | `h.pigsty` | Web Service Portal (Also used as Yum Repo) |
+|   AlertManager   | 9093 | `a.pigsty` | Alert Aggregation and delivery             |
+|    Prometheus    | 9090 | `p.pigsty` | Monitoring Time Series Database            |
+|     Grafana      | 3000 | `g.pigsty` | Visualization Platform                     |
+|       Loki       | 3100 |     -      | Logging Collection Server                  |
+|   PushGateway    | 9091 |     -      | Logging Collection Server                  |
+| BlackboxExporter | 9115 |     -      | Logging Collection Server                  |
+|     Dnsmasq      |  53  |     -      | DNS Server                                 |
+|     Chronyd      | 123  |     -      | NTP Time Server                            |
+|    PostgreSQL    | 5432 |     -      | Pigsty CMDB & default database             |
+|     Ansible      |  -   |     -      | Run playbooks                              |
 
 Pigsty will set up these components for you on infra nodes. You can expose them to the outside world by configuring the [`infra_portal`](PARAM#infra_portal) parameter.
 
@@ -109,6 +109,7 @@ API Reference for [`INFRA`](PARAM#INFRA) module:
 | [`infra_packages`](PARAM#infra_packages)                         | [`INFRA_PACKAGE`](PARAM#infra_package) |  string[]  |   G   | packages to be installed on infra nodes            |
 | [`infra_packages_pip`](PARAM#infra_packages_pip)                 | [`INFRA_PACKAGE`](PARAM#infra_package) |   string   |   G   | pip installed packages for infra nodes             |
 | [`nginx_enabled`](PARAM#nginx_enabled)                           | [`NGINX`](PARAM#nginx)                 |    bool    |  G/I  | enable nginx on this infra node?                   |
+| [`nginx_exporter_enabled`](PARAM#nginx_exporter_enabled)         | [`NGINX`](PARAM#nginx)                 |    bool    |  G/I  | enable nginx_exporter on this infra node?          |
 | [`nginx_sslmode`](PARAM#nginx_sslmode)                           | [`NGINX`](PARAM#nginx)                 |    enum    |   G   | nginx ssl mode? disable,enable,enforce             |
 | [`nginx_home`](PARAM#nginx_home)                                 | [`NGINX`](PARAM#nginx)                 |    path    |   G   | nginx content dir, `/www` by default               |
 | [`nginx_port`](PARAM#nginx_port)                                 | [`NGINX`](PARAM#nginx)                 |    port    |   G   | nginx listen port, 80 by default                   |

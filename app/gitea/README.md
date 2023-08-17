@@ -28,7 +28,7 @@ GITEA_DB_NAME=gitea
 GITEA_DB_SSLMODE=disable
 ```
 
-Then launch gitea with `docker-compose`:
+Then launch gitea with `docker compose`:
 
 ```bash
 cd app/gitea; make up
@@ -39,7 +39,7 @@ Visit [http://git.pigsty](http://git.pigsty) or http://10.10.10.10:8889 and foll
 ## Makefile
 
 ```bash
-make up      # pull up gitea with docker-compose in minimal mode
+make up      # pull up gitea with docker compose in minimal mode
 make run     # launch gitea with docker , local data dir and external PostgreSQL
 make view    # print gitea access point
 make log     # tail -f gitea logs

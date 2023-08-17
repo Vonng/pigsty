@@ -99,45 +99,182 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
-            "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "PGSQL Cluster for ${cls}",
-                            "url": "/d/pgsql-cluster?var-cls=${cls}"
-                        }
-                    ],
                     "mappings": [],
+                    "max": 2.5,
+                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${cls}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Cluster"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node Cluster : ${cls}",
+                                        "url": "/d/node-cluster?var-cls=${cls}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Instance"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${ins}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Instance"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Instance : ${ins}",
+                                        "url": "/d/pgsql-instance?var-ins=${ins}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${datname}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Database"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGCAT Database : ${ins}.${datname}",
+                                        "url": "/d/pgcat-database?var-dsn=$ins.$datname"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "${query}"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "QueryID"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Query : ${ins}.${datname}.${query}",
+                                        "url": "/d/pgsql-query?var-ins=${ins}&var-datname=${datname}&var-query=${query}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 2,
-                "w": 4,
+                "h": 5,
+                "w": 6,
                 "x": 0,
                 "y": 0
             },
-            "id": 82,
+            "id": 92,
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -145,285 +282,76 @@
                     "fields": "",
                     "values": false
                 },
-                "text": {},
-                "textMode": "name"
+                "text": {
+                    "titleSize": 20,
+                    "valueSize": 16
+                },
+                "textMode": "value_and_name"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "1",
-                    "format": "table",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "",
+                    "legendFormat": "Query",
+                    "queryType": "measurements",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Database",
+                    "queryType": "measurements",
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Instance",
+                    "queryType": "measurements",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Cluster",
                     "queryType": "measurements",
                     "refId": "A"
                 }
             ],
-            "title": "Cluster",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${cls}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "ins = ${ins}, used as unique instance identifier. Formed as {{ cls }}-{{ seq }}. ",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Instance for ${ins}",
-                            "url": "/d/pgsql-instance?var-ins=${ins}&var-cls=${cls}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 6,
-                "x": 4,
-                "y": 0
-            },
-            "id": 76,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "9.5.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "refId": "A"
-                }
-            ],
-            "title": "Instance",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Value": "${ins}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "Database name",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Database for ${datname}",
-                            "url": "/d/pgsql-database?var-ins=${ins}&var-datname=${datname}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 4,
-                "x": 10,
-                "y": 0
-            },
-            "id": 48,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "9.5.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Database",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${datname}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "Query identifier generated from plan",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Query for ${query}",
-                            "url": "/d/pgsql-query?var-ins=${ins}&var-datname=${datname}&var-query=${query}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 10,
-                "x": 14,
-                "y": 0
-            },
-            "id": 50,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "9.5.3",
-            "targets": [
-                {
-                    "exemplar": false,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Query Identifier",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${query}"
-                        }
-                    }
-                }
-            ],
+            "transformations": [],
             "type": "stat"
         },
         {
@@ -431,11 +359,796 @@
                 "type": "postgres",
                 "uid": "${dsn}"
             },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "filterable": false,
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "(RT:avg)"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "ms"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "color-background"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "super-light-blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 0.1
+                                        },
+                                        {
+                                            "color": "light-green",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 2
+                                        },
+                                        {
+                                            "color": "#fcdb72",
+                                            "value": 10
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 100
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 1000
+                                        },
+                                        {
+                                            "color": "#b783af",
+                                            "value": 60000
+                                        },
+                                        {
+                                            "color": "rgb(80, 6, 94)",
+                                            "value": 600000
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 200
+                            },
+                            {
+                                "id": "unit",
+                                "value": "string"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "${__data.fields.SQL}",
+                                        "url": "/d/pgcat-query?var-dsn=${dsn}&var-datname=${datname}&var-query=${__data.fields.Query}&${__url_time_range}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGCAT Database for ${__data.fields.Database}",
+                                        "url": "/d/pgcat-database?var-dsn=${ins}.${__data.fields.Database}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "User"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "left"
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "SQL"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "string"
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 256
+                            },
+                            {
+                                "id": "custom.inspect",
+                                "value": true
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "left"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Calls"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            },
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Rows"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            },
+                            {
+                                "id": "unit",
+                                "value": "ms"
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#3e668f",
+                                            "value": null
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Top"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "false": {
+                                                "color": "#f5a673",
+                                                "index": 0,
+                                                "text": "F"
+                                            },
+                                            "true": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "T"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/Plan:.*|RT:.*|.*Time/"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "ms"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*Blks.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#7a7a7a40",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "gradient",
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Plan"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/WAL.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#7d7d7d33",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/JIT.*Count/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#7d7d7d33",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/JIT.*Time/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#7d7d7d33",
+                                            "value": 1e-09
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "JIT Functions"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#7d7d7d33",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*Blk.*Time/"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#7d7d7d33",
+                                            "value": 1e-07
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
             "gridPos": {
-                "h": 12,
-                "w": 14,
+                "h": 5,
+                "w": 18,
+                "x": 6,
+                "y": 0
+            },
+            "id": 93,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Calls"
+                    }
+                ]
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "${dsn}"
+                    },
+                    "editorMode": "code",
+                    "expr": "",
+                    "format": "table",
+                    "group": [],
+                    "legendFormat": "__auto",
+                    "metricColumn": "none",
+                    "range": true,
+                    "rawQuery": true,
+                    "rawSql": "SELECT queryid::TEXT AS qid, d.datname, r.rolname, s.*\nFROM monitor.pg_stat_statements s\n         LEFT JOIN pg_database d ON s.dbid = d.oid\n         LEFT JOIN pg_roles r ON s.userid = r.oid\nWHERE datname='$datname'\nORDER BY mean_exec_time DESC\nLIMIT 100;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    },
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "blk_read_time": false,
+                            "blk_write_time": false,
+                            "datname": true,
+                            "dbid": true,
+                            "local_blks_dirtied": false,
+                            "local_blks_hit": false,
+                            "local_blks_read": false,
+                            "local_blks_written": false,
+                            "max_plan_time": false,
+                            "mean_plan_time": false,
+                            "min_plan_time": false,
+                            "plans": false,
+                            "queryid": true,
+                            "shared_blks_dirtied": false,
+                            "shared_blks_hit": false,
+                            "shared_blks_read": false,
+                            "shared_blks_written": false,
+                            "stddev_exec_time": false,
+                            "stddev_plan_time": false,
+                            "temp_blk_read_time": false,
+                            "temp_blk_write_time": false,
+                            "temp_blks_read": false,
+                            "temp_blks_written": false,
+                            "total_plan_time": false,
+                            "userid": true
+                        },
+                        "indexByName": {
+                            "blk_read_time": 34,
+                            "blk_write_time": 35,
+                            "calls": 9,
+                            "datname": 1,
+                            "dbid": 7,
+                            "jit_emission_count": 44,
+                            "jit_emission_time": 45,
+                            "jit_functions": 38,
+                            "jit_generation_time": 39,
+                            "jit_inlining_count": 40,
+                            "jit_inlining_time": 41,
+                            "jit_optimization_count": 42,
+                            "jit_optimization_time": 43,
+                            "local_blks_dirtied": 30,
+                            "local_blks_hit": 28,
+                            "local_blks_read": 29,
+                            "local_blks_written": 31,
+                            "max_exec_time": 13,
+                            "max_plan_time": 20,
+                            "mean_exec_time": 5,
+                            "mean_plan_time": 18,
+                            "min_exec_time": 14,
+                            "min_plan_time": 19,
+                            "plans": 16,
+                            "qid": 2,
+                            "query": 3,
+                            "queryid": 8,
+                            "rolname": 4,
+                            "rows": 10,
+                            "shared_blks_dirtied": 26,
+                            "shared_blks_hit": 24,
+                            "shared_blks_read": 25,
+                            "shared_blks_written": 27,
+                            "stddev_exec_time": 15,
+                            "stddev_plan_time": 21,
+                            "temp_blk_read_time": 36,
+                            "temp_blk_write_time": 37,
+                            "temp_blks_read": 32,
+                            "temp_blks_written": 33,
+                            "toplevel": 0,
+                            "total_exec_time": 12,
+                            "total_plan_time": 17,
+                            "userid": 6,
+                            "wal_bytes": 11,
+                            "wal_fpi": 23,
+                            "wal_records": 22
+                        },
+                        "renameByName": {
+                            "blk_read_time": "Blk RTime",
+                            "blk_write_time": "TBlk WTime",
+                            "calls": "Calls",
+                            "datname": "Database",
+                            "dbid": "DBID",
+                            "jit_emission_count": "JIT Emission Count",
+                            "jit_emission_time": "JIT Emission Time",
+                            "jit_functions": "JIT Functions",
+                            "jit_generation_time": "JIT Generate Time",
+                            "jit_inlining_count": "JIT Inline Count",
+                            "jit_inlining_time": "JIT Inline Time",
+                            "jit_optimization_count": "JIT Optimize Count",
+                            "jit_optimization_time": "JIT Optimize Time",
+                            "local_blks_dirtied": "LBlks Dirty",
+                            "local_blks_hit": "LBlks Hit",
+                            "local_blks_read": "LBlks Read",
+                            "local_blks_written": "LBlks Write",
+                            "max_exec_time": "RT:max",
+                            "max_plan_time": "Plan:max",
+                            "mean_exec_time": "RT:avg",
+                            "mean_plan_time": "Plan:avg",
+                            "min_exec_time": "RT:min",
+                            "min_plan_time": "Plan:min",
+                            "plans": "Plan",
+                            "qid": "Query",
+                            "query": "SQL",
+                            "queryid": "QID",
+                            "rolname": "User",
+                            "rows": "Rows",
+                            "shared_blks_dirtied": "SBlks Dirty",
+                            "shared_blks_hit": "SBlks Hit",
+                            "shared_blks_read": "SBlks Read",
+                            "shared_blks_written": "SBlks Write",
+                            "stddev_exec_time": "RT:\u03c3",
+                            "stddev_plan_time": "Plan:\u03c3",
+                            "temp_blk_read_time": "TBlk RTime",
+                            "temp_blk_write_time": "TBlk WTime",
+                            "temp_blks_read": "TBlks Read",
+                            "temp_blks_written": "TBlks Write",
+                            "toplevel": "Top",
+                            "total_exec_time": "Time",
+                            "total_plan_time": "Plan:sum",
+                            "userid": "UserID",
+                            "wal_bytes": "WAL",
+                            "wal_fpi": "WAL FPIs",
+                            "wal_records": "WAL Recs"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "${dsn}"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#346f36cc",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 12,
                 "x": 0,
-                "y": 2
+                "y": 5
             },
             "id": 89,
             "options": {
@@ -448,6 +1161,8 @@
                 },
                 "editors": [],
                 "everyRow": true,
+                "externalScripts": [],
+                "externalStyles": [],
                 "helpers": "",
                 "styles": ""
             },
@@ -487,83 +1202,6 @@
         },
         {
             "datasource": {
-                "uid": "${dsn}"
-            },
-            "description": "Users list that runs this query",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "rgba(128, 128, 128, 1)",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 10,
-                "x": 14,
-                "y": 2
-            },
-            "id": 63,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "/.*/",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "9.5.3",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT array_agg(u.usename)::TEXT\nFROM monitor.pg_stat_statements s LEFT OUTER JOIN pg_user u ON s.userid = u.usesysid\nWHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query';",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "value"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "timeColumn": "time",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Users",
-            "type": "stat"
-        },
-        {
-            "datasource": {
                 "uid": "$dsn"
             },
             "fieldConfig": {
@@ -586,7 +1224,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             },
                             {
@@ -602,7 +1240,7 @@
                                 "value": 4
                             },
                             {
-                                "color": "purple",
+                                "color": "#b783af",
                                 "value": 8
                             },
                             {
@@ -617,14 +1255,42 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "EXEC: sum"
+                            "options": "Calls"
                         },
                         "properties": [
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "blue",
+                                    "fixedColor": "#3e668f",
                                     "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "EXEC: sum"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#808080",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1e-07
+                                        }
+                                    ]
                                 }
                             }
                         ]
@@ -632,10 +1298,10 @@
                 ]
             },
             "gridPos": {
-                "h": 17,
+                "h": 15,
                 "w": 2,
-                "x": 14,
-                "y": 4
+                "x": 12,
+                "y": 5
             },
             "id": 67,
             "links": [],
@@ -657,7 +1323,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "format": "table",
@@ -693,7 +1359,7 @@
                         "excludeByName": {
                             "blk_read_time": true,
                             "blk_write_time": true,
-                            "calls": true,
+                            "calls": false,
                             "dbid": true,
                             "jit_emission_count": true,
                             "jit_emission_time": true,
@@ -773,6 +1439,7 @@
                             "wal_records": 30
                         },
                         "renameByName": {
+                            "calls": "Calls",
                             "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
                             "max_exec_time": "EXEC: max",
                             "mean_exec_time": "EXEC: \u00b5",
@@ -819,7 +1486,296 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
+                                "value": null
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 1
+                            },
+                            {
+                                "color": "#EF843C",
+                                "value": 2
+                            },
+                            {
+                                "color": "#E24D42",
+                                "value": 4
+                            },
+                            {
+                                "color": "#b783af",
+                                "value": 8
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
+                            }
+                        ]
+                    },
+                    "unit": "ms"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "PLAN: sum"
+                        },
+                        "properties": [
+                            {
+                                "id": "color"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#7f7f7f",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1e-05
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Plans"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#808080",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#3e668f",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 15,
+                "w": 2,
+                "x": 14,
+                "y": 5
+            },
+            "id": 94,
+            "links": [],
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 10
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT * FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query' ORDER BY calls DESC LIMIT 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "blk_read_time": true,
+                            "blk_write_time": true,
+                            "calls": true,
+                            "dbid": true,
+                            "jit_emission_count": true,
+                            "jit_emission_time": true,
+                            "jit_functions": true,
+                            "jit_generation_time": true,
+                            "jit_inlining_count": true,
+                            "jit_inlining_time": true,
+                            "jit_optimization_count": true,
+                            "jit_optimization_time": true,
+                            "local_blks_dirtied": true,
+                            "local_blks_hit": true,
+                            "local_blks_read": true,
+                            "local_blks_written": true,
+                            "max_exec_time": true,
+                            "max_plan_time": false,
+                            "mean_exec_time": true,
+                            "mean_plan_time": false,
+                            "min_exec_time": true,
+                            "min_plan_time": false,
+                            "plans": false,
+                            "query": true,
+                            "queryid": true,
+                            "rows": true,
+                            "shared_blks_dirtied": true,
+                            "shared_blks_hit": true,
+                            "shared_blks_read": true,
+                            "shared_blks_written": true,
+                            "stddev_exec_time": true,
+                            "stddev_plan_time": false,
+                            "temp_blk_read_time": true,
+                            "temp_blk_write_time": true,
+                            "temp_blks_read": true,
+                            "temp_blks_written": true,
+                            "toplevel": true,
+                            "total_exec_time": true,
+                            "total_plan_time": false,
+                            "usename": true,
+                            "userid": true,
+                            "wal_bytes": true,
+                            "wal_fpi": true,
+                            "wal_records": true
+                        },
+                        "indexByName": {
+                            "blk_read_time": 28,
+                            "blk_write_time": 29,
+                            "calls": 11,
+                            "dbid": 1,
+                            "jit_emission_count": 41,
+                            "jit_emission_time": 42,
+                            "jit_functions": 35,
+                            "jit_generation_time": 36,
+                            "jit_inlining_count": 37,
+                            "jit_inlining_time": 38,
+                            "jit_optimization_count": 39,
+                            "jit_optimization_time": 40,
+                            "local_blks_dirtied": 24,
+                            "local_blks_hit": 22,
+                            "local_blks_read": 23,
+                            "local_blks_written": 25,
+                            "max_exec_time": 15,
+                            "max_plan_time": 10,
+                            "mean_exec_time": 12,
+                            "mean_plan_time": 6,
+                            "min_exec_time": 14,
+                            "min_plan_time": 9,
+                            "plans": 5,
+                            "query": 4,
+                            "queryid": 3,
+                            "rows": 17,
+                            "shared_blks_dirtied": 20,
+                            "shared_blks_hit": 18,
+                            "shared_blks_read": 19,
+                            "shared_blks_written": 21,
+                            "stddev_exec_time": 13,
+                            "stddev_plan_time": 7,
+                            "temp_blk_read_time": 33,
+                            "temp_blk_write_time": 34,
+                            "temp_blks_read": 26,
+                            "temp_blks_written": 27,
+                            "toplevel": 2,
+                            "total_exec_time": 16,
+                            "total_plan_time": 8,
+                            "userid": 0,
+                            "wal_bytes": 32,
+                            "wal_fpi": 31,
+                            "wal_records": 30
+                        },
+                        "renameByName": {
+                            "calls": "",
+                            "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
+                            "max_exec_time": "EXEC: max",
+                            "max_plan_time": "PLAN: max",
+                            "mean_exec_time": "EXEC: \u00b5",
+                            "mean_plan_time": "PLAN: \u00b5",
+                            "min_exec_time": "EXEC: min",
+                            "min_plan_time": "PLAN: min",
+                            "oid": "Relation OID",
+                            "plans": "Plans",
+                            "relam": "Access Method ID",
+                            "relfilenode": "Rel Filenode",
+                            "relnamespace": "Schema OID",
+                            "reloftype": "Comptype OID",
+                            "relowner": "Owner OID",
+                            "reltablespace": "Tablespace OID",
+                            "reltoastrelid": "Toast Table OID",
+                            "reltype": "Reltype OID",
+                            "stddev_exec_time": "EXEC: \u03c3",
+                            "stddev_plan_time": "PLAN: \u03c3",
+                            "total_exec_time": "EXEC: sum",
+                            "total_plan_time": "PLAN: sum",
+                            "value": "\u53d6\u503c"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "uid": "$dsn"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "#808080",
+                                    "index": 0
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -836,7 +1792,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "blue",
+                                    "fixedColor": "#3e668f",
                                     "mode": "fixed"
                                 }
                             }
@@ -845,10 +1801,10 @@
                 ]
             },
             "gridPos": {
-                "h": 17,
+                "h": 15,
                 "w": 3,
                 "x": 16,
-                "y": 4
+                "y": 5
             },
             "id": 88,
             "links": [],
@@ -870,7 +1826,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "format": "table",
@@ -1037,19 +1993,80 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*Time/"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "ms"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*Count/"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "WAL Bytes"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Rows"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "WAL Records"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 17,
+                "h": 15,
                 "w": 5,
                 "x": 19,
-                "y": 4
+                "y": 5
             },
             "id": 74,
             "links": [],
@@ -1065,9 +2082,13 @@
                     "fields": "",
                     "values": true
                 },
+                "text": {
+                    "titleSize": 10,
+                    "valueSize": 10
+                },
                 "textMode": "auto"
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "format": "table",
@@ -1103,19 +2124,19 @@
                         "excludeByName": {
                             "blk_read_time": false,
                             "blk_write_time": false,
-                            "calls": false,
+                            "calls": true,
                             "dbid": true,
                             "local_blks_dirtied": true,
                             "local_blks_hit": true,
                             "local_blks_read": true,
                             "local_blks_written": true,
                             "max_exec_time": true,
-                            "max_plan_time": false,
+                            "max_plan_time": true,
                             "mean_exec_time": true,
-                            "mean_plan_time": false,
+                            "mean_plan_time": true,
                             "min_exec_time": true,
-                            "min_plan_time": false,
-                            "plans": false,
+                            "min_plan_time": true,
+                            "plans": true,
                             "query": true,
                             "queryid": true,
                             "rows": false,
@@ -1124,12 +2145,12 @@
                             "shared_blks_read": true,
                             "shared_blks_written": true,
                             "stddev_exec_time": true,
-                            "stddev_plan_time": false,
+                            "stddev_plan_time": true,
                             "temp_blks_read": true,
                             "temp_blks_written": true,
                             "toplevel": true,
                             "total_exec_time": true,
-                            "total_plan_time": false,
+                            "total_plan_time": true,
                             "usename": true,
                             "userid": true,
                             "wal_bytes": false,
@@ -1137,14 +2158,22 @@
                             "wal_records": false
                         },
                         "indexByName": {
-                            "blk_read_time": 28,
-                            "blk_write_time": 29,
+                            "blk_read_time": 31,
+                            "blk_write_time": 32,
                             "calls": 11,
                             "dbid": 1,
-                            "local_blks_dirtied": 24,
-                            "local_blks_hit": 22,
-                            "local_blks_read": 23,
-                            "local_blks_written": 25,
+                            "jit_emission_count": 41,
+                            "jit_emission_time": 42,
+                            "jit_functions": 35,
+                            "jit_generation_time": 36,
+                            "jit_inlining_count": 37,
+                            "jit_inlining_time": 38,
+                            "jit_optimization_count": 39,
+                            "jit_optimization_time": 40,
+                            "local_blks_dirtied": 23,
+                            "local_blks_hit": 21,
+                            "local_blks_read": 22,
+                            "local_blks_written": 24,
                             "max_exec_time": 15,
                             "max_plan_time": 9,
                             "mean_exec_time": 12,
@@ -1154,25 +2183,36 @@
                             "plans": 5,
                             "query": 4,
                             "queryid": 3,
-                            "rows": 17,
-                            "shared_blks_dirtied": 20,
-                            "shared_blks_hit": 18,
-                            "shared_blks_read": 19,
-                            "shared_blks_written": 21,
+                            "rows": 27,
+                            "shared_blks_dirtied": 19,
+                            "shared_blks_hit": 17,
+                            "shared_blks_read": 18,
+                            "shared_blks_written": 20,
                             "stddev_exec_time": 13,
                             "stddev_plan_time": 7,
-                            "temp_blks_read": 26,
-                            "temp_blks_written": 27,
+                            "temp_blk_read_time": 33,
+                            "temp_blk_write_time": 34,
+                            "temp_blks_read": 25,
+                            "temp_blks_written": 26,
                             "toplevel": 2,
                             "total_exec_time": 16,
                             "total_plan_time": 10,
-                            "usename": 33,
                             "userid": 0,
-                            "wal_bytes": 32,
-                            "wal_fpi": 31,
+                            "wal_bytes": 28,
+                            "wal_fpi": 29,
                             "wal_records": 30
                         },
                         "renameByName": {
+                            "blk_read_time": "Blk ReadTime",
+                            "blk_write_time": "Blk WriteTime",
+                            "jit_emission_count": "JIT EmissionCount",
+                            "jit_emission_time": "JIT EmissionTime",
+                            "jit_functions": "JIT Funcs",
+                            "jit_generation_time": "JIT GenTime",
+                            "jit_inlining_count": "JIT InlineCount",
+                            "jit_inlining_time": "JIT InlineTime",
+                            "jit_optimization_count": "JIT OptimizeCount",
+                            "jit_optimization_time": "JIT OptimizeTime",
                             "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
                             "max_exec_time": "",
                             "max_plan_time": "",
@@ -1189,20 +2229,18 @@
                             "reltablespace": "Tablespace OID",
                             "reltoastrelid": "Toast Table OID",
                             "reltype": "Reltype OID",
+                            "rows": "Rows",
                             "stddev_exec_time": "",
                             "stddev_plan_time": "",
+                            "temp_blk_read_time": "TmpBlk ReadTime",
+                            "temp_blk_write_time": "TmpBlk WriteTime",
                             "total_exec_time": "",
                             "total_plan_time": "",
-                            "value": "\u53d6\u503c"
+                            "value": "\u53d6\u503c",
+                            "wal_bytes": "WAL Bytes",
+                            "wal_fpi": "WAL FPI",
+                            "wal_records": "WAL Records"
                         }
-                    }
-                },
-                {
-                    "id": "reduce",
-                    "options": {
-                        "reducers": [
-                            "lastNotNull"
-                        ]
                     }
                 },
                 {
@@ -1221,8 +2259,85 @@
         },
         {
             "datasource": {
+                "uid": "${dsn}"
+            },
+            "description": "Users list that runs this query",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "rgba(128, 128, 128, 1)",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 12,
+                "x": 0,
+                "y": 18
+            },
+            "id": 63,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/.*/",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT array_agg(u.usename)::TEXT\nFROM monitor.pg_stat_statements s LEFT OUTER JOIN pg_user u ON s.userid = u.usesysid\nWHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Users",
+            "type": "stat"
+        },
+        {
+            "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Pgbouncer Queries per second according to last 1m, 5m, 15m",
             "fieldConfig": {
@@ -1267,7 +2382,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -1347,10 +2462,10 @@
                 ]
             },
             "gridPos": {
-                "h": 7,
-                "w": 7,
+                "h": 5,
+                "w": 14,
                 "x": 0,
-                "y": 14
+                "y": 20
             },
             "id": 78,
             "options": {
@@ -1368,14 +2483,23 @@
             "pluginVersion": "8.0.0-beta2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "exemplar": false,
                     "expr": "pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}",
+                    "hide": false,
                     "interval": "",
                     "intervalFactor": 1,
                     "legendFormat": "1m",
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "exemplar": false,
                     "expr": "rate(pg_query_calls{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[5m])",
                     "interval": "",
@@ -1384,8 +2508,13 @@
                     "refId": "B"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "exemplar": false,
                     "expr": "rate(pg_query_calls{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
+                    "hide": false,
                     "interval": "",
                     "intervalFactor": 1,
                     "legendFormat": "15m",
@@ -1398,7 +2527,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "${ds}"
+                "uid": "ds-prometheus"
             },
             "description": "Pgbouncer query average response time in last 1m, 5m, 15m",
             "fieldConfig": {
@@ -1443,7 +2572,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#346f36cc",
                                 "value": null
                             }
                         ]
@@ -1523,10 +2652,10 @@
                 ]
             },
             "gridPos": {
-                "h": 7,
-                "w": 7,
-                "x": 7,
-                "y": 14
+                "h": 5,
+                "w": 10,
+                "x": 14,
+                "y": 20
             },
             "id": 80,
             "options": {
@@ -1575,488 +2704,16 @@
         },
         {
             "datasource": {
+                "type": "postgres",
                 "uid": "${dsn}"
             },
+            "description": "It may have multiple records if the same query is executed by multiple different users.",
             "fieldConfig": {
                 "defaults": {
                     "custom": {
                         "align": "center",
                         "cellOptions": {
                             "type": "auto"
-                        },
-                        "filterable": false,
-                        "inspect": false
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Query"
-                        },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "${__data.fields.SQL}",
-                                        "url": "/d/pgsql-query?var-ins=${ins}&var-datname=${datname}&var-query=${__data.fields.Query}"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.width",
-                                "value": 180
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "type": "auto"
-                                }
-                            },
-                            {
-                                "id": "unit",
-                                "value": "string"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Database"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 120
-                            },
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "PG Database ${__data.fields.Database}",
-                                        "url": "/d/pg-database?var-ins=${ins}&var-datname=${__data.fields.Database}"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "User"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byRegexp",
-                            "options": "/.*_time/"
-                        },
-                        "properties": [
-                            {
-                                "id": "unit",
-                                "value": "ms"
-                            },
-                            {
-                                "id": "custom.width",
-                                "value": 120
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "type": "color-text"
-                                }
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "super-light-blue",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "blue",
-                                            "value": 0.1
-                                        },
-                                        {
-                                            "color": "light-green",
-                                            "value": 1
-                                        },
-                                        {
-                                            "color": "green",
-                                            "value": 2
-                                        },
-                                        {
-                                            "color": "yellow",
-                                            "value": 10
-                                        },
-                                        {
-                                            "color": "orange",
-                                            "value": 100
-                                        },
-                                        {
-                                            "color": "red",
-                                            "value": 1000
-                                        },
-                                        {
-                                            "color": "purple",
-                                            "value": 60000
-                                        },
-                                        {
-                                            "color": "rgb(80, 6, 94)",
-                                            "value": 600000
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "id": "decimals",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byRegexp",
-                            "options": "/.*_blks_.*/"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 110
-                            },
-                            {
-                                "id": "unit",
-                                "value": "short"
-                            },
-                            {
-                                "id": "decimals",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "SQL"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "type": "json-view"
-                                }
-                            },
-                            {
-                                "id": "custom.align",
-                                "value": "left"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "calls"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "unit",
-                                "value": "short"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "rows"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "unit",
-                                "value": "short"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byRegexp",
-                            "options": "/wal_.*/"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 90
-                            },
-                            {
-                                "id": "unit",
-                                "value": "short"
-                            },
-                            {
-                                "id": "decimals",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "wal_bytes"
-                        },
-                        "properties": [
-                            {
-                                "id": "unit",
-                                "value": "decbytes"
-                            },
-                            {
-                                "id": "decimals",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "TOP"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 60
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "false": {
-                                                "color": "yellow",
-                                                "index": 0,
-                                                "text": "F"
-                                            },
-                                            "true": {
-                                                "color": "green",
-                                                "index": 1,
-                                                "text": "T"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "mode": "gradient",
-                                    "type": "color-background"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "plans"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 57
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 24,
-                "x": 0,
-                "y": 21
-            },
-            "id": 61,
-            "options": {
-                "cellHeight": "sm",
-                "footer": {
-                    "countRows": false,
-                    "fields": "",
-                    "reducer": [
-                        "sum"
-                    ],
-                    "show": false
-                },
-                "showHeader": true,
-                "sortBy": [
-                    {
-                        "desc": true,
-                        "displayName": "mean_exec_time"
-                    }
-                ]
-            },
-            "pluginVersion": "9.5.3",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT s.*, u.usename\nFROM monitor.pg_stat_statements s LEFT OUTER JOIN pg_user u ON s.userid = u.usesysid\nWHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query';",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "value"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "timeColumn": "time",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Statements Stat for ${query}",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "dbid": true,
-                            "local_blks_dirtied": true,
-                            "local_blks_hit": true,
-                            "local_blks_read": true,
-                            "local_blks_written": true,
-                            "max_plan_time": false,
-                            "mean_plan_time": false,
-                            "min_plan_time": false,
-                            "plans": false,
-                            "qid": true,
-                            "query": true,
-                            "queryid": true,
-                            "shared_blks_dirtied": false,
-                            "shared_blks_hit": false,
-                            "shared_blks_read": false,
-                            "shared_blks_written": false,
-                            "stddev_exec_time": false,
-                            "stddev_plan_time": false,
-                            "temp_blks_read": true,
-                            "temp_blks_written": true,
-                            "total_plan_time": false,
-                            "userid": true
-                        },
-                        "indexByName": {
-                            "blk_read_time": 28,
-                            "blk_write_time": 29,
-                            "calls": 5,
-                            "dbid": 2,
-                            "local_blks_dirtied": 24,
-                            "local_blks_hit": 22,
-                            "local_blks_read": 23,
-                            "local_blks_written": 25,
-                            "max_exec_time": 15,
-                            "max_plan_time": 10,
-                            "mean_exec_time": 16,
-                            "mean_plan_time": 11,
-                            "min_exec_time": 14,
-                            "min_plan_time": 9,
-                            "plans": 7,
-                            "query": 4,
-                            "queryid": 0,
-                            "rows": 6,
-                            "shared_blks_dirtied": 20,
-                            "shared_blks_hit": 18,
-                            "shared_blks_read": 19,
-                            "shared_blks_written": 21,
-                            "stddev_exec_time": 17,
-                            "stddev_plan_time": 12,
-                            "temp_blks_read": 26,
-                            "temp_blks_written": 27,
-                            "toplevel": 33,
-                            "total_exec_time": 13,
-                            "total_plan_time": 8,
-                            "usename": 3,
-                            "userid": 1,
-                            "wal_bytes": 32,
-                            "wal_fpi": 31,
-                            "wal_records": 30
-                        },
-                        "renameByName": {
-                            "calls": "",
-                            "datname": "Database",
-                            "dbid": "DB",
-                            "plans": "",
-                            "qid": "Query",
-                            "query": "SQL",
-                            "queryid": "",
-                            "toplevel": "TOP",
-                            "total_plan_time": "",
-                            "usename": "User",
-                            "userid": ""
-                        }
-                    }
-                }
-            ],
-            "type": "table"
-        },
-        {
-            "collapsed": false,
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 25
-            },
-            "id": 55,
-            "panels": [],
-            "title": "Overview",
-            "type": "row"
-        },
-        {
-            "datasource": {
-                "type": "postgres",
-                "uid": "${dsn}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "cellOptions": {
-                            "mode": "gradient",
-                            "type": "color-background"
                         },
                         "filterable": false,
                         "inspect": false
@@ -2076,7 +2733,7 @@
                     {
                         "matcher": {
                             "id": "byRegexp",
-                            "options": "(RT|RT:min|RT:max)"
+                            "options": "(RT:avg)"
                         },
                         "properties": [
                             {
@@ -2104,7 +2761,7 @@
                                             "value": null
                                         },
                                         {
-                                            "color": "blue",
+                                            "color": "#3e668f",
                                             "value": 0.1
                                         },
                                         {
@@ -2112,15 +2769,15 @@
                                             "value": 1
                                         },
                                         {
-                                            "color": "green",
+                                            "color": "#346f36cc",
                                             "value": 2
                                         },
                                         {
-                                            "color": "yellow",
+                                            "color": "#fcdb72",
                                             "value": 10
                                         },
                                         {
-                                            "color": "orange",
+                                            "color": "#f5a673",
                                             "value": 100
                                         },
                                         {
@@ -2128,7 +2785,7 @@
                                             "value": 1000
                                         },
                                         {
-                                            "color": "purple",
+                                            "color": "#b783af",
                                             "value": 60000
                                         },
                                         {
@@ -2152,7 +2809,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 199
+                                "value": 200
                             },
                             {
                                 "id": "unit",
@@ -2166,6 +2823,12 @@
                                         "url": "/d/pgcat-query?var-dsn=${dsn}&var-query=${__data.fields.Query}"
                                     }
                                 ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
                             }
                         ]
                     },
@@ -2177,7 +2840,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 170
+                                "value": 110
                             },
                             {
                                 "id": "links",
@@ -2198,7 +2861,17 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 150
+                                "value": 140
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "left"
                             }
                         ]
                     },
@@ -2220,11 +2893,15 @@
                             },
                             {
                                 "id": "custom.minWidth",
-                                "value": 300
+                                "value": 256
                             },
                             {
                                 "id": "custom.inspect",
                                 "value": true
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "left"
                             }
                         ]
                     },
@@ -2236,11 +2913,17 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 111
+                                "value": 120
                             },
                             {
                                 "id": "unit",
                                 "value": "locale"
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
                             }
                         ]
                     },
@@ -2252,11 +2935,17 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 80
+                                "value": 100
                             },
                             {
                                 "id": "unit",
                                 "value": "short"
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
                             }
                         ]
                     },
@@ -2268,67 +2957,29 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 80
+                                "value": 100
                             },
                             {
                                 "id": "unit",
                                 "value": "ms"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "RT"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 77
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "WAL Recs"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "WAL FPIs"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 90
                             },
                             {
-                                "id": "unit",
-                                "value": "locale"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "WAL Bytes"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 90
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
                             },
                             {
-                                "id": "unit",
-                                "value": "decbytes"
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#3e668f",
+                                            "value": null
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     },
@@ -2339,40 +2990,289 @@
                         },
                         "properties": [
                             {
-                                "id": "custom.width",
-                                "value": 50
-                            },
-                            {
                                 "id": "mappings",
                                 "value": [
                                     {
                                         "options": {
                                             "false": {
-                                                "color": "orange",
-                                                "index": 1,
+                                                "color": "#f5a673",
+                                                "index": 0,
                                                 "text": "F"
                                             },
                                             "true": {
-                                                "color": "green",
-                                                "index": 0,
+                                                "color": "#346f36cc",
+                                                "index": 1,
                                                 "text": "T"
                                             }
                                         },
                                         "type": "value"
                                     }
                                 ]
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/Plan:.*|RT:.*|.*Time/"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "ms"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*Blks.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "locale"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#7a7a7a40",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "gradient",
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Plan"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/WAL.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#7d7d7d33",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/JIT.*Count/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#7d7d7d33",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/JIT.*Time/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#7d7d7d33",
+                                            "value": 1e-09
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "JIT Functions"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#7d7d7d33",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*Blk.*Time/"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "transparent",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#7d7d7d33",
+                                            "value": 1e-07
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "UserID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
                             }
                         ]
                     }
                 ]
             },
             "gridPos": {
-                "h": 14,
+                "h": 5,
                 "w": 24,
                 "x": 0,
-                "y": 26
+                "y": 25
             },
-            "id": 87,
+            "id": 91,
             "options": {
                 "cellHeight": "sm",
                 "footer": {
@@ -2387,22 +3287,26 @@
                 "sortBy": [
                     {
                         "desc": true,
-                        "displayName": "Calls"
+                        "displayName": "RT:avg"
                     }
                 ]
             },
-            "pluginVersion": "9.5.3",
+            "pluginVersion": "10.0.3",
             "targets": [
                 {
                     "datasource": {
                         "type": "postgres",
-                        "uid": "md8fdRu7k"
+                        "uid": "${dsn}"
                     },
+                    "editorMode": "code",
+                    "expr": "",
                     "format": "table",
                     "group": [],
+                    "legendFormat": "__auto",
                     "metricColumn": "none",
+                    "range": true,
                     "rawQuery": true,
-                    "rawSql": "SELECT queryid::TEXT AS qid, d.datname, r.rolname, s.*\nFROM monitor.pg_stat_statements s\nLEFT JOIN pg_database d ON s.dbid = d.oid\n     LEFT JOIN pg_roles r ON s.userid = r.oid\nWHERE datname = '$datname'\nORDER BY rows DESC LIMIT 200;",
+                    "rawSql": "SELECT queryid::TEXT AS qid, d.datname, r.rolname, s.*\nFROM monitor.pg_stat_statements s\n         LEFT JOIN pg_database d ON s.dbid = d.oid\n         LEFT JOIN pg_roles r ON s.userid = r.oid\nWHERE datname='$datname' and queryid = '$query'\nORDER BY mean_exec_time DESC\nLIMIT 100;",
                     "refId": "A",
                     "select": [
                         [
@@ -2414,6 +3318,23 @@
                             }
                         ]
                     ],
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    },
                     "timeColumn": "time",
                     "where": [
                         {
@@ -2424,94 +3345,133 @@
                     ]
                 }
             ],
-            "title": "Query Statements",
+            "title": "Statement Detail",
             "transformations": [
                 {
                     "id": "organize",
                     "options": {
                         "excludeByName": {
-                            "blk_read_time": true,
-                            "blk_write_time": true,
+                            "blk_read_time": false,
+                            "blk_write_time": false,
                             "datname": true,
                             "dbid": true,
-                            "local_blks_dirtied": true,
-                            "local_blks_hit": true,
-                            "local_blks_read": true,
-                            "local_blks_written": true,
-                            "max_plan_time": true,
-                            "mean_plan_time": true,
-                            "min_plan_time": true,
-                            "plans": true,
+                            "local_blks_dirtied": false,
+                            "local_blks_hit": false,
+                            "local_blks_read": false,
+                            "local_blks_written": false,
+                            "max_plan_time": false,
+                            "mean_plan_time": false,
+                            "min_plan_time": false,
+                            "plans": false,
+                            "qid": true,
+                            "query": true,
                             "queryid": true,
-                            "shared_blks_dirtied": true,
-                            "shared_blks_hit": true,
-                            "shared_blks_read": true,
-                            "shared_blks_written": true,
-                            "stddev_exec_time": true,
-                            "stddev_plan_time": true,
-                            "temp_blks_read": true,
-                            "temp_blks_written": true,
-                            "total_plan_time": true,
-                            "userid": true
+                            "shared_blks_dirtied": false,
+                            "shared_blks_hit": false,
+                            "shared_blks_read": false,
+                            "shared_blks_written": false,
+                            "stddev_exec_time": false,
+                            "stddev_plan_time": false,
+                            "temp_blk_read_time": false,
+                            "temp_blk_write_time": false,
+                            "temp_blks_read": false,
+                            "temp_blks_written": false,
+                            "total_plan_time": false,
+                            "userid": false
                         },
                         "indexByName": {
-                            "blk_read_time": 30,
-                            "blk_write_time": 31,
-                            "calls": 7,
-                            "datname": 2,
-                            "dbid": 5,
-                            "local_blks_dirtied": 26,
-                            "local_blks_hit": 24,
-                            "local_blks_read": 25,
-                            "local_blks_written": 27,
-                            "max_exec_time": 17,
-                            "max_plan_time": 13,
-                            "mean_exec_time": 16,
-                            "mean_plan_time": 14,
-                            "min_exec_time": 18,
-                            "min_plan_time": 12,
-                            "plans": 10,
-                            "qid": 0,
-                            "query": 1,
-                            "queryid": 6,
-                            "rolname": 3,
-                            "rows": 8,
-                            "shared_blks_dirtied": 22,
-                            "shared_blks_hit": 20,
-                            "shared_blks_read": 21,
-                            "shared_blks_written": 23,
-                            "stddev_exec_time": 19,
-                            "stddev_plan_time": 15,
-                            "temp_blks_read": 28,
-                            "temp_blks_written": 29,
-                            "toplevel": 35,
-                            "total_exec_time": 9,
-                            "total_plan_time": 11,
-                            "userid": 4,
-                            "wal_bytes": 34,
-                            "wal_fpi": 33,
-                            "wal_records": 32
+                            "blk_read_time": 34,
+                            "blk_write_time": 35,
+                            "calls": 8,
+                            "datname": 3,
+                            "dbid": 6,
+                            "jit_emission_count": 44,
+                            "jit_emission_time": 45,
+                            "jit_functions": 38,
+                            "jit_generation_time": 39,
+                            "jit_inlining_count": 40,
+                            "jit_inlining_time": 41,
+                            "jit_optimization_count": 42,
+                            "jit_optimization_time": 43,
+                            "local_blks_dirtied": 30,
+                            "local_blks_hit": 28,
+                            "local_blks_read": 29,
+                            "local_blks_written": 31,
+                            "max_exec_time": 13,
+                            "max_plan_time": 20,
+                            "mean_exec_time": 12,
+                            "mean_plan_time": 18,
+                            "min_exec_time": 14,
+                            "min_plan_time": 19,
+                            "plans": 16,
+                            "qid": 4,
+                            "query": 5,
+                            "queryid": 7,
+                            "rolname": 1,
+                            "rows": 9,
+                            "shared_blks_dirtied": 26,
+                            "shared_blks_hit": 24,
+                            "shared_blks_read": 25,
+                            "shared_blks_written": 27,
+                            "stddev_exec_time": 15,
+                            "stddev_plan_time": 21,
+                            "temp_blk_read_time": 36,
+                            "temp_blk_write_time": 37,
+                            "temp_blks_read": 32,
+                            "temp_blks_written": 33,
+                            "toplevel": 0,
+                            "total_exec_time": 11,
+                            "total_plan_time": 17,
+                            "userid": 2,
+                            "wal_bytes": 10,
+                            "wal_fpi": 23,
+                            "wal_records": 22
                         },
                         "renameByName": {
-                            "blk_read_time": "",
+                            "blk_read_time": "Blk RTime",
+                            "blk_write_time": "TBlk WTime",
                             "calls": "Calls",
                             "datname": "Database",
                             "dbid": "DBID",
+                            "jit_emission_count": "JIT Emission Count",
+                            "jit_emission_time": "JIT Emission Time",
+                            "jit_functions": "JIT Functions",
+                            "jit_generation_time": "JIT Generate Time",
+                            "jit_inlining_count": "JIT Inline Count",
+                            "jit_inlining_time": "JIT Inline Time",
+                            "jit_optimization_count": "JIT Optimize Count",
+                            "jit_optimization_time": "JIT Optimize Time",
+                            "local_blks_dirtied": "LBlks Dirty",
+                            "local_blks_hit": "LBlks Hit",
+                            "local_blks_read": "LBlks Read",
+                            "local_blks_written": "LBlks Write",
                             "max_exec_time": "RT:max",
-                            "mean_exec_time": "RT",
+                            "max_plan_time": "Plan:max",
+                            "mean_exec_time": "RT:avg",
+                            "mean_plan_time": "Plan:avg",
                             "min_exec_time": "RT:min",
-                            "plans": "",
+                            "min_plan_time": "Plan:min",
+                            "plans": "Plan",
                             "qid": "Query",
                             "query": "SQL",
                             "queryid": "QID",
                             "rolname": "User",
                             "rows": "Rows",
-                            "stddev_exec_time": "",
+                            "shared_blks_dirtied": "SBlks Dirty",
+                            "shared_blks_hit": "SBlks Hit",
+                            "shared_blks_read": "SBlks Read",
+                            "shared_blks_written": "SBlks Write",
+                            "stddev_exec_time": "RT:\u03c3",
+                            "stddev_plan_time": "Plan:\u03c3",
+                            "temp_blk_read_time": "TBlk RTime",
+                            "temp_blk_write_time": "TBlk WTime",
+                            "temp_blks_read": "TBlks Read",
+                            "temp_blks_written": "TBlks Write",
                             "toplevel": "Top",
                             "total_exec_time": "Time",
-                            "total_plan_time": "",
+                            "total_plan_time": "Plan:sum",
                             "userid": "UserID",
-                            "wal_bytes": "WAL Bytes",
+                            "wal_bytes": "WAL",
                             "wal_fpi": "WAL FPIs",
                             "wal_records": "WAL Recs"
                         }
@@ -2519,6 +3479,792 @@
                 }
             ],
             "type": "table"
+        },
+        {
+            "collapsed": true,
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 30
+            },
+            "id": 55,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "${dsn}"
+                    },
+                    "description": "pg_stat_statements of database ${datname}, order by mean_exec_time DESC.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "custom": {
+                                "align": "center",
+                                "cellOptions": {
+                                    "type": "auto"
+                                },
+                                "filterable": false,
+                                "inspect": false
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "#e3e3e3e0",
+                                        "value": null
+                                    }
+                                ]
+                            }
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "(RT:avg)"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "unit",
+                                        "value": "ms"
+                                    },
+                                    {
+                                        "id": "custom.width",
+                                        "value": 80
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "basic",
+                                            "type": "color-background"
+                                        }
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "super-light-blue",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "#3e668f",
+                                                    "value": 0.1
+                                                },
+                                                {
+                                                    "color": "light-green",
+                                                    "value": 1
+                                                },
+                                                {
+                                                    "color": "#346f36cc",
+                                                    "value": 2
+                                                },
+                                                {
+                                                    "color": "#fcdb72",
+                                                    "value": 10
+                                                },
+                                                {
+                                                    "color": "#f5a673",
+                                                    "value": 100
+                                                },
+                                                {
+                                                    "color": "red",
+                                                    "value": 1000
+                                                },
+                                                {
+                                                    "color": "#b783af",
+                                                    "value": 60000
+                                                },
+                                                {
+                                                    "color": "rgb(80, 6, 94)",
+                                                    "value": 600000
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Query"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 200
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "string"
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "${__data.fields.SQL}",
+                                                "url": "/d/pgcat-query?var-dsn=${dsn}&var-query=${__data.fields.Query}"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "auto"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Database"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 110
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGCAT Database for ${__data.fields.Database}",
+                                                "url": "/d/pgcat-database?var-dsn=${ins}.${__data.fields.Database}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "User"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 120
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "auto"
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.align",
+                                        "value": "left"
+                                    },
+                                    {
+                                        "id": "custom.filterable",
+                                        "value": true
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "SQL"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "unit",
+                                        "value": "string"
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "auto"
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.minWidth",
+                                        "value": 256
+                                    },
+                                    {
+                                        "id": "custom.inspect",
+                                        "value": true
+                                    },
+                                    {
+                                        "id": "custom.align",
+                                        "value": "left"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Calls"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 120
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "locale"
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "auto"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Rows"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 100
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "short"
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "auto"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Time"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 100
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "ms"
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "auto"
+                                        }
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "#3e668f",
+                                                    "value": null
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Top"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "false": {
+                                                        "color": "#f5a673",
+                                                        "index": 0,
+                                                        "text": "F"
+                                                    },
+                                                    "true": {
+                                                        "color": "#346f36cc",
+                                                        "index": 1,
+                                                        "text": "T"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.width",
+                                        "value": 60
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "color-background"
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.filterable",
+                                        "value": true
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "/Plan:.*|RT:.*|.*Time/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "unit",
+                                        "value": "ms"
+                                    },
+                                    {
+                                        "id": "custom.width",
+                                        "value": 100
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "/.*Blks.*/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "unit",
+                                        "value": "locale"
+                                    },
+                                    {
+                                        "id": "custom.width",
+                                        "value": 100
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "transparent",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "#7a7a7a40",
+                                                    "value": 1
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "mode": "gradient",
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Plan"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 40
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "short"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "/WAL.*/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 100
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "short"
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "transparent",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "#7d7d7d33",
+                                                    "value": 1
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "/JIT.*Count/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 150
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "transparent",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "#7d7d7d33",
+                                                    "value": 1
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "/JIT.*Time/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 150
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "transparent",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "#7d7d7d33",
+                                                    "value": 1e-09
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "JIT Functions"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "transparent",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "#7d7d7d33",
+                                                    "value": 1
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "color-background"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "/.*Blk.*Time/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "transparent",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "#7d7d7d33",
+                                                    "value": 1e-07
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 18,
+                        "w": 24,
+                        "x": 0,
+                        "y": 31
+                    },
+                    "id": 90,
+                    "options": {
+                        "cellHeight": "sm",
+                        "footer": {
+                            "countRows": false,
+                            "fields": "",
+                            "reducer": [
+                                "sum"
+                            ],
+                            "show": false
+                        },
+                        "showHeader": true,
+                        "sortBy": [
+                            {
+                                "desc": true,
+                                "displayName": "Calls"
+                            }
+                        ]
+                    },
+                    "pluginVersion": "10.0.3",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "postgres",
+                                "uid": "${dsn}"
+                            },
+                            "editorMode": "code",
+                            "expr": "",
+                            "format": "table",
+                            "group": [],
+                            "legendFormat": "__auto",
+                            "metricColumn": "none",
+                            "range": true,
+                            "rawQuery": true,
+                            "rawSql": "SELECT queryid::TEXT AS qid, d.datname, r.rolname, s.*\nFROM monitor.pg_stat_statements s\n         LEFT JOIN pg_database d ON s.dbid = d.oid\n         LEFT JOIN pg_roles r ON s.userid = r.oid\nWHERE datname='$datname'\nORDER BY mean_exec_time DESC\nLIMIT 100;",
+                            "refId": "A",
+                            "select": [
+                                [
+                                    {
+                                        "params": [
+                                            "value"
+                                        ],
+                                        "type": "column"
+                                    }
+                                ]
+                            ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
+                            "timeColumn": "time",
+                            "where": [
+                                {
+                                    "name": "$__timeFilter",
+                                    "params": [],
+                                    "type": "macro"
+                                }
+                            ]
+                        }
+                    ],
+                    "title": "Top SQL by RT",
+                    "transformations": [
+                        {
+                            "id": "organize",
+                            "options": {
+                                "excludeByName": {
+                                    "blk_read_time": false,
+                                    "blk_write_time": false,
+                                    "datname": true,
+                                    "dbid": true,
+                                    "local_blks_dirtied": false,
+                                    "local_blks_hit": false,
+                                    "local_blks_read": false,
+                                    "local_blks_written": false,
+                                    "max_plan_time": false,
+                                    "mean_plan_time": false,
+                                    "min_plan_time": false,
+                                    "plans": false,
+                                    "queryid": true,
+                                    "shared_blks_dirtied": false,
+                                    "shared_blks_hit": false,
+                                    "shared_blks_read": false,
+                                    "shared_blks_written": false,
+                                    "stddev_exec_time": false,
+                                    "stddev_plan_time": false,
+                                    "temp_blk_read_time": false,
+                                    "temp_blk_write_time": false,
+                                    "temp_blks_read": false,
+                                    "temp_blks_written": false,
+                                    "total_plan_time": false,
+                                    "userid": true
+                                },
+                                "indexByName": {
+                                    "blk_read_time": 34,
+                                    "blk_write_time": 35,
+                                    "calls": 8,
+                                    "datname": 1,
+                                    "dbid": 6,
+                                    "jit_emission_count": 44,
+                                    "jit_emission_time": 45,
+                                    "jit_functions": 38,
+                                    "jit_generation_time": 39,
+                                    "jit_inlining_count": 40,
+                                    "jit_inlining_time": 41,
+                                    "jit_optimization_count": 42,
+                                    "jit_optimization_time": 43,
+                                    "local_blks_dirtied": 30,
+                                    "local_blks_hit": 28,
+                                    "local_blks_read": 29,
+                                    "local_blks_written": 31,
+                                    "max_exec_time": 13,
+                                    "max_plan_time": 20,
+                                    "mean_exec_time": 12,
+                                    "mean_plan_time": 18,
+                                    "min_exec_time": 14,
+                                    "min_plan_time": 19,
+                                    "plans": 16,
+                                    "qid": 2,
+                                    "query": 3,
+                                    "queryid": 7,
+                                    "rolname": 4,
+                                    "rows": 9,
+                                    "shared_blks_dirtied": 26,
+                                    "shared_blks_hit": 24,
+                                    "shared_blks_read": 25,
+                                    "shared_blks_written": 27,
+                                    "stddev_exec_time": 15,
+                                    "stddev_plan_time": 21,
+                                    "temp_blk_read_time": 36,
+                                    "temp_blk_write_time": 37,
+                                    "temp_blks_read": 32,
+                                    "temp_blks_written": 33,
+                                    "toplevel": 0,
+                                    "total_exec_time": 11,
+                                    "total_plan_time": 17,
+                                    "userid": 5,
+                                    "wal_bytes": 10,
+                                    "wal_fpi": 23,
+                                    "wal_records": 22
+                                },
+                                "renameByName": {
+                                    "blk_read_time": "Blk RTime",
+                                    "blk_write_time": "TBlk WTime",
+                                    "calls": "Calls",
+                                    "datname": "Database",
+                                    "dbid": "DBID",
+                                    "jit_emission_count": "JIT Emission Count",
+                                    "jit_emission_time": "JIT Emission Time",
+                                    "jit_functions": "JIT Functions",
+                                    "jit_generation_time": "JIT Generate Time",
+                                    "jit_inlining_count": "JIT Inline Count",
+                                    "jit_inlining_time": "JIT Inline Time",
+                                    "jit_optimization_count": "JIT Optimize Count",
+                                    "jit_optimization_time": "JIT Optimize Time",
+                                    "local_blks_dirtied": "LBlks Dirty",
+                                    "local_blks_hit": "LBlks Hit",
+                                    "local_blks_read": "LBlks Read",
+                                    "local_blks_written": "LBlks Write",
+                                    "max_exec_time": "RT:max",
+                                    "max_plan_time": "Plan:max",
+                                    "mean_exec_time": "RT:avg",
+                                    "mean_plan_time": "Plan:avg",
+                                    "min_exec_time": "RT:min",
+                                    "min_plan_time": "Plan:min",
+                                    "plans": "Plan",
+                                    "qid": "Query",
+                                    "query": "SQL",
+                                    "queryid": "QID",
+                                    "rolname": "User",
+                                    "rows": "Rows",
+                                    "shared_blks_dirtied": "SBlks Dirty",
+                                    "shared_blks_hit": "SBlks Hit",
+                                    "shared_blks_read": "SBlks Read",
+                                    "shared_blks_written": "SBlks Write",
+                                    "stddev_exec_time": "RT:\u03c3",
+                                    "stddev_plan_time": "Plan:\u03c3",
+                                    "temp_blk_read_time": "TBlk RTime",
+                                    "temp_blk_write_time": "TBlk WTime",
+                                    "temp_blks_read": "TBlks Read",
+                                    "temp_blks_written": "TBlks Write",
+                                    "toplevel": "Top",
+                                    "total_exec_time": "Time",
+                                    "total_plan_time": "Plan:sum",
+                                    "userid": "UserID",
+                                    "wal_bytes": "WAL",
+                                    "wal_fpi": "WAL FPIs",
+                                    "wal_records": "WAL Recs"
+                                }
+                            }
+                        }
+                    ],
+                    "type": "table"
+                }
+            ],
+            "title": "Overview",
+            "type": "row"
         }
     ],
     "refresh": "",
@@ -2534,21 +4280,6 @@
     ],
     "templating": {
         "list": [
-            {
-                "current": {},
-                "description": "Prometheus datasource used by this dashboard",
-                "hide": 2,
-                "includeAll": false,
-                "label": "Source",
-                "multi": false,
-                "name": "ds",
-                "options": [],
-                "query": "prometheus",
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "type": "datasource"
-            },
             {
                 "current": {},
                 "description": "Database Instance",

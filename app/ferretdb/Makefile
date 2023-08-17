@@ -1,15 +1,7 @@
-ifeq (, $(shell which docker-compose 2>/dev/null))
-DOCKER_COMPOSE_PLUGIN="true"
-endif
-
 default: up view
 
 up: view
-ifdef DOCKER_COMPOSE_PLUGIN
 	docker compose up -d
-else
-	docker-compose up -d
-endif
 
 view:
 	@echo "docker run --rm -it --network=ferretdb --entrypoint=mongosh mongo:5 mongodb://ferretdb/"
@@ -27,10 +19,10 @@ clean:
 	docker stop ferretdb; docker rm -f ferretdb
 
 pull:
-	docker pull ferretdb/ferretdb4
+	docker pull ferretdb/ferretdb
 
 rmi:
-	docker rmi ferretdb/ferretdb4
+	docker rmi ferretdb/ferretdb
 
 save:
 	mkdir -p /tmp/docker

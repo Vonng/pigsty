@@ -1,0 +1,56 @@
+
+# This is the Vagrantfile template for the default virtualbox provider
+
+# read ssh key from current user's ~/.ssh
+ssh_prv_key = File.read(File.join(ENV['HOME'], '.ssh', 'id_rsa'))
+ssh_pub_key = File.readlines(File.join(ENV['HOME'], '.ssh', 'id_rsa.pub')).first.strip
+
+Vagrant.configure("2") do |config|
+    config.ssh.insert_key = false
+    config.vm.box_check_update = false
+    config.vm.provision "shell" do |s|
+      s.inline = <<-SHELL
+        if grep -sq "#{ssh_pub_key}" /home/vagrant/.ssh/authorized_keys; then
+          echo "SSH keys already provisioned." ; exit 0;
+        fi
+        echo "SSH key provisioning."
+        sshd=/home/vagrant/.ssh
+        mkdir -p ${sshd}; touch ${sshd}/{authorized_keys,config}
+        echo #{ssh_pub_key}   >> ${sshd}/authorized_keys
+        echo #{ssh_pub_key}   >  ${sshd}/id_rsa.pub      ; chmod 644 ${sshd}/id_rsa.pub
+        echo "#{ssh_prv_key}" >  ${sshd}/id_rsa          ; chmod 600 ${sshd}/id_rsa
+        if ! grep -q "StrictHostKeyChecking" ${sshd}/config; then
+            echo 'StrictHostKeyChecking=no' >> ${sshd}/config
+        fi
+        chown -R vagrant:vagrant /home/vagrant
+        exit 0
+      SHELL
+    end
+
+    Specs.each_with_index do |spec, index|
+        config.vm.define spec["name"] do |node|
+            node.vm.box = spec["image"]
+            node.vm.network "private_network", ip: spec["ip"]
+            node.vm.hostname = spec["name"]
+
+            # provision an additional disk for minio nodes
+            if spec["name"].start_with?("minio")
+                node.vm.disk :disk, name: "main", size: "128GB", primary: true
+                node.vm.disk :disk, name: "data1", size: "32GB"
+                node.vm.provision "shell" do |s|
+                  s.inline = <<-SHELL
+                    mkdir /data; mkfs.xfs /dev/sdb;
+                    mount -o noatime -o nodiratime -t xfs /dev/sdb /data;
+                    echo "/dev/sdb /data xfs defaults,noatime,nodiratime 0 0" >> /etc/fstab;
+                  SHELL
+                end
+            end
+
+            node.vm.provider "virtualbox" do |v|
+                v.linked_clone = true
+                v.customize ["modifyvm", :id, "--cpus", spec["cpu"], "--memory", spec["mem"], "--nictype1", "virtio", "--nictype2", "virtio", "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"]
+                v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000]
+            end
+        end
+    end
+end
