@@ -560,10 +560,9 @@ repo_upstream:                    # where to download #
   - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
   - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' } }
   - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable'           , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' } }
-  - { name: pigsty-el      ,description: 'Pigsty EL Common'  ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://get.pigsty.cc/yum/el.x86_64' }}
-  - { name: pigsty-misc    ,description: 'Pigsty EL Misc'    ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://get.pigsty.cc/yum/el$releasever.$basearch' }}
-  - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' }}
-  - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com'}} #, china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
+  - { name: pigsty-misc    ,description: 'Pigsty EL Misc'    ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://get.pigsty.cc/yum/el$releasever.$basearch' }}
+  - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch', china: 'https://get.pigsty.cc/yum/prometheus/el$releasever.$basearch' }}
+  - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com', china: 'https://get.pigsty.cc/yum/grafana/$basearch' }}
 repo_packages:                    # which packages to be included
   - ansible python3 python3-pip python3-requests python3.11-jmespath dnf-utils modulemd-tools # el7: python36-requests python36-idna yum-utils
   - grafana loki logcli promtail prometheus2 alertmanager karma pushgateway node_exporter blackbox_exporter nginx_exporter redis_exporter mysqld_exporter karma
@@ -580,7 +579,7 @@ repo_packages:                    # which packages to be included
 repo_url_packages:
   - http://get.pigsty.cc/rpm/pev.html
   - http://get.pigsty.cc/rpm/chart.tgz
-  #- http://get.pigsty.cc/rpm/plugins.tgz
+  - http://get.pigsty.cc/rpm/plugins.tgz
 ```
 
 
@@ -686,10 +685,10 @@ repo_upstream:                    # where to download #
   - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
   - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' } }
   - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable'           , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' } }
-  - { name: pigsty-el      ,description: 'Pigsty EL Common'  ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://get.pigsty.cc/yum/el.x86_64' }}
-  - { name: pigsty-misc    ,description: 'Pigsty EL Misc'    ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://get.pigsty.cc/yum/el$releasever.$basearch' }}
-  - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' }}
-  - { name: grafana       ,description: 'Grafana'            ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com'}} #, china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
+  - { name: pigsty-misc    ,description: 'Pigsty EL Misc'    ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://get.pigsty.cc/yum/el$releasever.$basearch' }}
+  - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch', china: 'https://get.pigsty.cc/yum/prometheus/el$releasever.$basearch' }}
+  - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com', china: 'https://get.pigsty.cc/yum/grafana/$basearch' }}
+
 ```
 
 
