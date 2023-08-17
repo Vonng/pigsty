@@ -37,7 +37,7 @@
 
 ## v2.2.1 (Beta, TBD)
 
-Get started with `bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"`
+Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`
 
 **Highlight**
 

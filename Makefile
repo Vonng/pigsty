@@ -27,20 +27,20 @@ EL9_PKG=pigsty-pkg-$(VERSION).el9.x86_64.tgz
 default: tip
 tip:
 	@echo "# Run on Linux x86_64 EL7-9 node with sudo & ssh access"
-	@echo 'bash -c "$$(curl -fsSL http://get.pigsty.cc/latest)"'
+	@echo 'bash -c "$$(curl -fsSL https://get.pigsty.cc/latest)"'
 	@echo "./bootstrap     # prepare local repo & ansible"
 	@echo "./configure     # pre-check and templating config"
 	@echo "./install.yml   # install pigsty on current node"
 
 # print pkg download links
 link:
-	@echo 'bash -c "$$(curl -fsSL http://get.pigsty.cc/latest)"'
+	@echo 'bash -c "$$(curl -fsSL https://get.pigsty.cc/latest)"'
 	@echo "[Github Download]"
 	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/${SRC_PKG} | gzip -d | tar -xC ~ ; cd ~/pigsty"
 	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/${REPO_PKG} -o /tmp/pkg.tgz  # [optional]"
 	@echo "[CDN Download]"
-	@echo "curl -SL http://get.pigsty.cc/${VERSION}/${SRC_PKG} | gzip -d | tar -xC ~ ; cd ~/pigsty"
-	@echo "curl -SL http://get.pigsty.cc/${VERSION}/${REPO_PKG} -o /tmp/pkg.tgz # [optional]"
+	@echo "curl -SL https://get.pigsty.cc/${VERSION}/${SRC_PKG} | gzip -d | tar -xC ~ ; cd ~/pigsty"
+	@echo "curl -SL https://get.pigsty.cc/${VERSION}/${REPO_PKG} -o /tmp/pkg.tgz # [optional]"
 
 # serve a local docs with docsify or python http
 doc:

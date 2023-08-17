@@ -8,7 +8,7 @@
 Prepare a new node with Linux x86_64 EL compatible OS, then run as a **sudo-able** user:
 
 ```bash
-bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"  
+bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"  
 cd ~/pigsty   # get pigsty source and entering dir
 ./bootstrap   # download bootstrap pkgs & ansible [optional]
 ./configure   # pre-check and config templating   [optional] 
@@ -23,15 +23,15 @@ Then you will have a pigsty singleton node ready, with Web Services on port `80`
 <details><summary>Download with Get</summary>
 
 ```bash
-$ curl http://get.pigsty.cc/latest | bash
+$ curl https://get.pigsty.cc/latest | bash
 ...
 [Checking] ===========================================
 [ OK ] SOURCE from CDN due to GFW
-FROM CDN    : bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"
+FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL http://get.pigsty.cc/v2.2.1/pigsty-v2.2.1.tgz
+[ OK ] $ curl -SL https://get.pigsty.cc/v2.2.1/pigsty-v2.2.1.tgz
 ...
 MD5: abcdef1234567890abcdef1234567890  /tmp/pigsty-v2.2.1.tgz
 [Extracting] ===========================================
@@ -118,7 +118,7 @@ curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.1/pigsty-pkg-v2.2
 You can get & extract pigsty source via the following command:
 
 ```bash
-curl -fsSL http://get.pigsty.cc/latest | bash
+curl -fsSL https://get.pigsty.cc/latest | bash
 ```
 
 > HINT: Get the latest beta release with `beta` instead of `latest`.
@@ -137,7 +137,7 @@ For example, Pigsty v2.2.1 source can be acquired with:
 
 ```bash 
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.1/pigsty-v2.2.1.tgz -o ~/pigsty.tgz
-curl -L http://get.pigsty.cc/v2.2.1/pigsty-v2.2.1.tgz -o ~/pigsty.tgz   # China CDN Mirror
+curl -L https://get.pigsty.cc/v2.2.1/pigsty-v2.2.1.tgz -o ~/pigsty.tgz   # China CDN Mirror
 ```
 
 </details>
@@ -167,7 +167,7 @@ For example, Pigsty v2.2.1 on EL7.x86_64 will have the following packages:
 
 ```bash
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.1/pigsty-pkg-v2.2.1.el7.x86_64.tgz  -o /tmp/pkg.tgz
-curl -L http://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
+curl -L https://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
 ```
 
 > Not all combinations of OS and architecture are supported yet. Please check the official release page.
@@ -257,7 +257,7 @@ bootstrap pigsty v2.2.1 begin
 [ OK ] sudo = vagrant ok
 [ IN ] Cache /tmp/pkg.tgz not exists, download? (y/n):
 => y
-[ OK ] download from Github http://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el7.x86_64.tgz to /tmp/pkg.tgz
+[ OK ] download from Github https://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el7.x86_64.tgz to /tmp/pkg.tgz
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100  913M  100  913M    0     0   661k      0  0:23:33  0:23:33 --:--:--  834k

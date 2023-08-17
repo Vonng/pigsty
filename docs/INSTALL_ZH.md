@@ -8,7 +8,7 @@
 准备一个使用 Linux x86_64 EL 7，8，9 兼容系统的全新节点，使用带有免密 `sudo` 权限的用户执行：
 
 ```bash
-curl http://get.pigsty.cc/latest | bash
+curl https://get.pigsty.cc/latest | bash
 ```
 
 该命令会[下载](#下载)并解压 Pigsty 源码至家目录，按提示完成 [Bootstrap](#准备)，[配置](#配置)，[安装](#安装)三个步骤即可完成安装。
@@ -28,15 +28,15 @@ cd ~/pigsty      # 进入 Pigsty 源码目录，完成后续 准备、配置、�
 <details><summary>Get脚本安装</summary>
 
 ```bash
-$ curl http://get.pigsty.cc/latest | bash
+$ curl https://get.pigsty.cc/latest | bash
 ...
 [Checking] ===========================================
 [ OK ] SOURCE from CDN due to GFW
-FROM CDN    : bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"
+FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL http://get.pigsty.cc/v2.2.1/pigsty-v2.2.1.tgz
+[ OK ] $ curl -SL https://get.pigsty.cc/v2.2.1/pigsty-v2.2.1.tgz
 ...
 MD5: abcdef1234567890abcdef1234567890  /tmp/pigsty-v2.2.1.tgz
 [Extracting] ===========================================
@@ -105,7 +105,7 @@ cd pigsty; git checkout v2.2.1
 您可以使用以下命令获取 Pigsty 源码包：
 
 ```bash
-curl http://get.pigsty.cc/latest  | bash
+curl https://get.pigsty.cc/latest  | bash
 ```
 
 > 提示: 如果您需要下载最新的测试版本（Alpha/Beta/RC），请使用 `beta` 替代 `latest`
@@ -115,7 +115,7 @@ curl http://get.pigsty.cc/latest  | bash
 
 ```bash
 # 从 CDN 或 Github 下载源码包
-curl -L http://get.pigsty.cc/v2.2.1/pigsty-v2.2.1.tgz
+curl -L https://get.pigsty.cc/v2.2.1/pigsty-v2.2.1.tgz
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.1/pigsty-v2.2.1.tgz
 
 # 如果 curl 不可用，git clone 也可以
@@ -132,9 +132,9 @@ Pigsty 会在 [Bootstrap/准备](#准备) 时，提示下载对应的离线软�
 
 ```bash
 # CDN EL 7,8,9
-curl -L http://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
-curl -L http://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
-curl -L http://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
+curl -L https://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
+curl -L https://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
+curl -L https://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
 
 # GITHUB EL 7,8,9
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.2.1/pigsty-pkg-v2.2.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
@@ -221,7 +221,7 @@ bootstrap pigsty v2.2.1 begin
 [ OK ] sudo = vagrant ok
 [ IN ] Cache /tmp/pkg.tgz not exists, download? (y/n):
 => y
-[ OK ] download from Github http://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el7.x86_64.tgz to /tmp/pkg.tgz
+[ OK ] download from Github https://get.pigsty.cc/v2.2.1/pigsty-pkg-v2.2.1.el7.x86_64.tgz to /tmp/pkg.tgz
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100  913M  100  913M    0     0   661k      0  0:23:33  0:23:33 --:--:--  834k
