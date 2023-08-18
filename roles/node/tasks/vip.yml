@@ -7,29 +7,68 @@
 #  package: name=keepalived state=present
 
 #--------------------------------------------------------------#
+# Check VIP config                                   [vip_check]
+#--------------------------------------------------------------#
+- name: check etcd identity
+  tags: vip_check
+  assert:
+    that:
+      - vip_address is defined and vip_address != ''
+      - vip_vrid is defined and vip_vrid|int > 0 and vip_vrid|int < 255
+      - vip_role|upper == 'MASTER' or vip_role|upper == 'BACKUP'
+    fail_msg: vip_address & vip_vrid is required for keepalived
+
+#--------------------------------------------------------------#
 # Config keepalived                                 [vip_config]
 #--------------------------------------------------------------#
 - name: render node vip conf keepalived.conf
-  tags: [node_vip, vip_config]
+  tags: [ node_vip, vip_config, vip_refresh ]
   template:
     src: keepalived.conf.j2
     dest: /etc/keepalived/keepalived.conf
     mode: 0644
   vars:
-    vip_cluster_members_query: "[@.*][0][?vip_cluster=='{{ vip_cluster }}']"
+    vip_cluster_members_query: "[@.*][0][?vip_address=='{{ vip_address }}']"
 
 #--------------------------------------------------------------#
 # Launch keepalived                                 [vip_launch]
 #--------------------------------------------------------------#
 - name: launch keepalived service unit
-  tags: [node_vip, vip_launch]
+  tags: [ node_vip, vip_launch ]
   systemd: name=keepalived enabled=true state=restarted
 
 #--------------------------------------------------------------#
 # Reload keepalived                                 [vip_reload]
 #--------------------------------------------------------------#
 - name: launch keepalived service unit
-  tags: [node_vip, vip_reload]
+  tags: [ node_vip, vip_reload, vip_refresh ]
   systemd: name=keepalived enabled=true state=reloaded
+
+
+#--------------------------------------------------------------#
+# Register Instance DNS Name                           [vip_dns]
+#--------------------------------------------------------------#
+- name: register postgres instance dns
+  tags: [ vip_dns, vip_dns_config ]
+  delegate_to: '{{ item }}'
+  with_items: "{{ groups['infra'] }}"
+  ignore_errors: true
+  copy:
+    dest: /etc/hosts.d/{{ dnsname }}
+    mode: 0644
+    owner: root
+    group: root
+    content: "{{ vip_address }} {{ dnsname }}"
+  vars:
+    dnsname: "{{ node_cluster }}{{ vip_dns_suffix|default('') }}"
+
+# reload meta node nginx (maybe not appropriate here)
+- name: reload dnsmasq on infra node
+  tags: [ vip_dns, vip_dns_reload ]
+  delegate_to: '{{ item }}'
+  run_once: true
+  ignore_errors: true
+  with_items: '{{ groups["infra"] }}'
+  systemd: name=dnsmasq state=reloaded enabled=yes daemon_reload=yes
 
 ...

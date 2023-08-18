@@ -60,7 +60,7 @@
       with_items: "{{ node_packages }}"
 
     - name: install keepalived if enabled
-      when: vip_cluster is defined and vip_cluster != ''
+      when: vip_enabled|bool
       environment: "{{ proxy_env | default({}) }}"
       yum: name={{ item }} disable_gpg_check=true
       with_items: [ keepalived, keepalived_exporter ]

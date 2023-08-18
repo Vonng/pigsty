@@ -74,13 +74,12 @@
       wait_for: host=127.0.0.1 port={{ node_exporter_port }} state=started timeout=10
 
 
-
 #--------------------------------------------------------------#
 # Config keepalived_exporter               [vip_exporter_config]
 #--------------------------------------------------------------#
 - name: config keepalived_exporter
   tags: [ vip_exporter, vip_exporter_config ]
-  when: vip_cluster is defined and vip_cluster != ''
+  when: vip_enabled|bool
   block:
 
     - name: config keepalived_exporter systemd unit
@@ -97,7 +96,7 @@
 #--------------------------------------------------------------#
 - name: launch keepalived_exporter
   tags: [ vip_exporter, vip_exporter_launch ]
-  when: vip_cluster is defined and vip_cluster != ''
+  when: vip_enabled|bool
   block:
     - name: launch keepalived_exporter systemd service
       systemd: name=keepalived_exporter state=restarted enabled=yes daemon_reload=yes
@@ -136,7 +135,7 @@
       {% endif %}
 
       
-      {% if vip_cluster is defined and vip_cluster != '' and vip_address is defined and vip_address != '' %}
+      {% if vip_enabled|bool and vip_address is defined and vip_address != '' %}
       # keepalived
       - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }}, vip: {{ vip_address }} }
         targets: [ {{ inventory_hostname }}:{{ vip_exporter_port }} ]
@@ -158,7 +157,7 @@
 
 - name: register node vip as ping target
   tags: [ node_register, register_prometheus ]
-  when: vip_cluster is defined and vip_cluster != '' and vip_address is defined and vip_address != ''
+  when: vip_enabled|bool and vip_address is defined and vip_address != ''
   ignore_errors: true
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'

@@ -1,16 +1,30 @@
 {% set vip_cluster_members = hostvars|json_query(vip_cluster_members_query) %}
 
 global_defs {
-  router_id {{ vip_cluster }}
+  router_id {{ node_cluster }}
    enable_script_security
    script_user root
 }
 
-vrrp_instance {{ vip_cluster }} {
+vrrp_instance {{ node_cluster }} {
+
   state {{ vip_role | upper }}
+
   interface {{ vip_interface }}
+
   virtual_router_id {{ vip_vrid }}
-  priority {% if vip_role|upper == 'MASTER' %}128{% else %}100{% endif %}
+
+  {% if vip_role|upper == 'MASTER' %}
+  priority 128
+  {% else %}
+  priority 100
+  {% endif %}
+
+{% if vip_preempt|bool %}
+  # preempt is enabled by default
+{% else %}
+  nopreempt
+{% endif %}
 
   advert_int 1
   unicast_src_ip {{ inventory_hostname }}
@@ -25,7 +39,7 @@ vrrp_instance {{ vip_cluster }} {
 
   authentication {
     auth_type PASS
-    auth_pass {{ vip_cluster }}
+    auth_pass {{ node_cluster }}-{{ vip_vrid }}
   }
 
   virtual_ipaddress {

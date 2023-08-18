@@ -20,7 +20,7 @@
 
 - name: remove vip ping target from prometheus
   tags: [ register, prometheus ]
-  when: vip_cluster is defined and vip_cluster != '' and vip_address is defined and vip_address != ''
+  when: vip_enabled|bool and vip_address is defined and vip_address != ''
   become: yes
   ignore_errors: yes
   delegate_to: '{{ item }}'
@@ -37,9 +37,9 @@
 #--------------------------------------------------------------#
 # remove keepalived_exporter                               [vip]
 #--------------------------------------------------------------#
-- name: stop and disable keepalived_exporter service
+- name: stop and disable keepalived service
   tags: vip
-  when: vip_cluster is defined and vip_cluster != ''
+  when: vip_enabled|bool
   ignore_errors: yes
   systemd: name=keepalived state=stopped enabled=no daemon_reload=yes
 
@@ -68,7 +68,7 @@
 #--------------------------------------------------------------#
 - name: stop and disable keepalived_exporter service
   tags: vip_exporter
-  when: vip_cluster is defined and vip_cluster != ''
+  when: vip_enabled|bool
   ignore_errors: yes
   systemd: name=keepalived_exporter state=stopped enabled=no daemon_reload=yes
 
