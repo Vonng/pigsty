@@ -78,7 +78,7 @@
 # Config keepalived_exporter               [vip_exporter_config]
 #--------------------------------------------------------------#
 - name: config keepalived_exporter
-  tags: [ vip_exporter, vip_exporter_config ]
+  tags: [ node_vip, vip_exporter, vip_exporter_config ]
   when: vip_enabled|bool
   block:
 
@@ -95,7 +95,7 @@
 # Launch keepalived_exporter               [vip_exporter_launch]
 #--------------------------------------------------------------#
 - name: launch keepalived_exporter
-  tags: [ vip_exporter, vip_exporter_launch ]
+  tags: [ node_vip, vip_exporter, vip_exporter_launch ]
   when: vip_enabled|bool
   block:
     - name: launch keepalived_exporter systemd service
@@ -109,7 +109,7 @@
 #--------------------------------------------------------------#
 # /etc/prometheus/targets/node/{{ ip }}.yml
 - name: register node as prometheus target
-  tags: [ node_register, register_prometheus ]
+  tags: [ node_vip, node_register, register_prometheus ]
   ignore_errors: true
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
@@ -156,7 +156,7 @@
         targets: [ {{inventory_hostname }} ]
 
 - name: register node vip as ping target
-  tags: [ node_register, register_prometheus ]
+  tags: [ node_vip, node_register, register_prometheus ]
   when: vip_enabled|bool and vip_address is defined and vip_address != ''
   ignore_errors: true
   delegate_to: '{{ item }}'
