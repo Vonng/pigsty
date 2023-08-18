@@ -14,7 +14,12 @@
 interval: 1000
 
 # the etcd or consul key which vip-manager will regularly poll.
+{% if pg_mode == 'citus'%}
+# this is a citus cluster, so we will use pg_shard & pg_group instead of pg_cluster as the trigger key
+trigger-key: "{{ pg_namespace }}/{{ pg_shard }}/{{ pg_group }}/leader"
+{% else %}
 trigger-key: "{{ pg_namespace }}/{{ pg_cluster }}/leader"
+{% endif %}
 
 # if the value of the above key matches the trigger-value (often the hostname of this host), vip-manager will try to add the virtual ip address to the interface specified in Iface
 trigger-value: "{{ pg_cluster }}-{{ pg_seq }}"
@@ -56,7 +61,7 @@ etcd-key-file: "/pg/cert/server.key"
 #etcd-password: "Pigsty"
 
 # don't worry about parameter with a prefix that doesn't match the endpoint_type. You can write anything there, I won't even look at it.
-consul-token: "Pigsty"
+#consul-token: "Pigsty"
 
 # how often things should be retried and how long to wait between retries. (currently only affects arpClient)
 retry-num: 2
