@@ -96,24 +96,6 @@
                         },
                         "properties": [
                             {
-                                "id": "displayName",
-                                "value": "${cls}"
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "index": 0,
-                                                "text": "Cluster"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
                                 "id": "links",
                                 "value": [
                                     {
@@ -131,24 +113,6 @@
                         },
                         "properties": [
                             {
-                                "id": "displayName",
-                                "value": "${ins}"
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "index": 0,
-                                                "text": "Instance"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
                                 "id": "links",
                                 "value": [
                                     {
@@ -162,27 +126,9 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "IP"
+                            "options": "Node IP"
                         },
                         "properties": [
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "index": 0,
-                                                "text": "Node IP"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "displayName",
-                                "value": "${ip}"
-                            },
                             {
                                 "id": "links",
                                 "value": [
@@ -197,33 +143,15 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Name"
+                            "options": "VIP"
                         },
                         "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "${node}"
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "index": 0,
-                                                "text": "Hostname"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
                             {
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "Node Instance : ${node}",
-                                        "url": "/d/node-instance?var-id=${node}&${__url_time_range}"
+                                        "title": "Node VIP : ${vip}",
+                                        "url": "/d/node-vip?var-vip=${vip}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -237,7 +165,7 @@
                 "x": 0,
                 "y": 1
             },
-            "id": 268,
+            "id": 273,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -247,7 +175,7 @@
                     "calcs": [
                         "lastNotNull"
                     ],
-                    "fields": "",
+                    "fields": "/.*/",
                     "values": false
                 },
                 "text": {
@@ -265,7 +193,8 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "1",
+                    "expr": "node_up{ip=\"$ip\"}",
+                    "format": "table",
                     "hide": false,
                     "instant": true,
                     "interval": "",
@@ -280,46 +209,79 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "1",
+                    "expr": "min by (job,ip,vip) (probe_success{ip=\"$ip\", job=~'(node|pgsql)-vip'})",
+                    "format": "table",
                     "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "Cluster",
+                    "legendFormat": "{{ job }} : {{ vip }}",
                     "queryType": "measurements",
                     "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "1",
-                    "hide": false,
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "IP",
-                    "queryType": "measurements",
-                    "refId": "C"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "1",
-                    "hide": false,
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "Name",
-                    "queryType": "measurements",
-                    "refId": "D"
                 }
             ],
-            "transformations": [],
+            "transformations": [
+                {
+                    "id": "joinByField",
+                    "options": {
+                        "byField": "ip",
+                        "mode": "outer"
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "Time 1": true,
+                            "Time 2": true,
+                            "Value": true,
+                            "Value #A": true,
+                            "Value #B": true,
+                            "__name__": true,
+                            "domainname": true,
+                            "instance": true,
+                            "job": true,
+                            "job 1": true,
+                            "job 2": false,
+                            "machine": true,
+                            "release": true,
+                            "sysname": true,
+                            "version": true
+                        },
+                        "indexByName": {
+                            "Time": 4,
+                            "Value": 13,
+                            "__name__": 5,
+                            "cls": 1,
+                            "domainname": 8,
+                            "ins": 0,
+                            "instance": 6,
+                            "ip": 2,
+                            "job": 7,
+                            "machine": 10,
+                            "nodename": 3,
+                            "release": 11,
+                            "sysname": 9,
+                            "version": 12
+                        },
+                        "renameByName": {
+                            "Value #B": "",
+                            "cls": "Cluster",
+                            "domainname": "Domain",
+                            "ins": "Instance",
+                            "ip": "Node IP",
+                            "job": "",
+                            "job 2": "VIP Type",
+                            "machine": "Arch",
+                            "nodename": "Hostname",
+                            "release": "Release",
+                            "sysname": "System",
+                            "version": "Version",
+                            "vip": "VIP"
+                        }
+                    }
+                }
+            ],
             "type": "stat"
         },
         {
@@ -390,7 +352,7 @@
                                 "value": [
                                     {
                                         "title": "Node Instance: ${__data.fields.IP}",
-                                        "url": "/d/node-instance?var-id=${__data.fields.IP}&${__url_time_range}"
+                                        "url": "/d/node-instance?var-id=${__data.fields.IP}&var-ip=${__data.fields.IP}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -914,7 +876,7 @@
                                 "value": [
                                     {
                                         "title": "Node Instance: ${__data.fields.Instance}",
-                                        "url": "/d/node-instance?var-id=${__data.fields.Instance}&${__url_time_range}"
+                                        "url": "/d/node-instance?var-id=${__data.fields.Instance}&var-ins=${__data.fields.Instance}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -1028,7 +990,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Up"
+                            "options": "Alive"
                         },
                         "properties": [
                             {
@@ -1043,12 +1005,12 @@
                                             "0": {
                                                 "color": "#cc4637d9",
                                                 "index": 0,
-                                                "text": "Dead"
+                                                "text": "Down"
                                             },
                                             "1": {
                                                 "color": "#346f36cc",
                                                 "index": 1,
-                                                "text": "Alive"
+                                                "text": "UP"
                                             }
                                         },
                                         "type": "value"
@@ -1060,6 +1022,10 @@
                                 "value": {
                                     "type": "color-background"
                                 }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 60
                             }
                         ]
                     }
@@ -1071,7 +1037,7 @@
                 "x": 6,
                 "y": 1
             },
-            "id": 267,
+            "id": 276,
             "options": {
                 "cellHeight": "sm",
                 "footer": {
@@ -1094,7 +1060,22 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "group by (nodename,release,ip,ins,cls) (node_uname_info{cls=\"$cls\"})",
+                    "expr": "node_up{cls=\"$cls\"}",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "L"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "group without(ins,cls,instance) (node_uname_info{cls=\"$cls\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1279,13 +1260,14 @@
                             "Value #A": true,
                             "Value #B": false,
                             "Value #J": false,
+                            "Value #L": true,
                             "__name__": true,
                             "__name__ 1": true,
                             "__name__ 2": true,
                             "__name__ 3": true,
                             "cls": true,
-                            "cls 1": false,
-                            "cls 2": true,
+                            "cls 1": true,
+                            "cls 2": false,
                             "cls 3": true,
                             "domainname": true,
                             "instance": false,
@@ -1300,6 +1282,7 @@
                             "job 3": true,
                             "machine": true,
                             "maxmemory_policy": true,
+                            "nodename": true,
                             "os": true,
                             "process_id": true,
                             "redis_build_id": true,
@@ -1313,6 +1296,7 @@
                             "Time 1": 17,
                             "Time 10": 26,
                             "Time 11": 27,
+                            "Time 12": 31,
                             "Time 2": 18,
                             "Time 3": 19,
                             "Time 4": 20,
@@ -1321,23 +1305,32 @@
                             "Time 7": 23,
                             "Time 8": 24,
                             "Time 9": 25,
-                            "Value #A": 6,
-                            "Value #B": 8,
-                            "Value #C": 10,
-                            "Value #D": 12,
-                            "Value #E": 7,
-                            "Value #F": 9,
-                            "Value #G": 11,
-                            "Value #H": 5,
-                            "Value #I": 13,
+                            "Value #A": 7,
+                            "Value #B": 9,
+                            "Value #C": 11,
+                            "Value #D": 13,
+                            "Value #E": 8,
+                            "Value #F": 10,
+                            "Value #G": 12,
+                            "Value #H": 6,
+                            "Value #I": 14,
                             "Value #J": 15,
                             "Value #K": 0,
+                            "Value #L": 29,
+                            "__name__": 28,
                             "cls": 2,
+                            "domainname": 33,
                             "ins": 3,
-                            "instance": 14,
+                            "instance 1": 4,
+                            "instance 2": 30,
                             "ip": 1,
-                            "nodename": 4,
-                            "release": 16
+                            "job 1": 32,
+                            "job 2": 34,
+                            "machine": 35,
+                            "nodename": 5,
+                            "release": 16,
+                            "sysname": 36,
+                            "version": 37
                         },
                         "renameByName": {
                             "Time 4": "",
@@ -1351,12 +1344,14 @@
                             "Value #H": "Targets",
                             "Value #I": "Ping",
                             "Value #J": "Conn",
-                            "Value #K": "Up",
+                            "Value #K": "Alive",
                             "cls": "Cluster",
                             "cls 1": "Cluster",
+                            "cls 2": "Cluster",
                             "ins": "Instance",
+                            "ins 2": "Instance",
                             "instance": "HAProxy",
-                            "instance 1": "Address",
+                            "instance 1": "HAProxy",
                             "instance 3": "",
                             "ip": "IP",
                             "ip 1": "IP",
@@ -1371,6 +1366,139 @@
                 }
             ],
             "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#3e668f",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "string"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 6,
+                "x": 0,
+                "y": 8
+            },
+            "id": 269,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/.*/",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 14,
+                    "valueSize": 12
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "node_uname_info{ins=\"$ins\"}",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "Value": true,
+                            "Value #A": true,
+                            "__name__": true,
+                            "cls": true,
+                            "cluster_name": true,
+                            "domainname": true,
+                            "extensions": true,
+                            "ins": true,
+                            "instance": false,
+                            "ip": true,
+                            "job": true,
+                            "nodename": true,
+                            "primary_conninfo": true,
+                            "ver_num": true,
+                            "version": true
+                        },
+                        "indexByName": {
+                            "Time": 6,
+                            "Value": 11,
+                            "__name__": 7,
+                            "cls": 5,
+                            "domainname": 12,
+                            "ins": 8,
+                            "instance": 2,
+                            "ip": 10,
+                            "job": 9,
+                            "machine": 1,
+                            "nodename": 13,
+                            "release": 3,
+                            "sysname": 0,
+                            "version": 4
+                        },
+                        "renameByName": {
+                            "Time": "",
+                            "cls": "",
+                            "cluster_id": "ClusterID",
+                            "cluster_name": "CLS",
+                            "conf_path": "Config",
+                            "data_dir": "Data",
+                            "domainname": "DomainName",
+                            "extensions": "Library",
+                            "hba_path": "HBA",
+                            "ins": "",
+                            "instance": "Instance",
+                            "listen_port": "Port",
+                            "machine": "Arch",
+                            "nodename": "",
+                            "primary_conninfo": "Primary",
+                            "release": "Release",
+                            "sysname": "OS",
+                            "ver_num": "Ver Num",
+                            "version": "Version",
+                            "wal_level": "WAL"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
         },
         {
             "datasource": {
@@ -1473,7 +1601,7 @@
             "gridPos": {
                 "h": 6,
                 "w": 3,
-                "x": 0,
+                "x": 6,
                 "y": 8
             },
             "id": 271,
@@ -1771,7 +1899,7 @@
             "gridPos": {
                 "h": 6,
                 "w": 3,
-                "x": 3,
+                "x": 9,
                 "y": 8
             },
             "id": 270,
@@ -1871,139 +1999,6 @@
                 }
             ],
             "transformations": [],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#3e668f",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "string"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 6,
-                "x": 6,
-                "y": 8
-            },
-            "id": 269,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "/.*/",
-                    "values": false
-                },
-                "text": {
-                    "titleSize": 14,
-                    "valueSize": 12
-                },
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "10.0.3",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "node_uname_info{ins=\"$ins\"}",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "range": false,
-                    "refId": "A"
-                }
-            ],
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true,
-                            "Value": true,
-                            "Value #A": true,
-                            "__name__": true,
-                            "cls": true,
-                            "cluster_name": true,
-                            "domainname": true,
-                            "extensions": true,
-                            "ins": true,
-                            "instance": false,
-                            "ip": true,
-                            "job": true,
-                            "nodename": true,
-                            "primary_conninfo": true,
-                            "ver_num": true,
-                            "version": true
-                        },
-                        "indexByName": {
-                            "Time": 6,
-                            "Value": 11,
-                            "__name__": 7,
-                            "cls": 5,
-                            "domainname": 12,
-                            "ins": 8,
-                            "instance": 2,
-                            "ip": 10,
-                            "job": 9,
-                            "machine": 1,
-                            "nodename": 13,
-                            "release": 3,
-                            "sysname": 0,
-                            "version": 4
-                        },
-                        "renameByName": {
-                            "Time": "",
-                            "cls": "",
-                            "cluster_id": "ClusterID",
-                            "cluster_name": "CLS",
-                            "conf_path": "Config",
-                            "data_dir": "Data",
-                            "domainname": "DomainName",
-                            "extensions": "Library",
-                            "hba_path": "HBA",
-                            "ins": "",
-                            "instance": "Instance",
-                            "listen_port": "Port",
-                            "machine": "Arch",
-                            "nodename": "",
-                            "primary_conninfo": "Primary",
-                            "release": "Release",
-                            "sysname": "OS",
-                            "ver_num": "Ver Num",
-                            "version": "Version",
-                            "wal_level": "WAL"
-                        }
-                    }
-                }
-            ],
             "type": "stat"
         },
         {
@@ -3682,8 +3677,8 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "Node HAProxy : ${ins}",
-                                        "url": "/d/node-haproxy?var-ins=${ins}&${__url_time_range}"
+                                        "title": "Node HAProxy : ${__field.labels.ins}",
+                                        "url": "/d/node-haproxy?var-ins=${__field.labels.ins}&${__url_time_range}"
                                     }
                                 ]
                             },
@@ -3726,6 +3721,15 @@
                                         }
                                     ]
                                 }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node Instance : ${__field.labels.ins}",
+                                        "url": "/d/node-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
+                                    }
+                                ]
                             }
                         ]
                     },
@@ -3739,8 +3743,8 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "Logs Instance ",
-                                        "url": "/d/logs-instance?var-ins=${ins}"
+                                        "title": "Logs Instance : ${__field.labels.ins}",
+                                        "url": "/d/logs-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
                                     }
                                 ]
                             },
@@ -3953,8 +3957,8 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "Node VIP : ${__field.labels.ins}",
-                                        "url": "/d/node-vip?var-ins=${__field.labels.ins}&${__url_time_range}"
+                                        "title": "Node VIP : ${__field.labels.vip}",
+                                        "url": "/d/node-vip?var-vip=${__field.labels.vip}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -4275,7 +4279,7 @@
                     "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "vip",
+                    "legendFormat": "{{ vip }}",
                     "refId": "O"
                 },
                 {
@@ -4843,7 +4847,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 63
+                        "y": 95
                     },
                     "id": 172,
                     "options": {
@@ -5135,7 +5139,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 63
+                        "y": 95
                     },
                     "id": 36,
                     "options": {
@@ -5235,7 +5239,7 @@
                         "h": 9,
                         "w": 16,
                         "x": 0,
-                        "y": 69
+                        "y": 101
                     },
                     "id": 35,
                     "options": {
@@ -5329,7 +5333,7 @@
                         "h": 9,
                         "w": 8,
                         "x": 16,
-                        "y": 69
+                        "y": 101
                     },
                     "id": 180,
                     "links": [],
@@ -5496,7 +5500,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 79
+                        "y": 111
                     },
                     "id": 173,
                     "options": {
@@ -5661,7 +5665,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 79
+                        "y": 111
                     },
                     "id": 186,
                     "options": {
@@ -5769,7 +5773,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 86
+                        "y": 118
                     },
                     "id": 80,
                     "options": {
@@ -5862,7 +5866,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 86
+                        "y": 118
                     },
                     "id": 203,
                     "options": {
@@ -6006,7 +6010,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 93
+                        "y": 125
                     },
                     "id": 30,
                     "options": {
@@ -6198,7 +6202,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 93
+                        "y": 125
                     },
                     "id": 119,
                     "options": {
@@ -6300,7 +6304,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 0,
-                        "y": 99
+                        "y": 131
                     },
                     "id": 187,
                     "options": {
@@ -6389,7 +6393,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 12,
-                        "y": 99
+                        "y": 131
                     },
                     "id": 32,
                     "options": {
@@ -6442,7 +6446,7 @@
                         "h": 5,
                         "w": 4,
                         "x": 0,
-                        "y": 104
+                        "y": 136
                     },
                     "id": 208,
                     "links": [],
@@ -6548,7 +6552,7 @@
                         "h": 5,
                         "w": 8,
                         "x": 4,
-                        "y": 104
+                        "y": 136
                     },
                     "id": 79,
                     "options": {
@@ -6637,7 +6641,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 12,
-                        "y": 104
+                        "y": 136
                     },
                     "id": 204,
                     "options": {
@@ -6780,7 +6784,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 110
+                        "y": 142
                     },
                     "id": 33,
                     "options": {
@@ -6908,7 +6912,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 110
+                        "y": 142
                     },
                     "id": 188,
                     "options": {
@@ -7146,7 +7150,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 118
+                        "y": 150
                     },
                     "id": 262,
                     "options": {
@@ -7363,7 +7367,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 118
+                        "y": 150
                     },
                     "id": 89,
                     "options": {
@@ -7588,7 +7592,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 125
+                        "y": 157
                     },
                     "id": 257,
                     "options": {
@@ -7875,7 +7879,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 125
+                        "y": 157
                     },
                     "id": 256,
                     "options": {
@@ -8177,7 +8181,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 132
+                        "y": 164
                     },
                     "id": 254,
                     "options": {
@@ -8460,7 +8464,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 132
+                        "y": 164
                     },
                     "id": 90,
                     "options": {
@@ -8706,7 +8710,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 139
+                        "y": 171
                     },
                     "id": 249,
                     "options": {
@@ -8882,7 +8886,7 @@
                         "h": 6,
                         "w": 9,
                         "x": 12,
-                        "y": 139
+                        "y": 171
                     },
                     "id": 250,
                     "links": [],
@@ -9044,7 +9048,7 @@
                         "h": 3,
                         "w": 3,
                         "x": 21,
-                        "y": 139
+                        "y": 171
                     },
                     "id": 71,
                     "links": [],
@@ -9132,7 +9136,7 @@
                         "h": 3,
                         "w": 3,
                         "x": 21,
-                        "y": 142
+                        "y": 174
                     },
                     "id": 72,
                     "links": [],
@@ -9305,7 +9309,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 146
+                        "y": 178
                     },
                     "id": 31,
                     "options": {
@@ -9450,7 +9454,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 146
+                        "y": 178
                     },
                     "id": 205,
                     "options": {
@@ -9546,7 +9550,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 152
+                        "y": 184
                     },
                     "id": 206,
                     "options": {
@@ -9634,7 +9638,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 152
+                        "y": 184
                     },
                     "id": 88,
                     "options": {
@@ -9722,7 +9726,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 158
+                        "y": 190
                     },
                     "id": 91,
                     "options": {
@@ -9813,7 +9817,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 158
+                        "y": 190
                     },
                     "id": 260,
                     "options": {
@@ -10127,7 +10131,7 @@
                         "h": 5,
                         "w": 24,
                         "x": 0,
-                        "y": 165
+                        "y": 197
                     },
                     "id": 207,
                     "options": {
@@ -10476,7 +10480,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 170
+                        "y": 202
                     },
                     "id": 46,
                     "options": {
@@ -10596,7 +10600,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 170
+                        "y": 202
                     },
                     "id": 45,
                     "options": {
@@ -10714,7 +10718,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 176
+                        "y": 208
                     },
                     "id": 201,
                     "options": {
@@ -10830,7 +10834,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 176
+                        "y": 208
                     },
                     "id": 47,
                     "options": {
@@ -10947,7 +10951,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 182
+                        "y": 214
                     },
                     "id": 29,
                     "options": {
@@ -11063,7 +11067,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 182
+                        "y": 214
                     },
                     "id": 202,
                     "options": {
@@ -11153,7 +11157,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 188
+                        "y": 220
                     },
                     "id": 38,
                     "options": {
@@ -11247,7 +11251,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 188
+                        "y": 220
                     },
                     "id": 84,
                     "options": {
@@ -11619,7 +11623,7 @@
                         "h": 5,
                         "w": 24,
                         "x": 0,
-                        "y": 195
+                        "y": 227
                     },
                     "id": 110,
                     "options": {
@@ -11884,7 +11888,7 @@
                         "h": 6,
                         "w": 6,
                         "x": 0,
-                        "y": 200
+                        "y": 232
                     },
                     "id": 189,
                     "options": {
@@ -11983,7 +11987,7 @@
                         "h": 6,
                         "w": 6,
                         "x": 6,
-                        "y": 200
+                        "y": 232
                     },
                     "id": 200,
                     "options": {
@@ -12065,7 +12069,7 @@
                         "h": 6,
                         "w": 6,
                         "x": 12,
-                        "y": 200
+                        "y": 232
                     },
                     "id": 174,
                     "options": {
@@ -12130,7 +12134,7 @@
                         "h": 6,
                         "w": 6,
                         "x": 18,
-                        "y": 200
+                        "y": 232
                     },
                     "id": 198,
                     "options": {
@@ -12222,7 +12226,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 206
+                        "y": 238
                     },
                     "id": 182,
                     "options": {
@@ -12331,7 +12335,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 206
+                        "y": 238
                     },
                     "id": 199,
                     "options": {
@@ -12458,7 +12462,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 212
+                        "y": 244
                     },
                     "id": 51,
                     "options": {
@@ -12612,7 +12616,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 212
+                        "y": 244
                     },
                     "id": 58,
                     "options": {
@@ -12929,7 +12933,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 52
+                        "y": 84
                     },
                     "id": 213,
                     "options": {
@@ -13158,7 +13162,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 59
+                        "y": 91
                     },
                     "id": 183,
                     "options": {
@@ -13253,7 +13257,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 59
+                        "y": 91
                     },
                     "id": 185,
                     "options": {
@@ -13390,7 +13394,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 0,
-                        "y": 65
+                        "y": 97
                     },
                     "id": 53,
                     "options": {
@@ -13518,7 +13522,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 12,
-                        "y": 65
+                        "y": 97
                     },
                     "id": 178,
                     "options": {
@@ -13665,7 +13669,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 242
+                        "y": 274
                     },
                     "id": 49,
                     "options": {
@@ -13820,7 +13824,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 242
+                        "y": 274
                     },
                     "id": 93,
                     "options": {
@@ -13919,7 +13923,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 248
+                        "y": 280
                     },
                     "id": 54,
                     "options": {
@@ -14034,7 +14038,7 @@
                         "h": 7,
                         "w": 6,
                         "x": 12,
-                        "y": 248
+                        "y": 280
                     },
                     "id": 92,
                     "options": {
@@ -14129,7 +14133,7 @@
                         "h": 7,
                         "w": 6,
                         "x": 18,
-                        "y": 248
+                        "y": 280
                     },
                     "id": 56,
                     "options": {
@@ -14274,7 +14278,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 255
+                        "y": 287
                     },
                     "id": 52,
                     "options": {
@@ -14367,7 +14371,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 255
+                        "y": 287
                     },
                     "id": 55,
                     "options": {
@@ -14507,7 +14511,7 @@
                         "h": 6,
                         "w": 3,
                         "x": 0,
-                        "y": 262
+                        "y": 40
                     },
                     "id": 212,
                     "options": {
@@ -14605,7 +14609,7 @@
                         "h": 6,
                         "w": 9,
                         "x": 3,
-                        "y": 262
+                        "y": 40
                     },
                     "id": 83,
                     "options": {
@@ -14698,7 +14702,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 262
+                        "y": 40
                     },
                     "id": 87,
                     "options": {
@@ -14828,7 +14832,7 @@
                         "h": 6,
                         "w": 3,
                         "x": 0,
-                        "y": 268
+                        "y": 46
                     },
                     "id": 261,
                     "options": {
@@ -14925,7 +14929,7 @@
                         "h": 6,
                         "w": 9,
                         "x": 3,
-                        "y": 268
+                        "y": 46
                     },
                     "id": 70,
                     "options": {
@@ -15031,7 +15035,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 268
+                        "y": 46
                     },
                     "id": 73,
                     "options": {
@@ -15061,6 +15065,113 @@
                         }
                     ],
                     "title": "Hardware Temperature",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisGridShow": false,
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 1,
+                                "drawStyle": "line",
+                                "fillOpacity": 66,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "stepBefore",
+                                "lineWidth": 0,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "normal"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 0,
+                            "links": [
+                                {
+                                    "title": "Node Instance : ${__field.labels.ip}",
+                                    "url": "/d/node-instance?var-id=${__field.labels.ip}&${__url_time_range}"
+                                }
+                            ],
+                            "mappings": [],
+                            "max": 1,
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 4,
+                        "w": 24,
+                        "x": 0,
+                        "y": 52
+                    },
+                    "id": 275,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "list",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "10.0.3",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "keepalived_vrrp_advert_sent{cls=\"$cls\", state=\"MASTER\"} > bool 0",
+                            "format": "time_series",
+                            "hide": false,
+                            "instant": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "{{ ip }} : {{ ins }}",
+                            "refId": "A",
+                            "step": 2
+                        }
+                    ],
+                    "title": "VIP MASTER Status",
+                    "transformations": [],
                     "type": "timeseries"
                 }
             ],
@@ -15157,7 +15268,7 @@
                         "h": 5,
                         "w": 24,
                         "x": 0,
-                        "y": 275
+                        "y": 307
                     },
                     "id": 243,
                     "interval": "1s",
@@ -15203,7 +15314,7 @@
                         "h": 12,
                         "w": 24,
                         "x": 0,
-                        "y": 280
+                        "y": 312
                     },
                     "id": 245,
                     "options": {
@@ -15384,6 +15495,30 @@
                 "options": [],
                 "query": {
                     "query": "label_values(pg_up{ip=\"$ip\"},ins)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "type": "query"
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ds-prometheus"
+                },
+                "definition": "label_values(probe_success{ip=\"$ip\"},vip)",
+                "description": "VIP address",
+                "hide": 2,
+                "includeAll": false,
+                "label": "VIP Address",
+                "multi": false,
+                "name": "vip",
+                "options": [],
+                "query": {
+                    "query": "label_values(probe_success{ip=\"$ip\"},vip)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 2,

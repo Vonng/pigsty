@@ -1017,8 +1017,8 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "NODE VIP : ${__field.labels.ins}",
-                                        "url": "/d/node-vip?var-ins=${__field.labels.ins}&${__url_time_range}"
+                                        "title": "NODE VIP : ${__field.labels.vip}",
+                                        "url": "/d/node-vip?var-vip=${__field.labels.vip}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -1113,11 +1113,11 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (ins) (keepalived_up{job=\"node\"})",
+                    "expr": "min by (vip) (keepalived_up{job=\"node\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "{{ ins }}",
+                    "legendFormat": "{{ vip }}",
                     "refId": "K"
                 }
             ],
@@ -1505,7 +1505,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "description": "All nodes among cluster ${cls}",
+                    "description": "",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2060,7 +2060,7 @@
                                 "properties": [
                                     {
                                         "id": "custom.width",
-                                        "value": 70
+                                        "value": 66
                                     }
                                 ]
                             },
@@ -2078,10 +2078,6 @@
                                                 "url": "/d/node-cluster?var-cls=${__data.fields.Cluster}&${__url_time_range}"
                                             }
                                         ]
-                                    },
-                                    {
-                                        "id": "custom.filterable",
-                                        "value": true
                                     }
                                 ]
                             },
@@ -2096,7 +2092,7 @@
                                         "value": [
                                             {
                                                 "title": "Node Instance: ${__data.fields.Instance}",
-                                                "url": "/d/node-instance?var-id=${__data.fields.Instance}&${__url_time_range}"
+                                                "url": "/d/node-instance?var-ins=${__data.fields.Instance}&${__url_time_range}"
                                             }
                                         ]
                                     }
@@ -2210,7 +2206,7 @@
                             {
                                 "matcher": {
                                     "id": "byName",
-                                    "options": "Up"
+                                    "options": "Alive"
                                 },
                                 "properties": [
                                     {
@@ -2225,12 +2221,12 @@
                                                     "0": {
                                                         "color": "#cc4637d9",
                                                         "index": 0,
-                                                        "text": "Dead"
+                                                        "text": "Down"
                                                     },
                                                     "1": {
                                                         "color": "#346f36cc",
                                                         "index": 1,
-                                                        "text": "Alive"
+                                                        "text": "UP"
                                                     }
                                                 },
                                                 "type": "value"
@@ -2244,20 +2240,20 @@
                                         }
                                     },
                                     {
-                                        "id": "custom.filterable",
-                                        "value": true
+                                        "id": "custom.width",
+                                        "value": 60
                                     }
                                 ]
                             }
                         ]
                     },
                     "gridPos": {
-                        "h": 13,
+                        "h": 16,
                         "w": 24,
                         "x": 0,
-                        "y": 27
+                        "y": 2
                     },
-                    "id": 140,
+                    "id": 142,
                     "options": {
                         "cellHeight": "sm",
                         "footer": {
@@ -2280,7 +2276,22 @@
                             },
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "group by (nodename,release,ip,ins,cls) (node_uname_info{})",
+                            "expr": "node_up{}",
+                            "format": "table",
+                            "hide": false,
+                            "instant": true,
+                            "interval": "",
+                            "legendFormat": "",
+                            "refId": "L"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "exemplar": false,
+                            "expr": "group without(ins,cls,instance) (node_uname_info{})",
                             "format": "table",
                             "hide": false,
                             "instant": true,
@@ -2385,7 +2396,7 @@
                             },
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "count by (ip) (up{ip!=\"\"})",
+                            "expr": "count by (ip) (up{})",
                             "format": "table",
                             "hide": false,
                             "instant": true,
@@ -2439,7 +2450,7 @@
                             "refId": "K"
                         }
                     ],
-                    "title": "Nodes",
+                    "title": "All Nodes",
                     "transformations": [
                         {
                             "id": "seriesToColumns",
@@ -2466,13 +2477,14 @@
                                     "Value #A": true,
                                     "Value #B": false,
                                     "Value #J": false,
+                                    "Value #L": true,
                                     "__name__": true,
                                     "__name__ 1": true,
                                     "__name__ 2": true,
                                     "__name__ 3": true,
                                     "cls": false,
-                                    "cls 1": false,
-                                    "cls 2": true,
+                                    "cls 1": true,
+                                    "cls 2": false,
                                     "cls 3": true,
                                     "domainname": true,
                                     "instance": false,
@@ -2487,6 +2499,7 @@
                                     "job 3": true,
                                     "machine": true,
                                     "maxmemory_policy": true,
+                                    "nodename": false,
                                     "os": true,
                                     "process_id": true,
                                     "redis_build_id": true,
@@ -2500,6 +2513,7 @@
                                     "Time 1": 17,
                                     "Time 10": 26,
                                     "Time 11": 27,
+                                    "Time 12": 31,
                                     "Time 2": 18,
                                     "Time 3": 19,
                                     "Time 4": 20,
@@ -2508,23 +2522,32 @@
                                     "Time 7": 23,
                                     "Time 8": 24,
                                     "Time 9": 25,
-                                    "Value #A": 6,
-                                    "Value #B": 8,
-                                    "Value #C": 10,
-                                    "Value #D": 12,
-                                    "Value #E": 7,
-                                    "Value #F": 9,
-                                    "Value #G": 11,
-                                    "Value #H": 5,
-                                    "Value #I": 13,
+                                    "Value #A": 7,
+                                    "Value #B": 9,
+                                    "Value #C": 11,
+                                    "Value #D": 13,
+                                    "Value #E": 8,
+                                    "Value #F": 10,
+                                    "Value #G": 12,
+                                    "Value #H": 6,
+                                    "Value #I": 14,
                                     "Value #J": 15,
                                     "Value #K": 0,
-                                    "cls": 1,
-                                    "ins": 2,
-                                    "instance": 14,
-                                    "ip": 3,
-                                    "nodename": 4,
-                                    "release": 16
+                                    "Value #L": 29,
+                                    "__name__": 28,
+                                    "cls": 2,
+                                    "domainname": 33,
+                                    "ins": 3,
+                                    "instance 1": 4,
+                                    "instance 2": 30,
+                                    "ip": 1,
+                                    "job 1": 32,
+                                    "job 2": 34,
+                                    "machine": 35,
+                                    "nodename": 5,
+                                    "release": 16,
+                                    "sysname": 36,
+                                    "version": 37
                                 },
                                 "renameByName": {
                                     "Time 4": "",
@@ -2538,12 +2561,14 @@
                                     "Value #H": "Targets",
                                     "Value #I": "Ping",
                                     "Value #J": "Conn",
-                                    "Value #K": "Up",
+                                    "Value #K": "Alive",
                                     "cls": "Cluster",
                                     "cls 1": "Cluster",
+                                    "cls 2": "Cluster",
                                     "ins": "Instance",
+                                    "ins 2": "Instance",
                                     "instance": "HAProxy",
-                                    "instance 1": "Address",
+                                    "instance 1": "HAProxy",
                                     "instance 3": "",
                                     "ip": "IP",
                                     "ip 1": "IP",
@@ -2687,7 +2712,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 0,
-                        "y": 28
+                        "y": 36
                     },
                     "id": 110,
                     "options": {
@@ -2836,7 +2861,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 12,
-                        "y": 28
+                        "y": 36
                     },
                     "id": 116,
                     "options": {
@@ -2986,7 +3011,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 0,
-                        "y": 37
+                        "y": 45
                     },
                     "id": 133,
                     "options": {
@@ -3088,7 +3113,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 12,
-                        "y": 37
+                        "y": 45
                     },
                     "id": 121,
                     "options": {
@@ -3202,7 +3227,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 0,
-                        "y": 46
+                        "y": 54
                     },
                     "id": 119,
                     "options": {
@@ -3303,7 +3328,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 12,
-                        "y": 46
+                        "y": 54
                     },
                     "id": 134,
                     "options": {
@@ -3414,13 +3439,48 @@
                             },
                             "unit": "s"
                         },
-                        "overrides": []
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byFrameRefID",
+                                    "options": "A"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "Node Instsance : ${__field.labels.ip}",
+                                                "url": "/d/node-instance?var-id=${__field.labels.ip}&${__url_time_range}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byFrameRefID",
+                                    "options": "B"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "Node VIP : ${__field.labels.vip}",
+                                                "url": "/d/node-vip?var-vip=${__field.labels.vip}&${__url_time_range}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     "gridPos": {
                         "h": 10,
                         "w": 12,
                         "x": 0,
-                        "y": 55
+                        "y": 63
                     },
                     "id": 135,
                     "options": {
@@ -3452,6 +3512,20 @@
                             "interval": "",
                             "legendFormat": "{{ ins }} @ {{ ip }}",
                             "refId": "A"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "exemplar": false,
+                            "expr": "avg by (job,vip) (probe_duration_seconds{job=~\".*vip\"})",
+                            "hide": false,
+                            "instant": true,
+                            "interval": "",
+                            "legendFormat": "{{ job }} @ {{ vip }}",
+                            "refId": "B"
                         }
                     ],
                     "title": "Ping RT",
@@ -3527,7 +3601,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 12,
-                        "y": 55
+                        "y": 63
                     },
                     "id": 111,
                     "options": {
@@ -3602,8 +3676,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             }
@@ -3724,8 +3797,7 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f",
-                                                    "value": null
+                                                    "color": "#3e668f"
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -3784,7 +3856,7 @@
                         "h": 10,
                         "w": 8,
                         "x": 0,
-                        "y": 29
+                        "y": 37
                     },
                     "id": 130,
                     "options": {
@@ -3875,8 +3947,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc",
-                                        "value": null
+                                        "color": "#346f36cc"
                                     }
                                 ]
                             }
@@ -4011,7 +4082,7 @@
                         "h": 10,
                         "w": 8,
                         "x": 8,
-                        "y": 29
+                        "y": 37
                     },
                     "id": 128,
                     "options": {
@@ -4122,8 +4193,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f",
-                                        "value": null
+                                        "color": "#3e668f"
                                     },
                                     {
                                         "color": "#346f36cc",
@@ -4138,7 +4208,7 @@
                         "h": 10,
                         "w": 8,
                         "x": 16,
-                        "y": 29
+                        "y": 37
                     },
                     "id": 132,
                     "options": {
@@ -4210,8 +4280,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#cc4637d9",
-                                        "value": null
+                                        "color": "#cc4637d9"
                                     },
                                     {
                                         "color": "#346f36cc",
@@ -4226,7 +4295,7 @@
                         "h": 17,
                         "w": 24,
                         "x": 0,
-                        "y": 39
+                        "y": 47
                     },
                     "id": 141,
                     "options": {

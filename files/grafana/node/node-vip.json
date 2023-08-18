@@ -16,7 +16,7 @@
         ]
     },
     "author": "Vonng (rh@vonng.com)",
-    "description": "Dashboard from repo: https://github.com/bhozar/grafana-dashboards\r\n\r\nKeepalived metrics for prometheus exporter: https://github.com/gen2brain/keepalived_exporter",
+    "description": "VIP Metrics (Keepalived & VIP-Manager)",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "gnetId": 18270,
@@ -43,6 +43,17 @@
     "liveNow": false,
     "panels": [
         {
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 235,
+            "title": "Overview",
+            "type": "row"
+        },
+        {
             "datasource": {
                 "type": "prometheus",
                 "uid": "ds-prometheus"
@@ -54,8 +65,6 @@
                         "mode": "thresholds"
                     },
                     "mappings": [],
-                    "max": 2.5,
-                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -64,33 +73,44 @@
                                 "value": null
                             }
                         ]
-                    }
+                    },
+                    "unit": "string"
                 },
                 "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Ping"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#cc4637d9",
+                                                "index": 0,
+                                                "text": "Down"
+                                            },
+                                            "1": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "OK"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
                     {
                         "matcher": {
                             "id": "byName",
                             "options": "Node Cluster"
                         },
                         "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "${cls}"
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "index": 0,
-                                                "text": "Node Cluster"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
                             {
                                 "id": "links",
                                 "value": [
@@ -105,124 +125,15 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Instance"
+                            "options": "Type"
                         },
                         "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "${ins}"
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "index": 0,
-                                                "text": "VIP Address"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "links",
-                                "value": []
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "IP"
-                        },
-                        "properties": [
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "index": 0,
-                                                "text": "Node IP"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "displayName",
-                                "value": "${ip}"
-                            },
                             {
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "Node Instance : ${ip}",
-                                        "url": "/d/node-instance?var-id=${ip}&${__url_time_range}"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Name"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "${node}"
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "index": 0,
-                                                "text": "Hostname"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "Node Instance : ${node}",
-                                        "url": "/d/node-instance?var-id=${node}&${__url_time_range}"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "VIP Cluster"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "${vip_cls}"
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "index": 0,
-                                                "text": "VIP Cluster"
-                                            }
-                                        },
-                                        "type": "value"
+                                        "title": "Node Overview",
+                                        "url": "/d/node-overview?${__url_time_range}"
                                     }
                                 ]
                             }
@@ -234,9 +145,9 @@
                 "h": 6,
                 "w": 6,
                 "x": 0,
-                "y": 0
+                "y": 1
             },
-            "id": 228,
+            "id": 237,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -246,12 +157,11 @@
                     "calcs": [
                         "lastNotNull"
                     ],
-                    "fields": "",
+                    "fields": "/.*/",
                     "values": false
                 },
                 "text": {
-                    "titleSize": 20,
-                    "valueSize": 16
+                    "titleSize": 12
                 },
                 "textMode": "value_and_name"
             },
@@ -264,76 +174,43 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "1",
-                    "hide": false,
+                    "expr": "min by (job,cls,vip) (probe_success{vip=\"$vip\"})",
+                    "format": "table",
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "Instance",
-                    "queryType": "measurements",
-                    "refId": "B"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "1",
-                    "hide": false,
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "Node Cluster",
-                    "queryType": "measurements",
+                    "legendFormat": "",
+                    "range": false,
                     "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "1",
-                    "hide": false,
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "VIP Cluster",
-                    "queryType": "measurements",
-                    "refId": "E"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "1",
-                    "hide": true,
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "IP",
-                    "queryType": "measurements",
-                    "refId": "C"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "1",
-                    "hide": true,
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "Name",
-                    "queryType": "measurements",
-                    "refId": "D"
                 }
             ],
-            "transformations": [],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "__name__": true,
+                            "name": true,
+                            "state": true,
+                            "vrid": true
+                        },
+                        "indexByName": {
+                            "Time": 4,
+                            "Value": 3,
+                            "cls": 1,
+                            "job": 2,
+                            "vip": 0
+                        },
+                        "renameByName": {
+                            "Value": "Ping",
+                            "cls": "Node Cluster",
+                            "ins": "Instance",
+                            "job": "Type",
+                            "vip": "VIP Address"
+                        }
+                    }
+                }
+            ],
             "type": "stat"
         },
         {
@@ -927,8 +804,8 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "Node VIP: ${__data.fields.Instance}",
-                                        "url": "/d/node-vip?var-ins=${__data.fields.Instance}&${__url_time_range}"
+                                        "title": "Node Instance: ${__data.fields.Instance}",
+                                        "url": "/d/node-instance?var-ins=${__data.fields.Instance}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -1042,7 +919,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Up"
+                            "options": "Alive"
                         },
                         "properties": [
                             {
@@ -1057,12 +934,12 @@
                                             "0": {
                                                 "color": "#cc4637d9",
                                                 "index": 0,
-                                                "text": "Dead"
+                                                "text": "Down"
                                             },
                                             "1": {
                                                 "color": "#346f36cc",
                                                 "index": 1,
-                                                "text": "Alive"
+                                                "text": "UP"
                                             }
                                         },
                                         "type": "value"
@@ -1074,6 +951,10 @@
                                 "value": {
                                     "type": "color-background"
                                 }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 60
                             }
                         ]
                     }
@@ -1083,7 +964,7 @@
                 "h": 6,
                 "w": 18,
                 "x": 6,
-                "y": 0
+                "y": 1
             },
             "id": 229,
             "options": {
@@ -1108,7 +989,22 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "group by (nodename,release,ip,ins,cls) (node_uname_info{cls=\"$cls\"})",
+                    "expr": "node_up{ip=~\"$ip\"}",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "L"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "group without(ins,cls,instance) (node_uname_info{ip=~\"$ip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1123,7 +1019,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ip) (node:ins:cpu_usage{cls=\"$cls\"})",
+                    "expr": "max by (ip) (node:ins:cpu_usage{ip=~\"$ip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1138,7 +1034,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ip) (node:ins:mem_usage{cls=\"$cls\"})",
+                    "expr": "max by (ip) (node:ins:mem_usage{ip=~\"$ip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1153,7 +1049,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by (ip,instance) (node:ins:space_usage_max{cls=\"$cls\"})",
+                    "expr": "sum by (ip,instance) (node:ins:space_usage_max{ip=~\"$ip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1168,7 +1064,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ip) (node:ins:cpu_count{cls=\"$cls\"}) ",
+                    "expr": "max by (ip) (node:ins:cpu_count{ip=~\"$ip\"}) ",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1183,7 +1079,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ip) (node_memory_MemTotal_bytes{cls=\"$cls\"}) / 1073741824",
+                    "expr": "max by (ip) (node_memory_MemTotal_bytes{ip=~\"$ip\"}) / 1073741824",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1198,7 +1094,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum(node:fs:size_bytes{cls=\"$cls\"}) by (ip) / 1073741824",
+                    "expr": "sum(node:fs:size_bytes{ip=~\"$ip\"}) by (ip) / 1073741824",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1213,7 +1109,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "count by (ip) (up{cls=\"$cls\"})",
+                    "expr": "count by (ip) (up{ip=~\"$ip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1228,7 +1124,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ip) (probe_duration_seconds{cls=\"$cls\", job=\"ping\"})",
+                    "expr": "max by (ip) (probe_duration_seconds{ip=~\"$ip\", job=\"ping\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1243,7 +1139,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by (ip) (haproxy_backend_current_sessions{cls=\"$cls\"})",
+                    "expr": "sum by (ip) (haproxy_backend_current_sessions{ip=~\"$ip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1258,7 +1154,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (ip) (node_up{cls=\"$cls\"})",
+                    "expr": "min by (ip) (node_up{ip=~\"$ip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1267,7 +1163,6 @@
                     "refId": "K"
                 }
             ],
-            "title": "Nodes",
             "transformations": [
                 {
                     "id": "seriesToColumns",
@@ -1294,13 +1189,14 @@
                             "Value #A": true,
                             "Value #B": false,
                             "Value #J": false,
+                            "Value #L": true,
                             "__name__": true,
                             "__name__ 1": true,
                             "__name__ 2": true,
                             "__name__ 3": true,
-                            "cls": true,
-                            "cls 1": false,
-                            "cls 2": true,
+                            "cls": false,
+                            "cls 1": true,
+                            "cls 2": false,
                             "cls 3": true,
                             "domainname": true,
                             "instance": false,
@@ -1315,6 +1211,7 @@
                             "job 3": true,
                             "machine": true,
                             "maxmemory_policy": true,
+                            "nodename": true,
                             "os": true,
                             "process_id": true,
                             "redis_build_id": true,
@@ -1328,6 +1225,7 @@
                             "Time 1": 17,
                             "Time 10": 26,
                             "Time 11": 27,
+                            "Time 12": 31,
                             "Time 2": 18,
                             "Time 3": 19,
                             "Time 4": 20,
@@ -1345,14 +1243,23 @@
                             "Value #G": 11,
                             "Value #H": 5,
                             "Value #I": 13,
-                            "Value #J": 15,
+                            "Value #J": 14,
                             "Value #K": 0,
-                            "cls": 1,
-                            "ins": 2,
-                            "instance": 14,
-                            "ip": 3,
+                            "Value #L": 29,
+                            "__name__": 28,
+                            "cls": 2,
+                            "domainname": 33,
+                            "ins": 3,
+                            "instance 1": 15,
+                            "instance 2": 30,
+                            "ip": 1,
+                            "job 1": 32,
+                            "job 2": 34,
+                            "machine": 35,
                             "nodename": 4,
-                            "release": 16
+                            "release": 16,
+                            "sysname": 36,
+                            "version": 37
                         },
                         "renameByName": {
                             "Time 4": "",
@@ -1366,12 +1273,14 @@
                             "Value #H": "Targets",
                             "Value #I": "Ping",
                             "Value #J": "Conn",
-                            "Value #K": "Up",
+                            "Value #K": "Alive",
                             "cls": "Cluster",
                             "cls 1": "Cluster",
+                            "cls 2": "Cluster",
                             "ins": "Instance",
+                            "ins 2": "Instance",
                             "instance": "HAProxy",
-                            "instance 1": "Address",
+                            "instance 1": "HAProxy",
                             "instance 3": "",
                             "ip": "IP",
                             "ip 1": "IP",
@@ -1386,6 +1295,518 @@
                 }
             ],
             "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        },
+                        {
+                            "options": {
+                                "from": 7,
+                                "result": {
+                                    "color": "text",
+                                    "index": 1,
+                                    "text": "\u221e"
+                                },
+                                "to": 9999999
+                            },
+                            "type": "range"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#3e668f",
+                                "value": null
+                            },
+                            {
+                                "color": "#346f36cc",
+                                "value": 0.0002
+                            },
+                            {
+                                "color": "#f5a673",
+                                "value": 0.001
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.01
+                            },
+                            {
+                                "color": "text",
+                                "value": 7
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node Instance : ${__field.labels.ip}",
+                                        "url": "/d/node-instance?var-id=${__field.labels.ip}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node VIP : ${__field.labels.vip}",
+                                        "url": "/d/node-vip?var-vip=${__field.labels.vip}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 6,
+                "x": 0,
+                "y": 7
+            },
+            "id": 238,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "avg by (job,vip) (probe_duration_seconds{cls=\"$cls\", job=~\".*vip\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ vip }} @ {{ job }}",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "probe_duration_seconds{cls=\"$cls\", job=\"ping\"}",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ip }} : {{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisGridShow": false,
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 1,
+                        "drawStyle": "line",
+                        "fillOpacity": 66,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 0,
+                    "links": [
+                        {
+                            "title": "Node Instance : ${__field.labels.ip}",
+                            "url": "/d/node-instance?var-id=${__field.labels.ip}&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 18,
+                "x": 6,
+                "y": 7
+            },
+            "id": 234,
+            "links": [],
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "keepalived_vrrp_advert_sent{vip=\"$vip\", state=\"MASTER\"} > bool 0",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "{{ ip }} : {{ ins }}",
+                    "refId": "A",
+                    "step": 2
+                }
+            ],
+            "title": "MASTER",
+            "transformations": [],
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Alive"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#cc4637d9",
+                                                "index": 0,
+                                                "text": "Down"
+                                            },
+                                            "1": {
+                                                "color": "#346f36cc",
+                                                "index": 1,
+                                                "text": "UP"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "State"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "BACKUP": {
+                                                "color": "#346f36cc",
+                                                "index": 0,
+                                                "text": "BACKUP"
+                                            },
+                                            "MASTER": {
+                                                "color": "#f5a673",
+                                                "index": 1,
+                                                "text": "MASTER"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 24,
+                "x": 0,
+                "y": 12
+            },
+            "id": 231,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "10.0.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "keepalived_up{vip=\"$vip\"}",
+                    "format": "table",
+                    "instant": true,
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (ins,state,vrid,name) (keepalived_vrrp_become_master{vip=\"$vip\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (ins) (keepalived_vrrp_auth_failure{vip=\"$vip\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "range": false,
+                    "refId": "C"
+                }
+            ],
+            "title": "Keepalived Status for ${type} VIP ${vip}",
+            "transformations": [
+                {
+                    "id": "joinByField",
+                    "options": {
+                        "byField": "ins",
+                        "mode": "outer"
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "Time 1": true,
+                            "Time 2": true,
+                            "Time 3": true,
+                            "__name__": true,
+                            "instance": true,
+                            "name": true,
+                            "vip": true,
+                            "vrid": true
+                        },
+                        "indexByName": {
+                            "Time 1": 13,
+                            "Time 2": 14,
+                            "Time 3": 15,
+                            "Value #A": 0,
+                            "Value #B": 10,
+                            "Value #C": 9,
+                            "__name__": 11,
+                            "cls": 8,
+                            "ins": 7,
+                            "instance": 12,
+                            "ip": 2,
+                            "job": 3,
+                            "name": 5,
+                            "state": 1,
+                            "vip": 4,
+                            "vrid": 6
+                        },
+                        "renameByName": {
+                            "Value #A": "Alive",
+                            "Value #B": "Become Master",
+                            "Value #C": "Failure",
+                            "cls": "Cluster",
+                            "ins": "Instance",
+                            "instance": "",
+                            "ip": "IP",
+                            "job": "Type",
+                            "name": "Name",
+                            "state": "State",
+                            "vip": "VIP",
+                            "vrid": "VRID"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 18
+            },
+            "id": 236,
+            "panels": [],
+            "title": "Metrics",
+            "type": "row"
         },
         {
             "datasource": {
@@ -1444,7 +1865,7 @@
                 "h": 5,
                 "w": 6,
                 "x": 0,
-                "y": 6
+                "y": 19
             },
             "id": 129,
             "links": [],
@@ -1473,7 +1894,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "keepalived_vrrp_become_master{ins=\"$ins\"}",
+                    "expr": "keepalived_vrrp_become_master{vip=\"$vip\"}",
                     "format": "time_series",
                     "hide": false,
                     "instant": true,
@@ -1614,7 +2035,7 @@
                 "h": 5,
                 "w": 18,
                 "x": 6,
-                "y": 6
+                "y": 19
             },
             "id": 127,
             "interval": "5m",
@@ -1639,7 +2060,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "rate(keepalived_vrrp_release_master{ins=\"$ins\"}[$__interval])",
+                    "expr": "rate(keepalived_vrrp_release_master{vip=\"$vip\"}[$__interval])",
                     "format": "time_series",
                     "hide": false,
                     "instant": false,
@@ -1655,7 +2076,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "rate(keepalived_vrrp_become_master{ins=\"$ins\"}[$__interval])",
+                    "expr": "rate(keepalived_vrrp_become_master{vip=\"$vip\"}[$__interval])",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -1721,7 +2142,7 @@
                 "h": 5,
                 "w": 6,
                 "x": 0,
-                "y": 11
+                "y": 24
             },
             "id": 230,
             "links": [],
@@ -1749,7 +2170,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "keepalived_up{ins=\"$ins\"}",
+                    "expr": "keepalived_up{vip=\"$vip\"}",
                     "format": "time_series",
                     "hide": false,
                     "instant": true,
@@ -1814,10 +2235,6 @@
                             {
                                 "color": "green",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     },
@@ -1860,9 +2277,9 @@
                 "h": 5,
                 "w": 18,
                 "x": 6,
-                "y": 11
+                "y": 24
             },
-            "id": 130,
+            "id": 233,
             "links": [],
             "options": {
                 "legend": {
@@ -1884,7 +2301,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "irate(keepalived_vrrp_advert_sent{ins=\"$ins\"}[5m])>0",
+                    "expr": "irate(keepalived_vrrp_advert_sent{vip=\"$vip\"}[5m])>0",
                     "format": "time_series",
                     "hide": false,
                     "instant": false,
@@ -1900,7 +2317,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "irate(keepalived_vrrp_advert_rcvd{ins=\"$ins\"}[5m])>0",
+                    "expr": "irate(keepalived_vrrp_advert_rcvd{vip=\"$vip\"}[5m])>0",
                     "format": "time_series",
                     "hide": false,
                     "instant": false,
@@ -1981,7 +2398,7 @@
                 "h": 5,
                 "w": 8,
                 "x": 0,
-                "y": 16
+                "y": 29
             },
             "id": 227,
             "links": [],
@@ -2008,7 +2425,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "node_systemd_unit_state{name=\"keepalived.service\",ins=\"$ins\", state=\"active\"} ",
+                    "expr": "node_systemd_unit_state{name=\"keepalived.service\",vip=\"$vip\", state=\"active\"} ",
                     "format": "time_series",
                     "hide": true,
                     "instant": false,
@@ -2024,7 +2441,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "keepalived_up{ins=\"$ins\"}",
+                    "expr": "keepalived_up{vip=\"$vip\"}",
                     "format": "time_series",
                     "hide": false,
                     "instant": false,
@@ -2206,7 +2623,7 @@
                 "h": 5,
                 "w": 8,
                 "x": 8,
-                "y": 16
+                "y": 29
             },
             "id": 118,
             "links": [],
@@ -2229,7 +2646,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "expr": "irate(keepalived_vrrp_advert_sent{ins=\"$ins\"}[1m])>0",
+                    "expr": "irate(keepalived_vrrp_advert_sent{vip=\"$vip\"}[1m])>0",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -2243,7 +2660,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "expr": "irate(keepalived_vrrp_advert_rcvd{ins=\"$ins\"}[1m])>0",
+                    "expr": "irate(keepalived_vrrp_advert_rcvd{vip=\"$vip\"}[1m])>0",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -2352,7 +2769,7 @@
                 "h": 5,
                 "w": 8,
                 "x": 16,
-                "y": 16
+                "y": 29
             },
             "id": 123,
             "links": [],
@@ -2375,7 +2792,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "expr": "irate(keepalived_vrrp_ip_ttl_err{ins=\"$ins\"}[1m])",
+                    "expr": "irate(keepalived_vrrp_ip_ttl_err{vip=\"$vip\"}[1m])",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -2436,8 +2853,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             },
                             {
                                 "color": "red",
@@ -2484,7 +2900,7 @@
                 "h": 5,
                 "w": 8,
                 "x": 0,
-                "y": 21
+                "y": 34
             },
             "id": 115,
             "links": [],
@@ -2507,7 +2923,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "expr": "irate(keepalived_vrrp_addr_list_err{ins=\"$ins\"}[1m])",
+                    "expr": "irate(keepalived_vrrp_addr_list_err{vip=\"$vip\"}[1m])",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -2569,8 +2985,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             },
                             {
                                 "color": "red",
@@ -2617,7 +3032,7 @@
                 "h": 5,
                 "w": 8,
                 "x": 8,
-                "y": 21
+                "y": 34
             },
             "id": 116,
             "links": [],
@@ -2640,7 +3055,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "expr": "irate(keepalived_vrrp_advert_interval_err{ins=\"$ins\"}[1m])",
+                    "expr": "irate(keepalived_vrrp_advert_interval_err{vip=\"$vip\"}[1m])",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -2701,8 +3116,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             },
                             {
                                 "color": "red",
@@ -2749,7 +3163,7 @@
                 "h": 5,
                 "w": 8,
                 "x": 16,
-                "y": 21
+                "y": 34
             },
             "id": 124,
             "links": [],
@@ -2772,7 +3186,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "expr": "irate(keepalived_vrrp_packet_len_err{ins=\"$ins\"}[1m])",
+                    "expr": "irate(keepalived_vrrp_packet_len_err{vip=\"$vip\"}[1m])",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -2833,8 +3247,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             },
                             {
                                 "color": "red",
@@ -2881,7 +3294,7 @@
                 "h": 5,
                 "w": 8,
                 "x": 0,
-                "y": 26
+                "y": 39
             },
             "id": 125,
             "links": [],
@@ -2904,7 +3317,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "expr": "irate(keepalived_vrrp_pri_zero_sent{ins=\"$ins\"}[1m])",
+                    "expr": "irate(keepalived_vrrp_pri_zero_sent{vip=\"$vip\"}[1m])",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -2965,8 +3378,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             },
                             {
                                 "color": "red",
@@ -3013,7 +3425,7 @@
                 "h": 5,
                 "w": 8,
                 "x": 8,
-                "y": 26
+                "y": 39
             },
             "id": 120,
             "links": [],
@@ -3036,7 +3448,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "expr": "irate(keepalived_vrrp_authtype_mismatch{ins=\"$ins\"}[1m])",
+                    "expr": "irate(keepalived_vrrp_authtype_mismatch{vip=\"$vip\"}[1m])",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -3097,8 +3509,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             },
                             {
                                 "color": "red",
@@ -3145,7 +3556,7 @@
                 "h": 5,
                 "w": 8,
                 "x": 16,
-                "y": 26
+                "y": 39
             },
             "id": 119,
             "links": [],
@@ -3168,7 +3579,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "expr": "irate(keepalived_vrrp_auth_failure{ins=\"$ins\"}[1m])",
+                    "expr": "irate(keepalived_vrrp_auth_failure{vip=\"$vip\"}[1m])",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -3229,8 +3640,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             },
                             {
                                 "color": "red",
@@ -3307,7 +3717,7 @@
                 "h": 5,
                 "w": 8,
                 "x": 0,
-                "y": 31
+                "y": 44
             },
             "id": 126,
             "links": [],
@@ -3330,7 +3740,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "expr": "irate(keepalived_vrrp_pri_zero_rcvd{ins=\"$ins\"}[1m])",
+                    "expr": "irate(keepalived_vrrp_pri_zero_rcvd{vip=\"$vip\"}[1m])",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -3391,8 +3801,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             },
                             {
                                 "color": "red",
@@ -3439,7 +3848,7 @@
                 "h": 5,
                 "w": 8,
                 "x": 8,
-                "y": 31
+                "y": 44
             },
             "id": 121,
             "links": [],
@@ -3462,7 +3871,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "expr": "irate(keepalived_vrrp_invalid_authtype{ins=\"$ins\"}[1m])",
+                    "expr": "irate(keepalived_vrrp_invalid_authtype{vip=\"$vip\"}[1m])",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -3523,8 +3932,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             },
                             {
                                 "color": "red",
@@ -3571,7 +3979,7 @@
                 "h": 5,
                 "w": 8,
                 "x": 16,
-                "y": 31
+                "y": 44
             },
             "id": 122,
             "links": [],
@@ -3594,7 +4002,7 @@
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "expr": "irate(keepalived_vrrp_invalid_type_rcvd{ins=\"$ins\"}[1m])",
+                    "expr": "irate(keepalived_vrrp_invalid_type_rcvd{vip=\"$vip\"}[1m])",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -3608,7 +4016,7 @@
             "type": "timeseries"
         }
     ],
-    "refresh": "10s",
+    "refresh": "",
     "schemaVersion": 38,
     "style": "dark",
     "tags": [
@@ -3625,15 +4033,16 @@
                     "type": "prometheus",
                     "uid": "ds-prometheus"
                 },
-                "definition": "label_values(keepalived_up,ins)",
+                "definition": "label_values(probe_success,vip)",
+                "description": "Virtual IP address bind to node cluster or pgsql cluster",
                 "hide": 0,
                 "includeAll": false,
                 "label": "VIP",
                 "multi": false,
-                "name": "ins",
+                "name": "vip",
                 "options": [],
                 "query": {
-                    "query": "label_values(keepalived_up,ins)",
+                    "query": "label_values(probe_success,vip)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 1,
@@ -3651,7 +4060,8 @@
                     "type": "prometheus",
                     "uid": "ds-prometheus"
                 },
-                "definition": "label_values(keepalived_up{ins=\"$ins\"},ip)",
+                "definition": "label_values(probe_success{vip=\"$vip\"},ip)",
+                "description": "Node IP address(es) that corresponding to an IP address",
                 "hide": 2,
                 "includeAll": true,
                 "label": "IP",
@@ -3659,7 +4069,7 @@
                 "name": "ip",
                 "options": [],
                 "query": {
-                    "query": "label_values(keepalived_up{ins=\"$ins\"},ip)",
+                    "query": "label_values(probe_success{vip=\"$vip\"},ip)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 1,
@@ -3677,15 +4087,16 @@
                     "type": "prometheus",
                     "uid": "ds-prometheus"
                 },
-                "definition": "label_values(node:ins{ip=~\"$ip\"},cls)",
+                "definition": "label_values(probe_success{vip=\"$vip\"},cls)",
+                "description": "Node Cluster Name",
                 "hide": 2,
                 "includeAll": false,
-                "label": "Cluster",
+                "label": "Node Cluster",
                 "multi": false,
                 "name": "cls",
                 "options": [],
                 "query": {
-                    "query": "label_values(node:ins{ip=~\"$ip\"},cls)",
+                    "query": "label_values(probe_success{vip=\"$vip\"},cls)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 1,
@@ -3703,16 +4114,15 @@
                     "type": "prometheus",
                     "uid": "ds-prometheus"
                 },
-                "definition": "label_values(node:ins{ip=~\"$ip\"},nodename)",
-                "description": "NodeName or hostname",
+                "definition": "label_values(pg_up{ip=~\"$ip\"},cls)",
                 "hide": 2,
                 "includeAll": false,
-                "label": "Node",
+                "label": "PG Cluster",
                 "multi": false,
-                "name": "node",
+                "name": "pg_cls",
                 "options": [],
                 "query": {
-                    "query": "label_values(node:ins{ip=~\"$ip\"},nodename)",
+                    "query": "label_values(pg_up{ip=~\"$ip\"},cls)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 1,
@@ -3730,19 +4140,20 @@
                     "type": "prometheus",
                     "uid": "ds-prometheus"
                 },
-                "definition": "label_values(keepalived_up{ins=\"$ins\"},cls)",
+                "definition": "label_values(probe_success{vip=\"$vip\"},job)",
+                "description": "VIP Type: node or pgsql",
                 "hide": 2,
                 "includeAll": false,
-                "label": "VIP Cluster",
+                "label": "Type",
                 "multi": false,
-                "name": "vip_cls",
+                "name": "type",
                 "options": [],
                 "query": {
-                    "query": "label_values(keepalived_up{ins=\"$ins\"},cls)",
+                    "query": "label_values(probe_success{vip=\"$vip\"},job)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 1,
-                "regex": "",
+                "regex": "/(node|pgsql)-vip/",
                 "skipUrlSync": false,
                 "sort": 1,
                 "tagValuesQuery": "",
