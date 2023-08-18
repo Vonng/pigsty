@@ -99,10 +99,14 @@ There are 265 parameters in Pigsty describing all aspect of the deployment.
 | 262 | [`node_ntp_servers`](#node_ntp_servers)                         | [`NODE`](#node)   | [`NODE_TIME`](#node_time)         | string[]    | C     | ntp servers in `/etc/chrony.conf`                                             |
 | 263 | [`node_crontab_overwrite`](#node_crontab_overwrite)             | [`NODE`](#node)   | [`NODE_TIME`](#node_time)         | bool        | C     | overwrite or append to `/etc/crontab`?                                        |
 | 264 | [`node_crontab`](#node_crontab)                                 | [`NODE`](#node)   | [`NODE_TIME`](#node_time)         | string[]    | C     | crontab entries in `/etc/crontab`                                             |
-| 270 | [`node_vip_enabled`](#node_vip_enabled)                         | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | bool        | C     | enable a l2 vip among node cluster?                                           |
-| 271 | [`node_vip_role`](#node_vip_role)                               | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | enum        | I     | node vip role: master,backup                                                  |
-| 272 | [`node_vip_address`](#node_vip_address)                         | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | ip          | C     | node vip address in `<ipv4>` format, require if node vip is enabled           |
-| 273 | [`node_vip_interface`](#node_vip_interface)                     | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | string      | C/I   | node vip network interface to listen, eth0 by default                         |
+| 270 | [`vip_enabled`](#vip_enabled)                                   | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | bool        | C     | enable vip on this node cluster?                                              |
+| 271 | [`vip_address`](#vip_address)                                   | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | ip          | C     | node vip address in ipv4 format, required if vip is enabled                   |
+| 272 | [`vip_vrid`](#vip_vrid)                                         | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | int         | C     | required, integer, 1-254, should be unique among same VLAN                    |
+| 273 | [`vip_role`](#vip_role)                                         | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | enum        | I     | optional, `master/backup`, backup by default, use as init role                |
+| 274 | [`vip_preempt`](#vip_preempt)                                   | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | bool        | C/I   | optional, `true/false`, false by default, enable vip preemption               |
+| 275 | [`vip_interface`](#vip_interface)                               | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | string      | C/I   | node vip network interface to listen, `eth0` by default                       |
+| 276 | [`vip_dns_suffix`](#vip_dns_suffix)                             | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | string      | C     | node vip dns name suffix, `.vip` by default                                   |
+| 277 | [`vip_exporter_port`](#vip_exporter_port)                       | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | port        | C     | keepalived exporter listen port, 9650 by default                              |
 | 280 | [`haproxy_enabled`](#haproxy_enabled)                           | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | bool        | C     | enable haproxy on this node?                                                  |
 | 281 | [`haproxy_clean`](#haproxy_clean)                               | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | bool        | G/C/A | cleanup all existing haproxy config?                                          |
 | 282 | [`haproxy_reload`](#haproxy_reload)                             | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | bool        | A     | reload haproxy after config?                                                  |
@@ -2101,64 +2105,109 @@ default values: `[]`
 
 ## `NODE_VIP`
 
-You can bind an optional L2 VIP among one node cluster, which is disabled by default, and must be set explicitly to enable.
+You can bind an optional L2 VIP among one node cluster, which is disabled by default.
 
-It is user's responsibility to ensure that the VIP is not used by other services in the deployment.
+You have to manually assign the `vip_address` and `vip_vrid` for each node cluster.
+
+It is user's responsibility to ensure that the address / vrid is **unique** among your LAN.
+
 
 ```yaml
-node_vip_enabled: false           # enable a l2 vip among node cluster?
-node_vip_role: master             # node vip role: master,backup
-node_vip_address: 127.0.0.1       # node vip address in `<ipv4>` format, require if node vip is enabled
-node_vip_interface: eth0          # node vip network interface to listen, eth0 by default
+vip_enabled: false                # enable vip on this node cluster?
+# vip_address:         [IDENTITY] # node vip address in ipv4 format, required if vip is enabled
+# vip_vrid:            [IDENTITY] # required, integer, 1-254, should be unique among same VLAN
+vip_role: backup                  # optional, `master/backup`, backup by default, use as init role
+vip_preempt: false                # optional, `true/false`, false by default, enable vip preemption
+vip_interface: eth0               # node vip network interface to listen, `eth0` by default
+vip_dns_suffix: .vip              # node vip dns name suffix, `.vip` by default
+vip_exporter_port: 9650           # keepalived exporter listen port, 9650 by default
 ```
 
 
 
 
-### `node_vip_enabled`
+### `vip_enabled`
 
-name: `pg_vip_enabled`, type: `bool`, level: `C`
+name: `vip_enabled`, type: `bool`, level: `C`
 
-enable a l2 vip for pgsql primary?
+enable vip on this node cluster?
 
 default value is `false`, means no L2 VIP is created for this node cluster.
 
-L2 VIP can only be used in same L2 network, which may incurs extra restrictions on your network topology.
+L2 VIP can only be used in same L2 LAN, which may incurs extra restrictions on your network topology.
+
+
+
+### `vip_address`
+
+name: `vip_address`, type: `ip`, level: `C`
+
+node vip address in IPv4 format, **required** if node [`vip_enabled`](#vip_enabled).
+
+no default value. This parameter must be explicitly assigned and unique in your LAN.
+
+
+
+### `vip_vrid`
+
+name: `vip_address`, type: `ip`, level: `C`
+
+integer, 1-254, should be unique in same VLAN, **required** if node [`vip_enabled`](#vip_enabled).
+
+no default value. This parameter must be explicitly assigned and unique in your LAN.
 
 
 
 
-### `node_vip_role`
 
-name: `pg_vip_role`, type: `enum`, level: `I`
+### `vip_role`
+
+name: `vip_role`, type: `enum`, level: `I`
 
 node vip role, could be `master` or `backup`, will be used as initial keepalived state.
 
 
 
 
+### `vip_preempt`
 
-### `node_vip_address`
+name: `vip_preempt`, type: `bool`, level: `C/I`
 
-name: `pg_vip_address`, type: `ip`, level: `C`
+optional, `true/false`, false by default, enable vip preemption
 
-node vip address in `<ipv4>` format, require if node vip is enabled
-
-default values: `127.0.0.1`. This value must be explicitly assigned and globally unique in the deployment.
-
+default value is `false`, means no preempt is happening when a backup have higher priority than living master.
 
 
 
 
-### `node_vip_interface`
+### `vip_interface`
 
-name: `pg_vip_interface`, type: `string`, level: `C/I`
+name: `vip_interface`, type: `string`, level: `C/I`
 
 node vip network interface to listen, `eth0` by default.
 
 It should be the same primary intranet interface of your node, which is the IP address you used in the inventory file.
 
 If your node have different interface, you can override it on instance vars
+
+
+
+
+### `vip_dns_suffix`
+
+name: `vip_dns_suffix`, type: `string`, level: `C/I`
+
+node vip dns name suffix, `.vip` by default. It will be used as the DNS name of the node VIP.
+
+
+
+
+
+### `vip_exporter_port`
+
+name: `vip_exporter_port`, type: `port`, level: `C/I`
+
+keepalived exporter listen port, 9650 by default.
 
 
 

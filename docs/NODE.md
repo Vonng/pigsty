@@ -47,22 +47,23 @@ The admin node is also the default and first infra node, and infra nodes can be 
 
 The node with [PGSQL](PGSQL) module installed is called a PGSQL node. The node and pg instance is 1:1 deployed. And node instance can be borrowed from corresponding pg instances with [`node_id_from_pg`](PARAM#node_id_from_pg).
 
-|     Component      | Port | Description                                  |
-|:------------------:|:----:|----------------------------------------------|
-|      Postgres      | 5432 | Pigsty CMDB                                  |
-|     Pgbouncer      | 6432 | Pgbouncer Connection Pooling Service         |
-|      Patroni       | 8008 | Patroni HA Component                         |
-|  Haproxy Primary   | 5433 | Primary connection pool: Read/Write Service  |
-|  Haproxy Replica   | 5434 | Replica connection pool: Read-only Service   |
-|  Haproxy Default   | 5436 | Primary Direct Connect Service               |
-|  Haproxy Offline   | 5438 | Offline Direct Connect: Offline Read Service |
-| Haproxy `service`  | 543x | Customized Services                          |
-|   Haproxy Admin    | 9101 | Monitoring metrics and traffic management    |
-|    PG Exporter     | 9630 | PG Monitoring Metrics Exporter               |
-| PGBouncer Exporter | 9631 | PGBouncer Monitoring Metrics Exporter        |
-|   Node Exporter    | 9100 | Node Monitoring Metrics Exporter             |
-|      Promtail      | 9080 | Collect Postgres, Pgbouncer, Patroni logs    |
-|    vip-manager     |  -   | Bind VIP to the primary                      |
+|      Component      | Port | Description                                  |
+|:-------------------:|:----:|----------------------------------------------|
+|      Postgres       | 5432 | Pigsty CMDB                                  |
+|      Pgbouncer      | 6432 | Pgbouncer Connection Pooling Service         |
+|       Patroni       | 8008 | Patroni HA Component                         |
+|   Haproxy Primary   | 5433 | Primary connection pool: Read/Write Service  |
+|   Haproxy Replica   | 5434 | Replica connection pool: Read-only Service   |
+|   Haproxy Default   | 5436 | Primary Direct Connect Service               |
+|   Haproxy Offline   | 5438 | Offline Direct Connect: Offline Read Service |
+|  Haproxy `service`  | 543x | Customized Services                          |
+|    Haproxy Admin    | 9101 | Monitoring metrics and traffic management    |
+|     PG Exporter     | 9630 | PG Monitoring Metrics Exporter               |
+| PGBouncer Exporter  | 9631 | PGBouncer Monitoring Metrics Exporter        |
+|    Node Exporter    | 9100 | Node Monitoring Metrics Exporter             |
+| Keepalived Exporter | 9650 | Keepalived Metrics Exporter (Optional)       |
+|      Promtail       | 9080 | Collect Postgres, Pgbouncer, Patroni logs    |
+|     vip-manager     |  -   | Bind VIP to the primary                      |
 
 
 
@@ -187,6 +188,14 @@ There are 9 sections, 58 parameters about [`NODE`](PARAM#node) module.
 | [`node_vip_role`](PARAM#node_vip_role)                     | [`NODE_VIP`](PARAM#node_vip)           |   enum    |   I   | node vip role: master,backup                                        |
 | [`node_vip_address`](PARAM#node_vip_address)               | [`NODE_VIP`](PARAM#node_vip)           |    ip     |   C   | node vip address in `<ipv4>` format, require if node vip is enabled |
 | [`node_vip_interface`](PARAM#node_vip_interface)           | [`NODE_VIP`](PARAM#node_vip)           |  string   |  C/I  | node vip network interface to listen, eth0 by default               |
+| [`vip_enabled`](PARAM#vip_enabled)                         | [`NODE_VIP`](PARAM#node_vip)           |   bool    |   C   | enable vip on this node cluster?                                    |
+| [`vip_address`](PARAM#vip_address)                         | [`NODE_VIP`](PARAM#node_vip)           |    ip     |   C   | node vip address in ipv4 format, required if vip is enabled         |
+| [`vip_vrid`](PARAM#vip_vrid)                               | [`NODE_VIP`](PARAM#node_vip)           |    int    |   C   | required, integer, 1-254, should be unique among same VLAN          |
+| [`vip_role`](PARAM#vip_role)                               | [`NODE_VIP`](PARAM#node_vip)           |   enum    |   I   | optional, `master/backup`, backup by default, use as init role      |
+| [`vip_preempt`](PARAM#vip_preempt)                         | [`NODE_VIP`](PARAM#node_vip)           |   bool    |  C/I  | optional, `true/false`, false by default, enable vip preemption     |
+| [`vip_interface`](PARAM#vip_interface)                     | [`NODE_VIP`](PARAM#node_vip)           |  string   |  C/I  | node vip network interface to listen, `eth0` by default             |
+| [`vip_dns_suffix`](PARAM#vip_dns_suffix)                   | [`NODE_VIP`](PARAM#node_vip)           |  string   |   C   | node vip dns name suffix, `.vip` by default                         |
+| [`vip_exporter_port`](PARAM#vip_exporter_port)             | [`NODE_VIP`](PARAM#node_vip)           |   port    |   C   | keepalived exporter listen port, 9650 by default                    |
 | [`haproxy_enabled`](PARAM#haproxy_enabled)                 | [`HAPROXY`](PARAM#haproxy)             |   bool    |   C   | enable haproxy on this node?                                        |
 | [`haproxy_clean`](PARAM#haproxy_clean)                     | [`HAPROXY`](PARAM#haproxy)             |   bool    | G/C/A | cleanup all existing haproxy config?                                |
 | [`haproxy_reload`](PARAM#haproxy_reload)                   | [`HAPROXY`](PARAM#haproxy)             |   bool    |   A   | reload haproxy after config?                                        |

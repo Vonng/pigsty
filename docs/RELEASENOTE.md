@@ -37,30 +37,38 @@
 
 ## v2.2.1 (Beta, TBD)
 
-Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`
+Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"`
 
 **Highlight**
 
+* INFRA, NODE/PGSQL VIP monitoring, Basic monitor support for MySQL / Mongo. REDIS rework.
 * PGSQL, Fix [CVE-2023-39417](https://www.postgresql.org/about/news/postgresql-154-149-1312-1216-1121-and-postgresql-16-beta-3-released-2689/) with PostgreSQL 15.4, 14.9, 13.12, 12.16
 * PGSQL, Bump patroni version to v3.1.0 with various bugfixes.
-* NODE,  Add `keepalived` back into default repo_packages and add `node_vip` API stub.
+* NODE,  Allow bind `node_vip` to node cluster with `keepalived`
 * MONGO, Add basic mongodb support with [FerretDB](https://www.ferretdb.io/) 1.8 : new dashboard & playbook
 * MYSQL, Add `mysql` monitoring stub in prometheus config
-* REDIS, Dashboard rework with latest UI style
 * APP, Bump `app/bytebase` to v2.6.0, `app/ferretdb` version to v1.8
 * APP, Add new application [nocodb](https://nocodb.com/): Open Source Airtable Alternative
 
 **API Change**
 
-Add 1 new section `NODE`.`NODE_VIP` with 6 new parameter
+Add 1 new section `NODE`.`NODE_VIP` with 8 new parameter
 
-- `NODE`.`VIP`.`vip_cluster` : required, if defined, vip is enabled for this cluster
+- `NODE`.`VIP`.`vip_enabled` : enable vip on this node cluster?
+- `NODE`.`VIP`.`vip_address` : node vip address in ipv4 format, required if vip is enabled
 - `NODE`.`VIP`.`vip_vrid` : required, integer, 1-255 should be unique among same VLAN
-- `NODE`.`VIP`.`vip_role` : optional, `master|backup`, backup by default, use as init role
-- `NODE`.`VIP`.`vip_address` : node vip address in `<ipv4>` format, require if vip is enabled
+- `NODE`.`VIP`.`vip_role` : `master/backup`, backup by default, use as init role
+- `NODE`.`VIP`.`vip_preempt` : optional, `true/false`, false by default, enable vip preemption
 - `NODE`.`VIP`.`vip_interface` : node vip network interface to listen, `eth0` by default
+- `NODE`.`VIP`.`vip_dns_suffix` : node vip dns name suffix, `.vip` by default
 - `NODE`.`VIP`.`vip_exporter_port` : keepalived exporter listen port, 9650 by default
 
+
+```
+81db95f1c591008725175d280ad23615  pigsty-pkg-v2.2.1.el7.x86_64.tgz
+6f4d169b36f6ec4aa33bfd5901c9abbe  pigsty-pkg-v2.2.1.el8.x86_64.tgz
+4bc9ae920e7de6dd8988ca7ee681459d  pigsty-pkg-v2.2.1.el9.x86_64.tgz
+```
 
 ------------------------------
 
