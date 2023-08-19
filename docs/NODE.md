@@ -95,6 +95,12 @@ If the current user does not have nopass ssh/sudo access to the node, you can us
 node.yml -t node_admin -k -K -e ansible_user=<another admin>   # input ssh/sudo password for another admin 
 ```
 
+**Bind VIP**
+
+```bash
+
+```
+
 
 
 

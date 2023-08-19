@@ -1350,10 +1350,14 @@ INSERT INTO pigsty.default_var VALUES
 (263, 'node_crontab_overwrite', 'true', 'NODE', 'NODE_TIME', 'bool', 'C', 'overwrite or append to `/etc/crontab`?', NULL),
 (264, 'node_crontab', '[]', 'NODE', 'NODE_TIME', 'string[]', 'C', 'crontab entries in `/etc/crontab`', NULL),
 
-(270, 'node_vip_enabled', 'false', 'NODE', 'NODE_VIP', 'bool', 'C', 'enable a l2 vip among node cluster?', NULL),
-(271, 'node_vip_role', '"master"', 'NODE', 'NODE_VIP', 'enum', 'I', 'node vip role: master,backup', NULL),
-(272, 'node_vip_address', '"127.0.0.1"', 'NODE', 'NODE_VIP', 'ip', 'C', 'node vip address in `<ipv4>` format, require if node vip is enabled', NULL),
-(273, 'node_vip_interface', '"eth0"', 'NODE', 'NODE_VIP', 'string', 'C/I', 'node vip network interface to listen, eth0 by default   ', NULL),
+(270, 'vip_enabled', 'false', 'NODE', 'NODE_VIP', 'bool', 'C', 'enable vip on this node cluster?', NULL),
+(271, 'vip_address', 'null', 'NODE', 'NODE_VIP', 'ip', 'C', 'node vip address in ipv4 format, required if vip is enabled', NULL),
+(272, 'vip_vrid', 'null', 'NODE', 'NODE_VIP', 'int', 'C', 'required, integer, 1-254, should be unique among same VLAN', NULL),
+(273, 'vip_role', '"backup"', 'NODE', 'NODE_VIP', 'enum', 'I', 'optional, `master/backup`, backup by default, use as init role', NULL),
+(274, 'vip_preempt', 'false', 'NODE', 'NODE_VIP', 'bool', 'C/I', 'optional, `true/false`, false by default, enable vip preemption', NULL),
+(275, 'vip_interface', '"eth0"', 'NODE', 'NODE_VIP', 'string', 'C/I', 'node vip network interface to listen, `eth0` by default', NULL),
+(276, 'vip_dns_suffix', '".vip"', 'NODE', 'NODE_VIP', 'string', 'C', 'node vip dns name suffix, `.vip` by default', NULL),
+(277, 'vip_exporter_port', '"9650"', 'NODE', 'NODE_VIP', 'port', 'C', 'keepalived exporter listen port, 9650 by default', NULL),
 
 (280, 'haproxy_enabled', 'true', 'NODE', 'HAPROXY', 'bool', 'C', 'enable haproxy on this node?', NULL),
 (281, 'haproxy_clean', 'false', 'NODE', 'HAPROXY', 'bool', 'G/C/A', 'cleanup all existing haproxy config?', NULL),

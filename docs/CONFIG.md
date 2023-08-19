@@ -86,6 +86,7 @@ Pigsty have 260+ parameters, check [Parameter](PARAM) for details.
 |   [`NODE`](PARAM#node)   | [`NODE_TUNE`](PARAM#node_tune)         | Node Tuning & Kernel features    | 10    |
 |   [`NODE`](PARAM#node)   | [`NODE_ADMIN`](PARAM#node_admin)       | Admin User & Credentials         | 7     |
 |   [`NODE`](PARAM#node)   | [`NODE_TIME`](PARAM#node_time)         | Node Timezone, NTP, Crontabs     | 5     |
+|   [`NODE`](PARAM#node)   | [`NODE_VIP`](PARAM#node_vip)           | Node Keepalived L2 VIP           | 8     |
 |   [`NODE`](PARAM#node)   | [`HAPROXY`](PARAM#haproxy)             | HAProxy the load balancer        | 10    |
 |   [`NODE`](PARAM#node)   | [`NODE_EXPORTER`](PARAM#node_exporter) | Node Monitoring Agent            | 3     |
 |   [`NODE`](PARAM#node)   | [`PROMTAIL`](PARAM#promtail)           | Promtail logging Agent           | 4     |
