@@ -45,10 +45,7 @@ bin/pgsql-db   pg-meta wiki
 
 Visit [http://noco.pigsty](http://noco.pigsty) or http://10.10.10.10:9003 with:
 
-Public demo: http://noco.pigsty.cc
-
-username: `admin@pigsty.cc` and password: `pigsty`
-
+Public demo: http://noco.pigsty.cc , username: `admin@pigsty.cc` and password: `pigsty.cc`
 
 
 

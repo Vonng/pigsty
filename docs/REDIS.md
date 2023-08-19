@@ -139,6 +139,20 @@ bin/redis-rm 10.10.10.10 6501  # remove redis instance '10.10.10.10:6501'
 ```
 
 
+**Setup standalone HA with sentinel**
+
+You have to enable HA for redis standalone m-s cluster manually with your redis sentinel.
+
+Take the 4-node sandbox as an example, a redis sentinel cluster `redis-meta` is used manage the `redis-ms` standalone cluster.  
+
+```bash
+# for each sentinel, add redis master to the sentinel with:
+$ redis-cli -h 10.10.10.11 -p 6501 -a redis.meta
+10.10.10.11:6501> SENTINEL MONITOR redis-ms 10.10.10.10 6501 1
+10.10.10.11:6501> SENTINEL SET redis-ms auth-pass redis.ms      # if auth enabled, password has to be configured 
+```
+
+
 
 ----------------
 
