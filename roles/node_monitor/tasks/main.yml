@@ -51,6 +51,7 @@
 #--------------------------------------------------------------#
 - name: register node vip dns name
   tags: [ node_vip, vip_dns, vip_dns_config ]
+  when: vip_enabled|bool
   delegate_to: '{{ item }}'
   with_items: "{{ groups['infra'] }}"
   ignore_errors: true
@@ -66,6 +67,7 @@
 # reload meta node nginx (maybe not appropriate here)
 - name: reload dnsmasq on infra node for node vip
   tags: [ node_vip, vip_dns, vip_dns_reload ]
+  when: vip_enabled|bool
   delegate_to: '{{ item }}'
   run_once: true
   ignore_errors: true
