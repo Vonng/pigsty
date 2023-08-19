@@ -66,7 +66,7 @@ For examples:
 
 ## Reference
 
-Pigsty have 260+ parameters, check [Parameter](PARAM) for details.
+Pigsty have 280+ parameters, check [Parameter](PARAM) for details.
 
 |          Module          | Section                                | Description                      | Count |
 |:------------------------:|----------------------------------------|----------------------------------|-------|

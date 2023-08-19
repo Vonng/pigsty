@@ -119,17 +119,17 @@ There are one dashboard for [`MONGO`](MONGO) module for now.
 There are 9 parameters in [`MONGO`](MONGO) module.
 
 
-| Parameter                                          |  Type  | Level | Comment                                      |
-|----------------------------------------------------|:------:|:-----:|----------------------------------------------|
-| [`mongo_seq`](PARAM#mongo_seq)                     |  int   |   I   | mongo instance identifier, REQUIRED          |
-| [`mongo_cluster`](PARAM#mongo_cluster)             | string |   C   | mongo cluster name, MONGO by default         |
-| [`mongo_pgurl`](PARAM#mongo_pgurl)                 | pgurl  |  C/I  | underlying postgres URL for ferretdb         |
-| [`mongo_ssl_enabled`](PARAM#mongo_ssl_enabled)     |  bool  |   C   | mongo/ferretdb ssl enabled, false by default |
-| [`mongo_listen`](PARAM#mongo_listen)               |   ip   |   C   | mongo listen address, empty for all addr     |
-| [`mongo_port`](PARAM#mongo_port)                   |  port  |   C   | mongo service port, 27017 by default         |
-| [`mongo_ssl_port`](PARAM#mongo_ssl_port)           |  port  |   C   | mongo tls listen port, 27018 by default      |
-| [`mongo_exporter_port`](PARAM#mongo_exporter_port) |  port  |   C   | mongo exporter port, 9216 by default         |
-| [`mongo_extra_vars`](PARAM#mongo_extra_vars)       | string |   C   | extra environment variables for MONGO server |
+| Parameter             |  Type  | Level | Comment                                      |
+|-----------------------|:------:|:-----:|----------------------------------------------|
+| `mongo_seq`           |  int   |   I   | mongo instance identifier, REQUIRED          |
+| `mongo_cluster`       | string |   C   | mongo cluster name, MONGO by default         |
+| `mongo_pgurl`         | pgurl  |  C/I  | underlying postgres URL for ferretdb         |
+| `mongo_ssl_enabled`   |  bool  |   C   | mongo/ferretdb ssl enabled, false by default |
+| `mongo_listen`        |   ip   |   C   | mongo listen address, empty for all addr     |
+| `mongo_port`          |  port  |   C   | mongo service port, 27017 by default         |
+| `mongo_ssl_port`      |  port  |   C   | mongo tls listen port, 27018 by default      |
+| `mongo_exporter_port` |  port  |   C   | mongo exporter port, 9216 by default         |
+| `mongo_extra_vars`    | string |   C   | extra environment variables for MONGO server |
 
 
 ```yaml
