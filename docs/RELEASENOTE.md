@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                             | Release                                                                                   |
 |:----------------|:----------:|---------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.2.1](#v221) | 2023-08-18 | CVE-2023-39417, ferretdb, nocodb, node vip              | [v2.2.1 TBD](https://github.com/Vonng/pigsty/releases/tag/v2.2.1)                         |
+| [v2.3.0](#v230) | 2023-08-20 | Node VIP, Mongo/ferretdb, nocodb, MySQL Stub, CVE       | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
 | [v2.2.0](#v220) | 2023-08-04 | Dashboard & Provision overhaul, UOS compatibility       | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
 | [v2.1.0](#v210) | 2023-06-10 | PostgreSQL 12 ~ 16beta support                          | [v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0)                             |
 | [v2.0.2](#v202) | 2023-03-31 | Add pgvector support and fix MinIO CVE                  | [v2.0.2](https://github.com/Vonng/pigsty/releases/tag/v2.0.2)                             |
@@ -35,7 +35,7 @@
 
 ------------------------------
 
-## v2.2.1 (Beta, TBD)
+## v2.3.0 (Beta)
 
 Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"`
 
@@ -64,11 +64,6 @@ Add 1 new section `NODE`.`NODE_VIP` with 8 new parameter
 - `NODE`.`VIP`.`vip_exporter_port` : keepalived exporter listen port, 9650 by default
 
 
-```
-81db95f1c591008725175d280ad23615  pigsty-pkg-v2.2.1.el7.x86_64.tgz
-6f4d169b36f6ec4aa33bfd5901c9abbe  pigsty-pkg-v2.2.1.el8.x86_64.tgz
-4bc9ae920e7de6dd8988ca7ee681459d  pigsty-pkg-v2.2.1.el9.x86_64.tgz
-```
 
 ------------------------------
 
