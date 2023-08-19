@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   pgsql.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2022-01-22
+# Mtime     :   2023-08-19
 # Desc      :   Rules for postgres & pgbouncer
 # Path      :   /etc/prometheus/rules/pgsql.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -133,15 +133,15 @@ groups:
       #--------------------------------#
       # number of scraped targets for one instance, job with pgsql as prefix are counted
       - record: pg:ins:target_count
-        expr: count by (job, cls, ins) (up{cls!="", ins!="", job=~'pgsql.*'})
+        expr: count by (job, cls, ins) (up{cls!="", ins!="", job='pgsql'})
 
       # number of current cluster member
       - record: pg:cls:size
-        expr: sum by (job, cls) (group by (job, cls, ins, ip) (up{cls!="", ins!="", job=~'pgsql.*'}))
+        expr: sum by (job, cls) (group by (job, cls, ins, ip) (up{cls!="", ins!="", job='pgsql'}))
 
       # number of current cluster member
       - record: pg:cls:members
-        expr: group by (job, cls, ins, ip) (up{cls!="", ins!="", job=~'pgsql.*'})
+        expr: group by (job, cls, ins, ip) (up{cls!="", ins!="", job='pgsql'})
 
       # Bridge instances among cluster, which are non-primary instances with descendant
       - record: pg:cls:bridges
