@@ -27,9 +27,9 @@ Using at least 3~4 x (2C / 4G / 100G) nodes for serious production deployment is
 
 <details><summary>OS Requirement</summary>
 
-Pigsty is now developed and tested on CentOS 7.9, Rocky 8.6 & 9.1. RHEL, Alma, Oracle, and any EL-compatible distribution also work.
+Pigsty is now developed and tested on CentOS 7.9, Rocky 8.7 & 9.1. RHEL, Alma, Oracle, and any EL-compatible distribution also work.
 
-We strongly recommend using EL 7.9, 8.6, and 9.1 to avoid meaningless efforts on RPM troubleshooting.
+We strongly recommend using EL 7.9, 8.7, and 9.1 to avoid meaningless efforts on RPM troubleshooting.
 
 And PLEASE USE FRESH NEW NODES to avoid any unexpected issues.
 

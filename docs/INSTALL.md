@@ -95,7 +95,7 @@ curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3
 * Vendor: RHEL, CentOS, Rocky, AlmaLinux, ...
 * Version: el7, el8, el9
 * Please use fresh nodes for installation to avoid unexpected issues 
-* It's recommended to RockeyLinux 9.1, Rocky 8.6 and CentOS 7.9 for production use
+* It's recommended to RockeyLinux 9.1, Rocky 8.7 and CentOS 7.9 for production use
 
 **Node**
 
