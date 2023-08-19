@@ -56,14 +56,14 @@ infra_portal:  # domain names and upstream servers
 
 ## Dashboards
 
-- [INFRA Overview](http://demo.pigsty.cc/d/infra-overview) : Overview of all infra components
-- [Nginx Overview](http://demo.pigsty.cc/d/nginx-overview) : Nginx metrics & logs
-- [Grafana Overview](http://demo.pigsty.cc/d/grafana-overview): Grafana metrics & logs
-- [Prometheus Overview](http://demo.pigsty.cc/d/prometheus-overview): Prometheus metrics & logs
-- [Loki Overview](http://demo.pigsty.cc/d/loki-overview): Loki metrics & logs
-- [Logs Instance](http://demo.pigsty.cc/d/logs-instance): Logs for a single instance
-- [CMDB Overview](http://demo.pigsty.cc/d/cmdb-overview): CMDB visualization
-- [ETCD Overview](http://demo.pigsty.cc/d/etcd-overview): etcd metrics & logs
+- [INFRA Overview](https://demo.pigsty.cc/d/infra-overview) : Overview of all infra components
+- [Nginx Overview](https://demo.pigsty.cc/d/nginx-overview) : Nginx metrics & logs
+- [Grafana Overview](https://demo.pigsty.cc/d/grafana-overview): Grafana metrics & logs
+- [Prometheus Overview](https://demo.pigsty.cc/d/prometheus-overview): Prometheus metrics & logs
+- [Loki Overview](https://demo.pigsty.cc/d/loki-overview): Loki metrics & logs
+- [Logs Instance](https://demo.pigsty.cc/d/logs-instance): Logs for a single instance
+- [CMDB Overview](https://demo.pigsty.cc/d/cmdb-overview): CMDB visualization
+- [ETCD Overview](https://demo.pigsty.cc/d/etcd-overview): etcd metrics & logs
 
 
 ----------------

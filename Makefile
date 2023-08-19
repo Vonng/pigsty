@@ -447,7 +447,7 @@ check-boot:
 	ssh build-el9 "cd pigsty; ./bootstrap -n ; ./configure -m el9  -i 10.10.10.9 -n";
 
 
-# publish pigsty packages to http://get.pigsty.cc
+# publish pigsty packages to https://get.pigsty.cc
 p: publish
 publish:
 	bin/publish ${VERSION}

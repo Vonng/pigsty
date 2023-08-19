@@ -4,7 +4,7 @@
 >
 > —— **A battery-included, local-first, open-source RDS PG alternative.**
 >
-> [Release v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Blog](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/6nA2fDXt)
+> [Release v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Blog](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/6nA2fDXt)
 >
 > [Get Started](docs/INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash` 
 
@@ -25,7 +25,7 @@ Free RDS for PostgreSQL! Check [**Feature**](docs/FEATURE.md) | [**亮点特性*
 
 [![pigsty-distro](https://user-images.githubusercontent.com/8587410/226076217-77e76e0c-94ac-4faa-9014-877b4a180e09.jpg)](docs/FEATURE.md)
 
-[![Dashboards](https://github-production-user-asset-6210df.s3.amazonaws.com/8587410/258681605-cf6b99e5-9c8f-4db2-9bce-9ded95407c0c.jpg)](http://demo.pigsty.cc)
+[![Dashboards](https://github-production-user-asset-6210df.s3.amazonaws.com/8587410/258681605-cf6b99e5-9c8f-4db2-9bce-9ded95407c0c.jpg)](https://demo.pigsty.cc)
 
 
 
@@ -67,7 +67,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 Get Started:     https://vonng.github.io/pigsty/#/INSTALL
 Documentation:   https://vonng.github.io/pigsty
 Github Repo:     https://github.com/Vonng/pigsty
-Public Demo:     http://demo.pigsty.cc
+Public Demo:     https://demo.pigsty.cc
 Official Site:   https://pigsty.cc
 ```
 

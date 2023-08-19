@@ -146,9 +146,9 @@ bin/redis-rm 10.10.10.10 6501  # remove redis instance '10.10.10.10:6501'
 
 There are three dashboards for [`REDIS`](REDIS) module.
 
-- [Redis Overview](http://demo.pigsty.cc/d/redis-overview): Overview of all Redis Instances
-- [Redis Cluster](http://demo.pigsty.cc/d/redis-cluster): Overview of a redis cluster
-- [Redis Instance](http://demo.pigsty.cc/d/redis-instance): Detail information about a single redis instance
+- [Redis Overview](https://demo.pigsty.cc/d/redis-overview): Overview of all Redis Instances
+- [Redis Cluster](https://demo.pigsty.cc/d/redis-cluster): Overview of a redis cluster
+- [Redis Instance](https://demo.pigsty.cc/d/redis-instance): Detail information about a single redis instance
 
 
 

@@ -63,6 +63,12 @@ Add 1 new section `NODE`.`NODE_VIP` with 8 new parameter
 - `NODE`.`VIP`.`vip_dns_suffix` : node vip dns name suffix, `.vip` by default
 - `NODE`.`VIP`.`vip_exporter_port` : keepalived exporter listen port, 9650 by default
 
+```
+MD5 (pigsty-pkg-v2.3.0.el7.x86_64.tgz) = 81db95f1c591008725175d280ad23615
+MD5 (pigsty-pkg-v2.3.0.el8.x86_64.tgz) = 6f4d169b36f6ec4aa33bfd5901c9abbe
+MD5 (pigsty-pkg-v2.3.0.el9.x86_64.tgz) = 4bc9ae920e7de6dd8988ca7ee681459d
+```
+
 
 
 ------------------------------
@@ -76,7 +82,7 @@ Release Note: https://vonng.github.io/pigsty/#/RELEASENOTE?id=v220
 
 **Highlight**
 
-* Monitoring Dashboards Overhaul: http://demo.pigsty.cc
+* Monitoring Dashboards Overhaul: https://demo.pigsty.cc
 * Vagrant Sandbox Overhaul: libvirt support and new templates
 * Pigsty EL Yum Repo: Building simplified
 * OS Compatibility: UOS-v20-1050e support

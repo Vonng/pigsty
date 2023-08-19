@@ -46,7 +46,7 @@ This node now has a self-monitoring system, visualization toolsets, and a  Postg
 
 The installed [Singleton Meta](#singleton-meta) can be use as an **admin node** and **monitoring center**, to take more nodes & Database servers under it's surveillance & control. 
 
-If you want to install the Prometheus / Grafana observability stack, Pigsty just deliver the best practice for you! It has fine-grained dashboards for [Nodes](http://demo.pigsty.cc/d/node-overview) & [PostgreSQL](http://demo.pigsty.cc/d/pgsql-overview), no matter these nodes or PostgreSQL servers are managed by Pigsty or not, you can have a production-grade monitoring & alerting immediately with simple configuration.
+If you want to install the Prometheus / Grafana observability stack, Pigsty just deliver the best practice for you! It has fine-grained dashboards for [Nodes](https://demo.pigsty.cc/d/node-overview) & [PostgreSQL](https://demo.pigsty.cc/d/pgsql-overview), no matter these nodes or PostgreSQL servers are managed by Pigsty or not, you can have a production-grade monitoring & alerting immediately with simple configuration.
 
 ![DASHBOARD](https://user-images.githubusercontent.com/8587410/198838834-1bd30b7e-47c9-4e35-90cb-5a75a2e6f6c6.jpg)
 

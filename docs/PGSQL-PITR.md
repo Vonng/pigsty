@@ -27,7 +27,7 @@ Use the following command to print backup info:
 pb info  # print backup info
 ```
 
-You can also acquire backup info from the monitoring system: [PGCAT Instance - Backup](http://demo.pigsty.cc/d/pgcat-instance/pgcat-instance?from=now-1h&to=now&var-job=pgsql&var-ds=Prometheus&orgId=1&viewPanel=158)
+You can also acquire backup info from the monitoring system: [PGCAT Instance - Backup](https://demo.pigsty.cc/d/pgcat-instance/pgcat-instance?from=now-1h&to=now&var-job=pgsql&var-ds=Prometheus&orgId=1&viewPanel=158)
 
 
 <details><summary>Backup Info Example</summary>

@@ -648,7 +648,7 @@ name: `repo_modules`, type: `string`, level: `G/A`
 
 which repo modules are installed in repo_upstream, default value: `node,pgsql,pgsql`
 
-This is a comma separated value string, it is used to filter entries in [`repo_upstream`] with corresponding `module` field. 
+This is a comma separated value string, it is used to filter entries in [`repo_upstream`](#repo_upstream) with corresponding `module` field. 
 
 
 
@@ -1309,8 +1309,6 @@ grafana_plugin_list:              # grafana plugins to be downloaded with grafan
   - marcusolsson-calendar-panel
   - marcusolsson-static-datasource
 ```
-
-Which will install echarts panel & treemap panel for grafana
 
 
 

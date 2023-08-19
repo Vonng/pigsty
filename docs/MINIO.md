@@ -241,8 +241,8 @@ mcli cp sss/infra/repo/pg_exporter-0.5.0.x86_64.rpm /tmp/  # download file from 
 
 There are two dashboards for [`MINIO`](MINIO) module.
 
-- [MinIO Overview](http://demo.pigsty.cc/d/minio-overview): Overview of a MinIO cluster
-- [MinIO Instance](http://demo.pigsty.cc/d/minio-instance): Detail information about a MinIO instance
+- [MinIO Overview](https://demo.pigsty.cc/d/minio-overview): Overview of a MinIO cluster
+- [MinIO Instance](https://demo.pigsty.cc/d/minio-instance): Detail information about a MinIO instance
 
 
 

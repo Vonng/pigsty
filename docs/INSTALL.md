@@ -46,7 +46,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 Get Started:     https://vonng.github.io/pigsty/#/INSTALL
 Documentation:   https://vonng.github.io/pigsty
 Github Repo:     https://github.com/Vonng/pigsty
-Public Demo:     http://demo.pigsty.cc
+Public Demo:     https://demo.pigsty.cc
 Official Site:   https://pigsty.cc
 ```
 
@@ -433,7 +433,7 @@ There are several services are exposed by Nginx (configured by [`infra_portal`](
 |:------------:|:----:|:----------:|--------------------------|-------------------------------------------|
 |    Nginx     |  80  | `h.pigsty` | Web Service Portal, Repo | [`home.pigsty.cc`](http://home.pigsty.cc) |
 | AlertManager | 9093 | `a.pigsty` | Alter Aggregator         | [`a.pigsty.cc`](http://a.pigsty.cc)       |
-|   Grafana    | 3000 | `g.pigsty` | Grafana Dashboard Home   | [`demo.pigsty.cc`](http://demo.pigsty.cc) |
+|   Grafana    | 3000 | `g.pigsty` | Grafana Dashboard Home   | [`demo.pigsty.cc`](https://demo.pigsty.cc) |
 |  Prometheus  | 9090 | `p.pigsty` | Prometheus Web UI        | [`p.pigsty.cc`](http://p.pigsty.cc)       |
 
 You can configure public domain names for these infra services or just use local static DNS records & resolver.

@@ -3,7 +3,7 @@
 # File      :   bootstrap
 # Desc      :   setup local repo & install boot utils
 # Ctime     :   2022-10-16
-# Mtime     :   2023-07-19
+# Mtime     :   2023-08-19
 # Path      :   bootstrap
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -205,9 +205,13 @@ function check_sudo(){
 # check pkg.tgz exists (optionally download)
 #----------------------------------------------#
 function check_pkg(){
-    local pkg_url=${1-${DEFAULT_PKG_URL}}    # default package url from github
+    local pkg_url=${1-''}                    # default package url from github
     local pkg_path=${2-${PKG_PATH}}          # default download path : /tmp/pkg.tgz
     local download_pkg=${3-${DOWNLOAD_PKG}}  # flag: if set, skip interactive asking
+
+    if [[ ${pkg_url} == "" ]]; then
+        pkg_url="${BASEURL}/pigsty-pkg-${VERSION}.el${OS_VERSION}.x86_64.tgz"
+    fi
 
     if [[ -f ${pkg_path} ]]; then
         # TODO: checksum validate (but we will use 400MB sanity size check instead)

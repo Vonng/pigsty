@@ -56,8 +56,8 @@ Docker is **not** installed by default, You can install docker with `docker.yml`
 
 > Perform data visualization with PostgreSQL, Grafana & Echarts.
 
-* isd: noaa weather data visualization: [github.com/Vonng/isd](https://github.com/Vonng/isd), [Demo](http://demo.pigsty.cc/d/isd-overview)
-* pglog: PostgreSQL CSVLOG sample analyzer.  [Demo](http://demo.pigsty.cc/d/pglog-overview)
+* isd: noaa weather data visualization: [github.com/Vonng/isd](https://github.com/Vonng/isd), [Demo](https://demo.pigsty.cc/d/isd-overview)
+* pglog: PostgreSQL CSVLOG sample analyzer.  [Demo](https://demo.pigsty.cc/d/pglog-overview)
 * covid: Covid-19 data visualization
 * dbeng: Database popularity visualization
 * price: RDS, ECS price comparison

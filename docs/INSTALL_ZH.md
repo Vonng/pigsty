@@ -51,7 +51,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 Get Started:     https://vonng.github.io/pigsty/#/INSTALL
 Documentation:   https://vonng.github.io/pigsty
 Github Repo:     https://github.com/Vonng/pigsty
-Public Demo:     http://demo.pigsty.cc
+Public Demo:     https://demo.pigsty.cc
 Official Site:   https://pigsty.cc
 ```
 
@@ -398,7 +398,7 @@ localhost                  : ok=3    changed=0    unreachable=0    failed=0    s
 | :-----------: | :--: | :----------: | ------------------------ | ------------------------------------------ |
 |     Nginx     |  80  |  `h.pigsty`  | Web 服务总入口，本地YUM源   |  [`home.pigsty.cc`](http://home.pigsty.cc) |
 | AlertManager  | 9093 |  `a.pigsty`  | 告警聚合/屏蔽页面           |  [`a.pigsty.cc`](http://a.pigsty.cc)       |
-|    Grafana    | 3000 |  `g.pigsty`  | Grafana 监控面板          |  [`demo.pigsty.cc`](http://demo.pigsty.cc) |
+|    Grafana    | 3000 |  `g.pigsty`  | Grafana 监控面板          |  [`demo.pigsty.cc`](https://demo.pigsty.cc) |
 |  Prometheus   | 9090 |  `p.pigsty`  | Prometheus 管理界面       |  [`p.pigsty.cc`](http://p.pigsty.cc)       |
 
 

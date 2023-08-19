@@ -108,7 +108,7 @@ mongosh 'mongodb://test:test@10.10.10.45:27017/test?authMechanism=PLAIN'
 
 There are one dashboard for [`MONGO`](MONGO) module for now.
 
-- [Mongo Overview](http://demo.pigsty.cc/d/mongo-overview): Overview of a Mongo/FerretDB cluster
+- [Mongo Overview](https://demo.pigsty.cc/d/mongo-overview): Overview of a Mongo/FerretDB cluster
 
 
 

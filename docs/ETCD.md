@@ -138,7 +138,7 @@ e put a 10 ; e get a; e del a ; # V3 API
 
 There is one dashboard for ETCD module:
 
-- [ETCD Overview](http://demo.pigsty.cc/d/etcd-overview): Overview of the ETCD cluster 
+- [ETCD Overview](https://demo.pigsty.cc/d/etcd-overview): Overview of the ETCD cluster 
 
 ![etcd-dashboard](https://user-images.githubusercontent.com/8587410/221338269-305318ee-4116-4df2-80b1-23abc54f7d6a.jpg)
 

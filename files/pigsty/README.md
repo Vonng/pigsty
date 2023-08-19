@@ -17,7 +17,7 @@ There are several built-in templates:
 * [security.yml](security.yml) : security enhanced config (on el7)
 * [citus.yml](citus.yml) : citus cluster example: 1 coordinator and 3 data nodes
 * [build.yml](build.yml) : 3 nodes el7, el8, el9 for release building
-* [pubic.yml](public.yml) : config for [public demo](http://demo.pigsty.cc)
+* [pubic.yml](public.yml) : config for [public demo](https://demo.pigsty.cc)
 * [test.yml](test.yml) : config for different EL distribution testing
 * [remote.yml](remote.yml) : example config for monitoring a remote pgsql cluster
 * [dual.yml](dual.yml) : example config for a two node deployment
