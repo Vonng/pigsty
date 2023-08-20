@@ -62,3 +62,16 @@ Docker is **not** installed by default, You can install docker with `docker.yml`
 * dbeng: Database popularity visualization
 * price: RDS, ECS price comparison
 
+
+<details><summary>PGLOG Overview</summary>
+
+[![pglog-overview](https://github.com/Vonng/pigsty/assets/8587410/c9ff0225-1d87-4386-9ecb-5b9fc2d38afa)](https://demo.pigsty.cc/d/pglog-overview)
+
+</details>
+
+
+<details><summary>PGLOG Session</summary>
+
+[![pglog-session](https://github.com/Vonng/pigsty/assets/8587410/de229cb8-e79e-4479-aad9-c404278e5d4e)](https://demo.pigsty.cc/d/pglog-session)
+
+</details>

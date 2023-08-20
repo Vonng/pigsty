@@ -244,6 +244,8 @@ There are two dashboards for [`MINIO`](MINIO) module.
 - [MinIO Overview](https://demo.pigsty.cc/d/minio-overview): Overview of a MinIO cluster
 - [MinIO Instance](https://demo.pigsty.cc/d/minio-instance): Detail information about a MinIO instance
 
+[![minio-overview](https://github.com/Vonng/pigsty/assets/8587410/6885c4dc-d9b6-4f22-ab77-9ea42ee2d590)](https://demo.pigsty.cc/d/minio-overview)
+
 
 
 ----------------

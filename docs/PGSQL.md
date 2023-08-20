@@ -67,17 +67,20 @@
 
 ## Dashboards
 
-There are 23 default grafana dashboards about PostgreSQL and categorized into 4 levels, check [PGSQL Monitor](PGSQL-MONITOR) for details.
+There are 26 default grafana dashboards about PostgreSQL and categorized into 4 levels, check [PGSQL Monitor](PGSQL-MONITOR) for details.
 
-|                              Overview                               |                               Cluster                                |                         Instance                          |                         Database                          |
-|:-------------------------------------------------------------------:|:--------------------------------------------------------------------:|:---------------------------------------------------------:|:---------------------------------------------------------:|
-|      [PGSQL Overview](https://demo.pigsty.cc/d/pgsql-overview)       |        [PGSQL Cluster](https://demo.pigsty.cc/d/pgsql-cluster)        | [PGSQL Instance](https://demo.pigsty.cc/d/pgsql-instance)  | [PGSQL Database](https://demo.pigsty.cc/d/pgsql-database)  |
-|         [PGSQL Alert](https://demo.pigsty.cc/d/pgsql-alert)          | [PGSQL Cluster-remote](https://demo.pigsty.cc/d/pgsql-cluster-remote) | [PGCAT Instance](https://demo.pigsty.cc/d/pgcat-instance)  | [PGCAT Database](https://demo.pigsty.cc/d/pgcat-database)  |
-|         [PGSQL Shard](https://demo.pigsty.cc/d/pgsql-shard)          |       [PGSQL Activity](https://demo.pigsty.cc/d/pgsql-activity)       |  [PGSQL Persist](https://demo.pigsty.cc/d/pgsql-persist)   |   [PGSQL Tables](https://demo.pigsty.cc/d/pgsql-tables)    |
-|                                                                     |    [PGSQL Replication](https://demo.pigsty.cc/d/pgsql-replication)    |    [PGSQL Proxy](https://demo.pigsty.cc/d/pgsql-proxy)     |    [PGSQL Table](https://demo.pigsty.cc/d/pgsql-table)     |
-|                                                                     |        [PGSQL Service](https://demo.pigsty.cc/d/pgsql-service)        |  [PGSQL Queries](https://demo.pigsty.cc/d/pgsql-queries)   |    [PGCAT Table](https://demo.pigsty.cc/d/pgcat-table)     |
-|                                                                     |      [PGSQL Databases](https://demo.pigsty.cc/d/pgsql-databases)      |  [PGSQL Session](https://demo.pigsty.cc/d/pgsql-session)   |    [PGSQL Query](https://demo.pigsty.cc/d/pgsql-query)     |
-|                                                                     |                                                                      |    [PGSQL Xacts](https://demo.pigsty.cc/d/pgsql-xacts)     |    [PGCAT Query](https://demo.pigsty.cc/d/pgcat-query)     |
+|                         Overview                          |                                Cluster                                |                          Instance                           |                         Database                          |
+|:---------------------------------------------------------:|:---------------------------------------------------------------------:|:-----------------------------------------------------------:|:---------------------------------------------------------:|
+| [PGSQL Overview](https://demo.pigsty.cc/d/pgsql-overview) |        [PGSQL Cluster](https://demo.pigsty.cc/d/pgsql-cluster)        |  [PGSQL Instance](https://demo.pigsty.cc/d/pgsql-instance)  | [PGSQL Database](https://demo.pigsty.cc/d/pgsql-database) |
+|    [PGSQL Alert](https://demo.pigsty.cc/d/pgsql-alert)    | [PGSQL Cluster Remote](https://demo.pigsty.cc/d/pgsql-cluster-remote) |  [PGCAT Instance](https://demo.pigsty.cc/d/pgcat-instance)  | [PGCAT Database](https://demo.pigsty.cc/d/pgcat-database) |
+|    [PGSQL Shard](https://demo.pigsty.cc/d/pgsql-shard)    |       [PGSQL Activity](https://demo.pigsty.cc/d/pgsql-activity)       |   [PGSQL Persist](https://demo.pigsty.cc/d/pgsql-persist)   |   [PGSQL Tables](https://demo.pigsty.cc/d/pgsql-tables)   |
+|                                                           |    [PGSQL Replication](https://demo.pigsty.cc/d/pgsql-replication)    |     [PGSQL Proxy](https://demo.pigsty.cc/d/pgsql-proxy)     |    [PGSQL Table](https://demo.pigsty.cc/d/pgsql-table)    |
+|                                                           |        [PGSQL Service](https://demo.pigsty.cc/d/pgsql-service)        | [PGSQL Pgbouncer](https://demo.pigsty.cc/d/pgsql-pgbouncer) |    [PGCAT Table](https://demo.pigsty.cc/d/pgcat-table)    |
+|                                                           |      [PGSQL Databases](https://demo.pigsty.cc/d/pgsql-databases)      |   [PGSQL Session](https://demo.pigsty.cc/d/pgsql-session)   |    [PGSQL Query](https://demo.pigsty.cc/d/pgsql-query)    |
+|                                                           |                                                                       |     [PGSQL Xacts](https://demo.pigsty.cc/d/pgsql-xacts)     |    [PGCAT Query](https://demo.pigsty.cc/d/pgcat-query)    |
+|                                                           |                                                                       |   [Logs Instance](https://demo.pigsty.cc/d/logs-instance)   |    [PGCAT Locks](https://demo.pigsty.cc/d/pgcat-locks)    |
+|                                                           |                                                                       |                                                             |   [PGCAT Schema](https://demo.pigsty.cc/d/pgcat-schema)   |
+
 
 
 

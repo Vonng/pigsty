@@ -66,6 +66,69 @@ infra_portal:  # domain names and upstream servers
 - [ETCD Overview](https://demo.pigsty.cc/d/etcd-overview): etcd metrics & logs
 
 
+<details><summary>Infra Overview</summary>
+
+[![infra-overview](https://github.com/Vonng/pigsty/assets/8587410/d262ceaa-2d73-4817-88e7-1790c77a5498)](https://demo.pigsty.cc/d/infra-overview/)
+
+</details>
+
+
+<details><summary>Nginx Overview</summary>
+
+[![nginx-overview](https://github.com/Vonng/pigsty/assets/8587410/08bff428-5f2a-4adb-9c96-479da59ccd2a)](https://demo.pigsty.cc/d/nginx-overview)
+
+</details>
+
+
+<details><summary>Prometheus Overview</summary>
+
+[![prometheus-overview](https://github.com/Vonng/pigsty/assets/8587410/553f2f60-67a8-401d-abef-a58dd52a5bee)](https://demo.pigsty.cc/d/prometheus-overview)
+
+</details>
+
+
+<details><summary>Loki Overview</summary>
+
+[![loki-overview](https://github.com/Vonng/pigsty/assets/8587410/a70a5d3a-bc8d-4fef-9708-4eabdd0436ff)](https://demo.pigsty.cc/d/loki-overview)
+
+</details>
+
+
+<details><summary>Grafana Overview</summary>
+
+[![grafana-overview](https://github.com/Vonng/pigsty/assets/8587410/6801fe16-1b47-4c1b-99aa-6af8b07aee4a)](https://demo.pigsty.cc/d/grafana-overview)
+
+</details>
+
+
+<details><summary>CMDB Overview</summary>
+
+[![cmdb-overview](https://github.com/Vonng/pigsty/assets/8587410/9e187204-9d8d-4c31-8885-313f00bbc73f)](https://demo.pigsty.cc/d/cmdb-overview)
+
+</details>
+
+<details><summary>Logs Overview</summary>
+
+[![logs-overview](https://github.com/Vonng/pigsty/assets/8587410/e0a6c0f5-8cb1-4d70-a327-d9fa815e3f27)](https://demo.pigsty.cc/d/logs-overview)
+
+</details>
+
+
+<details><summary>Logs Instance</summary>
+
+[![logs-instance](https://github.com/Vonng/pigsty/assets/8587410/246eff0e-d47d-4740-99db-20aca4b8ec55)](https://demo.pigsty.cc/d/logs-instance)
+
+
+</details>
+
+<details><summary>ETCD Overview</summary>
+
+[![etcd-overview](https://github.com/Vonng/pigsty/assets/8587410/3f268146-9242-42e7-b78f-b5b676155f3f)](https://demo.pigsty.cc/d/etcd-overview)
+
+</details>
+
+
+
 ----------------
 
 ## Parameters

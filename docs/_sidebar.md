@@ -23,6 +23,7 @@
   - [Migration](PGSQL-MIGRATION)
 - [**Parameter**](PARAM)
 - [**Playbook**](PLAYBOOK)
+- [**Dashboard**](DASHBOARD)
 - [**Application**](APP)
 - [**Security**](SECURITY)
 - [**File Structure**](FHS)

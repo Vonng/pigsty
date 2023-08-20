@@ -140,8 +140,8 @@ There is one dashboard for ETCD module:
 
 - [ETCD Overview](https://demo.pigsty.cc/d/etcd-overview): Overview of the ETCD cluster 
 
-![etcd-dashboard](https://user-images.githubusercontent.com/8587410/221338269-305318ee-4116-4df2-80b1-23abc54f7d6a.jpg)
 
+[![etcd-overview](https://github.com/Vonng/pigsty/assets/8587410/3f268146-9242-42e7-b78f-b5b676155f3f)](https://demo.pigsty.cc/d/etcd-overview)
 
 
 

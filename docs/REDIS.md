@@ -164,6 +164,25 @@ There are three dashboards for [`REDIS`](REDIS) module.
 - [Redis Cluster](https://demo.pigsty.cc/d/redis-cluster): Overview of a redis cluster
 - [Redis Instance](https://demo.pigsty.cc/d/redis-instance): Detail information about a single redis instance
 
+<details><summary>REDIS Overview</summary>
+
+[![redis-overview](https://github.com/Vonng/pigsty/assets/8587410/cceabc05-7d9a-467e-9cb6-cf3f7da60ad3)](https://demo.pigsty.cc/d/redis-overview)
+
+</details>
+
+
+<details><summary>REDIS Cluster</summary>
+
+[![redis-cluster](https://github.com/Vonng/pigsty/assets/8587410/840df751-07b7-4abc-83e1-108472e5b928)](https://demo.pigsty.cc/d/redis-cluster)
+
+</details>
+
+
+<details><summary>REDIS Instance</summary>
+
+[![redis-instance](https://github.com/Vonng/pigsty/assets/8587410/caccbec5-8cf2-44a2-adc1-78b4cae5e9fb)](https://demo.pigsty.cc/d/redis-instance)
+
+</details>
 
 
 
