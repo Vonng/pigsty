@@ -104,7 +104,7 @@ curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3
 
 </details>
 
-[![asciicast](https://asciinema.org/a/568771.svg)](https://asciinema.org/a/568771)
+[![asciicast](https://asciinema.org/a/603609.svg)](https://asciinema.org/a/603609)
 
 
 

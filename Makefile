@@ -297,7 +297,7 @@ rc:
 rw:
 	while true; do pgbench -nv -P1 -c4 --rate=64 -T10 postgres://dbuser_meta:DBUser.Meta@meta:5433/meta; done
 ro:
-	while true; do pgbench -nv -P1 -c8 --rate=256 --select-only -T10 postgres://dbuser_meta:DBUser.Meta@meta:5434/meta; done
+	while true; do pgbench -nv -P1 -c8 --rate=256 -S -T10 postgres://dbuser_meta:DBUser.Meta@meta:5434/meta; done
 rh:
 	ssh meta 'sudo -iu postgres /pg/bin/pg-heartbeat'
 # pg-test cluster benchmark
@@ -309,12 +309,12 @@ test-rc:
 test-rw:
 	while true; do pgbench -nv -P1 -c4 --rate=32 -T10 postgres://test:test@pg-test:5433/test; done
 test-ro:
-	while true; do pgbench -nv -P1 -c8 --select-only --rate=256 -T10 postgres://test:test@pg-test:5434/test; done
+	while true; do pgbench -nv -P1 -c8 -S --rate=256 -T10 postgres://test:test@pg-test:5434/test; done
 # pgbench read-write / read-only traffic (maximum speed)
 test-rw2:
 	while true; do pgbench -nv -P1 -c16 -T10 postgres://test:test@pg-test:5433/test; done
 test-ro2:
-	while true; do pgbench -nv -P1 -c64 -T10 --select-only postgres://test:test@pg-test:5434/test; done
+	while true; do pgbench -nv -P1 -c64 -T10 -S postgres://test:test@pg-test:5434/test; done
 test-rh:
 	ssh node-1 'sudo -iu postgres /pg/bin/pg-heartbeat'
 #------------------------------#
