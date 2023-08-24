@@ -97,6 +97,29 @@ db.posts.createIndex({ title: 1 })
 ```
 
 ```bash
+use test
+-- CREATE SCHEMA test;
+
+db.dropDatabase()
+-- DROP DATABASE test;
+
+db.createCollection('posts')
+-- CREATE TABLE posts(_data JSONB,...)
+
+db.posts.insert({
+title: 'Post One',body: 'Body of post one',category: 'News',tags: ['news', 'events'],
+user: {name: 'John Doe',status: 'author'},date: Date()}
+)
+-- INSERT INTO posts VALUES(...);
+
+db.posts.find().limit(2).pretty()
+-- SELECT * FROM posts LIMIT 2;
+
+db.posts.createIndex({ title: 1 })
+-- CREATE INDEX ON posts(_data->>'title');
+```
+
+```bash
 mongosh 'mongodb://test:test@10.10.10.45:27017/test?authMechanism=PLAIN'
 ```
 
@@ -133,7 +156,6 @@ There are 9 parameters in [`MONGO`](MONGO) module.
 | `mongo_ssl_port`      |  port  |   C   | mongo tls listen port, 27018 by default      |
 | `mongo_exporter_port` |  port  |   C   | mongo exporter port, 9216 by default         |
 | `mongo_extra_vars`    | string |   C   | extra environment variables for MONGO server |
-
 
 ```yaml
 # mongo_cluster:        #CLUSTER  # mongo cluster name, required identity parameter

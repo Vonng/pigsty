@@ -30,12 +30,12 @@ Database & User definition
 
 ```yaml
 - {name: dbuser_noco ,password: DBUser.Noco ,pgbouncer: true ,roles: [dbrole_admin] ,comment: admin user for nocodb service     }
-- { name: noco ,owner: dbuser_noco ,revokeconn: true ,comment: nocodb database }
+- {name: noco ,owner: dbuser_noco ,revokeconn: true ,comment: nocodb database }
 ```
 
 ```bash
-bin/pgsql-user pg-meta dbuser_wiki
-bin/pgsql-db   pg-meta wiki
+bin/pgsql-user pg-meta dbuser_noco
+bin/pgsql-db   pg-meta noco
 # postgres://dbuser_noco:DBUser.Noco@10.10.10.10:5432/noco
 ```
 
