@@ -26,6 +26,8 @@
           {% if pg_dbsu_sudo == 'nopass' %}postgres ALL=(ALL) NOPASSWD: ALL{% endif %}
           {% if pg_dbsu_sudo == 'all' %}postgres ALL=(ALL) ALL{% endif %}
           {% if pg_dbsu_sudo == 'limit' %}
+          %postgres ALL=NOPASSWD: /sbin/modprobe softdog
+          %postgres ALL=NOPASSWD: /bin/chown postgres /dev/watchdog
           {% for svc in ['postgres', 'pgbouncer', 'patroni', 'pg_exporter', 'pgbouncer_exporter', 'vip-manager', 'pgbackrest' ] %}
           %postgres ALL=NOPASSWD: /bin/systemctl stop {{ svc }}
           %postgres ALL=NOPASSWD: /bin/systemctl start {{ svc }}
