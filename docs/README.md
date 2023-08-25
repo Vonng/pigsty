@@ -42,7 +42,7 @@ bash -c "$(curl -fsSL https://get.pigsty.cc/latest)" && cd ~/pigsty
 
 Then you will have a pigsty singleton node ready, with Web Services on port `80` and Postgres on port `5432`. 
 
-<details><summary>Download with Get</summary>
+<details><summary>Download with Script</summary>
 
 ```bash
 $ curl https://get.pigsty.cc/latest | bash
@@ -93,7 +93,7 @@ You can also download pigsty source & offline pkgs directly from GitHub release 
 
 ```bash
 # get from GitHub
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 
 # or download tarball directly with curl
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-v2.3.0.tgz -o ~/pigsty.tgz                 # SRC

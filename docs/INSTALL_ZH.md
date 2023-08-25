@@ -25,7 +25,7 @@ cd ~/pigsty      # 进入 Pigsty 源码目录，完成后续 准备、配置、�
 [![asciicast](https://asciinema.org/a/566220.svg)](https://asciinema.org/a/566220)
 
 
-<details><summary>Get脚本安装</summary>
+<details><summary>脚本安装</summary>
 
 ```bash
 $ curl https://get.pigsty.cc/latest | bash
@@ -59,7 +59,7 @@ Official Site:   https://pigsty.cc
 
 <details><summary>Git检出安装</summary>
 
-You can also download pigsty source with `git`, don't forget to checkout a specific version.
+你也可以使用 `git` 来下载安装 Pigsty 源代码，不要忘了检出特定的版本。
 
 ```bash
 git clone https://github.com/Vonng/pigsty;

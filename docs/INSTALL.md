@@ -20,7 +20,7 @@ Then you will have a pigsty singleton node ready, with Web Services on port `80`
 [![asciicast](https://asciinema.org/a/566220.svg)](https://asciinema.org/a/566220)
 
 
-<details><summary>Download with Get</summary>
+<details><summary>Download with Script</summary>
 
 ```bash
 $ curl https://get.pigsty.cc/latest | bash
