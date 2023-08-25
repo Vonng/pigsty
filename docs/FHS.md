@@ -20,7 +20,8 @@
 
 #  ^-----@roles                  # ansible business logic
 #  ^-----@templates              # ansible templates
-#  ^-----@vagrant                # sandbox resources
+#  ^-----@vagrant                # vagrant local VM template
+#  ^-----@terraform              # terraform cloud VM template
 #  ^-----configure               # configure wizard script
 #  ^-----ansible.cfg             # default ansible config file
 #  ^-----pigsty.yml              # default config file
@@ -74,13 +75,36 @@ All infra nodes will have the following certs:
 /etc/pki/infra.key                          # infra nodes key
 ```
 
-If your admin node is **NOT** one of the infra nodes, you can consider rsync the infra certs to admin node:
+In case of admin node failure, you have to keep `files/pki` and `pigsty.yml` safe.
+You can `rsync` them to another admin node to make a backup admin node.
 
 ```bash
-cd ~/pigsty; rsync -avz ./ meta:~/pigsty
-cd ~/pigsty/files/pki; rsync -avz ./ meta:~/pigsty/files/pki  
+# run on meta-1, rsync to meta2
+cd ~/pigsty;
+rsync -avz ./ meta-2:~/pigsty  
 ```
 
+
+
+
+## NODE FHS
+
+Node main data dir is specified by [`node_data`](/en/docs/param#node_data) parameter, which is `/data` by default.
+
+The data dir is owned by root with mode `0777`. All modules' local data will be stored under this directory by default.
+
+```bash
+/data
+#  ^-----@postgres                   # postgres main data dir
+#  ^-----@backups                    # postgres backup data dir (if no dedicated backup disk)
+#  ^-----@redis                      # redis data dir (shared by multiple redis instances)
+#  ^-----@minio                      # minio data dir (default when in single node single disk mode)
+#  ^-----@etcd                       # etcd main data dir
+#  ^-----@prometheus                 # prometheus time series data dir
+#  ^-----@loki                       # Loki data dir for logs
+#  ^-----@docker                     # Docker data dir
+#  ^-----@...                        # other modules
+```
 
 
 
@@ -92,19 +116,19 @@ The prometheus bin / rules are located on [`files/prometheus/`](https://github.c
 While the main config file is located on [`roles/infra/templates/prometheus/prometheus.yml.j2`](https://github.com/Vonng/pigsty/blob/master/roles/infra/templates/prometheus/prometheus.yml.j2) and rendered to `/etc/prometheus/prometheus.yml` on infra nodes.
 
 ```bash
-#------------------------------------------------------------------------------
-# Config FHS
-#------------------------------------------------------------------------------
 # /etc/prometheus/
 #  ^-----prometheus.yml              # prometheus main config file
 #  ^-----@bin                        # util scripts: check,reload,status,new
 #  ^-----@rules                      # record & alerting rules definition
+#            ^-----agent.yml         # agent rules & alert
 #            ^-----infra.yml         # infra rules & alert
-#            ^-----node.yml          # node rules & alert
+#            ^-----node.yml          # node  rules & alert
 #            ^-----pgsql.yml         # pgsql rules & alert
 #            ^-----redis.yml         # redis rules & alert
 #            ^-----minio.yml         # minio rules & alert
-#            ^-----etcd.yml          # etcd rules & alert
+#            ^-----etcd.yml          # etcd  rules & alert
+#            ^-----mongo.yml         # mongo rules & alert
+#            ^-----mysql.yml         # mysql rules & alert (placeholder)
 #  ^-----@targets                    # file based service discovery targets definition
 #            ^-----@infra            # infra static targets definition
 #            ^-----@node             # nodes static targets definition
@@ -115,10 +139,11 @@ While the main config file is located on [`roles/infra/templates/prometheus/prom
 #            ^-----@redis            # redis static targets definition
 #            ^-----@mongo            # mongo static targets definition
 #            ^-----@mysql            # mysql static targets definition
+#            ^-----@ping             # ping  static target definition
+#            ^-----@patroni          # patroni static target defintion (when ssl enabled)
 #            ^-----@.....            # other targets
 # /etc/alertmanager.yml              # alertmanager main config file
 # /etc/blackbox.yml                  # blackbox exporter main config file
-#------------------------------------------------------------------------------
 ```
 
 
@@ -181,10 +206,10 @@ The following parameters are related to the PostgreSQL database dir:
 **Data FHS**
 
 ```bash
-# basic
+# real dirs
 {{ pg_fs_main }}     /data                      # top level data directory, usually a SSD mountpoint
 {{ pg_dir_main }}    /data/postgres             # contains postgres data
-{{ pg_cluster_dir }} /data/postgres/pg-test-15  # contains cluster `pg-test` data (of version 13)
+{{ pg_cluster_dir }} /data/postgres/pg-test-15  # contains cluster `pg-test` data (of version 15)
                      /data/postgres/pg-test-15/bin            # bin scripts
                      /data/postgres/pg-test-15/log            # logs: postgres/pgbouncer/patroni/pgbackrest
                      /data/postgres/pg-test-15/tmp            # tmp, sql files, rendered results
@@ -197,9 +222,9 @@ The following parameters are related to the PostgreSQL database dir:
                      /data/postgres/pg-test-15/backup         # soft link to backup dir
 
 {{ pg_fs_bkup }}     /data/backups                            # could be a cheap & large HDD mountpoint
-                     /var/backups/postgres/pg-test-15/backup  # local backup repo path
+                     /data/backups/postgres/pg-test-15/backup # local backup repo path
 
-# links
+# soft links
 /pg             ->   /data/postgres/pg-test-15                # pg root link
 /pg/data        ->   /data/postgres/pg-test-15/data           # real data dir
 /pg/backup      ->   /var/backups/postgres/pg-test-15/backup  # base backup
@@ -208,7 +233,7 @@ The following parameters are related to the PostgreSQL database dir:
 
 **Binary FHS**
 
-On EL releases, the default path for PostgreSQL bin is:
+On EL releases, the default path for PostgreSQL binaries is:
 
 ```bash
 /usr/pgsql-${pg_version}/

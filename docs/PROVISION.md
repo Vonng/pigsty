@@ -10,23 +10,22 @@ Pigsty runs on nodes, which are Bare Metals or Virtual Machines. You can prepare
 
 ## Sandbox
 
-Pigsty has a sandbox, which is a 4-node deployment with fixed IP addresses and other identifiers. Check [`demo.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/demo.yml) for details.
+Pigsty has a sandbox, which is a 4-node deployment with fixed IP addresses and other identifiers.
+Check [`demo.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/demo.yml) for details.
 
 The sandbox consists of 4 nodes with fixed IP addresses: `10.10.10.10`, `10.10.10.11`, `10.10.10.12`, `10.10.10.13`.
-
-and a 3-instance PostgreSQL HA cluster: `pg-test`
 
 There's a primary singleton PostgreSQL cluster: `pg-meta` on the `meta` node, which can be used alone if you don't care about PostgreSQL high availability.
 
 * `meta    10.10.10.10  pg-meta pg-meta-1`
 
-There are 3 additional nodes in the sandbox, with a 3-instance PostgreSQL HA cluster `pg-test`.
+There are 3 additional nodes in the sandbox, form a 3-instance PostgreSQL HA cluster `pg-test`.
 
 * `node-1  10.10.10.11  pg-test.pg-test-1`
 * `node-2  10.10.10.12  pg-test.pg-test-2`
 * `node-3  10.10.10.13  pg-test.pg-test-3`
 
-Two optional L2 VIP are bind on primary instances of  `pg-meta`  and `pg-test`:
+Two optional L2 VIP are bind on primary instances of cluster `pg-meta`  and `pg-test`:
 
 * `10.10.10.2  pg-meta`
 * `10.10.10.2  pg-test`
@@ -63,24 +62,24 @@ If you are using macOS, You can use `homebrew` to install both of them with one 
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-brew install vagrant virtualbox ansible
+brew install vagrant virtualbox ansible   # Run on MacOS with one command, but only works on x86_64 Intel chips
 ```
 
 ### Configuration
 
 [`vagarnt/Vagranfile`](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) is a ruby script file describing VM nodes. Here are some default specs of Pigsty.
 
-|         Templates         | Shortcut |      Spec       |               Comment               |
-|:-------------------------:|:--------:|:---------------:|:-----------------------------------:|
-|  [meta.rb](spec/meta.rb)  |   `v1`   |    4C8G x 1     |          Single Meta Node           |
-|  [full.rb](spec/full.rb)  |   `v4`   | 2C4G + 1C2G x 3 |      Full 4 Nodes Sandbox Demo      |
-|   [el7.rb](spec/el7.rb)   |   `v7`   | 2C4G + 1C2G x 3 |       EL7 3-node Testing Env        |
-|   [el8.rb](spec/el8.rb)   |   `v8`   | 2C4G + 1C2G x 3 |       EL8 3-node Testing Env        |
-|   [el9.rb](spec/el9.rb)   |   `v9`   | 2C4G + 1C2G x 3 |       EL9 3-node Testing Env        |
-| [build.rb](spec/build.rb) |   `vb`   |    2C4G x 3     | 3-Node EL7,8,9 Building Environment |
-| [citus.rb](spec/citus.rb) |   `vc`   | 2C4G + 1C2G x 4 |    5-Node Citus/Etcd Testing Env    |
-| [minio.rb](spec/minio.rb) |   `vm`   | 2C4G x 3 + Disk |    3-Node MinIO/etcd Testing Env    |
-|  [prod.rb](spec/prod.rb)  |   `vp`   |    45 nodes     |    Prod simulation with 45 Nodes    |
+|                                   Templates                                   | Shortcut |      Spec       |               Comment               |
+|:-----------------------------------------------------------------------------:|:--------:|:---------------:|:-----------------------------------:|
+|  [meta.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/meta.rb)  |   `v1`   |    4C8G x 1     |          Single Meta Node           |
+|  [full.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/full.rb)  |   `v4`   | 2C4G + 1C2G x 3 |      Full 4 Nodes Sandbox Demo      |
+|   [el7.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/el7.rb)   |   `v7`   | 2C4G + 1C2G x 3 |       EL7 3-node Testing Env        |
+|   [el8.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/el8.rb)   |   `v8`   | 2C4G + 1C2G x 3 |       EL8 3-node Testing Env        |
+|   [el9.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/el9.rb)   |   `v9`   | 2C4G + 1C2G x 3 |       EL9 3-node Testing Env        |
+| [build.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/build.rb) |   `vb`   |    2C4G x 3     | 3-Node EL7,8,9 Building Environment |
+| [citus.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/citus.rb) |   `vc`   | 2C4G + 1C2G x 4 |    5-Node Citus/Etcd Testing Env    |
+| [minio.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/minio.rb) |   `vm`   | 2C4G x 3 + Disk |    3-Node MinIO/etcd Testing Env    |
+|  [prod.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/prod.rb)  |   `vp`   |    45 nodes     |    Prod simulation with 45 Nodes    |
 
 
 Each spec file contains a `Specs` variable describe VM nodes. For example, the `full.rb` contains the 4-node sandbox specs.
@@ -94,7 +93,7 @@ Specs = [
 ]
 ```
 
-You can switch specs with the [`switch`](switch) script, it will render the final `Vagrantfile` according to the spec.
+You can switch specs with the `vagrant/switch` script, it will render the final `Vagrantfile` according to the spec.
 
 ```bash
 cd ~/pigsty
@@ -110,6 +109,7 @@ vagrant/switch build    # building environment  | alias:  `make vd`
 vagrant/switch minio    # 3-node minio env
 vagrant/switch citus    # 5-node citus env
 ```
+
 
 ### Management
 
