@@ -30,6 +30,7 @@ Here are default playbooks included in Pigsty.
 | [`minio.yml`](https://github.com/vonng/pigsty/blob/master/minio.yml)                     | Init minio cluster (optional for pgbackrest repo)           |
 | [`cert.yml`](https://github.com/vonng/pigsty/blob/master/cert.yml)                       | Issue cert with pigsty self-signed CA (e.g. for pg clients) |
 | [`docker.yml`](https://github.com/vonng/pigsty/blob/master/docker.yml)                   | Install docker on nodes                                     |
+| [`mongo.yml`](https://github.com/vonng/pigsty/blob/master/mongo.yml)                     | 在节点上安装 Mongo/FerretDB                                       |
 
 
 **One-Pass Install**
@@ -50,7 +51,7 @@ Note that there's a circular dependency between [`NODE`](NODE) and [`INFRA`](INF
 to register a NODE to INFRA, the INFRA should already exist, while the INFRA module relies on NODE to work.
 
 The solution is that `INFRA` playbook will also install [`NODE`](NODE) module in addition to [`INFRA`](INFRA) on infra nodes.
-Make sure that infra nodes are init first.  
+Make sure that infra nodes are init first. If you really want to init all nodes including infra in one-pass, `install.yml` is the way to go.
 
 
 

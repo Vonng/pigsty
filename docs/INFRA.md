@@ -56,76 +56,96 @@ infra_portal:  # domain names and upstream servers
 
 ## Dashboards
 
-- [INFRA Overview](https://demo.pigsty.cc/d/infra-overview) : Overview of all infra components
-- [Nginx Overview](https://demo.pigsty.cc/d/nginx-overview) : Nginx metrics & logs
-- [Grafana Overview](https://demo.pigsty.cc/d/grafana-overview): Grafana metrics & logs
-- [Prometheus Overview](https://demo.pigsty.cc/d/prometheus-overview): Prometheus metrics & logs
-- [Loki Overview](https://demo.pigsty.cc/d/loki-overview): Loki metrics & logs
-- [Logs Instance](https://demo.pigsty.cc/d/logs-instance): Logs for a single instance
-- [CMDB Overview](https://demo.pigsty.cc/d/cmdb-overview): CMDB visualization
-- [ETCD Overview](https://demo.pigsty.cc/d/etcd-overview): etcd metrics & logs
+
+[Pigsty Home](https://demo.pigsty.cc/d/pigsty) : Home dashboard for pigsty's grafana
+
+<details><summary>Pigsty Home Dashboard</summary>
+
+[![pigsty-home](https://github.com/Vonng/pigsty/assets/8587410/b9679741-5baf-4a89-b6d0-e9eb4a13814d)](https://demo.pigsty.cc/d/pigsty/)
+
+</details>
 
 
-<details><summary>Infra Overview</summary>
+[INFRA Overview](https://demo.pigsty.cc/d/infra-overview) : Overview of all infra components
+
+<details><summary>INFRA Overview Dashboard</summary>
 
 [![infra-overview](https://github.com/Vonng/pigsty/assets/8587410/d262ceaa-2d73-4817-88e7-1790c77a5498)](https://demo.pigsty.cc/d/infra-overview/)
 
 </details>
 
 
-<details><summary>Nginx Overview</summary>
+[Nginx Overview](https://demo.pigsty.cc/d/nginx-overview) : Nginx metrics & logs
+
+<details><summary>Nginx Overview Dashboard</summary>
 
 [![nginx-overview](https://github.com/Vonng/pigsty/assets/8587410/08bff428-5f2a-4adb-9c96-479da59ccd2a)](https://demo.pigsty.cc/d/nginx-overview)
 
 </details>
 
 
-<details><summary>Prometheus Overview</summary>
+[Grafana Overview](https://demo.pigsty.cc/d/grafana-overview): Grafana metrics & logs
 
-[![prometheus-overview](https://github.com/Vonng/pigsty/assets/8587410/553f2f60-67a8-401d-abef-a58dd52a5bee)](https://demo.pigsty.cc/d/prometheus-overview)
-
-</details>
-
-
-<details><summary>Loki Overview</summary>
-
-[![loki-overview](https://github.com/Vonng/pigsty/assets/8587410/a70a5d3a-bc8d-4fef-9708-4eabdd0436ff)](https://demo.pigsty.cc/d/loki-overview)
-
-</details>
-
-
-<details><summary>Grafana Overview</summary>
+<details><summary>Grafana Overview Dashboard</summary>
 
 [![grafana-overview](https://github.com/Vonng/pigsty/assets/8587410/6801fe16-1b47-4c1b-99aa-6af8b07aee4a)](https://demo.pigsty.cc/d/grafana-overview)
 
 </details>
 
 
-<details><summary>CMDB Overview</summary>
+[Prometheus Overview](https://demo.pigsty.cc/d/prometheus-overview): Prometheus metrics & logs
 
-[![cmdb-overview](https://github.com/Vonng/pigsty/assets/8587410/9e187204-9d8d-4c31-8885-313f00bbc73f)](https://demo.pigsty.cc/d/cmdb-overview)
+<details><summary>Prometheus Overview Dashboard</summary>
+
+[![prometheus-overview](https://github.com/Vonng/pigsty/assets/8587410/553f2f60-67a8-401d-abef-a58dd52a5bee)](https://demo.pigsty.cc/d/prometheus-overview)
 
 </details>
 
-<details><summary>Logs Overview</summary>
+
+[Loki Overview](https://demo.pigsty.cc/d/loki-overview): Loki metrics & logs
+
+<details><summary>Loki Overview Dashboard</summary>
+
+[![loki-overview](https://github.com/Vonng/pigsty/assets/8587410/a70a5d3a-bc8d-4fef-9708-4eabdd0436ff)](https://demo.pigsty.cc/d/loki-overview)
+
+</details>
+
+
+[Logs Instance](https://demo.pigsty.cc/d/logs-instance): Logs for a single instance
+
+<details><summary>Logs Instance Dashboard</summary>
+
+[![logs-instance](https://github.com/Vonng/pigsty/assets/8587410/246eff0e-d47d-4740-99db-20aca4b8ec55)](https://demo.pigsty.cc/d/logs-instance)
+
+</details>
+
+
+[Logs Overview](https://demo.pigsty.cc/d/logs-overview): Overview of all logs
+
+<details><summary>Logs Overview Dashboard</summary>
 
 [![logs-overview](https://github.com/Vonng/pigsty/assets/8587410/e0a6c0f5-8cb1-4d70-a327-d9fa815e3f27)](https://demo.pigsty.cc/d/logs-overview)
 
 </details>
 
 
-<details><summary>Logs Instance</summary>
+[CMDB Overview](https://demo.pigsty.cc/d/cmdb-overview): CMDB visualization
 
-[![logs-instance](https://github.com/Vonng/pigsty/assets/8587410/246eff0e-d47d-4740-99db-20aca4b8ec55)](https://demo.pigsty.cc/d/logs-instance)
+<details><summary>CMDB Overview Dashboard</summary>
 
+[![cmdb-overview](https://github.com/Vonng/pigsty/assets/8587410/9e187204-9d8d-4c31-8885-313f00bbc73f)](https://demo.pigsty.cc/d/cmdb-overview)
 
 </details>
 
-<details><summary>ETCD Overview</summary>
+
+[ETCD Overview](https://demo.pigsty.cc/d/etcd-overview): etcd metrics & logs
+
+<details><summary>ETCD Overview Dashboard</summary>
 
 [![etcd-overview](https://github.com/Vonng/pigsty/assets/8587410/3f268146-9242-42e7-b78f-b5b676155f3f)](https://demo.pigsty.cc/d/etcd-overview)
 
 </details>
+
 
 
 

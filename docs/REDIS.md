@@ -3,8 +3,6 @@
 > Redis is an open source, in-memory data store that is widely used and works well with PostgreSQL
 
 
-
-
 ----------------
 
 ## Configuration
@@ -160,29 +158,34 @@ $ redis-cli -h 10.10.10.11 -p 6501 -a redis.meta
 
 There are three dashboards for [`REDIS`](REDIS) module.
 
-- [Redis Overview](https://demo.pigsty.cc/d/redis-overview): Overview of all Redis Instances
-- [Redis Cluster](https://demo.pigsty.cc/d/redis-cluster): Overview of a redis cluster
-- [Redis Instance](https://demo.pigsty.cc/d/redis-instance): Detail information about a single redis instance
 
-<details><summary>REDIS Overview</summary>
+[Redis Overview](https://demo.pigsty.cc/d/redis-overview): Overview of all Redis Instances
+
+<details><summary>Redis Overview Dashboard</summary>
 
 [![redis-overview](https://github.com/Vonng/pigsty/assets/8587410/cceabc05-7d9a-467e-9cb6-cf3f7da60ad3)](https://demo.pigsty.cc/d/redis-overview)
 
-</details>
+</details><br>
 
 
-<details><summary>REDIS Cluster</summary>
+
+[Redis Cluster](https://demo.pigsty.cc/d/redis-cluster) : Overview of one single redis cluster
+
+<details><summary>Redis Cluster Dashboard</summary>
 
 [![redis-cluster](https://github.com/Vonng/pigsty/assets/8587410/840df751-07b7-4abc-83e1-108472e5b928)](https://demo.pigsty.cc/d/redis-cluster)
 
-</details>
+</details><br>
 
 
-<details><summary>REDIS Instance</summary>
+
+[Redis Instance](https://demo.pigsty.cc/d/redis-instance) : Overview of one single redis cluster
+
+<details><summary>Redis Instance Dashboard</summary>
 
 [![redis-instance](https://github.com/Vonng/pigsty/assets/8587410/caccbec5-8cf2-44a2-adc1-78b4cae5e9fb)](https://demo.pigsty.cc/d/redis-instance)
 
-</details>
+</details><br>
 
 
 

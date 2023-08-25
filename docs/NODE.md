@@ -134,55 +134,62 @@ proxy:
 
 ## Dashboards
 
-There are four dashboards for [`NODE`](NODE) module.
-
-- [NODE Overview](https://demo.pigsty.cc/d/node-overview): Overview of all nodes
-- [NODE Cluster](https://demo.pigsty.cc/d/node-cluster): Detail information about a node cluster
-- [NODE Instance](https://demo.pigsty.cc/d/node-instance): Detail information about a Node instance
-- [NODE HAProxy](https://demo.pigsty.cc/d/node-haproxy): Detail information about haproxy service on the node 
-- [NODE VIP](https://demo.pigsty.cc/d/node-vip): Detail information about a dedicated L2 VIP
+There are 6 dashboards for [`NODE`](NODE) module.
 
 
-<details><summary>NODE Overview</summary>
+[NODE Overview](https://demo.pigsty.cc/d/node-overview): Overview of all nodes
+
+<details><summary>Node Overview Dashboard</summary>
 
 [![node-overview](https://github.com/Vonng/pigsty/assets/8587410/e41b6025-bce4-4442-bc28-f3caa49cf64f)](https://demo.pigsty.cc/d/node-overview)
 
 </details>
 
 
-<details><summary>Node Alert</summary>
+
+[NODE Cluster](https://demo.pigsty.cc/d/node-cluster): Detail information about one dedicate node cluster
+
+<details><summary>Node Cluster Dashboard</summary>
+
+[![node-cluster](https://github.com/Vonng/pigsty/assets/8587410/aa8cd43d-6c8a-47cb-b556-8da5ebb68c66)](https://demo.pigsty.cc/d/node-cluster)
+
+</details>
+
+
+
+[Node Instance](https://demo.pigsty.cc/d/node-instance) : Detail information about one single node instance
+
+<details><summary>Node Instance Dashboard</summary>
+
+[![node-instance](https://github.com/Vonng/pigsty/assets/8587410/90c0ba35-93f0-4dde-92fa-eb188adf9eb2)](https://demo.pigsty.cc/d/node-instance)
+
+</details>
+
+
+
+[NODE Alert](https://demo.pigsty.cc/d/node-alert): Overview of key metrics of all node clusters/instances
+
+<details><summary>Node Alert Dashboard</summary>
 
 [![node-alert](https://github.com/Vonng/pigsty/assets/8587410/63605aa8-909f-44b8-b7c7-e6caea1d1ed0)](https://demo.pigsty.cc/d/node-alert)
 
 </details>
 
 
-<details><summary>NODE Cluster</summary>
 
-[![node-cluster](https://github.com/Vonng/pigsty/assets/8587410/aa8cd43d-6c8a-47cb-b556-8da5ebb68c66)](https://demo.pigsty.cc/d/node-cluster)
+[NODE VIP](https://demo.pigsty.cc/d/node-vip): Detail information about a L2 VIP on a node cluster
 
-
-</details>
-
-
-<details><summary>NODE Instance</summary>
-
-[![node-instance](https://github.com/Vonng/pigsty/assets/8587410/90c0ba35-93f0-4dde-92fa-eb188adf9eb2)](https://demo.pigsty.cc/d/node-instance)
-
-
-</details>
-
-
-
-<details><summary>NODE VIP</summary>
+<details><summary>Node VIP Dashboard</summary>
 
 [![node-vip](https://github.com/Vonng/pigsty/assets/8587410/9cc0ed01-49f0-4321-814f-98d1e3b0a74f)](https://demo.pigsty.cc/d/node-vip)
 
-
 </details>
 
 
-<details><summary>NODE Haproxy</summary>
+
+[Node Haproxy](https://demo.pigsty.cc/d/node-haproxy) : Detail information about haproxy on node instance
+
+<details><summary>Node Haproxy Dashboard</summary>
 
 [![node-haproxy](https://github.com/Vonng/pigsty/assets/8587410/75267451-06cc-4d8a-ab30-aa347a1cad0e)](https://demo.pigsty.cc/d/node-haproxy)
 
