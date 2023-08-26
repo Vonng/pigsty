@@ -4,7 +4,7 @@
 >
 > —— **A battery-included, local-first, open-source RDS PG alternative.**
 >
-> [Release v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Blog](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/6nA2fDXt)
+> Latest Release: [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Website](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/6nA2fDXt) | [中文文档](/zh/)
 >
 > [Get Started](INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash`
 
@@ -12,7 +12,7 @@
 
 ## Features
 
-Free RDS for PostgreSQL! check [**Feature**](FEATURE.md) | [**亮点特性**](FEATURE_ZH.md) for details.
+Free RDS for PostgreSQL! check [**Feature**](FEATURE.md) | [**亮点特性**](/zh/FEATURE.md) for details.
 
 - Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with [PostGIS](https://postgis.net/), [TimescaleDB](https://www.timescale.com/), [Citus](https://www.citusdata.com/), [PGVector](https://github.com/pgvector/pgvector), etc...
 - Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack. Public [Demo](https://demo.pigsty.cc).
@@ -32,7 +32,7 @@ Free RDS for PostgreSQL! check [**Feature**](FEATURE.md) | [**亮点特性**](FE
 
 ## Get Started
 
-Setup everything in one command! Check [**Get Started**](INSTALL.md) | [**快速上手**](INSTALL_ZH.md) for details.
+Setup everything in one command! Check [**Get Started**](INSTALL.md) | [**快速上手**](/zh/INSTALL.md) for details.
 
 ```bash
 # fresh node, Linux x86_64 EL 7/8/9 compatible OS, with nopass sudo/ssh
@@ -40,7 +40,7 @@ bash -c "$(curl -fsSL https://get.pigsty.cc/latest)" && cd ~/pigsty
 ./bootstrap  && ./configure && ./install.yml # install latest pigsty
 ```
 
-Then you will have a pigsty singleton node ready, with Web Services on port `80` and Postgres on port `5432`. 
+Then you will have a pigsty singleton node ready, with Web Services on port `80/443` and Postgres on port `5432`. 
 
 <details><summary>Download with Script</summary>
 
@@ -100,6 +100,9 @@ curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-v2.3.0.t
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
+
+# alternative CDN in china 
+curl -L https://get.pigsty.cc/v2.3.0/pigsty-v2.3.0.tgz -o ~/pigsty.tgz
 ```
 
 </details>
@@ -414,7 +417,7 @@ minio:
 </details>
 
 
-Check [**Configuration**](CONFIG) for details.
+Check [**Configuration**](CONFIG) & [**PGSQL Conf**](PGSQL-CONF.md) for details.
 
 
 

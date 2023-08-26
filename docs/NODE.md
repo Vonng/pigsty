@@ -13,7 +13,10 @@ There are different types of nodes in Pigsty:
 
 * Common nodes, nodes that managed by Pigsty
 * Admin node, the node where pigsty is installed and issue admin commands
-* The Infra node, the node where the INFRA module is installed, admin node are usually the first of all infra nodes.
+* The Infra node, the node where the [`INFRA`](INFRA) module is installed
+
+The admin node is usually overlapped with the infra node, if there's more than one infra node,
+the first one is often used as the default admin node, and the rest of the infra nodes can be used as backup admin nodes.
 
 
 **Common Node**
@@ -27,6 +30,15 @@ Some services will be added to all nodes by default:
 | Node Exporter | 9100 | Node Monitoring Metrics Exporter |
 | HAProxy Admin | 9101 | HAProxy admin page               |
 |   Promtail    | 9080 | Log collecting agent             |
+
+Docker & Keepalived are optional components, enabled when required. 
+
+|      Component      | Port | Description                  |
+|:-------------------:|:----:|------------------------------|
+|    Docker Daemon    | 9323 | Enable Container Service     |
+|     Keepliaved      |  -   | Manage Node Cluster L2 VIP   |
+| Keepliaved Exporter | 9650 | Monitoring Keepalived Status |
+
 
 
 **Admin Node**
@@ -47,24 +59,25 @@ The admin node is also the default and first infra node, and infra nodes can be 
 
 The node with [PGSQL](PGSQL) module installed is called a PGSQL node. The node and pg instance is 1:1 deployed. And node instance can be borrowed from corresponding pg instances with [`node_id_from_pg`](PARAM#node_id_from_pg).
 
-|      Component      | Port | Description                                  |
-|:-------------------:|:----:|----------------------------------------------|
-|      Postgres       | 5432 | Pigsty CMDB                                  |
-|      Pgbouncer      | 6432 | Pgbouncer Connection Pooling Service         |
-|       Patroni       | 8008 | Patroni HA Component                         |
-|   Haproxy Primary   | 5433 | Primary connection pool: Read/Write Service  |
-|   Haproxy Replica   | 5434 | Replica connection pool: Read-only Service   |
-|   Haproxy Default   | 5436 | Primary Direct Connect Service               |
-|   Haproxy Offline   | 5438 | Offline Direct Connect: Offline Read Service |
-|  Haproxy `service`  | 543x | Customized Services                          |
-|    Haproxy Admin    | 9101 | Monitoring metrics and traffic management    |
-|     PG Exporter     | 9630 | PG Monitoring Metrics Exporter               |
-| PGBouncer Exporter  | 9631 | PGBouncer Monitoring Metrics Exporter        |
-|    Node Exporter    | 9100 | Node Monitoring Metrics Exporter             |
-| Keepalived Exporter | 9650 | Keepalived Metrics Exporter (Optional)       |
-|      Promtail       | 9080 | Collect Postgres, Pgbouncer, Patroni logs    |
-|     vip-manager     |  -   | Bind VIP to the primary                      |
-
+|      Component      | Port | Description                                      |
+|:-------------------:|:----:|--------------------------------------------------|
+|      Postgres       | 5432 | Pigsty CMDB                                      |
+|      Pgbouncer      | 6432 | Pgbouncer Connection Pooling Service             |
+|       Patroni       | 8008 | Patroni HA Component                             |
+|   Haproxy Primary   | 5433 | Primary connection pool: Read/Write Service      |
+|   Haproxy Replica   | 5434 | Replica connection pool: Read-only Service       |
+|   Haproxy Default   | 5436 | Primary Direct Connect Service                   |
+|   Haproxy Offline   | 5438 | Offline Direct Connect: Offline Read Service     |
+|  Haproxy `service`  | 543x | Customized PostgreSQL Services                   |
+|    Haproxy Admin    | 9101 | Monitoring metrics and traffic management        |
+|     PG Exporter     | 9630 | PG Monitoring Metrics Exporter                   |
+| PGBouncer Exporter  | 9631 | PGBouncer Monitoring Metrics Exporter            |
+|    Node Exporter    | 9100 | Node Monitoring Metrics Exporter                 |
+|      Promtail       | 9080 | Collect Postgres, Pgbouncer, Patroni logs        |
+|     vip-manager     |  -   | Bind VIP to the primary                          |
+|     keepalived      |  -   | Node Cluster L2 VIP manager (disable by default) |
+| Keepalived Exporter | 9650 | Keepalived Metrics Exporter (disable by default) |
+|    Docker Daemon    | 9323 | Docker Container Service    (disable by default) |
 
 
 ----------------

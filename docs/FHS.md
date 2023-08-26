@@ -2,6 +2,9 @@
 
 > How files are organized in Pigsty.
 
+
+----------------
+
 ## Pigsty FHS
 
 ```bash
@@ -37,6 +40,7 @@
 ```
 
 
+----------------
 
 ## CA FHS
 
@@ -86,6 +90,7 @@ rsync -avz ./ meta-2:~/pigsty
 
 
 
+----------------
 
 ## NODE FHS
 
@@ -108,6 +113,7 @@ The data dir is owned by root with mode `0777`. All modules' local data will be 
 
 
 
+----------------
 
 ## Prometheus FHS
 
@@ -147,6 +153,8 @@ While the main config file is located on [`roles/infra/templates/prometheus/prom
 ```
 
 
+
+----------------
 
 ## Postgres FHS
 
@@ -255,7 +263,7 @@ export PGDATA=/pg/data
 
 
 
-
+----------------
 
 ## Pgbouncer FHS
 
@@ -269,7 +277,7 @@ Pgbouncer is run using the Postgres user, and the config file is located in `/et
 
 
 
-
+----------------
 
 ## Redis FHS
 

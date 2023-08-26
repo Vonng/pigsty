@@ -1,7 +1,5 @@
 # Features
 
-> [中文/ZH](FEATURE_ZH.md)
-
 Pigsty is a **Me-Better Open Source RDS Alternative** with:
 
 - Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with [PostGIS](https://postgis.net/), [TimescaleDB](https://www.timescale.com/), [Citus](https://www.citusdata.com/), [PGVector](https://github.com/pgvector/pgvector) ...
@@ -96,7 +94,7 @@ Your entire network communication can be secured with SSL. Pigsty will automatic
 
 **Lots of applications work well with PostgreSQL. Run them in one command with docker.**
 
-The database is usually the most tricky part of most software. Since Pigsty already provides the RDS. It could be nice to have a series of docker templates to run software in stateless mode and persist their data with Pigsty-managed HA PostgreSQL (or Redis, MinIO), including Gitlab, Gitea, Wiki.js, Odoo, Jira, Confluence, Harbour, Mastodon, Discourse, and KeyCloak.
+The database is usually the most tricky part of most software. Since Pigsty already provides the RDS. It could be nice to have a series of docker templates to run software in stateless mode and persist their data with Pigsty-managed HA PostgreSQL (or Redis, MinIO), including Gitlab, Gitea, Wiki.js, NocoDB, Odoo, Jira, Confluence, Harbour, Mastodon, Discourse, and KeyCloak.
 
 Pigsty also provides a toolset to help you manage your database and build data applications in a low-code fashion: PGAdmin4, PGWeb, ByteBase, PostgREST, Kong, and higher "Database" that use Postgres as underlying storage, such as EdgeDB, FerretDB, and Supabase. And since you already have Grafana & Postgres, You can quickly make an interactive data application demo with them. In addition, advanced visualization can be achieved with the built-in ECharts panel.
 

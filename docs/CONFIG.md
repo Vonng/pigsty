@@ -2,20 +2,21 @@
 
 **Pigsty treats Infra & Database as Code.** You can describe the infrastructure & database clusters through a declarative interface. All your essential work is to describe your need in the [inventory](#inventory), then materialize it with a simple idempotent playbook.
 
+----------------
 
 ## Inventory
 
 Each pigsty deployment has a corresponding config **inventory**. It could be stored in a local git-managed file in [YAML](https://docs.ansible.com/ansible/2.9/user_guide/playbooks_variables.html) format or dynamically generated from [CMDB](https://docs.ansible.com/ansible/2.9/user_guide/intro_dynamic_inventory.html) or any ansible compatible format. Pigsty uses a monolith YAML config file as the default config inventory, which is [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml),  [located](https://github.com/Vonng/pigsty/blob/master/ansible.cfg#L3) in the pigsty home directory.
 
-The inventory consists of two parts: **global vars** & multiple **group definitions**. You can define new clusters with inventory groups: `all.children[array]`. And describe infra and set global default parameters for clusters with global vars: `all.vars[object]`. Which may look like this:
+The inventory consists of two parts: **global vars** & multiple **group definitions**. You can define new clusters with inventory groups: `all.children`. And describe infra and set global default parameters for clusters with global vars: `all.vars`. Which may look like this:
 
 ```yaml
 all:                  # Top-level object: all
   vars: {...}         # Global Parameters
   children:           # Group Definitions
     infra:            # Group Definition: 'infra'
-      hosts: {...}    # Group Membership: 'infra'
-      vars:  {...}    # Group Parameters: 'infra'
+      hosts: {...}        # Group Membership: 'infra'
+      vars:  {...}        # Group Parameters: 'infra'
     etcd:    {...}    # Group Definition: 'etcd'
     pg-meta: {...}    # Group Definition: 'pg-meta'
     pg-test: {...}    # Group Definition: 'pg-test'
@@ -24,6 +25,7 @@ all:                  # Top-level object: all
 ```
 
 
+----------------
 
 ## Cluster
 
@@ -42,6 +44,8 @@ pg-test:   # Group Name
 You can also define parameters for a specific host, as known as **host vars**. It will override group vars and global vars. Which is usually used for assigning identities to nodes & database instances.
 
 
+
+----------------
 
 ## Parameter
 
@@ -63,6 +67,8 @@ For examples:
 * Specify global NTP servers with Global Parameter `node_ntp_servers` on Global Vars
 * If no `pg_version` is set, it will use the default value from role implementation
 
+
+----------------
 
 ## Reference
 

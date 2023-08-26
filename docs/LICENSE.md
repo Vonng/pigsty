@@ -3,6 +3,7 @@
 > Pigsty is open sourced under the [AGPL v3](https://github.com/Vonng/pigsty/blob/master/LICENSE) license, which is a copyleft license. 
 
 
+----------------
 
 ## Summary
 
@@ -13,7 +14,6 @@ When a modified version is used to provide a service over a network, the complet
 
 For those common use cases, you don't need to worry about license issues. And we won't pursue any legal action against you ;)
 But beware when you distribute, host, or create derivative works of Pigsty, you must also distribute the source code under the same AGPL v3 license.
-
 
 **Permissions:**
 
@@ -37,6 +37,7 @@ But beware when you distribute, host, or create derivative works of Pigsty, you 
 - ℹ Same license
 
 
+----------------
 
 ## BOM Inventory
 
@@ -75,8 +76,7 @@ Related software and open source project:
 
 
 
-
-
+----------------
 
 ## Content
 

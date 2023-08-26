@@ -43,7 +43,7 @@ And PLEASE USE FRESH NEW NODES to avoid any unexpected issues.
 
 Pigsty uses semantic version numbers such as: `<major>. <minor>. <release>`. Alpha/Beta/RC are suffixed to the version number `-a1`, `-b1`, `-rc1`.
 
-Major updates mean fundamental changes and massive features; minor version updates suggest new features, bump package versions, and minor API changes. Release version updates mean bug fixes and doc updates, and it does change offline package versions (i.e., v1.0.1 and v1.0.0 will use the same `pkg.tgz`).
+Major updates mean fundamental changes and massive features; minor version updates suggest new features, bump package versions, and minor API changes. Release version updates mean bug fixes and doc updates.
 
 Pigsty tries to release a Minor Release every 1-3 months and a Major Release every 1-2 years.
 
@@ -65,7 +65,7 @@ Pigsty tries to release a Minor Release every 1-3 months and a Major Release eve
 The above command will automatically download the latest stable version of `pigsty.tgz` and extract it to the `~/pigsty` dir.
 You can also manually download a specific version of Pigsty source code from the following location.
 
-If you need to install it in an environment without the Internet, you can download it in advance and upload it to the production server via scp/sftp.
+If you need to install it in an environment without the Internet, you can download it in advance and upload it to the production server via scp/sftp/cdrom/usb.
 
 </details><br>
 
@@ -92,6 +92,15 @@ https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el8.x
 https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz    # el9 packages
 ```
 
+For mainland China users, you can download these packages from the following mirror:
+
+```bash
+https://get.pigsty.cc/v2.3.0/pigsty-v2.3.0.tgz                   # source code
+https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el7.x86_64.tgz    # el7 packages
+https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el8.x86_64.tgz    # el8 packages
+https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz    # el9 packages
+```
+
 </details><br>
 
 
@@ -99,6 +108,19 @@ https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el9.x
 ----------------
 
 ## Configuration
+
+
+<br>
+<details><summary>What does bootstrap do?</summary>
+
+!> Check the environment, ask for downloading offline packages, and make sure the essential tool `ansible` is installed.
+
+
+
+The **configure** procedure will detect your node environment and generate a pigsty config file: `pigsty.yml` for you.
+
+</details>
+
 
 
 <br>
@@ -115,7 +137,6 @@ The **configure** procedure will detect your node environment and generate a pig
 
 
 <br>
-
 <details><summary>What is the Pigsty config file?</summary>
 
 !> `pigsty.yml` under the pigsty home dir is the default config file.

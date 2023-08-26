@@ -1,6 +1,6 @@
 # Get Started
 
-> [中文/ZH](INSTALL_ZH.md) : Install Pigsty with 4 steps: [Download](#download), [Bootstrap](#bootstrap), [Configure](#configure) and [Install](#install).
+> Install Pigsty with 4 steps: [Download](#download), [Bootstrap](#bootstrap), [Configure](#configure) and [Install](#install).
 
 
 ## Short Version

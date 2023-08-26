@@ -2,7 +2,7 @@
 
 > ETCD is a distributed, reliable key-value store for the most critical data of a distributed system
 
-Pigsty use **etcd** as **DCS**: Distributed configuration storage (or distributed consensus service). Which is critical to PostgreSQL High-Availability & Auto-Failover.
+Pigsty use  [**etcd**](https://etcd.io/) as  [**DCS**](https://patroni.readthedocs.io/en/latest/dcs_failsafe_mode.html): Distributed configuration storage (or distributed consensus service). Which is critical to PostgreSQL High-Availability & Auto-Failover.
 
 You have to install [`ETCD`](ETCD) module before any [`PGSQL`](PGSQL) modules, since patroni & vip-manager will rely on etcd to work. Unless you are using an external etcd cluster.
 
@@ -21,20 +21,17 @@ There's a built-in playbook: `etcd.yml` for installing etcd cluster. But you hav
 
 Here are available sub tasks:
 
-- `etcd_assert`   : generate minio identity
+- `etcd_assert`   : generate etcd identity
 - `etcd_install`  : install etcd rpm packages
 - `etcd_clean`    : cleanup existing etcd
   - `etcd_check`  : check etcd instance is running
   - `etcd_purge`  : remove running etcd instance & data
 - `etcd_dir`      : create etcd data & conf dir
-- `etcd_dir`     : create etcd directories
 - `etcd_config`   : generate etcd config
   - `etcd_conf`   : generate etcd main config
   - `etcd_cert`   : generate etcd ssl cert
 - `etcd_launch`   : launch etcd service
 - `etcd_register` : register etcd to prometheus
-
-
 
 If [`etcd_safeguard`](PARAM#etcd_safeguard) is `true`, or [`etcd_clean`](PARAM#etcd_clean) is `false`,
 the playbook will abort if any running etcd instance exists to prevent purge etcd by accident.
@@ -105,7 +102,6 @@ Here are some useful commands for etcd administration, check [ETCD ADMIN](ETCD-A
 - [Reload Config](ETCD-ADMIN#reload-config)
 - [Add Member](ETCD-ADMIN#add-member)
 - [Remove Member](ETCD-ADMIN#remove-member)
-- [Environment](ETCD-ADMIN#environment)
 
 **Environment**
 

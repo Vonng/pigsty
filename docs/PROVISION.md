@@ -54,11 +54,12 @@ Check [Vagrant Templates Intro](https://github.com/Vonng/pigsty/tree/master/vagr
 Vagrant will use  [VirtualBox](https://www.virtualbox.org/) as the default VM provider.
 however libvirt, docker, parallel desktop and vmware can also be used. We will use VirtualBox in this guide.
 
+
 ### Installation
 
 Make sure [Vagrant](https://www.vagrantup.com/) and [Virtualbox](https://www.virtualbox.org/) are installed and available on your OS. 
 
-If you are using macOS, You can use `homebrew` to install both of them with one command (reboot required).
+If you are using macOS, You can use `homebrew` to install both of them with one command (reboot required). You can also use [vagrant-libvirt](https://vagrant-libvirt.github.io/vagrant-libvirt/) on Linux.
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -163,7 +164,6 @@ make prod install  # create and install pigsty on 42-node KVM libvirt environmen
 
 
 ----------------
-
 
 ## Terraform
 

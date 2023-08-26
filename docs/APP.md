@@ -4,12 +4,12 @@ Lots of software using PostgreSQL. Pigsty has some docker compose template for s
 
 You can launch stateless software with docker easily and using external HA PostgreSQL for higher availability & durability.
 
-You can use Docker to deploy and launch software applications quickly. You can directly access the PostgreSQL/Redis database deployed on the host in the container using the connection string.
-
 ![APP](https://user-images.githubusercontent.com/8587410/198838829-f0ea4af2-d33f-4978-a31a-ed81897aa8d1.gif)
 
 Docker is **not** installed by default, You can install docker with `docker.yml` playbook, e.g.: `./docker.yml -l infra`
 
+
+----------------
 
 ## PostgreSQL Administration
 
@@ -21,6 +21,8 @@ Docker is **not** installed by default, You can install docker with `docker.yml`
 * [SchemaSPY](https://github.com/Vonng/pigsty/blob/master/bin/schemaspy): Generates detailed visual reports of database schemas.
 * [Pgbadger](https://github.com/Vonng/pigsty/blob/master/bin/pglog-summary): Generate PostgreSQL summary report from log samples.
 
+
+----------------
 
 ## Application Development
 
@@ -34,12 +36,15 @@ Docker is **not** installed by default, You can install docker with `docker.yml`
 * DuckDB: [DuckDB](https://duckdb.org/), in-process SQL olap DBMS that works well with PostgreSQL
 
 
-## Software 
+----------------
+
+## Business Software 
 
 > Launch open-source software with PostgreSQL at ease.
 
 * [Wiki.js](https://github.com/Vonng/pigsty/tree/master/app/wiki): [Wiki.js](https://js.wiki/), the most powerful and extensible open source wiki software
 * [Gitea](https://github.com/Vonng/pigsty/tree/master/app/gitea): [Gitea](https://gitea.io/), a painless self-hosted git service
+* [NocoDB](https://github.com/Vonng/pigsty/tree/master/app/nocodb): [NocoDB](https://nocodb.com/), Open source AirTable alternative.
 * Gitlab: open-source code hosting platform.
 * Harbour: open-source mirror repo
 * Jira: open-source project management platform.
@@ -51,6 +56,8 @@ Docker is **not** installed by default, You can install docker with `docker.yml`
 * Grafana: use postgres as backend storage
 * Promscale: use postgres/timescaledb as prometheus metrics storage
 
+
+----------------
 
 ## Visualization
 

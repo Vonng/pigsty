@@ -3,13 +3,13 @@
 > Modular Architecture and Declarative Interface!
 
 * Pigsty deployment is described by config inventory and materialized with ansible playbooks.
-
 * Pigsty works on common nodes (x86_64 EL7/8/9), i.e., bare metals or virtual machines.
 * Pigsty uses a modular design that can be freely composed for different scenarios.
 * The config controls **where** & **how** to install modules with **parameters**
 * The playbooks will adjust nodes into the desired status in an idempotent manner.
 
 
+----------------
 
 ## Modules
 
@@ -17,7 +17,7 @@ Pigsty uses a modular design, and there are six default modules: [`PGSQL`](PGSQL
 
 * [`PGSQL`](PGSQL): Autonomous ha Postgres cluster powered by Patroni, Pgbouncer, HAproxy, PgBackrest, etc...
 * [`INFRA`](INFRA): Local yum repo, Prometheus, Grafana, Loki, AlertManager, PushGateway, Blackbox Exporter...
-* [`NODE`](NODE): Tune node into the desired state, name, timezone, NTP, ssh, sudo, haproxy, docker, promtail...
+* [`NODE`](NODE): Tune node to desired state, name, timezone, NTP, ssh, sudo, haproxy, docker, promtail, keepalived
 * [`ETCD`](ETCD): Distributed key-value store will be used as DCS for high-available Postgres clusters.
 * [`REDIS`](REDIS): Redis servers in standalone master-replica, sentinel, cluster mode with Redis exporter.
 * [`MINIO`](MINIO): S3 compatible simple object storage server, can be used as an optional backup center for Postgres.
@@ -29,6 +29,7 @@ You can compose them freely in a declarative manner. If you want host monitoring
 ![pigsty-sandbox](https://user-images.githubusercontent.com/8587410/218279650-5d5e8b09-8907-42bf-a48c-4c28bcc73ddd.jpg)
 
 
+----------------
 
 ## Singleton Meta
 
@@ -40,7 +41,7 @@ This node now has a self-monitoring system, visualization toolsets, and a  Postg
 
 
 
-
+----------------
 
 ## Monitoring
 
@@ -52,7 +53,7 @@ If you want to install the Prometheus / Grafana observability stack, Pigsty just
 
 
 
-
+----------------
 
 ## HA PG Cluster
 
@@ -73,7 +74,9 @@ pg-test:
 $ bin/pgsql-add pg-test  # init cluster 'pg-test'
 ```
 
-Which will gives you a following cluster with monitoring , replica, backup all set.![pigsty-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)
+Which will gives you a following cluster with monitoring , replica, backup all set.
+
+![pigsty-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)
 
 Hardware failures are covered by self-healing HA architecture powered by `patroni`, `etcd`, and `haproxy`, which will perform auto failover in case of leader failure under 30 seconds.  With the self-healing traffic control powered by haproxy, the client may not even notice there's a failure at all, in case of a switchover or replica failure.
 
@@ -81,11 +84,11 @@ Software Failures, human errors, and DC Failure are covered by `pgbackrest`, and
 
 
 
-
+----------------
 
 ## Database as Code
 
-Pigsty follows IaC & GitOPS philosophy: Pigsty deployment is described by declarative [Config Inventory](Config#Inventory) and materialized with idempotent playbooks.
+Pigsty follows IaC & GitOPS philosophy: Pigsty deployment is described by declarative [Config Inventory](config#inventory) and materialized with idempotent playbooks.
 
 The user describes the desired status with [Parameters](PARAM) in a declarative manner, and the playbooks tune target nodes into that status in an idempotent manner. It's like Kubernetes CRD & Operator but works on Bare Metals & Virtual Machines.
 
@@ -131,9 +134,4 @@ $ bin/pgsql-add  pg-test 10.10.10.13
 
 You can even manage many PostgreSQL Entities using this approach: User/Role, Database, Service, HBA Rules, Extensions, Schemas, etc...
 
-
-
-
-
-
-
+Check [PGSQL Conf](pgsql-conf) for details.

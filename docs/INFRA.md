@@ -16,8 +16,8 @@ Each Pigsty deployment requires a set of infrastructure components to work prope
 |    Prometheus    | 9090 | `p.pigsty` | Monitoring Time Series Database            |
 |     Grafana      | 3000 | `g.pigsty` | Visualization Platform                     |
 |       Loki       | 3100 |     -      | Logging Collection Server                  |
-|   PushGateway    | 9091 |     -      | Logging Collection Server                  |
-| BlackboxExporter | 9115 |     -      | Logging Collection Server                  |
+|   PushGateway    | 9091 |     -      | Collect One-Time Job Metrics               |
+| BlackboxExporter | 9115 |     -      | Blackbox Probing                           |
 |     Dnsmasq      |  53  |     -      | DNS Server                                 |
 |     Chronyd      | 123  |     -      | NTP Time Server                            |
 |    PostgreSQL    | 5432 |     -      | Pigsty CMDB & default database             |

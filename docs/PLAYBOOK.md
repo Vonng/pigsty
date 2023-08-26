@@ -2,10 +2,12 @@
 
 > Pigsty use ansible playbook to install modules on nodes.
 
-Playbooks are used in Pigsty to install [modules](ARCH#modules) on nodes.To run playbooks, just treat them as executables.
+Playbooks are used in Pigsty to install [modules](ARCH#modules) on nodes.
 
-e.g. run with `./install.yml`.
+To run playbooks, just treat them as executables. e.g. run with `./install.yml`.
 
+
+----------------
 
 ## Playbooks
 
@@ -55,6 +57,7 @@ Make sure that infra nodes are init first. If you really want to init all nodes 
 
 
 
+----------------
 
 ## Ansible
 
@@ -70,6 +73,8 @@ Knowledge about ansible is good but not required. Only three parameters needs yo
 * `-t|--tags <tags>`: Only run tasks with specific tags (What)     
 * `-e|--extra-vars <vars>`: Extra command line arguments (How) 
 
+
+----------------
 
 ## Limit Host
 
@@ -89,6 +94,8 @@ Here are some examples of host limit:
 ./pgsql.yml -l pg-test      # Execute the pgsql playbook against the hosts in the pg-test cluster
 ```
 
+
+----------------
 
 ## Limit Tags
 
@@ -125,6 +132,7 @@ Here are some examples of task limit:
 ```
 
 
+----------------
 
 ## Extra Vars
 

@@ -13,6 +13,10 @@
 
 ## Create Cluster
 
+If [`etcd_safeguard`](PARAM#etcd_safeguard) is `true`, or [`etcd_clean`](PARAM#etcd_clean) is `false`,
+the playbook will abort if any running etcd instance exists to prevent purge etcd by accident.
+
+
 ```yaml
 etcd:
   hosts:
@@ -23,7 +27,7 @@ etcd:
 ```
 
 ```bash
-./etcd.yml                      # init entire cluster 
+./etcd.yml # 初始化整个etcd集群 
 ```
 
 
@@ -31,14 +35,14 @@ etcd:
 
 ## Destroy Cluster
 
-To destroy a etcd cluster, just use `etcd_purge` subtask of `etcd.yml`
+To destroy an etcd cluster, just use the `etcd_clean` subtask of `etcd.yml`, do think before you type.
 
 ```bash
-./etcd.yml -t etcd_purge                          # remove entire cluster
-./etcd.yml -t etcd_purge -e etcd_safeguard=false  # purge with brutal force 
+./etcd.yml -t etcd_clean  # remove entire cluster, honor the etcd_safeguard
+./etcd.yml -t etcd_purge  # purge with brutal force, omit the etcd_safeguard
 ```
 
-!> THINK BEFORE YOU TYPE! IT MAY LEAD TO GLOBAL PGSQL PRIMARY DEMOTE!
+
 
 
 ----------------
@@ -88,7 +92,7 @@ ansible all -f 1 -b -a 'systemctl restart vip-manager' # restart vip-manager to 
 
 ETCD Reference: [Add a member](https://etcd.io/docs/v3.5/op-guide/runtime-configuration/#add-a-new-member)
 
-You can add new members to existing etcd cluster in 4 steps:
+You can add new members to existing etcd cluster in 5 steps:
 
 1. issue `etcdctl member add` command to tell existing cluster that a new member is coming (use learner mode)
 2. update inventory group `etcd` with new instance
@@ -104,18 +108,17 @@ etcdctl member add <etcd-?> --learner=true --peer-urls=https://<new_ins_ip>:2380
 etcdctl member promote <new_ins_server_id>
 ```
 
-
-Let's start from 1 etcd instance.
+Here's the detail, let's start from one single etcd instance.
 
 ```yaml
 etcd:
   hosts:
-    10.10.10.10: { etcd_seq: 1 }
+    10.10.10.10: { etcd_seq: 1 } # <--- this is the existing instance
     10.10.10.11: { etcd_seq: 2 } # <--- add this new member definition to inventory
   vars: { etcd_cluster: etcd }
 ```
 
-Add a learner instance `etcd-2` to cluster, init, launch, and promote it with:
+Add a learner instance `etcd-2` to cluster with `etcd member add`:
 
 ```bash
 # tell the existing cluster that a new member etcd-2 is coming
@@ -138,7 +141,7 @@ Check the member list with `etcdctl member list` (or `em list`), we can see an `
 Init the new etcd instance `etcd-2` with `etcd.yml` playbook, we can see the new member is started:
 
 ```bash
-$ ./etcd.yml -l 10.10.10.11 -e etcd_init=existing
+$ ./etcd.yml -l 10.10.10.11 -e etcd_init=existing    # etcd_init=existing must be set
 ...
 33631ba6ced84cf8, started, etcd-2, https://10.10.10.11:2380, https://10.10.10.11:2379, true
 429ee12c7fbab5c1, started, etcd-1, https://10.10.10.10:2380, https://10.10.10.10:2379, false
@@ -147,7 +150,7 @@ $ ./etcd.yml -l 10.10.10.11 -e etcd_init=existing
 Promote the new member, from leaner to follower:
 
 ```bash
-$ etcdctl member promote 33631ba6ced84cf8   # promote the new leader
+$ etcdctl member promote 33631ba6ced84cf8   # promote the new learner
 Member 33631ba6ced84cf8 promoted in cluster 6646fbcf5debc68f
 
 $ em list                # check again, the new member is started
@@ -166,20 +169,20 @@ Repeat the steps above to add more members. remember to use at least 3 members f
 
 ## Remove Member
 
-To remove a member, you have to remove it from inventory fist
+To remove a member from existing etcd cluster, it usually takes 3 steps:
 
-1. remove it from inventory and [reload config](#reload-config) 
-2. remove it with `etcdctl member remove <server_id>` command
-3. add it back to inventory and purge that instance, then remove it from inventory permanently
+1. remove/uncomment it from inventory and [reload config](#reload-config) 
+2. remove it with `etcdctl member remove <server_id>` command and kick it out of the cluster
+3. temporarily add it back to inventory and purge that instance, then remove it from inventory permanently
 
-To refresh config, you have to **comment** the member you want to remove, then [reload-config](#reload-config) as if the member is already removed.
+Here's the detail, let's start from a 3 instance etcd cluster:
 
 ```yaml
 etcd:
   hosts:
     10.10.10.10: { etcd_seq: 1 }
     10.10.10.11: { etcd_seq: 2 }
-    10.10.10.12: { etcd_seq: 3 }   # <---- comment / uncomment this line
+    10.10.10.12: { etcd_seq: 3 }   # <---- comment this line, then reload-config
   vars: { etcd_cluster: etcd }
 ```
 

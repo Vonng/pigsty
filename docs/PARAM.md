@@ -160,9 +160,9 @@ There are 265 parameters in Pigsty describing all aspect of the deployment.
 | 711 | [`redis_exporter_enabled`](#redis_exporter_enabled)             | [`REDIS`](#redis) | [`REDIS`](#redis)                 | bool        | C     | install redis exporter on redis nodes?                                        |
 | 712 | [`redis_exporter_port`](#redis_exporter_port)                   | [`REDIS`](#redis) | [`REDIS`](#redis)                 | port        | C     | redis exporter listen port, 9121 by default                                   |
 | 713 | [`redis_exporter_options`](#redis_exporter_options)             | [`REDIS`](#redis) | [`REDIS`](#redis)                 | string      | C/I   | cli args and extra options for redis exporter                                 |
-| 720 | [`redis_safeguard`](#redis_safeguard)                           | [`REDIS`](#redis) | [`REDIS`](#redis)                 | bool        | C     | prevent purging running redis instance?                                       |
-| 721 | [`redis_clean`](#redis_clean)                                   | [`REDIS`](#redis) | [`REDIS`](#redis)                 | bool        | C     | purging existing redis during init?                                           |
-| 722 | [`redis_rmdata`](#redis_rmdata)                                 | [`REDIS`](#redis) | [`REDIS`](#redis)                 | bool        | A     | remove redis data when purging redis server?                                  |
+| 720 | [`redis_safeguard`](#redis_safeguard)                           | [`REDIS`](#redis) | [`REDIS`](#redis)                 | bool        | G/C/A | prevent purging running redis instance?                                       |
+| 721 | [`redis_clean`](#redis_clean)                                   | [`REDIS`](#redis) | [`REDIS`](#redis)                 | bool        | G/C/A | purging existing redis during init?                                           |
+| 722 | [`redis_rmdata`](#redis_rmdata)                                 | [`REDIS`](#redis) | [`REDIS`](#redis)                 | bool        | G/C/A | remove redis data when purging redis server?                                  |
 | 723 | [`redis_mode`](#redis_mode)                                     | [`REDIS`](#redis) | [`REDIS`](#redis)                 | enum        | C     | redis mode: standalone,cluster,sentinel                                       |
 | 724 | [`redis_conf`](#redis_conf)                                     | [`REDIS`](#redis) | [`REDIS`](#redis)                 | string      | C     | redis config template path, except sentinel                                   |
 | 725 | [`redis_bind_address`](#redis_bind_address)                     | [`REDIS`](#redis) | [`REDIS`](#redis)                 | ip          | C     | redis bind address, empty string will use host ip                             |
@@ -3074,7 +3074,7 @@ default value is empty string
 
 ### `redis_safeguard`
 
-name: `redis_safeguard`, type: `bool`, level: `C`
+name: `redis_safeguard`, type: `bool`, level: `G/C/A`
 
 prevent purging running redis instance?
 
@@ -3085,7 +3085,7 @@ default value is `false`, if set to `true`, and redis instance is running, init 
 
 ### `redis_clean`
 
-name: `redis_clean`, type: `bool`, level: `C`
+name: `redis_clean`, type: `bool`, level: `G/C/A`
 
 purging existing redis during init?
 
@@ -3096,7 +3096,7 @@ default value is `true`, which will remove redis server during redis init or rem
 
 ### `redis_rmdata`
 
-name: `redis_rmdata`, type: `bool`, level: `A`
+name: `redis_rmdata`, type: `bool`, level: `G/C/A`
 
 remove redis data when purging redis server? 
 

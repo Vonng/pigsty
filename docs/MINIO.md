@@ -12,7 +12,6 @@ MinIO requires a trusted CA to work, so you have to install it in addition to [`
 
 
 
-
 ----------------
 
 ## Playbook
@@ -121,9 +120,9 @@ The `${minio_cluster}` and `${minio_seq}` will be replaced with the value of [`m
 ### Expose Service
 
 MinIO will serve on port `9000` by default. If a multi-node MinIO cluster is deployed, you can access its service via any node.
-It would be better to expose MinIO service via a load balancer, such as the default `haproxy` on [`NODE`](NODE).
+It would be better to expose MinIO service via a load balancer, such as the default [`haproxy`](PARAM#haproxy) on [`NODE`](NODE), or use the L2 [vip](PARAM#node_vip).
 
-To do so, you have to define an extra service with [`haproxy_services`](PARAM#haproxy_services):
+To expose MinIO service with haproxy, you have to define an extra service with [`haproxy_services`](PARAM#haproxy_services):
 
 ```yaml
 minio:

@@ -1,10 +1,8 @@
 # MongoDB (FerretDB)
 
-> MongoDB is good, but PostgreSQL is better. With [FerretDB](https://ferretdb.io), you can use PostgreSQL as a MongoDB-compatible database. 
+> Pigsty allow you to add MongoDB compatibility to PostgreSQL with [FerretDB](https://ferretdb.io) 
 
-Pigsty offer a fake "mongo" service based on [FerretDB](https://ferretdb.io) to provide MongoDB API for legacy applications. 
-
-
+ 
 ----------------
 
 ## Playbook
@@ -12,8 +10,10 @@ Pigsty offer a fake "mongo" service based on [FerretDB](https://ferretdb.io) to 
 There's a built-in playbook: [`mongo.yml`](https://github.com/Vonng/pigsty/blob/master/mongo.yml) for installing the FerretDB cluster. But you have to [define](#configuration) it first.
 
 ```bash
-./MONGO.yml -l MONGO   # install MONGO cluster on group 'MONGO'
+./mongo.yml -l ferret   # install ferretdb cluster on group 'ferret'
 ```
+
+This playbook is consist of following sub-tasks:
 
 - mongo_check     : check mongo identity
 - mongo_dbsu      : create os user mongod
@@ -22,11 +22,6 @@ There's a built-in playbook: [`mongo.yml`](https://github.com/Vonng/pigsty/blob/
   - mongo_cert    : issue mongo/ferretdb ssl certs
 - mongo_launch    : launch mongo/ferretdb service
 - mongo_register  : register mongo/ferretdb to prometheus
-
-Trusted ca file: `/etc/pki/ca.crt` should exist on all nodes already. which is generated in `role: ca` and loaded & trusted by default in `role: node`.
-
-You should install [`MONGO`](MONGO) module on Pigsty-managed nodes (i.e., Install [`NODE`](NODE) first)
-
 
 
 ----------------
@@ -46,14 +41,14 @@ ferret:
     mongo_pgurl: 'postgres://test:test@10.10.10.3:5436/test'
 ```
 
-The `${mongo_cluster}` and `${mongo_seq}` will be replaced with the value of [`mongo_cluster`](PARAM#mongo_cluster) and [`mongo_seq`](PARAM#mongo_seq) respectively and used as MONGO nodename.
+The `mongo_cluster` and `mongo_seq` are required identity parameters, you also need `mongo_pgurl` to specify the underlying PostgreSQL URL for FerretDB.
 
 
 
 
 ----------------
 
-## Client Tools
+## Administration
 
 **Install mongosh on bare metal**
 
@@ -72,6 +67,8 @@ yum install -y mongodb-mongosh
 # or just install via rpm & links
 rpm -ivh https://mirrors.tuna.tsinghua.edu.cn/mongodb/yum/el7/RPMS/mongodb-mongosh-1.9.1.x86_64.rpm
 ```
+
+Then you connect to FerretDB cluster and issue mongo command with `mongosh`
 
 ```bash
 $ mongosh mongodb://dbuser_meta:DBUser.Meta@127.0.0.1:27017
@@ -96,12 +93,14 @@ db.posts.find().limit(2).pretty()
 db.posts.createIndex({ title: 1 })
 ```
 
+The `mongosh` commands will be translated into `SQL` commands and run in underlying PostgreSQL:
+
 ```bash
 use test
 -- CREATE SCHEMA test;
 
 db.dropDatabase()
--- DROP DATABASE test;
+-- DROP SCHEMA test;
 
 db.createCollection('posts')
 -- CREATE TABLE posts(_data JSONB,...)
@@ -119,6 +118,8 @@ db.posts.createIndex({ title: 1 })
 -- CREATE INDEX ON posts(_data->>'title');
 ```
 
+You can also connect to ferretdb with a different user and password.
+
 ```bash
 mongosh 'mongodb://test:test@10.10.10.45:27017/test?authMechanism=PLAIN'
 ```
@@ -135,7 +136,7 @@ There is one dashboard for [`MONGO`](MONGO) module for now.
 
 <details><summary>Mongo Overview Dashboard</summary>
 
-![](/img/dashboards/mongo-overview.png)
+[![mongo-overview](https://github.com/Vonng/pigsty/assets/8587410/406fc2ad-3935-4da9-b77c-2485afb57af8)](https://demo.pigsty.cc/d/mongo-overview)
 
 </details><br>
 
