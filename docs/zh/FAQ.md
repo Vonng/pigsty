@@ -27,6 +27,8 @@ Pigsty 目前在 CentOS 7.9, Rocky 8.7 和 9.1 上进行开发和测试。RHEL�
 
 强烈建议您使用 EL 7.9, 8.6 和 9.1，以避免无谓的 RPM 兼容性问题，并且我们强烈建议您使用**全新的节点**，避免无谓的软件冲突问题。
 
+目前在[企业级服务协议](SUPPORT.md)中，我们也提供对信创国产操作系统的支持（EL系，如欧拉/UOS）。
+
 </details><br>
 
 
@@ -114,7 +116,7 @@ https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz    # el9 packages
 
 检测环境是否就绪、用各种手段确保后续安装所必需的工具 `ansible` 被正确安装。
 
-当你下载 Pigsty 源码后，可以进入目录并执行 `bootstrap` 脚本。它会检测你的节点环境，如果没有发现离线软件包，它会询问你要不要下载一个。
+当你下载 Pigsty 源码后，可以进入目录并执行 `bootstrap` 脚本。它会检测你的节点环境，如果没有发现离线软件包，它会询问你要不要从互联网下载。
 
 你可以选择是，直接使用离线软件包安装又快又稳定。你也可以跳过，选择后面在安装过程中直接从互联网上游下载，这样会下载最新的软件版本，而且几乎不会遇到 RPM 冲突问题。
 
@@ -126,8 +128,6 @@ https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz    # el9 packages
 
 <br>
 <details><summary>配置 / configure 过程是干什么的？</summary><br>
-
-检测环境、并生成样例配置文件。
 
 **configure** 过程会检测你的节点环境并为你生成一个 pigsty 配置文件：`pigsty.yml`，默认根据你的操作系统（EL 7/8/9）选用相应的单机安装模板。
 
@@ -205,15 +205,13 @@ Pigsty 提供了 280+ 配置参数，可以对整个环境与各个模块 infra/
 <br>
 <details><summary>在默认单机安装时，到底都安装了什么东西？</summary><br>
 
-When running `make install`, the ansible-playbook [`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.yml) will be invoked to install everything on all nodes
+当您执行 `make install` 时，实际上是调用 Ansible 剧本 [`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.yml)，根据配置文件中的参数，安装以下内容：
 
-Which will:
-
-- Install `INFRA` module on the current node.
-- Install `NODE` module on the current node.
-- Install `ETCD` module on the current node.
-- The `MinIO` module is optional, and will not be installed by default.
-- Install `PGSQL` module on the current node.
+- `INFRA` 模块：提供本地Yum源，Nginx Web接入点，DNS服务器，NTP服务器，Prometheus与Grafana可观测性技术栈。
+- `NODE` 模块，将当前节点纳入 Pigsty 管理，部署 HAProxy 与 监控。
+- `ETCD` 模块，部署一个单机 etcd 集群，作为 PG 高可用的 DCS
+- `MinIO` 模块是默认不安装的，它可以作为 PG 的备份仓库。
+- `PGSQL` 模块，一个单机 PostgreSQL 数据库实例。
 
 </details>
 
@@ -222,17 +220,15 @@ Which will:
 <br>
 <details><summary>安装遇到RPM冲突怎么办？</summary><br>
 
-There may have a slight chance that rpm conflict occurs during node/infra/pgsql packages installation.
+在安装 node/infra/pgsql 软件包期间，可能有微小的几率出现 rpm 冲突。特别是，如果您使用的 EL 7-9 小版本不同于 7.9, 8.6, 9.1 ，或者使用了一些冷门换皮魔改发行版的话，可能会出现这种情况。
 
-The simplest way to resolve this is to install without offline packages, which will download directly from the upstream repo.
-
-If there are only a few problematic RPMs, you can use a trick to fix the yum repo quickly:
+解决这个问题的最简单方法是：不使用离线包进行安装，这将直接从上游仓库中下载最合适您当前系统的软件包。如果只有少数几个 RPM 包有问题，你可以使用一个小技巧快速修复：
 
 ```bash
-rm -rf /www/pigsty/repo_complete    # delete the repo_complete flag file to mark this repo incomplete
-rm -rf SomeBrokenRPMPackages        # delete problematic RPMs
-./infra.yml -t repo_upstream        # write upstream repos. you can also use /etc/yum.repos.d/backup/*
-./infra.yml -t repo_pkg             # download rpms according to your current OS
+rm -rf /www/pigsty/repo_complete    # 删除 repo_complete 标记文件，以标记此仓库为不完整（这样会重新从上游下载软件）
+rm -rf SomeBrokenRPMPackages        # 删除有问题的 RPM 包
+./infra.yml -t repo_upstream        # 写入上游仓库。你也可以使用 /etc/yum.repos.d/backup/*
+./infra.yml -t repo_pkg             # 根据你当前的操作系统下载软件包
 ```
 
 </details>
@@ -242,12 +238,9 @@ rm -rf SomeBrokenRPMPackages        # delete problematic RPMs
 <br>
 <details><summary>如何使用 Vagrant 创建本地虚拟机？</summary><br>
 
-!> The first time you use Vagrant to pull up a particular OS repo, it will download the corresponding BOX.
+当你第一次使用 Vagrant 启动某个特定的操作系统仓库时，它会下载相应的 Box/Img 镜像文件，Pigsty 沙箱默认使用 `generic/rocky9` 镜像。
 
-Pigsty sandbox uses `generic/rocky9` image box by default, and Vagrant will download the `rocky/9` box for the first time the VM is started.
-
-Using a proxy may increase the download speed. Box only needs to be downloaded once, and will be reused when recreating the sandbox.
-
+使用代理可能会增加下载速度。Box/Img 只需下载一次，在重建沙箱时会被重复使用。
 
 </details>
 
@@ -289,16 +282,18 @@ repotrack annobin gcc-plugin-annobin libuser
 
 <br>
 
-<details><summary>Ansible command timeout (Timeout waiting for xxx）</summary><br>
+<details><summary>Ansible命令超时（Timeout waiting for xxx）</summary><br>
 
-The default ssh timeout for ansible command is 10 seconds, some commands may take longer than that due to network latency or other reasons.
+Ansible 命令的默认 ssh 超时时间是10秒。由于网络延迟或其他原因，某些命令可能需要超过这个时间。
 
-You can increase the timeout parameter in the ansible config file [`ansible.cfg`](https://github.com/Vonng/pigsty/blob/master/ansible.cfg):
+你可以在 ansible 配置文件 [`ansible.cfg`](https://github.com/Vonng/pigsty/blob/master/ansible.cfg) 中增加超时参数：
 
 ```ini
 [defaults]
-timeout = 10 # change to 60,120 or more
+timeout = 10 # 将其修改为 60，120 或更高。
 ```
+
+如果你的SSH连接非常慢，通常会是 DNS的问题，请检查sshd配置确保 `UseDNS no`。
 
 </details>
 
@@ -313,7 +308,11 @@ timeout = 10 # change to 60,120 or more
 <br>
 <details><summary>PostgreSQL 监控的性能损耗如何？</summary><br>
 
-并不是很大，一个常规的实例抓取耗时大约 200ms。抓取间隔默认为 10 秒。
+一个常规 PostgreSQL 实例抓取耗时大约 200ms。抓取间隔默认为 10 秒，对于一个生产多核数据库实例来说几乎微不足道。
+
+请注意，Pigsty 默认开启了库内对象监控，所以如果您的数据库内有数以十万计的表/索引对象，抓取可能耗时会增加到几秒。
+
+您可以修改 Prometheus 的抓取频率，请确保一点：抓取周期应当显著高于一次抓取的时长。
 
 </details>
 
@@ -322,7 +321,7 @@ timeout = 10 # change to 60,120 or more
 <br>
 <details><summary>如何监控一个现存的 PostgreSQL 实例？</summary><br>
 
-在 [PGSQL Monitor](pgsql/monitor) 提供了详细的监控配置说明。
+在 [PGSQL Monitor](pgsql-monitor) 中提供了详细的监控配置说明。
 
 </details>
 
@@ -353,18 +352,18 @@ bin/pgmon-rm <ins>     # 用于从 Prometheus 中移除单个实例 'ins' 的监
 <br>
 <details><summary>INFRA模块中包含了哪些组件？</summary><br>
 
-- Ansible for automation, deployment, and administration;
-- Nginx for exposing any WebUI service and serving the yum repo;
-- Self-Signed CA for SSL/TLS certificates;
-- Prometheus for monitoring metrics
-- Grafana for monitoring/visualization
-- Loki for logging collection
-- AlertManager for alerts aggregation
-- Chronyd for NTP time sync on the admin node.
-- DNSMasq for DNS registration and resolution.
-- ETCD as DCS for PGSQL HA; (dedicated module)
-- PostgreSQL on meta nodes as CMDB; (optional)
-- Docker for stateless applications & tools (optional)
+- Ansible 用于自动化、部署和管理；
+- Nginx 用于公开对外暴露各种 WebUI 服务，并为提供一个本地 yum 软件源
+- 自签名 CA 用于 SSL/TLS 证书；
+- Prometheus 用于收集存储监控指标；
+- Grafana 用于监控/可视化；
+- Loki 用于收集存储查询日志；
+- AlertManager 用于告警聚合；
+- Chronyd 用于 NTP 时间同步；
+- DNSMasq 用于 DNS 注册和解析；
+- ETCD 作为 PGSQL HA 的 DCS；（可以部署到别的专用节点集群上）
+- 在 meta 节点上的 PostgreSQL 作为 CMDB；（可选）
+- Docker 用于无状态的应用程序和工具（可选）。
 
 </details>
 
@@ -372,14 +371,14 @@ bin/pgmon-rm <ins>     # 用于从 Prometheus 中移除单个实例 'ins' 的监
 <br>
 <details><summary>如何重新向 Prometheus 注册监控目标？</summary><br>
 
-If you accidentally deleted the Prometheus targets dir, you can register monitoring targets to Prometheus again with the:
+如果你不小心删除了基础设施节点上 Prometheus 的目标目录（`/etc/prometheus/target`），你可以使用以下命令再次向 Prometheus 注册监控目标：
 
 ```bash
-./infra.yml -t register_prometheus  # register all infra targets to prometheus on infra nodes
-./node.yml  -t register_prometheus  # register all node  targets to prometheus on infra nodes
-./etcd.yml  -t register_prometheus  # register all etcd targets to prometheus on infra nodes
-./minio.yml -t register_prometheus  # register all minio targets to prometheus on infra nodes
-./pgsql.yml -t register_prometheus  # register all pgsql targets to prometheus on infra nodes
+./infra.yml -t register_prometheus  # 在 infra 节点上向 prometheus 注册所有 infra 目标
+./node.yml  -t register_prometheus  # 在 infra 节点上向 prometheus 注册所有 node  目标
+./etcd.yml  -t register_prometheus  # 在 infra 节点上向 prometheus 注册所有 etcd  目标
+./minio.yml -t register_prometheus  # 在 infra 节点上向 prometheus 注册所有 minio 目标
+./pgsql.yml -t register_prometheus  # 在 infra 节点上向 prometheus 注册所有 pgsql 目标
 ```
 
 </details>
@@ -389,12 +388,14 @@ If you accidentally deleted the Prometheus targets dir, you can register monitor
 <br>
 <details><summary>如何重新向 Grafana 注册 PostgreSQL 数据源？</summary><br>
 
-PGSQL Databases in [`pg_databases`](param#pg_databases) are registered as Grafana datasource by default.
+在 [`pg_databases`](param#pg_databases) 中定义的 PGSQL 数据库默认会被注册为 Grafana 数据源（以供 PGCAT 应用使用）。
 
-If you accidentally deleted the registered postgres datasource in Grafana, you can register them again with
+如果你不小心删除了在 Grafana 中注册的 postgres 数据源，你可以使用以下命令再次注册它们：
+
 
 ```bash
-./pgsql.yml -t register_grafana  # register all pgsql database (in pg_databases) as grafana datasource
+# 将所有（在 pg_databases 中定义的） pgsql 数据库注册为 grafana 数据源
+./pgsql.yml -t register_grafana
 ```
 
 </details>
@@ -404,12 +405,10 @@ If you accidentally deleted the registered postgres datasource in Grafana, you c
 <br>
 <details><summary>如何重新向 Nginx 注册节点的 Haproxy 管控界面？</summary><br>
 
-The haproxy admin page is proxied by Nginx under the default server.
-
-If you accidentally deleted the registered haproxy proxy settings in `/etc/nginx/conf.d/haproxy`, you can restore them again with
+如果你不小心删除了 `/etc/nginx/conf.d/haproxy` 中的已注册 haproxy 代理设置，你可以使用以下命令再次恢复它们：
 
 ```bash
-./node.yml -t register_nginx     # register all haproxy admin page proxy settings to nginx on infra nodes
+./node.yml -t register_nginx     # 在 infra 节点上向 nginx 注册所有 haproxy 管理页面的代理设置
 ```
 
 </details>
@@ -419,12 +418,12 @@ If you accidentally deleted the registered haproxy proxy settings in `/etc/nginx
 <br>
 <details><summary>如何恢复 DNSMASQ 中的域名注册记录？</summary><br>
 
-PGSQL cluster/instance domain names are registered to `/etc/hosts.d/<name>` on infra nodes by default.
+PGSQL 集群/实例域名默认注册到 infra 节点的 `/etc/hosts.d/<name>`。
 
-You can restore them again with the following:
+你可以使用以下命令再次恢复它们：
 
 ```bash
-./pgsql.yml -t pg_dns   # register pg DNS names to dnsmasq on infra nodes
+./pgsql.yml -t pg_dns    # 在 infra 节点上向 dnsmasq 注册 pg 的 DNS 名称
 ```
 
 </details>
@@ -435,11 +434,13 @@ You can restore them again with the following:
 <br>
 <details><summary>如何使用Nginx对外暴露新的上游服务？</summary><br>
 
-If you wish to expose a new WebUI service via the Nginx portal, you can add the service definition to the [`infra_portal`](param#infra_portal) parameter.
+如果你希望通过 Nginx 门户公开新的 WebUI 服务，你可以将服务定义添加到 [`infra_portal`](param#infra_portal) 参数中。
 
-And re-run `./infra.yml -t nginx_config,nginx_launch` to update & apply the Nginx configuration.
+然后重新运行 `./infra.yml -t nginx_config,nginx_launch` 来更新并应用 Nginx 配置。
 
-If you wish to access with HTTPS, you must remove `files/pki/csr/pigsty.csr`, `files/pki/nginx/pigsty.{key,crt}` to force re-generating the Nginx SSL/TLS certificate to include the new upstream's domain name.
+如果你希望通过 HTTPS 访问，你必须删除 `files/pki/csr/pigsty.csr` 和 `files/pki/nginx/pigsty.{key,crt}` 以强制重新生成 Nginx SSL/TLS 证书以包括新上游的域名。
+
+如果您希望使用权威机构签发的 SSL 证书，而不是 Pigsty 自签名 CA 颁发的证书，可以将其放置于 `/etc/nginx/conf.d/cert/` 目录中并修改相应配置：`/etc/nginx/conf.d/<name>.conf`。
 
 </details>
 
@@ -448,14 +449,14 @@ If you wish to access with HTTPS, you must remove `files/pki/csr/pigsty.csr`, `f
 <br>
 <details><summary>如何手动向节点添加上游仓库的Repo文件？</summary><br>
 
-Pigsty has a built-in wrap script `bin/repo-add`, which will invoke ansible playbook `node.yml` to adding repo files to corresponding nodes.
+Pigsty 有一个内置的包装脚本 `bin/repo-add`，它将调用 ansible 剧本 `node.yml` 来将 repo 文件添加到相应的节点。
 
 ```bash
 bin/repo-add <selector> [modules]
-bin/repo-add 10.10.10.10           # add node repos for node 10.10.10.10
-bin/repo-add infra   node,infra    # add node and infra repos for group infra
-bin/repo-add infra   node,local    # add node repos and local pigsty repo
-bin/repo-add pg-test node,pgsql    # add node & pgsql repos for group pg-test
+bin/repo-add 10.10.10.10           # 为节点 10.10.10.10 添加 node 源
+bin/repo-add infra   node,infra    # 为 infra 分组添加 node 和 infra 源
+bin/repo-add infra   node,local    # 为 infra 分组添加节点仓库和本地pigsty源
+bin/repo-add pg-test node,pgsql    # 为 pg-test 分组添加 node 和 pgsql 源
 ```
 
 </details>
@@ -471,18 +472,18 @@ bin/repo-add pg-test node,pgsql    # add node & pgsql repos for group pg-test
 <br>
 <details><summary>如何配置主机节点上的NTP服务？</summary><br>
 
-!> If NTP is not configured, use a public NTP service or sync time with the admin node.
+> NTP对于生产环境各项服务非常重要，如果没有配置 NTP，您可以使用公共 NTP 服务，或管理节点上的 Chronyd 作为标准时间。
 
-If your nodes already have NTP configured, you can leave it there by setting `node_ntp_enabled` to `false`.
+如果您的节点已经配置了 NTP，可以通过设置 `node_ntp_enabled` 为 `false` 来保留现有配置，不进行任何变更。
 
-Otherwise, if you have Internet access, you can use public NTP services such as `pool.ntp.org`.
+否则，如果您有互联网访问权限，可以使用公共 NTP 服务，例如 `pool.ntp.org`。
 
-If you don't have Internet access, at least you can sync time with the admin node with the following:
+如果您没有互联网访问权限，可以使用以下方式，确保所有环境内的节点与管理节点时间是同步的，或者使用其他内网环境的 NTP 授时服务。
 
 ```bash
-node_ntp_servers:                 # NTP servers in /etc/chrony.conf
+node_ntp_servers:                 # /etc/chrony.conf 中的 ntp 服务器列表
   - pool cn.pool.ntp.org iburst
-  - pool ${admin_ip} iburst       # assume non-admin nodes do not have internet access
+  - pool ${admin_ip} iburst       # 假设其他节点都没有互联网访问，那么至少与 Admin 节点保持时间同步。
 ```
 
 </details>
@@ -493,26 +494,24 @@ node_ntp_servers:                 # NTP servers in /etc/chrony.conf
 <br>
 <details><summary>如何在节点上强制同步时间？</summary><br>
 
-!> Use `chronyc` to sync time. You have to configure the NTP service first.
+> 为了使用 `chronyc` 来同步时间。您首先需要配置 NTP 服务。
 
 ```bash
-ansible all -b -a 'chronyc -a makestep'     # sync time
+ansible all -b -a 'chronyc -a makestep'     # 同步时间
 ```
 
-You can replace `all` with any group or host IP address to limit execution scope.
+您可以用任何组或主机 IP 地址替换 `all`，以限制执行范围。
 
 </details>
+
 
 
 
 <br>
 <details><summary>远程节点无法通过SSH访问怎么办？</summary><br>
 
-!> Specify a different port via the host instance-level [`ansible connection parameters`](param#ansible_host).
-
-Consider using **Ansible connection parameters** if the target machine is hidden behind an SSH springboard machine,
-or if some customizations have been made that cannot be accessed directly using `ssh ip`.
-Additional SSH ports can be specified with `ansible_port` or `ansible_host` for SSH Alias.
+如果目标机器隐藏在SSH跳板机后面， 或者进行了一些无法直接使用`ssh ip`访问的自定义操作， 可以使用诸如 `ansible_port`或`ansible_host` 这一类
+[Ansible连接参数](https://docs.ansible.com/ansible/latest/inventory_guide/connection_details.html)来指定各种 SSH 连接信息，如下所示：
 
 ```bash
 pg-test:
@@ -530,11 +529,11 @@ pg-test:
 <br>
 <details><summary>远程节点SSH与SUDO需要密码怎么办？</summary><br>
 
-!> Use the `-k` and `-K` parameters, enter the password at the prompt, and refer to admin provisioning.
+**执行部署和更改时**，使用的管理员用户**必须**对所有节点拥有`ssh`和`sudo`权限。无需密码免密登录。
 
-**When performing deployments and changes**, the admin user used **must** have `ssh` and `sudo` privileges for all nodes. Password-free is not required.
-You can pass in ssh and sudo passwords via the `-k|-K` parameter when executing the playbook or even use another user to run the playbook via `-e`[`ansible_host`](param#connect)`=<another_user>`.
-However, Pigsty strongly recommends configuring SSH **passwordless login** with passwordless `sudo` for the admin user.
+您可以在执行剧本时通过`-k|-K`参数传入ssh和sudo密码，甚至可以通过`-e`[`ansible_host`](param#connect)`=<another_user>`使用另一个用户来运行剧本。
+
+但是，Pigsty强烈建议为管理员用户配置SSH**无密码登录**以及无密码的`sudo`。
 
 </details>
 
@@ -543,9 +542,11 @@ However, Pigsty strongly recommends configuring SSH **passwordless login** with 
 <br>
 <details><summary>如何使用已有的管理员用户创建专用管理员用户？</summary><br>
 
-!> `./node.yml -k -K -e ansible_user=<another_admin> -t node_admin`
+使用以下命令，使用该节点上现有的管理员用户，创建由[`node_admin_username`](param#node_admin_username)定义的新的标准的管理员用户。
 
-This will create an admin user specified by [`node_admin_username`](param#node_admin_username) with the existing one on that node.
+```bash
+./node.yml -k -K -e ansible_user=<another_admin> -t node_admin
+```
 
 </details>
 
@@ -554,9 +555,9 @@ This will create an admin user specified by [`node_admin_username`](param#node_a
 <br>
 <details><summary>如何使用节点上的HAProxy对外暴露服务？</summary><br>
 
-!> You can expose service with [`haproxy_services`](param#haproxy_services) in `node.yml`.
+> 您可以在配置中中使用[`haproxy_services`](param#haproxy_services)来暴露服务，并使用 `node.yml -t haproxy_config,haproxy_reload` 来更新配置。
 
-And here's an example of exposing MinIO service with it: [Expose MinIO Service](minio#expose-service)
+以下是使用它暴露MinIO服务的示例：[暴露MinIO服务](minio#暴露服务)
 
 </details>
 
@@ -565,15 +566,26 @@ And here's an example of exposing MinIO service with it: [Expose MinIO Service](
 <br>
 <details><summary>为什么我的 /etc/yum.repos.d/* 全没了？</summary><br>
 
-Pigsty will try to include all dependencies in the local yum repo on infra nodes. This repo file will be added according to [`node_repo_local_urls`](param#node_repo_local_urls).
-And existing repo files will be removed by default according to the default value of [`node_repo_remove`](param#node_repo_remove). This will prevent the node from using the Internet repo or some stupid issues.
+Pigsty会在infra节点上构建的本地yum仓库源中包含所有依赖项。而所有普通节点会根据[`node_repo_local_urls`](param#node_repo_local_urls)的默认配置来使用这个 Infra 节点上的本地软件源。
 
-If you want to keep existing repo files, just set [`node_repo_remove`](param#node_repo_remove) to `false`.
+这一设计从而避免了互联网访问，增强了安装过程的稳定性与可靠性。所有原有的源定义文件会被移动到 `/etc/yum.repos.d/backup` 目录中，您只要按需复制回来即可。
+
+如果您想在普通节点安装过程中保留原有的源定义文件，将 [`node_repo_remove`](param#node_repo_remove)设置为`false`即可。
+
+如果您想在 Infra 节点构建本地源的过程中保留原有的源定义文件，将 [`repo_remove`](param#repo_remove)设置为`false`即可。
 
 </details>
 
 
 
+<br>
+<details><summary>为什么我的命令行提示符变样了？怎么恢复？</summary><br>
+
+Pigsty 使用的 Shell 命令行提示符是由环境变量 `PS1` 指定，定义在 `/etc/profile.d/node.sh` 文件中。
+
+如果您不喜欢，想要修改或恢复原样，可以将这个文件移除，重新登陆即可。
+
+</details>
 
 
 
@@ -586,14 +598,14 @@ If you want to keep existing repo files, just set [`node_repo_remove`](param#nod
 <br>
 <details><summary>ETCD集群如果不可用了会有什么影响？</summary><br>
 
-[ETCD](etcd) availability is critical for the PGSQL cluster's HA, which is guaranteed by using multiple nodes.
-With a 3-node ETCD cluster, if one node is down, the other two nodes can still function normally; and with a 5-node ETCD cluster, two-node failure can still be tolerated.
-If more than half of the ETCD nodes are down, the ETCD cluster and its service will be unavailable.
-Before Patroni 3.0, this could lead to a global [PGSQL](pgsql) outage; all primary will be demoted and reject write requests.
+[ETCD](etcd) 对于 PGSQL 集群的高可用至关重要，而 etcd 本身的可用性是通过使用多个节点来保证的。使用3节点的 etcd 集群允许最多一个节点宕机，而其他两个节点仍然可以正常工作；
+使用5节点的 ETCD 集群则可以容忍两个节点失效。如果超过一半的 ETCD 节点宕机，ETCD 集群及其服务将不可用。
+在 Patroni 3.0 之前，这可能导致 [PGSQL](pgsql) 全局故障；所有的主节点将被降级并拒绝写请求。
 
-Since pigsty 2.0, the patroni 3.0 [DCS failsafe mode](https://patroni.readthedocs.io/en/master/dcs_failsafe_mode.html) is enabled by default, which will **LOCK** the PGSQL cluster status if the ETCD cluster is unavailable and all PGSQL members are still known to the primary.
+自 pigsty 2.0 起，默认启用了 patroni 3.0 的 [DCS 容错模式](https://patroni.readthedocs.io/en/master/dcs_failsafe_mode.html)，
+当 etcd 集群不可用时，如果 PostgreSQL 集群主库可以感知到所有成员，就会 **锁定** PGSQL 集群状态。
 
-The PGSQL cluster can still function normally, but you must recover the ETCD cluster ASAP. (you can't configure the PGSQL cluster through patroni if etcd is down)
+在这种情况下，PGSQL 集群仍然可以正常工作，但您必须尽快恢复 ETCD 集群。（如果 etcd 宕机，您不能通过 patroni 配置 PGSQL 集群）
 
 </details>
 
@@ -602,9 +614,11 @@ The PGSQL cluster can still function normally, but you must recover the ETCD clu
 <br>
 <details><summary>如何使用一个外部的已经存在的 ETCD 集群？</summary><br>
 
-The hard-coded group, `etcd`, will be used as DCS servers for PGSQL. You can initialize them with `etcd.yml` or assume it is an existing external etcd cluster.
+配置清单中硬编码的分组名 `etcd` 将被用作 PGSQL 的 DCS 服务器。您可以使用 `etcd.yml` 对它们进行初始化，或直接假设它是一个已存在的外部 etcd 集群。
 
-To use an existing external etcd cluster, define them as usual and make sure your current etcd cluster certificate is signed by the same CA as your self-signed CA for PGSQL.
+要使用现有的外部 etcd 集群，只要像往常一样定义它们即可，您可以跳过 `etcd.yml` 剧本的执行，因为集群已经存在，不需要部署。
+
+但您必须确保一点：**现有 etcd 集群证书是由同一 CA 签名颁发的**。否则客户端是无法使用 Pigsty 自签名的 CA 颁发的证书来访问这套 ETCD 的。
 
 </details>
 
@@ -613,14 +627,13 @@ To use an existing external etcd cluster, define them as usual and make sure you
 <br>
 <details><summary>如何向现有ETCD集群添加新的成员？</summary><br>
 
-!> Check [Add a member to etcd cluster](etcd-admin#add-member)
+> 详细过程，请参考[向 etcd 集群添加成员](etcd-admin#add-member)
 
 ```bash
-etcdctl member add <etcd-?> --learner=true --peer-urls=https://<new_ins_ip>:2380 # on admin node
-./etcd.yml -l <new_ins_ip> -e etcd_init=existing                                 # init new etcd member
-etcdctl member promote <new_ins_server_id>                                       # on admin node
+etcdctl member add <etcd-?> --learner=true --peer-urls=https://<new_ins_ip>:2380 # 在管理节点上宣告新成员加入
+./etcd.yml -l <new_ins_ip> -e etcd_init=existing                                 # 真正初始化新 etcd 成员
+etcdctl member promote <new_ins_server_id>                                       # 在管理节点上提升新成员为正式成员
 ```
-
 </details>
 
 
@@ -628,11 +641,11 @@ etcdctl member promote <new_ins_server_id>                                      
 <br>
 <details><summary>如何从现有ETCD集群中移除成员？</summary><br>
 
-!> Check [Remove member from etcd cluster](etcd-admin#remove-member)
+> 详细过程，请参考[从 etcd 集群中移除成员](etcd-admin#remove-member)
 
 ```bash
-etcdctl member remove <etcd_server_id>   # kick member out of the cluster (on admin node)
-./etcd.yml -l <ins_ip> -t etcd_purge     # purge etcd instance
+etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出成员
+./etcd.yml -l <ins_ip> -t etcd_purge     # 真正清除下线 etcd 实例
 ```
 
 </details>
@@ -650,9 +663,9 @@ etcdctl member remove <etcd_server_id>   # kick member out of the cluster (on ad
 <br>
 <details><summary>启动多节点/多盘MinIO集群失败怎么办？</summary><br>
 
-In [Multi-Driver](MINIO#single-node-multi-drive) or [Multi-Node](minio#multi-node-multi-drive) mode, MinIO will refuse to start if the data dir is not a valid mount point.
+在[多盘](MINIO#single-node-multi-drive)或[多节点](minio#multi-node-multi-drive)模式下，如果数据目录不是有效的磁盘挂载点，MinIO会拒绝启动。
 
-Use mounted disks for MinIO data dir rather than some regular directory. You can use the regular directory only in the [single node, single drive](minio#single-node-single-drive) mode.
+请使用已挂载的磁盘作为MinIO的数据目录，而不是普通目录。您只能在[单节点单盘](minio#single-node-single-drive)模式下使用普通目录作为 MinIO 的数据目录，作为开发测试之用。
 
 </details>
 
@@ -662,7 +675,7 @@ Use mounted disks for MinIO data dir rather than some regular directory. You can
 <br>
 <details><summary>如何部署一个多节点/多盘MinIO集群？</summary><br>
 
-!> Check [Create Multi-Node Multi-Driver MinIO Cluster](minio#multi-node-multi-drive)
+> 请参阅[创建多节点多盘的MinIO集群](minio#multi-node-multi-drive)
 
 </details>
 
@@ -671,9 +684,9 @@ Use mounted disks for MinIO data dir rather than some regular directory. You can
 <br>
 <details><summary>如何向已有的MinIO集群中添加新的成员？</summary><br>
 
-!> You'd better plan the MinIO cluster before deployment... Since this requires a global restart
+> 在部署之前，您最好规划MinIO集群容量，因为新增成员需要全局重启。
 
-Check this: [Expand MinIO Deployment](https://min.io/docs/minio/linux/operations/install-deploy-manage/expand-minio-deployment.html)
+请参考这里：[扩展MinIO部署](https://min.io/docs/minio/linux/operations/install-deploy-manage/expand-minio-deployment.html)
 
 </details>
 
@@ -682,9 +695,9 @@ Check this: [Expand MinIO Deployment](https://min.io/docs/minio/linux/operations
 <br>
 <details><summary>如何让PGSQL模块使用高可用MinIO作为备份目的地？</summary><br>
 
-!> Access the HA MinIO cluster with an optional load balancer and different ports.
+> 使用可选的负载均衡器和不同的端口访问HA MinIO集群。
 
-Here is an example: [Access MinIO Service](minio#access-service)
+这里有一个示例：[访问MinIO服务](minio#access-service)
 
 </details>
 
@@ -700,11 +713,11 @@ Here is an example: [Access MinIO Service](minio#access-service)
 <br>
 <details><summary>Redis初始化失败：ABORT due to existing redis instance</summary><br>
 
-!> use `redis_clean = true` and `redis_safeguard = false` to force clean redis data
+> 使用 `redis_clean = true` 和 `redis_safeguard = false` 来强制清除redis数据
 
-This happens when you run `redis.yml` to init a redis instance that is already running, and [`redis_clean`](param#redis_clean) is set to `false`.
+当您运行`redis.yml`来初始化一个已经在运行的redis实例，并且[`redis_clean`](param#redis_clean)设置为`false`时，就会出现这种情况。
 
-If `redis_clean` is set to `true` (and the `redis_safeguard` is set to `false`, too), the `redis.yml` playbook will remove the existing redis instance and re-init it as a new one, which makes the `redis.yml` playbook fully idempotent.
+如果`redis_clean`设置为`true`（并且 [`redis_safeguard`](param#redis_safeguard) 也设置为`false`），`redis.yml`剧本将删除现有的redis实例并将其重新初始化为一个新的实例，这使得`redis.yml`剧本完全具有幂等性。
 
 </details>
 
@@ -714,9 +727,9 @@ If `redis_clean` is set to `true` (and the `redis_safeguard` is set to `false`, 
 
 <details><summary>Redis初始化失败：ABORT due to redis_safeguard enabled</summary><br>
 
-!> This happens when removing a redis instance with [`redis_safeguard`](param#redis_safeguard) set to `true`.
+> 当 [`redis_safeguard`](param#redis_safeguard) 设置为 `true` 时，尝试移除一个redis实例时就会出现这种情况。
 
-You can disable [`redis_safeguard`](param#redis_safeguard) to remove the Redis instance. This is redis_safeguard is what it is for.
+您可以关闭 [`redis_safeguard`](param#redis_safeguard) 来移除Redis实例。这就是 redis_safeguard 的作用。
 
 </details>
 
@@ -725,7 +738,7 @@ You can disable [`redis_safeguard`](param#redis_safeguard) to remove the Redis i
 <br>
 <details><summary>如何在某个节点上添加一个新的Redis实例？</summary><br>
 
-Use `bin/redis-add <ip> <port>` to deploy a new redis instance on node.
+使用 `bin/redis-add <ip> <port>` 在节点上部署一个新的redis实例。
 
 </details>
 
@@ -734,7 +747,7 @@ Use `bin/redis-add <ip> <port>` to deploy a new redis instance on node.
 <br>
 <details><summary>如何从节点上移除一个特定实例？</summary><br>
 
-`bin/redis-rm <ip> <port>` to remove a single redis instance from node
+使用 `bin/redis-rm <ip> <port>` 从节点上移除一个单独的redis实例。
 
 </details>
 
@@ -746,20 +759,21 @@ Use `bin/redis-add <ip> <port>` to deploy a new redis instance on node.
 
 ## PGSQL
 
+
 <br>
 <details><summary>PGSQL初始化失败：ABORT due to postgres exists</summary><br>
 
-!> Set `pg_clean` = `true` and `pg_safeguard` = `false` to force clean postgres data during `pgsql.yml`
+> 将 `pg_clean` 设置为 `true`，并将 `pg_safeguard` 设置为 `false`，就可以在执行 `pgsql.yml` 期间强制清理现存实例。
 
-This happens when you run `pgsql.yml` on a node with postgres running, and [`pg_clean`](param#pg_clean) is set to `false`.
+当你在一个有着活跃PG实例的节点上运行 `pgsql.yml` 时，且[`pg_clean`](param#pg_clean)被设置为 `false` 时，就会发生这种情况。
 
-If `pg_clean` is true (and the `pg_safeguard` is `false`, too), the `pgsql.yml` playbook will remove the existing pgsql data and re-init it as a new one, which makes this playbook fully idempotent.
+如果 `pg_clean` 为 `true` (并且 `pg_safeguard` 也为 `false`)，`pgsql.yml` 剧本将会移除现有的 pgsql 数据并重新初始化为新的，这使得这个剧本真正幂等。
 
-You can still purge the existing PostgreSQL data by using a special task tag `pg_purge`
+你仍然可以通过使用一个特殊的任务标签 `pg_purge` 来清除现有的 PostgreSQL 数据，这个标签任务会忽略 `pg_clean` 和 `pg_safeguard` 的设置，所以非常危险。
 
 ```bash
-./pgsql.yml -t pg_clean      # honor pg_clean and pg_safeguard
-./pgsql.yml -t pg_purge      # ignore pg_clean and pg_safeguard
+./pgsql.yml -t pg_clean      # 优先考虑 pg_clean 和 pg_safeguard
+./pgsql.yml -t pg_purge      # 忽略 pg_clean 和 pg_safeguard
 ```
 
 </details>
@@ -769,14 +783,14 @@ You can still purge the existing PostgreSQL data by using a special task tag `pg
 <br>
 <details><summary>PGSQL初始化失败：ABORT due to pg_safeguard enabled</summary><br>
 
-!> Disable `pg_safeguard` to remove the Postgres instance.
+> 禁用 `pg_safeguard` 以移除 Postgres 实例。
 
-If [`pg_safeguard`](param#pg_safeguard) is enabled, you can not remove the running pgsql instance with `bin/pgsql-rm` and `pgsql-rm.yml` playbook.
+如果防误删保险 [`pg_safeguard`](param#pg_safeguard) 打开，那么你就不能使用 `bin/pgsql-rm` 和 `pgsql-rm.yml` 剧本移除正在运行的 PGSQL 实例了。
 
-To disable `pg_safeguard`, you can set `pg_safeguard` to `false` in the inventory or pass `-e pg_safeguard=false` as cli arg to the playbook:
+要禁用 `pg_safeguard`，你可以在配置清单中将 `pg_safeguard` 设置为 `false`，或者在执行剧本时使用命令参数 `-e pg_safeguard=false`。
 
 ```bash
-./pgsql-rm.yml -e pg_safeguard=false -l <cls_to_remove>    # force override pg_safeguard
+./pgsql-rm.yml -e pg_safeguard=false -l <cls_to_remove>    # 强制覆盖 pg_safeguard
 ```
 
 </details>
@@ -786,9 +800,9 @@ To disable `pg_safeguard`, you can set `pg_safeguard` to `false` in the inventor
 <br>
 <details><summary>PGSQL初始化失败：Fail to wait for postgres/patroni primary</summary><br>
 
-This usually happens when the cluster is misconfigured, or the previous primary is improperly removed. (e.g., trash metadata in DCS with the same cluster name).
+这通常是因为集群配置错误，或者之前的主节点被不正确地移除了，你必须检查 `/pg/log/*` 来找到具体原因。
 
-You must check `/pg/log/*` to find the reason.
+一种典型原因是，在DCS中有同名集群残留的垃圾元数据：没有正确完成下线，你可以使用 `etcdctl del --prefix /pg/<cls>` 来手工删除残留数据（请小心）
 
 </details>
 
@@ -798,16 +812,18 @@ You must check `/pg/log/*` to find the reason.
 <br>
 <details><summary>PGSQL初始化失败：Fail to wait for postgres/patroni replica</summary><br>
 
-There are several possible reasons:
+存在几种可能的原因：
 
-**Failed Immediately**: Usually, this happens because of misconfiguration, network issues, broken DCS metadata, etc..., you have to inspect `/pg/log` to find out the actual reason.
+**立即失败**：通常是由于配置错误、网络问题、损坏的DCS元数据等原因。你必须检查 `/pg/log` 找出实际原因。
 
-**Failed After a While**: This may be due to source instance data corruption. Check PGSQL FAQ: How to create replicas when data is corrupted?
+**过了一会儿失败**：这可能是由于源实例数据损坏。查看 PGSQL FAQ：如何在数据损坏时创建副本？
 
-**Timeout**: If the `wait for postgres replica` task takes 30min or more and fails due to timeout, This is common for a huge cluster (e.g., 1TB+, which may take hours to create a replica). In this case, the underlying creating replica procedure is still proceeding. You can check cluster status with `pg list <cls>` and wait until the replica catches up with the primary. Then continue the following tasks:
+**超时**：如果 `wait for postgres replica` 任务耗时 30 分钟或更长时间并由于超时而失败，这对于大型集群（例如，1TB+，可能需要几小时创建一个副本）是很常见的。
+
+在这种情况下，底层创建副本的过程仍在进行。你可以使用 `pg list <cls>` 检查集群状态并等待副本赶上主节点。然后使用以下命令继续以下任务，完成完整的从库初始化：
 
 ```bash
-./pgsql.yml -t pg_hba,pg_backup,pgbouncer,pg_vip,pg_dns,pg_service,pg_exporter,pg_register
+./pgsql.yml -t pg_hba,pg_backup,pgbouncer,pg_vip,pg_dns,pg_service,pg_exporter,pg_register -l <problematic_replica>
 ```
 
 </details>
@@ -818,15 +834,17 @@ There are several possible reasons:
 <br>
 <details><summary>如何安装其他的PostgreSQL大版本：12 - 14，以及 16beta</summary><br>
 
-To install PostgreSQL 12 - 15, you have to set `pg_version` to `12`, `13`, `14`, or `15` in the inventory. (usually at cluster level)
+要安装 PostgreSQL 12 - 15，你必须在配置清单中设置 `pg_version` 为 `12`、`13`、`14` 或 `15`，通常在集群级别配置这个参数。
 
-To install PostgreSQL 16 beta, you have to change `pg_libs` and `pg_extensions` too, since most extensions are not available for pg16 yet.
+请注意，如果您想要安装 PostgreSQL 12, 13, 16beta，你还需要更改 `pg_libs` 和 `pg_extensions`，这些版本并没有提供完整的核心扩展插件：即只有数据库内核可用。
 
 ```yaml
-pg_version: 16                    # install pg 16 in this template
-pg_libs: 'pg_stat_statements, auto_explain' # remove timescaledb from pg 16 beta
-pg_extensions: []                 # missing pg16 extensions for now
+pg_version: 16                    # 在此模板中安装 pg 16
+pg_libs: 'pg_stat_statements, auto_explain' # 从 pg 16 beta 中移除 timescaledb，因为它不可用
+pg_extensions: []                 # 目前缺少 pg16 扩展
 ```
+
+在 [prod.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/prod.yml#L110) 42节点生产环境仿真模板中提供了安装 12 - 16 大版本集群的示例。 
 
 </details>
 
@@ -836,18 +854,20 @@ pg_extensions: []                 # missing pg16 extensions for now
 <br>
 <details><summary>如何为 PostgreSQL 启用大页/HugePage？</summary><br>
 
-!> use `node_hugepage_count` and `node_hugepage_ratio` or `/pg/bin/pg-tune-hugepage`
+> 使用 `node_hugepage_count` 和 `node_hugepage_ratio` 或 `/pg/bin/pg-tune-hugepage`
 
-If you plan to enable hugepage, consider using `node_hugepage_count` and `node_hugepage_ratio` and apply with `./node.yml -t node_tune` .
+如果你计划启用大页（HugePage），请考虑使用 `node_hugepage_count` 和 `node_hugepage_ratio`，并配合 `./node.yml -t node_tune` 进行应用。
 
-It's good to allocate **enough** hugepage before postgres start, and use `pg_tune_hugepage` to shrink them later.
+大页对于数据库来说有利有弊，利是内存是专门管理的，不用担心被挪用，降低数据库 OOM 风险。缺点是某些场景下可能对性能由负面影响。 
 
-If your postgres is already running, you can use `/pg/bin/pg-tune-hugepage` to enable hugepage on the fly.
+在 PostgreSQL 启动前，您需要分配 **足够多的** 大页，浪费的部分可以使用 `pg_tune_hugepage` 对其进行缩减。
+
+如果你的 postgres 已经在运行，你可以使用 `/pg/bin/pg-tune-hugepage` 在线启用 hugepage。（仅 PG15+ 可用）
 
 ```bash
-sync; echo 3 > /proc/sys/vm/drop_caches   # drop system cache (ready for performance impact)
-sudo /pg/bin/pg-tune-hugepage             # write nr_hugepages to /etc/sysctl.d/hugepage.conf
-pg restart <cls>                          # restart postgres to use hugepage
+sync; echo 3 > /proc/sys/vm/drop_caches   # 刷盘，释放系统缓存（请做好数据库性能受到冲击的准备）
+sudo /pg/bin/pg-tune-hugepage             # 将 nr_hugepages 写入 /etc/sysctl.d/hugepage.conf
+pg restart <cls>                          # 重启 postgres 以使用 hugepage
 ```
 
 </details>
@@ -858,9 +878,11 @@ pg restart <cls>                          # restart postgres to use hugepage
 <br>
 <details><summary>如何确保故障转移中数据不丢失？</summary><br>
 
-!> Use `crit.yml` template, or setting `pg_rpo` to `0`, or [Config Cluster](pgsql/admin#config-cluster) with synchronous mode.
+> 使用 `crit.yml` 参数模板，设置 `pg_rpo` 为 `0`，或[配置集群](pgsql-admin#配置集群)为同步提交模式。
 
-Consider using [Sync Standby](PGSQL-CONF#sync-standby) and [Quorum Comit](pgsql/conf#quorum-commit) to guarantee 0 data loss during failover.
+考虑使用 [同步备库](PGSQL-CONF#sync-standby) 和 [法定多数提交](pgsql/conf#quorum-commit) 来确保故障转移过程中的零数据丢失。
+
+更多细节，可以参考 [安全考量 - 可用性](SECURITY.md) 的相关介绍。
 
 </details>
 
@@ -868,17 +890,15 @@ Consider using [Sync Standby](PGSQL-CONF#sync-standby) and [Quorum Comit](pgsql/
 
 
 <br>
-<details><summary>如何从磁盘写满逃生？</summary><br>
+<details><summary>磁盘写满了如何抢救？</summary><br>
 
-!> `rm -rf /pg/dummy` will free some emergency space.
+> `rm -rf /pg/dummy` 可以释放一些救命空间。
 
-The [`pg_dummy_filesize`](param#pg_dummy_filesize) is set to `64MB` by default. Consider increasing it to `8GB` or larger in the production environment.
+默认情况下，[`pg_dummy_filesize`](param#pg_dummy_filesize) 设置为 `64MB`。在生产环境中，建议将其增加到 `8GB` 或更大。
 
-It will be placed on `/pg/dummy` same disk as the PGSQL main data disk. You can remove that file to free some emergency space. At least you can run some shell scripts on that node.
+它将被放置在 PGSQL 主数据磁盘上的 `/pg/dummy` 路径下。你可以删除该文件以释放一些紧急空间：至少可以让你在该节点上运行一些 shell 脚本来进一步回收其他空间。
 
 </details>
-
-
 
 
 
@@ -886,11 +906,9 @@ It will be placed on `/pg/dummy` same disk as the PGSQL main data disk. You can 
 <br>
 <details><summary>当集群数据已经损坏时如何创建副本？</summary><br>
 
-!> Disable `clonefrom` on bad instances and reload patroni config.
+Pigsty 在所有实例的 patroni 配置中设置了 `cloneform: true` 标签，标记该实例可用于创建副本。
 
-Pigsty sets the `cloneform: true` tag on all instances' patroni config, which marks the instance available for cloning replica.
-
-If this instance has corrupt data files, you can set `clonefrom: false` to avoid pulling data from the evil instance. To do so:
+如果某个实例有损坏的数据文件，导致创建新副本的时候出错中断，那么你可以设置 `clonefrom: false` 来避免从损坏的实例中拉取数据。具体操作如下
 
 ```bash
 $ vi /pg/bin/patroni.yml
@@ -904,7 +922,7 @@ tags:
   spec: '4C.8G.50G'
   conf: 'oltp.yml'
   
-$ systemctl reload patroni
+$ systemctl reload patroni    # 重新加载 Patroni 配置
 ```
 
 </details>

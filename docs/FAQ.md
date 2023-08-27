@@ -39,7 +39,7 @@ And PLEASE USE FRESH NEW NODES to avoid any unexpected issues.
 
 <details><summary>Versioning Policy</summary>
 
-!> Please always use a **version-specific** [release](https://github.com/Vonng/pigsty/releases), do not use the GitHub `master` branch unless you know what you are doing.
+> Please always use a **version-specific** [release](https://github.com/Vonng/pigsty/releases), do not use the GitHub `master` branch unless you know what you are doing.
 
 Pigsty uses semantic version numbers such as: `<major>. <minor>. <release>`. Alpha/Beta/RC are suffixed to the version number `-a1`, `-b1`, `-rc1`.
 
@@ -60,7 +60,7 @@ Pigsty tries to release a Minor Release every 1-3 months and a Major Release eve
 <br>
 <details><summary>Where to download the Pigsty source code?</summary>
 
-!> `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`
+> `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`
 
 The above command will automatically download the latest stable version of `pigsty.tgz` and extract it to the `~/pigsty` dir.
 You can also manually download a specific version of Pigsty source code from the following location.
@@ -113,7 +113,7 @@ https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz    # el9 packages
 <br>
 <details><summary>What does bootstrap do?</summary>
 
-!> Check the environment, ask for downloading offline packages, and make sure the essential tool `ansible` is installed.
+> Check the environment, ask for downloading offline packages, and make sure the essential tool `ansible` is installed.
 
 
 
@@ -126,7 +126,7 @@ The **configure** procedure will detect your node environment and generate a pig
 <br>
 <details><summary>What does configure do?</summary>
 
-!> Detect the environment, generate the configuration, enable the offline package (optional), and install the essential tool Ansible.
+> Detect the environment, generate the configuration, enable the offline package (optional), and install the essential tool Ansible.
 
 After downloading the Pigsty source package and unpacking it, you may have to execute `./configure` to complete the environment [configuration](INSTALL#configure). This is optional if you already know how to configure Pigsty properly.
 
@@ -139,7 +139,7 @@ The **configure** procedure will detect your node environment and generate a pig
 <br>
 <details><summary>What is the Pigsty config file?</summary>
 
-!> `pigsty.yml` under the pigsty home dir is the default config file.
+> `pigsty.yml` under the pigsty home dir is the default config file.
 
 Pigsty uses a single config file `pigsty.yml,` to describe the entire environment, and you can define everything there. There are many config examples in [`files/pigsty`](https://github.com/Vonng/pigsty/tree/master/files/pigsty) for your reference.
 
@@ -170,7 +170,7 @@ If CMDB is used, you must edit the inventory config from the database rather tha
 <br>
 <details><summary>What is the IP address placeholder in the config file?</summary>
 
-!> Pigsty uses `10.10.10.10` as a placeholder for the current node IP, which will be replaced with the primary IP of the current node during the configuration.
+> Pigsty uses `10.10.10.10` as a placeholder for the current node IP, which will be replaced with the primary IP of the current node during the configuration.
 
 When the `configure` detects multiple NICs with multiple IPs on the current node, the config wizard will prompt for the **primary** IP to be used, i.e., **the IP used by the user to access the node from the internal network**. Note that please do not use the public IP.
 
@@ -183,7 +183,7 @@ This IP will be used to replace `10.10.10.10` in the config file template.
 <br>
 <details><summary>Which parameters need your attention?</summary>
 
-!> Usually, in a singleton installation, there is no need to make any adjustments to the config files.
+> Usually, in a singleton installation, there is no need to make any adjustments to the config files.
 
 Pigsty provides 265 config parameters to customize the entire infra/node/etcd/minio/pgsql.  However, there are a few parameters that can be adjusted in advance if needed:
 
@@ -204,7 +204,7 @@ Pigsty provides 265 config parameters to customize the entire infra/node/etcd/mi
 <br>
 <details><summary>What was executed during installation?</summary>
 
-!> When running `make install`, the ansible-playbook [`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.yml) will be invoked to install everything on all nodes
+> When running `make install`, the ansible-playbook [`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.yml) will be invoked to install everything on all nodes
 
 Which will:
 
@@ -241,7 +241,7 @@ rm -rf SomeBrokenRPMPackages        # delete problematic RPMs
 <br>
 <details><summary>How to create local VMs with vagrant</summary>
 
-!> The first time you use Vagrant to pull up a particular OS repo, it will download the corresponding BOX.
+> The first time you use Vagrant to pull up a particular OS repo, it will download the corresponding BOX.
 
 Pigsty sandbox uses `generic/rocky9` image box by default, and Vagrant will download the `rocky/9` box for the first time the VM is started.
 
@@ -256,7 +256,7 @@ Using a proxy may increase the download speed. Box only needs to be downloaded o
 
 <details><summary>RPMs error on Aliyun CentOS 7.9</summary>
 
-!> Aliyun CentOS 7.9 server has DNS caching service `nscd` installed by default. Just remove it.
+> Aliyun CentOS 7.9 server has DNS caching service `nscd` installed by default. Just remove it.
 
 Aliyun's CentOS 7.9 repo has `nscd` installed by default, locking out the glibc version, which can cause RPM dependency errors during installation.
 
@@ -278,7 +278,7 @@ ansible all -b -a 'yum remove -y nscd'
 
 <details><summary>RPMs error on Tencent Qcloud Rocky 9.1</summary>
 
-!> Tencent Qcloud Rocky 9.1 require extra `annobin` packages
+> Tencent Qcloud Rocky 9.1 require extra `annobin` packages
 
 ```bash
 ./infra.yml -t repo_upstream      # add upstream repos
@@ -318,7 +318,9 @@ timeout = 10 # change to 60,120 or more
 <br>
 <details><summary>Performance impact of monitoring exporter</summary>
 
-Not very much, 200ms per 10 ~ 15 seconds.
+Not very much, 200ms per 10 ~ 15 seconds, won't affect the database performance.
+
+The default scrape interval for prometheus is 10s in pigsty, make sure the exporter can finish the scrape within that period.
 
 </details>
 
@@ -332,8 +334,8 @@ Check [PGSQL Monitor](PGSQL-MONITOR) for details.
 
 </details>
 
-<br>
 
+<br>
 <details><summary>How to remove monitor targets from prometheus?</summary>
 
 ```bash
@@ -480,7 +482,7 @@ bin/repo-add pg-test node,pgsql    # add node & pgsql repos for group pg-test
 <br>
 <details><summary>How to configure NTP service?</summary>
 
-!> If NTP is not configured, use a public NTP service or sync time with the admin node.
+> If NTP is not configured, use a public NTP service or sync time with the admin node.
 
 If your nodes already have NTP configured, you can leave it there by setting `node_ntp_enabled` to `false`.
 
@@ -502,7 +504,7 @@ node_ntp_servers:                 # NTP servers in /etc/chrony.conf
 <br>
 <details><summary>How to force sync time on nodes?</summary>
 
-!> Use `chronyc` to sync time. You have to configure the NTP service first.
+Use `chronyc` to sync time. You have to configure the NTP service first.
 
 ```bash
 ansible all -b -a 'chronyc -a makestep'     # sync time
@@ -517,9 +519,7 @@ You can replace `all` with any group or host IP address to limit execution scope
 <br>
 <details><summary>Remote nodes are not accessible via SSH commands.</summary>
 
-!> Specify a different port via the host instance-level [`ansible connection parameters`](PARAM#ansible_host).
-
-Consider using **Ansible connection parameters** if the target machine is hidden behind an SSH springboard machine,
+Consider using [**Ansible connection parameters**](https://docs.ansible.com/ansible/latest/inventory_guide/connection_details.html) if the target machine is hidden behind an SSH springboard machine,
 or if some customizations have been made that cannot be accessed directly using `ssh ip`.
 Additional SSH ports can be specified with `ansible_port` or `ansible_host` for SSH Alias.
 
@@ -540,9 +540,8 @@ pg-test:
 <br>
 <details><summary>Password required for remote node SSH and SUDO</summary>
 
-!> Use the `-k` and `-K` parameters, enter the password at the prompt, and refer to admin provisioning.
-
 **When performing deployments and changes**, the admin user used **must** have `ssh` and `sudo` privileges for all nodes. Password-free is not required.
+
 You can pass in ssh and sudo passwords via the `-k|-K` parameter when executing the playbook or even use another user to run the playbook via `-e`[`ansible_host`](PARAM#connect)`=<another_user>`.
 However, Pigsty strongly recommends configuring SSH **passwordless login** with passwordless `sudo` for the admin user.
 
@@ -553,9 +552,11 @@ However, Pigsty strongly recommends configuring SSH **passwordless login** with 
 <br>
 <details><summary>Create an admin user with the existing admin user.</summary>
 
-!> `./node.yml -k -K -e ansible_user=<another_admin> -t node_admin`
-
 This will create an admin user specified by [`node_admin_username`](PARAM#node_admin_username) with the existing one on that node.
+
+```
+./node.yml -k -K -e ansible_user=<another_admin> -t node_admin`
+```
 
 </details>
 
@@ -565,7 +566,7 @@ This will create an admin user specified by [`node_admin_username`](PARAM#node_a
 <br>
 <details><summary>Exposing node services with HAProxy</summary>
 
-!> You can expose service with [`haproxy_services`](PARAM#haproxy_services) in `node.yml`.
+You can expose service with [`haproxy_services`](PARAM#haproxy_services) in `node.yml`.
 
 And here's an example of exposing MinIO service with it: [Expose MinIO Service](MINIO#expose-service)
 
@@ -580,11 +581,22 @@ And here's an example of exposing MinIO service with it: [Expose MinIO Service](
 Pigsty will try to include all dependencies in the local yum repo on infra nodes. This repo file will be added according to [`node_repo_local_urls`](PARAM#node_repo_local_urls).
 And existing repo files will be removed by default according to the default value of [`node_repo_remove`](PARAM#node_repo_remove). This will prevent the node from using the Internet repo or some stupid issues.
 
-If you want to keep existing repo files, just set [`node_repo_remove`](PARAM#node_repo_remove) to `false`.
+If you want to keep existing repo files during node init, just set [`node_repo_remove`](PARAM#node_repo_remove) to `false`.
+
+If you want to keep existing repo files during infra node local repo bootstrap, just set [`repo_remove`](PARAM#repo_remove) to `false`.
 
 </details>
 
 
+
+<br>
+<details><summary>Why my shell prompt change and how to restore it?</summary><br>
+
+The pigsty prompt is defined with the environment variable `PS1` in `/etc/profile.d/node.sh`.
+
+To restore your existing prompt, just remove that file and login again.
+
+</details>
 
 
 
@@ -623,7 +635,7 @@ To use an existing external etcd cluster, define them as usual and make sure you
 <br>
 <details><summary>How to add a new member to the existing etcd cluster?</summary>
 
-!> Check [Add a member to etcd cluster](ETCD-ADMIN#add-member)
+Check [Add a member to etcd cluster](ETCD-ADMIN#add-member)
 
 ```bash
 etcdctl member add <etcd-?> --learner=true --peer-urls=https://<new_ins_ip>:2380 # on admin node
@@ -638,7 +650,7 @@ etcdctl member promote <new_ins_server_id>                                      
 <br>
 <details><summary>How to remove a member from an existing etcd cluster?</summary>
 
-!> Check [Remove member from etcd cluster](ETCD-ADMIN#remove-member)
+Check [Remove member from etcd cluster](ETCD-ADMIN#remove-member)
 
 ```bash
 etcdctl member remove <etcd_server_id>   # kick member out of the cluster (on admin node)
@@ -672,7 +684,7 @@ Use mounted disks for MinIO data dir rather than some regular directory. You can
 <br>
 <details><summary>How to deploy a multi-node multi-drive MinIO cluster?</summary>
 
-!> Check [Create Multi-Node Multi-Driver MinIO Cluster](MINIO#multi-node-multi-drive)
+> Check [Create Multi-Node Multi-Driver MinIO Cluster](MINIO#multi-node-multi-drive)
 
 </details>
 
@@ -681,7 +693,7 @@ Use mounted disks for MinIO data dir rather than some regular directory. You can
 <br>
 <details><summary>How to add a member to the existing MinIO cluster?</summary>
 
-!> You'd better plan the MinIO cluster before deployment... Since this requires a global restart
+> You'd better plan the MinIO cluster before deployment... Since this requires a global restart
 
 Check this: [Expand MinIO Deployment](https://min.io/docs/minio/linux/operations/install-deploy-manage/expand-minio-deployment.html)
 
@@ -692,7 +704,7 @@ Check this: [Expand MinIO Deployment](https://min.io/docs/minio/linux/operations
 <br>
 <details><summary>How to use a HA MinIO deployment for PGSQL?</summary>
 
-!> Access the HA MinIO cluster with an optional load balancer and different ports.
+> Access the HA MinIO cluster with an optional load balancer and different ports.
 
 Here is an example: [Access MinIO Service](MINIO#access-service)
 
@@ -710,7 +722,7 @@ Here is an example: [Access MinIO Service](MINIO#access-service)
 <br>
 <details><summary>ABORT due to existing redis instance</summary>
 
-!> use `redis_clean = true` and `redis_safeguard = false` to force clean redis data
+> use `redis_clean = true` and `redis_safeguard = false` to force clean redis data
 
 This happens when you run `redis.yml` to init a redis instance that is already running, and [`redis_clean`](PARAM#redis_clean) is set to `false`.
 
@@ -724,7 +736,7 @@ If `redis_clean` is set to `true` (and the `redis_safeguard` is set to `false`, 
 
 <details><summary>ABORT due to redis_safeguard enabled</summary>
 
-!> This happens when removing a redis instance with [`redis_safeguard`](PARAM#redis_safeguard) set to `true`.
+> This happens when removing a redis instance with [`redis_safeguard`](PARAM#redis_safeguard) set to `true`.
 
 You can disable [`redis_safeguard`](PARAM#redis_safeguard) to remove the Redis instance. This is redis_safeguard is what it is for.
 
@@ -735,7 +747,7 @@ You can disable [`redis_safeguard`](PARAM#redis_safeguard) to remove the Redis i
 <br>
 <details><summary>How to add a single new redis instance on this node?</summary>
 
-!> Use `bin/redis-add <ip> <port>` to deploy a new redis instance on node.
+> Use `bin/redis-add <ip> <port>` to deploy a new redis instance on node.
 
 </details>
 
@@ -744,7 +756,7 @@ You can disable [`redis_safeguard`](PARAM#redis_safeguard) to remove the Redis i
 <br>
 <details><summary>How to remove a single redis instance from the node?</summary>
 
-!> `bin/redis-rm <ip> <port>` to remove a single redis instance from node
+> `bin/redis-rm <ip> <port>` to remove a single redis instance from node
 
 </details>
 
@@ -759,7 +771,7 @@ You can disable [`redis_safeguard`](PARAM#redis_safeguard) to remove the Redis i
 <br>
 <details><summary>ABORT due to postgres exists</summary>
 
-!> Set `pg_clean` = `true` and `pg_safeguard` = `false` to force clean postgres data during `pgsql.yml`
+> Set `pg_clean` = `true` and `pg_safeguard` = `false` to force clean postgres data during `pgsql.yml`
 
 This happens when you run `pgsql.yml` on a node with postgres running, and [`pg_clean`](PARAM#pg_clean) is set to `false`.
 
@@ -779,7 +791,7 @@ You can still purge the existing PostgreSQL data by using a special task tag `pg
 <br>
 <details><summary>ABORT due to pg_safeguard enabled</summary>
 
-!> Disable `pg_safeguard` to remove the Postgres instance.
+> Disable `pg_safeguard` to remove the Postgres instance.
 
 If [`pg_safeguard`](PARAM#pg_safeguard) is enabled, you can not remove the running pgsql instance with `bin/pgsql-rm` and `pgsql-rm.yml` playbook.
 
@@ -798,7 +810,9 @@ To disable `pg_safeguard`, you can set `pg_safeguard` to `false` in the inventor
 
 This usually happens when the cluster is misconfigured, or the previous primary is improperly removed. (e.g., trash metadata in DCS with the same cluster name).
 
-You must check `/pg/log/*` to find the reason.
+You must check `/pg/log/*` to find the reason. 
+
+To delete trash meta from etcd, you can use `etcdctl del --prefix /pg/<cls>`, do with caution!
 
 </details>
 
@@ -817,7 +831,7 @@ There are several possible reasons:
 **Timeout**: If the `wait for postgres replica` task takes 30min or more and fails due to timeout, This is common for a huge cluster (e.g., 1TB+, which may take hours to create a replica). In this case, the underlying creating replica procedure is still proceeding. You can check cluster status with `pg list <cls>` and wait until the replica catches up with the primary. Then continue the following tasks:
 
 ```bash
-./pgsql.yml -t pg_hba,pg_backup,pgbouncer,pg_vip,pg_dns,pg_service,pg_exporter,pg_register
+./pgsql.yml -t pg_hba,pg_backup,pgbouncer,pg_vip,pg_dns,pg_service,pg_exporter,pg_register -l <problematic_replica>
 ```
 
 </details>
@@ -846,7 +860,7 @@ pg_extensions: []                 # missing pg16 extensions for now
 <br>
 <details><summary>How enable hugepage for PostgreSQL?</summary>
 
-!> use `node_hugepage_count` and `node_hugepage_ratio` or `/pg/bin/pg-tune-hugepage`
+> use `node_hugepage_count` and `node_hugepage_ratio` or `/pg/bin/pg-tune-hugepage`
 
 If you plan to enable hugepage, consider using `node_hugepage_count` and `node_hugepage_ratio` and apply with `./node.yml -t node_tune` .
 
@@ -868,7 +882,7 @@ pg restart <cls>                          # restart postgres to use hugepage
 <br>
 <details><summary>How to guarantee zero data loss during failover?</summary>
 
-!> Use `crit.yml` template, or setting `pg_rpo` to `0`, or [config cluster](PGSQL-ADMIN#config-cluster) with synchronous mode.
+> Use `crit.yml` template, or setting `pg_rpo` to `0`, or [config cluster](PGSQL-ADMIN#config-cluster) with synchronous mode.
 
 Consider using [Sync Standby](PGSQL-CONF#sync-standby) and [Quorum Comit](PGSQL-CONF#quorum-commit) to guarantee 0 data loss during failover.
 
@@ -880,7 +894,7 @@ Consider using [Sync Standby](PGSQL-CONF#sync-standby) and [Quorum Comit](PGSQL-
 <br>
 <details><summary>How to survive from disk full?</summary>
 
-!> `rm -rf /pg/dummy` will free some emergency space.
+> `rm -rf /pg/dummy` will free some emergency space.
 
 The [`pg_dummy_filesize`](PARAM#pg_dummy_filesize) is set to `64MB` by default. Consider increasing it to `8GB` or larger in the production environment.
 
@@ -896,7 +910,7 @@ It will be placed on `/pg/dummy` same disk as the PGSQL main data disk. You can 
 <br>
 <details><summary>How to create replicas when data is corrupted?</summary>
 
-!> Disable `clonefrom` on bad instances and reload patroni config.
+> Disable `clonefrom` on bad instances and reload patroni config.
 
 Pigsty sets the `cloneform: true` tag on all instances' patroni config, which marks the instance available for cloning replica.
 
@@ -927,7 +941,7 @@ $ systemctl reload patroni
 <br>
 <details><summary>How to create replicas when data is corrupted?</summary>
 
-!> Disable `clonefrom` on bad instances and reload patroni config.
+> Disable `clonefrom` on bad instances and reload patroni config.
 
 Pigsty sets the `cloneform: true` tag on all instances' patroni config, which marks the instance available for cloning replica.
 
