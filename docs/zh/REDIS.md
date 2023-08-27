@@ -200,26 +200,25 @@ There are 3 sections, 20 parameters about [`REDIS`](PARAM#REDIS) module.
 - [`REDIS_NODE`](PARAM#redis_node) : REDIS Node & Exporter
 - [`REDIS_PROVISION`](PARAM#redis_provision) : Config & Launch Redis Instances
 
-| 参数                                                       |    类型    | 级别  | 注释                                                 |
-|----------------------------------------------------------|:--------:|:---:|----------------------------------------------------|
-| [`redis_cluster`](PARAM#redis_cluster)                   |  string  |  C  | redis cluster name, required identity parameter    |
-| [`redis_instances`](PARAM#redis_instances)               |   dict   |  I  | redis instances definition on this redis node      |
-| [`redis_node`](PARAM#redis_node)                         |   int    |  I  | redis node sequence number, node int id required   |
-| [`redis_fs_main`](PARAM#redis_fs_main)                   |   path   |  C  | redis main data mountpoint, `/data` by default     |
-| [`redis_exporter_enabled`](PARAM#redis_exporter_enabled) |   bool   |  C  | install redis exporter on redis nodes?             |
-| [`redis_exporter_port`](PARAM#redis_exporter_port)       |   port   |  C  | redis exporter listen port, 9121 by default        |
-| [`redis_exporter_options`](PARAM#redis_exporter_options) |  string  | C/I | cli args and extra options for redis exporter      |
-| [`redis_safeguard`](PARAM#redis_safeguard)               |   bool   |  C  | prevent purging running redis instance?            |
-| [`redis_clean`](PARAM#redis_clean)                       |   bool   |  C  | purging existing redis during init?                |
-| [`redis_rmdata`](PARAM#redis_rmdata)                     |   bool   |  A  | remove redis data when purging redis server?       |
-| [`redis_mode`](PARAM#redis_mode)                         |   enum   |  C  | redis mode: standalone,cluster,sentinel            |
-| [`redis_conf`](PARAM#redis_conf)                         |  string  |  C  | redis config template path, except sentinel        |
-| [`redis_bind_address`](PARAM#redis_bind_address)         |    ip    |  C  | redis bind address, empty string will use host ip  |
-| [`redis_max_memory`](PARAM#redis_max_memory)             |   size   | C/I | max memory used by each redis instance             |
-| [`redis_mem_policy`](PARAM#redis_mem_policy)             |   enum   |  C  | redis memory eviction policy                       |
-| [`redis_password`](PARAM#redis_password)                 | password |  C  | redis password, empty string will disable password |
-| [`redis_rdb_save`](PARAM#redis_rdb_save)                 | string[] |  C  | redis rdb save directives, disable with empty list |
-| [`redis_aof_enabled`](PARAM#redis_aof_enabled)           |   bool   |  C  | enable redis append only file?                     |
-| [`redis_rename_commands`](PARAM#redis_rename_commands)   |   dict   |  C  | rename redis dangerous commands                    |
-| [`redis_cluster_replicas`](PARAM#redis_cluster_replicas) |   int    |  C  | replica number for one master in redis cluster     |
-
+| 参数                                                       |    类型    |  级别   | 注释                                    |
+|----------------------------------------------------------|:--------:|:-----:|---------------------------------------|
+| [`redis_cluster`](PARAM#redis_cluster)                   |  string  |   C   | Redis数据库集群名称，必选身份参数                   |
+| [`redis_instances`](PARAM#redis_instances)               |   dict   |   I   | Redis节点上的实例定义                         |
+| [`redis_node`](PARAM#redis_node)                         |   int    |   I   | Redis节点编号，正整数，集群内唯一，必选身份参数            |
+| [`redis_fs_main`](PARAM#redis_fs_main)                   |   path   |   C   | Redis主数据目录，默认为 `/data`                |
+| [`redis_exporter_enabled`](PARAM#redis_exporter_enabled) |   bool   |   C   | Redis Exporter 是否启用？                  |
+| [`redis_exporter_port`](PARAM#redis_exporter_port)       |   port   |   C   | Redis Exporter监听端口                    |
+| [`redis_exporter_options`](PARAM#redis_exporter_options) |  string  |  C/I  | Redis Exporter命令参数                    |
+| [`redis_safeguard`](PARAM#redis_safeguard)               |   bool   | G/C/A | 禁止抹除现存的Redis                          |
+| [`redis_clean`](PARAM#redis_clean)                       |   bool   | G/C/A | 初始化Redis是否抹除现存实例                      |
+| [`redis_rmdata`](PARAM#redis_rmdata)                     |   bool   | G/C/A | 移除Redis实例时是否一并移除数据？                   |
+| [`redis_mode`](PARAM#redis_mode)                         |   enum   |   C   | Redis集群模式：sentinel，cluster，standalone |
+| [`redis_conf`](PARAM#redis_conf)                         |  string  |   C   | Redis配置文件模板，sentinel 除外               |
+| [`redis_bind_address`](PARAM#redis_bind_address)         |    ip    |   C   | Redis监听地址，默认留空则会绑定主机IP                |
+| [`redis_max_memory`](PARAM#redis_max_memory)             |   size   |  C/I  | Redis可用的最大内存                          |
+| [`redis_mem_policy`](PARAM#redis_mem_policy)             |   enum   |   C   | Redis内存逐出策略                           |
+| [`redis_password`](PARAM#redis_password)                 | password |   C   | Redis密码，默认留空则禁用密码                     |
+| [`redis_rdb_save`](PARAM#redis_rdb_save)                 | string[] |   C   | Redis RDB 保存指令，字符串列表，空数组则禁用RDB        |
+| [`redis_aof_enabled`](PARAM#redis_aof_enabled)           |   bool   |   C   | Redis AOF 是否启用？                       |
+| [`redis_rename_commands`](PARAM#redis_rename_commands)   |   dict   |   C   | Redis危险命令重命名列表                        |
+| [`redis_cluster_replicas`](PARAM#redis_cluster_replicas) |   int    |   C   | Redis原生集群中每个主库配几个从库？                  |

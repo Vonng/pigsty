@@ -231,7 +231,7 @@ There are 265 parameters in Pigsty describing all aspect of the deployment.
 | 872 | [`pg_shared_buffer_ratio`](#pg_shared_buffer_ratio)             | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | float       | C     | postgres shared buffer memory ratio, 0.25 by default, 0.1~0.4                 |
 | 873 | [`pg_rto`](#pg_rto)                                             | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | int         | C     | recovery time objective in seconds,  `30s` by default                         |
 | 874 | [`pg_rpo`](#pg_rpo)                                             | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | int         | C     | recovery point objective in bytes, `1MiB` at most by default                  |
-| 875 | [`pg_libs`](#pg_libs)                                           | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | string      | C     | preloaded libraries, `pg_stat_statements,auto_explain` by default             |
+| 875 | [`pg_libs`](#pg_libs)                                           | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | string      | C     | preloaded libraries, `timescaledb,pg_stat_statements,auto_explain` by default |
 | 876 | [`pg_delay`](#pg_delay)                                         | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | interval    | I     | replication apply delay for standby cluster leader                            |
 | 877 | [`pg_checksum`](#pg_checksum)                                   | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | bool        | C     | enable data checksum for postgres cluster?                                    |
 | 878 | [`pg_pwd_enc`](#pg_pwd_enc)                                     | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | enum        | C     | passwords encryption algorithm: md5,scram-sha-256                             |
@@ -4411,7 +4411,7 @@ You can use `crit.yml` [conf](#pg_conf) template to ensure no data loss during f
 
 name: `pg_libs`, type: `string`, level: `C`
 
-preloaded libraries, `pg_stat_statements,auto_explain` by default
+preloaded libraries, `timescaledb,pg_stat_statements,auto_explain` by default
 
 default value: `timescaledb, pg_stat_statements, auto_explain`.
 

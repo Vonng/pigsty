@@ -209,9 +209,9 @@ There are 3 sections, 20 parameters about [`REDIS`](PARAM#REDIS) module.
 | [`redis_exporter_enabled`](PARAM#redis_exporter_enabled) |   bool   |   C   | install redis exporter on redis nodes?             |
 | [`redis_exporter_port`](PARAM#redis_exporter_port)       |   port   |   C   | redis exporter listen port, 9121 by default        |
 | [`redis_exporter_options`](PARAM#redis_exporter_options) |  string  |  C/I  | cli args and extra options for redis exporter      |
-| [`redis_safeguard`](PARAM#redis_safeguard)               |   bool   |   C   | prevent purging running redis instance?            |
-| [`redis_clean`](PARAM#redis_clean)                       |   bool   |   C   | purging existing redis during init?                |
-| [`redis_rmdata`](PARAM#redis_rmdata)                     |   bool   |   A   | remove redis data when purging redis server?       |
+| [`redis_safeguard`](PARAM#redis_safeguard)               |   bool   | G/C/A | prevent purging running redis instance?            |
+| [`redis_clean`](PARAM#redis_clean)                       |   bool   | G/C/A | purging existing redis during init?                |
+| [`redis_rmdata`](PARAM#redis_rmdata)                     |   bool   | G/C/A | remove redis data when purging redis server?       |
 | [`redis_mode`](PARAM#redis_mode)                         |   enum   |   C   | redis mode: standalone,cluster,sentinel            |
 | [`redis_conf`](PARAM#redis_conf)                         |  string  |   C   | redis config template path, except sentinel        |
 | [`redis_bind_address`](PARAM#redis_bind_address)         |    ip    |   C   | redis bind address, empty string will use host ip  |
