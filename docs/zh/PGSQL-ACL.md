@@ -108,19 +108,17 @@ pg_admin_password: DBUser.DBA                 # 系统管理密码，请务必�
 
 ## 权限系统
 
-Pigsty has a battery-included privilege model that works with [default roles](#default-roles).
+Pigsty 拥有一套开箱即用的权限模型，该模型与[默认角色](https://chat.openai.com/#default-roles)一起配合工作。
 
-* All users have access to all schemas.
-* Read-Only user can read from all tables. (SELECT, EXECUTE)
-* Read-Write user can write to all tables run DML. (INSERT, UPDATE, DELETE).
-* Admin user can create object and run DDL (CREATE, USAGE, TRUNCATE, REFERENCES, TRIGGER). 
-* Offline user is Read-Only user with limited access on offline instance (`pg_role = 'offline'` or `pg_offline_query = true`)
-* Object created by admin users will have correct privilege.
-* Default privileges are installed on all databases, including template database. 
-* Database connect privilege is covered by database [definition](PGSQL-DB#define-database) 
-* `CREATE` privileges of database & public schema are revoked from `PUBLIC` by default 
-
-
+- 所有用户都可以访问所有模式。
+- 只读用户（`dbrole_readonly`）可以从所有表中读取数据。（SELECT，EXECUTE）
+- 读写用户（`dbrole_readwrite`）可以向所有表中写入数据并运行 DML。（INSERT，UPDATE，DELETE）。
+- 管理员用户（`dbrole_admin`）可以创建对象并运行 DDL（CREATE，USAGE，TRUNCATE，REFERENCES，TRIGGER）。
+- 离线用户（`dbrole_offline`）类似只读用户，但访问受到限制，只允许访问[离线实例](PGSQL-CONF#offline)（`pg_role = 'offline'` 或 `pg_offline_query = true`）
+- 由管理员用户创建的对象将具有正确的权限。
+- 所有数据库上都配置了默认权限，包括模板数据库。
+- 数据库连接权限由数据库[定义](PGSQL-DB#定义数据库)管理。
+- 默认撤销`PUBLIC`在数据库和`public`模式下的`CREATE`权限。
 
 ---------------------
 

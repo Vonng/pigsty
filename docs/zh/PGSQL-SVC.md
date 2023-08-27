@@ -9,10 +9,10 @@ Service is an abstraction to seal the details of the underlying cluster, especia
 
 ## 个人用户
 
-“服务” 的概念是给生产环境用的，个人用户单机玩玩，就别折腾什么服务了，直接拿实例名/IP地址一把梭连上去。
+“服务” 的概念是给生产环境用的，个人用户/单机集群，就别折腾什么服务了，直接拿实例名/IP地址一把梭连上去。
 
 ```bash
-psql postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta     # 直接用 DBA 用户连上去
+psql postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta     # 直接用 DBA 超级用户连上去
 psql postgres://dbuser_meta:DBUser.Meta@10.10.10.10/meta   # 用默认的业务管理员用户连上去
 psql postgres://dbuser_view:DBUser.View@pg-meta/meta       # 用默认的只读用户走实例域名连上去
 ```

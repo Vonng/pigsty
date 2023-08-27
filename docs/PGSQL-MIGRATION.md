@@ -1,5 +1,7 @@
 # PGSQL Migration
 
+> How to migrate existing PostgreSQL cluster into pigsty managed cluster with minimal downtime?
+
 Pigsty has a built-in playbook [`pgsql-migration.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-migration.yml) to perform online database migration based on logical replication.
 
 With proper automation, the downtime could be minimized to several seconds. But beware that logical replication requires PostgreSQL 10+ to work. You can still use the facility here and use a pg_dump | psql instead of logical replication.

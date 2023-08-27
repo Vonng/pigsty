@@ -63,7 +63,9 @@
 - 考虑使用 `pg_listen: '${ip},${vip},${lo}'` 绑定到特定IP地址（列表）以增强安全性。
 
 **不要将任何端口直接暴露到公网IP上，除了基础设施出口Nginx使用的端口（默认80/443）**
-- 你应当使用安全组或防火墙规则来实现它。
+- 出于便利考虑，Prometheus/Grafana 等组件默认监听所有IP地址，可以直接从公网IP端口访问
+- 您可以修改它们的配置文件，只监听内网IP地址，限制其只能通过 Nginx 门户通过域名访问。
+- 你也可以当使用安全组，防火墙规则来实现这些安全限制。
 
 **使用 [HBA](pgsql/hba) 限制 postgres 客户端访问**
 - 有一个增强安全性的配置模板：[`security.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/security.yml)
