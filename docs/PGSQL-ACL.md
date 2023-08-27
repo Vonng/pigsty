@@ -145,7 +145,8 @@ Default object privileges are defined in [`pg_default_privileges`](PARAM#pg_defa
 - GRANT CREATE     ON SCHEMAS   TO dbrole_admin
 ```
 
-Which will be rendered in [`pg-init-template.sql`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/pg-init-template.sql) alone with `ALTER DEFAULT PRIVILEGES` statement for admin users.
+Newly created objects will have corresponding privileges when it is **created by admin users**
+
 The `\ddp+` may looks like:
 
 | Type     | Access privileges    |
@@ -166,7 +167,7 @@ The `\ddp+` may looks like:
 |          | dbrole_readwrite=awd |
 |          | dbrole_admin=arwdDxt |
 
-Newly created objects will have corresponding privileges when it is **created by admin users** 
+
 
 
 
@@ -177,13 +178,39 @@ Newly created objects will have corresponding privileges when it is **created by
 [`ALTER DEFAULT PRIVILEGES`](https://www.postgresql.org/docs/current/sql-alterdefaultprivileges.html) allows you to set the privileges that will be applied to objects created in the future. 
 It does not affect privileges assigned to already-existing objects, and objects created by non-admin users.
 
+Pigsty will use the following default privileges:
+
+```sql
+{% for priv in pg_default_privileges %}
+ALTER DEFAULT PRIVILEGES FOR ROLE {{ pg_dbsu }} {{ priv }};
+{% endfor %}
+
+{% for priv in pg_default_privileges %}
+ALTER DEFAULT PRIVILEGES FOR ROLE {{ pg_admin_username }} {{ priv }};
+{% endfor %}
+
+-- for additional business admin, they can SET ROLE to dbrole_admin
+{% for priv in pg_default_privileges %}
+ALTER DEFAULT PRIVILEGES FOR ROLE "dbrole_admin" {{ priv }};
+{% endfor %}
+```
+
+Which will be rendered in [`pg-init-template.sql`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/pg-init-template.sql) alone with `ALTER DEFAULT PRIVILEGES` statement for admin users.
+
+These SQL command will be executed on `postgres` & `template1` during cluster bootstrap, and newly created database will inherit it from `tempalte1` by default.
+
+
 That is to say, to maintain the correct object privilege, you have to run DDL with **admin users**, which could be: 
 
 1. [`{{ pg_dbsu }}`](PARAM#pg_dbsu), `postgres` by default
 2. [`{{ pg_admin_username }}`](PARAM#pg_admin_username), `dbuser_dba` by default
 3. Business admin user granted with `dbrole_admin`
 
-It's wise to use `postgres` as global object owner. If you wish to create objects with business admin user, YOU MUST USE `SET ROLE dbrole_admin` before running that DDL to maintain the correct privileges. 
+It's wise to use `postgres` as global object owner to perform DDL changes.
+If you wish to create objects with business admin user, YOU MUST USE `SET ROLE dbrole_admin` before running that DDL to maintain the correct privileges. 
+
+You can also `ALTER DEFAULT PRIVILEGE FOR ROLE <some_biz_admin> XXX` to grant default privilege to business admin user, too.
+
 
 
 
@@ -242,10 +269,6 @@ pg-infra:
 ## Create Privilege
 
 Pigsty revokes the `CREATE` privilege on database from `PUBLIC` by default, for security consideration.
-
-Pigsty revokes the `CREATE` privilege on `public` schema from `PUBLIC` by default. Which is the default behavior since PostgreSQL 15.
+And this is the default behavior since PostgreSQL 15.
 
 The database owner have the full capability to adjust these privileges as they see fit. 
-
-
-

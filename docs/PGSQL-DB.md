@@ -20,12 +20,13 @@ pg-meta:
   vars:
     pg_cluster: pg-meta
     pg_databases:
-      - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public},{name: timescaledb}]}
+      - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
       - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
       - { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
       - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
       - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
       - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
+      - { name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database }
 ```
 
 Each database definition is a dict with the following fields:
@@ -62,6 +63,7 @@ The only required field is `name`, which should be a valid and unique database n
 
 Newly created databases are forked from `template1` database by default. which is customized by [`PG_PROVISION`](PARAM#PG_PROVISION) during cluster bootstrap.
 
+Check [ACL: Database Privilege](PGSQL-ACL#database-privilege) for details about database-level privilege.
 
 
 ----------------
@@ -99,13 +101,15 @@ You can disable the pgbouncer proxy for a specific database by setting `pgbounce
 
 The database is listed in `/etc/pgbouncer/database.txt`, with extra database-level parameters such as:
 
-```yaml
-pool_auth_user: dbuser_meta     # optional, all connection to this pgbouncer database will be authenticated by this user
-pool_mode: transaction          # optional, pgbouncer pool mode at database level, default transaction
-pool_size: 64                   # optional, pgbouncer pool size at database level, default 64
-pool_size_reserve: 32           # optional, pgbouncer pool size reserve at database level, default 32
-pool_size_min: 0                # optional, pgbouncer pool size min at database level, default 0
-pool_max_db_conn: 100           # optional, max database connections at database level, default 100
+```ini
+meta                        = host=/var/run/postgresql mode=session
+grafana                     = host=/var/run/postgresql mode=transaction
+bytebase                    = host=/var/run/postgresql auth_user=dbuser_meta
+kong                        = host=/var/run/postgresql pool_size=32 reserve_pool=64
+gitea                       = host=/var/run/postgresql min_pool_size=10
+wiki                        = host=/var/run/postgresql
+noco                        = host=/var/run/postgresql
+mongo                       = host=/var/run/postgresql
 ```
 
 The Pgbouncer database list will be updated when [create database](#create-database) with Pigsty util & playbook. 

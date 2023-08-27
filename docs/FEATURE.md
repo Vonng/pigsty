@@ -12,6 +12,8 @@ Pigsty is a **Me-Better Open Source RDS Alternative** with:
 - Run [Redis](https://redis.io/) (standalone, sentinel, cluster), MinIO, Etcd, Haproxy, MongoDB([FerretDB](https://www.ferretdb.io/)) clusters
 
 
+----------------
+
 ## Powerful Distribution
 
 **Unleash the power of The World's Most Advanced Open Source Relational Database!**
@@ -23,12 +25,12 @@ It delivers all the software toolkits required to run a production-grade RDS and
 
 All functionality is abstracted as Modules that can be freely composed for different scenarios. [`INFRA`](INFRA.md) gives you a modern observability stack, while [`NODE`](NODE.md) can be used for host monitoring. Installing the [`PGSQL`](PGSQL.md) module on multiple nodes will automatically form a HA cluster. And you can also have dedicated [`ETCD`](ETCD.md) clusters for distributed consensus & [`MinIO`](MINIO.md) clusters for backup storage. [`REDIS`](REDIS.md) are also supported since they work well with PostgreSQL. You can reuse Pigsty infra and extend it with your Modules (e.g. `GPSQL`, `KAFKA`, `MONGO`, `MYSQL`...).
 
-
 [![pigsty-distro](https://user-images.githubusercontent.com/8587410/226076217-77e76e0c-94ac-4faa-9014-877b4a180e09.jpg)](PGSQL.md)
 
 
 
 
+----------------
 
 ## Incredible Observability
 
@@ -38,12 +40,13 @@ Pigsty will automatically monitor any newly deployed components such as Node, Do
 
 There are over 3K+ metrics that describe every aspect of your environment, from the topmost overview dashboard to a detailed table/index/func/seq. As a result, you can have complete insight into the past, present, and future. 
 
-Check the [public demo](https://demo.pigsty.cc) for an interactive experience!
+Check the [dashboard gallery](https://github.com/Vonng/pigsty/wiki/Gallery) and [public demo](https://demo.pigsty.cc) for more details.
 
-![Dashboards](https://github-production-user-asset-6210df.s3.amazonaws.com/8587410/258681605-cf6b99e5-9c8f-4db2-9bce-9ded95407c0c.jpg)
+[![Dashboards](https://github-production-user-asset-6210df.s3.amazonaws.com/8587410/258681605-cf6b99e5-9c8f-4db2-9bce-9ded95407c0c.jpg)](https://github.com/Vonng/pigsty/wiki/Gallery)
 
 
 
+----------------
 
 ## Proven Reliability
 
@@ -59,7 +62,7 @@ Large organizations have used Pigsty for several years. One of the largest deplo
 
 
 
-
+----------------
 
 ## Great Maintainability
 
@@ -75,6 +78,8 @@ Pigsty has a full-featured sandbox powered by **Vagrant**, a pre-configured one 
 
 
 
+----------------
+
 ## Sound Security
 
 **Nothing needs to be worried about database security, as long as your hardware & credentials are safe.**
@@ -89,6 +94,7 @@ Your entire network communication can be secured with SSL. Pigsty will automatic
 
 
 
+----------------
 
 ## Versatile Application
 
@@ -104,6 +110,7 @@ Pigsty also provides a toolset to help you manage your database and build data a
 
 
 
+----------------
 
 ## Open Source & Free
 
@@ -116,3 +123,4 @@ There will be no vendor lock-in, annoying license fee, and node/CPU/core limit. 
 Pigsty is free software under AGPLv3. It's free of charge, but beware that freedom is not free, so use it at your own risk! It's not very difficult, and we are glad to help. For those enterprise users who seek professional consulting services, we do have a subscription for that.
 
 [![pigsty-rds-cost](https://user-images.githubusercontent.com/8587410/225852971-577be00f-b2df-427c-a590-f8b4c5a63a4b.png)](https://instances.vantage.sh/)
+
