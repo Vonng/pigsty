@@ -11,18 +11,18 @@
 
 > 了解关于 PostgreSQL 的重要主题与概念。
 
-- [架构](PGSQL-ARCH)
-- [配置](PGSQL-CONF)
+- [系统架构](PGSQL-ARCH)
+- [集群配置](PGSQL-CONF)
 - [用户/角色](PGSQL-USER)
 - [数据库](PGSQL-DB)
 - [服务/接入](PGSQL-SVC)
 - [认证/HBA](PGSQL-HBA)
 - [访问控制](PGSQL-ACL)
-- [管理SOP](PGSQL-ADMIN)
+- [管理预案](PGSQL-ADMIN)
 - [备份恢复](PGSQL-PITR)
-- [监控](PGSQL-MONITOR)
-- [迁移](PGSQL-MIGRATION)
-
+- [监控接入](PGSQL-MONITOR)
+- [集群迁移](PGSQL-MIGRATION)
+- [仪表盘](PGSQL-DASHBOARD)
 
 
 ----------------
@@ -74,9 +74,9 @@
 
 ## 监控
 
-在 Pigsty 中共有 26 个与 PostgreSQL 相关的监控面板，详情请参考 [监控](PGSQL-MONITOR) 与 [面板](PGSQL-DASHBOARD)。
+在 Pigsty 中共有 26 个与 PostgreSQL 相关的监控面板，详情请参考 [仪表盘](PGSQL-DASHBOARD)。
 
-|                            总览                             |                                  集群                                   |                             实例                              |                           数据库内                            |
+|                            总览                             |                                  集群                                   |                             实例                              |                            数据库                            |
 |:---------------------------------------------------------:|:---------------------------------------------------------------------:|:-----------------------------------------------------------:|:---------------------------------------------------------:|
 | [PGSQL Overview](https://demo.pigsty.cc/d/pgsql-overview) |        [PGSQL Cluster](https://demo.pigsty.cc/d/pgsql-cluster)        |  [PGSQL Instance](https://demo.pigsty.cc/d/pgsql-instance)  | [PGSQL Database](https://demo.pigsty.cc/d/pgsql-database) |
 |    [PGSQL Alert](https://demo.pigsty.cc/d/pgsql-alert)    | [PGSQL Cluster Remote](https://demo.pigsty.cc/d/pgsql-cluster-remote) |  [PGCAT Instance](https://demo.pigsty.cc/d/pgcat-instance)  | [PGCAT Database](https://demo.pigsty.cc/d/pgcat-database) |
@@ -103,8 +103,8 @@
 - [重载服务](PGSQL-ADMIN#重载服务)
 - [重载HBA](PGSQL-ADMIN#重载HBA)
 - [配置集群](PGSQL-ADMIN#配置集群)
-- [添加副本](PGSQL-ADMIN#添加副本)
-- [移除副本](PGSQL-ADMIN#移除副本)
+- [添加实例](PGSQL-ADMIN#添加实例)
+- [移除实例](PGSQL-ADMIN#移除实例)
 - [下线集群](PGSQL-ADMIN#下线集群)
 - [主动切换](PGSQL-ADMIN#主动切换)
 - [备份集群](PGSQL-ADMIN#备份集群)
