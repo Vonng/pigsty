@@ -1120,7 +1120,7 @@ v1 正式发布，监控系统全面改进
 - 新变量: `pg_exporter_auto_discovery`
 - 新变量: `pg_exporter_exclude_database`
 - 新变量: `pg_exporter_include_database`
-- 变量重命名: `grafana_url` 为 [`grafana_endpoint`](http://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_endpoint)
+- 变量重命名: `grafana_url` 为 [`grafana_endpoint`](https://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_endpoint)
 
 **Bug 修复**
 

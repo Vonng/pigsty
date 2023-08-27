@@ -78,7 +78,7 @@ MD5 (pigsty-pkg-v2.3.0.el9.x86_64.tgz) = 4bc9ae920e7de6dd8988ca7ee681459d
 
 Get started with `bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"`
 
-Release Note: https://vonng.github.io/pigsty/#/RELEASENOTE?id=v220
+Release Note: https://doc.pigsty.cc/#/RELEASENOTE
 
 **Highlight**
 
@@ -1102,15 +1102,15 @@ v1 GA, Monitoring System Overhaul
 
 **API Change**
 
-* new var :  [`node_meta_pip_install`](http://doc.pigsty.cc/#/zh-cn/v-node?id=node_meta_pip_install)
-* rename var: `grafana_url` to [`grafana_endpoint`](http://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_endpoint)
-* new var: [`grafana_admin_username`](http://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_admin_username)
-* new var: [`grafana_database`](http://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_database)
-* new var: [`grafana_pgurl`](http://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_pgurl)
-* new var: [`pg_shared_libraries`](http://doc.pigsty.cc/#/zh-cn/v-pg-provision?id=pg_shared_libraries)
-* new var: [`pg_exporter_auto_discovery`](http://doc.pigsty.cc/#/zh-cn/v-monitor?id=pg_exporter_auto_discovery)
-* new var: [`pg_exporter_exclude_database`](http://doc.pigsty.cc/#/zh-cn/v-monitor?id=pg_exporter_exclude_database)
-* new var: [`pg_exporter_include_database`](http://doc.pigsty.cc/#/zh-cn/v-monitor?id=pg_exporter_include_database)
+* new var :  [`node_meta_pip_install`](https://doc.pigsty.cc/#/zh-cn/v-node?id=node_meta_pip_install)
+* rename var: `grafana_url` to [`grafana_endpoint`](https://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_endpoint)
+* new var: [`grafana_admin_username`](https://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_admin_username)
+* new var: [`grafana_database`](https://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_database)
+* new var: [`grafana_pgurl`](https://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_pgurl)
+* new var: [`pg_shared_libraries`](https://doc.pigsty.cc/#/zh-cn/v-pg-provision?id=pg_shared_libraries)
+* new var: [`pg_exporter_auto_discovery`](https://doc.pigsty.cc/#/zh-cn/v-monitor?id=pg_exporter_auto_discovery)
+* new var: [`pg_exporter_exclude_database`](https://doc.pigsty.cc/#/zh-cn/v-monitor?id=pg_exporter_exclude_database)
+* new var: [`pg_exporter_include_database`](https://doc.pigsty.cc/#/zh-cn/v-monitor?id=pg_exporter_include_database)
 
 
 **Bug Fix**

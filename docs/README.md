@@ -4,7 +4,7 @@
 >
 > —— **A battery-included, local-first, open-source RDS PG alternative.**
 >
-> Latest Release: [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://vonng.github.io/pigsty/#/) | [Website](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/6nA2fDXt) | [中文文档](/zh/)
+> Latest Release: [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Website](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/6nA2fDXt) | [中文文档](/zh/)
 >
 > [Get Started](INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash`
 
@@ -65,7 +65,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 ./configure      # preflight-check and generate config according to your env
 ./install.yml    # install pigsty on this node and init it as the admin node
 [Reference] ===========================================
-Get Started:     https://vonng.github.io/pigsty/#/INSTALL
+Get Started:     https://doc.pigsty.cc/#/INSTALL
 Documentation:   https://vonng.github.io/pigsty
 Github Repo:     https://github.com/Vonng/pigsty
 Public Demo:     https://demo.pigsty.cc
@@ -427,7 +427,7 @@ Check [**Configuration**](CONFIG) & [**PGSQL Conf**](PGSQL-CONF.md) for details.
 
 > Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "**P**ostgreSQL **I**n **G**reat **STY**le."
 
-Docs: https://vonng.github.io/pigsty/
+Docs: https://doc.pigsty.cc/
 
 Wiki: https://github.com/Vonng/pigsty/wiki
 

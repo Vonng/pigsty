@@ -1,7 +1,7 @@
 # Configuration Template
 
 This directory (`files/pigsty`) contains pigsty config templates,
-Which will be used during [`configure`](https://vonng.github.io/pigsty/#/INSTALL) procedure.
+Which will be used during [`configure`](https://doc.pigsty.cc/#/INSTALL) procedure.
 
 Config templates are named as `<mode>.yml`.  `<mode>` can be designated using `./configure -m <mode>`
 

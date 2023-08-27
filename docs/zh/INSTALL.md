@@ -50,7 +50,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 ./configure      # preflight-check and generate config according to your env
 ./install.yml    # install pigsty on this node and init it as the admin node
 [Reference] ===========================================
-Get Started:     https://vonng.github.io/pigsty/#/INSTALL
+Get Started:     https://doc.pigsty.cc/#/INSTALL
 Documentation:   https://vonng.github.io/pigsty
 Github Repo:     https://github.com/Vonng/pigsty
 Public Demo:     https://demo.pigsty.cc

@@ -4,7 +4,7 @@
 >
 > —— **开箱即用，本地优先的 RDS PostgreSQL 开源替代**
 >
-> 最新版本：[v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://vonng.github.io/pigsty/#/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [服务订阅](https://pigsty.cc/zh/docs/support/) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
+> 最新版本：[v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [服务订阅](https://pigsty.cc/zh/docs/support/) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
 >
 > [快速上手](INSTALL.md)： `curl -fsSL https://get.pigsty.cc/latest | bash`
 
@@ -69,7 +69,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 ./configure      # preflight-check and generate config according to your env
 ./install.yml    # install pigsty on this node and init it as the admin node
 [Reference] ===========================================
-Get Started:     https://vonng.github.io/pigsty/#/INSTALL
+Get Started:     https://doc.pigsty.cc/#/INSTALL
 Documentation:   https://vonng.github.io/pigsty
 Github Repo:     https://github.com/Vonng/pigsty
 Public Demo:     https://demo.pigsty.cc
@@ -440,7 +440,7 @@ minio:
 
 > Pigsty (/ˈpɪɡˌstaɪ/) 是 "**P**ostgreSQL **I**n **G**reat **STY**le" 的缩写，即“全盛状态的PostgreSQL”
 
-文档: https://vonng.github.io/pigsty/
+文档: https://doc.pigsty.cc/
 
 百科: https://github.com/Vonng/pigsty/wiki
 
