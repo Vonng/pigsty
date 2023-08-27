@@ -1,111 +1,66 @@
 # PostgreSQL 监控接入
 
-> How to use Pigsty to monitor remote (existing) PostgreSQL instances?
+> Pigsty监控系统架构概览，以及如何监控现存的 PostgreSQL 实例？
 
 ----------------
 
 ## 监控概览
 
-Pigsty use modern observability stack for PostgreSQL monitoring:
+Pigsty使用现代的可观测技术栈对 PostgreSQL 进行监控：
 
-* Grafana for metrics visualization and PostgreSQL datasource.
-* Prometheus for PostgreSQL / Pgbouncer / Patroni / HAProxy / Node metrics
-* Loki for PostgreSQL / Pgbouncer / Patroni / pgBackRest logs
-
-
-----------------
-
-## 监控面板
-
-There are 26 default grafana dashboards about PostgreSQL, check [PGSQL Dashboard](PGSQL-DASHBOARD) for details. 
-
-**Overview**
-
-- [pgsql-overview](https://demo.pigsty.cc/d/pgsql-overview) : The main dashboard for PGSQL module
-- [pgsql-alert](https://demo.pigsty.cc/d/pgsql-alert) : Global PGSQL key metrics and alerting events
-- [pgsql-shard](https://demo.pigsty.cc/d/pgsql-shard) : Overview of a horizontal sharded PGSQL cluster, e.g. citus / gpsql cluster
-
-**Cluster**
-
-- [pgsql-cluster](https://demo.pigsty.cc/d/pgsql-cluster): The main dashboard for a PGSQL cluster
-- [pgsql-cluster-remote](https://demo.pigsty.cc/d/pgsql-cluster-remote): Trimmed version of PGSQL Cluster, for remote PGSQL cluster
-- [pgsql-activity](https://demo.pigsty.cc/d/pgsql-activity): Cares about the Session/Load/QPS/TPS/Locks of a PGSQL cluster
-- [pgsql-replication](https://demo.pigsty.cc/d/pgsql-replication): Cares about PGSQL cluster replication, slots, and pub/sub.
-- [pgsql-service](https://demo.pigsty.cc/d/pgsql-service): Cares about PGSQL cluster services, proxies, routes, and load balancers.
-- [pgsql-databases](https://demo.pigsty.cc/d/pgsql-databases): Cares about database CRUD, slow queries, and table statistics cross all instances.
-
-**Instance**
-
-- [pgsql-instance](https://demo.pigsty.cc/d/pgsql-instance): The main dashboard for a single PGSQL instance
-- [pgcat-instance](https://demo.pigsty.cc/d/pgcat-instance): Instance information from database catalog directly
-- [pgsql-persist](https://demo.pigsty.cc/d/pgsql-persist): Metrics about persistence: WAL, XID, Checkpoint, Archive, IO
-- [pgsql-proxy](https://demo.pigsty.cc/d/pgsql-proxy): Metrics about haproxy the service provider
-- [pgsql-queries](https://demo.pigsty.cc/d/pgsql-queries): Overview of all queries in a single instance
-- [pgsql-session](https://demo.pigsty.cc/d/pgsql-session): Metrics about sessions and active/idle time in a single instance
-- [pgsql-xacts](https://demo.pigsty.cc/d/pgsql-xacts): Metrics about transactions, locks, queries, etc...
-
-**Database**
-
-- [pgsql-database](https://demo.pigsty.cc/d/pgsql-database): The main dashboard for a single PGSQL database
-- [pgcat-database](https://demo.pigsty.cc/d/pgcat-database): Database information from database catalog directly
-- [pgsql-tables](https://demo.pigsty.cc/d/pgsql-tables) : Table/Index access metrics inside a single database
-- [pgsql-table](https://demo.pigsty.cc/d/pgsql-table): Detailed information (QPS/RT/Index/Seq...) about a single table 
-- [pgcat-table](https://demo.pigsty.cc/d/pgcat-table): Detailed information (Stats/Bloat/...) about a single table from database catalog directly
-- [pgsql-query](https://demo.pigsty.cc/d/pgsql-query): Detailed information (QPS/RT) about a single query
-- [pgcat-query](https://demo.pigsty.cc/d/pgcat-query): Detailed information (SQL/Stats) about a single query from database catalog directly
-
-
+- 使用Grafana进行指标可视化和PostgreSQL数据源。
+- 使用Prometheus来监控PostgreSQL / Pgbouncer / Patroni / HAProxy / Node的指标
+- 使用Loki来记录PostgreSQL / Pgbouncer / Patroni / pgBackRest的日志
+- Pigsty 提供了开箱即用的 Grafana [仪表盘](PGSQL-DASHBOARD)，展示与 PostgreSQL 有关的方方面面。 
 
 
 ----------------
 
 ## 监控指标
 
-PostgreSQL's metrics are defined by collector files: [`pg_exporter.yml`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/pg_exporter.yml)
+PostgreSQL 本身的监控指标完全由 pg_exporter 配置文件所定义：[`pg_exporter.yml`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/pg_exporter.yml)
 
-And it will further be processed by Prometheus record rules & Alert evaluation: [`files/prometheus/rules/pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/files/prometheus/rules/pgsql.yml)
+它将进一步由 Prometheus 记录规则和警报评估处理：[`files/prometheus/rules/pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/files/prometheus/rules/pgsql.yml)
 
-3 labels: `cls`, `ins`, `ip` will be attached to all metrics & logs, such as `{ cls: pg-meta, ins: pg-meta-1, ip: 10.10.10.10 }`
+3个标签：`cls`、`ins`、`ip`将附加到所有指标和日志上，例如`{ cls: pg-meta, ins: pg-meta-1, ip: 10.10.10.10 }`
 
 
 ----------------
 
 ## 日志
 
-PostgreSQL related logs are collected by promtail and sending to loki on infra nodes by default.
+与 PostgreSQL 有关的日志由 promtail 负责收集，并发送至 infra 节点上的 Loki 日志存储/查询服务。
 
-- [`pg_log_dir`](PARAM#pg_log_dir) : postgres log dir, `/pg/log/postgres` by default
-- [`pgbouncer_log_dir`](PARAM#pgbouncer_log_dir) : pgbouncer log dir, `/pg/log/pgbouncer` by default
-- [`patroni_log_dir`](PARAM#patroni_log_dir) : patroni log dir, `/pg/log/patroni` by default
-- [`pgbackrest_log_dir`](PARAM#pgbackrest_log_dir) : pgbackrest log dir, `/pg/log/pgbackrest` by default
-
-
+- [`pg_log_dir`](PARAM#pg_log_dir) : postgres日志目录，默认为`/pg/log/postgres`
+- [`pgbouncer_log_dir`](PARAM#pgbouncer_log_dir) : pgbouncer日志目录，默认为`/pg/log/pgbouncer`
+- [`patroni_log_dir`](PARAM#patroni_log_dir) : patroni日志目录，默认为`/pg/log/patroni`
+- [`pgbackrest_log_dir`](PARAM#pgbackrest_log_dir) : pgbackrest日志目录，默认为`/pg/log/pgbackrest`
 
 
 ----------------
 
 ## 目标管理
 
-Prometheus monitoring targets are defined in static files under `/etc/prometheus/targets/pgsql/`, each instance will have a corresponding file.
+Prometheus的监控目标在 `/etc/prometheus/targets/pgsql/` 下的静态文件中定义，每个实例都有一个相应的文件。
 
-Take `pg-meta-1` as an example:
+以 `pg-meta-1` 为例：
 
 ```yaml
 # pg-meta-1 [primary] @ 10.10.10.10
 - labels: { cls: pg-meta, ins: pg-meta-1, ip: 10.10.10.10 }
   targets:
-    - 10.10.10.10:9630    # <--- pg_exporter for PostgreSQL metrics
-    - 10.10.10.10:9631    # <--- pg_exporter for pgbouncer metrics
-    - 10.10.10.10:8008    # <--- patroni metrics
+    - 10.10.10.10:9630    # <--- pg_exporter 用于PostgreSQL指标
+    - 10.10.10.10:9631    # <--- pg_exporter 用于pgbouncer指标
+    - 10.10.10.10:8008    # <--- patroni指标（未启用 API SSL 时）
 ```
 
-When the global flag [`patroni_ssl_enabled`](PARAM#patroni_ssl_enabled) is set, patroni target will be moved to a separate file `/etc/prometheus/targets/patroni/<ins>.yml`.
-Since https scrape endpoint is used for that.
+当全局标志 [`patroni_ssl_enabled`](PARAM#patroni_ssl_enabled) 被设置时，patroni目标将被移动到单独的文件 `/etc/prometheus/targets/patroni/<ins>.yml`。 因为此时使用的是https抓取端点。
 
-Prometheus monitoring target will be removed when cluster is removed with `bin/pgsql-rm` or `pgsql-rm.yml`. You can also remove it manually, or using playbook subtasks:
+当使用 `bin/pgsql-rm` 或 `pgsql-rm.yml` 移除集群时，Prometheus监控目标将被移除。您也可以手动移除它，或使用playbook子任务：
+
 
 ```bash
-bin/pgmon-rm <ins>      # remove prometheus targets from all infra nodes
+bin/pgmon-rm <ins>      # 从所有infra节点中移除prometheus监控目标
 ```
 
 
@@ -114,9 +69,7 @@ bin/pgmon-rm <ins>      # remove prometheus targets from all infra nodes
 
 ## 监控现有PG
 
-
-For existing PostgreSQL instances, such as RDS, or homemade PostgreSQL that is not managed by Pigsty,
- some additional configuration is required if you wish to monitoring them with Pigsty
+对于现有的PostgreSQL实例，例如RDS，或者不由Pigsty管理的自制PostgreSQL，如果您希望用Pigsty监控它们，需要进行一些额外的配置。
 
 
 ```
@@ -135,32 +88,32 @@ For existing PostgreSQL instances, such as RDS, or homemade PostgreSQL that is n
 -------------------            ^------------------^
 ```
 
+**操作步骤**
 
-**Procedure**
+1. 在目标上创建监控模式、用户和权限。
+2. 在库存中声明集群。例如，假设我们想要监控“远端”的 `pg-meta` & `pg-test` 集群，名称为 `pg-foo` 和 `pg-bar`，我们可以在库存中声明它们如下：
 
-1. Create monitoring schema, user and privilege on target.
-
-2. Declare the cluster in the inventory. For example, assume we want to monitor 'remote' pg-meta & pg-test cluster
-   With the name of `pg-foo` and `pg-bar`, we can declare them in the inventory as: 
-
-```yaml
-infra:            # infra cluster for proxy, monitor, alert, etc..
+```
+yamlCopy code
+infra:            # 代理、监控、警报等的infra集群..
   hosts: { 10.10.10.10: { infra_seq: 1 } }
-  vars:           # install pg_exporter for remote postgres RDS on a group 'infra'
-    pg_exporters: # list all remote instances here, alloc a unique unused local port as k
+
+  vars:           # 在组'infra'上为远程postgres RDS安装pg_exporter
+
+    pg_exporters: # 在此列出所有远程实例，为k分配一个唯一的未使用的本地端口
 
       20001: { pg_cluster: pg-foo, pg_seq: 1, pg_host: 10.10.10.10 }
 
       20002: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.11 , pg_port: 5432 }
       20003: { pg_cluster: pg-bar, pg_seq: 2, pg_host: 10.10.10.12 , pg_exporter_url: 'postgres://dbuser_monitor:DBUser.Monitor@10.10.10.12:5432/postgres?sslmode=disable'}
       20004: { pg_cluster: pg-bar, pg_seq: 3, pg_host: 10.10.10.13 , pg_monitor_username: dbuser_monitor, pg_monitor_password: DBUser.Monitor }
-
 ```
 
-3. Execute the playbook against the cluster: `bin/pgmon-add <clsname>`.
+1. 对集群执行playbook：`bin/pgmon-add <clsname>`。
 
-To remove a remote cluster monitoring target:
+要删除远程集群的监控目标：
 
-```bash
+```
+bashCopy code
 bin/pgmon-rm <clsname>
 ```

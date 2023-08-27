@@ -160,16 +160,16 @@ ETCD 模块提供了一个监控面板：
 
 | 参数                                                                                 |   类型   |  级别   | 注释                            |
 |------------------------------------------------------------------------------------|:------:|:-----:|-------------------------------|
-| [`etcd_seq`](https://chat.openai.com/PARAM#etcd_seq)                               |  int   |   I   | etcd 实例标识符，必填                 |
-| [`etcd_cluster`](https://chat.openai.com/PARAM#etcd_cluster)                       | string |   C   | etcd 集群名，默认固定为 etcd           |
-| [`etcd_safeguard`](https://chat.openai.com/PARAM#etcd_safeguard)                   |  bool  | G/C/A | etcd 防误删保险，阻止清除正在运行的 etcd 实例？ |
-| [`etcd_clean`](https://chat.openai.com/PARAM#etcd_clean)                           |  bool  | G/C/A | etcd 清除指令：在初始化时清除现有的 etcd 实例？ |
-| [`etcd_data`](https://chat.openai.com/PARAM#etcd_data)                             |  path  |   C   | etcd 数据目录，默认为 /data/etcd      |
-| [`etcd_port`](https://chat.openai.com/PARAM#etcd_port)                             |  port  |   C   | etcd 客户端端口，默认为 2379           |
-| [`etcd_peer_port`](https://chat.openai.com/PARAM#etcd_peer_port)                   |  port  |   C   | etcd 同伴端口，默认为 2380            |
-| [`etcd_init`](https://chat.openai.com/PARAM#etcd_init)                             |  enum  |   C   | etcd 初始集群状态，新建或已存在            |
-| [`etcd_election_timeout`](https://chat.openai.com/PARAM#etcd_election_timeout)     |  int   |   C   | etcd 选举超时，默认为 1000ms          |
-| [`etcd_heartbeat_interval`](https://chat.openai.com/PARAM#etcd_heartbeat_interval) |  int   |   C   | etcd 心跳间隔，默认为 100ms           |
+| [`etcd_seq`](PARAM#etcd_seq)                               |  int   |   I   | etcd 实例标识符，必填                 |
+| [`etcd_cluster`](PARAM#etcd_cluster)                       | string |   C   | etcd 集群名，默认固定为 etcd           |
+| [`etcd_safeguard`](PARAM#etcd_safeguard)                   |  bool  | G/C/A | etcd 防误删保险，阻止清除正在运行的 etcd 实例？ |
+| [`etcd_clean`](PARAM#etcd_clean)                           |  bool  | G/C/A | etcd 清除指令：在初始化时清除现有的 etcd 实例？ |
+| [`etcd_data`](PARAM#etcd_data)                             |  path  |   C   | etcd 数据目录，默认为 /data/etcd      |
+| [`etcd_port`](PARAM#etcd_port)                             |  port  |   C   | etcd 客户端端口，默认为 2379           |
+| [`etcd_peer_port`](PARAM#etcd_peer_port)                   |  port  |   C   | etcd 同伴端口，默认为 2380            |
+| [`etcd_init`](PARAM#etcd_init)                             |  enum  |   C   | etcd 初始集群状态，新建或已存在            |
+| [`etcd_election_timeout`](PARAM#etcd_election_timeout)     |  int   |   C   | etcd 选举超时，默认为 1000ms          |
+| [`etcd_heartbeat_interval`](PARAM#etcd_heartbeat_interval) |  int   |   C   | etcd 心跳间隔，默认为 100ms           |
 
 ```yaml
 #etcd_seq: 1                      # etcd instance identifier, explicitly required

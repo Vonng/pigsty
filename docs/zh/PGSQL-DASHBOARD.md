@@ -4,6 +4,10 @@
 
 在 Pigsty 中共有 26 个与 PostgreSQL 相关的监控面板，按照层次分为 总览，集群，实例，数据库四大类，按照数据来源又分为 PGSQL，PGCAT，PGLOG 三大类。
 
+----------------
+
+## 总览
+
 |                            总览                             |                                  集群                                   |                             实例                              |                            数据库                            |
 |:---------------------------------------------------------:|:---------------------------------------------------------------------:|:-----------------------------------------------------------:|:---------------------------------------------------------:|
 | [PGSQL Overview](https://demo.pigsty.cc/d/pgsql-overview) |        [PGSQL Cluster](https://demo.pigsty.cc/d/pgsql-cluster)        |  [PGSQL Instance](https://demo.pigsty.cc/d/pgsql-instance)  | [PGSQL Database](https://demo.pigsty.cc/d/pgsql-database) |
@@ -18,11 +22,49 @@
 
 
 
+**概览**
+
+- [pgsql-overview](https://demo.pigsty.cc/d/pgsql-overview) : PGSQL模块的主仪表板
+- [pgsql-alert](https://demo.pigsty.cc/d/pgsql-alert) : PGSQL的全局关键指标和警报事件
+- [pgsql-shard](https://demo.pigsty.cc/d/pgsql-shard) : 关于水平分片的PGSQL集群的概览，例如 citus / gpsql 集群
+
+**集群**
+
+- [pgsql-cluster](https://demo.pigsty.cc/d/pgsql-cluster): 一个PGSQL集群的主仪表板
+- [pgsql-cluster-remote](https://demo.pigsty.cc/d/pgsql-cluster-remote): PGSQL集群的精简版本，用于远程PGSQL集群
+- [pgsql-activity](https://demo.pigsty.cc/d/pgsql-activity): 关注PGSQL集群的会话/负载/QPS/TPS/锁定情况
+- [pgsql-replication](https://demo.pigsty.cc/d/pgsql-replication): 关注PGSQL集群复制、插槽和发布/订阅。
+- [pgsql-service](https://demo.pigsty.cc/d/pgsql-service): 关注PGSQL集群服务、代理、路由和负载均衡。
+- [pgsql-databases](https://demo.pigsty.cc/d/pgsql-databases): 关注所有实例的数据库CRUD、慢查询和表统计信息。
+
+**实例**
+
+- [pgsql-instance](https://demo.pigsty.cc/d/pgsql-instance): 单个PGSQL实例的主仪表板
+- [pgcat-instance](https://demo.pigsty.cc/d/pgcat-instance): 直接从数据库目录获取的实例信息
+- [pgsql-proxy](https://demo.pigsty.cc/d/pgsql-proxy): 单个haproxy负载均衡器的详细指标
+- [pgsql-pgbouncer](https://demo.pigsty.cc/d/pgsql-pgbouncer): 单个Pgbouncer连接池实例中的指标总览
+- [pgsql-persist](https://demo.pigsty.cc/d/pgsql-persist): 持久性指标：WAL、XID、检查点、存档、IO
+- [pgsql-session](https://demo.pigsty.cc/d/pgsql-session): 单个实例中的会话和活动/空闲时间的指标
+- [pgsql-xacts](https://demo.pigsty.cc/d/pgsql-xacts): 关于事务、锁、TPS/QPS相关的指标
+
+**数据库**
+
+- [pgsql-database](https://demo.pigsty.cc/d/pgsql-database): 单个PGSQL数据库的主仪表板
+- [pgcat-database](https://demo.pigsty.cc/d/pgcat-database): 直接从数据库目录获取的数据库信息
+- [pgsql-tables](https://demo.pigsty.cc/d/pgsql-tables) : 单个数据库内的表/索引访问指标
+- [pgsql-table](https://demo.pigsty.cc/d/pgsql-table): 单个表的详细信息（QPS/RT/索引/序列...）
+- [pgcat-table](https://demo.pigsty.cc/d/pgcat-table): 直接从数据库目录获取的单个表的详细信息（统计/膨胀...）
+- [pgsql-query](https://demo.pigsty.cc/d/pgsql-query): 单个查询的详细信息（QPS/RT）
+- [pgcat-query](https://demo.pigsty.cc/d/pgcat-query): 直接从数据库目录获取的单个查询的详细信息（SQL/统计）
+- [pgcat-schema](https://demo.pigsty.cc/d/pgcat-schema): 直接从数据库目录获取关于模式的信息（表/索引/序列...）
+- [pgcat-locks](https://demo.pigsty.cc/d/pgcat-locks): 直接从数据库目录获取的关于活动与锁等待的信息
+
+
 ----------------
 
 ## 总览
 
-[PGSQL Overview](https://demo.pigsty.cc/d/pgsql-overview) : The main dashboard for PGSQL module
+[PGSQL Overview](https://demo.pigsty.cc/d/pgsql-overview)：PGSQL模块的主仪表板
 
 <details><summary>PGSQL Overview</summary>
 
@@ -31,7 +73,7 @@
 </details>
 
 
-[PGSQL Alert](https://demo.pigsty.cc/d/pgsql-alert) : Global PGSQL key metrics and alerting events
+[PGSQL Alert](https://demo.pigsty.cc/d/pgsql-alert)：PGSQL 全局核心指标总览与告警事件一览
 
 <details><summary>PGSQL Alert</summary>
 
@@ -40,7 +82,7 @@
 </details>
 
 
-[PGSQL Shard](https://demo.pigsty.cc/d/pgsql-shard) : Overview of a horizontal sharded PGSQL cluster, e.g. CITUS / GPSQL cluster
+[PGSQL Shard](https://demo.pigsty.cc/d/pgsql-shard)：展示一个PGSQL 水平分片集群内的横向指标对比：例如 CITUS / GPSQL 集群。
 
 <details><summary>PGSQL Shard</summary>
 
@@ -54,9 +96,7 @@
 
 ## 集群
 
-**Cluster**
-
-[PGSQL Cluster](https://demo.pigsty.cc/d/pgsql-cluster): The main dashboard for a PGSQL cluster
+[PGSQL Cluster](https://demo.pigsty.cc/d/pgsql-cluster)：一个PGSQL集群的主仪表板
 
 <details><summary>PGSQL Cluster</summary>
 
@@ -64,9 +104,9 @@
 
 </details>
 
-[PGSQL Cluster Remote](https://demo.pigsty.cc/d/pgsql-cluster-remote): Trimmed version of PGSQL Cluster, for remote PGSQL cluster
+[PGSQL Cluster Remote](https://demo.pigsty.cc/d/pgsql-cluster-remote)：PGSQL集群的精简版本，用于远程PGSQL集群
 
-[PGSQL Service](https://demo.pigsty.cc/d/pgsql-service): Cares about PGSQL cluster services, proxies, routes, and load balancers.
+[PGSQL Service](https://demo.pigsty.cc/d/pgsql-service)：关注PGSQL集群服务、代理、路由和负载均衡。
 
 <details><summary>PGSQL Service</summary>
 
@@ -74,7 +114,7 @@
 
 </details>
 
-[PGSQL Activity](https://demo.pigsty.cc/d/pgsql-activity): Cares about the Session/Load/QPS/TPS/Locks of a PGSQL cluster
+[PGSQL Activity](https://demo.pigsty.cc/d/pgsql-activity)：关注PGSQL集群的会话/负载/QPS/TPS/锁定情况
 
 <details><summary>PGSQL Activity</summary>
 
@@ -82,7 +122,7 @@
 
 </details>
 
-[PGSQL Replication](https://demo.pigsty.cc/d/pgsql-replication): Cares about PGSQL cluster replication, slots, and pub/sub.
+[PGSQL Replication](https://demo.pigsty.cc/d/pgsql-replication)：关注PGSQL集群复制、插槽和发布/订阅。
 
 <details><summary>PGSQL Replication</summary>
 
@@ -91,7 +131,7 @@
 </details>
 
 
-[PGSQL Databases](https://demo.pigsty.cc/d/pgsql-databases): Cares about database CRUD, slow queries, and table statistics cross all instances.
+[PGSQL Databases](https://demo.pigsty.cc/d/pgsql-databases)：关注所有实例的数据库CRUD、慢查询和表统计信息。
 
 <details><summary>PGSQL Databases</summary>
 
@@ -105,7 +145,7 @@
 
 ## 实例
 
-[PGSQL Instance](https://demo.pigsty.cc/d/pgsql-instance): The main dashboard for a single PGSQL instance
+[PGSQL Instance](https://demo.pigsty.cc/d/pgsql-instance)：单个PGSQL实例的主仪表板
 
 <details><summary>PGSQL Instance</summary>
 
@@ -114,7 +154,7 @@
 </details>
 
 
-[PGSQL Proxy](https://demo.pigsty.cc/d/pgsql-proxy): Metrics about haproxy the service provider
+[PGSQL Proxy](https://demo.pigsty.cc/d/pgsql-proxy)：单个haproxy负载均衡器的详细指标
 
 <details><summary>PGSQL Proxy</summary>
 
@@ -123,7 +163,7 @@
 </details>
 
 
-[PGSQL Pgbouncer](https://demo.pigsty.cc/d/pgsql-pgbouncer): Metrics about one single pgbouncer connection pool instance
+[PGSQL Pgbouncer](https://demo.pigsty.cc/d/pgsql-pgbouncer)：单个Pgbouncer连接池实例中的指标总览
 
 <details><summary>PGSQL Pgbouncer</summary>
 
@@ -132,7 +172,7 @@
 </details>
 
 
-[PGSQL Persist](https://demo.pigsty.cc/d/pgsql-persist): Metrics about persistence: WAL, XID, Checkpoint, Archive, IO
+[PGSQL Persist](https://demo.pigsty.cc/d/pgsql-persist)：持久性指标：WAL、XID、检查点、存档、IO
 
 <details><summary>PGSQL Persist</summary>
 
@@ -141,7 +181,7 @@
 </details>
 
 
-[PGSQL Xacts](https://demo.pigsty.cc/d/pgsql-xacts): Metrics about transactions, locks, queries, etc...
+[PGSQL Xacts](https://demo.pigsty.cc/d/pgsql-xacts)：关于事务、锁、TPS/QPS相关的指标
 
 <details><summary>PGSQL Xacts</summary>
 
@@ -150,7 +190,7 @@
 </details>
 
 
-[PGSQL Session](https://demo.pigsty.cc/d/pgsql-session): Metrics about sessions and active/idle time in a single instance
+[PGSQL Session](https://demo.pigsty.cc/d/pgsql-session)：单个实例中的会话和活动/空闲时间的指标
 
 <details><summary>PGSQL Session</summary>
 
@@ -166,7 +206,7 @@
 ## 数据库
 
 
-[PGSQL Database](https://demo.pigsty.cc/d/pgsql-database): The main dashboard for a single PGSQL database
+[PGSQL Database](https://demo.pigsty.cc/d/pgsql-database)：单个PGSQL数据库的主仪表板
 
 <details><summary>PGSQL Database</summary>
 
@@ -175,7 +215,7 @@
 </details>
 
 
-[PGSQL Tables](https://demo.pigsty.cc/d/pgsql-tables) : Table/Index access metrics inside a single database
+[PGSQL Tables](https://demo.pigsty.cc/d/pgsql-tables)：单个数据库内的表/索引访问指标
 
 <details><summary>PGSQL Tables</summary>
 
@@ -184,7 +224,7 @@
 </details>
 
 
-[PGSQL Table](https://demo.pigsty.cc/d/pgsql-table): Detailed information (QPS/RT/Index/Seq...) about a single table
+[PGSQL Table](https://demo.pigsty.cc/d/pgsql-table)：单个表的详细信息（QPS/RT/索引/序列...）
 
 <details><summary>PGSQL Table</summary>
 
@@ -193,7 +233,7 @@
 </details>
 
 
-[PGSQL Query](https://demo.pigsty.cc/d/pgsql-query): Detailed information (QPS/RT) about a single query
+[PGSQL Query](https://demo.pigsty.cc/d/pgsql-query)：单类查询的详细信息（QPS/RT）
 
 <details><summary>PGSQL Query</summary>
 
@@ -208,7 +248,7 @@
 
 ## PGCAT
 
-[PGCAT Instance](https://demo.pigsty.cc/d/pgcat-instance): Instance information from database catalog directly
+[PGCAT Instance](https://demo.pigsty.cc/d/pgcat-instance)：直接从数据库目录获取的实例信息
 
 <details><summary>PGCAT Instance</summary>
 
@@ -217,7 +257,7 @@
 </details>
 
 
-[PGCAT Database](https://demo.pigsty.cc/d/pgcat-database): Database information from database catalog directly
+[PGCAT Database](https://demo.pigsty.cc/d/pgcat-database)：直接从数据库目录获取的数据库信息
 
 <details><summary>PGCAT Database</summary>
 
@@ -227,7 +267,7 @@
 
 
 
-[PGCAT Schema](https://demo.pigsty.cc/d/pgcat-schema): Detailed information about one single schema from database catalog directly
+[PGCAT Schema](https://demo.pigsty.cc/d/pgcat-schema)：直接从数据库目录获取关于模式的信息（表/索引/序列...）
 
 <details><summary>PGCAT Schema</summary>
 
@@ -238,7 +278,7 @@
 
 
 
-[PGCAT Table](https://demo.pigsty.cc/d/pgcat-table): Detailed information about one single table from database catalog directly
+[PGCAT Table](https://demo.pigsty.cc/d/pgcat-table)：直接从数据库目录获取的单个表的详细信息（统计/膨胀...）
 
 <details><summary>PGCAT Table</summary>
 
@@ -248,7 +288,7 @@
 
 
 
-[PGCAT Query](https://demo.pigsty.cc/d/pgcat-query): Detailed information about one single type of query from database catalog directly
+[PGCAT Query](https://demo.pigsty.cc/d/pgcat-query)：直接从数据库目录获取的单类查询的详细信息（SQL/统计）
 
 <details><summary>PGCAT Query</summary>
 
@@ -258,7 +298,7 @@
 
 
 
-[PGCAT Locks](https://demo.pigsty.cc/d/pgcat-locks): Detailed information about live locks & activity from database catalog directly
+[PGCAT Locks](https://demo.pigsty.cc/d/pgcat-locks)：直接从数据库目录获取的关于活动与锁等待的信息
 
 <details><summary>PGCAT Locks</summary>
 
@@ -272,7 +312,7 @@
 
 ## PGLOG
 
-[PGLOG Overview](https://demo.pigsty.cc/d/pglog-overview): Overview of csv log sample in pigsty meta database
+[PGLOG Overview](https://demo.pigsty.cc/d/pglog-overview)：总览 Pigsty CMDB 中的CSV日志样本
 
 <details><summary>PGLOG Overview</summary>
 
@@ -282,7 +322,7 @@
 
 
 
-[PGLOG Overview](https://demo.pigsty.cc/d/pglog-overview): Detail of one single session of csv log sample in pigsty meta database
+[PGLOG Overview](https://demo.pigsty.cc/d/pglog-overview)：Pigsty CMDB 中的CSV日志样本中某一条会话的日志详情
 
 <details><summary>PGLOG Session</summary>
 

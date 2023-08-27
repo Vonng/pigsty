@@ -359,21 +359,9 @@ postgres://test@10.10.10.11:5434/test # HAProxy -> connection pool -> database r
 postgres://dbuser_dba@10.10.10.11:5436/test # HAProxy -> Database Direct Connections
 postgres://dbuser_stats@10.10.10.11:5438/test # HAProxy -> database offline read-write
 
-# Directly specify any cluster instance IP access
-postgres://test@10.10.10.11:5432/test # Database instance direct connection (directly specify instance, no automatic traffic distribution)
-postgres://test@10.10.10.11:6432/test # Connection pool -> database
-postgres://test@10.10.10.11:5433/test # HAProxy -> connection pool -> database read/write
-postgres://test@10.10.10.11:5434/test # HAProxy -> connection pool -> database read-only
-postgres://dbuser_dba@10.10.10.11:5436/test # HAProxy -> Database Direct Connections
-postgres://dbuser_stats@10.10.10.11:5438/test # HAProxy -> database offline read-write
-
 # Smart client automatic read/write separation (connection pooling)
 postgres://test@10.10.10.11:6432,10.10.10.12:6432,10.10.10.13:6432/test?target_session_attrs=primary
 postgres://test@10.10.10.11:6432,10.10.10.12:6432,10.10.10.13:6432/test?target_session_attrs=prefer-standby
-
-# Intelligent client automatic read/write separation (database)
-postgres://test@10.10.10.11:5432,10.10.10.12:5432,10.10.10.13:5432/test?target_session_attrs=primary
-postgres://test@10.10.10.11:5432,10.10.10.12:5432,10.10.10.13:5432/test?target_session_attrs=prefer-standby
 ```
 
 

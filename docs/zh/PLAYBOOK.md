@@ -9,26 +9,26 @@
 
 以下是 Pigsty 中默认包含的剧本：
 
-| 剧本                                                                                       | 功能                              |
-|------------------------------------------------------------------------------------------|---------------------------------|
-| [`install.yml`](https://github.com/vonng/pigsty/blob/master/install.yml)                 | 在当前节点上一次性完整安装 Pigsty            |
-| [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infra.yml)                     | 在 infra 节点上初始化 pigsty 基础设施      |
-| [`infra-rm.yml`](https://github.com/vonng/pigsty/blob/master/infra-rm.yml)               | 从 infra 节点移除基础设施组件              |
-| [`node.yml`](https://github.com/vonng/pigsty/blob/master/node.yml)                       | 纳管节点，并调整节点到期望的状态                |
-| [`node-rm.yml`](https://github.com/vonng/pigsty/blob/master/node-rm.yml)                 | 从 pigsty 中移除纳管节点                |
-| [`pgsql.yml`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)                     | 初始化 HA PostgreSQL 集群或添加新的从库实例   |
-| [`pgsql-rm.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-rm.yml)               | 移除 PostgreSQL 集群或移除从库实例         |
-| [`pgsql-user.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-user.yml)           | 向现有的 PostgreSQL 集群添加新的业务用户      |
-| [`pgsql-db.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-db.yml)               | 向现有的 PostgreSQL 集群添加新的业务数据库     |
-| [`pgsql-monitor.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-monitor.yml)     | 监控纳管远程 postgres 实例              |
-| [`pgsql-migration.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml) | 为现有的 PostgreSQL 生成迁移手册和脚本       |
-| [`redis.yml`](https://github.com/vonng/pigsty/blob/master/redis.yml)                     | 初始化 redis 集群/节点/实例              |
-| [`redis-rm.yml`](https://github.com/vonng/pigsty/blob/master/redis-rm.yml)               | 移除 redis 集群/节点/实例               |
-| [`etcd.yml`](https://github.com/vonng/pigsty/blob/master/etcd.yml)                       | 初始化 etcd 集群（patroni HA DCS所需）   |
+| 剧本                                                                                       | 功能                               |
+|------------------------------------------------------------------------------------------|----------------------------------|
+| [`install.yml`](https://github.com/vonng/pigsty/blob/master/install.yml)                 | 在当前节点上一次性完整安装 Pigsty             |
+| [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infra.yml)                     | 在 infra 节点上初始化 pigsty 基础设施       |
+| [`infra-rm.yml`](https://github.com/vonng/pigsty/blob/master/infra-rm.yml)               | 从 infra 节点移除基础设施组件               |
+| [`node.yml`](https://github.com/vonng/pigsty/blob/master/node.yml)                       | 纳管节点，并调整节点到期望的状态                 |
+| [`node-rm.yml`](https://github.com/vonng/pigsty/blob/master/node-rm.yml)                 | 从 pigsty 中移除纳管节点                 |
+| [`pgsql.yml`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)                     | 初始化 HA PostgreSQL 集群或添加新的从库实例    |
+| [`pgsql-rm.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-rm.yml)               | 移除 PostgreSQL 集群或移除从库实例          |
+| [`pgsql-user.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-user.yml)           | 向现有的 PostgreSQL 集群添加新的业务用户       |
+| [`pgsql-db.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-db.yml)               | 向现有的 PostgreSQL 集群添加新的业务数据库      |
+| [`pgsql-monitor.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-monitor.yml)     | 监控纳管远程 postgres 实例               |
+| [`pgsql-migration.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml) | 为现有的 PostgreSQL 生成迁移手册和脚本        |
+| [`redis.yml`](https://github.com/vonng/pigsty/blob/master/redis.yml)                     | 初始化 redis 集群/节点/实例               |
+| [`redis-rm.yml`](https://github.com/vonng/pigsty/blob/master/redis-rm.yml)               | 移除 redis 集群/节点/实例                |
+| [`etcd.yml`](https://github.com/vonng/pigsty/blob/master/etcd.yml)                       | 初始化 etcd 集群（patroni HA DCS所需）    |
 | [`minio.yml`](https://github.com/vonng/pigsty/blob/master/minio.yml)                     | 初始化 minio 集群（pgbackrest 备份仓库备选项） |
-| [`cert.yml`](https://github.com/vonng/pigsty/blob/master/cert.yml)                       | 使用 pigsty 自签名 CA 颁发证书（例如用于客户端）  |
-| [`docker.yml`](https://github.com/vonng/pigsty/blob/master/docker.yml)                   | 在节点上安装 docker                   |
-| [`mongo.yml`](https://github.com/vonng/pigsty/blob/master/mongo.yml)                     | 在节点上安装 Mongo/FerretDB           |
+| [`cert.yml`](https://github.com/vonng/pigsty/blob/master/cert.yml)                       | 使用 pigsty 自签名 CA 颁发证书（例如用于客户端）   |
+| [`docker.yml`](https://github.com/vonng/pigsty/blob/master/docker.yml)                   | 在节点上安装 docker                    |
+| [`mongo.yml`](https://github.com/vonng/pigsty/blob/master/mongo.yml)                     | 在节点上安装 Mongo/FerretDB            |
 
 
 

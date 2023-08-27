@@ -108,7 +108,7 @@ pg_admin_password: DBUser.DBA                 # 系统管理密码，请务必�
 
 ## 权限系统
 
-Pigsty 拥有一套开箱即用的权限模型，该模型与[默认角色](https://chat.openai.com/#default-roles)一起配合工作。
+Pigsty 拥有一套开箱即用的权限模型，该模型与[默认角色](#default-roles)一起配合工作。
 
 - 所有用户都可以访问所有模式。
 - 只读用户（`dbrole_readonly`）可以从所有表中读取数据。（SELECT，EXECUTE）
@@ -200,8 +200,8 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "dbrole_admin" {{ priv }};
 
 也就是说，为了维持正确的对象权限，您必须用**管理员用户**来执行 DDL，它们可以是：
 
-1. [`{{ pg_dbsu }}`](https://chat.openai.com/PARAM#pg_dbsu)，默认为 `postgres`
-2. [`{{ pg_admin_username }}`](https://chat.openai.com/PARAM#pg_admin_username)，默认为 `dbuser_dba`
+1. [`{{ pg_dbsu }}`](PARAM#pg_dbsu)，默认为 `postgres`
+2. [`{{ pg_admin_username }}`](PARAM#pg_admin_username)，默认为 `dbuser_dba`
 3. 授予了 `dbrole_admin` 角色的业务管理员用户（通过 `SET ROLE` 切换为 `dbrole_admin` 身份）。
 
 使用 `postgres` 作为全局对象所有者是明智的。如果您希望以业务管理员用户身份创建对象，创建之前必须使用 `SET ROLE dbrole_admin` 来维护正确的权限。
@@ -225,17 +225,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "dbrole_admin" {{ priv }};
   revokeconn: false  # 可选，撤销公共连接权限。默认为 false，设置为 true 时，属主和管理员之外用户的 CONNECT 权限会被回收
 ```
 
-* If `owner` exists, it will be used as database owner instead of default [`{{ pg_dbsu }}`](PARAM#pg_dbsu)
-* If `revokeconn` is `false`, all users have the `CONNECT` privilege of the database, this is the default behavior.
-* If `revokeconn` is set to `true` explicitly:
-  * `CONNECT` privilege of the database will be revoked from `PUBLIC`
-  * `CONNECT` privilege will be granted to `{{ pg_replication_username }}`, `{{ pg_monitor_username }}` and `{{ pg_admin_username }}` 
-  * `CONNECT` privilege will be granted to database owner with `GRANT OPTION`
-
-`revokeconn` flag can be used for database access isolation, you can create different business users as the owners for each database and set the `revokeconn` option for all of them. 
-
-
-- 如果 `owner` 参数存在，它作为数据库属主，替代默认的 [`{{ pg_dbsu }}`](https://chat.openai.com/PARAM#pg_dbsu)（通常也就是`postgres`）
+- 如果 `owner` 参数存在，它作为数据库属主，替代默认的 [`{{ pg_dbsu }}`](PARAM#pg_dbsu)（通常也就是`postgres`）
 - 如果 `revokeconn` 为 `false`，所有用户都有数据库的 `CONNECT` 权限，这是默认的行为。
 - 如果显式设置了 `revokeconn` 为 `true`：
   - 数据库的 `CONNECT` 权限将从 `PUBLIC` 中撤销：普通用户无法连接上此数据库

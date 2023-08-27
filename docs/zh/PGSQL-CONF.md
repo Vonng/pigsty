@@ -394,9 +394,9 @@ SELECT create_reference_table('pgbench_tellers')          ; SELECT truncate_loca
 
 ----------------
 
-## Major Version
+## 大版本切换
 
-Pigsty works on PostgreSQL 10+. While the pre-packaged packages only includes 12 - 16(beta) for now.
+Pigsty 从 PostgreSQL 10 开始提供支持，不过目前预打包的离线软件包中仅包含 12 - 16(beta) 版本。
 
 | version | Comment                                                          | Packages         |
 |---------|------------------------------------------------------------------|------------------|

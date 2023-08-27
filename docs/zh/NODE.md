@@ -131,7 +131,7 @@ node.yml -t node_admin -k -K -e ansible_user=<另一个管理员>   # 为另一�
 
 **绑定 VIP**
 
-您可以在节点集群上绑定一个可选的 L2 VIP，使用 [`vip_enabled`](https://chat.openai.com/PARAM#vip_enabled) 参数。
+您可以在节点集群上绑定一个可选的 L2 VIP，使用 [`vip_enabled`](PARAM#vip_enabled) 参数。
 
 ```bash
 proxy:

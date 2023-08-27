@@ -2,41 +2,37 @@
 
 > PGSQL 模块总览：PostgreSQL 高可用集群的关键概念与架构细节 
 
-PGSQL for production environments is organized in **clusters**, which **clusters** are **logical entities** consisting of a set of database **instances** associated by **primary-replica**. 
-Each **database cluster** is a **self-organizing** business service unit consisting of at least one **database instance**.
-
+PGSQL模块在生产环境中以**集群**的形式组织，这些**集群**是由一组由**主-备**关联的数据库**实例**组成的**逻辑实体**。
+每个**数据库集群**都是由至少一个**数据库实例**组成的**自治**业务服务单元。
 
 ----------------
 
 ## 实体概念图
 
-Let's get started with ER diagram. There are four types of core entities in Pigsty's PGSQL module:
+让我们从ER图开始。在Pigsty的PGSQL模块中，有四种核心实体：
 
-* [**PGSQL Cluster**](#cluster): An autonomous PostgreSQL business unit, used as the top-level namespace for other entities.  
-* [**PGSQL Service**](#service): A named abstraction of cluster ability, route traffics, and expose postgres services with node ports.
-* [**PGSQL Instance**](#instance): A single postgres server which is a group of running processes & database files on a single node. 
-* [**PGSQL Node**](#node): An abstraction of hardware resources, which can be bare metal, virtual machine, or even k8s pods.
+- [**PGSQL 集群**](#集群)：一个自主的PostgreSQL业务单元，用作其他实体的顶级命名空间。
+- [**PGSQL 服务**](#服务)：集群能力的命名抽象，路由流量，并使用节点端口暴露postgres服务。
+- [**PGSQL 实例**](#实例)：一个在单个节点上的运行进程和数据库文件组成的单一postgres服务器。
+- [**PGSQL 节点**](#节点)：硬件资源的抽象，可以是裸金属、虚拟机或甚至是k8s pods。
 
 ![PGSQL-ER](https://user-images.githubusercontent.com/8587410/217492920-47613743-88b8-4c21-a8b9-cf7420cdd50f.png)
 
-**Naming Convention**
+**命名约定**
 
-* The cluster name should be a valid domain name, without any dot: `[a-zA-Z0-9-]+`
-* Service name should be prefixed with cluster name, and suffixed with a single word: such as `primary`, `replica`, `offline`, `delayed`, join by `-`
-* Instance name is prefixed with cluster name and suffixed with an integer, join by `-`, e.g., `${cluster}-${seq}`.
-* Node is identified by its IP address, and its hostname is usually the same as the instance name since they are 1:1 deployed.
-
-
+- 集群名称应为有效的域名，不包含任何点：`[a-zA-Z0-9-]+`
+- 服务名称应以集群名称为前缀，并以单词后缀，如`primary`、`replica`、`offline`、`delayed`，用`-`连接。
+- 实例名称以集群名称为前缀，以整数为后缀，用`-`连接，例如`${cluster}-${seq}`。
+- 节点由其IP地址识别，其主机名通常与实例名称相同，因为它们是1:1部署的。
 
 
 ----------------
 
-## Identity Parameter
+## 身份参数
 
-Pigsty uses **identity parameters** to identify entities: [`PG_ID`](PARAM#PG_ID).
+Pigsty使用**身份参数**来识别实体：[`PG_ID`](PARAM#PG_ID)。
 
-In addition to the node IP address, three parameters: [`pg_cluster`](PARAM#pg_cluster), [`pg_role`](PARAM#pg_role), and [`pg_seq`](PARAM#pg_seq) are the minimum set of parameters necessary to define a postgres cluster.
-Take the [sandbox](PROVISION#sandbox) testing cluster `pg-test` as an example:
+除了节点IP地址，[`pg_cluster`](PARAM#pg_cluster)、[`pg_role`](PARAM#pg_role)和[`pg_seq`](PARAM#pg_seq)三个参数是定义postgres集群所必需的最小参数集。以[sandbox](PROVISION#sandbox)测试集群`pg-test`为例：
 
 ```yaml
 pg-test:
@@ -48,27 +44,27 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-The three members of the cluster are identified as follows.
+集群的三个成员如下所示。
 
-|  cluster  | seq |   role    |   host / ip   |  instance   |      service      |  nodename   |
+| 集群 | 序号 | 角色 | 主机 / IP | 实例 | 服务 | 节点名 |
 |:---------:|:---:|:---------:|:-------------:|:-----------:|:-----------------:|:-----------:|
 | `pg-test` | `1` | `primary` | `10.10.10.11` | `pg-test-1` | `pg-test-primary` | `pg-test-1` |
 | `pg-test` | `2` | `replica` | `10.10.10.12` | `pg-test-2` | `pg-test-replica` | `pg-test-2` |
 | `pg-test` | `3` | `replica` | `10.10.10.13` | `pg-test-3` | `pg-test-replica` | `pg-test-3` |
 
-There are:
+这里包含了：
 
-* One Cluster: The cluster is named as `pg-test`.
-* Two Roles: `primary` and `replica`.
-* Three Instances: The cluster consists of three instances: `pg-test-1`, `pg-test-2`, `pg-test-3`.
-* Three Nodes: The cluster is deployed on three nodes: `10.10.10.11`, `10.10.10.12`, and `10.10.10.13`.
-* Four services:
-  *  read-write service:  [`pg-test-primary`](PGSQL-SVC#primary-service)
-  * read-only service: [`pg-test-replica`](PGSQL-SVC#replica-service)
-  * directly connected management service: [`pg-test-default`](PGSQL-SVC#default-service)
-  * offline read service: [`pg-test-offline`](PGSQL-SVC#offline-service)
+- 一个集群：该集群命名为`pg-test`。
+- 两种角色：`primary`和`replica`。
+- 三个实例：集群由三个实例组成：`pg-test-1`、`pg-test-2`、`pg-test-3`。
+- 三个节点：集群部署在三个节点上：`10.10.10.11`、`10.10.10.12`和`10.10.10.13`。
+- 四个服务：
+  - 读写服务：[`pg-test-primary`](PGSQL-SVC#primary-service)
+  - 只读服务：[`pg-test-replica`](PGSQL-SVC#replica-service)
+  - 直接连接的管理服务：[`pg-test-default`](PGSQL-SVC#default-service)
+  - 离线读服务：[`pg-test-offline`](PGSQL-SVC#offline-service)
 
-And in the monitoring system (Prometheus/Grafana/Loki), corresponding metrics will be labeled with these identities：
+在监控系统（Prometheus/Grafana/Loki）中，相应的指标将用这些身份进行标记：
 
 ```yaml
 pg_up{cls="pg-meta", ins="pg-meta-1", ip="10.10.10.10", job="pgsql"}
@@ -82,42 +78,42 @@ pg_up{cls="pg-test", ins="pg-test-3", ip="10.10.10.13", job="pgsql"}
 
 ----------------
 
-## Component Overview
+## 组件概览
 
-Here is how PostgreSQL module components and their interactions. From top to bottom:
+以下是 PostgreSQL 模块组件及其相互作用的详细描述，从上至下分别为：
 
-* Cluster DNS is resolved by DNSMASQ on infra nodes
-* Cluster VIP is manged by `vip-manager`, which will bind to cluster primary. 
-  * `vip-manager` will acquire cluster leader info written by `patroni` from `etcd` cluster directly
-* Cluster services are exposed by Haproxy on nodes, services are distinguished by node ports (543x).
-  * Haproxy port 9101: monitoring metrics & stats & admin page
-  * Haproxy port 5433: default service that routes to primary pgbouncer: [primary](PGSQL-SVC#primary-service)
-  * Haproxy port 5434: default service that routes to replica pgbouncer: [replica](PGSQL-SVC#replica-service)
-  * Haproxy port 5436: default service that routes to primary postgres: [default](PGSQL-SVC#default-service)
-  * Haproxy port 5438: default service that routeroutesto offline postgres: [offline](PGSQL-SVC#offline-service)
-  * HAProxy will route traffic based on health check information provided by `patroni`. 
-* Pgbouncer is a connection pool middleware that buffers connections, exposes extra metrics, and brings extra flexibility @ port 6432
-  * Pgbouncer is stateless and deployed with the Postgres server in a 1:1 manner through a local unix socket.
-  * Production traffic (Primary/Replica) will go through pgbouncer by default (can be skipped by [`pg_default_service_dest`](PARAM#pg_default_service_dest) ) 
-  * Default/Offline service will always bypass pgbouncer and connect to target Postgres directly.
-* Postgres provides relational database services @ port 5432
-  * Install PGSQL module on multiple nodes will automatically form a HA cluster based on streaming replication
-  * PostgreSQL is supervised by `patroni` by default.
-* Patroni will **supervise** PostgreSQL server @ port 8008 by default
-  * Patroni spawn postgres servers as the child process
-  * Patroni uses `etcd` as DCS: config storage, failure detection, and leader election.
-  * Patroni will provide Postgres information through a health check. Which is used by HAProxy
-  * Patroni metrics will be scraped by prometheus on infra nodes
-* PG Exporter will expose postgres metrics @ port 9630
-  * PostgreSQL's metrics will be scraped by prometheus on infra nodes
-* Pgbouncer Exporter will expose pgbouncer metrics @ port 9631
-  * Pgbouncer's metrics will be scraped by prometheus on infra nodes
-* pgBackRest will work on the local repo by default ([`pgbackrest_method`](PARAM#pgbackrest_method))
-  * If `local` (default) is used as the backup repo, pgBackRest will create local repo under the primary's [`pg_fs_bkup`](PARAM#pg_fs_bkup) 
-  * If `minio` is used as the backup repo, pgBackRest will create the repo on the dedicated MinIO cluster in [`pgbackrest_repo`.`minio`](PARAM#pgbackrest_repo)
-* Postgres-related logs (postgres,pgbouncer,patroni,pgbackrest) are exposed by promtail @ port 9080
-  * Promtail will send logs to Loki on infra nodes
-
+- 集群 DNS 由 infra 节点上的 DNSMASQ 负责解析
+- 集群 VIP 由 `vip-manager` 组件管理，它负责将 [`pg_vip_address`](PARAM#pg_vip_address) 绑定到集群主节点上。
+  - `vip-manager` 从 `etcd` 集群获取由 `patroni` 写入的集群领导者信息
+- 集群服务由节点上的 Haproxy 对外暴露，不同服务通过节点的不同端口（543x）区分。
+  - Haproxy 端口 9101：监控指标 & 统计 & 管理页面
+  - Haproxy 端口 5433：默认路由至主 pgbouncer：[读写服务](PGSQL-SVC#primary-service)
+  - Haproxy 端口 5434：默认路由至副本 pgbouncer：[只读服务](PGSQL-SVC#replica-service)
+  - Haproxy 端口 5436：默认路由至主 postgres：[默认服务](PGSQL-SVC#default-service)
+  - Haproxy 端口 5438：默认路由至离线 postgres：[离线服务](PGSQL-SVC#offline-service)
+  - HAProxy 将根据 `patroni` 提供的健康检查信息路由流量。
+- Pgbouncer 是一个连接池中间件，可以缓冲连接、暴露额外的指标，并增加额外的灵活性 @ 端口 6432
+  - Pgbouncer 是无状态的，并通过本地 unix 套接字以 1:1 的方式与 Postgres 服务器部署。
+  - 生产流量（主/副本）将默认通过 pgbouncer（可以通过[`pg_default_service_dest`](PARAM#pg_default_service_dest)跳过）
+  - 默认/离线服务将始终绕过 pgbouncer 并直接连接到目标 Postgres。
+- Postgres 在端口 5432 提供关系数据库服务
+  - 在多个节点上安装 PGSQL 模块将基于流式复制自动形成 HA 集群
+  - PostgreSQL 默认由 `patroni` 监控。
+- Patroni 默认监听端口 8008，监管着 PostgreSQL 服务器进程
+  - Patroni 将 Postgres 服务器作为子进程启动
+  - Patroni 使用 `etcd` 作为 DCS：存储配置、故障检测和领导者选举。
+  - Patroni 通过健康检查提供 Postgres 信息（比如主/从），HAProxy 通过健康检查使用该信息分发服务流量
+  - Patroni 指标将被 infra 节点上的 Prometheus 抓取
+- PG Exporter 在 9630 端口对外暴露 postgres 架空指标
+  - PostgreSQL 指标将被 infra 节点上的 Prometheus 抓取
+- Pgbouncer Exporter 在端口 9631 暴露 pgbouncer 指标
+  - Pgbouncer 指标将被 infra 节点上的 Prometheus 抓取
+- pgBackRest 默认在使用本地备份仓库 （`pgbackrest_method` = `local`）
+  - 如果使用 `local`（默认）作为备份仓库，pgBackRest 将在主节点的[`pg_fs_bkup`](PARAM#pg_fs_bkup) 下创建本地仓库
+  - 如果使用 `minio` 作为备份仓库，pgBackRest 将在专用的 MinIO 集群上创建备份仓库：[`pgbackrest_repo`.`minio`](PARAM#pgbackrest_repo)
+- Postgres 相关日志（postgres, pgbouncer, patroni, pgbackrest）由 promtail 负责收集
+  - Promtail 监听 9080 端口，也对 infra 节点上的 Prometheus 暴露自身的监控指标 
+  - Promtail 将日志发送至 infra 节点上的 Loki
 
 ![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
 
@@ -125,20 +121,21 @@ Here is how PostgreSQL module components and their interactions. From top to bot
 
 ----------------
 
-## High Availability
+## 高可用
 
-> Primary Failure RTO ≈ 30s, RPO < 1MB, Replica Failure RTO≈0 (reset current conn)
+> 主库故障恢复时间目标 (RTO) ≈ 30s，数据恢复点目标 (RPO) < 1MB，从库故障 RTO ≈ 0 (重置当前连接)
 
-Pigsty's PostgreSQL cluster has battery-included high-availability powered by [patroni](https://patroni.readthedocs.io/en/latest/), [etcd](https://etcd.io/), and [haproxy](http://www.haproxy.org/) 
+Pigsty 的 PostgreSQL 集群带有开箱即用的高可用方案，由 [patroni](https://patroni.readthedocs.io/en/latest/)、[etcd](https://etcd.io/) 和 [haproxy](http://www.haproxy.org/) 强力驱动。
 
 ![pgsql-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)
 
-When the primary fails, one of the replicas will be promoted to primary automatically, and read-write traffic will be routed to the new primary immediately. The impact is: write queries will be blocked for 15 ~ 40s until the new leader is elected.
+当主节点故障时，其中一个副本将自动升级为主节点，并且读写流量将立即路由至新的主节点。影响是：写入查询将被阻塞 15 ~ 40s，直到选出新的领导者。
 
-When a replica fails, read-only traffic will be routed to the other replicas, if all replicas fail, read-only traffic will fall back to the primary. The impact would be very small: a few running queries on that replica will abort due to a connection reset.
+当副本故障时，只读流量将路由至其他副本，如果所有副本都故障，只读流量将回落到主节点。影响非常小：该副本上的几个运行查询将由于连接重置而中止。
 
-Failure detection is done by `patroni` and `etcd`, the leader will hold a lease, and if it fails, the lease will be released due to timeout, and the other instance will elect a new leader to take over.
+故障检测由 `patroni` 和 `etcd` 完成，领导者将持有一个租约，如果它故障，由于超时，租约将被释放，另一个实例将选举新的领导者来接管。
 
-The ttl can be tuned with [`pg_rto`](PARAM#pg_rto), which is 30s by default, increasing it will cause longer failover wait time, while decreasing it will increase the false-positive failover rate (e.g. network jitter).
+ttl 可以使用 [`pg_rto`](PARAM#pg_rto) 进行调整，默认为 30s，增加它将导致更长的故障转移等待时间，而减少它将增加误报故障转移率（例如，网络抖动）。
 
-Pigsty will use **availability first** mode by default, which means when primary fails, it will try to failover ASAP, data not replicated to the replica may be lost (usually 100KB), and the max potential data loss is controlled by [`pg_rpo`](PARAM#pg_rpo), which is 1MB by default. 
+Pigsty 默认使用**可用性优先**模式，这意味着当主节点故障时，它将尽快进行故障转移，尚未复制到副本的数据可能会丢失（常规万兆网络下，复制延迟在通常在几KB到100KB），最大潜在数据丢失由 [`pg_rpo`](PARAM#pg_rpo) 控制，默认为 1MB。
+
