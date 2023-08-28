@@ -89,14 +89,14 @@ systemctl stop postgres                 # 仅当 patroni_mode == 'remove' 时使
 
 ## 创建集群
 
-To create a new Postgres cluster, define it in the inventory first, then init with:
+要创建一个新的Postgres集群，请首先在配置清单中定义，然后进行初始化：
 
 ```bash
-bin/node-add <cls>                # init nodes for cluster <cls>           # ./node.yml  -l <cls> 
-bin/pgsql-add <cls>               # init pgsql instances of cluster <cls>  # ./pgsql.yml -l <cls>
+bin/node-add <cls>                # 为集群 <cls> 初始化节点                  # ./node.yml  -l <cls> 
+bin/pgsql-add <cls>               # 初始化集群 <cls> 的pgsql实例             # ./pgsql.yml -l <cls>
 ```
 
-<details><summary>Example: Create Cluster</summary>
+<details><summary>示例：创建集群</summary>
 
 [![asciicast](https://asciinema.org/a/568810.svg)](https://asciinema.org/a/568810)
 
@@ -108,13 +108,13 @@ bin/pgsql-add <cls>               # init pgsql instances of cluster <cls>  # ./p
 
 ## 创建用户
 
-To create a new business user on the existing Postgres cluster, add user definition to `all.children.<cls>.pg_users`, then create the user as follows:
+要在现有的Postgres集群上创建一个新的业务用户，请将用户定义添加到 `all.children.<cls>.pg_users`，然后使用以下命令将其创建：
 
 ```bash
 bin/pgsql-user <cls> <username>   # ./pgsql-user.yml -l <cls> -e username=<username>
 ```
 
-<details><summary>Example: Create Business User</summary>
+<details><summary>示例：创建业务用户</summary>
 
 [![asciicast](https://asciinema.org/a/568789.svg)](https://asciinema.org/a/568789)
 
@@ -126,15 +126,15 @@ bin/pgsql-user <cls> <username>   # ./pgsql-user.yml -l <cls> -e username=<usern
 
 ## 创建数据库
 
-To create a new database user on the existing Postgres cluster, add database definition to `all.children.<cls>.pg_databases`, then create the database as follows:
+要在现有的Postgres集群上创建一个新的数据库用户，请将数据库定义添加到 `all.children.<cls>.pg_databases`，然后按照以下方式创建数据库：
 
 ```bash
 bin/pgsql-db <cls> <dbname>       # ./pgsql-db.yml -l <cls> -e dbname=<dbname>
 ```
 
-Note: If the database has specified an owner, the user should already exist, or you'll have to [Create User](#create-user) first.
+注意：如果数据库指定了一个非默认的属主，该属主用户应当已存在，否则您必须先[创建用户](#创建用户)。
 
-<details><summary>Example: Create Business Database</summary>
+<details><summary>示例：创建业务数据库</summary>
 
 [![asciicast](https://asciinema.org/a/568790.svg)](https://asciinema.org/a/568790)
 
@@ -146,18 +146,18 @@ Note: If the database has specified an owner, the user should already exist, or 
 
 ## 重载服务
 
-Services are exposed access point served by HAProxy.
+[服务](PGSQL-SVC)是 PostgreSQL 对外提供能力的访问点（PGURL可达），由主机节点上的 HAProxy 对外暴露。
 
-This task is used when cluster membership has changed, e.g., [append](#append-replica)/[remove](#remove-replica) replicas, [switchover](#switchover)/failover / exposing new service or updating existing service's config (e.g., LB Weight)
+当集群成员发生变化时使用此任务，例如：[添加](#添加实例)／[移除](#移除实例)副本，[主从切换](#主动切换)／故障转移 / 暴露新服务，或更新现有服务的配置（例如，LB权重）
 
-To create new services or reload existing services on entire proxy cluster or specific instances:
+要在整个代理集群，或特定实例上创建新服务或重新加载现有服务：
 
 ```bash
 bin/pgsql-svc <cls>               # pgsql.yml -l <cls> -t pg_service -e pg_reload=true
 bin/pgsql-svc <cls> [ip...]       # pgsql.yml -l ip... -t pg_service -e pg_reload=true
 ```
 
-<details><summary>Example: Reload PG Service to Kick one Instance</summary>
+<details><summary>示例：重载PG服务以踢除一个实例</summary>
 
 [![asciicast](https://asciinema.org/a/568815.svg)](https://asciinema.org/a/568815)
 
@@ -170,18 +170,18 @@ bin/pgsql-svc <cls> [ip...]       # pgsql.yml -l ip... -t pg_service -e pg_reloa
 
 ## 重载HBA
 
-This task is used when your Postgres/Pgbouncer HBA rules have changed, you *may* have to reload hba to apply changes.
+当您的 Postgres/Pgbouncer HBA 规则发生更改时，您 *可能* 需要重载 HBA 以应用更改。
 
-If you have any role-specific HBA rules, you may have to reload hba after a switchover/failover, too.
+如果您有任何特定于角色的 HBA 规则，或者在IP地址段中引用了集群成员的别名，那么当主从切换/集群扩缩容后也可能需要重载HBA。
 
-To reload postgres & pgbouncer HBA rules on entire cluster or specific instances:
+要在整个集群或特定实例上重新加载 postgres 和 pgbouncer 的 HBA 规则：
 
 ```bash
 bin/pgsql-hba <cls>               # pgsql.yml -l <cls> -t pg_hba,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
 bin/pgsql-hba <cls> [ip...]       # pgsql.yml -l ip... -t pg_hba,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
 ```
 
-<details><summary>Example: Reload Cluster HBA Rules</summary>
+<details><summary>示例：重载集群 HBA 规则</summary>
 
 [![asciicast](https://asciinema.org/a/568794.svg)](https://asciinema.org/a/568794)
 
@@ -193,17 +193,20 @@ bin/pgsql-hba <cls> [ip...]       # pgsql.yml -l ip... -t pg_hba,pgbouncer_hba,p
 
 ## 配置集群
 
-To change the config of a existing Postgres cluster, you have to initiate control command on **admin node with admin user**:
+要更改现有的 Postgres 集群配置，您需要在**管理节点**上使用**管理员用户**（安装Pigsty的用户，nopass ssh/sudo）发起控制命令：
+
+另一种方式是在数据库集群中的任何节点上，使用 `dbsu` （默认为 postgres） ，也可以执行管理命令，但只能管理本集群。
 
 ```bash
 pg edit-config <cls>              # interactive config a cluster with patronictl
 ```
 
-Change patroni parameters & `postgresql.parameters`, save & apply changes with the wizard.
+更改 patroni 参数和 `postgresql.parameters`，根据提示保存并应用更改即可。
 
-<details><summary>Example: Config Cluster in Non-Interactive Manner</summary>
 
-You can skip interactive mode and use `-p` option to override postgres parameters, for example: 
+<details><summary>示例：非交互式方式配置集群</summary>
+
+您可以跳过交互模式，并使用 `-p` 选项覆盖 postgres 参数，例如： 
 
 ```bash
 pg edit-config -p log_min_duration_statement=1000 pg-test
@@ -212,9 +215,10 @@ pg edit-config --force -p shared_preload_libraries='timescaledb, pg_cron, pg_sta
 
 </details>
 
-<details><summary>Example: Change Cluster Config with Patroni REST API</summary>
 
-You can also use [Patroni REST API](https://patroni.readthedocs.io/en/latest/rest_api.html) to change the config in a non-interactive mode, for example:
+<details><summary>示例：使用 Patroni REST API 更改集群配置</summary>
+
+您还可以使用 [Patroni REST API](https://patroni.readthedocs.io/en/latest/rest_api.html) 以非交互式方式更改配置，例如：
 
 ```bash
 $ curl -s 10.10.10.11:8008/config | jq .  # get current config
@@ -223,11 +227,12 @@ $ curl -u 'postgres:Patroni.API' \
         -s -X PATCH http://10.10.10.11:8008/config | jq .
 ```
 
-Note: patroni unsafe RestAPI access is limit from infra/admin nodes and protected with an HTTP basic auth username/password and an optional HTTPS mode.
+注意：Patroni 敏感API（例如重启等） 访问仅限于从基础设施/管理节点发起，并且有 HTTP 基本认证（用户名/密码）以及可选的 HTTPS 保护。
 
 </details>
 
-<details><summary>Example: Config Cluster with PatroniCtl</summary>
+
+<details><summary>示例：使用 patronictl 配置集群</summary>
 
 [![asciicast](https://asciinema.org/a/568799.svg)](https://asciinema.org/a/568799)
 
@@ -239,49 +244,48 @@ Note: patroni unsafe RestAPI access is limit from infra/admin nodes and protecte
 
 ## 添加实例
 
-To add a new replica to the existing Postgres cluster, you have to add its definition to the inventory: `all.children.<cls>.hosts`, then:
+若要将新从库添加到现有的 PostgreSQL 集群中，您需要将其定义添加到配置清单：`all.children.<cls>.hosts` 中，然后：
 
 ```bash
-bin/node-add <ip>                 # init node <ip> for the new replica               
-bin/pgsql-add <cls> <ip>          # init pgsql instances on <ip> for cluster <cls>  
+bin/node-add <ip>                 # 将节点 <ip> 纳入 Pigsty 管理                
+bin/pgsql-add <cls> <ip>          # 初始化 <ip> ，作为集群 <cls> 的新从库
 ```
 
-It will add node `<ip>` to pigsty and init it as a replica of the cluster `<cls>`. 
+这将会把节点 `<ip>` 添加到 pigsty 并将其初始化为集群 `<cls>` 的一个副本。
 
-Cluster services will be [reloaded](#reload-service) to adopt the new member  
+集群服务将会[重新加载](#重载服务)以接纳新成员。
 
-
-<details><summary>Example: Add replica to pg-test </summary>
+<details><summary>示例：为 pg-test 添加从库</summary>
 
 [![asciicast](https://asciinema.org/a/566421.svg)](https://asciinema.org/a/566421)
 
-For example, if you want to add a `pg-test-3 / 10.10.10.13` to the existing cluster `pg-test`, you'll have to update the inventory first:
+例如，如果您想将 `pg-test-3 / 10.10.10.13` 添加到现有的集群 `pg-test`，您首先需要更新配置清单：
 
 ```bash
 pg-test:
   hosts:
-    10.10.10.11: { pg_seq: 1, pg_role: primary } # existing member
-    10.10.10.12: { pg_seq: 2, pg_role: replica } # existing member
-    10.10.10.13: { pg_seq: 3, pg_role: replica } # <--- new member
+    10.10.10.11: { pg_seq: 1, pg_role: primary } # 已存在的成员
+    10.10.10.12: { pg_seq: 2, pg_role: replica } # 已存在的成员
+    10.10.10.13: { pg_seq: 3, pg_role: replica } # <--- 新成员
   vars: { pg_cluster: pg-test }
 ```
 
-then apply the change as follows:
+然后按如下方式应用更改：
 
 ```bash
-bin/node-add          10.10.10.13   # add node to pigsty
-bin/pgsql-add pg-test 10.10.10.13   # init new replica on 10.10.10.13 for cluster pg-test
+bin/node-add          10.10.10.13   # 将节点添加到 pigsty
+bin/pgsql-add pg-test 10.10.10.13   # 在 10.10.10.13 上为集群 pg-test 初始化新的副本
 ```
 
-which is similar to cluster init but only works on single instance。
+这与集群初始化相似，但只在单个实例上工作：
 
 ```bash
-[ OK ] init instances  10.10.10.11 to pgsql cluster 'pg-test':
-[WARN]   reminder: add nodes to pigsty, then install additional module 'pgsql'
-[HINT]     $ bin/node-add  10.10.10.11  # run this ahead, except infra nodes
-[WARN]   init instances from cluster:
+[ OK ] 初始化实例  10.10.10.11 到 pgsql 集群 'pg-test' 中:
+[WARN]   提醒：先将节点添加到 pigsty 中，然后再安装模块 'pgsql'
+[HINT]     $ bin/node-add  10.10.10.11  # 除 infra 节点外，先运行此命令
+[WARN]   从集群初始化实例：
 [ OK ]     $ ./pgsql.yml -l '10.10.10.11,&pg-test'
-[WARN]   reload pg_service on existing instances:
+[WARN]   重新加载现有实例上的 pg_service：
 [ OK ]     $ ./pgsql.yml -l 'pg-test,!10.10.10.11' -t pg_service
 ```
 
@@ -294,49 +298,48 @@ which is similar to cluster init but only works on single instance。
 
 ## 移除实例
 
-To remove a replica from the existing PostgreSQL cluster:
+若要从现有的 PostgreSQL 集群中移除副本：
 
 ```bash
 bin/pgsql-rm <cls> <ip...>        # ./pgsql-rm.yml -l <ip>
 ```
 
-It will remove instance `<ip>` from cluster `<cls>`.
-Cluster services will be [reloaded](#reload-service) to kick the removed instance from load balancer.
+这将从集群 `<cls>` 中移除实例 `<ip>`。 集群服务将会[重新加载](#重载服务)以从负载均衡器中踢除已移除的实例。
 
-<details><summary>Example: Remove replica from pg-test </summary>
+<details><summary>示例：从 pg-test 移除从库</summary>
 
 [![asciicast](https://asciinema.org/a/566419.svg)](https://asciinema.org/a/566419)
 
-For example, if you want to remove `pg-test-3 / 10.10.10.13` from the existing cluster `pg-test`:
+例如，如果您想从现有的集群 `pg-test` 中移除 `pg-test-3 / 10.10.10.13`：
 
 ```bash
-bin/pgsql-rm pg-test 10.10.10.13  # remove pgsql instance 10.10.10.13 from pg-test
-bin/node-rm  10.10.10.13          # remove that node from pigsty (optional)
-vi pigsty.yml                     # remove instance definition from inventory
-bin/pgsql-svc pg-test             # refresh pg_service on existing instances to kick removed instance from load balancer
+bin/pgsql-rm pg-test 10.10.10.13  # 从 pg-test 中移除 pgsql 实例 10.10.10.13
+bin/node-rm  10.10.10.13          # 从 pigsty 中移除该节点（可选）
+vi pigsty.yml                     # 从目录中移除实例定义
+bin/pgsql-svc pg-test             # 刷新现有实例上的 pg_service，以从负载均衡器中踢除已移除的实例
 ```
 
 ```bash
-[ OK ] remove pgsql instances from  10.10.10.13 of 'pg-test':
-[WARN]   remove instances from cluster:
+[ OK ] 从 'pg-test' 移除 10.10.10.13 的 pgsql 实例：
+[WARN]   从集群中移除实例：
 [ OK ]     $ ./pgsql-rm.yml -l '10.10.10.13,&pg-test'
 ```
 
-And remove instance definition from the inventory:
+并从配置清单中移除实例定义：
 
 ```yaml
 pg-test:
   hosts:
     10.10.10.11: { pg_seq: 1, pg_role: primary }
     10.10.10.12: { pg_seq: 2, pg_role: replica }
-    10.10.10.13: { pg_seq: 3, pg_role: replica } # <--- remove this after execution
+    10.10.10.13: { pg_seq: 3, pg_role: replica } # <--- 执行后移除此行
   vars: { pg_cluster: pg-test }
 ```
 
-Finally, you can update pg service and kick the removed instance from load balancer:
+最后，您可以[重载PG服务](#重载服务)并从负载均衡器中踢除已移除的实例：
 
 ```bash
-bin/pgsql-svc pg-test             # reload pg service on pg-test
+bin/pgsql-svc pg-test             # 重载 pg-test 上的服务
 ```
 
 </details>
@@ -347,26 +350,26 @@ bin/pgsql-svc pg-test             # reload pg service on pg-test
 
 ## 下线集群
 
-To remove the entire Postgres cluster, just run:
+要移除整个 Postgres 集群，只需运行：
 
 ```bash
 bin/pgsql-rm <cls>                # ./pgsql-rm.yml -l <cls>
 ```
 
-<details><summary>Example: Remove Cluster</summary>
+<details><summary>示例：移除集群</summary>
 
 [![asciicast](https://asciinema.org/a/566418.svg)](https://asciinema.org/a/566418)
 
 </details>
 
-<details><summary>Example: Force removing a cluster</summary>
+<details><summary>示例：强制移除集群</summary>
 
-Note: if [`pg_safeguard`](PARAM#pg_safeguard) is configured for this cluster (or globally configured to `true`), `pgsql-rm.yml` will abort to avoid removing a cluster by accident.
+注意：如果为这个集群配置了[`pg_safeguard`](PARAM#pg_safeguard)（或全局设置为 `true`），`pgsql-rm.yml` 将中止，以避免意外移除集群。
 
-You can use playbook command line args to explicitly overwrite it to force the purge:
+您可以使用 playbook 命令行参数明确地覆盖它，以强制执行清除：
 
 ```bash
-./pgsql-rm.yml -l pg-meta -e pg_safeguard=false    # force removing pg cluster pg-meta
+./pgsql-rm.yml -l pg-meta -e pg_safeguard=false    # 强制移除 pg 集群 pg-meta
 ```
 
 </details>
@@ -378,14 +381,14 @@ You can use playbook command line args to explicitly overwrite it to force the p
 
 ## 主动切换
 
-You can perform a PostgreSQL cluster switchover with patroni cmd.
+您可以使用 patroni 命令行工具执行 PostgreSQL 集群的切换操作。
 
 ```bash
-pg switchover <cls>   # interactive mode, you can skip that with following options
+pg switchover <cls>   # 交互模式，您可以使用下面的参数组合直接跳过此交互向导
 pg switchover --leader pg-test-1 --candidate=pg-test-2 --scheduled=now --force pg-test
 ```
 
-<details><summary>Example: Switchover pg-test</summary>
+<details><summary>示例：pg-test 主从切换</summary>
 
 [![asciicast](https://asciinema.org/a/566248.svg)](https://asciinema.org/a/566248)
 
@@ -435,7 +438,7 @@ Are you sure you want to switchover cluster pg-test, demoting current master pg-
 +-----------+-------------+---------+---------+----+-----------+-----------------+
 ```
 
-To do so with Patroni API (schedule a switchover from 2 to 1 at a specific time):
+要通过 Patroni API 来执行此操作（例如，在指定时间将主库从 2号实例 切换到 1号实例）
 
 ```bash
 curl -u 'postgres:Patroni.API' \
@@ -452,36 +455,35 @@ curl -u 'postgres:Patroni.API' \
 
 ## 备份集群
 
-To create a backup with pgBackRest, run as local dbsu:
+使用 pgBackRest 创建备份，需要以本地 dbsu （默认为 `postgres`）的身份运行以下命令：
 
 ```bash
-pg-backup                         # make a postgres base backup
-pg-backup full                    # make a full backup
-pg-backup diff                    # make a differential backup
-pg-backup incr                    # make a incremental backup
-pb info                           # check backup information
+pg-backup       # 执行备份，如有必要，执行增量或全量备份
+pg-backup full  # 执行全量备份
+pg-backup diff  # 执行差异备份
+pg-backup incr  # 执行增量备份
+pb info         # 打印备份信息 （pgbackrest info）
 ```
 
-Check [Backup](PGSQL-PITR) & PITR for details.
+参阅[备份恢复](PGSQL-PITR#备份)获取更多信息。
 
-<details><summary>Example: Make Backups</summary>
 
-You can add crontab to [`node_crontab`](PARAM#node_crontab) to specify your backup policy.
+<details><summary>示例：创建备份</summary>
 
 [![asciicast](https://asciinema.org/a/568813.svg)](https://asciinema.org/a/568813)
 
 </details>
 
 
-<details><summary>Example: Create routine backup crontab</summary>
+<details><summary>示例：创建定时备份任务</summary>
 
-You can add crontab to [`node_crontab`](PARAM#node_crontab) to specify your backup policy. 
+您可以将 crontab 添加到 [`node_crontab`]PARAM#node_crontab) 以指定您的备份策略。
 
 ```yaml
-# make a full backup 1 am everyday
+# 每天凌晨1点做一次全备份
 - '00 01 * * * postgres /pg/bin/pg-backup full'
 
-# rotate backup: make a full backup on monday 1am, and an incremental backup during weekdays
+# 周一凌晨1点进全量备份，其他工作日进行增量备份
 - '00 01 * * 1 postgres /pg/bin/pg-backup full'
 - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
 ```
@@ -494,31 +496,31 @@ You can add crontab to [`node_crontab`](PARAM#node_crontab) to specify your back
 
 ## 恢复集群
 
-To restore a cluster to a previous time point (PITR), run as local dbsu:
+要将集群恢复到先前的时间点 (PITR)，请以本地 dbsu 用户（默认为`postgres`）运行 Pigsty 提供的辅助脚本 `pg-pitr`
 
 ```bash
-pg-pitr -i                              # restore to the time of latest backup complete (not often used)
-pg-pitr --time="2022-12-30 14:44:44+08" # restore to specific time point (in case of drop db, drop table)
-pg-pitr --name="my-restore-point"       # restore TO a named restore point create by pg_create_restore_point
-pg-pitr --lsn="0/7C82CB8" -X            # restore right BEFORE a LSN
-pg-pitr --xid="1234567" -X -P           # restore right BEFORE a specific transaction id, then promote
-pg-pitr --backup=latest                 # restore to latest backup set
-pg-pitr --backup=20221108-105325        # restore to a specific backup set, which can be checked with pgbackrest info
+pg-pitr -i                              # 恢复到最近备份完成的时间（不常用）
+pg-pitr --time="2022-12-30 14:44:44+08" # 恢复到指定的时间点（在删除数据库或表的情况下使用）
+pg-pitr --name="my-restore-point"       # 恢复到使用 pg_create_restore_point 创建的命名恢复点
+pg-pitr --lsn="0/7C82CB8" -X            # 在LSN之前立即恢复
+pg-pitr --xid="1234567" -X -P           # 在指定的事务ID之前立即恢复，然后将集群直接提升为主库
+pg-pitr --backup=latest                 # 恢复到最新的备份集
+pg-pitr --backup=20221108-105325        # 恢复到特定备份集，备份集可以使用 pgbackrest info 列出
 ```
 
-And follow the instructions wizard, Check Backup & [PITR](PGSQL-PITR) for details.
+该命令会输出操作手册，请按照说明进行操作。查看[备份恢复-PITR](PGSQL-PITR#恢复)获取详细信息。
 
-<details><summary>Example: PITR with raw pgBackRest Command</summary>
+<details><summary>示例：使用原始pgBackRest命令进行 PITR</summary>
 
 ```bash
-# restore to the latest available point (e.g. hardware failure)
+# 恢复到最新可用的点（例如硬件故障）
 pgbackrest --stanza=pg-meta restore
 
-# PITR to specific time point (e.g. drop table by accident)
+# PITR 到特定的时间点（例如意外删除表）
 pgbackrest --stanza=pg-meta --type=time --target="2022-11-08 10:58:48" \
    --target-action=promote restore
 
-# restore specific backup point and then promote (or pause|shutdown)
+# 恢复特定的备份点，然后提升（或暂停|关闭）
 pgbackrest --stanza=pg-meta --type=immediate --target-action=promote \
   --set=20221108-105325F_20221108-105938I restore
 ```
@@ -531,28 +533,28 @@ pgbackrest --stanza=pg-meta --type=immediate --target-action=promote \
 
 ## 添加软件
 
-To add newer version of RPM packages, you have to add them to [`repo_packages`](PARAM#repo_packages) and [`repo_url_packages`](PARAM#repo_url_packages)
+要添加新版本的 RPM 包，你需要将它们加入到 [`repo_packages`](PARAM#repo_packages) 和 [`repo_url_packages`](PARAM#repo_url_packages) 中。
 
-And remove `/www/pigsty/repo_complete` flag file then rebuild repo with `./infra.yml -t repo_build`. 
+然后删除 `/www/pigsty/repo_complete` 标志文件，之后使用 `./infra.yml -t repo_build` 重新构建 repo。
 
-Then you can install these packages with `ansible` module `package`:
-
-```bash
-ansible pg-test -b -m package -a "name=pg_cron_15,topn_15,pg_stat_monitor_15*"  # install some packages
-```
-
-<details><summary>Update Packages Manually</summary>
+然后，你可以使用 `ansible` 的 `package` 模块安装这些包：
 
 ```bash
-# add repo upstream on admin node, then download them manually
-cd ~/pigsty; ./infra.yml -t repo_upstream                 # add upstream repo (internet)
-cd /www/pigsty;  repotrack "some_new_package_name"        # download the latest RPMs
-cd ~/pigsty; ./infra.yml -t repo_create                   # re-create local yum repo
-ansible all -b -a 'yum clean all'                         # clean node repo cache
-ansible all -b -a 'yum makecache'                         # remake yum cache from the new repo
+ansible pg-test -b -m package -a "name=pg_cron_15,topn_15,pg_stat_monitor_15*"  # 使用 ansible 安装一些包
 ```
 
-For example, you can then install or upgrade packages with:
+<details><summary>示例：手动更本地新软件源中的包</summary>
+
+```bash
+# 在基础设施/管理节点上添加上游软件仓库，然后手工下载所需的软件包
+cd ~/pigsty; ./infra.yml -t repo_upstream                 # 添加上游仓库（互联网）
+cd /www/pigsty;  repotrack "some_new_package_name"        # 下载最新的 RPM 包
+cd ~/pigsty; ./infra.yml -t repo_create                   # 重新创建本地软件仓库
+ansible all -b -a 'yum clean all'                         # 清理节点软件仓库缓存
+ansible all -b -a 'yum makecache'                         # 从新的仓库重建Yum缓存
+```
+
+例如，你可以使用以下方式安装或升级包：
 
 ```bash
 ansible pg-test -b -m package -a "name=postgresql15* state=latest"
@@ -566,24 +568,24 @@ ansible pg-test -b -m package -a "name=postgresql15* state=latest"
 
 ## 安装扩展
 
-If you want to install extension on pg clusters, Add them to [`pg_extensions`](PARAM#pg_extensions) and make sure them installed with:
+如果你想在 PostgreSQL 集群上安装扩展，请将它们加入到 [`pg_extensions`](PARAM#pg_extensions) 中，并执行：
 
 ```bash
-./pgsql.yml -t pg_extension     # install extensions
-```
+./pgsql.yml -t pg_extension     # 安装扩展
+``` 
 
-Some extension needs to be loaded in `shared_preload_libraries`, You can add them to [`pg_libs`](PARAM#pg_libs), or [Config](#config-cluster) an existing cluster.
+一部分扩展需要在 `shared_preload_libraries` 中加载后才能生效。你可以将它们加入到 [`pg_libs`](PARAM#pg_libs) 中，或者[配置](#配置集群)一个已有的集群。
 
-Finally, `CREATE EXTENSION <extname>;` on the cluster primary instance to install it. 
+最后，在集群的主库上执行 `CREATE EXTENSION <extname>;` 来完成扩展的安装。
 
-<details><summary>Example: Install pg_cron on pg-test cluster</summary>
+<details><summary>示例：在 pg-test 集群上安装 pg_cron 扩展</summary>
 
 ```bash
-ansible pg-test -b -m package -a "name=pg_cron_15"          # install pg_cron packages on all nodes
-# add pg_cron to shared_preload_libraries
+ansible pg-test -b -m package -a "name=pg_cron_15"          # 在所有节点上安装 pg_cron 包
+# 将 pg_cron 添加到 shared_preload_libraries 中
 pg edit-config --force -p shared_preload_libraries='timescaledb, pg_cron, pg_stat_statements, auto_explain'
-pg restart --force pg-test                                  # restart cluster
-psql -h pg-test -d postgres -c 'CREATE EXTENSION pg_cron;'  # install pg_cron on primary
+pg restart --force pg-test                                  # 重新启动集群
+psql -h pg-test -d postgres -c 'CREATE EXTENSION pg_cron;'  # 在主库上安装 pg_cron
 ```
 
 </details>
@@ -594,46 +596,47 @@ psql -h pg-test -d postgres -c 'CREATE EXTENSION pg_cron;'  # install pg_cron on
 
 ## 小版本升级
 
-To perform a minor server version upgrade/downgrade, you have to [添加软件](#添加软件) to yum repo first.
+要执行小版本的服务器升级/降级，您首先需要在本地yum软件仓库中[添加软件](#添加软件)：最新的PG小版本 RPM。
 
-Then perform a rolling upgrade/downgrade from all replicas, then switchover the cluster to upgrade the leader.
+首先对所有从库执行滚动升级/降级，然后执行集群[主从切换](#主动切换)以升级/降级主库。
 
 ```bash
-ansible <cls> -b -a "yum upgrade/downgrade -y <pkg>"    # upgrade/downgrade packages
-pg restart --force <cls>                                # restart cluster
+ansible <cls> -b -a "yum upgrade/downgrade -y <pkg>"    # 升级/降级软件包
+pg restart --force <cls>                                # 重启集群
 ```
 
-<details><summary>Example: Downgrade PostgreSQL 15.2 to 15.1</summary>
+<details><summary>示例：将PostgreSQL 15.2降级到15.1</summary>
 
-Add 15.1 packages to yum repo and refresh node yum cache:
+将15.1的包添加到yum仓库并刷新节点的yum缓存：
 
 ```bash
-cd ~/pigsty; ./infra.yml -t repo_upstream               # add upstream repo backup
-cd /www/pigsty; repotrack postgresql15-*-15.1           # add 15.1 packages to yum repo
-cd ~/pigsty; ./infra.yml -t repo_create                 # re-create repo
-ansible pg-test -b -a 'yum clean all'                   # clean node repo cache
-ansible pg-test -b -a 'yum makecache'                   # remake yum cache from the new repo
+cd ~/pigsty; ./infra.yml -t repo_upstream               # 添加上游仓库备份
+cd /www/pigsty; repotrack postgresql15-*-15.1           # 将15.1的包添加到yum仓库
+cd ~/pigsty; ./infra.yml -t repo_create                 # 重新创建仓库
+ansible pg-test -b -a 'yum clean all'                   # 清理节点仓库缓存
+ansible pg-test -b -a 'yum makecache'                   # 从新仓库重新生成yum缓存
 ``` 
 
-Perform a downgrade and restart the cluster:
+执行降级并重启集群：
 
 ```bash
-ansible pg-test -b -a "yum downgrade -y postgresql15*"  # downgrade packages
-pg restart --force pg-test                              # restart entire cluster to finish upgrade
+ansible pg-test -b -a "yum downgrade -y postgresql15*"  # 降级软件包
+pg restart --force pg-test                              # 重启整个集群以完成升级
 ```
 
 </details>
 
-<details><summary>Example: Upgrade PostgreSQL 15.1 back to 15.2</summary>
 
-This time we upgrade in a rolling fashion:
+<details><summary>示例：将PostgreSQL 15.1升级回15.2</summary>
+
+这次我们采用滚动方式升级：
 
 ```bash
-ansible pg-test -b -a "yum upgrade -y postgresql15*"    # upgrade packages
-ansible pg-test -b -a '/usr/pgsql/bin/pg_ctl --version' # check binary version is 15.2
-pg restart --role replica --force pg-test               # restart replicas
-pg switchover --leader pg-test-1 --candidate=pg-test-2 --scheduled=now --force pg-test    # switchover
-pg restart --role primary --force pg-test               # restart primary
+ansible pg-test -b -a "yum upgrade -y postgresql15*"    # 升级软件包
+ansible pg-test -b -a '/usr/pgsql/bin/pg_ctl --version' # 检查二进制版本是否为15.2
+pg restart --role replica --force pg-test               # 重启从库
+pg switchover --leader pg-test-1 --candidate=pg-test-2 --scheduled=now --force pg-test    # 切换主从
+pg restart --role primary --force pg-test               # 重启主库
 ```
 
 </details>
@@ -645,18 +648,18 @@ pg restart --role primary --force pg-test               # restart primary
 
 ## 大版本升级
 
-The simplest way to achieve a major version upgrade is to create a new cluster with the new version, then [migration](PGSQL-MIGRATION) with logical replication. 
+实现大版本升级的最简单办法是：创建一个使用新版本的新集群，然后通过逻辑复制进行[在线迁移](PGSQL-MIGRATION)。
 
-You can also perform an in-place major upgrade, which is not recommended especially when certain extensions are installed. But it is possible.
+您也可以进行原地大版本升级，当您只使用内核本身时，这是相当简单的一件事。不过当安装了某些扩展时，原地升级通常需要不少额外的扩展适配工作。
 
-Assume you want to upgrade PostgreSQL 14 to 15, you have to [add packages](#adding-packages) to yum repo, and guarantee the extensions has exact same version too. 
+假设您想将PostgreSQL 14升级到15，您需要在yum仓库中[添加软件](#添加软件)，并确保扩展也具有完全相同的版本。
 
 ```bash
-./pgsql.yml -t pg_pkg -e pg_version=15                         # install packages for pg 15
-sudo su - postgres; mkdir -p /data/postgres/pg-meta-15/data/   # prepare directories for 15
-pg_upgrade -b /usr/pgsql-14/bin/ -B /usr/pgsql-15/bin/ -d /data/postgres/pg-meta-14/data/ -D /data/postgres/pg-meta-15/data/ -v -c # preflight
+./pgsql.yml -t pg_pkg -e pg_version=15                         # 安装pg 15的包
+sudo su - postgres; mkdir -p /data/postgres/pg-meta-15/data/   # 为15准备目录
+pg_upgrade -b /usr/pgsql-14/bin/ -B /usr/pgsql-15/bin/ -d /data/postgres/pg-meta-14/data/ -D /data/postgres/pg-meta-15/data/ -v -c # 预检
 pg_upgrade -b /usr/pgsql-14/bin/ -B /usr/pgsql-15/bin/ -d /data/postgres/pg-meta-14/data/ -D /data/postgres/pg-meta-15/data/ --link -j8 -v -c
-rm -rf /usr/pgsql; ln -s /usr/pgsql-15 /usr/pgsql;             # fix binary links 
-mv /data/postgres/pg-meta-14 /data/postgres/pg-meta-15         # rename data directory
-rm -rf /pg; ln -s /data/postgres/pg-meta-15 /pg                # fix data dir links
+rm -rf /usr/pgsql; ln -s /usr/pgsql-15 /usr/pgsql;             # 修复二进制链接
+mv /data/postgres/pg-meta-14 /data/postgres/pg-meta-15         # 重命名数据目录
+rm -rf /pg; ln -s /data/postgres/pg-meta-15 /pg                # 修复数据目录链接
 ```

@@ -134,10 +134,10 @@ pgbackrest --stanza=pg-meta --type=time --target='2023-02-07 12:38:00+08' restor
 
 ## 备份策略
 
-您可以使用[`node_crontab`](https://chat.openai.com/PARAM#node_crontab) 和 [`pgbackrest_repo`](https://chat.openai.com/PARAM#pgbackrest_repo)自定义备份策略。
+您可以使用[`node_crontab`](PARAM#node_crontab) 和 [`pgbackrest_repo`](PARAM#pgbackrest_repo)自定义备份策略。
 
-- 使用[`node_crontab`](https://chat.openai.com/PARAM#node_crontab)设置定时备份任务
-- 使用[`pgbackrest_repo`](https://chat.openai.com/PARAM#pgbackrest_repo)设置备份保留策略
+- 使用[`node_crontab`](PARAM#node_crontab)设置定时备份任务
+- 使用[`pgbackrest_repo`](PARAM#pgbackrest_repo)设置备份保留策略
 
 **本地备份仓库**
 

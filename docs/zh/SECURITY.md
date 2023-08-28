@@ -67,7 +67,7 @@
 - 您可以修改它们的配置文件，只监听内网IP地址，限制其只能通过 Nginx 门户通过域名访问。
 - 你也可以当使用安全组，防火墙规则来实现这些安全限制。
 
-**使用 [HBA](pgsql/hba) 限制 postgres 客户端访问**
+**使用 [HBA](pgsql-hba) 限制 postgres 客户端访问**
 - 有一个增强安全性的配置模板：[`security.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/security.yml)
 
 **限制 patroni 管理访问权限：仅 infra/admin 节点可调用控制API**
@@ -109,7 +109,7 @@
 
 **记录建立/切断连接的日志**
 - 该配置默认关闭，但在 `crit.yml` 配置模板中是默认启用的。
-- 可以手工[配置](pgsql-admin) `log_connections` and `log_disconnections` 参数启用此功能
+- 可以手工[配置集群](pgsql-admin#配置集群)，启用 `log_connections` 和 `log_disconnections` 功能参数。
 
 **如果您希望彻底杜绝PG集群在故障转移时脑裂的可能性，请启用watchdog**
 - 如果你的流量走默认推荐的 HAProxy 分发，那么即使你不启用 watchdog，你也不会遇到脑裂的问题。 

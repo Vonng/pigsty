@@ -337,7 +337,7 @@ It takes more resources, but can be much faster and have less impact than [PITR]
 
 ## Citus Cluster
 
-Pigsty has native citus support. Check [`files/pigsty/citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/citus.yml) for example.
+Pigsty has native citus support. Check [`files/pigsty/citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/citus.yml) & [`prod.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/prod.yml#L298) for example.
 
 To define a citus cluster, you have to specify the following parameters:
 
@@ -351,7 +351,7 @@ Besides, extra hba rules that allow ssl access from local & other data nodes are
 ```yaml
 all:
   children:
-    pg-citus0: # citus coordinator, pg_group = 0
+    pg-citus0: # citus data node 0
       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
       vars: { pg_cluster: pg-citus0 , pg_group: 0 }
     pg-citus1: # citus data node 1
@@ -377,8 +377,7 @@ all:
       - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet'  }
 ```
 
-
-And you can create distributed table & reference table on the coordinator node, and query them from any data node.
+And you can create distributed table & reference table on the coordinator node. Any data node can be used as the coordinator node since citus 11.2.
 
 ```bash
 SELECT create_distributed_table('pgbench_accounts', 'aid'); SELECT truncate_local_data_after_distributing_table($$public.pgbench_accounts$$);
@@ -411,7 +410,7 @@ Pigsty works on PostgreSQL 10+. While the pre-packaged packages only includes 12
 - L2 extensions: `postgis`, `citus`, `timescaledb`, `pgvector`, `pg_logical`, `pg_cron` (Available on PG 14,15)
 - L3 extensions: Other miscellaneous extensions (Available on PG 15 only)
 
-Since some extensions are not available on PG 12,13,16, you may have to change [`pg_extensions`](PARAM#pg_extensions) and [`pg_libs`](PARAM#pg_extensions) to fit your needs.
+Since some extensions are not available on PG 12,13,16, you may have to change [`pg_extensions`](PARAM#pg_extensions) and [`pg_libs`](PARAM#pg_libs) to fit your needs.
 
 Here are some example cluster definition with different major versions.
 

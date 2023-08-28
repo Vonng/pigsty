@@ -1,6 +1,6 @@
 # Parameter
 
-There are 265 parameters in Pigsty describing all aspect of the deployment.
+> There are 280+ parameters in Pigsty describing all aspect of the deployment.
 
 | ID  | Name                                                            | Module            | Section                           | Type        | Level | Comment                                                                       |
 |-----|-----------------------------------------------------------------|-------------------|-----------------------------------|-------------|-------|-------------------------------------------------------------------------------|

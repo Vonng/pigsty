@@ -880,7 +880,7 @@ pg restart <cls>                          # 重启 postgres 以使用 hugepage
 
 > 使用 `crit.yml` 参数模板，设置 `pg_rpo` 为 `0`，或[配置集群](pgsql-admin#配置集群)为同步提交模式。
 
-考虑使用 [同步备库](PGSQL-CONF#sync-standby) 和 [法定多数提交](pgsql/conf#quorum-commit) 来确保故障转移过程中的零数据丢失。
+考虑使用 [同步备库](PGSQL-CONF#同步备库) 和 [法定多数提交](pgsql-conf#法定人数提交) 来确保故障转移过程中的零数据丢失。
 
 更多细节，可以参考 [安全考量 - 可用性](SECURITY.md) 的相关介绍。
 

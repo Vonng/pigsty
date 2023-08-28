@@ -31,15 +31,16 @@
 
 > [描述](PGSQL-CONF) 你想要的 PostgreSQL 集群
 
-- [身份参数](PGSQL-CONF#identity)：定义PostgreSQL集群的身份参数
-- [单一主库](PGSQL-CONF#primary)：创建由单一主库构成的“集群“
-- [副本实例](PGSQL-CONF#replica)：创建一主一从的基础高可用集群
-- [离线实例](PGSQL-CONF#offline)：创建专用于OLAP/ETL/交互式查询的特殊只读实例。
-- [同步备库](PGSQL-CONF#sync-standby)：启用同步提交，以确保没有数据丢失
-- [法定人数](PGSQL-CONF#quorum-commit)：使用法定人数同步提交以获得更高的一致性级别
-- [备份集群](PGSQL-CONF#standby-cluster)：克隆现有集群，并保持同步（异地灾备集群）
-- [延迟集群](PGSQL-CONF#delayed-cluster)：克隆现有集群，并延迟重放，用于紧急数据恢复
-- [Citus集群](PGSQL-CONF#citus-cluster)：定义并创建 Citus 水平分布式数据库集群
+- [身份参数](PGSQL-CONF#身份参数)：定义PostgreSQL集群的身份参数
+- [读写主库](PGSQL-CONF#读写主库)：创建由单一主库构成的“集群“
+- [只读从库](PGSQL-CONF#只读从库)：创建一主一从的基础高可用集群
+- [离线从库](PGSQL-CONF#离线从库)：创建专用于OLAP/ETL/交互式查询的特殊只读实例。
+- [同步备库](PGSQL-CONF#同步备库)：启用同步提交，以确保没有数据丢失
+- [法定人数](PGSQL-CONF#法定人数提交)：使用法定人数同步提交以获得更高的一致性级别
+- [备份集群](PGSQL-CONF#备份集群)：克隆现有集群，并保持同步（异地灾备集群）
+- [延迟集群](PGSQL-CONF#延迟集群)：克隆现有集群，并延迟重放，用于紧急数据恢复
+- [Citus集群](PGSQL-CONF#citus集群)：定义并创建 Citus 水平分布式数据库集群
+- [大版本切换](PGSQL-CONF#大版本切换)：使用不同的PostgreSQL大版本
 
 
 ----------------

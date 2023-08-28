@@ -1,5 +1,7 @@
 # 配置参数
 
+> Pigsty 提供了 280+ 参数，用于描述数据库集群与整个环境的方方面面。
+
 | 序号  | 参数                                                              |        模块         |                参数组                | 类型          | 层次    | 中文说明                                                                            |
 |-----|-----------------------------------------------------------------|:-----------------:|:---------------------------------:|-------------|-------|---------------------------------------------------------------------------------|
 | 101 | [`version`](#version)                                           | [`INFRA`](#infra) |          [`META`](#meta)          | string      | G     | pigsty 版本字符串                                                                    |
@@ -298,7 +300,7 @@ Parameters about pigsty infrastructure components: local yum repo, nginx, dnsmas
 This section contains some metadata of current pigsty deployments, such as version string, admin node IP address, repo mirror [`region`](#region) and http(s) proxy when downloading pacakges.
 
 ```yaml
-version: v2.3.0                # pigsty version string
+version: v2.3.0                   # pigsty version string
 admin_ip: 10.10.10.10             # admin node ip address
 region: default                   # upstream mirror region: default,china,europe
 proxy_env:                        # global proxy env when downloading packages
@@ -332,7 +334,7 @@ default value:`10.10.10.10`
 
 Node with this ip address will be treated as admin node, usually point to the first node that install Pigsty.
 
-The default value `10.10.10.10` is a placeholder which will be replaced during [configure](install#Configure)
+The default value `10.10.10.10` is a placeholder which will be replaced during [configure](INSTALL#Configure)
 
 This parameter is referenced by many other parameters, such as:
 
@@ -522,7 +524,7 @@ During initialization, Pigsty downloads all packages and their dependencies (spe
 
 When creating a localYum repo, Pigsty will skip the software download phase if the directory already exists and if there is a marker file named `repo_complete` in the dir.
 
-If the download speed of some packages is too slow, you can set the download proxy to complete the first download by using the [`proxy_env`](#proxy_env) config entry or directly download the pre-packaged [offline package](install#offline-package).
+If the download speed of some packages is too slow, you can set the download proxy to complete the first download by using the [`proxy_env`](#proxy_env) config entry or directly download the pre-packaged [offline package](/en/docs/deploy/software/offline).
 
 The offline package is a zip archive of the `{{ nginx_home }}/{{ repo_name }}` dir `pkg.tgz`. During `configure`, if Pigsty finds the offline package `/tmp/pkg.tgz`, it will extract it to `{{ nginx_home }}/{{ repo_name }}`, skipping the software download step during installation.
 
@@ -562,10 +564,9 @@ repo_upstream:                    # where to download #
   - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
   - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' } }
   - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable'           , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' } }
-  - { name: pigsty-el      ,description: 'Pigsty EL Common'  ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://get.pigsty.cc/yum/el.x86_64' }}
   - { name: pigsty-misc    ,description: 'Pigsty EL Misc'    ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://get.pigsty.cc/yum/el$releasever.$basearch' }}
-  - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' }}
-  - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com'}} #, china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
+  - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch', china: 'https://get.pigsty.cc/yum/prometheus/el$releasever.$basearch' }}
+  - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com', china: 'https://get.pigsty.cc/yum/grafana/$basearch' }}
 repo_packages:                    # which packages to be included
   - ansible python3 python3-pip python3-requests python3.11-jmespath dnf-utils modulemd-tools # el7: python36-requests python36-idna yum-utils
   - grafana loki logcli promtail prometheus2 alertmanager karma pushgateway node_exporter blackbox_exporter nginx_exporter redis_exporter mysqld_exporter karma
@@ -573,8 +574,8 @@ repo_packages:                    # which packages to be included
   - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned perf nvme-cli numactl grubby sysstat iotop htop rsync tcpdump
   - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived ferretdb
   - postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* postgresql16* timescaledb-tools
-  - postgresql15 postgresql15* citus_15* pglogical_15* wal2json_15* pg_repack_15* pgvector_15* timescaledb-2-postgresql-15* postgis33_15* passwordcheck_cracklib_15* pg_cron_15*
-  - postgresql14 postgresql14* citus_14* pglogical_14* wal2json_14* pg_repack_14* pgvector_14* timescaledb-2-postgresql-14* postgis33_14* passwordcheck_cracklib_14* pg_cron_14*
+  - postgresql15* citus_15* pglogical_15* wal2json_15* pg_repack_15* pgvector_15* timescaledb-2-postgresql-15* postgis33_15* passwordcheck_cracklib_15* pg_cron_15*
+  - postgresql14* citus_14* pglogical_14* wal2json_14* pg_repack_14* pgvector_14* timescaledb-2-postgresql-14* postgis33_14* passwordcheck_cracklib_14* pg_cron_14*
   - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_partman_15 pg_permissions_15 pgaudit17_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15*
   - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15
   - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15*  pgtt_15 pgq_15* pgsql_tweaks_15 count_distinct_15 hypopg_15 timestamp9_15* semver_15* prefix_15* rum_15 geoip_15 periods_15 ip4r_15 tdigest_15 hll_15 pgmp_15 extra_window_functions_15 topn_15
@@ -582,9 +583,8 @@ repo_packages:                    # which packages to be included
 repo_url_packages:
   - https://get.pigsty.cc/rpm/pev.html
   - https://get.pigsty.cc/rpm/chart.tgz
-  #- https://get.pigsty.cc/rpm/plugins.tgz
+  - https://get.pigsty.cc/rpm/plugins.tgz
 ```
-
 
 
 ### `repo_enabled`
@@ -648,7 +648,7 @@ name: `repo_modules`, type: `string`, level: `G/A`
 
 which repo modules are installed in repo_upstream, default value: `node,pgsql,pgsql`
 
-This is a comma separated value string, it is used to filter entries in [`repo_upstream`](#repo_upstream) with corresponding `module` field.
+This is a comma separated value string, it is used to filter entries in [`repo_upstream`](#repo_upstream) with corresponding `module` field. 
 
 
 
@@ -697,11 +697,12 @@ repo_upstream:                    # where to download #
 
 
 
+
 ### `repo_packages`
 
 name: `repo_packages`, type: `string[]`, level: `G`
 
-which packages to be included, default values:
+which packages to be included, default values: 
 
 ```yaml
 repo_packages:                    # which packages to be included
@@ -832,7 +833,7 @@ name: `nginx_exporter_enabled`, type: `bool`, level: `G/I`
 
 enable nginx_exporter on this infra node? default value: `true`.
 
-set to false will disable `/nginx` health check stub too
+set to false will disable `/nginx` health check stub too 
 
 
 
@@ -1201,7 +1202,7 @@ Default is empty; when [`exporter_install`](#exporter_install) is `yum`, the rep
 
 ## `GRAFANA`
 
-Grafana is the visualization platform for Pigsty's monitoring system.
+Grafana is the visualization platform for Pigsty's monitoring system. 
 
 It can also be used as a low code data visualization environment
 
@@ -1313,6 +1314,7 @@ grafana_plugin_list:              # grafana plugins to be downloaded with grafan
 
 
 
+
 ------------------------------
 
 ## `LOKI`
@@ -1386,7 +1388,7 @@ You can use `ansible_*` parameters to overwrite `ssh` behavior, e.g. connect via
 
 [`nodename`](#nodename) and [`node_cluster`](#node_cluster) are not **mandatory**; [`nodename`](#nodename) will use the node's current hostname by default, while [`node_cluster`](#node_cluster) will use the fixed default value: `nodes`.
 
-If [`node_id_from_pg`](#node_id_from_pg) is enabled, the node will borrow [`PGSQL`](pgsql) [identity](#pg_id) and use it as Node's identity, i.e. [`node_cluster`](#node_cluster) is set to [`pg_cluster`](#pg_cluster) if applicable, and [`nodename`](#nodename) is set to `${pg_cluster}-${pg_seq}`. If [`nodename_overwrite`](#nodename_overwrite) is enabled, node's hostname will be overwritten by [`nodename`](#nodename)
+If [`node_id_from_pg`](#node_id_from_pg) is enabled, the node will borrow [`PGSQL`](PGSQL) [identity](#pg_id) and use it as Node's identity, i.e. [`node_cluster`](#node_cluster) is set to [`pg_cluster`](#pg_cluster) if applicable, and [`nodename`](#nodename) is set to `${pg_cluster}-${pg_seq}`. If [`nodename_overwrite`](#nodename_overwrite) is enabled, node's hostname will be overwritten by [`nodename`](#nodename)
 
 Pigsty labels a node with identity parameters in the monitoring system. Which maps `nodename` to `ins`, and `node_cluster` into `cls`.
 
@@ -1624,8 +1626,8 @@ how to setup node repo: `none`, `local`, `public`, `both`, default values: `loca
 Which repos are added to `/etc/yum.repos.d` on target nodes ?
 
 * `local`: Use the local yum repo on the admin node, default behavior.
-* `public`: Add public upstream repo directly to the target nodes, use this if you have Internet access.
-* `both`: Add both local repo and public repo. Useful when some rpm are missing
+* `public`: Add public upstream repo directly to the target nodes, use this if you have Internet access. 
+* `both`: Add both local repo and public repo. Useful when some rpm are missing 
 * `none`: do not add any repo to target nodes.
 
 
@@ -2216,7 +2218,7 @@ keepalived exporter listen port, 9650 by default.
 
 HAProxy is installed on every node by default, exposing services in a NodePort manner.
 
-It is used by [`PGSQL`](pgsql) [Service](pgsql-SERVICE).
+It is used by [`PGSQL`](PGSQL) [Service](PGSQL-SERVICE).
 
 
 ```yaml
@@ -2590,7 +2592,7 @@ cat {{ docker_image_cache }}/*.tgz | gzip -d -c - | docker load
 
 # `ETCD`
 
-[ETCD](etcd) is a distributed, reliable key-value store for the most critical data of a distributed system,
+[ETCD](ETCD) is a distributed, reliable key-value store for the most critical data of a distributed system,
 and pigsty use **etcd** as **DCS**, Which is critical to PostgreSQL High-Availability.
 
 Pigsty has a hard coded group name `etcd` for etcd cluster, it can be an existing & external etcd cluster, or a new etcd cluster created by pigsty with `etcd.yml`.
@@ -2708,7 +2710,7 @@ etcd initial cluster state, `new` or `existing`
 
 default values: `new`, which will create a standalone new etcd cluster.
 
-The value `existing` is used when trying to [add new member](etcd-admin#add-member) to existing etcd cluster.
+The value `existing` is used when trying to [add new member](ETCD-ADMIN#add-member) to existing etcd cluster.
 
 
 
@@ -2810,7 +2812,7 @@ minio os user name, `minio` by default
 
 name: `minio_node`, type: `string`, level: `C`
 
-minio node name pattern, this is used for [multi-node](minio#multi-node-multi-drive) deployment
+minio node name pattern, this is used for [multi-node](MINIO#multi-node-multi-drive) deployment
 
 default values: `${minio_cluster}-${minio_seq}.pigsty`
 
@@ -2824,9 +2826,9 @@ name: `minio_data`, type: `path`, level: `C`
 
 minio data dir(s)
 
-default values: `/data/minio`, which is a common dir for [single-node](minio#single-node-single-drive) deployment.
+default values: `/data/minio`, which is a common dir for [single-node](MINIO#single-node-single-drive) deployment.
 
-For a [multi-drive](minio#single-node-multi-drive) deployment, you can use `{x...y}` notion to specify multi drivers.
+For a [multi-drive](MINIO#single-node-multi-drive) deployment, you can use `{x...y}` notion to specify multi drivers.
 
 
 
@@ -2925,7 +2927,7 @@ list of minio bucket to be created by default:
 minio_buckets: [ { name: pgsql }, { name: infra },  { name: redis } ]
 ```
 
-Three default buckets are created for module [`PGSQL`](pgsql), [`INFRA`](infra), and [`REDIS`](redis)
+Three default buckets are created for module [`PGSQL`](PGSQL), [`INFRA`](INFRA), and [`REDIS`](REDIS)
 
 
 
@@ -3072,7 +3074,7 @@ default value is empty string
 
 ### `redis_safeguard`
 
-name: `redis_safeguard`, type: `bool`, level: `C`
+name: `redis_safeguard`, type: `bool`, level: `G/C/A`
 
 prevent purging running redis instance?
 
@@ -3083,7 +3085,7 @@ default value is `false`, if set to `true`, and redis instance is running, init 
 
 ### `redis_clean`
 
-name: `redis_clean`, type: `bool`, level: `C`
+name: `redis_clean`, type: `bool`, level: `G/C/A`
 
 purging existing redis during init?
 
@@ -3094,7 +3096,7 @@ default value is `true`, which will remove redis server during redis init or rem
 
 ### `redis_rmdata`
 
-name: `redis_rmdata`, type: `bool`, level: `A`
+name: `redis_rmdata`, type: `bool`, level: `G/C/A`
 
 remove redis data when purging redis server? 
 
@@ -3251,16 +3253,16 @@ replica number for one master/primary in redis cluster, default values: `1`
 
 # `PGSQL`
 
-[`PGSQL`](pgsql) module requires [`NODE`](node) module to be installed, and you also need a viable [`ETCD`](etcd) cluster to store cluster meta data.
+[`PGSQL`](PGSQL) module requires [`NODE`](NODE) module to be installed, and you also need a viable [`ETCD`](ETCD) cluster to store cluster meta data.
 
-Install `PGSQL` module on a single node will create a [primary](pgsql/conf#primary) instance which a standalone PGSQL server/instance.
-Install it on additional nodes will create [replicas](pgsql/conf#replica), which can be used for serving read-only traffics, or use as standby backup.
-You can also create [offline](pgsql/conf#offline) instance of ETL/OLAP/Interactive queries,
-use [Sync Standby](PGSQL-CONF#sync-standby) and [Quorum Commit](pgsql/conf#quorum-commit) to increase data consistency,
-or even form a [standby cluster](PGSQL-CONF#standby-cluster) and [delayed standby cluster](pgsql/conf#delayed-cluster) for disaster recovery.
+Install `PGSQL` module on a single node will create a [primary](PGSQL-CONF#primary) instance which a standalone PGSQL server/instance.
+Install it on additional nodes will create [replicas](PGSQL-CONF#replica), which can be used for serving read-only traffics, or use as standby backup.
+You can also create [offline](PGSQL-CONF#offline) instance of ETL/OLAP/Interactive queries,
+use [Sync Standby](PGSQL-CONF#sync-standby) and [Quorum Commit](PGSQL-CONF#quorum-commit) to increase data consistency,
+or even form a [standby cluster](PGSQL-CONF#standby-cluster) and [delayed standby cluster](PGSQL-CONF#delayed-cluster) for disaster recovery.
 
 You can define multiple PGSQL clusters and form a horizontal sharding cluster, which is a group of PGSQL clusters running on different nodes.
-Pigsty has native [citus cluster group](pgsql/conf#citus-cluster) support, which can extend your PGSQL cluster to a distributed database sharding cluster.
+Pigsty has native [citus cluster group](PGSQL-CONF#citus-cluster) support, which can extend your PGSQL cluster to a distributed database sharding cluster.
 
 
 
@@ -3268,7 +3270,7 @@ Pigsty has native [citus cluster group](pgsql/conf#citus-cluster) support, which
 
 ## `PG_ID`
 
-Here are some common parameters used to identify PGSQL [entities](pgsql/arch#er-diagram): instance, service, etc...
+Here are some common parameters used to identify PGSQL [entities](PGSQL-ARCH#er-diagram): instance, service, etc...
 
 ```yaml
 # pg_cluster:           #CLUSTER  # pgsql cluster name, required identity parameter
@@ -3389,7 +3391,7 @@ name: `pg_upstream`, type: `ip`, level: `I`
 
 Upstream ip address for standby cluster or cascade replica
 
-Setting `pg_upstream` is set on `primary` instance indicate that this cluster is a [**Standby Cluster**](pgsql/conf#standby-cluster), and will receiving changes from upstream instance, thus the `primary` is actually a `standby leader`.
+Setting `pg_upstream` is set on `primary` instance indicate that this cluster is a [**Standby Cluster**](PGSQL-CONF#standby-cluster), and will receiving changes from upstream instance, thus the `primary` is actually a `standby leader`.
 
 Setting `pg_upstream` for a non-primary instance will explicitly set a replication upstream instance, if it is different from the primary ip addr, this instance will become a **cascade replica**. And it's user's responsibility to ensure that the upstream IP addr is another instance in the same cluster.
 
@@ -3464,7 +3466,7 @@ pg_exporters: # list all remote instances here, alloc a unique unused local port
     20003: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.13 }
 ```
 
-Check [PGSQL Monitoring](pgsql/monitor) for details.
+Check [PGSQL Monitoring](PGSQL-MONITOR) for details.
 
 
 
@@ -3522,7 +3524,7 @@ name: `pg_users`, type: `user[]`, level: `C`
 
 postgres business users, has to be defined at cluster level.
 
-default values: `[]`, each object in the array defines a [User/Role](pgsql/user). Examples:
+default values: `[]`, each object in the array defines a [User/Role](PGSQL-USER). Examples:
 
 ```yaml
 pg_users:                           # define business users/roles on this cluster, array of user definition
@@ -3659,7 +3661,7 @@ business hba rules for postgres
 
 default values: `[]`, each object in array is an **HBA Rule** definition:
 
-Which are array of [hba](pgsql/hba#define-hba) object, each hba object may look like
+Which are array of [hba](PGSQL-HBA#define-hba) object, each hba object may look like
 
 
 ```yaml
@@ -3704,7 +3706,7 @@ name: `pgb_hba_rules`, type: `hba[]`, level: `C`
 
 business hba rules for pgbouncer, default values: `[]`
 
-Similar to [`pg_hba_rules`](#pg_hba_rules), array of [hba](pgsql/hba#define-hba) rule object, except this is for pgbouncer.
+Similar to [`pg_hba_rules`](#pg_hba_rules), array of [hba](PGSQL-HBA#define-hba) rule object, except this is for pgbouncer.
 
 
 
@@ -3910,7 +3912,7 @@ postgres binary dir, `/usr/pgsql/bin` by default
 
 The default value is a soft link created manually during the installation process, pointing to the specific Postgres version dir installed.
 
-For example `/usr/pgsql -> /usr/pgsql-15`. For more details, check [PGSQL File Structure](fhs#postgres-fhs) for details.
+For example `/usr/pgsql -> /usr/pgsql-15`. For more details, check [PGSQL File Structure](FHS#postgres-fhs) for details.
 
 
 
@@ -3962,7 +3964,8 @@ pg_extensions:                    # pg extensions to be installed, `${pg_version
   - pgvector_${pg_version}*
 ```
 
-Note that citus 12 is only available for pg 14, 15. 
+Note that citus 12 is only available for pg 14, 15.
+
 
 
 
@@ -4058,7 +4061,7 @@ default values: `/pg/data`, DO NOT CHANGE IT.
 
 It's a soft link that point to underlying data directory. 
 
-Check [PGSQL File Structure](fhs) for details. 
+Check [PGSQL File Structure](FHS) for details. 
 
 
 
@@ -4134,6 +4137,7 @@ You can use placeholder in this variable:
 * `${lo}`: will translate to `127.0.0.1`
 
 For example: `'${ip},${lo}'` or `'${ip},${vip},${lo}'`.
+
 
 
 
@@ -4264,7 +4268,7 @@ name: `patroni_username`, type: `username`, level: `C`
 
 patroni restapi username, `postgres` by default, used in pair with [`patroni_password`](#patroni_password)
 
-Patroni unsafe RESTAPI is protected by username/password by default, check [Config Cluster](pgsql/admin#config-cluster) and [Patroni RESTAPI](https://patroni.readthedocs.io/en/latest/rest_api.html) for details. 
+Patroni unsafe RESTAPI is protected by username/password by default, check [Config Cluster](PGSQL-ADMIN#配置集群) and [Patroni RESTAPI](https://patroni.readthedocs.io/en/latest/rest_api.html) for details. 
 
 
 
@@ -4303,7 +4307,7 @@ config template: `{oltp,olap,crit,tiny}.yml`, `oltp.yml` by default
 - `olap.yml`: optimize for OLAP workloads and throughput (4C8G+)
 - `crit.yml`: optimize for data consistency and critical applications (4C8G+) 
 
-default values: `oltp.yml`, but [configure](install#configure) procedure will set this value to `tiny.yml` if current node is a tiny node.
+default values: `oltp.yml`, but [configure](INSTALL#configure) procedure will set this value to `tiny.yml` if current node is a tiny node.
 
 You can have your own template, just put it under `templates/<mode>.yml` and set this value to the template name.
 
@@ -4426,7 +4430,7 @@ replication apply delay for standby cluster leader , default values: `0`.
 
 if this value is set to a positive value, the standby cluster leader will be delayed for this time before apply WAL changes.
 
-Check [delayed standby cluster](pgsql/conf#delayed-cluster) for details.
+Check [delayed standby cluster](PGSQL-CONF#delayed-cluster) for details.
 
 
 
@@ -4659,7 +4663,6 @@ pgb_default_hba_rules:            # pgbouncer default host-based authentication 
 ```
 
 
-
 ### `pg_provision`
 
 name: `pg_provision`, type: `bool`, level: `C`
@@ -4691,7 +4694,7 @@ name: `pg_default_roles`, type: `role[]`, level: `G/C`
 
 default roles and users in postgres cluster.  
 
-Pigsty has a built-in role system, check [PGSQL Access Control](pgsql/acl#role-system) for details.
+Pigsty has a built-in role system, check [PGSQL Access Control](PGSQL-ACL#role-system) for details.
 
 ```yaml
 pg_default_roles:                 # default roles and users in postgres cluster
@@ -4735,7 +4738,7 @@ pg_default_privileges:            # default privileges when created by admin use
   - GRANT CREATE     ON SCHEMAS   TO dbrole_admin
 ```
 
-Pigsty has a built-in privileges base on default role system, check [PGSQL Privileges](pgsql/acl#privileges) for details.
+Pigsty has a built-in privileges base on default role system, check [PGSQL Privileges](PGSQL-ACL#privileges) for details.
 
 
 
@@ -4799,9 +4802,9 @@ This is useful when you want to check before applying HBA changes, set it to `fa
 
 name: `pg_default_hba_rules`, type: `hba[]`, level: `G/C`
 
-postgres default host-based authentication rules, array of [hba](pgsql/hba#define-hba) rule object.
+postgres default host-based authentication rules, array of [hba](PGSQL-HBA#define-hba) rule object.
 
-default value provides a fair enough security level for common scenarios, check [PGSQL Authentication](pgsql/hba) for details.
+default value provides a fair enough security level for common scenarios, check [PGSQL Authentication](PGSQL-HBA) for details.
 
 ```yaml
 pg_default_hba_rules:             # postgres default host-based authentication rules
@@ -4826,9 +4829,9 @@ pg_default_hba_rules:             # postgres default host-based authentication r
 
 name: `pgb_default_hba_rules`, type: `hba[]`, level: `G/C`
 
-pgbouncer default host-based authentication rules, array or [hba](pgsql/hba#define-hba) rule object.
+pgbouncer default host-based authentication rules, array or [hba](PGSQL-HBA#define-hba) rule object.
 
-default value provides a fair enough security level for common scenarios, check [PGSQL Authentication](pgsql/hba) for details.
+default value provides a fair enough security level for common scenarios, check [PGSQL Authentication](PGSQL-HBA) for details.
 
 ```yaml
 pgb_default_hba_rules:            # pgbouncer default host-based authentication rules
@@ -4854,7 +4857,7 @@ pgb_default_hba_rules:            # pgbouncer default host-based authentication 
 
 This section defines variables for [pgBackRest](https://pgbackrest.org/), which is used for PGSQL PITR (Point-In-Time-Recovery). 
 
-Check [PGSQL Backup & PITR](pgsql/pitr) for details.
+Check [PGSQL Backup & PITR](PGSQL-PITR) for details.
 
 
 ```yaml
@@ -5001,7 +5004,7 @@ name: `pg_weight`, type: `int`, level: `G`
 
 relative load balance weight in service, 100 by default, 0-255
 
-default values: `100`. you have to define it at instance vars, and [reload-service](pgsql/admin#reload-service) to take effect.
+default values: `100`. you have to define it at instance vars, and [reload-service](PGSQL-ADMIN#重载服务) to take effect.
 
 
 
@@ -5032,7 +5035,7 @@ pg_default_services:             # alloc port 10001 and 10002 for pg-test primar
 
 name: `pg_default_service_dest`, type: `enum`, level: `G/C`
 
-When defining a [service](pgsql/svc#define-service), if svc.dest='default', this parameter will be used as the default value.
+When defining a [service](PGSQL-SVC#define-service), if svc.dest='default', this parameter will be used as the default value.
 
 default values: `pgbouncer`, means 5433 primary service and 5434 replica service will route traffic to pgbouncer by default.
 
@@ -5049,7 +5052,7 @@ name: `pg_default_services`, type: `service[]`, level: `G/C`
 
 postgres default service definitions
 
-default value is four default services definition, which is explained in [PGSQL Service](pgsql/svc#service)
+default value is four default services definition, which is explained in [PGSQL Service](PGSQL-SVC#service)
 
 ```yaml
 pg_default_services:               # postgres default service definitions

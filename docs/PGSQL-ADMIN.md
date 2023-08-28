@@ -22,6 +22,8 @@ Here are some SOP for common pgsql admin tasks
 - Case 16: [Major Upgrade](#major-upgrade)
 
 
+----------------
+
 ## Cheatsheet
 
 PGSQL playbooks and shortcuts:
@@ -83,7 +85,7 @@ systemctl stop postgres                 # only when patroni_mode == 'remove'
 
 
 
-
+----------------
 
 ## Create Cluster
 
@@ -102,6 +104,7 @@ bin/pgsql-add <cls>               # init pgsql instances of cluster <cls>  # ./p
 
 
 
+----------------
 
 ## Create User
 
@@ -119,6 +122,7 @@ bin/pgsql-user <cls> <username>   # ./pgsql-user.yml -l <cls> -e username=<usern
 
 
 
+----------------
 
 ## Create Database
 
@@ -138,6 +142,7 @@ Note: If the database has specified an owner, the user should already exist, or 
 
 
 
+----------------
 
 ## Reload Service
 
@@ -160,7 +165,7 @@ bin/pgsql-svc <cls> [ip...]       # pgsql.yml -l ip... -t pg_service -e pg_reloa
 
 
 
-
+----------------
 
 ## Reload HBARule
 
@@ -184,6 +189,7 @@ bin/pgsql-hba <cls> [ip...]       # pgsql.yml -l ip... -t pg_hba,pgbouncer_hba,p
 
 
 
+----------------
 
 ## Config Cluster
 
@@ -221,7 +227,7 @@ Note: patroni unsafe RestAPI access is limit from infra/admin nodes and protecte
 
 </details>
 
-<details><summary>Example: Config Cluster with PatroniCtl</summary>
+<details><summary>Example: Config Cluster with patronictl</summary>
 
 [![asciicast](https://asciinema.org/a/568799.svg)](https://asciinema.org/a/568799)
 
@@ -229,6 +235,7 @@ Note: patroni unsafe RestAPI access is limit from infra/admin nodes and protecte
 
 
 
+----------------
 
 ## Append Replica
 
@@ -284,6 +291,7 @@ which is similar to cluster init but only works on single instance。
 
 
 
+----------------
 
 ## Remove Replica
 
@@ -336,6 +344,7 @@ bin/pgsql-svc pg-test             # reload pg service on pg-test
 
 
 
+----------------
 
 ## Remove Cluster
 
@@ -366,6 +375,7 @@ You can use playbook command line args to explicitly overwrite it to force the p
 
 
 
+----------------
 
 ## Switchover
 
@@ -438,7 +448,7 @@ curl -u 'postgres:Patroni.API' \
 
 
 
-
+----------------
 
 ## Backup Cluster
 
@@ -455,8 +465,6 @@ pb info                           # check backup information
 Check [Backup](PGSQL-PITR) & PITR for details.
 
 <details><summary>Example: Make Backups</summary>
-
-You can add crontab to [`node_crontab`](PARAM#node_crontab) to specify your backup policy.
 
 [![asciicast](https://asciinema.org/a/568813.svg)](https://asciinema.org/a/568813)
 
@@ -480,6 +488,7 @@ You can add crontab to [`node_crontab`](PARAM#node_crontab) to specify your back
 
 
 
+----------------
 
 ## Restore Cluster
 
@@ -516,6 +525,7 @@ pgbackrest --stanza=pg-meta --type=immediate --target-action=promote \
 
 
 
+----------------
 
 ## Adding Packages
 
@@ -549,7 +559,7 @@ ansible pg-test -b -m package -a "name=postgresql15* state=latest"
 </details>
 
 
-
+----------------
 
 ## Install Extension
 
@@ -577,6 +587,7 @@ psql -h pg-test -d postgres -c 'CREATE EXTENSION pg_cron;'  # install pg_cron on
 
 
 
+----------------
 
 ## Minor Upgrade
 
@@ -626,6 +637,7 @@ pg restart --role primary --force pg-test               # restart primary
 
 
 
+----------------
 
 ## Major Upgrade
 

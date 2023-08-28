@@ -2,7 +2,7 @@
 
 > 分离读写操作，正确路由流量，稳定可靠地交付 PostgreSQL 集群提供的能力。
 
-服务是一种抽象：用于封装底数据库层集群的细节，特别是集群故障转移/切换期间。
+服务是一种抽象：用于封装底数据库层集群的细节，特别是集群故障转移/切换期间尤为有用。
 
 ---------------
 
@@ -65,7 +65,7 @@ psql postgres://dbuser_stats:DBUser.Stats@pg-meta:5438/meta # pg-meta-offline : 
 
 Primary服务可能是生产环境中最关键的服务。
 
-根据[`pg_default_service_dest`](#pg_default_service_dest)将流量路由到主实例：
+根据[`pg_default_service_dest`](param#pg_default_service_dest)将流量路由到主实例：
 
 - `pgbouncer`：将流量路由到主pgbouncer端口（6432），这是默认行为
 - `postgres`：如果您不想使用pgbouncer，直接将流量路由到主postgres端口（5432）
@@ -108,7 +108,7 @@ Replica服务用于生产环境的只读流量。
 
 在实际场景中，可能有更多的只读查询而不是读写查询，因此您可能有很多副本。
 
-Replica服务将根据[`pg_default_service_dest`](#pg_default_service_dest)将流量路由到pgbouncer或postgres，就像[Primary服务](#primary-service)一样。
+Replica服务将根据[`pg_default_service_dest`](param#pg_default_service_dest)将流量路由到pgbouncer或postgres，就像[Primary服务](#primary服务)一样。
 
 ```yaml
 - { name: replica ,port: 5434 ,dest: default  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
@@ -149,7 +149,7 @@ listen pg-test-replica
 
 Default服务默认会路由到主postgres（5432）。
 
-它很像Primary服务，不同之处在于，无论[`pg_default_service_dest`](#pg_default_service_dest)如何，它总是会绕过pgbouncer。 这对于管理连接、ETL写入、CDC数据变更捕获等都很有用。
+它很像Primary服务，不同之处在于，无论[`pg_default_service_dest`](param#pg_default_service_dest)如何，它总是会绕过pgbouncer。 这对于管理连接、ETL写入、CDC数据变更捕获等都很有用。
 
 ```
 yamlCopy code
@@ -186,7 +186,7 @@ listen pg-test-default
 
 Offline服务将流量直接路由到专用的postgres实例。
 
-这可能是一个[`pg_role`](#pg_role) = `offline`的实例，或者是一个被[`pg_offline_query`](#pg_offline_query)标记的实例。
+这可能是一个[`pg_role`](param#pg_role) = `offline`的实例，或者是一个被[`pg_offline_query`](param#pg_offline_query)标记的实例。
 
 如果没有找到此类实例，它将回退到任何副本实例。最基本的是：它永远不会将流量路由到主实例。
 
@@ -271,7 +271,7 @@ listen pg-test-standby
 
 ## 重载服务
 
-当集群成员发生变化，如添加/删除副本、主备切换或调整相对权重时， 你必须 [重载服务](PGSQL-ADMIN#reload-service) 以使更改生效。
+当集群成员发生变化，如添加/删除副本、主备切换或调整相对权重时， 你必须 [重载服务](PGSQL-ADMIN#重载服务) 以使更改生效。
 
 ```
 bashCopy code
@@ -284,7 +284,7 @@ bin/pgsql-svc <cls> [ip...]         # 为 lb 集群或 lb 实例重载服务
 
 ## 接入服务
 
-Pigsty 使用 haproxy 提供 [service](#service)。默认情况下，所有节点都启用了它。
+Pigsty 使用 haproxy 提供 [服务](#服务)。默认情况下，所有节点都启用了它。
 
 haproxy 负载均衡器默认在相同的 pg 集群之间是幂等的，你可以通过任何方式使用它们。
 
@@ -292,7 +292,7 @@ haproxy 负载均衡器默认在相同的 pg 集群之间是幂等的，你可�
 
 Service 可以以不同的方式实现，你甚至可以实现你自己的访问方法，如 L4 LVS、F5 等，而不是使用 haproxy。
 
-你可以使用不同的 [host](#host) 和 [port](#port) 组合，它们以不同的方式提供 PostgreSQL 服务。
+你可以使用不同的 Host & Port 组合，它们以不同的方式提供 PostgreSQL 服务。
 
 **主机**
 
@@ -367,9 +367,9 @@ postgres://test@10.10.10.11:6432,10.10.10.12:6432,10.10.10.13:6432/test?target_s
 
 **绕过Pgbouncer**
 
-当定义一个服务时，如果 `svc.dest='default'`，此参数 [`pg_default_service_dest`](#pg_default_service_dest) 将被用作默认值。 默认使用 `pgbouncer`，你可以改为使用 `postgres`，这样默认的主和副本服务将绕过pgbouncer，直接将流量路由到postgres。
+当定义一个服务时，如果 `svc.dest='default'`，此参数 [`pg_default_service_dest`](param#pg_default_service_dest) 将被用作默认值。 默认使用 `pgbouncer`，你可以改为使用 `postgres`，这样默认的主和副本服务将绕过pgbouncer，直接将流量路由到postgres。
 
-如果你完全不需要连接池，你可以将 [`pg_default_service_dest`](#pg_default_service_dest) 更改为 `postgres`，并移除 `default` 和 `offline` 服务。
+如果你完全不需要连接池，你可以将 [`pg_default_service_dest`](param#pg_default_service_dest) 更改为 `postgres`，并移除 `default` 和 `offline` 服务。
 
 如果你不需要只读副本来处理在线流量，你也可以从 `pg_default_services` 中移除 `replica`。
 
@@ -390,7 +390,7 @@ Pigsty 通过节点上的 haproxy 暴露 PostgreSQL 服务。整个集群中的�
 
 但是，你可以将 pg 服务委托给特定的节点组（例如，专门的 haproxy 负载均衡器集群），而不是集群成员。
 
-为此，你需要使用 [`pg_default_services`](#pg_default_services) 覆盖默认的服务定义，并将 [`pg_service_provider`](#pg_service_provider) 设置为代理组名称。
+为此，你需要使用 [`pg_default_services`](param#pg_default_services) 覆盖默认的服务定义，并将 [`pg_service_provider`](param#pg_service_provider) 设置为代理组名称。
 
 例如，此配置将在端口 10013 的 `proxy` haproxy 节点组上公开 pg 集群的主服务。
 

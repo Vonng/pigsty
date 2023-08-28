@@ -46,7 +46,7 @@ Pigsty 中有四个默认角色：
 - 业务只读 (`dbrole_readonly`): 用于全局只读访问的角色。如果别的业务想要此库只读访问权限，可以使用此角色。
 - 业务读写 (`dbrole_readwrite`): 用于全局读写访问的角色，主属业务使用的生产账号应当具有数据库读写权限
 - 业务管理员 (`dbrole_admin`): 拥有DDL权限的角色，通常用于业务管理员，或者需要在应用中建表的场景（比如各种业务软件）
-- 离线只读访问 (`dbrole_offline`): 受限的只读访问角色（只能访问 [offline](PGSQL-CONF#offline) 实例，通常是个人用户，ETL工具账号）
+- 离线只读访问 (`dbrole_offline`): 受限的只读访问角色（只能访问 [offline](PGSQL-CONF#离线从库) 实例，通常是个人用户，ETL工具账号）
 
 默认角色在 [`pg_default_roles`](PARAM#pg_default_roles) 中定义，除非您确实知道自己在干什么，建议不要更改默认角色的名称。
 
@@ -114,7 +114,7 @@ Pigsty 拥有一套开箱即用的权限模型，该模型与[默认角色](#def
 - 只读用户（`dbrole_readonly`）可以从所有表中读取数据。（SELECT，EXECUTE）
 - 读写用户（`dbrole_readwrite`）可以向所有表中写入数据并运行 DML。（INSERT，UPDATE，DELETE）。
 - 管理员用户（`dbrole_admin`）可以创建对象并运行 DDL（CREATE，USAGE，TRUNCATE，REFERENCES，TRIGGER）。
-- 离线用户（`dbrole_offline`）类似只读用户，但访问受到限制，只允许访问[离线实例](PGSQL-CONF#offline)（`pg_role = 'offline'` 或 `pg_offline_query = true`）
+- 离线用户（`dbrole_offline`）类似只读用户，但访问受到限制，只允许访问[离线实例](PGSQL-CONF#离线从库)（`pg_role = 'offline'` 或 `pg_offline_query = true`）
 - 由管理员用户创建的对象将具有正确的权限。
 - 所有数据库上都配置了默认权限，包括模板数据库。
 - 数据库连接权限由数据库[定义](PGSQL-DB#定义数据库)管理。

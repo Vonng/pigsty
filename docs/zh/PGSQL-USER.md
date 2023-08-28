@@ -74,7 +74,7 @@ Pigsty 具有一套内置的，开箱即用的访问控制 / [ACL](PGSQL-ACL#默
 - `dbrole_readwrite`：全局读写访问的角色（主属业务使用的生产账号应当具有数据库读写权限）
 - `dbrole_readonly`：全局只读访问的角色（如果别的业务想要只读访问，可以使用此角色）
 - `dbrole_admin`：拥有DDL权限的角色 （业务管理员，需要在应用中建表的场景）
-- `dbrole_offline`：受限的只读访问角色（只能访问 [offline](PGSQL-CONF#offline) 实例，通常是个人用户）
+- `dbrole_offline`：受限的只读访问角色（只能访问 [offline](PGSQL-CONF#离线从库) 实例，通常是个人用户）
 
 如果您希望重新设计您自己的 ACL 系统，可以考虑定制以下参数和模板：
 
@@ -90,7 +90,7 @@ Pigsty 具有一套内置的，开箱即用的访问控制 / [ACL](PGSQL-ACL#默
 ## 创建用户
 
 在 [`pg_default_roles`](PARAM#pg_default_roles) 和 [`pg_users`](PARAM#pg_users) 中[定义](#定义用户)的用户和角色，将在集群初始化的 PROVISION 阶段中自动逐一创建。
-如果您希望在现有的集群上[创建用户](PGSQL-ADMIN#create-user)，可以使用 `bin/pgsql-user` 工具。
+如果您希望在现有的集群上[创建用户](PGSQL-ADMIN#创建用户)，可以使用 `bin/pgsql-user` 工具。
 将新用户/角色定义添加到 `all.children.<cls>.pg_users`，并使用以下方法创建该数据库：
 
 ```bash

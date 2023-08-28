@@ -299,7 +299,7 @@ The typical method is access via cluster domain name, which resolve to cluster L
 
 Service can be implemented in different ways, You can even implement you own access method such as L4 LVS, F5, etc... instead of haproxy.
 
-You can use different combination of [host](#host) and [port](#port), they are provide PostgreSQL service in different ways.
+You can use different combination of host & port, they are provide PostgreSQL service in different ways.
 
 **Host**
 
