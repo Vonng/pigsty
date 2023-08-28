@@ -91,7 +91,7 @@ It will apply to the offline instance and any instances with [`pg_offline_query`
 
 ## Sync Standby
 
-PostgreSQL uses asynchronous commit in stream replication by default. Which may have a small replication lag. (10KB / 10ms).
+Pigsty uses asynchronous stream replication by default. Which may have a small replication lag. (10KB / 10ms).
 A small window of data loss may occur when the primary fails (can be controlled with [`pg_rpo`](PARAM#pg_rpo).), but it is acceptable for most scenarios. 
 
 But in some critical scenarios (e.g. financial transactions), data loss is totally unacceptable or read-your-write consistency is required.
@@ -147,7 +147,7 @@ pg-test:
     pg_conf: crit.yml   # <--- use crit template
 ```
 
-Adjust  [`synchronous_standby_names`](https://www.postgresql.org/docs/current/runtime-config-replication.html#synchronous_standby_names) and `synchronous_node_count` accordingly:
+Adjust  [`synchronous_standby_names`](https://www.postgresql.org/docs/current/runtime-config-replication.html#synchronous_standby_names) and [`synchronous_node_count`](https://patroni.readthedocs.io/en/latest/replication_modes.html#synchronous-replication-factor) accordingly:
 * `synchronous_standby_names = ANY 2 (pg-test-2, pg-test-3, pg-test-4)`
 * `synchronous_node_count : 2`
 

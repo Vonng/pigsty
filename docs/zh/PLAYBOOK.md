@@ -64,7 +64,7 @@ Pigsty 将在 [准备](install#准备) 期间在 `admin` 节点上安装 `ansibl
 
 您可以自己使用 `yum install ansible` 或 `brew install ansible` 来安装 Ansible，它含在各大发行版的默认仓库中。
 
-了解 ansible 对于使用 Pigsty 很有帮助，但也不是必要的。对于基本的使用，您只需要注意三个参数就足够了：
+了解 ansible 对于使用 Pigsty 很有帮助，但也不是必要的。对于基本使用，您只需要注意三个参数就足够了：
 
 - `-l|--limit <pattern>` : 限制剧本在特定的组/主机/模式上执行目标（在哪里/Where）
 - `-t|--tags <tags>`: 只运行带有特定标签的任务（做什么/What）
@@ -75,7 +75,7 @@ Pigsty 将在 [准备](install#准备) 期间在 `admin` 节点上安装 `ansibl
 
 ## 指定执行对象
 
-您可以使用 -l|-limit <selector> 限制剧本的执行目标。
+您可以使用 `-l|-limit <selector>` 限制剧本的执行目标。
 
 缺少此值可能很危险，因为大多数剧本会在 `all` 分组，也就是所有主机上执行，使用时务必小心。
 
@@ -96,7 +96,7 @@ Pigsty 将在 [准备](install#准备) 期间在 `admin` 节点上安装 `ansibl
 
 ## 执行剧本子集
 
-你可以使用 -t|--tags <标签> 执行剧本的子集。 你可以在逗号分隔的列表中指定多个标签，例如 `-t tag1,tag2`。
+你可以使用 `-t|--tags <tag>` 执行剧本的子集。 你可以在逗号分隔的列表中指定多个标签，例如 `-t tag1,tag2`。
 
 如果指定了任务子集，将执行给定标签的任务，而不是整个剧本。以下是任务限制的一些示例：
 

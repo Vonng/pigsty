@@ -43,7 +43,7 @@ bash -c "$(curl -fsSL https://get.pigsty.cc/latest)" && cd ~/pigsty
 ./bootstrap  && ./configure && ./install.yml # 安装最新的 Pigsty 源码
 ```
 
-安装完成后，您可以通过域名或`80/443`端口通过 Nginx 访问WEB界面，通过 `5432` 端口访问默认的 PostgreSQL 数据库服务。
+安装完成后，您可以通过域名或`80/443`端口通过 Nginx 访问 [WEB界面](INFRA#概览)，通过 `5432` 端口[访问](PGSQL-SVC#单机用户)默认的 PostgreSQL 数据库[服务](PGSQL-SVC#服务概述)。
 
 
 <details><summary>一键安装脚本</summary>
@@ -149,7 +149,7 @@ Pigsty 采用模块化设计，有六个主要的默认模块：[`PGSQL`](pgsql)
 
 ## 更多集群
 
-要部署一个使用流复制组建的3节点高可用 PostgreSQL 集群，首先要在配置文件 [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) 的 `all.children.pg-test` 中进行[定义](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L54)
+要部署一个使用流复制组建的三节点高可用 PostgreSQL 集群，首先要在配置文件 [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) 的 `all.children.pg-test` 中进行[定义](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L54)
 
 ```yaml 
 pg-test:
@@ -166,8 +166,8 @@ pg-test:
 bin/pgsql-add pg-test   # 初始化 pg-test 集群 
 ```
 
-你可以使用不同的的实例角色，例如 主库（primary），从库（replica），离线从库（offline），延迟从库（delayed），同步从库（sync standby）；
-以及不同的集群：例如备份集群（Standby Cluster），Citus分布式集群，甚至是 Redis / MinIO / Etcd 集群，如下所示：
+你可以使用不同的的实例角色，例如 [主库](PGSQL-CONF#读写主库)（primary），[从库](PGSQL-CONF#只读从库)（replica），[离线从库](PGSQL-CONF#读写主库)（offline），[延迟从库](PGSQL-CONF#延迟集群)（delayed），[同步备库](PGSQL-CONF#同步备库)（sync standby）；
+以及不同的集群：例如[备份集群](PGSQL-CONF#备份集群)（Standby Cluster），[Citus集群](PGSQL-CONF#citus集群)，甚至是 [Redis](REDIS) / [MinIO](MINIO) / [Etcd](ETCD) 集群，如下所示：
 
 
 <details><summary>示例：复杂的 PostgreSQL 集群定制</summary>

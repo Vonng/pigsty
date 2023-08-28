@@ -36,8 +36,8 @@ Docker & Keepalived are optional components, enabled when required.
 |      Component      | Port | Description                  |
 |:-------------------:|:----:|------------------------------|
 |    Docker Daemon    | 9323 | Enable Container Service     |
-|     Keepliaved      |  -   | Manage Node Cluster L2 VIP   |
-| Keepliaved Exporter | 9650 | Monitoring Keepalived Status |
+|     Keepalived      |  -   | Manage Node Cluster L2 VIP   |
+| Keepalived Exporter | 9650 | Monitoring Keepalived Status |
 
 
 

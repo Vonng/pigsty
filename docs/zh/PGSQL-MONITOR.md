@@ -20,7 +20,7 @@ Pigsty使用现代的可观测技术栈对 PostgreSQL 进行监控：
 
 PostgreSQL 本身的监控指标完全由 pg_exporter 配置文件所定义：[`pg_exporter.yml`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/pg_exporter.yml)
 
-它将进一步由 Prometheus 记录规则和警报评估处理：[`files/prometheus/rules/pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/files/prometheus/rules/pgsql.yml)
+它将进一步被 Prometheus 记录规则和告警规则进行加工处理：[`files/prometheus/rules/pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/files/prometheus/rules/pgsql.yml)
 
 3个标签：`cls`、`ins`、`ip`将附加到所有指标和日志上，例如`{ cls: pg-meta, ins: pg-meta-1, ip: 10.10.10.10 }`
 
@@ -54,9 +54,9 @@ Prometheus的监控目标在 `/etc/prometheus/targets/pgsql/` 下的静态文件
     - 10.10.10.10:8008    # <--- patroni指标（未启用 API SSL 时）
 ```
 
-当全局标志 [`patroni_ssl_enabled`](PARAM#patroni_ssl_enabled) 被设置时，patroni目标将被移动到单独的文件 `/etc/prometheus/targets/patroni/<ins>.yml`。 因为此时使用的是https抓取端点。
+当全局标志 [`patroni_ssl_enabled`](PARAM#patroni_ssl_enabled) 被设置时，patroni目标将被移动到单独的文件 `/etc/prometheus/targets/patroni/<ins>.yml`。 因为此时使用的是 https 抓取端点。
 
-当使用 `bin/pgsql-rm` 或 `pgsql-rm.yml` 移除集群时，Prometheus监控目标将被移除。您也可以手动移除它，或使用playbook子任务：
+当使用 `bin/pgsql-rm` 或 `pgsql-rm.yml` 移除集群时，Prometheus监控目标将被移除。您也可以手动移除它，或使用剧本里的子任务：
 
 
 ```bash
@@ -69,8 +69,9 @@ bin/pgmon-rm <ins>      # 从所有infra节点中移除prometheus监控目标
 
 ## 监控现有PG
 
-对于现有的PostgreSQL实例，例如RDS，或者不由Pigsty管理的自制PostgreSQL，如果您希望用Pigsty监控它们，需要进行一些额外的配置。
+Pigsty 可以单独作为一个监控系统，监控已有的 PostgreSQL 实例，比如 RDS 或自建 PG，但是这通常需要一些额外的配置工作，也有一些额外的局限性。
 
+监控现有 PostgreSQL 实例时，您需要在 Infra 节点上部署对应数量的 PG Exporter，抓取远端数据库指标信息。
 
 ```
 ------ infra ------
@@ -88,13 +89,16 @@ bin/pgmon-rm <ins>      # 从所有infra节点中移除prometheus监控目标
 -------------------            ^------------------^
 ```
 
-**操作步骤**
+下面我们使用沙箱环境作为示例：现在我们假设 `pg-meta` 集群是一个有待监控的现有 PostgreSQL 集群 `pg-foo`，而 `pg-test` 集群则是一个有待监控的现有 PostgreSQL 集群 `pg-bar`：
 
 1. 在目标上创建监控模式、用户和权限。
+
+
+
+
 2. 在库存中声明集群。例如，假设我们想要监控“远端”的 `pg-meta` & `pg-test` 集群，名称为 `pg-foo` 和 `pg-bar`，我们可以在库存中声明它们如下：
 
-```
-yamlCopy code
+```yaml
 infra:            # 代理、监控、警报等的infra集群..
   hosts: { 10.10.10.10: { infra_seq: 1 } }
 
@@ -109,11 +113,8 @@ infra:            # 代理、监控、警报等的infra集群..
       20004: { pg_cluster: pg-bar, pg_seq: 3, pg_host: 10.10.10.13 , pg_monitor_username: dbuser_monitor, pg_monitor_password: DBUser.Monitor }
 ```
 
-1. 对集群执行playbook：`bin/pgmon-add <clsname>`。
+3. 执行添加监控命令：`bin/pgmon-add <clsname>`。
 
-要删除远程集群的监控目标：
 
-```
-bashCopy code
-bin/pgmon-rm <clsname>
-```
+4. 要删除远程集群的监控目标，可以使用 `bin/pgmon-rm <clsname>`
+

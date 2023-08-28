@@ -10,6 +10,10 @@
 ## 机密性
 
 
+----------------
+
+### 重要文件
+
 **保护你的 pigsty.yml 配置文件或CMDB**
 - `pigsty.yml` 配置文件通常包含了高度敏感的机密信息，您应当确保它的安全。
 - 严格控制管理节点的访问权限，仅限 DBA 或者 Infra 管理员访问。
@@ -22,6 +26,8 @@
 
 <br>
 
+----------------
+
 ### 密码
 
 **在生产环境部署时，必须更改这些密码，不要使用默认值！**
@@ -31,6 +37,15 @@
 - [`pg_replication_password`](param#pg_replication_password) : `DBUser.Replicator`
 - [`patroni_password`](param#patroni_password)               : `Patroni.API`
 - [`haproxy_admin_password`](param#haproxy_admin_password)   : `pigsty`
+- [`minio_secret_key`](param#minio_secret_key)               : `minioadmin`
+
+**如果您使用MinIO，请修改MinIO的默认用户密码，与pgbackrest中的引用**
+- 请修改 MinIO 普通用户的密码：[`minio_users`.`[pgbacrest]`.`secret_key`](PARAM#minio_users)
+- 请修改 pgbackrest 中对 MinIO 使用的备份用户密码：[`pgbackrest_repo`.`minio`.`s3_key_secret`](PARAM#pgbackrest_repo)
+
+**如果您使用远程备份仓库，请务必启用备份加密，并设置加解密密码**
+- 设置 [`pgbackrest_repo`.`*`.`cipher_type`](PARAM#pgbackrest_repo) 为 `aes-256-cbc`
+- 设置密码时可以使用 `${pg_cluster}` 作为密码的一部分，避免所有集群使用同一个密码
 
 **为 PostgreSQL 使用安全可靠的密码加密算法**
 - 使用 [`pg_pwd_enc`](param#pg_pwd_enc) 默认值 `scram-sha-256` 替代传统的 `md5`
@@ -43,7 +58,7 @@
 - 在 [`pgbackrest_repo`](param#pgbackrest_repo) 的备份仓库定义中使用 `repo_cipher_type` 启用加密
 
 **为业务用户配置密码自动过期实践**
-- 你应当为每个业务用户设置一个密码自动过期时间，以满足合规要求。
+- 你应当为每个[业务用户](PGSQL-USER#定义用户)设置一个密码自动过期时间，以满足合规要求。
 - 配置自动过期后，请不要忘记在巡检时定期更新这些密码。
 
 **不要将更改密码的语句记录到 postgres 日志或其他日志中**
@@ -55,6 +70,8 @@
   ```
 
 <br>
+
+----------------
 
 ### IP地址
 
@@ -74,6 +91,8 @@
 - 默认情况下，这是通过 [`restapi.allowlist`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/oltp.yml#L109) 限制的。
 
 <br>
+
+----------------
 
 ### 网络流量
 
@@ -130,7 +149,8 @@
 - [`pg_rpo`](param#pg_rpo) : **可用性与一致性之间的权衡**
 - [`pg_rto`](param#pg_rto) : **故障概率与影响之间的权衡**
 
-**不要直接通过固定的 IP 地址访问数据库；请使用 VIP、DNS、HAProxy 或它们的排列组合。**
+**不要直接通过固定的 IP 地址访问数据库；请使用 VIP、DNS、HAProxy 或它们的排列组合**
+- 使用 HAProxy 进行服务[接入](PGSQL-SVC#接入服务)
 - 在故障切换/主备切换的情况下，Haproxy 将处理客户端的流量切换。
 
 **在重要的生产部署中使用多个基础设施节点（例如，1~3）**

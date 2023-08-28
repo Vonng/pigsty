@@ -319,7 +319,7 @@ Pigsty [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0) 正式发�
 从v2.0.0开始，PIGSTY 现在是 "PostgreSQL In Great STYle"的首字母缩写，即"全盛状态的PostgreSQL"。
 
 ```bash
-curl -fsSL http://download.pigsty.cc/get | bash
+curl -fsSL https://get.pigsty.cc/latest | bash
 ```
 
 <details><summary>Download directly from GitHub Release</summary>

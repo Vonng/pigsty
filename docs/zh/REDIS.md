@@ -5,7 +5,7 @@
 
 ----------------
 
-## Configuration
+## 配置
 
 **Redis Identity**
 
@@ -60,7 +60,7 @@ redis-test: # redis native cluster: 3m x 3s
 
 ----------------
 
-## Playbook
+## 剧本
 
 There are two playbooks for redis:
 
@@ -86,7 +86,7 @@ bin/redis-rm 10.10.10.10 6501   # remove redis instance '10.10.10.10:6501'
 
 -------------
 
-## Administration
+## 管理
 
 **Init Cluster/Node/Instance**
 
@@ -154,12 +154,11 @@ $ redis-cli -h 10.10.10.11 -p 6501 -a redis.meta
 
 ----------------
 
-## Dashboards
+## 监控
 
-There are three dashboards for [`REDIS`](REDIS) module.
+Pigsty 提供了三个与 [`REDIS`](REDIS) 模块有关的监控仪表盘：
 
-
-[Redis Overview](https://demo.pigsty.cc/d/redis-overview): Overview of all Redis Instances
+[Redis Overview](https://demo.pigsty.cc/d/redis-overview)：关于所有Redis集群/实例的详细信息
 
 <details><summary>Redis Overview Dashboard</summary>
 
@@ -169,7 +168,7 @@ There are three dashboards for [`REDIS`](REDIS) module.
 
 
 
-[Redis Cluster](https://demo.pigsty.cc/d/redis-cluster) : Overview of one single redis cluster
+[Redis Cluster](https://demo.pigsty.cc/d/redis-cluster)：关于单个Redis集群的详细信息
 
 <details><summary>Redis Cluster Dashboard</summary>
 
@@ -179,7 +178,7 @@ There are three dashboards for [`REDIS`](REDIS) module.
 
 
 
-[Redis Instance](https://demo.pigsty.cc/d/redis-instance) : Overview of one single redis cluster
+[Redis Instance](https://demo.pigsty.cc/d/redis-instance)： 关于单个Redis实例的详细信息
 
 <details><summary>Redis Instance Dashboard</summary>
 

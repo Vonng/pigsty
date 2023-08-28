@@ -92,7 +92,7 @@ $ bin/pgsql-add pg-test  # 初始化集群 'pg-test'
 
 ## 数据库即代码
 
-Pigsty 遵循 IaC（基础设施即代码）与 GitOPS 理念：Pigsty 的部署由声明式的[配置清单](config#inventory)描述，并通过幂等[剧本](playbook)来实现。
+Pigsty 遵循 IaC（基础设施即代码）与 GitOPS 理念：Pigsty 的部署由声明式的[配置清单](config#配置清单)描述，并通过幂等[剧本](playbook)来实现。
 
 用户用声明的方式通过[参数](param)来描述自己期望的状态，而剧本则以幂等的方式调整目标节点以达到这个状态。这就像 Kubernetes 的 CRD & Operator，但 Pigsty 在裸机和虚拟机上实现了这一点。
 
@@ -120,8 +120,6 @@ pg-meta: { hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary }, vars: { pg_clu
 ./minio.yml -l minio    # 在 'minio' 分组上初始化 minio 模块
 ./pgsql.yml -l pg-meta  # 在 'pgsql' 分组上初始化 pgsql 模块
 ```
-
-It would be straightforward to perform regular administration tasks. For example, if you wish to add a new replica/database/user to an existing HA PostgreSQL cluster, all you need to do is add a host in config & run that playbook on it, such as:
 
 执行常规的管理任务常简单。例如，如果你希望向现有的高可用 PostgreSQL 集群中添加一个新的从库/数据库/用户，你只需要在配置中添加一条主机记录，并在其上运行该剧本即可，例如：
 

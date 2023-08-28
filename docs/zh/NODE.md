@@ -11,10 +11,10 @@
 
 在 Pigsty 中存在不同类型的节点：
 
-- 普通节点，被 Pigsty 所管理的节点
-- 管理节点，使用 Ansible 发出管理指令的节点
-- 基础设施节点，安装 [`INFRA`](INFRA) 模块的节点
-- PGSQL 节点，安装 [`PGSQL`](PGSQL) 模块的节点
+- **普通节点**：被 Pigsty 所管理的节点
+- **管理节点**：使用 Ansible 发出管理指令的节点
+- **基础设施节点**：安装 [`INFRA`](INFRA) 模块的节点
+- **PGSQL节点**：安装 [`PGSQL`](PGSQL) 模块的节点
 - 安装了其他模块的节点…… 
 
 
@@ -22,9 +22,7 @@
 
 **通用节点**
 
-你可以使用 Pigsty 管理节点，并在其上安装模块。`node.yml` 剧本将调整节点至所需状态。
-
-以下服务默认会被添加到所有节点：
+你可以使用 Pigsty 管理节点，并在其上安装模块。`node.yml` 剧本将调整节点至所需状态。以下服务默认会被添加到所有节点：
 
 |      组件       |  端口  | 描述           |
 |:-------------:|:----:|--------------|
@@ -37,8 +35,8 @@
 |         组件          |  端口  | 描述                 |
 |:-------------------:|:----:|--------------------|
 |    Docker Daemon    | 9323 | 启用容器支持             |
-|     Keepliaved      |  -   | 负责管理主机集群 L2 VIP    |
-| Keepliaved Exporter | 9650 | 负责监控 Keepalived 状态 |
+|     Keepalived      |  -   | 负责管理主机集群 L2 VIP    |
+| Keepalived Exporter | 9650 | 负责监控 Keepalived 状态 |
 
 
 
@@ -46,23 +44,22 @@
 
 **管理节点**
 
-在一套 pigsty 部署中会有且只有一个管理节点，由 [`admin_ip`](PARAM#admin_ip) 指定。
-在单机安装的[配置](INSTALL#configure)过程中，它会被被设置为该机器的首要IP地址。
+在一套 pigsty 部署中会有且只有一个管理节点，由 [`admin_ip`](PARAM#admin_ip) 指定。在单机安装的[配置](INSTALL#配置)过程中，它会被被设置为该机器的首要IP地址。
 
-该节点将具有对所有其他节点的 ssh/sudo 访问权限：管理节点的安全至关重要，请确保它的访问受到严格控制。
+该节点将具有对所有其他节点的 `ssh/sudo` 访问权限：管理节点的安全至关重要，请确保它的访问受到严格控制。
 
 通常管理节点与基础设施节点（infra节点）重合。如果有多个基础设施节点，管理节点通常是所有 infra 节点中的第一个，其他的作为管理节点的备份。
 
 
 ----------------
 
-**INFRA 节点**
+**INFRA节点**
 
-一套 Pigsty 部署可能有一个或多个 infra 节点，在大型生产环境中可能会有 2 ~ 3 个。
+一套 Pigsty 部署可能有一个或多个 基础设施节点（infra节点），在大型生产环境中可能会有 2 ~ 3 个。
 
 配置清单中的 `infra` 分组列出并指定了哪些节点是 infra 节点，这些节点会安装 [INFRA](INFRA) 模块（DNS、Nginx、Prometheus、Grafana 等...）。
 
-管理节点也是默认的并且是第一个 infra 节点，infra 节点可以被用作"备用"的管理节点。
+管理节点通常是是 Infra节点分组中的第一台，其他Infra节点可以被用作"备用"的管理节点。
 
 
 ----------------
@@ -70,7 +67,7 @@
 **PGSQL 节点**
 
 安装了 [PGSQL](PGSQL) 模块的节点被称为 PGSQL 节点。节点和 PostgreSQL 实例是1:1部署的。
-在这种情况下，节点默认可以从相应的 pg 实例借用身份：[`node_id_from_pg`](PARAM#node_id_from_pg)。
+在这种情况下，节点默认可以从相应的 pg 实例借用身份：[`node_id_from_pg`](PARAM#node_id_from_pg) 参数会控制这一点。
 
 |         组件          |  端口  | 描述                                |
 |:-------------------:|:----:|-----------------------------------|
@@ -136,7 +133,7 @@ node.yml -t node_admin -k -K -e ansible_user=<另一个管理员>   # 为另一�
 ```bash
 proxy:
   hosts:
-    10.10.10.29: { nodename: proxy-1 } 
+    10.10.10.29: { nodename: proxy-1 } # 您可以显式指定初始的 VIP 角色：MASTER / BACKUP
     10.10.10.30: { nodename: proxy-2 } # , vip_role: master }
   vars:
     node_cluster: proxy

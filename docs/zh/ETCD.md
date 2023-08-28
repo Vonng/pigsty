@@ -6,7 +6,7 @@ Pigsty 使用 [**etcd**](https://etcd.io/) 作为 [**DCS**](https://patroni.read
 
 在安装任何 [`PGSQL`](PGSQL) 模块之前，你必须先安装 [`ETCD`](ETCD) 模块，因为 `patroni` 和 `vip-manager` 会依赖 etcd 模块，除非你决定使用外部的现有 etcd 集群。
 
-在安装 [`ETCD`](ETCD) 模块前，你需要先安装 [`NODE`](NODE) 模块将节点纳管：因为 etcd 需要可信任的 CA 来工作。更多详细信息，请查看 [ETCD 管理 SOP](ETCD-ADMIN)。
+在安装 [`ETCD`](ETCD) 模块前，你需要先安装 [`NODE`](NODE) 模块将节点纳管：因为 etcd 需要可信任的 CA 来工作。更多详细信息，请查看 [ETCD管理SOP](ETCD-ADMIN)。
 
 
 ----------------
@@ -142,7 +142,7 @@ ETCD 模块提供了一个监控面板：
 
 <details><summary>ETCD Overview Dashboard</summary>
 
-这个监控面板提供了关于 ETCD 状态的关键信息：最值得关注的是 ETCD Aliveness，它显示了 ETCD 集群整体的服务状态。
+这个监控面板提供了 ETCD 状态的关键信息：最值得关注的是 ETCD Aliveness，它显示了 ETCD 集群整体的服务状态。
 
 红色的条带标识着实例不可用的时间段，而底下蓝灰色的条带标识着整个集群处于不可用的时间段。
 
@@ -158,8 +158,8 @@ ETCD 模块提供了一个监控面板：
 
 [ETCD](PARAM#etcd) 模块有 10 个相关参数：
 
-| 参数                                                                                 |   类型   |  级别   | 注释                            |
-|------------------------------------------------------------------------------------|:------:|:-----:|-------------------------------|
+| 参数                                                         |   类型   |  级别   | 注释                            |
+|------------------------------------------------------------|:------:|:-----:|-------------------------------|
 | [`etcd_seq`](PARAM#etcd_seq)                               |  int   |   I   | etcd 实例标识符，必填                 |
 | [`etcd_cluster`](PARAM#etcd_cluster)                       | string |   C   | etcd 集群名，默认固定为 etcd           |
 | [`etcd_safeguard`](PARAM#etcd_safeguard)                   |  bool  | G/C/A | etcd 防误删保险，阻止清除正在运行的 etcd 实例？ |

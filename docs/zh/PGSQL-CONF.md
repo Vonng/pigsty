@@ -2,14 +2,14 @@
 
 > 根据需求场景选择合适的实例与集群类型，配置出满足需求的 PostgreSQL 数据库集群。
 
-您可以定义不同类型的实例和集群：
+您可以定义不同类型的实例和集群，下面是 Pigsty 中常见的几种 PostgreSQL 实例/集群类型：
 
 - [读写主库](#读写主库)：定义单一实例集群。
 - [只读从库](#只读从库)：定义具有一个主库和一个副本的基本HA集群。
 - [离线从库](#离线从库)：定义专用于OLAP/ETL/交互式查询的实例
 - [同步备库](#同步备库)：启用同步提交以确保没有数据丢失。
 - [法定人数提交](#法定人数提交)：使用多数同步提交获得更高的一致性级别。
-- [备用集群](#备用集群)：克隆现有集群并跟随它
+- [备份集群](#备份集群)：克隆现有集群并跟随它
 - [延迟集群](#延迟集群)：克隆现有集群用于紧急数据恢复
 - [Citus集群](#citus集群)：定义一个Citus分布式数据库集群
 - [大版本切换](#大版本切换)：使用不同的PostgreSQL大版本
@@ -19,7 +19,7 @@
 
 ## 读写主库
 
-我们从最简单的情况开始，单一主库示例：
+我们从最简单的情况开始：由一个主库（Primary）组成的单实例集群：
 
 ```yaml
 pg-test:
@@ -29,19 +29,22 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-使用以下命令在10.10.10.11节点上创建一个主库实例：
+这段配置言简意赅，仅由[身份参数](PGSQL-ARCH#身份参数)构成。
+
+使用以下命令在节点 `10.10.10.11` 上创建一个主库实例：
 
 ```bash
 bin/pgsql-add pg-test
 ```
 
+Demo展示，开发测试，承载临时需求，进行无关紧要的计算分析任务时，使用单一数据库实例可能并没有太大问题。但这样的单机集群没有[高可用](PGSQL-ARCH#高可用)，当出现硬件故障时，您需要使用 [PITR](*PGSQL-PITR*) 或其他恢复手段来确保集群的 RTO / RPO。为此，您可以考虑为集群添加若干个[只读从库](#只读从库)
 
 
 ----------------
 
 ## 只读从库
 
-要添加物理副本，您可以将一个新实例分配给`pg-test`，并将[`pg_role`](PARAM#pg_role)设置为`replica`。
+要添加一台只读从库（Replica）实例，您可以在 `pg-test` 中添加一个新节点，并将其 [`pg_role`](PARAM#pg_role) 设置为`replica`。
 
 ```yaml
 pg-test:
@@ -52,21 +55,22 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-
-您可以[创建](PGSQL-ADMIN#创建集群)一个完整的集群，或者向现有集群[添加](PGSQL-ADMIN#添加实例)一个从库：
-
+如果整个集群不存在，您可以直接[创建](PGSQL-ADMIN#创建集群)这个完整的集群。 如果集群主库已经初始化好了，那么您可以向现有集群[添加](PGSQL-ADMIN#添加实例)一个从库：
 
 ```bash
 bin/pgsql-add pg-test               # 一次性初始化整个集群
-bin/pgsql-add pg-test 10.10.10.12   # 添加副本到现有的集群
+bin/pgsql-add pg-test 10.10.10.12   # 添加从库到现有的集群
 ```
+
+当集群主库出现故障时，只读实例（Replica）可以在高可用系统的帮助下接管主库的工作。除此之外，只读实例还可以用于执行只读查询：许多业务的读请求要比写请求多很多，而大部分只读查询负载都可以由从库实例承担。
+
 
 
 ----------------
 
 ## 离线从库
 
-离线实例是专门用于服务缓慢查询、ETL、OLAP流量和交互式查询等的副本。
+离线实例（Offline）是专门用于服务慢查询、ETL、OLAP流量和交互式查询等的专用只读从库。慢查询/长事务对在线业务的性能与稳定性有不利影响，因此最好将它们与在线业务隔离开来。
 
 要添加离线实例，请为其分配一个新实例，并将[`pg_role`](PARAM#pg_role)设置为`offline`。
 
@@ -80,9 +84,10 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-离线实例的工作方式与常见的从库实例类似，但它在`pg-test-replica`服务中用作备份服务器。 也就是说，只有当所有`replica`实例都宕机时，离线和主实例才会服务。
+专用离线实例的工作方式与常见的从库实例类似，但它在 `pg-test-replica` 服务中用作备份服务器。 也就是说，只有当所有`replica`实例都宕机时，离线和主实例才会提供此项只读服务。
 
-您可以使用[`pg_default_hba_rules`](PARAM#pg_default_hba_rules)和[`pg_hba_rules`](PARAM#pg_hba_rules)进行临时访问控制离线。 它将应用于离线实例和带有[`pg_offline_query`](PARAM#pg_offline_query)标志的任何实例。
+许多情况下，数据库资源有限，单独使用一台服务器作为离线实例是不经济的做法。作为折中，您可以选择一台现有的从库实例，打上 [`pg_offline_query`](PARAM#pg_offline_query) 标记，将其标记为一台可以承载“离线查询”的实例。在这种情况下，这台只读从库会同时承担在线只读请求与离线类查询。您可以使用 [`pg_default_hba_rules`](PARAM#pg_default_hba_rules)和[`pg_hba_rules`](PARAM#pg_hba_rules) 对离线实例进行额外的访问控制。
+
 
 
 
@@ -90,11 +95,11 @@ pg-test:
 
 ## 同步备库
 
-PostgreSQL 默认在流复制中使用异步提交，这可能会有小的复制延迟（10KB / 10ms）。 当主数据库失败时，可能会有一个小的数据丢失窗口（可以使用[`pg_rpo`](PARAM#pg_rpo)来控制），但对于大多数场景来说，这是可以接受的。
+当启用同步备库（Sync Standby）时，PostgreSQL 将选择一个从库作为**同步备库**，其他所有从库作为**候选者**。 主数据库会等待备库实例刷新到磁盘，然后才确认提交，备库实例始终拥有最新的数据，没有复制延迟，主从切换至同步备库不会有数据丢失。
 
-但在某些关键场景中（例如，金融交易），数据丢失是完全不可接受的，或者需要读写一致性。 在这种情况下，您可以启用同步提交来确保这一点。
+PostgreSQL 默认使用异步流复制，这可能会有小的复制延迟（10KB / 10ms 数量级）。当主库失败时，可能会有一个小的数据丢失窗口（可以使用[`pg_rpo`](PARAM#pg_rpo)来控制），但对于大多数场景来说，这是可以接受的。
 
-要启用同步备库模式，您可以简单地使用[`pg_conf`](PARAM#pg_conf)中的`crit.yml`模板。
+但在某些关键场景中（例如，金融交易），数据丢失是完全不可接受的，或者，读取复制延迟是不可接受的。在这种情况下，您可以使用同步提交来解决这个问题。 要启用同步备库模式，您可以简单地使用[`pg_conf`](PARAM#pg_conf)中的`crit.yml`模板。
 
 ```yaml
 pg-test:
@@ -107,7 +112,7 @@ pg-test:
     pg_conf: crit.yml   # <--- 使用 crit 模板
 ```
 
-要在现有集群上启用同步备库，请[配置集群](PGSQL-ADMIN#配置集群)并启用`synchronous_mode`：
+要在现有集群上启用同步备库，请[配置集群](PGSQL-ADMIN#配置集群)并启用 `synchronous_mode`：
 
 ```bash
 $ pg edit-config pg-test    # 在管理员节点以管理员用户身份运行
@@ -125,9 +130,15 @@ $ pg edit-config pg-test    # 在管理员节点以管理员用户身份运行
 
 ## 法定人数提交
 
-当启用[同步备库](#同步备库)时，PostgreSQL 将选择一个从库作为备库实例，其他所有从库作为候选者。 主数据库会等待备库实例刷新到磁盘，然后才确认提交，备库实例始终拥有最新的数据，没有任何延迟。
+法定人数提交（Quorum Commit）提供了比同步备库更强大的控制能力：特别是当您有多个从库时，您可以设定提交成功的标准，实现更高/更低的一致性级别（以及可用性之间的权衡）。
 
-然而，您可以通过法定人数提交实现更高/更低的一致性级别（与可用性之间的权衡）。例如，要有任何2个从库来确认提交：
+```
+[FIRST] num_sync ( standby_name [, ...] )
+ANY num_sync ( standby_name [, ...] )
+standby_name [, ...]
+```
+
+例如，在下面的四节点集群中，如果想要**任意两个从**库来确认提交，可以使用以下设置：
 
 ```bash
 pg-test:
@@ -141,7 +152,7 @@ pg-test:
     pg_conf: crit.yml   # <--- use crit template
 ```
 
-相应地调整[`synchronous_standby_names`](https://www.postgresql.org/docs/current/runtime-config-replication.html#synchronous_standby_names)和`synchronous_node_count`：
+[配置集群](PGSQL-ADMIN#配置集群)，调整[`synchronous_standby_names`](https://www.postgresql.org/docs/current/runtime-config-replication.html#synchronous_standby_names)和 [`synchronous_node_count`](https://patroni.readthedocs.io/en/latest/replication_modes.html#synchronous-replication-factor) 并应用生效
 - `synchronous_standby_names = ANY 2 (pg-test-2, pg-test-3, pg-test-4)`
 - `synchronous_node_count : 2`
 
@@ -186,11 +197,13 @@ Apply these changes? [y/N]: y
 
 ## 备份集群
 
-你可以克隆现有的集群并创建一个备份集群，该集群可以用于迁移、水平拆分、多区域部署或灾难恢复。
+您可以克隆现有的集群，并创建一个备份集群（Standby Cluster），用于数据迁移、水平拆分、多区域部署，或灾难恢复。
 
-备用集群的定义与其他正常集群的定义相同，除了在主实例上定义了[`pg_upstream`](PARAM#pg_upstream)。
+在正常情况下，备份集群将追随上游集群并保持内容同步，您可以将备份集群提升，作为真正地独立集群。
 
-例如，你有一个`pg-test`集群，要创建一个备用集群`pg-test2`，其配置清单可能如下所示：
+备份集群的定义方式与正常集群的定义基本相同，除了在主库上额外定义了 [`pg_upstream`](PARAM#pg_upstream) 参数，备份集群的主库被称为 **备份集群领导者** （Standby Leader）。
+
+例如，下面定义了一个`pg-test`集群，以及其备份集群`pg-test2`，其配置清单可能如下所示：
 
 ```yaml
 # pg-test 是原始集群
@@ -199,15 +212,15 @@ pg-test:
     10.10.10.11: { pg_seq: 1, pg_role: primary }
   vars: { pg_cluster: pg-test }
 
-# pg-test2 是 pg-test 的备用集群
+# pg-test2 是 pg-test 的备份集群
 pg-test2:
   hosts:
-    10.10.10.12: { pg_seq: 1, pg_role: primary , pg_upstream: 10.10.10.11 } # <--- pg_upstream is defined here
+    10.10.10.12: { pg_seq: 1, pg_role: primary , pg_upstream: 10.10.10.11 } # <--- pg_upstream 在这里定义
     10.10.10.13: { pg_seq: 2, pg_role: replica }
   vars: { pg_cluster: pg-test2 }
 ```
 
-而`pg-test2-1`，`pg-test2`的主节点将是`pg-test`的从库，并在`pg-test2`中充当备份集群的领导者（**Standby Leader**）。
+而 `pg-test2` 集群的主节点 `pg-test2-1` 将是 `pg-test` 的下游从库，并在`pg-test2`集群中充当备份集群领导者（**Standby Leader**）。
 
 只需确保备份集群的主节点上配置了[`pg_upstream`](PARAM#pg_upstream)参数，以便自动从原始上游拉取备份。
 
@@ -218,7 +231,7 @@ bin/pgsql-add pg-test2    # 创建备份集群
 
 <details><summary>示例：更改复制上游</summary>
 
-如有必要（例如，上游故障转移），你可以更改备用集群的复制上游。
+如有必要（例如，上游发生主从切换/故障转移），您可以通过[配置集群](PGSQL-ADMIN#配置集群)更改备份集群的复制上游。
 
 要这样做，只需将`standby_cluster.host`更改为新的上游IP地址并应用。
 
@@ -239,10 +252,9 @@ $ pg edit-config pg-test2
 
 
 
+<details><summary>示例：提升备份集群</summary>
 
-<details><summary>示例：提升备用集群</summary>
-
-你可以随时将备用集群提升为独立集群。
+你可以随时将备份集群提升为独立集群，这样该集群就可以独立承载写入请求，并与原集群分叉。
 
 为此，你必须[配置](PGSQL-ADMIN#配置集群)该集群并完全擦除`standby_cluster`部分，然后应用。
 
@@ -263,7 +275,11 @@ Apply these changes? [y/N]: y
 
  <details><summary>示例：级联复制</summary>
 
-如果[`pg_upstream`](PARAM#pg_upstream)是为 **从库** 指定的，而不是**主节点**，则该从库将与给定的上游ip一起配置为级联从库，而不是集群主节点。
+如果您在一台从库上指定了 [`pg_upstream`](PARAM#pg_upstream)，而不是主库。那么可以配置集群的 **级联复制**（Cascade Replication）
+
+在配置级联复制时，您必须使用集群中某一个实例的IP地址作为参数的值，否则初始化会报错。该从库从特定的实例进行流复制，而不是主库。
+
+这台充当 WAL 中继器的实例被称为 **桥接实例**（Bridge Instance）。使用桥接实例可以分担主库发送 WAL 的负担，当您有几十台从库时，使用桥接实例级联复制是一个不错的注意。
 
 ```yaml
 pg-test:
@@ -285,9 +301,9 @@ pg-test:
 
 ## 延迟集群
 
-延迟集群是一种特殊类型的备用集群，用于尽快恢复“意外删除”的数据。
+延迟集群（Delayed Cluster）是一种特殊类型的[备份集群](备份集群)，用于尽快恢复“意外删除”的数据。
 
-例如，如果你希望有一个名为 `pg-testdelay` 的集群，其数据与1天前的 `pg-test` 集群相同：
+例如，如果你希望有一个名为 `pg-testdelay` 的集群，其数据内容与一小时前的 `pg-test` 集群相同：
 
 ```yaml
 # pg-test 是原始集群
@@ -304,7 +320,7 @@ pg-testdelay:
   vars: { pg_cluster: pg-test2 }
 ```
 
-你还可以在现有的[备份集群](#备份集群)上[配置](PGSQL-ADMIN#配置集群)复制延迟。
+你还可以在现有的[备份集群](#备份集群)上[配置](PGSQL-ADMIN#配置集群)一个“复制延迟”。
 
 ```bash
 $ pg edit-config pg-testdelay
@@ -313,14 +329,14 @@ $ pg edit-config pg-testdelay
    - basebackup
    host: 10.10.10.11
    port: 5432
-+  recovery_min_apply_delay: 1h    # <--- 在此处添加延迟时长
++  recovery_min_apply_delay: 1h    # <--- 在此处添加延迟时长，例如1小时
 
 Apply these changes? [y/N]: y
 ```
 
-当某些元组和表格被意外删除时，你可以将此延迟集群推进到适当的时间点，并从中选择数据。
+当某些元组和表格被意外删除时，你可以通过修改此参数的方式，将此延迟集群推进到适当的时间点，并从中读取数据，快速修复原始集群。
 
-这需要更多的资源，但比[PITR](PGSQL-PITR)快得多，并且对系统的影响也小得多。
+延迟集群需要额外的资源，但比起 [PITR](PGSQL-PITR#恢复) 要快得多，并且对系统的影响也小得多，对于非常关键的集群，可以考虑搭建延迟集群。
 
 
 
@@ -329,7 +345,7 @@ Apply these changes? [y/N]: y
 
 ## Citus集群
 
-Pigsty 原生支持 citus。可以参考 [`files/pigsty/citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/citus.yml) 与 [`prod.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/prod.yml#L298) 作为样例。
+Pigsty 原生支持 Citus。可以参考 [`files/pigsty/citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/citus.yml) 与 [`prod.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/prod.yml#L298) 作为样例。
 
 要定义一个 citus 集群，您需要指定以下参数：
 
@@ -406,7 +422,7 @@ Pigsty 对不同大版本的支持力度是不同，如下表所示：
 
 一些扩展在 PG 12,13,16 上不可用，您可能需要更改 [`pg_extensions`](PARAM#pg_extensions) 和 [`pg_libs`](PARAM#pg_libs) 以满足您的需求。
 
-如果您确实希望在较老的大版本上使用这些扩展，可以参考[添加软件](#添加软件)和[安装扩展(#安装扩展)]的说明，手工从PGDG源下载并安装。
+如果您确实希望在较老的大版本上使用这些扩展，可以参考[添加软件](PGSQL-ADMIN#添加软件)和[安装扩展](PGSQL-ADMIN#安装扩展)的说明，手工从PGDG源下载并安装。
 
 这里有一些不同大版本集群的配置样例：
 

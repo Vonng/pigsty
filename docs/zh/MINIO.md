@@ -49,6 +49,8 @@ MinIO 模块需要安装在 Pigsty 纳管的节点上（也就是安装了 [`NOD
 下面是三种典型的部署场景：
 
 
+----------------
+
 ### 单机单盘
 
 参考：[MinIO 单机单盘部署](https://min.io/docs/minio/linux/operations/install-deploy-manage/deploy-minio-single-node-single-drive.html)
@@ -68,6 +70,7 @@ The only required params are [`minio_seq`](PARAM#minio_seq) and [`minio_cluster`
 请注意，在多盘或多节点模式下，如果使用普通目录作为数据目录而不是挂载点，MinIO 将拒绝启动。
 
 
+----------------
 
 ### 单机多盘
 
@@ -89,7 +92,7 @@ minio:
 mkfs.xfs /dev/sdb; mkdir /data1; mount -t xfs /dev/sdb /data1;   # 挂载第一块盘……
 ```
 
-
+----------------
 
 ### 多机多盘
 
@@ -112,6 +115,7 @@ minio:
 `${minio_cluster}` 和 `${minio_seq}` 将分别被替换为 [`minio_cluster`](PARAM#minio_cluster) 和 [`minio_seq`](PARAM#minio_seq) 的值，并用作 MinIO 节点名称。
 
 
+----------------
 
 ### 暴露服务
 
@@ -171,7 +175,7 @@ minio_ha:
   retention_full: 14
 ```
 
-
+----------------
 
 ### 暴露管控界面
 

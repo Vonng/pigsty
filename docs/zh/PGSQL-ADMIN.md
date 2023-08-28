@@ -535,9 +535,7 @@ pgbackrest --stanza=pg-meta --type=immediate --target-action=promote \
 
 要添加新版本的 RPM 包，你需要将它们加入到 [`repo_packages`](PARAM#repo_packages) 和 [`repo_url_packages`](PARAM#repo_url_packages) 中。
 
-然后删除 `/www/pigsty/repo_complete` 标志文件，之后使用 `./infra.yml -t repo_build` 重新构建 repo。
-
-然后，你可以使用 `ansible` 的 `package` 模块安装这些包：
+然后删除 `/www/pigsty/repo_complete` 标志文件，之后使用 `./infra.yml -t repo_build` 重新构建 repo。然后，你可以使用 `ansible` 的 `package` 模块安装这些包：
 
 ```bash
 ansible pg-test -b -m package -a "name=pg_cron_15,topn_15,pg_stat_monitor_15*"  # 使用 ansible 安装一些包
@@ -610,9 +608,9 @@ pg restart --force <cls>                                # 重启集群
 将15.1的包添加到yum仓库并刷新节点的yum缓存：
 
 ```bash
-cd ~/pigsty; ./infra.yml -t repo_upstream               # 添加上游仓库备份
+cd ~/pigsty; ./infra.yml -t repo_upstream               # 添加上游仓库
 cd /www/pigsty; repotrack postgresql15-*-15.1           # 将15.1的包添加到yum仓库
-cd ~/pigsty; ./infra.yml -t repo_create                 # 重新创建仓库
+cd ~/pigsty; ./infra.yml -t repo_create                 # 重建仓库元数据
 ansible pg-test -b -a 'yum clean all'                   # 清理节点仓库缓存
 ansible pg-test -b -a 'yum makecache'                   # 从新仓库重新生成yum缓存
 ``` 
@@ -650,9 +648,9 @@ pg restart --role primary --force pg-test               # 重启主库
 
 实现大版本升级的最简单办法是：创建一个使用新版本的新集群，然后通过逻辑复制进行[在线迁移](PGSQL-MIGRATION)。
 
-您也可以进行原地大版本升级，当您只使用内核本身时，这是相当简单的一件事。不过当安装了某些扩展时，原地升级通常需要不少额外的扩展适配工作。
+您也可以进行原地大版本升级，当您只使用数据库内核本身时，这并不复杂，使用 PostgreSQL 自带的 `pg_upgrade` 即可：
 
-假设您想将PostgreSQL 14升级到15，您需要在yum仓库中[添加软件](#添加软件)，并确保扩展也具有完全相同的版本。
+假设您想将 PostgreSQL 大版本从 14 升级到 15，您首先需要在仓库中[添加软件](#添加软件)，并确保两个大版本两侧安装的核心扩展插件也具有相同的版本号。
 
 ```bash
 ./pgsql.yml -t pg_pkg -e pg_version=15                         # 安装pg 15的包

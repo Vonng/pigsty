@@ -29,7 +29,7 @@ all:                  # Top-level object: all
 
 ## Cluster
 
-Each group may represent a cluster, which could be a Node cluster, PostgreSQL cluster, Redis cluster, Etcd cluster, or Minio cluster, etc... They all use the same format: **group vars** & **hosts**. You can define cluster members with `all.children.<cls>.hosts[object]` and describe cluster with cluster parameters in `all.children.<cls>.vars[object]`. Here is an example of 3 nodes PostgreSQL HA cluster named `pg-test`:
+Each group may represent a cluster, which could be a Node cluster, PostgreSQL cluster, Redis cluster, Etcd cluster, or Minio cluster, etc... They all use the same format: **group vars** & **hosts**. You can define cluster members with `all.children.<cls>.hosts` and describe cluster with cluster parameters in `all.children.<cls>.vars`. Here is an example of 3 nodes PostgreSQL HA cluster named `pg-test`:
 
 ```yaml
 pg-test:   # Group Name

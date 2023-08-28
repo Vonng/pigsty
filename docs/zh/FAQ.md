@@ -82,24 +82,22 @@ Pigsty 使用 master 主干分支进行开发，请始终使用特定版本的 [
 
 <details><summary>哪里可以下载 Pigsty 的离线软件包？</summary><br>
 
-Offline packages can be downloaded during [`bootstrap`](install#bootstrap), or you can download them directly via:
-
 离线包可以在[准备/`bootstrap`](install#bootstrap) 过程中提示下载，或者您也可以直接通过以下链接从 GitHub 上下载：
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-v2.3.0.tgz                   # source code
-https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el7.x86_64.tgz    # el7 packages
-https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el8.x86_64.tgz    # el8 packages
-https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz    # el9 packages
+https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-v2.3.0.tgz                   # 源代码包
+https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el7.x86_64.tgz    # el7离线包
+https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el8.x86_64.tgz    # el8离线包
+https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz    # el9离线包
 ```
 
 中国大陆用户可以考虑使用 CDN 下载：
 
 ```bash
-https://get.pigsty.cc/v2.3.0/pigsty-v2.3.0.tgz                   # source code
-https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el7.x86_64.tgz    # el7 packages
-https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el8.x86_64.tgz    # el8 packages
-https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz    # el9 packages
+https://get.pigsty.cc/v2.3.0/pigsty-v2.3.0.tgz                   # 源代码
+https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el7.x86_64.tgz    # el7离线包
+https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el8.x86_64.tgz    # el8离线包
+https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz    # el9离线包
 ```
 
 </details><br>
@@ -116,9 +114,9 @@ https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz    # el9 packages
 
 检测环境是否就绪、用各种手段确保后续安装所必需的工具 `ansible` 被正确安装。
 
-当你下载 Pigsty 源码后，可以进入目录并执行 `bootstrap` 脚本。它会检测你的节点环境，如果没有发现离线软件包，它会询问你要不要从互联网下载。
+当你下载 Pigsty 源码后，可以进入目录并执行 [`bootstrap`](INSTALL#准备) 脚本。它会检测你的节点环境，如果没有发现离线软件包，它会询问你要不要从互联网下载。
 
-你可以选择是，直接使用离线软件包安装又快又稳定。你也可以跳过，选择后面在安装过程中直接从互联网上游下载，这样会下载最新的软件版本，而且几乎不会遇到 RPM 冲突问题。
+你可以选择“是”，直接使用离线软件包安装又快又稳定。你也可以选“否”跳过，选择后面在安装过程中直接从互联网上游下载，这样会下载最新的软件版本，而且几乎不会遇到 RPM 冲突问题。
 
 如果使用了离线软件包，bootstrap 会直接从离线软件包中安装 ansible，否则会从上游下载 ansible 并安装，如果你没有互联网访问，又没有 DVD，或者内网yum源，那就只能用离线软件包来安装了。
 
@@ -129,11 +127,9 @@ https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz    # el9 packages
 <br>
 <details><summary>配置 / configure 过程是干什么的？</summary><br>
 
-**configure** 过程会检测你的节点环境并为你生成一个 pigsty 配置文件：`pigsty.yml`，默认根据你的操作系统（EL 7/8/9）选用相应的单机安装模板。
+配置 / [**configure**](INSTALL#配置) 过程会检测你的节点环境并为你生成一个 pigsty 配置文件：`pigsty.yml`，默认根据你的操作系统（EL 7/8/9）选用相应的单机安装模板。
 
-所有默认的配置模板都在 `files/pigsty`中，你可以使用 `-m` 直接指定想要使用的配置模板。
-
-如果您已经知道如何配置 Pigsty 了，那么完全可以跳过这一步，直接编辑 Pigsty 配置文件。
+所有默认的配置模板都在 `files/pigsty`中，你可以使用 `-m` 直接指定想要使用的配置模板。如果您已经知道如何配置 Pigsty 了，那么完全可以跳过这一步，直接编辑 Pigsty 配置文件。
 
 </details>
 
@@ -144,9 +140,7 @@ https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz    # el9 packages
 
 Pigsty主目录下的 `pigsty.yml` 是默认的配置文件，可以用来描述整套部署的环境，在 [`files/pigsty`](https://github.com/Vonng/pigsty/tree/master/files/pigsty) 有许多配置示例供你参考。
 
-当执行剧本时，你可以使用 `-i <path>` 参数，选用其他位置的配置文件。
-
-例如，你想根据另一个专门的配置文件 `redis.yml` 来安装 redis：`./redis.yml -i files/pigsty/redis.yml`
+当执行剧本时，你可以使用 `-i <path>` 参数，选用其他位置的配置文件。例如，你想根据另一个专门的配置文件 `redis.yml` 来安装 redis：`./redis.yml -i files/pigsty/redis.yml`
 
 </details>
 
@@ -210,7 +204,7 @@ Pigsty 提供了 280+ 配置参数，可以对整个环境与各个模块 infra/
 - `INFRA` 模块：提供本地Yum源，Nginx Web接入点，DNS服务器，NTP服务器，Prometheus与Grafana可观测性技术栈。
 - `NODE` 模块，将当前节点纳入 Pigsty 管理，部署 HAProxy 与 监控。
 - `ETCD` 模块，部署一个单机 etcd 集群，作为 PG 高可用的 DCS
-- `MinIO` 模块是默认不安装的，它可以作为 PG 的备份仓库。
+- `MINIO` 模块是默认不安装的，它可以作为 PG 的备份仓库。
 - `PGSQL` 模块，一个单机 PostgreSQL 数据库实例。
 
 </details>
@@ -418,9 +412,7 @@ bin/pgmon-rm <ins>     # 用于从 Prometheus 中移除单个实例 'ins' 的监
 <br>
 <details><summary>如何恢复 DNSMASQ 中的域名注册记录？</summary><br>
 
-PGSQL 集群/实例域名默认注册到 infra 节点的 `/etc/hosts.d/<name>`。
-
-你可以使用以下命令再次恢复它们：
+PGSQL 集群/实例域名默认注册到 infra 节点的 `/etc/hosts.d/<name>`。你可以使用以下命令再次恢复它们：
 
 ```bash
 ./pgsql.yml -t pg_dns    # 在 infra 节点上向 dnsmasq 注册 pg 的 DNS 名称
@@ -494,7 +486,7 @@ node_ntp_servers:                 # /etc/chrony.conf 中的 ntp 服务器列表
 <br>
 <details><summary>如何在节点上强制同步时间？</summary><br>
 
-> 为了使用 `chronyc` 来同步时间。您首先需要配置 NTP 服务。
+为了使用 `chronyc` 来同步时间。您首先需要配置 NTP 服务。
 
 ```bash
 ansible all -b -a 'chronyc -a makestep'     # 同步时间
@@ -555,7 +547,7 @@ pg-test:
 <br>
 <details><summary>如何使用节点上的HAProxy对外暴露服务？</summary><br>
 
-> 您可以在配置中中使用[`haproxy_services`](param#haproxy_services)来暴露服务，并使用 `node.yml -t haproxy_config,haproxy_reload` 来更新配置。
+您可以在配置中中使用[`haproxy_services`](param#haproxy_services)来暴露服务，并使用 `node.yml -t haproxy_config,haproxy_reload` 来更新配置。
 
 以下是使用它暴露MinIO服务的示例：[暴露MinIO服务](minio#暴露服务)
 
@@ -594,18 +586,16 @@ Pigsty 使用的 Shell 命令行提示符是由环境变量 `PS1` 指定，定�
 
 ## ETCD
 
-
 <br>
 <details><summary>ETCD集群如果不可用了会有什么影响？</summary><br>
 
 [ETCD](etcd) 对于 PGSQL 集群的高可用至关重要，而 etcd 本身的可用性是通过使用多个节点来保证的。使用3节点的 etcd 集群允许最多一个节点宕机，而其他两个节点仍然可以正常工作；
-使用5节点的 ETCD 集群则可以容忍两个节点失效。如果超过一半的 ETCD 节点宕机，ETCD 集群及其服务将不可用。
-在 Patroni 3.0 之前，这可能导致 [PGSQL](pgsql) 全局故障；所有的主节点将被降级并拒绝写请求。
+使用五节点的 ETCD 集群则可以容忍两个节点失效。如果超过一半的 ETCD 节点宕机，ETCD 集群及其服务将不可用。在 Patroni 3.0 之前，这可能导致 [PGSQL](pgsql) 全局故障；所有的主节点将被降级并拒绝写请求。
 
-自 pigsty 2.0 起，默认启用了 patroni 3.0 的 [DCS 容错模式](https://patroni.readthedocs.io/en/master/dcs_failsafe_mode.html)，
+自从 pigsty 2.0 起，默认启用了 patroni 3.0 的 [DCS 容错模式](https://patroni.readthedocs.io/en/master/dcs_failsafe_mode.html)，
 当 etcd 集群不可用时，如果 PostgreSQL 集群主库可以感知到所有成员，就会 **锁定** PGSQL 集群状态。
 
-在这种情况下，PGSQL 集群仍然可以正常工作，但您必须尽快恢复 ETCD 集群。（如果 etcd 宕机，您不能通过 patroni 配置 PGSQL 集群）
+在这种情况下，PGSQL 集群仍然可以正常工作，但您必须尽快恢复 ETCD 集群。（毕竟如果etcd宕机，您就无法通过 patroni 配置PostgreSQL集群了）
 
 </details>
 
@@ -614,7 +604,7 @@ Pigsty 使用的 Shell 命令行提示符是由环境变量 `PS1` 指定，定�
 <br>
 <details><summary>如何使用一个外部的已经存在的 ETCD 集群？</summary><br>
 
-配置清单中硬编码的分组名 `etcd` 将被用作 PGSQL 的 DCS 服务器。您可以使用 `etcd.yml` 对它们进行初始化，或直接假设它是一个已存在的外部 etcd 集群。
+配置清单中硬编码了所使用 etcd 的分组名为 `etcd`，这个分组里的成员将被用作 PGSQL 的 DCS 服务器。您可以使用 `etcd.yml` 对它们进行初始化，或直接假设它是一个已存在的外部 etcd 集群。
 
 要使用现有的外部 etcd 集群，只要像往常一样定义它们即可，您可以跳过 `etcd.yml` 剧本的执行，因为集群已经存在，不需要部署。
 
@@ -627,7 +617,7 @@ Pigsty 使用的 Shell 命令行提示符是由环境变量 `PS1` 指定，定�
 <br>
 <details><summary>如何向现有ETCD集群添加新的成员？</summary><br>
 
-> 详细过程，请参考[向 etcd 集群添加成员](etcd-admin#add-member)
+> 详细过程，请参考[向 etcd 集群添加成员](etcd-admin#添加成员)
 
 ```bash
 etcdctl member add <etcd-?> --learner=true --peer-urls=https://<new_ins_ip>:2380 # 在管理节点上宣告新成员加入
@@ -641,7 +631,7 @@ etcdctl member promote <new_ins_server_id>                                      
 <br>
 <details><summary>如何从现有ETCD集群中移除成员？</summary><br>
 
-> 详细过程，请参考[从 etcd 集群中移除成员](etcd-admin#remove-member)
+> 详细过程，请参考[从 etcd 集群中移除成员](etcd-admin#移除成员)
 
 ```bash
 etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出成员
@@ -663,9 +653,9 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 <br>
 <details><summary>启动多节点/多盘MinIO集群失败怎么办？</summary><br>
 
-在[多盘](MINIO#single-node-multi-drive)或[多节点](minio#multi-node-multi-drive)模式下，如果数据目录不是有效的磁盘挂载点，MinIO会拒绝启动。
+在[单机多盘](MINIO#单机多盘)或[多机多盘](minio#多机多盘)模式下，如果数据目录不是有效的磁盘挂载点，MinIO会拒绝启动。
 
-请使用已挂载的磁盘作为MinIO的数据目录，而不是普通目录。您只能在[单节点单盘](minio#single-node-single-drive)模式下使用普通目录作为 MinIO 的数据目录，作为开发测试之用。
+请使用已挂载的磁盘作为MinIO的数据目录，而不是普通目录。您只能在[单机单盘](minio#单机单盘)模式下使用普通目录作为 MinIO 的数据目录，作为开发测试之用。
 
 </details>
 
@@ -675,7 +665,7 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 <br>
 <details><summary>如何部署一个多节点/多盘MinIO集群？</summary><br>
 
-> 请参阅[创建多节点多盘的MinIO集群](minio#multi-node-multi-drive)
+> 请参阅[创建多节点多盘的MinIO集群](minio#多机多盘)
 
 </details>
 
@@ -697,7 +687,7 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 
 > 使用可选的负载均衡器和不同的端口访问HA MinIO集群。
 
-这里有一个示例：[访问MinIO服务](minio#access-service)
+这里有一个示例：[访问MinIO服务](minio#访问服务)
 
 </details>
 
@@ -713,7 +703,7 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 <br>
 <details><summary>Redis初始化失败：ABORT due to existing redis instance</summary><br>
 
-> 使用 `redis_clean = true` 和 `redis_safeguard = false` 来强制清除redis数据
+这意味着正在初始化的 Redis 实例已经存在了，使用 `redis_clean = true` 和 `redis_safeguard = false` 来强制清除redis数据
 
 当您运行`redis.yml`来初始化一个已经在运行的redis实例，并且[`redis_clean`](param#redis_clean)设置为`false`时，就会出现这种情况。
 
@@ -727,9 +717,9 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 
 <details><summary>Redis初始化失败：ABORT due to redis_safeguard enabled</summary><br>
 
-> 当 [`redis_safeguard`](param#redis_safeguard) 设置为 `true` 时，尝试移除一个redis实例时就会出现这种情况。
+这意味着正准备清理的 Redis 实例打开了防误删保险：当 [`redis_safeguard`](param#redis_safeguard) 设置为 `true` 时，尝试移除一个redis实例时就会出现这种情况。
 
-您可以关闭 [`redis_safeguard`](param#redis_safeguard) 来移除Redis实例。这就是 redis_safeguard 的作用。
+您可以关闭 [`redis_safeguard`](param#redis_safeguard) 来移除Redis实例。这就是 `redis_safeguard` 的作用。
 
 </details>
 
@@ -763,13 +753,11 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 <br>
 <details><summary>PGSQL初始化失败：ABORT due to postgres exists</summary><br>
 
-> 将 `pg_clean` 设置为 `true`，并将 `pg_safeguard` 设置为 `false`，就可以在执行 `pgsql.yml` 期间强制清理现存实例。
-
-当你在一个有着活跃PG实例的节点上运行 `pgsql.yml` 时，且[`pg_clean`](param#pg_clean)被设置为 `false` 时，就会发生这种情况。
+这意味着正在初始化的 PostgreSQL 实例已经存在了， 将 `pg_clean` 设置为 `true`，并将 `pg_safeguard` 设置为 `false`，就可以在执行 `pgsql.yml` 期间强制清理现存实例。
 
 如果 `pg_clean` 为 `true` (并且 `pg_safeguard` 也为 `false`)，`pgsql.yml` 剧本将会移除现有的 pgsql 数据并重新初始化为新的，这使得这个剧本真正幂等。
 
-你仍然可以通过使用一个特殊的任务标签 `pg_purge` 来清除现有的 PostgreSQL 数据，这个标签任务会忽略 `pg_clean` 和 `pg_safeguard` 的设置，所以非常危险。
+你可以通过使用一个特殊的任务标签 `pg_purge` 来强制清除现有的 PostgreSQL 数据，这个标签任务会忽略 `pg_clean` 和 `pg_safeguard` 的设置，所以非常危险。
 
 ```bash
 ./pgsql.yml -t pg_clean      # 优先考虑 pg_clean 和 pg_safeguard
@@ -783,7 +771,7 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 <br>
 <details><summary>PGSQL初始化失败：ABORT due to pg_safeguard enabled</summary><br>
 
-> 禁用 `pg_safeguard` 以移除 Postgres 实例。
+这意味着正准备清理的 PostgreSQL 实例打开了防误删保险， 禁用 `pg_safeguard` 以移除 Postgres 实例。
 
 如果防误删保险 [`pg_safeguard`](param#pg_safeguard) 打开，那么你就不能使用 `bin/pgsql-rm` 和 `pgsql-rm.yml` 剧本移除正在运行的 PGSQL 实例了。
 
@@ -818,7 +806,7 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 
 **过了一会儿失败**：这可能是由于源实例数据损坏。查看 PGSQL FAQ：如何在数据损坏时创建副本？
 
-**超时**：如果 `wait for postgres replica` 任务耗时 30 分钟或更长时间并由于超时而失败，这对于大型集群（例如，1TB+，可能需要几小时创建一个副本）是很常见的。
+**过了很长时间再超时**：如果 `wait for postgres replica` 任务耗时 30 分钟或更长时间并由于超时而失败，这对于大型集群（例如，1TB+，可能需要几小时创建一个副本）是很常见的。
 
 在这种情况下，底层创建副本的过程仍在进行。你可以使用 `pg list <cls>` 检查集群状态并等待副本赶上主节点。然后使用以下命令继续以下任务，完成完整的从库初始化：
 
@@ -844,7 +832,9 @@ pg_libs: 'pg_stat_statements, auto_explain' # 从 pg 16 beta 中移除 timescale
 pg_extensions: []                 # 目前缺少 pg16 扩展
 ```
 
-在 [prod.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/prod.yml#L110) 42节点生产环境仿真模板中提供了安装 12 - 16 大版本集群的示例。 
+在 [prod.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/prod.yml#L110) 42节点生产环境仿真模板中提供了安装 12 - 16 大版本集群的示例。
+
+详情请参考 [PGSQL配置：切换大版本](PGSQL-CONF#大版本切换)
 
 </details>
 
@@ -856,13 +846,13 @@ pg_extensions: []                 # 目前缺少 pg16 扩展
 
 > 使用 `node_hugepage_count` 和 `node_hugepage_ratio` 或 `/pg/bin/pg-tune-hugepage`
 
-如果你计划启用大页（HugePage），请考虑使用 `node_hugepage_count` 和 `node_hugepage_ratio`，并配合 `./node.yml -t node_tune` 进行应用。
+如果你计划启用大页（HugePage），请考虑使用 [`node_hugepage_count`](PARAM#node_hugepage_count) 和 [`node_hugepage_ratio`](PARAM#node_hugepage_ratio)，并配合 `./node.yml -t node_tune` 进行应用。
 
 大页对于数据库来说有利有弊，利是内存是专门管理的，不用担心被挪用，降低数据库 OOM 风险。缺点是某些场景下可能对性能由负面影响。 
 
-在 PostgreSQL 启动前，您需要分配 **足够多的** 大页，浪费的部分可以使用 `pg_tune_hugepage` 对其进行缩减。
+在 PostgreSQL 启动前，您需要分配 **足够多的** 大页，浪费的部分可以使用 `pg-tune-hugepage` 脚本对其进行回收，不过此脚本仅 PostgreSQL 15+ 可用。
 
-如果你的 postgres 已经在运行，你可以使用 `/pg/bin/pg-tune-hugepage` 在线启用 hugepage。（仅 PG15+ 可用）
+如果你的 PostgreSQL 已经在运行，你可以使用下面的办法启动大页（仅 PG15+ 可用）：
 
 ```bash
 sync; echo 3 > /proc/sys/vm/drop_caches   # 刷盘，释放系统缓存（请做好数据库性能受到冲击的准备）
@@ -882,7 +872,7 @@ pg restart <cls>                          # 重启 postgres 以使用 hugepage
 
 考虑使用 [同步备库](PGSQL-CONF#同步备库) 和 [法定多数提交](pgsql-conf#法定人数提交) 来确保故障转移过程中的零数据丢失。
 
-更多细节，可以参考 [安全考量 - 可用性](SECURITY.md) 的相关介绍。
+更多细节，可以参考 [安全考量 - 可用性](SECURITY.md#可用性) 的相关介绍。
 
 </details>
 
@@ -892,7 +882,7 @@ pg restart <cls>                          # 重启 postgres 以使用 hugepage
 <br>
 <details><summary>磁盘写满了如何抢救？</summary><br>
 
-> `rm -rf /pg/dummy` 可以释放一些救命空间。
+如果磁盘写满了，连 Shell 命令都无法执行，`rm -rf /pg/dummy` 可以释放一些救命空间。
 
 默认情况下，[`pg_dummy_filesize`](param#pg_dummy_filesize) 设置为 `64MB`。在生产环境中，建议将其增加到 `8GB` 或更大。
 

@@ -5052,7 +5052,7 @@ name: `pg_default_services`, type: `service[]`, level: `G/C`
 
 postgres default service definitions
 
-default value is four default services definition, which is explained in [PGSQL Service](PGSQL-SVC#service)
+default value is four default services definition, which is explained in [PGSQL Service](PGSQL-SVC#服务概述)
 
 ```yaml
 pg_default_services:               # postgres default service definitions

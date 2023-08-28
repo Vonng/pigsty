@@ -119,8 +119,8 @@ curl https://get.pigsty.cc/latest  | bash
 
 ```bash
 # 从 CDN 或 Github 下载源码包
-curl -L https://get.pigsty.cc/v2.3.0/pigsty-v2.3.0.tgz
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-v2.3.0.tgz
+curl -L https://get.pigsty.cc/v2.3.0/pigsty-v2.3.0.tgz -o ~/pigsty.tgz
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-v2.3.0.tgz -o ~/pigsty.tgz
 
 # 如果 curl 不可用，git clone 也可以
 git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.3.0
@@ -393,8 +393,14 @@ localhost                  : ok=3    changed=0    unreachable=0    failed=0    s
 
 当安装完成后，当前节点会安装有四个模块： [**INFRA**](INFRA.md), [**NODE**](NODE.md), [**ETCD**](ETCD.md) , [**PGSQL**](PGSQL.md) 。
 
-* [**INFRA**](INFRA.md): Pigsty Web界面可以通过 80 端口访问 `http://<ip>:80` 
-* [**PGSQL**](PGSQL.md): 您可以使用默认连接串[访问](PGSQL-SVC.md)PGSQL数据库: `postgres://dbuser_meta:DBUser.Meta@<ip>:5432/meta`
+* [**INFRA**](INFRA.md): Pigsty Web界面可以通过 80 端口访问 `http://<ip>:80`: 
+* [**PGSQL**](PGSQL.md): 您可以使用默认连接串[访问](PGSQL-SVC.md#单机用户)PGSQL数据库:
+
+```bash
+psql postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta     # 直接用 DBA 超级用户连上去
+psql postgres://dbuser_meta:DBUser.Meta@10.10.10.10/meta   # 用默认的业务管理员用户连上去
+psql postgres://dbuser_view:DBUser.View@pg-meta/meta       # 用默认的只读用户走实例域名连上去
+```
 
 一些基础设施服务组件会使用 Nginx 对外暴露 WebUI ( 可通过参数 [`infra_portal`](PARAM.md#infra_portal) 进行配置):
 

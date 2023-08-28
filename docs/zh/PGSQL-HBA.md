@@ -2,18 +2,18 @@
 
 > Pigsty 中基于主机的身份认证 HBA（Host-Based Authentication）详解。
 
-PostgreSQL拥有多种[认证](https://www.postgresql.org/docs/current/client-authentication.html)方法。
-你可以使用任何一种，Pigsty 提供了开箱即用的 [访问控制系统](PGSQL-ACL)，重点关注 HBA、密码和SSL认证。
+认证是 [访问控制](PGSQL-ACL) 与 [权限系统](PGSQL-ACL#权限系统) 的基石，PostgreSQL拥有多种[认证](https://www.postgresql.org/docs/current/client-authentication.html)方法。
+
+这里主要介绍 HBA：Host Based Authentication，HBA规则定义了哪些用户能够通过哪些方式从哪些地方访问哪些数据库。
 
 
 ----------------
 
 ## 客户端认证
 
-要连接到PostgreSQL数据库，用户必须经过认证（默认使用密码）。
+要连接到PostgreSQL数据库，用户必须先经过认证（默认使用密码）。
 
-您可以在连接字符串中提供密码（不安全）或使用`PGPASSWORD`环境变量或`.pgpass`文件。
-参阅[`psql`](https://www.postgresql.org/docs/current/app-psql.html#usage)文档和[PostgreSQL连接字符串](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING)以获取更多详细信息。
+您可以在连接字符串中提供密码（不安全）或使用`PGPASSWORD`环境变量或`.pgpass`文件传递密码。参考[`psql`](https://www.postgresql.org/docs/current/app-psql.html#usage)文档和[PostgreSQL连接字符串](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING)以获取更多详细信息。
 
 ```bash
 psql 'host=<host> port=<port> dbname=<dbname> user=<username> password=<password>'
@@ -21,7 +21,7 @@ psql postgres://<username>:<password>@<host>:<port>/<dbname>
 PGPASSWORD=<password>; psql -U <username> -h <host> -p <port> -d <dbname>
 ```
 
-例如，`meta`数据库的默认连接字符串为：
+例如，连接 Pigsty 默认的 `meta` 数据库，可以使用以下连接串：
 
 ```bash
 psql 'host=10.10.10.10 port=5432 dbname=meta user=dbuser_dba password=DBUser.DBA'
@@ -29,7 +29,7 @@ psql postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta
 PGPASSWORD=DBUser.DBA; psql -U dbuser_dba -h 10.10.10.10 -p 5432 -d meta
 ```
 
-Pigsty 默认启用服务端 SSL 加密，但这是可选的。要使用客户端SSL证书连接，你可以使用`PGSSLCERT`和`PGSSLKEY`环境变量或`sslkey`和`sslcert`参数提供客户端参数。
+默认配置下，Pigsty会启用服务端 SSL 加密，但不验证客户端 SSL 证书。要使用客户端SSL证书连接，你可以使用`PGSSLCERT`和`PGSSLKEY`环境变量或`sslkey`和`sslcert`参数提供客户端参数。
 
 ```bash
 psql 'postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta?sslkey=/path/to/dbuser_dba.key&sslcert=/path/to/dbuser_dba.crt'
@@ -335,8 +335,7 @@ host     all                all                192.168.0.0/16     scram-sha-256
 
 ## 安全加固
 
-对于那些需要更高安全性的场合，我们提供了一个安全加固的配置模板 [security.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/security.yml)，
-使用了以下的默认 HBA 规则集： 
+对于那些需要更高安全性的场合，我们提供了一个安全加固的配置模板 [security.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/security.yml)，使用了以下的默认 HBA 规则集： 
 
 ```yaml
 pg_default_hba_rules:             # postgres host-based auth rules by default
