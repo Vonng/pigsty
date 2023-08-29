@@ -2,7 +2,7 @@
 
 > **世界上最先进的开源关系型数据库！**
 >
-> Pigsty帮它进入全盛状态：开箱即用、可靠、可观测、可维护、可伸缩！ 
+> 而 Pigsty 帮它进入全盛状态：开箱即用、可靠、可观测、可维护、可伸缩！ [配置](#配置) | [管理](#管理) | [剧本](#剧本) | [监控](#监控) | [参数](#参数)
 
 
 ----------------
@@ -34,13 +34,36 @@
 - [身份参数](PGSQL-ARCH#身份参数)：定义PostgreSQL集群的身份参数
 - [读写主库](PGSQL-CONF#读写主库)：创建由单一主库构成的单实例“集群“
 - [只读从库](PGSQL-CONF#只读从库)：创建一主一从的两节点基础高可用集群
-- [离线从库](PGSQL-CONF#离线从库)：创建专用于OLAP/ETL/交互式查询的特殊只读实例。
+- [离线从库](PGSQL-CONF#离线从库)：创建专用于OLAP/ETL/交互式查询的特殊只读实例
 - [同步备库](PGSQL-CONF#同步备库)：启用同步提交，以确保没有数据丢失
 - [法定人数](PGSQL-CONF#法定人数提交)：使用法定人数同步提交以获得更高的一致性级别
 - [备份集群](PGSQL-CONF#备份集群)：克隆现有集群，并保持同步（异地灾备集群）
 - [延迟集群](PGSQL-CONF#延迟集群)：克隆现有集群，并延迟重放，用于紧急数据恢复
 - [Citus集群](PGSQL-CONF#citus集群)：定义并创建 Citus 水平分布式数据库集群
-- [大版本切换](PGSQL-CONF#大版本切换)：使用不同的PostgreSQL大版本
+- [大版本切换](PGSQL-CONF#大版本切换)：使用不同的PostgreSQL大版本部署集群
+
+
+----------------
+
+## 管理
+
+> [管理](PGSQL-ADMIN) 您所创建的 PostgreSQL 集群。
+
+- [命令速查](PGSQL-ADMIN#命令速查)
+- [创建集群](PGSQL-ADMIN#创建集群)
+- [创建用户](PGSQL-ADMIN#创建用户)
+- [创建数据库](PGSQL-ADMIN#创建数据库)
+- [重载服务](PGSQL-ADMIN#重载服务)
+- [重载HBA](PGSQL-ADMIN#重载HBA)
+- [配置集群](PGSQL-ADMIN#配置集群)
+- [添加实例](PGSQL-ADMIN#添加实例)
+- [移除实例](PGSQL-ADMIN#移除实例)
+- [下线集群](PGSQL-ADMIN#下线集群)
+- [主动切换](PGSQL-ADMIN#主动切换)
+- [备份集群](PGSQL-ADMIN#备份集群)
+- [恢复集群](PGSQL-ADMIN#恢复集群)
+
+其他问题，请参考 [FAQ: PGSQL](FAQ#PGSQL)
 
 
 ----------------
@@ -90,33 +113,11 @@
 |                                                           |                                                                       |                                                             |   [PGCAT Schema](https://demo.pigsty.cc/d/pgcat-schema)   |
 
 
-
 ----------------
 
-## 管理
+## 参数
 
-> [管理](PGSQL-ADMIN) 您所创建的 PostgreSQL 集群。
-
-- [命令速查](PGSQL-ADMIN#命令速查)
-- [创建集群](PGSQL-ADMIN#创建集群)
-- [创建用户](PGSQL-ADMIN#创建用户)
-- [创建数据库](PGSQL-ADMIN#创建数据库)
-- [重载服务](PGSQL-ADMIN#重载服务)
-- [重载HBA](PGSQL-ADMIN#重载HBA)
-- [配置集群](PGSQL-ADMIN#配置集群)
-- [添加实例](PGSQL-ADMIN#添加实例)
-- [移除实例](PGSQL-ADMIN#移除实例)
-- [下线集群](PGSQL-ADMIN#下线集群)
-- [主动切换](PGSQL-ADMIN#主动切换)
-- [备份集群](PGSQL-ADMIN#备份集群)
-- [恢复集群](PGSQL-ADMIN#恢复集群)
-
-
-----------------
-
-## Parameters
-
-> > [PGSQL](PARAM#pgsql) 模块的配置参数列表
+> [PGSQL](PARAM#pgsql) 模块的配置参数列表
 
 - [`PG_ID`](PARAM#pg_id) : 计算和校验 PostgreSQL 实例身份
 - [`PG_BUSINESS`](PARAM#pg_business) : PostgreSQL业务对象定义

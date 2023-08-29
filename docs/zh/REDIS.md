@@ -1,39 +1,51 @@
 # REDIS
 
-> Redis is an open source, in-memory data store that is widely used and works well with PostgreSQL
+> Redis是广受喜爱的开源高性能内存数据结构服务器，PostgreSQL的好伙伴。 [配置](#配置) | [剧本](#剧本) | [管理](#管理) | [监控](#监控) | [参数](#参数)
+
+
+----------------
+
+## 概念
+
+Redis的实体概念模型与[PostgreSQL](PGSQL-ARCH#实体概念图)几乎相同，同样包括 **集群（Cluster）** 与 **实例（Instance）** 的概念。注意这里的Cluster指的不是Redis原生集群方案中的集群。
+
+REDIS模块与PGSQL模块核心的区别在于，Redis通常采用 **单机多实例** 部署，而不是 PostgreSQL 的 1:1 部署：一个物理/虚拟机节点上通常会部署 **多个** Redis实例，以充分利用多核CPU。因此[配置](#配置)和[管理](#管理)Redis实例的方式与PGSQL稍有不同。
+
+在Pigsty管理的Redis中，节点完全隶属于集群，即目前尚不允许在一个节点上部署两个不同集群的Redis实例，但这并不影响您在在一个节点上部署多个独立 Redis 主从实例。当然这样也会有一些局限性，例如在这种情况下您就无法为同一个节点上的不同实例指定不同的密码了。
+
 
 
 ----------------
 
 ## 配置
 
-**Redis Identity**
+**身份参数**
 
-Redis [**identity parameters**](PARAM#redis_id) are required parameters when defining a Redis cluster.
+Redis [**身份参数**](PARAM#redis_id) 是定义Redis集群时必须提供的信息，包括：
 
-|                    Name                    |          Attribute          |     Description      |          Example          |
-|:------------------------------------------:|:---------------------------:|:--------------------:|:-------------------------:|
-|   [`redis_cluster`](PARAM#redis_cluster)   | **REQUIRED**, cluster level |     cluster name     |       `redis-test`        |
-|      [`redis_node`](PARAM#redis_node)      |   **REQUIRED**，node level   | Node Sequence Number |          `1`,`2`          |
-| [`redis_instances`](PARAM#redis_instances) |   **REQUIRED**，node level   | Instance Definition  | `{ 6001 : {} ,6002 : {}}` |
+|                     名称                     |     属性      |  说明  |            例子             |
+|:------------------------------------------:|:-----------:|:----:|:-------------------------:|
+|   [`redis_cluster`](PARAM#redis_cluster)   | **必选**，集群级别 | 集群名  |       `redis-test`        |
+|      [`redis_node`](PARAM#redis_node)      | **必选**，节点级别 | 节点号  |          `1`,`2`          |
+| [`redis_instances`](PARAM#redis_instances) | **必选**，节点级别 | 实例定义 | `{ 6001 : {} ,6002 : {}}` |
 
+- [`redis_cluster`](PARAM#redis_cluster)：Redis集群名称，作为集群资源的顶层命名空间。
+- [`redis_node`](PARAM#redis_node)：Redis节点标号，整数，在集群内唯一，用于区分不同节点。
+- [`redis_instances`](PARAM#redis_instances)：JSON对象，Key为实例端口号，Value为包含实例其他配置JSON对象。
 
-- [`redis_cluster`](PARAM#redis_cluster): Redis cluster name, top-level namespace for cluster sources.
-- [`redis_node`](PARAM#redis_node): Redis node identity, integer the number of the node in the cluster.
-- [`redis_instances`](PARAM#redis_instances): A Dict with the Key as redis port and the value as a instance level parameters.
+**工作模式**
 
+Redis有三种不同的工作模式，由 [`redis_mode`](PARAM#redis_mode) 参数指定：
 
-**Redis Mode**
+* `standalone`：默认的独立主从模式
+* `cluster`：Redis原生分布式集群模式
+* `sentinel`：哨兵模式，可以为主从模式的 Redis 提供高可用能力
 
-There are three [`redis_mode`](PARAM#redis_mode) available in Pigsty:
+下面给出了三种Redis集群的定义样例：
 
-* `standalone`: setup redis as standalone (master-slave) mode
-* `cluster`: setup this redis cluster as a redis native cluster
-* `sentinel`: setup redis as sentinel for standalone redis HA
-
-**Redis Definition**
-
-Here are three examples:
+* 一个1节点，一主一从的 Redis Standalone 集群：`redis-ms`
+* 一个1节点，3实例的Redis Sentinel集群：`redis-sentinel`
+* 一个2节点，6实例的的 Redis Cluster集群： `redis-cluster`
 
 ```yaml
 redis-ms: # redis classic primary & replica
@@ -51,10 +63,115 @@ redis-test: # redis native cluster: 3m x 3s
   vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
 ```
 
-**Limitation**
+**局限性**
 
-* A redis node can only belong to one redis cluster
-* You can not set different password for redis instances on same redis node (since redis_exporter only allows one password)
+* 一个节点只能属于一个 Redis 集群，这意味着您不能将一个节点同时分配给两个不同的Redis集群。
+* 在每个 Redis 节点上，您需要为 Redis实例 分配唯一的端口号，避免端口冲突。
+* 通常同一个Reids集群会使用同一个密码，但一个 Redis节点上的多个 Redis 实例无法设置不同的密码（因为 redis_exporter 只允许使用一个密码0
+* Redis Cluster自带高可用，而Redis主从的高可用需要在 Sentinel 中额外进行手工配置：因为我们不知道您是否会部署 Sentinel。
+* 好在配置 Redis 主从实例的高可用非常简单，详情请参考[管理-设置Redis主从高可用](#管理)
+
+
+-------------
+
+## 管理
+
+下面是 REDIS 模块常用的管理任务，更多问题请参考 [FAQ：REDIS](FAQ#REDIS)
+
+
+-------------
+
+### 初始化Redis
+
+您可以使用 [`redis.yml`](#redisyml) 剧本来初始化 Redis 集群、节点、或实例：
+
+```bash
+# 初始化集群内所有 Redis 实例
+./redis.yml -l <cluster>      # 初始化 redis 集群
+
+# 初始化特定节点上的所有 Redis 实例
+./redis.yml -l 10.10.10.10    # 初始化 redis 节点
+
+# 初始化特定 Redis 实例：  10.10.10.11:6501
+./redis.yml -l 10.10.10.11 -e redis_port=6501 -t redis
+```
+
+你也可以使用包装脚本命令行脚本来初始化：
+
+```bash
+bin/redis-add redis-ms          # 初始化 redis 集群 'redis-ms'
+bin/redis-add 10.10.10.10       # 初始化 redis 节点 '10.10.10.10'
+bin/redis-add 10.10.10.10 6501  # 初始化 redis 实例 '10.10.10.10:6501'
+```
+
+-------------
+
+### 下线Redis
+
+您可以使用 [`redis-rm.yml`](#redis-rmyml) 剧本来初始化 Redis 集群、节点、或实例：
+
+```bash
+# 下线 Redis 集群 `redis-test`
+./redis-rm.yml -l redis-test
+
+# 下线 Redis 集群 `redis-test` 并卸载 Redis 软件包
+./redis-rm.yml -l redis-test -e redis_uninstall=true
+
+# 下线 Redis 节点 10.10.10.13 上的所有实例
+./redis-rm.yml -l 10.10.10.13
+
+# 下线特定 Redis 实例 10.10.10.13:6501
+./redis-rm.yml -l 10.10.10.13 -e redis_port=6501
+```
+
+你也可以使用包装脚本来下线 Redis 集群/节点/实例：
+
+```bash
+bin/redis-rm redis-ms          # 下线 redis 集群 'redis-ms'
+bin/redis-rm 10.10.10.10       # 下线 redis 节点 '10.10.10.10'
+bin/redis-rm 10.10.10.10 6501  # 下线 redis 实例 '10.10.10.10:6501'
+```
+
+-------------
+
+## 使用Redis客户端
+
+使用 `redis-cli` 访问 Reids 实例：
+
+```bash
+$ redis-cli -h 10.10.10.10 -p 6501 # <--- 使用 Host 与 Port 访问对应 Redis 实例
+10.10.10.10:6501> auth redis.ms    # <--- 使用密码验证
+OK
+10.10.10.10:6501> set a 10         # <--- 设置一个Key
+OK
+10.10.10.10:6501> get a            # <--- 获取 Key 的值
+"10"
+```
+
+Redis提供了`redis-benchmark`工具，可以用于Redis的性能评估，或生成一些负载用于测试。
+
+```bash
+redis-benchmark -h 10.10.10.13 -p 6501
+```
+
+-------------
+
+### 设置Redis主从高可用
+
+Redis独立主从集群可以通过 Redis 哨兵集群配置自动高可用。
+
+以四节点[沙箱环境](PROVISION#沙箱环境)为例，一套 Redis Sentinel 集群 `redis-meta`，可以用来管理很多套独立 Redis 主从集群。
+
+以一主一从的Redis普通主从集群 `redis.ms` 为例，您需要在每个 Sentinel 实例上，使用 `SENTINEL MONITOR` 添加目标，并使用 `SENTINEL SET` 提供密码，高可用就配置完毕了。 
+
+```bash
+# 对于每一个 sentinel，将 redis 主服务器加入 sentinel：
+$ redis-cli -h 10.10.10.11 -p 6501 -a redis.meta
+10.10.10.11:6501> SENTINEL MONITOR redis-ms 10.10.10.10 6501 1
+10.10.10.11:6501> SENTINEL SET redis-ms auth-pass redis.ms      # 如果启用了授权，需要配置密码
+```
+
+
 
 
 
@@ -62,93 +179,50 @@ redis-test: # redis native cluster: 3m x 3s
 
 ## 剧本
 
-There are two playbooks for redis:
+REDIS模块提供了两个[剧本](playbook)，用于拉起/销毁 传统主从Redis集群/节点/实例：
 
-- [`redis.yml`](https://github.com/Vonng/pigsty/blob/master/redis.yml): create redis cluster / node / instance
-- [`redis-rm.yml`](https://github.com/Vonng/pigsty/blob/master/redis-rm.yml): remove redis cluster /node /instance
+- [`redis.yml`](#redisyml)：初始Redis集群/节点/实例。
+- [`redis-rm.yml`](#redis-rmyml)：移除Redis集群/节点/实例
 
-You can also create & destroy redis cluster/node/instance with util scripts:
+### `redis.yml`
+
+用于初始化 Redis 的 [`redis.yml`](https://github.com/Vonng/pigsty/blob/master/redis.yml) 剧本包含以下子任务：
 
 ```bash
-bin/redis-add redis-ms          # create redis cluster 'redis-ms'
-bin/redis-add 10.10.10.10       # create redis node '10.10.10.10'
-bin/redis-add 10.10.10.10 6501  # create redis instance '10.10.10.10:6501'
-
-bin/redis-rm redis-ms           # remove redis cluster 'redis-ms'
-bin/redis-rm 10.10.10.10        # remove redis node '10.10.10.10'
-bin/redis-rm 10.10.10.10 6501   # remove redis instance '10.10.10.10:6501'
+redis_node        : 初始化redis节点
+  - redis_install : 安装redis & redis_exporter
+  - redis_user    : 创建操作系统用户 redis
+  - redis_dir     : 配置 redis的FHS目录结构
+redis_exporter    : 配置 redis_exporter 监控
+  - redis_exporter_config  : 生成redis_exporter配置
+  - redis_exporter_launch  : 启动redis_exporter
+redis_instance    : 停止并禁用redis集群/节点/实例
+  - redis_check   : 检查redis实例是否存在
+  - redis_clean   : 清除现有的redis实例
+  - redis_config  : 生成redis实例配置
+  - redis_launch  : 启动redis实例
+redis_register    : 将redis注册到基础设施中
+redis_join        : 加入redis集群
 ```
 
+<details><summary>示例：使用Redis剧本初始化Redis集群</summary>
 
 [![asciicast](https://asciinema.org/a/568808.svg)](https://asciinema.org/a/568808)
 
+</details>
 
+### `redis-rm.yml`
 
--------------
-
-## 管理
-
-**Init Cluster/Node/Instance**
+用于卸载 Redis 的 [`redis-rm.yml`](https://github.com/Vonng/pigsty/blob/master/redis.yml) 剧本包含以下子任务：
 
 ```bash
-# init all redis instances on group <cluster>
-./redis.yml -l <cluster>      # create redis cluster
-
-# init redis node (package,dir,exporter)
-./redis.yml -l 10.10.10.10    # create redis cluster
-
-# init all redis instances specific node
-./redis.yml -l 10.10.10.10    # create redis cluster
-
-# init one specific instance 10.10.10.11:6501
-./redis.yml -l 10.10.10.11 -e redis_port=6501 -t redis
+register       : 从prometheus中移除监控目标
+redis_exporter : 停止并禁用redis_exporter
+redis          : 停止并禁用redis集群/节点/实例
+redis_data     : 移除redis数据（rdb, aof）
+redis_pkg      : 卸载redis & redis_exporter软件包
 ```
 
-You can also use wrapper script:
-
-```bash
-bin/redis-add redis-ms          # create redis cluster 'redis-ms'
-bin/redis-add 10.10.10.10       # create redis node '10.10.10.10'
-bin/redis-add 10.10.10.10 6501  # create redis instance '10.10.10.10:6501'
-```
-
-**Remove Cluster/Node/Instance**
-
-```bash
-# Remove cluster `redis-test`
-redis-rm.yml -l redis-test
-
-# Remove cluster `redis-test`, and uninstall packages
-redis-rm.yml -l redis-test -e redis_uninstall=true
-
-# Remove all instance on redis node 10.10.10.13
-redis-rm.yml -l 10.10.10.13
-
-# Remove one specific instance 10.10.10.13:6501
-redis-rm.yml -l 10.10.10.13 -e redis_port=6501
-```
-
-You can also use wrapper script:
-
-```bash
-bin/redis-rm redis-ms          # remove redis cluster 'redis-ms'
-bin/redis-rm 10.10.10.10       # remove redis node '10.10.10.10'
-bin/redis-rm 10.10.10.10 6501  # remove redis instance '10.10.10.10:6501'
-```
-
-
-**Setup standalone HA with sentinel**
-
-You have to enable HA for redis standalone m-s cluster manually with your redis sentinel.
-
-Take the 4-node sandbox as an example, a redis sentinel cluster `redis-meta` is used manage the `redis-ms` standalone cluster.  
-
-```bash
-# for each sentinel, add redis master to the sentinel with:
-$ redis-cli -h 10.10.10.11 -p 6501 -a redis.meta
-10.10.10.11:6501> SENTINEL MONITOR redis-ms 10.10.10.10 6501 1
-10.10.10.11:6501> SENTINEL SET redis-ms auth-pass redis.ms      # if auth enabled, password has to be configured 
-```
 
 
 
@@ -158,15 +232,17 @@ $ redis-cli -h 10.10.10.11 -p 6501 -a redis.meta
 
 Pigsty 提供了三个与 [`REDIS`](REDIS) 模块有关的监控仪表盘：
 
-[Redis Overview](https://demo.pigsty.cc/d/redis-overview)：关于所有Redis集群/实例的详细信息
+----------------
 
-<details><summary>Redis Overview Dashboard</summary>
+### Redis Overview
+
+[Redis Overview](https://demo.pigsty.cc/d/redis-overview)：关于所有Redis集群/实例的详细信息
 
 [![redis-overview](https://github.com/Vonng/pigsty/assets/8587410/cceabc05-7d9a-467e-9cb6-cf3f7da60ad3)](https://demo.pigsty.cc/d/redis-overview)
 
-</details><br>
+----------------
 
-
+### Redis Cluster
 
 [Redis Cluster](https://demo.pigsty.cc/d/redis-cluster)：关于单个Redis集群的详细信息
 
@@ -176,7 +252,9 @@ Pigsty 提供了三个与 [`REDIS`](REDIS) 模块有关的监控仪表盘：
 
 </details><br>
 
+----------------
 
+### Redis Instance
 
 [Redis Instance](https://demo.pigsty.cc/d/redis-instance)： 关于单个Redis实例的详细信息
 
@@ -192,12 +270,7 @@ Pigsty 提供了三个与 [`REDIS`](REDIS) 模块有关的监控仪表盘：
 
 ## 参数
 
-
-There are 3 sections, 20 parameters about [`REDIS`](PARAM#REDIS) module.
-
-- [`REDIS_ID`](PARAM#redis_id) : REDIS Identity Parameters
-- [`REDIS_NODE`](PARAM#redis_node) : REDIS Node & Exporter
-- [`REDIS_PROVISION`](PARAM#redis_provision) : Config & Launch Redis Instances
+Pigsty中有20个关于Redis模块的配置参数：
 
 | 参数                                                       |    类型    |  级别   | 注释                                    |
 |----------------------------------------------------------|:--------:|:-----:|---------------------------------------|

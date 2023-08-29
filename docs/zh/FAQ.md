@@ -617,7 +617,7 @@ Pigsty 使用的 Shell 命令行提示符是由环境变量 `PS1` 指定，定�
 <br>
 <details><summary>如何向现有ETCD集群添加新的成员？</summary><br>
 
-> 详细过程，请参考[向 etcd 集群添加成员](etcd-admin#添加成员)
+> 详细过程，请参考[向 etcd 集群添加成员](etcd#添加成员)
 
 ```bash
 etcdctl member add <etcd-?> --learner=true --peer-urls=https://<new_ins_ip>:2380 # 在管理节点上宣告新成员加入
@@ -631,7 +631,7 @@ etcdctl member promote <new_ins_server_id>                                      
 <br>
 <details><summary>如何从现有ETCD集群中移除成员？</summary><br>
 
-> 详细过程，请参考[从 etcd 集群中移除成员](etcd-admin#移除成员)
+> 详细过程，请参考[从 etcd 集群中移除成员](etcd#移除成员)
 
 ```bash
 etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出成员

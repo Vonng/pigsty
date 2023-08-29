@@ -81,8 +81,8 @@
 
 **不要将任何端口直接暴露到公网IP上，除了基础设施出口Nginx使用的端口（默认80/443）**
 - 出于便利考虑，Prometheus/Grafana 等组件默认监听所有IP地址，可以直接从公网IP端口访问
-- 您可以修改它们的配置文件，只监听内网IP地址，限制其只能通过 Nginx 门户通过域名访问。
-- 你也可以当使用安全组，防火墙规则来实现这些安全限制。
+- 您可以修改它们的配置文件，只监听内网IP地址，限制其只能通过 Nginx 门户通过域名访问，你也可以当使用安全组，防火墙规则来实现这些安全限制。
+- 出于便利考虑，Redis服务器默认监听所有IP地址，您可以修改 [redis_bind_address](PARAM#redis_bind_address) 只监听内网IP地址。
 
 **使用 [HBA](pgsql-hba) 限制 postgres 客户端访问**
 - 有一个增强安全性的配置模板：[`security.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/security.yml)
@@ -158,4 +158,4 @@
 - 大型生产部署建议设置至少两个基础设施节点互为备份。
 
 **使用足够数量的 etcd 服务器实例，并使用奇数个实例（1,3,5,7）**
-- 查看 [ETCD 管理](etcd-admin) 了解详细信息。
+- 查看 [ETCD 管理](ETCD#管理) 了解详细信息。

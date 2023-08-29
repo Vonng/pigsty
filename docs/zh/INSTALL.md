@@ -136,11 +136,13 @@ Pigsty 会在 [Bootstrap/准备](#准备) 时，提示下载对应的离线软�
 
 ```bash
 # CDN EL 7,8,9
+curl -L https://get.pigsty.cc/v2.3.0/pigsty-v2.3.0.tgz -o ~/pigsty.tgz                 # 源码
 curl -L https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
 curl -L https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
 curl -L https://get.pigsty.cc/v2.3.0/pigsty-pkg-v2.3.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
 
 # GITHUB EL 7,8,9
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-v2.3.0.tgz -o ~/pigsty.tgz                 # 源码
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.0/pigsty-pkg-v2.3.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7

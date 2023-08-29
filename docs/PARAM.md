@@ -2982,6 +2982,31 @@ redis_cluster_replicas: 1         # replica number for one master in redis clust
 ```
 
 
+
+### `redis_cluster`
+
+name: `redis_cluster`, type: `string`, level: `C`
+
+redis cluster name, required identity parameter.
+
+no default value, you have to define it explicitly.
+
+Comply with regexp `[a-z][a-z0-9-]*`, it is recommended to use the same name as the group name and start with `redis-`
+
+
+
+
+### `redis_node`
+
+name: `redis_node`, type: `int`, level: `I`
+
+redis node sequence number,  unique integer among redis cluster is required
+
+You have to explicitly define the node id for each redis node. integer start from 0 or 1.
+
+
+
+
 ### `redis_instances`
 
 name: `redis_instances`, type: `dict`, level: `I`
@@ -3000,26 +3025,15 @@ redis-test: # redis native cluster: 3m x 3s
   vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
 ```
 
+The port number should be unique among the **node**, and the `replica_of` in `value` should be instance member of the same redis **cluster**. 
 
+```yaml
+redis_instances:
+    6501: {}
+    6502: { replica_of: '10.10.10.13 6501' }
+    6503: { replica_of: '10.10.10.13 6501' }
+```
 
-### `redis_node`
-
-name: `redis_node`, type: `int`, level: `I`
-
-redis node sequence number,  unique integer among redis cluster is required
-
-You have to explicitly define the node id for each redis node.
-
-
-
-
-### `redis_cluster`
-
-name: `redis_cluster`, type: `string`, level: `C`
-
-redis cluster name, required identity parameter
-
-no default value, you have to define it explicitly.
 
 
 
@@ -3063,7 +3077,7 @@ default values: `9121`
 
 name: `redis_exporter_options`, type: `string`, level: `C/I`
 
-cli args and extra options for redis exporter
+cli args and extra options for redis exporter, will be added to `/etc/defaut/redis_exporter`.
 
 default value is empty string
 

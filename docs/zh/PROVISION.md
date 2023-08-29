@@ -62,6 +62,7 @@ Pigsty 带有一个演示沙箱，所谓沙箱，就是专门用来演示/测试
 brew install vagrant virtualbox ansible   # 在 MacOS 中可以轻松一键安装，但只有 x86_64 Intel 芯片的可以 
 ```
 
+
 ----------------
 
 ### 配置

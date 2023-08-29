@@ -1,6 +1,6 @@
 # NODE
 
-> 纳管节点，将其调整至所需状态，并进行监控。
+> 纳管节点，将其调整至所需状态，并进行监控。 [配置](#配置) | [管理](#管理) | [剧本](#剧本) | [监控](#监控) | [参数](#参数)
 
 
 ----------------
@@ -9,42 +9,41 @@
 
 节点是硬件资源的抽象，它可以是裸机、虚拟机、容器或者是 k8s pods：只要装着操作系统，可以使用 CPU/内存/磁盘/网络 资源就行。
 
-在 Pigsty 中存在不同类型的节点：
+在 Pigsty 中存在不同类型的节点，它们的区别主要在于安装了不同的[模块](ARCH#模块)
 
-- **普通节点**：被 Pigsty 所管理的节点
-- **管理节点**：使用 Ansible 发出管理指令的节点
-- **基础设施节点**：安装 [`INFRA`](INFRA) 模块的节点
-- **PGSQL节点**：安装 [`PGSQL`](PGSQL) 模块的节点
-- 安装了其他模块的节点…… 
+- [普通节点](#普通节点)：被 Pigsty 所管理的普通节点
+- [ADMIN节点](#admin节点)：使用 Ansible 发出管理指令的节点
+- [INFRA节点](#infra节点)：安装 [`INFRA`](INFRA) 模块的节点
+- [PGSQL节点](#pgsql节点)：安装 [`PGSQL`](PGSQL) 模块的节点
+- 安装了其他[模块](ARCH#模块)的节点…… 
+
+在[单机安装](ARCH#单机安装)时，当前节点会被同时视作为管理节点、基础设施节点、PGSQL 节点，当然，它也是一个普通的节点。
 
 
 ----------------
 
-**通用节点**
+### 普通节点
 
 你可以使用 Pigsty 管理节点，并在其上安装模块。`node.yml` 剧本将调整节点至所需状态。以下服务默认会被添加到所有节点：
 
-|      组件       |  端口  | 描述           |
-|:-------------:|:----:|--------------|
-| Node Exporter | 9100 | 节点监控指标导出器    |
-| HAProxy Admin | 9101 | HAProxy 管理页面 |
-|   Promtail    | 9080 | 日志收集代理       |
+|         组件          |  端口  | 描述                 | 状态     |
+|:-------------------:|:----:|--------------------|--------|
+|    Node Exporter    | 9100 | 节点监控指标导出器          | 默认启用   |
+|    HAProxy Admin    | 9101 | HAProxy 管理页面       | 默认启用   |
+|      Promtail       | 9080 | 日志收集代理             | 默认启用   |
+|    Docker Daemon    | 9323 | 启用容器支持             | *按需启用* |
+|     Keepalived      |  -   | 负责管理主机集群 L2 VIP    | *按需启用* |
+| Keepalived Exporter | 9650 | 负责监控 Keepalived 状态 | *按需启用* |
 
-此外，您可以为节点选装 Docker 与 Keepalived，这两个组件默认不启用。
 
-|         组件          |  端口  | 描述                 |
-|:-------------------:|:----:|--------------------|
-|    Docker Daemon    | 9323 | 启用容器支持             |
-|     Keepalived      |  -   | 负责管理主机集群 L2 VIP    |
-| Keepalived Exporter | 9650 | 负责监控 Keepalived 状态 |
-
+此外，您可以为节点选装 Docker 与 Keepalived（及其监控 keepalived exporter），这两个组件默认不启用。
 
 
 ----------------
 
-**管理节点**
+### ADMIN节点
 
-在一套 pigsty 部署中会有且只有一个管理节点，由 [`admin_ip`](PARAM#admin_ip) 指定。在单机安装的[配置](INSTALL#配置)过程中，它会被被设置为该机器的首要IP地址。
+在一套 Pigsty 部署中会有且只有一个管理节点，由 [`admin_ip`](PARAM#admin_ip) 指定。在单机安装的[配置](INSTALL#配置)过程中，它会被被设置为该机器的首要IP地址。
 
 该节点将具有对所有其他节点的 `ssh/sudo` 访问权限：管理节点的安全至关重要，请确保它的访问受到严格控制。
 
@@ -53,41 +52,99 @@
 
 ----------------
 
-**INFRA节点**
+### INFRA节点
 
-一套 Pigsty 部署可能有一个或多个 基础设施节点（infra节点），在大型生产环境中可能会有 2 ~ 3 个。
+一套 Pigsty 部署可能有一个或多个 基础设施节点（INFRA节点），在大型生产环境中可能会有 2 ~ 3 个。
 
-配置清单中的 `infra` 分组列出并指定了哪些节点是 infra 节点，这些节点会安装 [INFRA](INFRA) 模块（DNS、Nginx、Prometheus、Grafana 等...）。
+配置清单中的 `infra` 分组列出并指定了哪些节点是INFRA节点，这些节点会安装 [INFRA](INFRA) 模块（DNS、Nginx、Prometheus、Grafana 等...）。
 
-管理节点通常是是 Infra节点分组中的第一台，其他Infra节点可以被用作"备用"的管理节点。
+管理节点通常是是INFRA节点分组中的第一台，其他INFRA节点可以被用作"备用"的管理节点。
 
 
 ----------------
 
-**PGSQL 节点**
+### PGSQL节点
 
 安装了 [PGSQL](PGSQL) 模块的节点被称为 PGSQL 节点。节点和 PostgreSQL 实例是1:1部署的。
-在这种情况下，节点默认可以从相应的 pg 实例借用身份：[`node_id_from_pg`](PARAM#node_id_from_pg) 参数会控制这一点。
 
-|         组件          |  端口  | 描述                                |
-|:-------------------:|:----:|-----------------------------------|
-|      Postgres       | 5432 | Pigsty CMDB                       |
-|      Pgbouncer      | 6432 | Pgbouncer 连接池服务                   |
-|       Patroni       | 8008 | Patroni 高可用组件                     |
-|   Haproxy Primary   | 5433 | 主连接池：读/写服务                        |
-|   Haproxy Replica   | 5434 | 副本连接池：只读服务                        |
-|   Haproxy Default   | 5436 | 主直连服务                             |
-|   Haproxy Offline   | 5438 | 离线直连：离线读服务                        |
-|  Haproxy `service`  | 543x | PostgreSQL 定制服务                   |
-|    Haproxy Admin    | 9101 | 监控指标和流量管理                         |
-|     PG Exporter     | 9630 | PG 监控指标导出器                        |
-| PGBouncer Exporter  | 9631 | PGBouncer 监控指标导出器                 |
-|    Node Exporter    | 9100 | 节点监控指标导出器                         |
-|      Promtail       | 9080 | 收集 Postgres、Pgbouncer、Patroni 的日志 |
-|     vip-manager     |  -   | 将 VIP 绑定到主节点                      |
-|     keepalived      |  -   | 为整个集群绑定 L2 VIP（默认不启用）             |
-| Keepalived Exporter | 9650 | Keepalived 指标导出器（默认不启用）           |
-|    Docker Daemon    | 9323 | Docker 守护进程（默认不启用）                |
+在这种情况下，PGSQL节点可以从相应的 PostgreSQL 实例上借用身份：[`node_id_from_pg`](PARAM#node_id_from_pg) 参数会控制这一点。
+
+|         组件          |  端口  | 描述                | 状态     |
+|:-------------------:|:----:|-------------------|--------|
+|      Postgres       | 5432 | Pigsty CMDB       | 默认启用   |
+|      Pgbouncer      | 6432 | Pgbouncer 连接池服务   | 默认启用   |
+|       Patroni       | 8008 | Patroni 高可用组件     | 默认启用   |
+|   Haproxy Primary   | 5433 | 主连接池：读/写服务        | 默认启用   |
+|   Haproxy Replica   | 5434 | 副本连接池：只读服务        | 默认启用   |
+|   Haproxy Default   | 5436 | 主直连服务             | 默认启用   |
+|   Haproxy Offline   | 5438 | 离线直连：离线读服务        | 默认启用   |
+|  Haproxy `service`  | 543x | PostgreSQL 定制服务   | *按需定制* |
+|    Haproxy Admin    | 9101 | 监控指标和流量管理         | 默认启用   |
+|     PG Exporter     | 9630 | PG 监控指标导出器        | 默认启用   |
+| PGBouncer Exporter  | 9631 | PGBouncer 监控指标导出器 | 默认启用   |
+|    Node Exporter    | 9100 | 节点监控指标导出器         | 默认启用   |
+|      Promtail       | 9080 | 收集数据库组件与主机日志      | 默认启用   |
+|     vip-manager     |  -   | 将 VIP 绑定到主节点      | *按需启用* |
+|    Docker Daemon    | 9323 | Docker 守护进程       | *按需启用* |
+|     keepalived      |  -   | 为整个集群绑定 L2 VIP    | *按需启用* |
+| Keepalived Exporter | 9650 | Keepalived 指标导出器  | *按需启用* |
+
+PGSQL节点会使用到[INFRA节点](#infra节点)上的一些服务，具体来说包括：
+
+* 数据库集群/主机节点的域名，依赖INFRA节点的 DNSMASQ **解析**。
+* 在数据库节点软件上**安装**需要用到基础设施节点上由Nginx托管的本地Yum软件源。
+* 数据库集群/节点的监控**指标**会被INFRA节点的Prometheus收集抓取。
+* 数据库节点的日志会被 Promtail 收集并发往 INFRA节点上的Loki。
+* Pigsty会从Admin节点上发起对数据库节点的**管理**:
+    * 执行集群创建，扩缩容，实例/集群回收
+    * 创建业务用户、业务数据库、修改服务、HBA修改；
+    * 执行日志采集、垃圾清理，备份，巡检等
+* 数据库节点默认会从INFRA/ADMIN节点（或其他NTP服务器）同步时间
+
+
+----------------
+
+## 配置
+
+Pigsty使用**IP地址**作为**节点**的唯一身份标识，**该IP地址应当是数据库实例监听并对外提供服务的内网IP地址**。
+
+```yaml
+node-test:
+  hosts:
+    10.10.10.11: { nodename: node-test-1 }
+    10.10.10.12: { nodename: node-test-2 }
+    10.10.10.13: { nodename: node-test-3 }
+  vars:
+    node_cluster: node-test
+```
+
+**该IP地址必须是数据库实例监听并对外提供服务的IP地址**，但不宜使用公网IP地址。尽管如此，用户并不一定非要通过该IP地址连接至该数据库。
+例如，通过SSH隧道或跳板机中转的方式间接操作管理目标节点也是可行的。
+但在标识数据库节点时，首要IPv4地址依然是节点的核心标识符。**这一点非常重要，用户应当在配置时保证这一点**。
+IP地址即配置清单中主机的`inventory_hostname` ，体现为`<cluster>.hosts`对象中的`key`。除此之外，每个节点还有两个额外的 [身份参数](PARAM#NODE_ID)：
+
+|                  名称                  |    类型    |  层级   | 必要性    | 说明         |
+|:------------------------------------:|:--------:|:-----:|--------|------------|
+|         `inventory_hostname`         |   `ip`   | **-** | **必选** | **节点IP地址** |
+|     [`nodename`](PARAM#nodename)     | `string` | **I** | 可选     | **节点名称**   |
+| [`node_cluster`](PARAM#node_cluster) | `string` | **C** | 可选     | **节点集群名称** |
+
+[`nodename`]PARAM(#nodename) 与 [`node_cluster`](PARAM#node_cluster) 两个参数是可选的，如果不提供，会使用节点现有的主机名，和固定值 `nodes` 作为默认值。
+在 Pigsty 的监控系统中，这两者将会被用作节点的 **集群标识** （`cls`） 与 **实例标识**（`ins`） 。
+
+对于 [PGSQL节点](#pgsql节点) 来说，因为Pigsty默认采用PG:节点独占1:1部署，因此可以通过 [`node_id_from_pg`](PARAM#node_id_from_pg) 参数，
+将 PostgreSQL 实例的身份参数（ [`pg_cluster`](PARAM#pg_cluster) 与 [`pg_seq`](PARAM#pg_seq)） 借用至节点的`ins`与`cls`标签上，从而让数据库与节点的监控指标拥有相同的标签，便于交叉分析。
+
+```yaml
+#nodename:                # [实例] # 节点实例标识，如缺失则使用现有主机名，可选，无默认值
+node_cluster: nodes       # [集群] # 节点集群标识，如缺失则使用默认值'nodes'，可选
+nodename_overwrite: true          # 用 nodename 覆盖节点的主机名吗？
+nodename_exchange: false          # 在剧本主机之间交换 nodename 吗？
+node_id_from_pg: true             # 如果可行，是否借用 postgres 身份作为节点身份？
+```
+
+您还可以为主机集群配置丰富的功能参数，例如，使用节点集群上的 HAProxy 对外提供负载均衡，暴露服务，或者为集群绑定一个 L2 VIP。  
+
 
 
 
@@ -95,28 +152,48 @@
 
 ## 管理
 
+下面是 Node 模块中常用的管理操作：
 
-**添加节点**
+- [添加节点](#添加节点)
+- [移除节点](#移除节点)
+- [创建管理员](#创建管理员)
+- [绑定VIP](#绑定VIP)
+- [刷新HAProxy服务](#刷新HAProxy服务)
+- [其他常见管理任务](#其他常见管理任务)
+
+更多问题请参考 [FAQ：NODE](FAQ#NODE)
+
+----------------
+
+### 添加节点
 
 要将节点添加到 Pigsty，您需要对该节点具有无密码的 ssh/sudo 访问权限。
 
+您也可以选择一次性添加一个集群，或使用通配符匹配配置清单中要加入 Pigsty 的节点。
+
 ```bash
-bin/node-add [ip...]      # 将节点添加到 pigsty: ./node.yml -l <cls|ip|group>
+# bin/node-add <cls|ip|selector> ...  # 向 Pigsty 中添加节点，实际上是： ./node.yml -l <cls|ip|group>
+bin/node-add node-test                # 初始化节点集群 'node-test'
+bin/node-add 10.10.10.10              # 初始化节点  '10.10.10.10'
 ```
 
 ----------------
 
-**移除节点**
+### 移除节点
 
 要从 Pigsty 中移除一个节点，您可以使用以下命令：
 
 ```bash
-bin/node-rm [ip...]       # 从 pigsty 中移除节点: ./node-rm.yml -l <cls|ip|group>
+# bin/node-rm <cls|ip|selector> ...  # 从 pigsty 中移除节点，实际上是 ./node-rm.yml -l <cls|ip|group>
+bin/node-rm node-test                # 移除节点集群 'node-test'
+bin/node-rm 10.10.10.10              # 移除节点 '10.10.10.10'
 ```
+
+您也可以选择一次性移除一个集群，或使用通配符匹配配置清单中要从 Pigsty 移除的节点。
 
 ----------------
 
-**创建管理员**
+### 创建管理员
 
 如果当前用户没有对节点的无密码 ssh/sudo 访问权限，您可以使用另一个管理员用户来初始化该节点：
 
@@ -126,7 +203,7 @@ node.yml -t node_admin -k -K -e ansible_user=<另一个管理员>   # 为另一�
 
 ----------------
 
-**绑定 VIP**
+### 绑定VIP
 
 您可以在节点集群上绑定一个可选的 L2 VIP，使用 [`vip_enabled`](PARAM#vip_enabled) 参数。
 
@@ -148,6 +225,46 @@ proxy:
 ./node.yml -l proxy -t vip_refresh  # 刷新 vip 配置（例如指定 master）
 ```
 
+----------------
+
+### 其他常见管理任务
+
+```bash
+# Play
+./node.yml -t node                            # 完成节点主体初始化（haproxy，监控除外）
+./node.yml -t haproxy                         # 在节点上设置 haproxy
+./node.yml -t monitor                         # 配置节点监控：node_exporter & promtail （以及可选的 keepalived_exporter）
+./node.yml -t node_vip                        # 为没启用过 VIP 的集群安装、配置、启用L2 VIP
+./node.yml -t vip_config,vip_reload           # 刷新节点L2 VIP配置
+./node.yml -t haproxy_config,haproxy_reload   # 刷新节点上的服务定义
+./node.yml -t register_prometheus             # 重新将节点注册到 Prometheus 中
+./node.yml -t register_nginx                  # 重新将节点 haproxy 管控界面注册到 Nginx 中
+
+# Task
+./node.yml -t node-id        # 生成节点身份标识
+./node.yml -t node_name      # 设置主机名
+./node.yml -t node_hosts     # 配置节点 /etc/hosts 记录
+./node.yml -t node_resolv    # 配置节点 DNS 解析器 /etc/resolv.conf
+./node.yml -t node_firewall  # 配置防火墙 & selinux
+./node.yml -t node_ca        # 配置节点的CA证书
+./node.yml -t node_repo      # 配置节点上游软件仓库
+./node.yml -t node_pkg       # 在节点上安装 yum 软件包
+./node.yml -t node_feature   # 配置 numa、grub、静态网络等特性
+./node.yml -t node_kernel    # 配置操作系统内核模块
+./node.yml -t node_tune      # 配置 tuned 调优模板
+./node.yml -t node_sysctl    # 设置额外的 sysctl 参数
+./node.yml -t node_profile   # 配置节点环境变量：/etc/profile.d/node.sh
+./node.yml -t node_ulimit    # 配置节点资源限制
+./node.yml -t node_data      # 配置节点首要数据目录
+./node.yml -t node_admin     # 配置管理员用户和ssh密钥
+./node.yml -t node_timezone  # 配置节点时区
+./node.yml -t node_ntp       # 配置节点 NTP 服务器/客户端
+./node.yml -t node_crontab   # 添加/覆盖 crontab 定时任务
+./node.yml -t node_vip       # 为节点集群设置可选的 L2 VIP
+```
+
+
+
 
 
 ----------------
@@ -156,10 +273,71 @@ proxy:
 
 Pigsty 提供了两个与 NODE 模块相关的剧本，分别用于纳管与移除节点。
 
-* [`node.yml`](https://github.com/vonng/pigsty/blob/master/node.yml)：纳管节点，并调整节点到期望的状态
-* [`node-rm.yml`](https://github.com/vonng/pigsty/blob/master/node-rm.yml)：从 pigsty 中移除纳管节点
+* [`node.yml`](#nodeyml)：纳管节点，并调整节点到期望的状态
+* [`node-rm.yml`](#node-rmyml)：从 pigsty 中移除纳管节点
+
+此外， Pigsty 还提供了两个包装命令工具：`node-add` 与 `node-rm`，用于快速调用剧本。
+
+
+----------------
+
+### `node.yml`
+
+向 Pigsty 添加节点的 [`node.yml`](https://github.com/vonng/pigsty/blob/master/node.yml) 包含以下子任务：
+
+```bash
+node-id       ：生成节点身份标识
+node_name     ：设置主机名
+node_hosts    ：配置 /etc/hosts 记录
+node_resolv   ：配置 DNS 解析器 /etc/resolv.conf
+node_firewall ：设置防火墙 & selinux
+node_ca       ：添加并信任CA证书
+node_repo     ：添加上游软件仓库
+node_pkg      ：安装 yum 软件包
+node_feature  ：配置 numa、grub、静态网络等特性
+node_kernel   ：配置操作系统内核模块
+node_tune     ：配置 tuned 调优模板
+node_sysctl   ：设置额外的 sysctl 参数
+node_profile  ：写入 /etc/profile.d/node.sh
+node_ulimit   ：配置资源限制
+node_data     ：配置数据目录
+node_admin    ：配置管理员用户和ssh密钥
+node_timezone ：配置时区
+node_ntp      ：配置 NTP 服务器/客户端
+node_crontab  ：添加/覆盖 crontab 定时任务
+node_vip      ：为节点集群设置可选的 L2 VIP
+haproxy       ：在节点上设置 haproxy 以暴露服务
+monitor       ：配置节点监控：node_exporter & promtail
+```
+
+<details><summary>示例：使用 node.yml 初始化节点集群</summary>
 
 [![asciicast](https://asciinema.org/a/568807.svg)](https://asciinema.org/a/568807)
+
+</details>
+
+
+
+----------------
+
+### `node-rm.yml`
+
+从 Pigsty 中移除节点的剧本 [`node-rm.yml`](https://github.com/vonng/pigsty/blob/master/node-rm.yml) 包含了以下子任务：
+
+```bash
+register       : 从 prometheus & nginx 中移除节点注册信息
+  - prometheus : 移除已注册的 prometheus 监控目标
+  - nginx      : 移除用于 haproxy 管理界面的 nginx 代理记录
+vip            : 移除节点的 keepalived 与 L2 VIP（如果启用 VIP）
+haproxy        : 移除 haproxy 负载均衡器
+node_exporter  : 移除节点监控：Node Exporter
+vip_exporter   : 移除 keepalived_exporter （如果启用 VIP）
+promtail       : 移除 loki 日志代理 promtail
+profile        : 移除 /etc/profile.d/node.sh 环境配置文件
+```
+
+
+
 
 
 

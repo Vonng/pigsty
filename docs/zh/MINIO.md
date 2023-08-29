@@ -1,43 +1,13 @@
 # MINIO
 
-> [Min.IO](https://min.io/docs/minio/linux/reference/minio-mc/mc-mb.html): S3兼容的开源多云对象存储
+> [Min.IO](https://min.io/docs/minio/linux/reference/minio-mc/mc-mb.html): S3兼容的开源多云对象存储。 [配置](#配置) | [管理](#管理) | [剧本](#剧本) | [监控](#监控) | [参数](#参数)
 
 MinIO 是一个与 S3 兼容的对象存储服务，可以用来存储文档、图片、视频和备份。它支持原生的多节点多磁盘的高可用部署，可扩展、安全且易于使用。
 
 Pigsty 中的 PGSQL 模块默认会使用本地 posix 文件系统存储备份，但您也可以选择使用 MinIO，或者外部的 S3 服务作为集中式的备份存储。
 如果使用 MinIO 作为备份存储库，那么在部署 PGSQL 集群前应当首先初始化 MinIO 集群。
 
-
-----------------
-
-## 剧本
-
-MinIO 模块提供了一个默认的剧本 [`minio.yml`](https://github.com/Vonng/pigsty/blob/master/minio.yml) ，用于安装 MinIO 集群。但首先你需要[定义](#配置)它。
-
-```bash
-./minio.yml -l minio   # 在 'minio' 分组上完成 MINIO 集群初始化
-```
-
-- `minio-id`        : 生成/校验 minio 身份参数
-- `minio_os_user`   : 创建操作系统用户 minio
-- `minio_install`   : 安装 minio/mcli 软件包
-- `minio_clean`     : 移除 minio 数据目录 (默认不移除)
-- `minio_dir`       : 创建 minio 目录
-- `minio_config`    : 生成 minio 配置
-  - `minio_conf`    : minio 主配置文件
-  - `minio_cert`    : minio SSL证书签发
-  - `minio_dns`     : minio DNS记录插入
-- `minio_launch`    : minio 服务启动
-- `minio_register`  : minio 纳入监控
-- `minio_provision` : 创建 minio 别名/存储桶/业务用户
-  - `minio_alias`   : 创建 minio 客户端别名（管理节点上）
-  - `minio_bucket`  : 创建 minio 存储桶
-  - `minio_user`    : 创建 minio 业务用户
-
 MinIO 模块需要安装在 Pigsty 纳管的节点上（也就是安装了 [`NODE`](NODE) 模块的节点），因为生产环境中的 MinIO 必须要使用 SSL 证书，所以会用到节点上的 CA。
-
-[![asciicast](https://asciinema.org/a/566415.svg)](https://asciinema.org/a/566415)
-
 
 
 ----------------
@@ -46,7 +16,13 @@ MinIO 模块需要安装在 Pigsty 纳管的节点上（也就是安装了 [`NOD
 
 在部署之前，你需要定义一个 MinIO 集群。MinIO 有一些[参数](#参数)可以配置。
 
-下面是三种典型的部署场景：
+- [单机单盘](#单机单盘)
+- [单机多盘](#单机多盘)
+- [多机多盘](#多机多盘)
+- [暴露服务](#暴露服务)
+- [访问服务](#访问服务)
+- [单机单盘](#暴露管控)
+
 
 
 ----------------
@@ -150,6 +126,7 @@ minio:
           - { name: minio-3 ,ip: 10.10.10.12 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
 ```
 
+----------------
 
 ### 访问服务
 
@@ -177,7 +154,7 @@ minio_ha:
 
 ----------------
 
-### 暴露管控界面
+### 暴露管控
 
 MinIO 默认在端口 `9001` 上提供一个Web管控界面。
 
@@ -195,14 +172,25 @@ infra_portal:   # 域名和上游服务器定义
 
 
 
+
 ----------------
 
 ## 管理
 
-以下是一些常见的 MinIO `mcli` 命令供参考，详细信息请查看 [MinIO 客户端](https://min.io/docs/minio/linux/reference/minio-mc.html)。
+下面是 MinIO 模块中常用的管理命令，更多问题请参考 [FAQ：MINIO](FAQ#MINIO)。
 
 
-**设置别名**
+### 创建集群
+
+```bash
+./minio.yml -l minio   # 在 'minio' 分组上完成 MINIO 集群初始化
+```
+
+----------------
+
+### 客户端配置
+
+要使用 `mcli` 客户端访问 `minio` 服务器集群，首先要配置服务器的别名（`alias`）：
 
 ```bash
 mcli alias ls  # 列出 minio 别名（默认使用sss）
@@ -210,7 +198,7 @@ mcli alias set sss https://sss.pigsty:9000 minioadmin minioadmin              # 
 mcli alias set pgbackrest https://sss.pigsty:9000 pgbackrest S3User.Backup    # 备份用户
 ```
 
-**用户管理**
+使用 `mcli` 可以管理 MinIO 中的业务用户，例如这里我们可以使用命令行创建两个业务用户：
 
 ```bash
 mcli admin user list sss     # 列出 sss 上的所有用户
@@ -220,7 +208,14 @@ mcli admin user add sss pgbackrest S3User.Backup
 set -o history 
 ```
 
-**存储桶增删改查**
+MinIO `mcli` 的完整功能参考，请查阅文档： [MinIO 客户端](https://min.io/docs/minio/linux/reference/minio-mc.html)。
+
+
+----------------
+
+### 增删改查
+
+**您可以对MinIO中的存储桶进行增删改查**
 
 ```bash
 mcli ls sss/                         # 列出别名 'sss' 的所有桶
@@ -228,12 +223,47 @@ mcli mb --ignore-existing sss/hello  # 创建名为 'hello' 的桶
 mcli rb --force sss/hello            # 强制删除 'hello' 桶
 ```
 
-**对象增删改查**
+**您也可以对存储桶内的对象进行增删改查**
 
 ```bash
 mcli cp -r /www/pigsty/*.rpm sss/infra/repo/                # 将文件上传到前缀为 'repo' 的 'infra' 桶中
 mcli cp sss/infra/repo/pg_exporter-0.5.0.x86_64.rpm /tmp/  # 从 minio 下载文件到本地
 ```
+
+
+
+
+
+----------------
+
+## 剧本
+
+MinIO 模块提供了一个默认的剧本 [`minio.yml`](#minioyml) ，用于安装 MinIO 集群。但首先你需要[定义](#配置)它。
+
+### `minio.yml`
+
+剧本 [`minio.yml`](https://github.com/Vonng/pigsty/blob/master/minio.yml) 用于在节点上安装 MinIO 模块。
+
+- `minio-id`        : 生成/校验 minio 身份参数
+- `minio_os_user`   : 创建操作系统用户 minio
+- `minio_install`   : 安装 minio/mcli 软件包
+- `minio_clean`     : 移除 minio 数据目录 (默认不移除)
+- `minio_dir`       : 创建 minio 目录
+- `minio_config`    : 生成 minio 配置
+  - `minio_conf`    : minio 主配置文件
+  - `minio_cert`    : minio SSL证书签发
+  - `minio_dns`     : minio DNS记录插入
+- `minio_launch`    : minio 服务启动
+- `minio_register`  : minio 纳入监控
+- `minio_provision` : 创建 minio 别名/存储桶/业务用户
+  - `minio_alias`   : 创建 minio 客户端别名（管理节点上）
+  - `minio_bucket`  : 创建 minio 存储桶
+  - `minio_user`    : 创建 minio 业务用户
+
+[![asciicast](https://asciinema.org/a/566415.svg)](https://asciinema.org/a/566415)
+
+
+
 
 
 
@@ -243,24 +273,16 @@ mcli cp sss/infra/repo/pg_exporter-0.5.0.x86_64.rpm /tmp/  # 从 minio 下载文
 
 Pigsty 提供了两个与 [`MINIO`](MINIO) 模块有关的监控面板：
 
+### MinIO Overview
 
-[MinIO Overview](https://demo.pigsty.cc/d/minio-overview): 一套 MinIO 集群的监控指标概览
+[MinIO Overview](https://demo.pigsty.cc/d/minio-overview) 展示了 MinIO 集群的整体监控指标。
 
-<details><summary>MinIO Overview Dashboard</summary>
+[MinIO Instance](https://demo.pigsty.cc/d/minio-instance) 展示了单个 MinIO 实例的监控指标详情
 
-![](/img/dashboards/minio-overview.png)
-
-</details><br>
-
+[![minio-overview](https://github.com/Vonng/pigsty/assets/8587410/6885c4dc-d9b6-4f22-ab77-9ea42ee2d590)](https://demo.pigsty.cc/d/minio-overview)
 
 
-[MinIO Instance](https://demo.pigsty.cc/d/minio-instance): 单个 MinIO 实例的监控指标详情
 
-<details><summary>MinIO Instance Dashboard</summary>
-
-![](/img/dashboards/minio-instance.png)
-
-</details><br>
 
 
 
@@ -291,21 +313,21 @@ Pigsty 提供了两个与 [`MINIO`](MINIO) 模块有关的监控面板：
 
 
 ```yaml
-#minio_seq: 1                     # minio instance identifier, REQUIRED
-minio_cluster: minio              # minio cluster name, minio by default
-minio_clean: false                # cleanup minio during init?, false by default
-minio_user: minio                 # minio os user, `minio` by default
-minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio node name pattern
-minio_data: '/data/minio'         # minio data dir(s), use {x...y} to specify multi drivers
-minio_domain: sss.pigsty          # minio external domain name, `sss.pigsty` by default
-minio_port: 9000                  # minio service port, 9000 by default
-minio_admin_port: 9001            # minio console port, 9001 by default
-minio_access_key: minioadmin      # root access key, `minioadmin` by default
-minio_secret_key: minioadmin      # root secret key, `minioadmin` by default
-minio_extra_vars: ''              # extra environment variables
-minio_alias: sss                  # alias name for local minio deployment
-minio_buckets: [ { name: pgsql }, { name: infra },  { name: redis } ]
-minio_users:
+#minio_seq: 1                     # minio 实例标识符，必填
+minio_cluster: minio              # minio 集群名称，默认为 minio
+minio_clean: false                # 初始化时清除 minio？默认为 false
+minio_user: minio                 # minio 操作系统用户，默认为 `minio`
+minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio 节点名模式
+minio_data: '/data/minio'         # minio 数据目录，使用 `{x...y}` 指定多个磁盘
+minio_domain: sss.pigsty          # minio 外部域名，默认为 `sss.pigsty`
+minio_port: 9000                  # minio 服务端口，默认为 9000
+minio_admin_port: 9001            # minio 控制台端口，默认为 9001
+minio_access_key: minioadmin      # 根访问密钥，默认为 `minioadmin`
+minio_secret_key: minioadmin      # 根密钥，默认为 `minioadmin`
+minio_extra_vars: ''              # minio 服务器的额外环境变量
+minio_alias: sss                  # minio 部署的客户端别名
+minio_buckets: [ { name: pgsql }, { name: infra },  { name: redis } ] # 待创建的 minio 存储桶列表
+minio_users:                      # 待创建的 minio 用户列表
   - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
   - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
 ```

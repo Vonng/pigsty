@@ -427,8 +427,6 @@ minio:
 
 </details><br>
 
-
-
 详情请参考 [**Pigsty配置**](config) 与 [**PGSQL配置**](pgsql-conf)。
 
 

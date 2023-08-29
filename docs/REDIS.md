@@ -92,15 +92,12 @@ bin/redis-rm 10.10.10.10 6501   # remove redis instance '10.10.10.10:6501'
 
 ```bash
 # init all redis instances on group <cluster>
-./redis.yml -l <cluster>      # create redis cluster
+./redis.yml -l <cluster>      # init redis cluster
 
-# init redis node (package,dir,exporter)
-./redis.yml -l 10.10.10.10    # create redis cluster
+# init redis node
+./redis.yml -l 10.10.10.10    # init redis node
 
-# init all redis instances specific node
-./redis.yml -l 10.10.10.10    # create redis cluster
-
-# init one specific instance 10.10.10.11:6501
+# init one specific redis instance 10.10.10.11:6501
 ./redis.yml -l 10.10.10.11 -e redis_port=6501 -t redis
 ```
 

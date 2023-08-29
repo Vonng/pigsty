@@ -1,29 +1,6 @@
 # MongoDB (FerretDB)
 
-> 使用 [FerretDB](https://ferretdb.io) 为 PostgreSQL 添加 MongoDB 兼容的协议支持！
-
-
-----------------
-
-## 剧本
-
-Pigsty 提供了一个内置的剧本： [`mongo.yml`](https://github.com/Vonng/pigsty/blob/master/mongo.yml)，用于在节点上安装 FerretDB 集群。
-
-当然，您需要在[配置清单](CONFIG)中先[定义](#配置)好这个集群。
-
-```bash
-./mongo.yml -l ferret   # 在 ferret 分组上安装“MongoDB/FerretDB”
-```
-
-该剧本由以下子任务组成：
-
-- mongo_check     : 检查 mongo 身份参数
-- mongo_dbsu      : 创建操作系统用户 mongod
-- mongo_install   : 安装 mongo/ferretdb RPM包
-- mongo_config    : 配置 mongo/ferretdb
-  - mongo_cert    : 签发 mongo/ferretdb SSL证书
-- mongo_launch    : 启动 mongo/ferretdb 服务
-- mongo_register  : 将 mongo/ferretdb 注册到 Prometheus 监控中
+> 使用 [FerretDB](https://ferretdb.io) 为 PostgreSQL 添加 MongoDB 兼容的协议支持！ [配置](#配置) | [管理](#管理) | [剧本](#剧本) | [监控](#监控) | [参数](#参数)
 
 
 ----------------
@@ -46,11 +23,24 @@ ferret:
 这里 `mongo_cluster` 与 `mongo_seq` 属于不可或缺的身份参数，对于 FerretDB 来说，还有一个必须提供的参数是 `mongo_pgurl`。
 
 
+
+
+
 ----------------
 
 ## 管理
 
-在裸机上安装 MongoSH 客户端工具：
+
+### 创建Mongo集群
+
+在[配置清单](CONFIG)中[定义](#配置)好MONGO集群后，您可以使用以下命令完成安装。
+
+```bash
+./mongo.yml -l ferret   # 在 ferret 分组上安装“MongoDB/FerretDB”
+```
+
+
+**在裸机上安装 MongoSH 客户端工具**
 
 ```bash
 cat > /etc/yum.repos.d/mongo.repo <<EOF
@@ -68,7 +58,7 @@ yum install -y mongodb-mongosh
 rpm -ivh https://mirrors.tuna.tsinghua.edu.cn/mongodb/yum/el7/RPMS/mongodb-mongosh-1.9.1.x86_64.rpm
 ```
 
-连接到 FerretDB，并使用mongosh执行增删改查命令：
+**连接到 FerretDB，并使用mongosh执行增删改查命令：**
 
 ```bash
 $ mongosh mongodb://dbuser_meta:DBUser.Meta@127.0.0.1:27017
@@ -128,19 +118,40 @@ mongosh 'mongodb://test:test@10.10.10.45:27017/test?authMechanism=PLAIN'
 
 ----------------
 
+## 剧本
+
+Pigsty 提供了一个内置的剧本： [`mongo.yml`](mongoyml)，用于在节点上安装 FerretDB 集群。
+
+### `mongo.yml`
+
+该剧本由以下子任务组成：
+
+- `mongo_check`   ：检查 mongo 身份参数
+- `mongo_dbsu`    ：创建操作系统用户 mongod
+- `mongo_install` ：安装 mongo/ferretdb RPM包
+- `mongo_config`  ：配置 mongo/ferretdb
+  - `mongo_cert`    ：签发 mongo/ferretdb SSL证书
+- `mongo_launch`  ：启动 mongo/ferretdb 服务
+- `mongo_register`：将 mongo/ferretdb 注册到 Prometheus 监控中
+
+
+
+
+----------------
+
 ## 监控
 
-MONGO 模块提供了一个简单的监控面板：
+MONGO 模块提供了一个简单的监控面板：Mongo Overview
+
+### Mongo Overview
 
 [Mongo Overview](https://demo.pigsty.cc/d/mongo-overview): Mongo/FerretDB 集群概览
-
-<details><summary>Mongo Overview Dashboard</summary>
 
 这个监控面板提供了关于 FerretDB 的基本监控指标，因为 FerretDB 底层使用了 PostgreSQL，所以更多的监控指标，还请参考 PostgreSQL 监控。
 
 [![mongo-overview](https://github.com/Vonng/pigsty/assets/8587410/406fc2ad-3935-4da9-b77c-2485afb57af8)](https://demo.pigsty.cc/d/mongo-overview)
 
-</details><br>
+
 
 
 

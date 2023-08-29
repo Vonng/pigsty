@@ -93,10 +93,13 @@ Pigsty 所纳管的每个节点上都默认启用了 Haproxy 以对外暴露服�
 这意味着即使您访问的是从库节点，只要使用正确的服务端口，就依然可以使用到主库读写的服务。
 这样的设计可以屏蔽复杂度：所以您只要可以访问 PostgreSQL 集群上的任意一个实例，就可以完整的访问到所有服务。
 
+
 这样的设计类似于 Kubernetes 中的 NodePort 服务，同样在 Pigsty 中，每一个服务都包括以下两个核心要素：
 
 1. 通过 NodePort 暴露的访问端点（端口号，从哪访问？）
 2. 通过 Selectors 选择的目标实例（实例列表，谁来承载？）
+
+Pigsty的服务交付边界止步于集群的HAProxy，用户可以用各种手段访问这些负载均衡器，请参考[接入服务](#接入服务)。
 
 所有的服务都通过配置文件进行声明，例如，PostgreSQL 默认服务就是由 [`pg_default_services`](param#pg_default_services) 参数所定义的：
 
@@ -346,7 +349,7 @@ Offline 服务需要额外的维护照顾：当集群发生主从切换或故障
 
 ## 重载服务
 
-当集群成员发生变化，如添加/删除副本、主备切换或调整相对权重时， 你必须 [重载服务](PGSQL-ADMIN#重载服务) 以使更改生效。
+当集群成员发生变化，如添加/删除副本、主备切换或调整相对权重时， 你需要 [重载服务](PGSQL-ADMIN#重载服务) 以使更改生效。
 
 ```bash
 bin/pgsql-svc <cls> [ip...]         # 为 lb 集群或 lb 实例重载服务
@@ -358,15 +361,11 @@ bin/pgsql-svc <cls> [ip...]         # 为 lb 集群或 lb 实例重载服务
 
 ## 接入服务
 
-Pigsty 使用 haproxy 提供 [服务](#服务概述)。默认情况下，所有节点都启用了它。
+Pigsty的服务交付边界止步于集群的HAProxy，用户可以用各种手段访问这些负载均衡器。
 
-haproxy 负载均衡器默认在相同的 pg 集群之间是幂等的，你可以通过任何方式使用它们。
+典型的做法是使用 DNS 或 VIP 接入，将其绑定在集群所有或任意数量的负载均衡器上。
 
-典型的方法是通过集群域名访问，它解析为集群的 L2 VIP，或者以轮询方式解析所有实例的 IP 地址。
-
-Service 可以以不同的方式实现，你甚至可以实现你自己的访问方法，如 L4 LVS、F5 等，而不是使用 haproxy。
-
-你可以使用不同的 Host & Port 组合，它们以不同的方式提供 PostgreSQL 服务。
+你可以使用不同的 主机 & 端口 组合，它们以不同的方式提供 PostgreSQL 服务。
 
 **主机**
 
@@ -437,41 +436,34 @@ postgres://test@10.10.10.11:6432,10.10.10.12:6432,10.10.10.13:6432/test?target_s
 
 ## 覆盖服务
 
-你可以通过多种方式覆盖默认的服务配置：
+你可以通过多种方式覆盖默认的服务配置，一种常见的需求是让 [Primary服务](#primary服务) 与 [Replica服务](#replica服务) 绕过Pgbouncer连接池，直接访问 PostgreSQL 数据库。
 
-**绕过Pgbouncer**
+为了实现这一点，你可以将 [`pg_default_service_dest`](param#pg_default_service_dest) 更改为 `postgres`，这样所有服务定义中 `svc.dest='default'` 的服务都会使用 `postgres` 而不是默认的 `pgbouncer` 作为目标。
 
-当定义一个服务时，如果 `svc.dest='default'`，此参数 [`pg_default_service_dest`](param#pg_default_service_dest) 将被用作默认值。 默认使用 `pgbouncer`，你可以改为使用 `postgres`，这样默认的主和副本服务将绕过pgbouncer，直接将流量路由到postgres。
+如果您已经将 [Primary服务](#primary服务) 指向了 PostgreSQL，那么 [default服务](#default服务) 就会比较多余，可以考虑移除。
 
-如果你完全不需要连接池，你可以将 [`pg_default_service_dest`](param#pg_default_service_dest) 更改为 `postgres`，并移除 `default` 和 `offline` 服务。
+如果您不需要区分个人交互式查询，分析/ETL慢查询，可以考虑从默认服务列表 [`pg_default_services`](PARAM#pg_default_services) 中移除[Offline服务](#offline服务)。
 
-如果你不需要只读副本来处理在线流量，你也可以从 `pg_default_services` 中移除 `replica`。
-
-```yaml
-pg_default_services:
-  - { name: primary ,port: 5433 ,dest: default  ,check: /primary   ,selector: "[]" }
-  - { name: replica ,port: 5434 ,dest: default  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
-  - { name: default ,port: 5436 ,dest: postgres ,check: /primary   ,selector: "[]" }
-  - { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
-```
+如果您不需要只读从库来分担在线只读流量，也可以从默认服务列表中移除 [Replica服务](#replica服务)。
 
 
 ---------------
 
 ## 委托服务
 
-Pigsty 通过节点上的 haproxy 暴露 PostgreSQL 服务。整个集群中的所有 haproxy 实例都使用相同的服务定义进行配置。
+Pigsty 通过节点上的 haproxy 暴露 PostgreSQL 服务。整个集群中的所有 haproxy 实例都使用相同的[服务定义](#定义服务)进行配置。
 
-但是，你可以将 pg 服务委托给特定的节点组（例如，专门的 haproxy 负载均衡器集群），而不是集群成员。
+但是，你可以将 pg 服务委托给特定的节点分组（例如，专门的 haproxy 负载均衡器集群），而不是 PostgreSQL 集群成员上的 haproxy。
 
 为此，你需要使用 [`pg_default_services`](param#pg_default_services) 覆盖默认的服务定义，并将 [`pg_service_provider`](param#pg_service_provider) 设置为代理组名称。
 
 例如，此配置将在端口 10013 的 `proxy` haproxy 节点组上公开 pg 集群的主服务。
 
 ```yaml
-
 pg_service_provider: proxy       # 使用端口 10013 上的 `proxy` 组的负载均衡器
 pg_default_services:  [{ name: primary ,port: 10013 ,dest: postgres  ,check: /primary   ,selector: "[]" }]
 ```
 
 用户需要确保每个委托服务的端口，在代理集群中都是**唯一**的。
+
+在42节点生产环境仿真[沙箱](PROVISION#沙箱环境)中提供了一个使用专用负载均衡器集群的例子：[prod.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/prod.yml#L111) 

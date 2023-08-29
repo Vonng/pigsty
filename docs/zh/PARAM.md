@@ -312,7 +312,7 @@ proxy_env:                        # global proxy env when downloading packages
 
 ### `version`
 
-name: `version`, type: `string`, level: `G`
+参数名称： `version`， 类型： `string`， 层次：`G`
 
 pigsty version string
 
@@ -326,7 +326,7 @@ It will be used for pigsty introspection & content rendering.
 
 ### `admin_ip`
 
-name: `admin_ip`, type: `ip`, level: `G`
+参数名称： `admin_ip`， 类型： `ip`， 层次：`G`
 
 admin node ip address
 
@@ -356,7 +356,7 @@ The exact string `${admin_ip}` will be replaced with the actual `admin_ip` for a
 
 ### `region`
 
-name: `region`, type: `enum`, level: `G`
+参数名称： `region`， 类型： `enum`， 层次：`G`
 
 upstream mirror region: default,china,europe
 
@@ -371,7 +371,7 @@ For example, if `china` is used,  pigsty will use China mirrors designated in [`
 
 ### `proxy_env`
 
-name: `proxy_env`, type: `dict`, level: `G`
+参数名称： `proxy_env`， 类型： `dict`， 层次：`G`
 
 global proxy env when downloading packages
 
@@ -407,7 +407,7 @@ cert_validity: 7300d              # cert validity, 20 years by default
 
 ### `ca_method`
 
-name: `ca_method`, type: `enum`, level: `G`
+参数名称： `ca_method`， 类型： `enum`， 层次：`G`
 
 available options: create,recreate,copy
 
@@ -425,7 +425,7 @@ If you already have a pair of `ca.crt` and `ca.key`, put them under `files/pki/c
 
 ### `ca_cn`
 
-name: `ca_cn`, type: `string`, level: `G`
+参数名称： `ca_cn`， 类型： `string`， 层次：`G`
 
 ca common name, not recommending to change it.
 
@@ -439,7 +439,7 @@ you can check that with  `openssl x509 -text -in /etc/pki/ca.crt`
 
 ### `cert_validity`
 
-name: `cert_validity`, type: `interval`, level: `G`
+参数名称： `cert_validity`， 类型： `interval`， 层次：`G`
 
 cert validity, 20 years by default, which is enough for most scenarios
 
@@ -473,7 +473,7 @@ infra_portal:                     # infra services exposed via portal
 
 ### `infra_seq`
 
-name: `infra_seq`, type: `int`, level: `I`
+参数名称： `infra_seq`， 类型： `int`， 层次：`I`
 
 infra node identity, REQUIRED, no default value, you have to assign it explicitly.
 
@@ -482,7 +482,7 @@ infra node identity, REQUIRED, no default value, you have to assign it explicitl
 
 ### `infra_portal`
 
-name: `infra_portal`, type: `dict`, level: `G`
+参数名称： `infra_portal`， 类型： `dict`， 层次：`G`
 
 infra services exposed via portal
 
@@ -589,7 +589,7 @@ repo_url_packages:
 
 ### `repo_enabled`
 
-name: `repo_enabled`, type: `bool`, level: `G/I`
+参数名称： `repo_enabled`， 类型： `bool`， 层次：`G/I`
 
 create a yum repo on this infra node? default value: `true`
 
@@ -600,7 +600,7 @@ If you have multiple infra nodes, you can disable yum repo on other standby node
 
 ### `repo_home`
 
-name: `repo_home`, type: `path`, level: `G`
+参数名称： `repo_home`， 类型： `path`， 层次：`G`
 
 repo home dir, `/www` by default
 
@@ -611,7 +611,7 @@ repo home dir, `/www` by default
 
 ### `repo_name`
 
-name: `repo_name`, type: `string`, level: `G`
+参数名称： `repo_name`， 类型： `string`， 层次：`G`
 
 repo name, `pigsty` by default, it is not wise to change this value
 
@@ -622,7 +622,7 @@ repo name, `pigsty` by default, it is not wise to change this value
 
 ### `repo_endpoint`
 
-name: `repo_endpoint`, type: `url`, level: `G`
+参数名称： `repo_endpoint`， 类型： `url`， 层次：`G`
 
 access point to this repo by domain or ip:port
 
@@ -633,7 +633,7 @@ default value: `http://${admin_ip}:80`
 
 ### `repo_remove`
 
-name: `repo_remove`, type: `bool`, level: `G/A`
+参数名称： `repo_remove`， 类型： `bool`， 层次：`G/A`
 
 remove existing upstream repo, default value: `true`
 
@@ -644,7 +644,7 @@ If you want to keep existing upstream repo, set this value to `false`.
 
 ### `repo_modules`
 
-name: `repo_modules`, type: `string`, level: `G/A`
+参数名称： `repo_modules`， 类型： `string`， 层次：`G/A`
 
 which repo modules are installed in repo_upstream, default value: `node,pgsql,pgsql`
 
@@ -657,7 +657,7 @@ This is a comma separated value string, it is used to filter entries in [`repo_u
 
 ### `repo_upstream`
 
-name: `repo_upstream`, type: `upstream[]`, level: `G`
+参数名称： `repo_upstream`， 类型： `upstream[]`， 层次：`G`
 
 where to download upstream packages
 
@@ -700,7 +700,7 @@ repo_upstream:                    # where to download #
 
 ### `repo_packages`
 
-name: `repo_packages`, type: `string[]`, level: `G`
+参数名称： `repo_packages`， 类型： `string[]`， 层次：`G`
 
 which packages to be included, default values: 
 
@@ -732,7 +732,7 @@ EL7 packages is slightly different, here are some ad hoc packages:
 
 ### `repo_url_packages`
 
-name: `repo_url_packages`, type: `string[]`, level: `G`
+参数名称： `repo_url_packages`， 类型： `string[]`， 层次：`G`
 
 extra packages from url, default values:
 
@@ -764,7 +764,7 @@ infra_packages_pip: ''            # pip installed packages for infra nodes
 
 ### `infra_packages`
 
-name: `infra_packages`, type: `string[]`, level: `G`
+参数名称： `infra_packages`， 类型： `string[]`， 层次：`G`
 
 packages to be installed on infra nodes, default value:
 
@@ -780,7 +780,7 @@ infra_packages:                   # packages to be installed on infra nodes
 
 ### `infra_packages_pip`
 
-name: `infra_packages_pip`, type: `string`, level: `G`
+参数名称： `infra_packages_pip`， 类型： `string`， 层次：`G`
 
 pip installed packages for infra nodes, default value is empty string
 
@@ -819,7 +819,7 @@ nginx_navbar:                     # nginx index page navigation links
 
 ### `nginx_enabled`
 
-name: `nginx_enabled`, type: `bool`, level: `G/I`
+参数名称： `nginx_enabled`， 类型： `bool`， 层次：`G/I`
 
 enable nginx on this infra node? default value: `true`
 
@@ -829,7 +829,7 @@ enable nginx on this infra node? default value: `true`
 
 ### `nginx_exporter_enabled`
 
-name: `nginx_exporter_enabled`, type: `bool`, level: `G/I`
+参数名称： `nginx_exporter_enabled`， 类型： `bool`， 层次：`G/I`
 
 enable nginx_exporter on this infra node? default value: `true`.
 
@@ -841,7 +841,7 @@ set to false will disable `/nginx` health check stub too
 
 ### `nginx_sslmode`
 
-name: `nginx_sslmode`, type: `enum`, level: `G`
+参数名称： `nginx_sslmode`， 类型： `enum`， 层次：`G`
 
 nginx ssl mode? disable,enable,enforce
 
@@ -857,7 +857,7 @@ default value: `enable`
 
 ### `nginx_home`
 
-name: `nginx_home`, type: `path`, level: `G`
+参数名称： `nginx_home`， 类型： `path`， 层次：`G`
 
 nginx content dir, `/www` by default
 
@@ -868,7 +868,7 @@ Nginx root directory which contains static resource and repo resource. It's wise
 
 ### `nginx_port`
 
-name: `nginx_port`, type: `port`, level: `G`
+参数名称： `nginx_port`， 类型： `port`， 层次：`G`
 
 nginx listen port, `80` by default
 
@@ -879,7 +879,7 @@ nginx listen port, `80` by default
 
 ### `nginx_ssl_port`
 
-name: `nginx_ssl_port`, type: `port`, level: `G`
+参数名称： `nginx_ssl_port`， 类型： `port`， 层次：`G`
 
 nginx ssl listen port, `443` by default
 
@@ -889,7 +889,7 @@ nginx ssl listen port, `443` by default
 
 ### `nginx_navbar`
 
-name: `nginx_navbar`, type: `index[]`, level: `G`
+参数名称： `nginx_navbar`， 类型： `index[]`， 层次：`G`
 
 nginx index page navigation links
 
@@ -939,7 +939,7 @@ dns_records:                      # dynamic dns records resolved by dnsmasq
 
 ### `dns_enabled`
 
-name: `dns_enabled`, type: `bool`, level: `G/I`
+参数名称： `dns_enabled`， 类型： `bool`， 层次：`G/I`
 
 setup dnsmasq on this infra node? default value: `true`
 
@@ -948,7 +948,7 @@ setup dnsmasq on this infra node? default value: `true`
 
 ### `dns_port`
 
-name: `dns_port`, type: `port`, level: `G`
+参数名称： `dns_port`， 类型： `port`， 层次：`G`
 
 dns server listen port, `53` by default
 
@@ -958,7 +958,7 @@ dns server listen port, `53` by default
 
 ### `dns_records`
 
-name: `dns_records`, type: `string[]`, level: `G`
+参数名称： `dns_records`， 类型： `string[]`， 层次：`G`
 
 dynamic dns records resolved by dnsmasq, Some auxiliary domain names will be written to `/etc/hosts.d/default` by default
 
@@ -1003,7 +1003,7 @@ exporter_repo_url: ''             # exporter repo file url if install exporter v
 
 ### `prometheus_enabled`
 
-name: `prometheus_enabled`, type: `bool`, level: `G/I`
+参数名称： `prometheus_enabled`， 类型： `bool`， 层次：`G/I`
 
 enable prometheus on this infra node?
 
@@ -1015,7 +1015,7 @@ default value: `true`
 
 ### `prometheus_clean`
 
-name: `prometheus_clean`, type: `bool`, level: `G/A`
+参数名称： `prometheus_clean`， 类型： `bool`， 层次：`G/A`
 
 clean prometheus data during init? default value: `true`
 
@@ -1026,7 +1026,7 @@ clean prometheus data during init? default value: `true`
 
 ### `prometheus_data`
 
-name: `prometheus_data`, type: `path`, level: `G`
+参数名称： `prometheus_data`， 类型： `path`， 层次：`G`
 
 prometheus data dir, `/data/prometheus` by default
 
@@ -1036,7 +1036,7 @@ prometheus data dir, `/data/prometheus` by default
 
 ### `prometheus_sd_interval`
 
-name: `prometheus_sd_interval`, type: `interval`, level: `G`
+参数名称： `prometheus_sd_interval`， 类型： `interval`， 层次：`G`
 
 prometheus target refresh interval, `5s` by default
 
@@ -1048,7 +1048,7 @@ prometheus target refresh interval, `5s` by default
 
 ### `prometheus_scrape_interval`
 
-name: `prometheus_scrape_interval`, type: `interval`, level: `G`
+参数名称： `prometheus_scrape_interval`， 类型： `interval`， 层次：`G`
 
 prometheus scrape & eval interval, `10s` by default
 
@@ -1060,7 +1060,7 @@ prometheus scrape & eval interval, `10s` by default
 
 ### `prometheus_scrape_timeout`
 
-name: `prometheus_scrape_timeout`, type: `interval`, level: `G`
+参数名称： `prometheus_scrape_timeout`， 类型： `interval`， 层次：`G`
 
 prometheus global scrape timeout, `8s` by default
 
@@ -1072,7 +1072,7 @@ DO NOT set this larger than [`prometheus_scrape_interval`](#prometheus_scrape_in
 
 ### `prometheus_options`
 
-name: `prometheus_options`, type: `arg`, level: `G`
+参数名称： `prometheus_options`， 类型： `arg`， 层次：`G`
 
 prometheus extra server options
 
@@ -1086,7 +1086,7 @@ Extra cli args for prometheus server, the default value will set up a 15-day dat
 
 ### `pushgateway_enabled`
 
-name: `pushgateway_enabled`, type: `bool`, level: `G/I`
+参数名称： `pushgateway_enabled`， 类型： `bool`， 层次：`G/I`
 
 setup pushgateway on this infra node? default value: `true`
 
@@ -1096,7 +1096,7 @@ setup pushgateway on this infra node? default value: `true`
 
 ### `pushgateway_options`
 
-name: `pushgateway_options`, type: `arg`, level: `G`
+参数名称： `pushgateway_options`， 类型： `arg`， 层次：`G`
 
 pushgateway extra server options, default value: `--persistence.interval=1m`
 
@@ -1106,7 +1106,7 @@ pushgateway extra server options, default value: `--persistence.interval=1m`
 
 ### `blackbox_enabled`
 
-name: `blackbox_enabled`, type: `bool`, level: `G/I`
+参数名称： `blackbox_enabled`， 类型： `bool`， 层次：`G/I`
 
 setup blackbox_exporter on this infra node? default value: `true`
 
@@ -1116,7 +1116,7 @@ setup blackbox_exporter on this infra node? default value: `true`
 
 ### `blackbox_options`
 
-name: `blackbox_options`, type: `arg`, level: `G`
+参数名称： `blackbox_options`， 类型： `arg`， 层次：`G`
 
 blackbox_exporter extra server options, default value is empty string
 
@@ -1127,7 +1127,7 @@ blackbox_exporter extra server options, default value is empty string
 
 ### `alertmanager_enabled`
 
-name: `alertmanager_enabled`, type: `bool`, level: `G/I`
+参数名称： `alertmanager_enabled`， 类型： `bool`， 层次：`G/I`
 
 setup alertmanager on this infra node? default value: `true`
 
@@ -1137,7 +1137,7 @@ setup alertmanager on this infra node? default value: `true`
 
 ### `alertmanager_options`
 
-name: `alertmanager_options`, type: `arg`, level: `G`
+参数名称： `alertmanager_options`， 类型： `arg`， 层次：`G`
 
 alertmanager extra server options, default value is empty string
 
@@ -1147,7 +1147,7 @@ alertmanager extra server options, default value is empty string
 
 ### `exporter_metrics_path`
 
-name: `exporter_metrics_path`, type: `path`, level: `G`
+参数名称： `exporter_metrics_path`， 类型： `path`， 层次：`G`
 
 exporter metric path, `/metrics` by default
 
@@ -1158,7 +1158,7 @@ exporter metric path, `/metrics` by default
 
 ### `exporter_install`
 
-name: `exporter_install`, type: `enum`, level: `G`
+参数名称： `exporter_install`， 类型： `enum`， 层次：`G`
 
 how to install exporter? none,yum,binary
 
@@ -1184,7 +1184,7 @@ It is not recommended for regular users to use `binary` installation. This mode 
 
 ### `exporter_repo_url`
 
-name: `exporter_repo_url`, type: `url`, level: `G`
+参数名称： `exporter_repo_url`， 类型： `url`， 层次：`G`
 
 exporter repo file url if install exporter via yum
 
@@ -1232,7 +1232,7 @@ loki_retention: 15d               # loki log retention period, 15d by default
 
 ### `grafana_enabled`
 
-name: `grafana_enabled`, type: `bool`, level: `G/I`
+参数名称： `grafana_enabled`， 类型： `bool`， 层次：`G/I`
 
 enable grafana on this infra node? default value: `true`
 
@@ -1242,7 +1242,7 @@ enable grafana on this infra node? default value: `true`
 
 ### `grafana_clean`
 
-name: `grafana_clean`, type: `bool`, level: `G/A`
+参数名称： `grafana_clean`， 类型： `bool`， 层次：`G/A`
 
 clean grafana data during init? default value: `true`
 
@@ -1252,7 +1252,7 @@ clean grafana data during init? default value: `true`
 
 ### `grafana_admin_username`
 
-name: `grafana_admin_username`, type: `username`, level: `G`
+参数名称： `grafana_admin_username`， 类型： `username`， 层次：`G`
 
 grafana admin username, `admin` by default
 
@@ -1264,7 +1264,7 @@ grafana admin username, `admin` by default
 
 ### `grafana_admin_password`
 
-name: `grafana_admin_password`, type: `password`, level: `G`
+参数名称： `grafana_admin_password`， 类型： `password`， 层次：`G`
 
 grafana admin password, `pigsty` by default
 
@@ -1278,7 +1278,7 @@ default value: `pigsty`
 
 ### `grafana_plugin_cache`
 
-name: `grafana_plugin_cache`, type: `path`, level: `G`
+参数名称： `grafana_plugin_cache`， 类型： `path`， 层次：`G`
 
 path to grafana plugins cache tarball
 
@@ -1292,7 +1292,7 @@ If that cache exists, pigsty use that instead of downloading plugins from the In
 
 ### `grafana_plugin_list`
 
-name: `grafana_plugin_list`, type: `string[]`, level: `G`
+参数名称： `grafana_plugin_list`， 类型： `string[]`， 层次：`G`
 
 grafana plugins to be downloaded with grafana-cli
 
@@ -1322,7 +1322,7 @@ grafana_plugin_list:              # grafana plugins to be downloaded with grafan
 
 ### `loki_enabled`
 
-name: `loki_enabled`, type: `bool`, level: `G/I`
+参数名称： `loki_enabled`， 类型： `bool`， 层次：`G/I`
 
 enable loki on this infra node? default value: `true`
 
@@ -1332,7 +1332,7 @@ enable loki on this infra node? default value: `true`
 
 ### `loki_clean`
 
-name: `loki_clean`, type: `bool`, level: `G/A`
+参数名称： `loki_clean`， 类型： `bool`， 层次：`G/A`
 
 whether remove existing loki data? default value: `false`
 
@@ -1342,7 +1342,7 @@ whether remove existing loki data? default value: `false`
 
 ### `loki_data`
 
-name: `loki_data`, type: `path`, level: `G`
+参数名称： `loki_data`， 类型： `path`， 层次：`G`
 
 loki data dir, default value: `/data/loki`
 
@@ -1353,7 +1353,7 @@ loki data dir, default value: `/data/loki`
 
 ### `loki_retention`
 
-name: `loki_retention`, type: `interval`, level: `G`
+参数名称： `loki_retention`， 类型： `interval`， 层次：`G`
 
 loki log retention period, `15d` by default
 
@@ -1370,7 +1370,7 @@ loki log retention period, `15d` by default
 
 # `NODE`
 
-Node module are tuning target nodes into desired state and take it into the Pigsty monitor system.
+[NODE](NODE) 模块负责将主机节点调整到期待的目标状态，并将其纳入 Pigsty 的监控系统中。
 
 
 
@@ -1378,28 +1378,12 @@ Node module are tuning target nodes into desired state and take it into the Pigs
 
 ## `NODE_ID`
 
-Each node has **identity parameters** that are configured through the parameters in `<cluster>.hosts` and `<cluster>.vars`.
+每个节点都有**身份参数**，通过在`<cluster>.hosts`与`<cluster>.vars`中的相关参数进行配置。
 
-Pigsty uses **IP** as a unique identifier for **database nodes**. **This IP must be the IP that the database instance listens to and serves externally**, But it would be inappropriate to use a public IP address!
-
-**This is very important**. The IP is the `inventory_hostname` of the host in the inventory, which is reflected as the `key` in the `<cluster>.hosts` object.
-
-You can use `ansible_*` parameters to overwrite `ssh` behavior, e.g. connect via domain name / alias, but the primary IPv4 is still the core identity of the node.
-
-[`nodename`](#nodename) and [`node_cluster`](#node_cluster) are not **mandatory**; [`nodename`](#nodename) will use the node's current hostname by default, while [`node_cluster`](#node_cluster) will use the fixed default value: `nodes`.
-
-If [`node_id_from_pg`](#node_id_from_pg) is enabled, the node will borrow [`PGSQL`](PGSQL) [identity](#pg_id) and use it as Node's identity, i.e. [`node_cluster`](#node_cluster) is set to [`pg_cluster`](#pg_cluster) if applicable, and [`nodename`](#nodename) is set to `${pg_cluster}-${pg_seq}`. If [`nodename_overwrite`](#nodename_overwrite) is enabled, node's hostname will be overwritten by [`nodename`](#nodename)
-
-Pigsty labels a node with identity parameters in the monitoring system. Which maps `nodename` to `ins`, and `node_cluster` into `cls`.
-
-
-|              Name               |   Type   | Level | Necessity    | Comment               |
-|:-------------------------------:|:--------:|:-----:|--------------|-----------------------|
-|      `inventory_hostname`       |   `ip`   | **-** | **Required** | **Node IP**           |
-|     [`nodename`](#nodename)     | `string` | **I** | Optional     | **Node Name**         |
-| [`node_cluster`](#node_cluster) | `string` | **C** | Optional     | **Node cluster name** |
-
-The following cluster config declares a three-node node cluster:
+Pigsty使用**IP地址**作为**数据库节点**的唯一标识，**该IP地址必须是数据库实例监听并对外提供服务的IP地址**，但不宜使用公网IP地址。 
+尽管如此，用户并不一定非要通过该IP地址连接至该数据库。例如，通过SSH隧道或跳板机中转的方式间接操作管理目标节点也是可行的。
+但在标识数据库节点时，首要IPv4地址依然是节点的核心标识符。**这一点非常重要，用户应当在配置时保证这一点**。
+IP地址即配置清单中主机的`inventory_hostname` ，体现为`<cluster>.hosts`对象中的`key`。
 
 ```yaml
 node-test:
@@ -1411,14 +1395,30 @@ node-test:
     node_cluster: node-test
 ```
 
-Default values:
+除此之外，在Pigsty监控系统中，节点还有两个重要的身份参数：[`nodename`](#nodename) 与 [`node_cluster`](#node_cluster)，这两者将在监控系统中被用作节点的 **实例标识**（`ins`） 与 **集群标识** （`cls`）。
 
 ```yaml
-#nodename:           # [INSTANCE] # node instance identity, use hostname if missing, optional
-node_cluster: nodes   # [CLUSTER] # node cluster identity, use 'nodes' if missing, optional
-nodename_overwrite: true          # overwrite node's hostname with nodename?
-nodename_exchange: false          # exchange nodename among play hosts?
-node_id_from_pg: true             # use postgres identity as node identity if applicable?
+node_load1{cls="pg-meta", ins="pg-meta-1", ip="10.10.10.10", job="nodes"}
+node_load1{cls="pg-test", ins="pg-test-1", ip="10.10.10.11", job="nodes"}
+node_load1{cls="pg-test", ins="pg-test-2", ip="10.10.10.12", job="nodes"}
+node_load1{cls="pg-test", ins="pg-test-3", ip="10.10.10.13", job="nodes"}
+```
+
+在执行默认的PostgreSQL部署时，因为Pigsty默认采用节点独占1:1部署，因此可以通过 [`node_id_from_pg`](#node_id_from_pg) 参数，将数据库实例的身份参数（ [`pg_cluster`](#pg_cluster) 借用至节点的`ins`与`cls`标签上。
+
+|               名称                |    类型    |  层级   | 必要性    | 说明         |
+|:-------------------------------:|:--------:|:-----:|--------|------------|
+|      `inventory_hostname`       |   `ip`   | **-** | **必选** | **节点IP地址** |
+|     [`nodename`](#nodename)     | `string` | **I** | 可选     | **节点名称**   |
+| [`node_cluster`](#node_cluster) | `string` | **C** | 可选     | **节点集群名称** |
+
+
+```yaml
+#nodename:                # [实例] # 节点实例标识，如缺失则使用现有主机名，可选，无默认值
+node_cluster: nodes       # [集群] # 节点集群标识，如缺失则使用默认值'nodes'，可选
+nodename_overwrite: true          # 用 nodename 覆盖节点的主机名吗？
+nodename_exchange: false          # 在剧本主机之间交换 nodename 吗？
+node_id_from_pg: true             # 如果可行，是否借用 postgres 身份作为节点身份？
 ```
 
 
@@ -1426,7 +1426,7 @@ node_id_from_pg: true             # use postgres identity as node identity if ap
 
 ### `nodename`
 
-name: `nodename`, type: `string`, level: `I`
+参数名称： `nodename`， 类型： `string`， 层次：`I`
 
 node instance identity, use hostname if missing, optional
 
@@ -1442,7 +1442,7 @@ If [`nodename_overwrite`](#nodename_overwrite) is `true`, the node name will als
 
 ### `node_cluster`
 
-name: `node_cluster`, type: `string`, level: `C`
+参数名称： `node_cluster`， 类型： `string`， 层次：`C`
 
 node cluster identity, use 'nodes' if missing, optional
 
@@ -1458,7 +1458,7 @@ If [`nodename_overwrite`](#nodename_overwrite) is `true`, the node name will als
 
 ### `nodename_overwrite`
 
-name: `nodename_overwrite`, type: `bool`, level: `C`
+参数名称： `nodename_overwrite`， 类型： `bool`， 层次：`C`
 
 overwrite node's hostname with nodename?
 
@@ -1471,7 +1471,7 @@ No changes are made to the hostname if the [`nodename`](#nodename) parameter is 
 
 ### `nodename_exchange`
 
-name: `nodename_exchange`, type: `bool`, level: `C`
+参数名称： `nodename_exchange`， 类型： `bool`， 层次：`C`
 
 exchange nodename among play hosts?
 
@@ -1484,7 +1484,7 @@ When this parameter is enabled, node names are exchanged between the same group 
 
 ### `node_id_from_pg`
 
-name: `node_id_from_pg`, type: `bool`, level: `C`
+参数名称： `node_id_from_pg`， 类型： `bool`， 层次：`C`
 
 use postgres identity as node identity if applicable?
 
@@ -1519,7 +1519,7 @@ node_dns_options:                 # dns resolv options in `/etc/resolv.conf`
 
 ### `node_default_etc_hosts`
 
-name: `node_default_etc_hosts`, type: `string[]`, level: `G`
+参数名称： `node_default_etc_hosts`， 类型： `string[]`， 层次：`G`
 
 static dns records in `/etc/hosts`
 
@@ -1540,7 +1540,7 @@ Make sure to write a DNS record like `10.10.10.10 h.pigsty a.pigsty p.pigsty g.p
 
 ### `node_etc_hosts`
 
-name: `node_etc_hosts`, type: `string[]`, level: `C`
+参数名称： `node_etc_hosts`， 类型： `string[]`， 层次：`C`
 
 extra static dns records in `/etc/hosts`
 
@@ -1553,7 +1553,7 @@ Same as [`node_default_etc_hosts`](#node_default_etc_hosts), but in addition to 
 
 ### `node_dns_method`
 
-name: `node_dns_method`, type: `enum`, level: `C`
+参数名称： `node_dns_method`， 类型： `enum`， 层次：`C`
 
 how to handle dns servers: add,none,overwrite
 
@@ -1568,7 +1568,7 @@ default values: `add`
 
 ### `node_dns_servers`
 
-name: `node_dns_servers`, type: `string[]`, level: `C`
+参数名称： `node_dns_servers`， 类型： `string[]`， 层次：`C`
 
 dynamic nameserver in `/etc/resolv.conf`
 
@@ -1580,7 +1580,7 @@ default values: `["${admin_ip}"]` , the default nameserver on admin node will be
 
 ### `node_dns_options`
 
-name: `node_dns_options`, type: `string[]`, level: `C`
+参数名称： `node_dns_options`， 类型： `string[]`， 层次：`C`
 
 dns resolv options in `/etc/resolv.conf`
 
@@ -1619,7 +1619,7 @@ node_default_packages:            # default packages to be installed on all node
 
 ### `node_repo_method`
 
-name: `node_repo_method`, type: `enum`, level: `C/A`
+参数名称： `node_repo_method`， 类型： `enum`， 层次：`C/A`
 
 how to setup node repo: `none`, `local`, `public`, `both`, default values: `local`
 
@@ -1634,7 +1634,7 @@ Which repos are added to `/etc/yum.repos.d` on target nodes ?
 
 ### `node_repo_remove`
 
-name: `node_repo_remove`, type: `bool`, level: `C/A`
+参数名称： `node_repo_remove`， 类型： `bool`， 层次：`C/A`
 
 remove existing repo on node?
 
@@ -1645,7 +1645,7 @@ default value is `true`, and thus Pigsty will move existing repo file in `/etc/y
 
 ### `node_repo_local_urls`
 
-name: `node_repo_local_urls`, type: `string[]`, level: `C`
+参数名称： `node_repo_local_urls`， 类型： `string[]`， 层次：`C`
 
 local repo url, if node_repo_method = local
 
@@ -1660,7 +1660,7 @@ When [`node_repo_method`](#node_repo_method) = `local`, the Repo file URLs liste
 
 ### `node_packages`
 
-name: `node_packages`, type: `string[]`, level: `C`
+参数名称： `node_packages`， 类型： `string[]`， 层次：`C`
 
 packages to be installed current nodes
 
@@ -1673,7 +1673,7 @@ Like [`node_packages_default`](#node_default_packages), but in addition to it. d
 
 ### `node_default_packages`
 
-name: `node_default_packages`, type: `string[]`, level: `G`
+参数名称： `node_default_packages`， 类型： `string[]`， 层次：`G`
 
 default packages to be installed on all nodes
 
@@ -1717,7 +1717,7 @@ node_sysctl_params: { }           # sysctl parameters in k:v format in addition 
 
 ### `node_disable_firewall`
 
-name: `node_disable_firewall`, type: `bool`, level: `C`
+参数名称： `node_disable_firewall`， 类型： `bool`， 层次：`C`
 
 disable node firewall? true by default
 
@@ -1728,7 +1728,7 @@ default value is `true`
 
 ### `node_disable_selinux`
 
-name: `node_disable_selinux`, type: `bool`, level: `C`
+参数名称： `node_disable_selinux`， 类型： `bool`， 层次：`C`
 
 disable node selinux? true by default
 
@@ -1739,7 +1739,7 @@ default value is `true`
 
 ### `node_disable_numa`
 
-name: `node_disable_numa`, type: `bool`, level: `C`
+参数名称： `node_disable_numa`， 类型： `bool`， 层次：`C`
 
 disable node numa, reboot required
 
@@ -1755,7 +1755,7 @@ If you don't know how to set the CPU affinity, it is recommended to turn off NUM
 
 ### `node_disable_swap`
 
-name: `node_disable_swap`, type: `bool`, level: `C`
+参数名称： `node_disable_swap`， 类型： `bool`， 层次：`C`
 
 disable node swap, use with caution
 
@@ -1772,7 +1772,7 @@ If there is enough memory and the database is deployed exclusively. it may sligh
 
 ### `node_static_network`
 
-name: `node_static_network`, type: `bool`, level: `C`
+参数名称： `node_static_network`， 类型： `bool`， 层次：`C`
 
 preserve dns resolver settings after reboot, default value is `true`
 
@@ -1783,7 +1783,7 @@ Enabling static networking means that machine reboots will not overwrite your DN
 
 ### `node_disk_prefetch`
 
-name: `node_disk_prefetch`, type: `bool`, level: `C`
+参数名称： `node_disk_prefetch`， 类型： `bool`， 层次：`C`
 
 setup disk prefetch on HDD to increase performance
 
@@ -1795,7 +1795,7 @@ default value is `false`, Consider enable this when using HDD.
 
 ### `node_kernel_modules`
 
-name: `node_kernel_modules`, type: `string[]`, level: `C`
+参数名称： `node_kernel_modules`， 类型： `string[]`， 层次：`C`
 
 kernel modules to be enabled on this node
 
@@ -1812,7 +1812,7 @@ An array consisting of kernel module names declaring the kernel modules that nee
 
 ### `node_hugepage_count`
 
-name: `node_hugepage_count`, type: `int`, level: `C`
+参数名称： `node_hugepage_count`， 类型： `int`， 层次：`C`
 
 number of 2MB hugepage, take precedence over ratio, 0 by default
 
@@ -1829,7 +1829,7 @@ It should slightly larger than [`pg_shared_buffer_ratio`](#pg_shared_buffer_rati
 
 ### `node_hugepage_ratio`
 
-name: `node_hugepage_ratio`, type: `float`, level: `C`
+参数名称： `node_hugepage_ratio`， 类型： `float`， 层次：`C`
 
 node mem hugepage ratio, 0 disable it by default, valid range: 0 ~ 0.40
 
@@ -1847,7 +1847,7 @@ For example, if you have default 25% mem for postgres shard buffers, you can set
 
 ### `node_overcommit_ratio`
 
-name: `node_overcommit_ratio`, type: `int`, level: `C`
+参数名称： `node_overcommit_ratio`， 类型： `int`， 层次：`C`
 
 node mem overcommit ratio, 0 disable it by default. this is an integer from 0 to 100+ .
 
@@ -1861,7 +1861,7 @@ It is recommended to set use a `vm.overcommit_ratio` on dedicated pgsql nodes. e
 
 ### `node_tune`
 
-name: `node_tune`, type: `enum`, level: `C`
+参数名称： `node_tune`， 类型： `enum`， 层次：`C`
 
 node tuned profile: none,oltp,olap,crit,tiny
 
@@ -1881,7 +1881,7 @@ Usually, the database tuning template [`pg_conf`](#pg_conf) should be paired wit
 
 ### `node_sysctl_params`
 
-name: `node_sysctl_params`, type: `dict`, level: `C`
+参数名称： `node_sysctl_params`， 类型： `dict`， 层次：`C`
 
 sysctl parameters in k:v format in addition to tuned
 
@@ -1918,7 +1918,7 @@ node_admin_pk_list: []            # ssh public keys to be added to admin user
 
 ### `node_data`
 
-name: `node_data`, type: `path`, level: `C`
+参数名称： `node_data`， 类型： `path`， 层次：`C`
 
 node main data directory, `/data` by default
 
@@ -1934,7 +1934,7 @@ The data dir is owned by root with mode `0777`.
 
 ### `node_admin_enabled`
 
-name: `node_admin_enabled`, type: `bool`, level: `C`
+参数名称： `node_admin_enabled`， 类型： `bool`， 层次：`C`
 
 create a admin user on target node?
 
@@ -1948,7 +1948,7 @@ Create an admin user on each node (password-free sudo and ssh), an admin user na
 
 ### `node_admin_uid`
 
-name: `node_admin_uid`, type: `int`, level: `C`
+参数名称： `node_admin_uid`， 类型： `int`， 层次：`C`
 
 uid and gid for node admin user
 
@@ -1960,7 +1960,7 @@ default values: `88`
 
 ### `node_admin_username`
 
-name: `node_admin_username`, type: `username`, level: `C`
+参数名称： `node_admin_username`， 类型： `username`， 层次：`C`
 
 name of node admin user, `dba` by default
 
@@ -1972,7 +1972,7 @@ default values: `dba`
 
 ### `node_admin_ssh_exchange`
 
-name: `node_admin_ssh_exchange`, type: `bool`, level: `C`
+参数名称： `node_admin_ssh_exchange`， 类型： `bool`， 层次：`C`
 
 exchange admin ssh key among node cluster
 
@@ -1985,7 +1985,7 @@ When enabled, Pigsty will exchange SSH public keys between members during playbo
 
 ### `node_admin_pk_current`
 
-name: `node_admin_pk_current`, type: `bool`, level: `C`
+参数名称： `node_admin_pk_current`， 类型： `bool`， 层次：`C`
 
 add current user's ssh pk to admin authorized_keys
 
@@ -2001,7 +2001,7 @@ When deploying in a production env, be sure to pay attention to this parameter, 
 
 ### `node_admin_pk_list`
 
-name: `node_admin_pk_list`, type: `string[]`, level: `C`
+参数名称： `node_admin_pk_list`， 类型： `string[]`， 层次：`C`
 
 ssh public keys to be added to admin user
 
@@ -2032,7 +2032,7 @@ node_crontab: [ ]                 # crontab entries in `/etc/crontab`
 
 ### `node_timezone`
 
-name: `node_timezone`, type: `string`, level: `C`
+参数名称： `node_timezone`， 类型： `string`， 层次：`C`
 
 setup node timezone, empty string to skip
 
@@ -2044,7 +2044,7 @@ default value is empty string, which will not change the default timezone (usual
 
 ### `node_ntp_enabled`
 
-name: `node_ntp_enabled`, type: `bool`, level: `C`
+参数名称： `node_ntp_enabled`， 类型： `bool`， 层次：`C`
 
 enable chronyd time sync service?
 
@@ -2057,7 +2057,7 @@ If you already a NTP server configured, just set to `false` to leave it be.
 
 ### `node_ntp_servers`
 
-name: `node_ntp_servers`, type: `string[]`, level: `C`
+参数名称： `node_ntp_servers`， 类型： `string[]`， 层次：`C`
 
 ntp servers in `/etc/chrony.conf`
 
@@ -2077,7 +2077,7 @@ node_ntp_servers: [ 'pool ${admin_ip} iburst' ]
 
 ### `node_crontab_overwrite`
 
-name: `node_crontab_overwrite`, type: `bool`, level: `C`
+参数名称： `node_crontab_overwrite`， 类型： `bool`， 层次：`C`
 
 overwrite or append to `/etc/crontab`?
 
@@ -2089,7 +2089,7 @@ default value is `true`, and pigsty will render records in [`node_crontab`](#nod
 
 ### `node_crontab`
 
-name: `node_crontab`, type: `string[]`, level: `C`
+参数名称： `node_crontab`， 类型： `string[]`， 层次：`C`
 
 crontab entries in `/etc/crontab`
 
@@ -2126,7 +2126,7 @@ vip_exporter_port: 9650           # keepalived exporter listen port, 9650 by def
 
 ### `vip_enabled`
 
-name: `vip_enabled`, type: `bool`, level: `C`
+参数名称： `vip_enabled`， 类型： `bool`， 层次：`C`
 
 enable vip on this node cluster?
 
@@ -2138,7 +2138,7 @@ L2 VIP can only be used in same L2 LAN, which may incurs extra restrictions on y
 
 ### `vip_address`
 
-name: `vip_address`, type: `ip`, level: `C`
+参数名称： `vip_address`， 类型： `ip`， 层次：`C`
 
 node vip address in IPv4 format, **required** if node [`vip_enabled`](#vip_enabled).
 
@@ -2148,7 +2148,7 @@ no default value. This parameter must be explicitly assigned and unique in your 
 
 ### `vip_vrid`
 
-name: `vip_address`, type: `ip`, level: `C`
+参数名称： `vip_address`， 类型： `ip`， 层次：`C`
 
 integer, 1-254, should be unique in same VLAN, **required** if node [`vip_enabled`](#vip_enabled).
 
@@ -2160,7 +2160,7 @@ no default value. This parameter must be explicitly assigned and unique in your 
 
 ### `vip_role`
 
-name: `vip_role`, type: `enum`, level: `I`
+参数名称： `vip_role`， 类型： `enum`， 层次：`I`
 
 node vip role, could be `master` or `backup`, will be used as initial keepalived state.
 
@@ -2169,7 +2169,7 @@ node vip role, could be `master` or `backup`, will be used as initial keepalived
 
 ### `vip_preempt`
 
-name: `vip_preempt`, type: `bool`, level: `C/I`
+参数名称： `vip_preempt`， 类型： `bool`， 层次：`C/I`
 
 optional, `true/false`, false by default, enable vip preemption
 
@@ -2180,7 +2180,7 @@ default value is `false`, means no preempt is happening when a backup have highe
 
 ### `vip_interface`
 
-name: `vip_interface`, type: `string`, level: `C/I`
+参数名称： `vip_interface`， 类型： `string`， 层次：`C/I`
 
 node vip network interface to listen, `eth0` by default.
 
@@ -2193,7 +2193,7 @@ If your node have different interface, you can override it on instance vars
 
 ### `vip_dns_suffix`
 
-name: `vip_dns_suffix`, type: `string`, level: `C/I`
+参数名称： `vip_dns_suffix`， 类型： `string`， 层次：`C/I`
 
 node vip dns name suffix, `.vip` by default. It will be used as the DNS name of the node VIP.
 
@@ -2203,7 +2203,7 @@ node vip dns name suffix, `.vip` by default. It will be used as the DNS name of 
 
 ### `vip_exporter_port`
 
-name: `vip_exporter_port`, type: `port`, level: `C/I`
+参数名称： `vip_exporter_port`， 类型： `port`， 层次：`C/I`
 
 keepalived exporter listen port, 9650 by default.
 
@@ -2238,7 +2238,7 @@ haproxy_services: []              # list of haproxy service to be exposed on nod
 
 ### `haproxy_enabled`
 
-name: `haproxy_enabled`, type: `bool`, level: `C`
+参数名称： `haproxy_enabled`， 类型： `bool`， 层次：`C`
 
 enable haproxy on this node?
 
@@ -2249,7 +2249,7 @@ default value is `true`
 
 ### `haproxy_clean`
 
-name: `haproxy_clean`, type: `bool`, level: `G/C/A`
+参数名称： `haproxy_clean`， 类型： `bool`， 层次：`G/C/A`
 
 cleanup all existing haproxy config?
 
@@ -2260,7 +2260,7 @@ default value is `false`
 
 ### `haproxy_reload`
 
-name: `haproxy_reload`, type: `bool`, level: `A`
+参数名称： `haproxy_reload`， 类型： `bool`， 层次：`A`
 
 reload haproxy after config?
 
@@ -2273,7 +2273,7 @@ If you wish to check before apply, you can turn off this with cli args and check
 
 ### `haproxy_auth_enabled`
 
-name: `haproxy_auth_enabled`, type: `bool`, level: `G`
+参数名称： `haproxy_auth_enabled`， 类型： `bool`， 层次：`G`
 
 enable authentication for haproxy admin page
 
@@ -2286,7 +2286,7 @@ disable it is not recommended, since your traffic control will be exposed
 
 ### `haproxy_admin_username`
 
-name: `haproxy_admin_username`, type: `username`, level: `G`
+参数名称： `haproxy_admin_username`， 类型： `username`， 层次：`G`
 
 haproxy admin username, `admin` by default
 
@@ -2298,7 +2298,7 @@ default values: `admin`
 
 ### `haproxy_admin_password`
 
-name: `haproxy_admin_password`, type: `password`, level: `G`
+参数名称： `haproxy_admin_password`， 类型： `password`， 层次：`G`
 
 haproxy admin password, `pigsty` by default
 
@@ -2310,7 +2310,7 @@ default values: `pigsty`
 
 ### `haproxy_exporter_port`
 
-name: `haproxy_exporter_port`, type: `port`, level: `C`
+参数名称： `haproxy_exporter_port`， 类型： `port`， 层次：`C`
 
 haproxy admin/exporter port, 9101 by default
 
@@ -2322,7 +2322,7 @@ default values: `9101`
 
 ### `haproxy_client_timeout`
 
-name: `haproxy_client_timeout`, type: `interval`, level: `C`
+参数名称： `haproxy_client_timeout`， 类型： `interval`， 层次：`C`
 
 client side connection timeout, 24h by default
 
@@ -2334,7 +2334,7 @@ default values: `24h`
 
 ### `haproxy_server_timeout`
 
-name: `haproxy_server_timeout`, type: `interval`, level: `C`
+参数名称： `haproxy_server_timeout`， 类型： `interval`， 层次：`C`
 
 server side connection timeout, 24h by default
 
@@ -2346,7 +2346,7 @@ default values: `24h`
 
 ### `haproxy_services`
 
-name: `haproxy_services`, type: `service[]`, level: `C`
+参数名称： `haproxy_services`， 类型： `service[]`， 层次：`C`
 
 list of haproxy service to be exposed on node
 
@@ -2400,7 +2400,7 @@ node_exporter_options: '--no-collector.softnet --no-collector.nvme --collector.n
 
 ### `node_exporter_enabled`
 
-name: `node_exporter_enabled`, type: `bool`, level: `C`
+参数名称： `node_exporter_enabled`， 类型： `bool`， 层次：`C`
 
 setup node_exporter on this node?
 
@@ -2411,7 +2411,7 @@ default value is `true`
 
 ### `node_exporter_port`
 
-name: `node_exporter_port`, type: `port`, level: `C`
+参数名称： `node_exporter_port`， 类型： `port`， 层次：`C`
 
 node exporter listen port, 9100 by default
 
@@ -2423,7 +2423,7 @@ default values: `9100`
 
 ### `node_exporter_options`
 
-name: `node_exporter_options`, type: `arg`, level: `C`
+参数名称： `node_exporter_options`， 类型： `arg`， 层次：`C`
 
 extra server options for node_exporter
 
@@ -2475,7 +2475,7 @@ promtail_positions: /var/log/positions.yaml # promtail position status file path
 
 ### `promtail_enabled`
 
-name: `promtail_enabled`, type: `bool`, level: `C`
+参数名称： `promtail_enabled`， 类型： `bool`， 层次：`C`
 
 enable promtail logging collector?
 
@@ -2486,7 +2486,7 @@ default value is `true`
 
 ### `promtail_clean`
 
-name: `promtail_clean`, type: `bool`, level: `G/A`
+参数名称： `promtail_clean`， 类型： `bool`， 层次：`G/A`
 
 purge existing promtail status file during init?
 
@@ -2498,7 +2498,7 @@ which means that Promtail will recollect all logs on the current node and send t
 
 ### `promtail_port`
 
-name: `promtail_port`, type: `port`, level: `C`
+参数名称： `promtail_port`， 类型： `port`， 层次：`C`
 
 promtail listen port, 9080 by default
 
@@ -2510,7 +2510,7 @@ default values: `9080`
 
 ### `promtail_positions`
 
-name: `promtail_positions`, type: `path`, level: `C`
+参数名称： `promtail_positions`， 类型： `path`， 层次：`C`
 
 promtail position status file path
 
@@ -2542,7 +2542,7 @@ docker_image_cache: /tmp/docker   # docker image cache dir, `/tmp/docker` by def
 
 ### `docker_enabled`
 
-name: `docker_enabled`, type: `bool`, level: `C`
+参数名称： `docker_enabled`， 类型： `bool`， 层次：`C`
 
 enable docker on this node? default value is `false`
 
@@ -2551,7 +2551,7 @@ enable docker on this node? default value is `false`
 
 ### `docker_cgroups_driver`
 
-name: `docker_cgroups_driver`, type: `enum`, level: `C`
+参数名称： `docker_cgroups_driver`， 类型： `enum`， 层次：`C`
 
 docker cgroup fs driver, could be `cgroupfs` or `systemd`, default values: `systemd`
 
@@ -2561,7 +2561,7 @@ docker cgroup fs driver, could be `cgroupfs` or `systemd`, default values: `syst
 
 ### `docker_registry_mirrors`
 
-name: `docker_registry_mirrors`, type: `string[]`, level: `C`
+参数名称： `docker_registry_mirrors`， 类型： `string[]`， 层次：`C`
 
 docker registry mirror list, default values: `[]`, Example: 
 
@@ -2574,7 +2574,7 @@ docker registry mirror list, default values: `[]`, Example:
 
 ### `docker_image_cache`
 
-name: `docker_image_cache`, type: `path`, level: `C`
+参数名称： `docker_image_cache`， 类型： `path`， 层次：`C`
 
 docker image cache dir, `/tmp/docker` by default.
 
@@ -2614,7 +2614,7 @@ etcd_heartbeat_interval: 100      # etcd heartbeat interval, 100ms by default
 
 ### `etcd_seq`
 
-name: `etcd_seq`, type: `int`, level: `I`
+参数名称： `etcd_seq`， 类型： `int`， 层次：`I`
 
 etcd instance identifier, REQUIRED
 
@@ -2636,7 +2636,7 @@ etcd: # dcs service for postgres/patroni ha consensus
 
 ### `etcd_cluster`
 
-name: `etcd_cluster`, type: `string`, level: `C`
+参数名称： `etcd_cluster`， 类型： `string`， 层次：`C`
 
 etcd cluster & group name, etcd by default
 
@@ -2648,7 +2648,7 @@ default values: `etcd`, which is a fixed group name, can be useful when you want
 
 ### `etcd_safeguard`
 
-name: `etcd_safeguard`, type: `bool`, level: `G/C/A`
+参数名称： `etcd_safeguard`， 类型： `bool`， 层次：`G/C/A`
 
 prevent purging running etcd instance? default value is `false`
 
@@ -2659,7 +2659,7 @@ If enabled, running etcd instance will not be purged by `etcd.yml` playbook.
 
 ### `etcd_clean`
 
-name: `etcd_clean`, type: `bool`, level: `G/C/A`
+参数名称： `etcd_clean`， 类型： `bool`， 层次：`G/C/A`
 
 purging existing etcd during initialization? default value is `true`
 
@@ -2673,7 +2673,7 @@ But if [`etcd_safeguard`](#etcd_safeguard) is enabled, it will still abort on an
 
 ### `etcd_data`
 
-name: `etcd_data`, type: `path`, level: `C`
+参数名称： `etcd_data`， 类型： `path`， 层次：`C`
 
 etcd data directory, `/data/etcd` by default
 
@@ -2684,7 +2684,7 @@ etcd data directory, `/data/etcd` by default
 
 ### `etcd_port`
 
-name: `etcd_port`, type: `port`, level: `C`
+参数名称： `etcd_port`， 类型： `port`， 层次：`C`
 
 etcd client port, `2379` by default
 
@@ -2694,7 +2694,7 @@ etcd client port, `2379` by default
 
 ### `etcd_peer_port`
 
-name: `etcd_peer_port`, type: `port`, level: `C`
+参数名称： `etcd_peer_port`， 类型： `port`， 层次：`C`
 
 etcd peer port, `2380` by default
 
@@ -2704,13 +2704,13 @@ etcd peer port, `2380` by default
 
 ### `etcd_init`
 
-name: `etcd_init`, type: `enum`, level: `C`
+参数名称： `etcd_init`， 类型： `enum`， 层次：`C`
 
 etcd initial cluster state, `new` or `existing`
 
 default values: `new`, which will create a standalone new etcd cluster.
 
-The value `existing` is used when trying to [add new member](ETCD-ADMIN#add-member) to existing etcd cluster.
+The value `existing` is used when trying to [add new member](ETCD#添加成员) to existing etcd cluster.
 
 
 
@@ -2718,7 +2718,7 @@ The value `existing` is used when trying to [add new member](ETCD-ADMIN#add-memb
 
 ### `etcd_election_timeout`
 
-name: `etcd_election_timeout`, type: `int`, level: `C`
+参数名称： `etcd_election_timeout`， 类型： `int`， 层次：`C`
 
 etcd election timeout, `1000` (ms) by default
 
@@ -2728,7 +2728,7 @@ etcd election timeout, `1000` (ms) by default
 
 ### `etcd_heartbeat_interval`
 
-name: `etcd_heartbeat_interval`, type: `int`, level: `C`
+参数名称： `etcd_heartbeat_interval`， 类型： `int`， 层次：`C`
 
 etcd heartbeat interval, `100` (ms) by default
 
@@ -2766,7 +2766,7 @@ minio_users:
 
 ### `minio_seq`
 
-name: `minio_seq`, type: `int`, level: `I`
+参数名称： `minio_seq`， 类型： `int`， 层次：`I`
 
 minio instance identifier, REQUIRED identity parameters. no default value, you have to assign it manually
 
@@ -2776,7 +2776,7 @@ minio instance identifier, REQUIRED identity parameters. no default value, you h
 
 ### `minio_cluster`
 
-name: `minio_cluster`, type: `string`, level: `C`
+参数名称： `minio_cluster`， 类型： `string`， 层次：`C`
 
 minio cluster name, `minio` by default. This is useful when deploying multiple MinIO clusters
 
@@ -2788,7 +2788,7 @@ minio cluster name, `minio` by default. This is useful when deploying multiple M
 
 ### `minio_clean`
 
-name: `minio_clean`, type: `bool`, level: `G/C/A`
+参数名称： `minio_clean`， 类型： `bool`， 层次：`G/C/A`
 
 cleanup minio during init?, `false` by default
 
@@ -2799,7 +2799,7 @@ cleanup minio during init?, `false` by default
 
 ### `minio_user`
 
-name: `minio_user`, type: `username`, level: `C`
+参数名称： `minio_user`， 类型： `username`， 层次：`C`
 
 minio os user name, `minio` by default
 
@@ -2810,7 +2810,7 @@ minio os user name, `minio` by default
 
 ### `minio_node`
 
-name: `minio_node`, type: `string`, level: `C`
+参数名称： `minio_node`， 类型： `string`， 层次：`C`
 
 minio node name pattern, this is used for [multi-node](MINIO#multi-node-multi-drive) deployment
 
@@ -2822,7 +2822,7 @@ default values: `${minio_cluster}-${minio_seq}.pigsty`
 
 ### `minio_data`
 
-name: `minio_data`, type: `path`, level: `C`
+参数名称： `minio_data`， 类型： `path`， 层次：`C`
 
 minio data dir(s)
 
@@ -2836,7 +2836,7 @@ For a [multi-drive](MINIO#single-node-multi-drive) deployment, you can use `{x..
 
 ### `minio_domain`
 
-name: `minio_domain`, type: `string`, level: `G`
+参数名称： `minio_domain`， 类型： `string`， 层次：`G`
 
 minio service domain name, `sss.pigsty` by default.
 
@@ -2849,7 +2849,7 @@ The client can access minio S3 service via this domain name. This name will be r
 
 ### `minio_port`
 
-name: `minio_port`, type: `port`, level: `C`
+参数名称： `minio_port`， 类型： `port`， 层次：`C`
 
 minio service port, `9000` by default
 
@@ -2859,7 +2859,7 @@ minio service port, `9000` by default
 
 ### `minio_admin_port`
 
-name: `minio_admin_port`, type: `port`, level: `C`
+参数名称： `minio_admin_port`， 类型： `port`， 层次：`C`
 
 minio console port, `9001` by default
 
@@ -2869,7 +2869,7 @@ minio console port, `9001` by default
 
 ### `minio_access_key`
 
-name: `minio_access_key`, type: `username`, level: `C`
+参数名称： `minio_access_key`， 类型： `username`， 层次：`C`
 
 root access key, `minioadmin` by default
 
@@ -2882,7 +2882,7 @@ root access key, `minioadmin` by default
 
 ### `minio_secret_key`
 
-name: `minio_secret_key`, type: `password`, level: `C`
+参数名称： `minio_secret_key`， 类型： `password`， 层次：`C`
 
 root secret key, `minioadmin` by default
 
@@ -2895,7 +2895,7 @@ default values: `minioadmin`
 
 ### `minio_extra_vars`
 
-name: `minio_extra_vars`, type: `string`, level: `C`
+参数名称： `minio_extra_vars`， 类型： `string`， 层次：`C`
 
 extra environment variables for minio server. Check [Minio Server](https://min.io/docs/minio/linux/reference/minio-server/minio-server.html) for the complete list.
 
@@ -2907,7 +2907,7 @@ default value is empty string, you can use multiline string to passing multiple 
 
 ### `minio_alias`
 
-name: `minio_alias`, type: `string`, level: `G`
+参数名称： `minio_alias`， 类型： `string`， 层次：`G`
 
 MinIO alias name for the local MinIO cluster
 
@@ -2919,7 +2919,7 @@ default values: `sss`, which will be written to infra nodes' / admin users' clie
 
 ### `minio_buckets`
 
-name: `minio_buckets`, type: `bucket[]`, level: `C`
+参数名称： `minio_buckets`， 类型： `bucket[]`， 层次：`C`
 
 list of minio bucket to be created by default:
 
@@ -2934,7 +2934,7 @@ Three default buckets are created for module [`PGSQL`](PGSQL), [`INFRA`](INFRA),
 
 ### `minio_users`
 
-name: `minio_users`, type: `user[]`, level: `C`
+参数名称： `minio_users`， 类型： `user[]`， 层次：`C`
 
 list of minio user to be created, default value:
 
@@ -2957,80 +2957,94 @@ Two default users are created for PostgreSQL DBA and pgBackREST.
 
 # `REDIS`
 
+[Redis](REDIS) 模块包含了20个配置参数。
 
 ```yaml
-#redis_cluster:        <CLUSTER> # redis cluster name, required identity parameter
-#redis_node: 1            <NODE> # redis node sequence number, node int id required
-#redis_instances: {}      <NODE> # redis instances definition on this redis node
-redis_fs_main: /data              # redis main data mountpoint, `/data` by default
-redis_exporter_enabled: true      # install redis exporter on redis nodes?
-redis_exporter_port: 9121         # redis exporter listen port, 9121 by default
-redis_exporter_options: ''        # cli args and extra options for redis exporter
-redis_safeguard: false            # prevent purging running redis instance?
-redis_clean: true                 # purging existing redis during init?
-redis_rmdata: true                # remove redis data when purging redis server?
-redis_mode: standalone            # redis mode: standalone,cluster,sentinel
-redis_conf: redis.conf            # redis config template path, except sentinel
-redis_bind_address: '0.0.0.0'     # redis bind address, empty string will use host ip
-redis_max_memory: 1GB             # max memory used by each redis instance
-redis_mem_policy: allkeys-lru     # redis memory eviction policy
-redis_password: ''                # redis password, empty string will disable password
-redis_rdb_save: ['1200 1']        # redis rdb save directives, disable with empty list
-redis_aof_enabled: false          # enable redis append only file?
-redis_rename_commands: {}         # rename redis dangerous commands
-redis_cluster_replicas: 1         # replica number for one master in redis cluster
+#redis_cluster:             <集群> # Redis数据库集群名称，必选身份参数
+#redis_node: 1              <节点> # Redis节点上的实例定义
+#redis_instances: {}        <节点> # Redis节点编号，正整数，集群内唯一，必选身份参数
+redis_fs_main: /data              # Redis主数据目录，默认为 `/data`
+redis_exporter_enabled: true      # Redis Exporter 是否启用？
+redis_exporter_port: 9121         # Redis Exporter监听端口
+redis_exporter_options: ''        # Redis Exporter命令参数
+redis_safeguard: false            # 禁止抹除现存的Redis
+redis_clean: true                 # 初始化Redis是否抹除现存实例
+redis_rmdata: true                # 移除Redis实例时是否一并移除数据？
+redis_mode: standalone            # Redis集群模式：sentinel，cluster，standalone
+redis_conf: redis.conf            # Redis配置文件模板，sentinel 除外
+redis_bind_address: '0.0.0.0'     # Redis监听地址，默认留空则会绑定主机IP
+redis_max_memory: 1GB             # Redis可用的最大内存
+redis_mem_policy: allkeys-lru     # Redis内存逐出策略
+redis_password: ''                # Redis密码，默认留空则禁用密码
+redis_rdb_save: ['1200 1']        # Redis RDB 保存指令，字符串列表，空数组则禁用RDB
+redis_aof_enabled: false          # Redis AOF 是否启用？
+redis_rename_commands: {}         # Redis危险命令重命名列表
+redis_cluster_replicas: 1         # Redis原生集群中每个主库配几个从库？
 ```
+
+
+
+### `redis_cluster`
+
+参数名称： `redis_cluster`， 类型： `string`， 层次：`C`
+
+身份参数，必选参数，必须显式在集群层面配置，将用作集群内资源的命名空间。
+
+需要遵循特定命名规则：`[a-z][a-z0-9-]*`，以兼容不同约束对身份标识的要求，建议使用`redis-`作为集群名前缀。
+
+
+
+
+
+### `redis_node`
+
+参数名称： `redis_node`， 类型： `int`， 层次：`I`
+
+Redis节点序列号，身份参数，必选参数，必须显式在节点（Host）层面配置。
+
+自然数，在集群中应当是唯一的，用于区别与标识集群内的不同节点，从0或1开始分配。
+
+
+
 
 
 ### `redis_instances`
 
-name: `redis_instances`, type: `dict`, level: `I`
+参数名称： `redis_instances`， 类型： `dict`， 层次：`I`
 
-redis instances definition on this redis node
+当前 Redis 节点上的 Redis 实例定义，必选参数，必须显式在节点（Host）层面配置。
 
-no default value, you have to define redis instances on each redis node using this parameter explicitly.
-
-Here is an example for a native redis cluster definition
+内容为JSON KV对象格式。Key为数值类型端口号，Value为该实例特定的JSON配置项。
 
 ```yaml
-redis-test: # redis native cluster: 3m x 3s
+redis-test: # redis 原生集群：3主3从
   hosts:
     10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
     10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
   vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
 ```
 
+每一个Redis实例在对应节点上监听一个唯一端口，实例配置项中`replica_of` 用于设置一个实例的上游主库地址，构建主从复制关系。
+
+```yaml
+redis_instances:
+    6501: {}
+    6502: { replica_of: '10.10.10.13 6501' }
+    6503: { replica_of: '10.10.10.13 6501' }
+```
 
 
-### `redis_node`
-
-name: `redis_node`, type: `int`, level: `I`
-
-redis node sequence number,  unique integer among redis cluster is required
-
-You have to explicitly define the node id for each redis node.
-
-
-
-
-### `redis_cluster`
-
-name: `redis_cluster`, type: `string`, level: `C`
-
-redis cluster name, required identity parameter
-
-no default value, you have to define it explicitly.
 
 
 
 
 ### `redis_fs_main`
 
-name: `redis_fs_main`, type: `path`, level: `C`
+参数名称： `redis_fs_main`， 类型： `path`， 层次：`C`
 
-redis main data mountpoint, `/data` by default
+Redis使用的主数据盘挂载点，默认为`/data`，Pigsty会在该目录下创建`redis`目录，用于存放Redis数据。
 
-default values: `/data`, and `/data/redis` will be used as the redis data directory.
+所以实际存储数据的目录为 `/data/redis`，该目录的属主为操作系统用户 `redis`，内部结构详情请参考 [FHS：Redis](FHS#redis-fhs)
 
 
 
@@ -3038,22 +3052,21 @@ default values: `/data`, and `/data/redis` will be used as the redis data direct
 
 ### `redis_exporter_enabled`
 
-name: `redis_exporter_enabled`, type: `bool`, level: `C`
+参数名称： `redis_exporter_enabled`， 类型： `bool`， 层次：`C`
 
-install redis exporter on redis nodes?
+是否启用Redis监控组件 Redis Exporter？
 
-default value is `true`, which will launch a redis_exporter on this redis_node
+默认启用，在每个Redis节点上部署一个，默认监听 [`redis_exporter_port`](#redis_exporter_port) `9121` 端口。所有本节点上 Redis 实例的监控指标都由它负责抓取。
+
 
 
 
 
 ### `redis_exporter_port`
 
-name: `redis_exporter_port`, type: `port`, level: `C`
+参数名称： `redis_exporter_port`， 类型： `port`， 层次：`C`
 
-redis exporter listen port, 9121 by default
-
-default values: `9121`
+Redis Exporter监听端口，默认值为：`9121`
 
 
 
@@ -3061,11 +3074,9 @@ default values: `9121`
 
 ### `redis_exporter_options`
 
-name: `redis_exporter_options`, type: `string`, level: `C/I`
+参数名称： `redis_exporter_options`， 类型： `string`， 层次：`C/I`
 
-cli args and extra options for redis exporter
-
-default value is empty string
+传给 Redis Exporter 的额外命令行参数，会被渲染到 `/etc/defaut/redis_exporter` 中，默认为空字符串。
 
 
 
@@ -3074,48 +3085,57 @@ default value is empty string
 
 ### `redis_safeguard`
 
-name: `redis_safeguard`, type: `bool`, level: `G/C/A`
+参数名称： `redis_safeguard`， 类型： `bool`， 层次：`G/C/A`
 
-prevent purging running redis instance?
+Redis的防误删安全保险开关：打开后无法使用剧本抹除正在运行的 Redis 实例。
 
-default value is `false`, if set to `true`, and redis instance is running, init / remove playbook will abort immediately.
+默认值为 `false`，如果设置为 `true`，那么当剧本遇到正在运行的 Redis 实例时，会中止初始化/抹除的操作，避免误删。
+
 
 
 
 
 ### `redis_clean`
 
-name: `redis_clean`, type: `bool`, level: `G/C/A`
+参数名称： `redis_clean`， 类型： `bool`， 层次：`G/C/A`
 
-purging existing redis during init?
+Redis清理开关：是否在初始化的过程中抹除运行中的Redis实例？默认值为：`true`。
 
-default value is `true`, which will remove redis server during redis init or remove.
+剧本 `redis.yml` 会在执行时抹除具有相同定义的现有 Redis 实例，这样可以保证剧本的幂等性。
+
+如果您不希望 `redis.yml` 这样做，可以将此参数设置为 `false`，那么当剧本遇到正在运行的 Redis 实例时，会中止初始化/抹除的操作，避免误删。 
+
+如果安全保险参数 [`redis_safeguard`](#redis_safeguard) 已经打开，那么本参数的优先级低于该参数。
+
 
 
 
 
 ### `redis_rmdata`
 
-name: `redis_rmdata`, type: `bool`, level: `G/C/A`
+参数名称： `redis_rmdata`， 类型： `bool`， 层次：`G/C/A`
 
-remove redis data when purging redis server? 
+移除 Redis 实例的时候，是否一并移除 Redis 数据目录？默认为 `true`。
 
-default value is `true`, which will remove redis rdb / aof along with redis instance.
+数据目录包含了 Redis 的 RDB与AOF文件，如果不抹除它们，那么新拉起的 Redis 实例将会从这些备份文件中加载数据。
+
 
 
 
 
 ### `redis_mode`
 
-name: `redis_mode`, type: `enum`, level: `C`
+参数名称： `redis_mode`， 类型： `enum`， 层次：`C`
 
-redis mode: standalone,cluster,sentinel
+Redis集群的工作模式，有三种选项：`standalone`, `cluster`, `sentinel`，默认值为 `standalone`
 
-default values: `standalone`
+* `standalone`：默认，独立的Redis主从模式
+* `cluster`： Redis原生集群模式
+* `sentinel`：Redis高可用组件：哨兵
 
-* `standalone`: setup redis as standalone (master-slave) mode
-* `cluster`: setup this redis cluster as a redis native cluster
-* `sentinel`: setup redis as sentinel for standalone redis HA
+当使用`standalone`模式时，Pigsty会根据 `replica_of` 参数设置Redis主从复制关系。
+
+当使用`cluster`模式时，Pigsty会根据 [`redis_cluster_replicas`](#redis_cluster_replicas) 参数使用所有定义的实例创建原生Redis集群。
 
 
 
@@ -3123,15 +3143,15 @@ default values: `standalone`
 
 ### `redis_conf`
 
-name: `redis_conf`, type: `string`, level: `C`
+参数名称： `redis_conf`， 类型： `string`， 层次：`C`
 
-redis config template path, except sentinel
+Redis 配置模板路径，Sentinel除外。
 
-default values: `redis.conf`, which is a template file in [`roles/redis/templates/redis.conf`](https://github.com/Vonng/pigsty/blob/master/roles/redis/templates/redis.conf). 
+默认值：`redis.conf`，这是一个模板文件，位于 [`roles/redis/templates/redis.conf`](https://github.com/Vonng/pigsty/blob/master/roles/redis/templates/redis.conf)。
 
-If you want to use your own redis config template, you can put it in `templates/` directory and set this parameter to the template file name.
+如果你想使用自己的 Redis 配置模板，你可以将它放在 `templates/` 目录中，并设置此参数为模板文件名。
 
-Note that redis sentinel are using a different template file, which is [`roles/redis/templates/redis-sentinel.conf`](https://github.com/Vonng/pigsty/blob/master/roles/redis/templates/redis-sentinel.conf)
+注意： Redis Sentinel 使用的是另一个不同的模板文件，即 [`roles/redis/templates/redis-sentinel.conf`](https://github.com/Vonng/pigsty/blob/master/roles/redis/templates/redis-sentinel.conf)。
 
 
 
@@ -3139,22 +3159,24 @@ Note that redis sentinel are using a different template file, which is [`roles/r
 
 ### `redis_bind_address`
 
-name: `redis_bind_address`, type: `ip`, level: `C`
+参数名称： `redis_bind_address`， 类型： `ip`， 层次：`C`
 
-redis bind address, empty string will use inventory hostname
+Redis服务器绑定的IP地址，空字符串将使用配置清单中定义的主机名。
 
-default values: `0.0.0.0`, which will bind to all available IPv4 address on this host
+默认值：`0.0.0.0`，这将绑定到此主机上的所有可用 IPv4 地址。
 
-!> PLEASE bind to intranet IP only in production environment, i.e. set this value to `''`
+在生产环境中出于安全性考虑，建议仅绑定内网 IP，即将此值设置为空字符串 `''`
+
+
 
 
 
 
 ### `redis_max_memory`
 
-name: `redis_max_memory`, type: `size`, level: `C/I`
+参数名称： `redis_max_memory`， 类型： `size`， 层次：`C/I`
 
-max memory used by each redis instance, default values: `1GB`
+每个 Redis 实例使用的最大内存配置，默认值：`1GB`。
 
 
 
@@ -3162,55 +3184,56 @@ max memory used by each redis instance, default values: `1GB`
 
 ### `redis_mem_policy`
 
-name: `redis_mem_policy`, type: `enum`, level: `C`
+参数名称： `redis_mem_policy`， 类型： `enum`， 层次：`C`
 
-redis memory eviction policy
+Redis 内存回收策略，默认值：`allkeys-lru`，
 
-default values: `allkeys-lru`, check redis [eviction policy](https://redis.io/docs/reference/eviction/) for more details
+- `noeviction`：内存达限时不保存新值：当使用主从复制时仅适用于主库
+- `allkeys-lru`：保持最近使用的键；删除最近最少使用的键（LRU）
+- `allkeys-lfu`：保持频繁使用的键；删除最少频繁使用的键（LFU）
+- `volatile-lru`：删除带有真实过期字段的最近最少使用的键
+- `volatile-lfu`：删除带有真实过期字段的最少频繁使用的键
+- `allkeys-random`：随机删除键以为新添加的数据腾出空间
+- `volatile-random`：随机删除带有过期字段的键
+- `volatile-ttl`：删除带有真实过期字段和最短剩余生存时间（TTL）值的键。
 
-- `noeviction`: New values aren’t saved when memory limit is reached. When a database uses replication, this applies to the primary database
-- `allkeys-lru`: Keeps most recently used keys; removes least recently used (LRU) keys
-- `allkeys-lfu`: Keeps frequently used keys; removes least frequently used (LFU) keys
-- `volatile-lru`: Removes least recently used keys with the expire field set to true.
-- `volatile-lfu`: Removes least frequently used keys with the expire field set to true.
-- `allkeys-random`: Randomly removes keys to make space for the new data added.
-- `volatile-random`: Randomly removes keys with expire field set to true.
-- `volatile-ttl`: Removes keys with expire field set to true and the shortest remaining time-to-live (TTL) value.
+详情请参阅[Redis内存回收策略](https://redis.io/docs/reference/eviction/)。
+
 
 
 
 
 ### `redis_password`
 
-name: `redis_password`, type: `password`, level: `C/N`
+参数名称： `redis_password`， 类型： `password`， 层次：`C/N`
 
-redis password, empty string will disable password, which is the default behavior
+Redis 密码，空字符串将禁用密码，这是默认行为。
 
-Note that due to the implementation limitation of redis_exporter, you can only set one `redis_password` per node. 
-This is usually not a problem, because pigsty does not allow deploying two different redis cluster on the same node. 
+注意，由于 redis_exporter 的实现限制，您每个节点只能设置一个 `redis_password`。这通常不是问题，因为 pigsty 不允许在同一节点上部署两个不同的 Redis 集群。
 
-!> PLEASE use a strong password in production environment 
+> 请在生产环境中使用强密码
 
 
 
 
 ### `redis_rdb_save`
 
-name: `redis_rdb_save`, type: `string[]`, level: `C`
+参数名称： `redis_rdb_save`， 类型： `string[]`， 层次：`C`
 
-redis rdb save directives, disable with empty list, check redis [persist](https://redis.io/docs/management/persistence/) for details.
+Redis RDB 保存指令，使用空列表则禁用 RDB。
 
-the default value is  `["1200 1"]`: dump the dataset to disk every 20 minutes if at least 1 key changed: 
+默认值是 `["1200 1"]`：如果最近20分钟至少有1个键更改，则将数据集转储到磁盘。
 
+详情请参考 [Redis持久化](https://redis.io/docs/management/persistence/)。
 
 
 
 
 ### `redis_aof_enabled`
 
-name: `redis_aof_enabled`, type: `bool`, level: `C`
+参数名称： `redis_aof_enabled`， 类型： `bool`， 层次：`C`
 
-enable redis append only file? default value is `false`.
+启用 Redis AOF 吗？默认值是 `false`，即不使用 AOF。
 
 
 
@@ -3218,11 +3241,11 @@ enable redis append only file? default value is `false`.
 
 ### `redis_rename_commands`
 
-name: `redis_rename_commands`, type: `dict`, level: `C`
+参数名称： `redis_rename_commands`， 类型： `dict`， 层次：`C`
 
-rename redis dangerous commands, which is a dict of k:v `old: new`
+重命名 Redis 危险命令，这是一个 k:v 字典：`old: new`，old是待重命名的命令名称，new是重命名后的名字。
 
-default values: `{}`, you can hide dangerous commands like `FLUSHDB` and `FLUSHALL` by setting this value, here's an example:
+默认值：`{}`，你可以通过设置此值来隐藏像 `FLUSHDB` 和 `FLUSHALL` 这样的危险命令，下面是一个例子：
 
 ```yaml
 {
@@ -3238,11 +3261,9 @@ default values: `{}`, you can hide dangerous commands like `FLUSHDB` and `FLUSHA
 
 ### `redis_cluster_replicas`
 
-name: `redis_cluster_replicas`, type: `int`, level: `C`
+参数名称： `redis_cluster_replicas`， 类型： `int`， 层次：`C`
 
-replica number for one master/primary in redis cluster, default values: `1`
-
-
+在 Redis 原生集群中，应当为一个 Master/Primary 实例配置多少个从库？默认值为： `1`，即每个主库配一个从库。
 
 
 
@@ -3320,7 +3341,7 @@ All other params can be inherited from the global config or the default config, 
 
 ### `pg_mode`
 
-name: `pg_mode`, type: `enum`, level: `C`
+参数名称： `pg_mode`， 类型： `enum`， 层次：`C`
 
 pgsql cluster mode, cloud be `pgsql`, `citus`, or `gpsql`, `pgsql` by default.
 
@@ -3332,7 +3353,7 @@ If `pg_mode` is set to `citus` or `gpsql`, [`pg_shard`](#pg_shard) and [`pg_grou
 
 ### `pg_cluster`
 
-name: `pg_cluster`, type: `string`, level: `C`
+参数名称： `pg_cluster`， 类型： `string`， 层次：`C`
 
 pgsql cluster name, REQUIRED identity parameter
 
@@ -3345,7 +3366,7 @@ The naming needs to follow the specific naming pattern: `[a-z][a-z0-9-]*` to be 
 
 ### `pg_seq`
 
-name: `pg_seq`, type: `int`, level: `I`
+参数名称： `pg_seq`， 类型： `int`， 层次：`I`
 
 pgsql instance seq number, REQUIRED identity parameter
 
@@ -3356,7 +3377,7 @@ A serial number of this instance, unique within its **cluster**, starting from 0
 
 ### `pg_role`
 
-name: `pg_role`, type: `enum`, level: `I`
+参数名称： `pg_role`， 类型： `enum`， 层次：`I`
 
 pgsql role, REQUIRED, could be primary,replica,offline
 
@@ -3375,7 +3396,7 @@ Roles for PGSQL instance, can be: `primary`, `replica`, `standby` or `offline`.
 
 ### `pg_instances`
 
-name: `pg_instances`, type: `dict`, level: `I`
+参数名称： `pg_instances`， 类型： `dict`， 层次：`I`
 
 define multiple pg instances on node in `{port:ins_vars}` format.
 
@@ -3387,7 +3408,7 @@ This parameter is reserved for multi-instance deployment on a single node which 
 
 ### `pg_upstream`
 
-name: `pg_upstream`, type: `ip`, level: `I`
+参数名称： `pg_upstream`， 类型： `ip`， 层次：`I`
 
 Upstream ip address for standby cluster or cascade replica
 
@@ -3401,7 +3422,7 @@ Setting `pg_upstream` for a non-primary instance will explicitly set a replicati
 
 ### `pg_shard`
 
-name: `pg_shard`, type: `string`, level: `C`
+参数名称： `pg_shard`， 类型： `string`， 层次：`C`
 
 pgsql shard name, required identity parameter for sharding clusters (e.g. citus cluster), optional for common pgsql clusters.
 
@@ -3425,7 +3446,7 @@ cls pg_group = 3:   pg-citus3
 
 ### `pg_group`
 
-name: `pg_group`, type: `int`, level: `C`
+参数名称： `pg_group`， 类型： `int`， 层次：`C`
 
 pgsql shard index number, required identity for sharding clusters, optional for common pgsql clusters.
 
@@ -3437,7 +3458,7 @@ Sharding cluster index of sharding group, used in pair with [pg_shard](#pg_shard
 
 ### `gp_role`
 
-name: `gp_role`, type: `enum`, level: `C`
+参数名称： `gp_role`， 类型： `enum`， 层次：`C`
 
 greenplum/matrixdb role of this cluster, could be `master` or `segment`
 
@@ -3452,7 +3473,7 @@ This parameter is only used for greenplum/matrixdb database, and is ignored for 
 
 ### `pg_exporters`
 
-name: `pg_exporters`, type: `dict`, level: `C`
+参数名称： `pg_exporters`， 类型： `dict`， 层次：`C`
 
 additional pg_exporters to monitor remote postgres instances, default values: `{}`
 
@@ -3473,7 +3494,7 @@ Check [PGSQL Monitoring](PGSQL-MONITOR) for details.
 
 ### `pg_offline_query`
 
-name: `pg_offline_query`, type: `bool`, level: `I`
+参数名称： `pg_offline_query`， 类型： `bool`， 层次：`I`
 
 set to true to enable offline query on this instance
 
@@ -3520,7 +3541,7 @@ pg_monitor_password: DBUser.Monitor
 
 ### `pg_users`
 
-name: `pg_users`, type: `user[]`, level: `C`
+参数名称： `pg_users`， 类型： `user[]`， 层次：`C`
 
 postgres business users, has to be defined at cluster level.
 
@@ -3577,7 +3598,7 @@ Configure `pgbouncer: true` for the production account to add the user to pgboun
 
 ### `pg_databases`
 
-name: `pg_databases`, type: `database[]`, level: `C`
+参数名称： `pg_databases`， 类型： `database[]`， 层次：`C`
 
 postgres business databases, has to be defined at cluster level.
 
@@ -3625,7 +3646,7 @@ In each database definition, the DB  `name` is mandatory and the rest are option
 
 ### `pg_services`
 
-name: `pg_services`, type: `service[]`, level: `C`
+参数名称： `pg_services`， 类型： `service[]`， 层次：`C`
 
 postgres business services exposed via haproxy, has to be defined at cluster level.
 
@@ -3655,7 +3676,7 @@ pg_services:                        # extra services in addition to pg_default_s
 
 ### `pg_hba_rules`
 
-name: `pg_hba_rules`, type: `hba[]`, level: `C`
+参数名称： `pg_hba_rules`， 类型： `hba[]`， 层次：`C`
 
 business hba rules for postgres
 
@@ -3702,7 +3723,7 @@ or you can use another alias form
 
 ### `pgb_hba_rules`
 
-name: `pgb_hba_rules`, type: `hba[]`, level: `C`
+参数名称： `pgb_hba_rules`， 类型： `hba[]`， 层次：`C`
 
 business hba rules for pgbouncer, default values: `[]`
 
@@ -3715,7 +3736,7 @@ Similar to [`pg_hba_rules`](#pg_hba_rules), array of [hba](PGSQL-HBA#define-hba)
 
 ### `pg_replication_username`
 
-name: `pg_replication_username`, type: `username`, level: `G`
+参数名称： `pg_replication_username`， 类型： `username`， 层次：`G`
 
 postgres replication username, `replicator` by default
 
@@ -3727,7 +3748,7 @@ This parameter is globally used, it not wise to change it.
 
 ### `pg_replication_password`
 
-name: `pg_replication_password`, type: `password`, level: `G`
+参数名称： `pg_replication_password`， 类型： `password`， 层次：`G`
 
 postgres replication password, `DBUser.Replicator` by default
 
@@ -3739,7 +3760,7 @@ postgres replication password, `DBUser.Replicator` by default
 
 ### `pg_admin_username`
 
-name: `pg_admin_username`, type: `username`, level: `G`
+参数名称： `pg_admin_username`， 类型： `username`， 层次：`G`
 
 postgres admin username, `dbuser_dba` by default, which is a global postgres superuser.
 
@@ -3751,7 +3772,7 @@ default values: `dbuser_dba`
 
 ### `pg_admin_password`
 
-name: `pg_admin_password`, type: `password`, level: `G`
+参数名称： `pg_admin_password`， 类型： `password`， 层次：`G`
 
 postgres admin password in plain text, `DBUser.DBA` by default
 
@@ -3763,7 +3784,7 @@ postgres admin password in plain text, `DBUser.DBA` by default
 
 ### `pg_monitor_username`
 
-name: `pg_monitor_username`, type: `username`, level: `G`
+参数名称： `pg_monitor_username`， 类型： `username`， 层次：`G`
 
 postgres monitor username, `dbuser_monitor` by default, which is a global monitoring user.
 
@@ -3773,7 +3794,7 @@ postgres monitor username, `dbuser_monitor` by default, which is a global monito
 
 ### `pg_monitor_password`
 
-name: `pg_monitor_password`, type: `password`, level: `G`
+参数名称： `pg_monitor_password`， 类型： `password`， 层次：`G`
 
 postgres monitor password, `DBUser.Monitor` by default.
 
@@ -3784,7 +3805,7 @@ postgres monitor password, `DBUser.Monitor` by default.
 
 ### `pg_dbsu_password`
 
-name: `pg_dbsu_password`, type: `password`, level: `G/C`
+参数名称： `pg_dbsu_password`， 类型： `password`， 层次：`G/C`
 
 PostgreSQL dbsu password for [`pg_dbsu`](#pg_dbsu), empty string means no dbsu password, which is the default behavior.
 
@@ -3830,7 +3851,7 @@ pg_extensions:                    # pg extensions to be installed, `${pg_version
 
 ### `pg_dbsu`
 
-name: `pg_dbsu`, type: `username`, level: `C`
+参数名称： `pg_dbsu`， 类型： `username`， 层次：`C`
 
 os dbsu name, `postgres` by default, it's not wise to change it.
 
@@ -3841,7 +3862,7 @@ When installing Greenplum / MatrixDB, set this parameter to the corresponding de
 
 ### `pg_dbsu_uid`
 
-name: `pg_dbsu_uid`, type: `int`, level: `C`
+参数名称： `pg_dbsu_uid`， 类型： `int`， 层次：`C`
 
 os dbsu uid and gid, `26` for default postgres users and groups, which is consistent with the official pgdg RPM.
 
@@ -3852,7 +3873,7 @@ os dbsu uid and gid, `26` for default postgres users and groups, which is consis
 
 ### `pg_dbsu_sudo`
 
-name: `pg_dbsu_sudo`, type: `enum`, level: `C`
+参数名称： `pg_dbsu_sudo`， 类型： `enum`， 层次：`C`
 
 dbsu sudo privilege, coud be `none`, `limit` ,`all` ,`nopass`. `limit` by default
 
@@ -3869,7 +3890,7 @@ default values: `limit`, which only allow `sudo systemctl <start|stop|reload> <p
 
 ### `pg_dbsu_home`
 
-name: `pg_dbsu_home`, type: `path`, level: `C`
+参数名称： `pg_dbsu_home`， 类型： `path`， 层次：`C`
 
 postgresql home directory, `/var/lib/pgsql` by default, which is consistent with the official pgdg RPM.
 
@@ -3880,7 +3901,7 @@ postgresql home directory, `/var/lib/pgsql` by default, which is consistent with
 
 ### `pg_dbsu_ssh_exchange`
 
-name: `pg_dbsu_ssh_exchange`, type: `bool`, level: `C`
+参数名称： `pg_dbsu_ssh_exchange`， 类型： `bool`， 层次：`C`
 
 exchange postgres dbsu ssh key among same pgsql cluster?
 
@@ -3892,7 +3913,7 @@ default value is `true`, means the dbsu can ssh to each other among the same clu
 
 ### `pg_version`
 
-name: `pg_version`, type: `enum`, level: `C`
+参数名称： `pg_version`， 类型： `enum`， 层次：`C`
 
 postgres major version to be installed, `15` by default
 
@@ -3906,7 +3927,7 @@ You can use the parameters in [`pg_packages`](#pg_packages) and [`pg_extensions`
 
 ### `pg_bin_dir`
 
-name: `pg_bin_dir`, type: `path`, level: `C`
+参数名称： `pg_bin_dir`， 类型： `path`， 层次：`C`
 
 postgres binary dir, `/usr/pgsql/bin` by default
 
@@ -3919,7 +3940,7 @@ For example `/usr/pgsql -> /usr/pgsql-15`. For more details, check [PGSQL File S
 
 ### `pg_log_dir`
 
-name: `pg_log_dir`, type: `path`, level: `C`
+参数名称： `pg_log_dir`， 类型： `path`， 层次：`C`
 
 postgres log dir, `/pg/log/postgres` by default.
 
@@ -3930,7 +3951,7 @@ postgres log dir, `/pg/log/postgres` by default.
 
 ### `pg_packages`
 
-name: `pg_packages`, type: `string[]`, level: `C`
+参数名称： `pg_packages`， 类型： `string[]`， 层次：`C`
 
 pg packages to be installed, `${pg_version}` will be replaced to the actual value of [`pg_version`](#pg_version)
 
@@ -3949,7 +3970,7 @@ pg_packages:                      # pg packages to be installed, `${pg_version}`
 
 ### `pg_extensions`
 
-name: `pg_extensions`, type: `string[]`, level: `C`
+参数名称： `pg_extensions`， 类型： `string[]`， 层次：`C`
 
 pg extensions to be installed, `${pg_version}` will be replaced to [`pg_version`](#pg_version)
 
@@ -4029,7 +4050,7 @@ pgbouncer_sslmode: disable        # pgbouncer client ssl mode, disable by defaul
 
 ### `pg_safeguard`
 
-name: `pg_safeguard`, type: `bool`, level: `G/C/A`
+参数名称： `pg_safeguard`， 类型： `bool`， 层次：`G/C/A`
 
 prevent purging running postgres instance? false by default
 
@@ -4040,7 +4061,7 @@ default value is `false`, If enabled, `pgsql.yml` & `pgsql-rm.yml` will abort im
 
 ### `pg_clean`
 
-name: `pg_clean`, type: `bool`, level: `G/C/A`
+参数名称： `pg_clean`， 类型： `bool`， 层次：`G/C/A`
 
 purging existing postgres during pgsql init? true by default
 
@@ -4053,7 +4074,7 @@ if set to `false`, `pgsql.yml` will abort if there's already a running postgres 
 
 ### `pg_data`
 
-name: `pg_data`, type: `path`, level: `C`
+参数名称： `pg_data`， 类型： `path`， 层次：`C`
 
 postgres data directory, `/pg/data` by default
 
@@ -4069,7 +4090,7 @@ Check [PGSQL File Structure](FHS) for details.
 
 ### `pg_fs_main`
 
-name: `pg_fs_main`, type: `path`, level: `C`
+参数名称： `pg_fs_main`， 类型： `path`， 层次：`C`
 
 mountpoint/path for postgres main data, `/data` by default
 
@@ -4085,7 +4106,7 @@ But HDD is also supported, you can change [`pg_storage_type`](#pg_storage_type) 
 
 ### `pg_fs_bkup`
 
-name: `pg_fs_bkup`, type: `path`, level: `C`
+参数名称： `pg_fs_bkup`， 类型： `path`， 层次：`C`
 
 mountpoint/path for pg backup data, `/data/backup` by default
 
@@ -4102,7 +4123,7 @@ It's recommended to use a separate disk for backup storage, otherwise pigsty wil
 
 ### `pg_storage_type`
 
-name: `pg_storage_type`, type: `enum`, level: `C`
+参数名称： `pg_storage_type`， 类型： `enum`， 层次：`C`
 
 storage type for pg main data, `SSD`,`HDD`, `SSD` by default
 
@@ -4114,7 +4135,7 @@ default values: `SSD`, it will affect some tuning parameters, such as `random_pa
 
 ### `pg_dummy_filesize`
 
-name: `pg_dummy_filesize`, type: `size`, level: `C`
+参数名称： `pg_dummy_filesize`， 类型： `size`， 层次：`C`
 
 size of `/pg/dummy`, default values: `64MiB`, which hold 64MB disk space for emergency use
 
@@ -4126,7 +4147,7 @@ When the disk is full, removing the placeholder file can free up some space for 
 
 ### `pg_listen`
 
-name: `pg_listen`, type: `ip`, level: `C`
+参数名称： `pg_listen`， 类型： `ip`， 层次：`C`
 
 postgres/pgbouncer listen address, `0.0.0.0` (all ipv4 addr) by default
 
@@ -4144,7 +4165,7 @@ For example: `'${ip},${lo}'` or `'${ip},${vip},${lo}'`.
 
 ### `pg_port`
 
-name: `pg_port`, type: `port`, level: `C`
+参数名称： `pg_port`， 类型： `port`， 层次：`C`
 
 postgres listen port, `5432` by default.
 
@@ -4154,7 +4175,7 @@ postgres listen port, `5432` by default.
 
 ### `pg_localhost`
 
-name: `pg_localhost`, type: `path`, level: `C`
+参数名称： `pg_localhost`， 类型： `path`， 层次：`C`
 
 postgres unix socket dir for localhost connection, default values: `/var/run/postgresql`
 
@@ -4166,7 +4187,7 @@ The Unix socket dir for PostgreSQL and Pgbouncer local connection, which is used
 
 ### `pg_namespace`
 
-name: `pg_namespace`, type: `path`, level: `C`
+参数名称： `pg_namespace`， 类型： `path`， 层次：`C`
 
 top level key namespace in etcd, used by patroni & vip, default values is: `/pg` , and it's not recommended to change it.
 
@@ -4176,7 +4197,7 @@ top level key namespace in etcd, used by patroni & vip, default values is: `/pg`
 
 ### `patroni_enabled`
 
-name: `patroni_enabled`, type: `bool`, level: `C`
+参数名称： `patroni_enabled`， 类型： `bool`， 层次：`C`
 
 if disabled, no postgres cluster will be created during init
 
@@ -4189,7 +4210,7 @@ This option is useful when trying to add some components to an existing postgres
 
 ### `patroni_mode`
 
-name: `patroni_mode`, type: `enum`, level: `C`
+参数名称： `patroni_mode`， 类型： `enum`， 层次：`C`
 
 patroni working mode: `default`, `pause`, `remove`
 
@@ -4204,7 +4225,7 @@ default values: `default`
 
 ### `patroni_port`
 
-name: `patroni_port`, type: `port`, level: `C`
+参数名称： `patroni_port`， 类型： `port`， 层次：`C`
 
 patroni listen port, `8008` by default, changing it is not recommended.
 
@@ -4215,7 +4236,7 @@ The Patroni API server listens on this port for health checking & API requests.
 
 ### `patroni_log_dir`
 
-name: `patroni_log_dir`, type: `path`, level: `C`
+参数名称： `patroni_log_dir`， 类型： `path`， 层次：`C`
 
 patroni log dir, `/pg/log/patroni` by default, which will be collected by [`promtail`](#promtail).
 
@@ -4227,7 +4248,7 @@ patroni log dir, `/pg/log/patroni` by default, which will be collected by [`prom
 
 ### `patroni_ssl_enabled`
 
-name: `patroni_ssl_enabled`, type: `bool`, level: `G`
+参数名称： `patroni_ssl_enabled`， 类型： `bool`， 层次：`G`
 
 Secure patroni RestAPI communications with SSL? default value is `false`
 
@@ -4243,7 +4264,7 @@ Since if SSL is enabled for patroni, you'll have to perform healthcheck, metrics
 
 ### `patroni_watchdog_mode`
 
-name: `patroni_watchdog_mode`, type: `string`, level: `C`
+参数名称： `patroni_watchdog_mode`， 类型： `string`， 层次：`C`
 
 In case of primary failure, patroni can use [watchdog](https://patroni.readthedocs.io/en/latest/watchdog.html) to shutdown the old primary node to avoid split-brain.
 
@@ -4264,7 +4285,7 @@ For those critical systems where data consistency prevails over availability, it
 
 ### `patroni_username`
 
-name: `patroni_username`, type: `username`, level: `C`
+参数名称： `patroni_username`， 类型： `username`， 层次：`C`
 
 patroni restapi username, `postgres` by default, used in pair with [`patroni_password`](#patroni_password)
 
@@ -4275,7 +4296,7 @@ Patroni unsafe RESTAPI is protected by username/password by default, check [Conf
 
 ### `patroni_password`
 
-name: `patroni_password`, type: `password`, level: `C`
+参数名称： `patroni_password`， 类型： `password`， 层次：`C`
 
 patroni restapi password, `Patroni.API` by default
 
@@ -4287,7 +4308,7 @@ patroni restapi password, `Patroni.API` by default
 
 ### `patroni_citus_db`
 
-name: `patroni_citus_db`, type: `string`, level: `C`
+参数名称： `patroni_citus_db`， 类型： `string`， 层次：`C`
 
 citus database managed by patroni, `postgres` by default.
 
@@ -4298,7 +4319,7 @@ Patroni 3.0's native citus will specify a managed database for citus. which is c
 
 ### `pg_conf`
 
-name: `pg_conf`, type: `enum`, level: `C`
+参数名称： `pg_conf`， 类型： `enum`， 层次：`C`
 
 config template: `{oltp,olap,crit,tiny}.yml`, `oltp.yml` by default
 
@@ -4317,7 +4338,7 @@ You can have your own template, just put it under `templates/<mode>.yml` and set
 
 ### `pg_max_conn`
 
-name: `pg_max_conn`, type: `int`, level: `C`
+参数名称： `pg_max_conn`， 类型： `int`， 层次：`C`
 
 postgres max connections, You can specify a value between 50 and 5000, or use `auto` to use recommended value.
 
@@ -4342,7 +4363,7 @@ Pgbouncer's transaction pooling can alleviate the problem of too many OLTP conne
 
 ### `pg_shared_buffer_ratio`
 
-name: `pg_shared_buffer_ratio`, type: `float`, level: `C`
+参数名称： `pg_shared_buffer_ratio`， 类型： `float`， 层次：`C`
 
 postgres shared buffer memory ratio, 0.25 by default, 0.1~0.4
 
@@ -4357,7 +4378,7 @@ Note that shared buffer is only part of shared memory in PostgreSQL, to calculat
 
 ### `pg_rto`
 
-name: `pg_rto`, type: `int`, level: `C`
+参数名称： `pg_rto`， 类型： `int`， 层次：`C`
 
 recovery time objective in seconds, This will be used as Patroni TTL value, `30`s by default.
 
@@ -4388,7 +4409,7 @@ primary_start_timeout: {{ (pg_rto / 3)|round(0, 'ceil')|int }}
 
 ### `pg_rpo`
 
-name: `pg_rpo`, type: `int`, level: `C`
+参数名称： `pg_rpo`， 类型： `int`， 层次：`C`
 
 recovery point objective in bytes, `1MiB` at most by default
 
@@ -4409,7 +4430,7 @@ You can use `crit.yml` [conf](#pg_conf) template to ensure no data loss during f
 
 ### `pg_libs`
 
-name: `pg_libs`, type: `string`, level: `C`
+参数名称： `pg_libs`， 类型： `string`， 层次：`C`
 
 preloaded libraries, `timescaledb,pg_stat_statements,auto_explain` by default
 
@@ -4424,7 +4445,7 @@ If you are using patroni native citus cluster, patroni will add it automatically
 
 ### `pg_delay`
 
-name: `pg_delay`, type: `interval`, level: `I`
+参数名称： `pg_delay`， 类型： `interval`， 层次：`I`
 
 replication apply delay for standby cluster leader , default values: `0`.
 
@@ -4438,7 +4459,7 @@ Check [delayed standby cluster](PGSQL-CONF#delayed-cluster) for details.
 
 ### `pg_checksum`
 
-name: `pg_checksum`, type: `bool`, level: `C`
+参数名称： `pg_checksum`， 类型： `bool`， 层次：`C`
 
 enable data checksum for postgres cluster?, default value is `false`.
 
@@ -4451,7 +4472,7 @@ If [`pg_conf`](#pg_conf) `crit.yml` template is used, data checksum is always en
 
 ### `pg_pwd_enc`
 
-name: `pg_pwd_enc`, type: `enum`, level: `C`
+参数名称： `pg_pwd_enc`， 类型： `enum`， 层次：`C`
 
 passwords encryption algorithm: md5,scram-sha-256
 
@@ -4463,7 +4484,7 @@ default values: `scram-sha-256`, if you have compatibility issues with old clien
 
 ### `pg_encoding`
 
-name: `pg_encoding`, type: `enum`, level: `C`
+参数名称： `pg_encoding`， 类型： `enum`， 层次：`C`
 
 database cluster encoding, `UTF8` by default
 
@@ -4473,7 +4494,7 @@ database cluster encoding, `UTF8` by default
 
 ### `pg_locale`
 
-name: `pg_locale`, type: `enum`, level: `C`
+参数名称： `pg_locale`， 类型： `enum`， 层次：`C`
 
 database cluster local, `C` by default
 
@@ -4484,7 +4505,7 @@ database cluster local, `C` by default
 
 ### `pg_lc_collate`
 
-name: `pg_lc_collate`, type: `enum`, level: `C`
+参数名称： `pg_lc_collate`， 类型： `enum`， 层次：`C`
 
 database cluster collate, `C` by default, It's not recommended to change this value unless you know what you are doing.
 
@@ -4494,7 +4515,7 @@ database cluster collate, `C` by default, It's not recommended to change this va
 
 ### `pg_lc_ctype`
 
-name: `pg_lc_ctype`, type: `enum`, level: `C`
+参数名称： `pg_lc_ctype`， 类型： `enum`， 层次：`C`
 
 database character type, `en_US.UTF8` by default
 
@@ -4505,7 +4526,7 @@ database character type, `en_US.UTF8` by default
 
 ### `pgbouncer_enabled`
 
-name: `pgbouncer_enabled`, type: `bool`, level: `C`
+参数名称： `pgbouncer_enabled`， 类型： `bool`， 层次：`C`
 
 default value is `true`, if disabled, pgbouncer will not be launched on pgsql host
 
@@ -4516,7 +4537,7 @@ default value is `true`, if disabled, pgbouncer will not be launched on pgsql ho
 
 ### `pgbouncer_port`
 
-name: `pgbouncer_port`, type: `port`, level: `C`
+参数名称： `pgbouncer_port`， 类型： `port`， 层次：`C`
 
 pgbouncer listen port, `6432` by default
 
@@ -4527,7 +4548,7 @@ pgbouncer listen port, `6432` by default
 
 ### `pgbouncer_log_dir`
 
-name: `pgbouncer_log_dir`, type: `path`, level: `C`
+参数名称： `pgbouncer_log_dir`， 类型： `path`， 层次：`C`
 
 pgbouncer log dir, `/pg/log/pgbouncer` by default, referenced by promtail the logging agent.
 
@@ -4538,7 +4559,7 @@ pgbouncer log dir, `/pg/log/pgbouncer` by default, referenced by promtail the lo
 
 ### `pgbouncer_auth_query`
 
-name: `pgbouncer_auth_query`, type: `bool`, level: `C`
+参数名称： `pgbouncer_auth_query`， 类型： `bool`， 层次：`C`
 
 query postgres to retrieve unlisted business users? default value is `false`
 
@@ -4550,7 +4571,7 @@ If enabled, pgbouncer user will be authenticated against postgres database with 
 
 ### `pgbouncer_poolmode`
 
-name: `pgbouncer_poolmode`, type: `enum`, level: `C`
+参数名称： `pgbouncer_poolmode`， 类型： `enum`， 层次：`C`
 
 pooling mode: transaction,session,statement, `transaction` by default
 
@@ -4564,7 +4585,7 @@ pooling mode: transaction,session,statement, `transaction` by default
 
 ### `pgbouncer_sslmode`
 
-name: `pgbouncer_sslmode`, type: `enum`, level: `C`
+参数名称： `pgbouncer_sslmode`， 类型： `enum`， 层次：`C`
 
 pgbouncer client ssl mode, `disable` by default
 
@@ -4665,7 +4686,7 @@ pgb_default_hba_rules:            # pgbouncer default host-based authentication 
 
 ### `pg_provision`
 
-name: `pg_provision`, type: `bool`, level: `C`
+参数名称： `pg_provision`， 类型： `bool`， 层次：`C`
 
 provision postgres cluster after bootstrap, default value is `true`.
 
@@ -4677,7 +4698,7 @@ If disabled, postgres cluster will not be provisioned after bootstrap.
 
 ### `pg_init`
 
-name: `pg_init`, type: `string`, level: `G/C`
+参数名称： `pg_init`， 类型： `string`， 层次：`G/C`
 
 Provision init script for cluster template, `pg-init` by default, which is located in [`roles/pgsql/templates/pg-init`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/pg-init)
 
@@ -4690,7 +4711,7 @@ You can add your own logic in the init script, or provide a new one in `template
 
 ### `pg_default_roles`
 
-name: `pg_default_roles`, type: `role[]`, level: `G/C`
+参数名称： `pg_default_roles`， 类型： `role[]`， 层次：`G/C`
 
 default roles and users in postgres cluster.  
 
@@ -4713,7 +4734,7 @@ pg_default_roles:                 # default roles and users in postgres cluster
 
 ### `pg_default_privileges`
 
-name: `pg_default_privileges`, type: `string[]`, level: `G/C`
+参数名称： `pg_default_privileges`， 类型： `string[]`， 层次：`G/C`
 
 default privileges for each databases:
 
@@ -4745,7 +4766,7 @@ Pigsty has a built-in privileges base on default role system, check [PGSQL Privi
 
 ### `pg_default_schemas`
 
-name: `pg_default_schemas`, type: `string[]`, level: `G/C`
+参数名称： `pg_default_schemas`， 类型： `string[]`， 层次：`G/C`
 
 default schemas to be created, default values is: `[ monitor ]`, which will create a `monitor` schema on all databases.
 
@@ -4755,7 +4776,7 @@ default schemas to be created, default values is: `[ monitor ]`, which will crea
 
 ### `pg_default_extensions`
 
-name: `pg_default_extensions`, type: `extension[]`, level: `G/C`
+参数名称： `pg_default_extensions`， 类型： `extension[]`， 层次：`G/C`
 
 default extensions to be created, default value: 
 
@@ -4788,7 +4809,7 @@ Monitor related extensions are installed in `monitor` schema, which is created b
 
 ### `pg_reload`
 
-name: `pg_reload`, type: `bool`, level: `A`
+参数名称： `pg_reload`， 类型： `bool`， 层次：`A`
 
 reload postgres after hba changes, default value is `true`
 
@@ -4800,7 +4821,7 @@ This is useful when you want to check before applying HBA changes, set it to `fa
 
 ### `pg_default_hba_rules`
 
-name: `pg_default_hba_rules`, type: `hba[]`, level: `G/C`
+参数名称： `pg_default_hba_rules`， 类型： `hba[]`， 层次：`G/C`
 
 postgres default host-based authentication rules, array of [hba](PGSQL-HBA#define-hba) rule object.
 
@@ -4827,7 +4848,7 @@ pg_default_hba_rules:             # postgres default host-based authentication r
 
 ### `pgb_default_hba_rules`
 
-name: `pgb_default_hba_rules`, type: `hba[]`, level: `G/C`
+参数名称： `pgb_default_hba_rules`， 类型： `hba[]`， 层次：`G/C`
 
 pgbouncer default host-based authentication rules, array or [hba](PGSQL-HBA#define-hba) rule object.
 
@@ -4892,7 +4913,7 @@ pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/conf
 
 ### `pgbackrest_enabled`
 
-name: `pgbackrest_enabled`, type: `bool`, level: `C`
+参数名称： `pgbackrest_enabled`， 类型： `bool`， 层次：`C`
 
 enable pgBackRest on pgsql host? default value is `true`
 
@@ -4902,7 +4923,7 @@ enable pgBackRest on pgsql host? default value is `true`
 
 ### `pgbackrest_clean`
 
-name: `pgbackrest_clean`, type: `bool`, level: `C`
+参数名称： `pgbackrest_clean`， 类型： `bool`， 层次：`C`
 
 remove pg backup data during init?  default value is `true`
 
@@ -4911,7 +4932,7 @@ remove pg backup data during init?  default value is `true`
 
 ### `pgbackrest_log_dir`
 
-name: `pgbackrest_log_dir`, type: `path`, level: `C`
+参数名称： `pgbackrest_log_dir`， 类型： `path`， 层次：`C`
 
 pgBackRest log dir, `/pg/log/pgbackrest` by default, which is referenced by [`promtail`](#promtail) the logging agent.
 
@@ -4921,7 +4942,7 @@ pgBackRest log dir, `/pg/log/pgbackrest` by default, which is referenced by [`pr
 
 ### `pgbackrest_method`
 
-name: `pgbackrest_method`, type: `enum`, level: `C`
+参数名称： `pgbackrest_method`， 类型： `enum`， 层次：`C`
 
 pgBackRest repo method: `local`, `minio`, or other user-defined methods, `local` by default
 
@@ -4935,7 +4956,7 @@ Pigsty will use `local` backup repo by default, which will create a backup repo 
 
 ### `pgbackrest_repo`
 
-name: `pgbackrest_repo`, type: `dict`, level: `G/C`
+参数名称： `pgbackrest_repo`， 类型： `dict`， 层次：`G/C`
 
 pgBackRest repo document: https://pgbackrest.org/configuration.html#section-repository
 
@@ -5000,7 +5021,7 @@ pg_dns_target: auto               # auto, primary, vip, none, or ad hoc ip
 
 ### `pg_weight`
 
-name: `pg_weight`, type: `int`, level: `G`
+参数名称： `pg_weight`， 类型： `int`， 层次：`G`
 
 relative load balance weight in service, 100 by default, 0-255
 
@@ -5011,7 +5032,7 @@ default values: `100`. you have to define it at instance vars, and [reload-servi
 
 ### `pg_service_provider`
 
-name: `pg_service_provider`, type: `string`, level: `G/C`
+参数名称： `pg_service_provider`， 类型： `string`， 层次：`G/C`
 
 dedicate haproxy node group name, or empty string for local nodes by default.
 
@@ -5033,7 +5054,7 @@ pg_default_services:             # alloc port 10001 and 10002 for pg-test primar
 
 ### `pg_default_service_dest`
 
-name: `pg_default_service_dest`, type: `enum`, level: `G/C`
+参数名称： `pg_default_service_dest`， 类型： `enum`， 层次：`G/C`
 
 When defining a [service](PGSQL-SVC#define-service), if svc.dest='default', this parameter will be used as the default value.
 
@@ -5048,7 +5069,7 @@ If you don't want to use pgbouncer, set it to `postgres` instead. traffic will b
 
 ### `pg_default_services`
 
-name: `pg_default_services`, type: `service[]`, level: `G/C`
+参数名称： `pg_default_services`， 类型： `service[]`， 层次：`G/C`
 
 postgres default service definitions
 
@@ -5069,7 +5090,7 @@ pg_default_services:               # postgres default service definitions
 
 ### `pg_vip_enabled`
 
-name: `pg_vip_enabled`, type: `bool`, level: `C`
+参数名称： `pg_vip_enabled`， 类型： `bool`， 层次：`C`
 
 enable a l2 vip for pgsql primary?
 
@@ -5083,7 +5104,7 @@ L2 VIP can only be used in same L2 network, which may incurs extra restrictions 
 
 ### `pg_vip_address`
 
-name: `pg_vip_address`, type: `cidr4`, level: `C`
+参数名称： `pg_vip_address`， 类型： `cidr4`， 层次：`C`
 
 vip address in `<ipv4>/<mask>` format, if vip is enabled, this parameter is required.
 
@@ -5095,7 +5116,7 @@ default values: `127.0.0.1/24`. This value is consist of two parts: `ipv4` and `
 
 ### `pg_vip_interface`
 
-name: `pg_vip_interface`, type: `string`, level: `C/I`
+参数名称： `pg_vip_interface`， 类型： `string`， 层次：`C/I`
 
 vip network interface to listen, `eth0` by default.
 
@@ -5120,7 +5141,7 @@ pg-test:
 
 ### `pg_dns_suffix`
 
-name: `pg_dns_suffix`, type: `string`, level: `C`
+参数名称： `pg_dns_suffix`， 类型： `string`， 层次：`C`
 
 pgsql dns suffix, '' by default, cluster DNS name is defined as `{{ pg_cluster }}{{ pg_dns_suffix }}`
 
@@ -5131,7 +5152,7 @@ For example, if you set `pg_dns_suffix` to `.db.vip.company.tld` for cluster `pg
 
 ### `pg_dns_target`
 
-name: `pg_dns_target`, type: `enum`, level: `C`
+参数名称： `pg_dns_target`， 类型： `enum`， 层次：`C`
 
 Could be: `auto`, `primary`, `vip`, `none`, or an ad hoc ip address, which will be the target IP address of cluster DNS record. 
 
@@ -5173,7 +5194,7 @@ pgbouncer_exporter_options: ''         # overwrite extra options for pgbouncer_e
 
 ### `pg_exporter_enabled`
 
-name: `pg_exporter_enabled`, type: `bool`, level: `C`
+参数名称： `pg_exporter_enabled`， 类型： `bool`， 层次：`C`
 
 enable pg_exporter on pgsql hosts?
 
@@ -5184,7 +5205,7 @@ default value is `true`, if you don't want to install pg_exporter, set it to `fa
 
 ### `pg_exporter_config`
 
-name: `pg_exporter_config`, type: `string`, level: `C`
+参数名称： `pg_exporter_config`， 类型： `string`， 层次：`C`
 
 pg_exporter configuration file name
 
@@ -5197,7 +5218,7 @@ Your config file should be placed in `roles/files/<filename>`.
 
 ### `pg_exporter_cache_ttls`
 
-name: `pg_exporter_cache_ttls`, type: `string`, level: `C`
+参数名称： `pg_exporter_cache_ttls`， 类型： `string`， 层次：`C`
 
 pg_exporter collector ttl stage in seconds, '1,10,60,300' by default
 
@@ -5214,7 +5235,7 @@ ttl_slowest: "{{ pg_exporter_cache_ttls.split(',')[3]|int }}"      # ver slow qu
 
 ### `pg_exporter_port`
 
-name: `pg_exporter_port`, type: `port`, level: `C`
+参数名称： `pg_exporter_port`， 类型： `port`， 层次：`C`
 
 pg_exporter listen port, 9630 by default
 
@@ -5224,7 +5245,7 @@ pg_exporter listen port, 9630 by default
 
 ### `pg_exporter_params`
 
-name: `pg_exporter_params`, type: `string`, level: `C`
+参数名称： `pg_exporter_params`， 类型： `string`， 层次：`C`
 
 extra url parameters for pg_exporter dsn
 
@@ -5236,7 +5257,7 @@ default values: `sslmode=disable`, which will disable SSL for monitoring connect
 
 ### `pg_exporter_url`
 
-name: `pg_exporter_url`, type: `pgurl`, level: `C`
+参数名称： `pg_exporter_url`， 类型： `pgurl`， 层次：`C`
 
 overwrite auto-generate pg dsn if specified
 
@@ -5254,7 +5275,7 @@ This could be useful if you want to monitor a remote pgsql instance, or you want
 
 ### `pg_exporter_auto_discovery`
 
-name: `pg_exporter_auto_discovery`, type: `bool`, level: `C`
+参数名称： `pg_exporter_auto_discovery`， 类型： `bool`， 层次：`C`
 
 enable auto database discovery? enabled by default
 
@@ -5265,7 +5286,7 @@ default value is `true`, which will auto-discover all databases on the postgres 
 
 ### `pg_exporter_exclude_database`
 
-name: `pg_exporter_exclude_database`, type: `string`, level: `C`
+参数名称： `pg_exporter_exclude_database`， 类型： `string`， 层次：`C`
 
 csv of database that WILL NOT be monitored during auto-discovery
 
@@ -5277,7 +5298,7 @@ default values: `template0,template1,postgres`, which will be excluded for datab
 
 ### `pg_exporter_include_database`
 
-name: `pg_exporter_include_database`, type: `string`, level: `C`
+参数名称： `pg_exporter_include_database`， 类型： `string`， 层次：`C`
 
 csv of database that WILL BE monitored during auto-discovery
 
@@ -5288,7 +5309,7 @@ default value is empty string. If this value is set, only the databases in this 
 
 ### `pg_exporter_connect_timeout`
 
-name: `pg_exporter_connect_timeout`, type: `int`, level: `C`
+参数名称： `pg_exporter_connect_timeout`， 类型： `int`， 层次：`C`
 
 pg_exporter connect timeout in ms, 200 by default
 
@@ -5302,7 +5323,7 @@ If your remote pgsql server is in another continent, you may want to increase th
 
 ### `pg_exporter_options`
 
-name: `pg_exporter_options`, type: `arg`, level: `C`
+参数名称： `pg_exporter_options`， 类型： `arg`， 层次：`C`
 
 overwrite extra options for pg_exporter
 
@@ -5320,7 +5341,7 @@ If you want to customize logging options or other pg_exporter options, you can s
 
 ### `pgbouncer_exporter_enabled`
 
-name: `pgbouncer_exporter_enabled`, type: `bool`, level: `C`
+参数名称： `pgbouncer_exporter_enabled`， 类型： `bool`， 层次：`C`
 
 enable pgbouncer_exporter on pgsql hosts?
 
@@ -5331,7 +5352,7 @@ default value is `true`, which will enable pg_exporter for pgbouncer connection 
 
 ### `pgbouncer_exporter_port`
 
-name: `pgbouncer_exporter_port`, type: `port`, level: `C`
+参数名称： `pgbouncer_exporter_port`， 类型： `port`， 层次：`C`
 
 pgbouncer_exporter listen port, 9631 by default
 
@@ -5343,7 +5364,7 @@ default values: `9631`
 
 ### `pgbouncer_exporter_url`
 
-name: `pgbouncer_exporter_url`, type: `pgurl`, level: `C`
+参数名称： `pgbouncer_exporter_url`， 类型： `pgurl`， 层次：`C`
 
 overwrite auto-generate pgbouncer dsn if specified
 
@@ -5360,7 +5381,7 @@ This could be useful if you want to monitor a remote pgbouncer instance, or you 
 
 ### `pgbouncer_exporter_options`
 
-name: `pgbouncer_exporter_options`, type: `arg`, level: `C`
+参数名称： `pgbouncer_exporter_options`， 类型： `arg`， 层次：`C`
 
 overwrite extra options for pgbouncer_exporter
 

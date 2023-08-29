@@ -1,6 +1,6 @@
 # INFRA
 
-> Pigsty 带有一个开箱即用，生产就绪的基础设施模块，为用户带来究极的可观测性体验。
+> Pigsty 带有一个开箱即用，生产就绪的基础设施模块，为用户带来究极的可观测性体验。 [配置](#配置) | [管理](#管理) | [剧本](#剧本) | [监控](#监控) | [参数](#参数)
 
 
 ----------------
@@ -39,6 +39,13 @@ infra_portal:  # domain names and upstream servers
 ![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
 
 
+----------------
+
+## 配置
+
+
+
+
 
 ----------------
 
@@ -57,7 +64,7 @@ Pigsty 提供了三个与 INFRA 模块相关的剧本：
 
 ----------------
 
-## Dashboards
+## 监控
 
 
 [Pigsty Home](https://demo.pigsty.cc/d/pigsty) : Pigsty 监控系统主页
@@ -156,7 +163,7 @@ Pigsty 提供了三个与 INFRA 模块相关的剧本：
 
 ## 参数
 
-[`INFRA`](PARAM#INFRA) 模块有下列10个参数组，guo
+[`INFRA`](PARAM#INFRA) 模块有下列10个参数组。
 
 - [`META`](PARAM#meta)：Pigsty元数据
 - [`CA`](PARAM#ca)：自签名公私钥基础设施/CA
