@@ -9,21 +9,47 @@
 
 每一套 Pigsty 部署都会提供一套基础架构组件，为纳管的节点与数据库集群提供服务，组件包括：
 
-|        组件        |  端口  |     域名     | 描述                 |
-|:----------------:|:----:|:----------:|--------------------|
-|      Nginx       |  80  | `h.pigsty` | 网络服务门户（也用作 Yum 仓库） |
-|   AlertManager   | 9093 | `a.pigsty` | 告警聚合与分发            |
-|    Prometheus    | 9090 | `p.pigsty` | 时间序列数据库（收存监控指标）    |
-|     Grafana      | 3000 | `g.pigsty` | 可视化平台              |
-|       Loki       | 3100 |     -      | 日志收集服务器            |
-|   PushGateway    | 9091 |     -      | 接受一次性的任务指标         |
-| BlackboxExporter | 9115 |     -      | 黑盒监控探测             |
-|     Dnsmasq      |  53  |     -      | DNS 服务器            |
-|     Chronyd      | 123  |     -      | NTP 时间服务器          |
-|    PostgreSQL    | 5432 |     -      | Pigsty CMDB 和默认数据库 |
-|     Ansible      |  -   |     -      | 运行剧本               |
+|               组件                |  端口  |     域名     | 描述                  |
+|:-------------------------------:|:----:|:----------:|---------------------|
+|         [Nginx](#nginx)         |  80  | `h.pigsty` | Web服务门户（也用作 Yum 仓库） |
+|   [AlertManager](#prometheus)   | 9093 | `a.pigsty` | 告警聚合分发              |
+|    [Prometheus](#prometheus)    | 9090 | `p.pigsty` | 时间序列数据库（收存监控指标）     |
+|       [Grafana](#grafana)       | 3000 | `g.pigsty` | 可视化平台               |
+|        [Loki](#grafana)         | 3100 |     -      | 日志收集服务器             |
+|   [PushGateway](#prometheus)    | 9091 |     -      | 接受一次性的任务指标          |
+| [BlackboxExporter](#prometheus) | 9115 |     -      | 黑盒监控探测              |
+|       [DNSMASQ](#dnsmasq)       |  53  |     -      | DNS 服务器             |
+|       [Chronyd](#chronyd)       | 123  |     -      | NTP 时间服务器           |
+|    [PostgreSQL](#postgresql)    | 5432 |     -      | Pigsty CMDB 和默认数据库  |
+|       [Ansible](#ansible)       |  -   |     -      | 运行剧本                |
 
-Pigsty 将在 infra 节点上为您配置好这些组件。您可以通过配置 [`infra_portal`](PARAM#infra_portal) 参数，将它们通过 Nginx 暴露给外部世界。
+
+![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
+
+在 Pigsty 中，[PGSQL](PGSQL) 模块会使用到[INFRA节点](#infra节点)上的一些服务，具体来说包括：
+
+* 数据库集群/主机节点的域名，依赖INFRA节点的 DNSMASQ **解析**。
+* 在数据库节点软件上**安装**，需要用到INFRA节点上的Nginx托管的本地Yum软件源。
+* 数据库集群/节点的监控**指标**，会被INFRA节点的 Prometheus 收集抓取。
+* 数据库节点的日志会被 Promtail 收集，并发往 INFRA节点上的 Loki。
+* 用户会从 Infra/Admin 节点上使用 Ansible 或其他工具发起对数据库节点的**管理**：
+    * 执行集群创建，扩缩容，实例/集群回收
+    * 创建业务用户、业务数据库、修改服务、HBA修改；
+    * 执行日志采集、垃圾清理，备份，巡检等
+* 数据库节点默认会从INFRA/ADMIN节点上的 NTP 服务器同步时间
+* 如果没有专用集群，高可用组件 Patroni 会使用 INFRA 节点上的 etcd 作为高可用DCS。
+* 如果没有专用集群，备份组件 pgbackrest 会使用 INFRA 节点上的 minio 作为可选的集中备份仓库。
+
+
+----------------
+
+### Nginx
+
+Nginx是Pigsty所有WebUI类服务的访问入口，默认使用管理节点80端口。
+
+有许多带有WebUI的基础设施组件通过Nginx对外暴露服务，例如Grafana，Prometheus，AlertManager，以及HAProxy流量管理页等，此外YumRepo等静态文件资源也通过Nginx对外提供服务。
+
+Nginx会根据 [`infra_portal`](PARAM#infra_portal) 的内容，通过**域名**进行区分，将访问请求转发至对应的上游组件处理。如果您使用了其他的域名，或者公网域名，可以在这里进行相应修改：
 
 ```yaml
 infra_portal:  # domain names and upstream servers
@@ -36,14 +62,178 @@ infra_portal:  # domain names and upstream servers
   #minio        : { domain: sss.pigsty  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
 ```
 
-![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
+Pigsty强烈建议使用域名访问Pigsty UI系统，而不是直接通过IP+端口的方式访问，基于以下几个理由：
+* 使用域名便于启用 HTTPS 流量加密，可以将访问收拢至Nginx，审计一切请求，并方便地集成认证机制。
+* 一些组件默认只监听 127.0.0.1 ，因此只能通过Nginx代理访问。
+* 域名更容易记忆，并提供了额外的配置灵活性。
+
+如果您没有可用的互联网域名或本地DNS解析，您可以在 `/etc/hosts`或`C:\Windows\System32\drivers\etc\hosts`中添加本地静态解析记录。
+
+Nginx相关配置参数位于：[配置：INFRA - NGINX](PARAM#nginx)
+
+
+----------------
+
+### Yum仓库
+
+Pigsty会在安装时首先建立一个本地Yum软件源，以加速后续软件安装。
+
+该Yum源由Nginx提供服务，默认位于为 `/www/pigsty`，可以访问 `http://h.pigsty/pigsty` 使用。
+
+Pigsty的离线软件包即是将已经建立好的Yum Repo目录整个打成压缩包，当Pigsty尝试构建本地源时，如果发现本地源目录 `/www/pigsty` 已经存在，且带有 `/www/pigsty/repo_complete` 标记文件，则会认为本地源已经构建完成，从而跳过从原始上游下载软件的步骤，消除了对互联网访问的依赖。
+
+Repo定义文件位于 `/www/pigsty.repo`，默认可以通过`http://yum.pigsty/pigsty.repo` 获取
+
+```bash
+curl http://h.pigsty/pigsty.repo -o /etc/yum.repos.d/pigsty.repo
+```
+
+您也可以在没有Nginx的情况下直接使用文件本地源：
+
+```ini
+[pigsty-local]
+name=Pigsty local $releasever - $basearch
+baseurl=file:///www/pigsty/
+enabled=1
+gpgcheck=0
+```
+
+Yum Repo相关配置参数位于：[配置：INFRA - REPO](PARAM#repo)
+
+
+----------------
+
+### Prometheus
+
+Prometheus是监控时序数据库，默认监听9090端口，可以直接通过`IP:9090`或域名`http://p.pigsty`访问。
+
+Prometheus是监控用时序数据库，提供以下功能：
+
+* Prometheus默认通过本地静态文件服务发现获取监控对象，并为其关联身份信息。
+* Prometheus可以选择使用Consul服务发现，自动获取监控对象。
+* Prometheus从Exporter拉取监控指标数据，进行预计算加工后存入自己的TSDB中。
+* Prometheus计算报警规则，将报警事件发往Alertmanager处理。
+
+AlertManager是与Prometheus配套的告警平台，默认监听9093端口，可以直接通过`IP:9093`或域名 `http://a.pigsty` 访问。
+Prometheus的告警事件会发送至AlertManager，但如果需要进一步处理，用户需要进一步对其进行配置，例如提供SMTP服务配置以发送告警邮件。
+
+Prometheus、AlertManager，PushGateway，BlackboxExporter 的相关配置参数位于：[配置：INFRA - PROMETHEUS](/zh/docs/infra/config#prometheus)
+
+
+
+----------------
+
+### Grafana
+
+Grafana是开源的可视化/监控平台，是Pigsty WebUI的核心，默认监听3000端口，可以直接通过`IP:3000`或域名`http://g.pigsty`访问。
+
+Pigsty的监控系统基于Dashboard构建，通过URL进行连接与跳转。您可以快速地在监控中下钻上卷，快速定位故障与问题。
+
+此外，Grafana还可以用作通用的低代码前后端平台，制作交互式可视化数据应用。因此，Pigsty使用的Grafana带有一些额外的可视化插件，例如ECharts面板。
+
+
+Loki是用于日志收集的日志数据库，默认监听3100端口，节点上的Promtail向元节点上的Loki推送日志。
+
+Grafana与Loki相关配置参数位于：[配置：INFRA - GRAFANA](PARAM#grafana)，[配置：INFRA - Loki](PARAM#loki)
+
+
+
+----------------
+
+### Ansible
+
+Pigsty默认会在元节点上安装Ansible，Ansible是一个流行的运维工具，采用声明式的配置风格与幂等的剧本设计，可以极大降低系统维护的复杂度。
+
+
+----------------
+
+### DNSMASQ
+
+DNSMASQ 提供环境内的DNS**解析**服务，其他模块的域名将会注册到 INFRA节点上的 DNSMASQ 服务中，放置于 `/etc/hosts.d/` 里。
+
+DNSMASQ相关配置参数位于：[配置：INFRA - DNS](param#dns)
+
+
+
+
+----------------
+
+### Chronyd
+
+NTP服务用于同步环境内所有节点的时间（可选）
+
+NTP相关配置参数位于：[配置：NODES - NTP](param#node_time)
+
+
+
+
 
 
 ----------------
 
 ## 配置
 
+要在节点上安装 INFRA 模块，首先需要在配置清单中的 `infra` 分组中将其加入，并分配实例号 [`infra_seq`](PARAM#infra_seq)
 
+```yaml
+# 配置单个 INFRA 节点
+infra: { hosts: { 10.10.10.10: { infra_seq: 1 } }}
+
+# 配置两个 INFRA 节点
+infra:
+  hosts:
+    10.10.10.10: { infra_seq: 1 }
+    10.10.10.11: { infra_seq: 2 }
+```
+
+然后，使用 [`infra.yml`](#infrayml) 剧本在节点上初始化 INFRA 模块即可。
+
+
+
+----------------
+
+## 管理
+
+```bash
+# repo          : bootstrap a local yum repo from internet or offline packages
+#   - repo_dir      : create CA directory
+#   - repo_check    : generate ca private key: files/pki/ca/ca.key
+#   - repo_prepare  : signing ca cert: files/pki/ca/ca.crt
+#   - repo_build    : install postgres extensions only
+#     - repo_upstream    : handle upstream repo files in /etc/yum.repos.d
+#       - repo_remove        : remove existing repo file if repo_remove == true
+#       - repo_add           : add upstream repo files to /etc/yum.repos.d
+#     - repo_url_pkg     : download packages from internet defined by repo_url_packages
+#     - repo_cache       : make upstream yum cache with yum makecache
+#     - repo_boot_pkg    : install bootstrap pkg such as createrepo_c,yum-utils,...
+#     - repo_pkg         : download packages & dependencies from upstream repo
+#     - repo_create      : create a local yum repo with createrepo_c & modifyrepo_c
+#     - repo_use         : add newly built repo into /etc/yum.repos.d
+#   - repo_nginx    : launch a nginx for repo if no nginx is serving
+#
+# node/haproxy/docker/monitor : setup infra node as a common node (check node.yml)
+#   - node_name, node_hosts, node_resolv, node_firewall, node_ca, node_repo, node_pkg
+#   - node_feature, node_kernel, node_tune, node_sysctl, node_profile, node_ulimit
+#   - node_data, node_admin, node_timezone, node_ntp, node_crontab
+#   - haproxy_install, haproxy_config, haproxy_launch, haproxy_reload
+#   - docker_install, docker_admin, docker_config, docker_launch, docker_image
+#   - haproxy_register, node_exporter, node_register, promtail
+#
+# infra         : setup infra components
+#   - infra_env      : env_dir, env_pg, env_var
+#   - infra_pkg      : infra_pkg_yum, infra_pkg_pip
+#   - infra_user     : setup infra os user group
+#   - infra_cert     : issue cert for infra components
+#   - dns            : dns_config, dns_record, dns_launch
+#   - nginx          : nginx_config, nginx_cert, nginx_static, nginx_launch, nginx_exporter
+#   - prometheus     : prometheus_clean, prometheus_dir, prometheus_config, prometheus_launch, prometheus_reload
+#   - alertmanager   : alertmanager_config, alertmanager_launch
+#   - pushgateway    : pushgateway_config, pushgateway_launch
+#   - blackbox       : blackbox_config, blackbox_launch
+#   - grafana        : grafana_clean, grafana_config, grafana_plugin, grafana_launch, grafana_provision
+#   - loki           : loki clean, loki_dir, loki_config, loki_launch
+#   - infra_register : register infra components to prometheus
+```
 
 
 
@@ -53,11 +243,32 @@ infra_portal:  # domain names and upstream servers
 
 Pigsty 提供了三个与 INFRA 模块相关的剧本：
 
-- [`install.yml`](https://github.com/vonng/pigsty/blob/master/install.yml)   ：在当前节点上一次性完整安装 Pigsty
-- [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infra.yml)       ：在 infra 节点上初始化 pigsty 基础设施
-- [`infra-rm.yml`](https://github.com/vonng/pigsty/blob/master/infra-rm.yml) ：从 infra 节点移除基础设施组件
+- [`install.yml`](#installyml)：在当前节点上一次性完整安装 Pigsty
+- [`infra.yml`](#infrayml) ：在 infra 节点上初始化 pigsty 基础设施
+- [`infra-rm.yml`](#infra-rmyml)：从 infra 节点移除基础设施组件
+
+----------------
+
+### `install.yml`
+
+INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/install.yml)用于在**所有节点**上一次性完整安装 Pigsty
+
+----------------
+
+### `infra.yml`
+
+INFRA模块剧本 [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infra.yml) 用于在 [Infra节点](NODE#infra节点) 上初始化 pigsty 基础设施
 
 [![asciicast](https://asciinema.org/a/566412.svg)](https://asciinema.org/a/566412)
+
+----------------
+
+### `infra-rm.yml`
+
+INFRA模块剧本 [`infra-rm.yml`](https://github.com/vonng/pigsty/blob/master/infra-rm.yml) 用于从 [Infra节点](NODE#infra节点) 上移除 pigsty 基础设施
+
+
+
        
 
 
