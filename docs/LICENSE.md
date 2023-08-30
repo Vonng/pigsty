@@ -30,11 +30,11 @@ But beware when you distribute, host, or create derivative works of Pigsty, you 
 
 **Conditions:**
 
-- ℹ License and copyright notice
-- ℹ State changes
-- ℹ Disclose source
-- ℹ Network use is distribution
-- ℹ Same license
+- ⚠️ License and copyright notice
+- ⚠️ State changes
+- ⚠️ Disclose source
+- ⚠️ Network use is distribution
+- ⚠️ Same license
 
 
 ----------------

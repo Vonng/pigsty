@@ -336,7 +336,16 @@
 
 ----------------
 
-## Gallery
+## 画廊
+
+详情请参考 [pigsty/wiki/gallery](https://github.com/Vonng/pigsty/wiki/Gallery)。
+
+<details><summary>PGSQL Overview</summary>
+
+[![pgsql-overview](https://github.com/Vonng/pigsty/assets/8587410/703fe5bf-2688-4d60-b6c3-009f16a81d2b)](https://demo.pigsty.cc/d/pgsql-overview)
+
+</details>
+
 
 <details><summary>PGSQL Shard</summary>
 

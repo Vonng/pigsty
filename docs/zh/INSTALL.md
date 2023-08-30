@@ -51,7 +51,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 ./install.yml    # install pigsty on this node and init it as the admin node
 [Reference] ===========================================
 Get Started:     https://doc.pigsty.cc/#/INSTALL
-Documentation:   https://vonng.github.io/pigsty
+Documentation:   https://doc.pigsty.cc
 Github Repo:     https://github.com/Vonng/pigsty
 Public Demo:     https://demo.pigsty.cc
 Official Site:   https://pigsty.cc

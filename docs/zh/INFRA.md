@@ -26,7 +26,7 @@
 
 ![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
 
-在 Pigsty 中，[PGSQL](PGSQL) 模块会使用到[INFRA节点](#infra节点)上的一些服务，具体来说包括：
+在 Pigsty 中，[PGSQL](PGSQL) 模块会使用到[INFRA节点](NODE#infra节点)上的一些服务，具体来说包括：
 
 * 数据库集群/主机节点的域名，依赖INFRA节点的 DNSMASQ **解析**。
 * 在数据库节点软件上**安装**，需要用到INFRA节点上的Nginx托管的本地Yum软件源。
