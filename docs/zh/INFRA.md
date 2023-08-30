@@ -67,7 +67,7 @@ Pigsty强烈建议使用域名访问Pigsty UI系统，而不是直接通过IP+�
 * 一些组件默认只监听 127.0.0.1 ，因此只能通过Nginx代理访问。
 * 域名更容易记忆，并提供了额外的配置灵活性。
 
-如果您没有可用的互联网域名或本地DNS解析，您可以在 `/etc/hosts`或`C:\Windows\System32\drivers\etc\hosts`中添加本地静态解析记录。
+如果您没有可用的互联网域名或本地DNS解析，您可以在 `/etc/hosts` （MacOS/Linux）或`C:\Windows\System32\drivers\etc\hosts` （Windows）中添加本地静态解析记录。
 
 Nginx相关配置参数位于：[配置：INFRA - NGINX](PARAM#nginx)
 
@@ -131,7 +131,6 @@ Pigsty的监控系统基于Dashboard构建，通过URL进行连接与跳转。�
 
 此外，Grafana还可以用作通用的低代码前后端平台，制作交互式可视化数据应用。因此，Pigsty使用的Grafana带有一些额外的可视化插件，例如ECharts面板。
 
-
 Loki是用于日志收集的日志数据库，默认监听3100端口，节点上的Promtail向元节点上的Loki推送日志。
 
 Grafana与Loki相关配置参数位于：[配置：INFRA - GRAFANA](PARAM#grafana)，[配置：INFRA - Loki](PARAM#loki)
@@ -149,7 +148,9 @@ Pigsty默认会在元节点上安装Ansible，Ansible是一个流行的运维工
 
 ### DNSMASQ
 
-DNSMASQ 提供环境内的DNS**解析**服务，其他模块的域名将会注册到 INFRA节点上的 DNSMASQ 服务中，放置于 `/etc/hosts.d/` 里。
+DNSMASQ 提供环境内的DNS**解析**服务，其他模块的域名将会注册到 INFRA节点上的 DNSMASQ 服务中。
+
+DNS记录默认放置于所有INFRA节点的 `/etc/hosts.d/` 目录中。
 
 DNSMASQ相关配置参数位于：[配置：INFRA - DNS](param#dns)
 
@@ -194,47 +195,83 @@ infra:
 
 ## 管理
 
+下面是与 INFRA 模块相关的一些管理任务：
+
+----------------
+
+### 安装卸载Infra模块
+
 ```bash
-# repo          : bootstrap a local yum repo from internet or offline packages
-#   - repo_dir      : create CA directory
-#   - repo_check    : generate ca private key: files/pki/ca/ca.key
-#   - repo_prepare  : signing ca cert: files/pki/ca/ca.crt
-#   - repo_build    : install postgres extensions only
-#     - repo_upstream    : handle upstream repo files in /etc/yum.repos.d
-#       - repo_remove        : remove existing repo file if repo_remove == true
-#       - repo_add           : add upstream repo files to /etc/yum.repos.d
-#     - repo_url_pkg     : download packages from internet defined by repo_url_packages
-#     - repo_cache       : make upstream yum cache with yum makecache
-#     - repo_boot_pkg    : install bootstrap pkg such as createrepo_c,yum-utils,...
-#     - repo_pkg         : download packages & dependencies from upstream repo
-#     - repo_create      : create a local yum repo with createrepo_c & modifyrepo_c
-#     - repo_use         : add newly built repo into /etc/yum.repos.d
-#   - repo_nginx    : launch a nginx for repo if no nginx is serving
-#
-# node/haproxy/docker/monitor : setup infra node as a common node (check node.yml)
-#   - node_name, node_hosts, node_resolv, node_firewall, node_ca, node_repo, node_pkg
-#   - node_feature, node_kernel, node_tune, node_sysctl, node_profile, node_ulimit
-#   - node_data, node_admin, node_timezone, node_ntp, node_crontab
-#   - haproxy_install, haproxy_config, haproxy_launch, haproxy_reload
-#   - docker_install, docker_admin, docker_config, docker_launch, docker_image
-#   - haproxy_register, node_exporter, node_register, promtail
-#
-# infra         : setup infra components
-#   - infra_env      : env_dir, env_pg, env_var
-#   - infra_pkg      : infra_pkg_yum, infra_pkg_pip
-#   - infra_user     : setup infra os user group
-#   - infra_cert     : issue cert for infra components
-#   - dns            : dns_config, dns_record, dns_launch
-#   - nginx          : nginx_config, nginx_cert, nginx_static, nginx_launch, nginx_exporter
-#   - prometheus     : prometheus_clean, prometheus_dir, prometheus_config, prometheus_launch, prometheus_reload
-#   - alertmanager   : alertmanager_config, alertmanager_launch
-#   - pushgateway    : pushgateway_config, pushgateway_launch
-#   - blackbox       : blackbox_config, blackbox_launch
-#   - grafana        : grafana_clean, grafana_config, grafana_plugin, grafana_launch, grafana_provision
-#   - loki           : loki clean, loki_dir, loki_config, loki_launch
-#   - infra_register : register infra components to prometheus
+./infra.yml     # 在 infra 分组上安装 INFRA 模块
+./infra-rm.yml  # 从 infra 分组上卸载 INFRA 模块
 ```
 
+----------------
+
+### 管理本地Yum源
+
+您可以使用以下剧本子任务，管理 Infra节点 上的本地yun源：
+
+```bash
+./infra.yml -t repo              #从互联网或离线包中引导本地 yum 仓库
+
+./infra.yml -t repo_dir          # 创建本地软件源仓库
+./infra.yml -t repo_check        # 检查本地软件源是否已经存在？
+./infra.yml -t repo_prepare      # 如果存在，直接使用已有的本地软件源
+./infra.yml -t repo_build        # 如果不存在，从上游构建本地软件源
+./infra.yml     -t repo_upstream     # 处理 /etc/yum.repos.d 中的上游仓库文件
+./infra.yml     -t repo_remove       # 如果 repo_remove == true，则删除现有的仓库文件
+./infra.yml     -t repo_add          # 将上游仓库文件添加到 /etc/yum.repos.d
+./infra.yml     -t repo_url_pkg      # 从由 repo_url_packages 定义的互联网下载包
+./infra.yml     -t repo_cache        # 使用 yum makecache 创建上游 yum 缓存
+./infra.yml     -t repo_boot_pkg     # 安装如 createrepo_c、yum-utils 等的引导包...
+./infra.yml     -t repo_pkg          # 从上游仓库下载包 & 依赖项
+./infra.yml     -t repo_create       # 使用 createrepo_c & modifyrepo_c 创建本地 yum 仓库
+./infra.yml     -t repo_use          # 将新建的仓库添加到 /etc/yum.repos.d 用起来
+./infra.yml -t repo_nginx        # 如果没有 nginx 在服务，启动一个 nginx 作为仓库
+```
+
+其中最常用的命令为：
+
+```bash
+./infra.yml     -t repo_upstream     # 向 INFRA 节点添加 repo_upstream 中定义的上游软件源
+./infra.yml     -t repo_pkg          # 从上游仓库下载包及其依赖项。
+./infra.yml     -t repo_create       # 使用 createrepo_c & modifyrepo_c 创建/更新本地 yum 仓库
+```
+
+
+
+----------------
+
+### 管理基础设施组件
+
+您可以使用以下剧本子任务，管理 Infra节点 上的各个基础设施组件
+
+```bash
+./infra.yml -t infra           # 配置基础设施
+./infra.yml -t infra_env       # 配置管理节点上的环境变量：env_dir, env_pg, env_var
+./infra.yml -t infra_pkg       # 安装INFRA所需的软件包：infra_pkg_yum, infra_pkg_pip
+./infra.yml -t infra_user      # 设置 infra 操作系统用户组
+./infra.yml -t infra_cert      # 为 infra 组件颁发证书
+./infra.yml -t dns             # 配置 DNSMasq：dns_config, dns_record, dns_launch
+./infra.yml -t nginx           # 配置 Nginx：nginx_config, nginx_cert, nginx_static, nginx_launch, nginx_exporter
+./infra.yml -t prometheus      # 配置 Prometheus：prometheus_clean, prometheus_dir, prometheus_config, prometheus_launch, prometheus_reload
+./infra.yml -t alertmanager    # 配置 AlertManager：alertmanager_config, alertmanager_launch
+./infra.yml -t pushgateway     # 配置 PushGateway：pushgateway_config, pushgateway_launch
+./infra.yml -t blackbox        # 配置 Blackbox Exporter： blackbox_launch
+./infra.yml -t grafana         # 配置 Grafana：grafana_clean, grafana_config, grafana_plugin, grafana_launch, grafana_provision
+./infra.yml -t loki            # 配置 Loki：loki_clean, loki_dir, loki_config, loki_launch
+./infra.yml -t infra_register  # 将 infra 组件注册到 prometheus
+```
+
+其他常用的任务包括：
+
+```bash
+./infra.yml -t nginx_index                        # 重新渲染 Nginx 首页内容
+./infra.yml -t nginx_config,nginx_reload          # 重新渲染 Nginx 网站门户配置，对外暴露新的上游服务。
+./infra.yml -t prometheus_conf,prometheus_reload  # 重新生成 Prometheus 主配置文件，并重载配置
+./infra.yml -t prometheus_rule,prometheus_reload  # 重新拷贝 Prometheus 规则 & 告警，并重载配置
+```
 
 
 ----------------
@@ -243,15 +280,9 @@ infra:
 
 Pigsty 提供了三个与 INFRA 模块相关的剧本：
 
-- [`install.yml`](#installyml)：在当前节点上一次性完整安装 Pigsty
 - [`infra.yml`](#infrayml) ：在 infra 节点上初始化 pigsty 基础设施
 - [`infra-rm.yml`](#infra-rmyml)：从 infra 节点移除基础设施组件
-
-----------------
-
-### `install.yml`
-
-INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/install.yml)用于在**所有节点**上一次性完整安装 Pigsty
+- [`install.yml`](#installyml)：在当前节点上一次性完整安装 Pigsty
 
 ----------------
 
@@ -259,7 +290,28 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 
 INFRA模块剧本 [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infra.yml) 用于在 [Infra节点](NODE#infra节点) 上初始化 pigsty 基础设施
 
+**执行该剧本将完成以下任务**
+
+* 配置元节点的目录与环境变量
+* 下载并建立一个本地yum软件源，加速后续安装。（若使用离线软件包，则跳过下载阶段）
+* 将当前元节点作为一个普通节点纳入 Pigsty 管理
+* 部署**基础设施**组件，包括 Prometheus, Grafana, Loki, Alertmanager, PushGateway，Blackbox Exporter 等
+
+**该剧本默认在 [INFRA节点](NODE#infra节点) 上执行**
+
+* Pigsty默认将使用**当前执行此剧本的节点**作为Pigsty的Infra节点与Admin节点。
+* Pigsty在[配置过程](INSTALL#configure)中默认会将当前节点标记为Infra/Admin节点，并使用**当前节点首要IP地址**替换配置模板中的占位IP地址`10.10.10.10`。
+* 该节点除了可以发起管理，部署有基础设施，与一个部署普通托管节点并无区别。
+* 单机安装时，ETCD 也会安装在此节点上，提供 DCS 服务
+
+**本剧本的一些注意事项**
+
+* 本剧本为幂等剧本，重复执行会抹除元节点上的基础设施组件。
+* 当离线软件源 `/www/pigsty/repo_complete` 存在时，本剧本会跳过从互联网下载软件的任务。完整执行该剧本耗时约5-8分钟，视机器配置而异。
+* 不使用离线软件包而直接从互联网原始上游下载软件时，可能耗时10-20分钟，根据您的网络条件而异。
+
 [![asciicast](https://asciinema.org/a/566412.svg)](https://asciinema.org/a/566412)
+
 
 ----------------
 
@@ -267,8 +319,23 @@ INFRA模块剧本 [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infr
 
 INFRA模块剧本 [`infra-rm.yml`](https://github.com/vonng/pigsty/blob/master/infra-rm.yml) 用于从 [Infra节点](NODE#infra节点) 上移除 pigsty 基础设施
 
+常用子任务包括：
+
+```bash
+./infra-rm.yml               # 移除 INFRA 模块
+./infra-rm.yml -t service    # 停止 INFRA 上的基础设施服务
+./infra-rm.yml -t data       # 移除 INFRA 上的存留数据
+./infra-rm.yml -t package    # 卸载 INFRA 上安装的软件包
+```
 
 
+----------------
+
+### `install.yml`
+
+INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/install.yml)用于在**所有节点**上一次性完整安装 Pigsty
+
+该剧本在 [剧本：一次性安装](PLAYBOOK#一次性安装) 中有更详细的介绍。
        
 
 
@@ -389,64 +456,64 @@ INFRA模块剧本 [`infra-rm.yml`](https://github.com/vonng/pigsty/blob/master/i
 
 <details><summary>完整参数列表</summary>
 
-| 参数                                                               | 参数组                                    |     类型     | 级别  | 说明                                                 | 中文说明                                    |
-|------------------------------------------------------------------|----------------------------------------|:----------:|:---:|----------------------------------------------------|-----------------------------------------|
-| [`version`](PARAM#version)                                       | [`META`](PARAM#meta)                   |   string   |  G  | pigsty version string                              | pigsty 版本字符串                            |
-| [`admin_ip`](PARAM#admin_ip)                                     | [`META`](PARAM#meta)                   |     ip     |  G  | admin node ip address                              | 管理节点 IP 地址                              |
-| [`region`](PARAM#region)                                         | [`META`](PARAM#meta)                   |    enum    |  G  | upstream mirror region: default,china,europe       | 上游镜像区域：default,china,europe             |
-| [`proxy_env`](PARAM#proxy_env)                                   | [`META`](PARAM#meta)                   |    dict    |  G  | global proxy env when downloading packages         | 下载包时使用的全局代理环境变量                         |
-| [`ca_method`](PARAM#ca_method)                                   | [`CA`](PARAM#ca)                       |    enum    |  G  | create,recreate,copy, create by default            | CA处理方式：create,recreate,copy，默认为没有则创建    |
-| [`ca_cn`](PARAM#ca_cn)                                           | [`CA`](PARAM#ca)                       |   string   |  G  | ca common name, fixed as pigsty-ca                 | CA CN名称，固定为 pigsty-ca                   |
-| [`cert_validity`](PARAM#cert_validity)                           | [`CA`](PARAM#ca)                       |  interval  |  G  | cert validity, 20 years by default                 | 证书有效期，默认为 20 年                          |
-| [`infra_seq`](PARAM#infra_seq)                                   | [`INFRA_ID`](PARAM#infra_id)           |    int     |  I  | infra node identity, REQUIRED                      | 基础设施节号，必选身份参数                           |
-| [`infra_portal`](PARAM#infra_portal)                             | [`INFRA_ID`](PARAM#infra_id)           |    dict    |  G  | infra services exposed via portal                  | 通过Nginx门户暴露的基础设施服务列表                    |
-| [`repo_enabled`](PARAM#repo_enabled)                             | [`REPO`](PARAM#repo)                   |    bool    | G/I | create a yum repo on this infra node?              | 在此基础设施节点上创建Yum仓库？                       |
-| [`repo_home`](PARAM#repo_home)                                   | [`REPO`](PARAM#repo)                   |    path    |  G  | repo home dir, `/www` by default                   | Yum仓库主目录，默认为`/www``                     |
-| [`repo_name`](PARAM#repo_name)                                   | [`REPO`](PARAM#repo)                   |   string   |  G  | repo name, pigsty by default                       | Yum仓库名称，默认为 pigsty                      |
-| [`repo_endpoint`](PARAM#repo_endpoint)                           | [`REPO`](PARAM#repo)                   |    url     |  G  | access point to this repo by domain or ip:port     | 仓库的访问点：域名或 `ip:port` 格式                 |
-| [`repo_remove`](PARAM#repo_remove)                               | [`REPO`](PARAM#repo)                   |    bool    | G/A | remove existing upstream repo                      | 构建本地仓库时是否移除现有上游仓库源定义文件？                 |
-| [`repo_modules`](#repo_modules)                                  | [`REPO`](PARAM#repo)                   |   string   | G/A | which repo modules are installed in repo_upstream  | 启用的上游仓库模块列表，用逗号分隔                       |
-| [`repo_upstream`](PARAM#repo_upstream)                           | [`REPO`](PARAM#repo)                   | upstream[] |  G  | where to download upstream packages                | 上游仓库源定义：从哪里下载上游包？                       |
-| [`repo_packages`](PARAM#repo_packages)                           | [`REPO`](PARAM#repo)                   |  string[]  |  G  | which packages to be included                      | 从上游仓库下载哪些软件包？                           |
-| [`repo_url_packages`](PARAM#repo_url_packages)                   | [`REPO`](PARAM#repo)                   |  string[]  |  G  | extra packages from url                            | 使用URL下载的额外软件包列表                         |
-| [`infra_packages`](PARAM#infra_packages)                         | [`INFRA_PACKAGE`](PARAM#infra_package) |  string[]  |  G  | packages to be installed on infra nodes            | 在基础设施节点上要安装的软件包                         |
-| [`infra_packages_pip`](PARAM#infra_packages_pip)                 | [`INFRA_PACKAGE`](PARAM#infra_package) |   string   |  G  | pip installed packages for infra nodes             | 在基础设施节点上使用 pip 安装的包                     |
-| [`nginx_enabled`](PARAM#nginx_enabled)                           | [`NGINX`](PARAM#nginx)                 |    bool    | G/I | enable nginx on this infra node?                   | 在此基础设施节点上启用 nginx？                      |
-| [`nginx_exporter_enabled`](PARAM#nginx_exporter_enabled)         | [`NGINX`](PARAM#nginx)                 |    bool    | G/I | enable nginx_exporter on this infra node?          | 在此基础设施节点上启用 nginx_exporter？             |
-| [`nginx_sslmode`](PARAM#nginx_sslmode)                           | [`NGINX`](PARAM#nginx)                 |    enum    |  G  | nginx ssl mode? disable,enable,enforce             | nginx SSL模式？disable,enable,enforce      |
-| [`nginx_home`](PARAM#nginx_home)                                 | [`NGINX`](PARAM#nginx)                 |    path    |  G  | nginx content dir, `/www` by default               | nginx 内容目录，默认为 `/www`，通常和仓库目录一致         |
-| [`nginx_port`](PARAM#nginx_port)                                 | [`NGINX`](PARAM#nginx)                 |    port    |  G  | nginx listen port, 80 by default                   | nginx 监听端口，默认为 80                       |
-| [`nginx_ssl_port`](PARAM#nginx_ssl_port)                         | [`NGINX`](PARAM#nginx)                 |    port    |  G  | nginx ssl listen port, 443 by default              | nginx SSL监听端口，默认为 443                   |
-| [`nginx_navbar`](PARAM#nginx_navbar)                             | [`NGINX`](PARAM#nginx)                 |  index[]   |  G  | nginx index page navigation links                  | nginx 首页导航链接列表                          |
-| [`dns_enabled`](PARAM#dns_enabled)                               | [`DNS`](PARAM#dns)                     |    bool    | G/I | setup dnsmasq on this infra node?                  | 在此基础设施节点上设置dnsmasq？                     |
-| [`dns_port`](PARAM#dns_port)                                     | [`DNS`](PARAM#dns)                     |    port    |  G  | dns server listen port, 53 by default              | DNS 服务器监听端口，默认为 53                      |
-| [`dns_records`](PARAM#dns_records)                               | [`DNS`](PARAM#dns)                     |  string[]  |  G  | dynamic dns records resolved by dnsmasq            | 由 dnsmasq 解析的动态 DNS 记录                  |
-| [`prometheus_enabled`](PARAM#prometheus_enabled)                 | [`PROMETHEUS`](PARAM#prometheus)       |    bool    | G/I | enable prometheus on this infra node?              | 在此基础设施节点上启用 prometheus？                 |
-| [`prometheus_clean`](PARAM#prometheus_clean)                     | [`PROMETHEUS`](PARAM#prometheus)       |    bool    | G/A | clean prometheus data during init?                 | 初始化Prometheus的时候清除现有数据？                 |
-| [`prometheus_data`](PARAM#prometheus_data)                       | [`PROMETHEUS`](PARAM#prometheus)       |    path    |  G  | prometheus data dir, `/data/prometheus` by default | Prometheus 数据目录，默认为 `/data/prometheus`` |
-| [`prometheus_sd_interval`](PARAM#prometheus_sd_interval)         | [`PROMETHEUS`](PARAM#prometheus)       |  interval  |  G  | prometheus target refresh interval, 5s by default  | Prometheus 目标刷新间隔，默认为 5s                |
-| [`prometheus_scrape_interval`](PARAM#prometheus_scrape_interval) | [`PROMETHEUS`](PARAM#prometheus)       |  interval  |  G  | prometheus scrape & eval interval, 10s by default  | Prometheus 抓取 & 评估间隔，默认为 10s            |
-| [`prometheus_scrape_timeout`](PARAM#prometheus_scrape_timeout)   | [`PROMETHEUS`](PARAM#prometheus)       |  interval  |  G  | prometheus global scrape timeout, 8s by default    | Prometheus 全局抓取超时，默认为 8s                |
-| [`prometheus_options`](PARAM#prometheus_options)                 | [`PROMETHEUS`](PARAM#prometheus)       |    arg     |  G  | prometheus extra server options                    | Prometheus 额外的命令行参数选项                   |
-| [`pushgateway_enabled`](PARAM#pushgateway_enabled)               | [`PROMETHEUS`](PARAM#prometheus)       |    bool    | G/I | setup pushgateway on this infra node?              | 在此基础设施节点上设置 pushgateway？                |
-| [`pushgateway_options`](PARAM#pushgateway_options)               | [`PROMETHEUS`](PARAM#prometheus)       |    arg     |  G  | pushgateway extra server options                   | pushgateway 额外的命令行参数选项                  |
-| [`blackbox_enabled`](PARAM#blackbox_enabled)                     | [`PROMETHEUS`](PARAM#prometheus)       |    bool    | G/I | setup blackbox_exporter on this infra node?        | 在此基础设施节点上设置 blackbox_exporter？          |
-| [`blackbox_options`](PARAM#blackbox_options)                     | [`PROMETHEUS`](PARAM#prometheus)       |    arg     |  G  | blackbox_exporter extra server options             | blackbox_exporter 额外的命令行参数选项            |
-| [`alertmanager_enabled`](PARAM#alertmanager_enabled)             | [`PROMETHEUS`](PARAM#prometheus)       |    bool    | G/I | setup alertmanager on this infra node?             | 在此基础设施节点上设置 alertmanager？               |
-| [`alertmanager_options`](PARAM#alertmanager_options)             | [`PROMETHEUS`](PARAM#prometheus)       |    arg     |  G  | alertmanager extra server options                  | alertmanager 额外的命令行参数选项                 |
-| [`exporter_metrics_path`](PARAM#exporter_metrics_path)           | [`PROMETHEUS`](PARAM#prometheus)       |    path    |  G  | exporter metric path, `/metrics` by default        | exporter 指标路径，默认为 /metrics              |
-| [`exporter_install`](PARAM#exporter_install)                     | [`PROMETHEUS`](PARAM#prometheus)       |    enum    |  G  | how to install exporter? none,yum,binary           | 如何安装 exporter？none,yum,binary           |
-| [`exporter_repo_url`](PARAM#exporter_repo_url)                   | [`PROMETHEUS`](PARAM#prometheus)       |    url     |  G  | exporter repo file url if install exporter via yum | 通过 yum 安装exporter时使用的yum仓库文件地址          |
-| [`grafana_enabled`](PARAM#grafana_enabled)                       | [`GRAFANA`](PARAM#grafana)             |    bool    | G/I | enable grafana on this infra node?                 | 在此基础设施节点上启用 Grafana？                    |
-| [`grafana_clean`](PARAM#grafana_clean)                           | [`GRAFANA`](PARAM#grafana)             |    bool    | G/A | clean grafana data during init?                    | 初始化Grafana期间清除数据？                       |
-| [`grafana_admin_username`](PARAM#grafana_admin_username)         | [`GRAFANA`](PARAM#grafana)             |  username  |  G  | grafana admin username, `admin` by default         | Grafana 管理员用户名，默认为 `admin``             |
-| [`grafana_admin_password`](PARAM#grafana_admin_password)         | [`GRAFANA`](PARAM#grafana)             |  password  |  G  | grafana admin password, `pigsty` by default        | Grafana 管理员密码，默认为 `pigsty``             |
-| [`grafana_plugin_cache`](PARAM#grafana_plugin_cache)             | [`GRAFANA`](PARAM#grafana)             |    path    |  G  | path to grafana plugins cache tarball              | Grafana 插件缓存 tarball 的路径                |
-| [`grafana_plugin_list`](PARAM#grafana_plugin_list)               | [`GRAFANA`](PARAM#grafana)             |  string[]  |  G  | grafana plugins to be downloaded with grafana-cli  | 使用 grafana-cli 下载的 Grafana 插件           |
-| [`loki_enabled`](PARAM#loki_enabled)                             | [`LOKI`](PARAM#loki)                   |    bool    | G/I | enable loki on this infra node?                    | 在此基础设施节点上启用 loki？                       |
-| [`loki_clean`](PARAM#loki_clean)                                 | [`LOKI`](PARAM#loki)                   |    bool    | G/A | whether remove existing loki data?                 | 是否删除现有的 loki 数据？                        |
-| [`loki_data`](PARAM#loki_data)                                   | [`LOKI`](PARAM#loki)                   |    path    |  G  | loki data dir, `/data/loki` by default             | loki 数据目录，默认为 `/data/loki``             |
-| [`loki_retention`](PARAM#loki_retention)                         | [`LOKI`](PARAM#loki)                   |  interval  |  G  | loki log retention period, 15d by default          | loki 日志保留期，默认为 15d                      |
+| 参数                                                               | 参数组                                    |     类型     | 级别  | 说明                                      |
+|------------------------------------------------------------------|----------------------------------------|:----------:|:---:|-----------------------------------------|
+| [`version`](PARAM#version)                                       | [`META`](PARAM#meta)                   |   string   |  G  | pigsty 版本字符串                            |
+| [`admin_ip`](PARAM#admin_ip)                                     | [`META`](PARAM#meta)                   |     ip     |  G  | 管理节点 IP 地址                              |
+| [`region`](PARAM#region)                                         | [`META`](PARAM#meta)                   |    enum    |  G  | 上游镜像区域：default,china,europe             |
+| [`proxy_env`](PARAM#proxy_env)                                   | [`META`](PARAM#meta)                   |    dict    |  G  | 下载包时使用的全局代理环境变量                         |
+| [`ca_method`](PARAM#ca_method)                                   | [`CA`](PARAM#ca)                       |    enum    |  G  | CA处理方式：create,recreate,copy，默认为没有则创建    |
+| [`ca_cn`](PARAM#ca_cn)                                           | [`CA`](PARAM#ca)                       |   string   |  G  | CA CN名称，固定为 pigsty-ca                   |
+| [`cert_validity`](PARAM#cert_validity)                           | [`CA`](PARAM#ca)                       |  interval  |  G  | 证书有效期，默认为 20 年                          |
+| [`infra_seq`](PARAM#infra_seq)                                   | [`INFRA_ID`](PARAM#infra_id)           |    int     |  I  | 基础设施节号，必选身份参数                           |
+| [`infra_portal`](PARAM#infra_portal)                             | [`INFRA_ID`](PARAM#infra_id)           |    dict    |  G  | 通过Nginx门户暴露的基础设施服务列表                    |
+| [`repo_enabled`](PARAM#repo_enabled)                             | [`REPO`](PARAM#repo)                   |    bool    | G/I | 在此基础设施节点上创建Yum仓库？                       |
+| [`repo_home`](PARAM#repo_home)                                   | [`REPO`](PARAM#repo)                   |    path    |  G  | Yum仓库主目录，默认为`/www``                     |
+| [`repo_name`](PARAM#repo_name)                                   | [`REPO`](PARAM#repo)                   |   string   |  G  | Yum仓库名称，默认为 pigsty                      |
+| [`repo_endpoint`](PARAM#repo_endpoint)                           | [`REPO`](PARAM#repo)                   |    url     |  G  | 仓库的访问点：域名或 `ip:port` 格式                 |
+| [`repo_remove`](PARAM#repo_remove)                               | [`REPO`](PARAM#repo)                   |    bool    | G/A | 构建本地仓库时是否移除现有上游仓库源定义文件？                 |
+| [`repo_modules`](#repo_modules)                                  | [`REPO`](PARAM#repo)                   |   string   | G/A | 启用的上游仓库模块列表，用逗号分隔                       |
+| [`repo_upstream`](PARAM#repo_upstream)                           | [`REPO`](PARAM#repo)                   | upstream[] |  G  | 上游仓库源定义：从哪里下载上游包？                       |
+| [`repo_packages`](PARAM#repo_packages)                           | [`REPO`](PARAM#repo)                   |  string[]  |  G  | 从上游仓库下载哪些软件包？                           |
+| [`repo_url_packages`](PARAM#repo_url_packages)                   | [`REPO`](PARAM#repo)                   |  string[]  |  G  | 使用URL下载的额外软件包列表                         |
+| [`infra_packages`](PARAM#infra_packages)                         | [`INFRA_PACKAGE`](PARAM#infra_package) |  string[]  |  G  | 在基础设施节点上要安装的软件包                         |
+| [`infra_packages_pip`](PARAM#infra_packages_pip)                 | [`INFRA_PACKAGE`](PARAM#infra_package) |   string   |  G  | 在基础设施节点上使用 pip 安装的包                     |
+| [`nginx_enabled`](PARAM#nginx_enabled)                           | [`NGINX`](PARAM#nginx)                 |    bool    | G/I | 在此基础设施节点上启用 nginx？                      |
+| [`nginx_exporter_enabled`](PARAM#nginx_exporter_enabled)         | [`NGINX`](PARAM#nginx)                 |    bool    | G/I | 在此基础设施节点上启用 nginx_exporter？             |
+| [`nginx_sslmode`](PARAM#nginx_sslmode)                           | [`NGINX`](PARAM#nginx)                 |    enum    |  G  | nginx SSL模式？disable,enable,enforce      |
+| [`nginx_home`](PARAM#nginx_home)                                 | [`NGINX`](PARAM#nginx)                 |    path    |  G  | nginx 内容目录，默认为 `/www`，通常和仓库目录一致         |
+| [`nginx_port`](PARAM#nginx_port)                                 | [`NGINX`](PARAM#nginx)                 |    port    |  G  | nginx 监听端口，默认为 80                       |
+| [`nginx_ssl_port`](PARAM#nginx_ssl_port)                         | [`NGINX`](PARAM#nginx)                 |    port    |  G  | nginx SSL监听端口，默认为 443                   |
+| [`nginx_navbar`](PARAM#nginx_navbar)                             | [`NGINX`](PARAM#nginx)                 |  index[]   |  G  | nginx 首页导航链接列表                          |
+| [`dns_enabled`](PARAM#dns_enabled)                               | [`DNS`](PARAM#dns)                     |    bool    | G/I | 在此基础设施节点上设置dnsmasq？                     |
+| [`dns_port`](PARAM#dns_port)                                     | [`DNS`](PARAM#dns)                     |    port    |  G  | DNS 服务器监听端口，默认为 53                      |
+| [`dns_records`](PARAM#dns_records)                               | [`DNS`](PARAM#dns)                     |  string[]  |  G  | 由 dnsmasq 解析的动态 DNS 记录                  |
+| [`prometheus_enabled`](PARAM#prometheus_enabled)                 | [`PROMETHEUS`](PARAM#prometheus)       |    bool    | G/I | 在此基础设施节点上启用 prometheus？                 |
+| [`prometheus_clean`](PARAM#prometheus_clean)                     | [`PROMETHEUS`](PARAM#prometheus)       |    bool    | G/A | 初始化Prometheus的时候清除现有数据？                 |
+| [`prometheus_data`](PARAM#prometheus_data)                       | [`PROMETHEUS`](PARAM#prometheus)       |    path    |  G  | Prometheus 数据目录，默认为 `/data/prometheus`` |
+| [`prometheus_sd_interval`](PARAM#prometheus_sd_interval)         | [`PROMETHEUS`](PARAM#prometheus)       |  interval  |  G  | Prometheus 目标刷新间隔，默认为 5s                |
+| [`prometheus_scrape_interval`](PARAM#prometheus_scrape_interval) | [`PROMETHEUS`](PARAM#prometheus)       |  interval  |  G  | Prometheus 抓取 & 评估间隔，默认为 10s            |
+| [`prometheus_scrape_timeout`](PARAM#prometheus_scrape_timeout)   | [`PROMETHEUS`](PARAM#prometheus)       |  interval  |  G  | Prometheus 全局抓取超时，默认为 8s                |
+| [`prometheus_options`](PARAM#prometheus_options)                 | [`PROMETHEUS`](PARAM#prometheus)       |    arg     |  G  | Prometheus 额外的命令行参数选项                   |
+| [`pushgateway_enabled`](PARAM#pushgateway_enabled)               | [`PROMETHEUS`](PARAM#prometheus)       |    bool    | G/I | 在此基础设施节点上设置 pushgateway？                |
+| [`pushgateway_options`](PARAM#pushgateway_options)               | [`PROMETHEUS`](PARAM#prometheus)       |    arg     |  G  | pushgateway 额外的命令行参数选项                  |
+| [`blackbox_enabled`](PARAM#blackbox_enabled)                     | [`PROMETHEUS`](PARAM#prometheus)       |    bool    | G/I | 在此基础设施节点上设置 blackbox_exporter？          |
+| [`blackbox_options`](PARAM#blackbox_options)                     | [`PROMETHEUS`](PARAM#prometheus)       |    arg     |  G  | blackbox_exporter 额外的命令行参数选项            |
+| [`alertmanager_enabled`](PARAM#alertmanager_enabled)             | [`PROMETHEUS`](PARAM#prometheus)       |    bool    | G/I | 在此基础设施节点上设置 alertmanager？               |
+| [`alertmanager_options`](PARAM#alertmanager_options)             | [`PROMETHEUS`](PARAM#prometheus)       |    arg     |  G  | alertmanager 额外的命令行参数选项                 |
+| [`exporter_metrics_path`](PARAM#exporter_metrics_path)           | [`PROMETHEUS`](PARAM#prometheus)       |    path    |  G  | exporter 指标路径，默认为 /metrics              |
+| [`exporter_install`](PARAM#exporter_install)                     | [`PROMETHEUS`](PARAM#prometheus)       |    enum    |  G  | 如何安装 exporter？none,yum,binary           |
+| [`exporter_repo_url`](PARAM#exporter_repo_url)                   | [`PROMETHEUS`](PARAM#prometheus)       |    url     |  G  | 通过 yum 安装exporter时使用的yum仓库文件地址          |
+| [`grafana_enabled`](PARAM#grafana_enabled)                       | [`GRAFANA`](PARAM#grafana)             |    bool    | G/I | 在此基础设施节点上启用 Grafana？                    |
+| [`grafana_clean`](PARAM#grafana_clean)                           | [`GRAFANA`](PARAM#grafana)             |    bool    | G/A | 初始化Grafana期间清除数据？                       |
+| [`grafana_admin_username`](PARAM#grafana_admin_username)         | [`GRAFANA`](PARAM#grafana)             |  username  |  G  | Grafana 管理员用户名，默认为 `admin``             |
+| [`grafana_admin_password`](PARAM#grafana_admin_password)         | [`GRAFANA`](PARAM#grafana)             |  password  |  G  | Grafana 管理员密码，默认为 `pigsty``             |
+| [`grafana_plugin_cache`](PARAM#grafana_plugin_cache)             | [`GRAFANA`](PARAM#grafana)             |    path    |  G  | Grafana 插件缓存 tarball 的路径                |
+| [`grafana_plugin_list`](PARAM#grafana_plugin_list)               | [`GRAFANA`](PARAM#grafana)             |  string[]  |  G  | 使用 grafana-cli 下载的 Grafana 插件           |
+| [`loki_enabled`](PARAM#loki_enabled)                             | [`LOKI`](PARAM#loki)                   |    bool    | G/I | 在此基础设施节点上启用 loki？                       |
+| [`loki_clean`](PARAM#loki_clean)                                 | [`LOKI`](PARAM#loki)                   |    bool    | G/A | 是否删除现有的 loki 数据？                        |
+| [`loki_data`](PARAM#loki_data)                                   | [`LOKI`](PARAM#loki)                   |    path    |  G  | loki 数据目录，默认为 `/data/loki``             |
+| [`loki_retention`](PARAM#loki_retention)                         | [`LOKI`](PARAM#loki)                   |  interval  |  G  | loki 日志保留期，默认为 15d                      |
 
 
 </details>

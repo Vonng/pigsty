@@ -5,6 +5,8 @@
 剧本可以视作可执行文件直接执行，例如：`./install.yml`.
 
 
+----------------
+
 ## 剧本
 
 以下是 Pigsty 中默认包含的剧本：
@@ -31,8 +33,9 @@
 | [`mongo.yml`](https://github.com/vonng/pigsty/blob/master/mongo.yml)                     | 在节点上安装 Mongo/FerretDB            |
 
 
+----------------
 
-**一次性安装**
+### 一次性安装
 
 特殊的剧本 `install.yml` 实际上是一个复合剧本，它在当前环境上安装所有以下组件。
 
@@ -82,13 +85,13 @@ Pigsty 将在 [准备](install#准备) 期间在 `admin` 节点上安装 `ansibl
 以下是一些主机限制的示例：
 
 ```bash
-./pgsql.yml                 # 在所有主机上运行（非常危险！）
-./pgsql.yml -l pg-test      # 在 pg-test 集群上运行
-./pgsql.yml -l 10.10.10.10  # 在单个主机 10.10.10.10 上运行
-./pgsql.yml -l pg-*         # 在与通配符 `pg-*` 匹配的主机/组上运行
-./pgsql.yml -l '10.10.10.11,&pg-test'     # 在组 pg-test 的 10.10.10.10 上运行
-/pgsql-rm.yml -l 'pg-test,!10.10.10.11'   # 在 pg-test 上运行，除了 10.10.10.11 以外
-./pgsql.yml -l pg-test      # 在 pg-test 集群的主机上执行 pgsql 剧本
+./pgsql.yml                              # 在所有主机上运行（非常危险！）
+./pgsql.yml   -l pg-test                 # 在 pg-test 集群上运行
+./pgsql.yml   -l 10.10.10.10             # 在单个主机 10.10.10.10 上运行
+./pgsql.yml   -l pg-*                    # 在与通配符 `pg-*` 匹配的主机/组上运行
+./pgsql.yml   -l '10.10.10.11,&pg-test'  # 在组 pg-test 的 10.10.10.10 上运行
+/pgsql-rm.yml -l 'pg-test,!10.10.10.11'  # 在 pg-test 上运行，除了 10.10.10.11 以外
+./pgsql.yml   -l pg-test                 # 在 pg-test 集群的主机上执行 pgsql 剧本
 ````
 
 
@@ -134,9 +137,9 @@ Pigsty 将在 [准备](install#准备) 期间在 `admin` 节点上安装 `ansibl
 命令行参数具有压倒性的优先级，以下是一些额外参数的示例：
 
 ```bash
-./node.yml -e ansible_user=admin -k -K     # 作为另一个用户运行剧本（带有 admin sudo 密码）
-./pgsql.yml -e pg_clean=true               # 在初始化 pgsql 实例时强制清除现有的 postgres
-./pgsql-rm.yml -e pg_uninstall=true        # 在 postgres 实例被删除后明确卸载 rpm
+./node.yml -e ansible_user=admin -k -K                  # 作为另一个用户运行剧本（带有 admin sudo 密码）
+./pgsql.yml -e pg_clean=true                            # 在初始化 pgsql 实例时强制清除现有的 postgres
+./pgsql-rm.yml -e pg_uninstall=true                     # 在 postgres 实例被删除后明确卸载 rpm
 ./redis.yml -l 10.10.10.11 -e redis_port=6501 -t redis  # 初始化一个特定的 redis 实例：10.10.10.11:6501
 ./redis-rm.yml -l 10.10.10.13 -e redis_port=6501        # 删除一个特定的 redis 实例：10.10.10.11:6501
 ```

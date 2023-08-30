@@ -2,7 +2,7 @@
 
 > **世界上最先进的开源关系型数据库！**
 >
-> 而 Pigsty 帮它进入全盛状态：开箱即用、可靠、可观测、可维护、可伸缩！ [配置](#配置) | [管理](#管理) | [剧本](#剧本) | [监控](#监控) | [参数](#参数)
+> 而 Pigsty 帮它进入全盛状态：开箱即用、可靠、可观测、可维护、可伸缩！ [配置](PGSQL-CONF) | [管理](PGSQL-ADMIN) | [剧本](PGSQL-PLAYBOOK) | [监控](PGSQL-DASHBOARD) | [参数](#参数)
 
 
 ----------------
@@ -62,22 +62,21 @@
 - [主动切换](PGSQL-ADMIN#主动切换)
 - [备份集群](PGSQL-ADMIN#备份集群)
 - [恢复集群](PGSQL-ADMIN#恢复集群)
-
-其他问题，请参考 [FAQ: PGSQL](FAQ#PGSQL)
+- [疑难杂症](FAQ#PGSQL)
 
 
 ----------------
 
 ## 剧本
 
-> 使用幂等的剧本，将您的描述变为现实。
+> 使用幂等的[剧本](PGSQL-PLAYBOOK)，将您的描述变为现实。
 
-- [`pgsql.yml`](https://github.com/vonng/pigsty/blob/master/pgsql.yml) : 初始化PostgreSQL集群或添加新的从库。
-- [`pgsql-rm.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-rm.yml) : 移除PostgreSQL集群，或移除某个实例
-- [`pgsql-user.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-user.yml) : 在现有的PostgreSQL集群中添加新的业务用户
-- [`pgsql-db.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-db.yml) : 在现有的PostgreSQL集群中添加新的业务数据库
-- [`pgsql-monitor.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-monitor.yml) : 将远程postgres实例纳入监控中
-- [`pgsql-migration.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml) : 为现有的PostgreSQL集群生成迁移手册和脚本
+- [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) ：初始化PostgreSQL集群或添加新的从库。
+- [`pgsql-rm.yml`](PGSQL-PLAYBOOK#pgsql-rmyml) ：移除PostgreSQL集群，或移除某个实例
+- [`pgsql-user.yml`](PGSQL-PLAYBOOK#pgsql-useryml) ：在现有的PostgreSQL集群中添加新的业务用户
+- [`pgsql-db.yml`](PGSQL-PLAYBOOK#pgsql-dbyml) ：在现有的PostgreSQL集群中添加新的业务数据库
+- [`pgsql-monitor.yml`](PGSQL-PLAYBOOK#pgsql-monitoryml) ：将远程postgres实例纳入监控中
+- [`pgsql-migration.yml`](PGSQL-PLAYBOOK#pgsql-migrationyml) ：为现有的PostgreSQL集群生成迁移手册和脚本
 
 <details><summary>样例：安装 PGSQL 模块</summary>
 
@@ -98,7 +97,9 @@
 
 ## 监控
 
-在 Pigsty 中共有 26 个与 PostgreSQL 相关的监控面板，详情请参考 [仪表盘](PGSQL-DASHBOARD)。
+>  在 Grafana [仪表盘](PGSQL-DASHBOARD) 中查阅 PostgreSQL 的详情状态。
+
+在 Pigsty 中共有 26 个与 PostgreSQL 相关的监控面板：
 
 |                            总览                             |                                  集群                                   |                             实例                              |                            数据库                            |
 |:---------------------------------------------------------:|:---------------------------------------------------------------------:|:-----------------------------------------------------------:|:---------------------------------------------------------:|
