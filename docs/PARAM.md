@@ -105,7 +105,7 @@
 | 273 | [`vip_role`](#vip_role)                                         | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | enum        | I     | optional, `master/backup`, backup by default, use as init role                |
 | 274 | [`vip_preempt`](#vip_preempt)                                   | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | bool        | C/I   | optional, `true/false`, false by default, enable vip preemption               |
 | 275 | [`vip_interface`](#vip_interface)                               | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | string      | C/I   | node vip network interface to listen, `eth0` by default                       |
-| 276 | [`vip_dns_suffix`](#vip_dns_suffix)                             | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | string      | C     | node vip dns name suffix, `.vip` by default                                   |
+| 276 | [`vip_dns_suffix`](#vip_dns_suffix)                             | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | string      | C     | node vip dns name suffix, empty string by default                             |
 | 277 | [`vip_exporter_port`](#vip_exporter_port)                       | [`NODE`](#node)   | [`NODE_VIP`](#node_vip)           | port        | C     | keepalived exporter listen port, 9650 by default                              |
 | 280 | [`haproxy_enabled`](#haproxy_enabled)                           | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | bool        | C     | enable haproxy on this node?                                                  |
 | 281 | [`haproxy_clean`](#haproxy_clean)                               | [`NODE`](#node)   | [`HAPROXY`](#haproxy)             | bool        | G/C/A | cleanup all existing haproxy config?                                          |
@@ -2117,7 +2117,7 @@ vip_enabled: false                # enable vip on this node cluster?
 vip_role: backup                  # optional, `master/backup`, backup by default, use as init role
 vip_preempt: false                # optional, `true/false`, false by default, enable vip preemption
 vip_interface: eth0               # node vip network interface to listen, `eth0` by default
-vip_dns_suffix: .vip              # node vip dns name suffix, `.vip` by default
+vip_dns_suffix: ''                # node vip dns name suffix, empty string by default
 vip_exporter_port: 9650           # keepalived exporter listen port, 9650 by default
 ```
 
@@ -2195,7 +2195,7 @@ If your node have different interface, you can override it on instance vars
 
 name: `vip_dns_suffix`, type: `string`, level: `C/I`
 
-node vip dns name suffix, `.vip` by default. It will be used as the DNS name of the node VIP.
+node vip dns name suffix, empty string by default. It will be used as the DNS name of the node VIP.
 
 
 

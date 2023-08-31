@@ -32,6 +32,33 @@
 | v0.0.1          | 2019-05-15 | 概念原型                                                       | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
 
+
+----------------
+
+## v2.3.1 (开发中)
+
+
+**文档更新**
+
+- 添加了简体中文版本的内置文档，修复了 pigsty.cc 文档站的中文文档。
+
+**更新调整**
+
+- Grant dbsu `modprobe watchdog` and `chown watchdog` if `patroni_watchdog_mode` is `required`
+- 将 `vip_dns_suffix` 的默认值由 `.vip` 调整为空字符串，即集群本身的名称将默认作为节点集群的 L2 VIP
+
+**软件更新**
+
+- grafana 10.1.0
+- loki & promtail 2.8.4
+- redis-stack 7.2 on el7/8
+- mcli-20230829225506 / minio-20230829230735
+- add redis older version 6.2.13 support
+- ferretdb 1.9
+- sealos 4.3.3
+
+
+
 ----------------
 
 ## v2.3.0

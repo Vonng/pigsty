@@ -33,7 +33,33 @@
 
 
 
-------------------------------
+----------------
+
+## v2.3.1 (WIP)
+
+
+**Doc Update**
+
+- Add chineses/zh-cn documentation
+
+**Bug Fix**
+
+- Grant dbsu `modprobe watchdog` and `chown watchdog` if `patroni_watchdog_mode` is `required`
+- Change default node vip dns name suffix to `''` empty string.
+
+**Software Upgrade**
+
+- grafana 10.1.0
+- loki & promtail 2.8.4
+- redis-stack 7.2 on el7/8
+- mcli-20230829225506 / minio-20230829230735
+- add redis older version 6.2.13 support
+- ferretdb 1.9
+- sealos 4.3.3
+
+
+
+----------------
 
 ## v2.3.0
 
@@ -161,7 +187,7 @@ MD5 (pigsty-pkg-v2.2.0.el9.x86_64.tgz) = 385432fe86ee0f8cbccbbc9454472fdd
 
 
 
-------------------------------
+----------------
 
 ## v2.1.0
 
@@ -195,7 +221,7 @@ MD5 (pigsty-pkg-v2.2.0.el9.x86_64.tgz) = 385432fe86ee0f8cbccbbc9454472fdd
 
 
 
-------------------------------
+----------------
 
 ## v2.0.2
 
@@ -228,7 +254,7 @@ MD5 (pigsty-pkg-v2.0.2.el9.x86_64.tgz) = c8b113d57c769ee86a22579fc98e8345
 ```
 
 
-------------------------------
+----------------
 
 ## v2.0.1
 
@@ -292,7 +318,7 @@ MD5 (pigsty-pkg-v2.0.1.el9.x86_64.tgz) = 055057cebd93c473a67fb63bcde22d33
 Special thanks to [@cocoonkid](https://github.com/cocoonkid) for his feedback.
 
 
-------------------------------
+----------------
 
 ## v2.0.0
 
@@ -519,7 +545,7 @@ Special thanks to @alemacci for his great contribution!
 
 
 
-------------------------
+----------------
 
 ## v1.5.1
 
@@ -558,7 +584,7 @@ Please upgrade postgres to 14.4 ASAP.
 
 
 
-------------------------
+----------------
 
 ## v1.5.0
 
@@ -691,8 +717,7 @@ And `*_safeguard` are boolean flags to avoid purging running instance when execu
 
 
 
-
-------------------------
+----------------
 
 
 ## v1.4.1
@@ -720,8 +745,7 @@ English document is available now.
 
 
 
-------------------------
-
+----------------
 
 ## v1.4.0
 
@@ -855,8 +879,7 @@ MD5 (pkg.tgz) = 73e8f5ce995b1f1760cb63c1904fb91b
 
 
 
-------------------------
-
+----------------
 
 ## v1.3.1
 
@@ -919,7 +942,7 @@ MD5 (pkg.tgz) = 73e8f5ce995b1f1760cb63c1904fb91b
   * add perf as default packages
 
 
-------------------------
+----------------
 
 ## v1.2.0
 
@@ -1028,9 +1051,8 @@ yum install timescaledb-2-postgresql13
 * now haproxy access point is `http://pigsty` instead of `http://h.pigsty`
 
 
-------------------------
 
-
+----------------
 
 ## v1.0.1
 
@@ -1050,9 +1072,7 @@ yum install timescaledb-2-postgresql13
 
 
 
-------------------------
-
-
+----------------
 
 ## v1.0.0
 
@@ -1121,9 +1141,7 @@ v1 GA, Monitoring System Overhaul
 
 
 
-
-------------------------
-
+----------------
 
 ## v0.9.0
 
@@ -1185,9 +1203,7 @@ Pigsty GUI, CLI, Logging Intergration
 
 
 
-------------------------
-
-
+----------------
 
 ## v0.8.0
 
@@ -1360,9 +1376,7 @@ pg_databases:
 
 
 
-------------------------
-
-
+----------------
 
 ## v0.7.0
 
@@ -1603,10 +1617,7 @@ You can create new users on running postgres clusters with `pgsql-createuser.yml
 
 
 
-------------------------
-
-
-
+----------------
 
 ## v0.6.0
 
@@ -1676,8 +1687,7 @@ prometheus_retention                          # covered by `prometheus_options`
 </details>
 
 
-------------------------
-
+----------------
 
 ## v0.5.0
 
@@ -1865,7 +1875,7 @@ pgbouncer_hba_rules_extra: []
 </details>
 
 
-------------------------
+----------------
 
 ## v0.4.0
 
@@ -1909,8 +1919,9 @@ Skim version of monitoring system consist of 10 essential dashboards:
 
 </details>
 
-------------------------
 
+
+----------------
 
 ## v0.3.0
 

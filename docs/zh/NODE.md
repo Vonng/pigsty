@@ -464,7 +464,7 @@ Pigsty 中的 NODE 模块提供了 6 个内容丰富的监控面板。
 | [`vip_role`](PARAM#vip_role)                               | [`NODE_VIP`](PARAM#node_vip)           |   enum    |   I   | 可选，master/backup，默认为 backup，用作初始角色            |
 | [`vip_preempt`](PARAM#vip_preempt)                         | [`NODE_VIP`](PARAM#node_vip)           |   bool    |  C/I  | 可选，true/false，默认为 false，启用 vip 抢占             |
 | [`vip_interface`](PARAM#vip_interface)                     | [`NODE_VIP`](PARAM#node_vip)           |  string   |  C/I  | 节点 vip 网络接口监听，默认为 eth0                        |
-| [`vip_dns_suffix`](PARAM#vip_dns_suffix)                   | [`NODE_VIP`](PARAM#node_vip)           |  string   |   C   | 节点 vip DNS 名称后缀，默认为 .vip                      |
+| [`vip_dns_suffix`](PARAM#vip_dns_suffix)                   | [`NODE_VIP`](PARAM#node_vip)           |  string   |   C   | 节点 vip DNS 名称后缀，默认为空字符串                      |
 | [`vip_exporter_port`](PARAM#vip_exporter_port)             | [`NODE_VIP`](PARAM#node_vip)           |   port    |   C   | keepalived exporter 监听端口，默认为 9650             |
 | [`haproxy_enabled`](PARAM#haproxy_enabled)                 | [`HAPROXY`](PARAM#haproxy)             |   bool    |   C   | 在此节点上启用 haproxy 吗？                            |
 | [`haproxy_clean`](PARAM#haproxy_clean)                     | [`HAPROXY`](PARAM#haproxy)             |   bool    | G/C/A | 清除所有现有的 haproxy 配置吗？                          |

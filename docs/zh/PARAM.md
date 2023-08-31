@@ -105,7 +105,7 @@
 | 273 | [`vip_role`](#vip_role)                                         |  [`NODE`](#node)  |      [`NODE_VIP`](#node_vip)      | enum        | I     | 可选，master/backup，默认为 backup，用作初始角色                                              |
 | 274 | [`vip_preempt`](#vip_preempt)                                   |  [`NODE`](#node)  |      [`NODE_VIP`](#node_vip)      | bool        | C/I   | 可选，true/false，默认为 false，启用 vip 抢占                                               |
 | 275 | [`vip_interface`](#vip_interface)                               |  [`NODE`](#node)  |      [`NODE_VIP`](#node_vip)      | string      | C/I   | 节点 vip 网络接口监听，默认为 eth0                                                          |
-| 276 | [`vip_dns_suffix`](#vip_dns_suffix)                             |  [`NODE`](#node)  |      [`NODE_VIP`](#node_vip)      | string      | C     | 节点 vip DNS 名称后缀，默认为 .vip                                                        |
+| 276 | [`vip_dns_suffix`](#vip_dns_suffix)                             |  [`NODE`](#node)  |      [`NODE_VIP`](#node_vip)      | string      | C     | 节点 vip DNS 名称后缀，默认为空字符串                                                      |
 | 277 | [`vip_exporter_port`](#vip_exporter_port)                       |  [`NODE`](#node)  |      [`NODE_VIP`](#node_vip)      | port        | C     | keepalived exporter 监听端口，默认为 9650                                               |
 | 280 | [`haproxy_enabled`](#haproxy_enabled)                           |  [`NODE`](#node)  |       [`HAPROXY`](#haproxy)       | bool        | C     | 在此节点上启用 haproxy 吗？                                                              |
 | 281 | [`haproxy_clean`](#haproxy_clean)                               |  [`NODE`](#node)  |       [`HAPROXY`](#haproxy)       | bool        | G/C/A | 清除所有现有的 haproxy 配置吗？                                                            |
@@ -2117,7 +2117,7 @@ vip_enabled: false                # enable vip on this node cluster?
 vip_role: backup                  # optional, `master/backup`, backup by default, use as init role
 vip_preempt: false                # optional, `true/false`, false by default, enable vip preemption
 vip_interface: eth0               # node vip network interface to listen, `eth0` by default
-vip_dns_suffix: .vip              # node vip dns name suffix, `.vip` by default
+vip_dns_suffix: ''                # node vip dns name suffix, empty string by default
 vip_exporter_port: 9650           # keepalived exporter listen port, 9650 by default
 ```
 
@@ -2195,7 +2195,7 @@ If your node have different interface, you can override it on instance vars
 
 参数名称： `vip_dns_suffix`， 类型： `string`， 层次：`C/I`
 
-node vip dns name suffix, `.vip` by default. It will be used as the DNS name of the node VIP.
+节点集群 L2 VIP 使用的DNS名称，默认是空字符串，即直接使用集群名本身作为DNS名称。
 
 
 
