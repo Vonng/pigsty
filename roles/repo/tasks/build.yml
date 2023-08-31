@@ -75,9 +75,9 @@
   shell:
     cmd: |
       {% if os_version|int >= 8 %}
-      repotrack --arch x86_64,noarch {{ item }};
+      repotrack --arch x86_64,noarch {% if '*' in item %}{% for arg in item.split() %}'{{ arg }}' {% endfor %}{% else %}{{ item }}{% endif %};
       {% else %}
-      repotrack {{ item }}
+      repotrack {% if '*' in item %}{% for arg in item.split() %}'{{ arg }}' {% endfor %}{% else %}{{ item }}{% endif %}
       {% endif %}
     chdir: "{{ repo_home }}/{{ repo_name }}"
   with_items: "{{ repo_packages }}"
