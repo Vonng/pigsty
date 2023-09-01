@@ -4,14 +4,22 @@
 # File      :   nuke
 # Desc      :   nuke vagrant VMs with virsh
 # Ctime     :   2023-07-29
-# Mtime     :   2023-07-29
+# Mtime     :   2023-09-01
 # Path      :   vagrant/nuke
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 # ==============================================================#
+SCRIPT_NAME="$(basename $0)"
+SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
+
+# if virsh is not installed, exit
+if ! command -v virsh &> /dev/null
+then
+    echo "virsh could not be found, exit"
+    exit 1
+fi
 
 # this will destroy all vagrant VMs and Volumes, DO USE WITH CAUTION!
-
 echo "====================================="
 echo "destroy and undefine all vagrant VMs"
 virsh list --all | grep vagrant
@@ -24,3 +32,8 @@ echo "destroy and undefine all vagrant volumes"
 virsh vol-list default | grep -v generic | grep vagrant | awk '{print $1}'
 virsh vol-list default | grep -v generic | grep vagrant | awk '{print $1}' | xargs -I {} virsh vol-delete --pool default {}
 virsh vol-list default | grep -v generic | grep vagrant | awk '{print $1}'
+
+
+echo "====================================="
+echo "destroy ${SCRIPT_DIR}/.vagrant cache"
+rm -rf "${SCRIPT_DIR}/.vagrant"
