@@ -635,7 +635,7 @@ To use an existing external etcd cluster, define them as usual and make sure you
 <br>
 <details><summary>How to add a new member to the existing etcd cluster?</summary>
 
-Check [Add a member to etcd cluster](ETCD-ADMIN#add-member)
+Check [Add a member to etcd cluster](ETCD#add-member)
 
 ```bash
 etcdctl member add <etcd-?> --learner=true --peer-urls=https://<new_ins_ip>:2380 # on admin node
@@ -650,7 +650,7 @@ etcdctl member promote <new_ins_server_id>                                      
 <br>
 <details><summary>How to remove a member from an existing etcd cluster?</summary>
 
-Check [Remove member from etcd cluster](ETCD-ADMIN#remove-member)
+Check [Remove member from etcd cluster](ETCD#remove-member)
 
 ```bash
 etcdctl member remove <etcd_server_id>   # kick member out of the cluster (on admin node)

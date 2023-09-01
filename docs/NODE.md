@@ -2,6 +2,8 @@
 
 > Tune nodes into the desired state and monitor it.
 
+[Configuration](#configuration) | [Administration](#administration) | [Playbook](#playbook) | [Dashboard](#dashboard) | [Parameter](#parameter)
+
 
 ----------------
 
@@ -11,43 +13,39 @@ Node is an abstraction of hardware resources, which can be bare metal, virtual m
 
 There are different types of nodes in Pigsty:
 
-* Common nodes, nodes that managed by Pigsty
-* Admin node, the node where pigsty is installed and issue admin commands
-* The Infra node, the node where the [`INFRA`](INFRA) module is installed
+* [Common nodes](#common-node), nodes that managed by Pigsty
+* [Admin node](#admin-node), the node where pigsty is installed and issue admin commands
+* [Infra node](#infra-node), the node where the [`INFRA`](INFRA) module is installed
 
 The admin node is usually overlapped with the infra node, if there's more than one infra node,
 the first one is often used as the default admin node, and the rest of the infra nodes can be used as backup admin nodes.
 
 
-**Common Node**
+### Common Node
 
 You can manage nodes with Pigsty, and install modules on them. The `node.yml` playbook will adjust the node to desired state.
 
 Some services will be added to all nodes by default:
 
-|   Component   | Port | Description                      |
-|:-------------:|:----:|----------------------------------|
-| Node Exporter | 9100 | Node Monitoring Metrics Exporter |
-| HAProxy Admin | 9101 | HAProxy admin page               |
-|   Promtail    | 9080 | Log collecting agent             |
+|   Component         | Port | Description                      |   Status       |
+|:-------------------:|:----:|----------------------------------|-----------------|
+| Node Exporter       | 9100 | Node Monitoring Metrics Exporter |  Enabled        |
+| HAProxy Admin       | 9101 | HAProxy admin page               |   Enabled       |
+|   Promtail          | 9080 | Log collecting agent             |   Enabled       |
+|    Docker Daemon    | 9323 | Enable Container Service         |  *Disabled*     |
+|     Keepalived      |  -   | Manage Node Cluster L2 VIP       |  *Disabled*     |
+| Keepalived Exporter | 9650 | Monitoring Keepalived Status     |  *Disabled*     |
 
 Docker & Keepalived are optional components, enabled when required. 
 
-|      Component      | Port | Description                  |
-|:-------------------:|:----:|------------------------------|
-|    Docker Daemon    | 9323 | Enable Container Service     |
-|     Keepalived      |  -   | Manage Node Cluster L2 VIP   |
-| Keepalived Exporter | 9650 | Monitoring Keepalived Status |
 
-
-
-**Admin Node**
+### ADMIN Node
 
 There is one and only one admin node in a pigsty deployment, which is specified by [`admin_ip`](PARAM#admin_ip). It is set to the local primary IP during [configure](INSTALL#configure).
 
 The node will have ssh / sudo access to all other nodes, which is critical; ensure it's fully secured.
 
-**INFRA Node**
+### INFRA Node
 
 A pigsty deployment may have one or more infra nodes, usually 2 ~ 3, in a large production environment.
 
@@ -55,52 +53,124 @@ The `infra` group specifies infra nodes in the inventory. And infra nodes will h
 
 The admin node is also the default and first infra node, and infra nodes can be used as 'backup' admin nodes.
 
-**PGSQL Node**
+### **PGSQL Node**
 
 The node with [PGSQL](PGSQL) module installed is called a PGSQL node. The node and pg instance is 1:1 deployed. And node instance can be borrowed from corresponding pg instances with [`node_id_from_pg`](PARAM#node_id_from_pg).
 
-|      Component      | Port | Description                                      |
-|:-------------------:|:----:|--------------------------------------------------|
-|      Postgres       | 5432 | Pigsty CMDB                                      |
-|      Pgbouncer      | 6432 | Pgbouncer Connection Pooling Service             |
-|       Patroni       | 8008 | Patroni HA Component                             |
-|   Haproxy Primary   | 5433 | Primary connection pool: Read/Write Service      |
-|   Haproxy Replica   | 5434 | Replica connection pool: Read-only Service       |
-|   Haproxy Default   | 5436 | Primary Direct Connect Service                   |
-|   Haproxy Offline   | 5438 | Offline Direct Connect: Offline Read Service     |
-|  Haproxy `service`  | 543x | Customized PostgreSQL Services                   |
-|    Haproxy Admin    | 9101 | Monitoring metrics and traffic management        |
-|     PG Exporter     | 9630 | PG Monitoring Metrics Exporter                   |
-| PGBouncer Exporter  | 9631 | PGBouncer Monitoring Metrics Exporter            |
-|    Node Exporter    | 9100 | Node Monitoring Metrics Exporter                 |
-|      Promtail       | 9080 | Collect Postgres, Pgbouncer, Patroni logs        |
-|     vip-manager     |  -   | Bind VIP to the primary                          |
-|     keepalived      |  -   | Node Cluster L2 VIP manager (disable by default) |
-| Keepalived Exporter | 9650 | Keepalived Metrics Exporter (disable by default) |
-|    Docker Daemon    | 9323 | Docker Container Service    (disable by default) |
+|      Component      | Port | Description                                      |   Status    |
+|:-------------------:|:----:|--------------------------------------------------|-------------|
+|      Postgres       | 5432 | Pigsty CMDB                                      | Enabled     |
+|      Pgbouncer      | 6432 | Pgbouncer Connection Pooling Service             | Enabled     |
+|       Patroni       | 8008 | Patroni HA Component                             | Enabled     |
+|   Haproxy Primary   | 5433 | Primary connection pool: Read/Write Service      | Enabled     |
+|   Haproxy Replica   | 5434 | Replica connection pool: Read-only Service       | Enabled     |
+|   Haproxy Default   | 5436 | Primary Direct Connect Service                   | Enabled     |
+|   Haproxy Offline   | 5438 | Offline Direct Connect: Offline Read Service     | Enabled     |
+|  Haproxy `service`  | 543x | Customized PostgreSQL Services                   | On Demand   |
+|    Haproxy Admin    | 9101 | Monitoring metrics and traffic management        | Enabled     |
+|     PG Exporter     | 9630 | PG Monitoring Metrics Exporter                   | Enabled     |
+| PGBouncer Exporter  | 9631 | PGBouncer Monitoring Metrics Exporter            | Enabled     |
+|    Node Exporter    | 9100 | Node Monitoring Metrics Exporter                 | Enabled     |
+|      Promtail       | 9080 | Collect Postgres, Pgbouncer, Patroni logs        | Enabled     |
+|    Docker Daemon    | 9323 | Docker Container Service    (disable by default) | Disabled    |
+|     vip-manager     |  -   | Bind VIP to the primary                          | Disabled    |
+|     keepalived      |  -   | Node Cluster L2 VIP manager (disable by default) | Disabled    |
+| Keepalived Exporter | 9650 | Keepalived Metrics Exporter (disable by default) | Disabled    |
+
+
+
+
+----------------
+
+## Configuration
+
+Each node has **identity parameters** that are configured through the parameters in `<cluster>.hosts` and `<cluster>.vars`.
+
+Pigsty uses **IP** as a unique identifier for **database nodes**. **This IP must be the IP that the database instance listens to and serves externally**, But it would be inappropriate to use a public IP address!
+
+**This is very important**. The IP is the `inventory_hostname` of the host in the inventory, which is reflected as the `key` in the `<cluster>.hosts` object.
+
+You can use `ansible_*` parameters to overwrite `ssh` behavior, e.g. connect via domain name / alias, but the primary IPv4 is still the core identity of the node.
+
+[`nodename`](param#nodename) and [`node_cluster`](param#node_cluster) are not **mandatory**; [`nodename`](param#nodename) will use the node's current hostname by default, while [`node_cluster`](param#node_cluster) will use the fixed default value: `nodes`.
+
+If [`node_id_from_pg`](param#node_id_from_pg) is enabled, the node will borrow [`PGSQL`](PGSQL) [identity](param#pg_id) and use it as Node's identity, i.e. [`node_cluster`](param#node_cluster) is set to [`pg_cluster`](param#pg_cluster) if applicable, and [`nodename`](param#nodename) is set to `${pg_cluster}-${pg_seq}`. If [`nodename_overwrite`](param#nodename_overwrite) is enabled, node's hostname will be overwritten by [`nodename`](param#nodename)
+
+Pigsty labels a node with identity parameters in the monitoring system. Which maps `nodename` to `ins`, and `node_cluster` into `cls`.
+
+
+|              Name                    |   Type   | Level | Necessity    | Comment               |
+|:------------------------------------:|:--------:|:-----:|--------------|-----------------------|
+|      `inventory_hostname`            |   `ip`   | **-** | **Required** | **Node IP**           |
+|     [`nodename`](param#nodename)     | `string` | **I** | Optional     | **Node Name**         |
+| [`node_cluster`](param#node_cluster) | `string` | **C** | Optional     | **Node cluster name** |
+
+The following cluster config declares a three-node node cluster:
+
+```yaml
+node-test:
+  hosts:
+    10.10.10.11: { nodename: node-test-1 }
+    10.10.10.12: { nodename: node-test-2 }
+    10.10.10.13: { nodename: node-test-3 }
+  vars:
+    node_cluster: node-test
+```
+
+Default values:
+
+```yaml
+#nodename:           # [INSTANCE] # node instance identity, use hostname if missing, optional
+node_cluster: nodes   # [CLUSTER] # node cluster identity, use 'nodes' if missing, optional
+nodename_overwrite: true          # overwrite node's hostname with nodename?
+nodename_exchange: false          # exchange nodename among play hosts?
+node_id_from_pg: true             # use postgres identity as node identity if applicable?
+```
 
 
 ----------------
 
 ## Administration
 
-**Add Node**
+Here are some common administration tasks for [`NODE`](NODE) module.
+
+- [Add Node](#add-node)
+- [Remove Node](#remove-node)
+- [Create Admin](#create-admin)
+- [Bind VIP](#bind-vip)
+- [Other Tasks](#other-tasks)
+- [FAQ：NODE](FAQ#node)
+
+
+----------------
+
+### Add Node
 
 To add a node into Pigsty, you need to have nopass ssh/sudo access to the node 
 
 ```bash
-bin/node-add [ip...]      # add node to pigsty:  ./node.yml -l <cls|ip|group>
+# ./node.yml -l <cls|ip|group>        # the underlying playbook
+# bin/node-add <selector|ip...>       # add cluster/node to pigsty
+bin/node-add node-test                # init node cluster 'node-test'
+bin/node-add 10.10.10.10              # init node '10.10.10.10'
 ```
 
-**Remove Node**
+----------------
+
+### Remove Node
 
 To remove a node from Pigsty, you can use the following:
 
 ```bash
-bin/node-rm [ip...]       # remove node from pigsty: ./node-rm.yml -l <cls|ip|group>
+# ./node-rm.yml -l <cls|ip|group>    # the underlying playbook
+# bin/node-rm <selector|ip...>       # remove node from pigsty:
+bin/node-rm node-test                # remove node cluster 'node-test'
+bin/node-rm 10.10.10.10              # remove node '10.10.10.10'
 ```
 
-**Create Admin**
+----------------
+
+### Create Admin
 
 If the current user does not have nopass ssh/sudo access to the node, you can use another admin user to bootstrap the node:
 
@@ -108,7 +178,9 @@ If the current user does not have nopass ssh/sudo access to the node, you can us
 node.yml -t node_admin -k -K -e ansible_user=<another admin>   # input ssh/sudo password for another admin 
 ```
 
-**Bind VIP**
+----------------
+
+### Bind VIP
 
 You can bind an optional L2 VIP on a node cluster with [`vip_enabled`](PARAM#vip_enabled). 
 
@@ -130,22 +202,132 @@ proxy:
 ./node.yml -l proxy -t vip_refresh  # refresh vip config (e.g. designated master) 
 ```
 
+----------------
+
+### Other Tasks
+
+```bash
+# Play
+./node.yml -t node                            # init node itself (haproxy monitor not included）
+./node.yml -t haproxy                         # setup haproxy on node to expose services
+./node.yml -t monitor                         # setup node_exporter & promtail for metrics & logs
+./node.yml -t node_vip                        # enable keepalived for node cluster L2 VIP
+./node.yml -t vip_config,vip_reload           # refresh L2 VIP configuration
+./node.yml -t haproxy_config,haproxy_reload   # refresh haproxy services definition on node cluster
+./node.yml -t register_prometheus             # register node to Prometheus
+./node.yml -t register_nginx                  # register haproxy admin page url to Nginx on infra nodes
+
+# Task
+./node.yml -t node-id        # generate node identity
+./node.yml -t node_name      # setup hostname
+./node.yml -t node_hosts     # setup /etc/hosts records
+./node.yml -t node_resolv    # setup dns resolver
+./node.yml -t node_firewall  # setup firewall & selinux
+./node.yml -t node_ca        # add & trust ca certificate
+./node.yml -t node_repo      # add upstream repo
+./node.yml -t node_pkg       # install yum packages
+./node.yml -t node_feature   # setup numa, grub, static network
+./node.yml -t node_kernel    # enable kernel modules
+./node.yml -t node_tune      # setup tuned profile
+./node.yml -t node_sysctl    # setup additional sysctl parameters
+./node.yml -t node_profile   # write /etc/profile.d/node.sh
+./node.yml -t node_ulimit    # setup resource limits
+./node.yml -t node_data      # setup main data dir
+./node.yml -t node_admin     # setup admin user and ssh key
+./node.yml -t node_timezone  # setup timezone
+./node.yml -t node_ntp       # setup ntp server/clients
+./node.yml -t node_crontab   # add/overwrite crontab tasks
+./node.yml -t node_vip       # setup optional l2 vrrp vip for node cluster
+```
+
+
 
 
 ----------------
 
-## Playbooks
+## Playbook
 
-* [`node.yml`](https://github.com/vonng/pigsty/blob/master/node.yml) : Init node for pigsty
-* [`node-rm.yml`](https://github.com/vonng/pigsty/blob/master/node-rm.yml) : Remove node from pigsty
+There are two node playbooks [node.yml](#nodeyml) and [node-rm.yml](#node-rmyml)
+
+### `node.yml`
+
+The playbook [`node.yml`](https://github.com/vonng/pigsty/blob/master/node.yml) will init node for pigsty
+
+Subtasks of this playbook:
+
+```bash
+# node-id       : generate node identity
+# node_name     : setup hostname
+# node_hosts    : setup /etc/hosts records
+# node_resolv   : setup dns resolver
+# node_firewall : setup firewall & selinux
+# node_ca       : add & trust ca certificate
+# node_repo     : add upstream repo
+# node_pkg      : install yum packages
+# node_feature  : setup numa, grub, static network
+# node_kernel   : enable kernel modules
+# node_tune     : setup tuned profile
+# node_sysctl   : setup additional sysctl parameters
+# node_profile  : write /etc/profile.d/node.sh
+# node_ulimit   : setup resource limits
+# node_data     : setup main data dir
+# node_admin    : setup admin user and ssh key
+# node_timezone : setup timezone
+# node_ntp      : setup ntp server/clients
+# node_crontab  : add/overwrite crontab tasks
+# node_vip      : setup optional l2 vrrp vip for node cluster
+#   - vip_install
+#   - vip_config
+#   - vip_launch
+#   - vip_reload
+# haproxy       : setup haproxy on node to expose services
+#   - haproxy_install
+#   - haproxy_config
+#   - haproxy_launch
+#   - haproxy_reload
+# monitor       : setup node_exporter & promtail for metrics & logs
+#   - haproxy_register
+#   - vip_dns
+#   - node_exporter
+#     - node_exporter_config
+#     - node_exporter_launch
+#   - vip_exporter
+#     - vip_exporter_config
+#     - vip_exporter_launch
+#   - node_register
+#   - promtail
+#     - promtail_clean
+#     - promtail_config
+#     - promtail_install
+#     - promtail_launch
+```
 
 [![asciicast](https://asciinema.org/a/568807.svg)](https://asciinema.org/a/568807)
 
 
+### `node-rm.yml`
+
+The playbook [`node-rm.yml`](https://github.com/vonng/pigsty/blob/master/node-rm.yml) will remove node from pigsty.playbook
+
+Subtasks of this playbook:
+
+```bash
+# register       : remove register from prometheus & nginx
+#   - prometheus : remove registered prometheus monitor target
+#   - nginx      : remove nginx proxy record for haproxy admin
+# vip            : remove node keepalived if enabled
+# haproxy        : remove haproxy load balancer
+# node_exporter  : remove monitoring exporter
+# vip_exporter   : remove keepalived_exporter if enabled
+# promtail       : remove loki log agent
+# profile        : remove /etc/profile.d/node.sh
+```
+
+
 
 ----------------
 
-## Dashboards
+## Dashboard
 
 There are 6 dashboards for [`NODE`](NODE) module.
 
@@ -212,10 +394,9 @@ There are 6 dashboards for [`NODE`](NODE) module.
 
 ----------------
 
-## Parameters
+## Parameter
 
-There are 9 sections, 58 parameters about [`NODE`](PARAM#node) module.
-
+There are 11 sections, 66 parameters about [`NODE`](PARAM#node) module.
 
 - [`NODE_ID`](PARAM#node_id)             : Node identity parameters
 - [`NODE_DNS`](PARAM#node_dns)           : Node Domain Name Resolution
@@ -227,6 +408,7 @@ There are 9 sections, 58 parameters about [`NODE`](PARAM#node) module.
 - [`HAPROXY`](PARAM#haproxy)             : Expose services with HAProxy
 - [`NODE_EXPORTER`](PARAM#node_exporter) : Node monitoring agent
 - [`PROMTAIL`](PARAM#promtail)           : Promtail logging agent
+- [`DOCKER`](PARAM#docker)               : Docker Container Service (optional)
 
 
 <details><summary>Parameters</summary>

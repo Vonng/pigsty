@@ -61,6 +61,15 @@
 - 你应当为每个[业务用户](PGSQL-USER#定义用户)设置一个密码自动过期时间，以满足合规要求。
 - 配置自动过期后，请不要忘记在巡检时定期更新这些密码。
 
+  ```yaml
+  - { name: dbuser_meta , password: Pleas3-ChangeThisPwd ,expire_in: 7300 ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
+  - { name: dbuser_view , password: Make.3ure-Compl1ance  ,expire_in: 7300 ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
+  - { name: postgres     ,superuser: true  ,expire_in: 7300                        ,comment: system superuser }
+  - { name: replicator ,replication: true  ,expire_in: 7300 ,roles: [pg_monitor, dbrole_readonly]   ,comment: system replicator }
+  - { name: dbuser_dba   ,superuser: true  ,expire_in: 7300 ,roles: [dbrole_admin]  ,pgbouncer: true ,pool_mode: session, pool_connlimit: 16 , comment: pgsql admin user }
+  - { name: dbuser_monitor ,roles: [pg_monitor] ,expire_in: 7300 ,pgbouncer: true ,parameters: {log_min_duration_statement: 1000 } ,pool_mode: session ,pool_connlimit: 8 ,comment: pgsql monitor user }
+  ```
+
 **不要将更改密码的语句记录到 postgres 日志或其他日志中**
 
   ```bash
@@ -82,7 +91,7 @@
 **不要将任何端口直接暴露到公网IP上，除了基础设施出口Nginx使用的端口（默认80/443）**
 - 出于便利考虑，Prometheus/Grafana 等组件默认监听所有IP地址，可以直接从公网IP端口访问
 - 您可以修改它们的配置文件，只监听内网IP地址，限制其只能通过 Nginx 门户通过域名访问，你也可以当使用安全组，防火墙规则来实现这些安全限制。
-- 出于便利考虑，Redis服务器默认监听所有IP地址，您可以修改 [redis_bind_address](PARAM#redis_bind_address) 只监听内网IP地址。
+- 出于便利考虑，Redis服务器默认监听所有IP地址，您可以修改 [`redis_bind_address`](PARAM#redis_bind_address) 只监听内网IP地址。
 
 **使用 [HBA](pgsql-hba) 限制 postgres 客户端访问**
 - 有一个增强安全性的配置模板：[`security.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/security.yml)

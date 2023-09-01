@@ -147,7 +147,6 @@ node_id_from_pg: true             # 如果可行，是否借用 postgres 身份�
 - [移除节点](#移除节点)
 - [创建管理员](#创建管理员)
 - [绑定VIP](#绑定VIP)
-- [刷新HAProxy服务](#刷新HAProxy服务)
 - [其他常见管理任务](#其他常见管理任务)
 
 更多问题请参考 [FAQ：NODE](FAQ#NODE)
@@ -161,7 +160,8 @@ node_id_from_pg: true             # 如果可行，是否借用 postgres 身份�
 您也可以选择一次性添加一个集群，或使用通配符匹配配置清单中要加入 Pigsty 的节点。
 
 ```bash
-# bin/node-add <cls|ip|selector> ...  # 向 Pigsty 中添加节点，实际上是： ./node.yml -l <cls|ip|group>
+# ./node.yml -l <cls|ip|group>        # 向 Pigsty 中添加节点的实际剧本
+# bin/node-add <selector|ip...>       # 向 Pigsty 中添加节点
 bin/node-add node-test                # 初始化节点集群 'node-test'
 bin/node-add 10.10.10.10              # 初始化节点  '10.10.10.10'
 ```
@@ -173,7 +173,8 @@ bin/node-add 10.10.10.10              # 初始化节点  '10.10.10.10'
 要从 Pigsty 中移除一个节点，您可以使用以下命令：
 
 ```bash
-# bin/node-rm <cls|ip|selector> ...  # 从 pigsty 中移除节点，实际上是 ./node-rm.yml -l <cls|ip|group>
+# ./node-rm.yml -l <cls|ip|group>    # 从 pigsty 中移除节点的实际剧本
+# bin/node-rm <cls|ip|selector> ...  # 从 pigsty 中移除节点
 bin/node-rm node-test                # 移除节点集群 'node-test'
 bin/node-rm 10.10.10.10              # 移除节点 '10.10.10.10'
 ```

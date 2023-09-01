@@ -1378,50 +1378,7 @@ Node module are tuning target nodes into desired state and take it into the Pigs
 
 ## `NODE_ID`
 
-Each node has **identity parameters** that are configured through the parameters in `<cluster>.hosts` and `<cluster>.vars`.
-
-Pigsty uses **IP** as a unique identifier for **database nodes**. **This IP must be the IP that the database instance listens to and serves externally**, But it would be inappropriate to use a public IP address!
-
-**This is very important**. The IP is the `inventory_hostname` of the host in the inventory, which is reflected as the `key` in the `<cluster>.hosts` object.
-
-You can use `ansible_*` parameters to overwrite `ssh` behavior, e.g. connect via domain name / alias, but the primary IPv4 is still the core identity of the node.
-
-[`nodename`](#nodename) and [`node_cluster`](#node_cluster) are not **mandatory**; [`nodename`](#nodename) will use the node's current hostname by default, while [`node_cluster`](#node_cluster) will use the fixed default value: `nodes`.
-
-If [`node_id_from_pg`](#node_id_from_pg) is enabled, the node will borrow [`PGSQL`](PGSQL) [identity](#pg_id) and use it as Node's identity, i.e. [`node_cluster`](#node_cluster) is set to [`pg_cluster`](#pg_cluster) if applicable, and [`nodename`](#nodename) is set to `${pg_cluster}-${pg_seq}`. If [`nodename_overwrite`](#nodename_overwrite) is enabled, node's hostname will be overwritten by [`nodename`](#nodename)
-
-Pigsty labels a node with identity parameters in the monitoring system. Which maps `nodename` to `ins`, and `node_cluster` into `cls`.
-
-
-|              Name               |   Type   | Level | Necessity    | Comment               |
-|:-------------------------------:|:--------:|:-----:|--------------|-----------------------|
-|      `inventory_hostname`       |   `ip`   | **-** | **Required** | **Node IP**           |
-|     [`nodename`](#nodename)     | `string` | **I** | Optional     | **Node Name**         |
-| [`node_cluster`](#node_cluster) | `string` | **C** | Optional     | **Node cluster name** |
-
-The following cluster config declares a three-node node cluster:
-
-```yaml
-node-test:
-  hosts:
-    10.10.10.11: { nodename: node-test-1 }
-    10.10.10.12: { nodename: node-test-2 }
-    10.10.10.13: { nodename: node-test-3 }
-  vars:
-    node_cluster: node-test
-```
-
-Default values:
-
-```yaml
-#nodename:           # [INSTANCE] # node instance identity, use hostname if missing, optional
-node_cluster: nodes   # [CLUSTER] # node cluster identity, use 'nodes' if missing, optional
-nodename_overwrite: true          # overwrite node's hostname with nodename?
-nodename_exchange: false          # exchange nodename among play hosts?
-node_id_from_pg: true             # use postgres identity as node identity if applicable?
-```
-
-
+Each node has **identity parameters** that are configured through the parameters in `<cluster>.hosts` and `<cluster>.vars`. Check [NODE Identity](NODE#configuration) for details.
 
 
 ### `nodename`
@@ -2710,7 +2667,7 @@ etcd initial cluster state, `new` or `existing`
 
 default values: `new`, which will create a standalone new etcd cluster.
 
-The value `existing` is used when trying to [add new member](ETCD-ADMIN#add-member) to existing etcd cluster.
+The value `existing` is used when trying to [add new member](ETCD#add-member) to existing etcd cluster.
 
 
 

@@ -22,6 +22,8 @@
 * [Migration](PGSQL-MIGRATION)
 
 
+----------------
+
 ## Configuration
 
 > [Describe](PGSQL-CONF) the cluster you want
@@ -35,56 +37,10 @@
 - [Standby Cluster](PGSQL-CONF#standby-cluster): Clone an existing cluster and follow it
 - [Delayed Cluster](PGSQL-CONF#delayed-cluster): Clone an existing cluster for emergency data recovery
 - [Citus Cluster](PGSQL-CONF#citus-cluster): Define a Citus distributed database cluster
+- [Major Version](PGSQL-CONF#major-version): Define a PostgreSQL cluster with specific major version
 
 
-
-## Playbooks
-
-> Materialize the cluster you described
-
-- [`pgsql.yml`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)                     : Init HA PostgreSQL clusters or adding new replicas.
-- [`pgsql-rm.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-rm.yml)               : Remove PostgreSQL cluster, or remove replicas
-- [`pgsql-user.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-user.yml)           : Add new business user to existing PostgreSQL cluster
-- [`pgsql-db.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-db.yml)               : Add new business database to existing PostgreSQL cluster
-- [`pgsql-monitor.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-monitor.yml)     : Monitor remote postgres instance with local exporters
-- [`pgsql-migration.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml) : Generate Migration manual & scripts for existing PostgreSQL
-
-<details><summary>Example: Install PGSQL module</summary>
-
-[![asciicast](https://asciinema.org/a/566417.svg)](https://asciinema.org/a/566417)
-
-</details>
-
-
-<details><summary>Example: Remove PGSQL module</summary>
-
-[![asciicast](https://asciinema.org/a/566418.svg)](https://asciinema.org/a/566418)
-
-</details>
-
-
-
-
-## Dashboards
-
-There are 26 default grafana dashboards about PostgreSQL and categorized into 4 levels
-
-Check [Monitoring](PGSQL-MONITOR) & [Dashboards](PGSQL-DASHBOARD) for details.
-
-|                         Overview                          |                                Cluster                                |                          Instance                           |                         Database                          |
-|:---------------------------------------------------------:|:---------------------------------------------------------------------:|:-----------------------------------------------------------:|:---------------------------------------------------------:|
-| [PGSQL Overview](https://demo.pigsty.cc/d/pgsql-overview) |        [PGSQL Cluster](https://demo.pigsty.cc/d/pgsql-cluster)        |  [PGSQL Instance](https://demo.pigsty.cc/d/pgsql-instance)  | [PGSQL Database](https://demo.pigsty.cc/d/pgsql-database) |
-|    [PGSQL Alert](https://demo.pigsty.cc/d/pgsql-alert)    | [PGSQL Cluster Remote](https://demo.pigsty.cc/d/pgsql-cluster-remote) |  [PGCAT Instance](https://demo.pigsty.cc/d/pgcat-instance)  | [PGCAT Database](https://demo.pigsty.cc/d/pgcat-database) |
-|    [PGSQL Shard](https://demo.pigsty.cc/d/pgsql-shard)    |       [PGSQL Activity](https://demo.pigsty.cc/d/pgsql-activity)       |   [PGSQL Persist](https://demo.pigsty.cc/d/pgsql-persist)   |   [PGSQL Tables](https://demo.pigsty.cc/d/pgsql-tables)   |
-|                                                           |    [PGSQL Replication](https://demo.pigsty.cc/d/pgsql-replication)    |     [PGSQL Proxy](https://demo.pigsty.cc/d/pgsql-proxy)     |    [PGSQL Table](https://demo.pigsty.cc/d/pgsql-table)    |
-|                                                           |        [PGSQL Service](https://demo.pigsty.cc/d/pgsql-service)        | [PGSQL Pgbouncer](https://demo.pigsty.cc/d/pgsql-pgbouncer) |    [PGCAT Table](https://demo.pigsty.cc/d/pgcat-table)    |
-|                                                           |      [PGSQL Databases](https://demo.pigsty.cc/d/pgsql-databases)      |   [PGSQL Session](https://demo.pigsty.cc/d/pgsql-session)   |    [PGSQL Query](https://demo.pigsty.cc/d/pgsql-query)    |
-|                                                           |                                                                       |     [PGSQL Xacts](https://demo.pigsty.cc/d/pgsql-xacts)     |    [PGCAT Query](https://demo.pigsty.cc/d/pgcat-query)    |
-|                                                           |                                                                       |   [Logs Instance](https://demo.pigsty.cc/d/logs-instance)   |    [PGCAT Locks](https://demo.pigsty.cc/d/pgcat-locks)    |
-|                                                           |                                                                       |                                                             |   [PGCAT Schema](https://demo.pigsty.cc/d/pgcat-schema)   |
-
-
-
+----------------
 
 ## Administration
 
@@ -105,7 +61,60 @@ Check [Monitoring](PGSQL-MONITOR) & [Dashboards](PGSQL-DASHBOARD) for details.
 - [`Restore Cluster`](PGSQL-ADMIN#restore-cluster)
 
 
-## Parameters
+
+----------------
+
+## Playbook
+
+> Materialize the cluster with idempotent [playbooks](PGSQL-PLAYBOOK)
+
+- [`pgsql.yml`](PGSQL-PLAYBOOk#pgsqlyml) : Init HA PostgreSQL clusters or add new replicas.
+- [`pgsql-rm.yml`](PGSQL-PLAYBOOk#pgsql-rmyml) : Remove PostgreSQL cluster, or remove replicas
+- [`pgsql-user.yml`](PGSQL-PLAYBOOk#pgsql-useryml) : Add new business user to existing PostgreSQL cluster
+- [`pgsql-db.yml`](PGSQL-PLAYBOOk#pgsql-dbyml) : Add new business database to existing PostgreSQL cluster
+- [`pgsql-monitor.yml`](PGSQL-PLAYBOOk#pgsql-monitoryml) : Monitor remote PostgreSQL instance with local exporters
+- [`pgsql-migration.yml`](PGSQL-PLAYBOOk#pgsql-migrationyml) : Generate Migration manual & scripts for existing PostgreSQL
+
+<details><summary>Example: Install PGSQL module</summary>
+
+[![asciicast](https://asciinema.org/a/566417.svg)](https://asciinema.org/a/566417)
+
+</details>
+
+
+<details><summary>Example: Remove PGSQL module</summary>
+
+[![asciicast](https://asciinema.org/a/566418.svg)](https://asciinema.org/a/566418)
+
+</details>
+
+
+
+----------------
+
+## Dashboard
+
+There are 26 default grafana dashboards about PostgreSQL and categorized into 4 levels
+
+Check [Monitoring](PGSQL-MONITOR) & [Dashboards](PGSQL-DASHBOARD) for details.
+
+|                         Overview                          |                                Cluster                                |                          Instance                           |                         Database                          |
+|:---------------------------------------------------------:|:---------------------------------------------------------------------:|:-----------------------------------------------------------:|:---------------------------------------------------------:|
+| [PGSQL Overview](https://demo.pigsty.cc/d/pgsql-overview) |        [PGSQL Cluster](https://demo.pigsty.cc/d/pgsql-cluster)        |  [PGSQL Instance](https://demo.pigsty.cc/d/pgsql-instance)  | [PGSQL Database](https://demo.pigsty.cc/d/pgsql-database) |
+|    [PGSQL Alert](https://demo.pigsty.cc/d/pgsql-alert)    | [PGSQL Cluster Remote](https://demo.pigsty.cc/d/pgsql-cluster-remote) |  [PGCAT Instance](https://demo.pigsty.cc/d/pgcat-instance)  | [PGCAT Database](https://demo.pigsty.cc/d/pgcat-database) |
+|    [PGSQL Shard](https://demo.pigsty.cc/d/pgsql-shard)    |       [PGSQL Activity](https://demo.pigsty.cc/d/pgsql-activity)       |   [PGSQL Persist](https://demo.pigsty.cc/d/pgsql-persist)   |   [PGSQL Tables](https://demo.pigsty.cc/d/pgsql-tables)   |
+|                                                           |    [PGSQL Replication](https://demo.pigsty.cc/d/pgsql-replication)    |     [PGSQL Proxy](https://demo.pigsty.cc/d/pgsql-proxy)     |    [PGSQL Table](https://demo.pigsty.cc/d/pgsql-table)    |
+|                                                           |        [PGSQL Service](https://demo.pigsty.cc/d/pgsql-service)        | [PGSQL Pgbouncer](https://demo.pigsty.cc/d/pgsql-pgbouncer) |    [PGCAT Table](https://demo.pigsty.cc/d/pgcat-table)    |
+|                                                           |      [PGSQL Databases](https://demo.pigsty.cc/d/pgsql-databases)      |   [PGSQL Session](https://demo.pigsty.cc/d/pgsql-session)   |    [PGSQL Query](https://demo.pigsty.cc/d/pgsql-query)    |
+|                                                           |                                                                       |     [PGSQL Xacts](https://demo.pigsty.cc/d/pgsql-xacts)     |    [PGCAT Query](https://demo.pigsty.cc/d/pgcat-query)    |
+|                                                           |                                                                       |   [Logs Instance](https://demo.pigsty.cc/d/logs-instance)   |    [PGCAT Locks](https://demo.pigsty.cc/d/pgcat-locks)    |
+|                                                           |                                                                       |                                                             |   [PGCAT Schema](https://demo.pigsty.cc/d/pgcat-schema)   |
+
+
+
+----------------
+
+## Parameter
 
 > API Reference for [PGSQL](PARAM#pgsql) module:
 

@@ -38,14 +38,24 @@
 ## v2.3.1 (开发中)
 
 
+**最新特性**
+
+- 包含了 hnswlib 的备选向量扩展插件：`xvector`
+
+**问题修复**
+
+- 修复了 `infra`.`repo`.`repo_pkg` 任务：当 `repo_packages` 中包名包含 `*` 时，下载可能会受到 `/www/pigsty` 现有内容的影响。
+
+- 将 `vip_dns_suffix` 的默认值由 `.vip` 调整为空字符串，即集群本身的名称将默认作为节点集群的 L2 VIP
+- `modprobe watchdog` and `chown watchdog` if `patroni_watchdog_mode` is `required`
+- 当 `pg_dbsu_sudo` = `limit` and `patroni_watchdog_mode` = `required` 时，授予数据库 dbsu 以下命令的 sudo 执行权限
+  - `/usr/bin/sudo /sbin/modprobe softdog`：在启动 Patroni 服务时确保 softdog 内核模块启用
+  - `/usr/bin/sudo /bin/chown {{ pg_dbsu }} /dev/watchdog`: 在启动 Patroni 服务时，确保 watchdog 属主正确
+
 **文档更新**
 
+- 向英文文档中添加了更新内容。
 - 添加了简体中文版本的内置文档，修复了 pigsty.cc 文档站的中文文档。
-
-**更新调整**
-
-- Grant dbsu `modprobe watchdog` and `chown watchdog` if `patroni_watchdog_mode` is `required`
-- 将 `vip_dns_suffix` 的默认值由 `.vip` 调整为空字符串，即集群本身的名称将默认作为节点集群的 L2 VIP
 
 **软件更新**
 

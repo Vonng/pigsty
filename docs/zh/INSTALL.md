@@ -83,7 +83,7 @@ cd pigsty; git checkout v2.3.0
 * 系统版本：el7, el8, el9, 或其他兼容的版本
 * 企业级订阅中提供对信创操作系统（例如：统信 UOS v20）的专门支持
 * 请使用全新的节点，以避免无谓的麻烦，1核云虚拟机也就几毛钱一小时。
-* 建议使用 RockyLinux 9.1 / RockyLinux 8.6 / CentOS 7.9 ，这是 Pigsty 构建与测试环境使用的版本。
+* 建议使用 RockyLinux 9.1 / RockyLinux 8.7 / CentOS 7.9 ，这是 Pigsty 构建与测试环境使用的版本。
 
 **机器节点**
 

@@ -39,7 +39,7 @@
 
 **对下线剧本的影响**
 
-当 [`pgsql-remove.yml`](#pgsql-rmyml) 剧本执行中遭遇配置相同的运行中现存实例时，会有以下行为表现：
+当 [`pgsql-rm.yml`](#pgsql-rmyml) 剧本执行中遭遇配置相同的运行中现存实例时，会有以下行为表现：
 
 | `pg_safeguard` / `pg_clean` | `pg_clean=true` | `pg_clean=false` |
 |:---------------------------:|:---------------:|:----------------:|
@@ -145,7 +145,7 @@
 * 扩容完成后，您需要[重载服务](PGSQL-ADMIN#重载服务)与[重载HBA](PGSQL-ADMIN#重载HBA)，包装脚本 `pgsql-add` 会完成这些任务。
 * 详情请参考管理 SOP： [添加实例](PGSQL-ADMIN#添加实例)
 
-* 集群扩容时，如果`Patroni`拉起从库的时间过长，Ansible剧本可能会因为超时而中止。
+集群扩容时，如果`Patroni`拉起从库的时间过长，Ansible剧本可能会因为超时而中止。
 * 典型错误信息为：`wait for postgres/patroni replica` 任务执行很长时间后中止
 * 但制作从库的进程会继续，例如制作从库需超过1天的场景，后续处理请参考 [FAQ](FAQ#PGSQL)：制作从库失败。
 
@@ -231,7 +231,7 @@
 
 剧本 [`pgsql-monitor.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-monitor.yml) 用于将远程postgres实例纳入监控中
 
-详情请参考：[管理SOP：创建数据库](PGSQL-MONITOR#监控现有PG)
+详情请参考：[管理SOP：监控现有PG](PGSQL-MONITOR#监控现有PG)
 
 
 ----------------

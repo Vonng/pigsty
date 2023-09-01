@@ -2,33 +2,14 @@
 
 > Pigsty allow you to add MongoDB compatibility to PostgreSQL with [FerretDB](https://ferretdb.io) 
 
- 
-----------------
-
-## Playbook
-
-There's a built-in playbook: [`mongo.yml`](https://github.com/Vonng/pigsty/blob/master/mongo.yml) for installing the FerretDB cluster. But you have to [define](#configuration) it first.
-
-```bash
-./mongo.yml -l ferret   # install ferretdb cluster on group 'ferret'
-```
-
-This playbook is consist of following sub-tasks:
-
-- mongo_check     : check mongo identity
-- mongo_dbsu      : create os user mongod
-- mongo_install   : install mongo/ferretdb rpm
-- mongo_config    : config mongo/ferretdb
-  - mongo_cert    : issue mongo/ferretdb ssl certs
-- mongo_launch    : launch mongo/ferretdb service
-- mongo_register  : register mongo/ferretdb to prometheus
+[Configuration](#configuration) | [Administration](#administration) | [Playbook](#playbook) | [Dashboard](#dashboard) | [Parameter](#parameter)
 
 
 ----------------
 
 ## Configuration
 
-You have to define a Mongo (FerretDB) cluster before deploying it. There are some [parameters](#parameters) for it:
+You have to define a Mongo (FerretDB) cluster before deploying it. There are some [parameters](#parameter) for it:
 
 ```yaml
 ferret:
@@ -49,6 +30,17 @@ The `mongo_cluster` and `mongo_seq` are required identity parameters, you also n
 ----------------
 
 ## Administration
+
+
+**Create Cluster**
+
+To create a [defined](#configuration) mongo/ferretdb cluster, run the [`mongo.yml`](#mongoyml) playbook:
+
+```bash
+./mongo.yml -l ferret    # install mongo/ferretdb on group 'ferret'
+```
+
+
 
 **Install mongosh on bare metal**
 
@@ -125,26 +117,46 @@ mongosh 'mongodb://test:test@10.10.10.45:27017/test?authMechanism=PLAIN'
 ```
 
 
+----------------
+
+## Playbook
+
+There's a built-in playbook: [`mongo.yml`](#mongoyml) for installing the FerretDB cluster. But you have to [define](#configuration) it first.
+
+
+### `mongo.yml`
+
+[`mongo.yml`](https://github.com/Vonng/pigsty/blob/master/mongo.yml): Install MongoDB/FerretDB on target host.
+
+This playbook is consist of following sub-tasks:
+
+- mongo_check     : check mongo identity
+- mongo_dbsu      : create os user mongod
+- mongo_install   : install mongo/ferretdb rpm
+- mongo_config    : config mongo/ferretdb
+  - mongo_cert    : issue mongo/ferretdb ssl certs
+- mongo_launch    : launch mongo/ferretdb service
+- mongo_register  : register mongo/ferretdb to prometheus
+
+
 
 ----------------
 
-## Dashboards
+## Dashboard
 
 There is one dashboard for [`MONGO`](MONGO) module for now.
 
+### Mongo Overview
+
 [Mongo Overview](https://demo.pigsty.cc/d/mongo-overview): Overview of a Mongo/FerretDB cluster
 
-<details><summary>Mongo Overview Dashboard</summary>
-
 [![mongo-overview](https://github.com/Vonng/pigsty/assets/8587410/406fc2ad-3935-4da9-b77c-2485afb57af8)](https://demo.pigsty.cc/d/mongo-overview)
-
-</details><br>
 
 
 
 ----------------
 
-## Parameters
+## Parameter
 
 There are 9 parameters in [`MONGO`](MONGO) module.
 

@@ -271,6 +271,7 @@ infra:
 ./infra.yml -t nginx_config,nginx_reload          # 重新渲染 Nginx 网站门户配置，对外暴露新的上游服务。
 ./infra.yml -t prometheus_conf,prometheus_reload  # 重新生成 Prometheus 主配置文件，并重载配置
 ./infra.yml -t prometheus_rule,prometheus_reload  # 重新拷贝 Prometheus 规则 & 告警，并重载配置
+./infra.yml -t grafana_plugin                     # 从互联网上下载 Grafana 插件，通常需要科学上网
 ```
 
 

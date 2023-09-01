@@ -2,6 +2,8 @@
 
 > Pigsty has a battery-included, production-ready INFRA module, to provide ultimate observability.
 
+[Configuration](#configuration) | [Administration](#administration) | [Playbook](#playbook) | [Dashboard](#dashboard) | [Parameter](#parameter)
+
 
 ----------------
 
@@ -40,21 +42,197 @@ infra_portal:  # domain names and upstream servers
 
 
 
+----------------
+
+## Configuration
+
+To define an `infra` cluster, use the hard-coded group name `infra` in your inventory file.
+
+You can use multiple nodes to deploy INFRA module, but at least one is required. You have to assign a unique [`infra_seq`](PARAM#infra_seq) to each node.
+
+```yaml
+# Single infra node
+infra: { hosts: { 10.10.10.10: { infra_seq: 1 } }}
+
+# Two INFRA node
+infra:
+  hosts:
+    10.10.10.10: { infra_seq: 1 }
+    10.10.10.11: { infra_seq: 2 }
+```
+
+Then you can init INFRA module with [`infra.yml`](#infrayml) playbook.
+
+
 
 ----------------
 
-## Playbooks
+## Administration
 
-- [`install.yml`](https://github.com/vonng/pigsty/blob/master/install.yml)   : Install Pigsty on current node in one-pass
+Here are some administration tasks related to INFRA module:
+
+----------------
+
+### Install/Remove Infra Module
+
+```bash
+./infra.yml     # install infra/node module on `infra` group
+./infra-rm.yml  # remove infra module from `infra` group
+```
+
+----------------
+
+### Manage Local Yum Repo
+
+```bash
+./infra.yml -t repo             # setup local yum repo
+
+./infra.yml -t repo_dir         # create repo directory
+./infra.yml -t repo_check       # check repo exists
+./infra.yml -t repo_prepare     # use existing repo if exists
+./infra.yml -t repo_build       # build repo from upstream if not exists
+./infra.yml   -t repo_upstream  # handle upstream repo files in /etc/yum.repos.d
+./infra.yml   -t repo_url_pkg   # download packages from internet defined by repo_url_packages
+./infra.yml   -t repo_cache     # make upstream yum cache with yum makecache
+./infra.yml   -t repo_boot_pkg  # install bootstrap pkg such as createrepo_c,yum-utils,...
+./infra.yml   -t repo_pkg       # download packages & dependencies from upstream repo
+./infra.yml   -t repo_create    # create a local yum repo with createrepo_c & modifyrepo_c
+./infra.yml   -t repo_use       # add newly built repo into /etc/yum.repos.d
+./infra.yml -t repo_nginx       # launch a nginx for repo if no nginx is serving
+```
+
+----------------
+
+### Manage Infra Component
+
+您可以使用以下剧本子任务，管理 Infra节点 上的各个基础设施组件
+
+```bash
+./infra.yml -t infra_env      : env_dir, env_pg, env_var
+./infra.yml -t infra_pkg      : infra_pkg_yum, infra_pkg_pip
+./infra.yml -t infra_user     : setup infra os user group
+./infra.yml -t infra_cert     : issue cert for infra components
+./infra.yml -t dns            : dns_config, dns_record, dns_launch
+./infra.yml -t nginx          : nginx_config, nginx_cert, nginx_static, nginx_launch, nginx_exporter
+./infra.yml -t prometheus     : prometheus_clean, prometheus_dir, prometheus_config, prometheus_launch, prometheus_reload
+./infra.yml -t alertmanager   : alertmanager_config, alertmanager_launch
+./infra.yml -t pushgateway    : pushgateway_config, pushgateway_launch
+./infra.yml -t blackbox       : blackbox_config, blackbox_launch
+./infra.yml -t grafana        : grafana_clean, grafana_config, grafana_plugin, grafana_launch, grafana_provision
+./infra.yml -t loki           : loki clean, loki_dir, loki_config, loki_launch
+./infra.yml -t infra_register : register infra components to prometheus
+```
+
+```bash
+./infra.yml -t nginx_index                        # render Nginx homepage
+./infra.yml -t nginx_config,nginx_reload          # render Nginx upstream server config
+./infra.yml -t prometheus_conf,prometheus_reload  # render Prometheus main config and reload
+./infra.yml -t prometheus_rule,prometheus_reload  # copy Prometheus rules & alert definition and reload
+./infra.yml -t grafana_plugin                     # download Grafana plugins from the Internet
+```
+
+
+
+
+----------------
+
+## Playbook
+
+- [`install.yml`](https://github.com/vonng/pigsty/blob/master/install.yml)   : Install Pigsty on all nodes in one-pass
 - [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infra.yml)       : Init pigsty infrastructure on infra nodes
 - [`infra-rm.yml`](https://github.com/vonng/pigsty/blob/master/infra-rm.yml) : Remove infrastructure components from infra nodes
+
+[![asciicast](https://asciinema.org/a/566412.svg)](https://asciinema.org/a/566412)
+
+----------------
+
+### `infra.yml`
+
+The playbook [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infra.yml) will init pigsty infrastructure on infra nodes.
+
+It will also install [NODE](NODE) module on infra nodes too.
+
+Here are available subtasks:
+
+```
+# ca            : create self-signed CA on localhost files/pki
+#   - ca_dir        : create CA directory
+#   - ca_private    : generate ca private key: files/pki/ca/ca.key
+#   - ca_cert       : signing ca cert: files/pki/ca/ca.crt
+#
+# id            : generate node identity
+#
+# repo          : bootstrap a local yum repo from internet or offline packages
+#   - repo_dir      : create repo directory
+#   - repo_check    : check repo exists
+#   - repo_prepare  : use existing repo if exists
+#   - repo_build    : build repo from upstream if not exists
+#     - repo_upstream    : handle upstream repo files in /etc/yum.repos.d
+#       - repo_remove    : remove existing repo file if repo_remove == true
+#       - repo_add       : add upstream repo files to /etc/yum.repos.d
+#     - repo_url_pkg     : download packages from internet defined by repo_url_packages
+#     - repo_cache       : make upstream yum cache with yum makecache
+#     - repo_boot_pkg    : install bootstrap pkg such as createrepo_c,yum-utils,...
+#     - repo_pkg         : download packages & dependencies from upstream repo
+#     - repo_create      : create a local yum repo with createrepo_c & modifyrepo_c
+#     - repo_use         : add newly built repo into /etc/yum.repos.d
+#   - repo_nginx    : launch a nginx for repo if no nginx is serving
+#
+# node/haproxy/docker/monitor : setup infra node as a common node (check node.yml)
+#   - node_name, node_hosts, node_resolv, node_firewall, node_ca, node_repo, node_pkg
+#   - node_feature, node_kernel, node_tune, node_sysctl, node_profile, node_ulimit
+#   - node_data, node_admin, node_timezone, node_ntp, node_crontab, node_vip
+#   - haproxy_install, haproxy_config, haproxy_launch, haproxy_reload
+#   - docker_install, docker_admin, docker_config, docker_launch, docker_image
+#   - haproxy_register, node_exporter, node_register, promtail
+#
+# infra         : setup infra components
+#   - infra_env      : env_dir, env_pg, env_var
+#   - infra_pkg      : infra_pkg_yum, infra_pkg_pip
+#   - infra_user     : setup infra os user group
+#   - infra_cert     : issue cert for infra components
+#   - dns            : dns_config, dns_record, dns_launch
+#   - nginx          : nginx_config, nginx_cert, nginx_static, nginx_launch, nginx_exporter
+#   - prometheus     : prometheus_clean, prometheus_dir, prometheus_config, prometheus_launch, prometheus_reload
+#   - alertmanager   : alertmanager_config, alertmanager_launch
+#   - pushgateway    : pushgateway_config, pushgateway_launch
+#   - blackbox       : blackbox_config, blackbox_launch
+#   - grafana        : grafana_clean, grafana_config, grafana_plugin, grafana_launch, grafana_provision
+#   - loki           : loki clean, loki_dir, loki_config, loki_launch
+#   - infra_register : register infra components to prometheus
+```
 
 [![asciicast](https://asciinema.org/a/566412.svg)](https://asciinema.org/a/566412)
 
 
 ----------------
 
-## Dashboards
+### `infra-rm.yml`
+
+The playbook [`infra-rm.yml`](https://github.com/vonng/pigsty/blob/master/infra-rm.yml) will remove infrastructure components from infra nodes
+
+```bash
+./infra-rm.yml               # remove INFRA module
+./infra-rm.yml -t service    # stop INFRA services
+./infra-rm.yml -t data       # remove INFRA data
+./infra-rm.yml -t package    # uninstall INFRA packages
+```
+
+
+----------------
+
+### `install.yml`
+
+The playbook [`install.yml`](https://github.com/vonng/pigsty/blob/master/install.yml) will install Pigsty on all node in one-pass.
+
+Check [Playbook: One-Pass Install](PLAYBOOK#one-pass-install) for details.
+
+
+
+
+----------------
+
+## Dashboard
 
 
 [Pigsty Home](https://demo.pigsty.cc/d/pigsty) : Home dashboard for pigsty's grafana
@@ -151,7 +329,7 @@ infra_portal:  # domain names and upstream servers
 
 ----------------
 
-## Parameters
+## Parameter
 
 API Reference for [`INFRA`](PARAM#INFRA) module:
 

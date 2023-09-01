@@ -29,6 +29,7 @@
   - [Access Control](PGSQL-ACL)
   - [Administration](PGSQL-ADMIN)
   - [Backup & PITR](PGSQL-PITR)
+  - [Playbooks](PGSQL-PLAYBOOK)
   - [Monitoring](PGSQL-MONITOR)
   - [Dashboards](PGSQL-DASHBOARD)
   - [Migration](PGSQL-MIGRATION)

@@ -2,9 +2,7 @@
 
 > Grafana Dashboards for Pigsty managed PostgreSQL clusters
 
-
-
-There are 26 default grafana dashboards about PostgreSQL and categorized into 4 levels, check [Monitor](/en/docs/pgsql/monitor) for details.
+There are 26 default grafana dashboards about PostgreSQL and categorized into 4 levels. and categorized into [PGSQL](#overview), [PGCAT](#pgcat) & [PGLOG](#pglog) by datasource.
 
 |                         Overview                          |                                Cluster                                |                          Instance                           |                         Database                          |
 |:---------------------------------------------------------:|:---------------------------------------------------------------------:|:-----------------------------------------------------------:|:---------------------------------------------------------:|
@@ -17,6 +15,44 @@ There are 26 default grafana dashboards about PostgreSQL and categorized into 4 
 |                                                           |                                                                       |     [PGSQL Xacts](https://demo.pigsty.cc/d/pgsql-xacts)     |    [PGCAT Query](https://demo.pigsty.cc/d/pgcat-query)    |
 |                                                           |                                                                       |   [Logs Instance](https://demo.pigsty.cc/d/logs-instance)   |    [PGCAT Locks](https://demo.pigsty.cc/d/pgcat-locks)    |
 |                                                           |                                                                       |                                                             |   [PGCAT Schema](https://demo.pigsty.cc/d/pgcat-schema)   |
+
+
+**Overview**
+
+- [pgsql-overview](https://demo.pigsty.cc/d/pgsql-overview) : The main dashboard for PGSQL module
+- [pgsql-alert](https://demo.pigsty.cc/d/pgsql-alert) : Global PGSQL key metrics and alerting events
+- [pgsql-shard](https://demo.pigsty.cc/d/pgsql-shard) : Overview of a horizontal sharded PGSQL cluster, e.g. citus / gpsql cluster
+
+**Cluster**
+
+- [pgsql-cluster](https://demo.pigsty.cc/d/pgsql-cluster): The main dashboard for a PGSQL cluster
+- [pgsql-cluster-remote](https://demo.pigsty.cc/d/pgsql-cluster-remote): Trimmed version of PGSQL Cluster, for remote PGSQL cluster
+- [pgsql-activity](https://demo.pigsty.cc/d/pgsql-activity): Cares about the Session/Load/QPS/TPS/Locks of a PGSQL cluster
+- [pgsql-replication](https://demo.pigsty.cc/d/pgsql-replication): Cares about PGSQL cluster replication, slots, and pub/sub.
+- [pgsql-service](https://demo.pigsty.cc/d/pgsql-service): Cares about PGSQL cluster services, proxies, routes, and load balancers.
+- [pgsql-databases](https://demo.pigsty.cc/d/pgsql-databases): Cares about database CRUD, slow queries, and table statistics cross all instances.
+
+**Instance**
+
+- [pgsql-instance](https://demo.pigsty.cc/d/pgsql-instance): The main dashboard for a single PGSQL instance
+- [pgcat-instance](https://demo.pigsty.cc/d/pgcat-instance): Instance information from database catalog directly
+- [pgsql-persist](https://demo.pigsty.cc/d/pgsql-persist): Metrics about persistence: WAL, XID, Checkpoint, Archive, IO
+- [pgsql-proxy](https://demo.pigsty.cc/d/pgsql-proxy): Metrics about haproxy the service provider
+- [pgsql-queries](https://demo.pigsty.cc/d/pgsql-queries): Overview of all queries in a single instance
+- [pgsql-session](https://demo.pigsty.cc/d/pgsql-session): Metrics about sessions and active/idle time in a single instance
+- [pgsql-xacts](https://demo.pigsty.cc/d/pgsql-xacts): Metrics about transactions, locks, queries, etc...
+
+**Database**
+
+- [pgsql-database](https://demo.pigsty.cc/d/pgsql-database): The main dashboard for a single PGSQL database
+- [pgcat-database](https://demo.pigsty.cc/d/pgcat-database): Database information from database catalog directly
+- [pgsql-tables](https://demo.pigsty.cc/d/pgsql-tables) : Table/Index access metrics inside a single database
+- [pgsql-table](https://demo.pigsty.cc/d/pgsql-table): Detailed information (QPS/RT/Index/Seq...) about a single table
+- [pgcat-table](https://demo.pigsty.cc/d/pgcat-table): Detailed information (Stats/Bloat/...) about a single table from database catalog directly
+- [pgsql-query](https://demo.pigsty.cc/d/pgsql-query): Detailed information (QPS/RT) about a single query
+- [pgcat-query](https://demo.pigsty.cc/d/pgcat-query): Detailed information (SQL/Stats) about a single query from database catalog directly
+
+
 
 
 

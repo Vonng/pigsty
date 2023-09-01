@@ -38,14 +38,23 @@
 ## v2.3.1 (WIP)
 
 
-**Doc Update**
+**New Features**
 
-- Add chineses/zh-cn documentation
+* Adding `pgvector` extension alternative with hnswlib implementation: `xvector` for PG15.
 
 **Bug Fix**
 
-- Grant dbsu `modprobe watchdog` and `chown watchdog` if `patroni_watchdog_mode` is `required`
-- Change default node vip dns name suffix to `''` empty string.
+- Fix `infra`.`repo`.`repo_pkg` task when downloading rpm with `*` in their names in `repo_packages`.
+  - if `/www/pigsty` already have package name match that pattern, some rpm will be skipped.
+- Change default value of `vip_dns_suffix` to `''` empty string rather than `.vip`
+- Grant sudo privilege for postgres dbsu when `pg_dbsu_sudo` = `limit` and `patroni_watchdog_mode` = `required`
+  - `/usr/bin/sudo /sbin/modprobe softdog`: enable watchdog module before launching patroni
+  - `/usr/bin/sudo /bin/chown {{ pg_dbsu }} /dev/watchdog`: chown watchdog before launching patroni
+
+**Documentation Update**
+
+- Add Chinese/zh-cn documentation
+- Add more detailed en documentation
 
 **Software Upgrade**
 
@@ -56,7 +65,7 @@
 - add redis older version 6.2.13 support
 - ferretdb 1.9
 - sealos 4.3.3
-
+- timescaledb 2.11.3
 
 
 ----------------
