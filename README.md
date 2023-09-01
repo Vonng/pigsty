@@ -49,26 +49,27 @@ $ curl https://get.pigsty.cc/latest | bash
 [Checking] ===========================================
 [ OK ] SOURCE from CDN due to GFW
 FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
-FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/get)"
+FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
 [ OK ] $ curl -SL https://get.pigsty.cc/v2.3.1/pigsty-v2.3.1.tgz
 ...
-MD5: abcdef1234567890abcdef1234567890  /tmp/pigsty-v2.3.1.tgz
+MD5: d5dc4a51efc81932a03d7c010d0d5d64  /tmp/pigsty-v2.3.1.tgz
 [Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.3.1.tgz' to '/root/pigsty'
+[ OK ] extract '/tmp/pigsty-v2.3.1.tgz' to '/home/vagrant/pigsty'
 [ OK ] $ tar -xf /tmp/pigsty-v2.3.1.tgz -C ~;
-cd ~/pigsty      # entering pigsty home directory before proceeding
-[Proceeding] ===========================================
-./bootstrap      # install ansible & download the optional offline packages
-./configure      # preflight-check and generate config according to your env
-./install.yml    # install pigsty on this node and init it as the admin node
 [Reference] ===========================================
+Official Site:   https://pigsty.cc
 Get Started:     https://doc.pigsty.cc/#/INSTALL
 Documentation:   https://doc.pigsty.cc
 Github Repo:     https://github.com/Vonng/pigsty
 Public Demo:     https://demo.pigsty.cc
-Official Site:   https://pigsty.cc
+[Proceeding] ===========================================
+cd ~/pigsty      # entering pigsty home directory before proceeding
+./bootstrap      # install ansible & download the optional offline packages
+./configure      # preflight-check and generate config according to your env
+./install.yml    # install pigsty on this node and init it as the admin node
+[ OK ] ~/pigsty is ready to go now!
 ```
 
 </details>

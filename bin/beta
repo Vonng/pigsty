@@ -2,7 +2,7 @@
 set -o pipefail
 #==============================================================#
 # File      :   beta
-# Desc      :   get latest beta pigsty source code
+# Desc      :   get beta pigsty source code
 # Ctime     :   2022-10-30
 # Mtime     :   2023-07-29
 # Path      :   https://get.pigsty.cc/beta
@@ -80,7 +80,7 @@ else
     fi
 fi
 log_hint 'FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"'
-log_hint 'FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"'
+log_hint 'FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/beta)"'
 
 
 #--------------------------------------------------------------#
@@ -109,27 +109,29 @@ log_line "Extracting"
 if [[ ! -d ${EXTRACT_TO} ]]; then
     log_info "extract '${DOWNLOAD_TO}' to '${EXTRACT_TO}'"
     log_info "$ tar -xf ${DOWNLOAD_TO} -C ~;"
-    log_hint 'cd ~/pigsty      # entering pigsty home directory before proceeding'
     tar -xf ${DOWNLOAD_TO} -C ~;
 else
-    log_warn "${EXTRACT_TO} already exists, you can backup files/pki and overwrite it with:"
-    log_hint "cd ~/pigsty/files && tar -zcf /tmp/pki.tgz pki;"
-    log_hint "cd ~; rm -rf ~/pigsty; tar -xf ${DOWNLOAD_TO} -C ."
-    log_hint 'cd ~/pigsty/files; rm -rf pki; tar -xvf /tmp/pki.tgz -C .'
+    log_warn "${EXTRACT_TO} already exists, you can backup old pigsty dir and overwrite it with:"
+    log_hint "rm -rf /tmp/pigsty_backup; mv -f ${EXTRACT_TO} /tmp/pigsty_backup;  # make backup"
+    log_hint "cd ~; rm -rf ~/pigsty; tar -xf ${DOWNLOAD_TO} -C . ; # extract the new version"
+    log_hint "cat /tmp/pigsty_backup/pigsty.yml > ~/pigsty/pigsty.yml; # restore pigsty.yml"
+    log_hint "rm -rf files/pki; cp -r /tmp/pigsty_backup/files/pki ~/pigsty/files/pki; # restore files/pki"
 fi
 
 
 #--------------------------------------------------------------#
 # Hint
 #--------------------------------------------------------------#
-log_line "Proceeding"
-log_hint './bootstrap      # install ansible & download the optional offline packages'
-log_hint './configure      # preflight-check and generate config according to your env'
-log_hint './install.yml    # install pigsty on this node and init it as the admin node'
-
 log_line "Reference"
+log_hint "Official Site:   https://pigsty.cc"
 log_hint "Get Started:     https://doc.pigsty.cc/#/INSTALL"
 log_hint "Documentation:   https://doc.pigsty.cc"
 log_hint "Github Repo:     https://github.com/Vonng/pigsty"
 log_hint "Public Demo:     https://demo.pigsty.cc"
-log_hint "Official Site:   https://pigsty.cc"
+
+log_line "Proceeding"
+log_hint 'cd ~/pigsty      # entering pigsty home directory before proceeding'
+log_hint './bootstrap      # install ansible & download the optional offline packages'
+log_hint './configure      # preflight-check and generate config according to your env'
+log_hint './install.yml    # install pigsty on this node and init it as the admin node'
+log_info "~/pigsty is ready to go now!"
