@@ -2,7 +2,8 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.3.0](#v230) | 2023-08-20 | PGSQL/REDIS Update, NODE VIP, Mongo/FerretDB, MYSQL Stub | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
+| [v2.3.1](#v231) | 2023-09-01 | XVector, Chinese Documentation, Bug Fix                  | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
+| [v2.3.1](#v230) | 2023-08-20 | PGSQL/REDIS Update, NODE VIP, Mongo/FerretDB, MYSQL Stub | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.2.0](#v220) | 2023-08-04 | Dashboard & Provision overhaul, UOS compatibility        | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
 | [v2.1.0](#v210) | 2023-06-10 | PostgreSQL 12 ~ 16beta support                           | [v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0)                             |
 | [v2.0.2](#v202) | 2023-03-31 | Add pgvector support and fix MinIO CVE                   | [v2.0.2](https://github.com/Vonng/pigsty/releases/tag/v2.0.2)                             |
@@ -37,6 +38,7 @@
 
 ## v2.3.1 (WIP)
 
+Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"`.
 
 **New Features**
 
@@ -53,8 +55,8 @@
 
 **Documentation Update**
 
+- Add details to English documentation
 - Add Chinese/zh-cn documentation
-- Add more detailed en documentation
 
 **Software Upgrade**
 
@@ -62,15 +64,22 @@
 - loki & promtail 2.8.4
 - redis-stack 7.2 on el7/8
 - mcli-20230829225506 / minio-20230829230735
-- add redis older version 6.2.13 support
+- add older major version support for redis: 6.2.13
 - ferretdb 1.9
 - sealos 4.3.3
-- timescaledb 2.11.3
+- pgbadger 1.12.2
+
+
+```
+MD5 (pigsty-pkg-v2.3.1.el7.x86_64.tgz) b95f1b9368558f8e9e3ad97f7be2b2d1 # 1.2G
+MD5 (pigsty-pkg-v2.3.1.el8.x86_64.tgz) 86b67f85d35da029b134f28ff210b36d # 1.5G
+MD5 (pigsty-pkg-v2.3.1.el9.x86_64.tgz) 1168024d0702d00e6743ad2f37af0a3d # 1.4G
+```
 
 
 ----------------
 
-## v2.3.0
+## v2.3.1
 
 Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`
 
@@ -99,9 +108,9 @@ Add 1 new section `NODE`.`NODE_VIP` with 8 new parameter
 - `NODE`.`VIP`.`vip_exporter_port` : keepalived exporter listen port, 9650 by default
 
 ```
-MD5 (pigsty-pkg-v2.3.0.el7.x86_64.tgz) = 81db95f1c591008725175d280ad23615
-MD5 (pigsty-pkg-v2.3.0.el8.x86_64.tgz) = 6f4d169b36f6ec4aa33bfd5901c9abbe
-MD5 (pigsty-pkg-v2.3.0.el9.x86_64.tgz) = 4bc9ae920e7de6dd8988ca7ee681459d
+MD5 (pigsty-pkg-v2.3.1.el7.x86_64.tgz) = 81db95f1c591008725175d280ad23615
+MD5 (pigsty-pkg-v2.3.1.el8.x86_64.tgz) = 6f4d169b36f6ec4aa33bfd5901c9abbe
+MD5 (pigsty-pkg-v2.3.1.el9.x86_64.tgz) = 4bc9ae920e7de6dd8988ca7ee681459d
 ```
 
 

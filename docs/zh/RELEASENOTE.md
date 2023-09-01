@@ -2,6 +2,7 @@
 
 | 版本              |    发布时间    | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v2.3.1](#v231) | 2023-09-01 | XVector, 文档翻新，中文文档，例行问题修复                            | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.0](#v230) | 2023-08-20 | 主机VIP, ferretdb, nocodb, MySQL存根, CVE修复                    | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
 | [v2.2.0](#v220) | 2023-08-04 | 仪表盘 & 置备重做，UOS 兼容性                                         | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
 | [v2.1.0](#v210) | 2023-06-10 | 支持 PostgreSQL 12 ~ 16beta                                  | [v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0)                             |
@@ -35,8 +36,9 @@
 
 ----------------
 
-## v2.3.1 (开发中)
+## v2.3.1（Beta）
 
+使用 `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"` 快速开始。
 
 **最新特性**
 
@@ -45,7 +47,6 @@
 **问题修复**
 
 - 修复了 `infra`.`repo`.`repo_pkg` 任务：当 `repo_packages` 中包名包含 `*` 时，下载可能会受到 `/www/pigsty` 现有内容的影响。
-
 - 将 `vip_dns_suffix` 的默认值由 `.vip` 调整为空字符串，即集群本身的名称将默认作为节点集群的 L2 VIP
 - `modprobe watchdog` and `chown watchdog` if `patroni_watchdog_mode` is `required`
 - 当 `pg_dbsu_sudo` = `limit` and `patroni_watchdog_mode` = `required` 时，授予数据库 dbsu 以下命令的 sudo 执行权限
@@ -66,7 +67,13 @@
 - add redis older version 6.2.13 support
 - ferretdb 1.9
 - sealos 4.3.3
+- pgbadger 1.12.2
 
+```
+MD5 (pigsty-pkg-v2.3.1.el7.x86_64.tgz) b95f1b9368558f8e9e3ad97f7be2b2d1 # 1.2G
+MD5 (pigsty-pkg-v2.3.1.el8.x86_64.tgz) 86b67f85d35da029b134f28ff210b36d # 1.5G
+MD5 (pigsty-pkg-v2.3.1.el9.x86_64.tgz) 1168024d0702d00e6743ad2f37af0a3d # 1.4G
+```
 
 
 ----------------
@@ -100,7 +107,7 @@
 - `NODE`.`VIP`.`vip_role`：master/backup，默认为备份，用作初始角色
 - `NODE`.`VIP`.`vip_preempt`：可选，true/false，默认为 false，启用 vip 抢占
 - `NODE`.`VIP`.`vip_interface`：节点 vip 网络接口监听，eth0 默认
-- `NODE`.`VIP`.`vip_dns_suffix`：节点 vip dns 名称后缀，默认为 .vip
+- `NODE`.`VIP`.`vip_dns_suffix`：节点 vip dns 名称后缀，默认为空字符串
 - `NODE`.`VIP`.`vip_exporter_port`：keepalived 导出器监听端口，默认为 9650
 
 ```
