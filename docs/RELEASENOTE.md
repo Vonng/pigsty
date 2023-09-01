@@ -36,9 +36,9 @@
 
 ----------------
 
-## v2.3.1 (WIP)
+## v2.3.1
 
-Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"`.
+Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`.
 
 **New Features**
 
@@ -69,11 +69,10 @@ Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"`.
 - sealos 4.3.3
 - pgbadger 1.12.2
 
-
 ```
-MD5 (pigsty-pkg-v2.3.1.el7.x86_64.tgz) b95f1b9368558f8e9e3ad97f7be2b2d1 # 1.2G
-MD5 (pigsty-pkg-v2.3.1.el8.x86_64.tgz) 86b67f85d35da029b134f28ff210b36d # 1.5G
-MD5 (pigsty-pkg-v2.3.1.el9.x86_64.tgz) 1168024d0702d00e6743ad2f37af0a3d # 1.4G
+MD5 (pigsty-pkg-v2.3.1.el7.x86_64.tgz) = b95f1b9368558f8e9e3ad97f7be2b2d1 # 1.2G
+MD5 (pigsty-pkg-v2.3.1.el8.x86_64.tgz) = 86b67f85d35da029b134f28ff210b36d # 1.5G
+MD5 (pigsty-pkg-v2.3.1.el9.x86_64.tgz) = 8770f8c264b6a440987f9798055998d4 # 1.4G
 ```
 
 

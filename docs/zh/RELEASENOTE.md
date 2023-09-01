@@ -36,9 +36,9 @@
 
 ----------------
 
-## v2.3.1（Beta）
+## v2.3.1
 
-使用 `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"` 快速开始。
+使用 `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"` 快速开始。
 
 **最新特性**
 
@@ -70,9 +70,9 @@
 - pgbadger 1.12.2
 
 ```
-MD5 (pigsty-pkg-v2.3.1.el7.x86_64.tgz) b95f1b9368558f8e9e3ad97f7be2b2d1 # 1.2G
-MD5 (pigsty-pkg-v2.3.1.el8.x86_64.tgz) 86b67f85d35da029b134f28ff210b36d # 1.5G
-MD5 (pigsty-pkg-v2.3.1.el9.x86_64.tgz) 1168024d0702d00e6743ad2f37af0a3d # 1.4G
+MD5 (pigsty-pkg-v2.3.1.el7.x86_64.tgz) = b95f1b9368558f8e9e3ad97f7be2b2d1 # 1.2G
+MD5 (pigsty-pkg-v2.3.1.el8.x86_64.tgz) = 86b67f85d35da029b134f28ff210b36d # 1.5G
+MD5 (pigsty-pkg-v2.3.1.el9.x86_64.tgz) = 8770f8c264b6a440987f9798055998d4 # 1.4G
 ```
 
 
