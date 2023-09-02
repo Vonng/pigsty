@@ -94,9 +94,7 @@
 
 ## Dashboard
 
-There are 26 default grafana dashboards about PostgreSQL and categorized into 4 levels
-
-Check [Monitoring](PGSQL-MONITOR) & [Dashboards](PGSQL-DASHBOARD) for details.
+There are 26 default grafana dashboards about PostgreSQL and categorized into 4 levels. Check [Dashboards](PGSQL-DASHBOARD) for details.
 
 |                         Overview                          |                                Cluster                                |                          Instance                           |                         Database                          |
 |:---------------------------------------------------------:|:---------------------------------------------------------------------:|:-----------------------------------------------------------:|:---------------------------------------------------------:|

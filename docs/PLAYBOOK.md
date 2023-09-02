@@ -1,6 +1,6 @@
 # Playbook
 
-> Pigsty use ansible playbook to install modules on nodes.
+> Run idempotent playbooks to install modules on nodes.
 
 Playbooks are used in Pigsty to install [modules](ARCH#modules) on nodes.
 

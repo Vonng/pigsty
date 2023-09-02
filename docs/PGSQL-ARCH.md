@@ -13,10 +13,10 @@ Each **database cluster** is a **self-organizing** business service unit consist
 
 Let's get started with ER diagram. There are four types of core entities in Pigsty's PGSQL module:
 
-* [**PGSQL Cluster**](#cluster): An autonomous PostgreSQL business unit, used as the top-level namespace for other entities.  
-* [**PGSQL Service**](#service): A named abstraction of cluster ability, route traffics, and expose postgres services with node ports.
-* [**PGSQL Instance**](#instance): A single postgres server which is a group of running processes & database files on a single node. 
-* [**PGSQL Node**](#node): An abstraction of hardware resources, which can be bare metal, virtual machine, or even k8s pods.
+* **PGSQL Cluster**: An autonomous PostgreSQL business unit, used as the top-level namespace for other entities.
+* **PGSQL Service**: A named abstraction of cluster ability, route traffics, and expose postgres services with node ports.
+* **PGSQL Instance**: A single postgres server which is a group of running processes & database files on a single node.
+* **PGSQL Node**: An abstraction of hardware resources, which can be bare metal, virtual machine, or even k8s pods.
 
 ![PGSQL-ER](https://user-images.githubusercontent.com/8587410/217492920-47613743-88b8-4c21-a8b9-cf7420cdd50f.png)
 
