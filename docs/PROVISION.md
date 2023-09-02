@@ -78,7 +78,7 @@ brew install vagrant virtualbox ansible   # Run on MacOS with one command, but o
 |   [el8.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/el8.rb)   |   `v8`   | 2C4G + 1C2G x 3 |       EL8 3-node Testing Env        |
 |   [el9.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/el9.rb)   |   `v9`   | 2C4G + 1C2G x 3 |       EL9 3-node Testing Env        |
 | [build.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/build.rb) |   `vb`   |    2C4G x 3     | 3-Node EL7,8,9 Building Environment |
-| [citus.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/citus.rb) |   `vc`   | 2C4G + 1C2G x 4 |    5-Node Citus/Etcd Testing Env    |
+| [check.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/check.rb) |   `vc`   |   2C4G x 30     |    30 Node EL7-EL9 PG 12-16 Env     |
 | [minio.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/minio.rb) |   `vm`   | 2C4G x 3 + Disk |    3-Node MinIO/etcd Testing Env    |
 |  [prod.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/prod.rb)  |   `vp`   |    45 nodes     |    Prod simulation with 45 Nodes    |
 
@@ -108,7 +108,7 @@ vagrant/switch el9      # 3-node el9 test       | alias:  `make v9`
 vagrant/switch prod     # prod simulation       | alias:  `make vp`
 vagrant/switch build    # building environment  | alias:  `make vd`
 vagrant/switch minio    # 3-node minio env
-vagrant/switch citus    # 5-node citus env
+vagrant/switch check    # 30-node check env
 ```
 
 
@@ -151,7 +151,7 @@ make el9      # 3-node el9 test
 make prod     # prod simulation
 make build    # building environment
 make minio    # 3-node minio env
-make citus    # 5-node citus env
+make check    # 30-node check env
 ```
 
 ```bash

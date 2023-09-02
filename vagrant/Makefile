@@ -91,7 +91,7 @@ vb:
 vp:
 	./switch prod
 vc:
-	./switch citus
+	./switch check
 vm:
 	./switch minio
 
@@ -114,7 +114,7 @@ el8:   del v8 up ssh
 el9:   del v9 up ssh
 build: del vb up ssh
 prod:  del vp up ssh
-citus: del vc up ssh
+check: del vc up ssh
 minio: del vm up ssh
 prod8: del vp8 up ssh
 prod7: del vp7 up ssh
@@ -125,5 +125,5 @@ prod7: del vp7 up ssh
 ###############################################################
 .PHONY: default new ssh sshb dns \
 	start up down dw halt clean del destroy nuke st status pause suspend resume \
-	v1 v4 v7 v8 v9 vb vp vc vm vp8 vp7 meta full el7 el8 el9 build prod citus minio prod8 prod7
+	v1 v4 v7 v8 v9 vb vp vc vm vp8 vp7 meta full el7 el8 el9 build check prod minio prod8 prod7
 ###############################################################

@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.3.1](#v231) | 2023-09-01 | XVector, Chinese Documentation, Bug Fix                  | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
+| [v2.3.1](#v231) | 2023-09-01 | PG16RC1, XVector, Chinese Documentation, Bug Fix         | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.1](#v230) | 2023-08-20 | PGSQL/REDIS Update, NODE VIP, Mongo/FerretDB, MYSQL Stub | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.2.0](#v220) | 2023-08-04 | Dashboard & Provision overhaul, UOS compatibility        | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
 | [v2.1.0](#v210) | 2023-06-10 | PostgreSQL 12 ~ 16beta support                           | [v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0)                             |
@@ -60,6 +60,8 @@ Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`.
 
 **Software Upgrade**
 
+- PostgreSQL 16 RC1 on el8/el9
+- Redis Stack 7.2 on el7/el8
 - grafana 10.1.0
 - loki & promtail 2.8.4
 - redis-stack 7.2 on el7/8
@@ -70,9 +72,9 @@ Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`.
 - pgbadger 1.12.2
 
 ```
-MD5 (pigsty-pkg-v2.3.1.el7.x86_64.tgz) = b95f1b9368558f8e9e3ad97f7be2b2d1 # 1.2G
-MD5 (pigsty-pkg-v2.3.1.el8.x86_64.tgz) = 86b67f85d35da029b134f28ff210b36d # 1.5G
-MD5 (pigsty-pkg-v2.3.1.el9.x86_64.tgz) = 8770f8c264b6a440987f9798055998d4 # 1.4G
+MD5 (pigsty-pkg-v2.3.1.el7.x86_64.tgz) = 0843229da28b0c1aae1286b1826197fe # 1.2G
+MD5 (pigsty-pkg-v2.3.1.el8.x86_64.tgz) = 18b3387a82418d609a6a91f243f7d30a # 1.5G
+MD5 (pigsty-pkg-v2.3.1.el9.x86_64.tgz) = 0166bd61ecbe41678e0c88b36f1f45e4 # 1.4G
 ```
 
 

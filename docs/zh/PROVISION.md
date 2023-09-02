@@ -77,9 +77,9 @@ brew install vagrant virtualbox ansible   # 在 MacOS 中可以轻松一键安�
 |   [el8.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/el8.rb)   | `v8` | 2C4G + 1C2G x 3 |     EL8 3-节点测试环境     |
 |   [el9.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/el9.rb)   | `v9` | 2C4G + 1C2G x 3 |     EL9 3-节点测试环境     |
 | [build.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/build.rb) | `vb` |    2C4G x 3     |  3-节点 EL7,8,9 构建环境   |
-| [citus.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/citus.rb) | `vc` | 2C4G + 1C2G x 4 | 5-节点 Citus/Etcd 测试环境 |
+| [check.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/check.rb) | `vc` | 2C4G x 30       | 30 EL7-9, PG12-16 测试环境 |
 | [minio.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/minio.rb) | `vm` | 2C4G x 3 + Disk | 3-节点 MinIO/etcd 测试环境 |
-|  [prod.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/prod.rb)  | `vp` |      42 节点      |     42节点的生产模拟环境      |
+|  [prod.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/prod.rb)  | `vp` | 2C4G x 42       |     42节点的生产模拟环境      |
 
 每个规格文件包含一个描述虚拟机节点的 `Specs` 变量。例如，`full.rb` 包含4节点沙盒规格的描述：
 
@@ -106,7 +106,7 @@ vagrant/switch el9      # 3-node el9 test       | 别名：`make v9`
 vagrant/switch prod     # prod simulation       | 别名：`make vp`
 vagrant/switch build    # building environment  | 别名：`make vd`
 vagrant/switch minio    # 3-node minio env
-vagrant/switch citus    # 5-node citus env
+vagrant/switch check    # 30-node check env
 ```
 
 ----------------
@@ -152,8 +152,8 @@ make el8      # 3-节点 el8 测试环境
 make el9      # 3-节点 el9 测试环境
 make prod     # 42 节点生产仿真环境
 make build    # 3-节点 EL7,8,9 构建环境
+make check    # 30-节点构建校验测试环境
 make minio    # 3-节点 MinIO 测试环境
-make citus    # 5-节点 Citus 测试环境
 ```
 
 ```bash

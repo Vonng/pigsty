@@ -259,7 +259,7 @@ vp:
 vm:
 	vagrant/switch minio
 vc:
-	vagrant/switch citus
+	vagrant/switch check
 # switch to production env with rocky8
 vp8:
 	vagrant/switch prod
@@ -432,7 +432,7 @@ release-el9:
 
 
 # validate offline packages with build environment
-check: check-src check-repo check-boot
+check-all: check-src check-repo check-boot
 check-src:
 	scp dist/${VERSION}/${SRC_PKG} build-el7:~/pigsty.tgz ; ssh build-el7 "tar -xf pigsty.tgz";
 	scp dist/${VERSION}/${SRC_PKG} build-el8:~/pigsty.tgz ; ssh build-el8 "tar -xf pigsty.tgz";
@@ -462,8 +462,6 @@ meta:  del v1 new ssh copy-el9 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
 full: del v4 new ssh copy-el9 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
-citus: del vc new ssh copy-el9 use-pkg
-	cp files/pigsty/citus.yml pigsty.yml
 minio: del vm new ssh copy-el9 use-pkg
 	cp files/pigsty/citus.yml pigsty.yml
 el7: del v7 new ssh copy-el7 use-pkg
@@ -472,6 +470,11 @@ el8: del v8 new ssh copy-el8 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
 el9: del v9 new ssh copy-el9 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
+check: del vc new ssh check-all
+	cp files/pigsty/check.yml pigsty.yml
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz build-el7:/tmp/pkg.tgz ; ssh build-el7 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz build-el8:/tmp/pkg.tgz ; ssh build-el8 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz build-el9:/tmp/pkg.tgz ; ssh build-el9 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 prod: del vp new ssh
 	cp files/pigsty/prod.yml pigsty.yml
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
@@ -507,6 +510,6 @@ prod7: del vp7 new ssh
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
-        r release rr remote-release rp release-pkg release-el7 release-el8 release-el9 check check-src check-repo check-boot p publish \
-        meta full citus minio build build-check el7 el8 el9 prod prod7 prod8
+        r release rr remote-release rp release-pkg release-el7 release-el8 release-el9 check-all check-src check-repo check-boot p publish \
+        meta full check minio build build-check el7 el8 el9 prod prod7 prod8
 ###############################################################
