@@ -2,7 +2,7 @@
 
 | 版本              |    发布时间    | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.3.1](#v231) | 2023-09-01 | PG16RC1, XVector, 文档翻新，中文文档，例行问题修复                         | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
+| [v2.3.1](#v231) | 2023-09-01 | 带HNSW的PGVector，PG 16 RC1, 文档翻新，中文文档，例行问题修复     | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.0](#v230) | 2023-08-20 | 主机VIP, ferretdb, nocodb, MySQL存根, CVE修复                    | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
 | [v2.2.0](#v220) | 2023-08-04 | 仪表盘 & 置备重做，UOS 兼容性                                         | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
 | [v2.1.0](#v210) | 2023-06-10 | 支持 PostgreSQL 12 ~ 16beta                                  | [v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0)                             |
@@ -42,7 +42,9 @@
 
 **最新特性**
 
-- 提供了 `pgvector` 的高性能内存版 hnswlib 实现备选：`xvector` (PG15)
+- `pgvector` 更新至 0.5，添加 hnsw 算法支持。
+- 支持 PostgreSQL 16 RC1 (el8/el9)
+- 默认包中添加了 SealOS 用于快速部署Kubernetes集群。
 
 **问题修复**
 
@@ -61,20 +63,20 @@
 **软件更新**
 
 - PostgreSQL 16 RC1 for EL8/EL9
-- Redis Stack 7.2 on el7/el8
+- PGVector 0.5.0，支持 hnsw 索引
+- TimescaleDB 2.11.2
 - grafana 10.1.0
 - loki & promtail 2.8.4
 - redis-stack 7.2 on el7/8
 - mcli-20230829225506 / minio-20230829230735
-- add redis older version 6.2.13 support
 - ferretdb 1.9
 - sealos 4.3.3
 - pgbadger 1.12.2
 
 ```
-MD5 (pigsty-pkg-v2.3.1.el7.x86_64.tgz) = 0843229da28b0c1aae1286b1826197fe # 1.2G
-MD5 (pigsty-pkg-v2.3.1.el8.x86_64.tgz) = 18b3387a82418d609a6a91f243f7d30a # 1.5G
-MD5 (pigsty-pkg-v2.3.1.el9.x86_64.tgz) = 0166bd61ecbe41678e0c88b36f1f45e4 # 1.4G
+ce69791eb622fa87c543096cdf11f970  pigsty-pkg-v2.3.1.el7.x86_64.tgz
+495aba9d6d18ce1ebed6271e6c96b63a  pigsty-pkg-v2.3.1.el8.x86_64.tgz
+38b45582cbc337ff363144980d0d7b64  pigsty-pkg-v2.3.1.el9.x86_64.tgz
 ```
 
 

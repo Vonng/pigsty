@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.3.1](#v231) | 2023-09-01 | PG16RC1, XVector, Chinese Documentation, Bug Fix         | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
+| [v2.3.1](#v231) | 2023-09-01 | PGVector with HNSW, PG16 RC1, Chinese Docs, Bug Fix      | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.1](#v230) | 2023-08-20 | PGSQL/REDIS Update, NODE VIP, Mongo/FerretDB, MYSQL Stub | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.2.0](#v220) | 2023-08-04 | Dashboard & Provision overhaul, UOS compatibility        | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
 | [v2.1.0](#v210) | 2023-06-10 | PostgreSQL 12 ~ 16beta support                           | [v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0)                             |
@@ -40,9 +40,11 @@
 
 Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`.
 
-**New Features**
+**Highlights**
 
-* Adding `pgvector` extension alternative with hnswlib implementation: `xvector` for PG15.
+* PGVector 0.5 with HNSW index support
+* PostgreSQL 16 RC1 for el8/el9
+** Adding SealOS for kubernetes support
 
 **Bug Fix**
 
@@ -61,20 +63,19 @@ Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`.
 **Software Upgrade**
 
 - PostgreSQL 16 RC1 on el8/el9
-- Redis Stack 7.2 on el7/el8
+- PGVector 0.5.0 with hnsw index
+- TimescaleDB 2.11.2
 - grafana 10.1.0
 - loki & promtail 2.8.4
-- redis-stack 7.2 on el7/8
 - mcli-20230829225506 / minio-20230829230735
-- add older major version support for redis: 6.2.13
 - ferretdb 1.9
 - sealos 4.3.3
 - pgbadger 1.12.2
 
 ```
-MD5 (pigsty-pkg-v2.3.1.el7.x86_64.tgz) = 0843229da28b0c1aae1286b1826197fe # 1.2G
-MD5 (pigsty-pkg-v2.3.1.el8.x86_64.tgz) = 18b3387a82418d609a6a91f243f7d30a # 1.5G
-MD5 (pigsty-pkg-v2.3.1.el9.x86_64.tgz) = 0166bd61ecbe41678e0c88b36f1f45e4 # 1.4G
+ce69791eb622fa87c543096cdf11f970  pigsty-pkg-v2.3.1.el7.x86_64.tgz
+495aba9d6d18ce1ebed6271e6c96b63a  pigsty-pkg-v2.3.1.el8.x86_64.tgz
+38b45582cbc337ff363144980d0d7b64  pigsty-pkg-v2.3.1.el9.x86_64.tgz
 ```
 
 
