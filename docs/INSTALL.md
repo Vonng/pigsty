@@ -189,7 +189,7 @@ curl -L https://get.pigsty.cc/v2.3.1/pigsty-pkg-v2.3.1.el7.x86_64.tgz -o /tmp/pk
 
 `bootstrap` script will make sure one thing: `ansible` is ready for using. 
 
-It will also download / extract / setup the offline [packages](#offline-packages) if you choose to do so.
+It will also download / extract / setup the offline [packages](#offline-packagess) if you choose to do so.
 
 ```bash
 ./boostrap [-p <path>=/tmp/pkg.tgz]   # offline pkg path (/tmp/pkg.tgz by default)

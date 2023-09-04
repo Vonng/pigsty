@@ -215,7 +215,7 @@ pg-test2:
 
 And `pg-test2-1`, the primary of `pg-test2` will be a replica of `pg-test` and serve as a **Standby Leader** in `pg-test2`.
 
-Just make sure that the [`pg_upstream`](/en/docs/pgsql/config#pg_upstream) parameter is configured on the primary of the backup cluster to pull backups from the original upstream automatically.
+Just make sure that the [`pg_upstream`](PARAM#pg_upstream) parameter is configured on the primary of the backup cluster to pull backups from the original upstream automatically.
 
 ```bash
 bin/pgsql-add pg-test     # Creating the original cluster

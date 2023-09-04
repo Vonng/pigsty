@@ -117,7 +117,7 @@ Prometheus是监控用时序数据库，提供以下功能：
 AlertManager是与Prometheus配套的告警平台，默认监听9093端口，可以直接通过`IP:9093`或域名 `http://a.pigsty` 访问。
 Prometheus的告警事件会发送至AlertManager，但如果需要进一步处理，用户需要进一步对其进行配置，例如提供SMTP服务配置以发送告警邮件。
 
-Prometheus、AlertManager，PushGateway，BlackboxExporter 的相关配置参数位于：[配置：INFRA - PROMETHEUS](/zh/docs/infra/config#prometheus)
+Prometheus、AlertManager，PushGateway，BlackboxExporter 的相关配置参数位于：[配置：INFRA - PROMETHEUS](INFRA#prometheus)
 
 
 
