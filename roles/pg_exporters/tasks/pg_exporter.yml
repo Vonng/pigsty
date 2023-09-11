@@ -26,7 +26,7 @@
     # otherwise, COPY use specified file
     - name: copy user provided pg_exporter.yml config
       when: pg_exporter_config != 'pg_exporter.yml'
-      copy: src={{ pg_exporter_config }} dest=/etc/pg_exporter.yml owner={{ pg_dbsu }} group=postgres mode=0644
+      copy: src={{ pg_exporter_config }} dest=/etc/pg_exporter/{{ pg_exporter_unit }}.yml owner={{ pg_dbsu }} group=postgres mode=0644
 
     # config pg_exporter systemd environment options
     - name: config pg_exporter parameters
@@ -42,6 +42,5 @@
 
     - name: wait for pg_exporter online
       wait_for: host=127.0.0.1 port={{ pg_exporter_port }} state=started timeout=10
-
 
 ...

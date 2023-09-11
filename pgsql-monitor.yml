@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   pgsql-monitor.yml
 # Mtime     :   2020-11-02
-# Mtime     :   2023-01-11
+# Mtime     :   2023-09-11
 # Desc      :   add remote pgsql instance to pigsty monitor
 # Path      :   pgsql-monitor.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -50,7 +50,7 @@
 #
 # You can also overwrite following parameters in group/host/instance level
 #
-#     pg_exporter_config: pg_exporter.yml    # pg_exporter configuration file name
+#     pg_exporter_config: pg_exporter.yml    # pg_exporter configuration file name, you can use other filename under files/
 #     pg_exporter_cache_ttls: '1,10,60,300'  # pg_exporter collector ttl stage in seconds, '1,10,60,300' by default
 #     pg_exporter_port: 9630                 # pg_exporter listen port, 9630 by default
 #     pg_exporter_params: 'sslmode=disable'  # extra url parameters for pg_exporter dsn
@@ -60,6 +60,8 @@
 #     pg_exporter_include_database: ''       # csv of database that WILL BE monitored during auto-discovery
 #     pg_exporter_connect_timeout: 200       # pg_exporter connect timeout in ms, 200 by default
 #     pg_exporter_options: ''                # overwrite extra options for pg_exporter
+#     pg_monitor_username: dbuser_monitor    # overwrite monitor username
+#     pg_monitor_password: DBUser.Monitor    # overwrite monitor password
 #
 # Usually, TARGET URL are generated according to several parameters :
 #
@@ -74,4 +76,14 @@
 # Limitation:
 #    postgres metrics only
 #    node, pgbouncer, patroni, haproxy metrics not available
+#
+# How to setup remote postgres monitor ?
+#
+# \c postgres;
+# CREATE USER dbuser_monitor;     -- 创建专用监控用户 dbuser_monitor
+# COMMENT ON ROLE dbuser_monitor IS 'system monitor user'; -- 监控用户备注
+# ALTER USER dbuser_monitor PASSWORD 'DBUser_Monitor'; -- 按需修改监控用户密码！
+# GRANT pg_monitor TO dbuser_monitor; -- PolarDB for PostgreSQL 里不可用！
+# CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "monitor"; -- 查询监控
 #--------------------------------------------------------------#
+...

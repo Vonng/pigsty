@@ -19,6 +19,8 @@
     pg_exporter_include_database:    "{% if 'pg_exporter_include_database' in item.value %}{{ item.value.pg_exporter_include_database }}{% elif 'pg_exporter_include_database' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_include_database }} {% else %}{% endif %}"
     pg_exporter_connect_timeout :    "{% if 'pg_exporter_connect_timeout'  in item.value %}{{ item.value.pg_exporter_connect_timeout  }}{% elif 'pg_exporter_connect_timeout'  in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_connect_timeout  }} {% else %}200{% endif %}"
     pg_exporter_exclude_database:    "{% if 'pg_exporter_exclude_database' in item.value %}{{ item.value.pg_exporter_exclude_database }}{% elif 'pg_exporter_exclude_database' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_exclude_database }} {% else %}template0,template1,postgres{% endif %}"
+    pg_monitor_username :    "{% if 'pg_monitor_username' in item.value %}{{ item.value.pg_monitor_username }}{% elif 'pg_monitor_username' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_monitor_username }}{% else %}dbuser_monitor{% endif %}"
+    pg_monitor_password :    "{% if 'pg_monitor_password' in item.value %}{{ item.value.pg_monitor_password }}{% elif 'pg_monitor_password' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_monitor_password }}{% else %}DBUser.Monitor{% endif %}"
   with_dict: "{{ pg_exporters }}"
 
 
@@ -28,10 +30,10 @@
   with_items: '{{ pg_exporters | json_query("[@.*][0]|[*].pg_cluster") | unique | sort }}'
   when: pg_exporters is defined and pg_exporters|type_debug == "dict" and (clsname == '' or (clsname != '' and clsname == item ))
   copy:
-    dest: /etc/prometheus/targets/pgsql/{{ item }}.yml
+    dest: /etc/prometheus/targets/pgrds/{{ item }}.yml
     owner: prometheus
     content: |
-      # remote postgres instances
+      # PGRDS: remote postgres service for {{ item }}
       
       {% for port, conf in pg_exporters.items() %}
       {% if conf.pg_cluster == item %}
@@ -41,5 +43,32 @@
       
       {% endif %}
       {% endfor %}
+
+
+# for each instance, register database as grafana datasource if pg_exporter_include_database is specified
+- include_tasks: register_grafana.yml
+  tags: [ pg_register, register_grafana ]
+  when: pg_exporters is defined and pg_exporters|type_debug == "dict" and (clsname == '' or (clsname != '' and clsname == item.value.pg_cluster))
+  vars:
+    pg_exporter_port: "{{ item.key|int|string }}" # <REQUIRED> pg_exporter_port
+    pg_cluster: "{{ item.value.pg_cluster }}"     # <REQUIRED> identity: cls
+    pg_seq: "{{ item.value.pg_seq|int|string }}"  # <REQUIRED> sequence: seq
+    pg_host: "{{ item.value.pg_host }}"           # <REQUIRED> ip addr
+    pg_instance: "{{ item.value.pg_cluster }}-{{ item.value.pg_seq|string }}"
+    pg_exporter_unit: "pg_exporter_{{ item.value.pg_cluster }}-{{ item.value.pg_seq|string }}"
+    pg_port: "{% if 'pg_port' in item.value %}{{ item.value.pg_port }}{% elif 'pg_port' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_port }}{% else %}5432{% endif %}"
+    pg_dbsu: "{% if 'pg_dbsu' in item.value %}{{ item.value.pg_dbsu }}{% elif 'pg_dbsu' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_dbsu }}{% else %}postgres{% endif %}"
+    pg_exporter_config          :    "{% if 'pg_exporter_config'           in item.value %}{{ item.value.pg_exporter_config           }}{% elif 'pg_exporter_config'           in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_config           }} {% else %}pg_exporter.yml{% endif %}"
+    pg_exporter_cache_ttls      :    "{% if 'pg_exporter_cache_ttls'       in item.value %}{{ item.value.pg_exporter_cache_ttls       }}{% elif 'pg_exporter_cache_ttls'       in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_cache_ttls       }} {% else %}1,10,60,300{% endif %}"
+    pg_exporter_params          :    "{% if 'pg_exporter_params'           in item.value %}{{ item.value.pg_exporter_params           }}{% elif 'pg_exporter_params'           in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_params           }} {% else %}sslmode=disable{% endif %}"
+    pg_exporter_url             :    "{% if 'pg_exporter_url'              in item.value %}{{ item.value.pg_exporter_url              }}{% elif 'pg_exporter_url'              in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_url              }} {% else %}{% endif %}"
+    pg_exporter_auto_discovery  :    "{% if 'pg_exporter_auto_discovery'   in item.value %}{{ item.value.pg_exporter_auto_discovery   }}{% elif 'pg_exporter_auto_discovery'   in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_auto_discovery   }} {% else %}true{% endif %}"
+    pg_exporter_include_database:    "{% if 'pg_exporter_include_database' in item.value %}{{ item.value.pg_exporter_include_database }}{% elif 'pg_exporter_include_database' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_include_database }} {% else %}{% endif %}"
+    pg_exporter_connect_timeout :    "{% if 'pg_exporter_connect_timeout'  in item.value %}{{ item.value.pg_exporter_connect_timeout  }}{% elif 'pg_exporter_connect_timeout'  in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_connect_timeout  }} {% else %}200{% endif %}"
+    pg_exporter_exclude_database:    "{% if 'pg_exporter_exclude_database' in item.value %}{{ item.value.pg_exporter_exclude_database }}{% elif 'pg_exporter_exclude_database' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_exporter_exclude_database }} {% else %}template0,template1,postgres{% endif %}"
+    pg_monitor_username :    "{% if 'pg_monitor_username' in item.value %}{{ item.value.pg_monitor_username }}{% elif 'pg_monitor_username' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_monitor_username }}{% else %}dbuser_monitor{% endif %}"
+    pg_monitor_password :    "{% if 'pg_monitor_password' in item.value %}{{ item.value.pg_monitor_password }}{% elif 'pg_monitor_password' in hostvars[inventory_hostname] %}{{ hostvars[inventory_hostname].pg_monitor_password }}{% else %}DBUser.Monitor{% endif %}"
+    pg_databases :           "{{ item.value.pg_databases|default([]) }}"
+  with_dict: "{{ pg_exporters }}"
 
 ...
