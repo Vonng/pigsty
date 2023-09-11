@@ -1413,6 +1413,42 @@ pg_origin:
         # This node's LSN at which remote_lsn has been replicated. Used to flush commit records before persisting data to disk when using asynchronous commits.
 
 
+
+pg_io:
+  name: pg_io
+  desc: PostgreSQL I/O stats
+  query: |
+    SELECT backend_type AS "type", object, context,extract(EPOCH FROM stats_reset) AS reset_time,
+      reads, read_time,writes,write_time,writebacks,writeback_time,extends,extend_time,op_bytes,hits,evictions,reuses,fsyncs,fsync_time
+    FROM pg_stat_io;
+
+  ttl: {{ ttl_fast }}
+  timeout: 1
+  min_version: 160000
+  tags:
+    - cluster
+  metrics:
+    - type           : { usage: LABEL   ,description: 'Type of backend' }
+    - object         : { usage: LABEL   ,description: 'Target object of an I/O operation, relation or temp' }
+    - context        : { usage: LABEL   ,description: 'The context of an I/O operation: normal,vacuum,bulkread,bulkwrite' }
+    - reset_time     : { usage: GAUGE   ,description: 'Timestamp at which these statistics were last reset' }
+    - reads          : { usage: COUNTER ,default: 0                , description: 'Number of read operations, each of the size specified in op_bytes.' }
+    - read_time      : { usage: COUNTER ,default: 0  ,scale: 1e-3  , description: 'Time spent in read operations in seconds' }
+    - writes         : { usage: COUNTER ,default: 0                , description: 'Number of write operations, each of the size specified in op_bytes.' }
+    - write_time     : { usage: COUNTER ,default: 0  ,scale: 1e-3  , description: 'Time spent in write operations in seconds' }
+    - writebacks     : { usage: COUNTER ,default: 0                , description: 'Number of units of size op_bytes which the process requested the kernel write out to permanent storage.' }
+    - writeback_time : { usage: COUNTER ,default: 0  ,scale: 1e-3  , description: 'Time spent in writeback operations in seconds' }
+    - extends        : { usage: COUNTER ,default: 0                , description: 'Number of relation extend operations, each of the size specified in op_bytes.' }
+    - extend_time    : { usage: COUNTER ,default: 0  ,scale: 1e-3  , description: 'Time spent in extend operations in seconds' }
+    - op_bytes       : { usage: GAUGE   ,default: 8192             , description: 'The number of bytes per unit of I/O read, written, or extended. 8192 by default' }
+    - hits           : { usage: COUNTER ,default: 0                , description: 'The number of times a desired block was found in a shared buffer.' }
+    - evictions      : { usage: COUNTER ,default: 0                , description: 'Number of times a block has been written out from a shared or local buffer' }
+    - reuses         : { usage: COUNTER ,default: 0                , description: 'The number of times an existing buffer in reused' }
+    - fsyncs         : { usage: COUNTER ,default: 0                , description: 'Number of fsync calls. These are only tracked in context normal' }
+    - fsync_time     : { usage: COUNTER ,default: 0  ,scale: 1e-3  , description: 'Time spent in fsync operations in seconds' }
+
+
+
 pg_size:
   name: pg_size
   desc: PostgreSQL Database, WAL, Log size since v10
@@ -1939,17 +1975,16 @@ pg_lock:
 
 pg_query_13:
   name: pg_query
-  desc: PostgreSQL Query metrics, require pg_stat_statements installed in schema monitor, pg13
+  desc: PostgreSQL Query metrics, require pg_stat_statements installed, pg13
   query: |
     SELECT datname, queryid AS query, sum(calls) AS calls, sum(rows) AS rows, sum(total_exec_time) AS exec_time, sum(blk_read_time) + sum(blk_write_time) AS io_time, sum(wal_bytes) AS wal_bytes
-      FROM monitor.pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY 1, 2 ORDER BY 5 DESC LIMIT 64;
+      FROM pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY 1, 2 ORDER BY 5 DESC LIMIT 64;
 
   ttl: {{ ttl_norm }}
   timeout: 1
   min_version: 130000
   tags:
     - cluster
-    - schema:monitor
     - extension:pg_stat_statements
 
   metrics:
@@ -1981,16 +2016,15 @@ pg_query_13:
 
 pg_query_94_12:
   name: pg_query
-  desc: PostgreSQL query statement metrics, require pg_stat_statements installed in schema monitor, 9.4 ~ 12
+  desc: PostgreSQL query statement metrics, require pg_stat_statements installed, 9.4 ~ 12
   # note that postgres user or db and one-time job are not recorded in Monitoring System
-  query: SELECT datname, queryid AS query, sum(calls) AS calls, sum(rows) AS rows, sum(total_time) AS exec_time, sum(blk_read_time) + sum(blk_write_time) AS io_time FROM monitor.pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY 1, 2 ORDER BY 5 DESC LIMIT 64;
+  query: SELECT datname, queryid AS query, sum(calls) AS calls, sum(rows) AS rows, sum(total_time) AS exec_time, sum(blk_read_time) + sum(blk_write_time) AS io_time FROM pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY 1, 2 ORDER BY 5 DESC LIMIT 64;
   ttl: {{ ttl_norm }}
   timeout: 1
   min_version: 090400
   max_version: 130000
   tags:
     - cluster
-    - schema:monitor
     - extension:pg_stat_statements
 
   metrics:
@@ -2624,11 +2658,72 @@ pg_subrel:
 ###############################################################
 #                  Per Database Collectors                    #
 ###############################################################
+pg_table_16:
+  name: pg_table
+  desc: PostgreSQL table metrics (v13 with n_ins_since_vacuum)
+  query: |
+    SELECT CURRENT_CATALOG AS datname, relnamespace::RegNamespace || '.' || c.relname AS relname, c.oid AS relid, ascii(relkind) AS kind,
+       relpages AS pages, reltuples AS tuples, relfrozenxid AS frozenxid, age(relfrozenxid) AS age, relnatts AS ncols,
+       seq_scan,seq_tup_read,idx_scan,idx_tup_fetch,seq_scan + idx_scan AS tbl_scan, seq_tup_read + idx_tup_fetch AS tup_read,
+       n_tup_ins,n_tup_upd,n_tup_del,(n_tup_ins + n_tup_upd + n_tup_del) AS n_tup_mod,n_tup_hot_upd,n_tup_newpage_upd,n_live_tup,n_dead_tup,
+       n_mod_since_analyze,n_ins_since_vacuum,last_vacuum,last_autovacuum,last_analyze,last_autoanalyze,last_seq_scan,
+       vacuum_count,autovacuum_count,analyze_count,autoanalyze_count,
+       heap_blks_read,heap_blks_hit,idx_blks_read,idx_blks_hit,toast_blks_read,toast_blks_hit,tidx_blks_read,tidx_blks_hit
+    FROM pg_class c, LATERAL (SELECT * FROM pg_stat_user_tables WHERE relid = c.oid LIMIT 1) psut, LATERAL (SELECT * FROM pg_statio_user_tables WHERE relid = c.oid LIMIT 1) psutio
+    WHERE relnamespace = ANY (SELECT oid FROM pg_namespace WHERE nspname !~ '^pg_' AND nspname !~ '^_' AND nspname !~ '^timescaledb' AND nspname !~ '^citus' AND nspname !~ '^columnar' AND nspname NOT IN ('pg_catalog','information_schema','pg_toast','repack','monitor')) AND relkind = ANY (ARRAY ['r', 'm', 't', 'p'])
+    ORDER BY relpages DESC LIMIT 256;
+
+  ttl: {{ ttl_norm }}
+  timeout: 1
+  min_version: 160000
+  metrics:
+    - datname:             { usage: LABEL                 ,description: Database name of this table }
+    - relname:             { usage: LABEL                 ,description: Relation name of this table }
+    - relid:               { usage: GAUGE                 ,description: Relation oid of this table }
+    - kind:                { usage: GAUGE                 ,description: Relation kind r/table/114,m/mview/109,t/toast/116,p/partitioned/112 }
+    - pages:               { usage: GAUGE                 ,description: Size of the on-disk representation of this table in pages }
+    - tuples:              { usage: COUNTER               ,description: All txid before this have been frozen on this table }
+    - frozenxid:           { usage: COUNTER               ,description: All txid before this have been frozen on this table }
+    - age:                 { usage: GAUGE                 ,description: Age of this table in vacuum cycles }
+    - ncols:               { usage: GAUGE                 ,description: Number of columns in the table }
+    - seq_scan:            { usage: COUNTER  ,default: 0  ,description: Number of sequential scans initiated on this table }
+    - seq_tup_read:        { usage: COUNTER  ,default: 0  ,description: Number of live rows fetched by sequential scans }
+    - idx_scan:            { usage: COUNTER  ,default: 0  ,description: Number of index scans initiated on this table }
+    - idx_tup_fetch:       { usage: COUNTER  ,default: 0  ,description: Number of live rows fetched by index scans }
+    - tbl_scan:            { usage: COUNTER  ,default: 0  ,description: Number of scans initiated on this table }
+    - tup_read:            { usage: COUNTER  ,default: 0  ,description: Number of live rows fetched by scans }
+    - n_tup_ins:           { usage: COUNTER  ,default: 0  ,description: Number of rows inserted }
+    - n_tup_upd:           { usage: COUNTER  ,default: 0  ,description: Number of rows updated (includes HOT updated rows) }
+    - n_tup_del:           { usage: COUNTER  ,default: 0  ,description: Number of rows deleted }
+    - n_tup_mod:           { usage: COUNTER  ,default: 0  ,description: Number of rows modified (insert + update + delete) }
+    - n_tup_hot_upd:       { usage: COUNTER  ,default: 0  ,description: Number of rows HOT updated (i.e with no separate index update required) }
+    - n_tup_newpage_upd:   { usage: COUNTER  ,default: 0  ,description: Number of rows updated where the successor version goes onto a new heap page }
+    - n_live_tup:          { usage: GAUGE                 ,description: Estimated number of live rows }
+    - n_dead_tup:          { usage: GAUGE                 ,description: Estimated number of dead rows }
+    - n_mod_since_analyze: { usage: GAUGE                 ,description: Estimated number of rows modified since this table was last analyzed }
+    - n_ins_since_vacuum:  { usage: GAUGE                 ,description: Estimated number of rows inserted since this table was last vacuumed }
+    - last_vacuum:         { usage: DISCARD               ,description: Last time at which this table was manually vacuumed (not counting VACUUM FULL) }
+    - last_autovacuum:     { usage: DISCARD               ,description: Last time at which this table was vacuumed by the autovacuum daemon }
+    - last_analyze:        { usage: DISCARD               ,description: Last time at which this table was manually analyzed }
+    - last_autoanalyze:    { usage: DISCARD               ,description: Last time at which this table was analyzed by the autovacuum daemon }
+    - last_seq_scan:       { usage: DISCARD               ,description: The timestamp of the last seq scan on this table }
+    - vacuum_count:        { usage: COUNTER  ,default: 0  ,description: Number of times this table has been manually vacuumed (not counting VACUUM FULL) }
+    - autovacuum_count:    { usage: COUNTER  ,default: 0  ,description: Number of times this table has been vacuumed by the autovacuum daemon }
+    - analyze_count:       { usage: COUNTER  ,default: 0  ,description: Number of times this table has been manually analyzed }
+    - autoanalyze_count:   { usage: COUNTER  ,default: 0  ,description: Number of times this table has been analyzed by the autovacuum daemon }
+    - heap_blks_read:      { usage: COUNTER  ,default: 0  ,description: Number of disk blocks read from this table }
+    - heap_blks_hit:       { usage: COUNTER  ,default: 0  ,description: Number of buffer hits in this table }
+    - idx_blks_read:       { usage: COUNTER  ,default: 0  ,description: Number of disk blocks read from all indexes on this table }
+    - idx_blks_hit:        { usage: COUNTER  ,default: 0  ,description: Number of buffer hits in all indexes on this table }
+    - toast_blks_read:     { usage: DISCARD  ,default: 0  ,description: Number of disk blocks read from this table's TOAST table (if any) }
+    - toast_blks_hit:      { usage: DISCARD  ,default: 0  ,description: Number of buffer hits in this table's TOAST table (if any) }
+    - tidx_blks_read:      { usage: DISCARD  ,default: 0  ,description: Number of disk blocks read from this table's TOAST table indexes (if any) }
+    - tidx_blks_hit:       { usage: DISCARD  ,default: 0  ,description: Number of buffer hits in this table's TOAST table indexes (if any) }
+
 
 pg_table_13:
   name: pg_table
   desc: PostgreSQL table metrics (v13 with n_ins_since_vacuum)
-
   query: |
     SELECT CURRENT_CATALOG AS datname, relnamespace::RegNamespace || '.' || c.relname AS relname, c.oid AS relid, ascii(relkind) AS kind,
        relpages AS pages, reltuples AS tuples, relfrozenxid AS frozenxid, age(relfrozenxid) AS age, relnatts AS ncols,
@@ -2644,159 +2739,54 @@ pg_table_13:
   ttl: {{ ttl_norm }}
   timeout: 1
   min_version: 130000
-
+  max_version: 160000
   metrics:
-    - datname:
-        usage: LABEL
-        description: Database name of this table
-    - relname:
-        usage: LABEL
-        description: Relation name of this table
-    - relid:
-        usage: GAUGE
-        description: Relation oid of this table
-    - kind:
-        usage: GAUGE
-        description: Relation kind r/table/114,m/mview/109,t/toast/116,p/partitioned/112
-    - pages:
-        usage: GAUGE
-        description: Size of the on-disk representation of this table in pages
-        # Size of the on-disk representation of this table in pages (of size BLCKSZ). This is only an estimate used by the planner. It is updated by VACUUM, ANALYZE, and a few DDL commands such as CREATE INDEX.
-    - tuples:
-        usage: COUNTER
-        description: All txid before this have been frozen on this table
-    - frozenxid:
-        usage: COUNTER
-        description: All txid before this have been frozen on this table
-    - age:
-        usage: GAUGE
-        description: Age of this table in vacuum cycles
-    - ncols:
-        usage: GAUGE
-        description: Number of columns in the table
-    - seq_scan:
-        usage: COUNTER
-        default: 0
-        description: Number of sequential scans initiated on this table
-    - seq_tup_read:
-        usage: COUNTER
-        default: 0
-        description: Number of live rows fetched by sequential scans
-    - idx_scan:
-        usage: COUNTER
-        default: 0
-        description: Number of index scans initiated on this table
-    - idx_tup_fetch:
-        usage: COUNTER
-        default: 0
-        description: Number of live rows fetched by index scans
-    - tbl_scan:
-        usage: COUNTER
-        default: 0
-        description: Number of scans initiated on this table
-    - tup_read:
-        usage: COUNTER
-        default: 0
-        description: Number of live rows fetched by scans
-    - n_tup_ins:
-        usage: COUNTER
-        default: 0
-        description: Number of rows inserted
-    - n_tup_upd:
-        usage: COUNTER
-        default: 0
-        description: Number of rows updated (includes HOT updated rows)
-    - n_tup_del:
-        usage: COUNTER
-        default: 0
-        description: Number of rows deleted
-    - n_tup_mod:
-        usage: COUNTER
-        default: 0
-        description: Number of rows modified (insert + update + delete)
-    - n_tup_hot_upd:
-        usage: COUNTER
-        default: 0
-        description: Number of rows HOT updated (i.e with no separate index update required)
-    - n_live_tup:
-        usage: GAUGE
-        description: Estimated number of live rows
-    - n_dead_tup:
-        usage: GAUGE
-        description: Estimated number of dead rows
-    - n_mod_since_analyze:
-        usage: GAUGE
-        description: Estimated number of rows modified since this table was last analyzed
-    - n_ins_since_vacuum:
-        usage: GAUGE
-        description: Estimated number of rows inserted since this table was last vacuumed
-    - last_vacuum:
-        usage: DISCARD
-        description: Last time at which this table was manually vacuumed (not counting VACUUM FULL)
-    - last_autovacuum:
-        usage: DISCARD
-        description: Last time at which this table was vacuumed by the autovacuum daemon
-    - last_analyze:
-        usage: DISCARD
-        description: Last time at which this table was manually analyzed
-    - last_autoanalyze:
-        usage: DISCARD
-        description: Last time at which this table was analyzed by the autovacuum daemon
-    - vacuum_count:
-        usage: COUNTER
-        default: 0
-        description: Number of times this table has been manually vacuumed (not counting VACUUM FULL)
-    - autovacuum_count:
-        usage: COUNTER
-        default: 0
-        description: Number of times this table has been vacuumed by the autovacuum daemon
-    - analyze_count:
-        usage: COUNTER
-        default: 0
-        description: Number of times this table has been manually analyzed
-    - autoanalyze_count:
-        usage: COUNTER
-        default: 0
-        description: Number of times this table has been analyzed by the autovacuum daemon
-    - heap_blks_read:
-        usage: COUNTER
-        default: 0
-        description: Number of disk blocks read from this table
-    - heap_blks_hit:
-        usage: COUNTER
-        default: 0
-        description: Number of buffer hits in this table
-    - idx_blks_read:
-        usage: COUNTER
-        default: 0
-        description: Number of disk blocks read from all indexes on this table
-    - idx_blks_hit:
-        usage: COUNTER
-        default: 0
-        description: Number of buffer hits in all indexes on this table
-    - toast_blks_read:
-        usage: DISCARD
-        default: 0
-        description: Number of disk blocks read from this table's TOAST table (if any)
-    - toast_blks_hit:
-        usage: DISCARD
-        default: 0
-        description: Number of buffer hits in this table's TOAST table (if any)
-    - tidx_blks_read:
-        usage: DISCARD
-        default: 0
-        description: Number of disk blocks read from this table's TOAST table indexes (if any)
-    - tidx_blks_hit:
-        usage: DISCARD
-        default: 0
-        description: Number of buffer hits in this table's TOAST table indexes (if any)
+    - datname:             { usage: LABEL                 ,description: Database name of this table }
+    - relname:             { usage: LABEL                 ,description: Relation name of this table }
+    - relid:               { usage: GAUGE                 ,description: Relation oid of this table }
+    - kind:                { usage: GAUGE                 ,description: Relation kind r/table/114,m/mview/109,t/toast/116,p/partitioned/112 }
+    - pages:               { usage: GAUGE                 ,description: Size of the on-disk representation of this table in pages }
+    - tuples:              { usage: COUNTER               ,description: All txid before this have been frozen on this table }
+    - frozenxid:           { usage: COUNTER               ,description: All txid before this have been frozen on this table }
+    - age:                 { usage: GAUGE                 ,description: Age of this table in vacuum cycles }
+    - ncols:               { usage: GAUGE                 ,description: Number of columns in the table }
+    - seq_scan:            { usage: COUNTER  ,default: 0  ,description: Number of sequential scans initiated on this table }
+    - seq_tup_read:        { usage: COUNTER  ,default: 0  ,description: Number of live rows fetched by sequential scans }
+    - idx_scan:            { usage: COUNTER  ,default: 0  ,description: Number of index scans initiated on this table }
+    - idx_tup_fetch:       { usage: COUNTER  ,default: 0  ,description: Number of live rows fetched by index scans }
+    - tbl_scan:            { usage: COUNTER  ,default: 0  ,description: Number of scans initiated on this table }
+    - tup_read:            { usage: COUNTER  ,default: 0  ,description: Number of live rows fetched by scans }
+    - n_tup_ins:           { usage: COUNTER  ,default: 0  ,description: Number of rows inserted }
+    - n_tup_upd:           { usage: COUNTER  ,default: 0  ,description: Number of rows updated (includes HOT updated rows) }
+    - n_tup_del:           { usage: COUNTER  ,default: 0  ,description: Number of rows deleted }
+    - n_tup_mod:           { usage: COUNTER  ,default: 0  ,description: Number of rows modified (insert + update + delete) }
+    - n_tup_hot_upd:       { usage: COUNTER  ,default: 0  ,description: Number of rows HOT updated (i.e with no separate index update required) }
+    - n_live_tup:          { usage: GAUGE                 ,description: Estimated number of live rows }
+    - n_dead_tup:          { usage: GAUGE                 ,description: Estimated number of dead rows }
+    - n_mod_since_analyze: { usage: GAUGE                 ,description: Estimated number of rows modified since this table was last analyzed }
+    - n_ins_since_vacuum:  { usage: GAUGE                 ,description: Estimated number of rows inserted since this table was last vacuumed }
+    - last_vacuum:         { usage: DISCARD               ,description: Last time at which this table was manually vacuumed (not counting VACUUM FULL) }
+    - last_autovacuum:     { usage: DISCARD               ,description: Last time at which this table was vacuumed by the autovacuum daemon }
+    - last_analyze:        { usage: DISCARD               ,description: Last time at which this table was manually analyzed }
+    - last_autoanalyze:    { usage: DISCARD               ,description: Last time at which this table was analyzed by the autovacuum daemon }
+    - vacuum_count:        { usage: COUNTER  ,default: 0  ,description: Number of times this table has been manually vacuumed (not counting VACUUM FULL) }
+    - autovacuum_count:    { usage: COUNTER  ,default: 0  ,description: Number of times this table has been vacuumed by the autovacuum daemon }
+    - analyze_count:       { usage: COUNTER  ,default: 0  ,description: Number of times this table has been manually analyzed }
+    - autoanalyze_count:   { usage: COUNTER  ,default: 0  ,description: Number of times this table has been analyzed by the autovacuum daemon }
+    - heap_blks_read:      { usage: COUNTER  ,default: 0  ,description: Number of disk blocks read from this table }
+    - heap_blks_hit:       { usage: COUNTER  ,default: 0  ,description: Number of buffer hits in this table }
+    - idx_blks_read:       { usage: COUNTER  ,default: 0  ,description: Number of disk blocks read from all indexes on this table }
+    - idx_blks_hit:        { usage: COUNTER  ,default: 0  ,description: Number of buffer hits in all indexes on this table }
+    - toast_blks_read:     { usage: DISCARD  ,default: 0  ,description: Number of disk blocks read from this table's TOAST table (if any) }
+    - toast_blks_hit:      { usage: DISCARD  ,default: 0  ,description: Number of buffer hits in this table's TOAST table (if any) }
+    - tidx_blks_read:      { usage: DISCARD  ,default: 0  ,description: Number of disk blocks read from this table's TOAST table indexes (if any) }
+    - tidx_blks_hit:       { usage: DISCARD  ,default: 0  ,description: Number of buffer hits in this table's TOAST table indexes (if any) }
 
 
 
 pg_table_10_12:
   name: pg_table
   desc: PostgreSQL table metrics (9.4-12)
-
   query: |
     SELECT CURRENT_CATALOG AS datname, relnamespace::RegNamespace || '.' || c.relname AS relname, ascii(relkind) AS kind,
        relpages AS pages, reltuples AS tuples, relfrozenxid AS frozenxid, age(relfrozenxid) AS age, relnatts AS ncols,
@@ -2813,149 +2803,46 @@ pg_table_10_12:
   timeout: 1
   min_version: 090400
   max_version: 130000
-
   metrics:
-    - datname:
-        usage: LABEL
-        description: Database name of this table
-    - relname:
-        usage: LABEL
-        description: Relation name of this table
-    - relid:
-        usage: GAUGE
-        description: Relation oid of this table
-    - kind:
-        usage: GAUGE
-        description: Relation kind r/table/114,m/mview/109,t/toast/116,p/partitioned/112
-    - pages:
-        usage: GAUGE
-        description: Size of the on-disk representation of this table in pages
-        # Size of the on-disk representation of this table in pages (of size BLCKSZ). This is only an estimate used by the planner. It is updated by VACUUM, ANALYZE, and a few DDL commands such as CREATE INDEX.
-    - tuples:
-        usage: COUNTER
-        description: All txid before this have been frozen on this table
-    - frozenxid:
-        usage: COUNTER
-        description: All txid before this have been frozen on this table
-    - age:
-        usage: GAUGE
-        description: Age of this table in vacuum cycles
-    - ncols:
-        usage: GAUGE
-        description: Number of columns in the table
-    - seq_scan:
-        usage: COUNTER
-        default: 0
-        description: Number of sequential scans initiated on this table
-    - seq_tup_read:
-        usage: COUNTER
-        default: 0
-        description: Number of live rows fetched by sequential scans
-    - idx_scan:
-        usage: COUNTER
-        default: 0
-        description: Number of index scans initiated on this table
-    - idx_tup_fetch:
-        usage: COUNTER
-        default: 0
-        description: Number of live rows fetched by index scans
-    - tbl_scan:
-        usage: COUNTER
-        default: 0
-        description: Number of scans initiated on this table
-    - tup_read:
-        usage: COUNTER
-        default: 0
-        description: Number of live rows fetched by scans
-    - n_tup_ins:
-        usage: COUNTER
-        default: 0
-        description: Number of rows inserted
-    - n_tup_upd:
-        usage: COUNTER
-        default: 0
-        description: Number of rows updated (includes HOT updated rows)
-    - n_tup_del:
-        usage: COUNTER
-        default: 0
-        description: Number of rows deleted
-    - n_tup_mod:
-        usage: COUNTER
-        default: 0
-        description: Number of rows modified (insert + update + delete)
-    - n_tup_hot_upd:
-        usage: COUNTER
-        default: 0
-        description: Number of rows HOT updated (i.e with no separate index update required)
-    - n_live_tup:
-        usage: GAUGE
-        description: Estimated number of live rows
-    - n_dead_tup:
-        usage: GAUGE
-        description: Estimated number of dead rows
-    - n_mod_since_analyze:
-        usage: GAUGE
-        description: Estimated number of rows modified since this table was last analyzed
-    - last_vacuum:
-        usage: DISCARD
-        description: Last time at which this table was manually vacuumed (not counting VACUUM FULL)
-    - last_autovacuum:
-        usage: DISCARD
-        description: Last time at which this table was vacuumed by the autovacuum daemon
-    - last_analyze:
-        usage: DISCARD
-        description: Last time at which this table was manually analyzed
-    - last_autoanalyze:
-        usage: DISCARD
-        description: Last time at which this table was analyzed by the autovacuum daemon
-    - vacuum_count:
-        usage: COUNTER
-        default: 0
-        description: Number of times this table has been manually vacuumed (not counting VACUUM FULL)
-    - autovacuum_count:
-        usage: COUNTER
-        default: 0
-        description: Number of times this table has been vacuumed by the autovacuum daemon
-    - analyze_count:
-        usage: COUNTER
-        default: 0
-        description: Number of times this table has been manually analyzed
-    - autoanalyze_count:
-        usage: COUNTER
-        default: 0
-        description: Number of times this table has been analyzed by the autovacuum daemon
-    - heap_blks_read:
-        usage: COUNTER
-        default: 0
-        description: Number of disk blocks read from this table
-    - heap_blks_hit:
-        usage: COUNTER
-        default: 0
-        description: Number of buffer hits in this table
-    - idx_blks_read:
-        usage: COUNTER
-        default: 0
-        description: Number of disk blocks read from all indexes on this table
-    - idx_blks_hit:
-        usage: COUNTER
-        default: 0
-        description: Number of buffer hits in all indexes on this table
-    - toast_blks_read:
-        usage: DISCARD
-        default: 0
-        description: Number of disk blocks read from this table's TOAST table (if any)
-    - toast_blks_hit:
-        usage: DISCARD
-        default: 0
-        description: Number of buffer hits in this table's TOAST table (if any)
-    - tidx_blks_read:
-        usage: DISCARD
-        default: 0
-        description: Number of disk blocks read from this table's TOAST table indexes (if any)
-    - tidx_blks_hit:
-        usage: DISCARD
-        default: 0
-        description: Number of buffer hits in this table's TOAST table indexes (if any)
+    - datname:             { usage: LABEL                 ,description: Database name of this table }
+    - relname:             { usage: LABEL                 ,description: Relation name of this table }
+    - relid:               { usage: GAUGE                 ,description: Relation oid of this table }
+    - kind:                { usage: GAUGE                 ,description: Relation kind r/table/114,m/mview/109,t/toast/116,p/partitioned/112 }
+    - pages:               { usage: GAUGE                 ,description: Size of the on-disk representation of this table in pages }
+    - tuples:              { usage: COUNTER               ,description: All txid before this have been frozen on this table }
+    - frozenxid:           { usage: COUNTER               ,description: All txid before this have been frozen on this table }
+    - age:                 { usage: GAUGE                 ,description: Age of this table in vacuum cycles }
+    - ncols:               { usage: GAUGE                 ,description: Number of columns in the table }
+    - seq_scan:            { usage: COUNTER  ,default: 0  ,description: Number of sequential scans initiated on this table }
+    - seq_tup_read:        { usage: COUNTER  ,default: 0  ,description: Number of live rows fetched by sequential scans }
+    - idx_scan:            { usage: COUNTER  ,default: 0  ,description: Number of index scans initiated on this table }
+    - idx_tup_fetch:       { usage: COUNTER  ,default: 0  ,description: Number of live rows fetched by index scans }
+    - tbl_scan:            { usage: COUNTER  ,default: 0  ,description: Number of scans initiated on this table }
+    - tup_read:            { usage: COUNTER  ,default: 0  ,description: Number of live rows fetched by scans }
+    - n_tup_ins:           { usage: COUNTER  ,default: 0  ,description: Number of rows inserted }
+    - n_tup_upd:           { usage: COUNTER  ,default: 0  ,description: Number of rows updated (includes HOT updated rows) }
+    - n_tup_del:           { usage: COUNTER  ,default: 0  ,description: Number of rows deleted }
+    - n_tup_mod:           { usage: COUNTER  ,default: 0  ,description: Number of rows modified (insert + update + delete) }
+    - n_tup_hot_upd:       { usage: COUNTER  ,default: 0  ,description: Number of rows HOT updated (i.e with no separate index update required) }
+    - n_live_tup:          { usage: GAUGE                 ,description: Estimated number of live rows }
+    - n_dead_tup:          { usage: GAUGE                 ,description: Estimated number of dead rows }
+    - n_mod_since_analyze: { usage: GAUGE                 ,description: Estimated number of rows modified since this table was last analyzed }
+    - last_vacuum:         { usage: DISCARD               ,description: Last time at which this table was manually vacuumed (not counting VACUUM FULL) }
+    - last_autovacuum:     { usage: DISCARD               ,description: Last time at which this table was vacuumed by the autovacuum daemon }
+    - last_analyze:        { usage: DISCARD               ,description: Last time at which this table was manually analyzed }
+    - last_autoanalyze:    { usage: DISCARD               ,description: Last time at which this table was analyzed by the autovacuum daemon }
+    - vacuum_count:        { usage: COUNTER  ,default: 0  ,description: Number of times this table has been manually vacuumed (not counting VACUUM FULL) }
+    - autovacuum_count:    { usage: COUNTER  ,default: 0  ,description: Number of times this table has been vacuumed by the autovacuum daemon }
+    - analyze_count:       { usage: COUNTER  ,default: 0  ,description: Number of times this table has been manually analyzed }
+    - autoanalyze_count:   { usage: COUNTER  ,default: 0  ,description: Number of times this table has been analyzed by the autovacuum daemon }
+    - heap_blks_read:      { usage: COUNTER  ,default: 0  ,description: Number of disk blocks read from this table }
+    - heap_blks_hit:       { usage: COUNTER  ,default: 0  ,description: Number of buffer hits in this table }
+    - idx_blks_read:       { usage: COUNTER  ,default: 0  ,description: Number of disk blocks read from all indexes on this table }
+    - idx_blks_hit:        { usage: COUNTER  ,default: 0  ,description: Number of buffer hits in all indexes on this table }
+    - toast_blks_read:     { usage: DISCARD  ,default: 0  ,description: Number of disk blocks read from this table's TOAST table (if any) }
+    - toast_blks_hit:      { usage: DISCARD  ,default: 0  ,description: Number of buffer hits in this table's TOAST table (if any) }
+    - tidx_blks_read:      { usage: DISCARD  ,default: 0  ,description: Number of disk blocks read from this table's TOAST table indexes (if any) }
+    - tidx_blks_hit:       { usage: DISCARD  ,default: 0  ,description: Number of buffer hits in this table's TOAST table indexes (if any) }
 
 
 pg_index:
