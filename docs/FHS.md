@@ -142,6 +142,7 @@ While the main config file is located on [`roles/infra/templates/prometheus/prom
 #            ^-----@minio            # minio static targets definition
 #            ^-----@ping             # blackbox ping targets definition
 #            ^-----@pgsql            # pgsql static targets definition
+#            ^-----@pgrds            # pgsql remote rds static targets
 #            ^-----@redis            # redis static targets definition
 #            ^-----@mongo            # mongo static targets definition
 #            ^-----@mysql            # mysql static targets definition

@@ -140,6 +140,7 @@ Prometheus 相关的脚本与规则定义放置于 pigsty 主目录下的 [`file
 #            ^-----@infra            # infra 静态目标定义
 #            ^-----@node             # node  静态目标定义
 #            ^-----@pgsql            # pgsql 静态目标定义
+#            ^-----@pgrds            # pgsql 远程RDS目标
 #            ^-----@redis            # redis 静态目标定义
 #            ^-----@minio            # minio 静态目标定义
 #            ^-----@mongo            # mongo 静态目标定义

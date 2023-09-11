@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   prometheus.yml
 # Ctime     :   2020-04-03
-# Mtime     :   2023-08-16
+# Mtime     :   2023-09-10
 # Desc      :   Prometheus Configuration File
 # Path      :   /etc/prometheus/prometheus.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -23,6 +23,7 @@
 #            ^-----@node   # node static targets definition
 #            ^-----@node   # ping targets definition
 #            ^-----@pgsql  # pgsql static targets definition
+#            ^-----@pgrds  # pgsql remote rds static targets
 #            ^-----@redis  # redis static targets definition
 #            ^-----@etcd   # etcd static targets definition
 #            ^-----@minio  # minio static targets definition
@@ -179,6 +180,18 @@ scrape_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
         files: [ targets/patroni/*.yml ]
 {% endif %}
+
+  #--------------------------------------------------------------#
+  # job: pgrds
+  # pg_exporter on local
+  # labels: [cls, ins, ip, job]
+  # path: targets/pgrds/<pg_cluster>.yml
+  #--------------------------------------------------------------#
+  - job_name: pgrds
+    metrics_path: {{ exporter_metrics_path }}
+    file_sd_configs:
+      - refresh_interval: {{ prometheus_sd_interval }}
+        files: [ targets/pgrds/*.yml ]
 
   #--------------------------------------------------------------#
   # job: redis
