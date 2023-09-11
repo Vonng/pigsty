@@ -17,7 +17,7 @@ resource "alicloud_vpc" "vpc" {
 resource "alicloud_vswitch" "vsw" {
   vpc_id     = "${alicloud_vpc.vpc.id}"
   cidr_block = "10.10.10.0/24"
-  zone_id    = "cn-beijing-k"
+  zone_id    = "cn-beijing-i"
 }
 
 # add default security group and allow all tcp traffic
