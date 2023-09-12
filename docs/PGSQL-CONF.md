@@ -122,6 +122,9 @@ $ pg edit-config pg-test    # run on admin node with admin user
 Apply these changes? [y/N]: y
 ```
 
+If `synchronous_mode: true`, the [`synchronous_standby_names`](https://www.postgresql.org/docs/current/runtime-config-replication.html#synchronous_standby_names) parameter will be managed by patroni.
+It will choose a sync standby from all available replicas and write its name to the primary's configuration file.
+
 
 
 ----------------
@@ -133,25 +136,23 @@ Primary will wait until the standby instance flushes to disk before a commit is 
 
 However, you can achieve an even higher/lower consistency level with the quorum commit (trade-off with availability).
 
-For example, to have any 2 replicas to confirm a commit: 
+For example, to have **all** 2 replicas to confirm a commit:
 
-```bash
-pg-test:
-  hosts:
-    10.10.10.10: { pg_seq: 1, pg_role: primary } # <--- pg-test-1
-    10.10.10.11: { pg_seq: 2, pg_role: replica } # <--- pg-test-2
-    10.10.10.12: { pg_seq: 3, pg_role: replica } # <--- pg-test-3
-    10.10.10.13: { pg_seq: 4, pg_role: replica } # <--- pg-test-4
-  vars:
-    pg_cluster: pg-test
-    pg_conf: crit.yml   # <--- use crit template
+```yaml
+synchronous_mode: true          # make sure synchronous mode is enabled
+synchronous_node_count: 2       # at least 2 nodes to confirm a commit
 ```
 
-Adjust  [`synchronous_standby_names`](https://www.postgresql.org/docs/current/runtime-config-replication.html#synchronous_standby_names) and [`synchronous_node_count`](https://patroni.readthedocs.io/en/latest/replication_modes.html#synchronous-replication-factor) accordingly:
-* `synchronous_standby_names = ANY 2 (pg-test-2, pg-test-3, pg-test-4)`
-* `synchronous_node_count : 2`
+If you have more replicas and wish to have more sync standby, increase `synchronous_node_count` accordingly.
+Beware to adjust `synchronous_node_count` accordingly when you [append](PGSQL-ADMIN#append-replica) or [remove](PGSQL-ADMIN#remove-replica) replicas.
 
-<details><summary>Example: Enable Quorum Commit</summary>
+The postgres `synchronous_standby_names` parameter will be managed by patroni:
+
+```yaml
+synchronous_standby_names = '2 ("pg-test-3","pg-test-2")'
+```
+
+<details><summary>Example: Multiple Sync Standby</summary>
 
 ```bash
 $ pg edit-config pg-test
@@ -169,7 +170,7 @@ $ pg edit-config pg-test
 Apply these changes? [y/N]: y
 ```
 
-After the application, the configuration takes effect, and two Sync Standby appear. When the cluster has Failover or expansion and contraction, please adjust these parameters to avoid service unavailability.
+And we can see that the two replicas are selected as sync standby now.
 
 ```bash
 + Cluster: pg-test (7080814403632534854) +---------+----+-----------+-----------------+
@@ -178,9 +179,35 @@ After the application, the configuration takes effect, and two Sync Standby appe
 | pg-test-1 | 10.10.10.10 | Leader       | running |  1 |           | clonefrom: true |
 | pg-test-2 | 10.10.10.11 | Sync Standby | running |  1 |         0 | clonefrom: true |
 | pg-test-3 | 10.10.10.12 | Sync Standby | running |  1 |         0 | clonefrom: true |
-| pg-test-4 | 10.10.10.13 | Replica      | running |  1 |         0 | clonefrom: true |
 +-----------+-------------+--------------+---------+----+-----------+-----------------+
 ```
+
+</details>
+
+The classic quorum commit is to use **majority** of replicas to confirm a commit.
+
+```yaml
+synchronous_mode: quorum        # use quorum commit
+postgresql:
+  parameters:                   # change the PostgreSQL parameter `synchronous_standby_names`, use the `ANY n ()` notion
+    synchronous_standby_names: 'ANY 1 (*)'  # you can specify a list of standby names, or use `*` to match them all
+```
+
+<details><summary>Example: Enable Quorum Commit</summary>
+
+```bash
+$ pg edit-config pg-test
+
++    synchronous_standby_names: 'ANY 1 (*)' # You have to configure this manually
++ synchronous_mode: quorum        # use quorum commit mode, undocumented parameter
+- synchronous_node_count: 2       # this parameter is no longer needed in quorum mode
+
+Apply these changes? [y/N]: y
+```
+
+After applying the configuration, we can see that all replicas are no longer sync standby, but just normal replicas.
+
+However when we can check `pg_stat_replication.sync_state`, it becomes `quorum` instead of `sync` or `async`.
 
 </details>
 

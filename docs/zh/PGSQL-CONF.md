@@ -124,6 +124,9 @@ $ pg edit-config pg-test    # 在管理员节点以管理员用户身份运行
 应用这些更改？[y/N]: y
 ```
 
+在这种情况下，PostgreSQL 配置项 [`synchronous_standby_names`](https://www.postgresql.org/docs/current/runtime-config-replication.html#synchronous_standby_names) 由 Patroni 自动管理。
+一台从库将被选拔为同步从库，它的 `application_name` 将被写入 PostgreSQL 主库配置文件中并应用生效。
+
 
 
 ----------------
@@ -132,49 +135,32 @@ $ pg edit-config pg-test    # 在管理员节点以管理员用户身份运行
 
 法定人数提交（Quorum Commit）提供了比同步备库更强大的控制能力：特别是当您有多个从库时，您可以设定提交成功的标准，实现更高/更低的一致性级别（以及可用性之间的权衡）。
 
-```
-[FIRST] num_sync ( standby_name [, ...] )
-ANY num_sync ( standby_name [, ...] )
-standby_name [, ...]
-```
+如果想要**最少两个从**库来确认提交，可以通过 Patroni [配置集群](PGSQL-ADMIN#配置集群)，调整参数 [`synchronous_node_count`](https://patroni.readthedocs.io/en/latest/replication_modes.html#synchronous-replication-factor) 并应用生效
 
-例如，在下面的四节点集群中，如果想要**任意两个从**库来确认提交，可以使用以下设置：
-
-```bash
-pg-test:
-  hosts:
-    10.10.10.10: { pg_seq: 1, pg_role: primary } # <--- pg-test-1
-    10.10.10.11: { pg_seq: 2, pg_role: replica } # <--- pg-test-2
-    10.10.10.12: { pg_seq: 3, pg_role: replica } # <--- pg-test-3
-    10.10.10.13: { pg_seq: 4, pg_role: replica } # <--- pg-test-4
-  vars:
-    pg_cluster: pg-test
-    pg_conf: crit.yml   # <--- use crit template
+```yaml
+synchronous_mode: true          # 确保同步提交已经启用
+synchronous_node_count: 2       # 指定“至少”有多少个从库提交成功，才算提交成功
 ```
 
-[配置集群](PGSQL-ADMIN#配置集群)，调整[`synchronous_standby_names`](https://www.postgresql.org/docs/current/runtime-config-replication.html#synchronous_standby_names)和 [`synchronous_node_count`](https://patroni.readthedocs.io/en/latest/replication_modes.html#synchronous-replication-factor) 并应用生效
-- `synchronous_standby_names = ANY 2 (pg-test-2, pg-test-3, pg-test-4)`
-- `synchronous_node_count : 2`
+如果你想要使用更多的同步从库，修改 `synchronous_node_count` 的取值即可。当集群的规模发生变化时，您应当确保这里的配置仍然是有效的，以避免服务不可用。
 
-<details><summary>示例：启用法定人数提交</summary>
+在这种情况下，PostgreSQL 配置项 [`synchronous_standby_names`](https://www.postgresql.org/docs/current/runtime-config-replication.html#synchronous_standby_names) 由 Patroni 自动管理。
+
+```yaml
+synchronous_standby_names = '2 ("pg-test-3","pg-test-2")'
+```
+
+<details><summary>示例：使用多个同步从库</summary>
 
 ```bash
 $ pg edit-config pg-test
 ---
-+++
-@@ -82,10 +82,12 @@
-     work_mem: 4MB
-+    synchronous_standby_names: 'ANY 2 (pg-test-2, pg-test-3, pg-test-4)'
- 
--synchronous_mode: false
-+synchronous_mode: true
 +synchronous_node_count: 2
- synchronous_mode_strict: false
 
 Apply these changes? [y/N]: y
 ```
 
-应用后，配置生效，出现两个同步备库。当集群有故障转移或扩展和收缩时，请调整这些参数，以避免服务不可用。
+应用配置后，出现两个同步备库。
 
 ```bash
 + Cluster: pg-test (7080814403632534854) +---------+----+-----------+-----------------+
@@ -183,12 +169,34 @@ Apply these changes? [y/N]: y
 | pg-test-1 | 10.10.10.10 | Leader       | running |  1 |           | clonefrom: true |
 | pg-test-2 | 10.10.10.11 | Sync Standby | running |  1 |         0 | clonefrom: true |
 | pg-test-3 | 10.10.10.12 | Sync Standby | running |  1 |         0 | clonefrom: true |
-| pg-test-4 | 10.10.10.13 | Replica      | running |  1 |         0 | clonefrom: true |
 +-----------+-------------+--------------+---------+----+-----------+-----------------+
 ```
 
 </details>
 
+另一种情景是，使用 **任意n个** 从库来确认提交。在这种情况下，配置的方式略有不同，例如，假设我们只需要任意一个从库确认提交：
+
+```yaml
+synchronous_mode: quorum        # 使用法定人数提交
+postgresql:
+  parameters:                   # 修改 PostgreSQL 的配置参数 synchronous_standby_names ，使用 `ANY n ()` 语法
+    synchronous_standby_names: 'ANY 1 (*)'  # 你可以指定具体的从库列表，或直接使用 * 通配所有从库。
+```
+
+<details><summary>示例：启用ANY法定人数提交</summary>
+
+```bash
+$ pg edit-config pg-test
+
++    synchronous_standby_names: 'ANY 1 (*)' # 在 ANY 模式下，需要使用此参数
+- synchronous_node_count: 2  # 在 ANY 模式下， 不需要使用此参数
+
+Apply these changes? [y/N]: y
+```
+
+应用后，配置生效，所有备库在 Patroni 中变为普通的 replica。但是在 `pg_stat_replication` 中可以看到 `sync_state` 会变为 `quorum`。
+
+</details>
 
 
 
