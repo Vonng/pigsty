@@ -634,6 +634,30 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "PGRDS"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGRDS Clusters",
+                                        "url": "/d/pgrds-cluster?${__url_time_range}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#6986a3",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
                     }
                 ]
             },
@@ -676,6 +700,20 @@
                     "legendFormat": "PGSQL",
                     "range": true,
                     "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(up{job=\"pgrds\"})",
+                    "hide": true,
+                    "interval": "",
+                    "legendFormat": "PGRDS",
+                    "range": true,
+                    "refId": "R"
                 },
                 {
                     "datasource": {
@@ -1087,6 +1125,39 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "R"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGRDS Instance: ${__field.labels.ins}",
+                                        "url": "/d/pgrds-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#1c232a",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#6986a3",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
                     }
                 ]
             },
@@ -1127,6 +1198,20 @@
                     "interval": "",
                     "legendFormat": "{{ ins }}",
                     "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min by (ins) (pg_up{job=\"pgrds\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "R"
                 },
                 {
                     "datasource": {
@@ -1191,7 +1276,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (instance) (up{job!~\"(node|infra|etcd|pgsql|redis|minio)\"})",
+                    "expr": "min by (instance) (up{job!~\"(node|infra|etcd|pgsql|redis|minio|pgrds)\"})",
                     "hide": true,
                     "instant": true,
                     "interval": "",
@@ -1523,6 +1608,38 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "R"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#6986a3",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "tps"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGRDS Cluster : ${__field.labels.cls}",
+                                        "url": "/d/pgrds-cluster?var-cls=${__field.labels.cls}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -1540,7 +1657,7 @@
                 "orientation": "auto",
                 "reduceOptions": {
                     "calcs": [
-                        "lastNotNull"
+                        "last"
                     ],
                     "fields": "",
                     "values": false
@@ -1557,11 +1674,26 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "cls:pressure1{job=\"pgsql\"}",
+                    "expr": "cls:pressure5{job=\"pgsql\"}",
+                    "hide": false,
                     "interval": "",
                     "legendFormat": "{{ cls }}",
                     "range": true,
                     "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "pg:cls:xact_commit_rate5m{job=\"pgrds\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ cls }}",
+                    "range": true,
+                    "refId": "R"
                 },
                 {
                     "datasource": {
