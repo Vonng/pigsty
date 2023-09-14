@@ -231,7 +231,7 @@
 
 剧本 [`pgsql-monitor.yml`](https://github.com/vonng/pigsty/blob/master/pgsql-monitor.yml) 用于将远程postgres实例纳入监控中
 
-详情请参考：[管理SOP：监控现有PG](PGSQL-MONITOR#监控现有PG)
+详情请参考：[管理SOP：监控现有PG](PGSQL-MONITOR#监控rds)
 
 
 ----------------

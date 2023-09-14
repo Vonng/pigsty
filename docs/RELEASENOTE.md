@@ -37,7 +37,7 @@
 
 ----------------
 
-## v2.4.0 (WIP)
+## v2.4.0
 
 Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"`.
 
