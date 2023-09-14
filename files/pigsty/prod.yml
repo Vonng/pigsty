@@ -32,6 +32,22 @@ all:
         node_cluster: infra
         node_conf: oltp
         docker_enabled: true
+        pg_exporters:           # bin/pgmon-add pg-meta2/pg-test2/pg-src2/pg-dst2
+          20001: {pg_cluster: pg-meta2   ,pg_seq: 1 ,pg_host: 10.10.10.10, pg_databases: [{ name: meta }]}
+          20002: {pg_cluster: pg-meta2   ,pg_seq: 2 ,pg_host: 10.10.10.11, pg_databases: [{ name: meta }]}
+
+          20003: {pg_cluster: pg-test2   ,pg_seq: 1 ,pg_host: 10.10.10.41, pg_databases: [{ name: test }]}
+          20004: {pg_cluster: pg-test2   ,pg_seq: 2 ,pg_host: 10.10.10.42, pg_databases: [{ name: test }]}
+          20005: {pg_cluster: pg-test2   ,pg_seq: 3 ,pg_host: 10.10.10.43, pg_databases: [{ name: test }]}
+          20006: {pg_cluster: pg-test2   ,pg_seq: 4 ,pg_host: 10.10.10.44, pg_databases: [{ name: test }]}
+
+          20007: {pg_cluster: pg-src2    ,pg_seq: 1 ,pg_host: 10.10.10.45, pg_databases: [{ name: src }]}
+          20008: {pg_cluster: pg-src2    ,pg_seq: 2 ,pg_host: 10.10.10.46, pg_databases: [{ name: src }]}
+          20009: {pg_cluster: pg-src2    ,pg_seq: 3 ,pg_host: 10.10.10.47, pg_databases: [{ name: src }]}
+
+          20010: {pg_cluster: pg-dst2    ,pg_seq: 3 ,pg_host: 10.10.10.48, pg_databases: [{ name: dst }]}
+          20011: {pg_cluster: pg-dst2    ,pg_seq: 4 ,pg_host: 10.10.10.49, pg_databases: [{ name: dst }]}
+
 
     #==========================================================#
     # node: 42 nodes 71C-174G
@@ -123,7 +139,6 @@ all:
         pg_databases: [ { name: v12 } ]
         pg_service_provider: proxy       # use load balancer on group `proxy` with port 10012
         pg_default_services:  [{ name: primary ,port: 10012 ,dest: postgres  ,check: /primary   ,selector: "[]" }]
-
 
     pg-v13:
       hosts: { 10.10.10.13: { pg_seq: 1 ,pg_role: primary } }

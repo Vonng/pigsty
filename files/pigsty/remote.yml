@@ -3,12 +3,11 @@
 # File      :   remote.yml
 # Desc      :   Monitoring Remote RDS with pigsty
 # Ctime     :   2020-05-22
-# Mtime     :   2023-02-06
+# Mtime     :   2023-09-14
 # Docs      :   https://doc.pigsty.cc/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-
 
 all:
   children:
@@ -22,6 +21,52 @@ all:
           20003: { pg_cluster: pg-bar, pg_seq: 2, pg_host: 10.10.10.12 , pg_exporter_url: 'postgres://dbuser_monitor:DBUser.Monitor@10.10.10.12:5432/postgres?sslmode=disable'}
           20004: { pg_cluster: pg-bar, pg_seq: 3, pg_host: 10.10.10.13 , pg_monitor_username: dbuser_monitor, pg_monitor_password: DBUser.Monitor }
 
+          20011:
+            pg_cluster: pg-polar                        # RDS Cluster Name (Identity, Explicitly Assigned, used as 'cls')
+            pg_seq: 1                                   # RDS Instance Seq (Identity, Explicitly Assigned, used as part of 'ins')
+            pg_host: pxx.polardbpg.rds.aliyuncs.com     # RDS Host Address
+            pg_port: 1921                               # RDS Port
+            pg_exporter_include_database: 'test'        # Only monitoring database in this list
+            pg_monitor_username: dbuser_monitor         # monitor username, overwrite default
+            pg_monitor_password: DBUser_Monitor         # monitor password, overwrite default
+            pg_databases: [{ name: test }]              # database to be added to grafana datasource
+
+          20012: 
+            pg_cluster: pg-polar                        # RDS Cluster Name (Identity, Explicitly Assigned, used as 'cls')
+            pg_seq: 2                                   # RDS Instance Seq (Identity, Explicitly Assigned, used as part of 'ins')
+            pg_host: pe-xx.polarpgmxs.rds.aliyuncs.com  # RDS Host Address
+            pg_port: 1521                               # RDS Port
+            pg_databases: [{ name: test }]              # database to be added to grafana datasource
+
+          20014: 
+            pg_cluster: pg-rds
+            pg_seq: 1
+            pg_host: pgm-2zern3d323fe9ewk.pg.rds.aliyuncs.com
+            pg_port: 5432
+            pg_exporter_auto_discovery: true
+            pg_exporter_include_database: 'rds'
+            pg_monitor_username: dbuser_monitor
+            pg_monitor_password: DBUser_Monitor
+            pg_databases: [ { name: rds } ]
+
+          20015: 
+            pg_cluster: pg-rdsha
+            pg_seq: 1
+            pg_host: pgm-2ze3d35d27bq08wu.pg.rds.aliyuncs.com
+            pg_port: 5432
+            pg_exporter_auto_discovery: true
+            pg_exporter_include_database: 'rds'
+            pg_databases: [{ name: test }, {name: rds}]
+
+          20016: 
+            pg_cluster: pg-rdsha
+            pg_seq: 2
+            pg_host: pgr-2zexqxalk7d37edt.pg.rds.aliyuncs.com
+            pg_exporter_auto_discovery: true
+            pg_exporter_include_database: 'rds'
+            pg_databases: [{ name: test }, {name: rds}]
+  
+  
   vars:
     version: v2.3.1                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
