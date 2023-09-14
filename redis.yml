@@ -4,7 +4,7 @@
 # File      :   redis.yml
 # Desc      :   init redis cluster / node / instance
 # Ctime     :   2020-11-22
-# Mtime     :   2022-12-29
+# Mtime     :   2023-09-15
 # Path      :   redis.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -79,13 +79,13 @@
   tasks:
 
     - name: skip if not a redis sentinel cluster
-      when: redis_port is defined and redis_mode|default('standalone') != 'sentinel'
+      when: redis_port is defined or redis_mode|default('standalone') != 'sentinel' or redis_sentinel_monitor is not defined or redis_sentinel_monitor|length == 0
       meta: end_host
 
     - name: setup redis ha with sentinel
       ignore_errors: true
-      run_once: true
       when: redis_port is not defined
+      run_once: true
       block:
 
         - name: render redis sentinel monitor commands
@@ -107,7 +107,7 @@
               {% endif %}
               {% endfor %}
 
-        - name: render redis sentinel monitor commands
+        - name: render redis sentinel monitor scripts
           copy:
             dest: /tmp/{{ redis_cluster }}-ha.sh
             mode: 0700
