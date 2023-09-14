@@ -207,7 +207,9 @@ all:
         pg_databases: [ { name: test } ]
 
     pg-el7v15:
-      hosts: { 10.10.10.75: { pg_seq: 1 ,pg_role: primary } }
+      hosts:
+        10.10.10.75: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
+        10.10.10.76: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
       vars:
         pg_cluster: pg-el7v15
         pg_version: 15
@@ -215,15 +217,16 @@ all:
         pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
         pg_databases: [ { name: test } ]
 
-    pg-el7v16:
-      hosts: { 10.10.10.76: { pg_seq: 1 ,pg_role: primary } }
-      vars:
-        pg_cluster: pg-el7v16
-        pg_version: 16
-        admin_ip: 10.10.10.7
-        pg_libs: 'pg_stat_statements, auto_explain' # no timescaledb for PG16
-        pg_extensions: [ ]
-        pg_databases: [ { name: test } ]
+    # pg 16 is not supported on EL7
+    #pg-el7v16:
+    #  hosts: { 10.10.10.76: { pg_seq: 1 ,pg_role: primary } }
+    #  vars:
+    #    pg_cluster: pg-el7v16
+    #    pg_version: 16
+    #    admin_ip: 10.10.10.7
+    #    pg_libs: 'pg_stat_statements, auto_explain' # no timescaledb for PG16
+    #    pg_extensions: [ ]
+    #    pg_databases: [ { name: test } ]
 
     # pgsql 3 node ha cluster: pg-test
     pg-el7test:
