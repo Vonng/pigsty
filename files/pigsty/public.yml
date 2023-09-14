@@ -14,7 +14,14 @@ all:
   children:
 
     # infra cluster for proxy, monitor, alert, etc..
-    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
+    infra:
+      hosts: { 10.10.10.10: { infra_seq: 1 } }
+      vars:
+        pg_exporters:
+          20001: { pg_cluster: pg-foo, pg_seq: 1, pg_host: 10.10.10.10 }
+          20002: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.11 , pg_port: 5432 }
+          20003: { pg_cluster: pg-bar, pg_seq: 2, pg_host: 10.10.10.12 , pg_exporter_url: 'postgres://dbuser_monitor:DBUser.Monitor@10.10.10.12:5432/postgres?sslmode=disable' }
+          20004: { pg_cluster: pg-bar, pg_seq: 3, pg_host: 10.10.10.13 , pg_monitor_username: dbuser_monitor, pg_monitor_password: DBUser.Monitor }
 
     # minio cluster, s3 compatible object storage
     minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
@@ -94,6 +101,11 @@ all:
         10.10.10.13: { redis_node: 2 ,redis_instances: { 6379: { } ,6380: { } ,6381: { } } }
       vars: { redis_cluster: redis-test ,redis_password: 'redis.test' ,redis_mode: cluster, redis_max_memory: 32MB }
 
+    ferret:
+      hosts: { 10.10.10.10: { mongo_seq: 1 } }
+      vars:
+        mongo_cluster: ferret
+        mongo_pgurl: 'postgres://dbuser_meta:DBUser.Meta@10.10.10.10:5432/grafana'
 
   vars:                               # global variables
     version: v2.4.0                   # pigsty version string
