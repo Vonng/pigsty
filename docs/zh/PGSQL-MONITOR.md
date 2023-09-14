@@ -11,7 +11,7 @@ Pigsty使用现代的可观测技术栈对 PostgreSQL 进行监控：
 - 使用Grafana进行指标可视化和PostgreSQL数据源。
 - 使用Prometheus来监控PostgreSQL / Pgbouncer / Patroni / HAProxy / Node的指标
 - 使用Loki来记录PostgreSQL / Pgbouncer / Patroni / pgBackRest的日志
-- Pigsty 提供了开箱即用的 Grafana [仪表盘](PGSQL-DASHBOARD)，展示与 PostgreSQL 有关的方方面面。 
+- Pigsty 提供了开箱即用的 Grafana [仪表盘](PGSQL-DASHBOARD)，展示与 PostgreSQL 有关的方方面面。
 
 
 ----------------
@@ -23,6 +23,8 @@ PostgreSQL 本身的监控指标完全由 pg_exporter 配置文件所定义：[`
 它将进一步被 Prometheus 记录规则和告警规则进行加工处理：[`files/prometheus/rules/pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/files/prometheus/rules/pgsql.yml)
 
 3个标签：`cls`、`ins`、`ip`将附加到所有指标和日志上，例如`{ cls: pg-meta, ins: pg-meta-1, ip: 10.10.10.10 }`
+
+此外，Pgbouncer的监控指标，主机节点 NODE，与负载均衡器的监控指标也会被 Pigsty 所使用。
 
 
 ----------------

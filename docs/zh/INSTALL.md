@@ -38,12 +38,12 @@ FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL https://get.pigsty.cc/v2.3.1/pigsty-v2.3.1.tgz
+[ OK ] $ curl -SL https://get.pigsty.cc/v2.4.0/pigsty-v2.4.0.tgz
 ...
-MD5: d5dc4a51efc81932a03d7c010d0d5d64  /tmp/pigsty-v2.3.1.tgz
+MD5: d5dc4a51efc81932a03d7c010d0d5d64  /tmp/pigsty-v2.4.0.tgz
 [Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.3.1.tgz' to '/home/vagrant/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.3.1.tgz -C ~;
+[ OK ] extract '/tmp/pigsty-v2.4.0.tgz' to '/home/vagrant/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.4.0.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
 Get Started:     https://doc.pigsty.cc/#/INSTALL
@@ -66,7 +66,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 
 ```bash
 git clone https://github.com/Vonng/pigsty;   # 您科学上网了吗？
-cd pigsty; git checkout v2.3.1
+cd pigsty; git checkout v2.4.0
 ```
 
 </details>
@@ -120,11 +120,11 @@ curl https://get.pigsty.cc/latest  | bash
 
 ```bash
 # 从 CDN 或 Github 下载源码包
-curl -L https://get.pigsty.cc/v2.3.1/pigsty-v2.3.1.tgz -o ~/pigsty.tgz
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.1/pigsty-v2.3.1.tgz -o ~/pigsty.tgz
+curl -L https://get.pigsty.cc/v2.4.0/pigsty-v2.4.0.tgz -o ~/pigsty.tgz
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-v2.4.0.tgz -o ~/pigsty.tgz
 
 # 如果 curl 不可用，git clone 也可以
-git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.3.1
+git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.4.0
 ```
 
 ### 离线软件包
@@ -137,13 +137,13 @@ Pigsty 会在 [Bootstrap/准备](#准备) 时，提示下载对应的离线软�
 
 ```bash
 # CDN EL 7,8,9
-curl -L https://get.pigsty.cc/v2.3.1/pigsty-v2.3.1.tgz -o ~/pigsty.tgz                 # 源码
-curl -L https://get.pigsty.cc/v2.3.1/pigsty-pkg-v2.3.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
-curl -L https://get.pigsty.cc/v2.3.1/pigsty-pkg-v2.3.1.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
-curl -L https://get.pigsty.cc/v2.3.1/pigsty-pkg-v2.3.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
+curl -L https://get.pigsty.cc/v2.4.0/pigsty-v2.4.0.tgz -o ~/pigsty.tgz                 # 源码
+curl -L https://get.pigsty.cc/v2.4.0/pigsty-pkg-v2.4.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
+curl -L https://get.pigsty.cc/v2.4.0/pigsty-pkg-v2.4.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
+curl -L https://get.pigsty.cc/v2.4.0/pigsty-pkg-v2.4.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
 
 # GITHUB EL 7,8,9
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.1/pigsty-v2.3.1.tgz -o ~/pigsty.tgz                 # 源码
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-v2.3.1.tgz -o ~/pigsty.tgz                 # 源码
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.1/pigsty-pkg-v2.3.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.1/pigsty-pkg-v2.3.1.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.1/pigsty-pkg-v2.3.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7

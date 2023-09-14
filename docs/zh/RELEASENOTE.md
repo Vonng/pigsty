@@ -2,7 +2,7 @@
 
 | 版本              |    发布时间    | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v3.0.0](#v300) | 2023-09-21 | PG16，监控RDS，服务咨询支持，新扩展：中文分词全文检索/图/HTTP/嵌入等  | [v3.0.0](https://github.com/Vonng/pigsty/releases/tag/v3.0.0)                             |
+| [v2.4.0](#240)  | 2023-09-14 | PG16，监控RDS，服务咨询支持，新扩展：中文分词全文检索/图/HTTP/嵌入等 | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
 | [v2.3.1](#v231) | 2023-09-01 | 带HNSW的PGVector，PG 16 RC1, 文档翻新，中文文档，例行问题修复     | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.0](#v230) | 2023-08-20 | 主机VIP, ferretdb, nocodb, MySQL存根, CVE修复                    | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
 | [v2.2.0](#v220) | 2023-08-04 | 仪表盘 & 置备重做，UOS 兼容性                                         | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
@@ -37,7 +37,7 @@
 
 ----------------
 
-## v3.0.0 (WIP)
+## v2.4.0
 
 使用 `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"` 快速上手。
 
@@ -54,6 +54,11 @@
 - 新扩展插件: pgsql-http, issue http request with SQL interface
 - 新增插件： pg_auth_mon pg_checksums pg_failover_slots pg_readonly postgresql-unit pg_store_plans pg_uuidv7 set_user
 - Redis改进：支持 Redis 哨兵监控，配置主从集群的自动高可用。
+
+**API变化**
+
+- 新增参数，`REDIS`.`redis_sentinel_monitor`，用于指定 Sentinel 集群监控的主库列表
+
 
 
 ----------------
@@ -203,9 +208,10 @@ MD5 (pigsty-pkg-v2.3.0.el9.x86_64.tgz) = 4bc9ae920e7de6dd8988ca7ee681459d
   - redis etcd minio mcli haproxy vip-manager pg_exporter nginx createrepo_c sshpass chrony dnsmasq docker-ce docker-compose-plugin flamegraph
   - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned perf nvme-cli numactl grubby sysstat iotop htop rsync tcpdump
   - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal
-  - postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* postgresql16* timescaledb-tools
+  - postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* timescaledb-tools
   - postgresql15 postgresql15* citus_15* pglogical_15* wal2json_15* pg_repack_15* pgvector_15* timescaledb-2-postgresql-15* postgis33_15* passwordcheck_cracklib_15* pg_cron_15*
   - postgresql14 postgresql14* citus_14* pglogical_14* wal2json_14* pg_repack_14* pgvector_14* timescaledb-2-postgresql-14* postgis33_14* passwordcheck_cracklib_14* pg_cron_14*
+  - postgresql16* wal2json_16* pgvector_16* pg_squeeze_16* postgis34_16* passwordcheck_cracklib_16* pg_cron_16*
   - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_partman_15 pg_permissions_15 pgaudit17_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15*
   - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15
   - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15*  pgtt_15 pgq_15* pgsql_tweaks_15 count_distinct_15 hypopg_15 timestamp9_15* semver_15* prefix_15* rum_15 geoip_15 periods_15 ip4r_15 tdigest_15 hll_15 pgmp_15 extra_window_functions_15 topn_15

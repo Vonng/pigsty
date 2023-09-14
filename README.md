@@ -4,7 +4,7 @@
 >
 > —— **A battery-included, local-first, open-source RDS PG alternative.**
 >
-> [Release v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/6nA2fDXt)
+> [Release v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/6nA2fDXt)
 >
 > [Get Started](docs/INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash` 
 
@@ -52,12 +52,12 @@ FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL https://get.pigsty.cc/v2.3.1/pigsty-v2.3.1.tgz
+[ OK ] $ curl -SL https://get.pigsty.cc/v2.4.0/pigsty-v2.4.0.tgz
 ...
-MD5: d5dc4a51efc81932a03d7c010d0d5d64  /tmp/pigsty-v2.3.1.tgz
+MD5: d5dc4a51efc81932a03d7c010d0d5d64  /tmp/pigsty-v2.4.0.tgz
 [Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.3.1.tgz' to '/home/vagrant/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.3.1.tgz -C ~;
+[ OK ] extract '/tmp/pigsty-v2.4.0.tgz' to '/home/vagrant/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.4.0.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
 Get Started:     https://doc.pigsty.cc/#/INSTALL
@@ -81,7 +81,7 @@ You can also download pigsty source with `git`, don't forget to checkout a speci
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
-cd pigsty; git checkout v2.3.1
+cd pigsty; git checkout v2.4.0
 ```
 
 </details>
@@ -96,10 +96,10 @@ You can also download pigsty source & offline pkgs directly from GitHub release 
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 
 # or download tarball directly with curl
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.1/pigsty-v2.3.1.tgz -o ~/pigsty.tgz                 # SRC
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.1/pigsty-pkg-v2.3.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.1/pigsty-pkg-v2.3.1.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.1/pigsty-pkg-v2.3.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-v2.4.0.tgz -o ~/pigsty.tgz                 # SRC
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-pkg-v2.4.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-pkg-v2.4.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-pkg-v2.4.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
 ```
 
 </details>
