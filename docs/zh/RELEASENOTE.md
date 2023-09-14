@@ -2,6 +2,7 @@
 
 | 版本              |    发布时间    | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v3.0.0](#v300) | 2023-09-21 | PG16，监控RDS，服务咨询支持，新扩展：中文分词全文检索/图/HTTP/嵌入等  | [v3.0.0](https://github.com/Vonng/pigsty/releases/tag/v3.0.0)                             |
 | [v2.3.1](#v231) | 2023-09-01 | 带HNSW的PGVector，PG 16 RC1, 文档翻新，中文文档，例行问题修复     | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.0](#v230) | 2023-08-20 | 主机VIP, ferretdb, nocodb, MySQL存根, CVE修复                    | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
 | [v2.2.0](#v220) | 2023-08-04 | 仪表盘 & 置备重做，UOS 兼容性                                         | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
@@ -32,6 +33,27 @@
 | v0.0.2          | 2020-04-30 | 首次提交                                                       | [v0.0.2](https://github.com/Vonng/pigsty/commit/dd646775624ddb33aef7884f4f030682bdc371f8) |
 | v0.0.1          | 2019-05-15 | 概念原型                                                       | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
+
+
+----------------
+
+## v3.0.0 (WIP)
+
+使用 `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"` 快速上手。
+
+**最新特性**
+
+- PostgreSQL 16 正式发布，Pigsty提供支持。
+- 可以监控云数据库，RDS for PostgreSQL，以及 PolarDB，提供全新的 PGRDS 监控面板
+- 正式提供商业支持与咨询服务。并发布首个 LTS 版本，为订阅客户提供最长5年的支持。
+- 新扩展插件: Apache AGE, openCypher graph query engine on PostgreSQL
+- 新扩展插件: zhparser, full text search for Chinese language
+- 新扩展插件: pg_roaringbitmap, roaring bitmap for PostgreSQL
+- 新扩展插件: pg_embedding, hnsw alternative to pgvector
+- 新扩展插件: pg_tle, admin / manage stored procedure extensions
+- 新扩展插件: pgsql-http, issue http request with SQL interface
+- 新增插件： pg_auth_mon pg_checksums pg_failover_slots pg_readonly postgresql-unit pg_store_plans pg_uuidv7 set_user
+- Redis改进：支持 Redis 哨兵监控，配置主从集群的自动高可用。
 
 
 ----------------

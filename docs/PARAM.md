@@ -173,6 +173,7 @@
 | 730 | [`redis_aof_enabled`](#redis_aof_enabled)                       | [`REDIS`](#redis) | [`REDIS`](#redis)                 | bool        | C     | enable redis append only file?                                                |
 | 731 | [`redis_rename_commands`](#redis_rename_commands)               | [`REDIS`](#redis) | [`REDIS`](#redis)                 | dict        | C     | rename redis dangerous commands                                               |
 | 732 | [`redis_cluster_replicas`](#redis_cluster_replicas)             | [`REDIS`](#redis) | [`REDIS`](#redis)                 | int         | C     | replica number for one master in redis cluster                                |
+| 733 | [`redis_sentinel_monitor`](#redis_sentinel_monitor)             | [`REDIS`](#redis) | [`REDIS`](#redis)                 | master[]    |   C   | sentinel master list, works on sentinel cluster only                          |
 | 801 | [`pg_mode`](#pg_mode)                                           | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | enum        | C     | pgsql cluster mode: pgsql,citus,gpsql                                         |
 | 802 | [`pg_cluster`](#pg_cluster)                                     | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | string      | C     | pgsql cluster name, REQUIRED identity parameter                               |
 | 803 | [`pg_seq`](#pg_seq)                                             | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | int         | I     | pgsql instance seq number, REQUIRED identity parameter                        |
@@ -2938,6 +2939,7 @@ redis_rdb_save: ['1200 1']        # redis rdb save directives, disable with empt
 redis_aof_enabled: false          # enable redis append only file?
 redis_rename_commands: {}         # rename redis dangerous commands
 redis_cluster_replicas: 1         # replica number for one master in redis cluster
+redis_sentinel_monitor: []        # sentinel master list, works on sentinel cluster only
 ```
 
 
@@ -2979,18 +2981,18 @@ Here is an example for a native redis cluster definition
 ```yaml
 redis-test: # redis native cluster: 3m x 3s
   hosts:
-    10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
-    10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
-  vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
+    10.10.10.12: { redis_node: 1 ,redis_instances: { 6379: { } ,6380: { } ,6381: { } } }
+    10.10.10.13: { redis_node: 2 ,redis_instances: { 6379: { } ,6380: { } ,6381: { } } }
+  vars: { redis_cluster: redis-test ,redis_password: 'redis.test' ,redis_mode: cluster, redis_max_memory: 32MB }
 ```
 
 The port number should be unique among the **node**, and the `replica_of` in `value` should be instance member of the same redis **cluster**. 
 
 ```yaml
 redis_instances:
-    6501: {}
-    6502: { replica_of: '10.10.10.13 6501' }
-    6503: { replica_of: '10.10.10.13 6501' }
+    6379: {}
+    6380: { replica_of: '10.10.10.13 6379' }
+    6381: { replica_of: '10.10.10.13 6379' }
 ```
 
 
@@ -3218,6 +3220,21 @@ replica number for one master/primary in redis cluster, default values: `1`
 
 
 
+### `redis_sentinel_monitor`
+
+name: `redis_sentinel_monitor`, type: `master[]`, level: `C`
+
+This can only be used when [`redis_mode`](#redis_mode) is set to `sentinel`.
+
+List of redis master to be monitored by this sentinel cluster. each master is defined as a dict with `name`, `host`, `port`, `password`, `quorum` keys.
+
+```yaml
+redis_sentinel_monitor:  # primary list for redis sentinel, use cls as name, primary ip:port
+  - { name: redis-src, host: 10.10.10.45, port: 6379 ,password: redis.src, quorum: 1 }
+  - { name: redis-dst, host: 10.10.10.48, port: 6379 ,password: redis.dst, quorum: 1 }
+```
+
+The `name` and `host` are mandatory, `port`, `password`, `quorum` are optional, `quorum` is used to set the quorum for this master, usually large than half of the sentinel instances.
 
 
 

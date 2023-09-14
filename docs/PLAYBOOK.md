@@ -146,8 +146,8 @@ Here are some examples of extra vars
 ./node.yml -e ansible_user=admin -k -K   # run playbook as another user (with admin sudo password)
 ./pgsql.yml -e pg_clean=true             # force purging existing postgres when init a pgsql instance
 ./pgsql-rm.yml -e pg_uninstall=true      # explicitly uninstall rpm after postgres instance is removed
-./redis.yml -l 10.10.10.11 -e redis_port=6501 -t redis  # init a specific redis instance: 10.10.10.11:6501
-./redis-rm.yml -l 10.10.10.13 -e redis_port=6501        # remove a specific redis instance: 10.10.10.11:6501
+./redis.yml -l 10.10.10.10 -e redis_port=6379 -t redis  # init a specific redis instance: 10.10.10.11:6379
+./redis-rm.yml -l 10.10.10.13 -e redis_port=6379        # remove a specific redis instance: 10.10.10.11:6379
 ```
 
 

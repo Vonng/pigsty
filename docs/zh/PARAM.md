@@ -173,6 +173,7 @@
 | 730 | [`redis_aof_enabled`](#redis_aof_enabled)                       | [`REDIS`](#redis) |         [`REDIS`](#redis)         | bool        | C     | Redis AOF 是否启用？                                                                 |
 | 731 | [`redis_rename_commands`](#redis_rename_commands)               | [`REDIS`](#redis) |         [`REDIS`](#redis)         | dict        | C     | Redis危险命令重命名列表                                                                  |
 | 732 | [`redis_cluster_replicas`](#redis_cluster_replicas)             | [`REDIS`](#redis) |         [`REDIS`](#redis)         | int         | C     | Redis原生集群中每个主库配几个从库？                                                            |
+| 733 | [`redis_sentinel_monitor`](#redis_sentinel_monitor)             | [`REDIS`](#redis) |         [`REDIS`](#redis)         | master[]    | C     | Redis哨兵监控的主库列表，只在哨兵集群上使用       |
 | 801 | [`pg_mode`](#pg_mode)                                           | [`PGSQL`](#pgsql) |         [`PG_ID`](#pg_id)         | enum        | C     | pgsql 集群模式: pgsql,citus,gpsql                                                   |
 | 802 | [`pg_cluster`](#pg_cluster)                                     | [`PGSQL`](#pgsql) |         [`PG_ID`](#pg_id)         | string      | C     | pgsql 集群名称, 必选身份参数                                                              |
 | 803 | [`pg_seq`](#pg_seq)                                             | [`PGSQL`](#pgsql) |         [`PG_ID`](#pg_id)         | int         | I     | pgsql 实例号, 必选身份参数                                                               |
@@ -3019,20 +3020,20 @@ Redis节点序列号，身份参数，必选参数，必须显式在节点（Hos
 内容为JSON KV对象格式。Key为数值类型端口号，Value为该实例特定的JSON配置项。
 
 ```yaml
-redis-test: # redis 原生集群：3主3从
+redis-test: # redis native cluster: 3m x 3s
   hosts:
-    10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
-    10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
-  vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
+    10.10.10.12: { redis_node: 1 ,redis_instances: { 6379: { } ,6380: { } ,6381: { } } }
+    10.10.10.13: { redis_node: 2 ,redis_instances: { 6379: { } ,6380: { } ,6381: { } } }
+  vars: { redis_cluster: redis-test ,redis_password: 'redis.test' ,redis_mode: cluster, redis_max_memory: 32MB }
 ```
 
 每一个Redis实例在对应节点上监听一个唯一端口，实例配置项中`replica_of` 用于设置一个实例的上游主库地址，构建主从复制关系。
 
 ```yaml
 redis_instances:
-    6501: {}
-    6502: { replica_of: '10.10.10.13 6501' }
-    6503: { replica_of: '10.10.10.13 6501' }
+    6379: {}
+    6380: { replica_of: '10.10.10.13 6379' }
+    6381: { replica_of: '10.10.10.13 6379' }
 ```
 
 
@@ -3268,6 +3269,20 @@ Redis RDB 保存指令，使用空列表则禁用 RDB。
 在 Redis 原生集群中，应当为一个 Master/Primary 实例配置多少个从库？默认值为： `1`，即每个主库配一个从库。
 
 
+
+### `redis_sentinel_monitor`
+
+参数名称： `redis_sentinel_monitor`， 类型： `master[]`， 层次：`C`
+
+Redis哨兵监控的主库列表，只在哨兵集群上使用。每个待纳管的主库定义方式如下所示：
+
+```yaml
+redis_sentinel_monitor:  # primary list for redis sentinel, use cls as name, primary ip:port
+  - { name: redis-src, host: 10.10.10.45, port: 6379 ,password: redis.src, quorum: 1 }
+  - { name: redis-dst, host: 10.10.10.48, port: 6379 ,password: redis.dst, quorum: 1 }
+```
+
+其中，`name`，`host` 是必选参数，`port`，`password`，`quorum` 是可选参数，`quorum` 用于设置判定主库失效所需的法定人数数，通常大于哨兵实例数的一半（默认为1）。
 
 
 

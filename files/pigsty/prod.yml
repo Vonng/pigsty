@@ -3,7 +3,7 @@
 # File      :   prod.yml
 # Desc      :   Pigsty config for a prod simulation env on a BM
 # Ctime     :   2023-07-20
-# Mtime     :   2023-08-17
+# Mtime     :   2023-09-14
 # Docs      :   https://doc.pigsty.cc/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -408,24 +408,25 @@ all:
           - { user: 'all' ,db: all  ,addr: intra         ,auth: ssl   ,title: 'all user ssl access from intranet'  }
 
 
-
-
     #==========================================================#
     # redis-meta: reuse the 5 etcd nodes as redis sentinel
     #==========================================================#
     # ./redis.yml -l redis-meta
     redis-meta:
       hosts:
-        10.10.10.21: { redis_node: 1 , redis_instances: { 6001: {} } }
-        10.10.10.22: { redis_node: 2 , redis_instances: { 6001: {} } }
-        10.10.10.23: { redis_node: 3 , redis_instances: { 6001: {} } }
-        10.10.10.24: { redis_node: 4 , redis_instances: { 6001: {} } }
-        10.10.10.25: { redis_node: 5 , redis_instances: { 6001: {} } }
+        10.10.10.21: { redis_node: 1 , redis_instances: { 26379: {} } }
+        10.10.10.22: { redis_node: 2 , redis_instances: { 26379: {} } }
+        10.10.10.23: { redis_node: 3 , redis_instances: { 26379: {} } }
+        10.10.10.24: { redis_node: 4 , redis_instances: { 26379: {} } }
+        10.10.10.25: { redis_node: 5 , redis_instances: { 26379: {} } }
       vars:
         redis_cluster: redis-meta
         redis_password: 'redis.meta'
         redis_mode: sentinel
         redis_max_memory: 256MB
+        redis_sentinel_monitor:  # primary list for redis sentinel, use cls as name, primary ip:port
+          - { name: redis-src, host: 10.10.10.45, port: 6379 ,password: redis.src, quorum: 1 }
+          - { name: redis-dst, host: 10.10.10.48, port: 6379 ,password: redis.dst, quorum: 1 }
 
 
     #==========================================================#
@@ -434,9 +435,9 @@ all:
     # ./redis.yml -l redis-src
     redis-src:
       hosts:
-        10.10.10.45: { redis_node: 1 , redis_instances: {6501: {  }                               }}
-        10.10.10.46: { redis_node: 2 , redis_instances: {6501: { replica_of: '10.10.10.45 6501' }, 6502: { replica_of: '10.10.10.46 6501' } }}
-        10.10.10.47: { redis_node: 3 , redis_instances: {6501: { replica_of: '10.10.10.45 6501' }, 6502: { replica_of: '10.10.10.47 6501' } }}
+        10.10.10.45: { redis_node: 1 , redis_instances: {6379: {  }                               }}
+        10.10.10.46: { redis_node: 2 , redis_instances: {6379: { replica_of: '10.10.10.45 6379' }, 6380: { replica_of: '10.10.10.46 6379' } }}
+        10.10.10.47: { redis_node: 3 , redis_instances: {6379: { replica_of: '10.10.10.45 6379' }, 6380: { replica_of: '10.10.10.47 6379' } }}
       vars:
         redis_cluster: redis-src
         redis_password: 'redis.src'
@@ -448,8 +449,8 @@ all:
     # ./redis.yml -l redis-dst
     redis-dst:
       hosts:
-        10.10.10.48: { redis_node: 1 , redis_instances: {6501: {  }                               }}
-        10.10.10.49: { redis_node: 2 , redis_instances: {6501: { replica_of: '10.10.10.48 6501' } }}
+        10.10.10.48: { redis_node: 1 , redis_instances: {6379: {  }                               }}
+        10.10.10.49: { redis_node: 2 , redis_instances: {6379: { replica_of: '10.10.10.48 6379' } }}
       vars:
         redis_cluster: redis-dst
         redis_password: 'redis.dst'
@@ -461,12 +462,12 @@ all:
     # ./node.yml -l redis-test; ./redis.yml -l redis-test
     redis-test:
       hosts:
-        10.10.10.81: { redis_node: 1 ,redis_instances: { 6501: {} ,6502: {} ,6503: {} } }
-        10.10.10.82: { redis_node: 2 ,redis_instances: { 6501: {} ,6502: {} ,6503: {} } }
-        10.10.10.83: { redis_node: 3 ,redis_instances: { 6501: {} ,6502: {} ,6503: {} } }
-        10.10.10.84: { redis_node: 4 ,redis_instances: { 6501: {} ,6502: {} ,6503: {} } }
-        10.10.10.85: { redis_node: 5 ,redis_instances: { 6501: {} ,6502: {} ,6503: {} } }
-        10.10.10.86: { redis_node: 6 ,redis_instances: { 6501: {} ,6502: {} ,6503: {} } }
+        10.10.10.81: { redis_node: 1 ,redis_instances: { 6379: {} ,6380: {} ,6381: {} } }
+        10.10.10.82: { redis_node: 2 ,redis_instances: { 6379: {} ,6380: {} ,6381: {} } }
+        10.10.10.83: { redis_node: 3 ,redis_instances: { 6379: {} ,6380: {} ,6381: {} } }
+        10.10.10.84: { redis_node: 4 ,redis_instances: { 6379: {} ,6380: {} ,6381: {} } }
+        10.10.10.85: { redis_node: 5 ,redis_instances: { 6379: {} ,6380: {} ,6381: {} } }
+        10.10.10.86: { redis_node: 6 ,redis_instances: { 6379: {} ,6380: {} ,6381: {} } }
       vars:
         redis_cluster: redis-test
         redis_password: 'redis.test'

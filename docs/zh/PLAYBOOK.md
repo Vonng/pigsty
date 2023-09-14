@@ -140,8 +140,8 @@ Pigsty 将在 [准备](install#准备) 期间在 `admin` 节点上安装 `ansibl
 ./node.yml -e ansible_user=admin -k -K                  # 作为另一个用户运行剧本（带有 admin sudo 密码）
 ./pgsql.yml -e pg_clean=true                            # 在初始化 pgsql 实例时强制清除现有的 postgres
 ./pgsql-rm.yml -e pg_uninstall=true                     # 在 postgres 实例被删除后明确卸载 rpm
-./redis.yml -l 10.10.10.11 -e redis_port=6501 -t redis  # 初始化一个特定的 redis 实例：10.10.10.11:6501
-./redis-rm.yml -l 10.10.10.13 -e redis_port=6501        # 删除一个特定的 redis 实例：10.10.10.11:6501
+./redis.yml -l 10.10.10.11 -e redis_port=6379 -t redis  # 初始化一个特定的 redis 实例：10.10.10.11:6379
+./redis-rm.yml -l 10.10.10.13 -e redis_port=6379        # 删除一个特定的 redis 实例：10.10.10.11:6379
 ```
 
 大多数剧本都是幂等的，这意味着在未打开保护选项的情况下，一些部署剧本可能会 **删除现有的数据库** 并创建新的数据库。

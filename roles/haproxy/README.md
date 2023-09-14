@@ -44,12 +44,12 @@ haproxy_services:                   # list of haproxy service
   - name: redis-test
     port: 5441
     servers:
-      - { name: redis-test-1-6501 , ip: 10.10.10.11 , port: 6501 , options: check }
-      - { name: redis-test-1-6502 , ip: 10.10.10.11 , port: 6502 , options: check }
-      - { name: redis-test-1-6503 , ip: 10.10.10.11 , port: 6503 , options: check }
-      - { name: redis-test-2-6501 , ip: 10.10.10.12 , port: 6501 , options: check }
-      - { name: redis-test-2-6502 , ip: 10.10.10.12 , port: 6502 , options: check }
-      - { name: redis-test-2-6503 , ip: 10.10.10.12 , port: 6503 , options: check }
+      - { name: redis-test-1-6379 , ip: 10.10.10.11 , port: 6379 , options: check }
+      - { name: redis-test-1-6380 , ip: 10.10.10.11 , port: 6380 , options: check }
+      - { name: redis-test-1-6381 , ip: 10.10.10.11 , port: 6381 , options: check }
+      - { name: redis-test-2-6379 , ip: 10.10.10.12 , port: 6379 , options: check }
+      - { name: redis-test-2-6380 , ip: 10.10.10.12 , port: 6380 , options: check }
+      - { name: redis-test-2-6381 , ip: 10.10.10.12 , port: 6381 , options: check }
 ```
 
 Append services and reload them

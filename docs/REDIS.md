@@ -53,18 +53,24 @@ Here are three examples:
 
 ```yaml
 redis-ms: # redis classic primary & replica
-  hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6501: { }, 6502: { replica_of: '10.10.10.10 6501' } } } }
-  vars: { redis_cluster: redis-ms ,redis_max_memory: 64MB }
+  hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6379: { }, 6380: { replica_of: '10.10.10.10 6379' } } } }
+  vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
 
 redis-meta: # redis sentinel x 3
-  hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 6001: { } ,6002: { } , 6003: { } } } }
-  vars: { redis_cluster: redis-meta, redis_mode: sentinel ,redis_max_memory: 16MB }
+  hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 26379: { } ,26380: { } ,26381: { } } } }
+  vars:
+    redis_cluster: redis-meta
+    redis_password: 'redis.meta'
+    redis_mode: sentinel
+    redis_max_memory: 16MB
+    redis_sentinel_monitor: # primary list for redis sentinel, use cls as name, primary ip:port
+      - { name: redis-ms, host: 10.10.10.10, port: 6379 ,password: redis.ms, quorum: 2 }
 
 redis-test: # redis native cluster: 3m x 3s
   hosts:
-    10.10.10.12: { redis_node: 1 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
-    10.10.10.13: { redis_node: 2 ,redis_instances: { 6501: { } ,6502: { } ,6503: { } } }
-  vars: { redis_cluster: redis-test ,redis_mode: cluster, redis_max_memory: 32MB }
+    10.10.10.12: { redis_node: 1 ,redis_instances: { 6379: { } ,6380: { } ,6381: { } } }
+    10.10.10.13: { redis_node: 2 ,redis_instances: { 6379: { } ,6380: { } ,6381: { } } }
+  vars: { redis_cluster: redis-test ,redis_password: 'redis.test' ,redis_mode: cluster, redis_max_memory: 32MB }
 ```
 
 **Limitation**
@@ -98,8 +104,8 @@ Here are some common administration tasks for Redis. Check [FAQ: Redis](FAQ#REDI
 # init redis node
 ./redis.yml -l 10.10.10.10    # init redis node
 
-# init one specific redis instance 10.10.10.11:6501
-./redis.yml -l 10.10.10.11 -e redis_port=6501 -t redis
+# init one specific redis instance 10.10.10.11:6379
+./redis.yml -l 10.10.10.11 -e redis_port=6379 -t redis
 ```
 
 You can also use wrapper script:
@@ -107,7 +113,7 @@ You can also use wrapper script:
 ```bash
 bin/redis-add redis-ms          # create redis cluster 'redis-ms'
 bin/redis-add 10.10.10.10       # create redis node '10.10.10.10'
-bin/redis-add 10.10.10.10 6501  # create redis instance '10.10.10.10:6501'
+bin/redis-add 10.10.10.10 6379  # create redis instance '10.10.10.10:6379'
 ```
 
 -------------
@@ -126,8 +132,8 @@ redis-rm.yml -l redis-test -e redis_uninstall=true
 # Remove all instance on redis node 10.10.10.13
 redis-rm.yml -l 10.10.10.13
 
-# Remove one specific instance 10.10.10.13:6501
-redis-rm.yml -l 10.10.10.13 -e redis_port=6501
+# Remove one specific instance 10.10.10.13:6379
+redis-rm.yml -l 10.10.10.13 -e redis_port=6379
 ```
 
 You can also use wrapper script:
@@ -135,8 +141,21 @@ You can also use wrapper script:
 ```bash
 bin/redis-rm redis-ms          # remove redis cluster 'redis-ms'
 bin/redis-rm 10.10.10.10       # remove redis node '10.10.10.10'
-bin/redis-rm 10.10.10.10 6501  # remove redis instance '10.10.10.10:6501'
+bin/redis-rm 10.10.10.10 6379  # remove redis instance '10.10.10.10:6379'
 ```
+
+-------------
+
+### Reconfigure Redis
+
+You can partially run [`redis.yml`](#redisyml) tasks to re-configure redis.
+
+```bash
+./redis.yml -l <cluster> -t redis_config,redis_launch
+```
+
+Beware that redis can not be reload online, you have to restart redis to make config effective.
+
 
 -------------
 
@@ -145,19 +164,19 @@ bin/redis-rm 10.10.10.10 6501  # remove redis instance '10.10.10.10:6501'
 Access redis instance with `redis-cli`:
 
 ```bash
-$ redis-cli -h 10.10.10.10 -p 6501 # <--- connect with host and port
-10.10.10.10:6501> auth redis.ms    # <--- auth with password
+$ redis-cli -h 10.10.10.10 -p 6379 # <--- connect with host and port
+10.10.10.10:6379> auth redis.ms    # <--- auth with password
 OK
-10.10.10.10:6501> set a 10         # <--- set a key
+10.10.10.10:6379> set a 10         # <--- set a key
 OK
-10.10.10.10:6501> get a            # <--- get a key back
+10.10.10.10:6379> get a            # <--- get a key back
 "10"
 ```
 
 Redis also has a `redis-benchmark` which can be used for benchmark and generate load on redis server:
 
 ```bash
-redis-benchmark -h 10.10.10.13 -p 6501
+redis-benchmark -h 10.10.10.13 -p 6379
 ```
 
 -------------
@@ -170,12 +189,26 @@ Take the 4-node sandbox as an example, a redis sentinel cluster `redis-meta` is 
 
 ```bash
 # for each sentinel, add redis master to the sentinel with:
-$ redis-cli -h 10.10.10.11 -p 6501 -a redis.meta
-10.10.10.11:6501> SENTINEL MONITOR redis-ms 10.10.10.10 6501 1
-10.10.10.11:6501> SENTINEL SET redis-ms auth-pass redis.ms      # if auth enabled, password has to be configured 
+$ redis-cli -h 10.10.10.11 -p 26379 -a redis.meta
+10.10.10.11:26379> SENTINEL MONITOR redis-ms 10.10.10.10 6379 1
+10.10.10.11:26379> SENTINEL SET redis-ms auth-pass redis.ms      # if auth enabled, password has to be configured
 ```
 
+If you wish to remove a redis master from sentinel, use `SENTINEL REMOVE <name>`.
 
+You can configure multiple redis master on sentinel cluster with [`redis_sentinel_monitor`](PARAM#redis_sentinel_monitor).
+
+```yaml
+redis_sentinel_monitor: # primary list for redis sentinel, use cls as name, primary ip:port
+  - { name: redis-src, host: 10.10.10.45, port: 6379 ,password: redis.src, quorum: 1 }
+  - { name: redis-dst, host: 10.10.10.48, port: 6379 ,password: redis.dst, quorum: 1 }
+```
+
+And refresh master list on sentinel cluster with:
+
+```bash
+./redis.yml -l redis-meta -t redis-ha   # replace redis-meta if your sentinel cluster has different name
+```
 
 
 ----------------
@@ -187,20 +220,46 @@ There are two playbooks for redis:
 - [`redis.yml`](https://github.com/Vonng/pigsty/blob/master/redis.yml): create redis cluster / node / instance
 - [`redis-rm.yml`](https://github.com/Vonng/pigsty/blob/master/redis-rm.yml): remove redis cluster /node /instance
 
-You can also create & destroy redis cluster/node/instance with util scripts:
+### `redis.yml`
+
+The playbook  [`redis.yml`](https://github.com/Vonng/pigsty/blob/master/redis.yml) will init redis cluster/node/instance：
 
 ```bash
-bin/redis-add redis-ms          # create redis cluster 'redis-ms'
-bin/redis-add 10.10.10.10       # create redis node '10.10.10.10'
-bin/redis-add 10.10.10.10 6501  # create redis instance '10.10.10.10:6501'
-
-bin/redis-rm redis-ms           # remove redis cluster 'redis-ms'
-bin/redis-rm 10.10.10.10        # remove redis node '10.10.10.10'
-bin/redis-rm 10.10.10.10 6501   # remove redis instance '10.10.10.10:6501'
+redis_node        : init redis node
+  - redis_install : install redis & redis_exporter
+  - redis_user    : create os user redis
+  - redis_dir     # redis redis fhs
+redis_exporter    : config and launch redis_exporter
+  - redis_exporter_config  : generate redis_exporter config
+  - redis_exporter_launch  : launch redis_exporter
+redis_instance    : config and launch redis cluster/node/instance
+  - redis_check   : check redis instance existence
+  - redis_clean   : purge existing redis instance
+  - redis_config  : generate redis instance config
+  - redis_launch  : launch redis instance
+redis_register    : register redis to prometheus
+redis_ha          : setup redis sentinel
+redis_join        : join redis cluster
 ```
 
+<details><summary>Example: Init redis cluster</summary>
 
 [![asciicast](https://asciinema.org/a/568808.svg)](https://asciinema.org/a/568808)
+
+</details>
+
+
+### `redis-rm.yml`
+
+The playbook [`redis-rm.yml`](https://github.com/Vonng/pigsty/blob/master/redis.yml) will remove redis cluster/node/instance:
+
+```bash
+- register       : remove monitor target from prometheus
+- redis_exporter : stop and disable redis_exporter
+- redis          : stop and disable redis cluster/node/instance
+- redis_data     : remove redis data (rdb, aof)
+- redis_pkg      : uninstall redis & redis_exporter packages
+```
 
 
 
@@ -270,6 +329,7 @@ There 20 parameters in the redis module.
 | [`redis_aof_enabled`](PARAM#redis_aof_enabled)           |   bool   |   C   | enable redis append only file?                     |
 | [`redis_rename_commands`](PARAM#redis_rename_commands)   |   dict   |   C   | rename redis dangerous commands                    |
 | [`redis_cluster_replicas`](PARAM#redis_cluster_replicas) |   int    |   C   | replica number for one master in redis cluster     |
+| [`redis_sentinel_monitor`](PARAM#redis_sentinel_monitor) | master[] |   C   | sentinel master list, sentinel cluster only        |
 
 
 ```yaml
@@ -293,4 +353,5 @@ redis_rdb_save: ['1200 1']        # redis rdb save directives, disable with empt
 redis_aof_enabled: false          # enable redis append only file?
 redis_rename_commands: {}         # rename redis dangerous commands
 redis_cluster_replicas: 1         # replica number for one master in redis cluster
+redis_sentinel_monitor: []        # sentinel master list, works on sentinel cluster only
 ```

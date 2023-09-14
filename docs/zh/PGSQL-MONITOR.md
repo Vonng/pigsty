@@ -63,6 +63,8 @@ Prometheus的监控目标在 `/etc/prometheus/targets/pgsql/` 下的静态文件
 bin/pgmon-rm <ins>      # 从所有infra节点中移除prometheus监控目标
 ```
 
+当您监控现有 RDS ，已有的 PostgreSQL 实例时，监控目标会被单独放置于： `/etc/prometheus/targets/pgrds/` 目录下，并以集群为单位进行管理。
+
 
 
 ----------------

@@ -1434,6 +1434,7 @@ INSERT INTO pigsty.default_var VALUES
 (730, 'redis_aof_enabled', 'false', 'REDIS', 'REDIS', 'bool', 'C', 'enable redis append only file?', NULL),
 (731, 'redis_rename_commands', '{}', 'REDIS', 'REDIS', 'dict', 'C', 'rename redis dangerous commands', NULL),
 (732, 'redis_cluster_replicas', '1', 'REDIS', 'REDIS', 'int', 'C', 'replica number for one master in redis cluster', NULL),
+(733, 'redis_sentinel_monitor', '[]', 'REDIS', 'REDIS', 'master[]', 'C', 'sentinel master list, works on sentinel cluster only', NULL),
 
 -- PGSQL PARAMETERS
 (801, 'pg_mode', '"pgsql"', 'PGSQL', 'PG_ID', 'enum', 'C', 'pgsql cluster mode: pgsql,citus,gpsql', NULL),

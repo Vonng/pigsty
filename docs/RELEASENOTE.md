@@ -2,6 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v3.0.0](#v300) | 2023-09-21 | PG16, RDS Monitor, New Extensions                        | [v3.0.0](https://github.com/Vonng/pigsty/releases/tag/v3.0.0)                             |
 | [v2.3.1](#v231) | 2023-09-01 | PGVector with HNSW, PG16 RC1, Chinese Docs, Bug Fix      | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.1](#v230) | 2023-08-20 | PGSQL/REDIS Update, NODE VIP, Mongo/FerretDB, MYSQL Stub | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.2.0](#v220) | 2023-08-04 | Dashboard & Provision overhaul, UOS compatibility        | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
@@ -36,6 +37,28 @@
 
 ----------------
 
+## v3.0.0 (WIP)
+
+Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"`.
+
+**Highlights**
+
+- PostgreSQL 16 support
+- The first LTS version
+- Monitoring existing PostgreSQL, RDS for PostgreSQL / PolarDB with PGRDS Dashboards
+- New extension: Apache AGE, openCypher graph query engine on PostgreSQL
+- New extension: zhparser, full text search for Chinese language
+- New extension: pg_roaringbitmap, roaring bitmap for PostgreSQL
+- New extension: pg_embedding, hnsw alternative to pgvector
+- New extension: pg_tle, admin / manage stored procedure extensions
+- New extension: pgsql-http, issue http request with SQL interface
+- Add extensions: pg_auth_mon pg_checksums pg_failover_slots pg_readonly postgresql-unit pg_store_plans pg_uuidv7 set_user
+- Business support and consulting service
+- Redis enhancement: add monitoring panels for redis sentinel, and auto HA configuration for redis ms cluster.
+
+
+----------------
+
 ## v2.3.1
 
 Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`.
@@ -44,7 +67,7 @@ Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`.
 
 * PGVector 0.5 with HNSW index support
 * PostgreSQL 16 RC1 for el8/el9
-** Adding SealOS for kubernetes support
+ Adding SealOS for kubernetes support
 
 **Bug Fix**
 
