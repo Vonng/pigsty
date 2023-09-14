@@ -167,8 +167,8 @@ echo ${PKG_URL} && curl -L ${PKG_URL} -o /tmp/pkg.tgz
 For example, Pigsty v2.4.0 on EL7.x86_64 will have the following packages:
 
 ```bash
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-pkg-v2.3.1.el7.x86_64.tgz  -o /tmp/pkg.tgz
-curl -L https://get.pigsty.cc/v2.3.1/pigsty-pkg-v2.3.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-pkg-v2.4.0.el7.x86_64.tgz  -o /tmp/pkg.tgz
+curl -L https://get.pigsty.cc/v2.4.0/pigsty-pkg-v2.4.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
 ```
 
 > Not all combinations of OS and architecture are supported yet. Please check the official release page.
@@ -226,7 +226,7 @@ It will also download / extract / setup the offline [packages](#offline-packages
 If `/tmp/pkg.tgz` already exists, bootstrap will use it directly:
 
 ```bash
-bootstrap pigsty v2.3.1 begin
+bootstrap pigsty v2.4.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -250,7 +250,7 @@ proceed with ./configure
 Download `pkg.tgz` from GitHub and extract it:
 
 ```bash
-bootstrap pigsty v2.3.1 begin
+bootstrap pigsty v2.4.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -258,7 +258,7 @@ bootstrap pigsty v2.3.1 begin
 [ OK ] sudo = vagrant ok
 [ IN ] Cache /tmp/pkg.tgz not exists, download? (y/n):
 => y
-[ OK ] download from Github https://get.pigsty.cc/v2.3.1/pigsty-pkg-v2.3.1.el7.x86_64.tgz to /tmp/pkg.tgz
+[ OK ] download from Github https://get.pigsty.cc/v2.4.0/pigsty-pkg-v2.4.0.el7.x86_64.tgz to /tmp/pkg.tgz
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100  913M  100  913M    0     0   661k      0  0:23:33  0:23:33 --:--:--  834k
@@ -346,7 +346,7 @@ When `-n|--non-interactive` is specified, you have to specify a primary IP addre
 
 ```bash
 [vagrant@meta pigsty]$ ./configure
-configure pigsty v2.3.1 begin
+configure pigsty v2.4.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64

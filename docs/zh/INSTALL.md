@@ -143,10 +143,10 @@ curl -L https://get.pigsty.cc/v2.4.0/pigsty-pkg-v2.4.0.el8.x86_64.tgz -o /tmp/pk
 curl -L https://get.pigsty.cc/v2.4.0/pigsty-pkg-v2.4.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
 
 # GITHUB EL 7,8,9
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-v2.3.1.tgz -o ~/pigsty.tgz                 # 源码
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.1/pigsty-pkg-v2.3.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.1/pigsty-pkg-v2.3.1.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.3.1/pigsty-pkg-v2.3.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-v2.4.0.tgz -o ~/pigsty.tgz                 # 源码
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-pkg-v2.4.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-pkg-v2.4.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-pkg-v2.4.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
 ```
 
 
@@ -196,7 +196,7 @@ Bootstrap 的详细逻辑如下：
 如果离线软件包存在于 `/tmp/pkg.tgz`， bootstrap 会直接使用它：
 
 ```bash
-bootstrap pigsty v2.3.1 begin
+bootstrap pigsty v2.4.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -220,7 +220,7 @@ proceed with ./configure
 从 Github/CDN 下载 `pkg.tgz` 并解压使用：
 
 ```bash
-bootstrap pigsty v2.3.1 begin
+bootstrap pigsty v2.4.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -228,7 +228,7 @@ bootstrap pigsty v2.3.1 begin
 [ OK ] sudo = vagrant ok
 [ IN ] Cache /tmp/pkg.tgz not exists, download? (y/n):
 => y
-[ OK ] download from Github https://get.pigsty.cc/v2.3.1/pigsty-pkg-v2.3.1.el7.x86_64.tgz to /tmp/pkg.tgz
+[ OK ] download from Github https://get.pigsty.cc/v2.4.0/pigsty-pkg-v2.4.0.el7.x86_64.tgz to /tmp/pkg.tgz
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100  913M  100  913M    0     0   661k      0  0:23:33  0:23:33 --:--:--  834k
@@ -317,7 +317,7 @@ proceed with ./configure
 
 ```bash
 [vagrant@meta pigsty]$ ./configure
-configure pigsty v2.3.1 begin
+configure pigsty v2.4.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
