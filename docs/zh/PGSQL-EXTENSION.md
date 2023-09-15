@@ -7,8 +7,7 @@ Pigsty 收录了超过 140 个 PostgreSQL 扩展插件，并编译打包整合�
 使用 [Citus](https://www.citusdata.com/) 将单机数据库原地改造为水平扩展的分布式集群，使用 [PGVector](https://github.com/pgvector/pgvector) 存储并搜索 AI 嵌入，
 使用 [Apache AGE](https://age.apache.org/) 进行图数据存储与检索实现 Neo4J 的效果，使用 [zhparser](https://github.com/amutu/zhparser) 进行中文分词实现 ElasticSearch 的效果。
 
-绝大多数插件插件都已经收录放置在基础设施节点上的 yum 软件源中，可以直接通过 PGSQL [集群配置](#扩展安装) 自动启用，或使用 yum 命令[手工安装](#手工安装扩展)。
-Pigsty还包含了完整的编译环境与基础设施，允许您方便地自行[编译加装](#扩展编译)其他没有收录的扩展。
+绝大多数插件插件都已经收录放置在基础设施节点上的本地软件源中，可以直接通过 PGSQL [集群配置](#扩展安装) 自动启用，或使用 `yum` 命令[手工安装](#手工安装扩展)。Pigsty 还包含了完整的编译环境与基础设施，允许您方便地自行[编译加装](#扩展编译)其他未收录的扩展。
 
 
 
@@ -37,7 +36,7 @@ Pigsty还包含了完整的编译环境与基础设施，允许您方便地自�
 
 
 | name                         | version | source     | type   | comment                                                      |
-| ---------------------------- | ------- | ---------- | ------ | ------------------------------------------------------------ |
+| ---------------------------- | :-----: | :--------: | :----: | ------------------------------------------------------------ |
 | **age**                      | 1.4.0   | PIGSTY      | FEAT      | Apache AGE graph database extension                          |
 | **embedding**                | 0.3.6   | PIGSTY      | FEAT      | Vector similarity search with the HNSW algorithm             |
 | **http**                     | 1.6     | PIGSTY      | FEAT      | HTTP client for PostgreSQL, allows web page retrieval inside the database. |

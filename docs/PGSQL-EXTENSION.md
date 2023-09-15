@@ -1,8 +1,6 @@
 # PostgreSQL Extensions
 
-Extensions are the soul of PostgreSQL, and Pigsty deeply integrates the core extension plugins of the PostgreSQL ecosystem,
-providing you with battery-included distributed temporal, geospatial text, graph, and vector database capabilities!
-See the [extension list](PGSQL-EXTENSION#extension-list) for details.
+Extensions are the soul of PostgreSQL, and Pigsty deeply integrates the core extension plugins of the PostgreSQL ecosystem, providing you with battery-included distributed temporal, geospatial text, graph, and vector database capabilities! Check [extension list](PGSQL-EXTENSION#extension-list) for details.
 
 Pigsty includes over 140+ PostgreSQL extension plugins and has compiled, packaged, integrated, and maintained many extensions not included in the official PGDG source. It also ensures through thorough testing that all these plugins can work together seamlessly. Including some potent extensions, such as [PostGIS](https://postgis.net/) to process geospatial data, [TimescaleDB](https://www.timescale.com/) to analyze time series/event stream data,  [Citus](https://www.citusdata.com/) to transform a standalone database into a horizontally scalable distributed cluster,  [PGVector](https://github.com/pgvector/pgvector) to store and search AI embeddings, [Apache AGE](https://age.apache.org/) for graph data storage and retrieval to works like Neo4J, and [zhparser](https://github.com/amutu/zhparser) for Chinese word segmentation to work like ElasticSearch.
 
@@ -33,7 +31,7 @@ Among them, the bolded names are core extension plugins, including: `postgis`, `
 
 
 | name                         | version | source     | type   | comment                                                      |
-| ---------------------------- | ------- | ---------- | ------ | ------------------------------------------------------------ |
+| ---------------------------- | :-----: | :--------: | :----: | ------------------------------------------------------------ |
 | **age**                      | 1.4.0   | PIGSTY      | FEAT      | Apache AGE graph database extension                          |
 | **embedding**                | 0.3.6   | PIGSTY      | FEAT      | Vector similarity search with the HNSW algorithm             |
 | **http**                     | 1.6     | PIGSTY      | FEAT      | HTTP client for PostgreSQL, allows web page retrieval inside the database. |
