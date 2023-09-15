@@ -125,6 +125,31 @@ psql 'postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta?sslkey=/path/to/dbu
   - 某个特定的数据库
 
 
+### 3. 定义位置
+
+通常，全局的HBA定义在 `all.vars` 中，如果您想要修改全局默认的HBA规则，可以从 [`full.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/full.yml#L690) 模板中复制一份到 `all.vars` 中进行修改。
+
+- [`pg_default_hba_rules`](PARAM#pg_default_hba_rules)：postgres 全局默认HBA规则
+- [`pgb_default_hba_rules`](PARAM#pgb_default_hba_rules)：pgbouncer 全局默认HBA规则
+
+而集群特定的 HBA 规则定义在数据库的集群级配置中：
+
+- [`pg_hba_rules`](PARAM#pg_hba_rules)：postgres HBA规则
+- [`pgb_hba_rules`](PARAM#pgb_hba_rules)：pgbouncer HBA规则
+
+下面是一些集群HBA规则的定义例子：
+
+```yaml
+pg-meta:
+  hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+  vars:
+    pg_cluster: pg-meta
+    pg_hba_rules:
+      - { user: dbuser_view ,db: all    ,addr: infra        ,auth: pwd  ,title: '允许 dbuser_view 从基础设施节点密码访问所有库'}
+      - { user: all         ,db: all    ,addr: 100.0.0.0/8  ,auth: pwd  ,title: '允许所有用户从K8S网段密码访问所有库'          }
+      - { user: '${admin}'  ,db: world  ,addr: 0.0.0.0/0    ,auth: cert ,title: '允许管理员用户从任何地方用客户端证书登陆'       }
+```
+
 
 
 ----------------

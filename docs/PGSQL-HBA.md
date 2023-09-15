@@ -120,6 +120,30 @@ The alias form, which replace `rules` with `addr`, `auth`, `user`, and `db` fiel
   - ad hoc database name
 
 
+### 3. Where to Define
+
+Typically, global HBA is defined in all.vars. If you want to modify the global default HBA rules, you can copy from the full.yml template to all.vars for modification.
+- [`pg_default_hba_rules`](PARAM#pg_default_hba_rules): postgres global default HBA rules
+- [`pgb_default_hba_rules`](PARAM#pgb_default_hba_rules): pgbouncer global default HBA rules
+
+Cluster-specific HBA rules are defined in the cluster-level configuration of the database:
+
+- [`pg_hba_rules`](PARAM#pg_hba_rules): postgres HBA rules for the cluster
+- [`pgb_hba_rules`](PARAM#pgb_hba_rules)：pgbouncer HBA rules for the cluster
+
+Here are some examples of cluster HBA rule definitions.
+
+```yaml
+pg-meta:
+  hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+  vars:
+    pg_cluster: pg-meta
+    pg_hba_rules:
+      - { user: dbuser_view ,db: all    ,addr: infra        ,auth: pwd  ,title: 'allow grafana dashboard access cmdb from infra nodes'}
+      - { user: all         ,db: all    ,addr: 100.0.0.0/8  ,auth: pwd  ,title: 'all user access all db from kubernetes cluster' }
+      - { user: '${admin}'  ,db: world  ,addr: 0.0.0.0/0    ,auth: cert ,title: 'all admin world access with client cert'        }
+```
+
 
 
 ---------------------
