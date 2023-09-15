@@ -588,6 +588,7 @@ psql -h pg-test -d postgres -c 'CREATE EXTENSION pg_cron;'  # 在主库上安装
 
 </details>
 
+更多细节，请参考[PGSQL扩展安装](PGSQL-EXTENSION#扩展安装)。
 
 
 ----------------

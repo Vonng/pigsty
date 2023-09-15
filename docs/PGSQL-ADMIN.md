@@ -585,6 +585,7 @@ psql -h pg-test -d postgres -c 'CREATE EXTENSION pg_cron;'  # install pg_cron on
 
 </details>
 
+Check [PGSQL Extensions: Install](PGSQL-EXTENSION#install-extension) for details.
 
 
 ----------------

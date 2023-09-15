@@ -30,6 +30,7 @@
   - [Administration](PGSQL-ADMIN)
   - [Backup & PITR](PGSQL-PITR)
   - [Playbooks](PGSQL-PLAYBOOK)
+  - [Extensions](PGSQL-EXTENSION)
   - [Monitoring](PGSQL-MONITOR)
   - [Dashboards](PGSQL-DASHBOARD)
   - [Migration](PGSQL-MIGRATION)

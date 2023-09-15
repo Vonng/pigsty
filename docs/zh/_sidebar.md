@@ -30,6 +30,7 @@
   - [管理预案](PGSQL-ADMIN)
   - [备份恢复](PGSQL-PITR)
   - [预置剧本](PGSQL-PLAYBOOK)
+  - [扩展插件](PGSQL-EXTENSION)
   - [监控接入](PGSQL-MONITOR)
   - [集群迁移](PGSQL-MIGRATION)
   - [仪表盘](PGSQL-DASHBOARD)
