@@ -6,7 +6,7 @@
 #┃ Desc  :   pg_exporter metrics for restricted polardb ins    ┃#
 #┃ Ver   :   PostgreSQL 10~14 pgbouncer 1.9+                   ┃#
 #┃ Ctime :   2023-09-10                                        ┃#
-#┃ Mtime :   2023-09-10                                        ┃#
+#┃ Mtime :   2023-09-15                                        ┃#
 #┃ Copyright (C) 2019-2023 Ruohang Feng                        ┃#
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛#
 #################################################################
@@ -427,13 +427,9 @@ pg_meta:
     SELECT (SELECT system_identifier FROM pg_control_system()) AS cluster_id,
            current_setting('cluster_name')                     AS cluster_name,
            current_setting('port')                             AS listen_port,
-           -- current_setting('data_directory')                   AS data_dir,
-           -- current_setting('config_file')                      AS conf_path,
-           -- current_setting('hba_file')                         AS hba_path,
            current_setting('wal_level')                        AS wal_level,
            current_setting('server_version')                   AS version,
            current_setting('server_version_num')               AS ver_num,
-           -- current_setting('shared_preload_libraries')         AS extensions,
            'N/A'                                               AS primary_conninfo,
            1                                                   AS info
 
@@ -453,15 +449,6 @@ pg_meta:
     - listen_port:
         usage: LABEL
         description: listen port
-#    - data_dir:
-#        usage: LABEL
-#        description: data directory path
-#    - conf_path:
-#        usage: LABEL
-#        description: postgresql.conf path
-#    - hba_path:
-#        usage: LABEL
-#        description: pg_hba.conf path
     - wal_level:
         usage: LABEL
         description: wal level
@@ -471,12 +458,6 @@ pg_meta:
     - ver_num:
         usage: LABEL
         description: server version number in machine readable format
-#    - extensions:
-#        usage: LABEL
-#        description: server installed preload libraries
-#    - primary_conninfo:
-#        usage: LABEL
-#        description: connection string to upstream (do not set password here)
     - info:
         usage: GAUGE
         description: constant 1
@@ -495,14 +476,9 @@ pg_meta_13:
     SELECT (SELECT system_identifier FROM pg_control_system()) AS cluster_id,
            current_setting('cluster_name')                     AS cluster_name,
            current_setting('port')                             AS listen_port,
-           -- current_setting('data_directory')                   AS data_dir,
-           -- current_setting('config_file')                      AS conf_path,
-           -- current_setting('hba_file')                         AS hba_path,
            current_setting('wal_level')                        AS wal_level,
            current_setting('server_version')                   AS version,
            current_setting('server_version_num')               AS ver_num,
-           -- current_setting('shared_preload_libraries')         AS extensions,
-           -- current_setting('primary_conninfo')                 AS primary_conninfo,
            1                                                   AS info
 
   ttl: 10
@@ -520,15 +496,6 @@ pg_meta_13:
     - listen_port:
         usage: LABEL
         description: listen port
-#    - data_dir:
-#        usage: LABEL
-#        description: data directory path
-#    - conf_path:
-#        usage: LABEL
-#        description: postgresql.conf path
-#    - hba_path:
-#        usage: LABEL
-#        description: pg_hba.conf path
     - wal_level:
         usage: LABEL
         description: wal level
@@ -538,12 +505,6 @@ pg_meta_13:
     - ver_num:
         usage: LABEL
         description: server version number in machine readable format
-#    - extensions:
-#        usage: LABEL
-#        description: server installed preload libraries
-#    - primary_conninfo:
-#        usage: LABEL
-#        description: connection string to upstream (do not set password here)
     - info:
         usage: GAUGE
         description: constant 1
@@ -1455,10 +1416,6 @@ pg_size:
   query: |
     SELECT datname, pg_database_size(oid) AS bytes FROM pg_database;
 
-# -- UNION ALL
-# --  SELECT 'log' AS datname, (SELECT (coalesce(sum(size), 0)) AS size FROM pg_catalog.pg_ls_logdir()) AS bytes UNION ALL
-# --  SELECT 'wal' AS datname, (SELECT (coalesce(sum(size), 0)) AS size FROM pg_catalog.pg_ls_waldir()) AS bytes;
-
   ttl: 60
   timeout: 1
   min_version: 100000
@@ -1782,14 +1739,13 @@ pg_slru_13:
 pg_shmem:
   name: pg_shmem
   desc: Allocations made from the server's main shared memory segment
-  query: SELECT coalesce(name, 'Free') AS name, off AS offset, size, allocated_size FROM monitor.pg_shmem();
+  query: SELECT coalesce(name, 'Free') AS name, off AS offset, size, allocated_size FROM pg_shmem();
 
   ttl: 60
   min_version: 130000
   skip: true            # disable it by default
   tags:
     - cluster
-    - schema:monitor
 
   metrics:
     - name:
@@ -3076,15 +3032,14 @@ pg_table_size:
 
 pg_table_bloat:
   name: pg_table_bloat
-  desc: PostgreSQL table bloat metrics, require auxiliary view monitor.pg_table_bloat to work
-  query: SELECT datname, nspname || '.' || relname AS relname, size, ratio FROM monitor.pg_table_bloat ORDER BY size DESC LIMIT 64;
+  desc: PostgreSQL table bloat metrics, require auxiliary view pg_table_bloat to work
+  query: SELECT datname, nspname || '.' || relname AS relname, size, ratio FROM pg_table_bloat ORDER BY size DESC LIMIT 64;
 
   ttl: 300
   timeout: 2
   min_version: 090400
   skip: true
-  tags:
-    - schema:monitor
+  tags: []
 
   metrics:
     - datname:
@@ -3150,15 +3105,14 @@ pg_table_bloat:
 
 pg_index_bloat:
   name: pg_index_bloat
-  desc: PostgreSQL index bloat metrics (btree only), require monitor.pg_index_bloat
-  query: SELECT datname, nspname || '.' || relname AS relname, size, ratio FROM monitor.pg_index_bloat ORDER BY size DESC LIMIT 64;
+  desc: PostgreSQL index bloat metrics (btree only), require pg_index_bloat
+  query: SELECT datname, nspname || '.' || relname AS relname, size, ratio FROM pg_index_bloat ORDER BY size DESC LIMIT 64;
 
   ttl: 300
   timeout: 2
   min_version: 090400
   skip: true
-  tags:
-    - schema:monitor
+  tags: []
 
   metrics:
     - datname:
