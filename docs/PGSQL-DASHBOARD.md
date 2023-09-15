@@ -7,14 +7,14 @@ There are 26 default grafana dashboards about PostgreSQL and categorized into 4 
 |                         Overview                          |                                Cluster                                |                          Instance                           |                         Database                          |
 |:---------------------------------------------------------:|:---------------------------------------------------------------------:|:-----------------------------------------------------------:|:---------------------------------------------------------:|
 | [PGSQL Overview](https://demo.pigsty.cc/d/pgsql-overview) |        [PGSQL Cluster](https://demo.pigsty.cc/d/pgsql-cluster)        |  [PGSQL Instance](https://demo.pigsty.cc/d/pgsql-instance)  | [PGSQL Database](https://demo.pigsty.cc/d/pgsql-database) |
-|    [PGSQL Alert](https://demo.pigsty.cc/d/pgsql-alert)    | [PGSQL Cluster Remote](https://demo.pigsty.cc/d/pgsql-cluster-remote) |  [PGCAT Instance](https://demo.pigsty.cc/d/pgcat-instance)  | [PGCAT Database](https://demo.pigsty.cc/d/pgcat-database) |
-|    [PGSQL Shard](https://demo.pigsty.cc/d/pgsql-shard)    |       [PGSQL Activity](https://demo.pigsty.cc/d/pgsql-activity)       |   [PGSQL Persist](https://demo.pigsty.cc/d/pgsql-persist)   |   [PGSQL Tables](https://demo.pigsty.cc/d/pgsql-tables)   |
-|                                                           |    [PGSQL Replication](https://demo.pigsty.cc/d/pgsql-replication)    |     [PGSQL Proxy](https://demo.pigsty.cc/d/pgsql-proxy)     |    [PGSQL Table](https://demo.pigsty.cc/d/pgsql-table)    |
-|                                                           |        [PGSQL Service](https://demo.pigsty.cc/d/pgsql-service)        | [PGSQL Pgbouncer](https://demo.pigsty.cc/d/pgsql-pgbouncer) |    [PGCAT Table](https://demo.pigsty.cc/d/pgcat-table)    |
-|                                                           |      [PGSQL Databases](https://demo.pigsty.cc/d/pgsql-databases)      |   [PGSQL Session](https://demo.pigsty.cc/d/pgsql-session)   |    [PGSQL Query](https://demo.pigsty.cc/d/pgsql-query)    |
-|                                                           |                                                                       |     [PGSQL Xacts](https://demo.pigsty.cc/d/pgsql-xacts)     |    [PGCAT Query](https://demo.pigsty.cc/d/pgcat-query)    |
-|                                                           |                                                                       |   [Logs Instance](https://demo.pigsty.cc/d/logs-instance)   |    [PGCAT Locks](https://demo.pigsty.cc/d/pgcat-locks)    |
-|                                                           |                                                                       |                                                             |   [PGCAT Schema](https://demo.pigsty.cc/d/pgcat-schema)   |
+|    [PGSQL Alert](https://demo.pigsty.cc/d/pgsql-alert)    |        [PGRDS Cluster](https://demo.pigsty.cc/d/pgrds-cluster)        |  [PGRDS Instance](https://demo.pigsty.cc/d/pgrds-instance)  | [PGCAT Database](https://demo.pigsty.cc/d/pgcat-database)  |
+|    [PGSQL Shard](https://demo.pigsty.cc/d/pgsql-shard)    |       [PGSQL Activity](https://demo.pigsty.cc/d/pgsql-activity)       |  [PGCAT Instance](https://demo.pigsty.cc/d/pgcat-instance)  |   [PGSQL Tables](https://demo.pigsty.cc/d/pgsql-tables)   |
+|                                                           |    [PGSQL Replication](https://demo.pigsty.cc/d/pgsql-replication)    |   [PGSQL Persist](https://demo.pigsty.cc/d/pgsql-persist)   |    [PGSQL Table](https://demo.pigsty.cc/d/pgsql-table)    |
+|                                                           |        [PGSQL Service](https://demo.pigsty.cc/d/pgsql-service)        |     [PGSQL Proxy](https://demo.pigsty.cc/d/pgsql-proxy)     |    [PGCAT Table](https://demo.pigsty.cc/d/pgcat-table)    |
+|                                                           |      [PGSQL Databases](https://demo.pigsty.cc/d/pgsql-databases)      | [PGSQL Pgbouncer](https://demo.pigsty.cc/d/pgsql-pgbouncer) |    [PGSQL Query](https://demo.pigsty.cc/d/pgsql-query)    |
+|                                                           |                                                                       |   [PGSQL Session](https://demo.pigsty.cc/d/pgsql-session)   |    [PGCAT Query](https://demo.pigsty.cc/d/pgcat-query)    |
+|                                                           |                                                                       |     [PGSQL Xacts](https://demo.pigsty.cc/d/pgsql-xacts)     |    [PGCAT Locks](https://demo.pigsty.cc/d/pgcat-locks)    |
+|                                                           |                                                                       |   [Logs Instance](https://demo.pigsty.cc/d/logs-instance)   |   [PGCAT Schema](https://demo.pigsty.cc/d/pgcat-schema)   |
 
 
 **Overview**
@@ -26,7 +26,7 @@ There are 26 default grafana dashboards about PostgreSQL and categorized into 4 
 **Cluster**
 
 - [pgsql-cluster](https://demo.pigsty.cc/d/pgsql-cluster): The main dashboard for a PGSQL cluster
-- [pgsql-cluster-remote](https://demo.pigsty.cc/d/pgsql-cluster-remote): Trimmed version of PGSQL Cluster, for remote PGSQL cluster
+- [pgrds-cluster](https://demo.pigsty.cc/d/pgrds-cluster): The PGSQL Cluster dashboard for RDS, focus on all postgres metrics only.
 - [pgsql-activity](https://demo.pigsty.cc/d/pgsql-activity): Cares about the Session/Load/QPS/TPS/Locks of a PGSQL cluster
 - [pgsql-replication](https://demo.pigsty.cc/d/pgsql-replication): Cares about PGSQL cluster replication, slots, and pub/sub.
 - [pgsql-service](https://demo.pigsty.cc/d/pgsql-service): Cares about PGSQL cluster services, proxies, routes, and load balancers.
@@ -35,6 +35,7 @@ There are 26 default grafana dashboards about PostgreSQL and categorized into 4 
 **Instance**
 
 - [pgsql-instance](https://demo.pigsty.cc/d/pgsql-instance): The main dashboard for a single PGSQL instance
+- [pgrds-instance](https://demo.pigsty.cc/d/pgrds-instance): The PGSQL Instance dashboard for RDS, focus on all postgres metrics only.
 - [pgcat-instance](https://demo.pigsty.cc/d/pgcat-instance): Instance information from database catalog directly
 - [pgsql-persist](https://demo.pigsty.cc/d/pgsql-persist): Metrics about persistence: WAL, XID, Checkpoint, Archive, IO
 - [pgsql-proxy](https://demo.pigsty.cc/d/pgsql-proxy): Metrics about haproxy the service provider
@@ -93,8 +94,6 @@ There are 26 default grafana dashboards about PostgreSQL and categorized into 4 
 
 ## Cluster
 
-**Cluster**
-
 [PGSQL Cluster](https://demo.pigsty.cc/d/pgsql-cluster): The main dashboard for a PGSQL cluster
 
 <details><summary>PGSQL Cluster</summary>
@@ -103,7 +102,13 @@ There are 26 default grafana dashboards about PostgreSQL and categorized into 4 
 
 </details>
 
-[PGSQL Cluster Remote](https://demo.pigsty.cc/d/pgsql-cluster-remote): Trimmed version of PGSQL Cluster, for remote PGSQL cluster
+[PGRDS Cluster](https://demo.pigsty.cc/d/pgrds-cluster): The PGSQL Cluster dashboard for RDS, focus on all postgres metrics only.
+
+<details><summary>PGRDS Cluster</summary>
+
+[![pgrds-cluster](https://github.com/Vonng/pigsty/assets/8587410/3e60b7f8-8db0-4e03-880e-9d16effd55fe)](https://demo.pigsty.cc/d/pgrds-cluster)
+
+</details>
 
 [PGSQL Service](https://demo.pigsty.cc/d/pgsql-service): Cares about PGSQL cluster services, proxies, routes, and load balancers.
 
@@ -149,6 +154,15 @@ There are 26 default grafana dashboards about PostgreSQL and categorized into 4 
 <details><summary>PGSQL Instance</summary>
 
 [![pgsql-instance](https://github.com/Vonng/pigsty/assets/8587410/25e98b4a-a1b2-473f-8135-02db34378b6e)](https://demo.pigsty.cc/d/pgsql-instance/)
+
+</details>
+
+
+[PGRDS Instance](https://demo.pigsty.cc/d/pgrds-instance): The PGSQL Instance dashboard for RDS, focus on all postgres metrics only.
+
+<details><summary>PGRDS Instance</summary>
+
+[![pgrds-instance](https://github.com/Vonng/pigsty/assets/8587410/3e60b7f8-8db0-4e03-880e-9d16effd55fe)](https://demo.pigsty.cc/d/pgrds-instance)
 
 </details>
 
