@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.4.0](#240)  | 2023-09-14 | PG16, RDS Monitor, New Extensions                        | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
+| [v2.4.0](#v240) | 2023-09-14 | PG16, RDS Monitor, New Extensions                        | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
 | [v2.3.1](#v231) | 2023-09-01 | PGVector with HNSW, PG16 RC1, Chinese Docs, Bug Fix      | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.0](#v230) | 2023-08-20 | PGSQL/REDIS Update, NODE VIP, Mongo/FerretDB, MYSQL Stub | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
 | [v2.2.0](#v220) | 2023-08-04 | Dashboard & Provision overhaul, UOS compatibility        | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
@@ -39,7 +39,7 @@
 
 ## v2.4.0
 
-Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"`.
+Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`.
 
 **Highlights**
 

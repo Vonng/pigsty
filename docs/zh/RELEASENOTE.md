@@ -2,7 +2,7 @@
 
 | 版本             |  发布时间   | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.4.0](#240)  | 2023-09-14 | PG16，监控RDS，服务咨询支持，新扩展：中文分词全文检索/图/HTTP/嵌入等 | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
+| [v2.4.0](#v240) | 2023-09-14 | PG16，监控RDS，服务咨询支持，新扩展：中文分词全文检索/图/HTTP/嵌入等 | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
 | [v2.3.1](#v231) | 2023-09-01 | 带HNSW的PGVector，PG 16 RC1, 文档翻新，中文文档，例行问题修复     | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.0](#v230) | 2023-08-20 | 主机VIP, ferretdb, nocodb, MySQL存根, CVE修复                    | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
 | [v2.2.0](#v220) | 2023-08-04 | 仪表盘 & 置备重做，UOS 兼容性                                         | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
@@ -39,7 +39,7 @@
 
 ## v2.4.0
 
-使用 `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"` 快速上手。
+使用 `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"` 快速上手。
 
 **最新特性**
 
@@ -62,7 +62,6 @@
 **问题修复**
 
 - 修复 Grafana 10.1 注册数据源时缺少 `uid` 的问题
-
 
 ```
 MD5 (pigsty-pkg-v2.4.0.el7.x86_64.tgz) = 257443e3c171439914cbfad8e9f72b17
