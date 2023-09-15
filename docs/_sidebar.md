@@ -11,7 +11,7 @@
 - [**Application**](APP)
 - [**Releasenote**](RELEASENOTE)
 - [**License**](LICENSE)
-- [**Backers**](BACKERS)
+- [**Support**](SUPPORT)
 - [**FAQ**](FAQ)
 - [**Module: INFRA**](INFRA)
 - [**Module: NODE**](NODE)

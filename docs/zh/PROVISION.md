@@ -30,8 +30,7 @@ Pigsty 带有一个演示沙箱，所谓沙箱，就是专门用来演示/测试
 
 在 `meta` 节点上，还有一个单实例的 `etcd` “集群”和一个单实例的 `minio` “集群”。
 
-![pigsty-sandbox](https://user-images.githubusercontent.com/8587410/218279650-5d5e8b09-8907-42bf-a48c-4c28bcc73ddd.jpg)
-
+![pigsty-sandbox](https://github.com/Vonng/pigsty/assets/8587410/0de01720-2573-400e-be11-6f12019fc971)
 
 您可以在本地虚拟机或云虚拟机上运行沙箱。Pigsty 提供基于 Vagrant 的本地沙箱（使用 Virtualbox/libvirt 启动本地虚拟机）以及基于 Terraform 的云沙箱（使用云供应商 API 创建虚拟机）。
 
@@ -157,9 +156,10 @@ make minio    # 3-节点 MinIO 测试环境
 ```
 
 ```bash
-make meta install  # 进行完整的单机安装
-make full install  # 进行4节点沙箱安装
-make prod install  # 进行42节点生产仿真环境安装
+make meta  install  # 进行完整的单机安装
+make full  install  # 进行4节点沙箱安装
+make prod  install  # 进行42节点生产仿真环境安装
+make check install  # 进行30节点本地测试环境安装
 ...
 ```
 
@@ -170,6 +170,8 @@ make prod install  # 进行42节点生产仿真环境安装
 ## Terraform
 
 [Terraform](https://www.terraform.io/)是一个开源的实践“基础设施即代码”的工具：描述你想要的云资源，然后一键创建它们。
+
+Pigsty 提供了 AWS，阿里云，腾讯云的 Terraform 模板，您可以使用它们在云上一键创建虚拟机。
 
 在 MacOS 上，Terraform 可以使用 homebrew 一键安装：`brew install terraform`。你需要创建一个云帐户，获取 AccessKey 和 AccessSecret 凭证来继续下面的操作。
 

@@ -4,9 +4,12 @@
 
 你可以轻松地使用 docker 启动无状态软件，并使用外部由 Pigsty 托管的高可用 PostgreSQL 来获得更高的可靠性、可维护性与可伸缩性。
 
-![APP](https://user-images.githubusercontent.com/8587410/198838829-f0ea4af2-d33f-4978-a31a-ed81897aa8d1.gif)
-
 Docker 默认并没有安装，但是包含在离线软件包中。例如，您可以使用 `./docker.yml -l infra` 在 infra 分组的节点上安装并启用 Docker。
+
+一些可用的软件列表与安装说明请参考：[pigsty/app](https://github.com/Vonng/pigsty/tree/master/app)
+
+[![pigsty-app](https://github.com/Vonng/pigsty/assets/8587410/e1384295-bad9-4338-895b-79741bc25ecd)](https://github.com/Vonng/pigsty/tree/master/app)
+
 
 
 ----------------

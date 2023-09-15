@@ -4,9 +4,11 @@ Lots of software using PostgreSQL. Pigsty has some docker compose template for s
 
 You can launch stateless software with docker easily and using external HA PostgreSQL for higher availability & durability.
 
-![APP](https://user-images.githubusercontent.com/8587410/198838829-f0ea4af2-d33f-4978-a31a-ed81897aa8d1.gif)
-
 Docker is **not** installed by default, You can install docker with `docker.yml` playbook, e.g.: `./docker.yml -l infra`
+
+Available software and their docker-compose template can be found in [pigsty/app](https://github.com/Vonng/pigsty/tree/master/app)
+
+[![pigsty-app](https://github.com/Vonng/pigsty/assets/8587410/e1384295-bad9-4338-895b-79741bc25ecd)](https://github.com/Vonng/pigsty/tree/master/app)
 
 
 ----------------

@@ -32,8 +32,7 @@ Two optional L2 VIP are bind on primary instances of cluster `pg-meta`  and `pg-
 
 There's also a 1-instance `etcd` cluster, and 1-instance `minio` cluster on the `meta` node, too.
 
-![pigsty-sandbox](https://user-images.githubusercontent.com/8587410/218279650-5d5e8b09-8907-42bf-a48c-4c28bcc73ddd.jpg)
-
+![pigsty-sandbox](https://github.com/Vonng/pigsty/assets/8587410/0de01720-2573-400e-be11-6f12019fc971)
 
 You can run sandbox on local VMs or cloud VMs. Pigsty offers a local sandbox based on [Vagrant](#vagrant) (pulling up local VMs using Virtualbox or libvirt), and a cloud sandbox based on Terraform (creating VMs using the cloud vendor API).
 
@@ -46,7 +45,6 @@ You can run sandbox on local VMs or cloud VMs. Pigsty offers a local sandbox bas
 ----------------
 
 ## Vagrant
-
 
 [Vagrant](https://www.vagrantup.com/) can create local VMs according to specs in a declarative way.
 Check [Vagrant Templates Intro](https://github.com/Vonng/pigsty/tree/master/vagrant/README.md) for details 
@@ -155,9 +153,10 @@ make check    # 30-node check env
 ```
 
 ```bash
-make meta install  # create and install pigsty on 1-node singleton meta
-make full install  # create and install pigsty on 4-node sandbox
-make prod install  # create and install pigsty on 42-node KVM libvirt environment
+make meta  install   # create and install pigsty on 1-node singleton meta
+make full  install   # create and install pigsty on 4-node sandbox
+make prod  install   # create and install pigsty on 42-node KVM libvirt environment
+make check install   # create and install pigsty on 30-node testing & validating environment
 ...
 ```
 
@@ -168,6 +167,8 @@ make prod install  # create and install pigsty on 42-node KVM libvirt environmen
 ## Terraform
 
 [Terraform](https://www.terraform.io/) is an open-source tool to practice 'Infra as Code'. Describe the cloud resource you want and create them with one command.
+
+Pigsty has terraform templates for AWS, Aliyun, and Tencent Cloud, you can use them to create VMs on the cloud for Pigsty Demo.
 
 Terraform can be easily installed with homebrew, too: `brew install terraform`. You will have to create a cloud account to obtain AccessKey and AccessSecret credentials to proceed.
 

@@ -425,9 +425,9 @@ psql postgres://dbuser_view:DBUser.View@pg-meta/meta       # 用默认的只读�
 http://g.pigsty ️-> http://10.10.10.10:80 (nginx) -> http://10.10.10.10:3000 (grafana)
 ```
 
+[![pigsty-home](https://github.com/Vonng/pigsty/assets/8587410/dec59092-14bc-47ab-baac-99c86643c9b7)](https://demo.pigsty.cc)
+
 > Grafana 的默认密码为: username: `admin`, password: `pigsty`
-
-
 
 <details><summary> 如何使用 HTTPS 访问 Pigsty WebUI </summary><br>
 
@@ -453,4 +453,4 @@ bin/pgsql-add  pg-test      # 初始化一个3节点的 pg-test 高可用PG集�
 bin/redis-add  redis-ms     # 初始化 Redis 集群： redis-ms
 ```
 
-更多细节请参见： [**PGSQL**](PGSQL.md), [**NODE**](NODE.md), and [**REDIS**](REDIS.md).
+更多细节请参见： [PGSQL](PGSQL.md)，[NODE](NODE.md)，以及 [REDIS](REDIS.md)。

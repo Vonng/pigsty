@@ -6,7 +6,7 @@
 
 ## Overview
 
-Pigsty uses modern observability stack for PostgreSQL monitoring:
+Pigsty uses the modern observability stack for PostgreSQL monitoring:
 
 * Grafana for metrics visualization and PostgreSQL datasource.
 * Prometheus for PostgreSQL / Pgbouncer / Patroni / HAProxy / Node metrics
@@ -15,7 +15,7 @@ Pigsty uses modern observability stack for PostgreSQL monitoring:
 
 **Metrics**
 
-PostgreSQL's metrics are defined by collector files: [`pg_exporter.yml`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/pg_exporter.yml). It will further be processed by Prometheus record rules and alert evaluation: [`files/prometheus/rules/pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/files/prometheus/rules/pgsql.yml)
+PostgreSQL's metrics are defined by collector files: [`pg_exporter.yml`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/pg_exporter.yml). Prometheus record rules and alert evaluation will further process it: [`files/prometheus/rules/pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/files/prometheus/rules/pgsql.yml)
 
 There are three identity labels: `cls`, `ins`, `ip`, which will be attached to all metrics & logs. node & haproxy will try to reuse the same identity to provide consistent metrics & logs.
 
@@ -89,7 +89,9 @@ There are three ways to monitor PostgreSQL instances in Pigsty:
 
 ## Monitor Existing Cluster
 
-Suppose the target DB node can be managed by Pigsty (accessible via ssh and sudo is available). In that case, you can use the `pg_exporter` task in the [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) playbook to deploy the monitoring component PG Exporter on the target node in the same manner as a standard deployment. You can also deploy the connection pool and its monitoring on existing instance nodes using the `pgbouncer` and `pgbouncer_exporter` tasks from the same playbook. Additionally, you can deploy host monitoring, load balancing, and log collection components using the `node_exporter`, `haproxy`, and `promtail` tasks from the [`node.yml`](NODE#nodeyml) playbook, achieving a user experience consistent with native Pigsty database instances.
+Suppose the target DB node can be managed by Pigsty (accessible via ssh and sudo is available). In that case, you can use the `pg_exporter` task in the [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) playbook to deploy the monitoring component PG Exporter on the target node in the same manner as a standard deployment. 
+
+You can also deploy the connection pool and its monitoring on existing instance nodes using the `pgbouncer` and `pgbouncer_exporter` tasks from the same playbook. Additionally, you can deploy host monitoring, load balancing, and log collection components using the `node_exporter`, `haproxy`, and `promtail` tasks from the [`node.yml`](NODE#nodeyml) playbook, achieving a similar user experience with the native Pigsty cluster.
 
 The definition method for existing clusters is very similar to the normal clusters managed by Pigsty. Selectively run certain tasks from the `pgsql.yml` playbook instead of running the entire playbook.
 

@@ -17,7 +17,7 @@ PGSQL模块在生产环境中以**集群**的形式组织，这些**集群**是�
 - **实例**（Instance）：一个在单个节点上的运行进程和数据库文件组成的单一postgres服务器。
 - **节点**（Node）：硬件资源的抽象，可以是裸金属、虚拟机或甚至是k8s pods。
 
-![PGSQL-ER](https://user-images.githubusercontent.com/8587410/217492920-47613743-88b8-4c21-a8b9-cf7420cdd50f.png)
+![pgsql-er](https://github.com/Vonng/pigsty/assets/8587410/37f224bc-1b1d-47aa-bab3-3885cffcd05a)
 
 **命名约定**
 
@@ -116,7 +116,7 @@ pg_up{cls="pg-test", ins="pg-test-3", ip="10.10.10.13", job="pgsql"}
   - Promtail 监听 9080 端口，也对 infra 节点上的 Prometheus 暴露自身的监控指标 
   - Promtail 将日志发送至 infra 节点上的 Loki
 
-![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
+[![pigsty-arch](https://github.com/Vonng/pigsty/assets/8587410/7b226641-e61b-4e79-bc31-759204778bd5)](INFRA)
 
 
 
@@ -128,7 +128,7 @@ pg_up{cls="pg-test", ins="pg-test-3", ip="10.10.10.13", job="pgsql"}
 
 Pigsty 的 PostgreSQL 集群带有开箱即用的高可用方案，由 [patroni](https://patroni.readthedocs.io/en/latest/)、[etcd](https://etcd.io/) 和 [haproxy](http://www.haproxy.org/) 强力驱动。
 
-![pgsql-ha](https://user-images.githubusercontent.com/8587410/206971583-74293d7b-d29a-4ca2-8728-75d50421c371.gif)
+[![pgsql-ha](https://github.com/Vonng/pigsty/assets/8587410/645501d1-384e-4009-b41b-8488654f17d3)](PGSQL-ARCH.md)
 
 当主库故障时，将触发新一轮领导者竞选，集群中最为健康的从库将胜出，并被提升为新的主库。读写流量将立即路由至新的主库。主库故障影响是：默认情况下写入查询将被阻塞 15 ~ 40s，直到选出新的领导者来。
 

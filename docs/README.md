@@ -9,13 +9,14 @@
 > [Get Started](INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash`
 
 
+----------------
 
 ## Features
 
 Free RDS for PostgreSQL! check [**Feature**](FEATURE.md) | [**亮点特性**](/zh/FEATURE.md) for details.
 
-- Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with [PostGIS](https://postgis.net/), [TimescaleDB](https://www.timescale.com/), [Citus](https://www.citusdata.com/), [PGVector](https://github.com/pgvector/pgvector), etc...
-- Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack. [Gallery](https://github.com/Vonng/pigsty/wiki/Gallery) & [Demo](https://demo.pigsty.cc).
+- Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with **140+** powerful extensions: [List](PGSQL-EXTENSION.md)!
+- Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack: [Demo](https://demo.pigsty.cc)!
 - Self-healing HA PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/)...
 - Auto-Configured PITR, powered by [pgbackrest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) cluster
 - Declarative API, Database-as-Code implemented with [Ansible](https://www.ansible.com/) playbooks.
@@ -23,12 +24,23 @@ Free RDS for PostgreSQL! check [**Feature**](FEATURE.md) | [**亮点特性**](/z
 - Handy Toolbox, provision IaaS with [Terraform](https://www.terraform.io/), and try with local [Vagrant](https://www.vagrantup.com/) sandbox.
 - Run [Redis](https://redis.io/) (standalone, sentinel, cluster), MinIO, Etcd, Haproxy, MongoDB([FerretDB](https://www.ferretdb.io/)) clusters
 
-[![pigsty-distro](https://user-images.githubusercontent.com/8587410/226076217-77e76e0c-94ac-4faa-9014-877b4a180e09.jpg)](FEATURE.md)
+[![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/b30939f3-7819-4046-8cbd-d9cf02d6fb5d)](FEATURE.md)
 
-[![Dashboards](https://github-production-user-asset-6210df.s3.amazonaws.com/8587410/258681605-cf6b99e5-9c8f-4db2-9bce-9ded95407c0c.jpg)](https://demo.pigsty.cc)
+- [Battery-Included RDS](FEATURE.md#battery-included-rds): Delivers production-ready PostgreSQL services from version 12-16 on EL7-9, spanning kernel to RDS distribution.
+- [Plentiful Extensions](FEATURE.md#plentiful-extensions): Integrates 140+ extensions, providing turnkey capabilities for time-series, geospatial, full-text-search, vector and more!
+- [Flexible Architecture](FEATURE.md#flexible-architecture): Compose Redis/Etcd/MinIO/Mongo modules on nodes, monitoring existing cluster and remote RDS.
+- [Stunning Observability](FEATURE.md#stunning-observability): Leveraging the Prometheus/Grafana modern observability stack, and provides unmatched database insights.
+- [Proven Reliability](FEATURE.md#proven-reliability): Self-healing HA architecture with automatic failover and uninterrupted client access, and auto-configured PITR.
+- [Great Maintainability](FEATURE.md#great-maintainability): Declarative API, GitOps ready, foolproof design, Database/Infra-as-Code, and management SOP seals complexity!
+- [Sound Security](FEATURE.md#sound-security): Nothing needs to be worried about database security, as long as your hardware & credentials are safe.
+- [Versatile Application](FEATURE.md#versatile-application): Lots of applications work well with PostgreSQL. Run them in one command with docker.
+- [Open Source & Free](FEATURE.md#open-source-amp-free): Pigsty is a free & open source software under AGPLv3. It was built for PostgreSQL with love.
+
+[![pigsty-dashboard](https://github.com/Vonng/pigsty/assets/8587410/cd4e6620-bc36-44dc-946b-b9ae56f93c90)](https://demo.pigsty.cc)
 
 
 
+----------------
 
 ## Get Started
 
@@ -113,6 +125,7 @@ curl -L https://get.pigsty.cc/v2.4.0/pigsty-v2.4.0.tgz -o ~/pigsty.tgz
 
 
 
+----------------
 
 ## Architecture
 
@@ -133,11 +146,11 @@ The default [`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.
 which gives you a battery-included PostgreSQL singleton instance (`admin_ip:5432`) with everything ready.
 This node can be used as an admin center & infra provider to manage, deploy & monitor more nodes & clusters.
 
-Check [**Architecture**](ARCH) for details.
+[![pigsty-arch](https://github.com/Vonng/pigsty/assets/8587410/7b226641-e61b-4e79-bc31-759204778bd5)](ARCH.md)
 
 
 
-
+----------------
 
 ## More Clusters
 
@@ -157,6 +170,8 @@ Then create it with built-in playbooks:
 ```bash
 bin/pgsql-add pg-test   # init pg-test cluster 
 ```
+
+[![pgsql-ha](https://github.com/Vonng/pigsty/assets/8587410/645501d1-384e-4009-b41b-8488654f17d3)](PGSQL-ARCH.md)
 
 You can deploy different kinds of instance roles, such as primary, replica, offline, delayed, sync standby, and different kinds of clusters, such as standby clusters, Citus clusters, and even Redis/MinIO/Etcd clusters.
 

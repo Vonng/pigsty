@@ -6,6 +6,8 @@ Pigsty includes over 140+ PostgreSQL extension plugins and has compiled, package
 
 Plugins are already included and placed in the yum repo of the infra nodes, which can be directly enabled through PGSQL [Cluster Config](#install-extension) or [installed manually](#install-manually) using `yum`. Pigsty also introduces a complete compilation environment and infrastructure, allowing you to [compile extensions](#compile-extension) not included in Pigsty & PGDG.
 
+![pigsty-extension](https://github.com/Vonng/pigsty/assets/8587410/91dfee81-3193-4505-b33f-0c5949dabf02)
+
 
 ------
 

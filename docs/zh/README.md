@@ -24,9 +24,20 @@ Pigsty 是一个更好的本地开源 RDS for PostgreSQL 替代，具有以下�
 - 提供基于 [Vagrant](https://www.vagrantup.com/) 的本地开发测试沙箱环境，与基于 [Terraform](https://www.terraform.io/) 的云端自动部署方案，开发测试生产保持环境一致。
 - 部署并监控专用的 [Redis](https://redis.io/)（主从，哨兵，集群），MinIO，Etcd，Haproxy，MongoDB([FerretDB](https://www.ferretdb.io/)) 集群
 
-[![pigsty-distro](https://user-images.githubusercontent.com/8587410/226076217-77e76e0c-94ac-4faa-9014-877b4a180e09.jpg)](FEATURE.md)
+[![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/b30939f3-7819-4046-8cbd-d9cf02d6fb5d)](FEATURE.md)
 
-[![Dashboards](https://github-production-user-asset-6210df.s3.amazonaws.com/8587410/258681605-cf6b99e5-9c8f-4db2-9bce-9ded95407c0c.jpg)](https://demo.pigsty.cc)
+- [开箱即用的RDS](FEATURE.md#开箱即用的rds)：从内核到RDS发行版，在 EL7-9 下提供 12-16 版本的生产级 PostgreSQL 数据库服务。
+- [丰富的扩展插件](FEATURE.md#丰富的扩展插件)：深度整合 140+ 核心扩展，提供开箱即用的分布式的时序地理空间图文向量数据库能力。
+- [灵活的模块架构](FEATURE.md#灵活的模块架构)：灵活组合，自由扩展：Redis/Etcd/MinIO/Mongo；可独立使用，监控现有RDS/主机/数据库。
+- [惊艳的观测能力](FEATURE.md#惊艳的观测能力)：基于现代可观测性技术栈 Prometheus/Grafana，提供令人惊艳，无可比拟的数据库观测能力。
+- [验证过的可靠性](FEATURE.md#验证过的可靠性)：故障自愈的高可用架构：硬件故障自动切换，流量无缝衔接。并提供自动配置的 PITR 兜底删库！
+- [简单易用可维护](FEATURE.md#简单易用可维护)：声明式API，GitOps就位，傻瓜式操作，Database/Infra-as-Code 以及管理SOP封装管理复杂度！
+- [扎实的安全实践](FEATURE.md#扎实的安全实践)：加密备份一应俱全，自带基础ACL最佳实践。只要硬件与密钥安全，您无需操心数据库的安全性！
+- [广泛的应用场景](FEATURE.md#广泛的应用场景)：低代码数据应用开发，或使用预置的 Docker Compose 模板，一键拉起使用PostgreSQL的海量软件！
+- [开源的自由软件](FEATURE.md#开源的自由软件)：以云数据库1/10不到的成本拥有与更好的数据库服务！帮您真正“拥有”自己的数据，实现自主可控！
+
+
+[![pigsty-dashboard](https://github.com/Vonng/pigsty/assets/8587410/cd4e6620-bc36-44dc-946b-b9ae56f93c90)](https://demo.pigsty.cc)
 
 
 
@@ -141,7 +152,7 @@ Pigsty 采用模块化设计，有六个主要的默认模块：[`PGSQL`](pgsql)
 这将为你提供一个功能完备的可观测性技术栈全家桶 (Prometheus、Grafana、Loki、AlertManager、PushGateway、BlackboxExporter 等) ，以及一个内置的 PostgreSQL 单机实例作为 CMDB，也可以开箱即用。 (集群名 `pg-meta`，库名为 `meta`)。
 这个节点现在会有完整的自我监控系统、可视化工具集，以及一个自动配置有 PITR 的 Postgres 数据库（单机安装时HA不可用，因为你只有一个节点）。你可以使用此节点作为开发箱、测试、运行演示以及进行数据可视化和分析。或者，还可以把这个节点当作管理节点，部署纳管更多的节点！
 
-详情请参阅 [**系统架构**](arch) 一节.
+[![pigsty-arch](https://github.com/Vonng/pigsty/assets/8587410/7b226641-e61b-4e79-bc31-759204778bd5)](ARCH.md)
 
 
 
@@ -166,6 +177,8 @@ pg-test:
 ```bash
 bin/pgsql-add pg-test   # 初始化 pg-test 集群 
 ```
+
+[![pgsql-ha](https://github.com/Vonng/pigsty/assets/8587410/645501d1-384e-4009-b41b-8488654f17d3)](PGSQL-ARCH.md)
 
 你可以使用不同的的实例角色，例如 [主库](PGSQL-CONF#读写主库)（primary），[从库](PGSQL-CONF#只读从库)（replica），[离线从库](PGSQL-CONF#读写主库)（offline），[延迟从库](PGSQL-CONF#延迟集群)（delayed），[同步备库](PGSQL-CONF#同步备库)（sync standby）；
 以及不同的集群：例如[备份集群](PGSQL-CONF#备份集群)（Standby Cluster），[Citus集群](PGSQL-CONF#citus集群)，甚至是 [Redis](REDIS) / [MinIO](MINIO) / [Etcd](ETCD) 集群，如下所示：

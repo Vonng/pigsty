@@ -74,6 +74,8 @@ Discord: https://discord.gg/6nA2fDXt
 * 最终价格将视甲方团队自给自足能力，部署规模，服务范围，服务时间，服务内容等因素调整，请以合同为准。
 * 我们将尽最大可能提供可行的建议与解决方案，如咨询问题未能解决，费用将酌情减免，SLA具体以合同为准。
 
+> 参考：云数据库的报价单价通常在 ¥300 ～ ¥1300 / 核·月不等：[Vantage](https://instances.vantage.sh/)
+
 商业支持联系方式：邮件：rh@vonng.com ， 微信 pigsty-cc / RuohangFeng
 
 

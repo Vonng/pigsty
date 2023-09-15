@@ -4,6 +4,7 @@
 
 在 Pigsty 中共有 26 个与 PostgreSQL 相关的监控面板，按照层次分为 总览，集群，实例，数据库四大类，按照数据来源又分为 [PGSQL](#overview)，[PGCAT](#pgcat)，[PGLOG](#pglog) 三大类。
 
+![pigsty-dashboard](https://github.com/Vonng/pigsty/assets/8587410/cd4e6620-bc36-44dc-946b-b9ae56f93c90)
 
 ----------------
 
@@ -20,7 +21,6 @@
 |                                                           |                                                                       |   [PGSQL Session](https://demo.pigsty.cc/d/pgsql-session)   |    [PGCAT Query](https://demo.pigsty.cc/d/pgcat-query)    |
 |                                                           |                                                                       |     [PGSQL Xacts](https://demo.pigsty.cc/d/pgsql-xacts)     |    [PGCAT Locks](https://demo.pigsty.cc/d/pgcat-locks)    |
 |                                                           |                                                                       |   [Logs Instance](https://demo.pigsty.cc/d/logs-instance)   |   [PGCAT Schema](https://demo.pigsty.cc/d/pgcat-schema)   |
-
 
 
 **概览**

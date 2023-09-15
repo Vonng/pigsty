@@ -24,7 +24,7 @@
 |       [Ansible](#ansible)       |  -   |     -      | 运行剧本                |
 
 
-![pigsty-infra](https://user-images.githubusercontent.com/8587410/206972543-664ae71b-7ed1-4e82-90bd-5aa44c73bca4.gif)
+[![pigsty-arch](https://github.com/Vonng/pigsty/assets/8587410/7b226641-e61b-4e79-bc31-759204778bd5)](INFRA)
 
 在 Pigsty 中，[PGSQL](PGSQL) 模块会使用到[INFRA节点](NODE#infra节点)上的一些服务，具体来说包括：
 

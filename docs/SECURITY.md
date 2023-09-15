@@ -2,14 +2,16 @@
 
 > If security concerns you, you should be aware of the following options.
 
+Pigsty already provides a secure-by-default [authentication](PGSQL-HBA) and [access control](PGSQL-ACL) model, which is sufficient for most scenarios.
+
+[![pigsty-acl](https://github.com/Vonng/pigsty/assets/8587410/57c365f8-b4f6-465a-a501-a2a499223ce6)](PGSQL-ACL)
+
+But if you want to further strengthen the security of the system, the following suggestions are for your reference:
 
 
 ----------------
 
 ## Confidentiality
-
-
-----------------
 
 ### Important Files
 

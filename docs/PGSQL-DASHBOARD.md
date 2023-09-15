@@ -2,6 +2,8 @@
 
 > Grafana Dashboards for Pigsty managed PostgreSQL clusters
 
+![pigsty-dashboard](https://github.com/Vonng/pigsty/assets/8587410/cd4e6620-bc36-44dc-946b-b9ae56f93c90)
+
 There are 26 default grafana dashboards about PostgreSQL and categorized into 4 levels. and categorized into [PGSQL](#overview), [PGCAT](#pgcat) & [PGLOG](#pglog) by datasource.
 
 |                         Overview                          |                                Cluster                                |                          Instance                           |                         Database                          |
@@ -15,7 +17,6 @@ There are 26 default grafana dashboards about PostgreSQL and categorized into 4 
 |                                                           |                                                                       |   [PGSQL Session](https://demo.pigsty.cc/d/pgsql-session)   |    [PGCAT Query](https://demo.pigsty.cc/d/pgcat-query)    |
 |                                                           |                                                                       |     [PGSQL Xacts](https://demo.pigsty.cc/d/pgsql-xacts)     |    [PGCAT Locks](https://demo.pigsty.cc/d/pgcat-locks)    |
 |                                                           |                                                                       |   [Logs Instance](https://demo.pigsty.cc/d/logs-instance)   |   [PGCAT Schema](https://demo.pigsty.cc/d/pgcat-schema)   |
-
 
 **Overview**
 
