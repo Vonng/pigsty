@@ -86,12 +86,13 @@ GRANT EXECUTE ON FUNCTION pg_catalog.pg_control_checkpoint() TO "{{ pg_replicati
 --==================================================================--
 
 ----------------------------------------------------------------------
--- cleanse
+-- cleanse & create monitor schema
 ----------------------------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS monitor;
 GRANT USAGE ON SCHEMA monitor TO "{{ pg_monitor_username }}";
 GRANT USAGE ON SCHEMA monitor TO "{{ pg_admin_username }}";
 GRANT USAGE ON SCHEMA monitor TO "{{ pg_replication_username }}";
+ALTER USER "{{ pg_monitor_username }}" SET search_path TO monitor,public;
 
 
 --==================================================================--
@@ -350,6 +351,68 @@ CREATE OR REPLACE VIEW monitor.pg_seq_scan AS
     ORDER BY seq_scan DESC;
 COMMENT ON VIEW monitor.pg_seq_scan IS 'table that have seq scan';
 GRANT SELECT ON monitor.pg_seq_scan TO pg_monitor;
+
+
+----------------------------------------------------------------------
+-- Lock Waiting: monitor.pg_lock_waiting
+----------------------------------------------------------------------
+DROP VIEW IF EXISTS monitor.pg_lock_waiting CASCADE;
+CREATE VIEW monitor.pg_lock_waiting AS
+  WITH RECURSIVE
+    activity as (select pg_blocking_pids(pid) blocked_by, *,
+                        extract(seconds FROM age(clock_timestamp(), xact_start)) as xact_wait,
+                        extract(seconds FROM age(clock_timestamp(),
+
+{% if pg_version|int >= 14 %}
+                        (select max(l.waitstart) from pg_locks l where a.pid = l.pid)    -- PG 14 and newer
+{% else %}
+                        state_change       -- PG 13 and below
+{% endif %}
+
+                            )) as lock_wait
+                 -- "pg_locks.waitstart" – PG14+ only; for older versions:  age(clock_timestamp(), state_change) as wait_age
+                 from pg_stat_activity a
+                 where state is distinct from 'idle'),
+    blockers as (select array_agg(distinct c order by c) as pids
+                 from (select unnest(blocked_by)
+                       from activity) as dt(c)),
+    tree as (select activity.*,
+                    1                           as level,
+                    activity.pid                as top_blocker_pid,
+                    array [activity.pid]        as path,
+                    array [activity.pid]::int[] as all_blockers_above
+             from activity, blockers
+             where array [pid] <@ blockers.pids and blocked_by = '{}'::int[]
+             union all
+             select activity.*,
+                    tree.level + 1 as level,
+                    tree.top_blocker_pid,
+                    path || array [activity.pid] as path,
+                    tree.all_blockers_above || array_agg(activity.pid) over () as all_blockers_above
+             from activity,
+                  tree
+             where not array [activity.pid] <@ tree.all_blockers_above
+               and activity.blocked_by <> '{}'::int[]
+               and activity.blocked_by <@ tree.all_blockers_above)
+  SELECT pid,
+       blocked_by,
+       case when wait_event_type = 'Lock' then 'waiting' else state end                                      as state,
+       wait_event_type,
+       wait_event,
+       xact_wait,
+       lock_wait,
+       age(backend_xid) AS xid_age,
+       -- 2147483647 - age(backend_xmin) as xmin_ttf,
+       datname, usename, level - 1 AS level,
+       (select count(distinct t1.pid) from tree t1 where array [tree.pid] <@ t1.path and t1.pid <> tree.pid) as blkd,
+       format('%s %s%s', lpad('[' || pid::text || ']', 9, ' '), repeat('.', level - 1) || case when level > 1 then ' ' end, left(query, 1000) ) as query
+FROM tree
+WHERE datname = CURRENT_DATABASE()
+ORDER BY top_blocker_pid, level, pid;
+
+COMMENT ON VIEW monitor.pg_lock_waiting IS 'lock waiting tree';
+GRANT SELECT ON monitor.pg_lock_waiting TO pg_monitor;
+
 
 
 --==================================================================--
