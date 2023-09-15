@@ -1,75 +1,113 @@
 # PGSQL Monitor
 
-> How to use Pigsty to monitor remote (existing) PostgreSQL instances?
+> How to use Pigsty to monitor remote (existing) PostgreSQL cluster and [RDS](#monitor-rds)?
 
 ----------------
 
 ## Overview
 
-Pigsty use modern observability stack for PostgreSQL monitoring:
+Pigsty uses modern observability stack for PostgreSQL monitoring:
 
 * Grafana for metrics visualization and PostgreSQL datasource.
 * Prometheus for PostgreSQL / Pgbouncer / Patroni / HAProxy / Node metrics
 * Loki for PostgreSQL / Pgbouncer / Patroni / pgBackRest logs
+* Battery-Include [dashboards](PGSQL-DASHBOARD) for PostgreSQL and everything else
 
-----------------
+**Metrics**
 
-## Metrics
+PostgreSQL's metrics are defined by collector files: [`pg_exporter.yml`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/pg_exporter.yml). It will further be processed by Prometheus record rules and alert evaluation: [`files/prometheus/rules/pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/files/prometheus/rules/pgsql.yml)
 
-PostgreSQL's metrics are defined by collector files: [`pg_exporter.yml`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/pg_exporter.yml)
+There are three identity labels: `cls`, `ins`, `ip`, which will be attached to all metrics & logs. node & haproxy will try to reuse the same identity to provide consistent metrics & logs.
 
-And it will further be processed by Prometheus record rules & Alert evaluation: [`files/prometheus/rules/pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/files/prometheus/rules/pgsql.yml)
+```yaml
+{ cls: pg-meta, ins: pg-meta-1, ip: 10.10.10.10 }
+{ cls: pg-meta, ins: pg-test-1, ip: 10.10.10.11 }
+{ cls: pg-meta, ins: pg-test-2, ip: 10.10.10.12 }
+{ cls: pg-meta, ins: pg-test-3, ip: 10.10.10.13 }
+```
 
-3 labels: `cls`, `ins`, `ip` will be attached to all metrics & logs, such as `{ cls: pg-meta, ins: pg-meta-1, ip: 10.10.10.10 }`
+**Logs**
 
-
-----------------
-
-## Logs
-
-PostgreSQL related logs are collected by promtail and sending to loki on infra nodes by default.
+PostgreSQL-related logs are collected by promtail and sent to Loki on infra nodes by default.
 
 - [`pg_log_dir`](PARAM#pg_log_dir) : postgres log dir, `/pg/log/postgres` by default
 - [`pgbouncer_log_dir`](PARAM#pgbouncer_log_dir) : pgbouncer log dir, `/pg/log/pgbouncer` by default
 - [`patroni_log_dir`](PARAM#patroni_log_dir) : patroni log dir, `/pg/log/patroni` by default
 - [`pgbackrest_log_dir`](PARAM#pgbackrest_log_dir) : pgbackrest log dir, `/pg/log/pgbackrest` by default
 
+**Targets**
 
-----------------
-
-## Target Management
-
-Prometheus monitoring targets are defined in static files under `/etc/prometheus/targets/pgsql/`, each instance will have a corresponding file.
-
-Take `pg-meta-1` as an example:
+Prometheus monitoring targets are defined in static files under `/etc/prometheus/targets/pgsql/`. Each instance will have a corresponding file. Take `pg-meta-1` as an example:
 
 ```yaml
 # pg-meta-1 [primary] @ 10.10.10.10
 - labels: { cls: pg-meta, ins: pg-meta-1, ip: 10.10.10.10 }
   targets:
     - 10.10.10.10:9630    # <--- pg_exporter for PostgreSQL metrics
-    - 10.10.10.10:9631    # <--- pg_exporter for pgbouncer metrics
+    - 10.10.10.10:9631    # <--- pg_exporter for Pgbouncer metrics
     - 10.10.10.10:8008    # <--- patroni metrics
 ```
 
-When the global flag [`patroni_ssl_enabled`](PARAM#patroni_ssl_enabled) is set, patroni target will be moved to a separate file `/etc/prometheus/targets/patroni/<ins>.yml`.
-Since https scrape endpoint is used for that.
+When the global flag [`patroni_ssl_enabled`](PARAM#patroni_ssl_enabled) is set, the patroni target will be managed as `/etc/prometheus/targets/patroni/<ins>.yml` because it requires a different scrape endpoint (https).
 
-Prometheus monitoring target will be removed when cluster is removed with `bin/pgsql-rm` or `pgsql-rm.yml`. You can also remove it manually, or using playbook subtasks:
+Prometheus monitoring target will be removed when a cluster is removed by `bin/pgsql-rm` or `pgsql-rm.yml`. You can use playbook subtasks, or remove them manually:
 
 ```bash
 bin/pgmon-rm <ins>      # remove prometheus targets from all infra nodes
 ```
 
+Remote RDS targets are managed as `/etc/prometheus/targets/pgrds/<cls>.yml`. It will be created by the [`pgsql-monitor.yml`](PGSQL-PLAYBOOK#pgsql-monitor) playbook or `bin/pgmon-add` script.
 
 
 ----------------
 
-## Remote Postgres
+## Monitor Mode
+
+There are three ways to monitor PostgreSQL instances in Pigsty:
+
+|        Item \ Level        |                   L1                   |                       L2                        |               L3                |
+| :------------------------: | :------------------------------------: | :---------------------------------------------: | :-----------------------------: |
+|            Name            | [Remote Database Service](monitor-rds) | [Existing Deployment](monitor-existing-cluster) |    Fully Managed Deployment     |
+|            Abbr            |                **RDS**                 |                   **MANAGED**                   |            **FULL**             |
+|           Scenes           |        connect string URL only         |                  ssh-sudo-able                  |   Instances created by Pigsty   |
+|    PGCAT Functionality     |          ✅ Full Availability           |               ✅ Full Availability               |       ✅ Full Availability       |
+|    PGSQL Functionality     |           ✅ PG metrics only            |             ✅  PG and node metrics              |         ✅ Full Support          |
+|  Connection Pool Metrics   |            ❌ Not available             |                   ⚠️ Optional                    |        ✅ Pre-Configured         |
+|   Load Balancer Metrics    |            ❌ Not available             |                   ⚠️ Optional                    |        ✅ Pre-Configured         |
+|    PGLOG Functionality     |            ❌  Not Available            |                   ⚠️  Optional                   |           ⚠️  Optional           |
+|        PG Exporter         |            ⚠️ On infra nodes            |                  ✅ On DB nodes                  |          ✅ On DB nodes          |
+|       Node Exporter        |             ❌ Not Deployed             |                 ✅  On DB nodes                  |          ✅ On DB nodes          |
+|  Intrusion into DB nodes   |            ✅ Non-Intrusive             |              ⚠️ Installing Exporter              |    ⚠️ Fully Managed by Pigsty    |
+|  Instance Already Exists   |                 ✅ Yes                  |                      ✅ Yes                      |       ⚠️ Created by Pigsty       |
+| Monitoring users and views |            ⚠️Manually Setup             |                 ⚠️Manually Setup                 |        ✅ Auto configured        |
+| Deployment Usage Playbook  |         `bin/pgmon-add <cls>`          |        subtasks of `pgsql.ym`/`node.yml`        |           `pgsql.yml`           |
+|    Required Privileges     |   connectable PGURL from infra nodes   |         DB node ssh and sudo privileges         | DB node ssh and sudo privileges |
+|     Function Overview      |             PGCAT + PGRDS              |               Most Functionality                |       Full Functionality        |
 
 
-For existing PostgreSQL instances, such as RDS, or homemade PostgreSQL that is not managed by Pigsty,
- some additional configuration is required if you wish to monitoring them with Pigsty
+----------------
+
+## Monitor Existing Cluster
+
+Suppose the target DB node can be managed by Pigsty (accessible via ssh and sudo is available). In that case, you can use the `pg_exporter` task in the [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) playbook to deploy the monitoring component PG Exporter on the target node in the same manner as a standard deployment. You can also deploy the connection pool and its monitoring on existing instance nodes using the `pgbouncer` and `pgbouncer_exporter` tasks from the same playbook. Additionally, you can deploy host monitoring, load balancing, and log collection components using the `node_exporter`, `haproxy`, and `promtail` tasks from the [`node.yml`](NODE#nodeyml) playbook, achieving a user experience consistent with native Pigsty database instances.
+
+The definition method for existing clusters is very similar to the normal clusters managed by Pigsty. Selectively run certain tasks from the `pgsql.yml` playbook instead of running the entire playbook.
+
+```bash
+./node.yml  -l <cls> -t node_repo,node_pkg           # Add YUM sources for INFRA nodes on host nodes and install packages.
+./node.yml  -l <cls> -t node_exporter,node_register  # Configure host monitoring and add to Prometheus.
+./node.yml  -l <cls> -t promtail                     # Configure host log collection and send to Loki.
+./pgsql.yml -l <cls> -t pg_exporter,pg_register      # Configure PostgreSQL monitoring and register with Prometheus/Grafana.
+```
+
+Since the target database cluster already exists, you must manually [setup monitoring users, schemas, and extensions](#monitor-setup) on the target database cluster.
+
+
+----------------
+
+## Monitor RDS
+
+If you can **only access the target database via PGURL** (database connection string), you can refer to the instructions here for configuration. In this mode, Pigsty deploys the corresponding PG Exporter on the [INFRA node](NODE#INFRA节点) to fetch metrics from the remote database, as shown below:
 
 
 ```
@@ -88,59 +126,146 @@ For existing PostgreSQL instances, such as RDS, or homemade PostgreSQL that is n
 -------------------            ^------------------^
 ```
 
+The monitoring system will no longer have host/pooler/load balancer metrics. But the PostgreSQL metrics & catalog info are still available. Pigsty has two dedicated dashboards for that: [PGRDS Cluster](https://demo.pigsty.cc/d/pgrds-cluster) and [PGRDS Instance](https://demo.pigsty.cc/d/pgrds-instance). Overview and Database level dashboards are reused. Since Pigsty cannot manage your RDS, you have to [setup monitor](#monitor-setup) on the target database in advance.
 
-**Procedure**
+Below, we use a sandbox environment as an example: now we assume that the `pg-meta` cluster is an RDS instance `pg-foo-1` to be monitored, and the `pg-test` cluster is an RDS cluster `pg-bar` to be monitored:
 
-1. Create monitoring schema, user and privilege on target. Check [Monitor Setup](#monitor-setup) for details.
+1. Create monitoring schemas, users, and permissions on the target. Refer to [Monitoring Object Configuration](#MonitoringObjectConfiguration) for details.
 
-2. Declare the cluster in the inventory. For example, assume we want to monitor 'remote' pg-meta & pg-test cluster
-   With the name of `pg-foo` and `pg-bar`, we can declare them in the inventory as: 
+2. Declare the cluster in the configuration list. For example, suppose we want to monitor the "remote" `pg-meta` & `pg-test` clusters:
+
+   ```yaml
+   infra:            # Infra cluster for proxies, monitoring, alerts, etc.
+     hosts: { 10.10.10.10: { infra_seq: 1 } }
+     vars:           # Install pg_exporter on 'infra' group for remote postgres RDS
+       pg_exporters: # List all remote instances here, assign a unique unused local port for k
+         20001: { pg_cluster: pg-foo, pg_seq: 1, pg_host: 10.10.10.10 , pg_databases: [{ name: meta }] } # Register meta database as Grafana data source
+
+         20002: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.11 , pg_port: 5432 } # Several different connection string concatenation methods
+         20003: { pg_cluster: pg-bar, pg_seq: 2, pg_host: 10.10.10.12 , pg_exporter_url: 'postgres://dbuser_monitor:DBUser.Monitor@10.10.10.12:5432/postgres?sslmode=disable'}
+         20004: { pg_cluster: pg-bar, pg_seq: 3, pg_host: 10.10.10.13 , pg_monitor_username: dbuser_monitor, pg_monitor_password: DBUser.Monitor }
+   ```
+
+   The databases listed in the `pg_databases` field will be registered in Grafana as a PostgreSQL data source, providing data support for the PGCAT monitoring panel. If you don't want to use PGCAT and register the database in Grafana, set `pg_databases` to an empty array or leave it blank.
+
+   ![monitor-rds](https://github.com/Vonng/pigsty/assets/8587410/26b06723-3db5-4b56-b432-34c770591e0d)
+
+3. Execute the command to add monitoring: `bin/pgmon-add <clsname>`
+
+   ```bash
+   bin/pgmon-add pg-foo  # Bring the pg-foo cluster into monitoring
+   bin/pgmon-add pg-bar  # Bring the pg-bar cluster into monitoring
+   ```
+
+4. To remove a remote cluster from monitoring, use `bin/pgmon-rm <clsname>`
+
+   ```bash
+   bin/pgmon-rm pg-foo  # Remove pg-foo from Pigsty monitoring
+   bin/pgmon-rm pg-bar  # Remove pg-bar from Pigsty monitoring
+   ```
+
+You can use more parameters to override the default `pg_exporter` options. Here is an example for monitoring Aliyun RDS and PolarDB with Pigsty:
+
+<details><summary>Example: Monitor Aliyun RDS PG & PolarDB</summary>
+
+Check [remote.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/remote.yml) config for details.
 
 ```yaml
 infra:            # infra cluster for proxy, monitor, alert, etc..
   hosts: { 10.10.10.10: { infra_seq: 1 } }
   vars:           # install pg_exporter for remote postgres RDS on a group 'infra'
     pg_exporters: # list all remote instances here, alloc a unique unused local port as k
-
       20001: { pg_cluster: pg-foo, pg_seq: 1, pg_host: 10.10.10.10 }
-
       20002: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.11 , pg_port: 5432 }
       20003: { pg_cluster: pg-bar, pg_seq: 2, pg_host: 10.10.10.12 , pg_exporter_url: 'postgres://dbuser_monitor:DBUser.Monitor@10.10.10.12:5432/postgres?sslmode=disable'}
       20004: { pg_cluster: pg-bar, pg_seq: 3, pg_host: 10.10.10.13 , pg_monitor_username: dbuser_monitor, pg_monitor_password: DBUser.Monitor }
 
+      20011:
+        pg_cluster: pg-polar                        # RDS Cluster Name (Identity, Explicitly Assigned, used as 'cls')
+        pg_seq: 1                                   # RDS Instance Seq (Identity, Explicitly Assigned, used as part of 'ins')
+        pg_host: pxx.polardbpg.rds.aliyuncs.com     # RDS Host Address
+        pg_port: 1921                               # RDS Port
+        pg_exporter_include_database: 'test'        # Only monitoring database in this list
+        pg_monitor_username: dbuser_monitor         # monitor username, overwrite default
+        pg_monitor_password: DBUser_Monitor         # monitor password, overwrite default
+        pg_databases: [{ name: test }]              # database to be added to grafana datasource
+
+      20012:
+        pg_cluster: pg-polar                        # RDS Cluster Name (Identity, Explicitly Assigned, used as 'cls')
+        pg_seq: 2                                   # RDS Instance Seq (Identity, Explicitly Assigned, used as part of 'ins')
+        pg_host: pe-xx.polarpgmxs.rds.aliyuncs.com  # RDS Host Address
+        pg_port: 1521                               # RDS Port
+        pg_databases: [{ name: test }]              # database to be added to grafana datasource
+
+      20014:
+        pg_cluster: pg-rds
+        pg_seq: 1
+        pg_host: pgm-xx.pg.rds.aliyuncs.com
+        pg_port: 5432
+        pg_exporter_auto_discovery: true
+        pg_exporter_include_database: 'rds'
+        pg_monitor_username: dbuser_monitor
+        pg_monitor_password: DBUser_Monitor
+        pg_databases: [ { name: rds } ]
+
+      20015:
+        pg_cluster: pg-rdsha
+        pg_seq: 1
+        pg_host: pgm-2xx8wu.pg.rds.aliyuncs.com
+        pg_port: 5432
+        pg_exporter_auto_discovery: true
+        pg_exporter_include_database: 'rds'
+        pg_databases: [{ name: test }, {name: rds}]
+
+      20016:
+        pg_cluster: pg-rdsha
+        pg_seq: 2
+        pg_host: pgr-xx.pg.rds.aliyuncs.com
+        pg_exporter_auto_discovery: true
+        pg_exporter_include_database: 'rds'
+        pg_databases: [{ name: test }, {name: rds}]
 ```
 
-3. Execute the playbook against the cluster: `bin/pgmon-add <clsname>`.
+</details>
 
-To remove a remote cluster monitoring target:
-
-```bash
-bin/pgmon-rm <clsname>
-```
 
 
 ----------------
 
 ## Monitor Setup
 
-How to create monitor user/schema/extension/view/function on remote PostgreSQL instance to be monitored?
+When you want to monitor existing instances, whether it's RDS or a self-built PostgreSQL instance, you need to make some configurations on the target database so that Pigsty can access them.
+
+To bring an external existing PostgreSQL instance into monitoring, you need a connection string that can access that instance/cluster. Any accessible connection string (business user, superuser) can be used, but we recommend using a dedicated monitoring user to avoid permission leaks.
+
+- [ ] [Monitor User](#monitor-user): The default username used is `dbuser_monitor`. This user belongs to the `pg_monitor` group, or ensure it has the necessary view permissions.
+- [ ] [Monitor HBA](#monitor-hba): Default password is `DBUser.Monitor`. You need to ensure that the HBA policy allows the monitoring user to access the database from the infra nodes.
+- [ ] [Monitor Schema](#monitor-schema): It's optional but recommended to create a dedicate schema `monitor` for monitoring views and extensions.
+- [ ] [Monitor Extension](#monitor-extension)：It is strongly recommended to enable the built-in extension `pg_stat_statements`.
+- [ ] [Monitor View](#monitor-view): Monitoring views are optional but can provide additional metrics. Which is recommended.
 
 
 ---------------------
 
 ### Monitor User
 
-Create a monitor user on target database cluster, for example, `dbuser_monitor` is used by default in Pigsty.
+Create a monitor user on the target database cluster. For example, `dbuser_monitor` is used by default in Pigsty.
 
 ```sql
-CREATE USER dbuser_monitor;
-GRANT pg_monitor TO dbuser_monitor;
-COMMENT ON ROLE dbuser_monitor IS 'system monitor user';
-ALTER USER dbuser_monitor SET log_min_duration_statement = 1000;
-ALTER USER dbuser_monitor PASSWORD 'DBUser.Monitor'; -- Change the password accordingly!
+CREATE USER dbuser_monitor;                                       -- create the monitor user
+COMMENT ON ROLE dbuser_monitor IS 'system monitor user';          -- comment the monitor user
+GRANT pg_monitor TO dbuser_monitor;                               -- grant system role pg_monitor to monitor user
+
+ALTER USER dbuser_monitor PASSWORD 'DBUser.Monitor';              -- set password for monitor user
+ALTER USER dbuser_monitor SET log_min_duration_statement = 1000;  -- set this to avoid log flooding
+ALTER USER dbuser_monitor SET search_path = monitor,public;       -- set this to avoid pg_stat_statements extension not working
 ```
 
-The monitor user here should have the same [`pg_monitor_username`](param#pg_monitor_username) and [`pg_monitor_password`](param#pg_monitor_password) with pigsty.
+The monitor user here should have consistent [`pg_monitor_username`](param#pg_monitor_username) and [`pg_monitor_password`](param#pg_monitor_password) with Pigsty config inventory.
+
+---------------------
+
+### Monitor HBA
 
 You also need to configure `pg_hba.conf` to allow monitoring user access from infra/admin nodes.
 
@@ -152,12 +277,14 @@ host    all  dbuser_monitor  <admin_ip>/32     md5
 host    all  dbuser_monitor  <infra_ip>/32     md5
 ```
 
+If your RDS does not support the RAW HBA format, add admin/infra node IP to the whitelist.
+
 
 ---------------------
 
 ### Monitor Schema
 
-Monitor schema is **optional**, but we strongly recommend to create one.
+Monitor schema is **optional**, but we strongly recommend creating one.
 
 ```sql
 CREATE SCHEMA IF NOT EXISTS monitor;               -- create dedicate monitor schema
@@ -168,19 +295,30 @@ GRANT USAGE ON SCHEMA monitor TO dbuser_monitor;   -- allow monitor user to use 
 
 ### Monitor Extension
 
-Monitor extension is **optional**, but we strongly recommend to enable `pg_stat_statements` extension.
+Monitor extension is **optional**, but we strongly recommend enabling `pg_stat_statements` extension.
 
-Note that this extension must be listed in `shared_preload_libraries` in order to take effect, and changing this parameter requires a database restart.
+Note that this extension must be listed in `shared_preload_libraries` to take effect, and changing this parameter requires a database restart.
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "monitor";
 ```
 
+You should create this extension inside the admin database: `postgres`. If your RDS does not grant `CREATE` on the database `postgres`. You can create that extension in the default `public` schema:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
+ALTER USER dbuser_monitor SET search_path = monitor,public;
+```
+
+As long as your monitor user can access `pg_stat_statements` view without schema qualification, it should be fine.
+
+
+
 ---------------------
 
 ### Monitor View
 
-It's recommended to create monitor view in all databases that need to be monitored.
+It's recommended to create the monitor views in all databases that need to be monitored.
 
 <details><summary>Monitor Schema & View Definition</summary>
 

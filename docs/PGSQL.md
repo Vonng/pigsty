@@ -9,18 +9,18 @@
 
 > Overview of PostgreSQL in Pigsty
 
-* [Architecture](PGSQL-ARCH)
-* [Configuration](PGSQL-CONF)
-* [Database](PGSQL-DB)
-* [User/Role](PGSQL-USER)
-* [Service/Access](PGSQL-SVC)
-* [Authentication](PGSQL-HBA)
-* [Access Control](PGSQL-ACL)
-* [Administration](PGSQL-ADMIN)
-* [Backup & PITR](PGSQL-PITR)
-* [Extensions](PGSQL-EXTENSION)
-* [Monitor](PGSQL-MONITOR)
-* [Migration](PGSQL-MIGRATION)
+- [Architecture](PGSQL-ARCH)
+- [Configuration](PGSQL-CONF)
+- [Database](PGSQL-DB)
+- [User/Role](PGSQL-USER)
+- [Service/Access](PGSQL-SVC)
+- [Authentication](PGSQL-HBA)
+- [Access Control](PGSQL-ACL)
+- [Administration](PGSQL-ADMIN)
+- [Backup & PITR](PGSQL-PITR)
+- [Extensions](PGSQL-EXTENSION)
+- [Monitor](PGSQL-MONITOR)
+- [Migration](PGSQL-MIGRATION)
 
 
 ----------------

@@ -20,7 +20,7 @@
 - [访问控制](PGSQL-ACL)
 - [管理预案](PGSQL-ADMIN)
 - [备份恢复](PGSQL-PITR)
-* [扩展插件](PGSQL-EXTENSION)
+- [扩展插件](PGSQL-EXTENSION)
 - [监控接入](PGSQL-MONITOR)
 - [集群迁移](PGSQL-MIGRATION)
 - [仪表盘](PGSQL-DASHBOARD)
