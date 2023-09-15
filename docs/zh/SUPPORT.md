@@ -21,12 +21,18 @@ Pigsty 本身是一个完全免费的开源软件，由 PostgreSQL 社区成员�
 
 Pigsty社区已经提供了免费的微信群/Discord答疑服务，我们也非常乐意为支持者提供更多免费的增值服务。
 
+微信: 搜索 `pigsty-cc` Pigsty小助手 加入 PGSQL x Pigsty 交流群
+
+Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
+
+Discord: https://discord.gg/6nA2fDXt
+
 
 ------------------
 
 ## 服务协议
 
-如果您有下列需求，欢迎考虑我们的[专业支持服务](https://pigsty.cc/zh/docs/support)。
+如果您有下列需求，欢迎考虑我们的专业支持服务
 
 - 在关键场景中运行数据库，需要严格的 SLA 保障兜底。
 - 希望对 Pigsty 与 PostgreSQL 相关疑难杂症提供兜底。
