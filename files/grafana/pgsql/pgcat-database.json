@@ -266,7 +266,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "10.0.3",
+            "pluginVersion": "10.1.1",
             "targets": [
                 {
                     "datasource": {
@@ -860,7 +860,7 @@
                     }
                 ]
             },
-            "pluginVersion": "10.0.3",
+            "pluginVersion": "10.1.1",
             "targets": [
                 {
                     "datasource": {
@@ -1668,7 +1668,7 @@
                     }
                 ]
             },
-            "pluginVersion": "10.0.3",
+            "pluginVersion": "10.1.1",
             "targets": [
                 {
                     "datasource": {
@@ -1855,7 +1855,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "10.0.3",
+            "pluginVersion": "10.1.1",
             "targets": [
                 {
                     "format": "table",
@@ -2067,7 +2067,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "10.0.3",
+            "pluginVersion": "10.1.1",
             "targets": [
                 {
                     "format": "table",
@@ -2223,7 +2223,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "10.0.3",
+            "pluginVersion": "10.1.1",
             "targets": [
                 {
                     "format": "table",
@@ -2388,7 +2388,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "10.0.3",
+            "pluginVersion": "10.1.1",
             "targets": [
                 {
                     "datasource": {
@@ -2872,7 +2872,7 @@
                     }
                 ]
             },
-            "pluginVersion": "10.0.3",
+            "pluginVersion": "10.1.1",
             "targets": [
                 {
                     "datasource": {
@@ -4407,7 +4407,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "10.1.1",
                     "targets": [
                         {
                             "datasource": {
@@ -4419,7 +4419,7 @@
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "with recursive\n    activity as (select pg_blocking_pids(pid) blocked_by, *,\n                        extract(seconds FROM age(clock_timestamp(), xact_start)) as xact_wait,\n                        extract(seconds FROM age(clock_timestamp(), (select max(l.waitstart) from pg_locks l where a.pid = l.pid))) as lock_wait\n                        -- \"pg_locks.waitstart\" \u2013 PG14+ only; for older versions:  age(clock_timestamp(), state_change) as wait_age\n                 from pg_stat_activity a\n                 where state is distinct from 'idle'),\n    blockers as (select array_agg(distinct c order by c) as pids\n                 from (select unnest(blocked_by)\n                       from activity) as dt(c)),\n    tree as (select activity.*,\n                    1                           as level,\n                    activity.pid                as top_blocker_pid,\n                    array [activity.pid]        as path,\n                    array [activity.pid]::int[] as all_blockers_above\n             from activity, blockers\n             where array [pid] <@ blockers.pids and blocked_by = '{}'::int[]\n             union all\n             select activity.*,\n                    tree.level + 1 as level,\n                    tree.top_blocker_pid,\n                    path || array [activity.pid] as path,\n                    tree.all_blockers_above || array_agg(activity.pid) over () as all_blockers_above\n             from activity,\n                  tree\n             where not array [activity.pid] <@ tree.all_blockers_above\n               and activity.blocked_by <> '{}'::int[]\n               and activity.blocked_by <@ tree.all_blockers_above)\nselect pid,\n       blocked_by,\n       case when wait_event_type = 'Lock' then 'waiting' else state end                                      as state,\n       wait_event_type,\n       wait_event,\n       xact_wait,\n       lock_wait,\n       age(backend_xid) AS xid_age,\n       -- 2147483647 - age(backend_xmin) as xmin_ttf,\n       datname, usename, level - 1 AS level,\n       (select count(distinct t1.pid) from tree t1 where array [tree.pid] <@ t1.path and t1.pid <> tree.pid) as blkd,\n       format('%s %s%s', lpad('[' || pid::text || ']', 9, ' '), repeat('.', level - 1) || case when level > 1 then ' ' end, left(query, 1000) ) as query\nfrom tree\nWHERE datname = CURRENT_DATABASE()\norder by top_blocker_pid, level, pid",
+                            "rawSql": "with recursive\n    activity as (select pg_blocking_pids(pid) blocked_by, *,\n                        extract(seconds FROM age(clock_timestamp(), xact_start)) as xact_wait,\n                        extract(seconds FROM age(clock_timestamp(),\n                            -- (select max(l.waitstart) from pg_locks l where a.pid = l.pid)    -- PG 14 and newer\n                             state_change       -- PG 13 and below\n                            )) as lock_wait\n                 from pg_stat_activity a\n                 where state is distinct from 'idle'),\n    blockers as (select array_agg(distinct c order by c) as pids\n                 from (select unnest(blocked_by)\n                       from activity) as dt(c)),\n    tree as (select activity.*,\n                    1                           as level,\n                    activity.pid                as top_blocker_pid,\n                    array [activity.pid]        as path,\n                    array [activity.pid]::int[] as all_blockers_above\n             from activity, blockers\n             where array [pid] <@ blockers.pids and blocked_by = '{}'::int[]\n             union all\n             select activity.*,\n                    tree.level + 1 as level,\n                    tree.top_blocker_pid,\n                    path || array [activity.pid] as path,\n                    tree.all_blockers_above || array_agg(activity.pid) over () as all_blockers_above\n             from activity,\n                  tree\n             where not array [activity.pid] <@ tree.all_blockers_above\n               and activity.blocked_by <> '{}'::int[]\n               and activity.blocked_by <@ tree.all_blockers_above)\nselect pid,\n       blocked_by,\n       case when wait_event_type = 'Lock' then 'waiting' else state end                                      as state,\n       wait_event_type,\n       wait_event,\n       xact_wait,\n       lock_wait,\n       age(backend_xid) AS xid_age,\n       -- 2147483647 - age(backend_xmin) as xmin_ttf,\n       datname, usename, level - 1 AS level,\n       (select count(distinct t1.pid) from tree t1 where array [tree.pid] <@ t1.path and t1.pid <> tree.pid) as blkd,\n       format('%s %s%s', lpad('[' || pid::text || ']', 9, ' '), repeat('.', level - 1) || case when level > 1 then ' ' end, left(query, 1000) ) as query\nfrom tree\nWHERE datname = CURRENT_DATABASE()\norder by top_blocker_pid, level, pid;",
                             "refId": "A",
                             "select": [
                                 [
@@ -5732,7 +5732,7 @@
                         "h": 16,
                         "w": 24,
                         "x": 0,
-                        "y": 46
+                        "y": 24
                     },
                     "id": 216,
                     "links": [
@@ -5759,7 +5759,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "10.1.1",
                     "targets": [
                         {
                             "datasource": {
@@ -5771,7 +5771,7 @@
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT *,\n  pg_blocking_pids(pid) AS blocking_pids,\n  extract(epoch from now() - backend_start) AS conn_time,\n  extract(epoch from now() - xact_start)    AS xact_time,\n  extract(epoch from now() - query_start)   AS query_time,\n  extract(epoch from now() - state_change)  AS state_time,\n  query_id::TEXT AS qid\nFROM pg_stat_activity\nWHERE datname = current_database();",
+                            "rawSql": "SELECT *,\n  pg_blocking_pids(pid) AS blocking_pids,\n  extract(epoch from now() - backend_start) AS conn_time,\n  extract(epoch from now() - xact_start)    AS xact_time,\n  extract(epoch from now() - query_start)   AS query_time,\n  extract(epoch from now() - state_change)  AS state_time\n  -- ,query_id::TEXT AS qid -- 14 has query_id, comment this for PG 13 and below \nFROM pg_stat_activity\nWHERE datname = current_database();",
                             "refId": "A",
                             "select": [
                                 [
