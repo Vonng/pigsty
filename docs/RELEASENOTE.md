@@ -59,7 +59,15 @@ Get started with `bash -c "$(curl -fsSL https://get.pigsty.cc/beta)"`.
 
 - New Parameter: `REDIS`.`redis_sentinel_monitor`: specify masters monitor by redis sentinel cluster
 
+**Bug Fix**
 
+- Fix Grafana 10.1 registered datasource will use random uid rather than `ins.datname`
+
+```
+MD5 (pigsty-pkg-v2.4.0.el7.x86_64.tgz) = 257443e3c171439914cbfad8e9f72b17
+MD5 (pigsty-pkg-v2.4.0.el8.x86_64.tgz) = 41ad8007ffbfe7d5e8ba5c4b51ff2adc
+MD5 (pigsty-pkg-v2.4.0.el9.x86_64.tgz) = 9a950aed77a6df90b0265a6fa6029250
+```
 
 ----------------
 

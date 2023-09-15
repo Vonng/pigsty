@@ -59,6 +59,16 @@
 
 - 新增参数，`REDIS`.`redis_sentinel_monitor`，用于指定 Sentinel 集群监控的主库列表
 
+**问题修复**
+
+- 修复 Grafana 10.1 注册数据源时缺少 `uid` 的问题
+
+
+```
+MD5 (pigsty-pkg-v2.4.0.el7.x86_64.tgz) = 257443e3c171439914cbfad8e9f72b17
+MD5 (pigsty-pkg-v2.4.0.el8.x86_64.tgz) = 41ad8007ffbfe7d5e8ba5c4b51ff2adc
+MD5 (pigsty-pkg-v2.4.0.el9.x86_64.tgz) = 9a950aed77a6df90b0265a6fa6029250
+```
 
 
 ----------------
