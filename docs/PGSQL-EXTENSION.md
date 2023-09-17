@@ -243,6 +243,8 @@ You can run the `pg_extension` sub-task in [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml
 ./pgsql.yml -l pg-v15 -t pg_extension    # install specified extensions for cluster pg-v15
 ```
 
+To install **all** available extensions in one pass, you can just specify `pg_extensions: ['*_${pg_version}']`, which is really a bold move.
+
 
 ----------------
 
@@ -269,12 +271,18 @@ CREATE EXTENSION age;          -- install the graph database extension
 
 ## Compile Extension
 
-If the extension you want is not included in Pigsty or the official PGDG repo, you can compile them into RPMs.
+If the extension you want is not included in Pigsty or the official [PGDG](https://download.postgresql.org/pub/repos/yum/) repo, you can compile them into RPMs.
 
-For example, here are the instructions for compiling the PostgreSQL `pgsql-http` extension:
 To compile the extension, you need to install `rpmbuild`, `gcc/clang`, and other related `-devel` packages; you also need `pgdg-srpm-macros` to build standard PGDG-style extension RPMs.
 
+The installed 3-node el7-9 building environment [`build.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/full.yml) could be used as a base for compiling extensions.
+You can install the dependencies required for compilation in this environment:
+
 ```bash
+make build check-repo install    # setup building VMs, copy pkg.tgz and init
+bin/repo-add infra node,pgsql    # add upstream repo to all 3 infra nodes
+
+# add srpm repo to infra nodes
 cat > /etc/yum.repos.d/pgdg-srpm.repo <<-'EOF'
 [pgdg-common-srpm]
 name = PostgreSQL 15 SRPM $releasever - $basearch
@@ -284,13 +292,17 @@ enabled = 1
 module_hotfixes=1
 EOF
 
-# install deps
+# install compiling tools, build deps and PG major versions
+yum groupinstall -y 'Development Tools'
 yum install -y pgdg-srpm-macros clang ccache rpm-build rpmdevtools postgresql1*-server flex bison
-yum install -y postgresql1*-devel openssl-devel krb5-devel libcurl-devel readline-devel zlib-devel
-rpmdev-setuptree;
+yum install -y postgresql1*-devel readline-devel zlib-devel openssl-devel krb5-devel libcurl-devel
+rpmdev-setuptree
 ```
 
-Then, write the package specification file to: `/root/rpmbuild/SPECS/pgsql-http.spec`.
+
+For example, here are the instructions for compiling the PostgreSQL `pgsql-http` extension:
+
+Let's add the package specification file to: `/root/rpmbuild/SPECS/pgsql-http.spec`.
 
 <details><summary>Example: RPM SPEC for http extension</summary>
 

@@ -246,6 +246,8 @@ pg-v15:
 ./pgsql.yml -l pg-v15 -t pg_extension    # 为 pg-v15 集群安装指定的扩展插件
 ```
 
+如果您想一次性把所有可用的扩展都安装齐全，那么可以指定 `pg_extensions: ['*_${pg_version}']`，简单粗暴，大力出奇迹！
+
 
 ----------------
 
@@ -260,7 +262,7 @@ ansible pg-test -m yum -b -a 'name=zhparser_15*'       # 例如，您的数据�
 ```
 
 绝大多数插件插件都已经收录放置在基础设施节点上的 yum 软件源中，可以直接通过 yum 命令安装。
-如果没有收录，您可以考虑从 PGDG 上游源使用 `repotrack` 命令下载，或者选择在本地编译好后打包成 RPM 包分发。
+如果没有收录，您可以考虑从 PGDG 上游源使用 `repotrack` 命令下载，或者选择在本地[编译](#扩展编译)好后打包成 RPM 包分发。
 
 扩展安装完成后，您应当能在目标数据库集群的 `pg_available_extensions` 视图中看到它们，接下来在想要安装扩展的数据库中执行：
 
@@ -275,13 +277,17 @@ CREATE EXTENSION zhparser;     -- 安装中文分词全文检索扩展
 
 ## 扩展编译
 
-如果您想要的扩展包不在 Pigsty 中，也不在 PGDG 官方源里，那么您可以考虑编译安装，或者将编译好的扩展打包成 RPM 包分发。
-
-例如，下面是编译 PostgreSQL `pgsql-http` 扩展的说明：
+如果您想要的扩展包不在 Pigsty 中，也不在 [PGDG](https://download.postgresql.org/pub/repos/yum/) 官方源里，那么您可以考虑编译安装，或者将编译好的扩展打包成 RPM 包分发。
 
 想要编译扩展，您需要安装 `rpmbuild`，`gcc/clang`，以及其他相关的 `-devel` 软件包，特别是您还需要 `pgdg-srpm-macros` 来构建标准的 PGDG 式扩展 RPM。
 
+完整安装完毕的 Pigsty 的三节点构建环境 [`build.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/full.yml) 可以作为编译环境的基础，您可以在此环境中安装编译所需的依赖：
+
 ```bash
+make build check-repo install    # 创建一个 3 节点构建环境，拷贝离线软件包，并进行完整初始化。
+bin/repo-add infra node,pgsql    # 将上游的操作系统/PostgreSQL源加入到3台INFRA节点的本地yum源中
+
+# 您还需要将 SRPM 的仓库添加至机器的yum源中
 cat > /etc/yum.repos.d/pgdg-srpm.repo <<-'EOF'
 [pgdg-common-srpm]
 name = PostgreSQL 15 SRPM $releasever - $basearch
@@ -291,13 +297,14 @@ enabled = 1
 module_hotfixes=1
 EOF
 
-# install deps
+# 安装编译工具，构建依赖，以及 PostgreSQL 各大版本
+yum groupinstall -y 'Development Tools'
 yum install -y pgdg-srpm-macros clang ccache rpm-build rpmdevtools postgresql1*-server flex bison
-yum install -y postgresql1*-devel openssl-devel krb5-devel libcurl-devel readline-devel zlib-devel
-rpmdev-setuptree;
+yum install -y postgresql1*-devel readline-devel zlib-devel openssl-devel krb5-devel libcurl-devel
+rpmdev-setuptree
 ```
 
-然后，撰写软件包的规格说明文件，放置于： `/root/rpmbuild/SPECS/pgsql-http.spec`。
+下面是编译一个 PostgreSQL 扩展 `pgsql-http` 的说明：首先撰写软件包的规格说明文件，放置于： `/root/rpmbuild/SPECS/pgsql-http.spec`。
 
 <details><summary>示例：构建 http 扩展的 RPM SPEC</summary>
 
@@ -399,4 +406,6 @@ rpmbuild --define "pgmajorversion 12" -ba ~/rpmbuild/SPECS/pgsql-http.spec;
 ```
 
 编译成果会放置在 `/root/rpmbuild/RPMS`，将其移动到 Pigsty 本地源 `/www/pigsty`，并执行 `./infra.yml -t repo_create` 重建本地源。
-您就可以在其他主机上使用编译好的扩展 RPM 包了。具体细节请参考 rpm 构建资料，不再展开。
+您可能还需要清空使用本地仓库的其他节点上的本地 Yum 缓存：`ansible all -b -a 'yum clean all'`。
+
+这样，您就可以在其他主机上使用编译好的扩展 RPM 包了。具体细节请参考 rpm 构建资料，不再展开。
