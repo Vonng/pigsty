@@ -182,7 +182,7 @@ Release Note: https://doc.pigsty.cc/#/RELEASENOTE
 
 **Bug Fix**
 
-* Fix docker group ownership issue [29434bd]https://github.com/Vonng/pigsty/commit/29434bdd39548d95d80a236de9099874ed564f9b
+* Fix docker group ownership issue [29434bd](https://github.com/Vonng/pigsty/commit/29434bdd39548d95d80a236de9099874ed564f9b)
 * Append infra os group rather than set it as primary group
 * Fix redis sentinel systemd enable status [5c96feb](https://github.com/Vonng/pigsty/commit/5c96feb598ad6e44daa7a595e34c87e67952777b)
 * Loose `bootstrap` & `configure` if `/etc/redhat-release` not exists

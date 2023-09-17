@@ -477,7 +477,7 @@ pb info         # 打印备份信息 （pgbackrest info）
 
 <details><summary>示例：创建定时备份任务</summary>
 
-您可以将 crontab 添加到 [`node_crontab`]PARAM#node_crontab) 以指定您的备份策略。
+您可以将 crontab 添加到 [`node_crontab`](PARAM#node_crontab) 以指定您的备份策略。
 
 ```yaml
 # 每天凌晨1点做一次全备份

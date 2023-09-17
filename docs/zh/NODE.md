@@ -118,7 +118,7 @@ IP地址即配置清单中主机的`inventory_hostname` ，体现为`<cluster>.h
 |     [`nodename`](PARAM#nodename)     | `string` | **I** | 可选     | **节点名称**   |
 | [`node_cluster`](PARAM#node_cluster) | `string` | **C** | 可选     | **节点集群名称** |
 
-[`nodename`]PARAM(#nodename) 与 [`node_cluster`](PARAM#node_cluster) 两个参数是可选的，如果不提供，会使用节点现有的主机名，和固定值 `nodes` 作为默认值。
+[`nodename`](PARAM#nodename) 与 [`node_cluster`](PARAM#node_cluster) 两个参数是可选的，如果不提供，会使用节点现有的主机名，和固定值 `nodes` 作为默认值。
 在 Pigsty 的监控系统中，这两者将会被用作节点的 **集群标识** （`cls`） 与 **实例标识**（`ins`） 。
 
 对于 [PGSQL节点](#pgsql节点) 来说，因为Pigsty默认采用PG:节点独占1:1部署，因此可以通过 [`node_id_from_pg`](PARAM#node_id_from_pg) 参数，

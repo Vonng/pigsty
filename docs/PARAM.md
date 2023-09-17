@@ -1426,7 +1426,11 @@ overwrite node's hostname with nodename?
 
 default value is `true`, a non-empty node name [`nodename`](#nodename) will override the hostname of the current node.
 
-No changes are made to the hostname if the [`nodename`](#nodename) parameter is undefined, empty, or an empty string.
+When the [`nodename`](#nodename) parameter is undefined or an empty string, but [`node_id_from_pg`](#node_id_from_pg) is `true`,
+the node name will try to use `{{ pg_cluster }}-{{ pg_seq }}`, borrow identity from the 1:1 PostgreSQL Instance's ins name.
+
+No changes are made to the hostname if the `nodename` is undefined, empty, or an empty string and `node_id_from_pg` is `false`.
+
 
 
 

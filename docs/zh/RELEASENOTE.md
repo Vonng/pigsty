@@ -189,7 +189,7 @@ MD5 (pigsty-pkg-v2.3.0.el9.x86_64.tgz) = 4bc9ae920e7de6dd8988ca7ee681459d
 
 **Bug修复**
 
-* 修复了 Docker 组权限的问题 [29434bd]https://github.com/Vonng/pigsty/commit/29434bdd39548d95d80a236de9099874ed564f9b
+* 修复了 Docker 组权限的问题 [29434bd](https://github.com/Vonng/pigsty/commit/29434bdd39548d95d80a236de9099874ed564f9b)
 * 将 `infra` 操作系统用户组作为额外的组，而不是首要用户组。
 * 修复了 Redis Sentinel Systemd 服务的自动启用状态 [5c96feb](https://github.com/Vonng/pigsty/commit/5c96feb598ad6e44daa7a595e34c87e67952777b)
 * 放宽了 `bootstrap` & `configure` 的检查，特别是当 `/etc/redhat-release` 不存在的时候。

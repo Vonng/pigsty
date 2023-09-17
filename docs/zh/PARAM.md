@@ -1464,11 +1464,12 @@ If [`nodename_overwrite`](#nodename_overwrite) is `true`, the node name will als
 
 参数名称： `nodename_overwrite`， 类型： `bool`， 层次：`C`
 
-overwrite node's hostname with nodename?
+是否使用 nodename 覆盖主机名？默认值为 `true`，在这种情况下，如果你设置了一个非空的 [`nodename`](#nodename) ，那么它会被用作当前主机的 HOSTNAME 。
 
-default value is `true`, a non-empty node name [`nodename`](#nodename) will override the hostname of the current node.
+当 `nodename` 配置为空时，如果  [`node_id_from_pg`](#node_id_from_pg) 参数被配置为 `true` （默认为真），那么 Pigsty 会尝试借用1:1定义在节点上的 PostgreSQL 实例的身份参数作为主机的节点名。
+也就是 `{{ pg_cluster }}-{{ pg_seq }}`，如果该节点没有安装 PGSQL 模块，则会回归到默认什么都不做的状态。
 
-No changes are made to the hostname if the [`nodename`](#nodename) parameter is undefined, empty, or an empty string.
+因此，如果您将 [`nodename`](#nodename) 留空，并且没有启用 [`node_id_from_pg`](#node_id_from_pg) 参数时，Pigsty不会对现有主机名进行任何修改。
 
 
 
