@@ -38,8 +38,13 @@ Among them, the bolded names are core extension plugins, including: `postgis`, `
 | **embedding**                | 0.3.6   | PIGSTY      | FEAT      | Vector similarity search with the HNSW algorithm             |
 | **http**                     | 1.6     | PIGSTY      | FEAT      | HTTP client for PostgreSQL, allows web page retrieval inside the database. |
 | pg_tle                       | 1.2.0   | PIGSTY      | FEAT      | Trusted Language Extensions for PostgreSQL                   |
-| roaringbitmap                | 0.5     | PIGSTY      | FEAT      | support for Roaring Bitmaps                                  |
-| **zhparser**                 | 2.2     | PIGSTY      | FEAT      | a parser for full-text search of Chinese                     |
+| roaringbitmap                | 0.5     | PIGSTY      | FEAT      | Support for Roaring Bitmaps                                  |
+| **zhparser**                 | 2.2     | PIGSTY      | FEAT      | Parser for full-text search of Chinese                     |
+| **pgml**                     | 2.7.9   | PIGSTY      | FEAT      | Use the expressive power of SQL along with the most advanced machine learning algorithms and pretrained models in a high performance database. |
+| pg_net                       | 0.7.2   | PIGSTY      | FEAT      | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
+| vault                        | 0.2.9   | PIGSTY      | FEAT      | Extension for storing encrypted secrets in the Vault         |
+| **pg_graphql**               | 1.3.0   | PIGSTY      | FEAT      | GraphQL support for PostgreSQL                               |
+| **hydra**                    | 1.0.0   | PIGSTY      | FEAT      | Hydra is open source, column-oriented Postgres extension     |
 | credcheck                    | 2.1.0   | PGDG        | ADMIN     | credcheck - postgresql plain text credential checker         |
 | **pg_cron**                  | 1.5     | PGDG        | ADMIN     | Job scheduler for PostgreSQL                                 |
 | pg_background                | 1.0     | PGDG        | ADMIN | Run SQL queries in the background                            |
@@ -243,7 +248,7 @@ You can run the `pg_extension` sub-task in [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml
 ./pgsql.yml -l pg-v15 -t pg_extension    # install specified extensions for cluster pg-v15
 ```
 
-To install **all** available extensions in one pass, you can just specify `pg_extensions: ['*_${pg_version}']`, which is really a bold move.
+To install **all** available extensions in one pass, you can just specify `pg_extensions: ['*${pg_version}*']`, which is really a bold move.
 
 
 ----------------

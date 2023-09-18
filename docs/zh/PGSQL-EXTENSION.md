@@ -35,18 +35,22 @@ Pigsty 收录了超过 140 个 PostgreSQL 扩展插件，并编译打包整合�
 其中，名称加粗的为核心扩展插件，包括：`postgis`, `timescaledb`, `citus`, `age`, `vector`, `embedding`, `zhparser`, `pg_repack`, `wal2json`, `passwordcracklib` ,`pg_cron`
 
 
-
 | name                         | version | source     | type   | comment                                                      |
 | ---------------------------- | :-----: | :--------: | :----: | ------------------------------------------------------------ |
 | **age**                      | 1.4.0   | PIGSTY      | FEAT      | Apache AGE graph database extension                          |
 | **embedding**                | 0.3.6   | PIGSTY      | FEAT      | Vector similarity search with the HNSW algorithm             |
 | **http**                     | 1.6     | PIGSTY      | FEAT      | HTTP client for PostgreSQL, allows web page retrieval inside the database. |
 | pg_tle                       | 1.2.0   | PIGSTY      | FEAT      | Trusted Language Extensions for PostgreSQL                   |
-| roaringbitmap                | 0.5     | PIGSTY      | FEAT      | support for Roaring Bitmaps                                  |
-| **zhparser**                 | 2.2     | PIGSTY      | FEAT      | a parser for full-text search of Chinese                     |
+| roaringbitmap                | 0.5     | PIGSTY      | FEAT      | Support for Roaring Bitmaps                                  |
+| **zhparser**                 | 2.2     | PIGSTY      | FEAT      | Parser for full-text search of Chinese                     |
+| **pgml**                     | 2.7.9   | PIGSTY      | FEAT      | Use the expressive power of SQL along with the most advanced machine learning algorithms and pretrained models in a high performance database. |
+|   pg_net                     | 0.7.2   | PIGSTY      | FEAT      | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
+| vault                        | 0.2.9   | PIGSTY      | FEAT      | Extension for storing encrypted secrets in the Vault         |
+| **pg_graphql**               | 1.3.0   | PIGSTY      | FEAT      | GraphQL support for PostgreSQL                               |
+| **hydra**                    | 1.0.0   | PIGSTY      | FEAT      | Hydra is open source, column-oriented Postgres extension     |
 | credcheck                    | 2.1.0   | PGDG        | ADMIN     | credcheck - postgresql plain text credential checker         |
 | **pg_cron**                  | 1.5     | PGDG        | ADMIN     | Job scheduler for PostgreSQL                                 |
-| pg_background                | 1.0     | PGDG        | ADMIN | Run SQL queries in the background                            |
+| pg_background                | 1.0     | PGDG        | ADMIN     | Run SQL queries in the background                            |
 | pg_jobmon                    | 1.4.1   | PGDG        | ADMIN     | Extension for logging and monitoring functions in PostgreSQL |
 | pg_readonly                  | 1.0.0   | PGDG        | ADMIN     | cluster database read only                                   |
 | **pg_repack**                | 1.4.8   | PGDG        | ADMIN     | Reorganize tables in PostgreSQL databases with minimal locks |
@@ -76,7 +80,7 @@ Pigsty 收录了超过 140 个 PostgreSQL 扩展插件，并编译打包整合�
 | **vector**                   | 0.5.0   | PGDG        | FEAT      | vector data type and ivfflat access method                   |
 | count_distinct               | 3.0.1   | PGDG        | FUNC      | An alternative to COUNT(DISTINCT ...) aggregate, usable with HashAggregate |
 | ddlx                         | 0.23    | PGDG        | FUNC      | DDL eXtractor functions                                      |
-| extra_window_functions       | 1.0     | PGDG        | FUNC      |                                                              |
+| extra_window_functions       | 1.0     | PGDG        | FUNC      | Additional window functions to PostgreSQL                    |
 | mysqlcompat                  | 0.0.7   | PGDG        | FUNC      | MySQL compatibility functions                                |
 | orafce                       | 4.5     | PGDG        | FUNC      | Functions and operators that emulate a subset of functions and packages from the Oracle RDBMS |
 | pgsql_tweaks                 | 0.10.0  | PGDG        | FUNC      | Some functions and views for daily usage                     |
@@ -120,7 +124,7 @@ Pigsty 收录了超过 140 个 PostgreSQL 扩展插件，并编译打包整合�
 | system_stats                 | 1.0     | PGDG        | STAT      | System statistic functions for PostgreSQL                    |
 | citext                       | 1.6     | PGDG        | TYPE      | data type for case-insensitive character strings             |
 | geoip                        | 0.2.4   | PGDG        | TYPE      | An IP geolocation extension (a wrapper around the MaxMind GeoLite dataset) |
-| ip4r                         | 2.4     | PGDG        | TYPE      | NULL                                                         |
+| ip4r                         | 2.4     | PGDG        | TYPE      | IPv4/v6 and IPv4/v6 range index type for PostgreSQL          |
 | pg_uuidv7                    | 1.1     | PGDG        | TYPE      | pg_uuidv7: create UUIDv7 values in postgres                  |
 | pgmp                         | 1.1     | PGDG        | TYPE      | Multiple Precision Arithmetic extension                      |
 | semver                       | 0.32.1  | PGDG        | TYPE      | Semantic version data type                                   |
@@ -246,7 +250,7 @@ pg-v15:
 ./pgsql.yml -l pg-v15 -t pg_extension    # 为 pg-v15 集群安装指定的扩展插件
 ```
 
-如果您想一次性把所有可用的扩展都安装齐全，那么可以指定 `pg_extensions: ['*_${pg_version}']`，简单粗暴，大力出奇迹！
+如果您想一次性把所有可用的扩展都安装齐全，那么可以指定 `pg_extensions: ['*${pg_version}*']`，简单粗暴，大力出奇迹！
 
 
 ----------------

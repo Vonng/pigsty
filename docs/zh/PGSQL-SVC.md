@@ -227,7 +227,7 @@ Replica服务在生产环境中的重要性仅次于Primary服务，它在 5434 
 
 - 选择器参数 `selector: "[]"` 意味着所有集群成员都将被包括在Replica服务中
 - 所有实例都能够通过健康检查（`check: /read-only`），承载Replica服务的流量。
-- 备份选择器：`[? pg_role == `primary` || pg_role == `offline` ]` 将主库和[离线从库](PGSQL-CONF#离线从库)标注为备份服务器。
+- 备份选择器：`[? pg_role == 'primary' || pg_role == 'offline' ]` 将主库和[离线从库](PGSQL-CONF#离线从库)标注为备份服务器。
 - 只有当所有[普通从库](PGSQL-CONF#只读从库)都宕机后，Replica服务才会由主库或离线从库来承载。
 - 目的地参数 `dest: default` 意味着Replica服务的目的地也受到 [`pg_default_service_dest`](param#pg_default_service_dest) 参数的影响
 - `dest` 默认值 `default` 会被替换为 `pg_default_service_dest` 的值，默认为 `pgbouncer`，这一点和 [Primary服务](#primary服务) 相同
@@ -256,7 +256,7 @@ listen pg-test-replica
 
 Replica服务非常灵活：如果有存活的专用 Replica 实例，那么它会优先使用这些实例来承载只读请求，只有当从库实例全部宕机后，才会由主库来兜底只读请求。对于常见的一主一从双节点集群就是：只要从库活着就用从库，从库挂了再用主库。
 
-另一方面，除非专用只读实例死光了，Replica服务默认也不会使用专用的 Offline 实例，这样就避免了在线的快查询与离线 ETL / 慢查询混在一起相互影响。
+此外，除非专用只读实例全部宕机，Replica 服务也不会使用专用 Offline 实例，这样就避免了在线快查询与离线慢查询混在一起，相互影响。
 
 
 
@@ -272,7 +272,7 @@ Default服务总是绕过连接池直接连到主库上的 PostgreSQL，这对�
 - { name: primary ,port: 5433 ,dest: default  ,check: /primary   ,selector: "[]" }
 ```
 
-如果 `pg_default_service_dest` 被修改为 `postgres`，那么可以说这Default服务除了端口和名称内容其实是等价的。在这种情况下，您可以考虑将其从默认服务中剔除。
+如果 `pg_default_service_dest` 被修改为 `postgres`，那么可以说 Default 服务除了端口和名称内容之外，与 Primary 服务是完全等价的。在这种情况下，您可以考虑将 Default 从默认服务中剔除。
 
 <details><summary>示例：pg-test-default 的 haproxy 配置</summary> 
 
@@ -339,9 +339,9 @@ listen pg-test-offline
 Offline服务提供受限的只读服务，通常用于两类查询：交互式查询（个人用户），慢查询长事务（分析/ETL）。
 
 Offline 服务需要额外的维护照顾：当集群发生主从切换或故障自动切换时，集群的实例角色会发生变化，而 Haproxy 的配置却不会自动发生变化。对于有多个从库的集群来说，这通常并不是一个问题。
-然而对于一主一从，从库跑Offline查询的精简小集群而言，主从切换意味着从库变成了主库（健康检查失效），原来的主库变成了从库（不在 Offline 后端列表中），于是没有实例可以承载 Offline服务了，因此需要手动[重载服务](PGSQL-admin#重载服务)以使变更生效。
+然而对于一主一从，从库跑Offline查询的精简小集群而言，主从切换意味着从库变成了主库（健康检查失效），原来的主库变成了从库（不在 Offline 后端列表中），于是没有实例可以承载 Offline 服务了，因此需要手动[重载服务](PGSQL-admin#重载服务)以使变更生效。
 
-如果您的业务模型较为简单，您可以考虑剔除 Default服务与Offline服务，使用 Primary服务与Replica服务直连数据库。
+如果您的业务模型较为简单，您可以考虑剔除 Default 服务与 Offline 服务，使用 Primary 服务与 Replica 服务直连数据库。
 
 
 
