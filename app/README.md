@@ -45,7 +45,7 @@ docker pull andrewjones/schemaspy-postgres
 docker pull requarks/wiki
 docker pull gitea/gitea
 docker pull kong
-docker pull ghcr.io/ferretdb/ferretdb
+docker pull quay.io/ferretdb/ferretdb
 ```
 
 
@@ -64,7 +64,7 @@ docker save andrewjones/schemaspy-postgres   | gzip -9 -c > /tmp/docker/schemasp
 docker save requarks/wiki                    | gzip -9 -c > /tmp/docker/wiki.tgz
 docker save gitea/gitea                      | gzip -9 -c > /tmp/docker/gitea.tgz
 docker save kong                             | gzip -9 -c > /tmp/docker/kong.tgz
-docker save ghcr.io/ferretdb/ferretdb        | gzip -9 -c > /tmp/docker/ferretdb.tgz
+docker save quay.io/ferretdb/ferretdb        | gzip -9 -c > /tmp/docker/ferretdb.tgz
 docker save nocodb/nocodb                    | gzip -9 -c > /tmp/docker/nocodb.tgz
 ```
 

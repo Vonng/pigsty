@@ -26,7 +26,7 @@ rmi:
 
 save:
 	mkdir -p /tmp/docker
-	docker save ghcr.io/ferretdb/ferretdb:latest | gzip -9 -c > /tmp/docker/ferretdb.tgz
+	docker save quay.io/ferretdb/ferretdb:latest | gzip -9 -c > /tmp/docker/ferretdb.tgz
 
 load:
 	cat /tmp/docker/ferretdb.tgz | gzip -d -c - | docker load

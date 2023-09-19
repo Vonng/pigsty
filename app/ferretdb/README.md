@@ -27,7 +27,7 @@ make load       # load ferretdb image from /tmp
 version: "3"
 services:
   ferretdb:
-    image: ghcr.io/ferretdb/ferretdb:latest
+    image: quay.io/ferretdb/ferretdb:latest
     container_name: ferretdb
     restart: on-failure
     environment:
