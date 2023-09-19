@@ -1,0 +1,78 @@
+#!/bin/bash
+set -euo pipefail
+#==============================================================#
+# File      :   package
+# Desc      :   make pigsty offline packages from el7,8,9
+# Ctime     :   2023-09-19
+# Mtime     :   2023-09-19
+# Path      :   bin/package
+# Deps      :   gzip, tar, ssh
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+PROG_NAME="$(basename $0)"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+VERSION=${1-'v2.4.0'}
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+# bin/package [version]
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+
+
+#--------------------------------------------------------------#
+# make source package
+#--------------------------------------------------------------#
+RELEASE_SCRIPT=${PROG_DIR}/release
+log_info "make pigsty-${VERSION}.tgz with ${RELEASE_SCRIPT}"
+/bin/bash "${RELEASE_SCRIPT}" "${VERSION}"
+ls -alh "${PROG_DIR}/../dist/${VERSION}"
+
+
+#--------------------------------------------------------------#
+# check ssh connectivity
+#--------------------------------------------------------------#
+log_info "make pigsty-pkg-${VERSION} for el7,8,9"
+
+log_info "trim /www/pigsty packages"
+ssh build-el7 "sudo rm -rf /www/pigsty/*docs* /www/pigsty/patroni*3.0.4*"
+ssh build-el8 "sudo rm -rf /www/pigsty/*docs* /www/pigsty/patroni*3.0.4*"
+ssh build-el9 "sudo rm -rf /www/pigsty/*docs* /www/pigsty/patroni*3.0.4* proj-data*"
+cd ${PROG_DIR}/../ && ./infra.yml -t repo_create
+
+
+log_info "copy /tmp/cache script"
+CACHE_SCRIPT=${PROG_DIR}/cache
+scp ${CACHE_SCRIPT} build-el7:/tmp/cache
+scp ${CACHE_SCRIPT} build-el8:/tmp/cache
+scp ${CACHE_SCRIPT} build-el9:/tmp/cache
+
+log_info "make offline packages"
+ssh -t build-el7 "sudo bash /tmp/cache" &
+ssh -t build-el8 "sudo bash /tmp/cache" &
+ssh -t build-el9 "sudo bash /tmp/cache" &
+wait
+
+log_info "copy pigsty-pkg to local dist dir"
+scp build-el7:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz &
+scp build-el8:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz &
+scp build-el9:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz &
+wait
+
+
+log_info "building complete"
+ls -alh "${PROG_DIR}/../dist/${VERSION}"
+
+cd "${PROG_DIR}/../dist/${VERSION}/" && md5sum * > checksum && cat checksum

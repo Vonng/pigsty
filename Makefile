@@ -430,7 +430,6 @@ release-el8:
 release-el9:
 	scp bin/cache build-el9:/tmp/cache; ssh build-el9 "sudo bash /tmp/cache"; scp build-el9:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
 
-
 # validate offline packages with build environment
 check-all: check-src check-repo check-boot
 check-src:
@@ -446,9 +445,13 @@ check-boot:
 	ssh build-el8 "cd pigsty; ./bootstrap -n ; ./configure -m el8  -i 10.10.10.8 -n";
 	ssh build-el9 "cd pigsty; ./bootstrap -n ; ./configure -m el9  -i 10.10.10.9 -n";
 
+# final packaging
+pp: package
+package:
+	bin/build ${VERSION}
 
 # publish pigsty packages to https://get.pigsty.cc
-p: publish
+pb: publish
 publish:
 	bin/publish ${VERSION}
 ###############################################################
@@ -507,6 +510,6 @@ prod7: del vp7 new ssh
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
-        r release rr remote-release rp release-pkg release-el7 release-el8 release-el9 check-all check-src check-repo check-boot p publish \
+        r release rr remote-release rp release-pkg release-el7 release-el8 release-el9 check-all check-src check-repo check-boot pp package pb publish \
         meta full check minio build build-check el7 el8 el9 prod prod7 prod8
 ###############################################################

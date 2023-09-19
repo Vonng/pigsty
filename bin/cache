@@ -57,11 +57,15 @@ fi
 #--------------------------------------------------------------#
 # Check grafana plugins
 #--------------------------------------------------------------#
-if [ -z "$(ls -A /var/lib/grafana/plugins)" ]; then
-   log_warn "grafana plugins not found, skip"
+if [ -f "${REPO_DIR}/plugins.tgz" ]; then
+    log_info "grafana plugins already cached, skip"
 else
-   log_info "grafana plugins found, archiving to ${REPO_DIR}/plugins.tgz"
-   sudo tar -zcf ${REPO_DIR}/plugins.tgz -C /var/lib/grafana/ plugins  # pack grafana plugins
+    if [ -z "$(ls -A /var/lib/grafana/plugins)" ]; then
+       log_warn "grafana plugins not found, skip"
+    else
+       log_info "grafana plugins found, archiving to ${REPO_DIR}/plugins.tgz"
+       sudo tar -zcf ${REPO_DIR}/plugins.tgz -C /var/lib/grafana/ plugins  # pack grafana plugins
+    fi
 fi
 
 
