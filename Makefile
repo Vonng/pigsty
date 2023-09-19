@@ -448,7 +448,7 @@ check-boot:
 # final packaging
 pp: package
 package:
-	bin/build ${VERSION}
+	bin/package ${VERSION}
 
 # publish pigsty packages to https://get.pigsty.cc
 pb: publish
