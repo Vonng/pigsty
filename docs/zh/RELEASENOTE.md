@@ -2,6 +2,7 @@
 
 | 版本             |  发布时间   | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v2.4.1](#v241) | 2023-09-21 | Supabase/PostgresML support, graphql, jwt, pg_net, vault    | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
 | [v2.4.0](#v240) | 2023-09-14 | PG16，监控RDS，服务咨询支持，新扩展：中文分词全文检索/图/HTTP/嵌入等 | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
 | [v2.3.1](#v231) | 2023-09-01 | 带HNSW的PGVector，PG 16 RC1, 文档翻新，中文文档，例行问题修复     | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.0](#v230) | 2023-08-20 | 主机VIP, ferretdb, nocodb, MySQL存根, CVE修复                    | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
@@ -33,6 +34,22 @@
 | v0.0.2          | 2020-04-30 | 首次提交                                                       | [v0.0.2](https://github.com/Vonng/pigsty/commit/dd646775624ddb33aef7884f4f030682bdc371f8) |
 | v0.0.1          | 2019-05-15 | 概念原型                                                       | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
+
+
+----------------
+
+## v2.4.1
+
+**亮点特性**
+
+- [Supabase](https://supabase.com/) 支持：开源的 Firebase 替代，现可使用 Pigsty 托管的 PostgreSQL 实例存储数据。
+- [PostgresML](https://postgresml.org/)支持：在 PostgreSQL 运行各类模型（hugging face），向量操作，经典机器学习算法。
+- GraphQL支持扩展: [`pg_graphql`](https://github.com/supabase/pg_graphql)：从现有模式中反射出 GraphQL 模式，提供库内 GraphQL 查询能力。
+- 异步HTTP客户端扩展： [`pg_net`](https://github.com/supabase/pg_net) 允许您使用 SQL 发起非阻塞的 HTTP/HTTPS 请求
+- JWT支持扩展：[`pgjwt`](https://github.com/michelp/pgjwt) 允许您使用 SQL 验证签发 JWT (JSON Web Tokens)
+- 密钥存储扩展: [`vault`](https://github.com/supabase/vault) 可以在保险柜里存储加密密钥
+- 将[FerretDB](https://github.com/FerretDB/FerretDB) 版本升级至 v1.10
+- 减少 EL9 离线软件包的大小，移除非必须依赖项 `proj-data*`
 
 
 ----------------

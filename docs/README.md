@@ -15,7 +15,8 @@
 
 Free RDS for PostgreSQL! check [**Feature**](FEATURE.md) | [**亮点特性**](/zh/FEATURE.md) for details.
 
-- Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with **140+** powerful extensions: [List](PGSQL-EXTENSION.md)!
+- [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) + [Supabase](https://supabase.com/) + [PostgresML](https://postgresml.org/) + ...
+- Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with **140+** powerful extensions: [List](docs/PGSQL-EXTENSION.md)!
 - Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack: [Demo](https://demo.pigsty.cc)!
 - Self-healing HA PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/)...
 - Auto-Configured PITR, powered by [pgbackrest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) cluster
