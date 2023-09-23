@@ -3,7 +3,7 @@
 Pigsty 是一个更好的本地开源 RDS for PostgreSQL 替代：
 
 - [开箱即用的RDS](#开箱即用的rds)：从内核到RDS发行版，在 EL7-9 下提供 12-16 版本的生产级 PostgreSQL 数据库服务。
-- [丰富的扩展插件](#丰富的扩展插件)：深度整合 140+ 核心扩展，提供开箱即用的分布式的时序地理空间图文向量数据库能力。
+- [丰富的扩展插件](#丰富的扩展插件)：深度整合 150+ 核心扩展，提供开箱即用的分布式的时序地理空间图文向量数据库能力。
 - [灵活的模块架构](#灵活的模块架构)：灵活组合，自由扩展：Redis/Etcd/MinIO/Mongo；可独立使用，监控现有RDS/主机/数据库。
 - [惊艳的观测能力](#惊艳的观测能力)：基于现代可观测性技术栈 Prometheus/Grafana，提供令人惊艳，无可比拟的数据库观测能力。
 - [验证过的可靠性](#验证过的可靠性)：故障自愈的高可用架构：硬件故障自动切换，流量无缝衔接。并提供自动配置的 PITR 兜底删库！
@@ -41,7 +41,7 @@ Pigsty 支持的数据库版本覆盖 PostgreSQL 12 ～ 16，可以运行于 EL 
 
 PostgreSQL 的灵魂在于其丰富的[扩展插件](PGSQL-EXTENSION#扩展列表)生态，而 Pigsty 深度整合了 PostgreSQL 生态扩展插件，为您提供开箱即用的分布式的时序地理空间图文向量数据库能力！
 
-Pigsty 收录了超过 140 个 PostgreSQL 扩展插件，编译维护打包了一些官方仓库没有收录的扩展，并且通过充分的测试确保所有这些插件可以正常协同工作：
+Pigsty 收录了超过 150+ PostgreSQL 扩展插件，编译维护打包了一些官方仓库没有收录的扩展，并且通过充分的测试确保所有这些插件可以正常协同工作：
 您可以使用 [PostGIS](https://postgis.net/) 处理地理空间数据，使用 [TimescaleDB](https://www.timescale.com/) 分析时序/事件流数据，使用 [Citus](https://www.citusdata.com/) 将单机数据库原地改造为水平扩展的分布式数据库集群，
 使用 [PGVector](https://github.com/pgvector/pgvector) 存储并搜索 AI 嵌入实现向量数据库的效果，使用 [Apache AGE](https://age.apache.org/) 进行图数据存储与检索实现 Neo4J 的效果，使用 [zhparser](https://github.com/amutu/zhparser) 进行中文分词实现 ElasticSearch 的效果。
 

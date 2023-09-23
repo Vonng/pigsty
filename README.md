@@ -17,7 +17,7 @@
 
 Free RDS for PostgreSQL! Check [**Feature**](docs/FEATURE.md) | [**亮点特性**](docs/zh/FEATURE.md) for details.
 
-- Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with **140+** powerful [extensions](docs/PGSQL-EXTENSION.md)!
+- Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with **150+** powerful [extensions](docs/PGSQL-EXTENSION.md)!
 - Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack.
 - Self-healing HA PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/).
 - Auto-Configured PITR, powered by [pgBackRest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) repo.
@@ -29,7 +29,7 @@ Free RDS for PostgreSQL! Check [**Feature**](docs/FEATURE.md) | [**亮点特性*
 [![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/b30939f3-7819-4046-8cbd-d9cf02d6fb5d)](docs/FEATURE.md)
 
 - [Battery-Included RDS](docs/FEATURE.md#battery-included-rds): Delivers PostgreSQL 12-16 services on EL7-9, spanning kernel to RDS distribution.
-- [Plentiful Extensions](docs/FEATURE.md#plentiful-extensions): Bundled with 140+ extensions, time-series, geospatial, full-text-search, vector and more!
+- [Plentiful Extensions](docs/FEATURE.md#plentiful-extensions): Bundled with 150+ extensions, time-series, geospatial, full-text-search, vector and more!
 - [Flexible Architecture](docs/FEATURE.md#flexible-architecture): Compose Redis/Etcd/MinIO/Mongo modules, monitoring existing cluster and RDS.
 - [Stunning Observability](docs/FEATURE.md#stunning-observability): Leveraging the Prometheus/Grafana stack and provides unmatched insights.
 - [Proven Reliability](docs/FEATURE.md#proven-reliability): Self-healing HA, Automatic Failover, Uninterrupted access, Auto-configured PITR.

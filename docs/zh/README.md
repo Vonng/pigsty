@@ -29,7 +29,7 @@ Pigsty 是一个更好的本地开源 RDS for PostgreSQL 替代，具有以下�
 [![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/b30939f3-7819-4046-8cbd-d9cf02d6fb5d)](FEATURE.md)
 
 - [开箱即用的RDS](FEATURE.md#开箱即用的rds)：从内核到RDS发行版，在 EL7-9 下提供 12-16 版本的生产级 PostgreSQL 数据库服务。
-- [丰富的扩展插件](FEATURE.md#丰富的扩展插件)：深度整合 140+ 核心扩展，提供开箱即用的分布式的时序地理空间图文向量数据库能力。
+- [丰富的扩展插件](FEATURE.md#丰富的扩展插件)：深度整合 150+ 核心扩展，提供开箱即用的分布式的时序地理空间图文向量数据库能力。
 - [灵活的模块架构](FEATURE.md#灵活的模块架构)：灵活组合，自由扩展：Redis/Etcd/MinIO/Mongo；可独立使用，监控现有RDS/主机/数据库。
 - [惊艳的观测能力](FEATURE.md#惊艳的观测能力)：基于现代可观测性技术栈 Prometheus/Grafana，提供令人惊艳，无可比拟的数据库观测能力。
 - [验证过的可靠性](FEATURE.md#验证过的可靠性)：故障自愈的高可用架构：硬件故障自动切换，流量无缝衔接。并提供自动配置的 PITR 兜底删库！

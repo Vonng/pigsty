@@ -2,11 +2,18 @@
 
 Extensions are the soul of PostgreSQL, and Pigsty deeply integrates the core extension plugins of the PostgreSQL ecosystem, providing you with battery-included distributed temporal, geospatial text, graph, and vector database capabilities! Check [extension list](PGSQL-EXTENSION#extension-list) for details.
 
-Pigsty includes over 140+ PostgreSQL extension plugins and has compiled, packaged, integrated, and maintained many extensions not included in the official PGDG source. It also ensures through thorough testing that all these plugins can work together seamlessly. Including some potent extensions, such as [PostGIS](https://postgis.net/) to process geospatial data, [TimescaleDB](https://www.timescale.com/) to analyze time series/event stream data,  [Citus](https://www.citusdata.com/) to transform a standalone database into a horizontally scalable distributed cluster,  [PGVector](https://github.com/pgvector/pgvector) to store and search AI embeddings, [Apache AGE](https://age.apache.org/) for graph data storage and retrieval to works like Neo4J, and [zhparser](https://github.com/amutu/zhparser) for Chinese word segmentation to work like ElasticSearch.
+Pigsty includes over **150+** PostgreSQL extension plugins and has compiled, packaged, integrated, and maintained many extensions not included in the official PGDG source. It also ensures through thorough testing that all these plugins can work together seamlessly. Including some potent extensions, such as [PostGIS](https://postgis.net/) to process geospatial data, [TimescaleDB](https://www.timescale.com/) to analyze time series/event stream data,  [Citus](https://www.citusdata.com/) to transform a standalone database into a horizontally scalable distributed cluster,  [PGVector](https://github.com/pgvector/pgvector) to store and search AI embeddings, [Apache AGE](https://age.apache.org/) for graph data storage and retrieval to works like Neo4J, and [zhparser](https://github.com/amutu/zhparser) for Chinese word segmentation to work like ElasticSearch.
 
 Plugins are already included and placed in the yum repo of the infra nodes, which can be directly enabled through PGSQL [Cluster Config](#install-extension) or [installed manually](#install-manually) using `yum`. Pigsty also introduces a complete compilation environment and infrastructure, allowing you to [compile extensions](#compile-extension) not included in Pigsty & PGDG.
 
 ![pigsty-extension](https://github.com/Vonng/pigsty/assets/8587410/91dfee81-3193-4505-b33f-0c5949dabf02)
+
+Some "database" are not actual PostgreSQL extensions, but also supported by pigsty, such as:
+
+ - [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase): Open-Source Firebase Alternative (based on PostgreSQL)
+ - [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb): Open-Source MongoDB Alternative (based on PostgreSQL)
+ - [NocoDB](https://github.com/Vonng/pigsty/tree/master/app/nocodb): Open-Source Airtable Alternative (based on PostgreSQL)
+ - EdgeDB: A GRAPH-LIKE SCHEMA WITH A RELATIONAL CORE, (based on PostgreSQL)
 
 
 ------
@@ -29,25 +36,25 @@ The `type` has the following categories:
 - `FDW`: Foreign Data Wrapper and Utils
 - `STAT`: Statistic & Observability
 
-Among them, the bolded names are core extension plugins, including: `postgis`, `timescaledb`, `citus`, `age`, `vector`, `embedding`, `zhparser`, `pg_repack`, `wal2json`, `passwordcracklib`, `pg_cron`.
+Among them, the bolded names are core extension plugins, including: `postgis`, `timescaledb`, `citus`, `age`, `vector`, `embedding`, `zhparser`, `pg_repack`, `wal2json`, `passwordcracklib`, `pg_cron`. And other powerful extensions are included such as `age`, `hydra`, `PostgresML`, etc...
 
 
 | name                         | version | source     | type   | comment                                                      |
 | ---------------------------- | :-----: | :--------: | :----: | ------------------------------------------------------------ |
-| **age**                      | 1.4.0   | PIGSTY      | FEAT      | Apache AGE graph database extension                          |
-| **embedding**                | 0.3.6   | PIGSTY      | FEAT      | Vector similarity search with the HNSW algorithm             |
-| **http**                     | 1.6     | PIGSTY      | FEAT      | HTTP client for PostgreSQL, allows web page retrieval inside the database. |
-| pg_tle                       | 1.2.0   | PIGSTY      | FEAT      | Trusted Language Extensions for PostgreSQL                   |
-| roaringbitmap                | 0.5     | PIGSTY      | FEAT      | Support for Roaring Bitmaps                                  |
-| **zhparser**                 | 2.2     | PIGSTY      | FEAT      | Parser for full-text search of Chinese                     |
-| **pgml**                     | 2.7.9   | PIGSTY      | FEAT      | Use the expressive power of SQL along with the most advanced machine learning algorithms and pretrained models in a high performance database. |
-| pg_net                       | 0.7.2   | PIGSTY      | FEAT      | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
-| vault                        | 0.2.9   | PIGSTY      | FEAT      | Extension for storing encrypted secrets in the Vault         |
-| **pg_graphql**               | 1.3.0   | PIGSTY      | FEAT      | GraphQL support for PostgreSQL                               |
-| **hydra**                    | 1.0.0   | PIGSTY      | FEAT      | Hydra is open source, column-oriented Postgres extension     |
+| **age**                      | 1.4.0   | **PIGSTY**  | FEAT      | Apache AGE graph database extension                          |
+| **embedding**                | 0.3.6   | **PIGSTY**  | FEAT      | Vector similarity search with the HNSW algorithm             |
+| **http**                     | 1.6     | **PIGSTY**  | FEAT      | HTTP client for PostgreSQL, allows web page retrieval inside the database. |
+| pg_tle                       | 1.2.0   | **PIGSTY**  | FEAT      | Trusted Language Extensions for PostgreSQL                   |
+| roaringbitmap                | 0.5     | **PIGSTY**  | FEAT      | Support for Roaring Bitmaps                                  |
+| **zhparser**                 | 2.2     | **PIGSTY**  | FEAT      | Parser for full-text search of Chinese                     |
+| **pgml**                     | 2.7.9   | **PIGSTY**  | FEAT      | PostgresML: Use the expressive power of SQL along with the most advanced machine learning algorithms and pretrained models in a high performance database. |
+|   pg_net                     | 0.7.2   | **PIGSTY**  | FEAT      | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
+| vault                        | 0.2.9   | **PIGSTY**  | FEAT      | Extension for storing encrypted secrets in the Vault         |
+| **pg_graphql**               | 1.3.0   | **PIGSTY**  | FEAT      | GraphQL support for PostgreSQL                               |
+| **hydra**                    | 1.0.0   | **PIGSTY**  | FEAT      | Hydra is open source, column-oriented Postgres extension     |
 | credcheck                    | 2.1.0   | PGDG        | ADMIN     | credcheck - postgresql plain text credential checker         |
 | **pg_cron**                  | 1.5     | PGDG        | ADMIN     | Job scheduler for PostgreSQL                                 |
-| pg_background                | 1.0     | PGDG        | ADMIN | Run SQL queries in the background                            |
+| pg_background                | 1.0     | PGDG        | ADMIN     | Run SQL queries in the background                            |
 | pg_jobmon                    | 1.4.1   | PGDG        | ADMIN     | Extension for logging and monitoring functions in PostgreSQL |
 | pg_readonly                  | 1.0.0   | PGDG        | ADMIN     | cluster database read only                                   |
 | **pg_repack**                | 1.4.8   | PGDG        | ADMIN     | Reorganize tables in PostgreSQL databases with minimal locks |
@@ -74,10 +81,10 @@ Among them, the bolded names are core extension plugins, including: `postgis`, `
 | pgsodium                     | 3.1.8   | PGDG        | FEAT      | Postgres extension for libsodium functions                   |
 | **timescaledb**              | 2.11.2  | PGDG        | FEAT      | Enables scalable inserts and complex queries for time-series data (Apache 2 Edition) |
 | **wal2json**                 | 2.5.1   | PGDG        | FEAT      | Capture JSON format CDC change via logical decoding          |
-| **vector**                   | 0.5.0   | PGDG        | FEAT      | vector data type and ivfflat access method                   |
+| **vector**                   | 0.5.0   | PGDG        | FEAT      | vector data type and ivfflat / hnsw access method            |
 | count_distinct               | 3.0.1   | PGDG        | FUNC      | An alternative to COUNT(DISTINCT ...) aggregate, usable with HashAggregate |
 | ddlx                         | 0.23    | PGDG        | FUNC      | DDL eXtractor functions                                      |
-| extra_window_functions       | 1.0     | PGDG        | FUNC      |                                                              |
+| extra_window_functions       | 1.0     | PGDG        | FUNC      | Additional window functions to PostgreSQL                    |
 | mysqlcompat                  | 0.0.7   | PGDG        | FUNC      | MySQL compatibility functions                                |
 | orafce                       | 4.5     | PGDG        | FUNC      | Functions and operators that emulate a subset of functions and packages from the Oracle RDBMS |
 | pgsql_tweaks                 | 0.10.0  | PGDG        | FUNC      | Some functions and views for daily usage                     |
@@ -121,7 +128,7 @@ Among them, the bolded names are core extension plugins, including: `postgis`, `
 | system_stats                 | 1.0     | PGDG        | STAT      | System statistic functions for PostgreSQL                    |
 | citext                       | 1.6     | PGDG        | TYPE      | data type for case-insensitive character strings             |
 | geoip                        | 0.2.4   | PGDG        | TYPE      | An IP geolocation extension (a wrapper around the MaxMind GeoLite dataset) |
-| ip4r                         | 2.4     | PGDG        | TYPE      | NULL                                                         |
+| ip4r                         | 2.4     | PGDG        | TYPE      | IPv4/v6 and IPv4/v6 range index type for PostgreSQL          |
 | pg_uuidv7                    | 1.1     | PGDG        | TYPE      | pg_uuidv7: create UUIDv7 values in postgres                  |
 | pgmp                         | 1.1     | PGDG        | TYPE      | Multiple Precision Arithmetic extension                      |
 | semver                       | 0.32.1  | PGDG        | TYPE      | Semantic version data type                                   |
@@ -164,12 +171,12 @@ Among them, the bolded names are core extension plugins, including: `postgis`, `
 | plperlu                      | 1.0     | CONTRIB     | LANG      | PL/PerlU untrusted procedural language                       |
 | plpgsql                      | 1.0     | CONTRIB     | LANG      | PL/pgSQL procedural language                                 |
 | plpython3u                   | 1.0     | CONTRIB     | LANG      | PL/Python3U untrusted procedural language                    |
-| pltcl                        | 1.0     | CONTRIB     | LANG      | PL/Tcl procedural language                                   |
-| pltclu                       | 1.0     | CONTRIB     | LANG      | PL/TclU untrusted procedural language                        |
+| pltcl                        | 1.0     | CONTRIB     | LANG      | PL/TCL procedural language                                 |
+| pltclu                       | 1.0     | CONTRIB     | LANG      | PL/TCLU untrusted procedural language                      |
 | pageinspect                  | 1.11    | CONTRIB     | STAT      | inspect the contents of database pages at a low level        |
 | pg_buffercache               | 1.3     | CONTRIB     | STAT      | examine the shared buffer cache                              |
 | pg_freespacemap              | 1.2     | CONTRIB     | STAT      | examine the free space map (FSM)                             |
-| pg_stat_statements           | 1.10    | CONTRIB     | STAT      | track planning and execution statistics of all SQL statements executed |
+| **pg_stat_statements**       | 1.10    | CONTRIB     | STAT      | track planning and execution statistics of all SQL statements executed |
 | pg_visibility                | 1.2     | CONTRIB     | STAT      | examine the visibility map (VM) and page-level visibility info |
 | pg_walinspect                | 1.0     | CONTRIB     | STAT      | functions to inspect contents of PostgreSQL Write-Ahead Log  |
 | pgrowlocks                   | 1.2     | CONTRIB     | STAT      | show row-level locking information                           |
@@ -182,6 +189,9 @@ Among them, the bolded names are core extension plugins, including: `postgis`, `
 | prefix                       | 1.2.0   | CONTRIB     | TYPE      | Prefix Range module for PostgreSQL                           |
 | seg                          | 1.4     | CONTRIB     | TYPE      | data type for representing line segments or floating-point intervals |
 | xml2                         | 1.1     | CONTRIB     | TYPE      | XPath querying and XSLT                                      |
+
+
+
 
 
 
