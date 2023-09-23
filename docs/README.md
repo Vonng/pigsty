@@ -4,7 +4,9 @@
 >
 > —— **A battery-included, local-first, open-source RDS PG alternative.**
 >
-> Latest Release: [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Website](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/6nA2fDXt) | [中文文档](/zh/)
+> [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) + [Supabase](https://supabase.com/) + [PostgresML](https://postgresml.org/) + [...](PGSQL-EXTENSION.md)
+>
+> Latest Release: [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Website](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/xm6hR4P4) | [中文文档](/zh/)
 >
 > [Get Started](INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash`
 
@@ -15,8 +17,7 @@
 
 Free RDS for PostgreSQL! check [**Feature**](FEATURE.md) | [**亮点特性**](/zh/FEATURE.md) for details.
 
-- [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) + [Supabase](https://supabase.com/) + [PostgresML](https://postgresml.org/) + ...
-- Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with **140+** powerful extensions: [List](docs/PGSQL-EXTENSION.md)!
+- Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with **140+** powerful [extensions](PGSQL-EXTENSION.md)!
 - Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack: [Demo](https://demo.pigsty.cc)!
 - Self-healing HA PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/)...
 - Auto-Configured PITR, powered by [pgbackrest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) cluster
@@ -461,7 +462,7 @@ WeChat: Search `pigsty-cc` to join the WeChat group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/6nA2fDXt
+Discord: https://discord.gg/xm6hR4P4
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
