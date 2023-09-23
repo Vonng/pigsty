@@ -304,8 +304,8 @@ EOF
 # 安装编译工具，构建依赖，以及 PostgreSQL 各大版本
 yum groupinstall -y 'Development Tools'
 yum install -y pgdg-srpm-macros clang ccache rpm-build rpmdevtools postgresql1*-server flex bison
-yum install -y postgresql1*-devel readline-devel zlib-devel openssl-devel krb5-devel libcurl-devel
-rpmdev-setuptree
+yum install -y postgresql1*-devel readline-devel zlib-devel lz4-devel libzstd-devel openssl-devel krb5-devel libcurl-devel
+rpmdev-setuptree  # 初始化 rpm 构建目录结构
 ```
 
 下面是编译一个 PostgreSQL 扩展 `pgsql-http` 的说明：首先撰写软件包的规格说明文件，放置于： `/root/rpmbuild/SPECS/pgsql-http.spec`。

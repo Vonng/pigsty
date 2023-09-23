@@ -300,7 +300,7 @@ EOF
 # install compiling tools, build deps and PG major versions
 yum groupinstall -y 'Development Tools'
 yum install -y pgdg-srpm-macros clang ccache rpm-build rpmdevtools postgresql1*-server flex bison
-yum install -y postgresql1*-devel readline-devel zlib-devel openssl-devel krb5-devel libcurl-devel
+yum install -y postgresql1*-devel readline-devel zlib-devel lz4-devel libzstd-devel openssl-devel krb5-devel libcurl-devel
 rpmdev-setuptree
 ```
 
