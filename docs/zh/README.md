@@ -6,7 +6,7 @@
 >
 > [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) + [Supabase](https://supabase.com/) + [PostgresML](https://postgresml.org/) + [...](PGSQL-EXTENSION.md)
 >
-> 最新版本：[v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [服务订阅](https://pigsty.cc/zh/docs/support/) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
+> 最新版本：[v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [服务订阅](https://pigsty.cc/zh/docs/support/) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
 >
 > [快速上手](INSTALL.md)：`curl -fsSL https://get.pigsty.cc/latest | bash`
 
@@ -70,12 +70,12 @@ FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL https://get.pigsty.cc/v2.4.0/pigsty-v2.4.0.tgz
+[ OK ] $ curl -SL https://get.pigsty.cc/v2.4.1/pigsty-v2.4.1.tgz
 ...
-MD5: d5dc4a51efc81932a03d7c010d0d5d64  /tmp/pigsty-v2.4.0.tgz
+MD5: d5dc4a51efc81932a03d7c010d0d5d64  /tmp/pigsty-v2.4.1.tgz
 [Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.4.0.tgz' to '/home/vagrant/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.4.0.tgz -C ~;
+[ OK ] extract '/tmp/pigsty-v2.4.1.tgz' to '/home/vagrant/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.4.1.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
 Get Started:     https://doc.pigsty.cc/#/INSTALL
@@ -99,7 +99,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
-cd pigsty; git checkout v2.4.0
+cd pigsty; git checkout v2.4.1
 ```
 
 </details>
@@ -114,16 +114,16 @@ cd pigsty; git checkout v2.4.0
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 
 # 或者直接使用 curl 从 GitHub 上下载
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-v2.4.0.tgz -o ~/pigsty.tgz                 # 源码包
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-pkg-v2.4.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9 离线软件包
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-pkg-v2.4.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8 离线软件包
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.0/pigsty-pkg-v2.4.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7 离线软件包
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.1/pigsty-v2.4.1.tgz -o ~/pigsty.tgz                 # 源码包
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.1/pigsty-pkg-v2.4.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9 离线软件包
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.1/pigsty-pkg-v2.4.1.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8 离线软件包
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.1/pigsty-pkg-v2.4.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7 离线软件包
 
 # 对于中国大陆用户来说，也可以选择从中国 CDN 下载
-curl -L https://get.pigsty.cc/v2.4.0/pigsty-v2.4.0.tgz -o ~/pigsty.tgz                 # 源码包
-curl -L https://get.pigsty.cc/v2.4.0/pigsty-pkg-v2.4.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9 离线软件包
-curl -L https://get.pigsty.cc/v2.4.0/pigsty-pkg-v2.4.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8 离线软件包
-curl -L https://get.pigsty.cc/v2.4.0/pigsty-pkg-v2.4.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7 离线软件包
+curl -L https://get.pigsty.cc/v2.4.1/pigsty-v2.4.1.tgz -o ~/pigsty.tgz                 # 源码包
+curl -L https://get.pigsty.cc/v2.4.1/pigsty-pkg-v2.4.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9 离线软件包
+curl -L https://get.pigsty.cc/v2.4.1/pigsty-pkg-v2.4.1.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8 离线软件包
+curl -L https://get.pigsty.cc/v2.4.1/pigsty-pkg-v2.4.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7 离线软件包
 ```
 
 </details>

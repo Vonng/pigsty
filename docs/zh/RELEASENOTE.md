@@ -2,7 +2,7 @@
 
 | 版本             |  发布时间   | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.4.1](#v241) | 2023-09-21 | Supabase/PostgresML support, graphql, jwt, pg_net, vault    | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
+| [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML support, graphql, jwt, pg_net, vault    | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
 | [v2.4.0](#v240) | 2023-09-14 | PG16，监控RDS，服务咨询支持，新扩展：中文分词全文检索/图/HTTP/嵌入等 | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
 | [v2.3.1](#v231) | 2023-09-01 | 带HNSW的PGVector，PG 16 RC1, 文档翻新，中文文档，例行问题修复     | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.0](#v230) | 2023-08-20 | 主机VIP, ferretdb, nocodb, MySQL存根, CVE修复                    | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
@@ -49,7 +49,14 @@
 - JWT支持扩展：[`pgjwt`](https://github.com/michelp/pgjwt) 允许您使用 SQL 验证签发 JWT (JSON Web Tokens)
 - 密钥存储扩展: [`vault`](https://github.com/supabase/vault) 可以在保险柜里存储加密密钥
 - 将[FerretDB](https://github.com/FerretDB/FerretDB) 版本升级至 v1.10
+- 新增组件：[`pg_filedump`](https://github.com/df7cb/pg_filedump)：可用于快速从PostgreSQL二进制文件中恢复数据
 - 减少 EL9 离线软件包的大小，移除非必须依赖项 `proj-data*`
+
+```
+89e523e8fea97b07a58c4899c3bd864d  pigsty-pkg-v2.4.1.el7.x86_64.tgz # 1.1G
+b26e7c388d96ce63e7ed68cdd47fd914  pigsty-pkg-v2.4.1.el8.x86_64.tgz # 1.4G
+6d252b302ad18041b7d8361404543706  pigsty-pkg-v2.4.1.el9.x86_64.tgz # 1.3G
+```
 
 
 ----------------

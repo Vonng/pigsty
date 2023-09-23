@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.4.1](#v241) | 2023-09-20 | Supabase/PostgresML support, graphql, jwt, pg_net, vault | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
+| [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML support, graphql, jwt, pg_net, vault | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
 | [v2.4.0](#v240) | 2023-09-14 | PG16, RDS Monitor, New Extensions                        | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
 | [v2.3.1](#v231) | 2023-09-01 | PGVector with HNSW, PG16 RC1, Chinese Docs, Bug Fix      | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.0](#v230) | 2023-08-20 | PGSQL/REDIS Update, NODE VIP, Mongo/FerretDB, MYSQL Stub | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
@@ -41,16 +41,22 @@
 
 **Highlights**
 
-- [Supabase](https://supabase.com/) support: run open-source Firebase alternative with external postgres managed by Pigsty
-- PostgresML support: Run LLMs, vector operations, classical Machine Learning in Postgres: https://postgresml.org/
+- [Supabase](https://supabase.com/) support: run open-source Firebase alternative with external postgres managed by Pigsty: [example config](https://github.com/Vonng/pigsty/tree/master/app/supabase)
+- [PostgresML](https://postgresml.org/) support: Run LLMs, vector operations, classical Machine Learning in Postgres.
 - GraphQL support: [`pg_graphql`](https://github.com/supabase/pg_graphql) reflects a GraphQL schema from the existing SQL schema.
 - Async HTTP Client support [`pg_net`](https://github.com/supabase/pg_net) enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL
 - JWT support: [`pgjwt`](https://github.com/michelp/pgjwt) is the PostgreSQL implementation of JWT (JSON Web Tokens)
 - Vault support: [`vault`](https://github.com/supabase/vault) can store encrypted secrets in the Vault
-- Bump [FerretDB](https://github.com/FerretDB/FerretDB) version to v1.10
+- New component [`pg_filedump`](https://github.com/df7cb/pg_filedump) for pg 14 & 15, low-level data recovery tool for PostgreSQL
+- New extension `hydra` the columnar available for PG 13 - 15.
 - Reduce offline packages size for el9 400MB by removing `proj-data*`
+- Bump [FerretDB](https://github.com/FerretDB/FerretDB) version to v1.10
 
-
+```
+89e523e8fea97b07a58c4899c3bd864d  pigsty-pkg-v2.4.1.el7.x86_64.tgz # 1.1G
+b26e7c388d96ce63e7ed68cdd47fd914  pigsty-pkg-v2.4.1.el8.x86_64.tgz # 1.4G
+6d252b302ad18041b7d8361404543706  pigsty-pkg-v2.4.1.el9.x86_64.tgz # 1.3G
+```
 
 ----------------
 
