@@ -53,9 +53,9 @@
 - Bump [FerretDB](https://github.com/FerretDB/FerretDB) version to v1.10
 
 ```
-89e523e8fea97b07a58c4899c3bd864d  pigsty-pkg-v2.4.1.el7.x86_64.tgz # 1.1G
-b26e7c388d96ce63e7ed68cdd47fd914  pigsty-pkg-v2.4.1.el8.x86_64.tgz # 1.4G
-6d252b302ad18041b7d8361404543706  pigsty-pkg-v2.4.1.el9.x86_64.tgz # 1.3G
+efabe7632d8994f3fb58f9838b8f9d7d  pigsty-pkg-v2.4.1.el7.x86_64.tgz # 1.1G
+ea78957e8c8434b120d1c8c43d769b56  pigsty-pkg-v2.4.1.el8.x86_64.tgz # 1.4G
+4ef280a7d28872814e34521978b851bb  pigsty-pkg-v2.4.1.el9.x86_64.tgz # 1.3G
 ```
 
 ----------------
