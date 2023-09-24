@@ -30,13 +30,12 @@ Available software and their docker-compose template can be found in [pigsty/app
 
 > Scaffold your application with PostgreSQL and its ecosystem.
 
-* [PostgREST](https://github.com/Vonng/pigsty/tree/master/app/postgrest): [PostgREST](https://postgrest.org/en/stable/), serve a RESTful API from any Postgres database automatically.
-* [Kong](https://github.com/Vonng/pigsty/tree/master/app/kong): [Kong](https://konghq.com/kong/), a scalable, open source API Gateway with Redis/PostgreSQL/OpenResty
+* [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase): [Supabase](https://supabase.com/) is an open source Firebase alternative based on PostgreSQL
 * [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb): [FerretDB](https://www.ferretdb.io/), a truly open source MongoDB alternative in PostgreSQL.
 * [EdgeDB](https://github.com/Vonng/pigsty/tree/master/app/edgedb): [EdgeDB](https://www.edgedb.com/), open source graph-like database based on PostgreSQL
-* Supabase: [Supabase](https://supabase.com/), open source Firebase alternative based on PostgreSQL
+* [PostgREST](https://github.com/Vonng/pigsty/tree/master/app/postgrest): [PostgREST](https://postgrest.org/en/stable/), serve a RESTful API from any Postgres database automatically.
+* [Kong](https://github.com/Vonng/pigsty/tree/master/app/kong): [Kong](https://konghq.com/kong/), a scalable, open source API Gateway with Redis/PostgreSQL/OpenResty
 * DuckDB: [DuckDB](https://duckdb.org/), in-process SQL olap DBMS that works well with PostgreSQL
-
 
 ----------------
 

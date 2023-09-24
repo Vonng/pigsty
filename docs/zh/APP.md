@@ -31,11 +31,11 @@ Docker 默认并没有安装，但是包含在离线软件包中。例如，您�
 
 > 使用 PostgreSQL 及其生态系统搭建你的应用。
 
+- [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase)：[Supabase](https://supabase.com/)，基于 PostgreSQL 的开源 Firebase 替代，流行的应用层数据库。
+- [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb)：[FerretDB](https://www.ferretdb.io/)，基于 PostgreSQL 的真正开源的 MongoDB 替代品。
 - [PostgREST](https://github.com/Vonng/pigsty/tree/master/app/postgrest)：[PostgREST](https://postgrest.org/en/stable/)，自动从任何 Postgres 数据库提供 RESTful API。
 - [Kong](https://github.com/Vonng/pigsty/tree/master/app/kong)：[Kong](https://konghq.com/kong/)，一个可伸缩的开源 API 网关，支持 Redis/PostgreSQL/OpenResty。
-- [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb)：[FerretDB](https://www.ferretdb.io/)，基于 PostgreSQL 的真正开源的 MongoDB 替代品。
 - [EdgeDB](https://github.com/Vonng/pigsty/tree/master/app/edgedb)：[EdgeDB](https://www.edgedb.com/)，基于 PostgreSQL 的开源图形数据库。
-- Supabase：[Supabase](https://supabase.com/)，基于 PostgreSQL 的开源 Firebase 替代品。
 - DuckDB：[DuckDB](https://duckdb.org/)，与 PostgreSQL 兼容的嵌入式 SQL olap DBMS。
 
 
