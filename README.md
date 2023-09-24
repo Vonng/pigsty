@@ -2,9 +2,7 @@
 
 > "**P**ostgreSQL **I**n **G**reat **STY**le."
 >
-> —— **A battery-included, local-first, open-source RDS PG alternative.**
->
-> [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) + [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase) + [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml) + [...](docs/PGSQL-EXTENSION.md)
+> —— **A battery-included, local-first, open-source PostgreSQL RDS alternative.**
 >
 > [Release v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/xm6hR4P4)
 >
@@ -15,57 +13,56 @@
 
 ## Features
 
-Free RDS for PostgreSQL! Check [**Feature**](docs/FEATURE.md) | [**亮点特性**](docs/zh/FEATURE.md) for details.
+Free RDS for PostgreSQL. Check [**Features**](docs/FEATURE.md) | [**特性**](docs/zh/FEATURE.md) for details.
 
-- Battery-Included [PostgreSQL](https://www.postgresql.org/) Distribution, with **150+** powerful [extensions](docs/PGSQL-EXTENSION.md)!
-- Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack.
-- Self-healing HA PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/).
-- Auto-Configured PITR, powered by [pgBackRest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) repo.
-- Declarative API, Database-as-Code implemented with [Ansible](https://www.ansible.com/) playbooks.
-- Versatile Use-cases, Run [Docker](https://www.docker.com/) Apps, Run demos, Visualize data with [ECharts](https://echarts.apache.org/).
-- Handy Tools, provision IaaS with [Terraform](https://www.terraform.io/), and try with local [Vagrant](https://www.vagrantup.com/) sandbox.
-- Run [Redis](https://redis.io/) (standalone, sentinel, cluster), MinIO, Etcd, Haproxy, MongoDB([FerretDB](https://www.ferretdb.io/)) clusters
+- Battery-Included PostgreSQL distribution with **150+** optional [extensions](docs/PGSQL-EXTENSION.md).
+- Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack. [Demo](https://demo.pigsty.cc) & [Gallery](https://github.com/Vonng/pigsty/wiki/Gallery).
+- Self-healing [HA](docs/PGSQL-ARCH.md) PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/). auto-tuned.
+- Auto-Configured [PITR](docs/PGSQL-PITR.md), powered by [pgBackRest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) repo (or S3/FS).
+- Declarative [API](docs/CONFIG.md), Database-as-Code implemented with [Ansible](https://www.ansible.com/) playbooks: [SOP](docs/PGSQL-ADMIN.md).
+- Handy IaC Templates, provisioning Infra with [Terraform](https://github.com/Vonng/pigsty/tree/master/terraform/README.md) and try [sandbox](docs/PROVISION.md) with [Vagrant](https://github.com/Vonng/pigsty/tree/master/vagrant/README.md).
+- Pre-pack stable versions, create [local repos](docs/INSTALL.md#offline-packages) and install without Internet access.
 
 [![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/b30939f3-7819-4046-8cbd-d9cf02d6fb5d)](docs/FEATURE.md)
 
-- [Battery-Included RDS](docs/FEATURE.md#battery-included-rds): Delivers PostgreSQL 12-16 services on EL7-9, spanning kernel to RDS distribution.
-- [Plentiful Extensions](docs/FEATURE.md#plentiful-extensions): Bundled with 150+ extensions, time-series, geospatial, full-text-search, vector and more!
-- [Flexible Architecture](docs/FEATURE.md#flexible-architecture): Compose Redis/Etcd/MinIO/Mongo modules, monitoring existing cluster and RDS.
-- [Stunning Observability](docs/FEATURE.md#stunning-observability): Leveraging the Prometheus/Grafana stack and provides unmatched insights.
-- [Proven Reliability](docs/FEATURE.md#proven-reliability): Self-healing HA, Automatic Failover, Uninterrupted access, Auto-configured PITR.
-- [Great Maintainability](docs/FEATURE.md#great-maintainability): Declarative API, GitOps ready, Database/Infra-as-Code and Admin SOP
-- [Sound Security](docs/FEATURE.md#sound-security): Database is safe as long as your hardware & credentials are safe.
-- [Versatile Application](docs/FEATURE.md#versatile-application): Docker compose application that using PostgreSQL in one command.
-- [Open Source & Free](docs/FEATURE.md#open-source-amp-free): Free & open source under AGPLv3. Built for PostgreSQL with love.
+Pigsty can be used in different scenarios:
+- Run HA [PostgreSQL](docs/PGSQL.md) RDS for production usage, with PostGIS, TimescaleDB, Citus, etc...
+- Run AI infra stack with `pgvector`, `pg_embedding`, and [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml/README.md).
+- Develop low-code apps with self-hosted [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase/README.md), [FerretDB](docs/MONGO.md), and [NocoDB](https://github.com/Vonng/pigsty/tree/master/app/nocodb/README.md).
+- Run various business software & [apps](https://github.com/Vonng/pigsty/blob/master/app/README.md) with docker-compose templates.
+- Run demos & data apps, analyze data, and [visualize](https://demo.pigsty.cc/d/isd-overview/) them with ECharts panels.
+- Run dedicated [Redis](docs/REDIS.md), [MinIO](docs/MINIO.md), [ETCD](docs/ETCD.md), and HAProxy clusters with HA & observability, too.
+- Run as a pure [monitoring](docs/PGSQL-MONITOR.md#monitor-mode) system for existing PostgreSQL clusters and cloud [RDS](docs/PGSQL-MONITOR.md#monitor-rds).
 
 [![pigsty-dashboard](https://github.com/Vonng/pigsty/assets/8587410/cd4e6620-bc36-44dc-946b-b9ae56f93c90)](https://demo.pigsty.cc)
 
 
+<details><summary>Ecosystem & Available Extensions</summary></br>
+
 Pigsty has over **150+** **OPTIONAL** [extensions](docs/PGSQL-EXTENSION.md) pre-compiled and packaged, including some not included in the official PGDG repo. Some of the most potent extensions are:
 
-- [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase): Open-Source Firebase alternative based on PostgreSQL
-- [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb): Open-Source MongoDB alternative based on PostgreSQL
-- [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml): Use machine learning algorithms and pretrained models with SQL
-- PostGIS: Add geospatial data support to PostgreSQL
-- TimescaleDB: Add time-series/continuous-aggregation support to PostgreSQL
-- PGVector / PG Embedding: AI vector/embedding data type support, and ivfflat / hnsw index access method
-- Citus: Turn a standalone primary-replica postgres cluster into a horizontally scalable distributed cluster
-- Apache AGE: Add OpenCypher graph query language support to PostgreSQL, works like Neo4J
-- PG GraphQL: Add GraphQL language support to PostgreSQL
-- zhparser : Add Chinese word segmentation support to PostgreSQL, works like ElasticSearch
-
-<details><summary>All Available Extensions</summary>
+- [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase/README.md): Open-Source Firebase alternative based on PostgreSQL
+- [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb/README.md): Open-Source MongoDB alternative based on PostgreSQL
+- [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml/README.md): Use machine learning algorithms and pretrained models with SQL
+- [PostGIS](https://postgis.net/): Add geospatial data support to PostgreSQL
+- [TimescaleDB](https://www.timescale.com/): Add time-series/continuous-aggregation support to PostgreSQL
+- [PGVector](https://github.com/pgvector/pgvector) / PG Embedding: AI vector/embedding data type support, and ivfflat / hnsw index access method
+- [Citus](https://www.citusdata.com/): Turn a standalone primary-replica postgres cluster into a horizontally scalable distributed cluster
+- [Apache AGE](https://age.apache.org/)): Add OpenCypher graph query language support to PostgreSQL, works like Neo4J
+- ...
 
 [![pigsty-extension](https://github.com/Vonng/pigsty/assets/8587410/91dfee81-3193-4505-b33f-0c5949dabf02)](docs/PGSQL-EXTENSION.md)
 
-| name                         | version | source     | type   | comment                                                      |
-| ---------------------------- | :-----: | :--------: | :----: | ------------------------------------------------------------ |
+Some non-trivial extensions:
+
+| name                         | version |   source    |   type    | comment                                                      |
+| ---------------------------- | :-----: | :---------: | :-------: | ------------------------------------------------------------ |
 | **age**                      | 1.4.0   | **PIGSTY**  | FEAT      | Apache AGE graph database extension                          |
 | **embedding**                | 0.3.6   | **PIGSTY**  | FEAT      | Vector similarity search with the HNSW algorithm             |
 | **http**                     | 1.6     | **PIGSTY**  | FEAT      | HTTP client for PostgreSQL, allows web page retrieval inside the database. |
 | pg_tle                       | 1.2.0   | **PIGSTY**  | FEAT      | Trusted Language Extensions for PostgreSQL                   |
 | roaringbitmap                | 0.5     | **PIGSTY**  | FEAT      | Support for Roaring Bitmaps                                  |
-| **zhparser**                 | 2.2     | **PIGSTY**  | FEAT      | Parser for full-text search of Chinese                     |
+| **zhparser**                 | 2.2     | **PIGSTY**  | FEAT      | Parser for full-text search of Chinese                       |
 | **pgml**                     | 2.7.9   | **PIGSTY**  | FEAT      | PostgresML: Use the expressive power of SQL along with the most advanced machine learning algorithms and pretrained models in a high performance database. |
 | pg_net                       | 0.7.2   | **PIGSTY**  | FEAT      | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
 | vault                        | 0.2.9   | **PIGSTY**  | FEAT      | Extension for storing encrypted secrets in the Vault         |
@@ -153,61 +150,7 @@ Pigsty has over **150+** **OPTIONAL** [extensions](docs/PGSQL-EXTENSION.md) pre-
 | semver                       | 0.32.1  | PGDG        | TYPE      | Semantic version data type                                   |
 | timestamp9                   | 1.3.0   | PGDG        | TYPE      | timestamp nanosecond resolution                              |
 | unit                         | 7       | PGDG        | TYPE      | SI units extension                                           |
-| lo                           | 1.1     | CONTRIB     | ADMIN     | Large Object maintenance                                     |
-| old_snapshot                 | 1.0     | CONTRIB     | ADMIN     | utilities in support of old_snapshot_threshold               |
-| pg_prewarm                   | 1.2     | CONTRIB     | ADMIN     | prewarm relation data                                        |
-| pg_surgery                   | 1.0     | CONTRIB     | ADMIN     | extension to perform surgery on a damaged relation           |
-| dblink                       | 1.2     | CONTRIB     | FDW       | connect to other PostgreSQL databases from within a database |
-| file_fdw                     | 1.0     | CONTRIB     | FDW       | foreign-data wrapper for flat file access                    |
-| postgres_fdw                 | 1.1     | CONTRIB     | FDW       | foreign-data wrapper for remote PostgreSQL servers           |
-| autoinc                      | 1.0     | CONTRIB     | FUNC      | functions for autoincrementing fields                        |
-| dict_int                     | 1.0     | CONTRIB     | FUNC      | text search dictionary template for integers                 |
-| dict_xsyn                    | 1.0     | CONTRIB     | FUNC      | text search dictionary template for extended synonym processing |
-| earthdistance                | 1.1     | CONTRIB     | FUNC      | calculate great-circle distances on the surface of the Earth |
-| fuzzystrmatch                | 1.1     | CONTRIB     | FUNC      | determine similarities and distance between strings          |
-| insert_username              | 1.0     | CONTRIB     | FUNC      | functions for tracking who changed a table                   |
-| intagg                       | 1.1     | CONTRIB     | FUNC      | integer aggregator and enumerator (obsolete)                 |
-| intarray                     | 1.5     | CONTRIB     | FUNC      | functions, operators, and index support for 1-D arrays of integers |
-| moddatetime                  | 1.0     | CONTRIB     | FUNC      | functions for tracking last modification time                |
-| pg_trgm                      | 1.6     | CONTRIB     | FUNC      | text similarity measurement and index searching based on trigrams |
-| pgcrypto                     | 1.3     | CONTRIB     | FUNC      | cryptographic functions                                      |
-| refint                       | 1.0     | CONTRIB     | FUNC      | functions for implementing referential integrity (obsolete)  |
-| tablefunc                    | 1.0     | CONTRIB     | FUNC      | functions that manipulate whole tables, including crosstab   |
-| tcn                          | 1.0     | CONTRIB     | FUNC      | Triggered change notifications                               |
-| tsm_system_rows              | 1.0     | CONTRIB     | FUNC      | TABLESAMPLE method which accepts number of rows as a limit   |
-| tsm_system_time              | 1.0     | CONTRIB     | FUNC      | TABLESAMPLE method which accepts time in milliseconds as a limit |
-| uuid-ossp                    | 1.1     | CONTRIB     | FUNC      | generate universally unique identifiers (UUIDs)              |
-| btree_gin                    | 1.3     | CONTRIB     | INDEX     | support for indexing common datatypes in GIN                 |
-| btree_gist                   | 1.7     | CONTRIB     | INDEX     | support for indexing common datatypes in GiST                |
-| bool_plperl                  | 1.0     | CONTRIB     | LANG      | transform between bool and plperl                            |
-| bool_plperlu                 | 1.0     | CONTRIB     | LANG      | transform between bool and plperlu                           |
-| hstore_plpython3u            | 1.0     | CONTRIB     | LANG      | transform between hstore and plpython3u                      |
-| jsonb_plperl                 | 1.0     | CONTRIB     | LANG      | transform between jsonb and plperl                           |
-| jsonb_plperlu                | 1.0     | CONTRIB     | LANG      | transform between jsonb and plperlu                          |
-| jsonb_plpython3u             | 1.0     | CONTRIB     | LANG      | transform between jsonb and plpython3u                       |
-| ltree_plpython3u             | 1.0     | CONTRIB     | LANG      | transform between ltree and plpython3u                       |
-| plperl                       | 1.0     | CONTRIB     | LANG      | PL/Perl procedural language                                  |
-| plperlu                      | 1.0     | CONTRIB     | LANG      | PL/PerlU untrusted procedural language                       |
-| plpgsql                      | 1.0     | CONTRIB     | LANG      | PL/pgSQL procedural language                                 |
-| plpython3u                   | 1.0     | CONTRIB     | LANG      | PL/Python3U untrusted procedural language                    |
-| pltcl                        | 1.0     | CONTRIB     | LANG      | PL/TCL procedural language                                 |
-| pltclu                       | 1.0     | CONTRIB     | LANG      | PL/TCLU untrusted procedural language                      |
-| pageinspect                  | 1.11    | CONTRIB     | STAT      | inspect the contents of database pages at a low level        |
-| pg_buffercache               | 1.3     | CONTRIB     | STAT      | examine the shared buffer cache                              |
-| pg_freespacemap              | 1.2     | CONTRIB     | STAT      | examine the free space map (FSM)                             |
-| **pg_stat_statements**       | 1.10    | CONTRIB     | STAT      | track planning and execution statistics of all SQL statements executed |
-| pg_visibility                | 1.2     | CONTRIB     | STAT      | examine the visibility map (VM) and page-level visibility info |
-| pg_walinspect                | 1.0     | CONTRIB     | STAT      | functions to inspect contents of PostgreSQL Write-Ahead Log  |
-| pgrowlocks                   | 1.2     | CONTRIB     | STAT      | show row-level locking information                           |
-| pgstattuple                  | 1.5     | CONTRIB     | STAT      | show tuple-level statistics                                  |
-| sslinfo                      | 1.2     | CONTRIB     | STAT      | information about SSL certificates                           |
-| cube                         | 1.5     | CONTRIB     | TYPE      | data type for multidimensional cubes                         |
-| hstore                       | 1.8     | CONTRIB     | TYPE      | data type for storing sets of (key, value) pairs             |
-| isn                          | 1.2     | CONTRIB     | TYPE      | data types for international product numbering standards     |
-| ltree                        | 1.2     | CONTRIB     | TYPE      | data type for hierarchical tree-like structures              |
-| prefix                       | 1.2.0   | CONTRIB     | TYPE      | Prefix Range module for PostgreSQL                           |
-| seg                          | 1.4     | CONTRIB     | TYPE      | data type for representing line segments or floating-point intervals |
-| xml2                         | 1.1     | CONTRIB     | TYPE      | XPath querying and XSLT                                      |
+
 
 </details>
 

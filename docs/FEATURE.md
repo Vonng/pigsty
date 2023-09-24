@@ -21,7 +21,7 @@ Pigsty is a **Me-Better, Battery-Included, Open-Source RDS PG Alternative**:
 
 **Run production-grade RDS for PostgreSQL on your own machine in 10 minutes!**
 
-While PostgreSQL shines as a database kernel, it truly excels as a Relational Database [Service](PGSQL-SVC#service-overview) (RDS) with Pigsty's touch.
+While PostgreSQL shines as a database kernel, it excels as a Relational Database [Service](PGSQL-SVC#service-overview) (RDS) with Pigsty's touch.
 
 Pigsty is compatible with PostgreSQL 12-16 and runs seamlessly on EL 7, 8, 9, and similar OS distributions.
 It integrates the kernel with a rich set of extensions, provides all the essentials for a production-ready RDS, an entire set of infrastructure runtime coupled with fully automated deployment playbooks.
@@ -44,7 +44,7 @@ All you need to do is run the command and connect with the given URL.
 
 PostgreSQL's has an unique [extension](PGSQL-EXTENSION#extension-list) ecosystem. Pigsty seamlessly integrates these powerful extensions, delivering turnkey distributed solutions for time-series, geospatial, and vector capabilities.
 
-Pigsty boasts over **150** PostgreSQL extensions, and maintaining some not found in official PGDG repositories. Rigorous testing ensures flawless integration for core extensions: Leverage [PostGIS](https://postgis.net/) for geospatial data, [TimescaleDB](https://www.timescale.com/) for time-series analysis, [Citus](https://www.citusdata.com/) for horizontal scale out, [PGVector](https://github.com/pgvector/pgvector) for AI embeddings, [Apache AGE](https://age.apache.org/) for graph data, and [zhparser](https://github.com/amutu/zhparser) for Full-Text Search.
+Pigsty boasts over **150** PostgreSQL extensions, and maintaining some not found in official PGDG repositories. Rigorous testing ensures flawless integration for **core** extensions: Leverage [PostGIS](https://postgis.net/) for geospatial data, [TimescaleDB](https://www.timescale.com/) for time-series analysis, [Citus](https://www.citusdata.com/) for horizontal scale out, [PGVector](https://github.com/pgvector/pgvector) for AI embeddings, [Apache AGE](https://age.apache.org/) for graph data, and [zhparser](https://github.com/amutu/zhparser) for Full-Text Search.
 
 Additionally, Pigsty provides a robust compile environment which can be used for [building extension](PGSQL-EXTENSION#compile-extension) from source.
 
