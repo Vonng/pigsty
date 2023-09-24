@@ -625,8 +625,6 @@ Check [**Configuration**](CONFIG) & [**PGSQL Conf**](PGSQL-CONF.md) for details.
 
 Docs: https://doc.pigsty.cc/
 
-Wiki: https://github.com/Vonng/pigsty/wiki
-
 Website: https://pigsty.cc/en/ | https://pigsty.cc/zh/
 
 WeChat: Search `pigsty-cc` to join the WeChat group.
@@ -638,7 +636,5 @@ Discord: https://discord.gg/xm6hR4P4
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
 License: [AGPL-3.0](LICENSE)
-
-Sponsor: [Backers](BACKERS)
 
 Copyright 2018-2023 rh@vonng.com

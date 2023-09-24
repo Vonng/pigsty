@@ -4,7 +4,7 @@
 >
 > —— **开箱即用，本地优先的 RDS PostgreSQL 开源替代**
 >
-> [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) + [Supabase](https://supabase.com/) + [PostgresML](https://postgresml.org/) + [...](PGSQL-EXTENSION.md)
+> [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) +[Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase) + [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml) + [...](docs/PGSQL-EXTENSION.md)
 >
 > 最新版本：[v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [服务订阅](https://pigsty.cc/zh/docs/support/) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
 >
@@ -630,8 +630,6 @@ minio:
 > Pigsty (/ˈpɪɡˌstaɪ/) 是 "**P**ostgreSQL **I**n **G**reat **STY**le" 的缩写，即“全盛状态的PostgreSQL”
 
 文档: https://doc.pigsty.cc/
-
-百科: https://github.com/Vonng/pigsty/wiki
 
 网站: https://pigsty.cc/en/ | https://pigsty.cc/zh/
 

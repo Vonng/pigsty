@@ -4,7 +4,7 @@
 >
 > —— **A battery-included, local-first, open-source RDS PG alternative.**
 >
-> [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) + [Supabase](https://supabase.com/) + [PostgresML](https://postgresml.org/) + [...](docs/PGSQL-EXTENSION.md)
+> [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) + [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase) + [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml) + [...](docs/PGSQL-EXTENSION.md)
 >
 > [Release v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/xm6hR4P4)
 >
@@ -41,10 +41,11 @@ Free RDS for PostgreSQL! Check [**Feature**](docs/FEATURE.md) | [**亮点特性*
 [![pigsty-dashboard](https://github.com/Vonng/pigsty/assets/8587410/cd4e6620-bc36-44dc-946b-b9ae56f93c90)](https://demo.pigsty.cc)
 
 
-<details><summary>Ecosystem & Available Extensions</summary>
+Pigsty has over **150+** **OPTIONAL** [extensions](docs/PGSQL-EXTENSION.md) pre-compiled and packaged, including some not included in the official PGDG repo. Some of the most potent extensions are:
 
-Pigsty has over **150+** [extensions](docs/PGSQL-EXTENSION.md) pre-compiled and packaged, including some not included in the official PGDG repo. Some of the most potent extensions are:
-
+- [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase): Open-Source Firebase alternative based on PostgreSQL
+- [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb): Open-Source MongoDB alternative based on PostgreSQL
+- [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml): Use machine learning algorithms and pretrained models with SQL
 - PostGIS: Add geospatial data support to PostgreSQL
 - TimescaleDB: Add time-series/continuous-aggregation support to PostgreSQL
 - PGVector / PG Embedding: AI vector/embedding data type support, and ivfflat / hnsw index access method
@@ -52,9 +53,8 @@ Pigsty has over **150+** [extensions](docs/PGSQL-EXTENSION.md) pre-compiled and 
 - Apache AGE: Add OpenCypher graph query language support to PostgreSQL, works like Neo4J
 - PG GraphQL: Add GraphQL language support to PostgreSQL
 - zhparser : Add Chinese word segmentation support to PostgreSQL, works like ElasticSearch
-- [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase): Open-Source Firebase alternative based on PostgreSQL
-- [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb): Open-Source MongoDB alternative based on PostgreSQL
-- [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml): Use machine learning algorithms and pretrained models with SQL
+
+<details><summary>All Available Extensions</summary>
 
 [![pigsty-extension](https://github.com/Vonng/pigsty/assets/8587410/91dfee81-3193-4505-b33f-0c5949dabf02)](docs/PGSQL-EXTENSION.md)
 
@@ -612,8 +612,6 @@ Check [**Configuration**](docs/CONFIG.md) for details.
 
 Docs: https://doc.pigsty.cc/
 
-Wiki: https://github.com/Vonng/pigsty/wiki
-
 Website: https://pigsty.cc/en/ | https://pigsty.cc/zh/
 
 WeChat: Search `pigsty-cc` to join the WeChat group.
@@ -626,6 +624,4 @@ Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
 License: [AGPL-3.0](LICENSE)
 
-Sponsor: [Backers](docs/BACKERS.md)
-
-Copyright 2018-2023 rh@vonng.com
+Copyright: 2018-2023 rh@vonng.com
