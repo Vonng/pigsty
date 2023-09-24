@@ -6,7 +6,7 @@
 >
 > [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) + [Supabase](https://supabase.com/) + [PostgresML](https://postgresml.org/) + [...](PGSQL-EXTENSION.md)
 >
-> Latest Release: [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Website](https://pigsty.cc/en/) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/xm6hR4P4) | [中文文档](/zh/)
+> Latest Release: [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Website](https://pigsty.cc/en/)  | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/xm6hR4P4) | [中文文档](/zh/)
 >
 > [Get Started](INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash`
 
@@ -43,7 +43,7 @@ Free RDS for PostgreSQL! check [**Feature**](FEATURE.md) | [**亮点特性**](/z
 
 <details><summary>Ecosystem & Available Extensions</summary>
 
-Pigsty has over **150+** [extensions](docs/PGSQL-EXTENSION.md) pre-compiled and packaged, including some not included in the official PGDG repo. Some of the most potent extensions are:
+Pigsty has over **150+** [extensions](PGSQL-EXTENSION.md) pre-compiled and packaged, including some not included in the official PGDG repo. Some of the most potent extensions are:
 
 - PostGIS: Add geospatial data support to PostgreSQL
 - TimescaleDB: Add time-series/continuous-aggregation support to PostgreSQL
@@ -56,7 +56,7 @@ Pigsty has over **150+** [extensions](docs/PGSQL-EXTENSION.md) pre-compiled and 
 - [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb): Open-Source MongoDB alternative based on PostgreSQL
 - [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml): Use machine learning algorithms and pretrained models with SQL
 
-[![pigsty-extension](https://github.com/Vonng/pigsty/assets/8587410/91dfee81-3193-4505-b33f-0c5949dabf02)](docs/PGSQL-EXTENSION.md)
+[![pigsty-extension](https://github.com/Vonng/pigsty/assets/8587410/91dfee81-3193-4505-b33f-0c5949dabf02)](PGSQL-EXTENSION.md)
 
 | name                         | version | source     | type   | comment                                                      |
 | ---------------------------- | :-----: | :--------: | :----: | ------------------------------------------------------------ |
