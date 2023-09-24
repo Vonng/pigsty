@@ -1,57 +1,48 @@
 # Supabase
 
-The open source Firebase alternative.
+[Supabase](https://supabase.com/), The open-source Firebase alternative based on PostgreSQL.
+
+Pigsty allows you to self host supabase with existing managed HA postgres cluster, and launch the stateless part of supabase with docker compose.
+
+
+-----------------------
+
+## Quick Start
+
+To run supabase with existing postgres instance, prepare the [database](#database) first, then:
 
 ```bash
-cd app/supabase; make up
+cd app/supabase; make up  # use the pre-configured supabase.yml to pull up supabase
 ```
+
+And you can access the supabase studio dashboard at `http://<admin_ip>:8000` by default, the default dashboard username is `supabase` and password is `pigsty`.
+
+You can also configure the `infra_portal` to expose the WebUI to the public through Nginx and SSL.
+
+Here are some `docker compose` wrap shortcuts for supabase:
 
 ```bash
 make up         # pull up supabase with docker compose
 make view       # print supabase access point
-make log        # tail -f supabase logs
-make info       # introspect supabase with jq
 make stop       # stop supabase container
 make clean      # remove supabase container
-make pull       # pull latest supabase image
-make rmi        # remove supabase image
-make save       # save supabase image to /tmp/supabase.tgz
-make load       # load supabase image from /tmp
 ```
 
 
-## Docker Compose
 
-The `.env` file provides configuration parameters for supabase docker compose.
-
-You have to change the following parameters according to your environment:
-
-```bash
-# Secrets: YOU MUST CHANGE THESE BEFORE GOING INTO PRODUCTION
-POSTGRES_PASSWORD=DBUser.Supa     # supabase dbsu password (shared by multiple supabase biz users)
-DASHBOARD_USERNAME=supabase       # supabase WebUI Username
-DASHBOARD_PASSWORD=pigsty         # supabase WebUI Password
-JWT_SECRET=your-super-secret-jwt-token-with-at-least-32-characters-long
-ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
-SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q
-
-# Database - You can change these to any PostgreSQL database that has logical replication enabled.
-POSTGRES_HOST=10.10.10.10         # change to Pigsty managed PostgreSQL cluster/instance VIP/IP/Hostname
-POSTGRES_DB=supa                  # change to supabase database name
-POSTGRES_PORT=5432                # you can use other service port such as 5433, 5436, 6432, etc...
-```
-
-Then you can pull up supabase with docker compose: `docker compose up` or `make up`
-
-
+-----------------------
 
 ## Database
 
-You have to prepare a PostgreSQL cluster/instance before launching supabase:
+Supabase require certain PostgreSQL extensions, schemas, and roles to work, which can be pre-configured by Pigsty: [`supabase.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/supabase.yml).
 
-The [`supabase.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/supabase.yml) provides a sample configuration for supabase.
+Which will configure the default `pg-meta` cluster and the `supa` database as an supabase-ready PostgreSQL.
 
-It will create a cluster with `supa` database, related users and roles, schemas and extensions ready. It will run the [init-scripts](https://github.com/supabase/postgres/tree/develop/migrations/db/init-scripts) as database baseline.
+It will use the [init-scripts](https://github.com/supabase/postgres/tree/develop/migrations/db/init-scripts) as database baseline.
+
+And you'll have to run migration script: [`migration.sql`](migration.sql) later, which is merged from [supabase/postgres/migrations/db/migrations](https://github.com/supabase/postgres/tree/develop/migrations/db/migrations) in chronological order and slightly modified to fit Pigsty.
+
+Here's the example configuration for supabase, which will create roles, databases, extensions, schemas for you, and HBA rules allowing you access from docker network CIDR. You can change it according to your needs.
 
 ```yaml
 # supabase example cluster: pg-meta, this cluster needs to be migrated with app/supabase/migration.sql :
@@ -100,7 +91,62 @@ pg-meta:
 After bootstrap, you also have to run migrations with [`app/supabase/migration.sql`](https://github.com/Vonng/pigsty/blob/master/app/supabase/migration.sql):
 
 ```bash
-psql postgres://supabase_admin:DBUser.Supa@10.10.10.10:5432/supa -v ON_ERROR_STOP=1 --no-psqlrc -f ~pigsty/app/supabase/migration.sql
+psql postgres://supabase_admin:DBUser.Supa@10.10.10.10:5432/supa -v ON_ERROR_STOP=1 --no-psqlrc -f ~/pigsty/app/supabase/migration.sql
 ```
 
-Supabase will use the same password for all supabase business users, which is `DBUser.Supa` in this example. You can change it to whatever you like.
+If, by any chance, the latest supabase schema has some changes, you can add that to `app/supabase/migration.sql` and run it again.
+
+And the postgres database is just ready for supabase!
+
+
+
+-----------------------
+
+## Configuration
+
+It's wise to change some important credentials in [`.env`](.env) before going into production.
+
+The official tutorial [Self-Hosting with Docker](https://supabase.com/docs/guides/self-hosting/docker) just have all the details you need.
+
+```bash
+############
+# Secrets - YOU MUST CHANGE THESE BEFORE GOING INTO PRODUCTION
+############
+# you have to change the JWT_SECRET to a random string with at least 32 characters long
+# and issue new ANON_KEY/SERVICE_ROLE_KEY JWT with that new secret, check the tutorial:
+# https://supabase.com/docs/guides/self-hosting/docker#securing-your-services
+JWT_SECRET=your-super-secret-jwt-token-with-at-least-32-characters-long
+ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
+SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q
+
+############
+# Dashboard - Credentials for the Supabase Studio WebUI
+############
+DASHBOARD_USERNAME=supabase         # change to your own username
+DASHBOARD_PASSWORD=pigsty           # change to your own password
+
+############
+# Database - You can change these to any PostgreSQL database that has logical replication enabled.
+############
+POSTGRES_HOST=10.10.10.10           # change to Pigsty managed PostgreSQL cluster/instance VIP/IP/Hostname
+POSTGRES_PORT=5432                  # you can use other service port such as 5433, 5436, 6432, etc...
+POSTGRES_DB=supa                    # change to supabase database name, `supa` by default in pigsty
+POSTGRES_PASSWORD=DBUser.Supa       # supabase dbsu password (shared by multiple supabase biz users)
+```
+
+The default setting will use the following connect string by default, change that according to you pigsty config inventory.
+
+```bash
+psql postgres://supabase_admin:DBUser.Supa@10.10.10.10:5432/supa -c '\dx'   # check connectivity & extensions
+```
+
+You can use the [Primary Service](https://github.com/Vonng/pigsty/blob/master/docs/PGSQL-SVC.md#primary-service) of that cluster through DNS/VIP and other service ports, or whatever you like.
+
+The username is fixed as `supabase_admin` and the password is `DBUser.Supa` can be changed via [`supabase.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/supabase.yml#L43)
+
+Besides: since pigsty has an official MinIO support, you can also setup `supabase.storage` service with that as object storage backend too.
+
+
+
+
+

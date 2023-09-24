@@ -1,4 +1,4 @@
-`default: up view
+default: up view
 
 up: view
 	docker compose up -d
@@ -16,11 +16,10 @@ stop:
 	docker compose down
 
 clean:
-	docker stop supabase; docker rm -f supabase
+	docker compose down
 
 pull:
 	docker compose pull
-
 
 save:
 	mkdir -p /tmp/docker
@@ -47,5 +46,4 @@ load:
 	cat /tmp/docker/imgproxy.tgz       | gzip -d -c - | docker load 
 	cat /tmp/docker/kong.tgz           | gzip -d -c - | docker load 
 
-
-.PHONY: default up run ui rmui view log info stop clean pull rmi save load
+.PHONY: default up view log info stop clean pull save load

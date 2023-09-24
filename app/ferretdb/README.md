@@ -1,6 +1,6 @@
 # FerretDB
 
-A truly Open Source MongoDB alternative, built on Postgres.
+[FerretDB](https://www.ferretdb.io/) -- A truly Open Source MongoDB alternative, built on Postgres.
 
 ```bash
 cd app/ferretdb; docker compose up -d

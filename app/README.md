@@ -2,13 +2,13 @@
 
 Here are some docker compose templates for popular applications that works well with PostgreSQL
 
+* [Supabase](supabase/) : The open source Firebase alternative, built on Postgres
+* [FerretDB](ferretdb/) : Open Source MongoDB alternative, built on Postgres
 * [PgAdmin4](pgadmin/) : Postgres Admin Tools
 * [PgWeb](pgweb/) : Postgres Web Console
 * [ByteBase](bytebase/) : Postgres DDL Migration
 * [PostgREST](postgrest/) : Auto-Generated PG Backend REST API
 * [Kong](kong/) : Kong API Gateway
-* [FerretDB](ferretdb/) : Open Source MongoDB alternative, built on Postgres
-* [Supabase](supabase/) : The open source Firebase alternative, built on Postgres
 * [Gitea](gitea/) : Self-Hosting Git Services
 * [Wiki](wiki/) : Local Wiki Service
 * [NocoDB](nocodb/) : Open source airtable alternative
