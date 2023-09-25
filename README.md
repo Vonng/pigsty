@@ -23,7 +23,7 @@ Free RDS for PostgreSQL. Check [**Features**](docs/FEATURE.md) | [**特性**](do
 - Handy IaC Templates, provisioning Infra with [Terraform](https://github.com/Vonng/pigsty/tree/master/terraform/README.md) and try [sandbox](docs/PROVISION.md) with [Vagrant](https://github.com/Vonng/pigsty/tree/master/vagrant/README.md).
 - Pre-pack stable versions, create [local repos](docs/INSTALL.md#offline-packages) and install without Internet access.
 
-[![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/b30939f3-7819-4046-8cbd-d9cf02d6fb5d)](docs/FEATURE.md)
+[![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/a0550ad2-7bb9-4051-8758-9e5e3b294e54)](docs/FEATURE.md)
 
 Pigsty can be used in different scenarios:
 - Run HA [PostgreSQL](docs/PGSQL.md) RDS for production usage, with PostGIS, TimescaleDB, Citus, etc...

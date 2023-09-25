@@ -48,7 +48,7 @@ Pigsty boasts over **150** PostgreSQL extensions, and maintaining some not found
 
 Additionally, Pigsty provides a robust compile environment which can be used for [building extension](PGSQL-EXTENSION#compile-extension) from source.
 
-[![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/b30939f3-7819-4046-8cbd-d9cf02d6fb5d)](PGSQL-EXTENSION.md)
+[![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/a0550ad2-7bb9-4051-8758-9e5e3b294e54)](PGSQL-EXTENSION.md)
 
 
 

@@ -47,7 +47,7 @@ Pigsty 收录了超过 150+ PostgreSQL 扩展插件，编译维护打包了一�
 
 Pigsty还包含了完整的编译环境与基础设施，允许您方便地自行[编译](PGSQL-EXTENSION#扩展编译)加装其他没有收录的扩展。
 
-[![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/b30939f3-7819-4046-8cbd-d9cf02d6fb5d)](PGSQL-EXTENSION.md)
+[![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/a0550ad2-7bb9-4051-8758-9e5e3b294e54)](PGSQL-EXTENSION.md)
 
 
 

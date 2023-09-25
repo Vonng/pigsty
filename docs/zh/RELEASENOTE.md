@@ -40,6 +40,29 @@
 
 ## v2.4.1
 
+
+- [Supabase](https://supabase.com/) 支持：开源的 Firebase 替代，现可使用 Pigsty 本地托管的 PostgreSQL 实例作为数据存储。
+- [PostgresML](https://postgresml.org/)支持：使用SQL完成经典机器学习算法，训练、微调、调用大语言模型（hugging face）。
+- [FerretDB](https://github.com/FerretDB/FerretDB) v1.10 支持，在 PostgreSQL 上提供 MongoDB API与协议兼容能力。
+- GraphQL扩展: [`pg_graphql`](https://github.com/supabase/pg_graphql)：从现有模式中反射出 GraphQL 模式，提供库内 GraphQL 查询能力。
+- JWT支持扩展：[`pgjwt`](https://github.com/michelp/pgjwt) 允许您使用 SQL 验证签发 JWT (JSON Web Tokens)。
+- 密钥存储扩展: [`vault`](https://github.com/supabase/vault) 可以在提供一个安全存储加密密钥的保险柜。
+- 数据恢复扩展：[`pg_filedump`](https://github.com/df7cb/pg_filedump)：可用于快速从PostgreSQL二进制文件中恢复数据
+- 图数据库扩展：Apache [`age`](https://age.apache.org/)，为 PostgreSQL 添加 OpenCypher 查询支持，类似 Neo4J
+- 中文分词扩展：[`zhparser`](https://github.com/amutu/zhparser)，为中文全文检索提供分词能力，类似 ElasticSearch。
+- 高效位图扩展：[`pg_roaringbitmap`](https://github.com/ChenHuajun/pg_roaringbitmap)，在 PostgreSQL 中提供 roaring bitmap 的支持，高效计数聚合统计。
+- 向量嵌入替代：[`pg_embedding`](https://github.com/neondatabase/pg_embedding)，提供了不同于 pgvector 的另一种 HNSW 替代实现。
+- 可信语言扩展：[`pg_tle`](https://github.com/aws/pg_tle)，由 AWS 出品的，允许您打包分发管理由可信存储过程语言编写的函数。
+- HTTP客户端扩展：[`pgsql-http`](https://github.com/pramsey/pgsql-http)：使用 SQL 接口，curl API，发起 HTTP 请求，与各类系统交互。
+- 异步HTTP扩展： [`pg_net`](https://github.com/supabase/pg_net) 允许您使用 SQL 发起非阻塞的 HTTP/HTTPS 请求。
+- 列式存储引擎：[`hydra`](https://www.hydra.so/) 针对分析场景打造的向量化列存储引擎，原地替代 Citus 列存插件。
+- 其他PGDG扩展：新收录8个由PGDG维护的扩展插件，Pigsty支持的插件总数达到 150+ 。
+- PostgreSQL 16 内核支持，监控云端 RDS / PolarDB for PostgreSQL。
+
+
+
+
+
 **亮点特性**
 
 - [Supabase](https://supabase.com/) 支持：开源的 Firebase 替代，现可使用 Pigsty 托管的 PostgreSQL 实例存储数据。
