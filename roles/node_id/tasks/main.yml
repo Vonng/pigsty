@@ -10,12 +10,12 @@
     - name: get node fact
       become: no
       shell: |
-        DISTRO=$(rpm -q --whatprovides redhat-release);
-        echo $(rpm -q --qf "%{VENDOR}" "${DISTRO}");
-        echo $(rpm -q --qf "%{VERSION}" "${DISTRO}" | grep -o '^[^.]\+');
+        . /etc/os-release > /dev/null
+        echo $ID
+        echo $VERSION_ID
         echo $(uname -m);
         echo $(whoami)
-        echo ${HOSTNAME};
+        echo $(hostname);
         echo $(grep -c '^processor' /proc/cpuinfo);
         echo $(getconf _PHYS_PAGES);
         echo $(getconf PAGE_SIZE);
