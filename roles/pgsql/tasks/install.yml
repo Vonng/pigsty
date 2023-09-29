@@ -10,14 +10,14 @@
     # install postgres basic packages
     - name: install postgres packages
       environment: "{{ proxy_env | default({}) }}"
-      yum: name={{ item | replace('${pg_version}', pg_version|string)|replace(' ',',') }} disable_gpg_check=true
+      package: name={{ item | replace('${pg_version}', pg_version|string)|replace(' ',',') }}
       with_items: "{{ pg_packages }}"
 
     # install postgres extensions
     - name: install postgres extensions
       tags: pg_extension
       environment: "{{ proxy_env | default({}) }}"
-      yum: name={{ item | replace('${pg_version}', pg_version|string)|replace(' ',',') }} disable_gpg_check=true
+      package: name={{ item | replace('${pg_version}', pg_version|string)|replace(' ',',') }}
       with_items: "{{ pg_extensions }}"
 
     # fix run dir ownership
@@ -28,9 +28,13 @@
     - name: remove unnecessary postgres files
       ignore_errors: true
       shell: |
-        rm -rf /usr/lib/systemd/system/postgresql-{{ pg_version }}.service
+        rm -rf /usr/lib/systemd/system/postgresql-{{ pg_version }}.service # rhel
+        rm -rf /lib/systemd/system/postgresql.service  # debian
         rm -rf '/%{_sysconfigdir}'   # introduced by patroni rpm
         rm -rf '/%{_logdir}'         # remove these if patroni rpm fixed
+        if [ ! -f /usr/bin/patroni ] && [ -f /usr/local/bin/patroni ]; then
+          ln -s /usr/local/bin/patroni /usr/bin/patroni;
+        fi;
         systemctl daemon-reload;
         /bin/true;
 
