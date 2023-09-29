@@ -13,7 +13,11 @@ User={{ pg_dbsu }}
 Group=postgres
 Environment=BOUNCERCONF=/etc/pgbouncer/pgbouncer.ini
 PIDFile=/var/run/postgres/pgbouncer.pid
+{% if os_package is defined and os_package == 'deb' %}
+ExecStart=/usr/sbin/pgbouncer ${BOUNCERCONF}
+{% else %}
 ExecStart=/usr/bin/pgbouncer ${BOUNCERCONF}
+{% endif %}
 ExecReload=/usr/bin/kill -HUP $MAINPID
 KillSignal=SIGINT
 TimeoutSec=300
