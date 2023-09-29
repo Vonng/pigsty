@@ -71,16 +71,15 @@
 #--------------------------------------------------------------#
 # Systemd Service                                   [pg_systemd]
 #--------------------------------------------------------------#
-- name: config patroni systemd service
+- name: create patroni systemd service
   tags: pg_systemd
-  block:
+  template:
+    src: "{{ item }}.service.j2"
+    dest: "{{ systemd_dir }}/{{ item }}.service"
+  with_items: [ patroni, postgres ]
+  vars:
+    systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}"
 
-    # WARNING: this file may be overwritten by patroni upgrade!
-    - name: create patroni systemd service
-      template:
-        src: "{{ item }}.service.j2"
-        dest: "/usr/lib/systemd/system/{{ item }}.service"
-      with_items: [ patroni, postgres ]
 
 
 #--------------------------------------------------------------#

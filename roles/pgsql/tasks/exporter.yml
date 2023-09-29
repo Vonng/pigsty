@@ -28,7 +28,9 @@
 
     - name: config pg_exporter systemd unit
       when: pg_exporter_enabled|bool
-      template: src=pg_exporter.service.j2 dest=/usr/lib/systemd/system/pg_exporter.service
+      template: src=pg_exporter.service.j2 dest={{ systemd_dir }}/pg_exporter.service
+      vars:
+        systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}"
 
     # pgbouncer_exporter systemd
     - name: config pgbouncer_exporter parameters
@@ -37,7 +39,9 @@
 
     - name: config pgbouncer_exporter systemd unit
       when: pgbouncer_exporter_enabled|bool
-      template: src=pgbouncer_exporter.service.j2 dest=/usr/lib/systemd/system/pgbouncer_exporter.service
+      template: src=pgbouncer_exporter.service.j2 dest={{ systemd_dir }}/pgbouncer_exporter.service
+      vars:
+        systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}"
 
 
 #--------------------------------------------------------------#
