@@ -14,6 +14,11 @@
         echo $ID
         echo $VERSION_ID
         echo $(uname -m);
+        if command -v dpkg >/dev/null 2>&1; then
+            echo "deb"
+        else
+            echo "rpm"
+        fi
         echo $(whoami)
         echo $(hostname);
         echo $(grep -c '^processor' /proc/cpuinfo);
@@ -29,11 +34,12 @@
         os_vendor:      "{{ node_result.stdout_lines[0] }}"
         os_version:     "{{ node_result.stdout_lines[1]|int }}"
         os_arch:        "{{ node_result.stdout_lines[2] }}"
-        node_user:      "{{ node_result.stdout_lines[3] }}"
-        node_hostname:  "{{ node_result.stdout_lines[4] }}"
-        node_cpu:       "{{ node_result.stdout_lines[5]|int }}"
-        node_pages:     "{{ node_result.stdout_lines[6]|int }}"
-        node_page_size: "{{ node_result.stdout_lines[7]|int }}"
+        os_package:     "{{ node_result.stdout_lines[3] }}"
+        node_user:      "{{ node_result.stdout_lines[4] }}"
+        node_hostname:  "{{ node_result.stdout_lines[5] }}"
+        node_cpu:       "{{ node_result.stdout_lines[6]|int }}"
+        node_pages:     "{{ node_result.stdout_lines[7]|int }}"
+        node_page_size: "{{ node_result.stdout_lines[8]|int }}"
 
     # if nodename is empty, or can not be built from pgsql instance's identity
     - name: fill empty nodename with hostname
