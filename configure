@@ -3,12 +3,12 @@
 # File      :   configure
 # Desc      :   generate pigsty.yml config according to env
 # Ctime     :   2021-05-17
-# Mtime     :   2023-07-19
+# Mtime     :   2023-09-29
 # Path      :   configure
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-VERSION=v2.4.1
+PIGSTY_VERSION=v2.4.1
 
 
 #--------------------------------------------------------------#
@@ -29,21 +29,7 @@ INTERACTIVE=true                  # run configure with interactive mode
 PRIMARY_IP=""                     # primary IP address (intranet, do not use public IP)
 MODE=""                           # default install mode (el7|el8|el9|demo|sec|citus|redis)
 SPEC=tiny                         # default postgres spec (tiny|mini|small|medium|large|huge)
-
-
-#--------------------------------------------------------------#
-# Param
-#--------------------------------------------------------------#
-PROG_NAME="$(basename $0)"
-PROG_DIR="$(cd $(dirname $0) && pwd)"
-PIGSTY_HOME="${PROG_DIR}"
-REPO_NAME=pigsty
-NGINX_HOME=/www
-REPO_DIR=${NGINX_HOME}/${REPO_NAME}
-BIN_DIR=${PIGSTY_HOME}/files/bin
-# os & region
-REGION=""
-OS_VERSION=${OS_VERSION-'7'}
+REGION=""                         # default region (default|china|europe)
 
 
 #--------------------------------------------------------------#
@@ -60,9 +46,36 @@ function log_hint()  { printf "${__CB}$*${__CN}"; }
 ipv4_regexp='(([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])'
 
 
+#--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+PROG_NAME="$(basename $0)"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+PIGSTY_HOME="${PROG_DIR}"
+REPO_NAME=pigsty
+NGINX_HOME=/www
+REPO_DIR=${NGINX_HOME}/${REPO_NAME}
+BIN_DIR=${PIGSTY_HOME}/files/bin
+
+# extract os vendor & version from /etc/os-release
+OS_VENDOR=""
+OS_VERSION=""
+OS_PACKAGE=""
+OS_MANAGER=""
+
+
 #----------------------------------------------#
 # region
 #----------------------------------------------#
+# return 0 if behind gfw (inside mainland china), otherwise 1
+function behind_gfw() {
+    local return_code=$(curl -I -s --connect-timeout 1 www.google.com -w %{http_code} | tail -n1)
+    if [ "${return_code}" = "200" ]; then
+        return 1
+    fi
+    return 0
+}
+
 function check_region(){
   if [ "${REGION}" == "" ]; then
     if behind_gfw; then
@@ -103,27 +116,60 @@ function check_machine(){
 }
 
 #----------------------------------------------#
+# os package manager (yum|apt|...)
+#----------------------------------------------#
+function check_package_manager(){
+    # get package / manager: rpm|deb and dnf|yum|apt|apt-get|zypper
+    if command -v dpkg >/dev/null 2>&1; then
+        OS_PACKAGE="deb"
+        if command -v apt >/dev/null 2>&1; then
+            OS_MANAGER="apt"
+        elif command -v apt-get >/dev/null 2>&1; then
+            OS_MANAGER="apt-get"
+        else
+            log_error "fail to determine os package manager for deb"
+            exit 4
+        fi
+    elif command -v rpm >/dev/null 2>&1; then
+        OS_PACKAGE="rpm"
+        if command -v dnf >/dev/null 2>&1; then
+            OS_MANAGER="dnf"
+        elif command -v yum >/dev/null 2>&1; then
+            OS_MANAGER="yum"
+        elif command -v zypper >/dev/null 2>&1; then
+            OS_MANAGER="zypper"
+        else
+            log_error "fail to determine os package manager for rpm"
+            exit 4
+        fi
+    else
+        log_error "fail to determine os package type"
+        exit 3
+    fi
+    log_info "package = ${OS_PACKAGE},${OS_MANAGER}"
+}
+
+
+#----------------------------------------------#
 # os release (Linux|Darwin etc..)
 #----------------------------------------------#
-function check_release(){
-    if [[ ! -f /etc/redhat-release ]]; then
-        log_error "release = unknown, /etc/redhat-release not exists"
-        log_error "pigsty works on RHEL and compatible distributions, use with caution, assume OS_VERSION=${OS_VERSION}"
-        #exit 3
-    else
-        local full=`cat /etc/redhat-release | tr -dc '0-9.'`
-        local major=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f1)
-        local minor=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f2)
-        local asynchronous=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f3)
-        if [[ ${major} != "7" && ${major} != "8" && ${major} != "9"  ]]; then
-            log_error "release = ${full} ,  supported release: el7,el8,el9"
-            log_error "pigsty works on el 7,8,9, please use with caution!"
-            #exit 4
-        fi
-        OS_VERSION=${major}
-        log_info "release = ${full}"
-    fi
-    return 0
+function check_vendor_version(){
+  if [[ -f /etc/os-release ]]; then
+      . /etc/os-release
+      OS_VENDOR="$ID"
+      OS_VERSION="$VERSION_ID"
+      if [[ $VERSION_ID == *.* ]]; then
+          OS_VERSION=$(echo "$VERSION_ID" | cut -d. -f1)
+      else
+          OS_VERSION="${VERSION_ID}"
+      fi
+      log_info "vendor = ${OS_VENDOR} (${NAME})"
+      log_info "version = ${OS_VERSION} (${VERSION_ID})"
+      return 0
+  else
+      log_error "/etc/os-release file not found, unknown OS"
+      exit 5
+  fi
 }
 
 
@@ -146,12 +192,13 @@ function check_sudo(){
     if can_nopass_sudo; then
         log_info "sudo = ${current_user} ok"
     else
-        log_error "sudo = ${current_user} missing nopasswd"
+        log_warn "sudo = ${current_user} missing nopasswd"
         log_warn "fix nopass sudo for '${current_user}' with sudo:"
         log_hint "echo '%%${current_user} ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/${current_user}"
-        exit 5
+        # exit 5   # we don't exit here , just a configure process
     fi
 }
+
 
 #----------------------------------------------#
 # ssh
@@ -190,8 +237,8 @@ function check_ssh(){
         log_warn "ssh = $(whoami)@127.0.0.1 fixed"
         return 0
     else
-        log_error "ssh = $(whoami)@127.0.0.1 failed"
-        exit 6
+        log_warn "ssh = $(whoami)@127.0.0.1 failed"
+        # exit 6   # we don't exit here , just a configure process
     fi
 }
 
@@ -298,9 +345,13 @@ function check_admin(){
     if ssh -t -o "StrictHostKeyChecking no" ${primary_ip} 'sudo -n ls' 1>/dev/null 2>/dev/null; then
         log_info "admin = ${current_user}@${primary_ip} ok"
     else
-        log_error "admin = ${current_user}@${primary_ip} failed"
+        log_warn "admin = ${current_user}@${primary_ip} failed"
         log_hint "check ${current_user} in sudoer, @${primary_ip} is ssh accessible"
-        exit 10
+        # exit 10 # we don't exit here , just a configure process
+    fi
+    # if using root, warning
+    if [[ "${current_user}" == "root" ]]; then
+        log_warn "use root = not recommended, are you sure?"
     fi
 }
 
@@ -338,14 +389,7 @@ function check_mode(){
     return 0
 }
 
-# return 0 if behind gfw (inside mainland china), otherwise 1
-function behind_gfw() {
-    local return_code=$(curl -I -s --connect-timeout 1 www.google.com -w %{http_code} | tail -n1)
-    if [ "${return_code}" = "200" ]; then
-        return 1
-    fi
-    return 0
-}
+
 
 #----------------------------------------------#
 # generate config
@@ -379,7 +423,7 @@ function check_config(){
         sed -ie "${sed_cmd4}" ${config_dst}
         rm -rf "${config_dst}e" || true
     fi
-	return 0
+    return 0
 }
 
 
@@ -392,8 +436,8 @@ function check_utils(){
     if command -v ansible-playbook >/dev/null ; then
         log_info "ansible = $(ansible --version | head -n1)"
     else
-        log_error "ansible = not found"
-        exit 20
+        log_warn "ansible = not found"
+        # exit 20     # we don't exit here, just a configure process
     fi
 }
 
@@ -419,19 +463,20 @@ function main(){
         shift
     done
 
-    log_hint "configure pigsty ${VERSION} begin\n"
+    log_hint "configure pigsty ${PIGSTY_VERSION} begin\n"
     # check
-    check_region     # region        = default
-    check_kernel     # kernel        = Linux
-    check_machine    # machine       = x86_64
-    check_release    # release       = CentOS 7|8|9
-    check_sudo       # current_user  = NOPASSWD sudo
-    check_ssh        # current_user  = NOPASSWD ssh
-    check_ipaddr     # primary_ip (arg|probe|input)                    (INTERACTIVE: ask for ip)
-    check_admin      # check current_user@primary_ip nopass ssh sudo
-    check_mode       # check config template
-    check_config     # generate config according to primary_ip and mode
-    check_utils      # check ansible sshpass and other utils installed
+    check_region          # region        = default
+    check_kernel          # kernel        = Linux
+    check_machine         # machine       = x86_64
+    check_package_manager # package = rpm|deb, manager = dnf|yum|zypper|apt|apt-get
+    check_vendor_version  # release       = centos, version = 7,8,9...
+    check_sudo            # current_user  = NOPASSWD sudo
+    check_ssh             # current_user  = NOPASSWD ssh
+    check_ipaddr          # primary_ip (arg|probe|input)                    (INTERACTIVE: ask for ip)
+    check_admin           # check current_user@primary_ip nopass ssh sudo
+    check_mode            # check config template
+    check_config          # generate config according to primary_ip and mode
+    #check_utils          # check ansible sshpass and other utils installed
     log_info "configure pigsty done"
     log_hint "proceed with ./install.yml \n"
 }
