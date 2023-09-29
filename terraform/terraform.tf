@@ -41,7 +41,7 @@ resource "alicloud_security_group_rule" "allow_all_tcp" {
 
 # AVAILABLE PUBLIC IMAGES
 # EL7: centos_7_9_x64_20G_alibase_20220824.vhd (default)
-# EL8: rockylinux_8_6_x64_20G_alibase_20220824.vhd
+# EL8: rockylinux_8_6_x64_20G_alibase_20220824.vhd anolisos_8_8_x64_20G_rhck_alibase_20230804.vhd
 # EL9: rockylinux_9_1_x64_20G_alibase_20230208.vhd
 
 # https://registry.terraform.io/providers/aliyun/alicloud/latest/docs/resources/instance
