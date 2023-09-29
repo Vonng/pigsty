@@ -8,7 +8,7 @@ Pigsty use  [**etcd**](https://etcd.io/) as  [**DCS**](https://patroni.readthedo
 
 You have to install [`ETCD`](ETCD) module before any [`PGSQL`](PGSQL) modules, since patroni & vip-manager will rely on etcd to work. Unless you are using an external etcd cluster.
 
-You have to install [`ETCD`](ETCD) after [`NODE`](NODE) module, since etcd require the trusted CA to work. Check [ETCD Administration SOP](etcd#administration) for more details.
+You don't need [`NODE`](NODE) module to install [`ETCD`](ETCD), but it requires a valid `CA` on your local `files/pki/ca`. Check [ETCD Administration SOP](etcd#administration) for more details.
 
 
 
