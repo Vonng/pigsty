@@ -51,19 +51,19 @@
 
     - name: install default node packages
       environment: "{{ proxy_env | default({}) }}"
-      yum: name={{ item }} disable_gpg_check=true
+      package: name={{ item }} # disable_gpg_check=true
       with_items: "{{ node_default_packages }}"
 
     - name: install extra node packages
       environment: "{{ proxy_env | default({}) }}"
-      yum: name={{ item }} disable_gpg_check=true
+      package: name={{ item }} # disable_gpg_check=true
       with_items: "{{ node_packages }}"
 
     - name: install keepalived if enabled
       tags: node_vip
       when: vip_enabled|bool
       environment: "{{ proxy_env | default({}) }}"
-      yum: name={{ item }} disable_gpg_check=true
+      package: name={{ item }} # disable_gpg_check=true
       with_items: [ keepalived, keepalived_exporter ]
 
 ...
