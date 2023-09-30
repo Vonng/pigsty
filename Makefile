@@ -258,6 +258,8 @@ vp:
 	vagrant/switch prod
 vm:
 	vagrant/switch minio
+vo:
+	vagrant/switch os
 vc:
 	vagrant/switch check
 # switch to production env with rocky8
@@ -465,25 +467,24 @@ meta:  del v1 new ssh copy-el9 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
 full: del v4 new ssh copy-el9 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
-minio: del vm new ssh copy-el9 use-pkg
-	cp files/pigsty/citus.yml pigsty.yml
 el7: del v7 new ssh copy-el7 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
 el8: del v8 new ssh copy-el8 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
 el9: del v9 new ssh copy-el9 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
+minio: del vm new ssh copy-el9 use-pkg
+	cp files/pigsty/citus.yml pigsty.yml
+os: del vo new ssh
+	cp files/pigsty/os.yml os.yml
+build: del vb new ssh
+	cp files/pigsty/build.yml pigsty.yml
 check: del vc new ssh check-all
 	cp files/pigsty/check.yml pigsty.yml
 prod: del vp new ssh
 	cp files/pigsty/prod.yml pigsty.yml
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-build: del vb new ssh
-	cp files/pigsty/build.yml pigsty.yml
-build-check: build check
-	cp files/pigsty/build.yml pigsty.yml
-
 prod8: del vp8 new ssh
 	cp files/pigsty/prod.yml pigsty.yml
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
@@ -506,10 +507,10 @@ prod7: del vp7 new ssh
         infra pgsql repo repo-upstream repo-build prometheus grafana loki docker \
         deps dns start ssh sshb demo \
         up dw del new clean up-test dw-test del-test new-test clean \
-        st status suspend resume v1 v4 v7 v8 v9 vb vp vm vc vp8 vp7 vnew \
+        st status suspend resume v1 v4 v7 v8 v9 vb vp vm vo vc vp8 vp7 vnew \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
         r release rr remote-release rp release-pkg release-el7 release-el8 release-el9 check-all check-src check-repo check-boot pp package pb publish \
-        meta full check minio build build-check el7 el8 el9 prod prod7 prod8
+        meta full el7 el8 el9 minio os build check prod prod7 prod8
 ###############################################################

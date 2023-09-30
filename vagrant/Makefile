@@ -94,6 +94,8 @@ vc:
 	./switch check
 vm:
 	./switch minio
+vo:
+	./switch os
 
 # switch to production env with rocky8
 vp8:
@@ -116,6 +118,7 @@ build: del vb up ssh
 prod:  del vp up ssh
 check: del vc up ssh
 minio: del vm up ssh
+os:    del vo up ssh
 prod8: del vp8 up ssh
 prod7: del vp7 up ssh
 
