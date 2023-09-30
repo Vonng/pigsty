@@ -17,8 +17,8 @@
       file: path=/etc/default/haproxy state=touch mode=0644
 
     - name: create haproxy systemd service
-      copy: src=haproxy.service dest=/usr/lib/systemd/system/haproxy.service
-
+      copy: src=haproxy.service dest={{ systemd_dir }}/haproxy.service
+      vars: { systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}" }
 
 #--------------------------------------------------------------#
 # Config Haproxy                                [haproxy_config]

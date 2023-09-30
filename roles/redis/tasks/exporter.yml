@@ -20,7 +20,7 @@
 
     - name: config redis_exporter systemd service
       copy:
-        dest: /usr/lib/systemd/system/redis_exporter.service
+        dest: {{ systemd_dir }}/redis_exporter.service
         content: |
           [Unit]
           Description=Prometheus exporter for Redis server metrics.
@@ -37,7 +37,7 @@
           MemoryLimit=200M          
           [Install]
           WantedBy=multi-user.target
-
+      vars: { systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}" }
 
 #--------------------------------------------------------------#
 # Launch Redis Exporter                  [redis_exporter_launch]

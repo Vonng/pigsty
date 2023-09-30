@@ -55,31 +55,32 @@
     - name: remove infra conf
       file: state=absent path="{{ item }}"
       tags: config
+      vars: { systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}" }
       with_items:
         - /etc/pigsty
         - /etc/pki/infra.crt
         - /etc/pki/infra.key
         - /etc/alertmanager.yml
         - /etc/default/alertmanager
-        - /usr/lib/systemd/system/alertmanager.service
+        - "{{ systemd_dir }}/alertmanager.service"
         - /etc/blackbox.conf
         - /etc/default/blackbox_exporter
-        - /usr/lib/systemd/system/blackbox_exporter.service
+        - "{{ systemd_dir }}/blackbox_exporter.service"
         - /etc/default/pushgateway
-        - /usr/lib/systemd/system/pushgateway.service
+        - "{{ systemd_dir }}/pushgateway.service"
         - /etc/prometheus
         - /etc/default/prometheus
-        - /usr/lib/systemd/system/prometheus.service
+        - "{{ systemd_dir }}/prometheus.service"
         - /etc/loki.yml
-        - /usr/lib/systemd/system/loki.service
+        - "{{ systemd_dir }}/loki.service"
         - /etc/grafana
-        - /usr/lib/systemd/system/grafana.service
+        - "{{ systemd_dir }}/grafana.service"
         - /etc/nginx/
         - /etc/default/nginx_exporter
-        - /usr/lib/systemd/system/nginx.service
-        - /usr/lib/systemd/system/nginx_exporter.service
+        - "{{ systemd_dir }}/nginx.service"
+        - "{{ systemd_dir }}/nginx_exporter.service"
         - /etc/dnsmasq.conf
-        - /usr/lib/systemd/system/dnsmasq.service
+        - "{{ systemd_dir }}/dnsmasq.service"
 
 
     #---------------------------------------------

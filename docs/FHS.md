@@ -300,7 +300,7 @@ redis-benchmark
 For a Redis instance named `redis-test-1-6379`, the resources associated with it are shown below:
 
 ```bash
-/usr/lib/systemd/system/redis-test-1-6379.service               # Services
+/usr/lib/systemd/system/redis-test-1-6379.service               # Services ('/lib/systemd' in debian)
 /etc/redis/redis-test-1-6379.conf                               # Config 
 /data/redis/redis-test-1-6379                                   # Database Catalog
 /data/redis/redis-test-1-6379/redis-test-1-6379.rdb             # RDB File

@@ -30,7 +30,8 @@
 #--------------------------------------------------------------#
 - name: copy dnsmasq systemd service
   tags: dns_config
-  copy: src=dnsmasq.service dest=/usr/lib/systemd/system/dnsmasq.service
+  copy: src=dnsmasq.service dest={{ systemd_dir }}/dnsmasq.service
+  vars: { systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}" }
 
 - name: render /etc/dnsmasq.d/config
   tags: dns_config

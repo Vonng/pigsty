@@ -8,7 +8,8 @@
 
     # - service - #
     - name: copy pushgateway systemd service
-      copy: src=pushgateway.service dest=/usr/lib/systemd/system/pushgateway.service
+      copy: src=pushgateway.service dest={{ systemd_dir }}/pushgateway.service
+      vars: { systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}" }
 
     # - opts - #
     - name: render /etc/default/pushgateway

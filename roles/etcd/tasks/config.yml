@@ -13,7 +13,8 @@
       template: src=etcd.conf.j2 dest=/etc/etcd/etcd.conf owner=etcd mode=0644
 
     - name: copy etcd server service unit
-      template: src=etcd.service.j2 dest=/usr/lib/systemd/system/etcd.service
+      template: src=etcd.service.j2 dest={{ systemd_dir }}/etcd.service
+      vars: { systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}" }
 
     # since infra node will access etcd with infra.crt, we don't need to write this profile on infra nodes
     - name: write etcd environment profile

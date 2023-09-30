@@ -77,11 +77,11 @@
 
     # services name examples:  redis-test-1-6379 , redis-sentinel-2-26379
     - name: render systemd svc for {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
-      template: src={{ service_template }} dest=/usr/lib/systemd/system/{{ svcname }} owner=root mode=644
+      template: src={{ service_template }} dest={{ systemd_dir }}/{{ svcname }} owner=root mode=644
       vars:
         svcname: "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
         service_template: "{% if redis_mode == 'sentinel' %}redis-sentinel.service{% else %}redis.service{% endif %}"
-
+        systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}"
 
 #--------------------------------------------------------------#
 # launch                                          [redis_launch]

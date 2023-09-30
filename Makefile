@@ -476,7 +476,7 @@ el9: del v9 new ssh copy-el9 use-pkg
 minio: del vm new ssh copy-el9 use-pkg
 	cp files/pigsty/citus.yml pigsty.yml
 os: del vo new ssh
-	cp files/pigsty/os.yml os.yml
+	cp files/pigsty/os.yml pigsty.yml
 build: del vb new ssh
 	cp files/pigsty/build.yml pigsty.yml
 check: del vc new ssh check-all
