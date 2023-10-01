@@ -1,0 +1,134 @@
+---
+#==============================================================#
+# File      :   ubuntu22.yml
+# Desc      :   Pigsty generated config for ubuntu 22 singleton
+# Ctime     :   2020-05-22
+# Mtime     :   2023-10-01
+# Docs      :   https://doc.pigsty.cc/#/CONFIG
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+# this is a simple singleton meta config template, check full details with
+# https://github.com/Vonng/pigsty/blob/master/files/pigsty/full.yml
+
+all:
+  children:
+
+    # infra cluster for proxy, monitor, alert, etc..
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
+
+    # etcd cluster for ha postgres
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+
+    # minio cluster, optional backup repo for pgbackrest
+    #minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+
+    # postgres cluster 'pg-meta' with single primary instance
+    pg-meta:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-meta
+        pg_databases: [ { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [ { name: postgis, schema: public }, { name: timescaledb } ] } ]
+        pg_users:
+          - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
+          - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
+        node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ] # make a full backup every 1am
+
+  vars:                               # global parameters
+    version: v2.4.1                   # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default,china,europe
+    infra_portal:                     # domain names and upstream servers
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
+      #minio        : { domain: sss.pigsty  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
+
+    # if disabled, original /etc/yum.repos.d/ will be kept
+    repo_remove: true       # remove existing repo on admin node during repo bootstrap
+    node_repo_remove: true  # remove existing node repo for node managed by pigsty
+
+    # if you want to use minio as backup repo instead of local fs, uncomment minio related lines
+    # don't forget to configure pgbackrest_repo and change credentials there!
+    #pgbackrest_method: minio
+    #minio_users:
+    #  - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
+    #  - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
+
+    # WARNING: CHANGE THESE PASSWORDS
+    #grafana_admin_username: admin
+    grafana_admin_password: pigsty
+    #pg_admin_username: dbuser_dba
+    pg_admin_password: DBUser.DBA
+    #pg_monitor_username: dbuser_monitor
+    pg_monitor_password: DBUser.Monitor
+    #pg_replication_username: replicator
+    pg_replication_password: DBUser.Replicator
+    #patroni_username: postgres
+    patroni_password: Patroni.API
+    #haproxy_admin_username: admin
+    haproxy_admin_password: pigsty
+
+    # repo_xxx are used if you want to build your own yum repo from upstream directly
+    repo_modules: node,pgsql,infra,redis    # which repo modules are installed in repo_upstream
+    repo_upstream:                    # where to download (ubuntu version)
+      - { name: base           ,description: 'Ubuntu Basic'      ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.aliyun.com/ubuntu/ jammy main restricted universe multiverse'            ,china: 'https://mirrors.aliyun.com/ubuntu/ jammy main restricted universe multiverse'           }}
+      - { name: security       ,description: 'Ubuntu Security'   ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.aliyun.com/ubuntu/ jammy-security main restricted universe multiverse'   ,china: 'https://mirrors.aliyun.com/ubuntu/ jammy-security main restricted universe multiverse'  }}
+      - { name: updates        ,description: 'Ubuntu Updates'    ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.aliyun.com/ubuntu/ jammy-updates main restricted universe multiverse'    ,china: 'https://mirrors.aliyun.com/ubuntu/ jammy-updates main restricted universe multiverse'   }}
+      - { name: backports      ,description: 'Ubuntu Backports'  ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.aliyun.com/ubuntu/ jammy-backports main restricted universe multiverse'  ,china: 'https://mirrors.aliyun.com/ubuntu/ jammy-backports main restricted universe multiverse' }}
+      - { name: haproxy        ,description: 'HAProxy'           ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/ubuntu/ jammy main'                 ,china: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/ubuntu/ jammy main'                }}
+      - { name: nginx          ,description: 'Nginx'             ,module: infra ,releases: [20,22] ,baseurl: { default: 'http://nginx.org/packages/ubuntu/  jammy nginx'                                          ,china: 'http://nginx.org/packages/ubuntu/  jammy nginx'                                         }}
+      - { name: docker-ce      ,description: 'Docker'            ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu/  jammy stable'              ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu/  jammy stable'             }}
+      - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main'                           ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main'                          }}
+      - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://packagecloud.io/the_asten/prometheus/ubuntu/ jammy main'  }}
+      - { name: pgdg           ,description: 'PGDG'              ,module: pgsql ,releases: [20,22] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ jammy-pgdg main'                                ,china: 'http://apt.postgresql.org/pub/repos/apt/ jammy-pgdg main' }}
+      - { name: citus          ,description: 'Citus'             ,module: pgsql ,releases: [20,22] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/ubuntu/ jammy main'   }}
+      - { name: timescaledb    ,description: 'Timescaledb'       ,module: pgsql ,releases: [20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/ubuntu/ jammy main' }}
+      - { name: redis          ,description: 'Redis'             ,module: redis ,releases: [20,22] ,baseurl: { default: 'https://packages.redis.io/deb jammy main'                                                ,china: 'https://packages.redis.io/deb jammy main' }}
+    repo_packages:                    # which packages to be included
+      - ansible python3 python3-pip apt-rdepends dpkg-dev
+      - grafana loki logcli promtail rometheus alertmanager
+      - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned linux-tools-generic nvme-cli numactl sysstat iotop htop rsync tcpdump
+      - netcat socat ftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived
+      - redis etcd haproxy vip-manager2    nginx sshpass chrony dnsmasq docker-ce docker-compose-plugin
+      - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity
+      - prometheus-node-exporter prometheus-blackbox-exporter prometheus-pushgateway prometheus-redis-exporter prometheus-nginx-exporter prometheus-mysqld-exporter
+      - postgresql-client-16 postgresql-16 postgresql-contrib-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 # postgresql-doc-16
+      - postgresql-client-15 postgresql-15 postgresql-contrib-15 postgresql-server-dev-15 postgresql-plpython3-15 postgresql-plperl-15 postgresql-pltcl-15 # postgresql-doc-15
+      - postgresql-client-14 postgresql-14 postgresql-contrib-14 postgresql-server-dev-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 # postgresql-doc-14
+      - postgresql-client-13 postgresql-13 postgresql-contrib-13 postgresql-server-dev-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 # postgresql-doc-13
+      - postgresql-client-12 postgresql-12 postgresql-contrib-12 postgresql-server-dev-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 # postgresql-doc-12
+      - postgresql-15-postgis-3 postgresql-15-citus-12.1 postgresql-15-vector postgresql-15-wal2json postgresql-15-repack timescaledb-2-postgresql-15
+      - postgresql-16-postgis-3 postgresql-16-citus-12.1 postgresql-16-vector postgresql-16-wal2json postgresql-16-repack
+      # TODO PG 15/16 Extensions, flamegraph, zhparser, etc..., prometheus stack
+
+    pg_dbsu_uid: 543
+    repo_url_packages:
+      - https://get.pigsty.cc/rpm/pev.html
+      - https://get.pigsty.cc/rpm/chart.tgz
+      - https://get.pigsty.cc/rpm/plugins.tgz
+      - https://github.com/FerretDB/FerretDB/releases/download/v1.11.0/ferretdb.deb
+      - https://dl.min.io/client/mc/release/linux-amd64/archive/mcli_20230929164122.0.0_amd64.deb
+      - https://dl.min.io/server/minio/release/linux-amd64/archive/minio_20230930070229.0.0_amd64.deb
+      - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter_0.5.0_amd64.deb
+
+    # packages to be installed
+    infra_packages:                   # packages to be installed on infra nodes
+      - grafana,loki,logcli,promtail,prometheus,alertmanager,prometheus-pushgateway,prometheus-blackbox-exporter
+      - prometheus-node-exporter,prometheus-pushgateway,prometheus-redis-exporter,prometheus-nginx-exporter
+      - nginx,dnsmasq,ansible,postgresql-client-16,redis,mcli,python3-requests
+    node_default_packages:            # default node packages to be installed on ubuntu22 node
+      - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-tools-generic,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump
+      - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,prometheus-node-exporter
+    pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
+      - postgresql-*-${pg_version}
+      - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager2
+    pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+      - postgresql-${pg_version}-wal2json postgresql-${pg_version}-repack
+      - postgresql-${pg_version}-postgis-3 postgresql-${pg_version}-citus-12.1 timescaledb-2-postgresql-${pg_version} #postgresql-${pg_version}-vector
+...

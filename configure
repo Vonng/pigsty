@@ -367,25 +367,26 @@ function check_mode(){
         log_info "mode = ${mode} (manually set)"
         return 0
     fi
-    # if repo_complete file exists, use auto template
-    if [[ -f "${REPO_DIR}/repo_complete" ]]; then
-        log_info "mode = auto (use local repo)"
-        MODE=auto
+
+    # use el by default, and adhoc template for el7, will be obsolete soon (2024)
+    if [[ ${OS_PACKAGE} == "rpm" ]]; then
+        if [[ "${OS_VERSION}" == "7" ]]; then
+            MODE=el7
+            return 0
+        fi
+        MODE=el
         return 0
     fi
-    # otherwise, use el7, el8, el9 according to os version
-    local os_release=${OS_VERSION}
-    if [[ ${os_release} == "9" ]]; then
-        MODE=el9
-        return 0
-    elif [[ ${os_release} == "8" ]]; then
-        MODE=el8
-        return 0
-    elif [[ ${os_release} == "7" ]]; then
-        MODE=el7
+
+    # use ubuntu by default
+    if [[ ${OS_PACKAGE} == "deb" ]]; then
+        # TODO: add debian support
+        MODE=ubuntu
         return 0
     fi
-    MODE=auto
+
+    # fallback to full.yml
+    MODE=full
     return 0
 }
 
