@@ -3,7 +3,7 @@
 # File      :   bootstrap
 # Desc      :   setup local repo & install boot utils
 # Ctime     :   2022-10-16
-# Mtime     :   2023-09-29
+# Mtime     :   2023-10-01
 # Path      :   bootstrap
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -444,7 +444,12 @@ EOF
         sudo mv -f /tmp/pigsty-local.repo /etc/yum.repos.d/pigsty-local.repo
     fi
 
-    # TODO: add deb local repo
+    if [[ ${OS_PACKAGE} == "deb" ]]; then
+        echo "deb [trusted=yes] file:${nginx_home}/${repo_name}/ ./" > /etc/apt/sources.list.d/pigsty-local.list
+        sudo mkdir -p /etc/apt/backup
+        sudo mv -f /etc/apt/sources.list.d/* /etc/apt/backup/ 2> /dev/null || true
+        sudo mv -f /etc/apt/sources.list /etc/apt/backup/ 2> /dev/null || true
+    fi
 }
 
 function check_repo_file(){
@@ -508,10 +513,13 @@ function check_utils(){
         sudo cp -f /etc/yum.repos.d/backup/*.repo /etc/yum.repos.d/ 2> /dev/null || true
     fi
 
-    # TODO: install deb utils
+    # install deb utils
     if [[ ${OS_PACKAGE} == "deb" ]]; then
-        log_warn "install deb utils not implemented yet"
-        sudo apt install -y ansible unzip wget reprepro sshpass
+        sudo apt install -y ansible unzip wget sshpass
+        if [[ -f /etc/apt/backup/sources.list ]]; then
+            sudo mv -f /etc/apt/backup/sources.list /etc/apt/sources.list 2> /dev/null || true
+        fi
+        sudo mv -f /etc/apt/backup/* /etc/apt/sources.list.d/ 2> /dev/null || true
     fi
 
     # check ansible is installed
