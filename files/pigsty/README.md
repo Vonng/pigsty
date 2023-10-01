@@ -9,10 +9,8 @@ There are several built-in templates:
 
 * [full.yml](full.yml) : detail documented config example with default parameters
 * [demo.yml](demo.yml) : exact same as default.yml, in short version
-* [auto.yml](auto.yml) : Pigsty auto generated config for el7,8,9 singleton
-* [el7.yml](el7.yml) : If you wish to download packages from upstream directly on EL7
-* [el8.yml](el8.yml) : If you wish to download packages from upstream directly on EL8
-* [el8.yml](el8.yml) : If you wish to download packages from upstream directly on EL9
+* [el.yml](el.yml) : Pigsty auto generated config for el8, el9 compatible singleton node
+* [el7.yml](el7.yml) : Pigsty auto generated config for el7 compatible singleton node
 * [prod.yml](prod.yml) : Production emulated config with 42 nodes and 71C
 * [security.yml](security.yml) : security enhanced config (on el7)
 * [citus.yml](citus.yml) : citus cluster example: 1 coordinator and 3 data nodes
@@ -23,7 +21,7 @@ There are several built-in templates:
 * [dual.yml](dual.yml) : example config for a two node deployment
 * [redis.yml](redis.yml) : example config for redis clusters
 * [minio.yml](minio.yml) : example config for a 3-node minio clusters
-* [uel20.yml](uel20.yml) : uel20 1050e example config 
+* [ubuntu.yml](ubuntu.yml) : Pigsty auto generated config for ubuntu singleton node (beta)
 
 
 

@@ -45,6 +45,7 @@
 
     - name: render repo definition file
       tags: repo_file
+      when: os_package == 'rpm'
       copy:
         dest: "{{ repo_home }}/{{ repo_name }}.repo"
         mode: 0755
@@ -82,6 +83,8 @@
   tags: repo_prepare
   when: repo_exists|bool and repo_enabled|bool
   shell: |
+    {% if os_package == 'rpm' %}
+
     mkdir -p /etc/yum.repos.d/backup/
     {% if repo_remove|bool %}
     mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ || /bin/true
@@ -101,6 +104,20 @@
     yum install -y wget nginx sshpass createrepo_c;
     yum install -y yum-utils || /bin/true
     /bin/true;
+    
+    {% elif os_package == 'deb' %}
+    
+    mkdir -p /etc/apt/backup
+    {% if repo_remove|bool %}
+    mv -f /etc/apt/sources.list.d/* /etc/apt/backup/ 2> /dev/null || /bin/true
+    mv -f /etc/apt/sources.list     /etc/apt/backup/ 2> /dev/null || /bin/true
+    {% endif %}
+    
+    echo "deb [trusted=yes] file:{{ repo_home }}/{{ repo_name }}/ ./" > /etc/apt/sources.list.d/pigsty-local.list
+    apt update
+    apt install -y wget nginx sshpass dpkg-dev || /bin/true
+    /bin/true
+    {% endif %}
 
 
 #--------------------------------------------------------------#
