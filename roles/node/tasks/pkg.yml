@@ -10,36 +10,68 @@
     - name: remove and backup existing repo file
       when: node_repo_remove|bool
       shell: |
-        mkdir -p /etc/yum.repos.d/backup ; mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/; true
+        {% if os_package == 'rpm' %}
+        mkdir -p /etc/yum.repos.d/backup;
+        mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/
+        {% elif os_package == 'deb' %}
+        mkdir -p /etc/apt/backup;
+        mv -f /etc/apt/sources.list.d/* /etc/apt/backup/ 2> /dev/null || /bin/true
+        mv -f /etc/apt/sources.list     /etc/apt/backup/ 2> /dev/null || /bin/true
+        {% endif %}
+        /bin/true
 
-    # install local repo from url (default behaviour)
-    - name: add local repo file
-      when: node_repo_method == 'local' or node_repo_method == 'both'
+    # install local repo from url (default behaviour) (rpm/yum version)
+    - name: add local yum repo file
+      when: os_package == 'rpm' and node_repo_method == 'local' or node_repo_method == 'both'
       get_url:
         url: "{{ item|replace('${admin_ip}', admin_ip) }}"
         dest: /etc/yum.repos.d/{{ item | basename }}
       with_items: "{{ node_repo_local_urls }}"
 
-    # install public repo (use this if you have public internet access)
+    # install local repo from url (default behaviour) (deb/apt version)
+    - name: add local apt repo file
+      when: os_package == 'deb' and node_repo_method == 'local' or node_repo_method == 'both'
+      copy:
+        dest: /etc/apt/sources.list.d/pigsty.list
+        content: |
+          {% for item in node_repo_local_urls %}
+          {{ item | replace('${admin_ip}', admin_ip) }}
+          {% endfor %}
+
     - name: add public upstream repo file
       copy:
-        dest: /etc/yum.repos.d/{{ item.name }}.repo
-        content: |
+        dest: "{{ upstream_dir }}/{{ upstream_file }}"
+        content: "{{ upstream_content }}"
+      vars:
+        upstream_dir: "{% if os_package == 'rpm' %}/etc/yum.repos.d{% else %}/etc/apt/sources.list.d{% endif %}"
+        upstream_file: "{% if os_package == 'rpm' %}{{ item.name }}.repo{% else %}{{ item.name }}.list{% endif %}"
+        upstream_content: |
+          {% if os_package == 'rpm' %}
           [{{ item.name }}]
           name = {{ item.description }} $releasever - $basearch
           {% if region in item.baseurl and item.baseurl[region] != '' %}
-          baseurl = {{ item.baseurl[region] | replace('$releasever', os_version|string )  }}
+          baseurl = {{ item.baseurl[region] | replace('$releasever', os_version|string)  }}
           {% else %}
-          baseurl = {{ item.baseurl.default | replace('$releasever', os_version|string )  }}
+          baseurl = {{ item.baseurl.default | replace('$releasever', os_version|string)  }}
           {% endif %}
           gpgcheck = 0
           enabled = 1
           {% if os_version|int >= 8 %}
           module_hotfixes=1
           {% endif %}
-      when: (node_repo_method == 'public' or node_repo_method == 'both') and os_version|int in item.releases and item.module in repo_modules.split(',')
+          
+          {% elif os_package == 'deb' %}
+    
+          {% if region in item.baseurl and item.baseurl[region] != '' %}
+          # baseurl = {{ item.baseurl[region] | replace('${distro_codename}', os_codename)  }}
+          deb [trusted=yes] {{ item.baseurl[region] | replace('${distro_codename}', os_codename) }} 
+          {% else %}
+          deb [trusted=yes] {{ item.baseurl.default | replace('${distro_codename}', os_codename)  }}
+          {% endif %}
+    
+          {% endif %}
+      when: os_version|int in item.releases and item.module in repo_modules.split(',')
       with_items: "{{ repo_upstream }}"
-
 
 
 #--------------------------------------------------------------#
