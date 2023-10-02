@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   vagrant shortcuts
 # Ctime     :   2023-07-29
-# Mtime     :   2023-07-29
+# Mtime     :   2023-10-02
 # Path      :   vagrant/Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -96,6 +96,8 @@ vm:
 	./switch minio
 vo:
 	./switch os
+vu:
+	./switch ubuntu
 
 # switch to production env with rocky8
 vp8:
@@ -109,24 +111,24 @@ vp7:
 	sed -ie 's/rocky9/centos7/g' Vagrantfile
 	rm -rf Vagrantfilee
 
-meta:  del v1 up ssh
-full:  del v4 up ssh
-el7:   del v7 up ssh
-el8:   del v8 up ssh
-el9:   del v9 up ssh
-build: del vb up ssh
-prod:  del vp up ssh
-check: del vc up ssh
-minio: del vm up ssh
-os:    del vo up ssh
-prod8: del vp8 up ssh
-prod7: del vp7 up ssh
-
+meta:   del v1 up ssh
+full:   del v4 up ssh
+el7:    del v7 up ssh
+el8:    del v8 up ssh
+el9:    del v9 up ssh
+build:  del vb up ssh
+prod:   del vp up ssh
+check:  del vc up ssh
+minio:  del vm up ssh
+os:     del vo up ssh
+prod8:  del vp8 up ssh
+prod7:  del vp7 up ssh
+ubuntu: dev vu up ssh
 
 ###############################################################
 #                        Inventory                            #
 ###############################################################
 .PHONY: default new ssh sshb dns \
 	start up down dw halt clean del destroy nuke st status pause suspend resume \
-	v1 v4 v7 v8 v9 vb vp vc vm vp8 vp7 meta full el7 el8 el9 build check prod minio prod8 prod7
+	v1 v4 v7 v8 v9 vb vp vc vm vu vo vp8 vp7 meta full el7 el8 el9 build check prod minio prod8 prod7 os ubuntu
 ###############################################################
