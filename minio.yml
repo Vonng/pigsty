@@ -4,7 +4,7 @@
 # File      :   minio.yml
 # Desc      :   setup minio service
 # Ctime     :   2022-11-10
-# Mtime     :   2023-01-16
+# Mtime     :   2023-10-04
 # Path      :   minio.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -13,7 +13,9 @@
   become: yes
   hosts: all
   gather_facts: no
-  roles: [ { role: minio ,when: minio_cluster is defined and minio_seq is defined } ]
+  roles:
+    - { role: node_id , tags: node-id } # get node identity (always)
+    - { role: ferret  , tags: ferret ,when: minio_cluster is defined and minio_seq is defined }
 
 
 #---------------------------------------------------------------
