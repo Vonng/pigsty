@@ -35,6 +35,38 @@
 
 
 #--------------------------------------------------------------#
+# Purge MongoDB                                    [mongo_purge]
+#--------------------------------------------------------------#
+# purge with ./mongo.yml -e mongo_purge=true -t mongo_purge
+- name: purge mongo/ferretdb cluster
+  tags: mongo_purge
+  ignore_errors: yes
+  when: mongo_purge is defined and mongo_purge|bool
+  block:
+
+    - name: shutdown mongo/ferretdb server service
+      systemd: name=ferretdb state=stopped enabled=no daemon_reload=yes
+
+    - name: purge mongo/ferretdb systemd service
+      file:
+        path: "{{ systemd_dir }}/ferretdb.service"
+        state: absent
+      vars: { systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}" }
+
+    - name: purge mongo/ferretdb config file
+      file: path="{{ item }}" state=absent
+      with_items: [ /etc/default/ferretdb, /var/lib/mongod/ca.crt, /var/lib/mongod/server.crt, /var/lib/mongod/server.key ]
+
+    - name: remove mongo/ferret register from prometheus target
+      tags: [ mongo_deregister ]
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["infra"] }}'
+      file:
+        path: "/etc/prometheus/targets/mongo/{{ mongo_cluster }}-{{ mongo_seq }}.yml"
+        state: absent
+
+
+#--------------------------------------------------------------#
 # Config MongoDB                                  [mongo_config]
 #--------------------------------------------------------------#
 - name: render mongo/ferretdb config
@@ -50,8 +82,11 @@
         mode: 0644
 
     - name: create mongo/ferretdb systemd service
-      template: src=ferretdb.service.j2 dest=/etc/systemd/system/ferretdb.service owner=root group=root
-
+      template:
+        src: ferretdb.service.j2
+        dest: "{{ systemd_dir }}/ferretdb.service"
+      vars:
+        systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}"
 
 #--------------------------------------------------------------#
 # Config MongoDB SSL Certs                          [mongo_cert]
