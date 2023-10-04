@@ -12,8 +12,9 @@ which include larger works using a licensed work, under the same license.
 Copyright and license notices must be preserved. Contributors provide an express grant of patent rights.
 When a modified version is used to provide a service over a network, the complete source code of the modified version must be made available.
 
-For those common use cases, you don't need to worry about license issues. And we won't pursue any legal action against you ;)
 But beware when you distribute, host, or create derivative works of Pigsty, you must also distribute the source code under the same AGPL v3 license.
+For those common use cases, you don't need to worry about license issues. And we won't pursue any legal action against any users ;) (except for public cloud vendors!)
+
 
 **Permissions:**
 

@@ -7,11 +7,14 @@
 
 ## 协议摘要
 
-Pigsty 使用 GNU Affero General Public License v3.0 开源协议，这是一种强制性的 Copyleft 许可证。
-对于常规自用需求而言，您无需担心许可证问题，AGPLv3 授权您商用的权利，我们亦不会进行任何追索。
+因为受到 Grafana，Citus，MinIO 等组件的传染影响，Pigsty 使用 GNU Affero General Public License v3.0 开源协议，这是一种强制性的 Copyleft 许可证。
 
-但请需要注意，如果您通过网络分发、托管或创建Pigsty 软件的衍生作品，GNU AGPL v3许可证要求您也按照相同的 GNU AGPL v3 许可证分发组合作品的完整、相应的源代码。
+AGPLv3 授权用户免费商用的权利，对于普通用户自用需求而言，您无需担心许可证问题，我们亦不会对除了云厂商之外的用户进行违规追索。
+
+如果您通过网络分发、托管或创建Pigsty 软件的衍生作品，GNU AGPL v3许可证要求您也按照相同的 GNU AGPL v3 许可证分发组合作品的完整、相应的源代码。
 无论您是否修改了 Pigsty 此要求都适用。如果您确实有需要换皮、魔改、二开，套壳 Pigsty 的需求，我们提供 OEM 合作方案，详情请参考 [商业支持](SUPPORT.md)。
+
+
 
 **本协议授权您：**
 
