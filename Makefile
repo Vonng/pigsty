@@ -444,8 +444,8 @@ check-repo:
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz build-el9:/tmp/pkg.tgz ; ssh build-el9 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 check-boot:
 	ssh build-el7 "cd pigsty; ./bootstrap -n ; ./configure -m el7  -i 10.10.10.7 -n";
-	ssh build-el8 "cd pigsty; ./bootstrap -n ; ./configure -m el8  -i 10.10.10.8 -n";
-	ssh build-el9 "cd pigsty; ./bootstrap -n ; ./configure -m el9  -i 10.10.10.9 -n";
+	ssh build-el8 "cd pigsty; ./bootstrap -n ; ./configure -m el   -i 10.10.10.8 -n";
+	ssh build-el9 "cd pigsty; ./bootstrap -n ; ./configure -m el   -i 10.10.10.9 -n";
 
 # final packaging
 pp: package
