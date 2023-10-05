@@ -3,7 +3,7 @@
 # File      :   os.yml
 # Desc      :   run Pigsty on different OS distributions
 # Ctime     :   2023-09-27
-# Mtime     :   2023-09-29
+# Mtime     :   2023-10-05
 # Docs      :   https://doc.pigsty.cc/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -47,12 +47,11 @@ all:
       - { name: pgdg15         ,description: 'PostgreSQL 15'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' }}
       - { name: pgdg16         ,description: 'PostgreSQL 16'     ,module: pgsql ,releases: [  8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/16/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/16/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/16/redhat/rhel-$releasever-$basearch' }}
       - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
-      - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/'                }}
-      - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable' ,china-broken: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/$releasever/$basearch/stable' ,europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' }}
-      - { name: pigsty-misc    ,description: 'Pigsty EL Misc'    ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://get.pigsty.cc/yum/el$releasever.$basearch' }}
+      - { name: pigsty-misc    ,description: 'Pigsty Misc'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://get.pigsty.cc/yum/el$releasever.$basearch' }}
+      - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' }}
+      - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable' ,china: 'https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable' ,europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' }}
       - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' ,china: 'https://get.pigsty.cc/yum/prometheus/el$releasever.$basearch' }}
       - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com' ,china: 'https://get.pigsty.cc/yum/grafana/$basearch' }}
-
 
   children:
     infra:
@@ -88,39 +87,6 @@ all:
       vars:
         admin_ip: 10.10.10.9
         pg_cluster: pg-rocky9
-
-
-    #==========================================================#
-    # Debian
-    #==========================================================#
-    debian11:
-      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
-      vars:
-        admin_ip: 10.10.10.11
-        pg_cluster: pg-debian11
-    debian12:
-      hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
-      vars:
-        admin_ip: 10.10.10.12
-        pg_cluster: pg-debian12
-
-
-    #==========================================================#
-    # Ubuntu
-    #==========================================================#
-    # build on debian 11
-    ubuntu20:
-      hosts: { 10.10.10.20: { pg_seq: 1, pg_role: primary } }
-      vars:
-        admin_ip: 10.10.10.20
-        pg_cluster: pg-ubuntu20
-
-    # build on debian 12
-    ubuntu22:
-      hosts: { 10.10.10.22: { pg_seq: 1, pg_role: primary } }
-      vars:
-        admin_ip: 10.10.10.22
-        pg_cluster: pg-ubuntu22
 
     #==========================================================#
     # Raw RHEL
@@ -174,4 +140,111 @@ all:
       vars:
         admin_ip: 10.10.10.49
         pg_cluster: pg-oracle9
+
+
+
+    #==========================================================#
+    # Debian
+    #==========================================================#
+    debian11:
+      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
+      vars:
+        admin_ip: 10.10.10.11
+        pg_cluster: pg-debian11
+        repo_modules: node,pgsql,infra,redis    # which repo modules are installed in repo_upstream
+        repo_upstream:                          # where to download (debian version)
+          - { name: base           ,description: 'Debian Basic'      ,module: node  ,releases: [11,12] ,baseurl: { default: 'https://mirrors.aliyun.com/debian/ ${distro_codename} main restricted universe multiverse'            }}
+          - { name: security       ,description: 'Debian Security'   ,module: node  ,releases: [11,12] ,baseurl: { default: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-security main restricted universe multiverse'   }}
+          - { name: updates        ,description: 'Debian Updates'    ,module: node  ,releases: [11,12] ,baseurl: { default: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-updates main restricted universe multiverse'    }}
+          - { name: backports      ,description: 'Debian Backports'  ,module: node  ,releases: [11,12] ,baseurl: { default: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-backports main restricted universe multiverse'  }}
+          - { name: haproxy        ,description: 'HAProxy'           ,module: node  ,releases: [11,12] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/debian/ ${distro_codename} main'                 }}
+          - { name: nginx          ,description: 'Nginx'             ,module: infra ,releases: [11,12] ,baseurl: { default: 'http://nginx.org/packages/debian/  ${distro_codename} nginx'                                          }}
+          - { name: docker-ce      ,description: 'Docker'            ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/debian/  ${distro_codename} stable'              }}
+          - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main'                                        }}
+          - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/the_asten/prometheus/debian/ ${distro_codename} main'  }}
+          - { name: pgdg           ,description: 'PGDG'              ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' }}
+          - { name: citus          ,description: 'Citus'             ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/debian/ ${distro_codename} main'   }}
+          - { name: timescaledb    ,description: 'Timescaledb'       ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/debian/ ${distro_codename} main' }}
+          - { name: redis          ,description: 'Redis'             ,module: redis ,releases: [11,12] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
+        pg_dbsu_uid: 543
+        node_repo_local_urls:
+          - 'deb [trusted=yes] http://${admin_ip}/pigsty ./'
+
+    debian12:
+      hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
+      vars:
+        admin_ip: 10.10.10.12
+        pg_cluster: pg-debian12
+        repo_modules: node,pgsql,infra,redis    # which repo modules are installed in repo_upstream
+        repo_upstream:                          # where to download (debian version)
+          - { name: base           ,description: 'Debian Basic'      ,module: node  ,releases: [11,12] ,baseurl: { default: 'https://mirrors.aliyun.com/debian/ ${distro_codename} main restricted universe multiverse'            }}
+          - { name: security       ,description: 'Debian Security'   ,module: node  ,releases: [11,12] ,baseurl: { default: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-security main restricted universe multiverse'   }}
+          - { name: updates        ,description: 'Debian Updates'    ,module: node  ,releases: [11,12] ,baseurl: { default: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-updates main restricted universe multiverse'    }}
+          - { name: backports      ,description: 'Debian Backports'  ,module: node  ,releases: [11,12] ,baseurl: { default: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-backports main restricted universe multiverse'  }}
+          - { name: haproxy        ,description: 'HAProxy'           ,module: node  ,releases: [11,12] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/debian/ ${distro_codename} main'                 }}
+          - { name: nginx          ,description: 'Nginx'             ,module: infra ,releases: [11,12] ,baseurl: { default: 'http://nginx.org/packages/debian/  ${distro_codename} nginx'                                          }}
+          - { name: docker-ce      ,description: 'Docker'            ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/debian/  ${distro_codename} stable'              }}
+          - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main'                                        }}
+          - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/the_asten/prometheus/debian/ ${distro_codename} main'  }}
+          - { name: pgdg           ,description: 'PGDG'              ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' }}
+          - { name: citus          ,description: 'Citus'             ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/debian/ ${distro_codename} main'   }}
+          - { name: timescaledb    ,description: 'Timescaledb'       ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/debian/ ${distro_codename} main' }}
+          - { name: redis          ,description: 'Redis'             ,module: redis ,releases: [11,12] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
+        pg_dbsu_uid: 543
+        node_repo_local_urls:
+          - 'deb [trusted=yes] http://${admin_ip}/pigsty ./'
+
+    #==========================================================#
+    # Ubuntu
+    #==========================================================#
+    # build on debian 11
+    ubuntu20:
+      hosts: { 10.10.10.20: { pg_seq: 1, pg_role: primary } }
+      vars:
+        admin_ip: 10.10.10.20
+        pg_cluster: pg-ubuntu20
+        repo_modules: node,pgsql,infra,redis    # which repo modules are installed in repo_upstream
+        repo_upstream:                    # where to download (ubuntu version)
+          - { name: base           ,description: 'Ubuntu Basic'      ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename} main restricted universe multiverse'            ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename} main restricted universe multiverse'           }}
+          - { name: security       ,description: 'Ubuntu Security'   ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-security main restricted universe multiverse'   ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-security main restricted universe multiverse'  }}
+          - { name: updates        ,description: 'Ubuntu Updates'    ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-updates main restricted universe multiverse'    ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-updates main restricted universe multiverse'   }}
+          - { name: backports      ,description: 'Ubuntu Backports'  ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-backports main restricted universe multiverse'  ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-backports main restricted universe multiverse' }}
+          - { name: haproxy        ,description: 'HAProxy'           ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/ubuntu/ ${distro_codename} main'                 ,china: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/ubuntu/ ${distro_codename} main'                }}
+          - { name: nginx          ,description: 'Nginx'             ,module: infra ,releases: [20,22] ,baseurl: { default: 'http://nginx.org/packages/ubuntu/  ${distro_codename} nginx'                                          ,china: 'http://nginx.org/packages/ubuntu/  ${distro_codename} nginx'                                         }}
+          - { name: docker-ce      ,description: 'Docker'            ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu/  ${distro_codename} stable'              ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu/  ${distro_codename} stable'             }}
+          - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main'                           ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main'                          }}
+          - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://packagecloud.io/the_asten/prometheus/ubuntu/ ${distro_codename} main'  }}
+          - { name: pgdg           ,description: 'PGDG'              ,module: pgsql ,releases: [20,22] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main'                                ,china: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' }}
+          - { name: citus          ,description: 'Citus'             ,module: pgsql ,releases: [20,22] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/ubuntu/ ${distro_codename} main'   }}
+          - { name: timescaledb    ,description: 'Timescaledb'       ,module: pgsql ,releases: [20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/ubuntu/ ${distro_codename} main' }}
+          - { name: redis          ,description: 'Redis'             ,module: redis ,releases: [20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main'                                                ,china: 'https://packages.redis.io/deb ${distro_codename} main' }}
+        pg_dbsu_uid: 543
+        node_repo_local_urls:
+          - 'deb [trusted=yes] http://${admin_ip}/pigsty ./'
+
+    # build on debian 12
+    ubuntu22:
+      hosts: { 10.10.10.22: { pg_seq: 1, pg_role: primary } }
+      vars:
+        admin_ip: 10.10.10.22
+        pg_cluster: pg-ubuntu22
+        repo_modules: node,pgsql,infra,redis    # which repo modules are installed in repo_upstream
+        repo_upstream:                    # where to download (ubuntu version)
+          - { name: base           ,description: 'Ubuntu Basic'      ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename} main restricted universe multiverse'            ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename} main restricted universe multiverse'           }}
+          - { name: security       ,description: 'Ubuntu Security'   ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-security main restricted universe multiverse'   ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-security main restricted universe multiverse'  }}
+          - { name: updates        ,description: 'Ubuntu Updates'    ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-updates main restricted universe multiverse'    ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-updates main restricted universe multiverse'   }}
+          - { name: backports      ,description: 'Ubuntu Backports'  ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-backports main restricted universe multiverse'  ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-backports main restricted universe multiverse' }}
+          - { name: haproxy        ,description: 'HAProxy'           ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/ubuntu/ ${distro_codename} main'                 ,china: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/ubuntu/ ${distro_codename} main'                }}
+          - { name: nginx          ,description: 'Nginx'             ,module: infra ,releases: [20,22] ,baseurl: { default: 'http://nginx.org/packages/ubuntu/  ${distro_codename} nginx'                                          ,china: 'http://nginx.org/packages/ubuntu/  ${distro_codename} nginx'                                         }}
+          - { name: docker-ce      ,description: 'Docker'            ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu/  ${distro_codename} stable'              ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu/  ${distro_codename} stable'             }}
+          - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main'                           ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main'                          }}
+          - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://packagecloud.io/the_asten/prometheus/ubuntu/ ${distro_codename} main'  }}
+          - { name: pgdg           ,description: 'PGDG'              ,module: pgsql ,releases: [20,22] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main'                                ,china: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' }}
+          - { name: citus          ,description: 'Citus'             ,module: pgsql ,releases: [20,22] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/ubuntu/ ${distro_codename} main'   }}
+          - { name: timescaledb    ,description: 'Timescaledb'       ,module: pgsql ,releases: [20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/ubuntu/ ${distro_codename} main' }}
+          - { name: redis          ,description: 'Redis'             ,module: redis ,releases: [20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main'                                                ,china: 'https://packages.redis.io/deb ${distro_codename} main' }}
+        pg_dbsu_uid: 543
+        node_repo_local_urls:
+          - 'deb [trusted=yes] http://${admin_ip}/pigsty ./'
+
 ...
