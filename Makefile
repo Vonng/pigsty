@@ -19,6 +19,7 @@ DOCKER_PKG=pigsty-docker-$(VERSION).tgz
 EL7_PKG=pigsty-pkg-$(VERSION).el7.x86_64.tgz
 EL8_PKG=pigsty-pkg-$(VERSION).el8.x86_64.tgz
 EL9_PKG=pigsty-pkg-$(VERSION).el9.x86_64.tgz
+U22_PKG=pigsty-pkg-$(VERSION).ubuntu22.x86_64.tgz
 
 ###############################################################
 #                      1. Quick Start                         #
@@ -252,6 +253,8 @@ v8:
 	vagrant/switch el8
 v9:
 	vagrant/switch el9
+vu:
+	vagrant/switch ubuntu
 vb:
 	vagrant/switch build
 vp:
@@ -376,6 +379,8 @@ copy-el8:
 	scp dist/${VERSION}/${EL8_PKG} meta:/tmp/pkg.tgz
 copy-el9:
 	scp dist/${VERSION}/${EL9_PKG} meta:/tmp/pkg.tgz
+copy-u22:
+	scp dist/${VERSION}/${U22_PKG} meta:/tmp/pkg.tgz
 copy-app:
 	scp dist/${VERSION}/${APP_PKG} meta:~/app.tgz
 	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
@@ -473,13 +478,17 @@ el8: del v8 new ssh copy-el8 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
 el9: del v9 new ssh copy-el9 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
+ubuntu: del vu new ssh copy-u22 use-pkg
+	cp files/pigsty/ubuntu.yml pigsty.yml
 minio: del vm new ssh copy-el9 use-pkg
 	cp files/pigsty/citus.yml pigsty.yml
 os: del vo new ssh
 	cp files/pigsty/os.yml pigsty.yml
 build: del vb new ssh
 	cp files/pigsty/build.yml pigsty.yml
-check: del vc new ssh check-all
+check: del vc new ssh
+	cp files/pigsty/check.yml pigsty.yml
+checkb: del vc new ssh check-all
 	cp files/pigsty/check.yml pigsty.yml
 prod: del vp new ssh
 	cp files/pigsty/prod.yml pigsty.yml
@@ -507,10 +516,10 @@ prod7: del vp7 new ssh
         infra pgsql repo repo-upstream repo-build prometheus grafana loki docker \
         deps dns start ssh sshb demo \
         up dw del new clean up-test dw-test del-test new-test clean \
-        st status suspend resume v1 v4 v7 v8 v9 vb vp vm vo vc vp8 vp7 vnew \
+        st status suspend resume v1 v4 v7 v8 v9 vb vp vm vo vc vu vp8 vp7 vnew \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
-        copy copy-src copy-pkg copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
+        copy copy-src copy-pkg copy-el7 copy-el8 copy-el9 copy-u22 copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
         r release rr remote-release rp release-pkg release-el7 release-el8 release-el9 check-all check-src check-repo check-boot pp package pb publish \
-        meta full el7 el8 el9 minio os build check prod prod7 prod8
+        meta full el7 el8 el9 ubuntu minio os build check prod prod7 prod8
 ###############################################################
