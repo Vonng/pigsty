@@ -9,10 +9,11 @@
   ignore_errors: true
   block:
 
-    # - disable firewall - #
+    # - disable firewalld / ufw - #
     - name: disable node firewalld
       when: node_disable_firewall|bool
-      systemd: name=firewalld state=stopped enabled=no
+      systemd: name={{ firewall_service_name }} state=stopped enabled=no
+      vars: { firewall_service_name: "{% if os_package is defined and os_package == 'deb' %}ufw{% else %}firewalld{% endif %}" }
 
     # - disable selinux - #
     - name: disable node selinux
