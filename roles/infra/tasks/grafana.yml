@@ -25,7 +25,6 @@
       file: path={{ item }} state=absent
       with_items:
         - /etc/grafana/provisioning/dashboards/pigsty.yml
-        # - /etc/grafana/provisioning/datasources/pigsty.yml
 
     - name: remove grafana data
       tags: grafana_rmdata
@@ -88,9 +87,14 @@
         grafana_plugin_path: "{{ nginx_home }}/{{ repo_name }}/plugins.tgz"
         grafana_chart_path: "{{ nginx_home }}/{{ repo_name }}/chart.tgz"
       shell: |
-        [[ -a "{{ grafana_plugin_path }}" ]] && rm -rf /var/lib/grafana/plugins && tar -xf "{{ grafana_plugin_path }}" -C /var/lib/grafana
+        #!/bin/bash
+        if [[ -a "{{ grafana_plugin_path }}" ]]; then
+            rm -rf /var/lib/grafana/plugins && tar -xf "{{ grafana_plugin_path }}" -C /var/lib/grafana
+        fi
         chown -R grafana /var/lib/grafana
-        [[ -a "{{ grafana_chart_path }}" ]] && rm -rf /usr/share/grafana/public/chart && tar -xf "{{ grafana_chart_path }}" -C /usr/share/grafana/public/
+        if [[ -a "{{ grafana_chart_path }}" ]]; then
+            rm -rf /usr/share/grafana/public/chart && tar -xf "{{ grafana_chart_path }}" -C /usr/share/grafana/public/
+        fi
 
     # download from internet if cache not exists
     - name: download grafana plugins via internet
