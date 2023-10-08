@@ -77,6 +77,14 @@
       when: (node_repo_method == 'public' or node_repo_method == 'both')
       with_items: "{{ repo_modules.split(',') }}"
 
+    - name: make node local repo cache
+      tags: node_repo_cache
+      shell: |
+        {% if os_package == 'rpm' %}
+        yum makecache;    
+        {% elif os_package == 'deb' %}
+        apt update
+        {% endif %}
 
 
 #--------------------------------------------------------------#
