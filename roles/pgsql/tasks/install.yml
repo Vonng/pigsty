@@ -24,18 +24,32 @@
     - name: own /var/run/postgresql with dbsu
       file: path=/var/run/postgresql state=directory owner={{ pg_dbsu }} group=postgres
 
-    # fix rpm trash and unused service file
+    # fix rpm trash and unused service file, shut debian default service
     - name: post installation cleanups
+      tags: pg_post
       ignore_errors: true
       shell: |
+        {% if os_package|default('rpm') == 'rpm' %}
         rm -rf /usr/lib/systemd/system/postgresql-{{ pg_version }}.service # rhel
-        rm -rf /lib/systemd/system/postgresql.service  # debian
         rm -rf '/%{_sysconfigdir}'   # introduced by patroni rpm
         rm -rf '/%{_logdir}'         # remove these if patroni rpm fixed
-        if [ ! -f /usr/bin/patroni ] && [ -f /usr/local/bin/patroni ]; then
-          ln -s /usr/local/bin/patroni /usr/bin/patroni;
-        fi;
-        chown -R {{ pg_dbsu }}:postgres /var/run/postgresql /var/run/postgresql /var/lib/postgresql /etc/postgresql || /bin/true;
+        chown -R {{ pg_dbsu }}:postgres /var/run/postgresql /var/lib/pgsql || /bin/true;
+        
+        {% elif os_package|default('rpm') == 'deb' %}
+        # kill the default debian service
+        systemctl stop --no-block postgresql   # the auto-started debian/ubuntu service
+        rm -rf /lib/systemd/system/postgresql.service
+        if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D' | grep 'config_file=/etc/postgresql/.*/main/postgresql.conf' ; then
+            {{ pg_bin_dir }}/pg_ctl -D /var/lib/postgresql/{{ pg_version }}/main stop --mode=immediate
+        fi
+        if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D' | grep 'config_file=/etc/postgresql/.*/main/postgresql.conf' ; then
+            sleep 2
+            ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D' | grep '/etc/postgresql/*/main/postgresql.conf' | awk '{print $1}' | xargs kill -9
+        fi
+        rm -rf /lib/systemd/system/postgresql.service
+        chown -R {{ pg_dbsu }}:postgres /var/run/postgresql /var/lib/postgresql /etc/postgresql || /bin/true;
+        {% endif %}
+        chown -R {{ pg_dbsu }}:postgres "{{ pg_dbsu_home }}"
         systemctl daemon-reload;
         /bin/true;
 

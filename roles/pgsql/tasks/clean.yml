@@ -69,24 +69,18 @@
         systemctl stop pgbouncer
         systemctl stop pg_exporter
         systemctl stop pgbouncer_exporter
-        systemctl stop postgresql   # debian default service
-
-        # then, manually stop service if still exists
-        if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D'  | grep checkpointer ; then
-            pg_ctl -D {{ pg_data }} stop --mode=immediate
+        systemctl stop --no-block postgresql
+        if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D' ; then
+            {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop --mode=immediate
+        fi
+        if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D'  ; then
+            sleep 2
             ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D' | awk '{print $1}' | xargs kill -9
         fi
-
-        if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D'  | grep checkpointer ; then
-            ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D' | awk '{print $1}' | xargs kill -9
-            sleep 5 # if still alive, leave 5s grace peroid and force a kill -9
-        fi
-
         if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D'  | grep checkpointer ; then
             exit 1  # report failure if still alive
         fi
         exit 0
-
 
     # when cleanup primary, remove etcd metadata
     - name: remove postgres metadata from etcd
