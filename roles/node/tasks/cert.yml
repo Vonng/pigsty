@@ -7,7 +7,12 @@
   tags: node_ca
   block:
 
-    - name: add /etc/pki/ca.crt to node
+    # make /etc/pki cert dir
+    - name: create node pki dir
+      file: path=/etc/pki state=directory
+
+    # rhel: /etc/pki , debian: /etc/ssl/certs
+    - name: add ca.crt to node
       copy:
         src: files/pki/ca/ca.crt
         dest: /etc/pki/ca.crt
@@ -15,9 +20,19 @@
         group: root
         mode: 0644
 
-    - name: trust /etc/pki/ca.crt on node
+    # rhel: /etc/pki/ca-trust/source/anchors/ca.crt
+    # debian: /usr/local/share/ca-certificates/ca.crt
+    - name: trust ca.crt on node
       shell: |
+        {% if os_package|default('rpm') == 'deb' %}
+        # debian
+        rm -rf /usr/local/share/ca-certificates/ca.crt
+        ln -s /etc/pki/ca.crt /usr/local/share/ca-certificates/ca.crt
+        /usr/sbin/update-ca-certificates
+        {% else %}
+        # rhel
+        rm -rf /etc/pki/ca-trust/source/anchors/ca.crt
         ln -s /etc/pki/ca.crt /etc/pki/ca-trust/source/anchors/ca.crt
         /bin/update-ca-trust
-        /bin/true
+        {% endif %}
 ...
