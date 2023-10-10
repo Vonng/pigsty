@@ -3,7 +3,7 @@
 # File      :   configure
 # Desc      :   generate pigsty.yml config according to env
 # Ctime     :   2021-05-17
-# Mtime     :   2023-09-29
+# Mtime     :   2023-10-10
 # Path      :   configure
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -380,9 +380,13 @@ function check_mode(){
 
     # use ubuntu by default
     if [[ ${OS_PACKAGE} == "deb" ]]; then
-        # TODO: add debian support
-        MODE=ubuntu
-        return 0
+        if [[ "${OS_VENDOR}" == "debian" ]]; then
+            MODE=debian
+            return 0
+        elif [[ "${OS_VENDOR}" == "ubuntu" ]]; then
+            MODE=ubuntu
+            return 0
+        fi
     fi
 
     # fallback to full.yml
