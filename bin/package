@@ -4,7 +4,7 @@ set -euo pipefail
 # File      :   package
 # Desc      :   make pigsty offline packages from el7,8,9
 # Ctime     :   2023-09-19
-# Mtime     :   2023-09-19
+# Mtime     :   2023-10-11
 # Path      :   bin/package
 # Deps      :   gzip, tar, ssh
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -58,17 +58,20 @@ CACHE_SCRIPT=${PROG_DIR}/cache
 scp ${CACHE_SCRIPT} build-el7:/tmp/cache
 scp ${CACHE_SCRIPT} build-el8:/tmp/cache
 scp ${CACHE_SCRIPT} build-el9:/tmp/cache
+scp ${CACHE_SCRIPT} ubuntu22:/tmp/cache
 
 log_info "make offline packages"
 ssh -t build-el7 "sudo bash /tmp/cache" &
 ssh -t build-el8 "sudo bash /tmp/cache" &
 ssh -t build-el9 "sudo bash /tmp/cache" &
+ssh -t ubuntu22 "sudo bash /tmp/cache" &
 wait
 
 log_info "copy pigsty-pkg to local dist dir"
 scp build-el7:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz &
 scp build-el8:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz &
 scp build-el9:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz &
+scp ubuntu22:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz &
 wait
 
 

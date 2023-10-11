@@ -429,13 +429,15 @@ remote-release: release copy-src use-src
 
 # release offline packages with build environment
 rp: release-package
-release-package: release-el7 release-el8 release-el9
+release-package: release-el7 release-el8 release-el9 release-u22
 release-el7:
 	scp bin/cache build-el7:/tmp/cache; ssh build-el7 "sudo bash /tmp/cache"; scp build-el7:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
 release-el8:
 	scp bin/cache build-el8:/tmp/cache; ssh build-el8 "sudo bash /tmp/cache"; scp build-el8:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
 release-el9:
 	scp bin/cache build-el9:/tmp/cache; ssh build-el9 "sudo bash /tmp/cache"; scp build-el9:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
+release-u22:
+	scp bin/cache ubuntu22:/tmp/cache;  ssh ubuntu22  "sudo bash /tmp/cache"; scp ubuntu22:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz
 
 # validate offline packages with build environment
 check-all: check-src check-repo check-boot
