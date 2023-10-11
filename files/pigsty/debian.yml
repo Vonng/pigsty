@@ -76,26 +76,26 @@ all:
 
     # repo_xxx are used if you want to build your own yum repo from upstream directly
     repo_modules: node,pgsql,infra,minio,redis    # which repo modules are installed in repo_upstream
-    repo_upstream:                    # where to download (ubuntu version)
-      - { name: base        ,description: 'Debian Basic'    ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://deb.debian.org/debian/ bookworm main non-free-firmware'                       ,china: 'https://mirrors.aliyun.com/ubuntu/ bookworm main restricted universe multiverse' }}
-      - { name: security    ,description: 'Debian Security' ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://security.debian.org/debian-security bookworm-security main non-free-firmware' ,china: 'https://mirrors.aliyun.com/ubuntu/ bookworm-security main restricted universe multiverse' }}
-      - { name: updates     ,description: 'Debian Updates'  ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://deb.debian.org/debian/ bookworm-updates main non-free-firmware'               ,china: 'https://mirrors.aliyun.com/ubuntu/ bookworm-updates main restricted universe multiverse' }}
-      - { name: haproxy     ,description: 'HAProxy'         ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://haproxy.debian.net bookworm-backports-2.8 main'    }}
+    repo_upstream:                    # where to download (debian version)
+      - { name: base        ,description: 'Debian Basic'    ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename} main non-free-firmware'                       ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename} main restricted universe multiverse' }}
+      - { name: updates     ,description: 'Debian Updates'  ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename}-updates main non-free-firmware'               ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-updates main restricted universe multiverse' }}
+      - { name: security    ,description: 'Debian Security' ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://security.debian.org/debian-security ${distro_codename}-security main non-free-firmware' }}
+      - { name: haproxy     ,description: 'HAProxy'         ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://haproxy.debian.net ${distro_codename}-backports-2.8 main'    }}
       - { name: nginx       ,description: 'Nginx'           ,module: infra ,releases: [11,12] ,baseurl: { default: 'http://nginx.org/packages/mainline/debian bookworm nginx' }}
-      - { name: docker-ce   ,description: 'Docker'          ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://download.docker.com/linux/debian bookworm stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/debian/ bookworm stable' }}
+      - { name: docker-ce   ,description: 'Docker'          ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://download.docker.com/linux/debian bookworm stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/debian/ ${distro_codename} stable' }}
       - { name: grafana     ,description: 'Grafana'         ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
       - { name: infra       ,description: 'Pigsty Infra'    ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://get.pigsty.cc/deb/infra/x86_64/ ./' }} # prometheus-deb packages
-      - { name: pgdg        ,description: 'PGDG'            ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ bookworm-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ bookworm-pgdg main' }}
-      - { name: citus       ,description: 'Citus'           ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/debian/ bookworm main'   }}
-      - { name: timescaledb ,description: 'Timescaledb'     ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/debian/ bookworm main' }}
-      - { name: redis       ,description: 'Redis'           ,module: redis ,releases: [11,12] ,baseurl: { default: 'https://packages.redis.io/deb bookworm main' }}
-      - { name: minio       ,description: 'MinIO'           ,module: minio ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/pigsty/minio/ubuntu/ focal main', china: 'https://get.pigsty.cc/deb/minio/x86_64/ ./' }}
+      - { name: pgdg        ,description: 'PGDG'            ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg main' }}
+      - { name: citus       ,description: 'Citus'           ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/debian/ ${distro_codename} main'   }}
+      - { name: timescaledb ,description: 'Timescaledb'     ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/debian/ ${distro_codename} main' }}
+      - { name: redis       ,description: 'Redis'           ,module: redis ,releases: [11,12] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
+      - { name: minio       ,description: 'MinIO'           ,module: minio ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/pigsty/minio/ubuntu/ jammy main', china: 'https://get.pigsty.cc/deb/minio/amd64/ ./' }}
 
     repo_packages:                    # which packages to be included
       - ansible python3 python3-pip python3-jmespath dpkg-dev
       - grafana loki logcli promtail prometheus2 alertmanager pushgateway blackbox-exporter
       - node-exporter pg-exporter nginx-exporter redis-exporter mysqld-exporter mongodb-exporter kafka-exporter keepalived-exporter
-      - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned linux-perf nvme-cli numactl sysstat iotop htop rsync tcpdump
+      - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-perf # linux-tools-generic
       - netcat socat ftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl
       - redis minio mcli etcd haproxy vip-manager2 nginx sshpass chrony dnsmasq docker-ce docker-compose-plugin
       - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity
