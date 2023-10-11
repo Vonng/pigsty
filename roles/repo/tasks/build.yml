@@ -43,9 +43,9 @@
       {% elif os_package == 'deb' %}
       {% if region in repo.baseurl and repo.baseurl[region] != '' %}
       # [module_name] [{{ os_codename }}:{{ os_version }}] {{ repo.name }}: {{ repo.description }}
-      deb [trusted=yes] {{ repo.baseurl[region] | replace('${distro_codename}', os_codename) }} 
+      deb [trusted=yes] {{ repo.baseurl[region] | replace('${distro_codename}', os_codename) | replace('${distro_name}', os_vendor) }} 
       {% else %}
-      deb [trusted=yes] {{ repo.baseurl.default | replace('${distro_codename}', os_codename)  }}
+      deb [trusted=yes] {{ repo.baseurl.default | replace('${distro_codename}', os_codename) | replace('${distro_name}', os_vendor)  }}
       {% endif %}
       {% endif %}
       
@@ -151,8 +151,8 @@
       md5sum *.rpm > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
 
       {% elif os_package == 'deb' %}
-      
       cd {{ repo_home }}/{{ repo_name }};
+      rm -f *.i386.deb   # remove i386 packages
       dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
       md5sum *.deb > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
       
