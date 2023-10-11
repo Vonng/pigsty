@@ -549,6 +549,19 @@ Check [**Configuration**](docs/CONFIG.md) for details.
 
 ----------------
 
+## Compatibility
+
+| OS Distro / PG Ver    | PG16 | PG15 | PG14 | PG13 | PG12 |
+| --------------------- | :--: | :--: | :--: | :--: | :--: |
+| RHEL 8,9 / Rocky 8,9  |  ✅   |  ⭐️   |  ✅   |  ✅   |  ✅   |
+| Alma 8,9 / Anolis 8,9 |  ✅   |  ⭐️   |  ✅   |  ✅   |  ✅   |
+| RHEL7, CentOS7        |      |  ⭐️   |  ✅   |  ✅   |  ✅   |
+| Ubuntu 22.04 (beta)   |  ✅   |  ⭐️   |  ✅   |  ✅   |  ✅   |
+
+
+
+----------------
+
 ## About
 
 > Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "**P**ostgreSQL **I**n **G**reat **STY**le."
