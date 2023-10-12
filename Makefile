@@ -132,7 +132,7 @@ repo-upstream:
 
 # download repo packages
 repo-build:
-	sudo rm -rf /www/pigsty/repo_complete
+	ansible infra -b -a 'rm -rf /www/pigsty/repo_complete'
 	./infra.yml --tags=repo_upstream,repo_build
 
 # init prometheus
