@@ -109,23 +109,26 @@
 - name: download repo packages
   tags: repo_pkg
   environment: "{{ proxy_env }}"
-  shell: |
-    {% if os_package == 'rpm' %}
-    {% if os_version|int >= 8 %}
-    repotrack --arch x86_64,noarch {% if '*' in item %}{% for arg in item.split() %}'{{ arg }}' {% endfor %}{% else %}{{ item }}{% endif %};
-    {% else %}
-    repotrack {% if '*' in item %}{% for arg in item.split() %}'{{ arg }}' {% endfor %}{% else %}{{ item }}{% endif %}
-    {% endif %}
-    
-    {% elif os_package == 'deb' %}
-    rm -rf /tmp/deb_package_list
-    {% for arg in item.split() %}
-    echo "{{ arg }}" >> /tmp/deb_package_list
-    apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances '{{ arg }}' | grep "^\w" >> "/tmp/deb_package_list"
-    {% endfor %}
-    candidates=$(cat "/tmp/deb_package_list" | sort -u | uniq)
-    apt-get download $candidates;
-    {% endif %}
+  shell:
+    chdir: "{{ repo_home }}/{{ repo_name }}"
+    cmd: |
+      cd "{{ repo_home }}/{{ repo_name }}"
+      {% if os_package == 'rpm' %}
+      {% if os_version|int >= 8 %}
+      repotrack --arch x86_64,noarch {% if '*' in item %}{% for arg in item.split() %}'{{ arg }}' {% endfor %}{% else %}{{ item }}{% endif %};
+      {% else %}
+      repotrack {% if '*' in item %}{% for arg in item.split() %}'{{ arg }}' {% endfor %}{% else %}{{ item }}{% endif %}
+      {% endif %}
+      
+      {% elif os_package == 'deb' %}
+      rm -rf /tmp/deb_package_list
+      {% for arg in item.split() %}
+      echo "{{ arg }}" >> /tmp/deb_package_list
+      apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances '{{ arg }}' | grep "^\w" >> "/tmp/deb_package_list"
+      {% endfor %}
+      candidates=$(cat "/tmp/deb_package_list" | sort -u | uniq)
+      apt-get download $candidates;
+      {% endif %}
   with_items: "{{ repo_packages }}"
 
 
@@ -155,7 +158,6 @@
       dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
       md5sum *.deb > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
       {% endif %}
-
     chdir: "{{ repo_home }}/{{ repo_name }}"
 
 #--------------------------------------------------------------#
@@ -202,4 +204,5 @@
     {% endif %}
 
     /bin/true;
+
 ...
