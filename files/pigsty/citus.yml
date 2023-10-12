@@ -37,7 +37,7 @@ all:
         10.10.10.14: { pg_seq: 2, pg_role: replica }
       vars: { pg_cluster: pg-citus3 , pg_group: 3 }
 
-  vars:                               # global parameters for all citus clusters
+  vars: # global parameters for all citus clusters
     pg_mode: citus                    # pgsql cluster mode: citus
     pg_shard: pg-citus                # citus shard name: pg-citus
     patroni_citus_db: meta            # citus distributed database name
@@ -46,11 +46,12 @@ all:
     pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
     pg_hba_rules:
       - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
-      - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet'  }
-
+      - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet' }
     pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
     pg_conf: tiny.yml                 # use tiny for demo citus nodes
     version: v2.4.1                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
+    pg_extensions: [ 'pg_repack_${ pg_version }* wal2json_${ pg_version }* passwordcheck_cracklib_${ pg_version }* pg_filedump_${ pg_version } postgis33_${ pg_version }* timescaledb-2-postgresql-${ pg_version }* pgvector_${ pg_version }* citus_${ pg_version }*' ]
+
 ...

@@ -539,7 +539,7 @@ repo_home: /www                   # repo home dir, `/www` by default
 repo_name: pigsty                 # repo name, pigsty by default
 repo_endpoint: http://${admin_ip}:80 # access point to this repo by domain or ip:port
 repo_remove: true                 # remove existing upstream repo
-repo_modules: node,pgsql,infra    # which repo modules are installed in repo_upstream
+repo_modules: infra,node,pgsql,redis,minio # which repo modules are installed in repo_upstream
 repo_upstream:                    # where to download #
 - { name: base           ,description: 'EL 7 Base'         ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/os/$basearch/'                    ,china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/'       ,europe: 'https://mirrors.xtom.de/centos/$releasever/os/$basearch/'           }}
 - { name: updates        ,description: 'EL 7 Updates'      ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/updates/$basearch/'               ,china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/updates/$basearch/'  ,europe: 'https://mirrors.xtom.de/centos/$releasever/updates/$basearch/'      }}
@@ -649,7 +649,7 @@ If you want to keep existing upstream repo, set this value to `false`.
 
 name: `repo_modules`, type: `string`, level: `G/A`
 
-which repo modules are installed in repo_upstream, default value: `node,pgsql,pgsql`
+which repo modules are installed in repo_upstream, default value: `infra,node,pgsql,redis,minio`
 
 This is a comma separated value string, it is used to filter entries in [`repo_upstream`](#repo_upstream) with corresponding `module` field. 
 
