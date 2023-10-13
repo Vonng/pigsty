@@ -113,6 +113,8 @@
   ignore_errors: yes
   tags: redis_pkg
   package: name={{ item }} state=absent
-  with_items: [ 'redis', 'redis_exporter' ]
+  with_items:
+    - redis
+    - "{% if os_package|default('rpm') == 'deb %}redis-exporter{% else %}redis_exporter{% endif %}"
 
 ...
