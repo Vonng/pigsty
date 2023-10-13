@@ -204,23 +204,21 @@ When you init a PostgreSQL cluster, the extensions listed in [`pg_extensions`](P
 
 ```yaml
 pg_extensions:  # pg extensions to be installed, `${pg_version}` will be replaced
-  - pg_repack_${pg_version} wal2json_${pg_version}
-  - postgis33_${pg_version} postgis33_${pg_version}-devel postgis33_${pg_version}-utils
-  - timescaledb-2-postgresql-${pg_version}
-  - citus*${pg_version}*
-  - pgvector_${pg_version}*
+  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+  - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
 ```
 
 
 Here, `${pg_version}` is a placeholder that will be replaced with the actual major version number [`pg_version`](PARAM#pg_version) of that PostgreSQL cluster
 Therefore, the default configuration will install these extensions:
 
-- `postgis33`: Geospatial database extension
+- `postgis34`: Geospatial database extension
 - `timescaledb`: Time-series database extension
 - `citus`: Distributed/columnar storage extension
 - `pgvector`: Vector database/index extension
 - `pg_repack`: Extension for online table bloat processing
 - `wal2json`: Extracts changes in JSON format through logical decoding.
+- `passwordcheck_cracklib`: Enforce password policy
 
 Please note that not all PostgreSQL major versions offer all of the above extensions, except for 15, the main supported versions by Pigsty. For example, as of 2023-09-15, when PostgreSQL 16 was just released, PG 16 still needs the `pg_repack`, `citus`, and `timescaledb` extensions. In such cases, you should modify the `pg_extensions` parameter in the cluster configuration to remove unsupported extensions.
 
@@ -242,11 +240,8 @@ pg-v15:
           - { name: age }
     pg_libs: 'timescaledb, pg_cron, pg_stat_statements, auto_explain' # <- some extension require a share library to work
     pg_extensions:
-      - pg_repack_${pg_version} wal2json_${pg_version}
-      - postgis33_${pg_version} postgis33_${pg_version}-devel postgis33_${pg_version}-utils
-      - timescaledb-2-postgresql-${pg_version}
-      - citus*${pg_version}*
-      - pgvector_${pg_version}*
+      - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+      - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
       - pg_cron_${pg_version}*        # <---- new extension: pg_cron
       - apache-age_${pg_version}*     # <---- new extension: apache-age
       - zhparser_${pg_version}*       # <---- new extension: zhparser

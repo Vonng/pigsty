@@ -153,24 +153,28 @@
   tags: repo_post_pkg
   shell:
     cmd: |
-      {% if os_package == 'rpm' %}
+      {% if os_package|default('rpm') == 'rpm' %}
       
       {% if os_version|int == 7 %}
-      rm -f *.i686.rpm   # remove i686 packages
+      rm -f *.i686.rpm;   # remove i686 packages
       {% endif %}
-      createrepo_c {{ repo_home }}/{{ repo_name }}
+      
+      createrepo_c "{{ repo_home }}/{{ repo_name }}" ;
       {% if os_version|int >= 8 %}
-      repo2module -s stable . modules.yaml
-      modifyrepo_c --mdtype=modules modules.yaml repodata/
+      repo2module -s stable . modules.yaml;
+      modifyrepo_c --mdtype=modules modules.yaml repodata/;
       {% endif %}
+      
       md5sum *.rpm > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
+      
       {% elif os_package == 'deb' %}
       cd {{ repo_home }}/{{ repo_name }};
-      rm -f *.i386.deb   # remove i386 packages
-      rm -rf Packages.gz
+      rm -f *.i386.deb;   # remove i386 packages
+      rm -rf Packages.gz;
       dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
       md5sum *.deb > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
       {% endif %}
+
     chdir: "{{ repo_home }}/{{ repo_name }}"
 
 

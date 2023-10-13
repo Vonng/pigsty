@@ -208,24 +208,21 @@ Pigsty 收录了超过 **150+** PostgreSQL 扩展插件，并编译打包整合�
 
 ```yaml
 pg_extensions:     # 待安装的 pg 扩展列表，`${pg_version}` 会被替换为真实的数据库大版本 pg_version
-  - pg_repack_${pg_version} wal2json_${pg_version}
-  - postgis33_${pg_version} postgis33_${pg_version}-devel postgis33_${pg_version}-utils
-  - timescaledb-2-postgresql-${pg_version}
-  - citus*${pg_version}*
-  - pgvector_${pg_version}*
+  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+  - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
 ```
 
 其中 `${pg_version}` 是一个占位符变量，将在实际安装时被替换为 PostgreSQL 数据库集群大版本号。因此，默认的配置文件会安装这些扩展：
 
-- `postgis33`：地理空间数据库扩展
+- `postgis34`：地理空间数据库扩展
 - `timescaledb`：时序流式数据库扩展
-- `citus`：分布式/列存储扩展
 - `pgvector`：向量数据库/索引扩展
 - `pg_repack`：在线处理表膨胀的扩展
 - `wal2json`：通过逻辑解码抽取JSON格式的变更。
+- `passwordcheck_cracklib`：强制用户密码强度/过期策略
 
 请注意，除了 Pigsty 当前支持的主力版本外（15），并不是所有的 PostgreSQL 大版本都完整提供了以上扩展。
-例如截止至 2023-09-15 PostgreSQL 16 刚发布时，PG 16 目前仍然缺少 `pg_repack`，`citus` 与 `timescaledb` 扩展。
+例如截止至 2023-10-13，PG 16 仍然缺少 `pg_repack`，与 `timescaledb` 扩展。
 在这种情况下，您应当在初始化这些集群时，在集群配置中修改 `pg_extensions` 参数，移除不受支持的扩展。
 
 当您想要在还未创建的目标集群中启用某些扩展时，可以使用参数配置直接声明所需的扩展，与安装的位置：
@@ -245,11 +242,8 @@ pg-v15:
           - { name: age }
     pg_libs: 'timescaledb, pg_cron, pg_stat_statements, auto_explain' # <- 个别扩展需要加载动态库方可运行
     pg_extensions:
-      - pg_repack_${pg_version} wal2json_${pg_version}
-      - postgis33_${pg_version} postgis33_${pg_version}-devel postgis33_${pg_version}-utils
-      - timescaledb-2-postgresql-${pg_version}
-      - citus*${pg_version}*
-      - pgvector_${pg_version}*
+      - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+      - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
       - pg_cron_${pg_version}*        # <---- 新增的扩展：pg_cron
       - apache-age_${pg_version}*     # <---- 新增的扩展：apache-age
       - zhparser_${pg_version}*       # <---- 新增的扩展：zhparser

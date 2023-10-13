@@ -68,11 +68,12 @@ all:
       - nginx,dnsmasq,ansible,postgresql15,redis,mcli,python3-requests
     pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
       - postgresql${pg_version}*
-      - pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest pg_filedump
+      - patroni pgbouncer pgbackrest pg_exporter pgbadger patroni-etcd vip-manager
     pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
       - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
       - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
     pg_libs: 'pg_stat_statements, auto_explain'  # extensions to be loaded
+
 
   children:
     infra:
@@ -115,8 +116,8 @@ all:
           - https://repo.pigsty.cc/etc/pev.html
           - https://repo.pigsty.cc/etc/chart.tgz
           - https://repo.pigsty.cc/etc/plugins.tgz
-        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* pg_filedump_${pg_version}
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced, EL7 only have postgis33
+          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # postgis34 not available yet
           - postgis33_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
 
     # build el8 packages on RockyLinux 8.7
@@ -177,7 +178,6 @@ all:
       vars:
         admin_ip: 10.10.10.22
         pg_cluster: pg-u22
-        # repo_xxx are used if you want to build your own yum repo from upstream directly
         repo_modules: node,pgsql,infra,minio,redis    # which repo modules are installed in repo_upstream
         repo_upstream:                    # where to download (ubuntu version)
           - { name: base        ,description: 'Ubuntu Basic'     ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}           main universe multiverse restricted'  ,china: 'https://mirrors.aliyun.com/${distro_name}/   ${distro_codename}           main restricted universe multiverse' }}
@@ -195,7 +195,6 @@ all:
           - { name: redis       ,description: 'Pigsty Redis'     ,module: redis ,releases: [20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
           - { name: minio       ,description: 'Pigsty MinIO'     ,module: minio ,releases: [20,22] ,baseurl: { default: 'https://repo.pigsty.cc/deb/minio/amd64/ ./' ,europe: 'https://packagecloud.io/pigsty/minio/ubuntu/ jammy main' }}
           #- { name: haproxy     ,description: 'HAProxy'          ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/${distro_name}/ ${distro_codename} main'  }}
-
         repo_packages:                    # which packages to be included
           - ansible python3 python3-pip python3-jmespath dpkg-dev
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway blackbox-exporter

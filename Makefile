@@ -445,14 +445,17 @@ check-src:
 	scp dist/${VERSION}/${SRC_PKG} build-el7:~/pigsty.tgz ; ssh build-el7 "tar -xf pigsty.tgz";
 	scp dist/${VERSION}/${SRC_PKG} build-el8:~/pigsty.tgz ; ssh build-el8 "tar -xf pigsty.tgz";
 	scp dist/${VERSION}/${SRC_PKG} build-el9:~/pigsty.tgz ; ssh build-el9 "tar -xf pigsty.tgz";
+	#scp dist/${VERSION}/${SRC_PKG} ubuntu22:~/pigsty.tgz ; ssh build-el9 "tar -xf pigsty.tgz";
 check-repo:
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz build-el7:/tmp/pkg.tgz ; ssh build-el7 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz build-el8:/tmp/pkg.tgz ; ssh build-el8 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz build-el9:/tmp/pkg.tgz ; ssh build-el9 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	#scp dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz ubuntu22:/tmp/pkg.tgz ; ssh ubuntu22 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 check-boot:
 	ssh build-el7 "cd pigsty; ./bootstrap -n ; ./configure -m el7  -i 10.10.10.7 -n";
 	ssh build-el8 "cd pigsty; ./bootstrap -n ; ./configure -m el   -i 10.10.10.8 -n";
 	ssh build-el9 "cd pigsty; ./bootstrap -n ; ./configure -m el   -i 10.10.10.9 -n";
+	#ssh ubuntu22 "cd pigsty; ./bootstrap -n ; ./configure -m el   -i 10.10.10.22 -n";
 
 # final packaging
 pp: package
