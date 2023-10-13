@@ -3,7 +3,7 @@
 # File      :   check.yml
 # Desc      :   Check Pigsty Build Config
 # Ctime     :   2023-09-01
-# Mtime     :   2023-10-05
+# Mtime     :   2023-10-13
 # Docs      :   https://doc.pigsty.cc/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -74,7 +74,8 @@ all:
       - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway
       - node_exporter,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
       - nginx,dnsmasq,ansible,postgresql15,redis,mcli,python3-requests
-    pg_extensions: [ '*${pg_version}*' ]
+    pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+      - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
 
   children:
     infra:
@@ -121,7 +122,7 @@ all:
           - https://repo.pigsty.cc/etc/chart.tgz
           - https://repo.pigsty.cc/etc/plugins.tgz
         pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* pg_filedump_${pg_version}
+          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
           - postgis33_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
 
     # build el8 packages on RockyLinux 8.7
@@ -149,6 +150,10 @@ all:
           - https://repo.pigsty.cc/etc/pev.html
           - https://repo.pigsty.cc/etc/chart.tgz
           - https://repo.pigsty.cc/etc/plugins.tgz
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pg_cron_15* citus_15* # hydra_15*
+          - postgis34_15* timescaledb-2-postgresql-15* pgvector_15* pgml_15* apache-age_15 pg_graphql_15*
+          - pointcloud_15* pg_tle_15* pgsql-http_15* zhparser_15* pg_roaringbitmap_15* pg_net_15* vault_15
 
     # build el9 packages on RockyLinux 9.1
     el9:
@@ -175,6 +180,10 @@ all:
           - https://repo.pigsty.cc/etc/pev.html
           - https://repo.pigsty.cc/etc/chart.tgz
           - https://repo.pigsty.cc/etc/plugins.tgz
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pg_cron_15* hydra_15* # citus_15*
+          - postgis34_15* timescaledb-2-postgresql-15* pgvector_15* pgml_15* apache-age_15 pg_graphql_15*
+          - pointcloud_15* pg_tle_15* pgsql-http_15* zhparser_15* pg_roaringbitmap_15* pg_net_15* vault_15
 
 
     #==========================================================#
@@ -186,8 +195,6 @@ all:
         pg_cluster: pg-el7v12
         pg_version: 12
         admin_ip: 10.10.10.7
-        pg_extensions: [ 'pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*' ]
-        pg_libs: 'pg_stat_statements, auto_explain'    # no timescaledb for PG12
         pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
         pg_databases: [ { name: test } ]
 
@@ -197,8 +204,6 @@ all:
         pg_cluster: pg-el7v13
         pg_version: 13
         admin_ip: 10.10.10.7
-        pg_extensions: [ 'pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*' ]
-        pg_libs: 'pg_stat_statements, auto_explain'    # no timescaledb for PG13
         pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
         pg_databases: [ { name: test } ]
 
@@ -208,7 +213,6 @@ all:
         pg_cluster: pg-el7v14
         pg_version: 14
         admin_ip: 10.10.10.7
-        pg_extensions: [ 'pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* postgis33_${pg_version}* timescaledb-2-postgresql-${pg_version}* citus*${pg_version}* pgvector_${pg_version}*' ]
         pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
         pg_databases: [ { name: test } ]
 
@@ -220,9 +224,12 @@ all:
         pg_cluster: pg-el7v15
         pg_version: 15
         admin_ip: 10.10.10.7
-        pg_extensions: [ 'pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* postgis33_${pg_version}* timescaledb-2-postgresql-${pg_version}* citus*${pg_version}* pgvector_${pg_version}* zhparser_15* pg_roaringbitmap_15* pgsql-http_15* apache-age_15* pgjwt_15 vault_15*' ]
+        pg_libs: 'timescaledb, pg_stat_statements, auto_explain'
         pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
         pg_databases: [ { name: test } ]
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+          - postgis33_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
 
     # pg 16 is not supported on EL7
     #pg-el7v16:
@@ -234,6 +241,8 @@ all:
     #    pg_libs: 'pg_stat_statements, auto_explain' # no timescaledb for PG16
     #    pg_extensions: [ ]
     #    pg_databases: [ { name: test } ]
+    #    pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+    #      - wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # pg_repack_${pg_version}*
 
     # pgsql 3 node ha cluster: pg-test
     pg-el7test:
@@ -244,13 +253,15 @@ all:
       vars:
         pg_cluster: pg-el7test
         admin_ip: 10.10.10.7
-        pg_version: 14
-        pg_extensions: [ 'pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* postgis33_${pg_version}* timescaledb-2-postgresql-${pg_version}* citus*${pg_version}* pgvector_${pg_version}*' ]
+        pg_version: 15
         pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
         pg_databases: [{ name: test }]
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.17/24
         pg_vip_interface: eth1
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+          - postgis33_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
         node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
           - '00 01 * * 1 postgres /pg/bin/pg-backup full'
           - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
@@ -302,6 +313,8 @@ all:
         pg_version: 16
         admin_ip: 10.10.10.8
         pg_databases: [ { name: test } ]
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # pg_repack_${pg_version}*
 
     # pgsql 3 node ha cluster: pg-test
     pg-el8test:
@@ -372,6 +385,8 @@ all:
         pg_version: 16
         admin_ip: 10.10.10.9
         pg_databases: [ { name: test } ]
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # pg_repack_${pg_version}*
 
 
     # pgsql 3 node ha cluster: pg-test
@@ -392,3 +407,5 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.19/24
         pg_vip_interface: eth1
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # pg_repack_${pg_version}*

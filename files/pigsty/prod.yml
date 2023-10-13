@@ -119,6 +119,10 @@ all:
           - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [ { name: postgis, schema: public }, { name: timescaledb } ] }
         pg_hba_rules:
           - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pg_cron_15* # citus_15*
+          - postgis34_15* timescaledb-2-postgresql-15* pgvector_15* hydra_15* pgml_15* apache-age_15
+          - pointcloud_15* pg_tle_15* pgsql-http_15* zhparser_15* pg_roaringbitmap_15* pg_net_15* vault_15 pg_graphql_15*
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
         node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
           - '00 01 * * 1 postgres /pg/bin/pg-backup full'
@@ -133,7 +137,6 @@ all:
       vars:
         pg_cluster: pg-v12
         pg_version: 12
-        pg_libs: 'pg_stat_statements, auto_explain'
         pg_packages: [ 'postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest' ]
         pg_extensions: []
         pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
@@ -146,7 +149,6 @@ all:
       vars:
         pg_cluster: pg-v13
         pg_version: 13
-        pg_libs: 'pg_stat_statements, auto_explain'
         pg_packages: [ 'postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest' ]
         pg_extensions: []
         pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
@@ -179,7 +181,6 @@ all:
       vars:
         pg_cluster: pg-v16
         pg_version: 16
-        pg_libs: 'pg_stat_statements, auto_explain'
         pg_packages: [ postgresql16* pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest ]
         pg_extensions: [ ]
         pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
@@ -327,7 +328,9 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.60/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'pg_repack_${ pg_version }* wal2json_${ pg_version }* passwordcheck_cracklib_${ pg_version }* pg_filedump_${ pg_version } postgis*_${ pg_version }* timescaledb-2-postgresql-${ pg_version }* pgvector_${ pg_version }* citus_${ pg_version }*' ]
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+          - citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -350,7 +353,9 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.61/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'pg_repack_${ pg_version }* wal2json_${ pg_version }* passwordcheck_cracklib_${ pg_version }* pg_filedump_${ pg_version } postgis*_${ pg_version }* timescaledb-2-postgresql-${ pg_version }* pgvector_${ pg_version }* citus_${ pg_version }*' ]
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+          - citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -373,7 +378,9 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.62/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'pg_repack_${ pg_version }* wal2json_${ pg_version }* passwordcheck_cracklib_${ pg_version }* pg_filedump_${ pg_version } postgis*_${ pg_version }* timescaledb-2-postgresql-${ pg_version }* pgvector_${ pg_version }* citus_${ pg_version }*' ]
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+          - citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -396,7 +403,9 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.63/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'pg_repack_${ pg_version }* wal2json_${ pg_version }* passwordcheck_cracklib_${ pg_version }* pg_filedump_${ pg_version } postgis*_${ pg_version }* timescaledb-2-postgresql-${ pg_version }* pgvector_${ pg_version }* citus_${ pg_version }*' ]
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+          - citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -419,7 +428,9 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.64/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'pg_repack_${ pg_version }* wal2json_${ pg_version }* passwordcheck_cracklib_${ pg_version }* pg_filedump_${ pg_version } postgis*_${ pg_version }* timescaledb-2-postgresql-${ pg_version }* pgvector_${ pg_version }* citus_${ pg_version }*' ]
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+          - citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -554,6 +565,9 @@ all:
       - "https://hub-mirror.c.163.com"
       - "https://mirror.baidubce.com"
     node_admin_ssh_exchange: false    # exchange admin ssh key among node cluster
+    pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+      - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+    # - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
 
     #==========================================================#
     # PGSQL
