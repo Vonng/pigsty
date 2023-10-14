@@ -131,6 +131,9 @@ repo:
 repo-upstream:
 	./infra.yml --tags=repo_upstream
 
+repo-check:
+	./install.yml -t node_repo,node_pkg,infra_pkg,pg_install
+
 # download repo packages
 repo-build:
 	ansible infra -b -a 'rm -rf /www/pigsty/repo_complete'

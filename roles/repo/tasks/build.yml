@@ -96,12 +96,11 @@
 # 3.5  Install bootstrap packages                [repo_boot_pkg]
 #--------------------------------------------------------------#
 # these packages are required to download from upstream
-- name: install repo boot packages (rhel)
+- name: install repo boot packages
   tags: repo_boot_pkg
   environment: "{{ proxy_env|default({}) }}"
-  when: os_package == 'rpm'
   package: name="{{ repo_boot_packages }}" state=present
-  vars: { repo_boot_packages: "{% if os_version|int >= 8 %}dnf-utils{% else %}yum-utils{% endif %}" }
+  vars: { repo_boot_packages: "{% if os_package == 'deb' %}dpkg-dev{% elif os_package == 'rpm' %}createrepo_c{% if os_version|int >= 8 %},modulemd-tools,dnf-utils{% else %},yum-utils{% endif %}{% endif %}" }
 
 
 #--------------------------------------------------------------#
@@ -134,19 +133,7 @@
 
 
 #--------------------------------------------------------------#
-# 3.7  Download bootstrap packages               [repo_post_pkg]
-#--------------------------------------------------------------#
-# these packages are required to build local repo (since dpkg-dev is huge)
-- name: install repo post packages (debian)
-  tags: repo_post_pkg
-  environment: "{{ proxy_env|default({}) }}"
-  package: name="{{ repo_post_packages }}" state=present
-  when: os_package == 'deb'
-  vars: { repo_post_packages: "{% if os_package == 'deb' %}dpkg-dev{% elif os_package == 'rpm' %}createrepo_c{% if os_version|int >= 8 %},modulemd-tools{% endif %}{% endif %}" }
-
-
-#--------------------------------------------------------------#
-# 3.8 Create repo                                  [repo_create]
+# 3.7 Create repo                                  [repo_create]
 #--------------------------------------------------------------#
 # create local yum repo
 - name: create local repo
@@ -159,7 +146,7 @@
       rm -f *.i686.rpm;   # remove i686 packages
       {% endif %}
       
-      createrepo_c "{{ repo_home }}/{{ repo_name }}" ;
+      createrepo_c {{ repo_home }}/{{ repo_name }}
       {% if os_version|int >= 8 %}
       repo2module -s stable . modules.yaml;
       modifyrepo_c --mdtype=modules modules.yaml repodata/;
@@ -179,7 +166,7 @@
 
 
 #--------------------------------------------------------------#
-# 3.9 Use built repo                                  [repo_use]
+# 3.8 Use built repo                                  [repo_use]
 #--------------------------------------------------------------#
 - name: use built local repo
   tags: repo_use

@@ -3,7 +3,7 @@
 # File      :   build.yml
 # Desc      :   Pigsty building environment for EL / Ubuntu
 # Ctime     :   2022-10-12
-# Mtime     :   2023-10-12
+# Mtime     :   2023-10-14
 # Docs      :   https://doc.pigsty.cc/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -187,7 +187,6 @@ all:
           - { name: updates     ,description: 'Ubuntu Updates'   ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}-backports main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}-updates   main restricted universe multiverse' }}
           - { name: backports   ,description: 'Ubuntu Backports' ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}-security  main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}-backports main restricted universe multiverse' }}
           - { name: security    ,description: 'Ubuntu Security'  ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}-updates   main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}-security  main restricted universe multiverse' }}
-          - { name: haproxy     ,description: 'HAProxy'          ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/${distro_name}/ ${distro_codename} main'  }}
           - { name: nginx       ,description: 'Nginx'            ,module: infra ,releases: [20,22] ,baseurl: { default: 'http://nginx.org/packages/${distro_name}/  ${distro_codename} nginx' }}
           - { name: docker-ce   ,description: 'Docker'           ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name}/ ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/${distro_name}/ ${distro_codename} stable' }}
           - { name: grafana     ,description: 'Grafana'          ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
@@ -244,8 +243,8 @@ all:
           - postgresql-*-${pg_version}
           - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
         pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-          - postgresql-${pg_version}-wal2json postgresql-${pg_version}-repack
-          - postgresql-${pg_version}-postgis-3 timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector
+          - postgresql-${pg_version}-wal2json postgresql-${pg_version}-repack # postgresql-${pg_version}-postgis-3 (temporarily broken)
+          - timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector
 
 
     # build u22 packages on Ubuntu 22.04
@@ -260,7 +259,6 @@ all:
           - { name: updates     ,description: 'Ubuntu Updates'   ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}-backports main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}-updates   main restricted universe multiverse' }}
           - { name: backports   ,description: 'Ubuntu Backports' ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}-security  main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}-backports main restricted universe multiverse' }}
           - { name: security    ,description: 'Ubuntu Security'  ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}-updates   main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}-security  main restricted universe multiverse' }}
-          - { name: haproxy     ,description: 'HAProxy'          ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/${distro_name}/ ${distro_codename} main'  }}
           - { name: nginx       ,description: 'Nginx'            ,module: infra ,releases: [20,22] ,baseurl: { default: 'http://nginx.org/packages/${distro_name}/  ${distro_codename} nginx' }}
           - { name: docker-ce   ,description: 'Docker'           ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name}/ ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/${distro_name}/ ${distro_codename} stable' }}
           - { name: grafana     ,description: 'Grafana'          ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
