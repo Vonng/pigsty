@@ -6,7 +6,7 @@
 >
 > [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) + [Supabase](https://supabase.com/) + [PostgresML](https://postgresml.org/) + [...](PGSQL-EXTENSION.md)
 >
-> Latest Release: [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Website](https://pigsty.cc/en/)  | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/xm6hR4P4) | [中文文档](/zh/)
+> Latest Release: [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Website](https://pigsty.cc/en/)  | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/xm6hR4P4) | [中文文档](/zh/)
 >
 > [Get Started](INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash`
 
@@ -236,12 +236,12 @@ FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL https://get.pigsty.cc/v2.4.1/pigsty-v2.4.1.tgz
+[ OK ] $ curl -SL https://get.pigsty.cc/v2.5.0/pigsty-v2.5.0.tgz
 ...
-MD5: d5dc4a51efc81932a03d7c010d0d5d64  /tmp/pigsty-v2.4.1.tgz
+MD5: d5dc4a51efc81932a03d7c010d0d5d64  /tmp/pigsty-v2.5.0.tgz
 [Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.4.1.tgz' to '/home/vagrant/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.4.1.tgz -C ~;
+[ OK ] extract '/tmp/pigsty-v2.5.0.tgz' to '/home/vagrant/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.5.0.tgz -C ~;
 
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
@@ -266,7 +266,7 @@ You can also download pigsty source with `git`, don't forget to checkout a speci
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
-cd pigsty; git checkout v2.4.1
+cd pigsty; git checkout v2.5.0
 ```
 
 </details>
@@ -281,13 +281,13 @@ You can also download pigsty source & offline pkgs directly from GitHub release 
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 
 # or download tarball directly with curl
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.1/pigsty-v2.4.1.tgz -o ~/pigsty.tgz                 # SRC
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.1/pigsty-pkg-v2.4.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.1/pigsty-pkg-v2.4.1.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.4.1/pigsty-pkg-v2.4.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.5.0/pigsty-v2.5.0.tgz -o ~/pigsty.tgz                 # SRC
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.5.0/pigsty-pkg-v2.5.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.5.0/pigsty-pkg-v2.5.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.5.0/pigsty-pkg-v2.5.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7
 
 # alternative CDN in china 
-curl -L https://get.pigsty.cc/v2.4.1/pigsty-v2.4.1.tgz -o ~/pigsty.tgz
+curl -L https://get.pigsty.cc/v2.5.0/pigsty-v2.5.0.tgz -o ~/pigsty.tgz
 ```
 
 </details>

@@ -2,7 +2,7 @@
 
 | 版本             |  发布时间   | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML支持与各种新扩展：graphql, jwt, pg_net, vault | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
+| [v2.5.0](#v241) | 2023-09-24 | Supabase/PostgresML支持与各种新扩展：graphql, jwt, pg_net, vault | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
 | [v2.4.0](#v240) | 2023-09-14 | PG16，监控RDS，服务咨询支持，新扩展：中文分词全文检索/图/HTTP/嵌入等 | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
 | [v2.3.1](#v231) | 2023-09-01 | 带HNSW的PGVector，PG 16 RC1, 文档翻新，中文文档，例行问题修复     | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.0](#v230) | 2023-08-20 | 主机VIP, ferretdb, nocodb, MySQL存根, CVE修复                    | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
@@ -38,7 +38,7 @@
 
 ----------------
 
-## v2.4.1
+## v2.5.0
 
 
 - [Supabase](https://supabase.com/) 支持：开源的 Firebase 替代，现可使用 Pigsty 本地托管的 PostgreSQL 实例作为数据存储。
@@ -77,9 +77,9 @@
 - 修复了 Patroni 3.1.1 的错误
 
 ```
-efabe7632d8994f3fb58f9838b8f9d7d  pigsty-pkg-v2.4.1.el7.x86_64.tgz # 1.1G
-ea78957e8c8434b120d1c8c43d769b56  pigsty-pkg-v2.4.1.el8.x86_64.tgz # 1.4G
-4ef280a7d28872814e34521978b851bb  pigsty-pkg-v2.4.1.el9.x86_64.tgz # 1.3G
+efabe7632d8994f3fb58f9838b8f9d7d  pigsty-pkg-v2.5.0.el7.x86_64.tgz # 1.1G
+ea78957e8c8434b120d1c8c43d769b56  pigsty-pkg-v2.5.0.el8.x86_64.tgz # 1.4G
+4ef280a7d28872814e34521978b851bb  pigsty-pkg-v2.5.0.el9.x86_64.tgz # 1.3G
 ```
 
 
