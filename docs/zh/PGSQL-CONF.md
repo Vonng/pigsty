@@ -415,20 +415,20 @@ Pigsty 从 PostgreSQL 10 开始提供支持，不过目前预打包的离线软�
 
 Pigsty 对不同大版本的支持力度是不同，如下表所示：
 
-| 版本     | 说明                        | 软件包支持程度      |
-|--------|------------------------------|------------------|
-| 16     | 刚发布的新版本，由少量扩展缺失    | Core, L1-, L2-   |
-| 15     | 稳定的主版本，支持全部扩展（默认） | Core, L1, L2, L3 |
-| 14     | 旧的稳定主版本，支持 L1、L2 扩展  | Core, L1, L2     |
-| 13     | 更旧的主版本，仅支持 L1 扩展     | Core, L1         |
-| 12     | 更旧的主版本，仅支持 L1 扩展     | Core, L1         |
+| 版本 | 说明                  | 软件包支持程度          |
+|----|---------------------|------------------|
+| 16 | 刚发布的新版本，由少量扩展缺失     | Core, L1-, L2-   |
+| 15 | 稳定的主版本，支持全部扩展（默认）   | Core, L1, L2, L3 |
+| 14 | 旧的稳定主版本，支持 L1、L2 扩展 | Core, L1         |
+| 13 | 更旧的主版本，仅支持 L1 扩展    | Core, L1         |
+| 12 | 更旧的主版本，仅支持 L1 扩展    | Core, L1         |
 
 - 内核: `postgresql*`，提供 12 - 16
 - 1类扩展: `wal2json`, `pg_repack`, `passwordcheck_cracklib` (在 PG 12, 13, 14, 15 中提供)
-  - 其中由 Pigsty 维护的扩展在 12 - 16 均提供，但并未纳入离线软件包： `embedding`, `zhparser`, `apache-age`, `pgsql-http`, `pg_tle`, `pg_roaringbitmap`,...
+  - 其中由 Pigsty 维护的扩展在 12 - 16 均提供，部分未纳入离线软件包： , `zhparser`, `apache-age`, `pgsql-http`, `pg_tle`, `pg_roaringbitmap`,...
 - 2类扩展: `postgis`, `citus`, `timescaledb`, `pgvector`, `pg_logical`, `pg_cron` (在 PG 14,15 中提供)
 - 3类扩展: 其他杂项扩展 (只有 PG 15 提供)
-- PG 16新发布，目前缺少扩展：`pg_repack`, `citus`, `timescaledb`
+- PG 16新发布，目前缺少扩展：`pg_repack`,`timescaledb`
 
 
 一些扩展在 PG 12,13,16 上不可用，您可能需要更改 [`pg_extensions`](PARAM#pg_extensions) 和 [`pg_libs`](PARAM#pg_libs) 以满足您的需求。

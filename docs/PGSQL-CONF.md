@@ -424,21 +424,19 @@ SELECT create_reference_table('pgbench_tellers')          ; SELECT truncate_loca
 
 Pigsty works on PostgreSQL 10+. While the pre-packaged packages only includes 12 - 16 for now.
 
-| version | Comment                                                          | Packages         |
-|---------|------------------------------------------------------------------|------------------|
-| 16      | The latest version with some important extensions                | Core, L1- , L2-  |
-| 15      | The stable major version, with full extension support, (default) | Core, L1, L2, L3 |
-| 14      | The old stable major version, with L1, L2 extension support      | Core, L1, L2     |
-| 13      | Older major version, with L1 extension support only              | Core, L1         |
-| 12      | Older major version, with L1 extension support only              | Core, L1         |
+| version | Comment                                                          | Packages        |
+|---------|------------------------------------------------------------------|-----------------|
+| 16      | The latest version with some important extensions                | Core, L1 L2-    |
+| 15      | The stable major version, with full extension support, (default) | Core, L1,L2, L3 |
+| 14      | The old stable major version, with L1, L2 extension support      | Core, L1        |
+| 13      | Older major version, with L1 extension support only              | Core, L1        |
+| 12      | Older major version, with L1 extension support only              | Core, L1        |
 
 - Core: `postgresql*`
 - L1 extensions: `wal2json`, `pg_repack`, `passwordcheck_cracklib`  (Available on PG 12, 13, 14, 15, 16-)
 - L2 extensions: `postgis`, `citus`, `timescaledb`, `pgvector`, `pg_logical`, `pg_cron` (Available on PG 14,15)
-  - Some extensions are maintained by Pigsty, but not included in the offline package:
-  - `embedding`, `zhparser`, `apache-age`, `pgsql-http`, `pg_tle`, `pg_roaringbitmap`,...
 - L3 extensions: Other miscellaneous extensions (Available on PG 15 only)
-- There are some missing extensions on PG 16: `pg_repack`, `citus`, `timescaledb`
+- There are some missing extensions on PG 16: `pg_repack`, `timescaledb`
 
 Since some extensions are not available on PG 12,13,16, you may have to change [`pg_extensions`](PARAM#pg_extensions) and [`pg_libs`](PARAM#pg_libs) to fit your needs.
 

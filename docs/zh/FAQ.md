@@ -7,8 +7,58 @@
 
 ## 准备
 
-
 <br>
+<details><summary>操作系统建议</summary><br>
+
+Pigsty 支持 EL 7/8/9，Debian 11/12，Ubuntu 20/22 等主流操作系统，我们建议您使用全新精简安装的操作系统，避免无谓的软件冲突问题。
+Pigsty 离线软件包构建使用的操作系统版本为： CentOS 7.9, Rocky 8.7，Rocky 9.1，Ubuntu 22.04 / 20.04，Debian 12 / 11。
+
+对于EL系操作系统，我们建议用户选择 RockyLinux 8.8 作为首选操作系统，CentOS 7.9 与 Rocky 9.2 作为保守、激进的备选。
+其他EL系兼容操作系统也可使用，例如 AlmaLinux，Oracle Linux，CentOS Stream，但可能会出现少量 RPM 冲突问题，建议不使用离线软件包，直接从互联网上游安装。
+
+对于 Ubuntu / Debian 系列操作系统，Pigsty 在 v2.5.0 提供了初步支持，尚未在大规模生产环境中得到验证，请谨慎使用，欢迎随时反馈问题。
+如果您需要使用到一些特殊的软件包，例如 RDKit，或者 PostgresML + CUDA，以及 AI 相关的组件，那么 Ubuntu 是不二之选。
+我们建议使用 Ubuntu 22.04 jammy (LTS)，也提供对 Ubuntu 20.04 focal (LTS) 的支持。Debian 建议使用 12 (bookworm) 或 11 (bullseye)。
+
+国产操作系统中，我们建议使用 OpenAnolis 8.8 （RHCK），完全兼容 EL8 的软件包，无需额外适配。
+在[企业级服务协议](SUPPORT.md)中，我们也提供对信创国产操作系统的额外付费支持（例如OpenEuler/UOS）。
+
+</details><br>
+
+
+<details><summary>操作系统选型指南</summary><br>
+
+Pigsty 在主流 Linux 操作系统发行版上可用
+
+- 当您看重这些特性时，选择 EL 系操作系统：
+  - 最充分的测试与稳定性验证，大规模使用案例
+  - 希望使用本地托管的 Supbase （目前依赖的重要扩展仅在 EL 发行版中提供）
+  - 建议使用 Rocky 8.8 或等效兼容发行版，也支持 EL 9；EL 7 支持但不建议使用，即将 EOL。
+
+- 当您看重这些特性时，选择 Ubuntu 系操作系统
+  - 深度使用 PostgresML ，希望使用 CUDA
+  - 希望使用 Nvidia GPU CUDA，RDKit 等 Ubuntu 专有软件包
+  - 建议使用 Ubuntu 22.04 jammy，也支持 Ubuntu 20.04 focal
+  
+- 当您看重这些特性时，选择 Debian 系操作系统
+  - 喜欢由开源社区主导的 Linux 发行版 
+  - 建议使用 Debian 12 bookworm ，也支持 Debian 11 bullseye
+
+| 代码  | 操作系统发行版 / PG 大版本                  | PG16 | PG15 | PG14 | PG13 | PG12 | 局限性                                          |
+|:---:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|----------------------------------------------|
+| EL7 | RHEL7 / CentOS7                   |  ⚠️  |  ⭐️  |  ✅   |  ✅   |  ✅   | PG16, supabase, pg_graphql, pgml, pg_net 不可用 |
+| EL8 | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **EL功能标准集**                                  |
+| EL9 | RHEL 9 / Rocky9 / Alma9           |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | pgxnclient 缺失                                |
+| D11 | Debian 11 (bullseye)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | RDKit 不可用                                    |
+| D12 | Ubuntu 12 (bookworm)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Debian功能标准集**                              |
+| U20 | Ubuntu 20.04 (focal)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | PostGIS, RDKit 不可用                           |
+| U22 | Ubuntu 22.04 (jammy)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Ubuntu功能标准集**                              |
+
+
+</details><br>
+
+
+
 <details><summary>机器节点要求</summary><br>
 
 CPU架构：目前仅支持 `x86_64` 架构，尚未提供`ARM`支持。
@@ -18,19 +68,6 @@ CPU架构：目前仅支持 `x86_64` 架构，尚未提供`ARM`支持。
 对于严肃的生产应用，建议至少准备 3～4 台至少2核4G规格的节点用于部署。
 
 </details><br>
-
-
-
-<details><summary>操作系统要求</summary><br>
-
-Pigsty 目前在 CentOS 7.9, Rocky 8.7 和 9.1 上进行开发和测试。RHEL、Alma、Oracle 和其他与EL兼容的发行版同样适用。
-
-强烈建议您使用 EL 7.9, 8.7 和 9.1，以避免无谓的 RPM 兼容性问题，并且我们强烈建议您使用**全新的节点**，避免无谓的软件冲突问题。
-
-目前在[企业级服务协议](SUPPORT.md)中，我们也提供对信创国产操作系统的支持（EL系，如欧拉/UOS）。
-
-</details><br>
-
 
 
 <details><summary>版本发布策略</summary><br>
@@ -271,6 +308,36 @@ repotrack annobin gcc-plugin-annobin libuser
 
 </details>
 
+
+
+
+<br>
+
+<details><summary>在 Ubuntu 20.04 上安装时，PostGIS 3 安装失败</summary>
+
+> 正如配置文件 [`ubuntu.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/ubuntu.yml) 中说明的：Ubuntu 20.04 中 PostGIS 3 离线安装会有一些问题。 
+
+在安装过程中如果见到以下错误，可以尝试添加 NODE / PGDG 上游源后直接从互联网安装 `postgresql-15-postgis-3` 包，通常可以解决此问题。
+
+如果您用不到 PostGIS，也可以
+
+```
+E: Unable to correct problems, you have held broken packages."], "stdout": "Reading package lists...
+Building dependency tree...
+Reading state information...
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies:
+ postgresql-15-postgis-3 : Depends: libgdal26 (>= 2.4.0) but it is not going to be installed
+```
+
+You can fix this by add upstream apt repo directly, In that case, this problem can be resolved by manually install postgis.
+
+</details>
 
 
 
