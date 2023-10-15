@@ -18,6 +18,7 @@
 Free RDS for PostgreSQL! check [**Feature**](FEATURE.md) | [**特性**](/zh/FEATURE.md) for details.
 
 - Battery-Included PostgreSQL distribution with **150+** optional [extensions](PGSQL-EXTENSION.md).
+- Run on bare OS without container: EL7/8/9, Ubuntu 20/22 and Debian 11/12.
 - Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack. [Demo](https://demo.pigsty.cc) & [Gallery](https://github.com/Vonng/pigsty/wiki/Gallery).
 - Self-healing [HA](PGSQL-ARCH) PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/). auto-tuned.
 - Auto-Configured [PITR](PGSQL-PITR), powered by [pgBackRest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) repo (or S3/FS).

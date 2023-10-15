@@ -18,6 +18,7 @@
 Pigsty 是一个更好的本地开源 RDS for PostgreSQL 替代，具有以下特点：
 
 - 开箱即用的 [PostgreSQL](https://www.postgresql.org/) 发行版，深度整合地理、时序、分布式、图、向量、分词、AI等 150 余个[扩展插件](PGSQL-EXTENSION.md)！
+- 运行于裸操作系统之上，无需容器支持，支持主流操作系统： EL7/8/9, Ubuntu 20.04/22.04 以及 Debian 11/12。
 - 基于现代的 [Prometheus](https://prometheus.io/) 与 [Grafana](https://grafana.com/) 技术栈，提供令人惊艳，无可比拟的数据库观测能力：[画廊](https://github.com/Vonng/pigsty/wiki/Gallery) & [演示站点](https://demo.pigsty.cc)
 - 基于 [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), 与[etcd](https://etcd.io/)，打造故障自愈的高可用架构：硬件故障自动切换，流量无缝衔接。
 - 基于 [pgBackRest](https://pgbackrest.org/) 与可选的 [MinIO](https://min.io/) 集群提供开箱即用的 PITR 时间点恢复，为软件缺陷与人为删库兜底。
