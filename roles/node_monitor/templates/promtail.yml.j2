@@ -37,7 +37,11 @@ scrape_configs:
         labels:
           src: syslog
           job: node
+{% if os_package|default('rpm') == 'deb' %}
+          __path__: /var/log/syslog
+{% else %}
           __path__: /var/log/messages
+{% endif %}
 
       - targets:
           - localhost
@@ -69,6 +73,7 @@ scrape_configs:
           src: nginx
           job: infra
           __path__: /var/log/nginx/*.log
+
       - targets:
           - localhost
         labels:
