@@ -434,28 +434,8 @@ remote-release: release copy-src use-src
 
 # release offline packages with build environment
 rp: release-package
-release-package: release-rpm release-deb
-release-rpm: release-el7 release-el8 release-el9
-release-deb: release-d11 release-d12 release-u20 release-u22
-release-el7:
-	scp bin/cache build-el7:/tmp/cache; ssh build-el7 "sudo bash /tmp/cache"; scp build-el7:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
-release-el8:
-	scp bin/cache build-el8:/tmp/cache; ssh build-el8 "sudo bash /tmp/cache"; scp build-el8:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
-release-el9:
-	scp bin/cache build-el9:/tmp/cache; ssh build-el9 "sudo bash /tmp/cache"; scp build-el9:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
-release-d11:
-	scp bin/cache debian11:/tmp/cache;  ssh debian11  "sudo bash /tmp/cache"; scp debian11:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.debian11.x86_64.tgz
-release-d12:
-	scp bin/cache debian12:/tmp/cache;  ssh debian12  "sudo bash /tmp/cache"; scp debian12:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz
-release-u20:
-	scp bin/cache ubuntu20:/tmp/cache;  ssh ubuntu20  "sudo bash /tmp/cache"; scp ubuntu20:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz
-release-u22:
-	scp bin/cache ubuntu22:/tmp/cache;  ssh ubuntu22  "sudo bash /tmp/cache"; scp ubuntu22:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz
-
-# packaging
-pp: package
-package:
-	bin/package ${VERSION}
+release-package:
+	bin/release-pkg ${VERSION}
 
 # publish pigsty packages to https://get.pigsty.cc
 pb: publish

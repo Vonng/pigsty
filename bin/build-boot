@@ -40,33 +40,33 @@ scp dist/${VERSION}/pigsty-${VERSION}.tgz ubuntu20:~/pigsty.tgz   &
 scp dist/${VERSION}/pigsty-${VERSION}.tgz ubuntu22:~/pigsty.tgz   &
 
 log_info "configure building environment"
-ssh -t build-el7 "tar -xf pigsty.tgz; cd pigsty; ./configure -m el7     -i 10.10.10.10" &
-ssh -t build-el8 "tar -xf pigsty.tgz; cd pigsty; ./configure -m el      -i 10.10.10.10" &
-ssh -t build-el9 "tar -xf pigsty.tgz; cd pigsty; ./configure -m el      -i 10.10.10.10" &
-ssh -t debian11  "tar -xf pigsty.tgz; cd pigsty; ./configure -m debian  -i 10.10.10.10" &
-ssh -t debian12  "tar -xf pigsty.tgz; cd pigsty; ./configure -m debian  -i 10.10.10.10" &
-ssh -t ubuntu20  "tar -xf pigsty.tgz; cd pigsty; ./configure -m ubuntu  -i 10.10.10.10" &
-ssh -t ubuntu22  "tar -xf pigsty.tgz; cd pigsty; ./configure -m ubuntu  -i 10.10.10.10" &
+ssh -t build-el7 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m el7     -i 10.10.10.7 " &
+ssh -t build-el8 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m el      -i 10.10.10.8 " &
+ssh -t build-el9 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m el      -i 10.10.10.9 " &
+ssh -t debian11  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m debian  -i 10.10.10.11" &
+ssh -t debian12  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m debian  -i 10.10.10.12" &
+ssh -t ubuntu20  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m ubuntu  -i 10.10.10.20" &
+ssh -t ubuntu22  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m ubuntu  -i 10.10.10.22" &
 wait
 
 log_info "copy offline packages to building VMs"
-scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz      build-el7:/tmp/pkg.tgz  &
-scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz      build-el8:/tmp/pkg.tgz  &
-scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz      build-el9:/tmp/pkg.tgz  &
-scp dist/${VERSION}/pigsty-pkg-${VERSION}.debian11.x86_64.tgz debian11:/tmp/pkg.tgz   &
-scp dist/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz debian12:/tmp/pkg.tgz   &
-scp dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz ubuntu20:/tmp/pkg.tgz   &
-scp dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz ubuntu22:/tmp/pkg.tgz   &
+rsync -avz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz      build-el7:/tmp/pkg.tgz  &
+rsync -avz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz      build-el8:/tmp/pkg.tgz  &
+rsync -avz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz      build-el9:/tmp/pkg.tgz  &
+rsync -avz dist/${VERSION}/pigsty-pkg-${VERSION}.debian11.x86_64.tgz debian11:/tmp/pkg.tgz   &
+rsync -avz dist/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz debian12:/tmp/pkg.tgz   &
+rsync -avz dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz ubuntu20:/tmp/pkg.tgz   &
+rsync -avz dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz ubuntu22:/tmp/pkg.tgz   &
 wait
 
-log_info "extract /tmp/pkg.tgz script"
-ssh -t build-el7 "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
-ssh -t build-el8 "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
-ssh -t build-el9 "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
-ssh -t debian11  "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
-ssh -t debian12  "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
-ssh -t ubuntu20  "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
-ssh -t ubuntu22  "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
+log_info "extract /tmp/pkg.tgz tarball"
+ssh -t build-el7 "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www;" &
+ssh -t build-el8 "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www;" &
+ssh -t build-el9 "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www;" &
+ssh -t debian11  "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www;" &
+ssh -t debian12  "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www;" &
+ssh -t ubuntu20  "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www;" &
+ssh -t ubuntu22  "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www;" &
 wait
 
 log_info "building bootstrap complete"
