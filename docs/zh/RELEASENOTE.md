@@ -42,7 +42,7 @@
 
 ```bash
 curl https://repo.pigsty.cc/get | bash
-````
+```
 
 **亮点特性**
 
