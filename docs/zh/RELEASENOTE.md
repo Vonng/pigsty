@@ -2,7 +2,7 @@
 
 | 版本              |    发布时间    | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.5.0](#v250) | 2023-09-24 | Ubuntu/Debian支持                                            | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
+| [v2.5.0](#v250) | 2023-09-24 | Ubuntu/Debian支持：bullseye, bookworm, jammy, focal           | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
 | [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML支持与各种新扩展：graphql, jwt, pg_net, vault    | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
 | [v2.4.0](#v240) | 2023-09-14 | PG16，监控RDS，服务咨询支持，新扩展：中文分词全文检索/图/HTTP/嵌入等                  | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
 | [v2.3.1](#v231) | 2023-09-01 | 带HNSW的PGVector，PG 16 RC1, 文档翻新，中文文档，例行问题修复                 | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
@@ -18,7 +18,7 @@
 | [v1.4.0](#v140) | 2022-03-31 | MatrixDB 支持，分离 INFRA/NODES/PGSQL/REDIS模块                   | [v1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)                             |
 | [v1.3.0](#v130) | 2021-11-30 | PGCAT 重整 & PGSQL 增强 & Redis Beta支持                         | [v1.3.0](https://github.com/Vonng/pigsty/releases/tag/v1.3.0)                             |
 | [v1.2.0](#v120) | 2021-11-03 | 默认 PGSQL 版本升级至 14                                          | [v1.2.0](https://github.com/Vonng/pigsty/releases/tag/v1.2.0)                             |
-| [v1.1.0](#v110) | 2021-10-12 | 主页, JupyterLab, PGWEB, Pev2 & Pgbadger                     | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)                             |
+| [v1.1.0](#v110) | 2021-10-12 | 主页, JupyterLab, PGWEB, Pev2 & pgbadger                     | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)                             |
 | [v1.0.0](#v100) | 2021-07-26 | v1 正式版, 监控系统重整                                             | [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)                             |
 | [v0.9.0](#v090) | 2021-04-04 | Pigsty 图形界面, 命令行界面, 日志集成                                   | [v0.9.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.0)                             |
 | [v0.8.0](#v080) | 2021-03-28 | 服务置备，定制对外暴露的数据库服务                                          | [v0.8.0](https://github.com/Vonng/pigsty/releases/tag/v0.8.0)                             |
@@ -46,7 +46,7 @@ curl https://repo.pigsty.cc/get | bash
 
 **亮点特性**
 
-- Ubuntu / Debian 支持
+- Ubuntu / Debian 支持： bullseye, bookworm, jammy, focal
 - 使用CDN `repo.pigsty.cc` 软件源，提供 rpm/deb 软件包下载。
 - Anolis 操作系统支持（ 兼容 EL 8.8 ）。
 - 使用 PostgreSQL 16 替代 PostgreSQL 14 作为备选主要支持版本  
@@ -90,11 +90,13 @@ Pigsty 支持了 Ubuntu 22.04 (jammy) 与 20.04 (focal) 两个 LTS 版本，并�
   ```
 
 ```
-MD5 (pigsty-pkg-v2.5.0.el7.x86_64.tgz) = 9882e15519ab8f117f2911347c229ffa
-MD5 (pigsty-pkg-v2.5.0.el8.x86_64.tgz) = be8d0a375100bbbc2f4c5bff9a02bde1
-MD5 (pigsty-pkg-v2.5.0.el9.x86_64.tgz) = d8c0830dbc8827abde86e17b1db243cd
-MD5 (pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz) = 552e2a52628fc3cbd78e54ff5b7206b2
-MD5 (pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz) = 088827aaf32c90c0a3ab7bd31914c49e
+c9446acf3fb745cb997c8cacd0bf8bbe  pigsty-pkg-v2.5.0.el7.x86_64.tgz
+955ef9b516fd3b6c6913ed8c240bad53  pigsty-pkg-v2.5.0.el8.x86_64.tgz
+0af99d9f5bc3989f6c8a5bafd919ff60  pigsty-pkg-v2.5.0.el9.x86_64.tgz
+63c7b8acea63d937ca40ee2717368bb6  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
+a42e45d6b9067b03756a031b2a47f57c  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
+e5381c3f72505de451579116e9a0bcb3  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
+630629c18062d250b3a2c161beaef8fe  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
 ```
 
 

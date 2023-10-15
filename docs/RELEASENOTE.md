@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.5.0](#v250) | 2023-10-24 | Ubuntu/Debian Support                                    | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
+| [v2.5.0](#v250) | 2023-10-24 | Ubuntu/Debian Support:  bullseye, bookworm, jammy, focal | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
 | [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML support, graphql, jwt, pg_net, vault | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
 | [v2.4.0](#v240) | 2023-09-14 | PG16, RDS Monitor, New Extensions                        | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
 | [v2.3.1](#v231) | 2023-09-01 | PGVector with HNSW, PG16 RC1, Chinese Docs, Bug Fix      | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
@@ -43,7 +43,7 @@
 
 **Highlights**
 
-- Ubuntu / Debian Support
+- Ubuntu / Debian Support:  bullseye, bookworm, jammy, focal
 - Dedicate yum/apt repo on `repo.pigsty.cc` and mirror on packagecloud.io
 - Anolis OS Support (EL 8.8 Compatible)
 - PG Major Candidate: Use PostgreSQL 16 instead of PostgreSQL 14.
@@ -89,11 +89,13 @@ default values of following parameters have changed:
   ```
 
 ```
-MD5 (pigsty-pkg-v2.5.0.el7.x86_64.tgz) = 9882e15519ab8f117f2911347c229ffa
-MD5 (pigsty-pkg-v2.5.0.el8.x86_64.tgz) = be8d0a375100bbbc2f4c5bff9a02bde1
-MD5 (pigsty-pkg-v2.5.0.el9.x86_64.tgz) = d8c0830dbc8827abde86e17b1db243cd
-MD5 (pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz) = 552e2a52628fc3cbd78e54ff5b7206b2
-MD5 (pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz) = 088827aaf32c90c0a3ab7bd31914c49e
+c9446acf3fb745cb997c8cacd0bf8bbe  pigsty-pkg-v2.5.0.el7.x86_64.tgz
+955ef9b516fd3b6c6913ed8c240bad53  pigsty-pkg-v2.5.0.el8.x86_64.tgz
+0af99d9f5bc3989f6c8a5bafd919ff60  pigsty-pkg-v2.5.0.el9.x86_64.tgz
+63c7b8acea63d937ca40ee2717368bb6  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
+a42e45d6b9067b03756a031b2a47f57c  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
+e5381c3f72505de451579116e9a0bcb3  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
+630629c18062d250b3a2c161beaef8fe  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
 ```
 
 
