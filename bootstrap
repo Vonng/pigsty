@@ -3,7 +3,7 @@
 # File      :   bootstrap
 # Desc      :   setup local repo & install boot utils
 # Ctime     :   2022-10-16
-# Mtime     :   2023-10-01
+# Mtime     :   2023-10-15
 # Path      :   bootstrap
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -90,6 +90,7 @@ OS_VENDOR=""
 OS_VERSION=""
 OS_PACKAGE=""
 OS_MANAGER=""
+OS_CODENAME=""
 ARCH=$(uname -m)
 
 
@@ -187,6 +188,7 @@ function check_vendor_version(){
       . /etc/os-release
       OS_VENDOR="$ID"
       OS_VERSION="$VERSION_ID"
+      OS_CODENAME=${VERSION_CODENAME-''}
       if [[ $VERSION_ID == *.* ]]; then
           OS_VERSION=$(echo "$VERSION_ID" | cut -d. -f1)
       else
@@ -419,6 +421,42 @@ EOF
 }
 
 
+# Usage: add_ubuntu_repo [region] (default|china|europe)
+function add_ubuntu_repo(){
+    local region=${1-"default"}
+    if [ "${region}" = "china" ]; then
+      baseurl="https://mirrors.aliyun.com/ubuntu/"
+    else
+      baseurl="https://mirrors.edge.kernel.org/ubuntu/"
+    fi
+    cat > "/tmp/sources.list" <<-EOF
+deb [trusted=yes] ${baseurl} ${OS_CODENAME}           main universe multiverse restricted
+deb [trusted=yes] ${baseurl} ${OS_CODENAME}-backports main restricted universe multiverse
+deb [trusted=yes] ${baseurl} ${OS_CODENAME}-security  main restricted universe multiverse
+deb [trusted=yes] ${baseurl} ${OS_CODENAME}-updates   main restricted universe multiverse
+EOF
+      sudo mv -f "/tmp/sources.list" "/etc/apt/sources.list"
+}
+
+# Usage: add_debian_repo [region] (default|china|europe)
+function add_debian_repo(){
+    local region=${1-"default"}
+    if [ "${region}" = "china" ]; then
+        cat > "/tmp/sources.list" <<-EOF
+deb [trusted=yes] https://mirrors.aliyun.com/debian/ ${OS_CODENAME} main restricted universe multiverse
+deb [trusted=yes] https://mirrors.aliyun.com/debian/ ${OS_CODENAME}-updates main restricted universe multiverse
+deb [trusted=yes] http://security.debian.org/debian-security ${OS_CODENAME}-security main non-free-firmware
+EOF
+    else
+        cat > "/tmp/sources.list" <<-EOF
+deb [trusted=yes] http://deb.debian.org/debian/ ${OS_CODENAME} main non-free-firmware
+deb [trusted=yes] http://deb.debian.org/debian/ ${OS_CODENAME}-updates main non-free-firmware
+deb [trusted=yes] http://security.debian.org/debian-security ${OS_CODENAME}-security main non-free-firmware
+EOF
+    fi
+      sudo mv -f "/tmp/sources.list" "/etc/apt/sources.list"
+}
+
 #----------------------------------------------#
 # add local file repo
 #----------------------------------------------#
@@ -476,10 +514,14 @@ function check_repo_file(){
             elif [[ $OS_VERSION == "8" ||  $OS_VERSION == "9" ]]; then
                 add_el89_repo "${REGION}"
             fi
-            log_warn "repo file = add el${OS_VERSION}.${ARCH} upstream"
-            return 0
+            log_info "repo file = add el${OS_VERSION}.${ARCH} ${REGION} upstream"
         elif [[ ${OS_PACKAGE} == "deb" ]]; then
-            log_warn "repo file = add ubuntu ${OS_VERSION}.${ARCH} upstream not implemented yet"
+            if [[ ${OS_VENDOR} == "ubuntu" ]]; then
+                add_ubuntu_repo "${REGION}"
+            elif [[ ${OS_VENDOR} == "debian" ]]; then
+                add_debian_repo "${REGION}"
+            fi
+            log_info "repo file = add ${OS_VENDOR} ${OS_CODENAME} ${REGION} upstream"
         fi
     fi
 
