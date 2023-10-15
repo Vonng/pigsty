@@ -1372,7 +1372,7 @@ INSERT INTO pigsty.default_var VALUES
 
 (280, 'node_exporter_enabled', 'true', 'NODE', 'NODE_EXPORTER', 'bool', 'C', 'setup node_exporter on this node?', NULL),
 (281, 'node_exporter_port', '9100', 'NODE', 'NODE_EXPORTER', 'port', 'C', 'node exporter listen port, 9100 by default', NULL),
-(282, 'node_exporter_options', '"--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes"', 'NODE', 'NODE_EXPORTER', 'arg', 'C', 'extra server options for node_exporter', NULL),
+(282, 'node_exporter_options', '"--no-collector.softnet --no-collector.nvme --collector.tcpstat --collector.processes"', 'NODE', 'NODE_EXPORTER', 'arg', 'C', 'extra server options for node_exporter', NULL),
 (283, 'promtail_enabled', 'true', 'NODE', 'PROMTAIL', 'bool', 'C', 'enable promtail logging collector?', NULL),
 (284, 'promtail_clean', 'false', 'NODE', 'PROMTAIL', 'bool', 'G/A', 'purge existing promtail status file during init?', NULL),
 (285, 'promtail_port', '9080', 'NODE', 'PROMTAIL', 'port', 'C', 'promtail listen port, 9080 by default', NULL),

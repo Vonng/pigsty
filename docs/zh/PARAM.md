@@ -2404,7 +2404,7 @@ It will be rendered to `/etc/haproxy/<service.name>.cfg` and take effect after r
 ```yaml
 node_exporter_enabled: true       # setup node_exporter on this node?
 node_exporter_port: 9100          # node exporter listen port, 9100 by default
-node_exporter_options: '--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes'
+node_exporter_options: '--no-collector.softnet --no-collector.nvme --collector.tcpstat --collector.processes'
 ```
 
 
@@ -2438,7 +2438,7 @@ default values: `9100`
 
 extra server options for node_exporter
 
-default value: `--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes`
+default value: `--no-collector.softnet --no-collector.nvme --collector.tcpstat --collector.processes`
 
 Pigsty enables `ntp`, `tcpstat`, `processes` three extra metrics, collectors, by default, and disables `softnet`, `nvme` metrics collectors by default.
 
