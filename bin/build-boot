@@ -31,13 +31,14 @@ function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
 function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 
 log_info "copy source packages to building VMs"
-scp dist/${VERSION}/pigsty-${VERSION}.tgz build-el7:~/pigsty.tgz  &
-scp dist/${VERSION}/pigsty-${VERSION}.tgz build-el8:~/pigsty.tgz  &
-scp dist/${VERSION}/pigsty-${VERSION}.tgz build-el9:~/pigsty.tgz  &
-scp dist/${VERSION}/pigsty-${VERSION}.tgz debian11:~/pigsty.tgz   &
-scp dist/${VERSION}/pigsty-${VERSION}.tgz debian12:~/pigsty.tgz   &
-scp dist/${VERSION}/pigsty-${VERSION}.tgz ubuntu20:~/pigsty.tgz   &
-scp dist/${VERSION}/pigsty-${VERSION}.tgz ubuntu22:~/pigsty.tgz   &
+rsync -avz dist/${VERSION}/pigsty-${VERSION}.tgz build-el7:~/pigsty.tgz  &
+rsync -avz dist/${VERSION}/pigsty-${VERSION}.tgz build-el8:~/pigsty.tgz  &
+rsync -avz dist/${VERSION}/pigsty-${VERSION}.tgz build-el9:~/pigsty.tgz  &
+rsync -avz dist/${VERSION}/pigsty-${VERSION}.tgz debian11:~/pigsty.tgz   &
+rsync -avz dist/${VERSION}/pigsty-${VERSION}.tgz debian12:~/pigsty.tgz   &
+rsync -avz dist/${VERSION}/pigsty-${VERSION}.tgz ubuntu20:~/pigsty.tgz   &
+rsync -avz dist/${VERSION}/pigsty-${VERSION}.tgz ubuntu22:~/pigsty.tgz   &
+wait
 
 log_info "configure building environment"
 ssh -t build-el7 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m el7     -i 10.10.10.7 " &
