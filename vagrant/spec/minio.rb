@@ -5,8 +5,8 @@
 # VAGRANT_EXPERIMENTAL="disks"
 
 Specs = [
-  { "name" => "minio-1"       , "ip" => "10.10.10.10"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rocky9"  },
-  { "name" => "minio-2"       , "ip" => "10.10.10.11"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rocky9"  },
-  { "name" => "minio-3"       , "ip" => "10.10.10.12"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rocky9"  },
+  { "name" => "minio-1"       , "ip" => "10.10.10.10"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rocky8"  },
+  { "name" => "minio-2"       , "ip" => "10.10.10.11"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rocky8"  },
+  { "name" => "minio-3"       , "ip" => "10.10.10.12"   , "cpu" => "2"    , "mem" => "4096"    , "image" =>  "generic/rocky8"  },
 ]
 
