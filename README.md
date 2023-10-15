@@ -6,7 +6,9 @@
 >
 > [Release v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/Mu2b6Wxr)
 >
-> [Get Started](docs/INSTALL.md) with `curl -fsSL https://get.pigsty.cc/beta | bash` (2.5.0 beta), for stable version, check [Release v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)
+> [Get Started](docs/INSTALL.md) latest [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) beta with `curl -fsSL https://get.pigsty.cc/beta | bash`
+> 
+> For the latest stable version, check [Release v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)
 
 
 ----------------
@@ -563,12 +565,12 @@ While any EL 7,8,9 / Ubuntu 20.04,22.04 / Debian 11/12 compatible OS Distributio
 | Code | OS Distro / PG Ver                | PG16 | PG15 | PG14 | PG13 | PG12 | Limitation                                   |
 |:----:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|----------------------------------------------|
 | EL7  | RHEL7 / CentOS7                   |  ⚠️  |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: PG16, supabase, pg_graphql, pgml, pg_net |
-| EL8  | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **EL Standard Feature Set**                  |
+| EL8  | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **EL Default**                               |
 | EL9  | RHEL 9 / Rocky9 / Alma9           |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: pgxnclient                               |
 | D11  | Debian 11 (bullseye)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: RDKit                                    |
-| D12  | Ubuntu 12 (bookworm)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Debian Standard Feature Set**              |
+| D12  | Ubuntu 12 (bookworm)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Debian Default**                           |
 | U20  | Ubuntu 20.04 (focal)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: PostGIS, RDKit                           |
-| U22  | Ubuntu 22.04 (jammy)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Ubuntu Standard Feature Set**              |
+| U22  | Ubuntu 22.04 (jammy)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Ubuntu Default**                           |
 
 * ⭐️ PostgreSQL 15 is currently the Major supported version with full extension support.
 * ⭐ PostgreSQL 16 is the major support candidate, will be promoted when ready.
