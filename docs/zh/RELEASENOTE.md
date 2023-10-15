@@ -1,10 +1,11 @@
 # 发布注记
 
-| 版本             |  发布时间   | 摘要                                                         | 地址                                                                                        |
+| 版本              |    发布时间    | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.5.0](#v241) | 2023-09-24 | Supabase/PostgresML支持与各种新扩展：graphql, jwt, pg_net, vault | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
-| [v2.4.0](#v240) | 2023-09-14 | PG16，监控RDS，服务咨询支持，新扩展：中文分词全文检索/图/HTTP/嵌入等 | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
-| [v2.3.1](#v231) | 2023-09-01 | 带HNSW的PGVector，PG 16 RC1, 文档翻新，中文文档，例行问题修复     | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
+| [v2.5.0](#v250) | 2023-09-24 | Ubuntu/Debian支持                                            | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
+| [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML支持与各种新扩展：graphql, jwt, pg_net, vault    | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
+| [v2.4.0](#v240) | 2023-09-14 | PG16，监控RDS，服务咨询支持，新扩展：中文分词全文检索/图/HTTP/嵌入等                  | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
+| [v2.3.1](#v231) | 2023-09-01 | 带HNSW的PGVector，PG 16 RC1, 文档翻新，中文文档，例行问题修复                 | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.0](#v230) | 2023-08-20 | 主机VIP, ferretdb, nocodb, MySQL存根, CVE修复                    | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
 | [v2.2.0](#v220) | 2023-08-04 | 仪表盘 & 置备重做，UOS 兼容性                                         | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
 | [v2.1.0](#v210) | 2023-06-10 | 支持 PostgreSQL 12 ~ 16beta                                  | [v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0)                             |
@@ -35,11 +36,71 @@
 | v0.0.1          | 2019-05-15 | 概念原型                                                       | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
 
-
 ----------------
 
 ## v2.5.0
 
+```bash
+curl https://repo.pigsty.cc/get | bash
+````
+
+**亮点特性**
+
+- Ubuntu / Debian 支持
+- 使用CDN `repo.pigsty.cc` 软件源，提供 rpm/deb 软件包下载。
+- Anolis 操作系统支持（ 兼容 EL 8.8 ）。
+- 使用 PostgreSQL 16 替代 PostgreSQL 14 作为备选主要支持版本  
+- 扩展更新：
+  - PostGIS 版本至 3.4（ EL8/EL9 ），EL7 仍使用 PostGIS 3.3
+  - 移除 `pg_embedding`，因为开发者不再对其进行维护，建议使用 `pgvector` 替换。
+  - 新扩展（EL）：点云插件 `pointcloud` 支持，Ubuntu原生带有此扩展。
+  - 重新编译 `pg_filedump` 为 PG 大版本无关的软件包。。
+  - 新收纳 `hydra` 列存储扩展，不再默认安装 `citus` 扩展。
+
+**Ubuntu 支持说明**
+
+Pigsty 支持了 Ubuntu 22.04 (jammy) 与 20.04 (focal) 两个 LTS 版本，并提供相应的离线软件安装包。
+
+相比 EL 系操作系统，一些参数的默认值需要显式指定调整，详情请参考 [`ubuntu.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/ubuntu.yml)
+
+- `repo_upstream`：按照 Ubuntu/Debian 的包名进行了调整
+- `repo_packages`：按照 Ubuntu/Debian 的包名进行了调整
+- `node_repo_local_urls`：默认值为 `['deb [trusted=yes] http://${admin_ip}/pigsty ./']`
+- `node_default_packages` ：
+  - `zlib` -> `zlib1g`, `readline` -> `libreadline-dev`
+  - `vim-minimal` -> `vim-tiny`, `bind-utils` -> `dnsutils`, `perf` -> `linux-tools-generic`,
+  - 新增软件包 `acl`，确保 Ansible 权限设置正常工作
+- `infra_packages`：所有含 `_` 的包要替换为 `-` 版本，此外 `postgresql-client-16` 用于替换 `postgresql16`
+- `pg_packages`：Ubuntu 下惯用 `-` 替代 `_`，不需要手工安装 `patroni-etcd` 包。
+- `pg_extensions`：扩展名称与EL系不太一样，Ubuntu下缺少 `passwordcheck_cracklib` 扩展。
+- `pg_dbsu_uid`： Ubuntu 下PGDG Deb 包不指定uid，需要手动指定，Pigsty 默认分配为 `543`
+
+**API变更**
+
+默认值变化：
+
+- `repo_modules` 现在的默认值为 `infra,node,pgsql,redis,minio`
+- `repo_upstream` 发生变化，现在添加了 Pigsty Infra/MinIO/Redis/PGSQL 模块化软件源 
+- `repo_packages` 发生变化，移除未使用的 `karma,mtail,dellhw_exporter`，移除了 PG14 主要扩展，新增了 PG16 主要扩展 
+- `pg_extensions` 发生变化，不再默认安装 Citus 扩展，默认安装 `passwordcheck_cracklib` 扩展，EL8,9 PostGIS 默认版本升级至 3.4 
+
+  ```yaml
+  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+  - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
+  ```
+
+```
+MD5 (pigsty-pkg-v2.5.0.el7.x86_64.tgz) = 9882e15519ab8f117f2911347c229ffa
+MD5 (pigsty-pkg-v2.5.0.el8.x86_64.tgz) = be8d0a375100bbbc2f4c5bff9a02bde1
+MD5 (pigsty-pkg-v2.5.0.el9.x86_64.tgz) = d8c0830dbc8827abde86e17b1db243cd
+MD5 (pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz) = 552e2a52628fc3cbd78e54ff5b7206b2
+MD5 (pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz) = 088827aaf32c90c0a3ab7bd31914c49e
+```
+
+
+----------------
+
+## v2.4.1
 
 - [Supabase](https://supabase.com/) 支持：开源的 Firebase 替代，现可使用 Pigsty 本地托管的 PostgreSQL 实例作为数据存储。
 - [PostgresML](https://postgresml.org/)支持：使用SQL完成经典机器学习算法，训练、微调、调用大语言模型（hugging face）。
@@ -58,10 +119,6 @@
 - 列式存储引擎：[`hydra`](https://www.hydra.so/) 针对分析场景打造的向量化列存储引擎，原地替代 Citus 列存插件。
 - 其他PGDG扩展：新收录8个由PGDG维护的扩展插件，Pigsty支持的插件总数达到 150+ 。
 - PostgreSQL 16 内核支持，监控云端 RDS / PolarDB for PostgreSQL。
-
-
-
-
 
 **亮点特性**
 

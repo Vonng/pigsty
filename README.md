@@ -4,7 +4,7 @@
 >
 > —— **A battery-included, local-first, open-source PostgreSQL RDS alternative.**
 >
-> [Release v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/xm6hR4P4)
+> [Release v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Telegram](https://t.me/joinchat/gV9zfZraNPM3YjFh) | [Discord](https://discord.gg/Mu2b6Wxr)
 >
 > [Get Started](docs/INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash` 
 
@@ -55,101 +55,101 @@ Pigsty has over **150+** **OPTIONAL** [extensions](docs/PGSQL-EXTENSION.md) pre-
 
 Some non-trivial extensions:
 
-| name                         | version |   source    |   type    | comment                                                      |
-| ---------------------------- | :-----: | :---------: | :-------: | ------------------------------------------------------------ |
-| **age**                      | 1.4.0   | **PIGSTY**  | FEAT      | Apache AGE graph database extension                          |
-| **embedding**                | 0.3.6   | **PIGSTY**  | FEAT      | Vector similarity search with the HNSW algorithm             |
-| **http**                     | 1.6     | **PIGSTY**  | FEAT      | HTTP client for PostgreSQL, allows web page retrieval inside the database. |
-| pg_tle                       | 1.2.0   | **PIGSTY**  | FEAT      | Trusted Language Extensions for PostgreSQL                   |
-| roaringbitmap                | 0.5     | **PIGSTY**  | FEAT      | Support for Roaring Bitmaps                                  |
-| **zhparser**                 | 2.2     | **PIGSTY**  | FEAT      | Parser for full-text search of Chinese                       |
-| **pgml**                     | 2.7.9   | **PIGSTY**  | FEAT      | PostgresML: Use the expressive power of SQL along with the most advanced machine learning algorithms and pretrained models in a high performance database. |
-| pg_net                       | 0.7.2   | **PIGSTY**  | FEAT      | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
-| vault                        | 0.2.9   | **PIGSTY**  | FEAT      | Extension for storing encrypted secrets in the Vault         |
-| **pg_graphql**               | 1.3.0   | **PIGSTY**  | FEAT      | GraphQL support for PostgreSQL                               |
-| **hydra**                    | 1.0.0   | **PIGSTY**  | FEAT      | Hydra is open source, column-oriented Postgres extension     |
-| credcheck                    | 2.1.0   | PGDG        | ADMIN     | credcheck - postgresql plain text credential checker         |
-| **pg_cron**                  | 1.5     | PGDG        | ADMIN     | Job scheduler for PostgreSQL                                 |
-| pg_background                | 1.0     | PGDG        | ADMIN     | Run SQL queries in the background                            |
-| pg_jobmon                    | 1.4.1   | PGDG        | ADMIN     | Extension for logging and monitoring functions in PostgreSQL |
-| pg_readonly                  | 1.0.0   | PGDG        | ADMIN     | cluster database read only                                   |
-| **pg_repack**                | 1.4.8   | PGDG        | ADMIN     | Reorganize tables in PostgreSQL databases with minimal locks |
-| pg_squeeze                   | 1.5     | PGDG        | ADMIN     | A tool to remove unused space from a relation.               |
-| pgfincore                    | 1.2     | PGDG        | ADMIN     | examine and manage the os buffer cache                       |
-| **pglogical**                | 2.4.3   | PGDG        | ADMIN     | PostgreSQL Logical Replication                               |
-| pglogical_origin             | 1.0.0   | PGDG        | ADMIN     | Dummy extension for compatibility when upgrading from Postgres 9.4 |
-| prioritize                   | 1.0     | PGDG        | ADMIN     | get and set the priority of PostgreSQL backends              |
-| set_user                     | 4.0.1   | PGDG        | AUDIT     | similar to SET ROLE but with added logging                   |
-| **passwordcracklib**         | 3.0.0   | PGDG        | AUDIT     | Enforce password policy                                      |
-| pgaudit                      | 1.7     | PGDG        | AUDIT     | provides auditing functionality                              |
-| pgcryptokey                  | 1.0     | PGDG        | AUDIT     | cryptographic key management                                 |
-| hdfs_fdw                     | 2.0.5   | PGDG        | FDW       | foreign-data wrapper for remote hdfs servers                 |
-| mongo_fdw                    | 1.1     | PGDG        | FDW       | foreign data wrapper for MongoDB access                      |
-| multicorn                    | 2.4     | PGDG        | FDW       | Multicorn2 Python3.6+ bindings for Postgres 11++ Foreign Data Wrapper |
-| mysql_fdw                    | 1.2     | PGDG        | FDW       | Foreign data wrapper for querying a MySQL server             |
-| pgbouncer_fdw                | 0.4     | PGDG        | FDW       | Extension for querying pgbouncer stats from normal SQL views & running pgbouncer commands from normal SQL functions |
-| sqlite_fdw                   | 1.1     | PGDG        | FDW       | SQLite Foreign Data Wrapper                                  |
-| tds_fdw                      | 2.0.3   | PGDG        | FDW       | Foreign data wrapper for querying a TDS database (Sybase or Microsoft SQL Server) |
-| emaj                         | 4.2.0   | PGDG        | FEAT      | E-Maj extension enables fine-grained write logging and time travel on subsets of the database. |
-| periods                      | 1.2     | PGDG        | FEAT      | Provide Standard SQL functionality for PERIODs and SYSTEM VERSIONING |
-| pg_ivm                       | 1.5     | PGDG        | FEAT      | incremental view maintenance on PostgreSQL                   |
-| pgq                          | 3.5     | PGDG        | FEAT      | Generic queue for PostgreSQL                                 |
-| pgsodium                     | 3.1.8   | PGDG        | FEAT      | Postgres extension for libsodium functions                   |
-| **timescaledb**              | 2.11.2  | PGDG        | FEAT      | Enables scalable inserts and complex queries for time-series data (Apache 2 Edition) |
-| **wal2json**                 | 2.5.1   | PGDG        | FEAT      | Capture JSON format CDC change via logical decoding          |
-| **vector**                   | 0.5.0   | PGDG        | FEAT      | vector data type and ivfflat / hnsw access method            |
-| count_distinct               | 3.0.1   | PGDG        | FUNC      | An alternative to COUNT(DISTINCT ...) aggregate, usable with HashAggregate |
-| ddlx                         | 0.23    | PGDG        | FUNC      | DDL eXtractor functions                                      |
-| extra_window_functions       | 1.0     | PGDG        | FUNC      | Additional window functions to PostgreSQL                    |
-| mysqlcompat                  | 0.0.7   | PGDG        | FUNC      | MySQL compatibility functions                                |
-| orafce                       | 4.5     | PGDG        | FUNC      | Functions and operators that emulate a subset of functions and packages from the Oracle RDBMS |
-| pgsql_tweaks                 | 0.10.0  | PGDG        | FUNC      | Some functions and views for daily usage                     |
-| tdigest                      | 1.4.0   | PGDG        | FUNC      | Provides tdigest aggregate function.                         |
-| topn                         | 2.4.0   | PGDG        | FUNC      | type for top-n JSONB                                         |
-| unaccent                     | 1.1     | PGDG        | FUNC      | text search dictionary that removes accents                  |
-| address_standardizer         | 3.3.3   | PGDG        | GIS       | Used to parse an address into constituent elements. Generally used to support geocoding address normalization step. |
-| address_standardizer_data_us | 3.3.3   | PGDG        | GIS       | Address Standardizer US dataset example                      |
-| **postgis**                  | 3.3.3   | PGDG        | GIS       | PostGIS geometry and geography spatial types and functions   |
-| postgis_raster               | 3.3.3   | PGDG        | GIS       | PostGIS raster types and functions                           |
-| postgis_sfcgal               | 3.3.3   | PGDG        | GIS       | PostGIS SFCGAL functions                                     |
-| postgis_tiger_geocoder       | 3.3.3   | PGDG        | GIS       | PostGIS tiger geocoder and reverse geocoder                  |
-| postgis_topology             | 3.3.3   | PGDG        | GIS       | PostGIS topology spatial types and functions                 |
-| amcheck                      | 1.3     | PGDG        | INDEX     | functions for verifying relation integrity                   |
-| bloom                        | 1.0     | PGDG        | INDEX     | bloom access method - signature file based index             |
-| hll                          | 2.16    | PGDG        | INDEX     | type for storing hyperloglog data                            |
-| pgtt                         | 2.10.0  | PGDG        | INDEX     | Extension to add Global Temporary Tables feature to PostgreSQL |
-| rum                          | 1.3     | PGDG        | INDEX     | RUM index access method                                      |
-| hstore_plperl                | 1.0     | PGDG        | LANG      | transform between hstore and plperl                          |
-| hstore_plperlu               | 1.0     | PGDG        | LANG      | transform between hstore and plperlu                         |
-| plpgsql_check                | 2.3     | PGDG        | LANG      | extended check for plpgsql functions                         |
-| plsh                         | 2       | PGDG        | LANG      | PL/sh procedural language                                    |
-| **citus**                    | 12.0-1  | PGDG        | SHARD     | Citus distributed database                                   |
-| citus_columnar               | 11.3-1  | PGDG        | SHARD     | Citus Columnar extension                                     |
-| pg_fkpart                    | 1.7     | PGDG        | SHARD     | Table partitioning by foreign key utility                    |
-| pg_partman                   | 4.7.3   | PGDG        | SHARD     | Extension to manage partitioned tables by time or ID         |
-| plproxy                      | 2.10.0  | PGDG        | SHARD     | Database partitioning implemented as procedural language     |
-| hypopg                       | 1.4.0   | PGDG        | STAT      | Hypothetical indexes for PostgreSQL                          |
-| logerrors                    | 2.1     | PGDG        | STAT      | Function for collecting statistics about messages in logfile |
-| pg_auth_mon                  | 1.1     | PGDG        | STAT      | monitor connection attempts per user                         |
-| pg_permissions               | 1.1     | PGDG        | STAT      | view object permissions and compare them with the desired state |
-| pg_qualstats                 | 2.0.4   | PGDG        | STAT      | An extension collecting statistics about quals               |
-| pg_stat_kcache               | 2.2.2   | PGDG        | STAT      | Kernel statistics gathering                                  |
-| pg_stat_monitor              | 2.0     | PGDG        | STAT      | The pg_stat_monitor is a PostgreSQL Query Performance Monitoring tool, based on PostgreSQL contrib module pg_stat_statements. pg_stat_monitor provides aggregated statistics, client information, plan details including plan, and histogram information. |
-| pg_store_plans               | 1.7     | PGDG        | STAT      | track plan statistics of all SQL statements executed         |
-| pg_track_settings            | 2.1.2   | PGDG        | STAT      | Track settings changes                                       |
-| pg_wait_sampling             | 1.1     | PGDG        | STAT      | sampling based statistics of wait events                     |
-| pldbgapi                     | 1.1     | PGDG        | STAT      | server-side support for debugging PL/pgSQL functions         |
-| plprofiler                   | 4.2     | PGDG        | STAT      | server-side support for profiling PL/pgSQL functions         |
-| powa                         | 4.1.4   | PGDG        | STAT      | PostgreSQL Workload Analyser-core                            |
-| system_stats                 | 1.0     | PGDG        | STAT      | System statistic functions for PostgreSQL                    |
-| citext                       | 1.6     | PGDG        | TYPE      | data type for case-insensitive character strings             |
-| geoip                        | 0.2.4   | PGDG        | TYPE      | An IP geolocation extension (a wrapper around the MaxMind GeoLite dataset) |
-| ip4r                         | 2.4     | PGDG        | TYPE      | IPv4/v6 and IPv4/v6 range index type for PostgreSQL          |
-| pg_uuidv7                    | 1.1     | PGDG        | TYPE      | pg_uuidv7: create UUIDv7 values in postgres                  |
-| pgmp                         | 1.1     | PGDG        | TYPE      | Multiple Precision Arithmetic extension                      |
-| semver                       | 0.32.1  | PGDG        | TYPE      | Semantic version data type                                   |
-| timestamp9                   | 1.3.0   | PGDG        | TYPE      | timestamp nanosecond resolution                              |
-| unit                         | 7       | PGDG        | TYPE      | SI units extension                                           |
+| name                         | version |   source   | type  | comment                                                                                                                                                                                                                                                   |
+|------------------------------|:-------:|:----------:|:-----:|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **age**                      |  1.4.0  | **PIGSTY** | FEAT  | Apache AGE graph database extension                                                                                                                                                                                                                       |
+| **embedding**                |  0.3.6  | **PIGSTY** | FEAT  | Vector similarity search with the HNSW algorithm                                                                                                                                                                                                          |
+| **http**                     |   1.6   | **PIGSTY** | FEAT  | HTTP client for PostgreSQL, allows web page retrieval inside the database.                                                                                                                                                                                |
+| pg_tle                       |  1.2.0  | **PIGSTY** | FEAT  | Trusted Language Extensions for PostgreSQL                                                                                                                                                                                                                |
+| roaringbitmap                |   0.5   | **PIGSTY** | FEAT  | Support for Roaring Bitmaps                                                                                                                                                                                                                               |
+| **zhparser**                 |   2.2   | **PIGSTY** | FEAT  | Parser for full-text search of Chinese                                                                                                                                                                                                                    |
+| **pgml**                     |  2.7.9  | **PIGSTY** | FEAT  | PostgresML: Use the expressive power of SQL along with the most advanced machine learning algorithms and pretrained models in a high performance database.                                                                                                |
+| pg_net                       |  0.7.2  | **PIGSTY** | FEAT  | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL                                                                                                                                                              |
+| vault                        |  0.2.9  | **PIGSTY** | FEAT  | Extension for storing encrypted secrets in the Vault                                                                                                                                                                                                      |
+| **pg_graphql**               |  1.3.0  | **PIGSTY** | FEAT  | GraphQL support for PostgreSQL                                                                                                                                                                                                                            |
+| **hydra**                    |  1.0.0  | **PIGSTY** | FEAT  | Hydra is open source, column-oriented Postgres extension                                                                                                                                                                                                  |
+| credcheck                    |  2.1.0  |    PGDG    | ADMIN | credcheck - postgresql plain text credential checker                                                                                                                                                                                                      |
+| **pg_cron**                  |   1.5   |    PGDG    | ADMIN | Job scheduler for PostgreSQL                                                                                                                                                                                                                              |
+| pg_background                |   1.0   |    PGDG    | ADMIN | Run SQL queries in the background                                                                                                                                                                                                                         |
+| pg_jobmon                    |  1.4.1  |    PGDG    | ADMIN | Extension for logging and monitoring functions in PostgreSQL                                                                                                                                                                                              |
+| pg_readonly                  |  1.0.0  |    PGDG    | ADMIN | cluster database read only                                                                                                                                                                                                                                |
+| **pg_repack**                |  1.4.8  |    PGDG    | ADMIN | Reorganize tables in PostgreSQL databases with minimal locks                                                                                                                                                                                              |
+| pg_squeeze                   |   1.5   |    PGDG    | ADMIN | A tool to remove unused space from a relation.                                                                                                                                                                                                            |
+| pgfincore                    |   1.2   |    PGDG    | ADMIN | examine and manage the os buffer cache                                                                                                                                                                                                                    |
+| **pglogical**                |  2.4.3  |    PGDG    | ADMIN | PostgreSQL Logical Replication                                                                                                                                                                                                                            |
+| pglogical_origin             |  1.0.0  |    PGDG    | ADMIN | Dummy extension for compatibility when upgrading from Postgres 9.4                                                                                                                                                                                        |
+| prioritize                   |   1.0   |    PGDG    | ADMIN | get and set the priority of PostgreSQL backends                                                                                                                                                                                                           |
+| set_user                     |  4.0.1  |    PGDG    | AUDIT | similar to SET ROLE but with added logging                                                                                                                                                                                                                |
+| **passwordcracklib**         |  3.0.0  |    PGDG    | AUDIT | Enforce password policy                                                                                                                                                                                                                                   |
+| pgaudit                      |   1.7   |    PGDG    | AUDIT | provides auditing functionality                                                                                                                                                                                                                           |
+| pgcryptokey                  |   1.0   |    PGDG    | AUDIT | cryptographic key management                                                                                                                                                                                                                              |
+| hdfs_fdw                     |  2.0.5  |    PGDG    |  FDW  | foreign-data wrapper for remote hdfs servers                                                                                                                                                                                                              |
+| mongo_fdw                    |   1.1   |    PGDG    |  FDW  | foreign data wrapper for MongoDB access                                                                                                                                                                                                                   |
+| multicorn                    |   2.4   |    PGDG    |  FDW  | Multicorn2 Python3.6+ bindings for Postgres 11++ Foreign Data Wrapper                                                                                                                                                                                     |
+| mysql_fdw                    |   1.2   |    PGDG    |  FDW  | Foreign data wrapper for querying a MySQL server                                                                                                                                                                                                          |
+| pgbouncer_fdw                |   0.4   |    PGDG    |  FDW  | Extension for querying pgbouncer stats from normal SQL views & running pgbouncer commands from normal SQL functions                                                                                                                                       |
+| sqlite_fdw                   |   1.1   |    PGDG    |  FDW  | SQLite Foreign Data Wrapper                                                                                                                                                                                                                               |
+| tds_fdw                      |  2.0.3  |    PGDG    |  FDW  | Foreign data wrapper for querying a TDS database (Sybase or Microsoft SQL Server)                                                                                                                                                                         |
+| emaj                         |  4.2.0  |    PGDG    | FEAT  | E-Maj extension enables fine-grained write logging and time travel on subsets of the database.                                                                                                                                                            |
+| periods                      |   1.2   |    PGDG    | FEAT  | Provide Standard SQL functionality for PERIODs and SYSTEM VERSIONING                                                                                                                                                                                      |
+| pg_ivm                       |   1.5   |    PGDG    | FEAT  | incremental view maintenance on PostgreSQL                                                                                                                                                                                                                |
+| pgq                          |   3.5   |    PGDG    | FEAT  | Generic queue for PostgreSQL                                                                                                                                                                                                                              |
+| pgsodium                     |  3.1.8  |    PGDG    | FEAT  | Postgres extension for libsodium functions                                                                                                                                                                                                                |
+| **timescaledb**              | 2.11.2  |    PGDG    | FEAT  | Enables scalable inserts and complex queries for time-series data (Apache 2 Edition)                                                                                                                                                                      |
+| **wal2json**                 |  2.5.1  |    PGDG    | FEAT  | Capture JSON format CDC change via logical decoding                                                                                                                                                                                                       |
+| **vector**                   |  0.5.0  |    PGDG    | FEAT  | vector data type and ivfflat / hnsw access method                                                                                                                                                                                                         |
+| count_distinct               |  3.0.1  |    PGDG    | FUNC  | An alternative to COUNT(DISTINCT ...) aggregate, usable with HashAggregate                                                                                                                                                                                |
+| ddlx                         |  0.23   |    PGDG    | FUNC  | DDL eXtractor functions                                                                                                                                                                                                                                   |
+| extra_window_functions       |   1.0   |    PGDG    | FUNC  | Additional window functions to PostgreSQL                                                                                                                                                                                                                 |
+| mysqlcompat                  |  0.0.7  |    PGDG    | FUNC  | MySQL compatibility functions                                                                                                                                                                                                                             |
+| orafce                       |   4.5   |    PGDG    | FUNC  | Functions and operators that emulate a subset of functions and packages from the Oracle RDBMS                                                                                                                                                             |
+| pgsql_tweaks                 | 0.10.0  |    PGDG    | FUNC  | Some functions and views for daily usage                                                                                                                                                                                                                  |
+| tdigest                      |  1.4.0  |    PGDG    | FUNC  | Provides tdigest aggregate function.                                                                                                                                                                                                                      |
+| topn                         |  2.4.0  |    PGDG    | FUNC  | type for top-n JSONB                                                                                                                                                                                                                                      |
+| unaccent                     |   1.1   |    PGDG    | FUNC  | text search dictionary that removes accents                                                                                                                                                                                                               |
+| address_standardizer         |  3.3.3  |    PGDG    |  GIS  | Used to parse an address into constituent elements. Generally used to support geocoding address normalization step.                                                                                                                                       |
+| address_standardizer_data_us |  3.3.3  |    PGDG    |  GIS  | Address Standardizer US dataset example                                                                                                                                                                                                                   |
+| **postgis**                  |  3.3.3  |    PGDG    |  GIS  | PostGIS geometry and geography spatial types and functions                                                                                                                                                                                                |
+| postgis_raster               |  3.3.3  |    PGDG    |  GIS  | PostGIS raster types and functions                                                                                                                                                                                                                        |
+| postgis_sfcgal               |  3.3.3  |    PGDG    |  GIS  | PostGIS SFCGAL functions                                                                                                                                                                                                                                  |
+| postgis_tiger_geocoder       |  3.3.3  |    PGDG    |  GIS  | PostGIS tiger geocoder and reverse geocoder                                                                                                                                                                                                               |
+| postgis_topology             |  3.3.3  |    PGDG    |  GIS  | PostGIS topology spatial types and functions                                                                                                                                                                                                              |
+| amcheck                      |   1.3   |    PGDG    | INDEX | functions for verifying relation integrity                                                                                                                                                                                                                |
+| bloom                        |   1.0   |    PGDG    | INDEX | bloom access method - signature file based index                                                                                                                                                                                                          |
+| hll                          |  2.16   |    PGDG    | INDEX | type for storing hyperloglog data                                                                                                                                                                                                                         |
+| pgtt                         | 2.10.0  |    PGDG    | INDEX | Extension to add Global Temporary Tables feature to PostgreSQL                                                                                                                                                                                            |
+| rum                          |   1.3   |    PGDG    | INDEX | RUM index access method                                                                                                                                                                                                                                   |
+| hstore_plperl                |   1.0   |    PGDG    | LANG  | transform between hstore and plperl                                                                                                                                                                                                                       |
+| hstore_plperlu               |   1.0   |    PGDG    | LANG  | transform between hstore and plperlu                                                                                                                                                                                                                      |
+| plpgsql_check                |   2.3   |    PGDG    | LANG  | extended check for plpgsql functions                                                                                                                                                                                                                      |
+| plsh                         |    2    |    PGDG    | LANG  | PL/sh procedural language                                                                                                                                                                                                                                 |
+| **citus**                    | 12.0-1  |    PGDG    | SHARD | Citus distributed database                                                                                                                                                                                                                                |
+| citus_columnar               | 11.3-1  |    PGDG    | SHARD | Citus Columnar extension                                                                                                                                                                                                                                  |
+| pg_fkpart                    |   1.7   |    PGDG    | SHARD | Table partitioning by foreign key utility                                                                                                                                                                                                                 |
+| pg_partman                   |  4.7.3  |    PGDG    | SHARD | Extension to manage partitioned tables by time or ID                                                                                                                                                                                                      |
+| plproxy                      | 2.10.0  |    PGDG    | SHARD | Database partitioning implemented as procedural language                                                                                                                                                                                                  |
+| hypopg                       |  1.4.0  |    PGDG    | STAT  | Hypothetical indexes for PostgreSQL                                                                                                                                                                                                                       |
+| logerrors                    |   2.1   |    PGDG    | STAT  | Function for collecting statistics about messages in logfile                                                                                                                                                                                              |
+| pg_auth_mon                  |   1.1   |    PGDG    | STAT  | monitor connection attempts per user                                                                                                                                                                                                                      |
+| pg_permissions               |   1.1   |    PGDG    | STAT  | view object permissions and compare them with the desired state                                                                                                                                                                                           |
+| pg_qualstats                 |  2.0.4  |    PGDG    | STAT  | An extension collecting statistics about quals                                                                                                                                                                                                            |
+| pg_stat_kcache               |  2.2.2  |    PGDG    | STAT  | Kernel statistics gathering                                                                                                                                                                                                                               |
+| pg_stat_monitor              |   2.0   |    PGDG    | STAT  | The pg_stat_monitor is a PostgreSQL Query Performance Monitoring tool, based on PostgreSQL contrib module pg_stat_statements. pg_stat_monitor provides aggregated statistics, client information, plan details including plan, and histogram information. |
+| pg_store_plans               |   1.7   |    PGDG    | STAT  | track plan statistics of all SQL statements executed                                                                                                                                                                                                      |
+| pg_track_settings            |  2.1.2  |    PGDG    | STAT  | Track settings changes                                                                                                                                                                                                                                    |
+| pg_wait_sampling             |   1.1   |    PGDG    | STAT  | sampling based statistics of wait events                                                                                                                                                                                                                  |
+| pldbgapi                     |   1.1   |    PGDG    | STAT  | server-side support for debugging PL/pgSQL functions                                                                                                                                                                                                      |
+| plprofiler                   |   4.2   |    PGDG    | STAT  | server-side support for profiling PL/pgSQL functions                                                                                                                                                                                                      |
+| powa                         |  4.1.4  |    PGDG    | STAT  | PostgreSQL Workload Analyser-core                                                                                                                                                                                                                         |
+| system_stats                 |   1.0   |    PGDG    | STAT  | System statistic functions for PostgreSQL                                                                                                                                                                                                                 |
+| citext                       |   1.6   |    PGDG    | TYPE  | data type for case-insensitive character strings                                                                                                                                                                                                          |
+| geoip                        |  0.2.4  |    PGDG    | TYPE  | An IP geolocation extension (a wrapper around the MaxMind GeoLite dataset)                                                                                                                                                                                |
+| ip4r                         |   2.4   |    PGDG    | TYPE  | IPv4/v6 and IPv4/v6 range index type for PostgreSQL                                                                                                                                                                                                       |
+| pg_uuidv7                    |   1.1   |    PGDG    | TYPE  | pg_uuidv7: create UUIDv7 values in postgres                                                                                                                                                                                                               |
+| pgmp                         |   1.1   |    PGDG    | TYPE  | Multiple Precision Arithmetic extension                                                                                                                                                                                                                   |
+| semver                       | 0.32.1  |    PGDG    | TYPE  | Semantic version data type                                                                                                                                                                                                                                |
+| timestamp9                   |  1.3.0  |    PGDG    | TYPE  | timestamp nanosecond resolution                                                                                                                                                                                                                           |
+| unit                         |    7    |    PGDG    | TYPE  | SI units extension                                                                                                                                                                                                                                        |
 
 
 </details>
@@ -163,7 +163,7 @@ Some non-trivial extensions:
 Bootstrap with one command! Check [**Get Started**](docs/INSTALL.md) | [**快速上手**](docs/zh/INSTALL.md) for details.
 
 ```bash
-# Linux x86_64 EL 7/8/9 compatible, with nopass sudo/ssh
+# Linux x86_64 EL 7/8/9 Ubuntu 20/22 compatible, with nopass sudo/ssh
 bash -c "$(curl -fsSL https://get.pigsty.cc/latest)";
 cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 ```
@@ -464,6 +464,10 @@ all:
     pg_shard: pg-citus                # citus shard name: pg-citus
     patroni_citus_db: meta            # citus distributed database name
     pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
+  pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
+    pg_extensions: 
+      - pg_repack_${ pg_version }* wal2json_${ pg_version }* passwordcheck_cracklib_${ pg_version }* 
+      - postgis3*_${ pg_version }* timescaledb-2-postgresql-${ pg_version }* pgvector_${ pg_version }* citus_${ pg_version }*
     pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
     pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
     pg_hba_rules:
@@ -551,12 +555,23 @@ Check [**Configuration**](docs/CONFIG.md) for details.
 
 ## Compatibility
 
-| OS Distro / PG Ver    | PG16 | PG15 | PG14 | PG13 | PG12 |
-| --------------------- | :--: | :--: | :--: | :--: | :--: |
-| RHEL 8,9 / Rocky 8,9  |  ✅   |  ⭐️   |  ✅   |  ✅   |  ✅   |
-| Alma 8,9 / Anolis 8,9 |  ✅   |  ⭐️   |  ✅   |  ✅   |  ✅   |
-| RHEL7, CentOS7        |      |  ⭐️   |  ✅   |  ✅   |  ✅   |
-| Ubuntu 22.04 (beta)   |  ✅   |  ⭐️   |  ✅   |  ✅   |  ✅   |
+We recommend using RockyLinux 8.8 and Ubuntu 22.04 (jammy) as the base OS for Pigsty.
+
+While any EL 7,8,9 or Ubuntu 20.04,22.04 compatible OS Distribution should work.
+
+| Code | OS Distro / PG Ver                | PG16 | PG15 | PG14 | PG13 | PG12 |
+|:----:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|
+| EL7  | RHEL7 / CentOS7                   |  ⚠️  |  ⭐️  |  ✅   |  ✅   |  ✅   |
+| EL8  | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   |
+| EL9  | RHEL 9 / Rocky9 / Alma9           |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   |
+| U22  | Ubuntu 22.04 (BETA)               |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   |
+| U22  | Ubuntu 20.04 (BETA)               |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   |
+
+* ⭐️ PostgreSQL 15 is currently the Major supported version with full extension support.
+* ⚠️ PostgreSQL 16 is the major support candidate, will be promoted when ready.
+* ⚠️ EL7 Does not have an official PostgreSQL 16 support, and will EOL in 2024.
+* ⚠️ Ubuntu 22.04 jammy beta support will be introduced in Pigsty v2.5.0.
+* ⚠️ Ubuntu 20.04 has issue with PostGIS 3 offline installation.
 
 
 
@@ -574,7 +589,7 @@ WeChat: Search `pigsty-cc` to join the WeChat group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/xm6hR4P4
+Discord: https://discord.gg/Mu2b6Wxr
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 

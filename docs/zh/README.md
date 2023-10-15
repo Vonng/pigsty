@@ -637,7 +637,7 @@ minio:
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/xm6hR4P4
+Discord: https://discord.gg/Mu2b6Wxr
 
 作者: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 

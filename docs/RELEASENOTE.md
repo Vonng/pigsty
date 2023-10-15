@@ -2,7 +2,8 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.5.0](#v241) | 2023-09-24 | Supabase/PostgresML support, graphql, jwt, pg_net, vault | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
+| [v2.5.0](#v250) | 2023-10-24 | Ubuntu/Debian Support                                    | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
+| [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML support, graphql, jwt, pg_net, vault | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
 | [v2.4.0](#v240) | 2023-09-14 | PG16, RDS Monitor, New Extensions                        | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
 | [v2.3.1](#v231) | 2023-09-01 | PGVector with HNSW, PG16 RC1, Chinese Docs, Bug Fix      | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
 | [v2.3.0](#v230) | 2023-08-20 | PGSQL/REDIS Update, NODE VIP, Mongo/FerretDB, MYSQL Stub | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
@@ -35,9 +36,70 @@
 | v0.0.1          | 2019-05-15 | POC                                                      | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
 
+
 ----------------
 
 ## v2.5.0
+
+**Highlights**
+
+- Ubuntu / Debian Support
+- Dedicate yum/apt repo on `repo.pigsty.cc` and mirror on packagecloud.io
+- Anolis OS Support (EL 8.8 Compatible)
+- PG Major Candidate: Use PostgreSQL 16 instead of PostgreSQL 14.
+- Extensions Update:
+  - Bump PostGIS version to v3.4 on el8, el9, ubuntu22, keep postgis 33 on EL7
+  - Remove extension `pg_embedding` because it is no longer maintained, use `pgvector` instead.
+  - New extension on EL: `pointcloud` with LIDAR data type support.
+  - Include columnar extension `hydra` and remove `citus` from default installed extension list.
+  - Recompile `pg_filedump` as PG major version independent package. 
+
+
+**Ubuntu Support**
+
+Pigsty has two ubuntu LTS support: 22.04 (jammy) and 20.04 (focal), and ship corresponding offline packages for them.
+
+Some parameters need to be specified explicitly when deploying on Ubuntu, please refer to [`ubuntu.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/ubuntu.yml)
+
+- `repo_upstream`: Adjust according to ubuntu / debian repo.
+- `repo_packages`: Adjust according to ubuntu / debian naming convention
+- `node_repo_local_urls`: use the default value: `['deb [trusted=yes] http://${admin_ip}/pigsty ./']`
+- `node_default_packages` ：
+  - `zlib` -> `zlib1g`, `readline` -> `libreadline-dev`
+  - `vim-minimal` -> `vim-tiny`, `bind-utils` -> `dnsutils`, `perf` -> `linux-tools-generic`,
+  - new packages `acl` to ensure ansible tmp file privileges are set correctly
+- `infra_packages`: replace all `_` with `-` in names, and replace `postgresql16` with `postgresql-client-16`
+- `pg_packages`: replace all `_` with `-` in names, `patroni-etcd` not needed on ubuntu
+- `pg_extensions`: different naming convention, no `passwordcheck_cracklib` on ubuntu.
+- `pg_dbsu_uid`: You have to manually specify `pg_dbsu_uid` on ubuntu, because PGDG deb package does not specify pg dbsu uid.
+
+
+**API Changes**
+
+default values of following parameters have changed:
+
+- `repo_modules`: `infra,node,pgsql,redis,minio`
+- `repo_upstream`: Now add Pigsty Infra/MinIO/Redis/PGSQL modular upstream repo.
+- `repo_packages`: remove unused `karma,mtail,dellhw_exporter` and pg 14 extra extensions, adding pg 16 extra extensions.
+- `pg_extensions`: citus is nolonger installed by default, and `passwordcheck_cracklib` is installed by default
+
+  ```yaml
+  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+  - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
+  ```
+
+```
+MD5 (pigsty-pkg-v2.5.0.el7.x86_64.tgz) = 9882e15519ab8f117f2911347c229ffa
+MD5 (pigsty-pkg-v2.5.0.el8.x86_64.tgz) = be8d0a375100bbbc2f4c5bff9a02bde1
+MD5 (pigsty-pkg-v2.5.0.el9.x86_64.tgz) = d8c0830dbc8827abde86e17b1db243cd
+MD5 (pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz) = 552e2a52628fc3cbd78e54ff5b7206b2
+MD5 (pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz) = 088827aaf32c90c0a3ab7bd31914c49e
+```
+
+
+----------------
+
+## v2.4.1
 
 **Highlights**
 
@@ -53,9 +115,9 @@
 - Bump [FerretDB](https://github.com/FerretDB/FerretDB) version to v1.10
 
 ```
-efabe7632d8994f3fb58f9838b8f9d7d  pigsty-pkg-v2.5.0.el7.x86_64.tgz # 1.1G
-ea78957e8c8434b120d1c8c43d769b56  pigsty-pkg-v2.5.0.el8.x86_64.tgz # 1.4G
-4ef280a7d28872814e34521978b851bb  pigsty-pkg-v2.5.0.el9.x86_64.tgz # 1.3G
+efabe7632d8994f3fb58f9838b8f9d7d  pigsty-pkg-v2.4.1.el7.x86_64.tgz # 1.1G
+ea78957e8c8434b120d1c8c43d769b56  pigsty-pkg-v2.4.1.el8.x86_64.tgz # 1.4G
+4ef280a7d28872814e34521978b851bb  pigsty-pkg-v2.4.1.el9.x86_64.tgz # 1.3G
 ```
 
 ----------------
