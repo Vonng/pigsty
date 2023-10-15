@@ -1,0 +1,75 @@
+#!/bin/bash
+set -euo pipefail
+#==============================================================#
+# File      :   build-boot
+# Desc      :   boot pigsty building environment with offline pkg
+# Ctime     :   2023-10-15
+# Mtime     :   2023-10-15
+# Path      :   bin/build-boot
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+PROG_NAME="$(basename $0)"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+VERSION=${1-'v2.5.0'}
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+# bin/building [version]
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+
+log_info "copy source packages to building VMs"
+scp dist/${VERSION}/pigsty-${VERSION}.tgz build-el7:~/pigsty.tgz  &
+scp dist/${VERSION}/pigsty-${VERSION}.tgz build-el8:~/pigsty.tgz  &
+scp dist/${VERSION}/pigsty-${VERSION}.tgz build-el9:~/pigsty.tgz  &
+scp dist/${VERSION}/pigsty-${VERSION}.tgz debian11:~/pigsty.tgz   &
+scp dist/${VERSION}/pigsty-${VERSION}.tgz debian12:~/pigsty.tgz   &
+scp dist/${VERSION}/pigsty-${VERSION}.tgz ubuntu20:~/pigsty.tgz   &
+scp dist/${VERSION}/pigsty-${VERSION}.tgz ubuntu22:~/pigsty.tgz   &
+
+log_info "configure building environment"
+ssh -t build-el7 "tar -xf pigsty.tgz; cd pigsty; ./configure -m el7     -i 10.10.10.10" &
+ssh -t build-el8 "tar -xf pigsty.tgz; cd pigsty; ./configure -m el      -i 10.10.10.10" &
+ssh -t build-el9 "tar -xf pigsty.tgz; cd pigsty; ./configure -m el      -i 10.10.10.10" &
+ssh -t debian11  "tar -xf pigsty.tgz; cd pigsty; ./configure -m debian  -i 10.10.10.10" &
+ssh -t debian12  "tar -xf pigsty.tgz; cd pigsty; ./configure -m debian  -i 10.10.10.10" &
+ssh -t ubuntu20  "tar -xf pigsty.tgz; cd pigsty; ./configure -m ubuntu  -i 10.10.10.10" &
+ssh -t ubuntu22  "tar -xf pigsty.tgz; cd pigsty; ./configure -m ubuntu  -i 10.10.10.10" &
+wait
+
+log_info "copy offline packages to building VMs"
+scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz      build-el7:/tmp/pkg.tgz  &
+scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz      build-el8:/tmp/pkg.tgz  &
+scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz      build-el9:/tmp/pkg.tgz  &
+scp dist/${VERSION}/pigsty-pkg-${VERSION}.debian11.x86_64.tgz debian11:/tmp/pkg.tgz   &
+scp dist/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz debian12:/tmp/pkg.tgz   &
+scp dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz ubuntu20:/tmp/pkg.tgz   &
+scp dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz ubuntu22:/tmp/pkg.tgz   &
+wait
+
+log_info "extract /tmp/pkg.tgz script"
+ssh -t build-el7 "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
+ssh -t build-el8 "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
+ssh -t build-el9 "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
+ssh -t debian11  "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
+ssh -t debian12  "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
+ssh -t ubuntu20  "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
+ssh -t ubuntu22  "sudo mkdir -p /www; sudo tar -xf /tmp.pkg.tgz -C /www;" &
+wait
+
+log_info "building bootstrap complete"
+log_info "extracted, now proceed with:"
+log_hint "./install.yml -i files/pigsty/build.yml"
+log_hint "./install.yml -i files/pigsty/build-deb.yml"

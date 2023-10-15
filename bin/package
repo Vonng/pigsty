@@ -2,9 +2,9 @@
 set -euo pipefail
 #==============================================================#
 # File      :   package
-# Desc      :   make pigsty offline packages from el7,8,9
+# Desc      :   make pigsty offline packages
 # Ctime     :   2023-09-19
-# Mtime     :   2023-10-11
+# Mtime     :   2023-10-15
 # Path      :   bin/package
 # Deps      :   gzip, tar, ssh
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -42,7 +42,7 @@ ls -alh "${PROG_DIR}/../dist/${VERSION}"
 
 
 #--------------------------------------------------------------#
-# check ssh connectivity
+# Prepare Repo
 #--------------------------------------------------------------#
 log_info "make pigsty-pkg-${VERSION} for el7,8,9"
 
@@ -53,31 +53,48 @@ ssh build-el9 "sudo rm -rf /www/pigsty/*docs* /www/pigsty/patroni*3.0.4* /www/pi
 cd ${PROG_DIR}/../ && ./infra.yml -t repo_create -i files/pigsty/build.yml
 
 
+#--------------------------------------------------------------#
+# Copy building script
+#--------------------------------------------------------------#
 log_info "copy /tmp/cache script"
 CACHE_SCRIPT=${PROG_DIR}/cache
-scp ${CACHE_SCRIPT} build-el7:/tmp/cache
-scp ${CACHE_SCRIPT} build-el8:/tmp/cache
-scp ${CACHE_SCRIPT} build-el9:/tmp/cache
-scp ${CACHE_SCRIPT} ubuntu20:/tmp/cache
-scp ${CACHE_SCRIPT} ubuntu22:/tmp/cache
+scp ${CACHE_SCRIPT} build-el7:/tmp/cache &
+scp ${CACHE_SCRIPT} build-el8:/tmp/cache &
+scp ${CACHE_SCRIPT} build-el9:/tmp/cache &
+scp ${CACHE_SCRIPT} debian11:/tmp/cache  &
+scp ${CACHE_SCRIPT} debian12:/tmp/cache  &
+scp ${CACHE_SCRIPT} ubuntu20:/tmp/cache  &
+scp ${CACHE_SCRIPT} ubuntu22:/tmp/cache  &
+wait
 
+
+#--------------------------------------------------------------#
+# Make Offline Package
+#--------------------------------------------------------------#
 log_info "make offline packages"
 ssh -t build-el7 "sudo bash /tmp/cache" &
 ssh -t build-el8 "sudo bash /tmp/cache" &
 ssh -t build-el9 "sudo bash /tmp/cache" &
-ssh -t ubuntu20 "sudo bash /tmp/cache" &
-ssh -t ubuntu22 "sudo bash /tmp/cache" &
+ssh -t debian11  "sudo bash /tmp/cache" &
+ssh -t debian12  "sudo bash /tmp/cache" &
+ssh -t ubuntu20  "sudo bash /tmp/cache" &
+ssh -t ubuntu22  "sudo bash /tmp/cache" &
 wait
 
+
+#--------------------------------------------------------------#
+# Copy to local dist dir
+#--------------------------------------------------------------#
 log_info "copy pigsty-pkg to local dist dir"
-scp build-el7:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz &
-scp build-el8:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz &
-scp build-el9:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz &
-scp ubuntu20:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz &
-scp ubuntu22:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz &
+scp build-el7:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz      &
+scp build-el8:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz      &
+scp build-el9:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz      &
+scp debian11:/tmp/pkg.tgz  dist/${VERSION}/pigsty-pkg-${VERSION}.debian11.x86_64.tgz &
+scp debian12:/tmp/pkg.tgz  dist/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz &
+scp ubuntu20:/tmp/pkg.tgz  dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz &
+scp ubuntu22:/tmp/pkg.tgz  dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz &
 wait
 
 log_info "building complete"
 ls -alh "${PROG_DIR}/../dist/${VERSION}"
-
-cd "${PROG_DIR}/../dist/${VERSION}/" && md5sum * > checksum && cat checksum
+cd "${PROG_DIR}/../dist/${VERSION}/" && md5sum *.tgz > checksums && cat checksums

@@ -493,7 +493,6 @@ check-boot:
 	#ssh ubuntu20 "cd pigsty; ./bootstrap -n ; ./configure -m el   -i 10.10.10.20 -n";
 	#ssh ubuntu22 "cd pigsty; ./bootstrap -n ; ./configure -m el   -i 10.10.10.22 -n";
 
-
 meta:  del v1 new ssh copy-el9 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
 full: del v4 new ssh copy-el9 use-pkg
@@ -510,8 +509,10 @@ os: del vo new ssh
 	cp files/pigsty/os.yml pigsty.yml
 ubuntu: del vu new ssh copy-u22 use-pkg
 	cp files/pigsty/ubuntu.yml pigsty.yml
+
 build: del vb new ssh
-	cp files/pigsty/build.yml pigsty.yml
+build-boot:
+	bin/build-boot
 check: del vc new ssh
 	cp files/pigsty/check.yml pigsty.yml
 checkb: del vc new ssh check-all
