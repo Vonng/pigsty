@@ -25,7 +25,7 @@
 #--------------------------------------------------------------#
 # Create Minio Users                                [minio_user]
 #--------------------------------------------------------------#
-- name: create minio buckets
+- name: create minio users
   tags: minio_user
   when: minio_users|length > 0
   become: no
@@ -35,6 +35,8 @@
     mcli admin user add {{ minio_alias }} {{ item.access_key }} {{ item.secret_key }};
     mcli admin policy attach {{ minio_alias }} {{ item.policy|default('readwrite') }} --user={{ item.access_key }}
     set -o history
+  args:
+    executable: /usr/bin/bash
   with_items: '{{ minio_users }}'
 
 ...
