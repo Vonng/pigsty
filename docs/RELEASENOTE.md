@@ -51,9 +51,9 @@
   - Bump PostGIS version to v3.4 on el8, el9, ubuntu22, keep postgis 33 on EL7
   - Remove extension `pg_embedding` because it is no longer maintained, use `pgvector` instead.
   - New extension on EL: `pointcloud` with LIDAR data type support.
+  - New extension on EL: `imgsmlr`， `pg_similarity`，`pg_bigm` 扩展。
   - Include columnar extension `hydra` and remove `citus` from default installed extension list.
-  - Recompile `pg_filedump` as PG major version independent package. 
-
+  - Recompile `pg_filedump` as PG major version independent package.
 
 **Ubuntu Support**
 
@@ -89,13 +89,13 @@ default values of following parameters have changed:
   ```
 
 ```
-c9446acf3fb745cb997c8cacd0bf8bbe  pigsty-pkg-v2.5.0.el7.x86_64.tgz
-955ef9b516fd3b6c6913ed8c240bad53  pigsty-pkg-v2.5.0.el8.x86_64.tgz
-0af99d9f5bc3989f6c8a5bafd919ff60  pigsty-pkg-v2.5.0.el9.x86_64.tgz
-63c7b8acea63d937ca40ee2717368bb6  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
-a42e45d6b9067b03756a031b2a47f57c  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
-e5381c3f72505de451579116e9a0bcb3  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
-630629c18062d250b3a2c161beaef8fe  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
+668b0bea3b066b22e71a7770d45b7bd6  pigsty-pkg-v2.5.0.el7.x86_64.tgz
+f5cac720d39f7329bcb19748c2fe7cca  pigsty-pkg-v2.5.0.el8.x86_64.tgz
+b9fb657f05dc6bcc02e7def99169da26  pigsty-pkg-v2.5.0.el9.x86_64.tgz
+fb2e4ef94c7a20566fed34a4260af96d  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
+0b3791f2be10ae6488e3b815320b9ffd  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
+0824b78f55da304ea4d999d2f0aa48e4  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
+2bf5a2f09bdd011bc19aad74c88701dc  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
 ```
 
 
