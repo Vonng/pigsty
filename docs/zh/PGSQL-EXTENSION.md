@@ -40,22 +40,33 @@ Pigsty 收录了超过 **150+** PostgreSQL 扩展插件，并编译打包整合�
 * `FDW`：外部数据源包装与对接
 * `STAT`：统计信息
 
-其中，名称加粗的为核心扩展插件，包括：`postgis`, `timescaledb`, `citus`, `age`, `vector`，`zhparser`， `pg_repack`， `wal2json`, `passwordcracklib`，`pg_cron`。此外还有一些强大的知名扩展如：`age`，`PostgresML`，等等……
+其中包括一些非常知名的扩展插件，例如 `postgis`, `timescaledb`, `citus`, `age`, `vector`，`zhparser`， `pg_repack`， `wal2json`, `passwordcracklib`，`pg_cron`，`age`，`PostgresML`，等等……
 
+由 Pigsty 维护编译打包的 PostgreSQL 插件 （RPM）
+
+| 名称            |  版本   |     来源     |  类型  | 说明                                |
+|---------------|:-----:|:----------:|:----:|-----------------------------------|
+| pgml          | 2.7.9 | **PIGSTY** | FEAT | PostgresML：用SQL运行最先进的机器学习算法和预训练模型 |
+| age           | 1.4.0 | **PIGSTY** | FEAT | Apache AGE， 图数据库扩展                |
+| pointcloud    | 1.2.5 | **PIGSTY** | FEAT | 提供激光雷达点云数据类型支持                    |
+| http          |  1.6  | **PIGSTY** | FEAT | HTTP客户端，允许在数据库内收发HTTP请求           |
+| pg_tle        | 1.2.0 | **PIGSTY** | FEAT | AWS 可信语言扩展                        |
+| roaringbitmap |  0.5  | **PIGSTY** | FEAT | 支持Roaring Bitmaps                 |
+| zhparse       |  2.2  | **PIGSTY** | FEAT | 中文全文搜索解析器                         |
+| pg_net        | 0.7.3 | **PIGSTY** | FEAT | 用 SQL 进行异步非阻塞HTTP/HTTPS 请求的扩展     |
+| vault         | 0.2.9 | **PIGSTY** | FEAT | 在 Vault 中存储加密凭证的扩展                |
+| pg_graphql    | 1.4.0 | **PIGSTY** | FEAT | PG内的GraphQL支持                     |
+| hydra         | 1.0.0 | **PIGSTY** | FEAT | 开源列式存储扩展                          |
+| imgsmlr       | 1.0.0 | **PIGSTY** | FEAT | 使用Haar小波分析计算图片相似度                 |
+| pg_similarity | 1.0.0 | **PIGSTY** | FEAT | 提供17种距离度量函数                       |
+| pg_bigm       | 1.2.0 | **PIGSTY** | FEAT | 基于二字组的多语言全文检索扩展                   |
+
+
+
+由 PostgreSQL 全球开发组，PGDG 维护，并被 Pigsty 收录的的官方插件：
 
 | 名称                           |   版本   |     来源     |  类型   | 说明                                                |
 |------------------------------|:------:|:----------:|:-----:|---------------------------------------------------|
-| **age**                      | 1.4.0  | **PIGSTY** | FEAT  | **Apache AGE， 图数据库扩展**                            |
-| **pointcloud**               | 1.2.5  | **PIGSTY** | FEAT  | **提供激光雷达点云数据类型支持**                                |
-| **http**                     |  1.6   | **PIGSTY** | FEAT  | **HTTP 客户端**，允许在数据库内收发HTTP请求                      |
-| pg_tle                       | 1.2.0  | **PIGSTY** | FEAT  | AWS 可信语言扩展                                        |
-| roaringbitmap                |  0.5   | **PIGSTY** | FEAT  | 支持Roaring Bitmaps                                 |
-| **zhparser**                 |  2.2   | **PIGSTY** | FEAT  | **中文全文搜索解析器**                                     |
-| **pgml**                     | 2.7.9  | **PIGSTY** | FEAT  | **PostgresML**: 用SQL运行最先进的机器学习算法和预训练模型            |
-| pg_net                       | 0.7.3  | **PIGSTY** | FEAT  | 用 SQL 进行异步非阻塞HTTP/HTTPS 请求的扩展                     |
-| vault                        | 0.2.9  | **PIGSTY** | FEAT  | 在 Vault 中存储加密凭证的扩展                                |
-| **pg_graphql**               | 1.4.0  | **PIGSTY** | FEAT  | **PG内的GraphQL支持**                                 |
-| **hydra**                    | 1.0.0  | **PIGSTY** | FEAT  | **开源列式存储扩展**                                      |
 | credcheck                    | 2.1.0  |    PGDG    | ADMIN | 明文凭证检查器                                           |
 | **pg_cron**                  |  1.5   |    PGDG    | ADMIN | **定时任务调度器**                                       |
 | pg_background                |  1.0   |    PGDG    | ADMIN | 在后台运行 SQL 查询                                      |

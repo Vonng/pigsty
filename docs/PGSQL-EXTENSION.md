@@ -36,21 +36,32 @@ The `type` has the following categories:
 - `FDW`: Foreign Data Wrapper and Utils
 - `STAT`: Statistic & Observability
 
-Among them, the bolded names are core extension plugins, including: `postgis`, `timescaledb`, `citus`, `age`, `vector`, `zhparser`, `pg_repack`, `wal2json`, `passwordcracklib`, `pg_cron`. And other powerful extensions are included such as `age`, `hydra`, `PostgresML`, etc...
+There are some powerful extensions, such as: `postgis`, `timescaledb`, `citus`, `age`, `vector`, `zhparser`, `pg_repack`, `wal2json`, `passwordcracklib`, `pg_cron`, `age`, `hydra`, `PostgresML`, etc...
+
+Here are extensions maintained by Pigsty and included in the Pigsty RPM repo:
+
+| name          | version |   source   | type | comment                                                                                      |
+|---------------|:-------:|:----------:|:----:|----------------------------------------------------------------------------------------------|
+| pgml          |  2.7.9  | **PIGSTY** | FEAT | PostgresML: access most advanced machine learning algorithms and pretrained models with SQL  |
+| age           |  1.4.0  | **PIGSTY** | FEAT | Apache AGE graph database extension                                                          |
+| pointcloud    |  1.2.5  | **PIGSTY** | FEAT | A PostgreSQL extension for storing point cloud (LIDAR) data.                                 |
+| http          |   1.6   | **PIGSTY** | FEAT | HTTP client for PostgreSQL, allows web page retrieval inside the database.                   |
+| pg_tle        |  1.2.0  | **PIGSTY** | FEAT | Trusted Language Extensions for PostgreSQL                                                   |
+| roaringbitmap |   0.5   | **PIGSTY** | FEAT | Support for Roaring Bitmaps                                                                  |
+| zhparser      |   2.2   | **PIGSTY** | FEAT | Parser for full-text search of Chinese                                                       |
+| pg_net        |  0.7.3  | **PIGSTY** | FEAT | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
+| vault         |  0.2.9  | **PIGSTY** | FEAT | Extension for storing encrypted secrets in the Vault                                         |
+| pg_graphql    |  1.4.0  | **PIGSTY** | FEAT | GraphQL support for PostgreSQL                                                               |
+| hydra         |  1.0.0  | **PIGSTY** | FEAT | Hydra is open source, column-oriented Postgres extension                                     |
+| imgsmlr       |  1.0.0  | **PIGSTY** | FEAT | ImgSmlr method is based on Haar wavelet transform                                            |
+| pg_similarity |  1.0.0  | **PIGSTY** | FEAT | set of functions and operators for executing similarity queries                              |
+| pg_bigm       |  1.2.0  | **PIGSTY** | FEAT | full text search capability with create 2-gram (bigram) index.                               |
+
+
+Extensions maintained by PGDG and included in the Pigsty offline pacakge:
 
 | name                         | version |   source   | type  | comment                                                                                                                    |
 |------------------------------|:-------:|:----------:|:-----:|----------------------------------------------------------------------------------------------------------------------------|
-| **age**                      |  1.4.0  | **PIGSTY** | FEAT  | Apache AGE graph database extension                                                                                        |
-| **pointcloud**               |  1.2.5  | **PIGSTY** | FEAT  | A PostgreSQL extension for storing point cloud (LIDAR) data.                                                               |
-| **http**                     |   1.6   | **PIGSTY** | FEAT  | HTTP client for PostgreSQL, allows web page retrieval inside the database.                                                 |
-| pg_tle                       |  1.2.0  | **PIGSTY** | FEAT  | Trusted Language Extensions for PostgreSQL                                                                                 |
-| roaringbitmap                |   0.5   | **PIGSTY** | FEAT  | Support for Roaring Bitmaps                                                                                                |
-| **zhparser**                 |   2.2   | **PIGSTY** | FEAT  | Parser for full-text search of Chinese                                                                                     |
-| **pgml**                     |  2.7.9  | **PIGSTY** | FEAT  | PostgresML: Use the expressive power of SQL along with the most advanced machine learning algorithms and pretrained models |
-| pg_net                       |  0.7.3  | **PIGSTY** | FEAT  | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL                               |
-| vault                        |  0.2.9  | **PIGSTY** | FEAT  | Extension for storing encrypted secrets in the Vault                                                                       |
-| **pg_graphql**               |  1.4.0  | **PIGSTY** | FEAT  | GraphQL support for PostgreSQL                                                                                             |
-| **hydra**                    |  1.0.0  | **PIGSTY** | FEAT  | Hydra is open source, column-oriented Postgres extension                                                                   |
 | credcheck                    |  2.1.0  |    PGDG    | ADMIN | credcheck - postgresql plain text credential checker                                                                       |
 | **pg_cron**                  |   1.5   |    PGDG    | ADMIN | Job scheduler for PostgreSQL                                                                                               |
 | pg_background                |   1.0   |    PGDG    | ADMIN | Run SQL queries in the background                                                                                          |
