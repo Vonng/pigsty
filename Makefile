@@ -489,8 +489,8 @@ os: del vo new ssh
 	cp files/pigsty/os.yml pigsty.yml
 ubuntu: del vu new ssh copy-u22 use-pkg
 	cp files/pigsty/ubuntu.yml pigsty.yml
-
 build: del vb new ssh
+	cp files/pigsty/build.yml pigsty.yml
 build-boot:
 	bin/build-boot
 check: del vc new ssh
