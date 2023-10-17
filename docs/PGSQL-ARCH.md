@@ -2,9 +2,8 @@
 
 > Overview of the PGSQL module and key concepts 
 
-
 PGSQL for production environments is organized in **clusters**, which **clusters** are **logical entities** consisting of a set of database **instances** associated by **primary-replica**. 
-Each **database cluster** is a **self-organizing** business service unit consisting of at least one **database instance**.
+Each **database cluster** is an autonomous serving unit consisting of at least one  **database instance** (primary).
 
 
 ----------------

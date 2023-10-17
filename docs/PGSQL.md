@@ -11,6 +11,7 @@
 
 - [Architecture](PGSQL-ARCH)
 - [Configuration](PGSQL-CONF)
+- [Extensions](PGSQL-EXTENSION)
 - [Database](PGSQL-DB)
 - [User/Role](PGSQL-USER)
 - [Service/Access](PGSQL-SVC)
@@ -18,7 +19,6 @@
 - [Access Control](PGSQL-ACL)
 - [Administration](PGSQL-ADMIN)
 - [Backup & PITR](PGSQL-PITR)
-- [Extensions](PGSQL-EXTENSION)
 - [Monitor](PGSQL-MONITOR)
 - [Migration](PGSQL-MIGRATION)
 

@@ -13,6 +13,7 @@
 
 - [系统架构](PGSQL-ARCH)
 - [集群配置](PGSQL-CONF)
+- [扩展插件](PGSQL-EXTENSION)
 - [用户/角色](PGSQL-USER)
 - [数据库](PGSQL-DB)
 - [服务/接入](PGSQL-SVC)
@@ -20,7 +21,6 @@
 - [访问控制](PGSQL-ACL)
 - [管理预案](PGSQL-ADMIN)
 - [备份恢复](PGSQL-PITR)
-- [扩展插件](PGSQL-EXTENSION)
 - [监控接入](PGSQL-MONITOR)
 - [集群迁移](PGSQL-MIGRATION)
 - [仪表盘](PGSQL-DASHBOARD)
