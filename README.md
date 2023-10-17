@@ -166,7 +166,7 @@ Some non-trivial extensions:
 Bootstrap with one command! Check [**Get Started**](docs/INSTALL.md) | [**快速上手**](docs/zh/INSTALL.md) for details.
 
 ```bash
-# Linux x86_64 EL 7/8/9 Ubuntu 20/22 compatible, with nopass sudo/ssh
+# Linux x86_64 node with nopass sudo/ssh
 bash -c "$(curl -fsSL https://get.pigsty.cc/latest)";
 cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 ```
@@ -562,15 +562,15 @@ We recommend using RockyLinux 8.8, Ubuntu 22.04 (jammy), Debian 12 (bookworm) as
 
 While any EL 7,8,9 / Ubuntu 20.04,22.04 / Debian 11/12 compatible OS Distribution should work.
 
-| Code | OS Distro / PG Ver                | PG16 | PG15 | PG14 | PG13 | PG12 | Limitation                                   |
-|:----:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|----------------------------------------------|
-| EL7  | RHEL7 / CentOS7                   |  ⚠️  |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: PG16, supabase, pg_graphql, pgml, pg_net |
-| EL8  | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **EL Default**                               |
-| EL9  | RHEL 9 / Rocky9 / Alma9           |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: pgxnclient                               |
-| D11  | Debian 11 (bullseye)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: RDKit                                    |
-| D12  | Ubuntu 12 (bookworm)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Debian Default**                           |
-| U20  | Ubuntu 20.04 (focal)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: PostGIS, RDKit                           |
-| U22  | Ubuntu 22.04 (jammy)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Ubuntu Default**                           |
+| Code | OS Distro / PG Ver                | PG16 | PG15 | PG14 | PG13 | PG12 | Limitation                                           |
+|:----:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|------------------------------------------------------|
+| EL7  | RHEL7 / CentOS7                   |  ⚠️  |  ⭐️  |  ✅   |  ✅   |  ✅   | PG16, supabase, pgml, pg_graphql, pg_net unavailable |
+| EL8  | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **EL default feature set**                           |
+| EL9  | RHEL 9 / Rocky9 / Alma9           |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | pgxnclient missing, perf dependency conflict         |
+| D11  | Debian 11 (bullseye)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | supabase, pgml, RDKit unavailable                    |
+| D12  | Debian 12 (bookworm)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | supabase, pgml unavailable                           |
+| U20  | Ubuntu 20.04 (focal)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | supabase, PostGIS3, RDKit, pgml unavailable          |
+| U22  | Ubuntu 22.04 (jammy)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **DEB default feature set** (supabase unavailable)   |
 
 * ⭐️ PostgreSQL 15 is currently the Major supported version with full extension support.
 * ⭐ PostgreSQL 16 is the major support candidate, will be promoted when ready.

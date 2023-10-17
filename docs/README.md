@@ -19,8 +19,8 @@
 
 Free RDS for PostgreSQL! check [**Feature**](FEATURE.md) | [**特性**](/zh/FEATURE.md) for details.
 
-- Battery-Included PostgreSQL distribution with **150+** optional [extensions](PGSQL-EXTENSION.md).
-- Run on bare OS without container: EL7/8/9, Ubuntu 20/22 and Debian 11/12.
+- Battery-Included PostgreSQL distribution with **150+** optional [Extensions](PGSQL-EXTENSION.md).
+- Run on bare OS without container: [EL](https://en.wikipedia.org/wiki/Red_Hat_Enterprise_Linux_derivatives) 7/8/9, [Ubuntu](https://ubuntu.com/) 20.04/22.04 and [Debian](https://www.debian.org/) 11/12.
 - Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack. [Demo](https://demo.pigsty.cc) & [Gallery](https://github.com/Vonng/pigsty/wiki/Gallery).
 - Self-healing [HA](PGSQL-ARCH) PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/). auto-tuned.
 - Auto-Configured [PITR](PGSQL-PITR), powered by [pgBackRest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) repo (or S3/FS).
@@ -625,15 +625,15 @@ We recommend using RockyLinux 8.8, Ubuntu 22.04 (jammy), Debian 12 (bookworm) as
 
 While any EL 7,8,9 / Ubuntu 20.04,22.04 / Debian 11/12 compatible OS Distribution should work.
 
-| Code | OS Distro / PG Ver                | PG16 | PG15 | PG14 | PG13 | PG12 | Limitation                                   |
-|:----:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|----------------------------------------------|
-| EL7  | RHEL7 / CentOS7                   |  ⚠️  |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: PG16, supabase, pg_graphql, pgml, pg_net |
-| EL8  | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **EL Standard Feature Set**                  |
-| EL9  | RHEL 9 / Rocky9 / Alma9           |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: pgxnclient                               |
-| D11  | Debian 11 (bullseye)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: RDKit                                    |
-| D12  | Ubuntu 12 (bookworm)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Debian Standard Feature Set**              |
-| U20  | Ubuntu 20.04 (focal)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: PostGIS, RDKit                           |
-| U22  | Ubuntu 22.04 (jammy)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Ubuntu Standard Feature Set**              |
+| Code | OS Distro / PG Ver                | PG16 | PG15 | PG14 | PG13 | PG12 | Limitation                                           |
+|:----:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|------------------------------------------------------|
+| EL7  | RHEL7 / CentOS7                   |  ⚠️  |  ⭐️  |  ✅   |  ✅   |  ✅   | PG16, supabase, pgml, pg_graphql, pg_net unavailable |
+| EL8  | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **EL default feature set**                           |
+| EL9  | RHEL 9 / Rocky9 / Alma9           |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | pgxnclient missing, perf dependency conflict         |
+| D11  | Debian 11 (bullseye)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | supabase, pgml, RDKit unavailable                    |
+| D12  | Debian 12 (bookworm)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | supabase, pgml unavailable                           |
+| U20  | Ubuntu 20.04 (focal)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | supabase, PostGIS3, RDKit, pgml unavailable          |
+| U22  | Ubuntu 22.04 (jammy)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **DEB default feature set** (supabase unavailable)   |
 
 * ⭐️ PostgreSQL 15 is currently the Major supported version with full extension support.
 * ⭐ PostgreSQL 16 is the major support candidate, will be promoted when ready.
