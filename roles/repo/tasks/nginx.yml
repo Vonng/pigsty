@@ -26,7 +26,9 @@
         - { src: index.html.j2   ,dest: "{{ nginx_home }}/index.html" }
 
     - name: disable selinux for repo server
+      when: os_package == 'rpm'
       shell: setenforce 0; /bin/true
+      args: { executable: /bin/bash }
 
     # launch nginx with systemctl and wait for port 80 online
     - name: launch repo nginx server

@@ -7,6 +7,7 @@
   become: no
   delegate_to: '{{ item }}'
   shell: mcli alias set {{ minio_alias }} https://{{ minio_domain }}:{{ minio_port }} {{ minio_access_key }} {{ minio_secret_key }}
+  args: { executable: /bin/bash }
   with_items: '{{ groups["infra"] }}'
 
 
@@ -19,6 +20,7 @@
   become: no
   delegate_to: '{{ admin_ip }}'
   shell: mcli mb --ignore-existing {{ minio_alias }}/{{ item.name }}
+  args: { executable: /bin/bash }
   with_items: '{{ minio_buckets }}'
 
 

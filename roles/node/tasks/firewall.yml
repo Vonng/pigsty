@@ -15,9 +15,9 @@
       systemd: name={{ firewall_service_name }} state=stopped enabled=no
       vars: { firewall_service_name: "{% if os_package is defined and os_package == 'deb' %}ufw{% else %}firewalld{% endif %}" }
 
-    # - disable selinux - #
+    # - disable selinux on el - #
     - name: disable node selinux
-      when: node_disable_selinux|bool
+      when: node_disable_selinux|bool and os_package == 'rpm'
       shell: |
         setenforce 0;
         sed -ie "s/^SELINUX=.*/SELINUX=disabled/g" /etc/selinux/config;

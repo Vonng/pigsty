@@ -133,8 +133,10 @@
 
     - name: disable firewall and selinux for nginx
       tags: nginx_firewall
+      when: os_package == 'rpm'
       ignore_errors: true
       shell: setenforce 0; systemctl stop firewalld; /bin/true;
+      args: { executable: /bin/bash }
 
     - name: restart nginx service
       systemd: name=nginx state=restarted enabled=yes daemon_reload=yes

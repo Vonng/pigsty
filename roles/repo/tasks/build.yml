@@ -130,6 +130,7 @@
       candidates=$(cat "/tmp/deb_package_list" | sort -u | uniq)
       apt-get download $candidates;
       {% endif %}
+  args: { executable: /bin/bash }
   with_items: "{{ repo_packages }}"
 
 
@@ -162,9 +163,8 @@
       dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
       md5sum *.deb > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
       {% endif %}
-
     chdir: "{{ repo_home }}/{{ repo_name }}"
-
+  args: { executable: /bin/bash }
 
 #--------------------------------------------------------------#
 # 3.8 Use built repo                                  [repo_use]

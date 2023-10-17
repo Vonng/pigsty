@@ -89,6 +89,7 @@
     - name: add dbsu password to pgpass if exists
       when: pg_dbsu_password is defined and pg_dbsu_password != ''
       shell: /bin/bash /pg/bin/pg-pass-add "{{ pg_dbsu }}" "{{ pg_dbsu_password }}"
+      args: { executable: /bin/bash }
 
     - name: add system user to pgpass
       shell: /bin/bash /pg/bin/pg-pass-add "{{ item.username }}" "{{ item.password }}"
@@ -96,7 +97,7 @@
         - { username: "{{ pg_replication_username }}", password: "{{ pg_replication_password }}" }
         - { username: "{{ pg_monitor_username }}" ,password: "{{ pg_monitor_password }}" }
         - { username: "{{ pg_admin_username }}", password: "{{ pg_admin_password }}" }
-
+      args: { executable: /bin/bash }
 
 #--------------------------------------------------------------#
 # Launch replicas                                   [pg_replica]
@@ -143,7 +144,7 @@
     - name: reload postgres hba rules
       when: pg_reload|bool
       shell: "{{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} reload;"
-
+      args: { executable: /bin/bash }
 
 #--------------------------------------------------------------#
 # Reload Patroni Conf                           [patroni_reload]
