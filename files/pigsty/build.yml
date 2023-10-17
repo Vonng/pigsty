@@ -3,7 +3,7 @@
 # File      :   build.yml
 # Desc      :   Pigsty building environment for all distros
 # Ctime     :   2022-10-12
-# Mtime     :   2023-10-15
+# Mtime     :   2023-10-17
 # Docs      :   https://doc.pigsty.cc/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -101,7 +101,7 @@ all:
           - { name: pigsty-redis   ,description: 'Pigsty Redis'      ,module: redis ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.cc/rpm/redis/el$releasever.$basearch'  }}
           - { name: pigsty-minio   ,description: 'Pigsty MinIO'      ,module: minio ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.cc/rpm/minio/$basearch'  }}
         repo_packages:
-          - ansible python3 python3-pip python36-requests python36-idna yum-utils
+          - ansible python3 python3-pip python3-virtualenv python36-requests python36-idna yum-utils
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway
           - node_exporter blackbox_exporter nginx_exporter redis_exporter mysqld_exporter mongodb_exporter kafka_exporter keepalived_exporter
           - redis etcd minio mcli haproxy vip-manager pg_exporter ferretdb sealos nginx createrepo_c sshpass chrony dnsmasq docker-ce docker-compose-plugin
@@ -115,8 +115,8 @@ all:
           - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15 rum_15
           - pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_auth_mon_15 pg_checksums_15 pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15
         node_default_packages:            # default packages to be installed on all nodes
-          - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump
-          - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3,python3-pip
+          - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,python3,python3-pip
+          - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy
         infra_packages:                   # packages to be installed on infra nodes
           - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway
           - node_exporter,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
@@ -167,7 +167,7 @@ all:
           - { name: pigsty-redis   ,description: 'Pigsty Redis'      ,module: redis ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.cc/rpm/redis/el$releasever.$basearch'  }}
           - { name: pigsty-minio   ,description: 'Pigsty MinIO'      ,module: minio ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.cc/rpm/minio/$basearch'  }}
         repo_packages:                    # which packages to be included
-          - ansible python3 python3-pip python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools
+          - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway
           - node_exporter blackbox_exporter nginx_exporter redis_exporter mysqld_exporter mongodb_exporter kafka_exporter keepalived_exporter
           - redis etcd minio mcli haproxy vip-manager pg_exporter ferretdb sealos nginx createrepo_c sshpass chrony dnsmasq docker-ce docker-compose-plugin
@@ -186,8 +186,8 @@ all:
           - https://repo.pigsty.cc/etc/chart.tgz
           - https://repo.pigsty.cc/etc/plugins.tgz
         node_default_packages:            # default packages to be installed on all nodes
-          - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump
-          - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3,python3-pip
+          - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,python3,python3-pip
+          - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy
         infra_packages:                   # packages to be installed on infra nodes
           - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway
           - node_exporter,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
@@ -240,7 +240,7 @@ all:
           - { name: pigsty-redis   ,description: 'Pigsty Redis'      ,module: redis ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.cc/rpm/redis/el$releasever.$basearch'  }}
           - { name: pigsty-minio   ,description: 'Pigsty MinIO'      ,module: minio ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.cc/rpm/minio/$basearch'  }}
         repo_packages:
-          - ansible python3 python3-pip python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools
+          - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway victoria-logs vector
           - node_exporter blackbox_exporter nginx_exporter redis_exporter mysqld_exporter mongodb_exporter kafka_exporter keepalived_exporter
           - redis etcd minio mcli haproxy vip-manager pg_exporter ferretdb sealos nginx createrepo_c sshpass chrony dnsmasq docker-ce docker-compose-plugin
@@ -259,8 +259,8 @@ all:
           - https://repo.pigsty.cc/etc/chart.tgz
           - https://repo.pigsty.cc/etc/plugins.tgz
         node_default_packages:            # default packages to be installed on all nodes
-          - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump
-          - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3,python3-pip
+          - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,python3,python3-pip
+          - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy
         infra_packages:                   # packages to be installed on infra nodes
           - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway
           - node_exporter,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
@@ -306,7 +306,7 @@ all:
           - { name: redis       ,description: 'Pigsty Redis'     ,module: redis ,releases: [11,12] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
           - { name: minio       ,description: 'Pigsty MinIO'     ,module: minio ,releases: [11,12] ,baseurl: { default: 'https://repo.pigsty.cc/deb/minio/amd64/ ./' ,europe: 'https://packagecloud.io/pigsty/minio/ubuntu/ jammy main' }}
         repo_packages:                    # which packages to be included
-          - ansible python3 python3-pip python3-jmespath dpkg-dev
+          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway blackbox-exporter
           - node-exporter pg-exporter nginx-exporter redis-exporter mysqld-exporter mongodb-exporter kafka-exporter keepalived-exporter
           - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-perf
@@ -318,7 +318,7 @@ all:
           - postgresql-client-14 postgresql-14 postgresql-server-dev-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-14-wal2json postgresql-14-repack
           - postgresql-client-13 postgresql-13 postgresql-server-dev-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-13-wal2json postgresql-13-repack
           - postgresql-client-12 postgresql-12 postgresql-server-dev-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-12-wal2json postgresql-12-repack
-          - postgresql-15-postgis-3 postgresql-15-postgis-3-scripts postgresql-15-citus-12.1 postgresql-15-pgvector timescaledb-2-postgresql-15 pg-graphql pg-net  # postgresql-pgml-15
+          - postgresql-15-postgis-3 postgresql-15-postgis-3-scripts postgresql-15-citus-12.1 postgresql-15-pgvector timescaledb-2-postgresql-15 pg-graphql pg-net
           - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector
           - postgresql-15-credcheck postgresql-15-cron postgresql-15-debversion postgresql-15-decoderbufs postgresql-15-dirtyread postgresql-15-extra-window-functions postgresql-15-first-last-agg
           - postgresql-15-hll postgresql-15-hypopg postgresql-15-icu-ext postgresql-15-ip4r postgresql-15-jsquery postgresql-15-londiste-sql postgresql-15-mimeo postgresql-15-mysql-fdw postgresql-15-numeral
@@ -331,7 +331,7 @@ all:
           - postgresql-15-tablelog postgresql-15-tdigest postgresql-15-tds-fdw postgresql-15-toastinfo postgresql-15-topn postgresql-15-unit
         node_repo_local_urls: [ 'deb [trusted=yes] http://${admin_ip}/pigsty ./' ]
         node_default_packages:            # default node packages to be installed on debian11 node: (linux-perf,netcat-openbsd,tnftp)
-          - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-perf,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,acl
+          - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-perf,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,acl,python3,python3-pip
           - netcat-openbsd,socat,tnftp,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter
         infra_packages:                   # packages to be installed on infra nodes
           - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway,blackbox-exporter
@@ -342,7 +342,7 @@ all:
           - postgresql-*-15
           - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
         pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-          - postgresql-15-postgis-3 postgresql-15-postgis-3-scripts postgresql-15-citus-12.1 postgresql-15-pgvector postgresql-15-wal2json postgresql-15-repack timescaledb-2-postgresql-15 pg-graphql pg-net # postgresql-pgml-15
+          - postgresql-15-postgis-3 postgresql-15-postgis-3-scripts postgresql-15-citus-12.1 postgresql-15-pgvector postgresql-15-wal2json postgresql-15-repack timescaledb-2-postgresql-15 pg-graphql pg-net
           - postgresql-15-credcheck postgresql-15-cron postgresql-15-debversion postgresql-15-decoderbufs postgresql-15-dirtyread postgresql-15-extra-window-functions postgresql-15-first-last-agg 
           - postgresql-15-hll postgresql-15-hypopg postgresql-15-icu-ext postgresql-15-ip4r postgresql-15-jsquery postgresql-15-londiste-sql postgresql-15-mimeo postgresql-15-mysql-fdw postgresql-15-numeral
           - postgresql-15-omnidb postgresql-15-oracle-fdw postgresql-15-orafce postgresql-15-partman postgresql-15-periods postgresql-15-pg-catcheck postgresql-15-pg-checksums
@@ -378,7 +378,7 @@ all:
           - { name: redis       ,description: 'Pigsty Redis'     ,module: redis ,releases: [11,12] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
           - { name: minio       ,description: 'Pigsty MinIO'     ,module: minio ,releases: [11,12] ,baseurl: { default: 'https://repo.pigsty.cc/deb/minio/amd64/ ./' ,europe: 'https://packagecloud.io/pigsty/minio/ubuntu/ jammy main' }}
         repo_packages:                    # which packages to be included
-          - ansible python3 python3-pip python3-jmespath dpkg-dev
+          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway blackbox-exporter
           - node-exporter pg-exporter nginx-exporter redis-exporter mysqld-exporter mongodb-exporter kafka-exporter keepalived-exporter
           - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-perf
@@ -390,7 +390,7 @@ all:
           - postgresql-client-14 postgresql-14 postgresql-server-dev-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-14-wal2json postgresql-14-repack
           - postgresql-client-13 postgresql-13 postgresql-server-dev-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-13-wal2json postgresql-13-repack
           - postgresql-client-12 postgresql-12 postgresql-server-dev-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-12-wal2json postgresql-12-repack
-          - postgresql-15-postgis-3 postgresql-15-postgis-3-scripts postgresql-15-citus-12.1 postgresql-15-pgvector timescaledb-2-postgresql-15 pg-graphql pg-net  postgresql-pgml-15
+          - postgresql-15-postgis-3 postgresql-15-postgis-3-scripts postgresql-15-citus-12.1 postgresql-15-pgvector timescaledb-2-postgresql-15 pg-graphql pg-net
           - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector
           - postgresql-15-credcheck postgresql-15-cron postgresql-15-debversion postgresql-15-decoderbufs postgresql-15-dirtyread postgresql-15-extra-window-functions postgresql-15-first-last-agg
           - postgresql-15-hll postgresql-15-hypopg postgresql-15-icu-ext postgresql-15-ip4r postgresql-15-jsquery postgresql-15-londiste-sql postgresql-15-mimeo postgresql-15-mysql-fdw postgresql-15-numeral
@@ -407,7 +407,7 @@ all:
           - nginx,dnsmasq,ansible,postgresql-client-16,redis,mcli,python3-requests
         node_repo_local_urls: [ 'deb [trusted=yes] http://${admin_ip}/pigsty ./' ]
         node_default_packages:            # default node packages to be installed on debian12 node: (linux-perf,netcat-openbsd,tnftp)
-          - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-perf,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,acl
+          - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-perf,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,acl,python3,python3-pip
           - netcat-openbsd,socat,tnftp,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter
         pg_dbsu_uid: 543                  # manually assigned uid/gid for postgres dbsu
         pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
@@ -451,7 +451,7 @@ all:
           - { name: redis       ,description: 'Pigsty Redis'     ,module: redis ,releases: [20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
           - { name: minio       ,description: 'Pigsty MinIO'     ,module: minio ,releases: [20,22] ,baseurl: { default: 'https://repo.pigsty.cc/deb/minio/amd64/ ./' ,europe: 'https://packagecloud.io/pigsty/minio/ubuntu/ jammy main' }}
         repo_packages:                    # which packages to be included
-          - ansible python3 python3-pip python3-jmespath dpkg-dev
+          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway blackbox-exporter
           - node-exporter pg-exporter nginx-exporter redis-exporter mysqld-exporter mongodb-exporter kafka-exporter keepalived-exporter
           - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-tools-generic
@@ -480,14 +480,14 @@ all:
           - nginx,dnsmasq,ansible,postgresql-client-16,redis,mcli,python3-requests
         node_repo_local_urls: [ 'deb [trusted=yes] http://${admin_ip}/pigsty ./' ]
         node_default_packages:            # default node packages to be installed on ubuntu20 node: (linux-tools-generic)
-          - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-tools-generic,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,acl
+          - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-tools-generic,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,acl,python3,python3-pip
           - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter
         pg_dbsu_uid: 543                  # manually assigned uid/gid for postgres dbsu
         pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
           - postgresql-*-15
           - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
         pg_extensions: # postgis-3 is temporar
-          - postgresql-15-citus-12.1 postgresql-15-pgvector postgresql-15-wal2json postgresql-15-repack timescaledb-2-postgresql-15 pg-graphql pg-net  # postgresql-pgml-15 postgresql-15-postgis-3 postgresql-15-postgis-3-scripts
+          - postgresql-15-citus-12.1 postgresql-15-pgvector postgresql-15-wal2json postgresql-15-repack timescaledb-2-postgresql-15 pg-graphql pg-net  # postgresql-15-postgis-3 postgresql-15-postgis-3-scripts
           - postgresql-15-credcheck postgresql-15-cron postgresql-15-debversion postgresql-15-decoderbufs postgresql-15-dirtyread postgresql-15-extra-window-functions postgresql-15-first-last-agg
           - postgresql-15-hll postgresql-15-hypopg postgresql-15-icu-ext postgresql-15-ip4r postgresql-15-jsquery postgresql-15-londiste-sql postgresql-15-mimeo postgresql-15-mysql-fdw postgresql-15-numeral
           - postgresql-15-omnidb postgresql-15-oracle-fdw postgresql-15-orafce postgresql-15-partman postgresql-15-periods postgresql-15-pg-catcheck postgresql-15-pg-checksums
@@ -523,7 +523,7 @@ all:
           - { name: redis       ,description: 'Pigsty Redis'     ,module: redis ,releases: [20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
           - { name: minio       ,description: 'Pigsty MinIO'     ,module: minio ,releases: [20,22] ,baseurl: { default: 'https://repo.pigsty.cc/deb/minio/amd64/ ./' ,europe: 'https://packagecloud.io/pigsty/minio/ubuntu/ jammy main' }}
         repo_packages:                    # which packages to be included
-          - ansible python3 python3-pip python3-jmespath dpkg-dev
+          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway blackbox-exporter
           - node-exporter pg-exporter nginx-exporter redis-exporter mysqld-exporter mongodb-exporter kafka-exporter keepalived-exporter
           - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-tools-generic
@@ -552,7 +552,7 @@ all:
           - nginx,dnsmasq,ansible,postgresql-client-16,redis,mcli,python3-requests
         node_repo_local_urls: [ 'deb [trusted=yes] http://${admin_ip}/pigsty ./' ]
         node_default_packages:            # default node packages to be installed on ubuntu22 node: (linux-tools-generic)
-          - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-tools-generic,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,acl
+          - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-tools-generic,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,acl,python3,python3-pip
           - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter
         pg_dbsu_uid: 543                  # manually assigned uid/gid for postgres dbsu
         pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
