@@ -942,15 +942,26 @@ groups:
       #                          Node : Time                         #
       #==============================================================#
 
-      # time drift > 64ms
       - alert: NodeTimeDrift
-        expr: node:ins:time_drift > 0.064
+        expr: node_timex_sync_status != 1
         for: 1m
         labels: { level: 1, severity: WARN, category: node }
         annotations:
           summary: 'WARN NodeTimeDrift {{ $labels.ins }}@{{ $labels.instance }}'
           description: |
-            abs(node_timex_offset_seconds)[ins={{ $labels.ins }}]) = {{ $value | printf "%.6f" }} > 64ms
+            node_timex_status[ins={{ $labels.ins }}]) = {{ $value | printf "%.6f" }} != 0 or
+            node_timex_sync_status[ins={{ $labels.ins }}]) = {{ $value | printf "%.6f" }} != 1
+
+
+      # time drift > 64ms
+      # - alert: NodeTimeDrift
+      #   expr: node:ins:time_drift > 0.064
+      #   for: 1m
+      #   labels: { level: 1, severity: WARN, category: node }
+      #   annotations:
+      #     summary: 'WARN NodeTimeDrift {{ $labels.ins }}@{{ $labels.instance }}'
+      #     description: |
+      #       abs(node_timex_offset_seconds)[ins={{ $labels.ins }}]) = {{ $value | printf "%.6f" }} > 64ms
 
 
 
