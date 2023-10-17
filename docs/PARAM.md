@@ -774,6 +774,13 @@ infra_packages:                   # packages to be installed on infra nodes
   - nginx,dnsmasq,ansible,postgresql15,redis,mcli,etcd,python3-requests
 ```
 
+Default value for Debian/Ubuntu should be explicitly overwrite: 
+
+```yaml
+- grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway,blackbox-exporter
+- node-exporter,blackbox-exporter,nginx-exporter,redis-exporter,pg-exporter
+- nginx,dnsmasq,ansible,postgresql-client-16,redis,mcli,etcd,python3-requests
+```
 
 
 

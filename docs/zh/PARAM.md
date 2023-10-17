@@ -760,14 +760,14 @@ repo_url_packages:
 
 ## `INFRA_PACKAGE`
 
-These packages are installed on infra nodes only, including common rpm pacakges, and pip packages.
+这些软件包只会在 INFRA 节点上安装，包括普通的 RPM/DEB 软件包，以及 PIP 软件包。
 
 
 ### `infra_packages`
 
 参数名称： `infra_packages`， 类型： `string[]`， 层次：`G`
 
-packages to be installed on infra nodes, default value:
+将要在 Infra 节点上安装的软件包列表，默认值（EL系操作系统）为：
 
 ```yaml
 infra_packages:                   # packages to be installed on infra nodes
@@ -776,14 +776,20 @@ infra_packages:                   # packages to be installed on infra nodes
   - nginx,dnsmasq,ansible,postgresql15,redis,mcli,etcd,python3-requests
 ```
 
+对于 Debian/Ubuntu 来说，默认的 Infra 软件包列表为：
 
+```yaml
+- grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway,blackbox-exporter
+- node-exporter,blackbox-exporter,nginx-exporter,redis-exporter,pg-exporter
+- nginx,dnsmasq,ansible,postgresql-client-16,redis,mcli,etcd,python3-requests
+```
 
 
 ### `infra_packages_pip`
 
 参数名称： `infra_packages_pip`， 类型： `string`， 层次：`G`
 
-pip installed packages for infra nodes, default value is empty string
+Infra 节点上要使用 `pip` 额外安装的软件包，包名使用逗号分隔，默认值是空字符串，即不安装任何额外的 python 包。
 
 
 
