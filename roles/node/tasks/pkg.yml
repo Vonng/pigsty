@@ -100,19 +100,20 @@
 
     - name: install default node packages
       environment: "{{ proxy_env | default({}) }}"
-      package: name={{ item }} # disable_gpg_check=true
+      package: name={{ item }}
       with_items: "{{ node_default_packages }}"
 
     - name: install extra node packages
       environment: "{{ proxy_env | default({}) }}"
-      package: name={{ item }} # disable_gpg_check=true
+      package: name={{ item }}
       with_items: "{{ node_packages }}"
 
     - name: install keepalived if enabled
       tags: node_vip
       when: vip_enabled|bool
       environment: "{{ proxy_env | default({}) }}"
-      package: name={{ item }} # disable_gpg_check=true
-      with_items: [ keepalived, keepalived_exporter ]
-
+      package: name={{ item }}
+      with_items:
+        - keepalived
+        - "{% if os_package|default('rpm') == 'deb' %}keepalived-exporter{% else %}keepalived_exporter{% endif %}"
 ...
