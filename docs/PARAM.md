@@ -760,14 +760,6 @@ repo_url_packages:
 These packages are installed on infra nodes only, including common rpm pacakges, and pip packages.
 
 
-```yaml
-infra_packages:                   # packages to be installed on infra nodes
-  - grafana,loki,logcli,promtail,prometheus2,alertmanager,karma,pushgateway
-  - node_exporter,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
-  - nginx,dnsmasq,ansible,postgresql15,redis,mcli,python3-requests
-infra_packages_pip: ''            # pip installed packages for infra nodes
-```
-
 
 ### `infra_packages`
 
@@ -779,7 +771,7 @@ packages to be installed on infra nodes, default value:
 infra_packages:                   # packages to be installed on infra nodes
   - grafana,loki,logcli,promtail,prometheus2,alertmanager,karma,pushgateway
   - node_exporter,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
-  - nginx,dnsmasq,ansible,postgresql15,redis,mcli,python3-requests
+  - nginx,dnsmasq,ansible,postgresql15,redis,mcli,etcd,python3-requests
 ```
 
 
