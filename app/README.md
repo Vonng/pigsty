@@ -17,6 +17,16 @@ Here are some docker compose templates for popular applications that works well 
 * etc....
 
 
+**Docker**
+
+You can install docker with the `docker.yml` playbook. 
+If you wish to use a mirror, add them to `docker_registry_mirrors`. To use another registry:
+
+```bash
+docker login quay.io
+````
+
+
 **Portals**
 
 There are several predefined portals
@@ -58,7 +68,7 @@ docker save dpage/pgadmin4                   | gzip -9 -c > /tmp/docker/pgadmin4
 docker save sosedoff/pgweb                   | gzip -9 -c > /tmp/docker/pgweb.tgz
 docker save vonng/pg_exporter                | gzip -9 -c > /tmp/docker/pg_exporter.tgz
 docker save postgrest/postgrest              | gzip -9 -c > /tmp/docker/postgrest.tgz
-docker save bytebase/bytebase:2.8.0          | gzip -9 -c > /tmp/docker/bytebase.tgz
+docker save bytebase/bytebase:2.9.1          | gzip -9 -c > /tmp/docker/bytebase.tgz
 docker save alpine                           | gzip -9 -c > /tmp/docker/alpine.tgz
 docker save registry                         | gzip -9 -c > /tmp/docker/registry.tgz
 docker save andrewjones/schemaspy-postgres   | gzip -9 -c > /tmp/docker/schemaspy.tgz
