@@ -23,6 +23,7 @@
       /usr/bin/pgbackrest --stanza={{ pg_cluster }} --force stop;
       /usr/bin/pgbackrest --stanza={{ pg_cluster }} --force stanza-delete;
     fi
+  args: { executable: /bin/bash }
 
 # TO REMOVE A LOCAL BACKUP MANUALLY:
 #    rm -rf /pg/backup/backup/{{ pg_cluster }} /pg/backup/archive/{{ pg_cluster }}
@@ -47,7 +48,7 @@
       rm -rf /tmp/pgbackrest/{{ pg_cluster }}.stop || /bin/true
       /usr/bin/pgbackrest --stanza={{ pg_cluster }} --no-online stanza-create
     fi
-    
+  args: { executable: /bin/bash }
 
 #--------------------------------------------------------------#
 # Create Initial Backup                      [pgbackrest_backup]
@@ -66,6 +67,6 @@
         /usr/bin/pgbackrest --stanza={{ pg_cluster }} backup
         date > /etc/pgbackrest/initial.done
     fi
-
+  args: { executable: /bin/bash }
 
 ...

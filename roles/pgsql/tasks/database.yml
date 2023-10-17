@@ -38,6 +38,7 @@
         '{{ database.name }}' || true
         db_exists=$(psql -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} -AXtwq postgres -c "SELECT true WHERE EXISTS(SELECT * FROM pg_database WHERE datname = '{{ database.name }}' LIMIT 1);")
         [[ -z "${db_exists}" ]] && exit 1 || exit 0
+      args: { executable: /bin/bash }
 
     - name: provision database {{ database.name }}
       tags: pg_db_create

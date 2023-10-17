@@ -65,6 +65,7 @@
       shell: |
         curl -X DELETE "{{ endpoint }}/api/datasources/name/{{ name }}" -u "{{ username }}:{{ password }}"  -H 'Content-Type: application/json'
         curl -X POST   "{{ endpoint }}/api/datasources/" -u "{{ username }}:{{ password }}" -H 'Content-Type: application/json' -d @/etc/pigsty/datasources/{{ name }}.json
+      args: { executable: /bin/bash }
       vars:
         name: "{{ pg_cluster }}-{{ pg_seq }}.{{ database.name }}"
         endpoint: "{{ 'http://' +  infra_portal.grafana.endpoint|default('${admin_ip}:3000')|replace('${admin_ip}', admin_ip) }}"

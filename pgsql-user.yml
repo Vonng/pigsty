@@ -121,7 +121,7 @@
       become_user: "{{ pg_dbsu|default('postgres') }}"
       when: pg_mode|default('pgsql') == 'citus' and user_def.password is defined and user_def.password != '' and not user_def.password.startswith('md5') and not user_def.password.startswith('scram')
       shell: /bin/bash /pg/bin/pg-pass-add "{{ user_def.name }}" "{{ user_def.password }}"
-
+      args: { executable: /bin/bash }
 
     #----------------------------------------------------------#
     # Refresh Pgbouncer User Configuration           [pgbouncer]
@@ -151,6 +151,7 @@
           ignore_errors: true
           become_user: "{{ pg_dbsu|default('postgres') }}"
           shell: /bin/bash /pg/bin/pgb-user '{{ username }}' AUTO
+          args: { executable: /bin/bash }
 
         - name: reload pgbouncer
           systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes

@@ -9,6 +9,7 @@
   when: item.register_data_source is not defined or item.register_data_source|bool
   shell: |
     curl -X DELETE "{{ endpoint }}/api/datasources/name/{{ name }}" -u "{{ username }}:{{ password }}" -H 'Content-Type: application/json'
+  args: { executable: /bin/bash }
   vars:
     name: "{{ pg_cluster }}-{{ pg_seq }}.{{ item.name }}"
     endpoint: "http://{{ infra_portal.grafana.endpoint|replace('${admin_ip}' ,admin_ip) }}"

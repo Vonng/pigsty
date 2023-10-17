@@ -49,6 +49,7 @@
             kill -9 $(lsof -t -i tcp:{{ port }} );
         fi ;
         # /bin/true
+      args: { executable: /bin/bash }
 
     - name: REMOVING DATADIR {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
       when: redis_rmdata|bool and (not redis_safeguard|bool and redis_exists|bool and redis_clean|bool)
@@ -93,5 +94,6 @@
     systemctl daemon-reload;
     systemctl enable "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
     systemctl restart "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
+  args: { executable: /bin/bash }
 
 ...
