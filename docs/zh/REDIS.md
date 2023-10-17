@@ -175,6 +175,22 @@ redis-benchmark -h 10.10.10.13 -p 6379
 
 -------------
 
+### 手工设置Redis从库
+
+https://redis.io/commands/replicaof/
+
+```bash
+# 将一个 Redis 实例提升为主库
+> REPLICAOF NO ONE
+"OK"
+
+# 将一个 Redis 实例设置为另一个实例的从库
+> REPLICAOF 127.0.0.1 6799
+"OK"
+```
+
+-------------
+
 ### 设置Redis主从高可用
 
 Redis独立主从集群可以通过 Redis 哨兵集群配置自动高可用，详细用户请参考 [Sentinel官方文档](https://redis.io/docs/management/sentinel/)

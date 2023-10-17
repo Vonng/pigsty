@@ -75,15 +75,17 @@ Pigsty 支持了 Ubuntu 22.04 (jammy) 与 20.04 (focal) 两个 LTS 版本，并�
 - `infra_packages`：所有含 `_` 的包要替换为 `-` 版本，此外 `postgresql-client-16` 用于替换 `postgresql16`
 - `pg_packages`：Ubuntu 下惯用 `-` 替代 `_`，不需要手工安装 `patroni-etcd` 包。
 - `pg_extensions`：扩展名称与EL系不太一样，Ubuntu下缺少 `passwordcheck_cracklib` 扩展。
-- `pg_dbsu_uid`： Ubuntu 下PGDG Deb 包不指定uid，需要手动指定，Pigsty 默认分配为 `543`
+- `pg_dbsu_uid`： Ubuntu 下 Deb 包不显式指定uid，需要手动指定，Pigsty 默认分配为 `543`
 
 **API变更**
 
 默认值变化：
 
-- `repo_modules` 现在的默认值为 `infra,node,pgsql,redis,minio`
+- `repo_modules` 现在的默认值为 `infra,node,pgsql,redis,minio`，启用所有上游源
 - `repo_upstream` 发生变化，现在添加了 Pigsty Infra/MinIO/Redis/PGSQL 模块化软件源 
-- `repo_packages` 发生变化，移除未使用的 `karma,mtail,dellhw_exporter`，移除了 PG14 主要扩展，新增了 PG16 主要扩展 
+- `repo_packages` 发生变化，移除未使用的 `karma,mtail,dellhw_exporter`，移除了 PG14 主要扩展，新增了 PG16 主要扩展，添加了 virtualenv 包。
+- `node_default_packages` 发生变化，默认安装 `python3-pip` 组件。 
+- `pg_libs`: `timescaledb` 从 shared_preload_libraries 中移除，现在默认不自动启用。
 - `pg_extensions` 发生变化，不再默认安装 Citus 扩展，默认安装 `passwordcheck_cracklib` 扩展，EL8,9 PostGIS 默认版本升级至 3.4 
 
   ```yaml
@@ -92,13 +94,13 @@ Pigsty 支持了 Ubuntu 22.04 (jammy) 与 20.04 (focal) 两个 LTS 版本，并�
   ```
 
 ```
-668b0bea3b066b22e71a7770d45b7bd6  pigsty-pkg-v2.5.0.el7.x86_64.tgz
-f5cac720d39f7329bcb19748c2fe7cca  pigsty-pkg-v2.5.0.el8.x86_64.tgz
-b9fb657f05dc6bcc02e7def99169da26  pigsty-pkg-v2.5.0.el9.x86_64.tgz
-fb2e4ef94c7a20566fed34a4260af96d  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
-0b3791f2be10ae6488e3b815320b9ffd  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
-0824b78f55da304ea4d999d2f0aa48e4  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
-2bf5a2f09bdd011bc19aad74c88701dc  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
+70d0b42f4dd8a456c70d3024d5c21ddb  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
+9efd5d46f3c72940f9eaa6a845d761df  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
+71b86810df2bf0b30be1c4d97391e219  pigsty-pkg-v2.5.0.el7.x86_64.tgz
+70cff55a8b4196d95ebce98638fd7b3d  pigsty-pkg-v2.5.0.el8.x86_64.tgz
+1cb272b5220d167eb4ad37f99b7ace49  pigsty-pkg-v2.5.0.el9.x86_64.tgz
+3555446b4e073dd245ad7de5bb41b03f  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
+0c903a1a973fdfd2295b540032a9395a  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
 ```
 
 

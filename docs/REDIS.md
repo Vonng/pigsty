@@ -181,6 +181,23 @@ redis-benchmark -h 10.10.10.13 -p 6379
 
 -------------
 
+### Configure Redis Replica
+
+https://redis.io/commands/replicaof/
+
+```bash
+# promote a redis instance to primary
+> REPLICAOF NO ONE
+"OK"
+
+# make a redis instance replica of another instance
+> REPLICAOF 127.0.0.1 6799
+"OK"
+```
+
+
+-------------
+
 ### Configure HA with Sentinel
 
 You have to enable HA for redis standalone m-s cluster manually with your redis sentinel.

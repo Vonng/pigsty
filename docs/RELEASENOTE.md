@@ -81,21 +81,24 @@ default values of following parameters have changed:
 - `repo_modules`: `infra,node,pgsql,redis,minio`
 - `repo_upstream`: Now add Pigsty Infra/MinIO/Redis/PGSQL modular upstream repo.
 - `repo_packages`: remove unused `karma,mtail,dellhw_exporter` and pg 14 extra extensions, adding pg 16 extra extensions.
+- `node_default_packages` now add `python3-pip` as default packages.
+- `pg_libs`: `timescaledb` is remove from shared_preload_libraries by default.
 - `pg_extensions`: citus is nolonger installed by default, and `passwordcheck_cracklib` is installed by default
-
+  
   ```yaml
   - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
   - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
   ```
 
+
 ```
-668b0bea3b066b22e71a7770d45b7bd6  pigsty-pkg-v2.5.0.el7.x86_64.tgz
-f5cac720d39f7329bcb19748c2fe7cca  pigsty-pkg-v2.5.0.el8.x86_64.tgz
-b9fb657f05dc6bcc02e7def99169da26  pigsty-pkg-v2.5.0.el9.x86_64.tgz
-fb2e4ef94c7a20566fed34a4260af96d  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
-0b3791f2be10ae6488e3b815320b9ffd  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
-0824b78f55da304ea4d999d2f0aa48e4  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
-2bf5a2f09bdd011bc19aad74c88701dc  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
+70d0b42f4dd8a456c70d3024d5c21ddb  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
+9efd5d46f3c72940f9eaa6a845d761df  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
+71b86810df2bf0b30be1c4d97391e219  pigsty-pkg-v2.5.0.el7.x86_64.tgz
+70cff55a8b4196d95ebce98638fd7b3d  pigsty-pkg-v2.5.0.el8.x86_64.tgz
+1cb272b5220d167eb4ad37f99b7ace49  pigsty-pkg-v2.5.0.el9.x86_64.tgz
+3555446b4e073dd245ad7de5bb41b03f  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
+0c903a1a973fdfd2295b540032a9395a  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
 ```
 
 
