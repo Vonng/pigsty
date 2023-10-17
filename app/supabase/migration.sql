@@ -980,6 +980,14 @@ GRANT pgsodium_keyholder to service_role;
 
 
 
+----------------------------------------------------
+-- 20231013070755_grant_authenticator_to_supabase_storage_admin.sql
+----------------------------------------------------
+-- migrate:up
+grant authenticator to supabase_storage_admin;
+revoke anon, authenticated, service_role from supabase_storage_admin;
+
+-- migrate:down
 
 
 

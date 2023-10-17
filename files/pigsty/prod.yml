@@ -113,10 +113,22 @@ all:
         pg_vip_address: 10.10.10.2/24
         pg_vip_interface: eth1
         pg_users:
-          - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
-          - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
+          - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
+          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+          - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database    }
+          - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
+          - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
+          - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service       }
+          - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
+          - {name: dbuser_noco     ,password: DBUser.Noco     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for nocodb service      }
         pg_databases:
-          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [ { name: postgis, schema: public }, { name: timescaledb } ] }
+          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
+          - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
+          - { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
+          - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
+          - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
+          - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
+          - { name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database }
         pg_hba_rules:
           - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
         pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
@@ -542,6 +554,11 @@ all:
       blackbox     : { endpoint: "10.10.10.10:9115" }
       loki         : { endpoint: "10.10.10.10:3100" }
       minio        : { domain: sss.pigsty  ,endpoint: "10.10.10.26:9001" ,scheme: https ,websocket: true }
+      postgrest    : { domain: api.pigsty  ,endpoint: "127.0.0.1:8884" }
+      pgadmin      : { domain: adm.pigsty  ,endpoint: "127.0.0.1:8885" }
+      pgweb        : { domain: cli.pigsty  ,endpoint: "127.0.0.1:8886" }
+      bytebase     : { domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887" }
+      supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }
     nginx_navbar: []
     dns_records:                      # dynamic dns records resolved by dnsmasq
       - 10.10.10.1 h.pigsty a.pigsty p.pigsty g.pigsty
