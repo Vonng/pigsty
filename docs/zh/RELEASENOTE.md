@@ -41,16 +41,16 @@
 ## v2.5.0
 
 ```bash
-curl https://repo.pigsty.cc/get | bash
+curl https://get.pigsty.cc/beta | bash   # v2.5.0 is still in beta
 ```
 
 **亮点特性**
 
-- Ubuntu / Debian 支持： bullseye, bookworm, jammy, focal
+- [Ubuntu](https://github.com/Vonng/pigsty/blob/master/files/pigsty/ubuntu.yml) / [Debian](https://github.com/Vonng/pigsty/blob/master/files/pigsty/debian.yml)  支持： bullseye, bookworm, jammy, focal
 - 使用CDN `repo.pigsty.cc` 软件源，提供 rpm/deb 软件包下载。
 - Anolis 操作系统支持（ 兼容 EL 8.8 ）。
 - 使用 PostgreSQL 16 替代 PostgreSQL 14 作为备选主要支持版本  
-- 更新 `pg_exporter` 至 v0.6.0，新增了 PGSQL Exporter 监控面板 
+- 新增了 PGSQL Exporter 监控面板，重做 PGSQL Query 面板 
 - 扩展更新：
   - PostGIS 版本至 3.4（ EL8/EL9 ），EL7 仍使用 PostGIS 3.3
   - 移除 `pg_embedding`，因为开发者不再对其进行维护，建议使用 `pgvector` 替换。
@@ -58,6 +58,23 @@ curl https://repo.pigsty.cc/get | bash
   - 新扩展（EL）： `imgsmlr`， `pg_similarity`，`pg_bigm` 用于搜索。
   - 重新编译 `pg_filedump` 为 PG 大版本无关的软件包。。
   - 新收纳 `hydra` 列存储扩展，不再默认安装 `citus` 扩展。
+
+- 软件更新：
+  - Grafana 更新至 v10.1.5
+  - Prometheus 更新至 v2.47
+  - Promtail/Loki 更新至 v2.9.1
+  - Node Exporter 更新至 v1.6.1
+  - Bytebase 更新至 v2.10.0
+  - patroni 更新至 v3.1.2
+  - pgbouncer 更新至 v1.21.0
+  - pg_exporter 更新至 v0.6.0
+  - pgbackrest 更新至 v2.48.0
+  - pgbadger 更新至 v12.2
+  - pg_graphql 更新至 v1.4.0
+  - pg_net 更新至 v0.7.3
+  - ferretdb 更新至 v0.12.1
+  - sealos 更新至 4.3.5
+  - Supabase 支持更新至 `20231013070755`
 
 
 **Ubuntu 支持说明**
@@ -86,13 +103,15 @@ Pigsty 支持了 Ubuntu 22.04 (jammy) 与 20.04 (focal) 两个 LTS 版本，并�
 - `repo_upstream` 发生变化，现在添加了 Pigsty Infra/MinIO/Redis/PGSQL 模块化软件源 
 - `repo_packages` 发生变化，移除未使用的 `karma,mtail,dellhw_exporter`，移除了 PG14 主要扩展，新增了 PG16 主要扩展，添加了 virtualenv 包。
 - `node_default_packages` 发生变化，默认安装 `python3-pip` 组件。 
-- `pg_libs`: `timescaledb` 从 shared_preload_libraries 中移除，现在默认不自动启用。
+- `pg_libs`: `timescaledb` 从 shared_preload_libraries 中移除，现在默认不自动启用。 
 - `pg_extensions` 发生变化，不再默认安装 Citus 扩展，默认安装 `passwordcheck_cracklib` 扩展，EL8,9 PostGIS 默认版本升级至 3.4 
 
   ```yaml
   - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
   - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
   ```
+
+- Patroni 所有模板默认移除 `wal_keep_size` 参数，避免触发 Patroni 3.1.1 的错误，其功能由 `min_wal_size` 覆盖。
 
 ```
 f4edc4678e6bdf50330e070962a6d2f4  pigsty-pkg-v2.5.0.debian11.x86_64.tgz

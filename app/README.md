@@ -49,7 +49,7 @@ docker pull dpage/pgadmin4
 docker pull sosedoff/pgweb
 docker pull vonng/pg_exporter
 docker pull postgrest/postgrest
-docker pull bytebase/bytebase:2.8.0
+docker pull bytebase/bytebase:2.10.0
 docker pull alpine
 docker pull registry
 docker pull andrewjones/schemaspy-postgres

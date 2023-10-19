@@ -41,13 +41,17 @@
 
 ## v2.5.0
 
+```bash
+curl https://get.pigsty.cc/beta | bash   # v2.5.0 is still in beta
+```
+
 **Highlights**
 
-- Ubuntu / Debian Support:  bullseye, bookworm, jammy, focal
+- [Ubuntu](https://github.com/Vonng/pigsty/blob/master/files/pigsty/ubuntu.yml) / [Debian](https://github.com/Vonng/pigsty/blob/master/files/pigsty/debian.yml) Support:  bullseye, bookworm, jammy, focal
 - Dedicate yum/apt repo on `repo.pigsty.cc` and mirror on packagecloud.io
 - Anolis OS Support (EL 8.8 Compatible)
 - PG Major Candidate: Use PostgreSQL 16 instead of PostgreSQL 14.
-- Update `pg_exporter` to v0.6.0, add new dashboard: PGSQL Exporter
+- New Dashboard PGSQL Exporter, rework on PGSQL Query Dashboard
 - Extensions Update:
   - Bump PostGIS version to v3.4 on el8, el9, ubuntu22, keep postgis 33 on EL7
   - Remove extension `pg_embedding` because it is no longer maintained, use `pgvector` instead.
@@ -55,6 +59,23 @@
   - New extension on EL: `imgsmlr`， `pg_similarity`，`pg_bigm` 扩展。
   - Include columnar extension `hydra` and remove `citus` from default installed extension list.
   - Recompile `pg_filedump` as PG major version independent package.
+
+- Software Version Upgrade：
+  - Grafana to v10.1.5
+  - Prometheus to v2.47
+  - Promtail/Loki to v2.9.1
+  - Node Exporter to v1.6.1
+  - Bytebase to v2.10.0
+  - patroni to v3.1.2
+  - pgbouncer to v1.21.0
+  - pg_exporter to v0.6.0
+  - pgbackrest to v2.48.0
+  - pgbadger to v12.2
+  - pg_graphql to v1.4.0
+  - pg_net to v0.7.3
+  - ferretdb to v0.12.1
+  - sealos to 4.3.5
+  - Supabase support to `20231013070755`
 
 **Ubuntu Support**
 

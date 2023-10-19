@@ -14,7 +14,7 @@ If you want to access bytebase through SSL, you have to trust `files/pki/ca/ca.c
 Check [`.env`](.env) file for configurable environment variables:
 
 ```bash
-BB_VERSION=2.8.0
+BB_VERSION=2.10.0
 BB_PORT=8887
 BB_DOMAIN=http://ddl.pigsty
 BB_PGURL="postgresql://dbuser_bytebase:DBUser.Bytebase@10.10.10.10:5432/bytebase?sslmode=prefer"
