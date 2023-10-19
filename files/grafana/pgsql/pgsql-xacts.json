@@ -288,7 +288,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "10.1.1",
+            "pluginVersion": "10.1.5",
             "targets": [
                 {
                     "datasource": {
@@ -1135,7 +1135,7 @@
                     }
                 ]
             },
-            "pluginVersion": "10.1.1",
+            "pluginVersion": "10.1.5",
             "targets": [
                 {
                     "datasource": {
@@ -1564,14 +1564,24 @@
             "pluginVersion": "8.0.0-beta2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "pg:ins:xact_commit_rate1m{ins=\"$ins\"}",
                     "interval": "",
                     "intervalFactor": 1,
                     "legendFormat": "1m",
+                    "range": true,
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "exemplar": false,
                     "expr": "pg:ins:xact_commit_rate5m{ins=\"$ins\"}",
                     "interval": "",
@@ -1580,6 +1590,10 @@
                     "refId": "B"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "exemplar": false,
                     "expr": "pg:ins:xact_commit_rate15m{ins=\"$ins\"}",
                     "interval": "",
@@ -1778,6 +1792,7 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
+            "description": "coefficient of variation, CV of TPS in last 5 minutes",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1788,7 +1803,7 @@
                         "axisCenteredZero": false,
                         "axisColorMode": "text",
                         "axisLabel": "",
-                        "axisPlacement": "hidden",
+                        "axisPlacement": "left",
                         "barAlignment": 0,
                         "drawStyle": "line",
                         "fillOpacity": 33,
@@ -1815,6 +1830,7 @@
                             "mode": "off"
                         }
                     },
+                    "decimals": 2,
                     "mappings": [],
                     "min": 0,
                     "thresholds": {
@@ -1826,13 +1842,13 @@
                             }
                         ]
                     },
-                    "unit": "none"
+                    "unit": "percentunit"
                 },
                 "overrides": [
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "QPS Divergence"
+                            "options": "QPS CV"
                         },
                         "properties": [
                             {
@@ -1845,19 +1861,14 @@
                             },
                             {
                                 "id": "custom.showPoints",
-                                "value": "always"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byType",
-                            "options": "time"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.axisPlacement",
                                 "value": "auto"
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#3e668f",
+                                    "mode": "fixed"
+                                }
                             }
                         ]
                     }
@@ -1869,7 +1880,7 @@
                 "x": 0,
                 "y": 18
             },
-            "id": 100,
+            "id": 116,
             "options": {
                 "legend": {
                     "calcs": [],
@@ -1878,21 +1889,27 @@
                     "showLegend": false
                 },
                 "tooltip": {
-                    "mode": "single",
+                    "mode": "multi",
                     "sort": "none"
                 }
             },
             "pluginVersion": "8.0.0",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "(avg_over_time(pg:ins:xact_commit_rate1m{ins=\"$ins\"}[5m]) / stddev_over_time(pg:ins:xact_commit_rate1m{ins=\"$ins\"}[5m])) ^ 2",
+                    "expr": "stddev_over_time(pg:ins:xact_commit_rate1m{ins=\"$ins\"}[5m])/\navg_over_time(pg:ins:xact_commit_rate1m{ins=\"$ins\"}[5m])",
                     "interval": "",
-                    "legendFormat": "QPS Divergence",
+                    "legendFormat": "QPS CV",
+                    "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Transaction Commit Divergence",
+            "title": "TPS Variation \u03c3/\u00b5 (5m) ",
             "type": "timeseries"
         },
         {
@@ -2918,6 +2935,7 @@
                             "tooltip": false,
                             "viz": false
                         },
+                        "insertNulls": false,
                         "lineInterpolation": "smooth",
                         "lineWidth": 1,
                         "pointSize": 5,
@@ -2940,7 +2958,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },
@@ -3051,6 +3070,7 @@
                             "tooltip": false,
                             "viz": false
                         },
+                        "insertNulls": false,
                         "lineInterpolation": "smooth",
                         "lineWidth": 1,
                         "pointSize": 5,
@@ -3073,7 +3093,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "light-blue"
+                                "color": "light-blue",
+                                "value": null
                             }
                         ]
                     },
@@ -3140,6 +3161,7 @@
                             "tooltip": false,
                             "viz": false
                         },
+                        "insertNulls": false,
                         "lineInterpolation": "smooth",
                         "lineWidth": 1,
                         "pointSize": 5,
@@ -3162,7 +3184,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },
@@ -3320,6 +3343,7 @@
                             "tooltip": false,
                             "viz": false
                         },
+                        "insertNulls": false,
                         "lineInterpolation": "smooth",
                         "lineWidth": 1,
                         "pointSize": 5,
@@ -3342,7 +3366,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },
@@ -3447,23 +3472,39 @@
             "pluginVersion": "8.0.0-beta2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "pgbouncer:ins:xact_rt_1m{ins=\"$ins\"}",
                     "interval": "",
                     "intervalFactor": 1,
                     "legendFormat": "1m",
+                    "range": true,
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
                     "expr": "pgbouncer:ins:xact_rt_5m{ins=\"$ins\"}",
                     "hide": false,
                     "interval": "",
                     "intervalFactor": 1,
                     "legendFormat": "5m",
+                    "range": true,
                     "refId": "B"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "exemplar": false,
                     "expr": "pgbouncer:ins:xact_rt_15m{ins=\"$ins\"}",
                     "hide": false,
@@ -3473,7 +3514,7 @@
                     "refId": "C"
                 }
             ],
-            "title": "RT",
+            "title": "Xact RT",
             "type": "timeseries"
         },
         {
@@ -3481,6 +3522,7 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
+            "description": "coefficient of variation, CV of Pgbouncer TPS in last 5 minutes",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -3491,7 +3533,7 @@
                         "axisCenteredZero": false,
                         "axisColorMode": "text",
                         "axisLabel": "",
-                        "axisPlacement": "hidden",
+                        "axisPlacement": "left",
                         "barAlignment": 0,
                         "drawStyle": "line",
                         "fillOpacity": 33,
@@ -3501,6 +3543,7 @@
                             "tooltip": false,
                             "viz": false
                         },
+                        "insertNulls": false,
                         "lineInterpolation": "linear",
                         "lineWidth": 1,
                         "pointSize": 5,
@@ -3517,23 +3560,25 @@
                             "mode": "off"
                         }
                     },
+                    "decimals": 2,
                     "mappings": [],
                     "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },
-                    "unit": "none"
+                    "unit": "percentunit"
                 },
                 "overrides": [
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "QPS Divergence"
+                            "options": "QPS CV"
                         },
                         "properties": [
                             {
@@ -3546,19 +3591,14 @@
                             },
                             {
                                 "id": "custom.showPoints",
-                                "value": "always"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byType",
-                            "options": "time"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.axisPlacement",
                                 "value": "auto"
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#3e668f",
+                                    "mode": "fixed"
+                                }
                             }
                         ]
                     }
@@ -3570,7 +3610,7 @@
                 "x": 0,
                 "y": 65
             },
-            "id": 62,
+            "id": 117,
             "options": {
                 "legend": {
                     "calcs": [],
@@ -3579,21 +3619,27 @@
                     "showLegend": false
                 },
                 "tooltip": {
-                    "mode": "single",
+                    "mode": "multi",
                     "sort": "none"
                 }
             },
             "pluginVersion": "8.0.0",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "(avg_over_time(pgbouncer:ins:xact_rate1m{ins=\"$ins\"}[5m]) / stddev_over_time(pgbouncer:ins:xact_rate1m{ins=\"$ins\"}[5m])) ^ 2",
+                    "expr": "stddev_over_time(pgbouncer:ins:xact_rate1m{ins=\"$ins\"}[5m])/\navg_over_time(pgbouncer:ins:xact_rate1m{ins=\"$ins\"}[5m])",
                     "interval": "",
-                    "legendFormat": "QPS Divergence",
+                    "legendFormat": "QPS CV",
+                    "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "TPS Divergence",
+            "title": "Pgbouncer TPS Variation \u03c3/\u00b5 (5m) ",
             "type": "timeseries"
         },
         {
@@ -3601,28 +3647,30 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
+            "description": "coefficient of variation, CV of Pgbouncer Xact RT in last 5 minutes",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "fixedColor": "#f5a673",
+                        "fixedColor": "#346f36cc",
                         "mode": "fixed"
                     },
                     "custom": {
                         "axisCenteredZero": false,
                         "axisColorMode": "text",
                         "axisLabel": "",
-                        "axisPlacement": "hidden",
+                        "axisPlacement": "left",
                         "barAlignment": 0,
                         "drawStyle": "line",
-                        "fillOpacity": 35,
+                        "fillOpacity": 33,
                         "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
                             "tooltip": false,
                             "viz": false
                         },
+                        "insertNulls": false,
                         "lineInterpolation": "linear",
-                        "lineWidth": 0,
+                        "lineWidth": 1,
                         "pointSize": 5,
                         "scaleDistribution": {
                             "type": "linear"
@@ -3637,23 +3685,25 @@
                             "mode": "off"
                         }
                     },
+                    "decimals": 2,
                     "mappings": [],
                     "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },
-                    "unit": "none"
+                    "unit": "percentunit"
                 },
                 "overrides": [
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "RT Divergence"
+                            "options": "QPS CV"
                         },
                         "properties": [
                             {
@@ -3666,19 +3716,14 @@
                             },
                             {
                                 "id": "custom.showPoints",
-                                "value": "always"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byType",
-                            "options": "time"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.axisPlacement",
                                 "value": "auto"
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#3e668f",
+                                    "mode": "fixed"
+                                }
                             }
                         ]
                     }
@@ -3690,7 +3735,7 @@
                 "x": 12,
                 "y": 65
             },
-            "id": 64,
+            "id": 118,
             "options": {
                 "legend": {
                     "calcs": [],
@@ -3699,21 +3744,27 @@
                     "showLegend": false
                 },
                 "tooltip": {
-                    "mode": "single",
+                    "mode": "multi",
                     "sort": "none"
                 }
             },
             "pluginVersion": "8.0.0",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "exemplar": false,
-                    "expr": "(avg_over_time(pgbouncer:ins:xact_rate1m{ins=\"$ins\"}[5m]) / stddev_over_time(pgbouncer:ins:xact_rate1m{ins=\"$ins\"}[5m])) ^ 2",
+                    "expr": "stddev_over_time(pgbouncer:ins:xact_rt_5m{ins=\"$ins\"}[5m])/\navg_over_time(pgbouncer:ins:xact_rt_5m{ins=\"$ins\"}[5m])",
                     "interval": "",
-                    "legendFormat": "RT Divergence",
+                    "legendFormat": "QPS CV",
+                    "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "RT Divergence",
+            "title": "Pgbouncer RT Variation \u03c3/\u00b5 (5m) ",
             "type": "timeseries"
         },
         {
@@ -3740,6 +3791,7 @@
                             "tooltip": false,
                             "viz": false
                         },
+                        "insertNulls": false,
                         "lineInterpolation": "linear",
                         "lineStyle": {
                             "fill": "solid"
@@ -3765,7 +3817,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },
@@ -4013,6 +4066,7 @@
                             "tooltip": false,
                             "viz": false
                         },
+                        "insertNulls": false,
                         "lineInterpolation": "linear",
                         "lineStyle": {
                             "fill": "solid"
@@ -4038,7 +4092,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },
@@ -4287,6 +4342,7 @@
                             "tooltip": false,
                             "viz": false
                         },
+                        "insertNulls": false,
                         "lineInterpolation": "smooth",
                         "lineWidth": 1,
                         "pointSize": 5,
@@ -4315,7 +4371,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },
@@ -4409,6 +4466,7 @@
                             "tooltip": false,
                             "viz": false
                         },
+                        "insertNulls": false,
                         "lineInterpolation": "smooth",
                         "lineWidth": 1,
                         "pointSize": 5,
@@ -4437,7 +4495,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },
@@ -4532,6 +4591,7 @@
                             "tooltip": false,
                             "viz": false
                         },
+                        "insertNulls": false,
                         "lineInterpolation": "smooth",
                         "lineWidth": 1,
                         "pointSize": 5,
@@ -4554,7 +4614,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },
@@ -4676,6 +4737,7 @@
                             "tooltip": false,
                             "viz": false
                         },
+                        "insertNulls": false,
                         "lineInterpolation": "smooth",
                         "lineWidth": 1,
                         "pointSize": 5,
@@ -4698,7 +4760,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc"
+                                "color": "#346f36cc",
+                                "value": null
                             }
                         ]
                     },

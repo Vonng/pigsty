@@ -232,8 +232,8 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "PGCAT Database : ${ins}.${datname}",
-                                        "url": "/d/pgcat-database?var-dsn=$ins.$datname"
+                                        "title": "PGSQL Database : ${ins}.${datname}",
+                                        "url": "/d/pgsql-database?var-ins=${ins}&var-datname=${datname}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -1320,6 +1320,131 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
+            "description": "coefficient of variation, CV of Query Latency in last 5 minutes",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "#f5a673",
+                        "mode": "fixed"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "left",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 35,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#346f36cc",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "RT CV"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 1
+                            },
+                            {
+                                "id": "custom.pointSize",
+                                "value": 2
+                            },
+                            {
+                                "id": "custom.showPoints",
+                                "value": "auto"
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#346f36cc",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 12,
+                "x": 12,
+                "y": 14
+            },
+            "id": 325,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": false
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "8.0.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "stddev_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[5m]) /\navg_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[5m])",
+                    "interval": "",
+                    "legendFormat": "RT CV",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "RT Variation \u03c3/\u00b5 (5m)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
             "description": "Average Query Latency according to `pg_stat_statements`: rate of `total_exec_time` / rate of `calls` in last 1m, 5m, 15m",
             "fieldConfig": {
                 "defaults": {
@@ -1447,7 +1572,7 @@
                 "h": 10,
                 "w": 12,
                 "x": 12,
-                "y": 14
+                "y": 20
             },
             "id": 355,
             "options": {
@@ -1640,131 +1765,6 @@
                 }
             ],
             "title": "QPS Variation \u03c3/\u00b5 (5m) ",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "coefficient of variation, CV of Query Latency in last 5 minutes",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "fixedColor": "#f5a673",
-                        "mode": "fixed"
-                    },
-                    "custom": {
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "left",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 35,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "linear",
-                        "lineWidth": 0,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "decimals": 2,
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#346f36cc",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "RT CV"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 1
-                            },
-                            {
-                                "id": "custom.pointSize",
-                                "value": 2
-                            },
-                            {
-                                "id": "custom.showPoints",
-                                "value": "auto"
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#346f36cc",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 12,
-                "x": 12,
-                "y": 24
-            },
-            "id": 325,
-            "options": {
-                "legend": {
-                    "calcs": [],
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "showLegend": false
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "8.0.0",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "stddev_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[5m]) /\navg_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[5m])",
-                    "interval": "",
-                    "legendFormat": "RT CV",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "RT Variation \u03c3/\u00b5 (5m)",
             "type": "timeseries"
         },
         {
@@ -3466,8 +3466,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -3664,8 +3663,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -3866,8 +3864,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -4068,8 +4065,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -4270,8 +4266,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -4429,8 +4424,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -4627,8 +4621,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -4862,7 +4855,7 @@
                 "type": "prometheus",
                 "uid": "ds-prometheus"
             },
-            "description": "Query RT of this database ${datname} on ${ins}.\n\nrate 5m of `total_exec_time` / `calls`\n\nClick datapoint to check a specific query.",
+            "description": "Query RT of this database ${datname} on ${ins}.\n\nrate 1m of `total_exec_time` / `calls`\n\nClick datapoint to check a specific query.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -4911,8 +4904,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -5087,7 +5079,7 @@
                     "refId": "D"
                 }
             ],
-            "title": "Query RT (5m)",
+            "title": "Query RT (1m)",
             "type": "timeseries"
         },
         {
@@ -5105,6 +5097,10 @@
                         {
                             "title": "PGSQL Query : ${__data.fields.query}",
                             "url": "/d/pgsql-query?var-ins=${ins}&var-datname=${datname}&var-query=${__data.fields.query}&${__url_time_range}"
+                        },
+                        {
+                            "title": "PGCAT Query : ${__data.fields.query}",
+                            "url": "/d/pgcat-query?var-dsn=${ins}.${datname}&var-query=${__data.fields.Query}&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
@@ -5112,8 +5108,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "super-light-blue",
-                                "value": null
+                                "color": "super-light-blue"
                             },
                             {
                                 "color": "#3e668f",
@@ -5238,7 +5233,7 @@
                         "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
                     },
                     "editorMode": "code",
-                    "expr": "increase(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\"}[1h])",
+                    "expr": "sum by (query) (increase(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\"}[1h]))",
                     "format": "table",
                     "group": [],
                     "hide": false,
@@ -5292,7 +5287,7 @@
                         "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
                     },
                     "editorMode": "code",
-                    "expr": "increase(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\"}[1h]) /\n increase(pg_query_calls{ins=\"$ins\", datname=\"$datname\"}[1h])",
+                    "expr": "increase(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\"}[1h]) / increase(pg_query_calls{ins=\"$ins\", datname=\"$datname\"}[1h])",
                     "format": "table",
                     "group": [],
                     "hide": false,
@@ -5428,8 +5423,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -5790,8 +5784,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -6203,8 +6196,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
