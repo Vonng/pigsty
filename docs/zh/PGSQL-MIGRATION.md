@@ -119,6 +119,6 @@ pg_monitor_password: DBUser.Monitor
 
 你必须实现自己的 `./re-routing` 脚本，以将你的应用流量从 src 路由到 dst。 因为我们不知道你的流量是如何路由的（例如 dns, VIP, haproxy 或 pgbouncer）。 当然，您也可以手动完成这项操作...
 
-你可以实现一个 `./disable-src` 脚本来限制应用对 src 集群的访问，这是可选的：如果你能确保所有应用流量都在 `./re-routing` 中干净利落地切完，其实不用这一步。但如果您有未知来源的各种访问无法梳理干净，那么最好
+你可以实现一个 `./disable-src` 脚本来限制应用对 src 集群的访问，这是可选的：如果你能确保所有应用流量都在 `./re-routing` 中干净利落地切完，其实不用这一步。
 
-你可以通过更改 HBA 规则并重新加载来实现（推荐），或者只是简单粗暴地关停源主库上的 postgres、pgbouncer 或 haproxy 进程。
+但如果您有未知来源的各种访问无法梳理干净，那么最好使用更为彻底的方式：更改 HBA 规则并重新加载来实现（推荐），或者只是简单粗暴地关停源主库上的 postgres、pgbouncer 或 haproxy 进程。

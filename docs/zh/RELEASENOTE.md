@@ -50,6 +50,7 @@ curl https://repo.pigsty.cc/get | bash
 - 使用CDN `repo.pigsty.cc` 软件源，提供 rpm/deb 软件包下载。
 - Anolis 操作系统支持（ 兼容 EL 8.8 ）。
 - 使用 PostgreSQL 16 替代 PostgreSQL 14 作为备选主要支持版本  
+- 更新 `pg_exporter` 至 v0.6.0，新增了 PGSQL Exporter 监控面板 
 - 扩展更新：
   - PostGIS 版本至 3.4（ EL8/EL9 ），EL7 仍使用 PostGIS 3.3
   - 移除 `pg_embedding`，因为开发者不再对其进行维护，建议使用 `pgvector` 替换。
@@ -94,13 +95,13 @@ Pigsty 支持了 Ubuntu 22.04 (jammy) 与 20.04 (focal) 两个 LTS 版本，并�
   ```
 
 ```
-70d0b42f4dd8a456c70d3024d5c21ddb  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
-9efd5d46f3c72940f9eaa6a845d761df  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
-71b86810df2bf0b30be1c4d97391e219  pigsty-pkg-v2.5.0.el7.x86_64.tgz
-70cff55a8b4196d95ebce98638fd7b3d  pigsty-pkg-v2.5.0.el8.x86_64.tgz
-1cb272b5220d167eb4ad37f99b7ace49  pigsty-pkg-v2.5.0.el9.x86_64.tgz
-3555446b4e073dd245ad7de5bb41b03f  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
-0c903a1a973fdfd2295b540032a9395a  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
+f4edc4678e6bdf50330e070962a6d2f4  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
+00e3534ae44e680b128acfad7695f9e2  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
+1bc586c5a664b9b247547728bb41d978  pigsty-pkg-v2.5.0.el7.x86_64.tgz
+a45949e573a43891a0ff168e77def473  pigsty-pkg-v2.5.0.el8.x86_64.tgz
+b4e58ccf9d6bcee36918f43b67feb4c7  pigsty-pkg-v2.5.0.el9.x86_64.tgz
+cf7ed56b753b9b937f4a1cb50c3b4a4d  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
+cf3bca15637822c988c162a561442087  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
 ```
 
 

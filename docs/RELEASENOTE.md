@@ -47,6 +47,7 @@
 - Dedicate yum/apt repo on `repo.pigsty.cc` and mirror on packagecloud.io
 - Anolis OS Support (EL 8.8 Compatible)
 - PG Major Candidate: Use PostgreSQL 16 instead of PostgreSQL 14.
+- Update `pg_exporter` to v0.6.0, add new dashboard: PGSQL Exporter
 - Extensions Update:
   - Bump PostGIS version to v3.4 on el8, el9, ubuntu22, keep postgis 33 on EL7
   - Remove extension `pg_embedding` because it is no longer maintained, use `pgvector` instead.
@@ -92,13 +93,13 @@ default values of following parameters have changed:
 
 
 ```
-70d0b42f4dd8a456c70d3024d5c21ddb  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
-9efd5d46f3c72940f9eaa6a845d761df  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
-71b86810df2bf0b30be1c4d97391e219  pigsty-pkg-v2.5.0.el7.x86_64.tgz
-70cff55a8b4196d95ebce98638fd7b3d  pigsty-pkg-v2.5.0.el8.x86_64.tgz
-1cb272b5220d167eb4ad37f99b7ace49  pigsty-pkg-v2.5.0.el9.x86_64.tgz
-3555446b4e073dd245ad7de5bb41b03f  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
-0c903a1a973fdfd2295b540032a9395a  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
+f4edc4678e6bdf50330e070962a6d2f4  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
+00e3534ae44e680b128acfad7695f9e2  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
+1bc586c5a664b9b247547728bb41d978  pigsty-pkg-v2.5.0.el7.x86_64.tgz
+a45949e573a43891a0ff168e77def473  pigsty-pkg-v2.5.0.el8.x86_64.tgz
+b4e58ccf9d6bcee36918f43b67feb4c7  pigsty-pkg-v2.5.0.el9.x86_64.tgz
+cf7ed56b753b9b937f4a1cb50c3b4a4d  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
+cf3bca15637822c988c162a561442087  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
 ```
 
 
