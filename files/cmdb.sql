@@ -1298,7 +1298,7 @@ INSERT INTO pigsty.default_var VALUES
 (172, 'grafana_admin_username', '"admin"', 'INFRA', 'GRAFANA', 'username', 'G', 'grafana admin username, `admin` by default', NULL),
 (173, 'grafana_admin_password', '"pigsty"', 'INFRA', 'GRAFANA', 'password', 'G', 'grafana admin password, `pigsty` by default', NULL),
 (174, 'grafana_plugin_cache', '"/www/pigsty/plugins.tgz"', 'INFRA', 'GRAFANA', 'path', 'G', 'path to grafana plugins cache tarball', NULL),
-(175, 'grafana_plugin_list', '["volkovlabs-echarts-panel", "volkovlabs-image-panel", "volkovlabs-form-panel", "volkovlabs-grapi-datasource", "marcusolsson-dynamictext-panel", "marcusolsson-treemap-panel", "marcusolsson-calendar-panel", "marcusolsson-static-datasource"]', 'INFRA', 'GRAFANA', 'string[]', 'G', 'grafana plugins to be downloaded with grafana-cli', NULL),
+(175, 'grafana_plugin_list', '["volkovlabs-echarts-panel", "volkovlabs-image-panel", "volkovlabs-form-panel", "volkovlabs-variable-panel", "volkovlabs-grapi-datasource", "marcusolsson-static-datasource", "marcusolsson-json-datasource", "marcusolsson-csv-datasource", "marcusolsson-dynamictext-panel", "marcusolsson-treemap-panel", "marcusolsson-calendar-panel", "marcusolsson-hourly-heatmap-panel", "knightss27-weathermap-panel"]', 'INFRA', 'GRAFANA', 'string[]', 'G', 'grafana plugins to be downloaded with grafana-cli', NULL),
 (176, 'loki_enabled', 'true', 'INFRA', 'LOKI', 'bool', 'G/I', 'enable loki on this infra node?', NULL),
 (177, 'loki_clean', 'false', 'INFRA', 'LOKI', 'bool', 'G/A', 'whether remove existing loki data?', NULL),
 (178, 'loki_data', '"/data/loki"', 'INFRA', 'LOKI', 'path', 'G', 'loki data dir, `/data/loki` by default', NULL),

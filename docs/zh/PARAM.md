@@ -1209,9 +1209,7 @@ Default is empty; when [`exporter_install`](#exporter_install) is `yum`, the rep
 
 ## `GRAFANA`
 
-Grafana is the visualization platform for Pigsty's monitoring system. 
-
-It can also be used as a low code data visualization environment
+Pigsty 使用 Grafana 作为监控系统前端。它也可以做为数据分析与可视化平台，或者用于低代码数据应用开发，制作数据应用原型等目的。
 
 
 ```yaml
@@ -1224,11 +1222,16 @@ grafana_plugin_list:              # grafana plugins to be downloaded with grafan
   - volkovlabs-echarts-panel
   - volkovlabs-image-panel
   - volkovlabs-form-panel
+  - volkovlabs-variable-panel
   - volkovlabs-grapi-datasource
+  - marcusolsson-static-datasource
+  - marcusolsson-json-datasource
+  - marcusolsson-csv-datasource
   - marcusolsson-dynamictext-panel
   - marcusolsson-treemap-panel
   - marcusolsson-calendar-panel
-  - marcusolsson-static-datasource
+  - marcusolsson-hourly-heatmap-panel
+  - knightss27-weathermap-panel
 loki_enabled: true                # enable loki on this infra node?
 loki_clean: false                 # whether remove existing loki data?
 loki_data: /data/loki             # loki data dir, `/data/loki` by default
@@ -1301,20 +1304,23 @@ If that cache exists, pigsty use that instead of downloading plugins from the In
 
 参数名称： `grafana_plugin_list`， 类型： `string[]`， 层次：`G`
 
-grafana plugins to be downloaded with grafana-cli
-
-default value:
+列表中的 Grafana 插件将会被 grafana-cli 下载，默认包含了来自 volkovlabs 与 marusolsson 的几个实用扩展。 
 
 ```yaml
 grafana_plugin_list:              # grafana plugins to be downloaded with grafana-cli
   - volkovlabs-echarts-panel
   - volkovlabs-image-panel
   - volkovlabs-form-panel
+  - volkovlabs-variable-panel
   - volkovlabs-grapi-datasource
+  - marcusolsson-static-datasource
+  - marcusolsson-json-datasource
+  - marcusolsson-csv-datasource
   - marcusolsson-dynamictext-panel
   - marcusolsson-treemap-panel
   - marcusolsson-calendar-panel
-  - marcusolsson-static-datasource
+  - marcusolsson-hourly-heatmap-panel
+  - knightss27-weathermap-panel
 ```
 
 
