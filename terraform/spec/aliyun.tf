@@ -49,7 +49,7 @@ resource "alicloud_security_group_rule" "allow_all_tcp" {
 # Debian 11.7  :  debian_11_7_x64_20G_alibase_20230718.vhd
 data "alicloud_images" "images_ds" {
   owners     = "system"
-  name_regex = "^ubuntu_22_04_x64"
+  name_regex = "^rockylinux_8_8_x64"
 }
 # ${data.alicloud_images.images_ds.images.0.id}
 
