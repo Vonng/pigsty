@@ -20,6 +20,14 @@
         content: |
           BLACKBOX_EXPORTER_OPTS="--config.file=/etc/blackbox.yml {{ blackbox_options }}"
 
+    # - permission - #
+    - name: grant icmp socket permissions to blackbox_exporter
+      when: os_vendor == 'debian'
+      ignore_errors: yes
+      shell: setcap cap_net_raw+ep /usr/bin/blackbox_exporter
+      args: { executable: /bin/bash }
+
+
 #--------------------------------------------------------------#
 # Launch Blackbox Exporter                     [blackbox_launch]
 #--------------------------------------------------------------#
