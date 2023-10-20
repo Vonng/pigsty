@@ -143,3 +143,46 @@ Pigsty 默认使用**可用性优先**模式，这意味着当主库故障时，
 最大潜在数据丢失由 [`pg_rpo`](PARAM#pg_rpo) 控制，默认为 1MB，减小这个值将会减少故障恢复时的可能数据损失，但也会增加故障时因为从库不够健康（落后太久）而拒绝自动切换的概率。
 
 RTO 与 RPO 是高可用集群设计时需要仔细权衡的两个参数，您应当根据您的硬件水平，网络质量，业务需求来合理调整它们。
+
+
+
+
+----------------
+
+## 时间点恢复
+
+> 您可以将集群恢复回滚至过去任意时刻，避免软件缺陷与人为失误导致的数据损失。
+
+Pigsty 的 PostgreSQL 集群带有自动配置的时间点恢复（PITR）方案，基于 [pgBackRest](https://pgbackrest.org/) 与可选的 [MinIO](https://min.io/)。
+
+高可用可以解决硬件故障，软件缺陷与人为失误导致的数据删除/覆盖写入却无能为力：因为变更操作会立即同步至从库应用。时间点恢复（Point in Time Recovery, PITR）可以解决这个问题。此外当您只有单个实例时，PITR也可以代替高可用，为最坏的情况兜底。
+
+如果想将集群恢复至某个备份，用户需要提前定期做好基础备份，如果想将集群恢复至任意时间点，用户还需要从备份时刻迄今的 WAL归档。这两项工作 Pigsty 为您自动进行了兜底配置。 Pigsty 使用 pgBackRest 管理备份，接受WAL归档，执行PITR。备份仓库可以进行灵活配置（[`pgbackrest_repo`](PARAM#pgbackrest_repo)）：默认使用主库本地文件系统（`local`），但也可以使用其他磁盘路径，或使用自带的可选 MinIO 服务（`minio`）与云上 S3 服务。
+
+
+```yaml
+pgbackrest_method: local          # 在这里选择备份仓库，默认选用本地文件系统备份仓库
+pgbackrest_repo:                  # 在这里定义备份仓库，Pigsty 预定义了 local / minio 两个仓库。
+  local:                          # default pgbackrest repo with local posix fs
+    path: /pg/backup              # local backup directory, `/pg/backup` by default
+    retention_full_type: count    # retention full backups by count
+    retention_full: 2             # keep 2, at most 3 full backup when using local fs repo
+  minio:                          # optional minio repo for pgbackrest
+    type: s3                      # minio is s3-compatible, so s3 is used
+    s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default
+    s3_region: us-east-1          # minio region, us-east-1 by default, useless for minio
+    s3_bucket: pgsql              # minio bucket name, `pgsql` by default
+    s3_key: pgbackrest            # minio user access key for pgbackrest
+    s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
+    s3_uri_style: path            # use path style uri for minio rather than host style
+    path: /pgbackrest             # minio backup path, default is `/pgbackrest`
+    storage_port: 9000            # minio port, 9000 by default
+    storage_ca_file: /etc/pki/ca.crt  # minio ca file path, `/etc/pki/ca.crt` by default
+    bundle: y                     # bundle small files into a single file
+    cipher_type: aes-256-cbc      # enable AES encryption for remote backup repo
+    cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
+    retention_full_type: time     # retention full backup by time on minio repo
+    retention_full: 14            # keep full backup for last 14 days
+```
+
+默认情况下，Pigsty提供了两种预置[备份策略](PGSQL-PITR.md#备份策略)：默认使用本地文件系统备份仓库，在这种情况下每天进行一次全量备份，确保用户任何时候都能回滚至一天内的任意时间点。备选策略使用专用的 MinIO 集群或S3存储备份，每周一全备，每天一增备，默认保留两周的备份与WAL归档。

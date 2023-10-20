@@ -291,7 +291,9 @@
 
 # `INFRA`
 
-Parameters about pigsty infrastructure components: local yum repo, nginx, dnsmasq, prometheus, grafana, loki, alertmanager, pushgateway, blackbox_exporter, etc...
+
+关于基础设施组件的配置参数：本地软件源，Nginx，DNSMasq，Prometheus，Grafana，Loki，Alertmanager，Pushgateway，Blackbox_exporter 等...
+
 
 
 ------------------------------

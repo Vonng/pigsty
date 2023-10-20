@@ -110,7 +110,6 @@ Prometheus是监控时序数据库，默认监听9090端口，可以直接通过
 Prometheus是监控用时序数据库，提供以下功能：
 
 * Prometheus默认通过本地静态文件服务发现获取监控对象，并为其关联身份信息。
-* Prometheus可以选择使用Consul服务发现，自动获取监控对象。
 * Prometheus从Exporter拉取监控指标数据，进行预计算加工后存入自己的TSDB中。
 * Prometheus计算报警规则，将报警事件发往Alertmanager处理。
 
