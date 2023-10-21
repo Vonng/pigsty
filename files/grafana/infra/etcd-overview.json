@@ -973,7 +973,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "ETCD Has Leader?"
+                            "options": "ETCD Cluster Healthy"
                         },
                         "properties": [
                             {
@@ -1002,11 +1002,11 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "#3e668f",
+                                            "color": "#cc4637d9",
                                             "value": null
                                         },
                                         {
-                                            "color": "#fcdb72",
+                                            "color": "#3e668f",
                                             "value": 1
                                         }
                                     ]
@@ -1045,46 +1045,22 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
+                    "expr": "min(etcd_server_has_leader{job=\"etcd\", cls=\"$cls\"}) or on() vector(0)",
+                    "hide": false,
+                    "legendFormat": "ETCD Cluster Healthy",
+                    "range": true,
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
                     "expr": "up{job=\"etcd\", cls=\"$cls\"}",
                     "legendFormat": "{{ ins }} @ {{ ip }}",
                     "range": true,
                     "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "expr": "count(etcd_up{job=\"etcd\", cls=\"$cls\"})",
-                    "hide": true,
-                    "legendFormat": "etcd size",
-                    "range": true,
-                    "refId": "B"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "expr": "ceil(count(etcd_up{job=\"etcd\", cls=\"$cls\"})/ 2 + 0.1)",
-                    "hide": true,
-                    "legendFormat": "etcd quorum",
-                    "range": true,
-                    "refId": "C"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "expr": "min(etcd_server_has_leader{job=\"etcd\", cls=\"$cls\"}) or on() vector(0)",
-                    "hide": false,
-                    "legendFormat": "ETCD Has Leader?",
-                    "range": true,
-                    "refId": "D"
                 }
             ],
             "title": "ETCD Aliveness",
