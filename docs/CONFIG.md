@@ -24,6 +24,8 @@ all:                  # Top-level object: all
     # ...
 ```
 
+There are lots of config examples under [`files/pigsty`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/README.md)
+
 
 ----------------
 

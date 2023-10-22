@@ -888,10 +888,11 @@ Infra 节点上要使用 `pip` 额外安装的软件包，包名使用逗号分�
 
 ## `NGINX`
 
-Pigsty exposes all Web services through Nginx: Home Page, Grafana, Prometheus, AlertManager, etc...,
-and other optional tools such as PGWe, Jupyter Lab, Pgadmin, Bytebase ,and other static resource & report such as `pev`, `schemaspy` & `pgbadger`
+Pigsty 会通过 Nginx 代理所有的 Web 服务访问：Home Page、Grafana、Prometheus、AlertManager 等等。
+以及其他可选的工具，如 PGWe、Jupyter Lab、Pgadmin、Bytebase 等等，还有一些静态资源和报告，如 `pev`、`schemaspy` 和 `pgbadger`。
 
-This nginx also serves as a local yum repo.
+最重要的是，Nginx 还作为本地软件仓库（Yum/Apt）的 Web 服务器，用于存储和分发 Pigsty 的软件包。
+
 
 
 ```yaml
@@ -914,7 +915,7 @@ nginx_navbar:                     # nginx index page navigation links
 
 参数名称： `nginx_enabled`， 类型： `bool`， 层次：`G/I`
 
-enable nginx on this infra node? default value: `true`
+是否在当前的 Infra 节点上启用 Nginx？默认值为： `true`。
 
 
 
@@ -924,9 +925,10 @@ enable nginx on this infra node? default value: `true`
 
 参数名称： `nginx_exporter_enabled`， 类型： `bool`， 层次：`G/I`
 
-enable nginx_exporter on this infra node? default value: `true`.
+在此基础设施节点上启用 nginx_exporter ？默认值为： `true`。
 
-set to false will disable `/nginx` health check stub too 
+如果禁用此选项，还会一并禁用 `/nginx` 健康检查 stub，当您安装使用的 Nginx 版本不支持此功能是可以考虑关闭此开关
+
 
 
 
@@ -936,13 +938,11 @@ set to false will disable `/nginx` health check stub too
 
 参数名称： `nginx_sslmode`， 类型： `enum`， 层次：`G`
 
-nginx ssl mode? disable,enable,enforce
+Nginx 的 SSL工作模式？有三种选择：`disable` , `enable` , `enforce`， 默认值为 `enable`，即启用 SSL，但不强制使用。
 
-default value: `enable`
-
-* `disable`: listen on default port only
-* `enable`: serve both http / https requests
-* `enforce`: all links are rendered as `https://`
+* `disable`：只监听 [`nginx_port`](#nginx_port) 指定的端口服务 HTTP 请求。
+* `enable`：同时会监听 [`nginx_ssl_port`](#nginx_ssl_port) 指定的端口服务 HTTPS 请求。
+* `enforce`：所有链接都会被渲染为默认使用 `https://`
 
 
 
@@ -952,9 +952,10 @@ default value: `enable`
 
 参数名称： `nginx_home`， 类型： `path`， 层次：`G`
 
-nginx content dir, `/www` by default
+Nginx服务器静态文件目录，默认为： `/www`
 
-Nginx root directory which contains static resource and repo resource. It's wise to set this value same as [`repo_home`](#repo_home) so that local repo content is automatically served.
+Nginx服务器的根目录，包含静态资源和软件仓库文件。最好不要随意修改此参数，修改时需要与 [`repo_home`](#repo_home) 参数保持一致。
+
 
 
 
@@ -963,7 +964,9 @@ Nginx root directory which contains static resource and repo resource. It's wise
 
 参数名称： `nginx_port`， 类型： `port`， 层次：`G`
 
-nginx listen port, `80` by default
+Nginx 默认监听的端口（提供HTTP服务），默认为 `80` 端口，最好不要修改这个参数。
+
+当您的服务器 80 端口被占用时，可以考虑修改此参数，但是需要同时修改 [`repo_endpoint`](#repo_endpoint) ，以及 [`node_repo_local_urls`](#node_repo_local_urls) 所使用的端口并与这里保持一致。
 
 
 
@@ -974,7 +977,7 @@ nginx listen port, `80` by default
 
 参数名称： `nginx_ssl_port`， 类型： `port`， 层次：`G`
 
-nginx ssl listen port, `443` by default
+Nginx SSL 默认监听的端口，默认为 `443`，最好不要修改这个参数。
 
 
 
@@ -984,9 +987,7 @@ nginx ssl listen port, `443` by default
 
 参数名称： `nginx_navbar`， 类型： `index[]`， 层次：`G`
 
-nginx index page navigation links
-
-default value:
+Nginx 首页上的导航栏内容，默认值：
 
 ```yaml
 nginx_navbar:                     # nginx index page navigation links
@@ -997,9 +998,13 @@ nginx_navbar:                     # nginx index page navigation links
   - { name: Explain ,url: '/pigsty/pev.html' ,desc: 'postgres explain visualizer' }
 ```
 
-Each record is rendered as a navigation link to the Pigsty home page App drop-down menu, and the apps are all optional, mounted by default on the Pigsty default server under `http://pigsty/`.
+每一条记录都会被渲染为一个导航链接，链接到 Pigsty 首页的 App 下拉菜单，所有的 App 都是可选的，默认挂载在 Pigsty 默认服务器下的 `http://pigsty/` 。
 
-The `url` parameter specifies the URL PATH for the app, with the exception that if the `${grafana}` string is present in the URL, it will be automatically replaced with the Grafana domain name defined in [`infra_portal`](#infra_portal).
+`url` 参数指定了 App 的 URL PATH，但是如果 URL 中包含 `${grafana}` 字符串，它会被自动替换为 [`infra_portal`](#infra_portal) 中定义的 Grafana 域名。
+
+所以您可以将一些使用 Grafana 的数据应用挂载到 Pigsty 的首页导航栏中。
+
+
 
 
 
@@ -1009,16 +1014,9 @@ The `url` parameter specifies the URL PATH for the app, with the exception that 
 
 ## `DNS`
 
+Pigsty 默认会在 Infra 节点上启用 DNSMASQ 服务，用于解析一些辅助域名，例如 `h.pigsty` `a.pigsty` `p.pigsty` `g.pigsty` 等等，以及可选 MinIO 的 `sss.pigsty`。
 
-You can set a default DNSMASQ server on infra nodes to serve DNS inquiry.
-
-All records on infra node's  `/etc/hosts.d/*` will be resolved.
-
-You have to add `nameserver {{ admin_ip }}` to your `/etc/resolv` to use this dns server
-
-For pigsty managed node, the default `"${admin_ip}"` in [`node_dns_servers`](#node_dns_servers) will do the trick.
-
-
+解析记录会记录在 Infra 节点的 `/etc/hosts.d/default` 文件中。 要使用这个 DNS 服务器，您必须将 `nameserver <ip>` 添加到 `/etc/resolv` 中，[`node_dns_servers`](#node_dns_servers) 参数可以解决这个问题。
 
 
 ```yaml
@@ -1030,11 +1028,15 @@ dns_records:                      # dynamic dns records resolved by dnsmasq
 ```
 
 
+
 ### `dns_enabled`
 
 参数名称： `dns_enabled`， 类型： `bool`， 层次：`G/I`
 
-setup dnsmasq on this infra node? default value: `true`
+是否在这个 Infra 节点上启用 DNSMASQ 服务？默认值为： `true`。
+
+如果你不想使用默认的 DNS 服务器，（比如你已经有了外部的DNS服务器，或者您的供应商不允许您使用 DNS 服务器）可以将此值设置为 `false` 来禁用它。
+并使用 [`node_default_etc_hosts`](#node_default_etc_hosts) 和 [`node_etc_hosts`](#node_etc_hosts) 静态解析记录代替。
 
 
 
@@ -1043,7 +1045,7 @@ setup dnsmasq on this infra node? default value: `true`
 
 参数名称： `dns_port`， 类型： `port`， 层次：`G`
 
-dns server listen port, `53` by default
+DNSMASQ 的默认监听端口，默认是 `53`，不建议修改 DNS 服务默认端口。
 
 
 
@@ -1053,7 +1055,8 @@ dns server listen port, `53` by default
 
 参数名称： `dns_records`， 类型： `string[]`， 层次：`G`
 
-dynamic dns records resolved by dnsmasq, Some auxiliary domain names will be written to `/etc/hosts.d/default` by default
+由 dnsmasq 负责解析的动态 DNS 记录，一般用于将一些辅助域名解析到本地，例如 `h.pigsty` `a.pigsty` `p.pigsty` `g.pigsty` 等等。这些记录会被写入到基础设置节点的 `/etc/hosts.d/default` 文件中。
+
 
 ```yaml
 dns_records:                      # dynamic dns records resolved by dnsmasq
@@ -1067,12 +1070,12 @@ dns_records:                      # dynamic dns records resolved by dnsmasq
 
 
 
+
 ------------------------------
 
 ## `PROMETHEUS`
 
-Prometheus is used as time-series database for metrics scrape, storage & analysis.
-
+Prometheus 被用作时序数据库，用于存储和分析监控指标数据。
 
 ```yaml
 prometheus_enabled: true          # enable prometheus on this infra node?

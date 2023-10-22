@@ -889,7 +889,7 @@ pip installed packages for infra nodes, default value is empty string
 Pigsty exposes all Web services through Nginx: Home Page, Grafana, Prometheus, AlertManager, etc...,
 and other optional tools such as PGWe, Jupyter Lab, Pgadmin, Bytebase ,and other static resource & report such as `pev`, `schemaspy` & `pgbadger`
 
-This nginx also serves as a local yum repo.
+This nginx also serves as a local yum/apt repo.
 
 
 ```yaml
@@ -924,7 +924,7 @@ name: `nginx_exporter_enabled`, type: `bool`, level: `G/I`
 
 enable nginx_exporter on this infra node? default value: `true`.
 
-set to false will disable `/nginx` health check stub too 
+set to false will disable `/nginx` health check stub too: If your nginx does not support `/nginx` stub, you can set this value to `false` to disable it.
 
 
 
@@ -934,13 +934,11 @@ set to false will disable `/nginx` health check stub too
 
 name: `nginx_sslmode`, type: `enum`, level: `G`
 
-nginx ssl mode? disable,enable,enforce
+nginx ssl mode? which could be: `disable`, `enable`, `enforce`, the default value: `enable`
 
-default value: `enable`
-
-* `disable`: listen on default port only
-* `enable`: serve both http / https requests
-* `enforce`: all links are rendered as `https://`
+* `disable`: listen on [`nginx_port`](#nginx_port) and serve plain HTTP only
+* `enable`: also listen on [`nginx_ssl_port`](#nginx_ssl_port) and serve HTTPS
+* `enforce`: all links will be rendered as `https://` by default
 
 
 
@@ -950,7 +948,7 @@ default value: `enable`
 
 name: `nginx_home`, type: `path`, level: `G`
 
-nginx content dir, `/www` by default
+nginx web server static content dir, `/www` by default
 
 Nginx root directory which contains static resource and repo resource. It's wise to set this value same as [`repo_home`](#repo_home) so that local repo content is automatically served.
 
@@ -961,7 +959,9 @@ Nginx root directory which contains static resource and repo resource. It's wise
 
 name: `nginx_port`, type: `port`, level: `G`
 
-nginx listen port, `80` by default
+nginx listen port which serves the HTTP requests, `80` by default.
+
+If your default 80 port is occupied or unavailable, you can consider using another port, and change [`repo_endpoint`](#repo_endpoint) and [`node_repo_local_urls`](#node_repo_local_urls) accordingly.
 
 
 
@@ -1008,15 +1008,11 @@ The `url` parameter specifies the URL PATH for the app, with the exception that 
 ## `DNS`
 
 
-You can set a default DNSMASQ server on infra nodes to serve DNS inquiry.
+Pigsty will launch a default DNSMASQ server on infra nodes to serve DNS inquiry. such as  `h.pigsty` `a.pigsty` `p.pigsty` `g.pigsty` and `sss.pigsty` for optional MinIO service.
 
-All records on infra node's  `/etc/hosts.d/*` will be resolved.
+All records will be added to infra node's `/etc/hosts.d/*`.
 
-You have to add `nameserver {{ admin_ip }}` to your `/etc/resolv` to use this dns server
-
-For pigsty managed node, the default `"${admin_ip}"` in [`node_dns_servers`](#node_dns_servers) will do the trick.
-
-
+You have to add `nameserver {{ admin_ip }}` to your `/etc/resolv` to use this dns server, and [`node_dns_servers`](#node_dns_servers) will do the trick.
 
 
 ```yaml
@@ -1033,6 +1029,9 @@ dns_records:                      # dynamic dns records resolved by dnsmasq
 name: `dns_enabled`, type: `bool`, level: `G/I`
 
 setup dnsmasq on this infra node? default value: `true`
+
+If you don't want to use the default DNS server, you can set this value to `false` to disable it.
+And use [`node_default_etc_hosts`](#node_default_etc_hosts) and [`node_etc_hosts`](#node_etc_hosts) instead.
 
 
 
@@ -1051,7 +1050,7 @@ dns server listen port, `53` by default
 
 name: `dns_records`, type: `string[]`, level: `G`
 
-dynamic dns records resolved by dnsmasq, Some auxiliary domain names will be written to `/etc/hosts.d/default` by default
+dynamic dns records resolved by dnsmasq, Some auxiliary domain names will be written to `/etc/hosts.d/default` on infra nodes by default
 
 ```yaml
 dns_records:                      # dynamic dns records resolved by dnsmasq

@@ -29,6 +29,9 @@ all:                  # 顶层对象：all
     # ...
 ```
 
+在 Pigsty 的 [`files/pigsty`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/README.md) 目录中，有许多不同场景的预置配置模板可供参考选用。
+
+
 
 ----------------
 
