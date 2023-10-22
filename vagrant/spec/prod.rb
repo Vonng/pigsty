@@ -56,5 +56,7 @@ Specs = [
   { "name" => "redis-test-5"  , "ip" => "10.10.10.85"   , "cpu" => "1"    , "mem" => "2048"    , "image" =>  "generic/rocky8"  },
   { "name" => "redis-test-6"  , "ip" => "10.10.10.86"   , "cpu" => "1"    , "mem" => "2048"    , "image" =>  "generic/rocky8"  },
 
-]
+  # run client tools, misc
+  { "name" => "test"          , "ip" => "10.10.10.88"   , "cpu" => "4"    , "mem" => "8192"    , "image" =>  "generic/rocky8"  },
 
+]

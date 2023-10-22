@@ -31,7 +31,6 @@ all:
         node_id_from_pg: false
         node_cluster: infra
         node_conf: oltp
-        docker_enabled: true
         pg_exporters:           # bin/pgmon-add pg-meta2/pg-test2/pg-src2/pg-dst2
           20001: {pg_cluster: pg-meta2   ,pg_seq: 1 ,pg_host: 10.10.10.10, pg_databases: [{ name: meta }]}
           20002: {pg_cluster: pg-meta2   ,pg_seq: 2 ,pg_host: 10.10.10.11, pg_databases: [{ name: meta }]}
@@ -97,7 +96,7 @@ all:
         10.10.10.84 : { nodename: redis-test-4  ,cpu: 1 ,mem: 2048   ,image: generic/rocky9 }
         10.10.10.85 : { nodename: redis-ms-1    ,cpu: 1 ,mem: 2048   ,image: generic/rocky9 }
         10.10.10.86 : { nodename: redis-ms-2    ,cpu: 1 ,mem: 2048   ,image: generic/rocky9 }
-
+        10.10.10.88 : { nodename: test          ,cpu: 4 ,mem: 8192   ,image: generic/rocky9 }
 
     #==========================================================#
     # pg-meta: reuse infra node as meta cmdb
@@ -533,6 +532,16 @@ all:
         mongo_cluster: ferret
         mongo_pgurl: 'postgres://test:test@10.10.10.45:5432/src'
         #mongo_pgurl: 'postgres://test:test@10.10.10.3:5436/test'
+
+
+    #==========================================================#
+    # test: running cli tools and test miscellaneous stuff
+    #==========================================================#
+    test:
+      hosts: { 10.10.10.88: { nodename: test } }
+      vars:
+        node_cluster: test
+        node_packages: [ 'etcd,logcli,mcli,redis,postgresql15' ]
 
 
   #============================================================#
