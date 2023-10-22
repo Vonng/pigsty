@@ -2176,8 +2176,8 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "PGSQL Exporter: ${__field.labels.ins}",
-                                        "url": "/d/pgsql-exporter?var-ins=${__field.labels.ins}&${__url_time_range}"
+                                        "title": "PGSQL Patroni : ${__field.labels.cls}",
+                                        "url": "/d/pgsql-patroni?var-cls=${__field.labels.cls}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -2186,7 +2186,7 @@
                     {
                         "matcher": {
                             "id": "byFrameRefID",
-                            "options": "D"
+                            "options": "V"
                         },
                         "properties": [
                             {
@@ -2199,7 +2199,7 @@
                                             "value": null
                                         },
                                         {
-                                            "color": "#b783af",
+                                            "color": "#f5a673",
                                             "value": 1
                                         }
                                     ]
@@ -2244,6 +2244,72 @@
                                     {
                                         "title": "PGRDS Instance : ${__field.labels.ins}",
                                         "url": "/d/pgrds-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "D"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#24292e",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#b783af",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Exporter : ${__field.labels.ins}",
+                                        "url": "/d/pgsql-exporter?var-ins=${__field.labels.ins}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "E"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#24292e",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#7771a4",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Exporter : ${__field.labels.ins}",
+                                        "url": "/d/pgsql-exporter?var-ins=${__field.labels.ins}&${__url_time_range}"
                                     }
                                 ]
                             }
@@ -2324,7 +2390,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": " min by (ins) (up{job=\"pgsql\"})",
+                    "expr": " patroni_up{job=\"pgsql\"}",
                     "hide": false,
                     "instant": true,
                     "interval": "",
@@ -2338,12 +2404,40 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
+                    "expr": "pg_exporter_up{job=\"pgsql\"}",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "pgbouncer_exporter_up{job=\"pgsql\"}",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
                     "expr": "min by (job,cls,vip) (probe_success{job=\"pgsql-vip\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
                     "legendFormat": "{{ cls }} @ {{ vip }}",
-                    "refId": "D"
+                    "refId": "V"
                 }
             ],
             "title": "Instances",
