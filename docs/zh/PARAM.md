@@ -300,28 +300,31 @@
 
 ## `META`
 
-This section contains some metadata of current pigsty deployments, such as version string, admin node IP address, repo mirror [`region`](#region) and http(s) proxy when downloading pacakges.
+这一小节指定了一套 Pigsty 部署的元数据：包括版本号，管理员节点 IP 地址，软件源镜像上游[`区域`](#region) 和下载软件包时使用的 http(s) 代理。
 
 ```yaml
-version: v2.5.0                   # pigsty version string
-admin_ip: 10.10.10.10             # admin node ip address
-region: default                   # upstream mirror region: default,china,europe
-proxy_env:                        # global proxy env when downloading packages
+version: v2.5.0                   # pigsty 版本号
+admin_ip: 10.10.10.10             # 管理节点IP地址
+region: default                   # 上游镜像区域：default,china,europe
+proxy_env:                        # 全局HTTPS代理，用于下载、安装软件包。
   no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
   # http_proxy:  # set your proxy here: e.g http://user:pass@proxy.xxx.com
   # https_proxy: # set your proxy here: e.g http://user:pass@proxy.xxx.com
   # all_proxy:   # set your proxy here: e.g http://user:pass@proxy.xxx.com
 ```
 
+
 ### `version`
 
 参数名称： `version`， 类型： `string`， 层次：`G`
 
-pigsty version string
+Pigsty 版本号字符串，默认值为当前版本：`v2.5.0`。
 
-default value:`v2.5.0`
+Pigsty 内部会使用版本号进行功能控制与内容渲染。
 
-It will be used for pigsty introspection & content rendering.
+Pigsty使用语义化版本号，版本号字符串通常以字符 `v` 开头。
+
+
 
 
 
@@ -331,15 +334,13 @@ It will be used for pigsty introspection & content rendering.
 
 参数名称： `admin_ip`， 类型： `ip`， 层次：`G`
 
-admin node ip address
+管理节点的 IP 地址，默认为占位符 IP 地址：`10.10.10.10`
 
-default value:`10.10.10.10`
+由该参数指定的节点将被视为管理节点，通常指向安装 Pigsty 时的第一个节点，即中控节点。
 
-Node with this ip address will be treated as admin node, usually point to the first node that install Pigsty.
+默认值 `10.10.10.10` 是一个占位符，会在 [configure](INSTALL#配置) 过程中被替换为实际的管理节点 IP 地址。
 
-The default value `10.10.10.10` is a placeholder which will be replaced during [configure](INSTALL#Configure)
-
-This parameter is referenced by many other parameters, such as:
+许多参数都会引用此参数，例如：
 
 * [`infra_portal`](#infra_portal)
 * [`repo_endpoint`](#repo_endpoint)
@@ -348,7 +349,7 @@ This parameter is referenced by many other parameters, such as:
 * [`node_etc_hosts`](#node_etc_hosts)
 * [`node_repo_local_urls`](#node_repo_local_urls)
 
-The exact string `${admin_ip}` will be replaced with the actual `admin_ip` for above parameters.
+在这些参数中，字符串 `${admin_ip}` 会被替换为 `admin_ip` 的真实取值。使用这种机制，您可以为不同的节点指定不同的中控管理节点。
 
 
 
@@ -361,13 +362,13 @@ The exact string `${admin_ip}` will be replaced with the actual `admin_ip` for a
 
 参数名称： `region`， 类型： `enum`， 层次：`G`
 
-upstream mirror region: default,china,europe
+上游镜像的区域，默认可选值为：upstream mirror region: default,china,europe，默认为： `default`
 
-default value: `default`
+如果一个不同于 `default` 的区域被设置，且在 [`repo_upstream`](#repo_upstream) 中有对应的条目，将会使用该条目对应 `baseurl` 代替 `default` 中的 `baseurl`。
 
-If a region other than `default` is set, and there's a corresponding entry in `repo_upstream.[repo].baseurl`, it will be used instead of `default`.
+例如，如果您的区域被设置为 `china`，那么 Pigsty 会尝试使用中国地区的上游软件镜像站点以加速下载，如果某个上游软件仓库没有对应的中国地区镜像，那么会使用默认的上游镜像站点替代。
 
-For example, if `china` is used,  pigsty will use China mirrors designated in [`repo_upstream`](#repo_upstream) if applicable.
+
 
 
 
@@ -376,19 +377,17 @@ For example, if `china` is used,  pigsty will use China mirrors designated in [`
 
 参数名称： `proxy_env`， 类型： `dict`， 层次：`G`
 
-global proxy env when downloading packages
-
-default value: 
+下载包时使用的全局代理环境变量，默认值指定了 `no_proxy`，即不使用代理的地址列表：
 
 ```yaml
-proxy_env: # global proxy env when downloading packages
-  http_proxy: 'http://username:password@proxy.address.com'
-  https_proxy: 'http://username:password@proxy.address.com'
-  all_proxy: 'http://username:password@proxy.address.com'
+proxy_env:
   no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.aliyuncs.com,mirrors.tuna.tsinghua.edu.cn,mirrors.zju.edu.cn"
+  #http_proxy: 'http://username:password@proxy.address.com'
+  #https_proxy: 'http://username:password@proxy.address.com'
+  #all_proxy: 'http://username:password@proxy.address.com'
 ```
 
-It's quite important to use http proxy in restricted production environment, or your Internet access is blocked (e.g. Mainland China)
+当您在中国大陆地区从互联网上游安装时，特定的软件包可能会被墙，您可以使用代理来解决这个问题。
 
 
 
@@ -399,12 +398,12 @@ It's quite important to use http proxy in restricted production environment, or 
 
 ## `CA`
 
-Self-Signed CA used by pigsty. It is required to support advanced security features.
+Pigsty 使用的自签名 CA 证书，用于支持高级安全特性。
 
 ```yaml
-ca_method: create                 # create,recreate,copy, create by default
-ca_cn: pigsty-ca                  # ca common name, fixed as pigsty-ca
-cert_validity: 7300d              # cert validity, 20 years by default
+ca_method: create                 # CA处理方式：create,recreate,copy，默认为没有则创建
+ca_cn: pigsty-ca                  # CA CN名称，固定为 pigsty-ca
+cert_validity: 7300d              # 证书有效期，默认为 20 年
 ```
 
 
@@ -412,15 +411,16 @@ cert_validity: 7300d              # cert validity, 20 years by default
 
 参数名称： `ca_method`， 类型： `enum`， 层次：`G`
 
-available options: create,recreate,copy
+CA处理方式：`create` , `recreate` ,`copy`，默认为没有则创建
 
-default value: `create`
+默认值为： `create`，即如果不存在则创建一个新的 CA 证书。
 
-* `create`: Create a new CA public-private key pair if not exists, use if exists
-* `recreate`: Always re-create a new CA public-private key pair
-* `copy`: Copy the existing CA public and private keys from local `files/pki/ca`, abort if missing
+* `create`：如果 `files/pki/ca` 中不存在现有的CA，则创建一个全新的 CA 公私钥对，否则就直接使用现有的 CA 公私钥对。
+* `recreate`：总是创建一个新的 CA 公私钥对，覆盖现有的 CA 公私钥对。注意，这是一个危险的操作。
+* `copy`：假设`files/pki/ca` 目录下已经有了一对CA公私钥对，并将 `ca_method` 设置为 `copy`，Pigsty 将会使用现有的 CA 公私钥对。如果不存在则会报错
 
-If you already have a pair of `ca.crt` and `ca.key`, put them under `files/pki/ca` and set `ca_method` to `copy`.
+如果您已经有了一对 CA 公私钥对，可以将其复制到 `files/pki/ca` 目录下，并将 `ca_method` 设置为 `copy`，Pigsty 将会使用现有的 CA 公私钥对，而不是新建一个。
+
 
 
 
@@ -430,11 +430,9 @@ If you already have a pair of `ca.crt` and `ca.key`, put them under `files/pki/c
 
 参数名称： `ca_cn`， 类型： `string`， 层次：`G`
 
-ca common name, not recommending to change it.
+CA CN名称，固定为 `pigsty-ca`，不建议修改。
 
-default value: `pigsty-ca`
-
-you can check that with  `openssl x509 -text -in /etc/pki/ca.crt`
+你可以使用以下命令来查看节点上的 Pigsty CA 证书： `openssl x509 -text -in /etc/pki/ca.crt`
 
 
 
@@ -444,9 +442,7 @@ you can check that with  `openssl x509 -text -in /etc/pki/ca.crt`
 
 参数名称： `cert_validity`， 类型： `interval`， 层次：`G`
 
-cert validity, 20 years by default, which is enough for most scenarios
-
-default value: `7300d`
+签发证书的有效期，默认为 20 年，对绝大多数场景都足够了。默认值为： `7300d`
 
 
 
@@ -478,7 +474,8 @@ infra_portal:                     # infra services exposed via portal
 
 参数名称： `infra_seq`， 类型： `int`， 层次：`I`
 
-infra node identity, REQUIRED, no default value, you have to assign it explicitly.
+基础设施节号，必选身份参数，所以不提供默认值，必须在基础设施节点上显式指定。
+
 
 
 
@@ -487,12 +484,10 @@ infra node identity, REQUIRED, no default value, you have to assign it explicitl
 
 参数名称： `infra_portal`， 类型： `dict`， 层次：`G`
 
-infra services exposed via portal
-
-default value will expose home, grafana, prometheus, alertmanager via nginx with corresponding domain names.
+通过Nginx门户暴露的基础设施服务列表，默认情况下，Pigsty 会通过 Nginx 对外暴露以下服务：
 
 ```yaml
-infra_portal:                     # infra services exposed via portal
+infra_portal:
   home         : { domain: h.pigsty }
   grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" ,websocket: true }
   prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
@@ -501,16 +496,14 @@ infra_portal:                     # infra services exposed via portal
   loki         : { endpoint: "${admin_ip}:3100" }
 ```
 
+每个记录包含三个子部分：`name` 作为键，代表组件名称，外部访问域名和内部TCP端口。 值包含 `domain` 和 `endpoint`，以及其他可选字段：
 
+- 默认记录的 `name` 定义是固定的，其他模块会引用它，所以不要修改默认条目名称。
+- `domain` 是用于外部访问此上游服务器的域名。域名将被添加到Nginx SSL证书的 `SAN` 字段中。
+- `endpoint` 是一个可以内部访问的TCP端口。如果包含 `${admin_ip}` ，则将在运行时被实际的 [`admin_ip`](#admin_ip) 替换。
+- 如果 `websocket` 设置为 `true`，http协议将自动为 Websocket 连接升级。
+- 如果给定了 `scheme`（`http` 或 `https`），它将被用作 proxy_pass URL的一部分。
 
-Each record contains three subsections: key as `name`, representing the component name, the external access domain, and the internal TCP port, respectively.
-and the value contains `domain`, and `endpoint`,
-
-* The `name` definition of the default record is fixed and referenced by other modules, so do not modify the default entry names.
-* The `domain` is the domain name that should be used for external access to this upstream server. domain names will be added to Nginx SSL cert SAN.
-* The `endpoint` is an internally reachable TCP port. and `${admin_ip}` will be replaced with actual [`admin_ip`](#admin_ip) in runtime.
-* If `websocket` is set to `true`, http protocol will be auto upgraded for ws connections.
-* If `scheme` is given (`http` or `https`), it will be used as part of proxy_pass URL.
 
 
 
@@ -519,20 +512,14 @@ and the value contains `domain`, and `endpoint`,
 
 ## `REPO`
 
-This section is about local yum repo, which is used by all other modules.
 
-Pigsty is installed on a meta node. Pigsty pulls up a localYum repo for the current environment to install RPM packages.
+本节配置是关于本地软件仓库的。 Pigsty 默认会在基础设施节点上启用一个本地软件仓库（APT / YUM）。
 
-During initialization, Pigsty downloads all packages and their dependencies (specified by [`repo_packages`](#repo_packages)) from the Internet upstream repo (specified by [`repo_upstream`](#repo_upstream)) to [`{{ nginx_home }}`](#nginx_home) / [`{{ repo_name }}`](#repo_name)  (default is `/www/pigsty`). The total size of all dependent software is about 1GB or so.
+在初始化过程中，Pigsty 会从互联网上游仓库（由 [`repo_upstream`](#repo_upstream) 指定）下载所有软件包及其依赖项（由 [`repo_packages`](#repo_packages) 指定）到 [`{{ nginx_home }}`](#nginx_home) / [`{{ repo_name }}`](#repo_name) （默认为 `/www/pigsty`），所有软件及其依赖的总大小约为1GB左右。
 
-When creating a localYum repo, Pigsty will skip the software download phase if the directory already exists and if there is a marker file named `repo_complete` in the dir.
+创建本地软件仓库时，如果仓库已存在（判断方式：仓库目录目录中有一个名为 `repo_complete` 的标记文件）Pigsty 将认为仓库已经创建完成，跳过软件下载阶段，直接使用构建好的仓库。
 
-If the download speed of some packages is too slow, you can set the download proxy to complete the first download by using the [`proxy_env`](#proxy_env) config entry or directly download the pre-packaged [offline package](INSTALL#offline-packages).
-
-The offline package is a zip archive of the `{{ nginx_home }}/{{ repo_name }}` dir `pkg.tgz`. During `configure`, if Pigsty finds the offline package `/tmp/pkg.tgz`, it will extract it to `{{ nginx_home }}/{{ repo_name }}`, skipping the software download step during installation.
-
-The default offline package is based on CentOS 7.9.2011 x86_64; if you use a different OS, there may be RPM package conflict and dependency error problems; please refer to the FAQ to solve.
-
+如果某些软件包的下载速度太慢，您可以通过使用 [`proxy_env`](#proxy_env) 配置项来设置下载代理来完成首次下载，或直接下载预打包的[离线包](INSTALL#离线软件包)，离线软件包本质上就是在同样操作系统上构建好的本地软件源。
 
 
 ```yaml
@@ -595,13 +582,16 @@ repo_url_packages:
 ```
 
 
+
+
 ### `repo_enabled`
 
 参数名称： `repo_enabled`， 类型： `bool`， 层次：`G/I`
 
-create a yum repo on this infra node? default value: `true`
+是否在当前的基础设施节点上启用本地软件源？默认为： `true`，即所有 Infra 节点都会设置一个本地软件仓库。
 
-If you have multiple infra nodes, you can disable yum repo on other standby nodes to reduce Internet traffic.
+如果您有多个基础设施节点，可以只保留 1 ～ 2 个节点作为软件仓库，其他节点可以通过设置此参数为 `false` 来避免重复软件下载构建。
+
 
 
 
@@ -610,7 +600,7 @@ If you have multiple infra nodes, you can disable yum repo on other standby node
 
 参数名称： `repo_home`， 类型： `path`， 层次：`G`
 
-repo home dir, `/www` by default
+本地软件仓库的家目录，默认为 Nginx 的根目录，也就是： `/www`，我们不建议您修改此目录。如果修改，需要和 [`nginx_home`](#nginx_home)
 
 
 
@@ -621,7 +611,7 @@ repo home dir, `/www` by default
 
 参数名称： `repo_name`， 类型： `string`， 层次：`G`
 
-repo name, `pigsty` by default, it is not wise to change this value
+本地仓库名称，默认为 `pigsty`，更改此仓库的名称是不明智的行为。
 
 
 
@@ -632,9 +622,11 @@ repo name, `pigsty` by default, it is not wise to change this value
 
 参数名称： `repo_endpoint`， 类型： `url`， 层次：`G`
 
-access point to this repo by domain or ip:port
+其他节点访问此仓库时使用的端点，默认值为：`http://${admin_ip}:80`。
 
-default value: `http://${admin_ip}:80`
+Pigsty 默认会在基础设施节点 80/443 端口启动 Nginx，对外提供本地软件源（静态文件）服务。
+
+如果您修改了 [`nginx_port`](#nginx_port) 与 [`nginx_ssl_port`](#nginx_ssl_port)，或者使用了不同于中控节点的基础设施节点，请相应调整此参数。
 
 
 
@@ -643,9 +635,13 @@ default value: `http://${admin_ip}:80`
 
 参数名称： `repo_remove`， 类型： `bool`， 层次：`G/A`
 
-remove existing upstream repo, default value: `true`
+在构建本地软件源时，是否移除现有的上游仓库定义？默认值： `true`
 
-If you want to keep existing upstream repo, set this value to `false`.
+使用 Pigsty 验证过的上游软件源可以提高从互联网下载软件包的成功率与速度。
+
+但在一些特定情况下（例如您的操作系统是某种 EL/Deb 兼容版，许多软件包使用了自己的私有源），您可能需要保留现有的上游仓库定义，此时可以将此参数设置为 `false`。
+
+
 
 
 
@@ -654,9 +650,10 @@ If you want to keep existing upstream repo, set this value to `false`.
 
 参数名称： `repo_modules`， 类型： `string`， 层次：`G/A`
 
-which repo modules are installed in repo_upstream, default value: `node,pgsql,pgsql`
+哪些上游仓库模块会被添加到本地软件源中，默认值： `infra,node,pgsql,redis,minio`
 
-This is a comma separated value string, it is used to filter entries in [`repo_upstream`](#repo_upstream) with corresponding `module` field. 
+当 Pigsty 尝试添加上游仓库时，会根据此参数的值来过滤 [`repo_upstream`](#repo_upstream) 中的条目，只有 `module` 字段与此参数值匹配的条目才会被添加到本地软件源中。
+
 
 
 
@@ -667,9 +664,7 @@ This is a comma separated value string, it is used to filter entries in [`repo_u
 
 参数名称： `repo_upstream`， 类型： `upstream[]`， 层次：`G`
 
-where to download upstream packages
-
-default values: 
+从哪里下载上游软件包？默认值是针对 EL 7/8/9 及其兼容操作系统发行版所准备的：
 
 ```yaml
 repo_upstream:                    # where to download #
@@ -705,6 +700,51 @@ repo_upstream:                    # where to download #
 - { name: pigsty-minio   ,description: 'Pigsty MinIO'      ,module: minio ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.cc/rpm/minio/$basearch'  }}
 ```
 
+对于 Ubuntu 20.04 & 22.04，您需要在配置文件的合适位置（全局/集群/实例）中 **显式** 指定此参数：
+
+```yaml
+repo_upstream:
+  - { name: base        ,description: 'Ubuntu Basic'     ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}           main universe multiverse restricted' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}           main restricted universe multiverse' }}
+  - { name: updates     ,description: 'Ubuntu Updates'   ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}-backports main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}-updates   main restricted universe multiverse' }}
+  - { name: backports   ,description: 'Ubuntu Backports' ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}-security  main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}-backports main restricted universe multiverse' }}
+  - { name: security    ,description: 'Ubuntu Security'  ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}-updates   main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}-security  main restricted universe multiverse' }}
+  - { name: haproxy     ,description: 'HAProxy'          ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/${distro_name}/ ${distro_codename} main'  }}
+  - { name: nginx       ,description: 'Nginx'            ,module: infra ,releases: [20,22] ,baseurl: { default: 'http://nginx.org/packages/${distro_name}/  ${distro_codename} nginx' }}
+  - { name: docker-ce   ,description: 'Docker'           ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name}/ ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/${distro_name}/ ${distro_codename} stable' }}
+  - { name: grafana     ,description: 'Grafana'          ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
+  - { name: infra       ,description: 'Pigsty Infra'     ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://repo.pigsty.cc/deb/infra/amd64/ ./' }} # prometheus-deb packages
+  - { name: pgdg        ,description: 'PGDG'             ,module: pgsql ,releases: [20,22] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg main' }}
+  - { name: citus       ,description: 'Citus'            ,module: pgsql ,releases: [20,22] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/${distro_name}/ ${distro_codename} main'   }}
+  - { name: timescaledb ,description: 'Timescaledb'      ,module: pgsql ,releases: [20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
+  - { name: pgsql       ,description: 'Pigsty PgSQL'     ,module: pgsql ,releases: [20,22] ,baseurl: { default: 'https://repo.pigsty.cc/deb/pgsql/${distro_codename}.amd64/ ./' }}
+  - { name: redis       ,description: 'Pigsty Redis'     ,module: redis ,releases: [20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
+  - { name: minio       ,description: 'Pigsty MinIO'     ,module: minio ,releases: [20,22] ,baseurl: { default: 'https://repo.pigsty.cc/deb/minio/amd64/ ./' ,europe: 'https://packagecloud.io/pigsty/minio/ubuntu/ jammy main' }}
+```
+
+对于 Debian 11 & 12，您需要在配置文件的合适位置（全局/集群/实例）中 **显式** 指定此参数：
+
+```yaml
+repo_upstream:
+  - { name: base        ,description: 'Debian Basic'    ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename} main non-free-firmware'                       ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename} main restricted universe multiverse' }}
+  - { name: updates     ,description: 'Debian Updates'  ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename}-updates main non-free-firmware'               ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-updates main restricted universe multiverse' }}
+  - { name: security    ,description: 'Debian Security' ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://security.debian.org/debian-security ${distro_codename}-security main non-free-firmware' }}
+  - { name: haproxy     ,description: 'HAProxy'         ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://haproxy.debian.net ${distro_codename}-backports-2.8 main'    }}
+  - { name: nginx       ,description: 'Nginx'           ,module: infra ,releases: [11,12] ,baseurl: { default: 'http://nginx.org/packages/mainline/debian ${distro_codename} nginx' }}
+  - { name: docker-ce   ,description: 'Docker'          ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://download.docker.com/linux/debian ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/debian/ ${distro_codename} stable' }}
+  - { name: grafana     ,description: 'Grafana'         ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
+  - { name: infra       ,description: 'Pigsty Infra'    ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://repo.pigsty.cc/deb/infra/amd64/ ./' }} # prometheus-deb packages
+  - { name: pgdg        ,description: 'PGDG'            ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg main' }}
+  - { name: citus       ,description: 'Citus'           ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/debian/ ${distro_codename} main'   }}
+  - { name: timescaledb ,description: 'Timescaledb'     ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/debian/ ${distro_codename} main' }}
+  - { name: pgsql       ,description: 'Pigsty PGSQL'    ,module: pgsql ,releases: [11,12] ,baseurl: { default: 'https://repo.pigsty.cc/deb/pgsql/${distro_codename}.amd64/ ./' }}
+  - { name: redis       ,description: 'Pigsty Redis'    ,module: redis ,releases: [11,12] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
+  - { name: minio       ,description: 'Pigsty MinIO'    ,module: minio ,releases: [11,12] ,baseurl: { default: 'https://repo.pigsty.cc/deb/minio/amd64/ ./' ,europe: 'https://packagecloud.io/pigsty/minio/ubuntu/ jammy main' }}
+```
+
+Pigsty 构建配置模板 [`build.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/build.yml) 提供了不同操作系统下的权威默认值。
+
+
+
 
 
 
@@ -712,7 +752,7 @@ repo_upstream:                    # where to download #
 
 参数名称： `repo_packages`， 类型： `string[]`， 层次：`G`
 
-which packages to be included, default values: 
+构建本地软件源时，从上游下载哪些离线软件包？默认值是针对 EL 7/8/9 及其兼容操作系统发行版所准备的：
 
 ```yaml
 repo_packages:                    # which packages to be included
@@ -732,12 +772,53 @@ repo_packages:                    # which packages to be included
   - pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_hint_plan_15* pg_auth_mon_15 pg_checksums_15 pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15 rum_15
 ```
 
-Each line is a set of package names separated by spaces, where the specified software will be downloaded via `repotrack`.
+不同的 EL 大版本所包含的软件包会有微量差别，在当前版本中：
 
-EL7 packages is slightly different, here are some ad hoc packages:
+* EL7:  `python36-requests python36-idna yum-utils yum-utils`，以及 `postgis33*`
+* EL8:  `python3.11-jmespath dnf-utils modulemd-tools`，以及 `postgis34*`
+* EL9:  与 EL8 相同，唯独缺少 `pgxnclient` 软件包
 
-* EL7:  `python36-requests python36-idna yum-utils yum-utils`
-* EL8 / EL9:  `python3.11-jmespath dnf-utils modulemd-tools`
+对于 Debian 系操作系统，合理默认值有所不同：
+
+```yaml
+repo_packages:                    # which packages to be included
+  - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev
+  - grafana loki logcli promtail prometheus2 alertmanager pushgateway blackbox-exporter
+  - node-exporter pg-exporter nginx-exporter redis-exporter mysqld-exporter mongodb-exporter kafka-exporter keepalived-exporter
+  - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-tools-generic
+  - netcat socat ftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl
+  - redis minio mcli etcd haproxy vip-manager nginx sshpass chrony dnsmasq docker-ce docker-compose-plugin ferretdb sealos
+  - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter
+  - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
+  - postgresql-client-15 postgresql-15 postgresql-server-dev-15 postgresql-plpython3-15 postgresql-plperl-15 postgresql-pltcl-15 postgresql-15-wal2json postgresql-15-repack
+  - postgresql-client-14 postgresql-14 postgresql-server-dev-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-14-wal2json postgresql-14-repack
+  - postgresql-client-13 postgresql-13 postgresql-server-dev-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-13-wal2json postgresql-13-repack
+  - postgresql-client-12 postgresql-12 postgresql-server-dev-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-12-wal2json postgresql-12-repack
+  - postgresql-15-postgis-3 postgresql-15-postgis-3-scripts postgresql-15-citus-12.1 postgresql-15-pgvector timescaledb-2-postgresql-15 postgresql-pgml-15  # pgml-15 not available in ubuntu20
+  - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector postgresql-pgml-15 pg-graphql pg-net
+  - postgresql-15-credcheck postgresql-15-cron postgresql-15-debversion postgresql-15-decoderbufs postgresql-15-dirtyread postgresql-15-extra-window-functions postgresql-15-first-last-agg
+  - postgresql-15-hll postgresql-15-hypopg postgresql-15-icu-ext postgresql-15-ip4r postgresql-15-jsquery postgresql-15-londiste-sql postgresql-15-mimeo postgresql-15-mysql-fdw postgresql-15-numeral
+  - postgresql-15-ogr-fdw postgresql-15-omnidb postgresql-15-oracle-fdw postgresql-15-orafce postgresql-15-partman postgresql-15-periods postgresql-15-pg-catcheck postgresql-15-pg-checksums
+  - postgresql-15-pg-fact-loader postgresql-15-pg-qualstats postgresql-15-pg-stat-kcache postgresql-15-pg-track-settings postgresql-15-pg-wait-sampling postgresql-15-pgaudit postgresql-15-pgauditlogtofile
+  - postgresql-15-pgextwlist postgresql-15-pgfincore postgresql-15-pgl-ddl-deploy postgresql-15-pglogical postgresql-15-pglogical-ticker postgresql-15-pgmemcache postgresql-15-pgmp
+  - postgresql-15-pgpcre postgresql-15-pgq-node postgresql-15-pgq3 postgresql-15-pgsphere postgresql-15-pgtap postgresql-15-pldebugger postgresql-15-pllua postgresql-15-plpgsql-check
+  - postgresql-15-plprofiler postgresql-15-plproxy postgresql-15-plsh postgresql-15-pointcloud postgresql-15-powa postgresql-15-prefix postgresql-15-preprepare postgresql-15-prioritize
+  - postgresql-15-q3c postgresql-15-rational postgresql-15-rum postgresql-15-semver postgresql-15-set-user postgresql-15-show-plans postgresql-15-similarity postgresql-15-squeeze
+  - postgresql-15-tablelog postgresql-15-tdigest postgresql-15-tds-fdw postgresql-15-toastinfo postgresql-15-topn postgresql-15-unit postgresql-15-rdkit # 15-rdkit not available in ubuntu20
+```
+
+其中也有少量区别：
+
+- Ubuntu 22.04：`postgresql-pgml-15`, `postgresql-15-rdkit`, `linux-tools-generic`(perf), `netcat`, `ftp`
+- Ubuntu 20.04：`postgresql-15-rdkit` 不可用， `postgresql-15-postgis-3` 必须在线安装（不能使用本地源）
+- Debian 12：`netcat` -> `netcat-openbsd`，`ftp` -> `tnftp`，`linux-tools-generic`（perf） 的包名是 `linux-perf`，其余与 Ubuntu 一致
+- Debian 11：与 Debian 12 一样，除了 `postgresql-15-rdkit` 不可用。
+
+
+每一行都是 **由空格分隔** 的软件包列表字符串，这些软件包会使用 `repotrack` 或 `apt download` 下载本地以及所有依赖。
+
+Pigsty 构建配置模板 [`build.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/build.yml) 提供了不同操作系统下的权威默认值。
+
 
 
 
@@ -746,13 +827,16 @@ EL7 packages is slightly different, here are some ad hoc packages:
 
 参数名称： `repo_url_packages`， 类型： `string[]`， 层次：`G`
 
-extra packages from url, default values:
+直接使用 URL 从互联网上下载的软件包，默认为：
 
 ```yaml
 repo_url_packages:
-  - https://repo.pigsty.cc/etc/pev.html
-  - https://repo.pigsty.cc/etc/chart.tgz
+  - https://repo.pigsty.cc/etc/pev.html     # postgres 执行计划可视化
+  - https://repo.pigsty.cc/etc/chart.tgz    # grafana 额外地图数据 GeoJson
+  - https://repo.pigsty.cc/etc/plugins.tgz  # grafana 插件，可选
 ```
+
+这几个都是可选的加装项：例如，如果不下载 `plugins.tgz`，Grafana 初始化的时候就会直接从互联网上下载插件，这样会导致初始化时间变长（而且有可能被墙），但是不会影响最终结果。
 
 
 
@@ -5367,8 +5451,8 @@ overwrite extra options for pg_exporter
 
 default value is empty string, which will fall back the following default options: 
 
-```bash
-PG_EXPORTER_OPTS='--log.level=info --log.format="logger:syslog?appname=pg_exporter&local=7"'
+```
+--log.level=info --log.format=logfmt
 ```
 
 If you want to customize logging options or other pg_exporter options, you can set it here.
@@ -5426,7 +5510,7 @@ overwrite extra options for pgbouncer_exporter
 default value is empty string, which will fall back the following default options:
 
 ```
-'--log.level=info --log.format="logger:syslog?appname=pgbouncer_exporter&local=7"'
+--log.level=info --log.format=logfmt
 ```
 
 If you want to customize logging options or other pgbouncer_exporter options, you can set it here.
