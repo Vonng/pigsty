@@ -2705,33 +2705,33 @@ cat {{ docker_image_cache }}/*.tgz | gzip -d -c - | docker load
 
 # `ETCD`
 
-[ETCD](ETCD) is a distributed, reliable key-value store for the most critical data of a distributed system,
-and pigsty use **etcd** as **DCS**, Which is critical to PostgreSQL High-Availability.
+[ETCD](ETCD) 是一个分布式、可靠的键值存储，用于分布式系统的最关键数据。Pigsty使用etcd作为DCS，这对PostgreSQL的高可用性至关重要。
 
-Pigsty has a hard coded group name `etcd` for etcd cluster, it can be an existing & external etcd cluster, or a new etcd cluster created by pigsty with `etcd.yml`.
+Pigsty为etcd集群使用一个硬编码的集群组名 `etcd`，它可以是一套现有的外部etcd集群，或者默认由 Pigsty 使用 [etcd.yml](ETCD#etcdyml) 剧本部署创建的新etcd集群。
 
 
 ```yaml
-#etcd_seq: 1                      # etcd instance identifier, explicitly required
-#etcd_cluster: etcd               # etcd cluster & group name, etcd by default
-etcd_safeguard: false             # prevent purging running etcd instance?
-etcd_clean: true                  # purging existing etcd during initialization?
-etcd_data: /data/etcd             # etcd data directory, /data/etcd by default
-etcd_port: 2379                   # etcd client port, 2379 by default
-etcd_peer_port: 2380              # etcd peer port, 2380 by default
-etcd_init: new                    # etcd initial cluster state, new or existing
-etcd_election_timeout: 1000       # etcd election timeout, 1000ms by default
-etcd_heartbeat_interval: 100      # etcd heartbeat interval, 100ms by default
+#etcd_seq: 1                      # etcd实例标识符，需要显式指定
+#etcd_cluster: etcd               # etcd集群和组名称，默认为etcd
+etcd_safeguard: false             # 组织清除正在运行的etcd实例？
+etcd_clean: true                  # 在初始化过程中清除现有的etcd？
+etcd_data: /data/etcd             # etcd数据目录，默认为/data/etcd
+etcd_port: 2379                   # etcd客户端端口，默认为2379
+etcd_peer_port: 2380              # etcd对等端口，默认为2380
+etcd_init: new                    # etcd初始集群状态，新建或现有
+etcd_election_timeout: 1000       # etcd选举超时，默认为1000ms
+etcd_heartbeat_interval: 100      # etcd心跳间隔，默认为100ms
 ```
+
 
 
 ### `etcd_seq`
 
 参数名称： `etcd_seq`， 类型： `int`， 层次：`I`
 
-etcd instance identifier, REQUIRED
+etcd 实例标号， 这是必选参数，必须为每一个 etcd 实例指定一个唯一的标号。
 
-no default value, you have to specify it explicitly. Here is a 3-node etcd cluster example:
+以下是一个3节点etcd集群的示例，分配了 1 ～ 3 三个标号。
 
 ```yaml
 etcd: # dcs service for postgres/patroni ha consensus
@@ -2751,9 +2751,11 @@ etcd: # dcs service for postgres/patroni ha consensus
 
 参数名称： `etcd_cluster`， 类型： `string`， 层次：`C`
 
-etcd cluster & group name, etcd by default
+etcd 集群 & 分组名称，默认值为硬编码值 `etcd`。
 
-default values: `etcd`, which is a fixed group name, can be useful when you want to use deployed some extra etcd clusters
+当您想要部署另外的 etcd 集群备用时，可以修改此参数并使用其他集群名。
+
+
 
 
 
@@ -2763,9 +2765,9 @@ default values: `etcd`, which is a fixed group name, can be useful when you want
 
 参数名称： `etcd_safeguard`， 类型： `bool`， 层次：`G/C/A`
 
-prevent purging running etcd instance? default value is `false`
+安全保险参数，防止清除正在运行的etcd实例？默认值为 `false`。
 
-If enabled, running etcd instance will not be purged by `etcd.yml` playbook.
+如果启用安全保险，[etcd.yml](ETCD#etcdyml) 剧本不会清除正在运行的etcd实例。
 
 
 
@@ -2774,11 +2776,11 @@ If enabled, running etcd instance will not be purged by `etcd.yml` playbook.
 
 参数名称： `etcd_clean`， 类型： `bool`， 层次：`G/C/A`
 
-purging existing etcd during initialization? default value is `true`
+在初始化时清除现有的 etcd ？默认值为`true`。
 
-If enabled, running etcd instance will be purged by `etcd.yml` playbook, which makes `etcd.yml` a truly idempotent playbook.
+如果启用，[etcd.yml](ETCD#etcdyml) 剧本将清除正在运行的 etcd 实例，这将使其成为一个真正幂等的剧本（总是抹除现有集群）。
 
-But if [`etcd_safeguard`](#etcd_safeguard) is enabled, it will still abort on any running etcd instance.
+但是如果启用了[`etcd_safeguard`](#etcd_safeguard)，即使设置了此参数，剧本依然会在遇到运行中的 etcd 实例时中止，避免误删。
 
 
 
@@ -2788,7 +2790,7 @@ But if [`etcd_safeguard`](#etcd_safeguard) is enabled, it will still abort on an
 
 参数名称： `etcd_data`， 类型： `path`， 层次：`C`
 
-etcd data directory, `/data/etcd` by default
+etcd 数据目录，默认为`/data/etcd` 。
 
 
 
@@ -2799,7 +2801,7 @@ etcd data directory, `/data/etcd` by default
 
 参数名称： `etcd_port`， 类型： `port`， 层次：`C`
 
-etcd client port, `2379` by default
+etcd 客户端端口号，默认为`2379`。
 
 
 
@@ -2809,7 +2811,7 @@ etcd client port, `2379` by default
 
 参数名称： `etcd_peer_port`， 类型： `port`， 层次：`C`
 
-etcd peer port, `2380` by default
+etcd peer 端口，默认为 `2380` 。
 
 
 
@@ -2819,11 +2821,9 @@ etcd peer port, `2380` by default
 
 参数名称： `etcd_init`， 类型： `enum`， 层次：`C`
 
-etcd initial cluster state, `new` or `existing`
+etcd初始集群状态，可以是`new`或`existing`，默认值：`new`。
 
-default values: `new`, which will create a standalone new etcd cluster.
-
-The value `existing` is used when trying to [add new member](ETCD#添加成员) to existing etcd cluster.
+默认将创建一个独立的新etcd集群，当尝试向现有etcd集群[添加新成员](ETCD#添加成员)时，应当使用 `existing`。
 
 
 
@@ -2833,7 +2833,7 @@ The value `existing` is used when trying to [add new member](ETCD#添加成员) 
 
 参数名称： `etcd_election_timeout`， 类型： `int`， 层次：`C`
 
-etcd election timeout, `1000` (ms) by default
+etcd 选举超时，默认为 `1000` (毫秒)，也就是 1 秒。
 
 
 
@@ -2843,7 +2843,7 @@ etcd election timeout, `1000` (ms) by default
 
 参数名称： `etcd_heartbeat_interval`， 类型： `int`， 层次：`C`
 
-etcd heartbeat interval, `100` (ms) by default
+etcd心跳间隔，默认为 `100` (毫秒)。
 
 
 
@@ -2851,9 +2851,9 @@ etcd heartbeat interval, `100` (ms) by default
 
 # `MINIO`
 
-Minio is a S3 compatible object storage service. Which is used as an optional central backup storage repo for PostgreSQL.
+MinIO 是一个与S3兼容的对象存储服务，它被用作PostgreSQL的可选的集中式备份存储库。
 
-But you can use it for other purpose, such as storing large files, document, pictures & videos.
+但你也可以将其用于其他目的，如存储大文件、文档、图片和视频。
 
 
 ```yaml
@@ -2881,7 +2881,7 @@ minio_users:
 
 参数名称： `minio_seq`， 类型： `int`， 层次：`I`
 
-minio instance identifier, REQUIRED identity parameters. no default value, you have to assign it manually
+MinIO 实例标识符，必需的身份参数。没有默认值，您必须手动分配。
 
 
 
@@ -2891,7 +2891,7 @@ minio instance identifier, REQUIRED identity parameters. no default value, you h
 
 参数名称： `minio_cluster`， 类型： `string`， 层次：`C`
 
-minio cluster name, `minio` by default. This is useful when deploying multiple MinIO clusters
+MinIO 集群名称，默认为 `minio`。当部署多个MinIO集群时，可以使用此参数进行区分。
 
 
 
@@ -2903,7 +2903,7 @@ minio cluster name, `minio` by default. This is useful when deploying multiple M
 
 参数名称： `minio_clean`， 类型： `bool`， 层次：`G/C/A`
 
-cleanup minio during init?, `false` by default
+是否在初始化时清理 MinIO ？默认为 `false`，即不清理现有数据。
 
 
 
@@ -2914,7 +2914,7 @@ cleanup minio during init?, `false` by default
 
 参数名称： `minio_user`， 类型： `username`， 层次：`C`
 
-minio os user name, `minio` by default
+MinIO 操作系统用户名，默认为 `minio`。
 
 
 
@@ -2925,9 +2925,9 @@ minio os user name, `minio` by default
 
 参数名称： `minio_node`， 类型： `string`， 层次：`C`
 
-minio node name pattern, this is used for [multi-node](MINIO#multi-node-multi-drive) deployment
+MinIO 节点名称模式，用于[多节点](MINIO#多机多盘)部署。
 
-default values: `${minio_cluster}-${minio_seq}.pigsty`
+默认值为：`${minio_cluster}-${minio_seq}.pigsty`，即以实例名 + `.pigsty` 后缀作为默认的节点名。
 
 
 
@@ -2937,11 +2937,9 @@ default values: `${minio_cluster}-${minio_seq}.pigsty`
 
 参数名称： `minio_data`， 类型： `path`， 层次：`C`
 
-minio data dir(s)
+MinIO 数据目录（们），默认值：`/data/minio`，这是[单节点](MINIO#单机单盘)部署的常见目录。
 
-default values: `/data/minio`, which is a common dir for [single-node](MINIO#single-node-single-drive) deployment.
-
-For a [multi-drive](MINIO#single-node-multi-drive) deployment, you can use `{x...y}` notion to specify multi drivers.
+对于[多个磁盘](MINIO#单机多盘)部署，您可以使用 `{x...y}` 的记法来指定多个驱动器。
 
 
 
@@ -2951,9 +2949,9 @@ For a [multi-drive](MINIO#single-node-multi-drive) deployment, you can use `{x..
 
 参数名称： `minio_domain`， 类型： `string`， 层次：`G`
 
-minio service domain name, `sss.pigsty` by default.
+MinIO 服务域名，默认为`sss.pigsty`。
 
-The client can access minio S3 service via this domain name. This name will be registered to local DNSMASQ and included in SSL certs.
+客户端可以通过此域名访问 MinIO S3服务。此名称将注册到本地DNSMASQ，并包含在SSL证书字段中。
 
 
 
@@ -2964,7 +2962,7 @@ The client can access minio S3 service via this domain name. This name will be r
 
 参数名称： `minio_port`， 类型： `port`， 层次：`C`
 
-minio service port, `9000` by default
+MinIO 服务端口，默认为`9000`。
 
 
 
@@ -2974,7 +2972,7 @@ minio service port, `9000` by default
 
 参数名称： `minio_admin_port`， 类型： `port`， 层次：`C`
 
-minio console port, `9001` by default
+MinIO 控制台端口，默认为`9001`。
 
 
 
@@ -2984,9 +2982,7 @@ minio console port, `9001` by default
 
 参数名称： `minio_access_key`， 类型： `username`， 层次：`C`
 
-root access key, `minioadmin` by default
-
-!> PLEASE CHANGE THIS IN YOUR DEPLOYMENT
+根访问用户名（access key），默认为`minioadmin`。
 
 
 
@@ -2997,11 +2993,10 @@ root access key, `minioadmin` by default
 
 参数名称： `minio_secret_key`， 类型： `password`， 层次：`C`
 
-root secret key, `minioadmin` by default
+根访问密钥（secret key），默认为`minioadmin`。
 
-default values: `minioadmin`
+> **请务必在生产部署中更改此参数！**
 
-!> PLEASE CHANGE THIS IN YOUR DEPLOYMENT
 
 
 
@@ -3010,10 +3005,9 @@ default values: `minioadmin`
 
 参数名称： `minio_extra_vars`， 类型： `string`， 层次：`C`
 
-extra environment variables for minio server. Check [Minio Server](https://min.io/docs/minio/linux/reference/minio-server/minio-server.html) for the complete list.
+MinIO 服务器的额外环境变量。查看[Minio Server](https://min.io/docs/minio/linux/reference/minio-server/minio-server.html) 文档以获取完整列表。
 
-default value is empty string, you can use multiline string to passing multiple environment variables.
-
+默认值为空字符串，您可以使用多行字符串来传递多个环境变量。
 
 
 
@@ -3022,9 +3016,8 @@ default value is empty string, you can use multiline string to passing multiple 
 
 参数名称： `minio_alias`， 类型： `string`， 层次：`G`
 
-MinIO alias name for the local MinIO cluster
 
-default values: `sss`, which will be written to infra nodes' / admin users' client alias profile.
+本地MinIO集群的MinIO别名，默认值：`sss`，它将被写入基础设施节点/管理员用户的客户端别名配置文件中。
 
 
 
@@ -3034,13 +3027,13 @@ default values: `sss`, which will be written to infra nodes' / admin users' clie
 
 参数名称： `minio_buckets`， 类型： `bucket[]`， 层次：`C`
 
-list of minio bucket to be created by default:
+默认创建的minio存储桶列表：
 
 ```yaml
 minio_buckets: [ { name: pgsql }, { name: infra },  { name: redis } ]
 ```
 
-Three default buckets are created for module [`PGSQL`](PGSQL), [`INFRA`](INFRA), and [`REDIS`](REDIS)
+为模块[`PGSQL`](PGSQL)、[`INFRA`](INFRA)和[`REDIS`](REDIS)创建了三个默认的存储桶。
 
 
 
@@ -3049,7 +3042,7 @@ Three default buckets are created for module [`PGSQL`](PGSQL), [`INFRA`](INFRA),
 
 参数名称： `minio_users`， 类型： `user[]`， 层次：`C`
 
-list of minio user to be created, default value:
+要创建的minio用户列表，默认值：
 
 ```yaml
 minio_users:
@@ -3057,9 +3050,9 @@ minio_users:
   - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
 ```
 
-Two default users are created for PostgreSQL DBA and pgBackREST.
+默认配置会为 PostgreSQL DBA 和 pgBackREST 创建两个默认用户。
 
-!> PLEASE ADJUST THESE USERS & CREDENTIALS IN YOUR DEPLOYMENT!
+> **请务必在您的部署中调整这些凭证！**
 
 
 

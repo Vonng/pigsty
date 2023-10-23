@@ -2663,7 +2663,7 @@ cat {{ docker_image_cache }}/*.tgz | gzip -d -c - | docker load
 [ETCD](ETCD) is a distributed, reliable key-value store for the most critical data of a distributed system,
 and pigsty use **etcd** as **DCS**, Which is critical to PostgreSQL High-Availability.
 
-Pigsty has a hard coded group name `etcd` for etcd cluster, it can be an existing & external etcd cluster, or a new etcd cluster created by pigsty with `etcd.yml`.
+Pigsty has a hard coded group name `etcd` for etcd cluster, it can be an existing & external etcd cluster, or a new etcd cluster created by Pigsty with  [etcd.yml](ETCD#etcdyml).
 
 
 ```yaml
@@ -2720,7 +2720,7 @@ name: `etcd_safeguard`, type: `bool`, level: `G/C/A`
 
 prevent purging running etcd instance? default value is `false`
 
-If enabled, running etcd instance will not be purged by `etcd.yml` playbook.
+If enabled, running etcd instance will not be purged by [etcd.yml](ETCD#etcdyml) playbook.
 
 
 
@@ -2731,7 +2731,7 @@ name: `etcd_clean`, type: `bool`, level: `G/C/A`
 
 purging existing etcd during initialization? default value is `true`
 
-If enabled, running etcd instance will be purged by `etcd.yml` playbook, which makes `etcd.yml` a truly idempotent playbook.
+If enabled, running etcd instance will be purged by [etcd.yml](ETCD#etcdyml) playbook, which makes the playbook fully idempotent.
 
 But if [`etcd_safeguard`](#etcd_safeguard) is enabled, it will still abort on any running etcd instance.
 
@@ -2941,8 +2941,6 @@ name: `minio_access_key`, type: `username`, level: `C`
 
 root access key, `minioadmin` by default
 
-!> PLEASE CHANGE THIS IN YOUR DEPLOYMENT
-
 
 
 
@@ -2956,7 +2954,7 @@ root secret key, `minioadmin` by default
 
 default values: `minioadmin`
 
-!> PLEASE CHANGE THIS IN YOUR DEPLOYMENT
+> **PLEASE CHANGE THIS IN YOUR DEPLOYMENT**
 
 
 
