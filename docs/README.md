@@ -6,7 +6,7 @@
 >
 > [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) + [Supabase](https://supabase.com/) + [PostgresML](https://postgresml.org/) + [...](PGSQL-EXTENSION.md)
 >
-> Latest Release: [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Website](https://pigsty.cc/en/)  | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/F2wYeJbJ) | [中文文档](/zh/)
+> Latest Release: [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Website](https://pigsty.cc/en/)  | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/Mu2b6Wxr) | [中文文档](/zh/)
 >
 > [Get Started](INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash`
 
@@ -654,7 +654,7 @@ WeChat: Search `pigsty-cc` to join the WeChat group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/F2wYeJbJ
+Discord: https://discord.gg/Mu2b6Wxr
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
