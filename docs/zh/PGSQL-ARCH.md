@@ -157,32 +157,36 @@ Pigsty 的 PostgreSQL 集群带有自动配置的时间点恢复（PITR）方案
 
 高可用可以解决硬件故障，软件缺陷与人为失误导致的数据删除/覆盖写入却无能为力：因为变更操作会立即同步至从库应用。时间点恢复（Point in Time Recovery, PITR）可以解决这个问题。此外当您只有单个实例时，PITR也可以代替高可用，为最坏的情况兜底。
 
-如果想将集群恢复至某个备份，用户需要提前定期做好基础备份，如果想将集群恢复至任意时间点，用户还需要从备份时刻迄今的 WAL归档。这两项工作 Pigsty 为您自动进行了兜底配置。 Pigsty 使用 pgBackRest 管理备份，接受WAL归档，执行PITR。备份仓库可以进行灵活配置（[`pgbackrest_repo`](PARAM#pgbackrest_repo)）：默认使用主库本地文件系统（`local`），但也可以使用其他磁盘路径，或使用自带的可选 MinIO 服务（`minio`）与云上 S3 服务。
+如果想将集群恢复至某个备份，用户需要提前定期做好基础备份，如果想将集群恢复至任意时间点，用户还需要从备份时刻迄今的 WAL归档。这两项工作 Pigsty 为您自动进行了兜底配置。
+Pigsty 使用 pgBackRest 管理备份，接受WAL归档，执行PITR。备份仓库可以进行灵活配置（[`pgbackrest_repo`](PARAM#pgbackrest_repo)）：默认使用主库本地文件系统（`local`），但也可以使用其他磁盘路径，或使用自带的可选 [MinIO](MINIO) 服务（`minio`）与云上 S3 服务。
 
 
 ```yaml
-pgbackrest_method: local          # 在这里选择备份仓库，默认选用本地文件系统备份仓库
-pgbackrest_repo:                  # 在这里定义备份仓库，Pigsty 预定义了 local / minio 两个仓库。
-  local:                          # default pgbackrest repo with local posix fs
-    path: /pg/backup              # local backup directory, `/pg/backup` by default
-    retention_full_type: count    # retention full backups by count
-    retention_full: 2             # keep 2, at most 3 full backup when using local fs repo
-  minio:                          # optional minio repo for pgbackrest
-    type: s3                      # minio is s3-compatible, so s3 is used
-    s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default
-    s3_region: us-east-1          # minio region, us-east-1 by default, useless for minio
-    s3_bucket: pgsql              # minio bucket name, `pgsql` by default
-    s3_key: pgbackrest            # minio user access key for pgbackrest
-    s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
-    s3_uri_style: path            # use path style uri for minio rather than host style
-    path: /pgbackrest             # minio backup path, default is `/pgbackrest`
-    storage_port: 9000            # minio port, 9000 by default
-    storage_ca_file: /etc/pki/ca.crt  # minio ca file path, `/etc/pki/ca.crt` by default
-    bundle: y                     # bundle small files into a single file
-    cipher_type: aes-256-cbc      # enable AES encryption for remote backup repo
-    cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
-    retention_full_type: time     # retention full backup by time on minio repo
-    retention_full: 14            # keep full backup for last 14 days
+pgbackrest_enabled: true          # 在 pgsql 主机上启用 pgBackRest 吗？
+pgbackrest_clean: true            # 初始化时删除 pg 备份数据？
+pgbackrest_log_dir: /pg/log/pgbackrest # pgbackrest 日志目录，默认为 `/pg/log/pgbackrest`
+pgbackrest_method: local          # pgbackrest 仓库方法：local, minio, [用户定义...]
+pgbackrest_repo:                  # pgbackrest 仓库：https://pgbackrest.org/configuration.html#section-repository
+  local:                          # 默认使用本地 posix 文件系统的 pgbackrest 仓库
+    path: /pg/backup              # 本地备份目录，默认为 `/pg/backup`
+    retention_full_type: count    # 按计数保留完整备份
+    retention_full: 2             # 使用本地文件系统仓库时，最多保留 3 个完整备份，至少保留 2 个
+  minio:                          # pgbackrest 的可选 minio 仓库
+    type: s3                      # minio 是与 s3 兼容的，所以使用 s3
+    s3_endpoint: sss.pigsty       # minio 端点域名，默认为 `sss.pigsty`
+    s3_region: us-east-1          # minio 区域，默认为 us-east-1，对 minio 无效
+    s3_bucket: pgsql              # minio 桶名称，默认为 `pgsql`
+    s3_key: pgbackrest            # pgbackrest 的 minio 用户访问密钥
+    s3_key_secret: S3User.Backup  # pgbackrest 的 minio 用户秘密密钥
+    s3_uri_style: path            # 对 minio 使用路径风格的 uri，而不是主机风格
+    path: /pgbackrest             # minio 备份路径，默认为 `/pgbackrest`
+    storage_port: 9000            # minio 端口，默认为 9000
+    storage_ca_file: /etc/pki/ca.crt  # minio ca 文件路径，默认为 `/etc/pki/ca.crt`
+    bundle: y                     # 将小文件打包成一个文件
+    cipher_type: aes-256-cbc      # 为远程备份仓库启用 AES 加密
+    cipher_pass: pgBackRest       # AES 加密密码，默认为 'pgBackRest'
+    retention_full_type: time     # 在 minio 仓库上按时间保留完整备份
+    retention_full: 14            # 保留过去 14 天的完整备份
 ```
 
-默认情况下，Pigsty提供了两种预置[备份策略](PGSQL-PITR.md#备份策略)：默认使用本地文件系统备份仓库，在这种情况下每天进行一次全量备份，确保用户任何时候都能回滚至一天内的任意时间点。备选策略使用专用的 MinIO 集群或S3存储备份，每周一全备，每天一增备，默认保留两周的备份与WAL归档。
+默认情况下，Pigsty提供了两种预置[备份策略](PGSQL-PITR#备份策略)：默认使用本地文件系统备份仓库，在这种情况下每天进行一次全量备份，确保用户任何时候都能回滚至一天内的任意时间点。备选策略使用专用的 MinIO 集群或S3存储备份，每周一全备，每天一增备，默认保留两周的备份与WAL归档。

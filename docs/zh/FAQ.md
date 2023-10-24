@@ -23,13 +23,6 @@ Pigsty 离线软件包构建使用的操作系统版本为： CentOS 7.9, Rocky 
 国产操作系统中，我们建议使用 OpenAnolis 8.8 （RHCK），完全兼容 EL8 的软件包，无需额外适配。
 在[企业级服务协议](SUPPORT.md)中，我们也提供对信创国产操作系统的额外付费支持（例如OpenEuler/UOS）。
 
-</details><br>
-
-
-<details><summary>操作系统选型指南</summary><br>
-
-Pigsty 在主流 Linux 操作系统发行版上可用
-
 - 当您看重这些特性时，选择 EL 系操作系统：
   - 最充分的测试与稳定性验证，大规模使用案例
   - 希望使用本地托管的 Supbase （目前依赖的重要扩展仅在 EL 发行版中提供）
@@ -39,9 +32,9 @@ Pigsty 在主流 Linux 操作系统发行版上可用
   - 深度使用 PostgresML ，希望使用 CUDA
   - 希望使用 Nvidia GPU CUDA，RDKit 等 Ubuntu 专有软件包
   - 建议使用 Ubuntu 22.04 jammy，也支持 Ubuntu 20.04 focal
-  
+
 - 当您看重这些特性时，选择 Debian 系操作系统
-  - 喜欢由开源社区主导的 Linux 发行版 
+  - 喜欢由开源社区主导的 Linux 发行版
   - 建议使用 Debian 12 bookworm ，也支持 Debian 11 bullseye
 
 | 代码  | 操作系统发行版 / PG 大版本                  | PG16 | PG15 | PG14 | PG13 | PG12 | 局限性                                          |
@@ -56,6 +49,8 @@ Pigsty 在主流 Linux 操作系统发行版上可用
 
 
 </details><br>
+
+
 
 
 

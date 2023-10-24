@@ -4,7 +4,7 @@
 >
 > —— **开箱即用，本地优先的 RDS PostgreSQL 开源替代**
 >
-> [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) +[Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase) + [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml) + [...](docs/PGSQL-EXTENSION.md)
+> [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) +[Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase) + [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml) + [...](PGSQL-EXTENSION.md)
 >
 > 最新版本：[v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
 >
@@ -219,7 +219,7 @@ Pigsty has over **150+** [extensions](PGSQL-EXTENSION.md) pre-compiled and packa
 
 Pigsty可以一键安装! 详情请参阅[**快速上手**](install)。
 
-准备一个使用 Linux x86_64 EL 7，8，9 兼容系统的全新节点，使用带有免密 `sudo` 权限的用户执行：
+准备一个使用 Linux x86_64 [兼容系统](#兼容性)的全新节点，使用带有免密 `sudo` 权限的用户执行：
 
 ```bash
 bash -c "$(curl -fsSL https://get.pigsty.cc/latest)" && cd ~/pigsty   
@@ -625,7 +625,7 @@ minio:
 
 ----------------
 
-## Compatibility
+## 兼容性
 
 我们建议使用 RockyLinux 8.8， Ubuntu 22.04 (jammy)， Debian 12 (bookworm) 作为安装 Pigsty 的操作系统。
 

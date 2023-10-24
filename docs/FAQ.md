@@ -25,26 +25,18 @@ If you require specific packages like RDKit, PostgresML + CUDA, and AI-related c
 In terms of domestic operating systems, we recommend using OpenAnolis 8.8 (RHCK), which is fully compatible with EL8 packages without additional adaptation.
 We also offer additional paid support for domestic operating systems such as OpenEuler/UOS in our [Enterprise Services Agreement](SUPPORT.md).
 
-</details><br>
-
-
-
-<details><summary>Operating System Selection Guide</summary><br>
-
-Pigsty is available on mainstream Linux operating system distributions.
-
 - Choose EL-based operating systems when you prioritize these features:
-    - Thorough testing and stability verification with large-scale use cases.
-    - Want to use locally hosted Supbase (important extensions currently only available in EL distributions).
-    - Recommended to use Rocky 8.8 or equivalent compatible distributions, also supports EL 9; EL 7 is supported but not recommended as it is nearing end of life.
+  - Thorough testing and stability verification with large-scale use cases.
+  - Want to use locally hosted Supbase (important extensions currently only available in EL distributions).
+  - Recommended to use Rocky 8.8 or equivalent compatible distributions, also supports EL 9; EL 7 is supported but not recommended as it is nearing end of life.
 
 - Choose Ubuntu-based operating systems when you prioritize these features:
-    - Extensive use of PostgresML, and desire to use CUDA.
-    - Want to use Nvidia GPU CUDA, RDKit, and other Ubuntu-specific software packages.
-    - Recommended to use Ubuntu 22.04 Jammy, also supports Ubuntu 20.04 Focal.
+  - Extensive use of PostgresML, and desire to use CUDA.
+  - Want to use Nvidia GPU CUDA, RDKit, and other Ubuntu-specific software packages.
+  - Recommended to use Ubuntu 22.04 Jammy, also supports Ubuntu 20.04 Focal.
 
 - Choose Debian-based operating systems when you prefer Linux distributions driven by the open-source community.
-    - Recommended to use Debian 12 Bookworm, also supports Debian 11 Bullseye.
+  - Recommended to use Debian 12 Bookworm, also supports Debian 11 Bullseye.
 
 | Code | OS Distro / PG Ver                | PG16 | PG15 | PG14 | PG13 | PG12 | Limitation                                   |
 |:----:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|----------------------------------------------|
@@ -56,8 +48,8 @@ Pigsty is available on mainstream Linux operating system distributions.
 | U20  | Ubuntu 20.04 (focal)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: PostGIS, RDKit                           |
 | U22  | Ubuntu 22.04 (jammy)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Ubuntu Standard Feature Set**              |
 
-
 </details><br>
+
 
 
 
