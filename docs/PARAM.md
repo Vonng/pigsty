@@ -3873,6 +3873,8 @@ This section is responsible for installing PostgreSQL & Extensions.
 
 If you wish to install a different major version, just make sure repo packages exists and overwrite [`pg_version`](#pg_version) on cluster level.
 
+To install extra extensions, overwrite [`pg_extensions`](#pg_extensions) on cluster level. Beware that not all extensions are available with other major versions.
+
 
 ```yaml
 pg_dbsu: postgres                 # os dbsu name, postgres by default, better not change it
@@ -3910,7 +3912,7 @@ name: `pg_dbsu_uid`, type: `int`, level: `C`
 
 os dbsu uid and gid, `26` for default postgres users and groups, which is consistent with the official pgdg RPM.
 
-
+For Ubuntu/Debian, there's no default postgres UID/GID, consider using another ad hoc value, such as `543` instead.
 
 
 
@@ -4007,7 +4009,7 @@ pg_packages:                      # pg packages to be installed, `${pg_version}`
   - pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest
 ```
 
-For ubuntu, the proper value could be 
+For Ubuntu/Debian, the proper value has to be replaced explicitly:
 
 ```yaml
 pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced (ubuntu version)
@@ -4022,9 +4024,9 @@ pg_packages:                      # pg packages to be installed, `${pg_version}`
 
 name: `pg_extensions`, type: `string[]`, level: `C`
 
-pg extensions to be installed, `${pg_version}` will be replaced to [`pg_version`](#pg_version)
+pg extensions to be installed, `${pg_version}` will be replaced with actual [`pg_version`](#pg_version)
 
-PostGIS, TimescaleDB, Citus, PGVector, `pg_repack`, `wal2json`, and `passwordcheck_cracklib` will be installed by default.
+Pigsty will install the following extensions for all database instances by default: `postgis`, `timescaledb`, `pgvector`, `pg_repack`, `wal2json` and `passwordcheck_cracklib`.
 
 ```yaml
 pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
@@ -4032,7 +4034,19 @@ pg_extensions:                    # pg extensions to be installed, `${pg_version
   - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
 ```
 
-Note that citus 12 is only available for pg 14, 15.
+For Ubuntu/Debian, the proper value has to be replaced explicitly:
+
+```yaml
+pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+  - postgresql-${pg_version}-wal2json postgresql-${pg_version}-repack
+  - timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector
+  - postgresql-${pg_version}-postgis-3 # postgis-3 broken in ubuntu20
+```
+
+Beware that not all extensions are available with other PG major versions, but Pigsty guarantees that important extensions `wal2json`, `pg_repack` and `passwordcheck_cracklib` (EL only) are available on all PG major versions.
+
+
+
 
 
 
@@ -4044,11 +4058,7 @@ Note that citus 12 is only available for pg 14, 15.
 
 Bootstrap a postgres cluster with patroni, and setup pgbouncer connection pool along with it.
 
-It also init cluster template databases with default roles, schemas & extensions & default privileges.
-
-Then it will create business databases & users and add them to pgbouncer & monitoring system
-
-On a machine with Postgres, create a set of databases.
+It also init cluster template databases with default roles, schemas & extensions & default privileges specified in [`PG_PROVISION`](#pg_provision)
 
 
 ```yaml
@@ -4101,7 +4111,7 @@ name: `pg_safeguard`, type: `bool`, level: `G/C/A`
 
 prevent purging running postgres instance? false by default
 
-default value is `false`, If enabled, `pgsql.yml` & `pgsql-rm.yml` will abort immediately if any postgres instance is running.
+If enabled, [`pgsql.yml`](PGSQL-PLAYBOOk#pgsqlyml) & [`pgsql-rm.yml`](PGSQL-PLAYBOOk#pgsql-rmyml) will abort immediately if any postgres instance is running.
 
 
 
@@ -4112,9 +4122,9 @@ name: `pg_clean`, type: `bool`, level: `G/C/A`
 
 purging existing postgres during pgsql init? true by default
 
-default value is `true`, it will purge existing postgres instance during `pgsql.yml` init. which makes the playbook idempotent.
+default value is `true`, it will purge existing postgres instance during [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) init. which makes the playbook idempotent.
 
-if set to `false`, `pgsql.yml` will abort if there's already a running postgres instance. and `pgsql-rm.yml` will NOT remove postgres data (only stop the server).
+if set to `false`, [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) will abort if there's already a running postgres instance. and [`pgsql-rm.yml`](PGSQL-PLAYBOOk#pgsql-rmyml) will NOT remove postgres data (only stop the server).
 
 
 
@@ -4313,7 +4323,7 @@ Since if SSL is enabled for patroni, you'll have to perform healthcheck, metrics
 
 name: `patroni_watchdog_mode`, type: `string`, level: `C`
 
-In case of primary failure, patroni can use [watchdog](https://patroni.readthedocs.io/en/latest/watchdog.html) to shutdown the old primary node to avoid split-brain.
+In case of primary failure, patroni can use [watchdog](https://patroni.readthedocs.io/en/latest/watchdog.html) to fencing the old primary node to avoid split-brain.
 
 patroni watchdog mode: `automatic`, `required`, `off`:
 
@@ -4324,6 +4334,8 @@ patroni watchdog mode: `automatic`, `required`, `off`:
 default value is `off`, you should not enable watchdog on infra nodes to avoid fencing.
 
 For those critical systems where data consistency prevails over availability, it is recommended to enable watchdog.
+
+Beware that if all your traffic is [accessed](PGSQL-SVC#access-service) via haproxy, there is no risk of brain split at all.
 
 
 
@@ -4479,12 +4491,22 @@ You can use `crit.yml` [conf](#pg_conf) template to ensure no data loss during f
 
 name: `pg_libs`, type: `string`, level: `C`
 
-preloaded libraries, `timescaledb,pg_stat_statements,auto_explain` by default
+shared preloaded libraries, `pg_stat_statements,auto_explain` by default. 
 
-default value: `timescaledb, pg_stat_statements, auto_explain`.
+They are two extensions that come with PostgreSQL, and it is strongly recommended to enable them.
 
-If you want to manage citus cluster by your own, add `citus` to the head of this list.
-If you are using patroni native citus cluster, patroni will add it automatically for you.
+For existing clusters, you can [configure](PGSQL-ADMIN#config-cluster) the `shared_preload_libraries` parameter of the cluster and apply it.
+
+If you want to use TimescaleDB or Citus extensions, you need to add `timescaledb` or `citus` to this list. `timescaledb` and `citus` should be placed at the top of this list, for example:
+
+```
+citus,timescaledb,pg_stat_statements,auto_explain
+```
+
+Other extensions that need to be loaded can also be added to this list, such as `pg_cron`, `pgml`, etc. 
+
+Generally, `citus` and `timescaledb` have the highest priority and should be added to the top of the list.
+
 
 
 
@@ -4610,7 +4632,7 @@ name: `pgbouncer_auth_query`, type: `bool`, level: `C`
 
 query postgres to retrieve unlisted business users? default value is `false`
 
-If enabled, pgbouncer user will be authenticated against postgres database with `SELECT username, password FROM monitor.pgbouncer_auth($1)`, otherwise, only the users in `pgbouncer_users` will be allowed to connect to pgbouncer.
+If enabled, pgbouncer user will be authenticated against postgres database with `SELECT username, password FROM monitor.pgbouncer_auth($1)`, otherwise, only the users with `pgbouncer: true` will be allowed to connect to pgbouncer.
 
 
 
@@ -4620,11 +4642,13 @@ If enabled, pgbouncer user will be authenticated against postgres database with 
 
 name: `pgbouncer_poolmode`, type: `enum`, level: `C`
 
-pooling mode: transaction,session,statement, `transaction` by default
+Pgbouncer pooling mode: `transaction`, `session`, `statement`, `transaction` by default
 
-* `session`, Session-level pooling with the best compatibility.
-* `transaction`, Transaction-level pooling with better performance (lots of small conns), could break some session level features such as PreparedStatements, notify, etc... 
-* `statements`, Statement-level pooling which is used for simple read-only queries.
+* `session`: Session-level pooling with the best compatibility.
+* `transaction`: Transaction-level pooling with better performance (lots of small conns), could break some session level features such as notify/listen, etc... 
+* `statements`: Statement-level pooling which is used for simple read-only queries.
+
+If you application has some compatibility issues with pgbouncer, you can try to change this value to `session` instead.
 
 
 
@@ -5188,7 +5212,7 @@ pg-test:
     vars:
         pg_vip_enabled: true          # enable L2 VIP for this cluster, bind to primary instance by default
         pg_vip_address: 10.10.10.3/24 # the L2 network CIDR: 10.10.10.0/24, the vip address: 10.10.10.3
-        # pg_vip_interface: eth1      # if your node have uniform interface, you can define it here
+        # pg_vip_interface: eth1      # if your node have non-uniform interface, you can define it here
 ```
 
 

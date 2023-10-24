@@ -3917,24 +3917,22 @@ PostgreSQL [`pg_dbsu`](#pg_dbsu) 超级用户密码，默认是空字符串，�
 
 ## `PG_INSTALL`
 
-This section is responsible for installing PostgreSQL & Extensions.
-
-If you wish to install a different major version, just make sure repo packages exists and overwrite [`pg_version`](#pg_version) on cluster level.
+本节负责安装 PostgreSQL 及其扩展。如果您希望安装不同大版本与扩展插件，修改 [`pg_version`](#pg_version) 与 [`pg_extensions`](#pg_extensions) 即可，不过请注意，并不是所有扩展都在所有大版本可用。
 
 
 ```yaml
-pg_dbsu: postgres                 # os dbsu name, postgres by default, better not change it
-pg_dbsu_uid: 26                   # os dbsu uid and gid, 26 for default postgres users and groups
-pg_dbsu_sudo: limit               # dbsu sudo privilege, none,limit,all,nopass. limit by default
-pg_dbsu_home: /var/lib/pgsql      # postgresql home directory, `/var/lib/pgsql` by default
-pg_dbsu_ssh_exchange: true        # exchange postgres dbsu ssh key among same pgsql cluster
-pg_version: 15                    # postgres major version to be installed, 15 by default
-pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, `/usr/pgsql/bin` by default
-pg_log_dir: /pg/log/postgres      # postgres log dir, `/pg/log/postgres` by default
-pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
+pg_dbsu: postgres                 # os 数据库超级用户名称，默认为 postgres，最好不要更改
+pg_dbsu_uid: 26                   # os 数据库超级用户 uid 和 gid，默认为 26，适用于默认的 postgres 用户和组
+pg_dbsu_sudo: limit               # 数据库超级用户 sudo 权限，可选 none,limit,all,nopass。默认为 limit
+pg_dbsu_home: /var/lib/pgsql      # postgresql 主目录，默认为 `/var/lib/pgsql`
+pg_dbsu_ssh_exchange: true        # 是否在相同的 pgsql 集群中交换 postgres 数据库超级用户的 ssh 密钥
+pg_version: 15                    # 要安装的 postgres 主版本，默认为 15
+pg_bin_dir: /usr/pgsql/bin        # postgres 二进制目录，默认为 `/usr/pgsql/bin`
+pg_log_dir: /pg/log/postgres      # postgres 日志目录，默认为 `/pg/log/postgres`
+pg_packages:                      # 要安装的 pg 包，`${pg_version}` 将被替换
   - postgresql${pg_version}*
   - pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest
-pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+pg_extensions:                    # 要安装的 pg 扩展，`${pg_version}` 将被替换
   - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
   - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
 ```
@@ -3945,9 +3943,10 @@ pg_extensions:                    # pg extensions to be installed, `${pg_version
 
 参数名称： `pg_dbsu`， 类型： `username`， 层次：`C`
 
-os dbsu name, `postgres` by default, it's not wise to change it.
+PostgreSQL 使用的操作系统 dbsu 用户名， 默认为 `postgres`，改这个用户名是不太明智的。
 
-When installing Greenplum / MatrixDB, set this parameter to the corresponding default value: `gpadmin|mxadmin`.
+不过在特定情况下，您可能会使用到不同于 `postgres` 的用户名，例如在安装配置 Greenplum / MatrixDB 时，需要使用 `gpadmin` / `mxadmin` 作为相应的操作系统超级用户。
+
 
 
 
@@ -3956,7 +3955,10 @@ When installing Greenplum / MatrixDB, set this parameter to the corresponding de
 
 参数名称： `pg_dbsu_uid`， 类型： `int`， 层次：`C`
 
-os dbsu uid and gid, `26` for default postgres users and groups, which is consistent with the official pgdg RPM.
+操作系统数据库超级用户的 uid 和 gid，`26` 是 PGDG RPM 默认的 postgres 用户 UID/GID。
+
+对于 Debian/Ubuntu 系统来说，没有默认值，所以您最好指定一个合适的值，比如 `543`
+
 
 
 
@@ -3967,15 +3969,14 @@ os dbsu uid and gid, `26` for default postgres users and groups, which is consis
 
 参数名称： `pg_dbsu_sudo`， 类型： `enum`， 层次：`C`
 
-dbsu sudo privilege, coud be `none`, `limit` ,`all` ,`nopass`. `limit` by default
+数据库超级用户的 sudo 权限，可以是 `none`、`limit`、`all` 或 `nopass`。默认为 `limit`
 
-* `none`: No Sudo privilege
-* `limit`: Limited sudo privilege to execute systemctl commands for database-related components, default.
-* `all`: Full `sudo` privilege, password required.
-* `nopass`: Full `sudo` privileges without a password (not recommended).
+- `none`: 无 Sudo 权限
+- `limit`: 有限的 sudo 权限，用于执行与数据库相关的组件的 `systemctl` 命令（默认选项）。
+- `all`: 完全的 `sudo` 权限，需要密码。
+- `nopass`: 不需要密码的完全 `sudo` 权限（不推荐）。
 
-default values: `limit`, which only allow `sudo systemctl <start|stop|reload> <postgres|patroni|pgbouncer|...> `
-
+- 默认值为 `limit`，只允许执行 `sudo systemctl <start|stop|reload> <postgres|patroni|pgbouncer|...> `。
 
 
 
@@ -3984,7 +3985,7 @@ default values: `limit`, which only allow `sudo systemctl <start|stop|reload> <p
 
 参数名称： `pg_dbsu_home`， 类型： `path`， 层次：`C`
 
-postgresql home directory, `/var/lib/pgsql` by default, which is consistent with the official pgdg RPM.
+postgresql 主目录，默认为 `/var/lib/pgsql`，与官方的 pgdg RPM 保持一致。
 
 
 
@@ -3995,9 +3996,10 @@ postgresql home directory, `/var/lib/pgsql` by default, which is consistent with
 
 参数名称： `pg_dbsu_ssh_exchange`， 类型： `bool`， 层次：`C`
 
-exchange postgres dbsu ssh key among same pgsql cluster?
+是否在同一 PostgreSQL 集群中交换操作系统 dbsu 的 ssh 密钥？
 
-default value is `true`, means the dbsu can ssh to each other among the same cluster.
+默认值为 `true`，意味着同一集群中的数据库超级用户可以互相 ssh 访问。
+
 
 
 
@@ -4007,11 +4009,11 @@ default value is `true`, means the dbsu can ssh to each other among the same clu
 
 参数名称： `pg_version`， 类型： `enum`， 层次：`C`
 
-postgres major version to be installed, `15` by default
+要安装的 postgres 主版本，默认为 `15`。
 
-Note that PostgreSQL physical stream replication cannot cross major versions, so do not configure this on instance level.
+请注意，PostgreSQL 的物理流复制不能跨主要版本，因此最好不要在实例级别上配置此项。
 
-You can use the parameters in [`pg_packages`](#pg_packages) and [`pg_extensions`](#pg_extensions) to install rpms for the specific pg major version.
+您可以使用 [`pg_packages`](#pg_packages) 和 [`pg_extensions`](#pg_extensions) 中的参数来为特定的 PG 大版本安装不同的软件包与扩展。
 
 
 
@@ -4021,11 +4023,14 @@ You can use the parameters in [`pg_packages`](#pg_packages) and [`pg_extensions`
 
 参数名称： `pg_bin_dir`， 类型： `path`， 层次：`C`
 
-postgres binary dir, `/usr/pgsql/bin` by default
+PostgreSQL 二进制程序目录，默认为 `/usr/pgsql/bin`。
 
-The default value is a soft link created manually during the installation process, pointing to the specific Postgres version dir installed.
+默认值是在安装过程中手动创建的软链接，指向安装的特定的 Postgres 版本目录。
 
-For example `/usr/pgsql -> /usr/pgsql-15`. For more details, check [PGSQL File Structure](FHS#postgres-fhs) for details.
+例如 `/usr/pgsql -> /usr/pgsql-15`。在 Ubuntu/Debian 上则指向 `/usr/lib/postgresql/15/bin`。
+
+更多详细信息，请查看 [PGSQL 文件结构](FHS#postgres-fhs)。
+
 
 
 
@@ -4034,9 +4039,11 @@ For example `/usr/pgsql -> /usr/pgsql-15`. For more details, check [PGSQL File S
 
 参数名称： `pg_log_dir`， 类型： `path`， 层次：`C`
 
-postgres log dir, `/pg/log/postgres` by default.
+PostgreSQL 日志目录，默认为：`/pg/log/postgres`，[Promtail](#promtail) 会使用此变量收集 PostgreSQL 日志。
 
-> caveat: if `pg_log_dir` is prefixed with `pg_data` it will not be created explicit (it will be created by postgres itself then).
+请注意，如果日志目录 [`pg_log_dir`](#pg_log_dir) 以数据库目录 [`pg_data`](#pg_data) 作为前缀，则不会显式创建（数据库目录初始化时自动创建）。
+
+
 
 
 
@@ -4045,9 +4052,9 @@ postgres log dir, `/pg/log/postgres` by default.
 
 参数名称： `pg_packages`， 类型： `string[]`， 层次：`C`
 
-pg packages to be installed, `${pg_version}` will be replaced to the actual value of [`pg_version`](#pg_version)
+要安装的 PostgreSQL 软件包（rpm/deb），包名中的 `${pg_version}` 将被替换为具体的大版本号： [`pg_version`](#pg_version) 的取值。
 
-PostgreSQL, pgbouncer, pg_exporter, pgbadger, vip-manager, patroni, pgbackrest are install by default.
+默认情况下安装的软件包为：
 
 ```yaml
 pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
@@ -4055,7 +4062,7 @@ pg_packages:                      # pg packages to be installed, `${pg_version}`
   - pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest
 ```
 
-对于 Ubuntu 来说，合适的取值为：
+对于 Ubuntu/Debian 来说，合适的取值需要显式地在配置文件中指定：
 
 ```yaml
 pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced (ubuntu version)
@@ -4066,13 +4073,15 @@ pg_packages:                      # pg packages to be installed, `${pg_version}`
 
 
 
+
+
 ### `pg_extensions`
 
 参数名称： `pg_extensions`， 类型： `string[]`， 层次：`C`
 
-pg extensions to be installed, `${pg_version}` will be replaced to [`pg_version`](#pg_version)
+要安装的 PostgreSQL 扩展，`${pg_version}` 将被替换为具体的PG大版本号： [`pg_version`](#pg_version)。
 
-PostGIS, TimescaleDB, PGVector, `pg_repack`， `wal2json`，以及 `passwordcheck_cracklib` 会被默认安装。
+Pigsty 默认会为所有数据库实例安装以下扩展：`postgis`、`timescaledb`、`pgvector`、`pg_repack`、`wal2json` 和 `passwordcheck_cracklib`。
 
 ```yaml
 pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
@@ -4080,6 +4089,16 @@ pg_extensions:                    # pg extensions to be installed, `${pg_version
   - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
 ```
 
+对于 Ubuntu/Debian 来说，合适的取值需要显式地在配置文件中指定：
+
+```yaml
+pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+  - postgresql-${pg_version}-wal2json postgresql-${pg_version}-repack
+  - timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector
+  - postgresql-${pg_version}-postgis-3 # postgis-3 broken in ubuntu20
+```
+
+请注意，并不是所有扩展都在所有大版本可用，但 Pigsty 确保重要的扩展 `wal2json`，`pg_repack` 和 `passwordcheck_cracklib`（仅限EL） 在所有PG大版本上都可用。
 
 
 
@@ -4088,13 +4107,10 @@ pg_extensions:                    # pg extensions to be installed, `${pg_version
 
 ## `PG_BOOTSTRAP`
 
-Bootstrap a postgres cluster with patroni, and setup pgbouncer connection pool along with it.
 
-It also init cluster template databases with default roles, schemas & extensions & default privileges.
+使用 Patroni 引导拉起 PostgreSQL 集群，并设置 1:1 对应的 Pgbouncer 连接池。
 
-Then it will create business databases & users and add them to pgbouncer & monitoring system
-
-On a machine with Postgres, create a set of databases.
+它还会使用 [`PG_PROVISION`](#pg_provision) 中定义的默认角色、用户、权限、模式、扩展来初始化数据库集群
 
 
 ```yaml
@@ -4145,9 +4161,9 @@ pgbouncer_sslmode: disable        # pgbouncer client ssl mode, disable by defaul
 
 参数名称： `pg_safeguard`， 类型： `bool`， 层次：`G/C/A`
 
-prevent purging running postgres instance? false by default
+是否防止清除正在运行的Postgres实例？默认为：`false`。
 
-default value is `false`, If enabled, `pgsql.yml` & `pgsql-rm.yml` will abort immediately if any postgres instance is running.
+如果启用，[`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) 和 [`pgsql-rm.yml`](PGSQL-PLAYBOOk#pgsql-rmyml) 在检测到任何正在运行的postgres实例时将立即中止。
 
 
 
@@ -4156,11 +4172,12 @@ default value is `false`, If enabled, `pgsql.yml` & `pgsql-rm.yml` will abort im
 
 参数名称： `pg_clean`， 类型： `bool`， 层次：`G/C/A`
 
-purging existing postgres during pgsql init? true by default
+在 PostgreSQL 初始化期间清除现有的 PG 实例吗？默认为：`true`。
 
-default value is `true`, it will purge existing postgres instance during `pgsql.yml` init. which makes the playbook idempotent.
+默认值为`true`，在 [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) 初始化期间它将清除现有的postgres实例，这使得playbook具有幂等性。
 
-if set to `false`, `pgsql.yml` will abort if there's already a running postgres instance. and `pgsql-rm.yml` will NOT remove postgres data (only stop the server).
+如果设置为 `false`，[`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) 会在遇到正在运行的 PostgreSQL 实例时中止。而 [`pgsql-rm.yml`](PGSQL-PLAYBOOk#pgsql-rmyml) 将不会删除 PostgreSQL 的数据目录（只会停止服务器）。
+
 
 
 
@@ -4169,13 +4186,9 @@ if set to `false`, `pgsql.yml` will abort if there's already a running postgres 
 
 参数名称： `pg_data`， 类型： `path`， 层次：`C`
 
-postgres data directory, `/pg/data` by default
+Postgres 数据目录，默认为 `/pg/data`。
 
-default values: `/pg/data`, DO NOT CHANGE IT.
-
-It's a soft link that point to underlying data directory. 
-
-Check [PGSQL File Structure](FHS) for details. 
+这是一个指向底层实际数据目录的符号链接，在多处被使用，请不要修改它。参阅 [PGSQL文件结构](FHS) 获取详细信息。 
 
 
 
@@ -4185,13 +4198,13 @@ Check [PGSQL File Structure](FHS) for details.
 
 参数名称： `pg_fs_main`， 类型： `path`， 层次：`C`
 
-mountpoint/path for postgres main data, `/data` by default
+PostgreSQL 主数据盘的挂载点/文件系统路径，默认为`/data`。
 
-default values: `/data`, which will be used as parent dir of postgres main data directory: `/data/postgres`.
+默认值：`/data`，它将被用作 PostgreSQL 主数据目录（`/data/postgres`）的父目录。
 
-It's recommended to use NVME SSD for postgres main data storage, Pigsty is optimized for SSD storage by default.
-But HDD is also supported, you can change [`pg_storage_type`](#pg_storage_type) to `HDD` to optimize for HDD storage.
+建议使用 NVME SSD 作为 PostgreSQL 主数据存储，Pigsty默认为SSD存储进行了优化，但是也支持HDD。
 
+您可以更改[`pg_storage_type`](#pg_storage_type)为`HDD`以针对HDD存储进行优化。
 
 
 
@@ -4201,14 +4214,13 @@ But HDD is also supported, you can change [`pg_storage_type`](#pg_storage_type) 
 
 参数名称： `pg_fs_bkup`， 类型： `path`， 层次：`C`
 
-mountpoint/path for pg backup data, `/data/backup` by default
+PostgreSQL 备份数据盘的挂载点/文件系统路径，默认为`/data/backup`。
 
-If you are using the default [`pgbackrest_method`](#pgbackrest_method) = `local`, it is recommended to have a separate disk for backup storage.
+如果您使用的是默认的 [`pgbackrest_method`](#pgbackrest_method) = `local`，建议为备份存储使用一个单独的磁盘。
 
-The backup disk should be large enough to hold all your backups, at least enough for 3 basebackups + 2 days WAL archive.
-This is usually not a problem since you can use cheap & large HDD for that.
+备份磁盘应足够大，以容纳所有的备份，至少足以容纳3个基础备份+2天的WAL归档。 通常容量不是什么大问题，因为您可以使用便宜且大的机械硬盘作为备份盘。
 
-It's recommended to use a separate disk for backup storage, otherwise pigsty will fall back to the main data disk.
+建议为备份存储使用一个单独的磁盘，否则 Pigsty 将回退到主数据磁盘，并占用主数据盘的容量与IO。
 
 
 
@@ -4218,10 +4230,9 @@ It's recommended to use a separate disk for backup storage, otherwise pigsty wil
 
 参数名称： `pg_storage_type`， 类型： `enum`， 层次：`C`
 
-storage type for pg main data, `SSD`,`HDD`, `SSD` by default
+PostgreSQL 数据存储介质的类型：`SSD`或`HDD`，默认为`SSD`。
 
-default values: `SSD`, it will affect some tuning parameters, such as `random_page_cost` & `effective_io_concurrency`
-
+默认值：`SSD`，它会影响一些调优参数，如 `random_page_cost` 和 `effective_io_concurrency` 。
 
 
 
@@ -4230,9 +4241,9 @@ default values: `SSD`, it will affect some tuning parameters, such as `random_pa
 
 参数名称： `pg_dummy_filesize`， 类型： `size`， 层次：`C`
 
-size of `/pg/dummy`, default values: `64MiB`, which hold 64MB disk space for emergency use
+`/pg/dummy`的大小，默认值为`64MiB`，用于紧急使用的64MB磁盘空间。
 
-When the disk is full, removing the placeholder file can free up some space for emergency use, it is recommended to use at least `8GiB` for production use.
+当磁盘已满时，删除占位符文件可以为紧急使用释放一些空间，建议生产使用至少`8GiB`。
 
 
 
@@ -4242,16 +4253,15 @@ When the disk is full, removing the placeholder file can free up some space for 
 
 参数名称： `pg_listen`， 类型： `ip`， 层次：`C`
 
-postgres/pgbouncer listen address, `0.0.0.0` (all ipv4 addr) by default
+PostgreSQL / Pgbouncer 的监听地址，默认为`0.0.0.0`（所有ipv4地址）。
 
-You can use placeholder in this variable:
+您可以在此变量中使用占位符，例如：`'${ip},${lo}'`或`'${ip},${vip},${lo}'`：
 
-* `${ip}`: translate to inventory_hostname, which is primary private IP address in the inventory
-* `${vip}`: if [`pg_vip_enabled`](#pg_vip_enabled), this will translate to host part of [`pg_vip_address`](#pg_vip_address)
-* `${lo}`: will translate to `127.0.0.1`
+- `${ip}`：转换为 `inventory_hostname`，它是配置清单中定义的首要内网IP地址。
+- `${vip}`：如果启用了[`pg_vip_enabled`](#pg_vip_enabled)，将使用[`pg_vip_address`](#pg_vip_address)的主机部分。
+- `${lo}`：将替换为`127.0.0.1`
 
-For example: `'${ip},${lo}'` or `'${ip},${vip},${lo}'`.
-
+对于高安全性要求的生产环境，建议限制监听的IP地址。
 
 
 
@@ -4260,7 +4270,7 @@ For example: `'${ip},${lo}'` or `'${ip},${vip},${lo}'`.
 
 参数名称： `pg_port`， 类型： `port`， 层次：`C`
 
-postgres listen port, `5432` by default.
+PostgreSQL 服务器监听的端口，默认为 `5432`。
 
 
 
@@ -4270,10 +4280,9 @@ postgres listen port, `5432` by default.
 
 参数名称： `pg_localhost`， 类型： `path`， 层次：`C`
 
-postgres unix socket dir for localhost connection, default values: `/var/run/postgresql`
+本地主机连接 PostgreSQL 使用的 Unix套接字目录，默认值为`/var/run/postgresql`。
 
-The Unix socket dir for PostgreSQL and Pgbouncer local connection, which is used by [`pg_exporter`](#pg_exporter) and patroni.
-
+PostgreSQL 和 Pgbouncer 本地连接的Unix套接字目录，[`pg_exporter`](#pg_exporter) 和 patroni 都会优先使用 Unix 套接字访问 PostgreSQL。
 
 
 
@@ -4282,7 +4291,7 @@ The Unix socket dir for PostgreSQL and Pgbouncer local connection, which is used
 
 参数名称： `pg_namespace`， 类型： `path`， 层次：`C`
 
-top level key namespace in etcd, used by patroni & vip, default values is: `/pg` , and it's not recommended to change it.
+在 [etcd](#etcd) 中使用的顶级命名空间，由 patroni 和 vip-manager 使用，默认值是：`/pg`，不建议更改。
 
 
 
@@ -4292,11 +4301,9 @@ top level key namespace in etcd, used by patroni & vip, default values is: `/pg`
 
 参数名称： `patroni_enabled`， 类型： `bool`， 层次：`C`
 
-if disabled, no postgres cluster will be created during init
+是否启用 Patroni ？默认值为：`true`。
 
-default value is `true`, If disabled, Pigsty will skip pulling up patroni (thus postgres).
-
-This option is useful when trying to add some components to an existing postgres instance.
+如果禁用，则在初始化期间不会创建Postgres集群。Pigsty将跳过拉起 patroni的任务，当试图向现有的postgres实例添加一些组件时，可以使用此参数。
 
 
 
@@ -4305,13 +4312,11 @@ This option is useful when trying to add some components to an existing postgres
 
 参数名称： `patroni_mode`， 类型： `enum`， 层次：`C`
 
-patroni working mode: `default`, `pause`, `remove`
+Patroni 工作模式：`default`，`pause`，`remove`。默认值：`default`。
 
-default values: `default`
-
-* `default`: Bootstrap PostgreSQL cluster with Patroni
-* `pause`: Just like `default`, but entering maintenance mode after bootstrap
-* `remove`: Init the cluster with Patroni, them remove Patroni and use raw PostgreSQL instead.
+- `default`：正常使用 Patroni 引导 PostgreSQL 集群
+- `pause`：与`default`相似，但在引导后进入维护模式
+- `remove`：使用Patroni初始化集群，然后删除Patroni并使用原始 PostgreSQL。
 
 
 
@@ -4320,9 +4325,9 @@ default values: `default`
 
 参数名称： `patroni_port`， 类型： `port`， 层次：`C`
 
-patroni listen port, `8008` by default, changing it is not recommended.
+patroni监听端口，默认为`8008`，不建议更改。
 
-The Patroni API server listens on this port for health checking & API requests.
+Patroni API服务器在此端口上监听健康检查和API请求。
 
 
 
@@ -4331,7 +4336,7 @@ The Patroni API server listens on this port for health checking & API requests.
 
 参数名称： `patroni_log_dir`， 类型： `path`， 层次：`C`
 
-patroni log dir, `/pg/log/patroni` by default, which will be collected by [`promtail`](#promtail).
+patroni日志目录，默认为`/pg/log/patroni`，由[`promtail`](#promtail)收集。
 
 
 
@@ -4343,13 +4348,9 @@ patroni log dir, `/pg/log/patroni` by default, which will be collected by [`prom
 
 参数名称： `patroni_ssl_enabled`， 类型： `bool`， 层次：`G`
 
-Secure patroni RestAPI communications with SSL? default value is `false`
+使用SSL保护patroni RestAPI通信吗？默认值为`false`。
 
-This parameter is a global flag that can only be set before deployment.
-
-Since if SSL is enabled for patroni, you'll have to perform healthcheck, metrics scrape and API call with HTTPS instead of HTTP. 
-
-
+此参数是一个全局标志，只能在部署之前预先设置。因为如果为 patroni 启用了SSL，您将必须使用 HTTPS 而不是 HTTP 执行健康检查、获取指标，调用API。
 
 
 
@@ -4359,18 +4360,17 @@ Since if SSL is enabled for patroni, you'll have to perform healthcheck, metrics
 
 参数名称： `patroni_watchdog_mode`， 类型： `string`， 层次：`C`
 
-In case of primary failure, patroni can use [watchdog](https://patroni.readthedocs.io/en/latest/watchdog.html) to shutdown the old primary node to avoid split-brain.
+patroni看门狗模式：`automatic`，`required`，`off`，默认值为 `off`。
 
-patroni watchdog mode: `automatic`, `required`, `off`:
+在主库故障的情况下，Patroni 可以使用[看门狗](https://patroni.readthedocs.io/en/latest/watchdog.html) 来强制关机旧主库节点以避免脑裂。
 
-* `off`: not using `watchdog`. avoid fencing at all. This is the default value.
-* `automatic`: Enable `watchdog` if the kernel has `softdog` module enabled and watchdog is owned by dbsu 
-* `required`: Force `watchdog`, refuse to start if `softdog` is not available
+- `off`：不使用`看门狗`。完全不进行 Fencing （默认行为）
+- `automatic`：如果内核启用了`softdog`模块并且看门狗属于dbsu，则启用 `watchdog`。
+- `required`：强制启用 `watchdog`，如果`softdog`不可用则拒绝启动 Patroni/PostgreSQL。
 
-default value is `off`, you should not enable watchdog on infra nodes to avoid fencing.
+默认值为`off`，您不应该在 Infra节点 启用看门狗，数据一致性优先于可用性的关键系统，特别是与钱有关的业务集群可以考虑打开此选项。
 
-For those critical systems where data consistency prevails over availability, it is recommended to enable watchdog.
-
+请注意，如果您的所有访问流量都使用 HAproxy 健康检查[服务接入](PGSQL-SVC#接入服务)，正常是不存在脑裂风险的。
 
 
 
@@ -4380,9 +4380,10 @@ For those critical systems where data consistency prevails over availability, it
 
 参数名称： `patroni_username`， 类型： `username`， 层次：`C`
 
-patroni restapi username, `postgres` by default, used in pair with [`patroni_password`](#patroni_password)
+Patroni REST API 用户名，默认为`postgres`，与[`patroni_password`](#patroni_password) 配对使用。
 
-Patroni unsafe RESTAPI is protected by username/password by default, check [Config Cluster](PGSQL-ADMIN#配置集群) and [Patroni RESTAPI](https://patroni.readthedocs.io/en/latest/rest_api.html) for details. 
+Patroni的危险 REST API （比如重启集群）由额外的用户名/密码保护，查看[配置集群](PGSQL-ADMIN#配置集群)和[Patroni RESTAPI](https://patroni.readthedocs.io/en/latest/rest_api.html)以获取详细信息。
+
 
 
 
@@ -4391,9 +4392,9 @@ Patroni unsafe RESTAPI is protected by username/password by default, check [Conf
 
 参数名称： `patroni_password`， 类型： `password`， 层次：`C`
 
-patroni restapi password, `Patroni.API` by default
+Patroni REST API 密码，默认为`Patroni.API`。
 
-> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+> 警告：务必生产环境中修改此参数！
 
 
 
@@ -4403,10 +4404,9 @@ patroni restapi password, `Patroni.API` by default
 
 参数名称： `patroni_citus_db`， 类型： `string`， 层次：`C`
 
-citus database managed by patroni, `postgres` by default.
+由 Patroni 管理的 citus 业务数据库，默认为 `postgres`。
 
-Patroni 3.0's native citus will specify a managed database for citus. which is created by patroni itself.
-
+Patroni 3.0的原生citus支持，将为citus指定一个由patroni自身创建并管理的数据库。
 
 
 
@@ -4414,17 +4414,16 @@ Patroni 3.0's native citus will specify a managed database for citus. which is c
 
 参数名称： `pg_conf`， 类型： `enum`， 层次：`C`
 
-config template: `{oltp,olap,crit,tiny}.yml`, `oltp.yml` by default
+配置模板：`{oltp,olap,crit,tiny}.yml`，默认为`oltp.yml`。
 
-- `tiny.yml`: optimize for tiny nodes, virtual machines, small demo, (1~8Core, 1~16GB)
-- `oltp.yml`: optimize for OLTP workloads and latency sensitive applications, (4C8GB+), which is the default template
-- `olap.yml`: optimize for OLAP workloads and throughput (4C8G+)
-- `crit.yml`: optimize for data consistency and critical applications (4C8G+) 
+- `tiny.yml`：为小节点、虚拟机、小型演示优化（1-8核，1-16GB）
+- `oltp.yml`：为OLTP工作负载和延迟敏感应用优化（4C8GB+）（默认模板）
+- `olap.yml`：为OLAP工作负载和吞吐量优化（4C8G+）
+- `crit.yml`：为数据一致性和关键应用优化（4C8G+）
 
-default values: `oltp.yml`, but [configure](INSTALL#configure) procedure will set this value to `tiny.yml` if current node is a tiny node.
+默认值：`oltp.yml`，但是[配置](INSTALL#配置)程序将在当前节点为小节点时将此值设置为 `tiny.yml`。
 
-You can have your own template, just put it under `templates/<mode>.yml` and set this value to the template name.
-
+您可以拥有自己的模板，只需将其放在`templates/<mode>.yml`下，并将此值设置为模板名称即可使用。
 
 
 
@@ -4433,22 +4432,24 @@ You can have your own template, just put it under `templates/<mode>.yml` and set
 
 参数名称： `pg_max_conn`， 类型： `int`， 层次：`C`
 
-postgres max connections, You can specify a value between 50 and 5000, or use `auto` to use recommended value.
+PostgreSQL 服务器最大连接数。你可以选择一个介于 50 到 5000 之间的值，或使用 `auto` 选择推荐值。
 
-default value is `auto`, which will set max connections according to the [`pg_conf`](#pg_conf) and [`pg_default_service_dest`](#pg_default_service_dest).
+默认值为 `auto`，会根据 [`pg_conf`](#pg_conf) 和 [`pg_default_service_dest`](#pg_default_service_dest) 来设定最大连接数。
 
 - tiny: 100
 - olap: 200
 - oltp: 200 (pgbouncer) / 1000 (postgres)
-  - pg_default_service_dest = pgbouncer : 200
-  - pg_default_service_dest = postgres : 1000
+    - pg_default_service_dest = pgbouncer : 200
+    - pg_default_service_dest = postgres : 1000
 - crit: 200 (pgbouncer) / 1000 (postgres)
-  - pg_default_service_dest = pgbouncer : 200
-  - pg_default_service_dest = postgres : 1000
+    - pg_default_service_dest = pgbouncer : 200
+    - pg_default_service_dest = postgres : 1000
 
-It's not recommended to set this value greater than 5000, otherwise you have to increase the haproxy service connection limit manually as well.
+不建议将此值设定为超过 5000，否则你还需要手动增加 haproxy 服务的连接限制。
 
-Pgbouncer's transaction pooling can alleviate the problem of too many OLTP connections, but it's not recommended to use it in OLAP scenarios.
+Pgbouncer 的事务池可以缓解过多的 OLTP 连接问题，因此默认情况下不建议设置很大的连接数。
+
+对于 OLAP 场景， [`pg_default_service_dest`](#pg_default_service_dest) 修改为 `postgres` 可以绕过连接池。
 
 
 
@@ -4458,13 +4459,14 @@ Pgbouncer's transaction pooling can alleviate the problem of too many OLTP conne
 
 参数名称： `pg_shared_buffer_ratio`， 类型： `float`， 层次：`C`
 
-postgres shared buffer memory ratio, 0.25 by default, 0.1~0.4
+Postgres 共享缓冲区内存比例，默认为 `0.25`，正常范围在 `0.1`~`0.4` 之间。
 
-default values: `0.25`, means 25% of node memory will be used as PostgreSQL shard buffers.
+默认值：`0.25`，意味着节点内存的 25% 将被用作 PostgreSQL 的分片缓冲区。如果您想为 PostgreSQL 启用大页，那么此参数值应当适当小于 [`node_hugepage_ratio`](#node_hugepage_ratio)。 
 
-Setting this value greater than 0.4 (40%) is usually not a good idea. 
+将此值设定为大于 0.4（40%）通常不是好主意，但在极端情况下可能有用。
 
-Note that shared buffer is only part of shared memory in PostgreSQL, to calculate the total shared memory, use `show shared_memory_size_in_huge_pages;`.
+注意，共享缓冲区只是 PostgreSQL 中共享内存的一部分，要计算总共享内存，使用 `show shared_memory_size_in_huge_pages;`。
+
 
 
 
@@ -4473,27 +4475,25 @@ Note that shared buffer is only part of shared memory in PostgreSQL, to calculat
 
 参数名称： `pg_rto`， 类型： `int`， 层次：`C`
 
-recovery time objective in seconds, This will be used as Patroni TTL value, `30`s by default.
+以秒为单位的恢复时间目标（RTO）。这将用于计算 Patroni 的 TTL 值，默认为 `30` 秒。
 
-If a primary instance is missing for such a long time, a new leader election will be triggered.
+如果主实例在这么长时间内失踪，将触发新的领导者选举，此值并非越低越好，它涉及到利弊权衡：
 
-Decrease the value can reduce the unavailable time (unable to write) of the cluster during failover, 
-but it will make the cluster more sensitive to network jitter, thus increase the chance of false-positive failover.
+减小这个值可以减少集群故障转移期间的不可用时间（无法写入）， 但会使集群对短期网络抖动更加敏感，从而增加误报触发故障转移的几率。
 
-Config this according to your network condition and expectation to **trade-off between chance and impact**,
-the default value is 30s, and it will be populated to the following patroni parameters:
+您需要根据网络状况和业务约束来配置这个值，在故障几率和故障影响之间做出**权衡**， 默认值是 `30s`，它将影响以下的 Patroni 参数：
 
 ```yaml
-# the TTL to acquire the leader lock (in seconds). Think of it as the length of time before initiation of the automatic failover process. Default value: 30
+# 获取领导者租约的 TTL（以秒为单位）。将其视为启动自动故障转移过程之前的时间长度。默认值：30
 ttl: {{ pg_rto }}
 
-# the number of seconds the loop will sleep. Default value: 10 , this is patroni check loop interval
+# 循环将休眠的秒数。默认值：10，这是 patroni 检查循环间隔
 loop_wait: {{ (pg_rto / 3)|round(0, 'ceil')|int }}
 
-# timeout for DCS and PostgreSQL operation retries (in seconds). DCS or network issues shorter than this will not cause Patroni to demote the leader. Default value: 10
+# DCS 和 PostgreSQL 操作重试的超时时间（以秒为单位）。比这短的 DCS 或网络问题不会导致 Patroni 降级领导。默认值：10
 retry_timeout: {{ (pg_rto / 3)|round(0, 'ceil')|int }}
 
-# the amount of time a primary is allowed to recover from failures before failover is triggered (in seconds), Max RTO: 2 loop wait + primary_start_timeout
+# 主实例在触发故障转移之前允许从故障中恢复的时间（以秒为单位），最大 RTO：2 倍循环等待 + primary_start_timeout
 primary_start_timeout: {{ (pg_rto / 3)|round(0, 'ceil')|int }}
 ```
 
@@ -4504,18 +4504,16 @@ primary_start_timeout: {{ (pg_rto / 3)|round(0, 'ceil')|int }}
 
 参数名称： `pg_rpo`， 类型： `int`， 层次：`C`
 
-recovery point objective in bytes, `1MiB` at most by default
+以字节为单位的恢复点目标（RPO），默认值：`1048576`。
 
-default values: `1048576`, which will tolerate at most 1MiB data loss during failover.
+默认为 1MiB，这意味着在故障转移期间最多可以容忍 1MiB 的数据丢失。
 
-when the primary is down and all replicas are lagged, you have to make a tough choice to **trade off between Availability and Consistency**:
+当主节点宕机并且所有副本都滞后时，你必须做出一个艰难的选择，**在可用性和一致性之间进行权衡**：
 
-* Promote a replica to be the new primary and bring system back online ASAP, with the price of an acceptable data loss (e.g. less than 1MB).
-* Wait for the primary to come back (which may never be) or human intervention to avoid any data loss.
+- 提升一个从库成为新的主库，并尽快将系统恢复服务，但要付出可接受的数据丢失代价（例如，少于 1MB）。
+- 等待主库重新上线（可能永远不会），或人工干预以避免任何数据丢失。
 
-You can use `crit.yml` [conf](#pg_conf) template to ensure no data loss during failover, but it will sacrifice some performance.
- 
-
+你可以使用 `crit.yml` [conf](#pg_conf) 模板来确保在故障转移期间没有数据丢失，但这会牺牲一些性能。
 
 
 
@@ -4525,12 +4523,18 @@ You can use `crit.yml` [conf](#pg_conf) template to ensure no data loss during f
 
 参数名称： `pg_libs`， 类型： `string`， 层次：`C`
 
-preloaded libraries, `timescaledb,pg_stat_statements,auto_explain` by default
+预加载的动态共享库，默认为 `pg_stat_statements,auto_explain`，这是两个 PostgreSQL 自带的扩展，强烈建议启用。
 
-default value: `timescaledb, pg_stat_statements, auto_explain`.
+对于现有集群，您可以直接[配置集群](PGSQL-ADMIN#配置集群)的 `shared_preload_libraries` 参数并应用生效。
 
-If you want to manage citus cluster by your own, add `citus` to the head of this list.
-If you are using patroni native citus cluster, patroni will add it automatically for you.
+如果您想使用 TimescaleDB 或 Citus 扩展，您需要将 `timescaledb` 或 `citus` 添加到此列表中。`timescaledb` 和 `citus` 应当放在这个列表的最前面，例如：
+
+```
+citus,timescaledb,pg_stat_statements,auto_explain
+```
+
+其他需要动态加载的扩展也可以添加到这个列表中，例如 `pg_cron`， `pgml` 等，通常 `citus` 和 `timescaledb` 有着最高的优先级，应该添加到列表的最前面。
+
 
 
 
@@ -4540,11 +4544,11 @@ If you are using patroni native citus cluster, patroni will add it automatically
 
 参数名称： `pg_delay`， 类型： `interval`， 层次：`I`
 
-replication apply delay for standby cluster leader , default values: `0`.
+延迟备库复制延迟，默认值：`0`。
 
-if this value is set to a positive value, the standby cluster leader will be delayed for this time before apply WAL changes.
+如果此值被设置为一个正值，备用集群主库在应用 WAL 变更之前将被延迟这个时间。设置为 `1h` 意味着该集群中的数据将始终滞后原集群一个小时。
 
-Check [delayed standby cluster](PGSQL-CONF#delayed-cluster) for details.
+查看 [延迟备用集群](PGSQL-CONF#延迟集群) 以获取详细信息。
 
 
 
@@ -4554,11 +4558,12 @@ Check [delayed standby cluster](PGSQL-CONF#delayed-cluster) for details.
 
 参数名称： `pg_checksum`， 类型： `bool`， 层次：`C`
 
-enable data checksum for postgres cluster?, default value is `false`.
+为 PostgreSQL 集群启用数据校验和吗？默认值是 `false`，不启用。
 
-This parameter can only be set before PGSQL deployment. (but you can enable it manually later)
+这个参数只能在 PGSQL 部署之前设置（但你可以稍后手动启用它）。
 
-If [`pg_conf`](#pg_conf) `crit.yml` template is used, data checksum is always enabled regardless of this parameter to ensure data integrity.
+如果使用 [`pg_conf`](#pg_conf) `crit.yml` 模板，无论此参数如何，都会始终启用数据校验和，以确保数据完整性。
+
 
 
 
@@ -4567,10 +4572,9 @@ If [`pg_conf`](#pg_conf) `crit.yml` template is used, data checksum is always en
 
 参数名称： `pg_pwd_enc`， 类型： `enum`， 层次：`C`
 
-passwords encryption algorithm: md5,scram-sha-256
+密码加密算法：`md5` 或 `scram-sha-256`，默认值：`scram-sha-256`。
 
-default values: `scram-sha-256`, if you have compatibility issues with old clients, you can set it to `md5` instead. 
-
+前者已经不再安全，如果你与旧客户端有兼容性问题，你可以将其设置为 `md5`。
 
 
 
@@ -4579,8 +4583,9 @@ default values: `scram-sha-256`, if you have compatibility issues with old clien
 
 参数名称： `pg_encoding`， 类型： `enum`， 层次：`C`
 
-database cluster encoding, `UTF8` by default
+数据库集群编码，默认为 `UTF8`。
 
+不建议使用其他非 `UTF8` 系编码。
 
 
 
@@ -4589,9 +4594,9 @@ database cluster encoding, `UTF8` by default
 
 参数名称： `pg_locale`， 类型： `enum`， 层次：`C`
 
-database cluster local, `C` by default
+数据库集群编码，默认为 `UTF8`。
 
-
+数据库集群本地化规则集，默认为 `UTF8`。
 
 
 
@@ -4600,7 +4605,9 @@ database cluster local, `C` by default
 
 参数名称： `pg_lc_collate`， 类型： `enum`， 层次：`C`
 
-database cluster collate, `C` by default, It's not recommended to change this value unless you know what you are doing.
+数据库集群本地化排序规则，默认为 `C`。
+
+除非您知道自己在做什么，否则不建议修改集群级别的本地排序规则设置。
 
 
 
@@ -4610,7 +4617,7 @@ database cluster collate, `C` by default, It's not recommended to change this va
 
 参数名称： `pg_lc_ctype`， 类型： `enum`， 层次：`C`
 
-database character type, `en_US.UTF8` by default
+数据库字符集 CTYPE，默认为 `en_US.UTF8`。
 
 
 
@@ -4621,7 +4628,7 @@ database character type, `en_US.UTF8` by default
 
 参数名称： `pgbouncer_enabled`， 类型： `bool`， 层次：`C`
 
-default value is `true`, if disabled, pgbouncer will not be launched on pgsql host
+默认值为 `true`，如果禁用，将不会在 PGSQL节点上配置连接池 Pgbouncer。
 
 
 
@@ -4632,7 +4639,7 @@ default value is `true`, if disabled, pgbouncer will not be launched on pgsql ho
 
 参数名称： `pgbouncer_port`， 类型： `port`， 层次：`C`
 
-pgbouncer listen port, `6432` by default
+Pgbouncer 监听端口，默认为 `6432`。
 
 
 
@@ -4643,7 +4650,7 @@ pgbouncer listen port, `6432` by default
 
 参数名称： `pgbouncer_log_dir`， 类型： `path`， 层次：`C`
 
-pgbouncer log dir, `/pg/log/pgbouncer` by default, referenced by promtail the logging agent.
+Pgbouncer 日志目录，默认为 `/pg/log/pgbouncer`，日志代理 [promtail](#promtail) 会根据此参数收集 Pgbouncer 日志。
 
 
 
@@ -4654,9 +4661,10 @@ pgbouncer log dir, `/pg/log/pgbouncer` by default, referenced by promtail the lo
 
 参数名称： `pgbouncer_auth_query`， 类型： `bool`， 层次：`C`
 
-query postgres to retrieve unlisted business users? default value is `false`
+是否允许 Pgbouncer 查询 PostgreSQL，以允许未显式列出的用户通过连接池访问 PostgreSQL？默认值是 `false`。
 
-If enabled, pgbouncer user will be authenticated against postgres database with `SELECT username, password FROM monitor.pgbouncer_auth($1)`, otherwise, only the users in `pgbouncer_users` will be allowed to connect to pgbouncer.
+如果启用，pgbouncer 用户将使用 `SELECT username, password FROM monitor.pgbouncer_auth($1)` 对 postgres 数据库进行身份验证，否则，只有带有 `pgbouncer: true` 的业务用户才被允许连接到 Pgbouncer 连接池。
+
 
 
 
@@ -4666,12 +4674,13 @@ If enabled, pgbouncer user will be authenticated against postgres database with 
 
 参数名称： `pgbouncer_poolmode`， 类型： `enum`， 层次：`C`
 
-pooling mode: transaction,session,statement, `transaction` by default
+Pgbouncer 连接池池化模式：`transaction`,`session`,`statement`，默认为 `transaction`。
 
-* `session`, Session-level pooling with the best compatibility.
-* `transaction`, Transaction-level pooling with better performance (lots of small conns), could break some session level features such as PreparedStatements, notify, etc... 
-* `statements`, Statement-level pooling which is used for simple read-only queries.
+- `session`：会话级池化，具有最佳的功能兼容性。
+- `transaction`：事务级池化，具有更好的性能（许多小连接），可能会破坏某些会话级特性，如`NOTIFY/LISTEN` 等...
+- `statements`：语句级池化，用于简单的只读查询。
 
+如果您的应用出现功能兼容性问题，可以考虑修改此参数为 `session`。
 
 
 
@@ -4680,17 +4689,16 @@ pooling mode: transaction,session,statement, `transaction` by default
 
 参数名称： `pgbouncer_sslmode`， 类型： `enum`， 层次：`C`
 
-pgbouncer client ssl mode, `disable` by default
+Pgbouncer 客户端 ssl 模式，默认为 `disable`。
 
-default values: `disable`, beware that this may have a huge performance impact on your pgbouncer.
+注意，启用 SSL 可能会对你的 pgbouncer 产生巨大的性能影响。
 
-- `disable`: Plain TCP. If client requests TLS, it’s ignored. Default.
-- `allow`: If client requests TLS, it is used. If not, plain TCP is used. If the client presents a client certificate, it is not validated.
-- `prefer`: Same as allow.
-- `require`: Client must use TLS. If not, the client connection is rejected. If the client presents a client certificate, it is not validated.
-- `verify-ca`: Client must use TLS with valid client certificate.
-- `verify-full`: Same as verify-ca.
-
+- `disable`：如果客户端请求 TLS 则忽略（默认）
+- `allow`：如果客户端请求 TLS 则使用。如果没有则使用纯TCP。不验证客户端证书。
+- `prefer`：与 allow 相同。
+- `require`：客户端必须使用 TLS。如果没有则拒绝客户端连接。不验证客户端证书。
+- `verify-ca`：客户端必须使用有效的客户端证书的TLS。
+- `verify-full`：与 verify-ca 相同。
 
 
 
@@ -4702,9 +4710,8 @@ default values: `disable`, beware that this may have a huge performance impact o
 
 ## `PG_PROVISION`
 
-PG_BOOTSTRAP will bootstrap a new postgres cluster with patroni, while PG_PROVISION will create default objects in the cluster, including:
 
-如果说 [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) 是创建一个新的集群，那么 PG_PROVISION 就是在集群中创建默认的对象，包括：
+如果说 [`PG_BOOTSTRAP`](#pg_bootstrap) 是创建一个新的集群，那么 PG_PROVISION 就是在集群中创建默认的对象，包括：
 
 * [默认角色](PGSQL-ACL#默认角色)
 * [默认用户](PGSQL-ACL#默认用户)
