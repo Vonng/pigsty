@@ -662,7 +662,7 @@ minio:
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/Mu2b6Wxr
+Discord: https://discord.gg/F2wYeJbJ
 
 作者: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 

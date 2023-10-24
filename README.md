@@ -4,11 +4,10 @@
 >
 > —— **A battery-included, local-first, open-source PostgreSQL RDS alternative.**
 >
-> [Release v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/Mu2b6Wxr) ｜ [中文文档](https://doc.pigsty.cc/#/zh/)
+> [Release v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/F2wYeJbJ) ｜ [中文文档](https://doc.pigsty.cc/#/zh/)
 >
 > [Get Started](docs/INSTALL.md) latest [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) beta with `curl -fsSL https://get.pigsty.cc/beta | bash`
-> 
-> For the latest stable version, check [Release v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)
+
 
 
 ----------------
@@ -18,21 +17,21 @@
 Free RDS for PostgreSQL. Check [**Features**](docs/FEATURE.md) | [**特性**](docs/zh/FEATURE.md) for details.
 
 - Battery-Included PostgreSQL distribution with **150+** optional [extensions](docs/PGSQL-EXTENSION.md).
-- Run on bare OS without container: EL7/8/9, Ubuntu 20/22 and Debian 11/12.
+- Run on bare [OS](#compatibility) without container: [EL](files/pigsty/el.yml) 7/8/9, [Ubuntu](files/pigsty/ubuntu.yml) 20/22 and [Debian](files/pigsty/debian.yml) 11/12.
 - Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack. [Demo](https://demo.pigsty.cc) & [Gallery](https://github.com/Vonng/pigsty/wiki/Gallery).
 - Self-healing [HA](docs/PGSQL-ARCH.md) PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/). auto-tuned.
 - Auto-Configured [PITR](docs/PGSQL-PITR.md), powered by [pgBackRest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) repo (or S3/FS).
 - Declarative [API](docs/CONFIG.md), Database-as-Code implemented with [Ansible](https://www.ansible.com/) playbooks: [SOP](docs/PGSQL-ADMIN.md).
-- Handy IaC Templates, provisioning Infra with [Terraform](https://github.com/Vonng/pigsty/tree/master/terraform/README.md) and try [sandbox](docs/PROVISION.md) with [Vagrant](https://github.com/Vonng/pigsty/tree/master/vagrant/README.md).
+- Handy IaC Templates, provisioning Infra with [Terraform](terraform/README.md) and try [sandbox](docs/PROVISION.md) with [Vagrant](vagrant/README.md).
 - Pre-pack stable versions, create [local repos](docs/INSTALL.md#offline-packages) and install without Internet access.
 
 [![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/a0550ad2-7bb9-4051-8758-9e5e3b294e54)](docs/FEATURE.md)
 
 Pigsty can be used in different scenarios:
 - Run HA [PostgreSQL](docs/PGSQL.md) RDS for production usage, with PostGIS, TimescaleDB, Citus, etc...
-- Run AI infra stack with `pgvector`, `pg_embedding`, and [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml/README.md).
-- Develop low-code apps with self-hosted [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase/README.md), [FerretDB](docs/MONGO.md), and [NocoDB](https://github.com/Vonng/pigsty/tree/master/app/nocodb/README.md).
-- Run various business software & [apps](https://github.com/Vonng/pigsty/blob/master/app/README.md) with docker-compose templates.
+- Run AI infra stack with [PostgresML](app/pgml/README.md) & `pgvector`.
+- Develop low-code apps with self-hosted [Supabase](app/supabase/README.md), [FerretDB](docs/MONGO.md), and [NocoDB](app/nocodb/README.md).
+- Run various business software & [apps](app/README.md) with docker-compose templates.
 - Run demos & data apps, analyze data, and [visualize](https://demo.pigsty.cc/d/isd-overview/) them with ECharts panels.
 - Run dedicated [Redis](docs/REDIS.md), [MinIO](docs/MINIO.md), [ETCD](docs/ETCD.md), and HAProxy clusters with HA & observability, too.
 - Run as a pure [monitoring](docs/PGSQL-MONITOR.md#monitor-mode) system for existing PostgreSQL clusters and cloud [RDS](docs/PGSQL-MONITOR.md#monitor-rds).
@@ -44,14 +43,14 @@ Pigsty can be used in different scenarios:
 
 Pigsty has over **150+** **OPTIONAL** [extensions](docs/PGSQL-EXTENSION.md) pre-compiled and packaged, including some not included in the official PGDG repo. Some of the most potent extensions are:
 
-- [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase/README.md): Open-Source Firebase alternative based on PostgreSQL
-- [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb/README.md): Open-Source MongoDB alternative based on PostgreSQL
-- [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml/README.md): Use machine learning algorithms and pretrained models with SQL
+- [Supabase](app/supabase/README.md): Open-Source Firebase alternative based on PostgreSQL
+- [FerretDB](app/ferretdb/README.md): Open-Source MongoDB alternative based on PostgreSQL
+- [PostgresML](app/pgml/README.md): Use machine learning algorithms and pretrained models with SQL
 - [PostGIS](https://postgis.net/): Add geospatial data support to PostgreSQL
 - [TimescaleDB](https://www.timescale.com/): Add time-series/continuous-aggregation support to PostgreSQL
 - [PGVector](https://github.com/pgvector/pgvector) / PG Embedding: AI vector/embedding data type support, and ivfflat / hnsw index access method
 - [Citus](https://www.citusdata.com/): Turn a standalone primary-replica postgres cluster into a horizontally scalable distributed cluster
-- [Apache AGE](https://age.apache.org/)): Add OpenCypher graph query language support to PostgreSQL, works like Neo4J
+- [Apache AGE](https://age.apache.org/): Add OpenCypher graph query language support to PostgreSQL, works like Neo4J
 - ...
 
 [![pigsty-extension](https://github.com/Vonng/pigsty/assets/8587410/91dfee81-3193-4505-b33f-0c5949dabf02)](docs/PGSQL-EXTENSION.md)
@@ -593,7 +592,7 @@ WeChat: Search `pigsty-cc` to join the WeChat group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/Mu2b6Wxr
+Discord: https://discord.gg/F2wYeJbJ
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
