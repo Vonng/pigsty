@@ -1833,9 +1833,9 @@ node_sysctl_params: { }           # sysctl parameters in k:v format in addition 
 
 参数名称： `node_disable_firewall`， 类型： `bool`， 层次：`C`
 
-disable node firewall? true by default
+关闭节点防火墙？默认关闭防火墙：`true`。
 
-default value is `true`
+如果您在受信任的内网部署，可以关闭防火墙。在 EL 下是 `firewalld` 服务，在 Ubuntu下是 `ufw` 服务。
 
 
 
@@ -1844,9 +1844,9 @@ default value is `true`
 
 参数名称： `node_disable_selinux`， 类型： `bool`， 层次：`C`
 
-disable node selinux? true by default
+关闭节点SELINUX？默认关闭SELinux：`true`。
 
-default value is `true`
+如果您没有操作系统/安全专家，请关闭 SELinux。
 
 
 
@@ -1855,13 +1855,11 @@ default value is `true`
 
 参数名称： `node_disable_numa`， 类型： `bool`， 层次：`C`
 
-disable node numa, reboot required
+是否关闭NUMA？默认不关闭NUMA：`false`。
 
-default value is `false`
+注意，关闭NUMA需要重启机器后方可生效！如果您不清楚如何绑核，在生产环境使用数据库时建议关闭NUMA。
 
-Boolean flag, default is not off. Note that turning off NUMA requires a reboot of the machine before it can take effect!
 
-If you don't know how to set the CPU affinity, it is recommended to turn off NUMA.
 
 
 
@@ -1871,13 +1869,11 @@ If you don't know how to set the CPU affinity, it is recommended to turn off NUM
 
 参数名称： `node_disable_swap`， 类型： `bool`， 层次：`C`
 
-disable node swap, use with caution
+是否关闭 SWAP ？ 默认不关闭SWAP：`false`。
 
-default value is `false`
+通常情况下不建议关闭SWAP，如果您有足够的内存，且数据库采用独占式部署，则可以关闭SWAP提高性能。
 
-But turning off SWAP is not recommended. But SWAP should be disabled when your node is used for a Kubernetes deployment. 
-
-If there is enough memory and the database is deployed exclusively. it may slightly improve performance 
+例外：当您的节点用于部署Kubernetes时，应当禁用SWAP。
 
 
 
@@ -1888,9 +1884,10 @@ If there is enough memory and the database is deployed exclusively. it may sligh
 
 参数名称： `node_static_network`， 类型： `bool`， 层次：`C`
 
-preserve dns resolver settings after reboot, default value is `true`
+是否使用静态DNS服务器, 类型：`bool`，层级：C，默认值为：`true`，默认启用。
 
-Enabling static networking means that machine reboots will not overwrite your DNS Resolv config with NIC changes. It is recommended to enable it in production environment.
+启用静态网络，意味着您的DNS Resolv配置不会因为机器重启与网卡变动被覆盖（EL 7/8 操作系统）。建议启用。
+
 
 
 
@@ -1899,9 +1896,9 @@ Enabling static networking means that machine reboots will not overwrite your DN
 
 参数名称： `node_disk_prefetch`， 类型： `bool`， 层次：`C`
 
-setup disk prefetch on HDD to increase performance
+是否启用磁盘预读？默认不启用：`false`。
 
-default value is `false`, Consider enable this when using HDD.
+针对HDD部署的实例可以优化性能，使用机械硬盘时建议启用。
 
 
 
@@ -1911,15 +1908,15 @@ default value is `false`, Consider enable this when using HDD.
 
 参数名称： `node_kernel_modules`， 类型： `string[]`， 层次：`C`
 
-kernel modules to be enabled on this node
-
-default value: 
+启用哪些内核模块？默认启用以下内核模块：
 
 ```yaml
 node_kernel_modules: [ softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_wrr, ip_vs_sh ]
 ```
 
-An array consisting of kernel module names declaring the kernel modules that need to be installed on the node. 
+形式上是由内核模块名称组成的数组，声明了需要在节点上安装的内核模块。
+
+ 
 
 
 
@@ -1928,15 +1925,14 @@ An array consisting of kernel module names declaring the kernel modules that nee
 
 参数名称： `node_hugepage_count`， 类型： `int`， 层次：`C`
 
-number of 2MB hugepage, take precedence over ratio, 0 by default
+在节点上分配 2MB 大页的数量，默认为 `0`，另一个相关的参数是 [`node_hugepage_ratio`](#node_hugepage_ratio)。
 
-Take precedence over [`node_hugepage_ratio`](#node_hugepage_ratio). If a non-zero value is given, it will be written to `/etc/sysctl.d/hugepage.conf`
+如果这两个参数 `node_hugepage_count` 和 `node_hugepage_ratio` 都为 `0`（默认），则大页将完全被禁用，本参数的优先级相比 [`node_hugepage_ratio`](#node_hugepage_ratio) 更高，因为它更加精确。
 
-If `node_hugepage_count` and `node_hugepage_ratio` are both `0` (default), hugepage will be disabled at all.
+如果设定了一个非零值，它将被写入 `/etc/sysctl.d/hugepage.conf` 中应用生效；负值将不起作用，高于90%节点内存的数字将被限制为节点内存的90%
 
-Negative value will not work, and number higher than 90% node mem will be ceil to 90% of node mem. 
+如果不为零，它应该略大于[`pg_shared_buffer_ratio`](#pg_shared_buffer_ratio) 的对应值，这样才能让 PostgreSQL 用上大页。
 
-It should slightly larger than [`pg_shared_buffer_ratio`](#pg_shared_buffer_ratio), if not zero.
 
 
 
@@ -1945,15 +1941,15 @@ It should slightly larger than [`pg_shared_buffer_ratio`](#pg_shared_buffer_rati
 
 参数名称： `node_hugepage_ratio`， 类型： `float`， 层次：`C`
 
-node mem hugepage ratio, 0 disable it by default, valid range: 0 ~ 0.40
+节点内存大页占内存的比例，默认为 `0`，有效范围：`0` ~ `0.40`
 
-default values: `0`, which will set `vm.nr_hugepages=0` and not use HugePage at all.
+此内存比例将以大页的形式分配，并为PostgreSQL预留。 [`node_hugepage_count`](#node_hugepage_count) 是具有更高优先级和精度的参数版本。
 
-Percent of this memory will be allocated as HugePage, and reserved for PostgreSQL.
+默认值：`0`，这将设置 `vm.nr_hugepages=0` 并完全不使用大页。 
 
-It should be equal or slightly larger than [`pg_shared_buffer_ratio`](#pg_shared_buffer_ratio), if not zero.
+本参数应该等于或略大于[`pg_shared_buffer_ratio`](#pg_shared_buffer_ratio)，如果不为零。
 
-For example, if you have default 25% mem for postgres shard buffers, you can set this value to 27 ~ 30.  Wasted hugepage can be reclaimed later with `/pg/bin/pg-tune-hugepage`
+例如，如果您为Postgres共享缓冲区默认分配了25%的内存，您可以将此值设置为27 ~ 30。稍后可以使用 `/pg/bin/pg-tune-hugepage` 精准回收浪费的大页。
 
 
 
@@ -1963,12 +1959,12 @@ For example, if you have default 25% mem for postgres shard buffers, you can set
 
 参数名称： `node_overcommit_ratio`， 类型： `int`， 层次：`C`
 
-node mem overcommit ratio, 0 disable it by default. this is an integer from 0 to 100+ .
+节点内存超额分配比率，默认为：`0`。这是一个从 `0` 到 `100+` 的整数。
 
-default values: `0`, which will set `vm.overcommit_memory=0`, otherwise `vm.overcommit_memory=2` will be used,
-and this value will be used as `vm.overcommit_ratio`.
+默认值：`0`，这将设置 `vm.overcommit_memory=0`，否则将使用 `vm.overcommit_memory=2`， 并使用此值作为 `vm.overcommit_ratio`。
 
-It is recommended to set use a `vm.overcommit_ratio` on dedicated pgsql nodes. e.g. 50 ~ 100. 
+建议在 pgsql 独占节点上设置 `vm.overcommit_ratio`，避免内存过度提交。
+
 
 
 
@@ -1977,16 +1973,15 @@ It is recommended to set use a `vm.overcommit_ratio` on dedicated pgsql nodes. e
 
 参数名称： `node_tune`， 类型： `enum`， 层次：`C`
 
-node tuned profile: none,oltp,olap,crit,tiny
+针对机器进行调优的预制方案，基于`tuned` 提供服务。有四种预制模式：
 
-default values: `oltp`
+* `tiny`：微型虚拟机
+* `oltp`：常规OLTP模板，优化延迟（默认值）
+* `olap`：常规OLAP模板，优化吞吐量
+* `crit`：核心金融业务模板，优化脏页数量
 
-* `tiny`: Micro Virtual Machine (1 ~ 3 Core, 1 ~ 8 GB Mem)
-* `oltp`: Regular OLTP templates with optimized latency
-* `olap `: Regular OLAP templates to optimize throughput
-* `crit`: Core financial business templates, optimizing the number of dirty pages
+通常，数据库的调优模板 [`pg_conf`](/zh/docs/pgsql/config#pg_conf)应当与机器调优模板配套，详情请参考[定制PGSQL模版](/zh/docs/pgsql/customize)。
 
-Usually, the database tuning template [`pg_conf`](#pg_conf) should be paired with the node tuning template: [`node_tune`](#node_tune)
 
 
 
@@ -1997,13 +1992,10 @@ Usually, the database tuning template [`pg_conf`](#pg_conf) should be paired wit
 
 参数名称： `node_sysctl_params`， 类型： `dict`， 层次：`C`
 
-sysctl parameters in k:v format in addition to tuned
+使用 K:V 形式的 sysctl 内核参数，会添加到 `tuned` profile 中，默认值为： `{}` 空对象。
 
-default values: `{}`
+这是一个 KV 结构的字典参数，Key 是内核 `sysctl` 参数名，Value 是参数值。你也可以考虑直接在 `roles/node/templates` 中的 tuned 模板中直接定义额外的 sysctl 参数。
 
-Dictionary K-V structure, Key is kernel `sysctl` parameter name, Value is the parameter value.
-
-You can also define sysctl parameters with tuned profile
 
 
 
@@ -2014,7 +2006,7 @@ You can also define sysctl parameters with tuned profile
 
 ## `NODE_ADMIN`
 
-This section is about admin users and it's credentials.
+这一节关于主机节点上的管理员，谁能登陆，怎么登陆。
 
 ```yaml
 node_data: /data                  # node main data directory, `/data` by default
@@ -2034,13 +2026,10 @@ node_admin_pk_list: []            # ssh public keys to be added to admin user
 
 参数名称： `node_data`， 类型： `path`， 层次：`C`
 
-node main data directory, `/data` by default
+节点的主数据目录，默认为 `/data`。
 
-default values: `/data`
+如果该目录不存在，则该目录会被创建。该目录应当由 `root` 拥有，并拥有 `777` 权限。
 
-If specified, this path will be used as major data disk mountpoint. And a dir will be created and throwing a warning if path not exists.
-
-The data dir is owned by root with mode `0777`.
 
 
 
@@ -2050,12 +2039,9 @@ The data dir is owned by root with mode `0777`.
 
 参数名称： `node_admin_enabled`， 类型： `bool`， 层次：`C`
 
-create a admin user on target node?
+是否在本节点上创建一个专用管理员用户？默认值为：`true`。
 
-default value is `true`
-
-Create an admin user on each node (password-free sudo and ssh), an admin user named `dba (uid=88)` will be created by default,
- which can access other nodes in the env and perform sudo from the meta node via SSH password-free.
+Pigsty默认会在每个节点上创建一个管理员用户（拥有免密sudo与ssh权限），默认的管理员名为`dba (uid=88)`的管理用户，可以从元节点上通过SSH免密访问环境中的其他节点并执行免密sudo。
 
 
 
@@ -2064,9 +2050,13 @@ Create an admin user on each node (password-free sudo and ssh), an admin user na
 
 参数名称： `node_admin_uid`， 类型： `int`， 层次：`C`
 
-uid and gid for node admin user
+管理员用户UID，默认值为：`88`。
 
-default values: `88`
+请尽可能确保 UID 在所有节点上都相同，可以避免一些无谓的权限问题。
+
+如果默认 UID 88 已经被占用，您可以选择一个其他 UID ，手工分配时请注意UID命名空间冲突。
+
+
 
 
 
@@ -2076,9 +2066,7 @@ default values: `88`
 
 参数名称： `node_admin_username`， 类型： `username`， 层次：`C`
 
-name of node admin user, `dba` by default
-
-default values: `dba`
+管理员用户名，默认为 `dba` 。
 
 
 
@@ -2088,11 +2076,10 @@ default values: `dba`
 
 参数名称： `node_admin_ssh_exchange`， 类型： `bool`， 层次：`C`
 
-exchange admin ssh key among node cluster
+在节点集群间交换节点管理员SSH密钥, 类型：`bool`，层级：C，默认值为：`true`
 
-default value is `true`
+启用时，Pigsty会在执行剧本时，在成员间交换SSH公钥，允许管理员 [`node_admin_username`](#node_admin_username) 从不同节点上相互访问。
 
-When enabled, Pigsty will exchange SSH public keys between members during playbook execution, allowing admins [`node_admin_username`](#node_admin_username) to access each other from different nodes.
 
 
 
@@ -2101,13 +2088,14 @@ When enabled, Pigsty will exchange SSH public keys between members during playbo
 
 参数名称： `node_admin_pk_current`， 类型： `bool`， 层次：`C`
 
-add current user's ssh pk to admin authorized_keys
+是否将当前节点 & 用户的公钥加入管理员账户，默认值是： `true`
 
-default value is `true`
+启用时，将会把当前节点上执行此剧本的管理用户的SSH公钥（`~/.ssh/id_rsa.pub`）拷贝至目标节点管理员用户的 `authorized_keys` 中。
 
-When enabled, on the current node, the SSH public key (`~/.ssh/id_rsa.pub`) of the current user is copied to the `authorized_keys` of the target node admin user.
+生产环境部署时，请务必注意此参数，此参数会将当前执行命令用户的默认公钥安装至所有机器的管理用户上。
 
-When deploying in a production env, be sure to pay attention to this parameter, which installs the default public key of the user currently executing the command to the admin user of all machines.
+
+
 
 
 
@@ -2117,14 +2105,11 @@ When deploying in a production env, be sure to pay attention to this parameter, 
 
 参数名称： `node_admin_pk_list`， 类型： `string[]`， 层次：`C`
 
-ssh public keys to be added to admin user
+可登陆管理员的公钥列表，默认值为：`[]` 空数组。 
 
-default values: `[]`
+数组的每一个元素为字符串，内容为写入到管理员用户`~/.ssh/authorized_keys`中的公钥，持有对应私钥的用户可以以管理员身份登录。
 
-Each element of the array is a string containing the key written to the admin user `~/.ssh/authorized_keys`, and the user with the corresponding private key can log in as an admin user.
-
-When deploying in production envs, be sure to note this parameter and add only trusted keys to this list.
-
+生产环境部署时，请务必注意此参数，仅将信任的密钥加入此列表中。
 
 
 
@@ -2134,13 +2119,17 @@ When deploying in production envs, be sure to note this parameter and add only t
 
 ## `NODE_TIME`
 
+关于主机时间/时区/NTP/定时任务的相关配置。
+
+时间同步对于数据库服务来说非常重要，请确保系统 `chronyd` 授时服务正常运行。
+
 ```yaml
-node_timezone: ''                 # setup node timezone, empty string to skip
-node_ntp_enabled: true            # enable chronyd time sync service?
-node_ntp_servers:                 # ntp servers in `/etc/chrony.conf`
+node_timezone: ''                 # 设置节点时区，空字符串表示跳过
+node_ntp_enabled: true            # 启用chronyd时间同步服务？
+node_ntp_servers:                 # `/etc/chrony.conf`中的ntp服务器
   - pool pool.ntp.org iburst
-node_crontab_overwrite: true      # overwrite or append to `/etc/crontab`?
-node_crontab: [ ]                 # crontab entries in `/etc/crontab`
+node_crontab_overwrite: true      # 覆盖还是追加到`/etc/crontab`？
+node_crontab: [ ]                 # `/etc/crontab`中的crontab条目
 ```
 
 
@@ -2148,10 +2137,9 @@ node_crontab: [ ]                 # crontab entries in `/etc/crontab`
 
 参数名称： `node_timezone`， 类型： `string`， 层次：`C`
 
-setup node timezone, empty string to skip
+设置节点时区，空字符串表示跳过。默认值是空字符串，默认不会修改默认的时区（即使用通常的默认值UTC）
 
-default value is empty string, which will not change the default timezone (usually UTC)
-
+在中国地区使用时，建议设置为 `Asia/Hong_Kong`。
 
 
 
@@ -2160,11 +2148,11 @@ default value is empty string, which will not change the default timezone (usual
 
 参数名称： `node_ntp_enabled`， 类型： `bool`， 层次：`C`
 
-enable chronyd time sync service?
+启用chronyd时间同步服务？默认值为：`true`
 
-default value is `true`, and thus Pigsty will override the node's `/etc/chrony.conf` by with [`node_ntp_servers`](#node_ntp_servers).
+此时 Pigsty 将使用 [`node_ntp_servers`](#node_ntp_servers) 中指定的 NTP服务器列表覆盖节点的 `/etc/chrony.conf`。
 
-If you already a NTP server configured, just set to `false` to leave it be.
+如果您的节点已经配置好了 NTP 服务器，那么可以将此参数设置为 `false` 跳过时间同步配置。
 
 
 
@@ -2173,13 +2161,13 @@ If you already a NTP server configured, just set to `false` to leave it be.
 
 参数名称： `node_ntp_servers`， 类型： `string[]`， 层次：`C`
 
-ntp servers in `/etc/chrony.conf`
+在 `/etc/chrony.conf` 中使用的 NTP 服务器列表。默认值为：`["pool pool.ntp.org iburst"]`
 
-default value:  `["pool pool.ntp.org iburst"]`
+本参数是一个数组，每一个数组元素是一个字符串，代表一行 NTP 服务器配置。仅当 [`node_ntp_enabled`](#node_ntp_enabled) 启用时生效。
 
-It only takes effect if [`node_ntp_enabled`](#node_ntp_enabled) is true.
+Pigsty 默认使用全球 NTP 服务器 `pool.ntp.org`，您可以根据自己的网络环境修改此参数，例如 `cn.pool.ntp.org iburst`，或内网的时钟服务。
 
-You can use `${admin_ip}` to sync time with ntp server on admin node rather than public ntp server.
+您也可以在配置中使用 `${admin_ip}` 占位符，使用管理节点上的时间服务器。
 
 ```yaml
 node_ntp_servers: [ 'pool ${admin_ip} iburst' ]
@@ -2193,9 +2181,10 @@ node_ntp_servers: [ 'pool ${admin_ip} iburst' ]
 
 参数名称： `node_crontab_overwrite`， 类型： `bool`， 层次：`C`
 
-overwrite or append to `/etc/crontab`?
+处理 [`node_crontab`](#node_crontab) 中的定时任务时，是追加还是覆盖？默认值为：`true`，即覆盖。
 
-default value is `true`, and pigsty will render records in [`node_crontab`](#node_crontab) in overwrite mode rather than appending to it.
+如果您希望在节点上追加定时任务，可以将此参数设置为 `false`，Pigsty 将会在节点的 crontab 上 **追加**，而非 **覆盖所有** 定时任务。
+
 
 
 
@@ -2205,10 +2194,16 @@ default value is `true`, and pigsty will render records in [`node_crontab`](#nod
 
 参数名称： `node_crontab`， 类型： `string[]`， 层次：`C`
 
-crontab entries in `/etc/crontab`
+定义在节点 `/etc/crontab` 中的定时任务：默认值为：`[]` 空数组。
 
-default values: `[]`
+每一个数组数组元素都是一个字符串，代表一行定时任务。使用标准的 cron 格式定义。
 
+例如，以下配置会以  postgres 用户在每天凌晨1点执行全量备份任务。
+
+```yaml
+node_crontab: 
+  - '00 01 * * * postgres /pg/bin/pg-backup full' ] # make a full backup every 1am
+```
 
 
 
@@ -2217,11 +2212,11 @@ default values: `[]`
 
 ## `NODE_VIP`
 
-You can bind an optional L2 VIP among one node cluster, which is disabled by default.
+您可以为节点集群绑定一个可选的 L2 VIP，默认不启用此特性。L2 VIP 只对一组节点集群有意义，该 VIP 会根据配置的优先级在集群中的节点之间进行切换，确保节点服务的高可用。
 
-You have to manually assign the `vip_address` and `vip_vrid` for each node cluster.
+请注意，L2 VIP  **只能** 在同一 L2 网段中使用，这可能会对您的网络拓扑产生额外的限制，如果不想受此限制，您可以考虑使用 DNS LB 或者 Haproxy 实现类似的功能。
 
-It is user's responsibility to ensure that the address / vrid is **unique** among your LAN.
+当启用此功能时，您需要为这个 L2 VIP 显式分配可用的 [`vip_address`](#vip_address) 与 [`vip_vrid`](#vip_vrid)，用户应当确保这两者在同一网段内唯一。 
 
 
 ```yaml
@@ -2242,11 +2237,11 @@ vip_exporter_port: 9650           # keepalived exporter listen port, 9650 by def
 
 参数名称： `vip_enabled`， 类型： `bool`， 层次：`C`
 
-enable vip on this node cluster?
+是否在当前这个节点集群中配置一个由 Keepalived 管理的 L2 VIP ？ 默认值为： `false`。
 
-default value is `false`, means no L2 VIP is created for this node cluster.
 
-L2 VIP can only be used in same L2 LAN, which may incurs extra restrictions on your network topology.
+
+
 
 
 
@@ -2254,9 +2249,10 @@ L2 VIP can only be used in same L2 LAN, which may incurs extra restrictions on y
 
 参数名称： `vip_address`， 类型： `ip`， 层次：`C`
 
-node vip address in IPv4 format, **required** if node [`vip_enabled`](#vip_enabled).
+节点 VIP 地址，IPv4 格式（不带 CIDR 网段后缀），当节点启用 [`vip_enabled`](#vip_enabled) 时，这是一个必选参数。
 
-no default value. This parameter must be explicitly assigned and unique in your LAN.
+本参数没有默认值，这意味着您必须显式地为节点集群分配一个唯一的 VIP 地址。
+
 
 
 
@@ -2264,9 +2260,11 @@ no default value. This parameter must be explicitly assigned and unique in your 
 
 参数名称： `vip_address`， 类型： `ip`， 层次：`C`
 
-integer, 1-254, should be unique in same VLAN, **required** if node [`vip_enabled`](#vip_enabled).
+VRID 是一个范围从 `1` 到 `254` 的正整数，用于标识一个网络中的 VIP，当节点启用 [`vip_enabled`](#vip_enabled) 时，这是一个必选参数。
 
-no default value. This parameter must be explicitly assigned and unique in your LAN.
+本参数没有默认值，这意味着您必须显式地为节点集群分配一个网段内唯一的 ID。
+
+
 
 
 
@@ -2276,7 +2274,9 @@ no default value. This parameter must be explicitly assigned and unique in your 
 
 参数名称： `vip_role`， 类型： `enum`， 层次：`I`
 
-node vip role, could be `master` or `backup`, will be used as initial keepalived state.
+节点 VIP 角色，可选值为： `master` 或 `backup`，默认值为 `backup`
+
+该参数的值会被设置为 keepalived 的初始状态。
 
 
 
@@ -2285,9 +2285,11 @@ node vip role, could be `master` or `backup`, will be used as initial keepalived
 
 参数名称： `vip_preempt`， 类型： `bool`， 层次：`C/I`
 
-optional, `true/false`, false by default, enable vip preemption
+是否启用 VIP 抢占？可选参数，默认值为 `false`，即不抢占 VIP。
 
-default value is `false`, means no preempt is happening when a backup have higher priority than living master.
+所谓抢占，是指一个 `backup` 角色的节点，当其优先级高于当前存活且正常工作的 `master` 角色的节点时，是否取抢占其 VIP？
+
+
 
 
 
@@ -2296,11 +2298,11 @@ default value is `false`, means no preempt is happening when a backup have highe
 
 参数名称： `vip_interface`， 类型： `string`， 层次：`C/I`
 
-node vip network interface to listen, `eth0` by default.
+节点 VIP 监听使用的网卡，默认为 `eth0`。
 
-It should be the same primary intranet interface of your node, which is the IP address you used in the inventory file.
+您应当使用与节点主IP地址（即：你填入清单中IP地址）所使用网卡相同的名称。
 
-If your node have different interface, you can override it on instance vars
+如果你的节点有着不同的网卡名称，你可以在实例/节点层次对其进行覆盖。
 
 
 
@@ -2309,7 +2311,7 @@ If your node have different interface, you can override it on instance vars
 
 参数名称： `vip_dns_suffix`， 类型： `string`， 层次：`C/I`
 
-节点集群 L2 VIP 使用的DNS名称，默认是空字符串，即直接使用集群名本身作为DNS名称。
+节点集群 L2 VIP 使用的DNS名称，默认是空字符串，即直接使用集群名本身作为DNS名。
 
 
 
@@ -2319,7 +2321,7 @@ If your node have different interface, you can override it on instance vars
 
 参数名称： `vip_exporter_port`， 类型： `port`， 层次：`C/I`
 
-keepalived exporter listen port, 9650 by default.
+keepalived exporter 监听端口号，默认为：`9650`。
 
 
 
@@ -2330,22 +2332,22 @@ keepalived exporter listen port, 9650 by default.
 
 ## `HAPROXY`
 
-HAProxy is installed on every node by default, exposing services in a NodePort manner.
+HAProxy 默认在所有节点上安装启用，并以类似于 Kubernetes NodePort 的方式对外暴露服务。
 
-It is used by [`PGSQL`](PGSQL) [Service](PGSQL-SERVICE).
+[`PGSQL`](PGSQL) 模块对外[服务](PGSQL-SERVICE)使用到了 Haproxy。
 
 
 ```yaml
-haproxy_enabled: true             # enable haproxy on this node?
-haproxy_clean: false              # cleanup all existing haproxy config?
-haproxy_reload: true              # reload haproxy after config?
-haproxy_auth_enabled: true        # enable authentication for haproxy admin page
-haproxy_admin_username: admin     # haproxy admin username, `admin` by default
-haproxy_admin_password: pigsty    # haproxy admin password, `pigsty` by default
-haproxy_exporter_port: 9101       # haproxy admin/exporter port, 9101 by default
-haproxy_client_timeout: 24h       # client side connection timeout, 24h by default
-haproxy_server_timeout: 24h       # server side connection timeout, 24h by default
-haproxy_services: []              # list of haproxy service to be exposed on node
+haproxy_enabled: true             # 在此节点上启用haproxy？
+haproxy_clean: false              # 清理所有现有的haproxy配置？
+haproxy_reload: true              # 配置后重新加载haproxy？
+haproxy_auth_enabled: true        # 为haproxy管理页面启用身份验证
+haproxy_admin_username: admin     # haproxy管理用户名，默认为`admin`
+haproxy_admin_password: pigsty    # haproxy管理密码，默认为`pigsty`
+haproxy_exporter_port: 9101       # haproxy管理/导出端口，默认为9101
+haproxy_client_timeout: 24h       # 客户端连接超时，默认为24小时
+haproxy_server_timeout: 24h       # 服务器端连接超时，默认为24小时
+haproxy_services: []              # 需要在节点上暴露的haproxy服务列表
 ```
 
 
@@ -2354,9 +2356,8 @@ haproxy_services: []              # list of haproxy service to be exposed on nod
 
 参数名称： `haproxy_enabled`， 类型： `bool`， 层次：`C`
 
-enable haproxy on this node?
+在此节点上启用haproxy？默认值为： `true`。
 
-default value is `true`
 
 
 
@@ -2365,9 +2366,7 @@ default value is `true`
 
 参数名称： `haproxy_clean`， 类型： `bool`， 层次：`G/C/A`
 
-cleanup all existing haproxy config?
-
-default value is `false`
+清理所有现有的haproxy配置？默认值为 `false`。
 
 
 
@@ -2376,11 +2375,9 @@ default value is `false`
 
 参数名称： `haproxy_reload`， 类型： `bool`， 层次：`A`
 
-reload haproxy after config?
+配置后重新加载 haproxy？默认值为 `true`，配置更改后会重新加载haproxy。
 
-default value is `true`, it will reload haproxy after config change.
-
-If you wish to check before apply, you can turn off this with cli args and check it.
+如果您希望在应用配置前进行手工检查，您可以使用命令参数关闭此选项，并进行检查后再应用。
 
 
 
@@ -2389,11 +2386,9 @@ If you wish to check before apply, you can turn off this with cli args and check
 
 参数名称： `haproxy_auth_enabled`， 类型： `bool`， 层次：`G`
 
-enable authentication for haproxy admin page
+为haproxy管理页面启用身份验证，默认值为 `true`，它将要求管理页面进行http基本身份验证。
 
-default value is `true`, which will require a http basic auth for admin page.
-
-disable it is not recommended, since your traffic control will be exposed
+建议不要禁用认证，因为您的流量控制页面将对外暴露，这是比较危险的。
 
 
 
@@ -2402,9 +2397,8 @@ disable it is not recommended, since your traffic control will be exposed
 
 参数名称： `haproxy_admin_username`， 类型： `username`， 层次：`G`
 
-haproxy admin username, `admin` by default
+haproxy 管理员用户名，默认为：`admin`。
 
-default values: `admin`
 
 
 
@@ -2414,10 +2408,9 @@ default values: `admin`
 
 参数名称： `haproxy_admin_password`， 类型： `password`， 层次：`G`
 
-haproxy admin password, `pigsty` by default
+haproxy管理密码，默认为 `pigsty`
 
-default values: `pigsty`
-
+> 在生产环境中请务必修改此密码！
 
 
 
@@ -2426,9 +2419,9 @@ default values: `pigsty`
 
 参数名称： `haproxy_exporter_port`， 类型： `port`， 层次：`C`
 
-haproxy admin/exporter port, 9101 by default
+haproxy 流量管理/指标对外暴露的端口，默认为：`9101`
 
-default values: `9101`
+
 
 
 
@@ -2438,9 +2431,11 @@ default values: `9101`
 
 参数名称： `haproxy_client_timeout`， 类型： `interval`， 层次：`C`
 
-client side connection timeout, 24h by default
+客户端连接超时，默认为 `24h`。 
 
-default values: `24h`
+设置一个超时可以避免难以清理的超长的连接，但如果您真的需要一个长连接，您可以将其设置为更长的时间。
+
+
 
 
 
@@ -2450,9 +2445,9 @@ default values: `24h`
 
 参数名称： `haproxy_server_timeout`， 类型： `interval`， 层次：`C`
 
-server side connection timeout, 24h by default
+服务端连接超时，默认为 `24h`。
 
-default values: `24h`
+设置一个超时可以避免难以清理的超长的连接，但如果您真的需要一个长连接，您可以将其设置为更长的时间。
 
 
 
@@ -2462,10 +2457,9 @@ default values: `24h`
 
 参数名称： `haproxy_services`， 类型： `service[]`， 层次：`C`
 
-list of haproxy service to be exposed on node
+需要在此节点上通过 Haproxy 对外暴露的服务列表，默认值为： `[]` 空数组。
 
-default values: `[]`, each element is a service definition, here is an ad hoc haproxy service example:
-
+每一个数组元素都是一个服务定义，下面是一个服务定义的例子：
 
 ```yaml
 haproxy_services:                   # list of haproxy service
@@ -2490,7 +2484,7 @@ haproxy_services:                   # list of haproxy service
 
 ```
 
-It will be rendered to `/etc/haproxy/<service.name>.cfg` and take effect after reload.
+每个服务定义会被渲染为 `/etc/haproxy/<service.name>.cfg` 配置文件，并在 Haproxy 重载后生效。
 
 
 
@@ -2516,9 +2510,7 @@ node_exporter_options: '--no-collector.softnet --no-collector.nvme --collector.t
 
 参数名称： `node_exporter_enabled`， 类型： `bool`， 层次：`C`
 
-setup node_exporter on this node?
-
-default value is `true`
+在当前节点上启用节点指标收集器？默认启用：`true`
 
 
 
@@ -2527,9 +2519,7 @@ default value is `true`
 
 参数名称： `node_exporter_port`， 类型： `port`， 层次：`C`
 
-node exporter listen port, 9100 by default
-
-default values: `9100`
+对外暴露节点指标使用的端口，默认为 `9100`。
 
 
 
@@ -2539,11 +2529,12 @@ default values: `9100`
 
 参数名称： `node_exporter_options`， 类型： `arg`， 层次：`C`
 
-extra server options for node_exporter
+节点指标采集器的命令行参数，默认值为：
 
-default value: `--no-collector.softnet --no-collector.nvme --collector.tcpstat --collector.processes`
+`--no-collector.softnet --no-collector.nvme --collector.tcpstat --collector.processes`
 
-Pigsty enables `ntp`, `tcpstat`, `processes` three extra metrics, collectors, by default, and disables `softnet`, `nvme` metrics collectors by default.
+该选项会启用/禁用一些指标收集器，请根据您的需要进行调整。
+
 
 
 
@@ -2553,29 +2544,28 @@ Pigsty enables `ntp`, `tcpstat`, `processes` three extra metrics, collectors, by
 
 ## `PROMTAIL`
 
-Promtail will collect logs from other modules, and send them to [`LOKI`](#loki)
+Promtail 是与 Loki 配套的日志收集组件，会收集各个模块产生的日志并发送至基础设施节点上的 [`LOKI`](#loki) 服务。
 
-* `INFRA`: Infra logs, collected only on meta nodes.
+* `INFRA`： 基础设施组件的日志只会在 Infra 节点上收集。
     * `nginx-access`: `/var/log/nginx/access.log`
     * `nginx-error`: `/var/log/nginx/error.log`
     * `grafana`: `/var/log/grafana/grafana.log`
 
-* `NODES`: Host node logs, collected on all nodes.
-    * `syslog`: `/var/log/messages`
+* `NODES`：主机相关的日志，所有节点上都会启用收集。
+    * `syslog`: `/var/log/messages` （Debian上为 `/var/log/syslog`）
     * `dmesg`: `/var/log/dmesg`
     * `cron`: `/var/log/cron`
 
-* `PGSQL`: PostgreSQL logs, collected when a node is defined with `pg_cluster`.
+* `PGSQL`：PostgreSQL 相关的日志，只有节点配置了 [PGSQL](PGSQL) 模块才会启用收集。
     * `postgres`: `/pg/log/postgres/*.csv`
     * `patroni`: `/pg/log/patroni.log`
     * `pgbouncer`: `/pg/log/pgbouncer/pgbouncer.log`
     * `pgbackrest`: `/pg/log/pgbackrest/*.log`
 
-* `REDIS`: Redis logs, collected when a node is defined with `redis_cluster`.
+* `REDIS`：Redis 相关日志，只有节点配置了 [REDIS](REDIS) 模块才会启用收集。
     * `redis`: `/var/log/redis/*.log`
 
-!> Log directory are customizable according to [`pg_log_dir`](#pg_log_dir), [`patroni_log_dir`](#patroni_log_dir), [`pgbouncer_log_dir`](#pgbouncer_log_dir), [`pgbackrest_log_dir`](#pgbackrest_log_dir)
-
+> 日志目录会根据这些参数的配置自动调整：[`pg_log_dir`](#pg_log_dir), [`patroni_log_dir`](#patroni_log_dir), [`pgbouncer_log_dir`](#pgbouncer_log_dir), [`pgbackrest_log_dir`](#pgbackrest_log_dir)
 
 
 ```yaml
@@ -2591,9 +2581,7 @@ promtail_positions: /var/log/positions.yaml # promtail position status file path
 
 参数名称： `promtail_enabled`， 类型： `bool`， 层次：`C`
 
-enable promtail logging collector?
-
-default value is `true`
+是否启用Promtail日志收集服务？默认值为： `true`
 
 
 
@@ -2602,10 +2590,10 @@ default value is `true`
 
 参数名称： `promtail_clean`， 类型： `bool`， 层次：`G/A`
 
-purge existing promtail status file during init?
+是否在安装 Promtail 时移除已有状态信息？默认值为： `false`。
 
-default value is `false`, if you choose to clean, Pigsty will remove the existing state file defined by [`promtail_positions`](#promtail_positions)
-which means that Promtail will recollect all logs on the current node and send them to Loki again.
+默认不会清理，当您选择清理时，Pigsty会在部署Promtail时移除现有状态文件 [`promtail_positions`](#promtail_positions)，这意味着Promtail会重新收集当前节点上的所有日志并发送至Loki。
+
 
 
 
@@ -2614,9 +2602,8 @@ which means that Promtail will recollect all logs on the current node and send t
 
 参数名称： `promtail_port`， 类型： `port`， 层次：`C`
 
-promtail listen port, 9080 by default
+Promtail 监听使用的默认端口号， 默认为：`9080`
 
-default values: `9080`
 
 
 
@@ -2626,12 +2613,9 @@ default values: `9080`
 
 参数名称： `promtail_positions`， 类型： `path`， 层次：`C`
 
-promtail position status file path
+Promtail 状态文件路径，默认值为：`/var/log/positions.yaml`。
 
-default values: `/var/log/positions.yaml`
-
-Promtail records the consumption offsets of all logs, which are periodically written to the file specified by [`promtail_positions`](#promtail_positions).
-
+Promtail记录了所有日志的消费偏移量，定期写入由本参数指定的文件中。
 
 
 
@@ -2642,7 +2626,7 @@ Promtail records the consumption offsets of all logs, which are periodically wri
 
 # `DOCKER`
 
-You can install docker on nodes with [`docker.yml`](https://github.com/Vonng/pigsty/blob/master/docker.yml)
+您可以使用 [`docker.yml`](https://github.com/Vonng/pigsty/blob/master/docker.yml) 剧本，在节点上安装并启用 Docker。
 
 
 ```yaml
@@ -2658,7 +2642,7 @@ docker_image_cache: /tmp/docker   # docker image cache dir, `/tmp/docker` by def
 
 参数名称： `docker_enabled`， 类型： `bool`， 层次：`C`
 
-enable docker on this node? default value is `false`
+是否在当前节点启用Docker？默认为： `false`，即不启用。
 
 
 
@@ -2667,7 +2651,7 @@ enable docker on this node? default value is `false`
 
 参数名称： `docker_cgroups_driver`， 类型： `enum`， 层次：`C`
 
-docker cgroup fs driver, could be `cgroupfs` or `systemd`, default values: `systemd`
+Docker使用的 CGroup FS 驱动，可以是 `cgroupfs` 或 `systemd`，默认值为： `systemd`
 
 
 
@@ -2677,12 +2661,18 @@ docker cgroup fs driver, could be `cgroupfs` or `systemd`, default values: `syst
 
 参数名称： `docker_registry_mirrors`， 类型： `string[]`， 层次：`C`
 
-docker registry mirror list, default values: `[]`, Example: 
+Docker使用的镜像仓库地址，默认值为：`[]` 空数组。
+
+您可以使用Docker镜像站点加速镜像拉取，下面是一些例子：
 
 ```yaml
-[ "https://mirror.ccs.tencentyun.com" ]         # tencent cloud mirror, intranet only
-["https://registry.cn-hangzhou.aliyuncs.com"]   # aliyun cloud mirror, login required
+[ "https://mirror.ccs.tencentyun.com" ]         # 腾讯云内网的镜像站点
+["https://registry.cn-hangzhou.aliyuncs.com"]   # 阿里云镜像站点，需要登陆
 ```
+
+如果拉取速度太慢，您也可以考虑：`docker login quay.io` 使用其他的 Registry。
+
+
 
 
 
@@ -2690,9 +2680,9 @@ docker registry mirror list, default values: `[]`, Example:
 
 参数名称： `docker_image_cache`， 类型： `path`， 层次：`C`
 
-docker image cache dir, `/tmp/docker` by default.
+本地的Docker镜像离线缓存包路径， 默认为 `/tmp/docker`。
 
-The local docker image cache with `.tgz` suffix under this directory will be loaded into docker one by one:
+在该路径下以 `tgz` 结尾的文件会被逐个 `load` 到 Docker 中：
 
 ```bash
 cat {{ docker_image_cache }}/*.tgz | gzip -d -c - | docker load
@@ -3638,7 +3628,7 @@ pg_exporters: # list all remote instances here, alloc a unique unused local port
 
 Database credentials, In-Database Objects that need to be taken care of by Users.
 
-!> WARNING: YOU HAVE TO CHANGE THESE DEFAULT **PASSWORD**s in production environment.
+> WARNING: YOU HAVE TO CHANGE THESE DEFAULT **PASSWORD**s in production environment.
 
 
 ```yaml
@@ -3898,7 +3888,7 @@ default values: `dbuser_dba`
 
 postgres admin password in plain text, `DBUser.DBA` by default
 
-!> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 
 
@@ -3920,7 +3910,7 @@ postgres monitor username, `dbuser_monitor` by default, which is a global monito
 
 postgres monitor password, `DBUser.Monitor` by default.
 
-!> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 
 
@@ -3931,7 +3921,7 @@ postgres monitor password, `DBUser.Monitor` by default.
 
 PostgreSQL dbsu password for [`pg_dbsu`](#pg_dbsu), empty string means no dbsu password, which is the default behavior.
 
-!> WARNING: It's not recommend to set a dbsu password for common PGSQL clusters, except for [`pg_mode`](#pg_mode) = `citus`.
+> WARNING: It's not recommend to set a dbsu password for common PGSQL clusters, except for [`pg_mode`](#pg_mode) = `citus`.
 
 
 
@@ -4063,7 +4053,7 @@ For example `/usr/pgsql -> /usr/pgsql-15`. For more details, check [PGSQL File S
 
 postgres log dir, `/pg/log/postgres` by default.
 
-!> caveat: if `pg_log_dir` is prefixed with `pg_data` it will not be created explicit (it will be created by postgres itself then).
+> caveat: if `pg_log_dir` is prefixed with `pg_data` it will not be created explicit (it will be created by postgres itself then).
 
 
 
@@ -4420,7 +4410,7 @@ Patroni unsafe RESTAPI is protected by username/password by default, check [Conf
 
 patroni restapi password, `Patroni.API` by default
 
-!> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 
 

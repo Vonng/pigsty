@@ -1365,7 +1365,7 @@ grafana admin password, `pigsty` by default
 
 default value: `pigsty`
 
-!> WARNING: Change this to a strong password before deploying to production environment 
+> WARNING: Change this to a strong password before deploying to production environment 
 
 
 
@@ -2126,9 +2126,7 @@ If you already a NTP server configured, just set to `false` to leave it be.
 
 name: `node_ntp_servers`, type: `string[]`, level: `C`
 
-ntp servers in `/etc/chrony.conf`
-
-default value:  `["pool pool.ntp.org iburst"]`
+ntp servers in `/etc/chrony.conf`, default value:  `["pool pool.ntp.org iburst"]`
 
 It only takes effect if [`node_ntp_enabled`](#node_ntp_enabled) is true.
 
@@ -2172,9 +2170,11 @@ default values: `[]`
 
 You can bind an optional L2 VIP among one node cluster, which is disabled by default.
 
-You have to manually assign the `vip_address` and `vip_vrid` for each node cluster.
+L2 VIP can only be used in same L2 LAN, which may incurs extra restrictions on your network topology.
 
-It is user's responsibility to ensure that the address / vrid is **unique** among your LAN.
+If enabled, You have to manually assign the [`vip_address`](#vip_address) and [`vip_vrid`](#vip_vrid) for each node cluster.
+
+It is user's responsibility to ensure that the address / vrid is **unique** among the same LAN.
 
 
 ```yaml
@@ -2195,9 +2195,7 @@ vip_exporter_port: 9650           # keepalived exporter listen port, 9650 by def
 
 name: `vip_enabled`, type: `bool`, level: `C`
 
-enable vip on this node cluster?
-
-default value is `false`, means no L2 VIP is created for this node cluster.
+enable vip on this node cluster? default value is `false`, means no L2 VIP is created for this node cluster.
 
 L2 VIP can only be used in same L2 LAN, which may incurs extra restrictions on your network topology.
 
@@ -2357,8 +2355,6 @@ name: `haproxy_admin_username`, type: `username`, level: `G`
 
 haproxy admin username, `admin` by default
 
-default values: `admin`
-
 
 
 
@@ -2369,8 +2365,7 @@ name: `haproxy_admin_password`, type: `password`, level: `G`
 
 haproxy admin password, `pigsty` by default
 
-default values: `pigsty`
-
+> PLEASE CHANGE IT IN YOUR PRODUCTION ENVIRONMENT!
 
 
 
@@ -2379,9 +2374,7 @@ default values: `pigsty`
 
 name: `haproxy_exporter_port`, type: `port`, level: `C`
 
-haproxy admin/exporter port, 9101 by default
-
-default values: `9101`
+haproxy admin/exporter port, `9101` by default
 
 
 
@@ -2391,9 +2384,8 @@ default values: `9101`
 
 name: `haproxy_client_timeout`, type: `interval`, level: `C`
 
-client side connection timeout, 24h by default
+client side connection timeout, `24h` by default
 
-default values: `24h`
 
 
 
@@ -2403,9 +2395,8 @@ default values: `24h`
 
 name: `haproxy_server_timeout`, type: `interval`, level: `C`
 
-server side connection timeout, 24h by default
+server side connection timeout, `24h` by default
 
-default values: `24h`
 
 
 
@@ -2415,9 +2406,9 @@ default values: `24h`
 
 name: `haproxy_services`, type: `service[]`, level: `C`
 
-list of haproxy service to be exposed on node
+list of haproxy service to be exposed on node, default values: `[]`
 
-default values: `[]`, each element is a service definition, here is an ad hoc haproxy service example:
+Each element is a service definition, here is an ad hoc haproxy service example:
 
 
 ```yaml
@@ -2469,9 +2460,8 @@ node_exporter_options: '--no-collector.softnet --no-collector.nvme --collector.t
 
 name: `node_exporter_enabled`, type: `bool`, level: `C`
 
-setup node_exporter on this node?
+setup node_exporter on this node? default value is `true`
 
-default value is `true`
 
 
 
@@ -2480,9 +2470,8 @@ default value is `true`
 
 name: `node_exporter_port`, type: `port`, level: `C`
 
-node exporter listen port, 9100 by default
+node exporter listen port, `9100` by default
 
-default values: `9100`
 
 
 
@@ -2492,11 +2481,9 @@ default values: `9100`
 
 name: `node_exporter_options`, type: `arg`, level: `C`
 
-extra server options for node_exporter
+extra server options for node_exporter, default value: `--no-collector.softnet --no-collector.nvme --collector.tcpstat --collector.processes`
 
-default value: `--no-collector.softnet --no-collector.nvme --collector.tcpstat --collector.processes`
-
-Pigsty enables `ntp`, `tcpstat`, `processes` three extra metrics, collectors, by default, and disables `softnet`, `nvme` metrics collectors by default.
+Pigsty enables `tcpstat`, `processes` collectors and and disable  `nvme`, `softnet` metrics collectors by default.
 
 
 
@@ -2508,7 +2495,7 @@ Pigsty enables `ntp`, `tcpstat`, `processes` three extra metrics, collectors, by
 
 Promtail will collect logs from other modules, and send them to [`LOKI`](#loki)
 
-* `INFRA`: Infra logs, collected only on meta nodes.
+* `INFRA`: Infra logs, collected only on infra nodes.
     * `nginx-access`: `/var/log/nginx/access.log`
     * `nginx-error`: `/var/log/nginx/error.log`
     * `grafana`: `/var/log/grafana/grafana.log`
@@ -2527,7 +2514,7 @@ Promtail will collect logs from other modules, and send them to [`LOKI`](#loki)
 * `REDIS`: Redis logs, collected when a node is defined with `redis_cluster`.
     * `redis`: `/var/log/redis/*.log`
 
-!> Log directory are customizable according to [`pg_log_dir`](#pg_log_dir), [`patroni_log_dir`](#patroni_log_dir), [`pgbouncer_log_dir`](#pgbouncer_log_dir), [`pgbackrest_log_dir`](#pgbackrest_log_dir)
+> Log directory are customizable according to [`pg_log_dir`](#pg_log_dir), [`patroni_log_dir`](#patroni_log_dir), [`pgbouncer_log_dir`](#pgbouncer_log_dir), [`pgbackrest_log_dir`](#pgbackrest_log_dir)
 
 
 
@@ -3011,7 +2998,7 @@ minio_users:
 
 Two default users are created for PostgreSQL DBA and pgBackREST.
 
-!> PLEASE ADJUST THESE USERS & CREDENTIALS IN YOUR DEPLOYMENT!
+> PLEASE ADJUST THESE USERS & CREDENTIALS IN YOUR DEPLOYMENT!
 
 
 
@@ -3225,7 +3212,7 @@ redis bind address, empty string will use inventory hostname
 
 default values: `0.0.0.0`, which will bind to all available IPv4 address on this host
 
-!> PLEASE bind to intranet IP only in production environment, i.e. set this value to `''`
+> PLEASE bind to intranet IP only in production environment, i.e. set this value to `''`
 
 
 
@@ -3269,7 +3256,7 @@ redis password, empty string will disable password, which is the default behavio
 Note that due to the implementation limitation of redis_exporter, you can only set one `redis_password` per node. 
 This is usually not a problem, because pigsty does not allow deploying two different redis cluster on the same node. 
 
-!> PLEASE use a strong password in production environment 
+> PLEASE use a strong password in production environment 
 
 
 
@@ -3590,7 +3577,7 @@ If you just have one replica or even one primary in your postgres cluster, addin
 
 Database credentials, In-Database Objects that need to be taken care of by Users.
 
-!> WARNING: YOU HAVE TO CHANGE THESE DEFAULT **PASSWORD**s in production environment.
+> WARNING: YOU HAVE TO CHANGE THESE DEFAULT **PASSWORD**s in production environment.
 
 
 ```yaml
@@ -3826,7 +3813,7 @@ name: `pg_replication_password`, type: `password`, level: `G`
 
 postgres replication password, `DBUser.Replicator` by default
 
-!> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 
 
@@ -3850,7 +3837,7 @@ name: `pg_admin_password`, type: `password`, level: `G`
 
 postgres admin password in plain text, `DBUser.DBA` by default
 
-!> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 
 
@@ -3872,7 +3859,7 @@ name: `pg_monitor_password`, type: `password`, level: `G`
 
 postgres monitor password, `DBUser.Monitor` by default.
 
-!> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 
 
@@ -3883,7 +3870,7 @@ name: `pg_dbsu_password`, type: `password`, level: `G/C`
 
 PostgreSQL dbsu password for [`pg_dbsu`](#pg_dbsu), empty string means no dbsu password, which is the default behavior.
 
-!> WARNING: It's not recommend to set a dbsu password for common PGSQL clusters, except for [`pg_mode`](#pg_mode) = `citus`.
+> WARNING: It's not recommend to set a dbsu password for common PGSQL clusters, except for [`pg_mode`](#pg_mode) = `citus`.
 
 
 
@@ -4015,7 +4002,7 @@ name: `pg_log_dir`, type: `path`, level: `C`
 
 postgres log dir, `/pg/log/postgres` by default.
 
-!> caveat: if `pg_log_dir` is prefixed with `pg_data` it will not be created explicit (it will be created by postgres itself then).
+> caveat: if `pg_log_dir` is prefixed with `pg_data` it will not be created explicit (it will be created by postgres itself then).
 
 
 
@@ -4374,7 +4361,7 @@ name: `patroni_password`, type: `password`, level: `C`
 
 patroni restapi password, `Patroni.API` by default
 
-!> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
 
 
