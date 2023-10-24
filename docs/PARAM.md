@@ -3577,6 +3577,18 @@ If you just have one replica or even one primary in your postgres cluster, addin
 
 Database credentials, In-Database Objects that need to be taken care of by Users.
 
+* Define Business Users: [`pg_users`](#pg_users)
+* Define Business Databases: [`pg_databases`](#pg_databases)
+* Define Cluster Services:  [`pg_services`](#pg_services) （全局定义：[`pg_default_services`](#pg_default_services)）
+* Ad-Hoc PostgreSQL HBA Rules: [`pg_default_services`](#pg_default_services)
+* Ad-Hoc Pgbouncer HBA Rules: [`pgb_hba_rules`](#pgb_hba_rules)
+
+[Default Database Users](PGSQL-ACL#default-users):
+
+* Administrator: [`pg_admin_username`](#pg_admin_username) / [`pg_admin_password`](#pg_admin_password)
+* Replication User: [`pg_replication_username`](#pg_replication_username) / [`pg_replication_password`](#pg_replication_password)
+* Monitor User: [`pg_monitor_username`](#pg_monitor_username) / [`pg_monitor_password`](#pg_monitor_password)
+
 > WARNING: YOU HAVE TO CHANGE THESE DEFAULT **PASSWORD**s in production environment.
 
 
@@ -3609,49 +3621,28 @@ postgres business users, has to be defined at cluster level.
 default values: `[]`, each object in the array defines a [User/Role](PGSQL-USER). Examples:
 
 ```yaml
-pg_users:                           # define business users/roles on this cluster, array of user definition
-  - name: dbuser_meta               # REQUIRED, `name` is the only mandatory field of a user definition
-    password: DBUser.Meta           # optional, password, can be a scram-sha-256 hash string or plain text
-    login: true                     # optional, can log in, true by default  (new biz ROLE should be false)
-    superuser: false                # optional, is superuser? false by default
-    createdb: false                 # optional, can create database? false by default
-    createrole: false               # optional, can create role? false by default
-    inherit: true                   # optional, can this role use inherited privileges? true by default
-    replication: false              # optional, can this role do replication? false by default
-    bypassrls: false                # optional, can this role bypass row level security? false by default
-    pgbouncer: true                 # optional, add this user to pgbouncer user-list? false by default (production user should be true explicitly)
-    connlimit: -1                   # optional, user connection limit, default -1 disable limit
-    expire_in: 3650                 # optional, now + n days when this role is expired (OVERWRITE expire_at)
-    expire_at: '2030-12-31'         # optional, YYYY-MM-DD 'timestamp' when this role is expired  (OVERWRITTEN by expire_in)
-    comment: pigsty admin user      # optional, comment string for this user/role
-    roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
-    parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
-    pool_mode: transaction          # optional, pgbouncer pool mode at user level, transaction by default
-    pool_connlimit: -1              # optional, max database connections at user level, default -1 disable limit
-    search_path: public             # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
-  - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
-  - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database   }
-  - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database  }
-  - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway   }
-  - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service      }
-  - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service    }
+- name: dbuser_meta               # REQUIRED, `name` is the only mandatory field of a user definition
+  password: DBUser.Meta           # optional, password, can be a scram-sha-256 hash string or plain text
+  login: true                     # optional, can log in, true by default  (new biz ROLE should be false)
+  superuser: false                # optional, is superuser? false by default
+  createdb: false                 # optional, can create database? false by default
+  createrole: false               # optional, can create role? false by default
+  inherit: true                   # optional, can this role use inherited privileges? true by default
+  replication: false              # optional, can this role do replication? false by default
+  bypassrls: false                # optional, can this role bypass row level security? false by default
+  pgbouncer: true                 # optional, add this user to pgbouncer user-list? false by default (production user should be true explicitly)
+  connlimit: -1                   # optional, user connection limit, default -1 disable limit
+  expire_in: 3650                 # optional, now + n days when this role is expired (OVERWRITE expire_at)
+  expire_at: '2030-12-31'         # optional, YYYY-MM-DD 'timestamp' when this role is expired  (OVERWRITTEN by expire_in)
+  comment: pigsty admin user      # optional, comment string for this user/role
+  roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
+  parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
+  pool_mode: transaction          # optional, pgbouncer pool mode at user level, transaction by default
+  pool_connlimit: -1              # optional, max database connections at user level, default -1 disable limit
+  search_path: public             # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
 ```
 
-* Each user or role must specify a `name` and the rest of the fields are **optional**, a `name` must be unique in this list.
-* `password` is optional, if left blank then no password is set, you can use the MD5 ciphertext password.
-* `login`, `superuser`, `createdb`, `createrole`, `inherit`, `replication` and ` bypassrls` are all boolean types used to set user attributes. If not set, the system defaults are used.
-* Users are created by `CREATE USER`, so they have the `login` attribute by default. If the role is created, you need to specify `login: false`.
-* `expire_at` and `expire_in` are used to control the user expiration time. `expire_at` uses a date timestamp in the shape of `YYYY-mm-DD`. `expire_in` uses the number of days to expire from now, and overrides the `expire_at` option if `expire_in` exists.
-* New users are **not** added to the Pgbouncer user list by default, and `pgbouncer: true` must be explicitly defined for the user to be added to the Pgbouncer user list.
-* Users/roles are created sequentially, and users defined later can belong to the roles defined earlier.
-* `pool_mode`, `pool_connlimit` are user-level pgbouncer parameters that will override default settings.
-* Users can use pre-defined [pg_default_roles](#pg_default_roles) with `roles` field:
-    * `dbrole_readonly`: Default production read-only user with global read-only privileges. (Read-only production access)
-    * `dbrole_offline`: Default offline read-only user with read-only access on a specific ins. (offline query, personal account, ETL)
-    * `dbrole_readwrite`: Default production read/write user with global CRUD privileges. (Regular production use)
-    * `dbrole_admin`: Default production management user with the privilege to execute DDL changes. (Admin User)
-
-Configure `pgbouncer: true` for the production account to add the user to pgbouncer; It's important to use a connection pool if you got thousands of clients.
+The only mandatory field of a user definition is `name`, and the rest are optional.
 
 
 
@@ -3663,39 +3654,35 @@ name: `pg_databases`, type: `database[]`, level: `C`
 
 postgres business databases, has to be defined at cluster level.
 
-default values: `[]`, each object in the array defines a **Database**. Examples:
+default values: `[]`, each object in the array defines a [Database](PGSQL-DB). Examples:
 
 
 ```yaml
-pg_databases:                       # define business databases on this cluster, array of database definition
-  - name: meta                      # REQUIRED, `name` is the only mandatory field of a database definition
-    baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
-    pgbouncer: true                 # optional, add this database to pgbouncer database list? true by default
-    schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
-    extensions: [{name: postgis}]   # optional, additional extensions to be installed: array of `{name[,schema]}`
-    comment: pigsty meta database   # optional, comment string for this database
-    owner: postgres                 # optional, database owner, postgres by default
-    template: template1             # optional, which template to use, template1 by default
-    encoding: UTF8                  # optional, database encoding, UTF8 by default. (MUST same as template database)
-    locale: C                       # optional, database locale, C by default.  (MUST same as template database)
-    lc_collate: C                   # optional, database collate, C by default. (MUST same as template database)
-    lc_ctype: C                     # optional, database ctype, C by default.   (MUST same as template database)
-    tablespace: pg_default          # optional, default tablespace, 'pg_default' by default.
-    allowconn: true                 # optional, allow connection, true by default. false will disable connect at all
-    revokeconn: false               # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
-    register_datasource: true       # optional, register this database to grafana datasources? true by default
-    connlimit: -1                   # optional, database connection limit, default -1 disable limit
-    pool_auth_user: dbuser_meta     # optional, all connection to this pgbouncer database will be authenticated by this user
-    pool_mode: transaction          # optional, pgbouncer pool mode at database level, default transaction
-    pool_size: 64                   # optional, pgbouncer pool size at database level, default 64
-    pool_size_reserve: 32           # optional, pgbouncer pool size reserve at database level, default 32
-    pool_size_min: 0                # optional, pgbouncer pool size min at database level, default 0
-    pool_max_db_conn: 100           # optional, max database connections at database level, default 100
-  - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
-  - { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
-  - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
-  - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
-  - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
+- name: meta                      # REQUIRED, `name` is the only mandatory field of a database definition
+  baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
+  pgbouncer: true                 # optional, add this database to pgbouncer database list? true by default
+  schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
+  extensions:                     # optional, additional extensions to be installed: array of `{name[,schema]}`
+    - { name: postgis , schema: public }
+    - { name: timescaledb }
+  comment: pigsty meta database   # optional, comment string for this database
+  owner: postgres                 # optional, database owner, postgres by default
+  template: template1             # optional, which template to use, template1 by default
+  encoding: UTF8                  # optional, database encoding, UTF8 by default. (MUST same as template database)
+  locale: C                       # optional, database locale, C by default.  (MUST same as template database)
+  lc_collate: C                   # optional, database collate, C by default. (MUST same as template database)
+  lc_ctype: C                     # optional, database ctype, C by default.   (MUST same as template database)
+  tablespace: pg_default          # optional, default tablespace, 'pg_default' by default.
+  allowconn: true                 # optional, allow connection, true by default. false will disable connect at all
+  revokeconn: false               # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
+  register_datasource: true       # optional, register this database to grafana datasources? true by default
+  connlimit: -1                   # optional, database connection limit, default -1 disable limit
+  pool_auth_user: dbuser_meta     # optional, all connection to this pgbouncer database will be authenticated by this user
+  pool_mode: transaction          # optional, pgbouncer pool mode at database level, default transaction
+  pool_size: 64                   # optional, pgbouncer pool size at database level, default 64
+  pool_size_reserve: 32           # optional, pgbouncer pool size reserve at database level, default 32
+  pool_size_min: 0                # optional, pgbouncer pool size min at database level, default 0
+  pool_max_db_conn: 100           # optional, max database connections at database level, default 100
 ```
 
 In each database definition, the DB  `name` is mandatory and the rest are optional.
@@ -3713,21 +3700,20 @@ postgres business services exposed via haproxy, has to be defined at cluster lev
 
 You can define ad hoc services with [`pg_services`](#pg_services) in additional to default [`pg_default_services`](#pg_default_services)
 
-default values: `[]`, each object in the array defines a **Service**. Examples:
+default values: `[]`, each object in the array defines a [**Service**](PGSQL-SVC#define-service). Examples:
 
 
 ```yaml
-pg_services:                        # extra services in addition to pg_default_services, array of service definition
-  - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
-    port: 5435                      # required, service exposed port (work as kubernetes service node port mode)
-    ip: "*"                         # optional, service bind ip address, `*` for all ip by default
-    selector: "[]"                  # required, service member selector, use JMESPath to filter inventory
-    dest: pgbouncer                 # optional, destination port, postgres|pgbouncer|<port_number> , pgbouncer(6432) by default
-    check: /sync                    # optional, health check url path, / by default
-    backup: "[? pg_role == `primary`]"  # backup server selector
-    maxconn: 3000                   # optional, max allowed front-end connection
-    balance: roundrobin             # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
-    options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
+- name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
+  port: 5435                      # required, service exposed port (work as kubernetes service node port mode)
+  ip: "*"                         # optional, service bind ip address, `*` for all ip by default
+  selector: "[]"                  # required, service member selector, use JMESPath to filter inventory
+  dest: default                   # optional, destination port, default|postgres|pgbouncer|<port_number>, 'default' by default
+  check: /sync                    # optional, health check url path, / by default
+  backup: "[? pg_role == `primary`]"  # backup server selector
+  maxconn: 3000                   # optional, max allowed front-end connection
+  balance: roundrobin             # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
+  options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 ```
 
 
@@ -4670,7 +4656,15 @@ default values: `disable`, beware that this may have a huge performance impact o
 
 ## `PG_PROVISION`
 
-Init database roles, templates, default privileges, create schemas, extensions, and generate hba rules
+PG_BOOTSTRAP will bootstrap a new postgres cluster with patroni, while PG_PROVISION will create default objects in the cluster, including:
+
+* [Default Roles](PGSQL-ACL#default-roles)
+* [Default Users](PGSQL-ACL#default-users)
+* [Default Privileges](PGSQL-ACL#privileges)
+* [Default HBA Rules](PGSQL-HBA#default-hba)
+* Default Schemas
+* Default Extensions
+
 
 ```yaml
 pg_provision: true                # provision postgres cluster after bootstrap
@@ -5268,11 +5262,12 @@ default value is `true`, if you don't want to install pg_exporter, set it to `fa
 
 name: `pg_exporter_config`, type: `string`, level: `C`
 
-pg_exporter configuration file name
+pg_exporter configuration file name, used by `pg_exporter` & `pgbouncer_exporter`
 
-default values: `pg_exporter.yml`, if you want to use a custom configuration file, you can define it here.
+default values: `pg_exporter.yml`, if you want to use a custom configuration file, you can specify its relative path here.
 
-Your config file should be placed in `roles/files/<filename>`.
+Your config file should be placed in `files/<filename>.yml`. For example, if you want to monitor a remote PolarDB instance, you can use the sample config: `files/polar_exporter.yml`.
+
 
 
 
@@ -5444,13 +5439,12 @@ This could be useful if you want to monitor a remote pgbouncer instance, or you 
 
 name: `pgbouncer_exporter_options`, type: `arg`, level: `C`
 
-overwrite extra options for pgbouncer_exporter
+overwrite extra options for pgbouncer_exporter, default value is empty string.
+
+
+`--log.level=info --log.format=logfmt`
 
 default value is empty string, which will fall back the following default options:
-
-```
---log.level=info --log.format=logfmt
-```
 
 If you want to customize logging options or other pgbouncer_exporter options, you can set it here.
 

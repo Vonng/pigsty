@@ -3626,10 +3626,21 @@ pg_exporters: # list all remote instances here, alloc a unique unused local port
 
 ## `PG_BUSINESS`
 
-Database credentials, In-Database Objects that need to be taken care of by Users.
+定制集群模板：用户，数据库，服务，权限规则。
 
-> WARNING: YOU HAVE TO CHANGE THESE DEFAULT **PASSWORD**s in production environment.
+用户需**重点关注**此部分参数，因为这里是业务声明自己所需数据库对象的地方。
 
+* 业务用户定义： [`pg_users`](#pg_users)
+* 业务数据库定义： [`pg_databases`](#pg_databases)
+* 集群专有服务定义： [`pg_services`](#pg_services) （全局定义：[`pg_default_services`](#pg_default_services)）
+* PostgreSQL集群/实例特定的HBA规则： [`pg_default_services`](#pg_default_services)
+* Pgbouncer连接池特定HBA规则： [`pgb_hba_rules`](#pgb_hba_rules)
+
+[默认](PGSQL-ACL#默认用户)的数据库用户及其凭据，强烈建议在生产环境中修改这些用户的密码。
+
+* PG管理员用户：[`pg_admin_username`](#pg_admin_username) / [`pg_admin_password`](#pg_admin_password)
+* PG复制用户： [`pg_replication_username`](#pg_replication_username) / [`pg_replication_password`](#pg_replication_password)
+* PG监控用户：[`pg_monitor_username`](#pg_monitor_username) / [`pg_monitor_password`](#pg_monitor_password)
 
 ```yaml
 # postgres business object definition, overwrite in group vars
@@ -3655,54 +3666,31 @@ pg_monitor_password: DBUser.Monitor
 
 参数名称： `pg_users`， 类型： `user[]`， 层次：`C`
 
-postgres business users, has to be defined at cluster level.
+PostgreSQL 业务用户列表，需要在 PG 集群层面进行定义。默认值为：`[]` 空列表。
 
-default values: `[]`, each object in the array defines a [User/Role](PGSQL-USER). Examples:
+每一个数组元素都是一个 [用户/角色](PGSQL-USER) 定义，例如：
 
 ```yaml
-pg_users:                           # define business users/roles on this cluster, array of user definition
-  - name: dbuser_meta               # REQUIRED, `name` is the only mandatory field of a user definition
-    password: DBUser.Meta           # optional, password, can be a scram-sha-256 hash string or plain text
-    login: true                     # optional, can log in, true by default  (new biz ROLE should be false)
-    superuser: false                # optional, is superuser? false by default
-    createdb: false                 # optional, can create database? false by default
-    createrole: false               # optional, can create role? false by default
-    inherit: true                   # optional, can this role use inherited privileges? true by default
-    replication: false              # optional, can this role do replication? false by default
-    bypassrls: false                # optional, can this role bypass row level security? false by default
-    pgbouncer: true                 # optional, add this user to pgbouncer user-list? false by default (production user should be true explicitly)
-    connlimit: -1                   # optional, user connection limit, default -1 disable limit
-    expire_in: 3650                 # optional, now + n days when this role is expired (OVERWRITE expire_at)
-    expire_at: '2030-12-31'         # optional, YYYY-MM-DD 'timestamp' when this role is expired  (OVERWRITTEN by expire_in)
-    comment: pigsty admin user      # optional, comment string for this user/role
-    roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
-    parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
-    pool_mode: transaction          # optional, pgbouncer pool mode at user level, transaction by default
-    pool_connlimit: -1              # optional, max database connections at user level, default -1 disable limit
-    search_path: public             # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
-  - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
-  - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database   }
-  - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database  }
-  - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway   }
-  - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service      }
-  - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service    }
+- name: dbuser_meta               # 必需，`name` 是用户定义的唯一必选字段
+  password: DBUser.Meta           # 可选，密码，可以是 scram-sha-256 哈希字符串或明文
+  login: true                     # 可选，默认情况下可以登录
+  superuser: false                # 可选，默认为 false，是超级用户吗？
+  createdb: false                 # 可选，默认为 false，可以创建数据库吗？
+  createrole: false               # 可选，默认为 false，可以创建角色吗？
+  inherit: true                   # 可选，默认情况下，此角色可以使用继承的权限吗？
+  replication: false              # 可选，默认为 false，此角色可以进行复制吗？
+  bypassrls: false                # 可选，默认为 false，此角色可以绕过行级安全吗？
+  pgbouncer: true                 # 可选，默认为 false，将此用户添加到 pgbouncer 用户列表吗？（使用连接池的生产用户应该显式定义为 true）
+  connlimit: -1                   # 可选，用户连接限制，默认 -1 禁用限制
+  expire_in: 3650                 # 可选，此角色过期时间：从创建时 + n天计算（优先级比 expire_at 更高）
+  expire_at: '2030-12-31'         # 可选，此角色过期的时间点，使用 YYYY-MM-DD 格式的字符串指定一个特定日期（优先级没 expire_in 高）
+  comment: pigsty admin user      # 可选，此用户/角色的说明与备注字符串
+  roles: [dbrole_admin]           # 可选，默认角色为：dbrole_{admin,readonly,readwrite,offline}
+  parameters: {}                  # 可选，使用 `ALTER ROLE SET` 针对这个角色，配置角色级的数据库参数
+  pool_mode: transaction          # 可选，默认为 transaction 的 pgbouncer 池模式，用户级别
+  pool_connlimit: -1              # 可选，用户级别的最大数据库连接数，默认 -1 禁用限制
+  search_path: public             # 可选，根据 postgresql 文档的键值配置参数（例如：使用 pigsty 作为默认 search_path）
 ```
-
-* Each user or role must specify a `name` and the rest of the fields are **optional**, a `name` must be unique in this list.
-* `password` is optional, if left blank then no password is set, you can use the MD5 ciphertext password.
-* `login`, `superuser`, `createdb`, `createrole`, `inherit`, `replication` and ` bypassrls` are all boolean types used to set user attributes. If not set, the system defaults are used.
-* Users are created by `CREATE USER`, so they have the `login` attribute by default. If the role is created, you need to specify `login: false`.
-* `expire_at` and `expire_in` are used to control the user expiration time. `expire_at` uses a date timestamp in the shape of `YYYY-mm-DD`. `expire_in` uses the number of days to expire from now, and overrides the `expire_at` option if `expire_in` exists.
-* New users are **not** added to the Pgbouncer user list by default, and `pgbouncer: true` must be explicitly defined for the user to be added to the Pgbouncer user list.
-* Users/roles are created sequentially, and users defined later can belong to the roles defined earlier.
-* `pool_mode`, `pool_connlimit` are user-level pgbouncer parameters that will override default settings.
-* Users can use pre-defined [pg_default_roles](#pg_default_roles) with `roles` field:
-    * `dbrole_readonly`: Default production read-only user with global read-only privileges. (Read-only production access)
-    * `dbrole_offline`: Default offline read-only user with read-only access on a specific ins. (offline query, personal account, ETL)
-    * `dbrole_readwrite`: Default production read/write user with global CRUD privileges. (Regular production use)
-    * `dbrole_admin`: Default production management user with the privilege to execute DDL changes. (Admin User)
-
-Configure `pgbouncer: true` for the production account to add the user to pgbouncer; It's important to use a connection pool if you got thousands of clients.
 
 
 
@@ -3712,44 +3700,40 @@ Configure `pgbouncer: true` for the production account to add the user to pgboun
 
 参数名称： `pg_databases`， 类型： `database[]`， 层次：`C`
 
-postgres business databases, has to be defined at cluster level.
+PostgreSQL 业务数据库列表，需要在 PG 集群层面进行定义。默认值为：`[]` 空列表。
 
-default values: `[]`, each object in the array defines a **Database**. Examples:
-
+每一个数组元素都是一个 [业务数据库](PGSQL-DB) 定义，例如：
 
 ```yaml
-pg_databases:                       # define business databases on this cluster, array of database definition
-  - name: meta                      # REQUIRED, `name` is the only mandatory field of a database definition
-    baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
-    pgbouncer: true                 # optional, add this database to pgbouncer database list? true by default
-    schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
-    extensions: [{name: postgis}]   # optional, additional extensions to be installed: array of `{name[,schema]}`
-    comment: pigsty meta database   # optional, comment string for this database
-    owner: postgres                 # optional, database owner, postgres by default
-    template: template1             # optional, which template to use, template1 by default
-    encoding: UTF8                  # optional, database encoding, UTF8 by default. (MUST same as template database)
-    locale: C                       # optional, database locale, C by default.  (MUST same as template database)
-    lc_collate: C                   # optional, database collate, C by default. (MUST same as template database)
-    lc_ctype: C                     # optional, database ctype, C by default.   (MUST same as template database)
-    tablespace: pg_default          # optional, default tablespace, 'pg_default' by default.
-    allowconn: true                 # optional, allow connection, true by default. false will disable connect at all
-    revokeconn: false               # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
-    register_datasource: true       # optional, register this database to grafana datasources? true by default
-    connlimit: -1                   # optional, database connection limit, default -1 disable limit
-    pool_auth_user: dbuser_meta     # optional, all connection to this pgbouncer database will be authenticated by this user
-    pool_mode: transaction          # optional, pgbouncer pool mode at database level, default transaction
-    pool_size: 64                   # optional, pgbouncer pool size at database level, default 64
-    pool_size_reserve: 32           # optional, pgbouncer pool size reserve at database level, default 32
-    pool_size_min: 0                # optional, pgbouncer pool size min at database level, default 0
-    pool_max_db_conn: 100           # optional, max database connections at database level, default 100
-  - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
-  - { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
-  - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
-  - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
-  - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
+- name: meta                      # 必选，`name` 是数据库定义的唯一必选字段
+  baseline: cmdb.sql              # 可选，数据库 sql 的基线定义文件路径（ansible 搜索路径中的相对路径，如 files/）
+  pgbouncer: true                 # 可选，是否将此数据库添加到 pgbouncer 数据库列表？默认为 true
+  schemas: [pigsty]               # 可选，要创建的附加模式，由模式名称字符串组成的数组
+  extensions:                     # 可选，要安装的附加扩展： 扩展对象的数组
+    - { name: postgis , schema: public }  # 可以指定将扩展安装到某个模式中，也可以不指定（不指定则安装到 search_path 首位模式中）
+    - { name: timescaledb }               # 例如有的扩展会创建并使用固定的模式，就不需要指定模式。
+  comment: pigsty meta database   # 可选，数据库的说明与备注信息
+  owner: postgres                 # 可选，数据库所有者，默认为 postgres
+  template: template1             # 可选，要使用的模板，默认为 template1，目标必须是一个模板数据库
+  encoding: UTF8                  # 可选，数据库编码，默认为 UTF8（必须与模板数据库相同）
+  locale: C                       # 可选，数据库地区设置，默认为 C（必须与模板数据库相同）
+  lc_collate: C                   # 可选，数据库 collate 排序规则，默认为 C（必须与模板数据库相同），没有理由不建议更改。
+  lc_ctype: C                     # 可选，数据库 ctype 字符集，默认为 C（必须与模板数据库相同）
+  tablespace: pg_default          # 可选，默认表空间，默认为 'pg_default'
+  allowconn: true                 # 可选，是否允许连接，默认为 true。显式设置 false 将完全禁止连接到此数据库
+  revokeconn: false               # 可选，撤销公共连接权限。默认为 false，设置为 true 时，属主和管理员之外用户的 CONNECT 权限会被回收
+  register_datasource: true       # 可选，是否将此数据库注册到 grafana 数据源？默认为 true，显式设置为 false 会跳过注册
+  connlimit: -1                   # 可选，数据库连接限制，默认为 -1 ，不限制，设置为正整数则会限制连接数。
+  pool_auth_user: dbuser_meta     # 可选，连接到此 pgbouncer 数据库的所有连接都将使用此用户进行验证（启用 pgbouncer_auth_query 才有用）
+  pool_mode: transaction          # 可选，数据库级别的 pgbouncer 池化模式，默认为 transaction
+  pool_size: 64                   # 可选，数据库级别的 pgbouncer 默认池子大小，默认为 64
+  pool_size_reserve: 32           # 可选，数据库级别的 pgbouncer 池子保留空间，默认为 32，当默认池子不够用时，最多再申请这么多条突发连接。
+  pool_size_min: 0                # 可选，数据库级别的 pgbouncer 池的最小大小，默认为 0
+  pool_max_db_conn: 100           # 可选，数据库级别的最大数据库连接数，默认为 100
 ```
 
-In each database definition, the DB  `name` is mandatory and the rest are optional.
+在每个数据库定义对象中，只有 `name` 是必选字段，其他的字段都是可选项。
+
 
 
 
@@ -3760,27 +3744,25 @@ In each database definition, the DB  `name` is mandatory and the rest are option
 
 参数名称： `pg_services`， 类型： `service[]`， 层次：`C`
 
-postgres business services exposed via haproxy, has to be defined at cluster level.
+PostgreSQL 服务列表，需要在 PG 集群层面进行定义。默认值为：`[]` ，空列表。
 
-You can define ad hoc services with [`pg_services`](#pg_services) in additional to default [`pg_default_services`](#pg_default_services)
-
-default values: `[]`, each object in the array defines a **Service**. Examples:
+用于在数据库集群层面定义额外的服务，数组中的每一个对象定义了一个[服务](PGSQL-SVC#定义服务)，一个完整的服务定义样例如下：
 
 
 ```yaml
-pg_services:                        # extra services in addition to pg_default_services, array of service definition
-  - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
-    port: 5435                      # required, service exposed port (work as kubernetes service node port mode)
-    ip: "*"                         # optional, service bind ip address, `*` for all ip by default
-    selector: "[]"                  # required, service member selector, use JMESPath to filter inventory
-    dest: pgbouncer                 # optional, destination port, postgres|pgbouncer|<port_number> , pgbouncer(6432) by default
-    check: /sync                    # optional, health check url path, / by default
-    backup: "[? pg_role == `primary`]"  # backup server selector
-    maxconn: 3000                   # optional, max allowed front-end connection
-    balance: roundrobin             # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
-    options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
+- name: standby                   # 必选，服务名称，最终的 svc 名称会使用 `pg_cluster` 作为前缀，例如：pg-meta-standby
+  port: 5435                      # 必选，暴露的服务端口（作为 kubernetes 服务节点端口模式）
+  ip: "*"                         # 可选，服务绑定的 IP 地址，默认情况下为所有 IP 地址
+  selector: "[]"                  # 必选，服务成员选择器，使用 JMESPath 来筛选配置清单
+  backup: "[? pg_role == `primary`]"  # 可选，服务成员选择器（备份），也就是当默认选择器选中的实例都宕机后，服务才会由这里选中的实例成员来承载
+  dest: default                   # 可选，目标端口，default|postgres|pgbouncer|<port_number>，默认为 'default'，Default的意思就是使用 pg_default_service_dest 的取值来最终决定
+  check: /sync                    # 可选，健康检查 URL 路径，默认为 /，这里使用 Patroni API：/sync ，只有同步备库和主库才会返回 200 健康状态码 
+  maxconn: 5000                   # 可选，允许的前端连接最大数，默认为5000
+  balance: roundrobin             # 可选，haproxy 负载均衡算法（默认为 roundrobin，其他选项：leastconn）
+  options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 ```
 
+请注意，本参数用于在集群层面添加额外的服务。如果您想在全局定义所有 PostgreSQL 数据库都要提供的服务，可以使用 [`pg_default_services`](#pg_default_services) 参数。 
 
 
 
@@ -3790,15 +3772,11 @@ pg_services:                        # extra services in addition to pg_default_s
 
 参数名称： `pg_hba_rules`， 类型： `hba[]`， 层次：`C`
 
-business hba rules for postgres
+数据库集群/实例的客户端IP黑白名单规则。默认为：`[]` 空列表。
 
-default values: `[]`, each object in array is an **HBA Rule** definition:
-
-Which are array of [hba](PGSQL-HBA#define-hba) object, each hba object may look like
-
+对象数组，每一个对象都代表一条规则， [hba](PGSQL-HBA#定义hba) 规则对象的定义形式如下：
 
 ```yaml
-# RAW HBA RULES
 - title: allow intranet password access
   role: common
   rules:
@@ -3807,14 +3785,14 @@ Which are array of [hba](PGSQL-HBA#define-hba) object, each hba object may look 
     - host   all  all  192.168.0.0/16  md5
 ```
 
-* `title`: Rule Title, transform into comment in hba file
-* `rules`: Array of strings, each string is a raw hba rule record
-* `role`:  Applied roles, where to install these hba rules
-  * `common`: apply for all instances
-  * `primary`, `replica`,`standby`, `offline`: apply on corresponding instances with that [`pg_role`](#pg_role).
-  * special case: HBA rule with `role == 'offline'` will be installed on instance with [`pg_offline_query`](#pg_offline_query) flag
+* `title`： 规则的标题名称，会被渲染为 HBA 文件中的注释。
+* `rules`：规则数组，每个元素是一条标准的 HBA 规则字符串。
+* `role`：规则的应用范围，哪些实例角色会启用这条规则？
+  * `common`：对于所有实例生效
+  * `primary`, `replica`,`offline`： 只针对特定的角色 [`pg_role`](#pg_role) 实例生效。
+  * 特例：`role: 'offline'` 的规则除了会应用在 `pg_role : offline` 的实例上，对于带有 [`pg_offline_query`](#pg_offline_query) 标记的实例也生效。
 
-or you can use another alias form
+除了上面这种原生 HBA 规则定义形式，Pigsty 还提供了另外一种更为简便的别名形式：
 
 ```yaml
 - addr: 'intra'    # world|intra|infra|admin|local|localhost|cluster|<cidr>
@@ -3825,7 +3803,7 @@ or you can use another alias form
   title: allow intranet password access
 ```
 
-[`pg_default_hba_rules`](#pg_default_hba_rules) is similar to this, but is used for global HBA rule settings
+[`pg_default_hba_rules`](#pg_default_hba_rules) 与本参数基本类似，但它是用于定义全局的 HBA 规则，而本参数通常用于定制某个集群/实例的 HBA 规则。
 
 
 
@@ -3837,9 +3815,11 @@ or you can use another alias form
 
 参数名称： `pgb_hba_rules`， 类型： `hba[]`， 层次：`C`
 
-business hba rules for pgbouncer, default values: `[]`
+Pgbouncer 业务HBA规则，默认值为： `[]`， 空数组。
 
-Similar to [`pg_hba_rules`](#pg_hba_rules), array of [hba](PGSQL-HBA#define-hba) rule object, except this is for pgbouncer.
+此参数与 [`pg_hba_rules`](#pg_hba_rules) 基本类似，都是 [hba](PGSQL-HBA#define-hba) 规则对象的数组，区别在于本参数是为 Pgbouncer 准备的。
+
+[`pgb_default_hba_rules`](#pgb_default_hba_rules) 与本参数基本类似，但它是用于定义全局连接池 HBA 规则，而本参数通常用于定制某个连接池集群/实例的 HBA 规则。
 
 
 
@@ -3850,9 +3830,8 @@ Similar to [`pg_hba_rules`](#pg_hba_rules), array of [hba](PGSQL-HBA#define-hba)
 
 参数名称： `pg_replication_username`， 类型： `username`， 层次：`G`
 
-postgres replication username, `replicator` by default
+PostgreSQL 物理复制用户名，默认使用 `replicator`，不建议修改此参数。
 
-This parameter is globally used, it not wise to change it.
 
 
 
@@ -3862,9 +3841,9 @@ This parameter is globally used, it not wise to change it.
 
 参数名称： `pg_replication_password`， 类型： `password`， 层次：`G`
 
-postgres replication password, `DBUser.Replicator` by default
+PostgreSQL 物理复制用户密码，默认值为：`DBUser.Replicator`。
 
-!> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+> 警告：请在生产环境中修改此密码！
 
 
 
@@ -3874,9 +3853,9 @@ postgres replication password, `DBUser.Replicator` by default
 
 参数名称： `pg_admin_username`， 类型： `username`， 层次：`G`
 
-postgres admin username, `dbuser_dba` by default, which is a global postgres superuser.
+PostgreSQL / Pgbouncer 管理员名称，默认为：`dbuser_dba`。
 
-default values: `dbuser_dba`
+这是全局使用的数据库管理员，具有数据库的 Superuser 权限与连接池的流量管理权限，请务必控制使用范围。
 
 
 
@@ -3886,9 +3865,9 @@ default values: `dbuser_dba`
 
 参数名称： `pg_admin_password`， 类型： `password`， 层次：`G`
 
-postgres admin password in plain text, `DBUser.DBA` by default
+PostgreSQL / Pgbouncer 管理员密码，默认为： `DBUser.DBA`。
 
-> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+> 警告：请在生产环境中修改此密码！
 
 
 
@@ -3898,7 +3877,12 @@ postgres admin password in plain text, `DBUser.DBA` by default
 
 参数名称： `pg_monitor_username`， 类型： `username`， 层次：`G`
 
-postgres monitor username, `dbuser_monitor` by default, which is a global monitoring user.
+PostgreSQL/Pgbouncer 监控用户名，默认为：`dbuser_monitor`。
+
+这是一个用于监控的数据库/连接池用户，不建议修改此用户名。
+
+但如果您的现有数据库使用了不同的监控用户，可以在指定监控目标时使用此参数传入使用的监控用户名。
+
 
 
 
@@ -3908,9 +3892,9 @@ postgres monitor username, `dbuser_monitor` by default, which is a global monito
 
 参数名称： `pg_monitor_password`， 类型： `password`， 层次：`G`
 
-postgres monitor password, `DBUser.Monitor` by default.
+PostgreSQL/Pgbouncer 监控用户使用的密码，默认为：`DBUser.Monitor`。
 
-> WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
+> 警告：请在生产环境中修改此密码！
 
 
 
@@ -3919,10 +3903,9 @@ postgres monitor password, `DBUser.Monitor` by default.
 
 参数名称： `pg_dbsu_password`， 类型： `password`， 层次：`G/C`
 
-PostgreSQL dbsu password for [`pg_dbsu`](#pg_dbsu), empty string means no dbsu password, which is the default behavior.
+PostgreSQL [`pg_dbsu`](#pg_dbsu) 超级用户密码，默认是空字符串，即不为其设置密码。
 
-> WARNING: It's not recommend to set a dbsu password for common PGSQL clusters, except for [`pg_mode`](#pg_mode) = `citus`.
-
+我们不建议为 dbsu 配置密码登陆，这会增大攻击面。例外情况是：[`pg_mode`](#pg_mode) = `citus`，这时候需要为每个分片集群的 dbsu 配置密码，以便在分片集群内部进行连接。
 
 
 
@@ -4719,12 +4702,23 @@ default values: `disable`, beware that this may have a huge performance impact o
 
 ## `PG_PROVISION`
 
-Init database roles, templates, default privileges, create schemas, extensions, and generate hba rules
+PG_BOOTSTRAP will bootstrap a new postgres cluster with patroni, while PG_PROVISION will create default objects in the cluster, including:
+
+如果说 [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) 是创建一个新的集群，那么 PG_PROVISION 就是在集群中创建默认的对象，包括：
+
+* [默认角色](PGSQL-ACL#默认角色)
+* [默认用户](PGSQL-ACL#默认用户)
+* [默认权限](PGSQL-ACL#默认权限)
+* [默认HBA规则](PGSQL-HBA#默认hba)
+* 默认模式
+* 默认扩展
+
+
 
 ```yaml
-pg_provision: true                # provision postgres cluster after bootstrap
-pg_init: pg-init                  # provision init script for cluster template, `pg-init` by default
-pg_default_roles:                 # default roles and users in postgres cluster
+pg_provision: true                # 在引导后提供postgres集群
+pg_init: pg-init                  # 集群模板的初始化脚本，默认为`pg-init`
+pg_default_roles:                 # postgres集群中的默认角色和用户
   - { name: dbrole_readonly  ,login: false ,comment: role for global read-only access     }
   - { name: dbrole_offline   ,login: false ,comment: role for restricted read-only access }
   - { name: dbrole_readwrite ,login: false ,roles: [dbrole_readonly] ,comment: role for global read-write access }
@@ -4733,7 +4727,7 @@ pg_default_roles:                 # default roles and users in postgres cluster
   - { name: replicator ,replication: true  ,roles: [pg_monitor, dbrole_readonly] ,comment: system replicator }
   - { name: dbuser_dba   ,superuser: true  ,roles: [dbrole_admin]  ,pgbouncer: true ,pool_mode: session, pool_connlimit: 16 ,comment: pgsql admin user }
   - { name: dbuser_monitor ,roles: [pg_monitor] ,pgbouncer: true ,parameters: {log_min_duration_statement: 1000 } ,pool_mode: session ,pool_connlimit: 8 ,comment: pgsql monitor user }
-pg_default_privileges:            # default privileges when created by admin user
+pg_default_privileges:            # 管理员用户创建时的默认权限
   - GRANT USAGE      ON SCHEMAS   TO dbrole_readonly
   - GRANT SELECT     ON TABLES    TO dbrole_readonly
   - GRANT SELECT     ON SEQUENCES TO dbrole_readonly
@@ -4751,8 +4745,8 @@ pg_default_privileges:            # default privileges when created by admin use
   - GRANT REFERENCES ON TABLES    TO dbrole_admin
   - GRANT TRIGGER    ON TABLES    TO dbrole_admin
   - GRANT CREATE     ON SCHEMAS   TO dbrole_admin
-pg_default_schemas: [ monitor ]   # default schemas to be created
-pg_default_extensions:            # default extensions to be created
+pg_default_schemas: [ monitor ]   # 默认模式
+pg_default_extensions:            # 默认扩展
   - { name: adminpack          ,schema: pg_catalog }
   - { name: pg_stat_statements ,schema: monitor }
   - { name: pgstattuple        ,schema: monitor }
@@ -4769,8 +4763,8 @@ pg_default_extensions:            # default extensions to be created
   - { name: intagg             ,schema: public  }
   - { name: intarray           ,schema: public  }
   - { name: pg_repack }
-pg_reload: true                   # reload postgres after hba changes
-pg_default_hba_rules:             # postgres default host-based authentication rules
+pg_reload: true                   # HBA变化后是否重载配置？
+pg_default_hba_rules:             # postgres 默认 HBA 规则集
   - {user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident'  }
   - {user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident' }
   - {user: '${repl}'    ,db: replication ,addr: localhost ,auth: pwd   ,title: 'replicator replication from localhost'}
@@ -4783,7 +4777,7 @@ pg_default_hba_rules:             # postgres default host-based authentication r
   - {user: '+dbrole_readonly',db: all    ,addr: localhost ,auth: pwd   ,title: 'pgbouncer read/write via local socket'}
   - {user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: pwd   ,title: 'read/write biz user via password'     }
   - {user: '+dbrole_offline' ,db: all    ,addr: intra     ,auth: pwd   ,title: 'allow etl offline tasks from intranet'}
-pgb_default_hba_rules:            # pgbouncer default host-based authentication rules
+pgb_default_hba_rules:            # pgbouncer 默认 HBA 规则集
   - {user: '${dbsu}'    ,db: pgbouncer   ,addr: local     ,auth: peer  ,title: 'dbsu local admin access with os ident'}
   - {user: 'all'        ,db: all         ,addr: localhost ,auth: pwd   ,title: 'allow all user local access with pwd' }
   - {user: '${monitor}' ,db: pgbouncer   ,addr: intra     ,auth: pwd   ,title: 'monitor access via intranet with pwd' }
@@ -4798,10 +4792,9 @@ pgb_default_hba_rules:            # pgbouncer default host-based authentication 
 
 参数名称： `pg_provision`， 类型： `bool`， 层次：`C`
 
-provision postgres cluster after bootstrap, default value is `true`.
+在集群拉起后，完整本节定义的 PostgreSQL 集群置备工作。默认值为`true`。
 
-If disabled, postgres cluster will not be provisioned after bootstrap.
-
+如果禁用，不会置备 PostgreSQL 集群。对于一些特殊的 "PostgreSQL" 集群，比如 Greenplum，可以关闭此选项跳过置备阶段。
 
 
 
@@ -4810,9 +4803,13 @@ If disabled, postgres cluster will not be provisioned after bootstrap.
 
 参数名称： `pg_init`， 类型： `string`， 层次：`G/C`
 
-Provision init script for cluster template, `pg-init` by default, which is located in [`roles/pgsql/templates/pg-init`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/pg-init)
+用于初始化数据库模板的Shell脚本位置，默认为 `pg-init`，该脚本会被拷贝至`/pg/bin/pg-init`后执行。
 
-You can add your own logic in the init script, or provide a new one in `templates/` and set `pg_init` to the new script name.
+该脚本位于 [`roles/pgsql/templates/pg-init`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/pg-init)
+
+你可以在该脚本中添加自己的逻辑，或者提供一个新的脚本放置在 `templates/` 目录下，并将 `pg_init` 设置为新的脚本名称。使用自定义脚本时请保留现有的初始化逻辑。
+
+
 
 
 
@@ -4823,12 +4820,12 @@ You can add your own logic in the init script, or provide a new one in `template
 
 参数名称： `pg_default_roles`， 类型： `role[]`， 层次：`G/C`
 
-default roles and users in postgres cluster.  
+Postgres 集群中的默认角色和用户。
 
-Pigsty has a built-in role system, check [PGSQL Access Control](PGSQL-ACL#role-system) for details.
+Pigsty有一个内置的角色系统，请查看[PGSQL访问控制：角色系统](PGSQL-ACL#角色系统)了解详情。
 
 ```yaml
-pg_default_roles:                 # default roles and users in postgres cluster
+pg_default_roles:                 # postgres集群中的默认角色和用户
   - { name: dbrole_readonly  ,login: false ,comment: role for global read-only access     }
   - { name: dbrole_offline   ,login: false ,comment: role for restricted read-only access }
   - { name: dbrole_readwrite ,login: false ,roles: [dbrole_readonly] ,comment: role for global read-write access }
@@ -4846,10 +4843,10 @@ pg_default_roles:                 # default roles and users in postgres cluster
 
 参数名称： `pg_default_privileges`， 类型： `string[]`， 层次：`G/C`
 
-default privileges for each databases:
+每个数据库中的默认权限（`DEFAULT PRIVILEGE`）设置：
 
 ```yaml
-pg_default_privileges:            # default privileges when created by admin user
+pg_default_privileges:            # 管理员用户创建时的默认权限
   - GRANT USAGE      ON SCHEMAS   TO dbrole_readonly
   - GRANT SELECT     ON TABLES    TO dbrole_readonly
   - GRANT SELECT     ON SEQUENCES TO dbrole_readonly
@@ -4869,7 +4866,9 @@ pg_default_privileges:            # default privileges when created by admin use
   - GRANT CREATE     ON SCHEMAS   TO dbrole_admin
 ```
 
-Pigsty has a built-in privileges base on default role system, check [PGSQL Privileges](PGSQL-ACL#privileges) for details.
+Pigsty 基于默认角色系统提供了相应的默认权限设置，请查看[PGSQL访问控制：权限](PGSQL-ACL#默认权限)了解详情。
+
+
 
 
 
@@ -4878,7 +4877,8 @@ Pigsty has a built-in privileges base on default role system, check [PGSQL Privi
 
 参数名称： `pg_default_schemas`， 类型： `string[]`， 层次：`G/C`
 
-default schemas to be created, default values is: `[ monitor ]`, which will create a `monitor` schema on all databases.
+要创建的默认模式，默认值为：`[ monitor ]`，这将在所有数据库上创建一个`monitor`模式，用于放置各种监控扩展、表、视图、函数。
+
 
 
 
@@ -4888,7 +4888,7 @@ default schemas to be created, default values is: `[ monitor ]`, which will crea
 
 参数名称： `pg_default_extensions`， 类型： `extension[]`， 层次：`G/C`
 
-default extensions to be created, default value: 
+要在所有数据库中默认创建启用的扩展列表，默认值：
 
 ```yaml
 pg_default_extensions: # default extensions to be created
@@ -4910,9 +4910,10 @@ pg_default_extensions: # default extensions to be created
   - { name: pg_repack }
 ```
 
-The only 3rd party extension is `pg_repack`, which is important for database maintenance, all other extensions are built-in postgres contrib extensions. 
+唯一的三方扩展是 `pg_repack`，这对于数据库维护很重要，所有其他扩展都是内置的 PostgreSQL Contrib 扩展插件。
 
-Monitor related extensions are installed in `monitor` schema, which is created by [`pg_default_schemas`](#pg_default_schemas).
+监控相关的扩展默认安装在 `monitor` 模式中，该模式由[`pg_default_schemas`](#pg_default_schemas)创建。
+
 
 
 
@@ -4921,9 +4922,9 @@ Monitor related extensions are installed in `monitor` schema, which is created b
 
 参数名称： `pg_reload`， 类型： `bool`， 层次：`A`
 
-reload postgres after hba changes, default value is `true`
+在hba更改后重新加载 PostgreSQL，默认值为`true`
 
-This is useful when you want to check before applying HBA changes, set it to `false` to disable reload.
+当您想在应用HBA更改之前进行检查时，将其设置为`false`以禁用自动重新加载配置。
 
 
 
@@ -4933,9 +4934,8 @@ This is useful when you want to check before applying HBA changes, set it to `fa
 
 参数名称： `pg_default_hba_rules`， 类型： `hba[]`， 层次：`G/C`
 
-postgres default host-based authentication rules, array of [hba](PGSQL-HBA#define-hba) rule object.
+PostgreSQL 基于主机的认证规则，全局默认规则定义。默认值为：
 
-default value provides a fair enough security level for common scenarios, check [PGSQL Authentication](PGSQL-HBA) for details.
 
 ```yaml
 pg_default_hba_rules:             # postgres default host-based authentication rules
@@ -4952,6 +4952,11 @@ pg_default_hba_rules:             # postgres default host-based authentication r
   - {user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: pwd   ,title: 'read/write biz user via password'     }
   - {user: '+dbrole_offline' ,db: all    ,addr: intra     ,auth: pwd   ,title: 'allow etl offline tasks from intranet'}
 ```
+
+默认值为常见场景提供了足够的安全级别，请查看[PGSQL身份验证](PGSQL-HBA)了解详情。
+
+本参数为 [HBA](PGSQL-HBA#define-hba)规则对象组成的数组，在形式上与 [`pg_hba_rules`](#pg_hba_rules) 完全一致。
+建议在全局配置统一的 [`pg_default_hba_rules`](#pg_default_hba_rules)，针对特定集群使用 [`pg_hba_rules`](#pg_hba_rules) 进行额外定制。两个参数中的规则都会依次应用，后者优先级更高。
 
 
 
@@ -4975,7 +4980,14 @@ pgb_default_hba_rules:            # pgbouncer default host-based authentication 
   - {user: 'all'        ,db: all         ,addr: intra     ,auth: pwd   ,title: 'allow all user intra access with pwd' }
 ```
 
+默认的Pgbouncer HBA规则很简单：
 
+1. 允许从**本地**使用密码登陆
+2. 允许从内网网断使用密码登陆
+
+用户可以按照自己的需求进行定制。
+
+本参数在形式上与 [`pgb_hba_rules`](#pgb_hba_rules) 完全一致，建议在全局配置统一的 [`pgb_default_hba_rules`](#pgb_default_hba_rules)，针对特定集群使用 [`pgb_hba_rules`](#pgb_hba_rules) 进行额外定制。两个参数中的规则都会依次应用，后者优先级更高。
 
 
 
@@ -4986,37 +4998,37 @@ pgb_default_hba_rules:            # pgbouncer default host-based authentication 
 
 ## `PG_BACKUP`
 
-This section defines variables for [pgBackRest](https://pgbackrest.org/), which is used for PGSQL PITR (Point-In-Time-Recovery). 
+本节定义了用于 [pgBackRest](https://pgbackrest.org/) 的变量，它被用于 PGSQL 时间点恢复 PITR 。
 
-Check [PGSQL Backup & PITR](PGSQL-PITR) for details.
+查看 [PGSQL 备份 & PITR](PGSQL-PITR) 以获取详细信息。
 
 
 ```yaml
-pgbackrest_enabled: true          # enable pgbackrest on pgsql host?
-pgbackrest_clean: true            # remove pg backup data during init?
-pgbackrest_log_dir: /pg/log/pgbackrest # pgbackrest log dir, `/pg/log/pgbackrest` by default
-pgbackrest_method: local          # pgbackrest repo method: local,minio,[user-defined...]
-pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
-  local:                          # default pgbackrest repo with local posix fs
-    path: /pg/backup              # local backup directory, `/pg/backup` by default
-    retention_full_type: count    # retention full backups by count
-    retention_full: 2             # keep 2, at most 3 full backup when using local fs repo
-  minio:                          # optional minio repo for pgbackrest
-    type: s3                      # minio is s3-compatible, so s3 is used
-    s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default
-    s3_region: us-east-1          # minio region, us-east-1 by default, useless for minio
-    s3_bucket: pgsql              # minio bucket name, `pgsql` by default
-    s3_key: pgbackrest            # minio user access key for pgbackrest
-    s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
-    s3_uri_style: path            # use path style uri for minio rather than host style
-    path: /pgbackrest             # minio backup path, default is `/pgbackrest`
-    storage_port: 9000            # minio port, 9000 by default
-    storage_ca_file: /etc/pki/ca.crt  # minio ca file path, `/etc/pki/ca.crt` by default
-    bundle: y                     # bundle small files into a single file
-    cipher_type: aes-256-cbc      # enable AES encryption for remote backup repo
-    cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
-    retention_full_type: time     # retention full backup by time on minio repo
-    retention_full: 14            # keep full backup for last 14 days
+pgbackrest_enabled: true          # 在 pgsql 主机上启用 pgBackRest 吗？
+pgbackrest_clean: true            # 初始化时删除 pg 备份数据？
+pgbackrest_log_dir: /pg/log/pgbackrest # pgbackrest 日志目录，默认为 `/pg/log/pgbackrest`
+pgbackrest_method: local          # pgbackrest 仓库方法：local, minio, [用户定义...]
+pgbackrest_repo:                  # pgbackrest 仓库：https://pgbackrest.org/configuration.html#section-repository
+  local:                          # 默认使用本地 posix 文件系统的 pgbackrest 仓库
+    path: /pg/backup              # 本地备份目录，默认为 `/pg/backup`
+    retention_full_type: count    # 按计数保留完整备份
+    retention_full: 2             # 使用本地文件系统仓库时，最多保留 3 个完整备份，至少保留 2 个
+  minio:                          # pgbackrest 的可选 minio 仓库
+    type: s3                      # minio 是与 s3 兼容的，所以使用 s3
+    s3_endpoint: sss.pigsty       # minio 端点域名，默认为 `sss.pigsty`
+    s3_region: us-east-1          # minio 区域，默认为 us-east-1，对 minio 无效
+    s3_bucket: pgsql              # minio 桶名称，默认为 `pgsql`
+    s3_key: pgbackrest            # pgbackrest 的 minio 用户访问密钥
+    s3_key_secret: S3User.Backup  # pgbackrest 的 minio 用户秘密密钥
+    s3_uri_style: path            # 对 minio 使用路径风格的 uri，而不是主机风格
+    path: /pgbackrest             # minio 备份路径，默认为 `/pgbackrest`
+    storage_port: 9000            # minio 端口，默认为 9000
+    storage_ca_file: /etc/pki/ca.crt  # minio ca 文件路径，默认为 `/etc/pki/ca.crt`
+    bundle: y                     # 将小文件打包成一个文件
+    cipher_type: aes-256-cbc      # 为远程备份仓库启用 AES 加密
+    cipher_pass: pgBackRest       # AES 加密密码，默认为 'pgBackRest'
+    retention_full_type: time     # 在 minio 仓库上按时间保留完整备份
+    retention_full: 14            # 保留过去 14 天的完整备份
 ```
 
 
@@ -5025,7 +5037,9 @@ pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/conf
 
 参数名称： `pgbackrest_enabled`， 类型： `bool`， 层次：`C`
 
-enable pgBackRest on pgsql host? default value is `true`
+是否在 PGSQL 节点上启用 pgBackRest？默认值为： `true`
+
+在使用本地文件系统备份仓库（`local`）时，只有集群主库才会真正启用 `pgbackrest`。其他实例只会初始化一个空仓库。
 
 
 
@@ -5035,7 +5049,7 @@ enable pgBackRest on pgsql host? default value is `true`
 
 参数名称： `pgbackrest_clean`， 类型： `bool`， 层次：`C`
 
-remove pg backup data during init?  default value is `true`
+初始化时删除 PostgreSQL 备份数据吗？默认值为 `true`。
 
 
 
@@ -5044,7 +5058,7 @@ remove pg backup data during init?  default value is `true`
 
 参数名称： `pgbackrest_log_dir`， 类型： `path`， 层次：`C`
 
-pgBackRest log dir, `/pg/log/pgbackrest` by default, which is referenced by [`promtail`](#promtail) the logging agent.
+pgBackRest 日志目录，默认为 `/pg/log/pgbackrest`，[`promtail`](#promtail) 日志代理会引用此参数收集日志。
 
 
 
@@ -5054,11 +5068,12 @@ pgBackRest log dir, `/pg/log/pgbackrest` by default, which is referenced by [`pr
 
 参数名称： `pgbackrest_method`， 类型： `enum`， 层次：`C`
 
-pgBackRest repo method: `local`, `minio`, or other user-defined methods, `local` by default
+pgBackRest 仓库方法：默认可选项为：`local`、`minio` 或其他用户定义的方法，默认为 `local`。
 
-This parameter is used to determine which repo to use for pgBackRest, all available repo methods are defined in [`pgbackrest_repo`](#pgbackrest_repo).
+此参数用于确定用于 pgBackRest 的仓库，所有可用的仓库方法都在 [`pgbackrest_repo`](#pgbackrest_repo) 中定义。
 
-Pigsty will use `local` backup repo by default, which will create a backup repo on primary instance's `/pg/backup` directory. The underlying storage is specified by [`pg_fs_bkup`](#pg_fs_bkup).
+Pigsty 默认使用 `local` 备份仓库，这将在主实例的 `/pg/backup` 目录上创建一个备份仓库。底层存储路径由 [`pg_fs_bkup`](#pg_fs_bkup) 指定。
+
 
 
 
@@ -5068,35 +5083,35 @@ Pigsty will use `local` backup repo by default, which will create a backup repo 
 
 参数名称： `pgbackrest_repo`， 类型： `dict`， 层次：`G/C`
 
-pgBackRest repo document: https://pgbackrest.org/configuration.html#section-repository
+pgBackRest 仓库文档：https://pgbackrest.org/configuration.html#section-repository
 
-default value includes two repo methods: `local` and `minio`, which are defined as follows: 
+默认值包括两种仓库方法：`local` 和 `minio`，定义如下：
 
 ```yaml
-pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
-  local:                          # default pgbackrest repo with local posix fs
-    path: /pg/backup              # local backup directory, `/pg/backup` by default
-    retention_full_type: count    # retention full backups by count
-    retention_full: 2             # keep 2, at most 3 full backup when using local fs repo
-  minio:                          # optional minio repo for pgbackrest
-    type: s3                      # minio is s3-compatible, so s3 is used
-    s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default
-    s3_region: us-east-1          # minio region, us-east-1 by default, useless for minio
-    s3_bucket: pgsql              # minio bucket name, `pgsql` by default
-    s3_key: pgbackrest            # minio user access key for pgbackrest
-    s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
-    s3_uri_style: path            # use path style uri for minio rather than host style
-    path: /pgbackrest             # minio backup path, default is `/pgbackrest`
-    storage_port: 9000            # minio port, 9000 by default
-    storage_ca_file: /etc/pki/ca.crt  # minio ca file path, `/etc/pki/ca.crt` by default
-    bundle: y                     # bundle small files into a single file
-    cipher_type: aes-256-cbc      # enable AES encryption for remote backup repo
-    cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
-    retention_full_type: time     # retention full backup by time on minio repo
-    retention_full: 14            # keep full backup for last 14 days
+pgbackrest_repo:                  # pgbackrest 仓库：https://pgbackrest.org/configuration.html#section-repository
+  local:                          # 默认使用本地 posix 文件系统的 pgbackrest 仓库
+    path: /pg/backup              # 本地备份目录，默认为 `/pg/backup`
+    retention_full_type: count    # 按计数保留完整备份
+    retention_full: 2             # 使用本地文件系统仓库时，最多保留 3 个完整备份，至少保留 2 个
+  minio:                          # pgbackrest 的可选 minio 仓库
+    type: s3                      # minio 是与 s3 兼容的，所以使用 s3
+    s3_endpoint: sss.pigsty       # minio 端点域名，默认为 `sss.pigsty`
+    s3_region: us-east-1          # minio 区域，默认为 us-east-1，对 minio 无效
+    s3_bucket: pgsql              # minio 桶名称，默认为 `pgsql`
+    s3_key: pgbackrest            # pgbackrest 的 minio 用户访问密钥
+    s3_key_secret: S3User.Backup  # pgbackrest 的 minio 用户秘密密钥
+    s3_uri_style: path            # 对 minio 使用路径风格的 uri，而不是主机风格
+    path: /pgbackrest             # minio 备份路径，默认为 `/pgbackrest`
+    storage_port: 9000            # minio 端口，默认为 9000
+    storage_ca_file: /etc/pki/ca.crt  # minio ca 文件路径，默认为 `/etc/pki/ca.crt`
+    bundle: y                     # 将小文件打包成一个文件
+    cipher_type: aes-256-cbc      # 为远程备份仓库启用 AES 加密
+    cipher_pass: pgBackRest       # AES 加密密码，默认为 'pgBackRest'
+    retention_full_type: time     # 在 minio 仓库上按时间保留完整备份
+    retention_full: 14            # 保留过去 14 天的完整备份
 ```
 
-
+您可以定义新的备份仓库，例如使用 AWS S3，GCP 或其他云供应商的 S3 兼容存储服务。
 
 
 
@@ -5106,25 +5121,25 @@ pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/conf
 
 ## `PG_SERVICE`
 
-This section is about exposing PostgreSQL service to outside world: including:
+本节介绍如何将PostgreSQL服务暴露给外部世界，包括：
 
-* Exposing different PostgreSQL services on different ports with `haproxy`
-* Bind an optional L2 VIP to the primary instance with `vip-manager`
-* Register cluster/instance DNS records with to `dnsmasq` on infra nodes
+- 使用`haproxy`在不同的端口上暴露不同的PostgreSQL服务
+- 使用`vip-manager`将可选的L2 VIP绑定到主实例
+- 在基础设施节点上使用`dnsmasq`注册集群/实例DNS记录
 
 ```yaml
-pg_weight: 100          #INSTANCE # relative load balance weight in service, 100 by default, 0-255
-pg_default_service_dest: pgbouncer # default service destination if svc.dest='default'
-pg_default_services:              # postgres default service definitions
+pg_weight: 100          #实例 # 服务中的相对负载均衡权重，默认为100，范围0-255
+pg_default_service_dest: pgbouncer # 如果svc.dest='default'，则此为默认服务目的地
+pg_default_services:              # postgres默认服务定义
   - { name: primary ,port: 5433 ,dest: default  ,check: /primary   ,selector: "[]" }
   - { name: replica ,port: 5434 ,dest: default  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
   - { name: default ,port: 5436 ,dest: postgres ,check: /primary   ,selector: "[]" }
   - { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
-pg_vip_enabled: false             # enable a l2 vip for pgsql primary? false by default
-pg_vip_address: 127.0.0.1/24      # vip address in `<ipv4>/<mask>` format, require if vip is enabled
-pg_vip_interface: eth0            # vip network interface to listen, eth0 by default
-pg_dns_suffix: ''                 # pgsql dns suffix, '' by default
-pg_dns_target: auto               # auto, primary, vip, none, or ad hoc ip
+pg_vip_enabled: false             # 为pgsql主要实例启用l2 vip吗? 默认为false
+pg_vip_address: 127.0.0.1/24      # `<ipv4>/<mask>`格式的vip地址，如果启用vip则需要
+pg_vip_interface: eth0            # vip网络接口监听，默认为eth0
+pg_dns_suffix: ''                 # pgsql dns后缀，默认为空
+pg_dns_target: auto               # auto、primary、vip、none或特定的ip
 ```
 
 
@@ -5133,9 +5148,10 @@ pg_dns_target: auto               # auto, primary, vip, none, or ad hoc ip
 
 参数名称： `pg_weight`， 类型： `int`， 层次：`G`
 
-relative load balance weight in service, 100 by default, 0-255
+服务中的相对负载均衡权重，默认为100，范围0-255。
 
-default values: `100`. you have to define it at instance vars, and [reload-service](PGSQL-ADMIN#重载服务) to take effect.
+默认值： `100`。您必须在实例变量中定义它，并[重载服务](PGSQL-ADMIN#重载服务)以生效。
+
 
 
 
@@ -5144,13 +5160,13 @@ default values: `100`. you have to define it at instance vars, and [reload-servi
 
 参数名称： `pg_service_provider`， 类型： `string`， 层次：`G/C`
 
-dedicate haproxy node group name, or empty string for local nodes by default.
+专用的haproxy节点组名，或默认为本地节点的空字符串。
 
-If specified, PostgreSQL Services will be registered to the dedicated haproxy node group instead of this pgsql cluster nodes.
+如果指定，PostgreSQL服务将注册到专用的haproxy节点组，而不是当下的 PGSQL 集群节点。
 
-Do remember to allocate **unique** ports on dedicate haproxy nodes for each service!
+请记住为每个服务在专用的 haproxy 节点上分配**唯一**的端口！
 
-For example, if we define following parameters on 3-node `pg-test` cluster:
+例如，如果我们在3节点的 `pg-test` 集群上定义以下参数：
 
 ```yaml
 pg_service_provider: infra       # use load balancer on group `infra`
@@ -5166,11 +5182,11 @@ pg_default_services:             # alloc port 10001 and 10002 for pg-test primar
 
 参数名称： `pg_default_service_dest`， 类型： `enum`， 层次：`G/C`
 
-When defining a [service](PGSQL-SVC#define-service), if svc.dest='default', this parameter will be used as the default value.
+当定义一个[服务](PGSQL-SVC#define-service)时，如果 `svc.dest='default'`，此参数将用作默认值。
 
-default values: `pgbouncer`, means 5433 primary service and 5434 replica service will route traffic to pgbouncer by default.
+默认值： `pgbouncer`，意味着5433主服务和5434副本服务将默认将流量路由到 pgbouncer。
 
-If you don't want to use pgbouncer, set it to `postgres` instead. traffic will be route to postgres directly.
+如果您不想使用pgbouncer，将其设置为`postgres`。流量将直接路由到 postgres。
 
 
 
@@ -5181,9 +5197,9 @@ If you don't want to use pgbouncer, set it to `postgres` instead. traffic will b
 
 参数名称： `pg_default_services`， 类型： `service[]`， 层次：`G/C`
 
-postgres default service definitions
+postgres默认服务定义
 
-default value is four default services definition, which is explained in [PGSQL Service](PGSQL-SVC#服务概述)
+默认值是四个默认服务定义，如[PGSQL Service](PGSQL-SVC#服务概述)所述
 
 ```yaml
 pg_default_services:               # postgres default service definitions
@@ -5202,11 +5218,11 @@ pg_default_services:               # postgres default service definitions
 
 参数名称： `pg_vip_enabled`， 类型： `bool`， 层次：`C`
 
-enable a l2 vip for pgsql primary?
+为 PGSQL 集群启用 L2 VIP吗？默认值是`false`，表示不创建 L2 VIP。
 
-default value is `false`, means no L2 VIP is created for this cluster.
+启用 L2 VIP 后，会有一个 VIP 绑定在集群主实例节点上，由 `vip-manager` 管理，根据 `etcd` 中的数据进行判断。
 
-L2 VIP can only be used in same L2 network, which may incurs extra restrictions on your network topology.
+L2 VIP只能在相同的L2网络中使用，这可能会对您的网络拓扑产生额外的限制。
 
 
 
@@ -5216,9 +5232,9 @@ L2 VIP can only be used in same L2 network, which may incurs extra restrictions 
 
 参数名称： `pg_vip_address`， 类型： `cidr4`， 层次：`C`
 
-vip address in `<ipv4>/<mask>` format, if vip is enabled, this parameter is required.
+如果启用vip，则需要`<ipv4>/<mask>`格式的vip地址。
 
-default values: `127.0.0.1/24`. This value is consist of two parts: `ipv4` and `mask`, separated by `/`.
+默认值： `127.0.0.1/24`。这个值由两部分组成：`ipv4`和`mask`，用`/`分隔。
 
 
 
@@ -5230,9 +5246,11 @@ default values: `127.0.0.1/24`. This value is consist of two parts: `ipv4` and `
 
 vip network interface to listen, `eth0` by default.
 
-It should be the same primary intranet interface of your node, which is the IP address you used in the inventory file.
+L2 VIP 监听的网卡接口，默认为 `eth0`。
 
-If your node have different interface, you can override it on instance vars:
+它应该是您节点的首要网卡名，即您在配置清单中使用的IP地址。
+
+如果您的节点有多块名称不同的网卡，您可以在实例变量上进行覆盖：
 
 ```yaml
 pg-test:
@@ -5241,9 +5259,9 @@ pg-test:
         10.10.10.12: {pg_seq: 2, pg_role: primary ,pg_vip_interface: eth1 }
         10.10.10.13: {pg_seq: 3, pg_role: replica ,pg_vip_interface: eth2 }
     vars:
-        pg_vip_enabled: true          # enable L2 VIP for this cluster, bind to primary instance by default
-        pg_vip_address: 10.10.10.3/24 # the L2 network CIDR: 10.10.10.0/24, the vip address: 10.10.10.3
-        # pg_vip_interface: eth1      # if your node have uniform interface, you can define it here
+      pg_vip_enabled: true          # 为这个集群启用L2 VIP，默认绑定到主实例
+      pg_vip_address: 10.10.10.3/24 # L2网络CIDR: 10.10.10.0/24, vip地址: 10.10.10.3
+      # pg_vip_interface: eth1      # 如果您的节点有统一的接口，您可以在这里定义它
 ```
 
 
@@ -5253,9 +5271,14 @@ pg-test:
 
 参数名称： `pg_dns_suffix`， 类型： `string`， 层次：`C`
 
-pgsql dns suffix, '' by default, cluster DNS name is defined as `{{ pg_cluster }}{{ pg_dns_suffix }}`
+PostgreSQL DNS 名称后缀，默认为空字符串。
 
-For example, if you set `pg_dns_suffix` to `.db.vip.company.tld` for cluster `pg-test`, then the cluster DNS name will be `pg-test.db.vip.company.tld`
+在默认情况下，PostgreQL 集群名会作为 DNS 域名注册到 Infra 节点的 `dnsmasq` 中对外提供解析。
+
+您可以通过本参数指定一个域名后缀，这样会使用 `{{ pg_cluster }}{{ pg_dns_suffix }}` 作为集群 DNS 名称。
+
+例如，如果您将 `pg_dns_suffix` 设置为 `.db.vip.company.tld`，那么 `pg-test` 的集群 DNS 名称将是 `pg-test.db.vip.company.tld`
+
 
 
 
@@ -5275,6 +5298,18 @@ default values: `auto` , which will bind to `pg_vip_address` if `pg_vip_enabled`
 * `<ipv4>`: bind to the given IP address
 
 
+可以是：`auto`、`primary`、`vip`、`none`或一个特定的IP地址，它将是集群DNS记录的解析目标IP地址。
+
+默认值： `auto`，如果`pg_vip_enabled`，将绑定到`pg_vip_address`，否则会回退到集群主实例的 IP 地址。
+
+- `vip`：绑定到`pg_vip_address`
+- `primary`：解析为集群主实例IP地址
+- `auto`：如果 [`pg_vip_enabled`](#pg_vip_enabled)，解析为 [`pg_vip_address`](#pg_vip_address)，或回退到集群主实例ip地址。
+- `none`：不绑定到任何ip地址
+- `<ipv4>`：绑定到指定的IP地址
+
+
+
 
 
 
@@ -5282,22 +5317,24 @@ default values: `auto` , which will bind to `pg_vip_address` if `pg_vip_enabled`
 
 ## `PG_EXPORTER`
 
+PG Exporter 用于监控 PostgreSQL 数据库与 Pgbouncer 连接池的状态。
+
 ```yaml
-pg_exporter_enabled: true              # enable pg_exporter on pgsql hosts?
-pg_exporter_config: pg_exporter.yml    # pg_exporter configuration file name
-pg_exporter_cache_ttls: '1,10,60,300'  # pg_exporter collector ttl stage in seconds, '1,10,60,300' by default
-pg_exporter_port: 9630                 # pg_exporter listen port, 9630 by default
-pg_exporter_params: 'sslmode=disable'  # extra url parameters for pg_exporter dsn
-pg_exporter_url: ''                    # overwrite auto-generate pg dsn if specified
-pg_exporter_auto_discovery: true       # enable auto database discovery? enabled by default
-pg_exporter_exclude_database: 'template0,template1,postgres' # csv of database that WILL NOT be monitored during auto-discovery
-pg_exporter_include_database: ''       # csv of database that WILL BE monitored during auto-discovery
-pg_exporter_connect_timeout: 200       # pg_exporter connect timeout in ms, 200 by default
-pg_exporter_options: ''                # overwrite extra options for pg_exporter
-pgbouncer_exporter_enabled: true       # enable pgbouncer_exporter on pgsql hosts?
-pgbouncer_exporter_port: 9631          # pgbouncer_exporter listen port, 9631 by default
-pgbouncer_exporter_url: ''             # overwrite auto-generate pgbouncer dsn if specified
-pgbouncer_exporter_options: ''         # overwrite extra options for pgbouncer_exporter
+pg_exporter_enabled: true              # 在 pgsql 主机上启用 pg_exporter 吗？
+pg_exporter_config: pg_exporter.yml    # pg_exporter 配置文件名
+pg_exporter_cache_ttls: '1,10,60,300'  # pg_exporter 收集器 ttl 阶段（秒），默认为 '1,10,60,300'
+pg_exporter_port: 9630                 # pg_exporter 监听端口，默认为 9630
+pg_exporter_params: 'sslmode=disable'  # pg_exporter dsn 的额外 url 参数
+pg_exporter_url: ''                    # 如果指定，将覆盖自动生成的 pg dsn
+pg_exporter_auto_discovery: true       # 启用自动数据库发现？默认启用
+pg_exporter_exclude_database: 'template0,template1,postgres' # 在自动发现过程中不会被监控的数据库的 csv 列表
+pg_exporter_include_database: ''       # 在自动发现过程中将被监控的数据库的 csv 列表
+pg_exporter_connect_timeout: 200       # pg_exporter 连接超时（毫秒），默认为 200
+pg_exporter_options: ''                # 覆盖 pg_exporter 的额外选项
+pgbouncer_exporter_enabled: true       # 在 pgsql 主机上启用 pgbouncer_exporter 吗？
+pgbouncer_exporter_port: 9631          # pgbouncer_exporter 监听端口，默认为 9631
+pgbouncer_exporter_url: ''             # 如果指定，将覆盖自动生成的 pgbouncer dsn
+pgbouncer_exporter_options: ''         # 覆盖 pgbouncer_exporter 的额外选项
 ```
 
 
@@ -5306,9 +5343,11 @@ pgbouncer_exporter_options: ''         # overwrite extra options for pgbouncer_e
 
 参数名称： `pg_exporter_enabled`， 类型： `bool`， 层次：`C`
 
-enable pg_exporter on pgsql hosts?
+是否在 PGSQL 节点上启用 pg_exporter？默认值为：`true`。
 
-default value is `true`, if you don't want to install pg_exporter, set it to `false`.
+PG Exporter 用于监控 PostgreSQL 数据库实例，如果不想安装 pg_exporter 可以设置为 `false`。
+
+
 
 
 
@@ -5317,11 +5356,12 @@ default value is `true`, if you don't want to install pg_exporter, set it to `fa
 
 参数名称： `pg_exporter_config`， 类型： `string`， 层次：`C`
 
-pg_exporter configuration file name
+pg_exporter 配置文件名，PG Exporter 和 PGBouncer Exporter 都会使用这个配置文件。默认值：`pg_exporter.yml`。
 
-default values: `pg_exporter.yml`, if you want to use a custom configuration file, you can define it here.
+如果你想使用自定义配置文件，你可以在这里定义它。你的自定义配置文件应当放置于 `files/<name>.yml`。
 
-Your config file should be placed in `roles/files/<filename>`.
+例如，当您希望监控一个远程的 PolarDB 数据库实例时，可以使用样例配置：`files/polar_exporter.yml`。
+
 
 
 
@@ -5330,9 +5370,11 @@ Your config file should be placed in `roles/files/<filename>`.
 
 参数名称： `pg_exporter_cache_ttls`， 类型： `string`， 层次：`C`
 
-pg_exporter collector ttl stage in seconds, '1,10,60,300' by default
+pg_exporter 收集器 TTL 阶梯（秒），默认为 '1,10,60,300'
 
-default values: `1,10,60,300`, which will use 1s, 10s, 60s, 300s for different metric collectors.
+默认值：`1,10,60,300`，它将为不同的度量收集器使用不同的TTL值： 1s, 10s, 60s, 300s。
+
+PG Exporter 内置了缓存机制，避免多个 Prometheus 重复抓取对数据库产生不当影响，所有指标收集器按 TTL 分为四类：
 
 ```yaml
 ttl_fast: "{{ pg_exporter_cache_ttls.split(',')[0]|int }}"         # critical queries
@@ -5341,13 +5383,19 @@ ttl_slow: "{{ pg_exporter_cache_ttls.split(',')[2]|int }}"         # slow querie
 ttl_slowest: "{{ pg_exporter_cache_ttls.split(',')[3]|int }}"      # ver slow queries (e.g bloat)
 ```
 
+例如，在默认配置下，存活类指标默认最多缓存 `1s`，大部分普通指标会缓存 `10s`（应当与 [`prometheus_scrape_interval`](#prometheus_scrape_interval) 相同）。
+少量变化缓慢的查询会有 `60s` 的TTL，极个别大开销监控查询会有 `300s` 的TTL。
+
+
+
+
 
 
 ### `pg_exporter_port`
 
 参数名称： `pg_exporter_port`， 类型： `port`， 层次：`C`
 
-pg_exporter listen port, 9630 by default
+pg_exporter 监听端口号，默认值为：`9631`
 
 
 
@@ -5357,9 +5405,9 @@ pg_exporter listen port, 9630 by default
 
 参数名称： `pg_exporter_params`， 类型： `string`， 层次：`C`
 
-extra url parameters for pg_exporter dsn
+pg_exporter 所使用 DSN 中额外的 URL PATH 参数。
 
-default values: `sslmode=disable`, which will disable SSL for monitoring connection (since it's local unix socket by default)
+默认值：`sslmode=disable`，它将禁用用于监控连接的 SSL（因为默认使用本地 unix 套接字）。
 
 
 
@@ -5369,16 +5417,15 @@ default values: `sslmode=disable`, which will disable SSL for monitoring connect
 
 参数名称： `pg_exporter_url`， 类型： `pgurl`， 层次：`C`
 
-overwrite auto-generate pg dsn if specified
+如果指定了本参数，将会覆盖自动生成的 PostgreSQL DSN，使用指定的 DSN 连接 PostgreSQL 。默认值为空字符串。
 
-default value is empty string, If specified, it will be used as the pg_exporter dsn instead of constructing from other parameters:
-
-This could be useful if you want to monitor a remote pgsql instance, or you want to use a different user/password for monitoring.
+如果没有指定此参数，PG Exporter 默认会使用以下的连接串访问 PostgreSQL ：
 
 ```
-'postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@{{ pg_host }}:{{ pg_port }}/postgres{% if pg_exporter_params != '' %}?{{ pg_exporter_params }}{% endif %}'
+postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@{{ pg_host }}:{{ pg_port }}/postgres{% if pg_exporter_params != '' %}?{{ pg_exporter_params }}{% endif %}
 ```
 
+当您想监控一个远程的 PostgreSQL 实例时，或者需要使用不同的监控用户/密码，配置选项时，可以使用这个参数。
 
 
 
@@ -5387,9 +5434,10 @@ This could be useful if you want to monitor a remote pgsql instance, or you want
 
 参数名称： `pg_exporter_auto_discovery`， 类型： `bool`， 层次：`C`
 
-enable auto database discovery? enabled by default
+启用自动数据库发现吗？ 默认启用：`true`。
 
-default value is `true`, which will auto-discover all databases on the postgres server and spawn a new pg_exporter connection for each database.
+PG Exporter 默认会连接到 DSN 中指定的数据库 （默认为管理数据库 `postgres`） 收集全局指标，如果您希望收集所有业务数据库的指标，可以开启此选项。
+PG Exporter 会自动发现目标 PostgreSQL 实例中的所有数据库，并在这些数据库中收集 **库级监控指标**。
 
 
 
@@ -5398,9 +5446,10 @@ default value is `true`, which will auto-discover all databases on the postgres 
 
 参数名称： `pg_exporter_exclude_database`， 类型： `string`， 层次：`C`
 
-csv of database that WILL NOT be monitored during auto-discovery
+如果启用了数据库自动发现（默认启用），在这个参数指定的列表中的数据库将不会被监控。
+默认值为： `template0,template1,postgres`，即管理数据库 `postgres` 与模板数据库会被排除在自动监控的数据库之外。
 
-default values: `template0,template1,postgres`, which will be excluded for database auto discovery.
+作为例外，DSN 中指定的数据库不受此参数影响，例如，PG Exporter 如果连接的是 `postgres` 数据库，那么即使 `postgres` 在此列表中，也会被监控。
 
 
 
@@ -5410,9 +5459,12 @@ default values: `template0,template1,postgres`, which will be excluded for datab
 
 参数名称： `pg_exporter_include_database`， 类型： `string`， 层次：`C`
 
-csv of database that WILL BE monitored during auto-discovery
+如果启用了数据库自动发现（默认启用），在这个参数指定的列表中的数据库才会被监控。默认值为空字符串，即不启用此功能。
 
-default value is empty string. If this value is set, only the databases in this list will be monitored during auto discovery.
+参数的形式是由逗号分隔的数据库名称列表，例如：`db1,db2,db3`。
+
+此参数相对于 [`pg_exporter_exclude_database`] 有更高的优先级，相当于白名单模式。如果您只希望监控特定的数据库，可以使用此参数。
+
 
 
 
@@ -5421,11 +5473,12 @@ default value is empty string. If this value is set, only the databases in this 
 
 参数名称： `pg_exporter_connect_timeout`， 类型： `int`， 层次：`C`
 
-pg_exporter connect timeout in ms, 200 by default
+pg_exporter 连接超时（毫秒），默认为 `200` （单位毫秒）
 
-default values: `200`ms , which is enough for most cases.
+当 PG Exporter 尝试连接到 PostgreSQL 数据库时，最多会等待多长时间？超过这个时间，PG Exporter 将会放弃连接并报错。
 
-If your remote pgsql server is in another continent, you may want to increase this value to avoid connection timeout.
+默认值 200毫秒 对于绝大多数场景（例如：同可用区监控）都是足够的，但是如果您监控的远程 PostgreSQL 位于另一个大洲，您可能需要增加此值以避免连接超时。
+
 
 
 
@@ -5435,15 +5488,19 @@ If your remote pgsql server is in another continent, you may want to increase th
 
 参数名称： `pg_exporter_options`， 类型： `arg`， 层次：`C`
 
-overwrite extra options for pg_exporter
+传给 PG Exporter 的命令行参数，默认值为：`""` 空字符串。
 
-default value is empty string, which will fall back the following default options: 
+当使用空字符串时，会使用默认的命令参数：
 
+```bash
+{% if pg_exporter_port != '' %}
+PG_EXPORTER_OPTS='--web.listen-address=:{{ pg_exporter_port }} {{ pg_exporter_options }}'
+{% else %}
+PG_EXPORTER_OPTS='--web.listen-address=:{{ pg_exporter_port }} --log.level=info --log.format=logfmt'
+{% endif %}
 ```
---log.level=info --log.format=logfmt
-```
 
-If you want to customize logging options or other pg_exporter options, you can set it here.
+注意，请不要在本参数中覆盖 [`pg_exporter_port`](#pg_exporter_port) 的端口配置。
 
 
 
@@ -5453,9 +5510,8 @@ If you want to customize logging options or other pg_exporter options, you can s
 
 参数名称： `pgbouncer_exporter_enabled`， 类型： `bool`， 层次：`C`
 
-enable pgbouncer_exporter on pgsql hosts?
+在 PGSQL 节点上，是否启用 pgbouncer_exporter ？默认值为：`true`。
 
-default value is `true`, which will enable pg_exporter for pgbouncer connection pooler.
 
 
 
@@ -5464,9 +5520,7 @@ default value is `true`, which will enable pg_exporter for pgbouncer connection 
 
 参数名称： `pgbouncer_exporter_port`， 类型： `port`， 层次：`C`
 
-pgbouncer_exporter listen port, 9631 by default
-
-default values: `9631`
+pgbouncer_exporter 监听端口号，默认值为：`9631`
 
 
 
@@ -5476,15 +5530,17 @@ default values: `9631`
 
 参数名称： `pgbouncer_exporter_url`， 类型： `pgurl`， 层次：`C`
 
-overwrite auto-generate pgbouncer dsn if specified
+如果指定了本参数，将会覆盖自动生成的 pgbouncer DSN，使用指定的 DSN 连接 pgbouncer。默认值为空字符串。
 
-default value is empty string,  If specified, it will be used as the pgbouncer_exporter dsn instead of constructing from other parameters:
+如果没有指定此参数，Pgbouncer Exporter 默认会使用以下的连接串访问 Pgbouncer：
 
 ```
-'postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@:{{ pgbouncer_port }}/pgbouncer?host={{ pg_localhost }}&sslmode=disable'
+postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@:{{ pgbouncer_port }}/pgbouncer?host={{ pg_localhost }}&sslmode=disable
 ```
 
-This could be useful if you want to monitor a remote pgbouncer instance, or you want to use a different user/password for monitoring.
+当您想监控一个远程的 Pgbouncer 实例时，或者需要使用不同的监控用户/密码，配置选项时，可以使用这个参数。
+
+
 
 
 
@@ -5493,13 +5549,17 @@ This could be useful if you want to monitor a remote pgbouncer instance, or you 
 
 参数名称： `pgbouncer_exporter_options`， 类型： `arg`， 层次：`C`
 
-overwrite extra options for pgbouncer_exporter
+传给 Pgbouncer Exporter 的命令行参数，默认值为：`""` 空字符串。
 
-default value is empty string, which will fall back the following default options:
+当使用空字符串时，会使用默认的命令参数：
 
+```bash
+{% if pgbouncer_exporter_options != '' %}
+PG_EXPORTER_OPTS='--web.listen-address=:{{ pgbouncer_exporter_port }} {{ pgbouncer_exporter_options }}'
+{% else %}
+PG_EXPORTER_OPTS='--web.listen-address=:{{ pgbouncer_exporter_port }} --log.level=info --log.format=logfmt'
+{% endif %}
 ```
---log.level=info --log.format=logfmt
-```
 
-If you want to customize logging options or other pgbouncer_exporter options, you can set it here.
+注意，请不要在本参数中覆盖 [`pgbouncer_exporter_port`](#pgbouncer_exporter_port) 的端口配置。
 
