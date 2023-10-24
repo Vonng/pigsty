@@ -42,7 +42,7 @@
 ## v2.5.0
 
 ```bash
-curl https://get.pigsty.cc/beta | bash   # v2.5.0 is still in beta
+curl https://get.pigsty.cc/latest | bash
 ```
 
 **Highlights**
@@ -51,7 +51,7 @@ curl https://get.pigsty.cc/beta | bash   # v2.5.0 is still in beta
 - Dedicate yum/apt repo on `repo.pigsty.cc` and mirror on packagecloud.io
 - Anolis OS Support (EL 8.8 Compatible)
 - PG Major Candidate: Use PostgreSQL 16 instead of PostgreSQL 14.
-- New Dashboard PGSQL Exporter, rework on PGSQL Query Dashboard
+- New Dashboard PGSQL Exporter, PGSQL Patroni, rework on PGSQL Query
 - Extensions Update:
   - Bump PostGIS version to v3.4 on el8, el9, ubuntu22, keep postgis 33 on EL7
   - Remove extension `pg_embedding` because it is no longer maintained, use `pgvector` instead.
@@ -114,13 +114,13 @@ default values of following parameters have changed:
 
 
 ```
-f4edc4678e6bdf50330e070962a6d2f4  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
-00e3534ae44e680b128acfad7695f9e2  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
-1bc586c5a664b9b247547728bb41d978  pigsty-pkg-v2.5.0.el7.x86_64.tgz
-a45949e573a43891a0ff168e77def473  pigsty-pkg-v2.5.0.el8.x86_64.tgz
-b4e58ccf9d6bcee36918f43b67feb4c7  pigsty-pkg-v2.5.0.el9.x86_64.tgz
-cf7ed56b753b9b937f4a1cb50c3b4a4d  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
-cf3bca15637822c988c162a561442087  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
+87e0be2edc35b18709d7722976e305b0  pigsty-pkg-v2.5.0.el7.x86_64.tgz
+e71304d6f53ea6c0f8e2231f238e8204  pigsty-pkg-v2.5.0.el8.x86_64.tgz
+39728496c134e4352436d69b02226ee8  pigsty-pkg-v2.5.0.el9.x86_64.tgz
+e3f548a6c7961af6107ffeee3eabc9a7  pigsty-pkg-v2.5.0.debian11.x86_64.tgz
+1e469cc86a19702e48d7c1a37e2f14f9  pigsty-pkg-v2.5.0.debian12.x86_64.tgz
+cc3af3b7c12f98969d3c6962f7c4bd8f  pigsty-pkg-v2.5.0.ubuntu20.x86_64.tgz
+c5b2b1a4867eee624e57aed58ac65a80  pigsty-pkg-v2.5.0.ubuntu22.x86_64.tgz
 ```
 
 
