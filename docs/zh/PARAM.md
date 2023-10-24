@@ -628,6 +628,9 @@ Pigsty 默认会在基础设施节点 80/443 端口启动 Nginx，对外提供�
 
 如果您修改了 [`nginx_port`](#nginx_port) 与 [`nginx_ssl_port`](#nginx_ssl_port)，或者使用了不同于中控节点的基础设施节点，请相应调整此参数。
 
+如果您使用了域名，可以在 [`node_default_etc_hosts`](#node_default_etc_hosts)、[`node_etc_hosts`](#node_etc_hosts)、或者 [`dns_records`](#dns_records) 中添加解析。
+
+
 
 
 
@@ -635,11 +638,14 @@ Pigsty 默认会在基础设施节点 80/443 端口启动 Nginx，对外提供�
 
 参数名称： `repo_remove`， 类型： `bool`， 层次：`G/A`
 
-在构建本地软件源时，是否移除现有的上游仓库定义？默认值： `true`
+在构建本地软件源时，是否移除现有的上游仓库定义？默认值： `true`。
 
-使用 Pigsty 验证过的上游软件源可以提高从互联网下载软件包的成功率与速度。
+当启用此参数时，`/etc/yum.repos.d` 中所有已有仓库文件会被移动备份至`/etc/yum.repos.d/backup`，在 Debian 系上是移除 `/etc/apt/sources.list` 和 `/etc/apt/sources.list.d`，将文件备份至 `/etc/apt/backup` 中。
+
+因为操作系统已有的源内容不可控，使用 Pigsty 验证过的上游软件源可以提高从互联网下载软件包的成功率与速度。
 
 但在一些特定情况下（例如您的操作系统是某种 EL/Deb 兼容版，许多软件包使用了自己的私有源），您可能需要保留现有的上游仓库定义，此时可以将此参数设置为 `false`。
+
 
 
 
@@ -823,6 +829,7 @@ Pigsty 构建配置模板 [`build.yml`](https://github.com/Vonng/pigsty/blob/mas
 
 
 
+
 ### `repo_url_packages`
 
 参数名称： `repo_url_packages`， 类型： `string[]`， 层次：`G`
@@ -871,6 +878,8 @@ infra_packages:                   # packages to be installed on infra nodes
 ```
 
 
+
+
 ### `infra_packages_pip`
 
 参数名称： `infra_packages_pip`， 类型： `string`， 层次：`G`
@@ -893,8 +902,6 @@ Pigsty 会通过 Nginx 代理所有的 Web 服务访问：Home Page、Grafana、
 
 最重要的是，Nginx 还作为本地软件仓库（Yum/Apt）的 Web 服务器，用于存储和分发 Pigsty 的软件包。
 
-
-
 ```yaml
 nginx_enabled: true               # enable nginx on this infra node?
 nginx_exporter_enabled: true      # enable nginx_exporter on this infra node?
@@ -908,7 +915,8 @@ nginx_navbar:                     # nginx index page navigation links
   - { name: PG Logs ,url: '/logs'     ,desc: 'postgres raw csv logs'       }
   - { name: Reports ,url: '/report'   ,desc: 'pgbadger summary report'     }
   - { name: Explain ,url: '/pigsty/pev.html' ,desc: 'postgres explain visualizer' }
-  ```
+```
+
 
 
 ### `nginx_enabled`
@@ -1069,13 +1077,11 @@ dns_records:                      # dynamic dns records resolved by dnsmasq
 
 
 
-
-
 ------------------------------
 
 ## `PROMETHEUS`
 
-Prometheus 被用作时序数据库，用于存储和分析监控指标数据。
+Prometheus 被用作时序数据库，用于存储和分析监控指标数据，进行指标预计算，评估告警规则。
 
 ```yaml
 prometheus_enabled: true          # enable prometheus on this infra node?
@@ -1097,13 +1103,14 @@ exporter_repo_url: ''             # exporter repo file url if install exporter v
 ```
 
 
+
 ### `prometheus_enabled`
 
 参数名称： `prometheus_enabled`， 类型： `bool`， 层次：`G/I`
 
-enable prometheus on this infra node?
+是否在当前 Infra 节点上启用 Prometheus？ 默认值为 `true`，即所有基础设施节点默认都会安装启用 Prometheus。
 
-default value: `true`
+例如，如果您有多个元节点，默认情况下，Pigsty会在所有元节点上部署Prometheus。如果您想一台用于Prometheus监控指标收集，一台用于Loki日志收集，则可以在其他元节点的实例层次上将此参数设置为`false`。
 
 
 
@@ -1113,7 +1120,8 @@ default value: `true`
 
 参数名称： `prometheus_clean`， 类型： `bool`， 层次：`G/A`
 
-clean prometheus data during init? default value: `true`
+是否在执行 Prometheus 初始化的时候清除现有 Prometheus 数据？默认值为 `true`。
+
 
 
 
@@ -1124,7 +1132,7 @@ clean prometheus data during init? default value: `true`
 
 参数名称： `prometheus_data`， 类型： `path`， 层次：`G`
 
-prometheus data dir, `/data/prometheus` by default
+Prometheus数据库目录, 默认位置为 `/data/prometheus`。
 
 
 
@@ -1134,9 +1142,9 @@ prometheus data dir, `/data/prometheus` by default
 
 参数名称： `prometheus_sd_interval`， 类型： `interval`， 层次：`G`
 
-prometheus target refresh interval, `5s` by default
+Prometheus 静态文件服务发现的刷新周期，默认值为 `5s`。
 
-
+这意味着 Prometheus 每隔这样长的时间就会重新扫描一次 `/etc/prometheus/targets` 目录，以发现新的目标。
 
 
 
@@ -1146,7 +1154,7 @@ prometheus target refresh interval, `5s` by default
 
 参数名称： `prometheus_scrape_interval`， 类型： `interval`， 层次：`G`
 
-prometheus scrape & eval interval, `10s` by default
+Prometheus 全局指标抓取周期, 默认值为 `10s`。在生产环境，10秒 - 30秒是一个较为合适的抓取周期。如果您需要更精细的的监控数据粒度，则可以调整此参数。
 
 
 
@@ -1158,9 +1166,9 @@ prometheus scrape & eval interval, `10s` by default
 
 参数名称： `prometheus_scrape_timeout`， 类型： `interval`， 层次：`G`
 
-prometheus global scrape timeout, `8s` by default
+Prometheus 全局抓取超时，默认为 `8s`。
 
-DO NOT set this larger than [`prometheus_scrape_interval`](#prometheus_scrape_interval)
+设置抓取超时可以有效避免监控系统查询导致的雪崩，设置原则是，本参数必须小于并接近 [`prometheus_scrape_interval`](#prometheus_scrape_interval) ，确保每次抓取时长不超过抓取周期。
 
 
 
@@ -1170,11 +1178,11 @@ DO NOT set this larger than [`prometheus_scrape_interval`](#prometheus_scrape_in
 
 参数名称： `prometheus_options`， 类型： `arg`， 层次：`G`
 
-prometheus extra server options
+Prometheus 的额外的命令行参数，默认值：`--storage.tsdb.retention.time=15d`
 
-default value: `--storage.tsdb.retention.time=15d`
+默认的参数会为 Prometheus 配置一个 15 天的保留期限来限制磁盘使用量。
 
-Extra cli args for prometheus server, the default value will set up a 15-day data retention to limit disk usage.
+
 
 
 
@@ -1184,7 +1192,9 @@ Extra cli args for prometheus server, the default value will set up a 15-day dat
 
 参数名称： `pushgateway_enabled`， 类型： `bool`， 层次：`G/I`
 
-setup pushgateway on this infra node? default value: `true`
+是否在当前 Infra 节点上启用 PushGateway？ 默认值为 `true`，即所有基础设施节点默认都会安装启用 PushGateway。
+
+
 
 
 
@@ -1194,7 +1204,7 @@ setup pushgateway on this infra node? default value: `true`
 
 参数名称： `pushgateway_options`， 类型： `arg`， 层次：`G`
 
-pushgateway extra server options, default value: `--persistence.interval=1m`
+PushGateway 的额外的命令行参数，默认值：`--persistence.interval=1m`，即每分钟进行一次持久化操作。
 
 
 
@@ -1204,7 +1214,9 @@ pushgateway extra server options, default value: `--persistence.interval=1m`
 
 参数名称： `blackbox_enabled`， 类型： `bool`， 层次：`G/I`
 
-setup blackbox_exporter on this infra node? default value: `true`
+是否在当前 Infra 节点上启用 BlackboxExporter ？ 默认值为 `true`，即所有基础设施节点默认都会安装启用 BlackboxExporter 。
+
+BlackboxExporter 会向节点 IP 地址， VIP 地址，PostgreSQL VIP 地址发送 ICMP 报文测试网络连通性。
 
 
 
@@ -1214,7 +1226,7 @@ setup blackbox_exporter on this infra node? default value: `true`
 
 参数名称： `blackbox_options`， 类型： `arg`， 层次：`G`
 
-blackbox_exporter extra server options, default value is empty string
+BlackboxExporter 的额外的命令行参数，默认值：空字符串。
 
 
 
@@ -1225,7 +1237,7 @@ blackbox_exporter extra server options, default value is empty string
 
 参数名称： `alertmanager_enabled`， 类型： `bool`， 层次：`G/I`
 
-setup alertmanager on this infra node? default value: `true`
+是否在当前 Infra 节点上启用 AlertManager ？ 默认值为 `true`，即所有基础设施节点默认都会安装启用 AlertManager 。
 
 
 
@@ -1235,7 +1247,7 @@ setup alertmanager on this infra node? default value: `true`
 
 参数名称： `alertmanager_options`， 类型： `arg`， 层次：`G`
 
-alertmanager extra server options, default value is empty string
+AlertManager 的额外的命令行参数，默认值：空字符串。
 
 
 
@@ -1245,7 +1257,7 @@ alertmanager extra server options, default value is empty string
 
 参数名称： `exporter_metrics_path`， 类型： `path`， 层次：`G`
 
-exporter metric path, `/metrics` by default
+监控 exporter 暴露指标的 HTTP 端点路径，默认为： `/metrics` ，不建议修改此参数。
 
 
 
@@ -1256,23 +1268,17 @@ exporter metric path, `/metrics` by default
 
 参数名称： `exporter_install`， 类型： `enum`， 层次：`G`
 
-how to install exporter? none,yum,binary
+（弃用参数）安装监控组件的方式，有三种可行选项：`none`, `yum`, `binary`
 
-default value: `none`
+指明安装Exporter的方式：
 
-Specify how to install Exporter:
+* `none`：不安装，（默认行为，Exporter已经在先前由 [`node.pkgs`](/zh/docs/nodes/config#node_packages_default) 任务完成安装）
+* `yum`：使用yum（apt）安装（如果启用yum安装，在部署Exporter前执行yum安装 [`node_exporter`](#node_exporter) 与 [`pg_exporter`](/zh/docs/pgsql/config#pg_exporter) ）
+* `binary`：使用拷贝二进制的方式安装（从元节点中直接拷贝[`node_exporter`](#node_exporter) 与 [`pg_exporter`](/zh/docs/pgsql/config#pg_exporter) 二进制，不推荐）
 
-* `none`: No installation, (by default, the Exporter has been previously installed by the [`node.pkgs`](#node_default_packages) task)
-* `yum`: Install using yum (if yum installation is enabled, run yum to install [`node_exporter`](#node_exporter) and [`pg_exporter`](#pg_exporter) before deploying Exporter)
-* `binary`: Install using a copy binary (copy [`node_exporter`](#node_exporter) and [`pg_exporter`](#pg_exporter) binary directly from the meta node, not recommended)
+使用`yum`安装时，如果指定了`exporter_repo_url`（不为空），在执行安装时会首先将该URL下的REPO文件安装至`/etc/yum.repos.d`中。这一功能可以在不执行节点基础设施初始化的环境下直接进行Exporter的安装。
+不推荐普通用户使用`binary`安装，这种模式通常用于紧急故障抢修与临时问题修复。
 
-When installing with `yum`, if `exporter_repo_url` is specified (not empty), the installation will first install the REPO file under that URL into `/etc/yum.repos.d`. This feature allows you to install Exporter directly without initializing the node infrastructure.
-It is not recommended for regular users to use `binary` installation. This mode is usually used for emergency troubleshooting and temporary problem fixes.
-
-```bash
-<meta>:<pigsty>/files/node_exporter ->  <target>:/usr/bin/node_exporter
-<meta>:<pigsty>/files/pg_exporter   ->  <target>:/usr/bin/pg_exporter
-```
 
 
 
@@ -1282,12 +1288,9 @@ It is not recommended for regular users to use `binary` installation. This mode 
 
 参数名称： `exporter_repo_url`， 类型： `url`， 层次：`G`
 
-exporter repo file url if install exporter via yum
+（弃用参数）监控组件的 Yum Repo URL
 
-default value is empty string
-
-Default is empty; when [`exporter_install`](#exporter_install) is `yum`, the repo specified by this parameter will be added to the node source list.
-
+默认为空，当 [`exporter_install`](#exporter_install) 为 `yum` 时，该参数指定的Repo会被添加至节点源列表中。
 
 
 
@@ -1333,7 +1336,7 @@ loki_retention: 15d               # loki log retention period, 15d by default
 
 参数名称： `grafana_enabled`， 类型： `bool`， 层次：`G/I`
 
-enable grafana on this infra node? default value: `true`
+是否在Infra节点上启用Grafana？默认值为： `true`，即所有基础设施节点默认都会安装启用 Grafana。
 
 
 
@@ -1343,7 +1346,9 @@ enable grafana on this infra node? default value: `true`
 
 参数名称： `grafana_clean`， 类型： `bool`， 层次：`G/A`
 
-clean grafana data during init? default value: `true`
+是否在初始化 Grafana 时一并清理其数据文件？默认为：`true`。
+
+该操作会移除 `/var/lib/grafana/grafana.db`，确保 Grafana 全新安装。
 
 
 
@@ -1353,7 +1358,7 @@ clean grafana data during init? default value: `true`
 
 参数名称： `grafana_admin_username`， 类型： `username`， 层次：`G`
 
-grafana admin username, `admin` by default
+Grafana管理员用户名，`admin` by default
 
 
 
@@ -1365,11 +1370,9 @@ grafana admin username, `admin` by default
 
 参数名称： `grafana_admin_password`， 类型： `password`， 层次：`G`
 
-grafana admin password, `pigsty` by default
+Grafana管理员密码，`pigsty` by default
 
-default value: `pigsty`
-
-!> WARNING: Change this to a strong password before deploying to production environment 
+> 提示：请务必在生产部署中修改此密码参数！ 
 
 
 
@@ -1379,11 +1382,10 @@ default value: `pigsty`
 
 参数名称： `grafana_plugin_cache`， 类型： `path`， 层次：`G`
 
-path to grafana plugins cache tarball
+Grafana 插件缓存地址，一个指向 Tarball 的路径，默认值为：`/www/pigsty/plugins.tgz`
 
-default value: `/www/pigsty/plugins.tgz`
+如果该文件存在，Pigsty会直接将其解压至：`/var/lib/grafana/plugins` 中并跳过从互联网下载 Grafana 插件的步骤。
 
-If that cache exists, pigsty use that instead of downloading plugins from the Internet
 
 
 
@@ -1393,7 +1395,7 @@ If that cache exists, pigsty use that instead of downloading plugins from the In
 
 参数名称： `grafana_plugin_list`， 类型： `string[]`， 层次：`G`
 
-列表中的 Grafana 插件将会被 grafana-cli 下载，默认包含了来自 volkovlabs 与 marusolsson 的几个实用扩展。 
+列表中的 Grafana 插件将会被下载，默认包含了来自 volkovlabs 与 marusolsson 的几个实用扩展。 
 
 ```yaml
 grafana_plugin_list:              # grafana plugins to be downloaded with grafana-cli
@@ -1412,6 +1414,7 @@ grafana_plugin_list:              # grafana plugins to be downloaded with grafan
   - knightss27-weathermap-panel
 ```
 
+每个数组元素是一个字符串，表示插件的名称。插件会通过`grafana-cli plugins install`的方式进行安装。
 
 
 
@@ -1421,12 +1424,15 @@ grafana_plugin_list:              # grafana plugins to be downloaded with grafan
 
 ## `LOKI`
 
+Loki 是Grafana提供的轻量级日志收集/检索平台，它可以提供一个集中查询服务器/数据库日志的地方。
+
 
 ### `loki_enabled`
 
 参数名称： `loki_enabled`， 类型： `bool`， 层次：`G/I`
 
-enable loki on this infra node? default value: `true`
+是否在当前 Infra 节点上启用 Loki ？ 默认值为 `true`，即所有基础设施节点默认都会安装启用 Loki 。
+
 
 
 
@@ -1436,7 +1442,7 @@ enable loki on this infra node? default value: `true`
 
 参数名称： `loki_clean`， 类型： `bool`， 层次：`G/A`
 
-whether remove existing loki data? default value: `false`
+是否在安装Loki时清理数据库目录？默认值： `false`，现有日志数据在初始化时会保留。
 
 
 
@@ -1446,7 +1452,7 @@ whether remove existing loki data? default value: `false`
 
 参数名称： `loki_data`， 类型： `path`， 层次：`G`
 
-loki data dir, default value: `/data/loki`
+Loki的数据目录，默认值为： `/data/loki`
 
 
 
@@ -1457,7 +1463,7 @@ loki data dir, default value: `/data/loki`
 
 参数名称： `loki_retention`， 类型： `interval`， 层次：`G`
 
-loki log retention period, `15d` by default
+Loki日志默认保留天数，默认保留 `15d` 。
 
 
 
@@ -1530,14 +1536,10 @@ node_id_from_pg: true             # 如果可行，是否借用 postgres 身份�
 
 参数名称： `nodename`， 类型： `string`， 层次：`I`
 
-node instance identity, use hostname if missing, optional
+主机节点的身份参数，如果没有显式设置，则会使用现有的主机 Hostname 作为节点名。本参数虽然是身份参数，但因为有合理默认值，所以是可选项。
 
-no default value, Null or empty string means `nodename` will be set to node's current hostname.
-
-If [`node_id_from_pg`](#node_id_from_pg) is `true`, [`nodename`](#nodename) will try to use `${pg_cluster}-${pg_seq}` first, if PGSQL is not defined on this node, it will fall back to default `HOSTNAME`.
-
-If [`nodename_overwrite`](#nodename_overwrite) is `true`, the node name will also be used as the HOSTNAME.
-
+如果启用了 [`node_id_from_pg`](#node_id_from_pg) 选项（默认启用），且 `nodename` 没有被显式指定，
+那么 [`nodename`](#nodename) 会尝试使用 `${pg_cluster}-${pg_seq}` 作为实例身份参数，如果集群没有定义 PGSQL 模块，那么会回归到默认值，也就是主机节点的 HOSTNAME。
 
 
 
@@ -1546,13 +1548,11 @@ If [`nodename_overwrite`](#nodename_overwrite) is `true`, the node name will als
 
 参数名称： `node_cluster`， 类型： `string`， 层次：`C`
 
-node cluster identity, use 'nodes' if missing, optional
+该选项可为节点显式指定一个集群名称，通常在节点集群层次定义才有意义。使用默认空值将直接使用固定值`nodes`作为节点集群标识。
 
-default values: `nodes`
+如果启用了 [`node_id_from_pg`](#node_id_from_pg) 选项（默认启用），且 `node_cluster` 没有被显式指定，那么 [`node_cluster`](#node_cluster) 会尝试使用 `${pg_cluster}-${pg_seq}` 作为集群身份参数，如果集群没有定义 PGSQL 模块，那么会回归到默认值 `nodes`。
 
-If [`node_id_from_pg`](#node_id_from_pg) is `true`, [`node_cluster`](#nodename) will try to use `${pg_cluster}-${pg_seq}` first, if PGSQL is not defined on this node, it will fall back to default `HOSTNAME`.
 
-If [`nodename_overwrite`](#nodename_overwrite) is `true`, the node name will also be used as the HOSTNAME.
 
 
 
@@ -1562,7 +1562,7 @@ If [`nodename_overwrite`](#nodename_overwrite) is `true`, the node name will als
 
 参数名称： `nodename_overwrite`， 类型： `bool`， 层次：`C`
 
-是否使用 nodename 覆盖主机名？默认值为 `true`，在这种情况下，如果你设置了一个非空的 [`nodename`](#nodename) ，那么它会被用作当前主机的 HOSTNAME 。
+是否使用 [`nodename`](#nodename) 覆盖主机名？默认值为 `true`，在这种情况下，如果你设置了一个非空的 [`nodename`](#nodename) ，那么它会被用作当前主机的 HOSTNAME 。
 
 当 `nodename` 配置为空时，如果  [`node_id_from_pg`](#node_id_from_pg) 参数被配置为 `true` （默认为真），那么 Pigsty 会尝试借用1:1定义在节点上的 PostgreSQL 实例的身份参数作为主机的节点名。
 也就是 `{{ pg_cluster }}-{{ pg_seq }}`，如果该节点没有安装 PGSQL 模块，则会回归到默认什么都不做的状态。
@@ -1572,15 +1572,16 @@ If [`nodename_overwrite`](#nodename_overwrite) is `true`, the node name will als
 
 
 
+
+
 ### `nodename_exchange`
 
 参数名称： `nodename_exchange`， 类型： `bool`， 层次：`C`
 
-exchange nodename among play hosts?
+是否在剧本节点间交换主机名？默认值为：`false`
 
-default value is `false`
+启用此参数时，同一批组执行 [`node.yml`](NODE#nodeyml) 剧本的节点之间会相互交换节点名称，写入`/etc/hosts`中。
 
-When this parameter is enabled, node names are exchanged between the same group of nodes executing the `node.yml` playbook, written to `/etc/hosts`.
 
 
 
@@ -1589,13 +1590,10 @@ When this parameter is enabled, node names are exchanged between the same group 
 
 参数名称： `node_id_from_pg`， 类型： `bool`， 层次：`C`
 
-use postgres identity as node identity if applicable?
+从节点上 1:1 部署的 PostgreSQL 实例/集群上借用身份参数？ 默认值为 `true`。
 
-default value is `true`
-
-Boworrow PostgreSQL cluster & instance identity if application.
-
-It's useful to use same identity for postgres & node if there's a 1:1 relationship
+Pigsty 中的 PostgreSQL 实例与节点默认使用 1:1 部署，因此，您可以从数据库实例上“借用” 身份参数。
+此参数默认启用，这意味着一套 PostgreSQL 集群如果没有特殊配置，主机节点集群和实例的身份参数默认值是与数据库身份参数保持一致的。对于问题分析，监控数据处理都提供了额外便利。
 
 
 
@@ -1605,9 +1603,9 @@ It's useful to use same identity for postgres & node if there's a 1:1 relationsh
 
 ## `NODE_DNS`
 
-Pigsty configs static DNS records and dynamic DNS resolver for nodes.
+Pigsty会为节点配置静态DNS解析记录与动态DNS服务器。
 
-If you already have a DNS server, set [`node_dns_method`](#node_dns_method) to `none` to disable dynamic DNS setup.
+如果您的节点供应商已经为您配置了DNS服务器，您可以将 [`node_dns_method`](#node_dns_method) 设置为 `none` 跳过DNS设置。
 
 ```yaml
 node_default_etc_hosts:           # static dns records in `/etc/hosts`
@@ -1620,23 +1618,22 @@ node_dns_options:                 # dns resolv options in `/etc/resolv.conf`
 ```
 
 
+
 ### `node_default_etc_hosts`
 
 参数名称： `node_default_etc_hosts`， 类型： `string[]`， 层次：`G`
 
-static dns records in `/etc/hosts`
-
-default value: 
+默认写入所有节点 `/etc/hosts` 的静态DNS记录，默认值为：
 
 ```yaml
 ["${admin_ip} h.pigsty a.pigsty p.pigsty g.pigsty"]
 ```
 
-[`node_default_etc_hosts`](#node_default_etc_hosts) is an array. Each element is a DNS record with format `<ip> <name>`.
+[`node_default_etc_hosts`](#node_default_etc_hosts) 是一个数组，每个元素都是一条 DNS 记录，格式为 `<ip> <name>`，您可以指定多个用空格分隔的域名。
 
-It is used for global static DNS records. You can use [`node_etc_hosts`](#node_etc_hosts) for ad hoc records for each cluster.
+这个参数是用于配置全局静态DNS解析记录的，如果您希望为单个集群与实例配置特定的静态DNS解析，则可以使用 [`node_etc_hosts`](#node_etc_hosts) 参数。
 
-Make sure to write a DNS record like `10.10.10.10 h.pigsty a.pigsty p.pigsty g.pigsty` to `/etc/hosts` to ensure that the local yum repo can be accessed using the domain name before the DNS Nameserver starts.
+
 
 
 
@@ -1645,11 +1642,9 @@ Make sure to write a DNS record like `10.10.10.10 h.pigsty a.pigsty p.pigsty g.p
 
 参数名称： `node_etc_hosts`， 类型： `string[]`， 层次：`C`
 
-extra static dns records in `/etc/hosts`
+写入节点 `/etc/hosts` 的额外的静态DNS记录，默认值为：`[]` 空数组。
 
-default values: `[]`
-
-Same as [`node_default_etc_hosts`](#node_default_etc_hosts), but in addition to it.
+本参数与 [`node_default_etc_hosts`](#node_default_etc_hosts)，形式一样，但用途不同：适合在集群/实例层面进行配置。
 
 
 
@@ -1658,13 +1653,11 @@ Same as [`node_default_etc_hosts`](#node_default_etc_hosts), but in addition to 
 
 参数名称： `node_dns_method`， 类型： `enum`， 层次：`C`
 
-how to handle dns servers: add,none,overwrite
+如何配置DNS服务器？有三种选项：`add`、`none`、`overwrite`，默认值为 `add`。
 
-default values: `add`
-
-* `add`: Append the records in [`node_dns_servers`](#node_dns_servers) to `/etc/resolv.conf` and keep the existing DNS servers. (default)
-* `overwrite`: Overwrite `/etc/resolv.conf` with the record in [`node_dns_servers`](#node_dns_servers)
-* `none`: If a DNS server is provided in the production env, the DNS server config can be skipped.
+* `add`：将 [`node_dns_servers`](#node_dns_servers) 中的记录**追加**至`/etc/resolv.conf`，并保留已有DNS服务器。（默认）
+* `overwrite`：使用将 [`node_dns_servers`](#node_dns_servers) 中的记录覆盖`/etc/resolv.conf`
+* `none`：跳过DNS服务器配置，如果您的环境中已经配置有DNS服务器，则可以直接跳过DNS配置。
 
 
 
@@ -1673,9 +1666,7 @@ default values: `add`
 
 参数名称： `node_dns_servers`， 类型： `string[]`， 层次：`C`
 
-dynamic nameserver in `/etc/resolv.conf`
-
-default values: `["${admin_ip}"]` , the default nameserver on admin node will be added to `/etc/resolv.conf` as the first nameserver.
+配置 `/etc/resolv.conf` 中的动态DNS服务器列表：默认值为： `["${admin_ip}"]`，即将管理节点作为首要DNS服务器。
 
 
 
@@ -1685,13 +1676,17 @@ default values: `["${admin_ip}"]` , the default nameserver on admin node will be
 
 参数名称： `node_dns_options`， 类型： `string[]`， 层次：`C`
 
-dns resolv options in `/etc/resolv.conf`
-
-default value: 
+`/etc/resolv.conf` 中的DNS解析选项，默认值为：
 
 ```yaml
-["options single-request-reopen timeout:1"]
+- "options single-request-reopen timeout:1"
 ```
+
+如果 [`node_dns_method`](#node_dns_method) 配置为`add`或`overwrite`，则本配置项中的记录会被首先写入`/etc/resolv.conf` 中。具体格式请参考Linux文档关于`/etc/resolv.conf`的说明
+
+
+
+
 
 
 
@@ -1703,7 +1698,7 @@ default value:
 
 ## `NODE_PACKAGE`
 
-This section is about upstream yum repos & packages to be installed.
+Pigsty会为纳入管理的节点配置Yum源，并安装软件包。
 
 ```yaml
 node_repo_method: local           # how to setup node repo: none,local,public,both
@@ -1723,14 +1718,18 @@ node_default_packages:            # default packages to be installed on all node
 
 参数名称： `node_repo_method`， 类型： `enum`， 层次：`C/A`
 
-how to setup node repo: `none`, `local`, `public`, `both`, default values: `local`
+节点配置软件源的方式，可选项包括：`none`、 `local`、 `public`、 `both`，默认为：`local`。
 
-Which repos are added to `/etc/yum.repos.d` on target nodes ?
+该参数指明了哪些上游源会被添加到节点的仓库列表中：
 
-* `local`: Use the local yum repo on the admin node, default behavior.
-* `public`: Add public upstream repo directly to the target nodes, use this if you have Internet access. 
-* `both`: Add both local repo and public repo. Useful when some rpm are missing 
-* `none`: do not add any repo to target nodes.
+* `local`： 使用由 [`node_repo_local_urls`](#node_repo_local_urls) 指定的本地软件源，（默认行为），推荐使用此方式。
+* `public`： 使用由 [`repo_upstream`](#repo_upstream) 与 [`repo_modules`](#repo_modules) 指定的原始上游源。
+* `both`：同时添加 `local` 与 `public` 源。
+* `none`：什么源也不添加，由用户自己管理维护。
+
+当您想要从原始上游下载安装软件时，可以考虑使用 `public` 与 `both` 模式。
+
+
 
 
 
@@ -1738,9 +1737,11 @@ Which repos are added to `/etc/yum.repos.d` on target nodes ?
 
 参数名称： `node_repo_remove`， 类型： `bool`， 层次：`C/A`
 
-remove existing repo on node?
+是否移除节点已有的软件仓库定义？默认值为：`true`。
 
-default value is `true`, and thus Pigsty will move existing repo file in `/etc/yum.repos.d` to a backup dir: `/etc/yum.repos.d/backup` before adding upstream repos
+如果启用，则Pigsty会 **移除** 节点上`/etc/yum.repos.d`中原有的配置文件，并备份至`/etc/yum.repos.d/backup`。
+在 Debian/Ubuntu 系统上，则是 `/etc/apt/sources.list(.d)` 备份至 `/etc/apt/backup`。
+
 
 
 
@@ -1749,11 +1750,11 @@ default value is `true`, and thus Pigsty will move existing repo file in `/etc/y
 
 参数名称： `node_repo_local_urls`， 类型： `string[]`， 层次：`C`
 
-local repo url, if node_repo_method = local
+本地源的URL地址列表，默认值为：`["http://${admin_ip}/pigsty.repo"]`
 
-default values: `["http://${admin_ip}/pigsty.repo"]`
+在 Debian/Ubuntu 系统上，合适的默认值为： `['deb [trusted=yes] http://${admin_ip}/pigsty ./']`
 
-When [`node_repo_method`](#node_repo_method) = `local`, the Repo file URLs listed here will be downloaded to `/etc/yum.repos.d`.
+这个参数只有当 [`node_repo_method`](#node_repo_method) = `local` 或者 `both` 的时候才会生效。
 
 
 
@@ -1764,11 +1765,10 @@ When [`node_repo_method`](#node_repo_method) = `local`, the Repo file URLs liste
 
 参数名称： `node_packages`， 类型： `string[]`， 层次：`C`
 
-packages to be installed current nodes
+在当前节点上要安装的软件包列表，默认值为：`[]` 空数组。
 
-default values: `[]`
+每一个数组元素都是字符串：由逗号分隔的软件包名称。形式上与 [`node_packages_default`](#node_default_packages) 相同。本参数通常用于在节点/集群层面指定需要额外安装的软件包。
 
-Like [`node_packages_default`](#node_default_packages), but in addition to it. designed for overwriting in cluster/instance level.
 
 
 
@@ -1799,7 +1799,7 @@ node_default_packages:            # default packages to be installed on all node
 - netcat-openbsd,socat,tnftp,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
 ```
 
-
+形式上与 [`node_packages`](#node_packages) 相同，但本参数通常用于全局层面指定所有节点都必须安装的默认软件包。
 
 
 
@@ -1808,7 +1808,8 @@ node_default_packages:            # default packages to be installed on all node
 
 ## `NODE_TUNE`
 
-Configure tuned templates, features, kernel modules, sysctl params on node.
+主机节点特性、内核模块与参数调优模板。
+
 
 ```yaml
 node_disable_firewall: true       # disable node firewall? true by default
@@ -3394,16 +3395,14 @@ redis_sentinel_monitor:  # primary list for redis sentinel, use cls as name, pri
 
 # `PGSQL`
 
-[`PGSQL`](PGSQL) module requires [`NODE`](NODE) module to be installed, and you also need a viable [`ETCD`](ETCD) cluster to store cluster meta data.
+[`PGSQL`](PGSQL) 模块需要在 Pigsty 管理的节点上安装（即节点已经配置了 [`NODE`](NODE) 模块），同时还要求您的部署中有一套可用的 [`ETCD`](ETCD) 集群来存储集群元数据。
 
-Install `PGSQL` module on a single node will create a [primary](PGSQL-CONF#primary) instance which a standalone PGSQL server/instance.
-Install it on additional nodes will create [replicas](PGSQL-CONF#replica), which can be used for serving read-only traffics, or use as standby backup.
-You can also create [offline](PGSQL-CONF#offline) instance of ETL/OLAP/Interactive queries,
-use [Sync Standby](PGSQL-CONF#sync-standby) and [Quorum Commit](PGSQL-CONF#quorum-commit) to increase data consistency,
-or even form a [standby cluster](PGSQL-CONF#standby-cluster) and [delayed standby cluster](PGSQL-CONF#delayed-cluster) for disaster recovery.
+在单个节点上安装 `PGSQL` 模块将创建一个独立的 PGSQL 服务器/实例，即[主实例](PGSQL-CONF#读写主库)。
+在额外节点上安装将创建[只读副本](PGSQL-CONF#只读从库)，可以作为备用实例，并用于承载分担只读请求。
+您还可以创建用于 ETL/OLAP/交互式查询的[离线](PGSQL-CONF#离线从库)实例， 使用[同步备库](PGSQL-CONF#同步备库) 和 [法定人数提交](PGSQL-CONF#法定人数提交) 来提高数据一致性， 
+甚至搭建[备份集群](PGSQL-CONF#备份集群) 和 [延迟集群](PGSQL-CONF#延迟集群) 以快速应对人为失误与软件缺陷导致的数据损失。
 
-You can define multiple PGSQL clusters and form a horizontal sharding cluster, which is a group of PGSQL clusters running on different nodes.
-Pigsty has native [citus cluster group](PGSQL-CONF#citus-cluster) support, which can extend your PGSQL cluster to a distributed database sharding cluster.
+您可以定义多个 PGSQL 集群并进一步组建一个水平分片集群： Pigsty 支持原生的 [citus 集群组](PGSQL-CONF#citus集群)，可以将您的标准 PGSQL 集群原地升级为一个分布式的数据库集群。
 
 
 
@@ -3411,38 +3410,39 @@ Pigsty has native [citus cluster group](PGSQL-CONF#citus-cluster) support, which
 
 ## `PG_ID`
 
-Here are some common parameters used to identify PGSQL [entities](PGSQL-ARCH#er-diagram): instance, service, etc...
+以下是一些常用的参数，用于标识 PGSQL 模块中的[实体](PGSQL-ARCH#实体概念图)：集群、实例、服务等...
+
 
 ```yaml
-# pg_cluster:           #CLUSTER  # pgsql cluster name, required identity parameter
-# pg_seq: 0             #INSTANCE # pgsql instance seq number, required identity parameter
-# pg_role: replica      #INSTANCE # pgsql role, required, could be primary,replica,offline
-# pg_instances: {}      #INSTANCE # define multiple pg instances on node in `{port:ins_vars}` format
-# pg_upstream:          #INSTANCE # repl upstream ip addr for standby cluster or cascade replica
-# pg_shard:             #CLUSTER  # pgsql shard name, optional identity for sharding clusters
-# pg_group: 0           #CLUSTER  # pgsql shard index number, optional identity for sharding clusters
-# gp_role: master       #CLUSTER  # greenplum role of this cluster, could be master or segment
-pg_offline_query: false #INSTANCE # set to true to enable offline query on this instance
+# pg_cluster:           #CLUSTER  # pgsql 集群名称，必需的标识参数
+# pg_seq: 0             #INSTANCE # pgsql 实例序列号，必需的标识参数
+# pg_role: replica      #INSTANCE # pgsql 角色，必需的，可以是 primary,replica,offline
+# pg_instances: {}      #INSTANCE # 在节点上定义多个 pg 实例，使用 `{port:ins_vars}` 格式
+# pg_upstream:          #INSTANCE # 备用集群或级联副本的 repl 上游 ip 地址
+# pg_shard:             #CLUSTER  # pgsql 分片名称，分片集群的可选标识
+# pg_group: 0           #CLUSTER  # pgsql 分片索引号，分片集群的可选标识
+# gp_role: master       #CLUSTER  # 此集群的 greenplum 角色，可以是 master 或 segment
+pg_offline_query: false #INSTANCE # 设置为 true 以在此实例上启用离线查询
 ```
 
-You have to assign these **identity parameters** explicitly, there's no default value for them.
+您必须显式指定这些**身份参数**，它们没有默认值：
 
-|            Name             |   Type   | Level | Description                            |
-|:---------------------------:|:--------:|:-----:|----------------------------------------|
-| [`pg_cluster`](#pg_cluster) | `string` | **C** | **PG database cluster name**           |
-|     [`pg_seq`](#pg_seq)     | `number` | **I** | **PG database instance id**            |
-|    [`pg_role`](#pg_role)    |  `enum`  | **I** | **PG database instance role**          |
-|   [`pg_shard`](#pg_shard)   | `string` | **C** | **PG database shard name of cluster**  |
-|   [`pg_group`](#pg_group)   | `number` | **C** | **PG database shard index of cluster** |
+|             名称              |    类型    |  级别   | 扩展说明            |
+|:---------------------------:|:--------:|:-----:|-----------------|
+| [`pg_cluster`](#pg_cluster) | `string` | **C** | **PG 数据库集群名称**  |
+|     [`pg_seq`](#pg_seq)     | `number` | **I** | **PG 数据库实例 ID** |
+|    [`pg_role`](#pg_role)    |  `enum`  | **I** | **PG 数据库实例角色**  |
+|   [`pg_shard`](#pg_shard)   | `string` | **C** | **数据库分片名称**     |
+|   [`pg_group`](#pg_group)   | `number` | **C** | **数据库分片序号**     |
 
-* [`pg_cluster`](#pg_cluster): It identifies the name of the cluster, which is configured at the cluster level.
-* [`pg_role`](#pg_role): Configured at the instance level, identifies the role of the ins. Only the `primary` role will be handled specially. If not filled in, the default is the `replica` role and the special `delayed` and `offline` roles.
-* [`pg_seq`](#pg_seq): Used to identify the ins within the cluster, usually with an integer number incremented from 0 or 1, which is not changed once it is assigned.
-* `{{ pg_cluster }}-{{ pg_seq }}` is used to uniquely identify the ins, i.e. `pg_instance`.
-* `{{ pg_cluster }}-{{ pg_role }}` is used to identify the services within the cluster, i.e. `pg_service`.
-* [`pg_shard`](#pg_shard) and [`pg_group`](#pg_group) are used for horizontally sharding clusters, for citus, greenplum, and matrixdb only.
+- [`pg_cluster`](#pg_cluster): 它标识集群的名称，该名称在集群级别配置。
+- [`pg_role`](#pg_role): 在实例级别配置，标识 ins 的角色。只有 `primary` 角色会特别处理。如果不填写，默认为 `replica` 角色和特殊的 `delayed` 和 `offline` 角色。
+- [`pg_seq`](#pg_seq): 用于在集群内标识 ins，通常是从 0 或 1 递增的整数，一旦分配就不会更改。
+- `{{ pg_cluster }}-{{ pg_seq }}` 用于唯一标识 ins，即 `pg_instance`。
+- `{{ pg_cluster }}-{{ pg_role }}` 用于标识集群内的服务，即 `pg_service`。
+- [`pg_shard`](#pg_shard) 和 [`pg_group`](#pg_group) 用于水平分片集群，仅用于 citus、greenplum 和 matrixdb。
 
-[`pg_cluster`](#pg_cluster), [`pg_role`](#pg_role), [`pg_seq`](#pg_seq) are core **identity params**, which are **required** for any Postgres cluster, and must be explicitly specified. Here's an example:
+[`pg_cluster`](#pg_cluster)、[`pg_role`](#pg_role)、[`pg_seq`](#pg_seq) 是核心**标识参数**，对于任何 Postgres 集群都是**必选**的，并且必须显式指定。以下是一个示例：
 
 ```yaml
 pg-test:
@@ -3454,8 +3454,7 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-All other params can be inherited from the global config or the default config, but the identity params must be **explicitly specified** and **manually assigned**. The current PGSQL identity params are as follows:
-
+所有其他参数都可以从全局配置或默认配置继承，但标识参数必须**明确指定**和**手动分配**。
 
 
 
@@ -3463,10 +3462,11 @@ All other params can be inherited from the global config or the default config, 
 
 参数名称： `pg_mode`， 类型： `enum`， 层次：`C`
 
-pgsql cluster mode, cloud be `pgsql`, `citus`, or `gpsql`, `pgsql` by default.
+PostgreSQL 集群模式，可选值为：`pgsql`，`citus`，或 `gpsql`，默认值为 `pgsql`，即标准的 PostgreSQL 集群。
 
-If `pg_mode` is set to `citus` or `gpsql`, [`pg_shard`](#pg_shard) and [`pg_group`](#pg_group) will be required for horizontal sharding clusters.
+如果 `pg_mode` 设置为 `citus` 或 `gpsql`，则需要两个额外的必选身份参数 [`pg_shard`](#pg_shard) 和 [`pg_group`](#pg_group) 来定义水平分片集群的身份。
 
+在这两种情况下，每一个 PostgreSQL 集群都是一组更大的业务单元的一部分。
 
 
 
@@ -3475,11 +3475,11 @@ If `pg_mode` is set to `citus` or `gpsql`, [`pg_shard`](#pg_shard) and [`pg_grou
 
 参数名称： `pg_cluster`， 类型： `string`， 层次：`C`
 
-pgsql cluster name, REQUIRED identity parameter
+PostgreSQL 集群名称，必选的身份标识参数,没有默认值
 
-The cluster name will be used as the namespace for PGSQL related resources within that cluster.
+集群名将用作资源的命名空间。
 
-The naming needs to follow the specific naming pattern: `[a-z][a-z0-9-]*` to be compatible with the requirements of different constraints on the identity.
+集群命名需要遵循特定的命名模式：`[a-z][a-z0-9-]*`，即，只使用数字与小写字母，且不以数字开头，以符合标识上的不同约束的要求。
 
 
 
@@ -3488,9 +3488,9 @@ The naming needs to follow the specific naming pattern: `[a-z][a-z0-9-]*` to be 
 
 参数名称： `pg_seq`， 类型： `int`， 层次：`I`
 
-pgsql instance seq number, REQUIRED identity parameter
+PostgreSQL 实例序列号，必选的身份标识参数，无默认值。
 
-A serial number of this instance, unique within its **cluster**, starting from 0 or 1.
+此实例的序号，在其**集群**内是唯一分配的，通常使用自然数，从0或1开始分配，通常不会回收重用。
 
 
 
@@ -3499,16 +3499,13 @@ A serial number of this instance, unique within its **cluster**, starting from 0
 
 参数名称： `pg_role`， 类型： `enum`， 层次：`I`
 
-pgsql role, REQUIRED, could be primary,replica,offline
+PostgreSQL 实例角色，必选的身份标识参数，无默认值。取值可以是：`primary`, `replica`, `offline`
 
-Roles for PGSQL instance, can be: `primary`, `replica`, `standby` or `offline`.
+PGSQL 实例的角色，可以是：`primary`、`replica`、`standby` 或 `offline`。
 
-* `primary`: Primary, there is one and only one primary in a cluster.
-* `replica`: Replica for carrying online read-only traffic, there may be a slight replication delay through (10ms~100ms, 100KB).
-* `standby`: Special replica that is always synced with primary, there's no replication delay & data loss on this replica. (currently same as `replica`)
-* `offline`: Offline replica for taking on offline read-only traffic, such as statistical analysis/ETL/personal queries, etc.
-
-**Identity params, required params, and instance-level params.**
+- `primary`: 主实例，在集群中有且仅有一个。
+- `replica`: 用于承载在线只读流量的副本，高负载下可能会有轻微复制延迟（10ms~100ms, 100KB）。
+- `offline`: 用于处理离线只读流量的离线副本，如统计分析/ETL/个人查询等。
 
 
 
@@ -3518,9 +3515,9 @@ Roles for PGSQL instance, can be: `primary`, `replica`, `standby` or `offline`.
 
 参数名称： `pg_instances`， 类型： `dict`， 层次：`I`
 
-define multiple pg instances on node in `{port:ins_vars}` format.
+使用 `{port:ins_vars}` 的形式在一台主机上定义多个 PostgreSQL 实例。
 
-This parameter is reserved for multi-instance deployment on a single node which is not implemented in Pigsty yet. 
+此参数是为在单个节点上的多实例部署保留的参数，Pigsty 尚未实现此功能，并强烈建议独占节点部署。
 
 
 
@@ -3530,11 +3527,11 @@ This parameter is reserved for multi-instance deployment on a single node which 
 
 参数名称： `pg_upstream`， 类型： `ip`， 层次：`I`
 
-Upstream ip address for standby cluster or cascade replica
+[备份集群](PGSQL-CONF#备份集群)或级联从库的上游实例 IP 地址。
 
-Setting `pg_upstream` is set on `primary` instance indicate that this cluster is a [**Standby Cluster**](PGSQL-CONF#standby-cluster), and will receiving changes from upstream instance, thus the `primary` is actually a `standby leader`.
+在集群的 `primary` 实例上设置 `pg_upstream` ，表示此集群是一个[备份集群](PGSQL-CONF#备份集群)，该实例将作为 `standby leader`，从上游集群接收并应用更改。
 
-Setting `pg_upstream` for a non-primary instance will explicitly set a replication upstream instance, if it is different from the primary ip addr, this instance will become a **cascade replica**. And it's user's responsibility to ensure that the upstream IP addr is another instance in the same cluster.
+对非 `primary` 实例设置 `pg_upstream` 参数将指定一个具体实例作为物理复制的上游，如果与主实例 ip 地址不同，此实例将成为 **级联副本** 。确保上游 IP 地址是同一集群中的另一个实例是用户的责任。
 
 
 
@@ -3544,13 +3541,13 @@ Setting `pg_upstream` for a non-primary instance will explicitly set a replicati
 
 参数名称： `pg_shard`， 类型： `string`， 层次：`C`
 
-pgsql shard name, required identity parameter for sharding clusters (e.g. citus cluster), optional for common pgsql clusters.
+PostgreSQL 水平分片名称，对于分片集群来说（例如 citus 集群），这是的必选标识参数。
 
-When multiple pgsql clusters serve the same business together in a horizontally sharding style, Pigsty will mark this group of clusters as a **Sharding Group**.
+当多个标准的 PostgreSQL 集群一起以水平分片方式为同一业务提供服务时，Pigsty 将此组集群标记为 **水平分片集群**。
 
-[`pg_shard`](#pg_shard) is the name of the shard group name. It's usually the prefix of [`pg_cluster`](#pg_cluster).
+[`pg_shard`](#pg_shard) 是分片组名称。它通常是 [`pg_cluster`](#pg_cluster) 的前缀。
 
-For example, if we have a sharding group `pg-citus`, and 4 clusters in it, there identity params will be: 
+例如，如果我们有一个分片组 `pg-citus`，并且其中有4个集群，它们的标识参数将是：
 
 ```
 cls pg_shard: pg-citus
@@ -3568,9 +3565,11 @@ cls pg_group = 3:   pg-citus3
 
 参数名称： `pg_group`， 类型： `int`， 层次：`C`
 
-pgsql shard index number, required identity for sharding clusters, optional for common pgsql clusters.
+PostgreSQL 水平分片集群的分片索引号，对于分片集群来说（例如 citus 集群），这是的必选标识参数。
 
-Sharding cluster index of sharding group, used in pair with [pg_shard](#pg_shard). You can use any non-negative integer as the index number.
+此参数与 [pg_shard](#pg_shard) 配对使用，通常可以使用非负整数作为索引号。
+
+
 
 
 
@@ -3580,12 +3579,13 @@ Sharding cluster index of sharding group, used in pair with [pg_shard](#pg_shard
 
 参数名称： `gp_role`， 类型： `enum`， 层次：`C`
 
-greenplum/matrixdb role of this cluster, could be `master` or `segment`
+PostgreSQL 集群的 Greenplum/Matrixdb 角色，可以是 `master` 或 `segment`。
 
-- `master`:  mark the postgres cluster as greenplum master, which is the default value
-- `segment`  mark the postgres cluster as greenplum segment
+- `master`: 标记 postgres 集群为 greenplum 主实例（协调节点），这是默认值。
+- `segment` 标记 postgres 集群为 greenplum 段集群（数据节点）。
 
-This parameter is only used for greenplum/matrixdb database, and is ignored for common pgsql cluster.
+此参数仅用于 Greenplum/MatrixDB 数据库 （[`pg_mode`](#pg_mode) 为 `gpsql`），对于普通的 PostgreSQL 集群没有意义。
+
 
 
 
@@ -3595,11 +3595,11 @@ This parameter is only used for greenplum/matrixdb database, and is ignored for 
 
 参数名称： `pg_exporters`， 类型： `dict`， 层次：`C`
 
-additional pg_exporters to monitor remote postgres instances, default values: `{}`
+额外用于[监控](PGSQL-MONITOR)远程 PostgreSQL 实例的 Exporter 定义，默认值：`{}`
 
-If you wish to monitoring remote postgres instances, define them in `pg_exporters` and load them with `pgsql-monitor.yml` playbook.
+如果您希望监控远程 PostgreSQL 实例，请在监控系统所在节点（Infra节点）集群上的 `pg_exporters` 参数中定义它们，并使用 [`pgsql-monitor.yml`](PGSQL-PLAYBOOK#pgsql-monitoryml) 剧本来完成部署。
 
-```
+```yaml
 pg_exporters: # list all remote instances here, alloc a unique unused local port as k
     20001: { pg_cluster: pg-foo, pg_seq: 1, pg_host: 10.10.10.10 }
     20004: { pg_cluster: pg-foo, pg_seq: 2, pg_host: 10.10.10.11 }
@@ -3607,7 +3607,7 @@ pg_exporters: # list all remote instances here, alloc a unique unused local port
     20003: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.13 }
 ```
 
-Check [PGSQL Monitoring](PGSQL-MONITOR) for details.
+
 
 
 
@@ -3616,13 +3616,15 @@ Check [PGSQL Monitoring](PGSQL-MONITOR) for details.
 
 参数名称： `pg_offline_query`， 类型： `bool`， 层次：`I`
 
-set to true to enable offline query on this instance
+设置为 `true` 以在此实例上启用离线查询，默认为 `false`。
 
-default value is `false`
+当某个 PostgreSQL 实例启用此参数时， 属于 `dbrole_offline` 分组的用户可以直接连接到该 PostgreSQL 实例上执行离线查询（慢查询，交互式查询，ETL/分析类查询）。
 
-When set to `true`, the user group `dbrole_offline` can connect to the ins and perform offline queries, regardless of the role of the current instance, just like a `offline` instance.
+带有此标记的实例在效果上类似于为实例设置 `pg_role` = `offline` ，唯一的区别在于 `offline` 实例默认不会承载 `replica` 服务的请求，是作为专用的离线/分析从库实例而存在的。
 
-If you just have one replica or even one primary in your postgres cluster, adding this could mark it for accepting ETL, slow queries with interactive access.
+如果您没有富余的实例可以专门用于此目的，则可以挑选一台普通的从库，在实例层次启用此参数，以便在需要时承载离线查询。
+
+
 
 
 

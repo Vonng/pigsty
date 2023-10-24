@@ -1250,7 +1250,7 @@ exporter metric path, `/metrics` by default
 
 name: `exporter_install`, type: `enum`, level: `G`
 
-how to install exporter? none,yum,binary
+(**OBSOLETE**) how to install exporter? none,yum,binary
 
 default value: `none`
 
@@ -1276,7 +1276,7 @@ It is not recommended for regular users to use `binary` installation. This mode 
 
 name: `exporter_repo_url`, type: `url`, level: `G`
 
-exporter repo file url if install exporter via yum
+(**OBSOLETE**) exporter repo file url if install exporter via yum
 
 default value is empty string
 
@@ -1489,7 +1489,7 @@ node instance identity, use hostname if missing, optional
 
 no default value, Null or empty string means `nodename` will be set to node's current hostname.
 
-If [`node_id_from_pg`](#node_id_from_pg) is `true`, [`nodename`](#nodename) will try to use `${pg_cluster}-${pg_seq}` first, if PGSQL is not defined on this node, it will fall back to default `HOSTNAME`.
+If [`node_id_from_pg`](#node_id_from_pg) is `true` (by default) and `nodename` is not explicitly defined, [`nodename`](#nodename) will try to use `${pg_cluster}-${pg_seq}` first, if PGSQL is not defined on this node, it will fall back to default `HOSTNAME`.
 
 If [`nodename_overwrite`](#nodename_overwrite) is `true`, the node name will also be used as the HOSTNAME.
 
@@ -1505,9 +1505,7 @@ node cluster identity, use 'nodes' if missing, optional
 
 default values: `nodes`
 
-If [`node_id_from_pg`](#node_id_from_pg) is `true`, [`node_cluster`](#nodename) will try to use `${pg_cluster}-${pg_seq}` first, if PGSQL is not defined on this node, it will fall back to default `HOSTNAME`.
-
-If [`nodename_overwrite`](#nodename_overwrite) is `true`, the node name will also be used as the HOSTNAME.
+If [`node_id_from_pg`](#node_id_from_pg) is `true` (by default) and `node_cluster` is not explicitly defined, [`node_cluster`](#node_cluster) will try to use `${pg_cluster}` first, if PGSQL is not defined on this node, it will fall back to default `HOSTNAME`.
 
 
 
@@ -1538,7 +1536,7 @@ exchange nodename among play hosts?
 
 default value is `false`
 
-When this parameter is enabled, node names are exchanged between the same group of nodes executing the `node.yml` playbook, written to `/etc/hosts`.
+When this parameter is enabled, node names are exchanged between the same group of nodes executing the [`node.yml`](NODE#nodeyml) playbook, written to `/etc/hosts`.
 
 
 
@@ -1643,12 +1641,10 @@ default values: `["${admin_ip}"]` , the default nameserver on admin node will be
 
 name: `node_dns_options`, type: `string[]`, level: `C`
 
-dns resolv options in `/etc/resolv.conf`
-
-default value: 
+dns resolv options in `/etc/resolv.conf`, default value: 
 
 ```yaml
-["options single-request-reopen timeout:1"]
+- options single-request-reopen timeout:1
 ```
 
 
@@ -1685,10 +1681,13 @@ how to setup node repo: `none`, `local`, `public`, `both`, default values: `loca
 
 Which repos are added to `/etc/yum.repos.d` on target nodes ?
 
-* `local`: Use the local yum repo on the admin node, default behavior.
-* `public`: Add public upstream repo directly to the target nodes, use this if you have Internet access. 
+* `local`: Use the local repo specified by [`node_repo_local_urls`](#node_repo_local_urls), default behavior.
+* `public`: Add public upstream repo specified by [`repo_upstream`] & [`repo_modules`](#repo_modules), if you have Internet access. 
 * `both`: Add both local repo and public repo. Useful when some rpm are missing 
-* `none`: do not add any repo to target nodes.
+* `none`: do not add any repo to target nodes. Managed by yourself.
+
+You can use 'both' or 'public' when you have Internet access, and trying to install the latest version of softwares.
+
 
 
 
@@ -1699,6 +1698,7 @@ name: `node_repo_remove`, type: `bool`, level: `C/A`
 remove existing repo on node?
 
 default value is `true`, and thus Pigsty will move existing repo file in `/etc/yum.repos.d` to a backup dir: `/etc/yum.repos.d/backup` before adding upstream repos
+On Debian/Ubuntu, Pigsty will backup & move `/etc/apt/sources.list(.d)` to `/etc/apt/backup`.
 
 
 
@@ -1707,12 +1707,11 @@ default value is `true`, and thus Pigsty will move existing repo file in `/etc/y
 
 name: `node_repo_local_urls`, type: `string[]`, level: `C`
 
-local repo url, if node_repo_method = local
+local repo url list, default values: `["http://${admin_ip}/pigsty.repo"]`
 
-default values: `["http://${admin_ip}/pigsty.repo"]`
+for debian/ubuntu, the proper default value is `['deb [trusted=yes] http://${admin_ip}/pigsty ./']`
 
-When [`node_repo_method`](#node_repo_method) = `local`, the Repo file URLs listed here will be downloaded to `/etc/yum.repos.d`.
-
+It is used when [`node_repo_method`](#node_repo_method) is `local` or `both`.
 
 
 
@@ -1722,9 +1721,9 @@ When [`node_repo_method`](#node_repo_method) = `local`, the Repo file URLs liste
 
 name: `node_packages`, type: `string[]`, level: `C`
 
-packages to be installed current nodes
+packages to be installed current nodes, default values: `[]`
 
-default values: `[]`
+Each element is a comma-separated list of package names, which will be installed on the current node in addition to [`node_default_packages`](#node_default_packages)
 
 Like [`node_packages_default`](#node_default_packages), but in addition to it. designed for overwriting in cluster/instance level.
 
@@ -3409,7 +3408,7 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-All other params can be inherited from the global config or the default config, but the identity params must be **explicitly specified** and **manually assigned**. The current PGSQL identity params are as follows:
+All other params can be inherited from the global config or the default config, but the identity params must be **explicitly specified** and **manually assigned**.
 
 
 
@@ -3552,9 +3551,9 @@ name: `pg_exporters`, type: `dict`, level: `C`
 
 additional pg_exporters to monitor remote postgres instances, default values: `{}`
 
-If you wish to monitoring remote postgres instances, define them in `pg_exporters` and load them with `pgsql-monitor.yml` playbook.
+If you wish to monitoring remote postgres instances, define them in `pg_exporters` and load them with [`pgsql-monitor.yml`](PGSQL-PLAYBOOK#pgsql-monitoryml) playbook.
 
-```
+```yaml
 pg_exporters: # list all remote instances here, alloc a unique unused local port as k
     20001: { pg_cluster: pg-foo, pg_seq: 1, pg_host: 10.10.10.10 }
     20004: { pg_cluster: pg-foo, pg_seq: 2, pg_host: 10.10.10.11 }
