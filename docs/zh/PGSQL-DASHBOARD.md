@@ -18,7 +18,7 @@
 |                                                           | [PGSQL Replication](https://demo.pigsty.cc/d/pgsql-replication) |   [PGSQL Persist](https://demo.pigsty.cc/d/pgsql-persist)   |    [PGSQL Table](https://demo.pigsty.cc/d/pgsql-table)    |
 |                                                           |     [PGSQL Service](https://demo.pigsty.cc/d/pgsql-service)     |     [PGSQL Proxy](https://demo.pigsty.cc/d/pgsql-proxy)     |    [PGCAT Table](https://demo.pigsty.cc/d/pgcat-table)    |
 |                                                           |   [PGSQL Databases](https://demo.pigsty.cc/d/pgsql-databases)   | [PGSQL Pgbouncer](https://demo.pigsty.cc/d/pgsql-pgbouncer) |    [PGSQL Query](https://demo.pigsty.cc/d/pgsql-query)    |
-|                                                           |                                                                 |   [PGSQL Session](https://demo.pigsty.cc/d/pgsql-session)   |    [PGCAT Query](https://demo.pigsty.cc/d/pgcat-query)    |
+|                                                           |     [PGSQL Patroni](https://demo.pigsty.cc/d/pgsql-patroni)     |   [PGSQL Session](https://demo.pigsty.cc/d/pgsql-session)   |    [PGCAT Query](https://demo.pigsty.cc/d/pgcat-query)    |
 |                                                           |                                                                 |     [PGSQL Xacts](https://demo.pigsty.cc/d/pgsql-xacts)     |    [PGCAT Locks](https://demo.pigsty.cc/d/pgcat-locks)    |
 |                                                           |                                                                 |  [PGSQL Exporter](https://demo.pigsty.cc/d/pgsql-exporter)  |   [PGCAT Schema](https://demo.pigsty.cc/d/pgcat-schema)   |
 
@@ -37,6 +37,7 @@
 - [pgsql-replication](https://demo.pigsty.cc/d/pgsql-replication): 关注PGSQL集群复制、插槽和发布/订阅。
 - [pgsql-service](https://demo.pigsty.cc/d/pgsql-service): 关注PGSQL集群服务、代理、路由和负载均衡。
 - [pgsql-databases](https://demo.pigsty.cc/d/pgsql-databases): 关注所有实例的数据库CRUD、慢查询和表统计信息。
+- [pgsql-patroni](https://demo.pigsty.cc/d/pgsql-databases): 关注集群高可用状态，Patroni组件状态
 
 **实例**
 
