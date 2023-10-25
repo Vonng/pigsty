@@ -263,6 +263,12 @@ export PGHOME=/usr/pgsql
 export PGDATA=/pg/data
 ```
 
+在 Ubuntu/Debian 上，PostgreSQL Deb 包的默认安装位置是：
+
+```bash
+/usr/lib/postgresql/${pg_version}/bin
+```
+
 
 
 ----------------
@@ -310,4 +316,5 @@ redis-benchmark
 /var/run/redis/redis-test-1-6379.pid                            # PID
 ```
 
+对于 Ubuntu / Debian 而言，systemd 服务的默认目录不是 `/usr/lib/systemd/system/` 而是 `/lib/systemd/system/`
 

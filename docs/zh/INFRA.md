@@ -9,19 +9,19 @@
 
 每一套 Pigsty 部署都会提供一套基础架构组件，为纳管的节点与数据库集群提供服务，组件包括：
 
-|               组件                |  端口  |     域名     | 描述                  |
-|:-------------------------------:|:----:|:----------:|---------------------|
-|         [Nginx](#nginx)         |  80  | `h.pigsty` | Web服务门户（也用作 Yum 仓库） |
-|   [AlertManager](#prometheus)   | 9093 | `a.pigsty` | 告警聚合分发              |
-|    [Prometheus](#prometheus)    | 9090 | `p.pigsty` | 时间序列数据库（收存监控指标）     |
-|       [Grafana](#grafana)       | 3000 | `g.pigsty` | 可视化平台               |
-|        [Loki](#grafana)         | 3100 |     -      | 日志收集服务器             |
-|   [PushGateway](#prometheus)    | 9091 |     -      | 接受一次性的任务指标          |
-| [BlackboxExporter](#prometheus) | 9115 |     -      | 黑盒监控探测              |
-|       [DNSMASQ](#dnsmasq)       |  53  |     -      | DNS 服务器             |
-|       [Chronyd](#chronyd)       | 123  |     -      | NTP 时间服务器           |
-|    [PostgreSQL](#postgresql)    | 5432 |     -      | Pigsty CMDB 和默认数据库  |
-|       [Ansible](#ansible)       |  -   |     -      | 运行剧本                |
+|               组件                |  端口  |     域名     | 描述                     |
+|:-------------------------------:|:----:|:----------:|------------------------|
+|         [Nginx](#nginx)         |  80  | `h.pigsty` | Web服务门户（也用作yum/atp仓库） |
+|   [AlertManager](#prometheus)   | 9093 | `a.pigsty` | 告警聚合分发                 |
+|    [Prometheus](#prometheus)    | 9090 | `p.pigsty` | 时间序列数据库（收存监控指标）        |
+|       [Grafana](#grafana)       | 3000 | `g.pigsty` | 可视化平台                  |
+|        [Loki](#grafana)         | 3100 |     -      | 日志收集服务器                |
+|   [PushGateway](#prometheus)    | 9091 |     -      | 接受一次性的任务指标             |
+| [BlackboxExporter](#prometheus) | 9115 |     -      | 黑盒监控探测                 |
+|       [DNSMASQ](#dnsmasq)       |  53  |     -      | DNS 服务器                |
+|       [Chronyd](#chronyd)       | 123  |     -      | NTP 时间服务器              |
+|    [PostgreSQL](#postgresql)    | 5432 |     -      | Pigsty CMDB 和默认数据库     |
+|       [Ansible](#ansible)       |  -   |     -      | 运行剧本                   |
 
 
 [![pigsty-arch](https://github.com/Vonng/pigsty/assets/8587410/7b226641-e61b-4e79-bc31-759204778bd5)](INFRA)
@@ -29,7 +29,7 @@
 在 Pigsty 中，[PGSQL](PGSQL) 模块会使用到[INFRA节点](NODE#infra节点)上的一些服务，具体来说包括：
 
 * 数据库集群/主机节点的域名，依赖INFRA节点的 DNSMASQ **解析**。
-* 在数据库节点软件上**安装**，需要用到INFRA节点上的Nginx托管的本地Yum软件源。
+* 在数据库节点软件上**安装**，需要用到INFRA节点上的Nginx托管的本地 yum/apt 软件源。
 * 数据库集群/节点的监控**指标**，会被INFRA节点的 Prometheus 收集抓取。
 * 数据库节点的日志会被 Promtail 收集，并发往 INFRA节点上的 Loki。
 * 用户会从 Infra/Admin 节点上使用 Ansible 或其他工具发起对数据库节点的**管理**：
@@ -47,7 +47,7 @@
 
 Nginx是Pigsty所有WebUI类服务的访问入口，默认使用管理节点80端口。
 
-有许多带有WebUI的基础设施组件通过Nginx对外暴露服务，例如Grafana，Prometheus，AlertManager，以及HAProxy流量管理页等，此外YumRepo等静态文件资源也通过Nginx对外提供服务。
+有许多带有WebUI的基础设施组件通过Nginx对外暴露服务，例如Grafana，Prometheus，AlertManager，以及HAProxy流量管理页等，此外 yum/apt 仓库等静态文件资源也通过Nginx对外提供服务。
 
 Nginx会根据 [`infra_portal`](PARAM#infra_portal) 的内容，通过**域名**进行区分，将访问请求转发至对应的上游组件处理。如果您使用了其他的域名，或者公网域名，可以在这里进行相应修改：
 
@@ -74,15 +74,15 @@ Nginx相关配置参数位于：[配置：INFRA - NGINX](PARAM#nginx)
 
 ----------------
 
-### Yum仓库
+### 本地软件仓库
 
-Pigsty会在安装时首先建立一个本地Yum软件源，以加速后续软件安装。
+Pigsty会在安装时首先建立一个本地软件源，以加速后续软件安装。
 
-该Yum源由Nginx提供服务，默认位于为 `/www/pigsty`，可以访问 `http://h.pigsty/pigsty` 使用。
+该软件源由Nginx提供服务，默认位于为 `/www/pigsty`，可以访问 `http://h.pigsty/pigsty` 使用。
 
-Pigsty的离线软件包即是将已经建立好的Yum Repo目录整个打成压缩包，当Pigsty尝试构建本地源时，如果发现本地源目录 `/www/pigsty` 已经存在，且带有 `/www/pigsty/repo_complete` 标记文件，则会认为本地源已经构建完成，从而跳过从原始上游下载软件的步骤，消除了对互联网访问的依赖。
+Pigsty的离线软件包即是将已经建立好的软件源目录（yum/apt）整个打成压缩包，当Pigsty尝试构建本地源时，如果发现本地源目录 `/www/pigsty` 已经存在，且带有 `/www/pigsty/repo_complete` 标记文件，则会认为本地源已经构建完成，从而跳过从原始上游下载软件的步骤，消除了对互联网访问的依赖。
 
-Repo定义文件位于 `/www/pigsty.repo`，默认可以通过`http://yum.pigsty/pigsty.repo` 获取
+Repo定义文件位于 `/www/pigsty.repo`，默认可以通过 `http://${admin_ip}/pigsty.repo` 获取
 
 ```bash
 curl http://h.pigsty/pigsty.repo -o /etc/yum.repos.d/pigsty.repo
@@ -98,7 +98,7 @@ enabled=1
 gpgcheck=0
 ```
 
-Yum Repo相关配置参数位于：[配置：INFRA - REPO](PARAM#repo)
+本地软件仓库相关配置参数位于：[配置：INFRA - REPO](PARAM#repo)
 
 
 ----------------
@@ -207,27 +207,27 @@ infra:
 
 ----------------
 
-### 管理本地Yum源
+### 管理本地软件仓库
 
 您可以使用以下剧本子任务，管理 Infra节点 上的本地yun源：
 
 ```bash
-./infra.yml -t repo              #从互联网或离线包中引导本地 yum 仓库
+./infra.yml -t repo              #从互联网或离线包中创建本地软件源
 
-./infra.yml -t repo_dir          # 创建本地软件源仓库
+./infra.yml -t repo_dir          # 创建本地软件源
 ./infra.yml -t repo_check        # 检查本地软件源是否已经存在？
 ./infra.yml -t repo_prepare      # 如果存在，直接使用已有的本地软件源
 ./infra.yml -t repo_build        # 如果不存在，从上游构建本地软件源
 ./infra.yml     -t repo_upstream     # 处理 /etc/yum.repos.d 中的上游仓库文件
 ./infra.yml     -t repo_remove       # 如果 repo_remove == true，则删除现有的仓库文件
-./infra.yml     -t repo_add          # 将上游仓库文件添加到 /etc/yum.repos.d
+./infra.yml     -t repo_add          # 将上游仓库文件添加到 /etc/yum.repos.d （或 /etc/apt/sources.list.d）
 ./infra.yml     -t repo_url_pkg      # 从由 repo_url_packages 定义的互联网下载包
-./infra.yml     -t repo_cache        # 使用 yum makecache 创建上游 yum 缓存
-./infra.yml     -t repo_boot_pkg     # 安装如 createrepo_c、yum-utils 等的引导包...
+./infra.yml     -t repo_cache        # 使用 yum makecache / apt update 创建上游软件源元数据缓存
+./infra.yml     -t repo_boot_pkg     # 安装如 createrepo_c、yum-utils 等的引导包...（或 dpkg-）
 ./infra.yml     -t repo_pkg          # 从上游仓库下载包 & 依赖项
-./infra.yml     -t repo_create       # 使用 createrepo_c & modifyrepo_c 创建本地 yum 仓库
-./infra.yml     -t repo_use          # 将新建的仓库添加到 /etc/yum.repos.d 用起来
-./infra.yml -t repo_nginx        # 如果没有 nginx 在服务，启动一个 nginx 作为仓库
+./infra.yml     -t repo_create       # 使用 createrepo_c & modifyrepo_c 创建本地软件源
+./infra.yml     -t repo_use          # 将新建的仓库添加到 /etc/yum.repos.d | /etc/apt/sources.list.d 用起来
+./infra.yml -t repo_nginx        # 如果没有 nginx 在服务，启动一个 nginx 作为 Web Server
 ```
 
 其中最常用的命令为：
@@ -293,7 +293,7 @@ INFRA模块剧本 [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infr
 **执行该剧本将完成以下任务**
 
 * 配置元节点的目录与环境变量
-* 下载并建立一个本地yum软件源，加速后续安装。（若使用离线软件包，则跳过下载阶段）
+* 下载并建立一个本地软件源，加速后续安装。（若使用离线软件包，则跳过下载阶段）
 * 将当前元节点作为一个普通节点纳入 Pigsty 管理
 * 部署**基础设施**组件，包括 Prometheus, Grafana, Loki, Alertmanager, PushGateway，Blackbox Exporter 等
 
@@ -446,7 +446,7 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 - [`META`](PARAM#meta)：Pigsty元数据
 - [`CA`](PARAM#ca)：自签名公私钥基础设施/CA
 - [`INFRA_ID`](PARAM#infra_id)：基础设施门户，Nginx域名
-- [`REPO`](PARAM#repo)：本地 Yum 仓库
+- [`REPO`](PARAM#repo)：本地软件源
 - [`INFRA_PACKAGE`](PARAM#infra_package)：基础设施软件包
 - [`NGINX`](PARAM#nginx)：Nginx 网络服务器
 - [`DNS`](PARAM#dns)：DNSMASQ 域名服务器
@@ -467,9 +467,9 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 | [`cert_validity`](PARAM#cert_validity)                           | [`CA`](PARAM#ca)                       |  interval  |  G  | 证书有效期，默认为 20 年                          |
 | [`infra_seq`](PARAM#infra_seq)                                   | [`INFRA_ID`](PARAM#infra_id)           |    int     |  I  | 基础设施节号，必选身份参数                           |
 | [`infra_portal`](PARAM#infra_portal)                             | [`INFRA_ID`](PARAM#infra_id)           |    dict    |  G  | 通过Nginx门户暴露的基础设施服务列表                    |
-| [`repo_enabled`](PARAM#repo_enabled)                             | [`REPO`](PARAM#repo)                   |    bool    | G/I | 在此基础设施节点上创建Yum仓库？                       |
-| [`repo_home`](PARAM#repo_home)                                   | [`REPO`](PARAM#repo)                   |    path    |  G  | Yum仓库主目录，默认为`/www``                     |
-| [`repo_name`](PARAM#repo_name)                                   | [`REPO`](PARAM#repo)                   |   string   |  G  | Yum仓库名称，默认为 pigsty                      |
+| [`repo_enabled`](PARAM#repo_enabled)                             | [`REPO`](PARAM#repo)                   |    bool    | G/I | 在此基础设施节点上创建本地软件源？                       |
+| [`repo_home`](PARAM#repo_home)                                   | [`REPO`](PARAM#repo)                   |    path    |  G  | 软件仓库主目录，默认为`/www``                      |
+| [`repo_name`](PARAM#repo_name)                                   | [`REPO`](PARAM#repo)                   |   string   |  G  | 软件仓库名称，默认为 pigsty                         |
 | [`repo_endpoint`](PARAM#repo_endpoint)                           | [`REPO`](PARAM#repo)                   |    url     |  G  | 仓库的访问点：域名或 `ip:port` 格式                 |
 | [`repo_remove`](PARAM#repo_remove)                               | [`REPO`](PARAM#repo)                   |    bool    | G/A | 构建本地仓库时是否移除现有上游仓库源定义文件？                 |
 | [`repo_modules`](#repo_modules)                                  | [`REPO`](PARAM#repo)                   |   string   | G/A | 启用的上游仓库模块列表，用逗号分隔                       |

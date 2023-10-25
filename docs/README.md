@@ -304,7 +304,7 @@ curl -L https://get.pigsty.cc/v2.5.0/pigsty-v2.5.0.tgz -o ~/pigsty.tgz
 
 Pigsty uses a **modular** design. There are six default modules available:
 
-* [`INFRA`](INFRA): Local yum repo, Nginx, DNS, and entire Prometheus & Grafana observability stack.
+* [`INFRA`](INFRA): Local yum|apt repo, Nginx, DNS, and entire Prometheus & Grafana observability stack.
 * [`NODE`](NODE):   Init node name, repo, pkg, NTP, ssh, admin, tune, expose services, collect logs & metrics.
 * [`ETCD`](ETCD):   Init etcd cluster for HA Postgres DCS or Kubernetes, used as distributed config store.
 * [`PGSQL`](PGSQL): Autonomous self-healing PostgreSQL cluster powered by Patroni, Pgbouncer, PgBackrest & HAProxy
@@ -661,3 +661,23 @@ Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 License: [AGPL-3.0](LICENSE)
 
 Copyright 2018-2023 rh@vonng.com
+
+| Algorithm                        | Function                                                                                       | Operator | Use Index? | Parameters                                                                                                                          |
+|----------------------------------|------------------------------------------------------------------------------------------------|----------|------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| L1 Distance                      | block(text, text) returns float8                                                               | `~++`    | yes        | pg_similarity.block_tokenizer (enum) pg_similarity.block_threshold (float8) pg_similarity.block_is_normalized (bool)                |
+| Cosine Distance                  | cosine(text, text) returns float8                                                              | `~##`    | yes        | pg_similarity.cosine_tokenizer (enum) pg_similarity.cosine_threshold (float8) pg_similarity.cosine_is_normalized (bool)             |
+| Dice Coefficient                 | dice(text, text) returns float8                                                                | `~-~`    | yes        | pg_similarity.dice_tokenizer (enum) pg_similarity.dice_threshold (float8) pg_similarity.dice_is_normalized (bool)                   |
+| Euclidean Distance               | euclidean(text, text) returns float8                                                           | `~!!`    | yes        | pg_similarity.euclidean_tokenizer (enum) pg_similarity.euclidean_threshold (float8) pg_similarity.euclidean_is_normalized (bool)    |
+| Hamming Distance                 | hamming(bit varying, bit varying) returns float8 </br> hamming_text(text, text) returns float8 | `~@~`    | no         | pg_similarity.hamming_threshold (float8) pg_similarity.hamming_is_normalized (bool)                                                 |
+| Jaccard Coefficient              | jaccard(text, text) returns float8                                                             | `~??`    | yes        | pg_similarity.jaccard_tokenizer (enum) pg_similarity.jaccard_threshold (float8) pg_similarity.jaccard_is_normalized (bool)          |
+| Jaro Distance                    | jaro(text, text) returns float8                                                                | `~%%`    | no         | pg_similarity.jaro_threshold (float8) pg_similarity.jaro_is_normalized (bool)                                                       |
+| Jaro-Winkler Distance            | jarowinkler(text, text) returns float8                                                         | `~@@`    | no         | pg_similarity.jarowinkler_threshold (float8) pg_similarity.jarowinkler_is_normalized (bool)                                         |
+| Levenshtein Distance             | lev(text, text) returns float8                                                                 | `~==`    | no         | pg_similarity.levenshtein_threshold (float8) pg_similarity.levenshtein_is_normalized (bool)                                         |
+| Matching Coefficient             | matchingcoefficient(text, text) returns float8                                                 | `~^^`    | yes        | pg_similarity.matching_tokenizer (enum) pg_similarity.matching_threshold (float8) pg_similarity.matching_is_normalized (bool)       |
+| Monge-Elkan Coefficient          | mongeelkan(text, text) returns float8                                                          | `~\|\|`  | no         | pg_similarity.mongeelkan_tokenizer (enum) pg_similarity.mongeelkan_threshold (float8) pg_similarity.mongeelkan_is_normalized (bool) |
+| Needleman-Wunsch Coefficient     | needlemanwunsch(text, text) returns float8                                                     | `~#~`    | no         | pg_similarity.nw_threshold (float8) pg_similarity.nw_is_normalized (bool)                                                           |
+| Overlap Coefficient              | overlapcoefficient(text, text) returns float8                                                  | `~**`    | yes        | pg_similarity.overlap_tokenizer (enum) pg_similarity.overlap_threshold (float8) pg_similarity.overlap_is_normalized (bool)          |
+| Q-Gram Distance                  | qgram(text, text) returns float8                                                               | `~~~`    | yes        | pg_similarity.qgram_threshold (float8) pg_similarity.qgram_is_normalized (bool)                                                     |
+| Smith-Waterman Coefficient       | smithwaterman(text, text) returns float8                                                       | `~=~`    | no         | pg_similarity.sw_threshold (float8) pg_similarity.sw_is_normalized (bool)                                                           |
+| Smith-Waterman-Gotoh Coefficient | smithwatermangotoh(text, text) returns float8                                                  | `~!~`    | no         | pg_similarity.swg_threshold (float8) pg_similarity.swg_is_normalized (bool)                                                         |
+| Soundex Distance                 | soundex(text, text) returns float8                                                             | `~*~`    | no         |                                                                                                                                     |

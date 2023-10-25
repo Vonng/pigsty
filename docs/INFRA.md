@@ -11,19 +11,19 @@
 
 Each Pigsty deployment requires a set of infrastructure components to work properly. which including:
 
-|    Component     | Port |   Domain   | Description                                |
-|:----------------:|:----:|:----------:|--------------------------------------------|
-|      Nginx       |  80  | `h.pigsty` | Web Service Portal (Also used as Yum Repo) |
-|   AlertManager   | 9093 | `a.pigsty` | Alert Aggregation and delivery             |
-|    Prometheus    | 9090 | `p.pigsty` | Monitoring Time Series Database            |
-|     Grafana      | 3000 | `g.pigsty` | Visualization Platform                     |
-|       Loki       | 3100 |     -      | Logging Collection Server                  |
-|   PushGateway    | 9091 |     -      | Collect One-Time Job Metrics               |
-| BlackboxExporter | 9115 |     -      | Blackbox Probing                           |
-|     Dnsmasq      |  53  |     -      | DNS Server                                 |
-|     Chronyd      | 123  |     -      | NTP Time Server                            |
-|    PostgreSQL    | 5432 |     -      | Pigsty CMDB & default database             |
-|     Ansible      |  -   |     -      | Run playbooks                              |
+|    Component     | Port |   Domain   | Description                       |
+|:----------------:|:----:|:----------:|-----------------------------------|
+|      Nginx       |  80  | `h.pigsty` | Web Service Portal (YUM/APT Repo) |
+|   AlertManager   | 9093 | `a.pigsty` | Alert Aggregation and delivery    |
+|    Prometheus    | 9090 | `p.pigsty` | Monitoring Time Series Database   |
+|     Grafana      | 3000 | `g.pigsty` | Visualization Platform            |
+|       Loki       | 3100 |     -      | Logging Collection Server         |
+|   PushGateway    | 9091 |     -      | Collect One-Time Job Metrics      |
+| BlackboxExporter | 9115 |     -      | Blackbox Probing                  |
+|     Dnsmasq      |  53  |     -      | DNS Server                        |
+|     Chronyd      | 123  |     -      | NTP Time Server                   |
+|    PostgreSQL    | 5432 |     -      | Pigsty CMDB & default database    |
+|     Ansible      |  -   |     -      | Run playbooks                     |
 
 Pigsty will set up these components for you on infra nodes. You can expose them to the outside world by configuring the [`infra_portal`](PARAM#infra_portal) parameter.
 
@@ -82,22 +82,22 @@ Here are some administration tasks related to INFRA module:
 
 ----------------
 
-### Manage Local Yum Repo
+### Manage Local Software Repo
 
 ```bash
-./infra.yml -t repo             # setup local yum repo
+./infra.yml -t repo             # setup local yum/apt repo
 
 ./infra.yml -t repo_dir         # create repo directory
 ./infra.yml -t repo_check       # check repo exists
 ./infra.yml -t repo_prepare     # use existing repo if exists
 ./infra.yml -t repo_build       # build repo from upstream if not exists
-./infra.yml   -t repo_upstream  # handle upstream repo files in /etc/yum.repos.d
+./infra.yml   -t repo_upstream  # handle upstream repo files in /etc/yum.repos.d or /etc/apt/sources.list.d
 ./infra.yml   -t repo_url_pkg   # download packages from internet defined by repo_url_packages
-./infra.yml   -t repo_cache     # make upstream yum cache with yum makecache
-./infra.yml   -t repo_boot_pkg  # install bootstrap pkg such as createrepo_c,yum-utils,...
+./infra.yml   -t repo_cache     # make upstream yum/apt cache
+./infra.yml   -t repo_boot_pkg  # install bootstrap pkg such as createrepo_c,yum-utils,... (or dpkg-dev in debian/ubuntu)
 ./infra.yml   -t repo_pkg       # download packages & dependencies from upstream repo
 ./infra.yml   -t repo_create    # create a local yum repo with createrepo_c & modifyrepo_c
-./infra.yml   -t repo_use       # add newly built repo into /etc/yum.repos.d
+./infra.yml   -t repo_use       # add newly built repo
 ./infra.yml -t repo_nginx       # launch a nginx for repo if no nginx is serving
 ```
 
@@ -109,7 +109,7 @@ Here are some administration tasks related to INFRA module:
 
 ```bash
 ./infra.yml -t infra_env      : env_dir, env_pg, env_var
-./infra.yml -t infra_pkg      : infra_pkg_yum, infra_pkg_pip
+./infra.yml -t infra_pkg      : infra_pkg, infra_pkg_pip
 ./infra.yml -t infra_user     : setup infra os user group
 ./infra.yml -t infra_cert     : issue cert for infra components
 ./infra.yml -t dns            : dns_config, dns_record, dns_launch
@@ -188,7 +188,7 @@ Here are available subtasks:
 #
 # infra         : setup infra components
 #   - infra_env      : env_dir, env_pg, env_var
-#   - infra_pkg      : infra_pkg_yum, infra_pkg_pip
+#   - infra_pkg      : infra_pkg, infra_pkg_pip
 #   - infra_user     : setup infra os user group
 #   - infra_cert     : issue cert for infra components
 #   - dns            : dns_config, dns_record, dns_launch
@@ -336,7 +336,7 @@ API Reference for [`INFRA`](PARAM#INFRA) module:
 - [`META`](PARAM#meta): infra meta data
 - [`CA`](PARAM#ca): self-signed CA
 - [`INFRA_ID`](PARAM#infra_id) : Portals and identity
-- [`REPO`](PARAM#repo): local yum repo
+- [`REPO`](PARAM#repo): local yum/atp repo
 - [`INFRA_PACKAGE`](PARAM#infra_package) : packages to be installed
 - [`NGINX`](PARAM#nginx) : nginx web server
 - [`DNS`](PARAM#dns): dnsmasq nameserver
@@ -358,7 +358,7 @@ API Reference for [`INFRA`](PARAM#INFRA) module:
 | [`cert_validity`](PARAM#cert_validity)                           | [`CA`](PARAM#ca)                       |  interval  |   G   | cert validity, 20 years by default                 |
 | [`infra_seq`](PARAM#infra_seq)                                   | [`INFRA_ID`](PARAM#infra_id)           |    int     |   I   | infra node identity, REQUIRED                      |
 | [`infra_portal`](PARAM#infra_portal)                             | [`INFRA_ID`](PARAM#infra_id)           |    dict    |   G   | infra services exposed via portal                  |
-| [`repo_enabled`](PARAM#repo_enabled)                             | [`REPO`](PARAM#repo)                   |    bool    |  G/I  | create a yum repo on this infra node?              |
+| [`repo_enabled`](PARAM#repo_enabled)                             | [`REPO`](PARAM#repo)                   |    bool    |  G/I  | create a yum/apt repo on this infra node?          |
 | [`repo_home`](PARAM#repo_home)                                   | [`REPO`](PARAM#repo)                   |    path    |   G   | repo home dir, `/www` by default                   |
 | [`repo_name`](PARAM#repo_name)                                   | [`REPO`](PARAM#repo)                   |   string   |   G   | repo name, pigsty by default                       |
 | [`repo_endpoint`](PARAM#repo_endpoint)                           | [`REPO`](PARAM#repo)                   |    url     |   G   | access point to this repo by domain or ip:port     |

@@ -65,7 +65,7 @@ Playbooks require `ansible-playbook` executable to run, playbooks which is inclu
 
 Pigsty will install ansible on admin node during [bootstrap](INSTALL#bootstrap).
 
-You can install it by yourself with `yum install ansible` or `brew install ansible`, it is included in default OS repo.
+You can install it by yourself with `yum|apt|brew` `install ansible`, it is included in default OS repo.
 
 Knowledge about ansible is good but not required. Only three parameters needs your attention:
 

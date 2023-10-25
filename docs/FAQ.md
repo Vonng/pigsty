@@ -257,11 +257,11 @@ There may have a slight chance that rpm conflict occurs during node/infra/pgsql 
 
 The simplest way to resolve this is to install without offline packages, which will download directly from the upstream repo.
 
-If there are only a few problematic RPMs, you can use a trick to fix the yum repo quickly:
+If there are only a few problematic RPM/DEB pakages, you can use a trick to fix the yum/apt repo quickly:
 
 ```bash
 rm -rf /www/pigsty/repo_complete    # delete the repo_complete flag file to mark this repo incomplete
-rm -rf SomeBrokenRPMPackages        # delete problematic RPMs
+rm -rf SomeBrokenPackages           # delete problematic RPM/DEB packages
 ./infra.yml -t repo_upstream        # write upstream repos. you can also use /etc/yum.repos.d/backup/*
 ./infra.yml -t repo_pkg             # download rpms according to your current OS
 ```
@@ -414,7 +414,7 @@ bin/pgmon-rm <ins>     # shortcut for removing prometheus targets of pgsql insta
 <details><summary>Which components are included in INFRA</summary>
 
 - Ansible for automation, deployment, and administration;
-- Nginx for exposing any WebUI service and serving the yum repo;
+- Nginx for exposing any WebUI service and serving the yum/apt repo;
 - Self-Signed CA for SSL/TLS certificates;
 - Prometheus for monitoring metrics
 - Grafana for monitoring/visualization

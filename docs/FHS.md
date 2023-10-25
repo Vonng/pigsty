@@ -262,6 +262,11 @@ export PGHOME=/usr/pgsql
 export PGDATA=/pg/data
 ```
 
+For Ubuntu / Debian, the default path for PostgreSQL binaries is:
+
+```bash
+/usr/lib/postgresql/${pg_version}/bin
+```
 
 
 ----------------
@@ -309,3 +314,5 @@ For a Redis instance named `redis-test-1-6379`, the resources associated with it
 /var/run/redis/redis-test-1-6379.pid                            # PID
 ```
 
+
+For Ubuntu / Debian, the default systemd service dir is `/lib/systemd/system/` instead of `/usr/lib/systemd/system/`.

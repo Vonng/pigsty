@@ -283,7 +283,7 @@ node_resolv   ：配置 DNS 解析器 /etc/resolv.conf
 node_firewall ：设置防火墙 & selinux
 node_ca       ：添加并信任CA证书
 node_repo     ：添加上游软件仓库
-node_pkg      ：安装 yum 软件包
+node_pkg      ：安装 rpm/deb 软件包
 node_feature  ：配置 numa、grub、静态网络等特性
 node_kernel   ：配置操作系统内核模块
 node_tune     ：配置 tuned 调优模板

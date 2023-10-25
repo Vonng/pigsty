@@ -1,7 +1,7 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# Init a local yum repo
+# Init a local software repo
 # all necessary rpm packages are downloaded to accelerate
 # cluster initialization, or in case that target machine does
 # not have internet access.
@@ -9,14 +9,14 @@
 # RPM packages are downloaded to {{ repo_home }}/{{ repo_name }}.
 # And it will skip download if all packages already exists
 #
-# Local yum repo url: {{ repo_endpoint }}/{{ repo_name }}/
+# Local repo url: {{ repo_endpoint }}/{{ repo_name }}/
 #==============================================================#
 # you can invoke repo tasks with infra.yml or install.yml
 #
 # infra.yml -t repo_url_pkg   # redownload weburl packages
 # infra.yml -t repo_boot_pkg  # install bootstrap packages
 # infra.yml -t repo_rpm_pkg   # download repo rpm packages
-# infra.yml -t repo_create    # create yum repo
+# infra.yml -t repo_create    # create local repo
 # build without check: ./infra.yml -t repo_build -e repo_url_packages=[] -e repo_packages=[]
 #
 # infra.yml -t repo          # init repo
@@ -78,7 +78,7 @@
 #--------------------------------------------------------------#
 # 2. Use local repo (IF REPO EXISTS)              [repo_prepare]
 #--------------------------------------------------------------#
-# if local yum cache exists, use it directly, done
+# if local apt/yum cache exists, use it directly, done
 - name: setup local repo if exists
   tags: repo_prepare
   when: repo_exists|bool and repo_enabled|bool
@@ -123,7 +123,7 @@
 #--------------------------------------------------------------#
 # 3. Build repo (IF REPO NOT EXISTS)                [repo_build]
 #--------------------------------------------------------------#
-# if local yum cache not exists, download them and use it, done
+# if local repo cache not exists, download them and use it, done
 - import_tasks: build.yml
   when: repo_enabled|bool and not repo_exists|bool
   tags: repo_build

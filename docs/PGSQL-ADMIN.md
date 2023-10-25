@@ -545,9 +545,13 @@ ansible pg-test -b -m package -a "name=pg_cron_15,topn_15,pg_stat_monitor_15*"  
 # add repo upstream on admin node, then download them manually
 cd ~/pigsty; ./infra.yml -t repo_upstream                 # add upstream repo (internet)
 cd /www/pigsty;  repotrack "some_new_package_name"        # download the latest RPMs
-cd ~/pigsty; ./infra.yml -t repo_create                   # re-create local yum repo
+cd ~/pigsty; ./infra.yml -t repo_create                   # re-create local software repo
 ansible all -b -a 'yum clean all'                         # clean node repo cache
-ansible all -b -a 'yum makecache'                         # remake yum cache from the new repo
+ansible all -b -a 'yum makecache'                         # remake cache from the new repo
+
+# For Ubuntu/Debian users, use apt instead
+ansible all -b -a 'apt clean'                             # clean node repo cache
+ansible all -b -a 'apt update'                            # remake cache from the new repo
 ```
 
 For example, you can then install or upgrade packages with:
@@ -592,7 +596,7 @@ Check [PGSQL Extensions: Install](PGSQL-EXTENSION#install-extension) for details
 
 ## Minor Upgrade
 
-To perform a minor server version upgrade/downgrade, you have to [add packages](#adding-packages) to yum repo first.
+To perform a minor server version upgrade/downgrade, you have to [add packages](#adding-packages) to yum/apt repo first.
 
 Then perform a rolling upgrade/downgrade from all replicas, then switchover the cluster to upgrade the leader.
 
@@ -603,13 +607,13 @@ pg restart --force <cls>                                # restart cluster
 
 <details><summary>Example: Downgrade PostgreSQL 15.2 to 15.1</summary>
 
-Add 15.1 packages to yum repo and refresh node yum cache:
+Add 15.1 packages to yum/apt repo and refresh node package manager cache:
 
 ```bash
 cd ~/pigsty; ./infra.yml -t repo_upstream               # add upstream repo backup
 cd /www/pigsty; repotrack postgresql15-*-15.1           # add 15.1 packages to yum repo
 cd ~/pigsty; ./infra.yml -t repo_create                 # re-create repo
-ansible pg-test -b -a 'yum clean all'                   # clean node repo cache
+ansible pg-test -b -a 'yum clean all'                   # clean node repo cache (use apt in debian/ubuntu)
 ansible pg-test -b -a 'yum makecache'                   # remake yum cache from the new repo
 ``` 
 
@@ -646,7 +650,7 @@ The simplest way to achieve a major version upgrade is to create a new cluster w
 
 You can also perform an in-place major upgrade, which is not recommended especially when certain extensions are installed. But it is possible.
 
-Assume you want to upgrade PostgreSQL 14 to 15, you have to [add packages](#adding-packages) to yum repo, and guarantee the extensions has exact same version too. 
+Assume you want to upgrade PostgreSQL 14 to 15, you have to [add packages](#adding-packages) to yum/apt repo, and guarantee the extensions has exact same version too. 
 
 ```bash
 ./pgsql.yml -t pg_pkg -e pg_version=15                         # install packages for pg 15

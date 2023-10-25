@@ -549,7 +549,12 @@ cd ~/pigsty; ./infra.yml -t repo_upstream                 # 添加上游仓库�
 cd /www/pigsty;  repotrack "some_new_package_name"        # 下载最新的 RPM 包
 cd ~/pigsty; ./infra.yml -t repo_create                   # 重新创建本地软件仓库
 ansible all -b -a 'yum clean all'                         # 清理节点软件仓库缓存
-ansible all -b -a 'yum makecache'                         # 从新的仓库重建Yum缓存
+ansible all -b -a 'yum makecache'                         # 从新的仓库重建yum/apt缓存
+
+
+# 对于 Ubuntu/Debian 用户来说，使用 apt 代替 yum
+ansible all -b -a 'apt clean'                             # 清理 APT 缓存
+ansible all -b -a 'apt update'                            # 重建 APT 缓存
 ```
 
 例如，你可以使用以下方式安装或升级包：
@@ -591,11 +596,12 @@ psql -h pg-test -d postgres -c 'CREATE EXTENSION pg_cron;'  # 在主库上安装
 更多细节，请参考[PGSQL扩展安装](PGSQL-EXTENSION#扩展安装)。
 
 
+
 ----------------
 
 ## 小版本升级
 
-要执行小版本的服务器升级/降级，您首先需要在本地yum软件仓库中[添加软件](#添加软件)：最新的PG小版本 RPM。
+要执行小版本的服务器升级/降级，您首先需要在本地软件仓库中[添加软件](#添加软件)：最新的PG小版本 RPM/DEB。
 
 首先对所有从库执行滚动升级/降级，然后执行集群[主从切换](#主动切换)以升级/降级主库。
 
@@ -606,7 +612,7 @@ pg restart --force <cls>                                # 重启集群
 
 <details><summary>示例：将PostgreSQL 15.2降级到15.1</summary>
 
-将15.1的包添加到yum仓库并刷新节点的yum缓存：
+将15.1的包添加到软件仓库并刷新节点的 yum/apt 缓存：
 
 ```bash
 cd ~/pigsty; ./infra.yml -t repo_upstream               # 添加上游仓库
@@ -614,12 +620,16 @@ cd /www/pigsty; repotrack postgresql15-*-15.1           # 将15.1的包添加到
 cd ~/pigsty; ./infra.yml -t repo_create                 # 重建仓库元数据
 ansible pg-test -b -a 'yum clean all'                   # 清理节点仓库缓存
 ansible pg-test -b -a 'yum makecache'                   # 从新仓库重新生成yum缓存
+
+# 对于 Ubutnu/Debian 用户，使用 apt 替换 yum
+ansible pg-test -b -a 'apt clean'                       # 清理节点仓库缓存
+ansible pg-test -b -a 'apt update'                      # 从新仓库重新生成apt缓存
 ``` 
 
 执行降级并重启集群：
 
 ```bash
-ansible pg-test -b -a "yum downgrade -y postgresql15*"  # 降级软件包
+ansible pg-test -b -a "yum downgrade -y postgresql15*"  # 降级软件包）
 pg restart --force pg-test                              # 重启整个集群以完成升级
 ```
 
@@ -631,7 +641,7 @@ pg restart --force pg-test                              # 重启整个集群以�
 这次我们采用滚动方式升级：
 
 ```bash
-ansible pg-test -b -a "yum upgrade -y postgresql15*"    # 升级软件包
+ansible pg-test -b -a "yum upgrade -y postgresql15*"    # 升级软件包（或 apt upgrade）
 ansible pg-test -b -a '/usr/pgsql/bin/pg_ctl --version' # 检查二进制版本是否为15.2
 pg restart --role replica --force pg-test               # 重启从库
 pg switchover --leader pg-test-1 --candidate=pg-test-2 --scheduled=now --force pg-test    # 切换主从

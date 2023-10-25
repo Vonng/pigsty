@@ -150,7 +150,7 @@ https://get.pigsty.cc/v2.5.0/pigsty-pkg-v2.5.0.el9.x86_64.tgz    # el9离线包
 
 你可以选择“是”，直接使用离线软件包安装又快又稳定。你也可以选“否”跳过，选择后面在安装过程中直接从互联网上游下载，这样会下载最新的软件版本，而且几乎不会遇到 RPM 冲突问题。
 
-如果使用了离线软件包，bootstrap 会直接从离线软件包中安装 ansible，否则会从上游下载 ansible 并安装，如果你没有互联网访问，又没有 DVD，或者内网yum源，那就只能用离线软件包来安装了。
+如果使用了离线软件包，bootstrap 会直接从离线软件包中安装 ansible，否则会从上游下载 ansible 并安装，如果你没有互联网访问，又没有 DVD，或者内网软件源，那就只能用离线软件包来安装了。
 
 </details>
 
@@ -233,7 +233,7 @@ Pigsty 提供了 280+ 配置参数，可以对整个环境与各个模块 infra/
 
 当您执行 `make install` 时，实际上是调用 Ansible 剧本 [`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.yml)，根据配置文件中的参数，安装以下内容：
 
-- `INFRA` 模块：提供本地Yum源，Nginx Web接入点，DNS服务器，NTP服务器，Prometheus与Grafana可观测性技术栈。
+- `INFRA` 模块：提供本地软件源，Nginx Web接入点，DNS服务器，NTP服务器，Prometheus与Grafana可观测性技术栈。
 - `NODE` 模块，将当前节点纳入 Pigsty 管理，部署 HAProxy 与 监控。
 - `ETCD` 模块，部署一个单机 etcd 集群，作为 PG 高可用的 DCS
 - `MINIO` 模块是默认不安装的，它可以作为 PG 的备份仓库。
@@ -409,7 +409,7 @@ bin/pgmon-rm <ins>     # 用于从 Prometheus 中移除单个实例 'ins' 的监
 <details><summary>INFRA模块中包含了哪些组件？</summary><br>
 
 - Ansible 用于自动化、部署和管理；
-- Nginx 用于公开对外暴露各种 WebUI 服务，并为提供一个本地 yum 软件源
+- Nginx 用于公开对外暴露各种 WebUI 服务，并为提供一个本地软件源
 - 自签名 CA 用于 SSL/TLS 证书；
 - Prometheus 用于收集存储监控指标；
 - Grafana 用于监控/可视化；
@@ -620,7 +620,7 @@ pg-test:
 <br>
 <details><summary>为什么我的 /etc/yum.repos.d/* 全没了？</summary><br>
 
-Pigsty会在infra节点上构建的本地yum仓库源中包含所有依赖项。而所有普通节点会根据[`node_repo_local_urls`](param#node_repo_local_urls)的默认配置来使用这个 Infra 节点上的本地软件源。
+Pigsty会在infra节点上构建的本地软件仓库源中包含所有依赖项。而所有普通节点会根据[`node_repo_local_urls`](param#node_repo_local_urls)的默认配置来使用这个 Infra 节点上的本地软件源。
 
 这一设计从而避免了互联网访问，增强了安装过程的稳定性与可靠性。所有原有的源定义文件会被移动到 `/etc/yum.repos.d/backup` 目录中，您只要按需复制回来即可。
 

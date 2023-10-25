@@ -395,7 +395,7 @@ MD5 (pigsty-pkg-v2.2.0.el9.x86_64.tgz) = 385432fe86ee0f8cbccbbc9454472fdd
 * 为 Grafana 添加了额外6个默认的扩展面板/数据源插件。
 * 添加 `bin/profile` 脚本用于执行远程 Profiling ，生成火焰图。
 * 添加 `bin/validate` 用于校验 `pigsty.yml` 配置文件合法性。
-* 添加 `bin/repo-add` 用于快速向节点添加 Yum 源定义。
+* 添加 `bin/repo-add` 用于快速向节点添加软件源定义。
 * PostgreSQL 16 可观测性：添加了 `pg_stat_io` 支持与相关监控面板
 
 **软件升级**

@@ -276,8 +276,8 @@ ansible pg-test -m yum -b -a 'name=apache-age_15*'     # 扩展的名称通常�
 ansible pg-test -m yum -b -a 'name=zhparser_15*'       # 例如，您的数据库大版本为15，那么就应该在扩展yum包之后添加 `_15`
 ```
 
-绝大多数插件插件都已经收录放置在基础设施节点上的 yum 软件源中，可以直接通过 yum 命令安装。
-如果没有收录，您可以考虑从 PGDG 上游源使用 `repotrack` 命令下载，或者选择在本地[编译](#扩展编译)好后打包成 RPM 包分发。
+绝大多数插件插件都已经收录放置在基础设施节点上的软件源中，可以直接通过 yum/apt 命令安装。
+如果没有收录，您可以考虑从 PGDG 上游源使用 `repotrack`/`apt download` 命令下载，或者选择在本地[编译](#扩展编译)好后打包成 RPM/DEB 包分发。
 
 扩展安装完成后，您应当能在目标数据库集群的 `pg_available_extensions` 视图中看到它们，接下来在想要安装扩展的数据库中执行：
 

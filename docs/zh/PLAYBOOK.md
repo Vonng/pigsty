@@ -65,7 +65,7 @@
 
 Pigsty 将在 [准备](install#准备) 期间在 `admin` 节点上安装 `ansible`。
 
-您可以自己使用 `yum install ansible` 或 `brew install ansible` 来安装 Ansible，它含在各大发行版的默认仓库中。
+您可以自己使用 `yum` / `apt` / `brew`  `install ansible` 来安装 Ansible，它含在各大发行版的默认仓库中。
 
 了解 ansible 对于使用 Pigsty 很有帮助，但也不是必要的。对于基本使用，您只需要注意三个参数就足够了：
 
