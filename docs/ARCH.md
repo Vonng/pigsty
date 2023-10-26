@@ -3,7 +3,7 @@
 > Modular Architecture and Declarative Interface!
 
 * Pigsty deployment is described by config inventory and materialized with ansible playbooks.
-* Pigsty works on common nodes (x86_64 EL7/8/9), i.e., bare metals or virtual machines.
+* Pigsty works on [Linux](INSTALL#requirement) x86_64 common nodes, i.e., bare metals or virtual machines.
 * Pigsty uses a modular design that can be freely composed for different scenarios.
 * The config controls **where** & **how** to install modules with **parameters**
 * The playbooks will adjust nodes into the desired status in an idempotent manner.

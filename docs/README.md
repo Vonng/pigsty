@@ -4,8 +4,6 @@
 >
 > —— **A battery-included, local-first, open-source RDS PG alternative.**
 >
-> [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) + [Supabase](https://supabase.com/) + [PostgresML](https://postgresml.org/) + [...](PGSQL-EXTENSION.md)
->
 > Latest Release: [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Website](https://pigsty.cc/en/)  | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/Mu2b6Wxr) | [中文文档](/zh/)
 >
 > [Get Started](INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash`
@@ -55,6 +53,8 @@ Pigsty has over **150+** [extensions](PGSQL-EXTENSION.md) pre-compiled and packa
 - [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase): Open-Source Firebase alternative based on PostgreSQL
 - [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb): Open-Source MongoDB alternative based on PostgreSQL
 - [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml): Use machine learning algorithms and pretrained models with SQL
+
+[PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) +[Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase) + [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml) + [...](PGSQL-EXTENSION.md)
 
 [![pigsty-extension.jpg](https://repo.pigsty.cc/img/pigsty-extension.jpg)](PGSQL-EXTENSION.md)
 

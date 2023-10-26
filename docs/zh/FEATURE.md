@@ -23,7 +23,7 @@ Pigsty 是一个更好的本地开源 RDS for PostgreSQL 替代：
 
 PostgreSQL 是一个足够完美的数据库内核，但它需要更多工具与系统的配合才能成为一个足够好的数据库服务（RDS），而 Pigsty 帮助 PostgreSQL 完成这一步飞跃，帮助用户用好这个强大的数据库。
 
-Pigsty 支持的数据库版本覆盖 PostgreSQL 12 ～ 16，可以运行于 EL 7，8，9 以及兼容操作系统发行版中。
+Pigsty 支持的数据库版本覆盖 PostgreSQL 12 ～ 16，可以运行于 EL/Debian/Ubuntu 以及[兼容](INSTALL#要求)操作系统发行版中。
 除了数据库内核与大量开箱即用的扩展插件以外，Pigsty更是提供了数据库服务所需的完整运行时基础设施，与本地沙箱/生产环境/IaaS全自动部署方案。
 
 您无需依赖任何外部组件或互联网访问，便可以在任何环境中一键拉起生产级的 PostgreSQL RDS [服务](PGSQL-SVC#服务概述)，10分钟从全新裸机进入生产可用状态。
@@ -45,7 +45,8 @@ Pigsty 收录了超过 150+ PostgreSQL 扩展插件，编译维护打包了一�
 您可以使用 [PostGIS](https://postgis.net/) 处理地理空间数据，使用 [TimescaleDB](https://www.timescale.com/) 分析时序/事件流数据，使用 [Citus](https://www.citusdata.com/) 将单机数据库原地改造为水平扩展的分布式数据库集群，
 使用 [PGVector](https://github.com/pgvector/pgvector) 存储并搜索 AI 嵌入实现向量数据库的效果，使用 [Apache AGE](https://age.apache.org/) 进行图数据存储与检索实现 Neo4J 的效果，使用 [zhparser](https://github.com/amutu/zhparser) 进行中文分词实现 ElasticSearch 的效果。
 
-Pigsty还包含了完整的编译环境与基础设施，允许您方便地自行[编译](PGSQL-EXTENSION#扩展编译)加装其他没有收录的扩展。
+Pigsty 还允许您在裸机高可用 PostgreSQL 集群上自行托管 [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase/README.md) 与 [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml) ，并与海量扩展组合使用。
+如果您想要的扩展没有被 Pigsty 收录，欢迎提出收录[建议](https://github.com/Vonng/pigsty/discussions/333) 或自行[编译](PGSQL-EXTENSION#扩展编译)加装。
 
 [![pigsty-distro.jpg](https://repo.pigsty.cc/img/pigsty-distro.jpg)](PGSQL-EXTENSION.md)
 

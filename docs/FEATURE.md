@@ -2,9 +2,9 @@
 
 Pigsty is a **Me-Better, Battery-Included, Open-Source RDS PG Alternative**:
 
-- [Battery-Included RDS](#battery-included-rds): Delivers production-ready PostgreSQL services from version 12-16 on EL7-9, spanning kernel to RDS distribution.
+- [Battery-Included RDS](#battery-included-rds): Delivers production-ready PostgreSQL services from version 12-16 on Linux x86, spanning kernel to RDS distribution.
 - [Plentiful Extensions](#plentiful-extensions): Integrates 150+ extensions, providing turnkey capabilities for time-series, geospatial, full-text-search, vector and more!
-- [Flexible Architecture](#flexible-architecture): Compose Redis/Etcd/MinIO/Mongo modules on nodes, monitoring existing cluster and remote RDS.
+- [Flexible Architecture](#flexible-architecture): Compose Redis/Etcd/MinIO/Mongo modules on nodes, monitoring existing cluster and remote RDS, self hosting Supabase/PostgresML.
 - [Stunning Observability](#stunning-observability): Leveraging the Prometheus/Grafana modern observability stack, and provides unmatched database insights.
 - [Proven Reliability](#proven-reliability): Self-healing HA architecture with automatic failover and uninterrupted client access, and auto-configured PITR.
 - [Great Maintainability](#great-maintainability): Declarative API, GitOps ready, foolproof design, Database/Infra-as-Code, and management SOP seals complexity!
@@ -23,7 +23,7 @@ Pigsty is a **Me-Better, Battery-Included, Open-Source RDS PG Alternative**:
 
 While PostgreSQL shines as a database kernel, it excels as a Relational Database [Service](PGSQL-SVC#service-overview) (RDS) with Pigsty's touch.
 
-Pigsty is compatible with PostgreSQL 12-16 and runs seamlessly on EL 7, 8, 9, and similar OS distributions.
+Pigsty is compatible with PostgreSQL 12-16 and runs seamlessly on EL 7, 8, 9, Debian 11/12, Ubuntu 20/22 and similar [OS](README#compatibility) distributions.
 It integrates the kernel with a rich set of extensions, provides all the essentials for a production-ready RDS, an entire set of infrastructure runtime coupled with fully automated deployment playbooks.
 With everything bundled for offline installation without internet connectivity.
 
@@ -40,13 +40,13 @@ All you need to do is run the command and connect with the given URL.
 
 ## Plentiful Extensions
 
-**Harness the Might of the The World's Most Advanced Open-Source RDBMS!**
+**Harness the might of the most advanced Open-Source RDBMS or the world!**
 
 PostgreSQL's has an unique [extension](PGSQL-EXTENSION#extension-list) ecosystem. Pigsty seamlessly integrates these powerful extensions, delivering turnkey distributed solutions for time-series, geospatial, and vector capabilities.
 
 Pigsty boasts over **150** PostgreSQL extensions, and maintaining some not found in official PGDG repositories. Rigorous testing ensures flawless integration for **core** extensions: Leverage [PostGIS](https://postgis.net/) for geospatial data, [TimescaleDB](https://www.timescale.com/) for time-series analysis, [Citus](https://www.citusdata.com/) for horizontal scale out, [PGVector](https://github.com/pgvector/pgvector) for AI embeddings, [Apache AGE](https://age.apache.org/) for graph data, and [zhparser](https://github.com/amutu/zhparser) for Full-Text Search.
 
-Additionally, Pigsty provides a robust compile environment which can be used for [building extension](PGSQL-EXTENSION#compile-extension) from source.
+You can also run self-hosted [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase/README.md) & [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml) with Pigsty managed HA PostgreSQL. If you want to add your own extension, feel free to [suggest](https://github.com/Vonng/pigsty/discussions/333) or [compile](PGSQL-EXTENSION.md#compile-extension) it by yourself.
 
 [![pigsty-distro.jpg](https://repo.pigsty.cc/img/pigsty-distro.jpg)](PGSQL-EXTENSION.md)
 

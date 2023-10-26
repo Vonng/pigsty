@@ -4,8 +4,6 @@
 >
 > —— **开箱即用，本地优先的 RDS PostgreSQL 开源替代**
 >
-> [PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) +[Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase) + [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml) + [...](PGSQL-EXTENSION.md)
->
 > 最新版本：[v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
 >
 > [快速上手](INSTALL.md)：`curl -fsSL https://get.pigsty.cc/latest | bash`
@@ -43,7 +41,7 @@ Pigsty 是一个更好的本地开源 RDS for PostgreSQL 替代，具有以下�
 
 <details><summary>生态组件与可用扩展列表</summary>
 
-Pigsty has over **150+** [extensions](PGSQL-EXTENSION.md) pre-compiled and packaged, including some not included in the official PGDG repo. Some of the most potent extensions are:
+Pigsty 收录了超过 150 个预先编译好、开箱即用的 PostgreSQL [扩展插件](PGSQL-EXTENSION.md)。其中有一些非常强力的扩展：
 
 - PostGIS：地理空间扩展，GIS 事实标准
 - TimescaleDB：添加时序/持续聚合/分布式/列存储/自动压缩的能力
@@ -55,6 +53,8 @@ Pigsty has over **150+** [extensions](PGSQL-EXTENSION.md) pre-compiled and packa
 - [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase)：基于 PostgreSQL 的开源的 Firebase 替代。
 - [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb)：基于 PostgreSQL 的开源 MongoDB 替代。
 - [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml)：使用SQL完成经典机器学习算法，调用大语言模型。
+
+[PostgreSQL](https://www.postgresql.org/) + [PostGIS](https://postgis.net/) + [TimescaleDB](https://www.timescale.com/) + [Citus](https://www.citusdata.com/) + [PGVector](https://github.com/pgvector/pgvector) + [Age](https://age.apache.org/) +[Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase) + [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml) + [...](PGSQL-EXTENSION.md)
 
 [![pigsty-extension.jpg](https://repo.pigsty.cc/img/pigsty-extension.jpg)](PGSQL-EXTENSION.md)
 
