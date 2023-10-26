@@ -31,7 +31,7 @@ You can transit from a fresh node to a production-ready state effortlessly, depl
 Pigsty will tune parameters to your hardware, handling everything from kernel, extensions, pooling, load balancing, high-availability, monitoring & logging, backups & PITR, security and more!
 All you need to do is run the command and connect with the given URL.
 
-[![pgsql-arch.jpg](https://repo.pigsty.cc/img/pgsql-arch.jpg)](ARCH.md#singleton-meta)
+[![pigsty-arch.jpg](https://repo.pigsty.cc/img/pigsty-arch.jpg)](ARCH.md#singleton-meta)
 
 
 

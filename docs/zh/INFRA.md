@@ -9,22 +9,22 @@
 
 每一套 Pigsty 部署都会提供一套基础架构组件，为纳管的节点与数据库集群提供服务，组件包括：
 
-|               组件                |  端口  |     域名     | 描述                     |
-|:-------------------------------:|:----:|:----------:|------------------------|
+|               组件                |  端口  |     域名     | 描述                    |
+|:-------------------------------:|:----:|:----------:|-----------------------|
 |         [Nginx](#nginx)         |  80  | `h.pigsty` | Web服务门户（也用作yum/atp仓库） |
-|   [AlertManager](#prometheus)   | 9093 | `a.pigsty` | 告警聚合分发                 |
-|    [Prometheus](#prometheus)    | 9090 | `p.pigsty` | 时间序列数据库（收存监控指标）        |
-|       [Grafana](#grafana)       | 3000 | `g.pigsty` | 可视化平台                  |
-|        [Loki](#grafana)         | 3100 |     -      | 日志收集服务器                |
-|   [PushGateway](#prometheus)    | 9091 |     -      | 接受一次性的任务指标             |
-| [BlackboxExporter](#prometheus) | 9115 |     -      | 黑盒监控探测                 |
-|       [DNSMASQ](#dnsmasq)       |  53  |     -      | DNS 服务器                |
-|       [Chronyd](#chronyd)       | 123  |     -      | NTP 时间服务器              |
-|    [PostgreSQL](#postgresql)    | 5432 |     -      | Pigsty CMDB 和默认数据库     |
-|       [Ansible](#ansible)       |  -   |     -      | 运行剧本                   |
+|   [AlertManager](#prometheus)   | 9093 | `a.pigsty` | 告警聚合分发                |
+|    [Prometheus](#prometheus)    | 9090 | `p.pigsty` | 时间序列数据库（收存监控指标）       |
+|       [Grafana](#grafana)       | 3000 | `g.pigsty` | 可视化平台                 |
+|        [Loki](#grafana)         | 3100 |     -      | 日志收集服务器               |
+|   [PushGateway](#prometheus)    | 9091 |     -      | 接受一次性的任务指标            |
+| [BlackboxExporter](#prometheus) | 9115 |     -      | 黑盒监控探测                |
+|       [DNSMASQ](#dnsmasq)       |  53  |     -      | DNS 服务器               |
+|       [Chronyd](#chronyd)       | 123  |     -      | NTP 时间服务器             |
+|    [PostgreSQL](#postgresql)    | 5432 |     -      | Pigsty CMDB 和默认数据库    |
+|       [Ansible](#ansible)       |  -   |     -      | 运行剧本                  |
 
 
-[![pgsql-arch.jpg](https://repo.pigsty.cc/img/pgsql-arch.jpg)](INFRA)
+[![pigsty-arch.jpg](https://repo.pigsty.cc/img/pigsty-arch.jpg)](INFRA)
 
 在 Pigsty 中，[PGSQL](PGSQL) 模块会使用到[INFRA节点](NODE#infra节点)上的一些服务，具体来说包括：
 

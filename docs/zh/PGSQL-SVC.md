@@ -365,7 +365,7 @@ Pigsty的服务交付边界止步于集群的HAProxy，用户可以用各种手�
 
 典型的做法是使用 DNS 或 VIP 接入，将其绑定在集群所有或任意数量的负载均衡器上。
 
-![pgsql-access.jpg](https://repo.pigsty.cc/img/pigsty-access.jpg)
+![pgsql-access.jpg](https://repo.pigsty.cc/img/pgsql-access.jpg)
 
 你可以使用不同的 主机 & 端口 组合，它们以不同的方式提供 PostgreSQL 服务。
 

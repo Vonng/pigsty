@@ -118,7 +118,7 @@ Here is how PostgreSQL module components and their interactions. From top to bot
 * Postgres-related logs (postgres,pgbouncer,patroni,pgbackrest) are exposed by promtail @ port 9080
   * Promtail will send logs to Loki on infra nodes
 
-[![pgsql-arch.jpg](https://repo.pigsty.cc/img/pgsql-arch.jpg)](INFRA)
+[![pigsty-arch.jpg](https://repo.pigsty.cc/img/pigsty-arch.jpg)](INFRA)
 
 
 

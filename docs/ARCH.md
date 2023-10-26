@@ -36,7 +36,7 @@ Pigsty will install on a single **node** (BareMetal / VirtualMachine) by default
 
 This node now has a self-monitoring system, visualization toolsets, and a  Postgres database with autoconfigured PITR. You can use this node for devbox, testing, running demos, and doing data visualization & analysis. Or, furthermore, adding more nodes to it!
 
-[![pgsql-arch.jpg](https://repo.pigsty.cc/img/pgsql-arch.jpg)](INFRA)
+[![pigsty-arch.jpg](https://repo.pigsty.cc/img/pigsty-arch.jpg)](INFRA)
 
 
 

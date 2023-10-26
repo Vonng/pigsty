@@ -30,7 +30,7 @@ Pigsty 支持的数据库版本覆盖 PostgreSQL 12 ～ 16，可以运行于 EL 
 参数将根据您的硬件规格自动进行优化调整，内核扩展安装，连接池，负载均衡，服务接入，高可用/自动切换，日志监控，备份恢复PITR，访问控制，参数调优，安全加密，证书签发，NTP，DNS，配置管理，CMDB，管理预案……，所有这些在生产环境中可能会遇到的问题，Pigsty 都帮您预先考虑好了。
 您所要做的就是一键安装好，然后使用连接串URL连上去使用即可。
 
-[![pgsql-arch.jpg](https://repo.pigsty.cc/img/pgsql-arch.jpg)](ARCH.md#单机安装)
+[![pigsty-arch.jpg](https://repo.pigsty.cc/img/pigsty-arch.jpg)](ARCH.md#单机安装)
 
 
 ----------------

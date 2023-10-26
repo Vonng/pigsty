@@ -116,7 +116,7 @@ pg_up{cls="pg-test", ins="pg-test-3", ip="10.10.10.13", job="pgsql"}
   - Promtail 监听 9080 端口，也对 infra 节点上的 Prometheus 暴露自身的监控指标 
   - Promtail 将日志发送至 infra 节点上的 Loki
 
-[![pgsql-arch.jpg](https://repo.pigsty.cc/img/pgsql-arch.jpg)](INFRA)
+[![pigsty-arch.jpg](https://repo.pigsty.cc/img/pigsty-arch.jpg)](INFRA)
 
 
 

@@ -274,24 +274,11 @@ You should install [`MINIO`](MINIO) module on Pigsty-managed nodes (i.e., Instal
 
 There are two dashboards for [`MINIO`](MINIO) module.
 
-
 [MinIO Overview](https://demo.pigsty.cc/d/minio-overview): Overview of one single MinIO cluster
-
-<details><summary>MinIO Overview Dashboard</summary>
-
-![](/img/dashboards/minio-overview.png)
-
-</details><br>
-
-
 
 [MinIO Instance](https://demo.pigsty.cc/d/minio-instance): Detail information about one single MinIO instance
 
-<details><summary>MinIO Instance Dashboard</summary>
-
-![](/img/dashboards/minio-instance.png)
-
-</details><br>
+[![minio-overview.jpg](https://repo.pigsty.cc/img/minio-overview.jpg)](https://demo.pigsty.cc/d/minio-overview)
 
 
 
