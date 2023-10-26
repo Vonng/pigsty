@@ -8,7 +8,7 @@ Docker is **not** installed by default, You can install docker with `docker.yml`
 
 Available software and their docker-compose template can be found in [pigsty/app](https://github.com/Vonng/pigsty/tree/master/app)
 
-[![pigsty-app](https://github.com/Vonng/pigsty/assets/8587410/e1384295-bad9-4338-895b-79741bc25ecd)](https://github.com/Vonng/pigsty/tree/master/app)
+[![pigsty-app.jpg](https://repo.pigsty.cc/img/pigsty-app.jpg)](https://github.com/Vonng/pigsty/tree/master/app)
 
 
 ----------------
@@ -73,13 +73,13 @@ Available software and their docker-compose template can be found in [pigsty/app
 
 <details><summary>PGLOG Overview</summary>
 
-[![pglog-overview](https://github.com/Vonng/pigsty/assets/8587410/c9ff0225-1d87-4386-9ecb-5b9fc2d38afa)](https://demo.pigsty.cc/d/pglog-overview)
+[![pglog-overview.jpg](https://repo.pigsty.cc/img/pglog-overview.jpg)](https://demo.pigsty.cc/d/pglog-overview)
 
 </details>
 
 
 <details><summary>PGLOG Session</summary>
 
-[![pglog-session](https://github.com/Vonng/pigsty/assets/8587410/de229cb8-e79e-4479-aad9-c404278e5d4e)](https://demo.pigsty.cc/d/pglog-session)
+[![pglog-session.jpg](https://repo.pigsty.cc/img/pglog-session.jpg)](https://demo.pigsty.cc/d/pglog-session)
 
 </details>

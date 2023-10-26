@@ -484,7 +484,7 @@ If [`nginx_sslmode`](PARAM.md#nginx_sslmode) is set to `enabled` or `enforced`, 
 http://g.pigsty ️-> http://10.10.10.10:80 (nginx) -> http://10.10.10.10:3000 (grafana)
 ```
 
-[![pigsty-home](https://github.com/Vonng/pigsty/assets/8587410/dec59092-14bc-47ab-baac-99c86643c9b7)](https://demo.pigsty.cc)
+[![pigsty-home.jpg](https://repo.pigsty.cc/img/pigsty-home.jpg)](https://demo.pigsty.cc)
 
 > Default credential for grafana: username: `admin`, password: `pigsty`
 

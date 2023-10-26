@@ -67,7 +67,7 @@ psql postgres://dbuser_dba:DBUser.DBA@pg-meta:5436/meta     # pg-meta-default : 
 psql postgres://dbuser_stats:DBUser.Stats@pg-meta:5438/meta # pg-meta-offline : Direct connect offline via offline postgres(5432)
 ```
 
-[![pgsql-ha](https://github.com/Vonng/pigsty/assets/8587410/645501d1-384e-4009-b41b-8488654f17d3)](PGSQL-ARCH#high-availability)
+[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](PGSQL-ARCH#high-availability)
 
 Here the `pg-meta` domain name point to the cluster's L2 VIP, which in turn points to the haproxy load balancer on the primary instance. It is responsible for routing traffic to different instances, check [Access Services](#access-services) for details.
 
@@ -339,7 +339,7 @@ The typical method is access via cluster domain name, which resolve to cluster L
 
 Service can be implemented in different ways, You can even implement you own access method such as L4 LVS, F5, etc... instead of haproxy.
 
-![pgsql-access](https://github.com/Vonng/pigsty/assets/8587410/dacd1745-a931-488e-a72d-08bdba7b37dd)
+![pgsql-access.jpg](https://repo.pigsty.cc/img/pigsty-access.jpg)
 
 You can use different combination of host & port, they are provide PostgreSQL service in different ways.
 

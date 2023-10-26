@@ -84,37 +84,37 @@ pg-test:   # 集群名称
 
 Pigsty 带有 280+ 配置参数，分为以下32个参数组，详情请参考 [配置参数](param) 。
 
-|            模块            | 参数组                                    | 描述                     | 数量 |
-|:------------------------:|----------------------------------------|------------------------|----|
-|  [`INFRA`](param#infra)  | [`META`](param#meta)                   | Pigsty 元数据             | 4  |
-|  [`INFRA`](param#infra)  | [`CA`](param#ca)                       | 自签名公私钥基础设施 CA          | 3  |
-|  [`INFRA`](param#infra)  | [`INFRA_ID`](param#infra_id)           | 基础设施门户，Nginx域名         | 2  |
-|  [`INFRA`](param#infra)  | [`REPO`](param#repo)                   | 本地软件仓库                | 9  |
-|  [`INFRA`](param#infra)  | [`INFRA_PACKAGE`](param#infra_package) | 基础设施软件包                | 2  |
-|  [`INFRA`](param#infra)  | [`NGINX`](param#nginx)                 | Nginx 网络服务器            | 7  |
-|  [`INFRA`](param#infra)  | [`DNS`](param#dns)                     | DNSMASQ 域名服务器          | 3  |
-|  [`INFRA`](param#infra)  | [`PROMETHEUS`](param#prometheus)       | Prometheus 时序数据库全家桶    | 16 |
-|  [`INFRA`](param#infra)  | [`GRAFANA`](param#grafana)             | Grafana 可观测性全家桶        | 6  |
-|  [`INFRA`](param#infra)  | [`LOKI`](param#loki)                   | Loki 日志服务              | 4  |
-|   [`NODE`](param#node)   | [`NODE_ID`](param#node_id)             | 节点身份参数                 | 5  |
-|   [`NODE`](param#node)   | [`NODE_DNS`](param#node_dns)           | 节点域名 & DNS解析           | 5  |
-|   [`NODE`](param#node)   | [`NODE_PACKAGE`](param#node_package)   | 节点仓库源 & 安装软件包          | 5  |
-|   [`NODE`](param#node)   | [`NODE_TUNE`](param#node_tune)         | 节点调优与内核特性开关            | 10 |
-|   [`NODE`](param#node)   | [`NODE_ADMIN`](param#node_admin)       | 管理员用户与SSH凭证管理          | 7  |
-|   [`NODE`](param#node)   | [`NODE_TIME`](param#node_time)         | 时区，NTP服务与定时任务          | 5  |
-|   [`NODE`](param#node)   | [`NODE_VIP`](param#node_vip)           | 可选的主机节点集群L2 VIP        | 8  |
-|   [`NODE`](param#node)   | [`HAPROXY`](param#haproxy)             | 使用HAProxy对外暴露服务        | 10 |
-|   [`NODE`](param#node)   | [`NODE_EXPORTER`](param#node_exporter) | 主机节点监控与注册              | 3  |
-|   [`NODE`](param#node)   | [`PROMTAIL`](param#promtail)           | Promtail日志收集组件         | 4  |
-| [`DOCKER`](param#docker) | [`DOCKER`](param#docker)               | Docker容器服务（可选）         | 4  |
-|   [`ETCD`](param#etcd)   | [`ETCD`](param#etcd)                   | ETCD DCS 集群            | 10 |
-|  [`MINIO`](param#minio)  | [`MINIO`](param#minio)                 | MINIO S3 对象存储          | 15 |
-|  [`REDIS`](param#redis)  | [`REDIS`](param#redis)                 | Redis 缓存               | 20 |
-|  [`PGSQL`](param#pgsql)  | [`PG_ID`](param#pg_id)                 | PG 身份参数                | 11 |
-|  [`PGSQL`](param#pgsql)  | [`PG_BUSINESS`](param#pg_business)     | PG 业务对象定义              | 12 |
-|  [`PGSQL`](param#pgsql)  | [`PG_INSTALL`](param#pg_install)       | 安装 PG 软件包 & 扩展         | 10 |
+|            模块            | 参数组                                    | 描述                      | 数量 |
+|:------------------------:|----------------------------------------|-------------------------|----|
+|  [`INFRA`](param#infra)  | [`META`](param#meta)                   | Pigsty 元数据              | 4  |
+|  [`INFRA`](param#infra)  | [`CA`](param#ca)                       | 自签名公私钥基础设施 CA           | 3  |
+|  [`INFRA`](param#infra)  | [`INFRA_ID`](param#infra_id)           | 基础设施门户，Nginx域名          | 2  |
+|  [`INFRA`](param#infra)  | [`REPO`](param#repo)                   | 本地软件仓库                  | 9  |
+|  [`INFRA`](param#infra)  | [`INFRA_PACKAGE`](param#infra_package) | 基础设施软件包                 | 2  |
+|  [`INFRA`](param#infra)  | [`NGINX`](param#nginx)                 | Nginx 网络服务器             | 7  |
+|  [`INFRA`](param#infra)  | [`DNS`](param#dns)                     | DNSMASQ 域名服务器           | 3  |
+|  [`INFRA`](param#infra)  | [`PROMETHEUS`](param#prometheus)       | Prometheus 时序数据库全家桶     | 16 |
+|  [`INFRA`](param#infra)  | [`GRAFANA`](param#grafana)             | Grafana 可观测性全家桶         | 6  |
+|  [`INFRA`](param#infra)  | [`LOKI`](param#loki)                   | Loki 日志服务               | 4  |
+|   [`NODE`](param#node)   | [`NODE_ID`](param#node_id)             | 节点身份参数                  | 5  |
+|   [`NODE`](param#node)   | [`NODE_DNS`](param#node_dns)           | 节点域名 & DNS解析            | 5  |
+|   [`NODE`](param#node)   | [`NODE_PACKAGE`](param#node_package)   | 节点仓库源 & 安装软件包           | 5  |
+|   [`NODE`](param#node)   | [`NODE_TUNE`](param#node_tune)         | 节点调优与内核特性开关             | 10 |
+|   [`NODE`](param#node)   | [`NODE_ADMIN`](param#node_admin)       | 管理员用户与SSH凭证管理           | 7  |
+|   [`NODE`](param#node)   | [`NODE_TIME`](param#node_time)         | 时区，NTP服务与定时任务           | 5  |
+|   [`NODE`](param#node)   | [`NODE_VIP`](param#node_vip)           | 可选的主机节点集群L2 VIP         | 8  |
+|   [`NODE`](param#node)   | [`HAPROXY`](param#haproxy)             | 使用HAProxy对外暴露服务         | 10 |
+|   [`NODE`](param#node)   | [`NODE_EXPORTER`](param#node_exporter) | 主机节点监控与注册               | 3  |
+|   [`NODE`](param#node)   | [`PROMTAIL`](param#promtail)           | Promtail日志收集组件          | 4  |
+| [`DOCKER`](param#docker) | [`DOCKER`](param#docker)               | Docker容器服务（可选）          | 4  |
+|   [`ETCD`](param#etcd)   | [`ETCD`](param#etcd)                   | ETCD DCS 集群             | 10 |
+|  [`MINIO`](param#minio)  | [`MINIO`](param#minio)                 | MINIO S3 对象存储           | 15 |
+|  [`REDIS`](param#redis)  | [`REDIS`](param#redis)                 | Redis 缓存                | 20 |
+|  [`PGSQL`](param#pgsql)  | [`PG_ID`](param#pg_id)                 | PG 身份参数                 | 11 |
+|  [`PGSQL`](param#pgsql)  | [`PG_BUSINESS`](param#pg_business)     | PG 业务对象定义               | 12 |
+|  [`PGSQL`](param#pgsql)  | [`PG_INSTALL`](param#pg_install)       | 安装 PG 软件包 & 扩展          | 10 |
 |  [`PGSQL`](param#pgsql)  | [`PG_BOOTSTRAP`](param#pg_bootstrap)   | 使用 Patroni 初始化 HA PG 集群 | 39 |
-|  [`PGSQL`](param#pgsql)  | [`PG_PROVISION`](param#pg_provision)   | 创建 PG 数据库内对象           | 9  |
-|  [`PGSQL`](param#pgsql)  | [`PG_BACKUP`](param#pg_backup)         | 使用 pgBackRest 设置备份仓库   | 5  |
-|  [`PGSQL`](param#pgsql)  | [`PG_SERVICE`](param#pg_service)       | 对外暴露服务, 绑定 vip, dns    | 9  |
-|  [`PGSQL`](param#pgsql)  | [`PG_EXPORTER`](param#pg_exporter)     | PG 监控，服务注册             | 15 |
+|  [`PGSQL`](param#pgsql)  | [`PG_PROVISION`](param#pg_provision)   | 创建 PG 数据库内对象            | 9  |
+|  [`PGSQL`](param#pgsql)  | [`PG_BACKUP`](param#pg_backup)         | 使用 pgBackRest 设置备份仓库    | 5  |
+|  [`PGSQL`](param#pgsql)  | [`PG_SERVICE`](param#pg_service)       | 对外暴露服务, 绑定 vip, dns     | 9  |
+|  [`PGSQL`](param#pgsql)  | [`PG_EXPORTER`](param#pg_exporter)     | PG 监控，服务注册              | 15 |

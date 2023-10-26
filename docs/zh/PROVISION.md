@@ -30,7 +30,7 @@ Pigsty 带有一个演示沙箱，所谓沙箱，就是专门用来演示/测试
 
 在 `meta` 节点上，还有一个单实例的 `etcd` “集群”和一个单实例的 `minio` “集群”。
 
-![pigsty-sandbox](https://github.com/Vonng/pigsty/assets/8587410/0de01720-2573-400e-be11-6f12019fc971)
+![pigsty-sandbox.jpg](https://repo.pigsty.cc/img/pigsty-sandbox.jpg)
 
 您可以在本地虚拟机或云虚拟机上运行沙箱。Pigsty 提供基于 Vagrant 的本地沙箱（使用 Virtualbox/libvirt 启动本地虚拟机）以及基于 Terraform 的云沙箱（使用云供应商 API 创建虚拟机）。
 

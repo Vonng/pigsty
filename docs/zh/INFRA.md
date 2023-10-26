@@ -24,7 +24,7 @@
 |       [Ansible](#ansible)       |  -   |     -      | 运行剧本                   |
 
 
-[![pigsty-arch](https://github.com/Vonng/pigsty/assets/8587410/7b226641-e61b-4e79-bc31-759204778bd5)](INFRA)
+[![pgsql-arch.jpg](https://repo.pigsty.cc/img/pgsql-arch.jpg)](INFRA)
 
 在 Pigsty 中，[PGSQL](PGSQL) 模块会使用到[INFRA节点](NODE#infra节点)上的一些服务，具体来说包括：
 
@@ -349,7 +349,7 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 
 <details><summary>Pigsty Home Dashboard</summary>
 
-[![pigsty-home](https://github.com/Vonng/pigsty/assets/8587410/b9679741-5baf-4a89-b6d0-e9eb4a13814d)](https://demo.pigsty.cc/d/pigsty/)
+[![pigsty.jpg](https://repo.pigsty.cc/img/pigsty.jpg)](https://demo.pigsty.cc/d/pigsty/)
 
 </details>
 
@@ -358,7 +358,7 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 
 <details><summary>INFRA Overview Dashboard</summary>
 
-[![infra-overview](https://github.com/Vonng/pigsty/assets/8587410/d262ceaa-2d73-4817-88e7-1790c77a5498)](https://demo.pigsty.cc/d/infra-overview/)
+[![infra-overview.jpg](https://repo.pigsty.cc/img/infra-overview.jpg)](https://demo.pigsty.cc/d/infra-overview/)
 
 </details>
 
@@ -367,7 +367,7 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 
 <details><summary>Nginx Overview Dashboard</summary>
 
-[![nginx-overview](https://github.com/Vonng/pigsty/assets/8587410/08bff428-5f2a-4adb-9c96-479da59ccd2a)](https://demo.pigsty.cc/d/nginx-overview)
+[![nginx-overview.jpg](https://repo.pigsty.cc/img/nginx-overview.jpg)](https://demo.pigsty.cc/d/nginx-overview)
 
 </details>
 
@@ -376,7 +376,7 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 
 <details><summary>Grafana Overview Dashboard</summary>
 
-[![grafana-overview](https://github.com/Vonng/pigsty/assets/8587410/6801fe16-1b47-4c1b-99aa-6af8b07aee4a)](https://demo.pigsty.cc/d/grafana-overview)
+[![grafana-overview.jpg](https://repo.pigsty.cc/img/grafana-overview.jpg)](https://demo.pigsty.cc/d/grafana-overview)
 
 </details>
 
@@ -385,7 +385,7 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 
 <details><summary>Prometheus Overview Dashboard</summary>
 
-[![prometheus-overview](https://github.com/Vonng/pigsty/assets/8587410/553f2f60-67a8-401d-abef-a58dd52a5bee)](https://demo.pigsty.cc/d/prometheus-overview)
+[![prometheus-overview.jpg](https://repo.pigsty.cc/img/prometheus-overview.jpg)](https://demo.pigsty.cc/d/prometheus-overview)
 
 </details>
 
@@ -394,7 +394,7 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 
 <details><summary>Loki Overview Dashboard</summary>
 
-[![loki-overview](https://github.com/Vonng/pigsty/assets/8587410/a70a5d3a-bc8d-4fef-9708-4eabdd0436ff)](https://demo.pigsty.cc/d/loki-overview)
+[![loki-overview.jpg](https://repo.pigsty.cc/img/loki-overview.jpg)](https://demo.pigsty.cc/d/loki-overview)
 
 </details>
 
@@ -403,7 +403,7 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 
 <details><summary>Logs Instance Dashboard</summary>
 
-[![logs-instance](https://github.com/Vonng/pigsty/assets/8587410/246eff0e-d47d-4740-99db-20aca4b8ec55)](https://demo.pigsty.cc/d/logs-instance)
+[![logs-instance.jpg](https://repo.pigsty.cc/img/logs-instance.jpg)](https://demo.pigsty.cc/d/logs-instance)
 
 </details>
 
@@ -412,7 +412,7 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 
 <details><summary>Logs Overview Dashboard</summary>
 
-[![logs-overview](https://github.com/Vonng/pigsty/assets/8587410/e0a6c0f5-8cb1-4d70-a327-d9fa815e3f27)](https://demo.pigsty.cc/d/logs-overview)
+[![logs-overview.jpg](https://repo.pigsty.cc/img/logs-overview.jpg)](https://demo.pigsty.cc/d/logs-overview)
 
 </details>
 
@@ -421,7 +421,7 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 
 <details><summary>CMDB Overview Dashboard</summary>
 
-[![cmdb-overview](https://github.com/Vonng/pigsty/assets/8587410/9e187204-9d8d-4c31-8885-313f00bbc73f)](https://demo.pigsty.cc/d/cmdb-overview)
+[![cmdb-overview.jpg](https://repo.pigsty.cc/img/cmdb-overview.jpg)](https://demo.pigsty.cc/d/cmdb-overview)
 
 </details>
 
@@ -430,7 +430,7 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 
 <details><summary>ETCD Overview Dashboard</summary>
 
-[![etcd-overview](https://github.com/Vonng/pigsty/assets/8587410/3f268146-9242-42e7-b78f-b5b676155f3f)](https://demo.pigsty.cc/d/etcd-overview)
+[![etcd-overview.jpg](https://repo.pigsty.cc/img/etcd-overview.jpg)](https://demo.pigsty.cc/d/etcd-overview)
 
 </details>
 
@@ -469,7 +469,7 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 | [`infra_portal`](PARAM#infra_portal)                             | [`INFRA_ID`](PARAM#infra_id)           |    dict    |  G  | 通过Nginx门户暴露的基础设施服务列表                    |
 | [`repo_enabled`](PARAM#repo_enabled)                             | [`REPO`](PARAM#repo)                   |    bool    | G/I | 在此基础设施节点上创建本地软件源？                       |
 | [`repo_home`](PARAM#repo_home)                                   | [`REPO`](PARAM#repo)                   |    path    |  G  | 软件仓库主目录，默认为`/www``                      |
-| [`repo_name`](PARAM#repo_name)                                   | [`REPO`](PARAM#repo)                   |   string   |  G  | 软件仓库名称，默认为 pigsty                         |
+| [`repo_name`](PARAM#repo_name)                                   | [`REPO`](PARAM#repo)                   |   string   |  G  | 软件仓库名称，默认为 pigsty                       |
 | [`repo_endpoint`](PARAM#repo_endpoint)                           | [`REPO`](PARAM#repo)                   |    url     |  G  | 仓库的访问点：域名或 `ip:port` 格式                 |
 | [`repo_remove`](PARAM#repo_remove)                               | [`REPO`](PARAM#repo)                   |    bool    | G/A | 构建本地仓库时是否移除现有上游仓库源定义文件？                 |
 | [`repo_modules`](#repo_modules)                                  | [`REPO`](PARAM#repo)                   |   string   | G/A | 启用的上游仓库模块列表，用逗号分隔                       |

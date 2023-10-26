@@ -12,7 +12,7 @@ Pigsty is a **Me-Better, Battery-Included, Open-Source RDS PG Alternative**:
 - [Versatile Application](#versatile-application): Lots of applications work well with PostgreSQL. Run them in one command with docker.
 - [Open Source & Free](#open-source-amp-free): Pigsty is a free & open source software under AGPLv3. It was built for PostgreSQL with love.
 
-[![pigsty-home](https://github.com/Vonng/pigsty/assets/8587410/dec59092-14bc-47ab-baac-99c86643c9b7)](https://demo.pigsty.cc)
+[![pigsty-home.jpg](https://repo.pigsty.cc/img/pigsty-home.jpg)](https://demo.pigsty.cc)
 
 
 ----------------
@@ -28,10 +28,10 @@ It integrates the kernel with a rich set of extensions, provides all the essenti
 With everything bundled for offline installation without internet connectivity.
 
 You can transit from a fresh node to a production-ready state effortlessly, deploy a top-tier PostgreSQL RDS service in a mere 10 minutes.
-Pigsty will tunes parameters to your hardware, handling everything from kernel, extensions, pooling, load balancing, high-availability, monitoring & logging, backups & PITR, security and more!
+Pigsty will tune parameters to your hardware, handling everything from kernel, extensions, pooling, load balancing, high-availability, monitoring & logging, backups & PITR, security and more!
 All you need to do is run the command and connect with the given URL.
 
-[![pigsty-arch](https://github.com/Vonng/pigsty/assets/8587410/7b226641-e61b-4e79-bc31-759204778bd5)](ARCH.md#singleton-meta)
+[![pgsql-arch.jpg](https://repo.pigsty.cc/img/pgsql-arch.jpg)](ARCH.md#singleton-meta)
 
 
 
@@ -48,7 +48,7 @@ Pigsty boasts over **150** PostgreSQL extensions, and maintaining some not found
 
 Additionally, Pigsty provides a robust compile environment which can be used for [building extension](PGSQL-EXTENSION#compile-extension) from source.
 
-[![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/a0550ad2-7bb9-4051-8758-9e5e3b294e54)](PGSQL-EXTENSION.md)
+[![pigsty-distro.jpg](https://repo.pigsty.cc/img/pigsty-distro.jpg)](PGSQL-EXTENSION.md)
 
 
 
@@ -70,7 +70,7 @@ You can reuse Pigsty infra and extend it with your Modules (e.g. `GPSQL`, `KAFKA
 Moreover, Pigsty's `INFRA` module can be used alone — ideal for monitoring hosts, databases, or cloud [RDS](PGSQL-MONITOR#monitor-rds).
 
 
-[![pigsty-sandbox](https://github.com/Vonng/pigsty/assets/8587410/0de01720-2573-400e-be11-6f12019fc971)](ARCH.md#模块)
+[![pigsty-sandbox.jpg](https://repo.pigsty.cc/img/sandbox.jpg)](ARCH.md#模块)
 
 
 
@@ -87,7 +87,7 @@ There are over 3K+ metrics that describe every aspect of your environment, from 
 
 Check the [dashboard gallery](https://github.com/Vonng/pigsty/wiki/Gallery) and [public demo](https://demo.pigsty.cc) for more details.
 
-[![pigsty-dashboard](https://github.com/Vonng/pigsty/assets/8587410/cd4e6620-bc36-44dc-946b-b9ae56f93c90)](https://github.com/Vonng/pigsty/wiki/Gallery)
+[![pigsty-dashboard.jpg](https://repo.pigsty.cc/img/pigsty-dashboard.jpg)](https://github.com/Vonng/pigsty/wiki/Gallery)
 
 
 
@@ -103,7 +103,7 @@ Software Failures, human errors, and Data Center Failures are covered with Cold 
 
 Large organizations have used Pigsty for several years. One of the largest deployments has 25K CPU cores and 200+ massive PostgreSQL instances. In the past three years, there have been dozens of hardware failures & incidents, but the overall availability remains several nines (99.999% +).
 
-[![pgsql-ha](https://github.com/Vonng/pigsty/assets/8587410/645501d1-384e-4009-b41b-8488654f17d3)](PGSQL-ARCH.md#high-availability)
+[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](PGSQL-ARCH.md#high-availability)
 
 
 
@@ -119,7 +119,7 @@ To create cluster/database/user/extension, expose services, or add replicas. All
 
 Pigsty has a full-featured sandbox powered by **Vagrant**, a pre-configured one or 4-node environment for testing & demonstration purposes. You can also provision required IaaS resources from cloud vendors with **Terraform** templates.
 
-[![pigsty-iac](https://github.com/Vonng/pigsty/assets/8587410/55dece4e-d299-479c-8100-1170ef686f0f)](CONFIG.md)
+[![pigsty-iac.jpg](https://repo.pigsty.cc/img/pigsty-iac.jpg)](CONFIG.md)
 
 
 
@@ -135,7 +135,7 @@ Pigsty has an easy-to-use, fine-grained, and fully customizable [access control]
 
 Your entire network communication can be secured with SSL. Pigsty will automatically create a self-signed CA and issue certs for that. Database credentials are encrypted with the scram-sha-256 algorithm, and cold backups are encrypted with the AES-256 algorithm when using MinIO/S3. Admin Pages and dangerous APIs are protected with HTTPS, and access is restricted from specific admin/infra nodes.
 
-[![pigsty-acl](https://github.com/Vonng/pigsty/assets/8587410/57c365f8-b4f6-465a-a501-a2a499223ce6)](SECURITY.md)
+[![pigsty-acl.jpg](https://repo.pigsty.cc/img/pigsty-acl.jpg)](SECURITY.md)
 
 
 
@@ -149,7 +149,7 @@ The database is usually the most tricky part of most software. Since Pigsty alre
 
 Pigsty also provides a toolset to help you manage your database and build data applications in a low-code fashion: PGAdmin4, PGWeb, ByteBase, PostgREST, Kong, and higher "Database" that use Postgres as underlying storage, such as EdgeDB, FerretDB, and Supabase. And since you already have Grafana & Postgres, You can quickly make an interactive data application demo with them. In addition, advanced visualization can be achieved with the built-in ECharts panel.
 
-[![pigsty-app](https://github.com/Vonng/pigsty/assets/8587410/e1384295-bad9-4338-895b-79741bc25ecd)](APP.md)
+[![pigsty-app.jpg](https://repo.pigsty.cc/img/pigsty-app.jpg)](APP.md)
 
 
 
@@ -166,5 +166,5 @@ There will be no vendor lock-in, annoying license fee, and node/CPU/core limit. 
 
 Pigsty is free software under AGPLv3. It's free of charge, but beware that freedom is not free, so use it at your own risk! It's not very difficult, and we are glad to help. For those enterprise users who seek professional consulting services, we do have a subscription for that.
 
-[![pigsty-price](https://github.com/Vonng/pigsty/assets/8587410/43fdfe36-7660-41c8-99cd-c2e4645531a7)](SUPPORT)
+[![pigsty-price.jpg](https://repo.pigsty.cc/img/pigsty-price.jpg)](SUPPORT)
 

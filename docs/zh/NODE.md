@@ -342,7 +342,7 @@ Pigsty 中的 NODE 模块提供了 6 个内容丰富的监控面板。
 
 <details><summary>Node Overview Dashboard</summary>
 
-[![node-overview](https://github.com/Vonng/pigsty/assets/8587410/e41b6025-bce4-4442-bc28-f3caa49cf64f)](https://demo.pigsty.cc/d/node-overview)
+[![node-overview.jpg](https://repo.pigsty.cc/img/node-overview.jpg)](https://demo.pigsty.cc/d/node-overview.jpg)
 
 </details>
 
@@ -352,7 +352,7 @@ Pigsty 中的 NODE 模块提供了 6 个内容丰富的监控面板。
 
 <details><summary>Node Cluster Dashboard</summary>
 
-[![node-cluster](https://github.com/Vonng/pigsty/assets/8587410/aa8cd43d-6c8a-47cb-b556-8da5ebb68c66)](https://demo.pigsty.cc/d/node-cluster)
+[![node-cluster.jpg](https://repo.pigsty.cc/img/node-cluster.jpg)](https://demo.pigsty.cc/d/node-cluster.jpg)
 
 </details>
 
@@ -362,7 +362,7 @@ Pigsty 中的 NODE 模块提供了 6 个内容丰富的监控面板。
 
 <details><summary>Node Instance Dashboard</summary>
 
-[![node-instance](https://github.com/Vonng/pigsty/assets/8587410/90c0ba35-93f0-4dde-92fa-eb188adf9eb2)](https://demo.pigsty.cc/d/node-instance)
+![node-instance.jpg](https://repo.pigsty.cc/img/node-instance.jpg)
 
 </details>
 
@@ -372,7 +372,7 @@ Pigsty 中的 NODE 模块提供了 6 个内容丰富的监控面板。
 
 <details><summary>Node Alert Dashboard</summary>
 
-[![node-alert](https://github.com/Vonng/pigsty/assets/8587410/63605aa8-909f-44b8-b7c7-e6caea1d1ed0)](https://demo.pigsty.cc/d/node-alert)
+[![node-alert.jpg](https://repo.pigsty.cc/img/node-alert.jpg)](https://demo.pigsty.cc/d/node-alert.jpg)
 
 </details>
 
@@ -382,7 +382,7 @@ Pigsty 中的 NODE 模块提供了 6 个内容丰富的监控面板。
 
 <details><summary>Node VIP Dashboard</summary>
 
-[![node-vip](https://github.com/Vonng/pigsty/assets/8587410/9cc0ed01-49f0-4321-814f-98d1e3b0a74f)](https://demo.pigsty.cc/d/node-vip)
+[![node-vip.jpg](https://repo.pigsty.cc/img/node-vip.jpg)](https://demo.pigsty.cc/d/node-vip)
 
 </details>
 
@@ -392,7 +392,7 @@ Pigsty 中的 NODE 模块提供了 6 个内容丰富的监控面板。
 
 <details><summary>Node Haproxy Dashboard</summary>
 
-[![node-haproxy](https://github.com/Vonng/pigsty/assets/8587410/75267451-06cc-4d8a-ab30-aa347a1cad0e)](https://demo.pigsty.cc/d/node-haproxy)
+[![node-haproxy.jpg](https://repo.pigsty.cc/img/node-haproxy.jpg)](https://demo.pigsty.cc/d/node-haproxy)
 
 </details>
 
@@ -465,7 +465,7 @@ Pigsty 中的 NODE 模块提供了 6 个内容丰富的监控面板。
 | [`vip_role`](PARAM#vip_role)                               | [`NODE_VIP`](PARAM#node_vip)           |   enum    |   I   | 可选，master/backup，默认为 backup，用作初始角色            |
 | [`vip_preempt`](PARAM#vip_preempt)                         | [`NODE_VIP`](PARAM#node_vip)           |   bool    |  C/I  | 可选，true/false，默认为 false，启用 vip 抢占             |
 | [`vip_interface`](PARAM#vip_interface)                     | [`NODE_VIP`](PARAM#node_vip)           |  string   |  C/I  | 节点 vip 网络接口监听，默认为 eth0                        |
-| [`vip_dns_suffix`](PARAM#vip_dns_suffix)                   | [`NODE_VIP`](PARAM#node_vip)           |  string   |   C   | 节点 vip DNS 名称后缀，默认为空字符串                      |
+| [`vip_dns_suffix`](PARAM#vip_dns_suffix)                   | [`NODE_VIP`](PARAM#node_vip)           |  string   |   C   | 节点 vip DNS 名称后缀，默认为空字符串                       |
 | [`vip_exporter_port`](PARAM#vip_exporter_port)             | [`NODE_VIP`](PARAM#node_vip)           |   port    |   C   | keepalived exporter 监听端口，默认为 9650             |
 | [`haproxy_enabled`](PARAM#haproxy_enabled)                 | [`HAPROXY`](PARAM#haproxy)             |   bool    |   C   | 在此节点上启用 haproxy 吗？                            |
 | [`haproxy_clean`](PARAM#haproxy_clean)                     | [`HAPROXY`](PARAM#haproxy)             |   bool    | G/C/A | 清除所有现有的 haproxy 配置吗？                          |

@@ -76,7 +76,7 @@ psql postgres://dbuser_stats:DBUser.Stats@pg-meta:5438/meta # pg-meta-offline : 
 
 从示例集群[架构图](PGSQL-ARCH)上可以看出这四种服务的工作方式：
 
-[![pgsql-ha](https://github.com/Vonng/pigsty/assets/8587410/645501d1-384e-4009-b41b-8488654f17d3)](PGSQL-ARCH#高可用)
+[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](PGSQL-ARCH#高可用)
 
 注意在这里`pg-meta` 域名指向了集群的 L2 VIP，进而指向集群主库上的 haproxy 负载均衡器，它负责将流量路由到不同的实例上，详见[服务接入](#接入服务)
 
@@ -365,7 +365,7 @@ Pigsty的服务交付边界止步于集群的HAProxy，用户可以用各种手�
 
 典型的做法是使用 DNS 或 VIP 接入，将其绑定在集群所有或任意数量的负载均衡器上。
 
-![pgsql-access](https://github.com/Vonng/pigsty/assets/8587410/dacd1745-a931-488e-a72d-08bdba7b37dd)
+![pgsql-access.jpg](https://repo.pigsty.cc/img/pigsty-access.jpg)
 
 你可以使用不同的 主机 & 端口 组合，它们以不同的方式提供 PostgreSQL 服务。
 

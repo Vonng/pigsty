@@ -341,7 +341,7 @@ There is one dashboard for ETCD module:
 
 <details><summary>ETCD Overview Dashboard</summary>
 
-[![etcd-overview](https://github.com/Vonng/pigsty/assets/8587410/3f268146-9242-42e7-b78f-b5b676155f3f)](https://demo.pigsty.cc/d/etcd-overview)
+[![etcd-overview.jpg](https://repo.pigsty.cc/img/etcd-overview.jpg)](https://demo.pigsty.cc/d/etcd-overview)
 
 </details>
 

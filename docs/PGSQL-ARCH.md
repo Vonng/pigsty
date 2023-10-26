@@ -17,7 +17,7 @@ Let's get started with ER diagram. There are four types of core entities in Pigs
 * **PGSQL Instance**: A single postgres server which is a group of running processes & database files on a single node.
 * **PGSQL Node**: An abstraction of hardware resources, which can be bare metal, virtual machine, or even k8s pods.
 
-![pgsql-er](https://github.com/Vonng/pigsty/assets/8587410/37f224bc-1b1d-47aa-bab3-3885cffcd05a)
+![pgsql-er.jpg](https://repo.pigsty.cc/img/pgsql-er.jpg)
 
 **Naming Convention**
 
@@ -118,7 +118,7 @@ Here is how PostgreSQL module components and their interactions. From top to bot
 * Postgres-related logs (postgres,pgbouncer,patroni,pgbackrest) are exposed by promtail @ port 9080
   * Promtail will send logs to Loki on infra nodes
 
-[![pigsty-arch](https://github.com/Vonng/pigsty/assets/8587410/7b226641-e61b-4e79-bc31-759204778bd5)](INFRA)
+[![pgsql-arch.jpg](https://repo.pigsty.cc/img/pgsql-arch.jpg)](INFRA)
 
 
 
@@ -130,7 +130,7 @@ Here is how PostgreSQL module components and their interactions. From top to bot
 
 Pigsty's PostgreSQL cluster has battery-included high-availability powered by [patroni](https://patroni.readthedocs.io/en/latest/), [etcd](https://etcd.io/), and [haproxy](http://www.haproxy.org/) 
 
-[![pgsql-ha](https://github.com/Vonng/pigsty/assets/8587410/645501d1-384e-4009-b41b-8488654f17d3)](PGSQL-ARCH.md)
+[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](PGSQL-ARCH.md)
 
 When the primary fails, one of the replicas will be promoted to primary automatically, and read-write traffic will be routed to the new primary immediately. The impact is: write queries will be blocked for 15 ~ 40s until the new leader is elected.
 

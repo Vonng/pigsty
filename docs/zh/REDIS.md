@@ -289,7 +289,7 @@ Pigsty 提供了三个与 [`REDIS`](REDIS) 模块有关的监控仪表盘：
 
 [Redis Overview](https://demo.pigsty.cc/d/redis-overview)：关于所有Redis集群/实例的详细信息
 
-[![redis-overview](https://github.com/Vonng/pigsty/assets/8587410/cceabc05-7d9a-467e-9cb6-cf3f7da60ad3)](https://demo.pigsty.cc/d/redis-overview)
+[![redis-overview.jpg](https://repo.pigsty.cc/img/redis-overview.jpg)](https://demo.pigsty.cc/d/redis-overview)
 
 ----------------
 
@@ -299,7 +299,7 @@ Pigsty 提供了三个与 [`REDIS`](REDIS) 模块有关的监控仪表盘：
 
 <details><summary>Redis Cluster Dashboard</summary>
 
-[![redis-cluster](https://github.com/Vonng/pigsty/assets/8587410/840df751-07b7-4abc-83e1-108472e5b928)](https://demo.pigsty.cc/d/redis-cluster)
+[![redis-cluster.jpg](https://repo.pigsty.cc/img/redis-cluster.jpg)](https://demo.pigsty.cc/d/redis-cluster)
 
 </details><br>
 
@@ -311,7 +311,7 @@ Pigsty 提供了三个与 [`REDIS`](REDIS) 模块有关的监控仪表盘：
 
 <details><summary>Redis Instance Dashboard</summary>
 
-[![redis-instance](https://github.com/Vonng/pigsty/assets/8587410/caccbec5-8cf2-44a2-adc1-78b4cae5e9fb)](https://demo.pigsty.cc/d/redis-instance)
+[![redis-instance](https://repo.pigsty.cc/img/redis-instance.jpg)](https://demo.pigsty.cc/d/redis-instance)
 
 </details><br>
 
@@ -345,7 +345,7 @@ Pigsty中有21个关于Redis模块的配置参数：
 | [`redis_aof_enabled`](PARAM#redis_aof_enabled)           |   bool   |   C   | Redis AOF 是否启用？                       |
 | [`redis_rename_commands`](PARAM#redis_rename_commands)   |   dict   |   C   | Redis危险命令重命名列表                        |
 | [`redis_cluster_replicas`](PARAM#redis_cluster_replicas) |   int    |   C   | Redis原生集群中每个主库配几个从库？                  |
-| [`redis_sentinel_monitor`](PARAM#redis_cluster_replicas) | master[] |   C   | Redis哨兵监控的主库列表，只在哨兵集群上使用？ |
+| [`redis_sentinel_monitor`](PARAM#redis_cluster_replicas) | master[] |   C   | Redis哨兵监控的主库列表，只在哨兵集群上使用？             |
 
 
 ```yaml

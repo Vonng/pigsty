@@ -150,7 +150,7 @@ Below, we use a sandbox environment as an example: now we assume that the `pg-me
 
    The databases listed in the `pg_databases` field will be registered in Grafana as a PostgreSQL data source, providing data support for the PGCAT monitoring panel. If you don't want to use PGCAT and register the database in Grafana, set `pg_databases` to an empty array or leave it blank.
 
-   ![monitor-rds](https://github.com/Vonng/pigsty/assets/8587410/26b06723-3db5-4b56-b432-34c770591e0d)
+   ![pigsty-monitor.jpg](https://repo.pigsty.cc/img/pgsql-monitor.jpg)
 
 3. Execute the command to add monitoring: `bin/pgmon-add <clsname>`
 

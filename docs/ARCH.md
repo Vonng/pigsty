@@ -24,7 +24,7 @@ Pigsty uses a modular design, and there are six default modules: [`PGSQL`](PGSQL
 
 You can compose them freely in a declarative manner. If you want host monitoring, [`INFRA`](INFRA) & [`NODE`](NODE) will suffice. Add additional [`ETCD`](ETCD) and [`PGSQL`](PGSQL) are used for HA PG Clusters. Deploying them on multiple nodes will form a ha cluster. You can reuse pigsty infra and develop your modules, considering optional [`REDIS`](REDIS) and [`MINIO`](MINIO) as examples.
 
-[![pigsty-sandbox](https://github.com/Vonng/pigsty/assets/8587410/0de01720-2573-400e-be11-6f12019fc971)](PROVISION)
+[![pigsty-sandbox.jpg](https://repo.pigsty.cc/img/pigsty-sandbox.jpg)](PROVISION)
 
 
 
@@ -36,7 +36,7 @@ Pigsty will install on a single **node** (BareMetal / VirtualMachine) by default
 
 This node now has a self-monitoring system, visualization toolsets, and a  Postgres database with autoconfigured PITR. You can use this node for devbox, testing, running demos, and doing data visualization & analysis. Or, furthermore, adding more nodes to it!
 
-[![pigsty-arch](https://github.com/Vonng/pigsty/assets/8587410/7b226641-e61b-4e79-bc31-759204778bd5)](INFRA)
+[![pgsql-arch.jpg](https://repo.pigsty.cc/img/pgsql-arch.jpg)](INFRA)
 
 
 
@@ -48,7 +48,7 @@ The installed [Singleton Meta](#singleton-meta) can be use as an **admin node** 
 
 If you want to install the Prometheus / Grafana observability stack, Pigsty just deliver the best practice for you! It has fine-grained dashboards for [Nodes](https://demo.pigsty.cc/d/node-overview) & [PostgreSQL](https://demo.pigsty.cc/d/pgsql-overview), no matter these nodes or PostgreSQL servers are managed by Pigsty or not, you can have a production-grade monitoring & alerting immediately with simple configuration.
 
-[![pigsty-dashboard](https://github.com/Vonng/pigsty/assets/8587410/cd4e6620-bc36-44dc-946b-b9ae56f93c90)](PGSQL-DASHBOARD)
+[![pigsty-dashboard.jpg](https://repo.pigsty.cc/img/pigsty-dashboard.jpg)](PGSQL-DASHBOARD)
 
 
 
@@ -75,7 +75,7 @@ $ bin/pgsql-add pg-test  # init cluster 'pg-test'
 
 Which will gives you a following cluster with monitoring , replica, backup all set.
 
-[![pgsql-ha](https://github.com/Vonng/pigsty/assets/8587410/645501d1-384e-4009-b41b-8488654f17d3)](PGSQL-ARCH)
+[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](PGSQL-ARCH)
 
 Hardware failures are covered by self-healing HA architecture powered by `patroni`, `etcd`, and `haproxy`, which will perform auto failover in case of leader failure under 30 seconds.  With the self-healing traffic control powered by haproxy, the client may not even notice there's a failure at all, in case of a switchover or replica failure.
 
@@ -91,7 +91,7 @@ Pigsty follows IaC & GitOPS philosophy: Pigsty deployment is described by declar
 
 The user describes the desired status with [Parameters](PARAM) in a declarative manner, and the playbooks tune target nodes into that status in an idempotent manner. It's like Kubernetes CRD & Operator but works on Bare Metals & Virtual Machines.
 
-[![pigsty-iac](https://github.com/Vonng/pigsty/assets/8587410/55dece4e-d299-479c-8100-1170ef686f0f)](CONFIG)
+[![pigsty-iac.jpg](https://repo.pigsty.cc/img/pigsty-iac.jpg)](CONFIG)
 
 Take the default config snippet as an example, which describes a node `10.10.10.10` with modules [`INFRA`](INFRA), [`NODE`](NODE), [`ETCD`](ETCD), and [`PGSQL`](PGSQL) installed.
 

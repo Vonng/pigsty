@@ -38,7 +38,7 @@ infra_portal:  # domain names and upstream servers
   #minio        : { domain: sss.pigsty  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
 ```
 
-[![pigsty-arch](https://github.com/Vonng/pigsty/assets/8587410/7b226641-e61b-4e79-bc31-759204778bd5)](INFRA)
+[![pgsql-arch.jpg](https://repo.pigsty.cc/img/pgsql-arch.jpg)](INFRA)
 
 
 
@@ -239,7 +239,7 @@ Check [Playbook: One-Pass Install](PLAYBOOK#one-pass-install) for details.
 
 <details><summary>Pigsty Home Dashboard</summary>
 
-[![pigsty-home](https://github.com/Vonng/pigsty/assets/8587410/b9679741-5baf-4a89-b6d0-e9eb4a13814d)](https://demo.pigsty.cc/d/pigsty/)
+[![pigsty.jpg](https://repo.pigsty.cc/img/pigsty.jpg)](https://demo.pigsty.cc/d/pigsty/)
 
 </details>
 
@@ -248,7 +248,7 @@ Check [Playbook: One-Pass Install](PLAYBOOK#one-pass-install) for details.
 
 <details><summary>INFRA Overview Dashboard</summary>
 
-[![infra-overview](https://github.com/Vonng/pigsty/assets/8587410/d262ceaa-2d73-4817-88e7-1790c77a5498)](https://demo.pigsty.cc/d/infra-overview/)
+[![infra-overview.jpg](https://repo.pigsty.cc/img/infra-overview.jpg)](https://demo.pigsty.cc/d/infra-overview/)
 
 </details>
 
@@ -257,7 +257,7 @@ Check [Playbook: One-Pass Install](PLAYBOOK#one-pass-install) for details.
 
 <details><summary>Nginx Overview Dashboard</summary>
 
-[![nginx-overview](https://github.com/Vonng/pigsty/assets/8587410/08bff428-5f2a-4adb-9c96-479da59ccd2a)](https://demo.pigsty.cc/d/nginx-overview)
+[![nginx-overview.jpg](https://repo.pigsty.cc/img/nginx-overview.jpg)](https://demo.pigsty.cc/d/nginx-overview)
 
 </details>
 
@@ -266,7 +266,7 @@ Check [Playbook: One-Pass Install](PLAYBOOK#one-pass-install) for details.
 
 <details><summary>Grafana Overview Dashboard</summary>
 
-[![grafana-overview](https://github.com/Vonng/pigsty/assets/8587410/6801fe16-1b47-4c1b-99aa-6af8b07aee4a)](https://demo.pigsty.cc/d/grafana-overview)
+[![grafana-overview.jpg](https://repo.pigsty.cc/img/grafana-overview.jpg)](https://demo.pigsty.cc/d/grafana-overview)
 
 </details>
 
@@ -275,7 +275,7 @@ Check [Playbook: One-Pass Install](PLAYBOOK#one-pass-install) for details.
 
 <details><summary>Prometheus Overview Dashboard</summary>
 
-[![prometheus-overview](https://github.com/Vonng/pigsty/assets/8587410/553f2f60-67a8-401d-abef-a58dd52a5bee)](https://demo.pigsty.cc/d/prometheus-overview)
+[![prometheus-overview.jpg](https://repo.pigsty.cc/img/prometheus-overview.jpg)](https://demo.pigsty.cc/d/prometheus-overview)
 
 </details>
 
@@ -284,7 +284,7 @@ Check [Playbook: One-Pass Install](PLAYBOOK#one-pass-install) for details.
 
 <details><summary>Loki Overview Dashboard</summary>
 
-[![loki-overview](https://github.com/Vonng/pigsty/assets/8587410/a70a5d3a-bc8d-4fef-9708-4eabdd0436ff)](https://demo.pigsty.cc/d/loki-overview)
+[![loki-overview.jpg](https://repo.pigsty.cc/img/loki-overview.jpg)](https://demo.pigsty.cc/d/loki-overview)
 
 </details>
 
@@ -293,7 +293,7 @@ Check [Playbook: One-Pass Install](PLAYBOOK#one-pass-install) for details.
 
 <details><summary>Logs Instance Dashboard</summary>
 
-[![logs-instance](https://github.com/Vonng/pigsty/assets/8587410/246eff0e-d47d-4740-99db-20aca4b8ec55)](https://demo.pigsty.cc/d/logs-instance)
+[![logs-instance.jpg](https://repo.pigsty.cc/img/logs-instance.jpg)](https://demo.pigsty.cc/d/logs-instance)
 
 </details>
 
@@ -302,7 +302,7 @@ Check [Playbook: One-Pass Install](PLAYBOOK#one-pass-install) for details.
 
 <details><summary>Logs Overview Dashboard</summary>
 
-[![logs-overview](https://github.com/Vonng/pigsty/assets/8587410/e0a6c0f5-8cb1-4d70-a327-d9fa815e3f27)](https://demo.pigsty.cc/d/logs-overview)
+[![logs-overview.jpg](https://repo.pigsty.cc/img/logs-overview.jpg)](https://demo.pigsty.cc/d/logs-overview)
 
 </details>
 
@@ -311,7 +311,7 @@ Check [Playbook: One-Pass Install](PLAYBOOK#one-pass-install) for details.
 
 <details><summary>CMDB Overview Dashboard</summary>
 
-[![cmdb-overview](https://github.com/Vonng/pigsty/assets/8587410/9e187204-9d8d-4c31-8885-313f00bbc73f)](https://demo.pigsty.cc/d/cmdb-overview)
+[![cmdb-overview.jpg](https://repo.pigsty.cc/img/cmdb-overview.jpg)](https://demo.pigsty.cc/d/cmdb-overview)
 
 </details>
 
@@ -320,7 +320,7 @@ Check [Playbook: One-Pass Install](PLAYBOOK#one-pass-install) for details.
 
 <details><summary>ETCD Overview Dashboard</summary>
 
-[![etcd-overview](https://github.com/Vonng/pigsty/assets/8587410/3f268146-9242-42e7-b78f-b5b676155f3f)](https://demo.pigsty.cc/d/etcd-overview)
+[![etcd-overview.jpg](https://repo.pigsty.cc/img/etcd-overview.jpg)](https://demo.pigsty.cc/d/etcd-overview)
 
 </details>
 

@@ -32,7 +32,7 @@ Two optional L2 VIP are bind on primary instances of cluster `pg-meta`  and `pg-
 
 There's also a 1-instance `etcd` cluster, and 1-instance `minio` cluster on the `meta` node, too.
 
-![pigsty-sandbox](https://github.com/Vonng/pigsty/assets/8587410/0de01720-2573-400e-be11-6f12019fc971)
+![pigsty-sandbox.jpg](https://repo.pigsty.cc/img/pigsty-sandbox.jpg)
 
 You can run sandbox on local VMs or cloud VMs. Pigsty offers a local sandbox based on [Vagrant](#vagrant) (pulling up local VMs using Virtualbox or libvirt), and a cloud sandbox based on Terraform (creating VMs using the cloud vendor API).
 

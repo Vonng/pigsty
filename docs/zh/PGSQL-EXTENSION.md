@@ -9,7 +9,7 @@ Pigsty 收录了超过 **150+** PostgreSQL 扩展插件，并编译打包整合�
 
 绝大多数插件插件都已经收录放置在基础设施节点上的本地软件源中，可以直接通过 PGSQL [集群配置](#扩展安装) 自动启用，或使用 `yum` 命令[手工安装](#手工安装扩展)。Pigsty 还包含了完整的编译环境与基础设施，允许您方便地自行[编译加装](#扩展编译)其他未收录的扩展。
 
-![pigsty-extension](https://github.com/Vonng/pigsty/assets/8587410/91dfee81-3193-4505-b33f-0c5949dabf02)
+![pigsty-extension.jpg](https://repo.pigsty.cc/img/pigsty-extension.jpg)
 
 有一些“数据库”其实并不是 PostgreSQL 扩展插件，但是基于 PostgreSQL，或与其密切相关。因此也收录在 Pigsty 中，提供原生支持：
 

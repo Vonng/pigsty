@@ -205,7 +205,7 @@ There is one dashboard for [`MONGO`](MONGO) module for now.
 
 [Mongo Overview](https://demo.pigsty.cc/d/mongo-overview): Overview of a Mongo/FerretDB cluster
 
-[![mongo-overview](https://github.com/Vonng/pigsty/assets/8587410/406fc2ad-3935-4da9-b77c-2485afb57af8)](https://demo.pigsty.cc/d/mongo-overview)
+[![mongo-overview.jpg](https://repo.pigsty.cc/img/mongo-overview.jpg)](https://demo.pigsty.cc/d/mongo-overview)
 
 
 

@@ -25,7 +25,7 @@ Free RDS for PostgreSQL. Check [**Features**](docs/FEATURE.md) | [**特性**](do
 - Handy IaC Templates, provisioning Infra with [Terraform](terraform/README.md) and try [sandbox](docs/PROVISION.md) with [Vagrant](vagrant/README.md).
 - Pre-pack stable versions, create [local repos](docs/INSTALL.md#offline-packages) and install without Internet access.
 
-[![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/a0550ad2-7bb9-4051-8758-9e5e3b294e54)](docs/FEATURE.md)
+[![pigsty-distro.jpg](https://github.com/Vonng/pigsty/assets/8587410/a0550ad2-7bb9-4051-8758-9e5e3b294e54)](docs/FEATURE.md)
 
 Pigsty can be used in different scenarios:
 - Run HA [PostgreSQL](docs/PGSQL.md) RDS for production usage, with PostGIS, TimescaleDB, Citus, etc...
@@ -36,7 +36,7 @@ Pigsty can be used in different scenarios:
 - Run dedicated [Redis](docs/REDIS.md), [MinIO](docs/MINIO.md), [ETCD](docs/ETCD.md), and HAProxy clusters with HA & observability, too.
 - Run as a pure [monitoring](docs/PGSQL-MONITOR.md#monitor-mode) system for existing PostgreSQL clusters and cloud [RDS](docs/PGSQL-MONITOR.md#monitor-rds).
 
-[![pigsty-dashboard](https://github.com/Vonng/pigsty/assets/8587410/cd4e6620-bc36-44dc-946b-b9ae56f93c90)](https://demo.pigsty.cc)
+[![pigsty-dashboard.jpg](https://github.com/Vonng/pigsty/assets/8587410/cd4e6620-bc36-44dc-946b-b9ae56f93c90)](https://demo.pigsty.cc)
 
 
 <details><summary>Ecosystem & Available Extensions</summary></br>
@@ -53,7 +53,7 @@ Pigsty has over **150+** **OPTIONAL** [extensions](docs/PGSQL-EXTENSION.md) pre-
 - [Apache AGE](https://age.apache.org/): Add OpenCypher graph query language support to PostgreSQL, works like Neo4J
 - ...
 
-[![pigsty-extension](https://github.com/Vonng/pigsty/assets/8587410/91dfee81-3193-4505-b33f-0c5949dabf02)](docs/PGSQL-EXTENSION.md)
+[![pigsty-extension.jpg](https://github.com/Vonng/pigsty/assets/8587410/91dfee81-3193-4505-b33f-0c5949dabf02)](docs/PGSQL-EXTENSION.md)
 
 Some non-trivial extensions:
 
@@ -260,7 +260,7 @@ The default [`install.yml`](install.yml) playbook in [Get Started](#get-started)
 which gives you a battery-included PostgreSQL singleton instance (`admin_ip:5432`) with everything ready.
 This node can be used as an admin center & infra provider to manage, deploy & monitor more nodes & clusters.
 
-[![pigsty-arch](https://github.com/Vonng/pigsty/assets/8587410/7b226641-e61b-4e79-bc31-759204778bd5)](docs/ARCH.md)
+[![pigsty-arch.jpg](https://github.com/Vonng/pigsty/assets/8587410/7b226641-e61b-4e79-bc31-759204778bd5)](docs/ARCH.md)
 
 
 
@@ -285,7 +285,7 @@ Then create it with built-in playbooks:
 bin/pgsql-add pg-test   # init pg-test cluster 
 ```
 
-![pgsql-ha](https://github.com/Vonng/pigsty/assets/8587410/645501d1-384e-4009-b41b-8488654f17d3)
+![pgsql-ha.jpg](https://github.com/Vonng/pigsty/assets/8587410/645501d1-384e-4009-b41b-8488654f17d3)
 
 You can deploy different kinds of instance roles such as primary, replica, offline, delayed, sync standby, and different kinds of clusters, such as standby clusters, Citus clusters, and even Redis/MinIO/Etcd clusters.
 

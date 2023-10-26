@@ -27,14 +27,14 @@ You can manage nodes with Pigsty, and install modules on them. The `node.yml` pl
 
 Some services will be added to all nodes by default:
 
-|   Component         | Port | Description                      |   Status       |
-|:-------------------:|:----:|----------------------------------|-----------------|
-| Node Exporter       | 9100 | Node Monitoring Metrics Exporter |  Enabled        |
-| HAProxy Admin       | 9101 | HAProxy admin page               |   Enabled       |
-|   Promtail          | 9080 | Log collecting agent             |   Enabled       |
-|    Docker Daemon    | 9323 | Enable Container Service         |  *Disabled*     |
-|     Keepalived      |  -   | Manage Node Cluster L2 VIP       |  *Disabled*     |
-| Keepalived Exporter | 9650 | Monitoring Keepalived Status     |  *Disabled*     |
+|      Component      | Port | Description                      | Status     |
+|:-------------------:|:----:|----------------------------------|------------|
+|    Node Exporter    | 9100 | Node Monitoring Metrics Exporter | Enabled    |
+|    HAProxy Admin    | 9101 | HAProxy admin page               | Enabled    |
+|      Promtail       | 9080 | Log collecting agent             | Enabled    |
+|    Docker Daemon    | 9323 | Enable Container Service         | *Disabled* |
+|     Keepalived      |  -   | Manage Node Cluster L2 VIP       | *Disabled* |
+| Keepalived Exporter | 9650 | Monitoring Keepalived Status     | *Disabled* |
 
 Docker & Keepalived are optional components, enabled when required. 
 
@@ -336,7 +336,7 @@ There are 6 dashboards for [`NODE`](NODE) module.
 
 <details><summary>Node Overview Dashboard</summary>
 
-[![node-overview](https://github.com/Vonng/pigsty/assets/8587410/e41b6025-bce4-4442-bc28-f3caa49cf64f)](https://demo.pigsty.cc/d/node-overview)
+[![node-overview.jpg](https://repo.pigsty.cc/img/node-overview.jpg)](https://demo.pigsty.cc/d/node-overview)
 
 </details>
 
@@ -346,7 +346,7 @@ There are 6 dashboards for [`NODE`](NODE) module.
 
 <details><summary>Node Cluster Dashboard</summary>
 
-[![node-cluster](https://github.com/Vonng/pigsty/assets/8587410/aa8cd43d-6c8a-47cb-b556-8da5ebb68c66)](https://demo.pigsty.cc/d/node-cluster)
+[![node-cluster.jpg](https://repo.pigsty.cc/img/node-cluster.jpg)](https://demo.pigsty.cc/d/node-cluster)
 
 </details>
 
@@ -356,7 +356,7 @@ There are 6 dashboards for [`NODE`](NODE) module.
 
 <details><summary>Node Instance Dashboard</summary>
 
-[![node-instance](https://github.com/Vonng/pigsty/assets/8587410/90c0ba35-93f0-4dde-92fa-eb188adf9eb2)](https://demo.pigsty.cc/d/node-instance)
+[![node-instance.jpg](https://repo.pigsty.cc/img/node-instance.jpg)](https://demo.pigsty.cc/node-instance)
 
 </details>
 
@@ -366,7 +366,7 @@ There are 6 dashboards for [`NODE`](NODE) module.
 
 <details><summary>Node Alert Dashboard</summary>
 
-[![node-alert](https://github.com/Vonng/pigsty/assets/8587410/63605aa8-909f-44b8-b7c7-e6caea1d1ed0)](https://demo.pigsty.cc/d/node-alert)
+[![node-alert.jpg](https://repo.pigsty.cc/img/node-alert.jpg)](https://demo.pigsty.cc/d/node-alert)
 
 </details>
 
@@ -376,7 +376,7 @@ There are 6 dashboards for [`NODE`](NODE) module.
 
 <details><summary>Node VIP Dashboard</summary>
 
-[![node-vip](https://github.com/Vonng/pigsty/assets/8587410/9cc0ed01-49f0-4321-814f-98d1e3b0a74f)](https://demo.pigsty.cc/d/node-vip)
+[![node-vip.jpg](https://repo.pigsty.cc/img/node-vip.jpg)](https://demo.pigsty.cc/d/node-vip)
 
 </details>
 
@@ -386,7 +386,7 @@ There are 6 dashboards for [`NODE`](NODE) module.
 
 <details><summary>Node Haproxy Dashboard</summary>
 
-[![node-haproxy](https://github.com/Vonng/pigsty/assets/8587410/75267451-06cc-4d8a-ab30-aa347a1cad0e)](https://demo.pigsty.cc/d/node-haproxy)
+[![node-haproxy.jpg](https://repo.pigsty.cc/img/node-haproxy.jpg)](https://demo.pigsty.cc/d/node-haproxy)
 
 </details>
 

@@ -12,7 +12,7 @@ Pigsty 是一个更好的本地开源 RDS for PostgreSQL 替代：
 - [广泛的应用场景](#广泛的应用场景)：低代码数据应用开发，或使用预置的 Docker Compose 模板，一键拉起使用PostgreSQL的海量软件！
 - [开源的自由软件](#开源的自由软件)：以云数据库1/10不到的成本拥有与更好的数据库服务！帮您真正“拥有”自己的数据，实现自主可控！
 
-[![pigsty-home](https://github.com/Vonng/pigsty/assets/8587410/dec59092-14bc-47ab-baac-99c86643c9b7)](https://demo.pigsty.cc)
+[![pigsty-home.jpg](https://repo.pigsty.cc/img/pigsty-home.jpg)](https://demo.pigsty.cc)
 
 
 ----------------
@@ -30,7 +30,7 @@ Pigsty 支持的数据库版本覆盖 PostgreSQL 12 ～ 16，可以运行于 EL 
 参数将根据您的硬件规格自动进行优化调整，内核扩展安装，连接池，负载均衡，服务接入，高可用/自动切换，日志监控，备份恢复PITR，访问控制，参数调优，安全加密，证书签发，NTP，DNS，配置管理，CMDB，管理预案……，所有这些在生产环境中可能会遇到的问题，Pigsty 都帮您预先考虑好了。
 您所要做的就是一键安装好，然后使用连接串URL连上去使用即可。
 
-[![pigsty-arch](https://github.com/Vonng/pigsty/assets/8587410/7b226641-e61b-4e79-bc31-759204778bd5)](ARCH.md#单机安装)
+[![pgsql-arch.jpg](https://repo.pigsty.cc/img/pgsql-arch.jpg)](ARCH.md#单机安装)
 
 
 ----------------
@@ -47,7 +47,7 @@ Pigsty 收录了超过 150+ PostgreSQL 扩展插件，编译维护打包了一�
 
 Pigsty还包含了完整的编译环境与基础设施，允许您方便地自行[编译](PGSQL-EXTENSION#扩展编译)加装其他没有收录的扩展。
 
-[![pigsty-distro](https://github.com/Vonng/pigsty/assets/8587410/a0550ad2-7bb9-4051-8758-9e5e3b294e54)](PGSQL-EXTENSION.md)
+[![pigsty-distro.jpg](https://repo.pigsty.cc/img/pigsty-distro.jpg)](PGSQL-EXTENSION.md)
 
 
 
@@ -66,7 +66,7 @@ Pigsty还包含了完整的编译环境与基础设施，允许您方便地自�
 
 此外，Pigsty的监控系统模块部分还可以[独立使用](PGSQL-MONITOR#监控rds) ——用它来监控现有的主机节点与数据库实例，或者是云上的 RDS 服务。只需要一个连接串一行命令，您就可以获得极致的 PostgreSQL 可观测性体验。
 
-[![pigsty-sandbox](https://github.com/Vonng/pigsty/assets/8587410/0de01720-2573-400e-be11-6f12019fc971)](ARCH.md#模块)
+[![pigsty-sandbox.jpg](https://repo.pigsty.cc/img/pigsty-sandbox.jpg)](ARCH.md#模块)
 
 
 
@@ -83,7 +83,7 @@ Pigsty 所管理的任何组件都会被自动纳入监控之中，包括主机�
 
 无论是故障分析还是慢查询优化、无论是水位评估还是资源规划，Pigsty 为您提供全面的数据支撑，真正做到数据驱动。在 Pigsty 中，超过三千类监控指标被用于描述整个系统的方方面面，并被进一步加工、聚合、处理、分析、提炼并以符合直觉的可视化模式呈现在您的面前。从全局大盘总览，到某个数据库实例中单个对象（表，索引，函数）的增删改查详情都能一览无余。您可以随意上卷下钻横向跳转，浏览系统现状与历史趋势，并预测未来的演变。
 
-[![pigsty-dashboard](https://github.com/Vonng/pigsty/assets/8587410/cd4e6620-bc36-44dc-946b-b9ae56f93c90)](https://github.com/Vonng/pigsty/wiki/Gallery)
+[![pigsty-dashboard.jpg](https://repo.pigsty.cc/img/pigsty-dashboard.jpg)](https://github.com/Vonng/pigsty/wiki/Gallery)
 
 访问 [截图画廊](https://github.com/Vonng/pigsty/wiki/Gallery)与[在线演示](https://demo.pigsty.cc) 获取更多详情。
 
@@ -103,7 +103,7 @@ Pigsty 所管理的任何组件都会被自动纳入监控之中，包括主机�
 Pigsty 内置了 HAProxy 负载均衡器用于自动流量切换，提供 DNS/VIP/LVS 等多种接入方式供客户端选用。故障切换与主动切换对业务侧除零星闪断外几乎无感知，应用不需要修改连接串重启。极小的维护窗口需求带来了极大的灵活便利：您完全可以在无需应用配合的情况下滚动维护升级整个集群。硬件故障可以等到第二天再抽空善后处置的特性，让研发，运维与 DBA 都能安心睡个好觉。
 许多大型组织与核心机构已经在生产环境中长时间使用 Pigsty ，最大的部署有 25K CPU 核心与 200+ PostgreSQL 超大规格实例；在这一部署案例中，四年内经历了数十次硬件故障与各类事故，但依然可以保持比 99.999% 更高的可用性战绩。
 
-[![pgsql-ha](https://github.com/Vonng/pigsty/assets/8587410/645501d1-384e-4009-b41b-8488654f17d3)](PGSQL-ARCH.md#高可用)
+[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](PGSQL-ARCH.md#高可用)
 
 
 
@@ -120,7 +120,7 @@ Pigsty 使用声明式的接口对外提供服务，将系统的可控制性拔�
 
 除此之外，Pigsty 本身的安装部署也是一键傻瓜式的，所有依赖被预先打包，在安装时可以无需互联网访问。而安装所需的机器资源，也可以通过 Vagrant 或 Terraform 模板自动获取，让您在十几分钟内就可以从零在本地笔记本或云端虚拟机上拉起一套完整的 Pigsty 部署。本地沙箱环境可以跑在1核2G的微型虚拟机中，提供与生产环境完全一致的功能模拟，可以用于开发、测试、演示与学习。
 
-[![pigsty-iac](https://github.com/Vonng/pigsty/assets/8587410/55dece4e-d299-479c-8100-1170ef686f0f)](CONFIG.md)
+[![pigsty-iac.jpg](https://repo.pigsty.cc/img/pigsty-iac.jpg)](CONFIG.md)
 
 
 
@@ -138,7 +138,7 @@ Pigsty 针对 PostgreSQL 提供了一套开箱即用，简单易用，精炼灵�
 任何网络通信都可以使用 SSL 加密，需要保护的敏感管理页面与API端点都受到多重保护：使用用户名与密码进行认证，限制从管理节点/基础设施节点IP地址/网段访问，要求使用 HTTPS 加密网络流量。Patroni API 与 Pgbouncer 因为性能因素默认不启用 SSL ，但亦提供安全开关便于您在需要时开启。
 合理配置的系统通过等保三级毫无问题，只要您遵循安全性最佳实践，内网部署并合理配置安全组与防火墙，数据库安全性将不再是您的痛点。
 
-[![pigsty-acl](https://github.com/Vonng/pigsty/assets/8587410/57c365f8-b4f6-465a-a501-a2a499223ce6)](SECURITY.md)
+[![pigsty-acl.jpg](https://repo.pigsty.cc/img/pigsty-acl.jpg)](SECURITY.md)
 
 
 
@@ -154,7 +154,7 @@ Pigsty 提供了 Docker 模块与大量开箱即用的 Compose 模板。您可�
 
 Pigsty 也提供了与 PostgreSQL 紧密联系的应用开发工具集：PGAdmin4、PGWeb、ByteBase、PostgREST、Kong、以及 EdgeDB、FerretDB、Supabase 这些使用 PostgreSQL 作为存储的"上层数据库"。更奇妙的是，您完全可以基于 Pigsty 内置了的 Grafana 与 Postgres ，以低代码的方式快速搭建起一个交互式的数据应用来，甚至还可以使用 Pigsty 内置的 ECharts 面板创造更有表现力的交互可视化作品。
 
-[![pigsty-app](https://github.com/Vonng/pigsty/assets/8587410/e1384295-bad9-4338-895b-79741bc25ecd)](APP.md)
+[![pigsty-app.jpg](https://repo.pigsty.cc/img/pigsty-app.jpg)](APP.md)
 
 
 
@@ -170,4 +170,4 @@ Pigsty 是完全[开源免费](LICENSE.md)的自由软件，它允许您在缺�
 
 Pigsty 本身旨在用数据库自动驾驶软件，替代大量无趣的人肉数据库运维工作，但再好的软件也没法解决所有的问题。总会有一些的冷门低频疑难杂症需要专家介入处理。这也是为什么我们也提供专业的[订阅服务](SUPPORT.md#服务协议)，来为有需要的企业级用户使用 PostgreSQL 提供兜底。几万块的订阅咨询费不到顶尖 DBA 每年工资的几十分之一，让您彻底免除后顾之忧，把成本真正花在刀刃上。对于社区用户，我们亦[用爱发电](SUPPORT.md#赞助我们)，提供免费的支持与日常答疑。
 
-[![pigsty-price](https://github.com/Vonng/pigsty/assets/8587410/43fdfe36-7660-41c8-99cd-c2e4645531a7)](SUPPORT)
+[![pigsty-price.jpg](https://repo.pigsty.cc/img/pigsty-price.jpg)](SUPPORT)

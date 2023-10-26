@@ -8,7 +8,7 @@ Docker 默认并没有安装，但是包含在离线软件包中。例如，您�
 
 一些可用的软件列表与安装说明请参考：[pigsty/app](https://github.com/Vonng/pigsty/tree/master/app)
 
-[![pigsty-app](https://github.com/Vonng/pigsty/assets/8587410/e1384295-bad9-4338-895b-79741bc25ecd)](https://github.com/Vonng/pigsty/tree/master/app)
+[![pigsty-app.jpg](https://repo.pigsty.cc/img/pigsty-app.jpg)](https://github.com/Vonng/pigsty/tree/master/app)
 
 
 

@@ -211,7 +211,7 @@ MONGO 模块提供了一个简单的监控面板：Mongo Overview
 
 这个监控面板提供了关于 FerretDB 的基本监控指标，因为 FerretDB 底层使用了 PostgreSQL，所以更多的监控指标，还请参考 PostgreSQL 监控。
 
-[![mongo-overview](https://github.com/Vonng/pigsty/assets/8587410/406fc2ad-3935-4da9-b77c-2485afb57af8)](https://demo.pigsty.cc/d/mongo-overview)
+[![mongo-overview.jpg](https://repo.pigsty.cc/img/mongo-overview.jpg)](https://demo.pigsty.cc/d/mongo-overview)
 
 
 

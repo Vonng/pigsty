@@ -4,7 +4,7 @@
 
 Pigsty 已经提供了开箱即用的[认证](PGSQL-HBA)与[访问控制](PGSQL-ACL)模型，对于绝大多数场景已经足够安全。
 
-[![pigsty-acl](https://github.com/Vonng/pigsty/assets/8587410/57c365f8-b4f6-465a-a501-a2a499223ce6)](PGSQL-ACL)
+[![pigsty-acl.jpg](https://repo.pigsty.cc/img/pigsty-acl.jpg)](PGSQL-ACL)
 
 如果您希望进一步加固系统的安全性，那么以下建议供您参考：
 
