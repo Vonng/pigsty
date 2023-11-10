@@ -1,0 +1,53 @@
+[mysqld]
+datadir = {{ mysql_data }}/data
+port = {{ mysql_port }}
+bind-address = {{ mysql_listen }}
+socket = {{ mysql_sock }}
+pid-file = {{ mysql_pid }}
+
+# replication
+server-id = {{ mysql_seq }}
+{% if mysql_role == 'primary' %}
+# primary configuration
+log_bin = mysql-bin
+log-bin-index = mysql-bin.index
+max_binlog_size = 1G
+
+{% elif mysql_role == 'replica' %}
+# replica configuration
+read_only
+relay-log = relay-bin
+relay-log-index = relay-bin.index
+
+{% endif %}
+
+# logging
+general_log = 1
+general_log_file = {{ mysql_data}}/log/mysql.log
+log-error = {{ mysql_data}}/log/error.log
+slow_query_log = 1
+slow_query_log_file = {{ mysql_data}}/log/slow.log
+
+# misc
+skip-name-resolve
+
+# parameters
+{% for key, value in mysql_default_parameters.items() %}
+{{ key }} = {{ value }}
+{% endfor %}
+
+
+[client]
+port = {{ mysql_port }}
+socket = {{ mysql_sock }}
+#password = <your_password>
+
+
+[mysqldump]
+quick
+max_allowed_packet = 64MB
+
+
+[mysqld_safe]
+pid-file = {{ mysql_pid }}
+#!includedir /etc/my.cnf.d

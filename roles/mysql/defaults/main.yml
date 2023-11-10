@@ -1,0 +1,79 @@
+---
+#-----------------------------------------------------------------
+# mysql_IDENTITY
+#-----------------------------------------------------------------
+# mysql_cluster:           #CLUSTER  # mysql cluster name, required identity parameter
+# mysql_role: replica      #INSTANCE # mysql role, required, could be primary,replica
+# mysql_seq: 0             #INSTANCE # mysql instance seq number, required identity parameter
+
+#-----------------------------------------------------------------
+# mysql_BUSINESS
+#-----------------------------------------------------------------
+# mysql business object definition, overwrite in group vars
+mysql_users: []                      # mysql business users
+mysql_databases: []                  # mysql business databases
+mysql_services: []                   # mysql business services
+
+# global credentials, overwrite in global vars
+mysql_root_username: root
+mysql_root_password: DBUser.Root
+mysql_replication_username: replicator
+mysql_replication_password: DBUser.Replicator
+mysql_admin_username: dbuser_dba
+mysql_admin_password: DBUser.DBA
+mysql_monitor_username: dbuser_monitor
+mysql_monitor_password: DBUser.Monitor
+
+#-----------------------------------------------------------------
+# mysql_INSTALL
+#-----------------------------------------------------------------
+# - install - #
+mysql_dbsu: mysql                    # os dbsu name, mysql by default, better not change it
+mysql_dbsu_uid: 27                   # os dbsu uid and gid, 306 for default mysql users and groups
+mysql_dbsu_home: /var/lib/mysql      # mysql home directory, `/var/lib/mysql` by default
+mysql_dbsu_ssh_exchange: true        # exchange mysql dbsu ssh key among same mysql cluster
+mysql_packages:                      # mysql packages to be installed, `mysql-community*` by default
+  - mysql-community*
+  - mysqld_exporter
+
+# - bootstrap - #
+mysql_data: /data/mysql              # mysql data directory, `/data/mysql` by default
+mysql_listen: '0.0.0.0'              # mysql listen addresses, comma separated IP list
+mysql_port: 3306                     # mysql listen port, 3306 by default
+mysql_sock: /var/lib/mysql/mysql.sock # mysql socket dir, `/var/lib/mysql/mysql.sock` by default
+mysql_pid: /var/run/mysqld/mysqld.pid # mysql pid file, `/var/run/mysqld/mysqld.pid` by default
+mysql_conf: /etc/my.cnf              # mysql config file, `/etc/my.cnf` by default
+mysql_log_dir: /var/log              # mysql log dir, `/var/log/mysql` by default
+
+mysql_exporter_port: 9104            # mysqld_exporter listen port, 9104 by default
+
+mysql_parameters: {}                 # extra parameters for mysqld
+mysql_default_parameters:            # default parameters for mysqld
+  max_connections: 100
+  key_buffer_size: 256M
+  max_allowed_packet: 64M
+  table_open_cache: 256
+  sort_buffer_size: 1M
+  read_buffer_size: 1M
+  read_rnd_buffer_size: 4M
+  myisam_sort_buffer_size: 64M
+  thread_cache_size: 8
+  tmp_table_size: 16M
+  max_heap_table_size: 16M
+  group_concat_max_len: 1024
+  join_buffer_size: 262144
+  lower_case_table_names: 0
+  wait_timeout: 28800
+  event_scheduler: 'OFF'
+  innodb_file_per_table: 1
+  innodb_buffer_pool_size: 256M
+  innodb_log_buffer_size: 8M
+  innodb_flush_log_at_trx_commit: 1
+  innodb_lock_wait_timeout: 50
+  long_query_time: 2
+
+
+# mysql_cluster: test
+# mysql_role: primary
+# mysql_seq: 11
+...

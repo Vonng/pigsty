@@ -1,0 +1,213 @@
+---
+#--------------------------------------------------------------#
+# Clean                                            [mysql_clean]
+#--------------------------------------------------------------#
+- name: cleanup mysql instance
+  tags: mysql_clean
+  block:
+    - name: shut mysql systemd service
+      systemd: name=mysqld state=stopped enabled=no daemon_reload=yes
+    - name: cleanup mysql directories
+      file: path={{ mysql_data }} state=absent
+
+#--------------------------------------------------------------#
+# User                                              [mysql_dbsu]
+#--------------------------------------------------------------#
+- name: create mysql dbsu
+  tags: mysql_dbsu
+  block:
+    - name: create os group mysql
+      group: name=mysql gid={{ mysql_dbsu_uid }}
+    - name: create mysql dbsu
+      user: name={{ mysql_dbsu }} uid={{ mysql_dbsu_uid }} home={{ mysql_dbsu_home }} group=mysql groups=mysql shell=/bin/bash generate_ssh_key=yes
+
+#--------------------------------------------------------------#
+# Install                                        [mysql_install]
+#--------------------------------------------------------------#
+- name: install mysql packages
+  tags: mysql_install
+  environment: "{{ proxy_env | default({}) }}"
+  package: name={{ item }}
+  with_items: "{{ mysql_packages }}"
+
+#--------------------------------------------------------------#
+# Directory                                          [mysql_dir]
+#--------------------------------------------------------------#
+- name: create mysql directories
+  tags: mysql_dir
+  file: path={{ item.file }} state=directory owner={{ mysql_dbsu }} group=mysql mode={{ item.mode }}
+  with_items:
+    - { file: /var/lib/mysql          ,mode: '0755'  }
+    - { file: /var/run/mysqld         ,mode: '0755'  }
+    - { file: /etc/my.cnf.d           ,mode: '0700'  }
+    - { file: "{{ mysql_data}}"       ,mode: '0700'  }
+    - { file: "{{ mysql_data}}/data"  ,mode: '0700'  }
+    - { file: "{{ mysql_data}}/log"   ,mode: '0700'  }
+
+- name: create /my soft link shortcut
+  tags: mysql_path
+  file: src="{{ mysql_data}}" dest=/my state=link
+
+
+#--------------------------------------------------------------#
+# Config                                          [mysql_config]
+#--------------------------------------------------------------#
+- name: render mysql config /etc/my.cnf
+  tags: mysql_config
+  template:
+    src: "my.cnf.j2"
+    dest: "/etc/my.cnf"
+    owner: "mysql"
+    group: mysql
+    mode: 0644
+
+#--------------------------------------------------------------#
+# Bootstrap                                       [mysql_launch]
+#--------------------------------------------------------------#
+- name: launch mysql instance
+  tags: mysql_launch
+  any_errors_fatal: true
+  block:
+
+    - name: init mysql data cluster
+      tags: mysql_init
+      become_user: "{{ mysql_dbsu }}"
+      shell: |
+        mysqld --initialize-insecure --datadir={{ mysql_data }}/data
+      args: { executable: /bin/bash }
+
+    - name: launch mysql primary systemd service
+      tags: mysql_launch
+      systemd: name=mysqld state=restarted enabled=yes daemon_reload=yes
+
+    - name: wait for mysql primary
+      wait_for: host={{ inventory_hostname }} port={{ mysql_port }} state=started timeout=60
+
+    - name: update root password
+      tags: mysql_root_pass
+      ignore_errors: yes      # it may fail on changed system
+      shell: |
+        rm -rf /root/.my.cnf;
+        mysql -u root -NBe 'SELECT 1;'
+        if [[ $? -ne 0 ]]; then
+            exit 0
+        fi
+        mysql -u root -NBe "ALTER USER {{ mysql_root_username }}@localhost IDENTIFIED WITH mysql_native_password BY '{{ mysql_root_password }}'; FLUSH PRIVILEGES;";
+
+      args: { executable: /bin/bash }
+      #no_log: true
+
+
+#--------------------------------------------------------------#
+# Bootstrap                                         [mysql_pass]
+#--------------------------------------------------------------#
+- name: write mysql password
+  tags: mysql_pass
+  any_errors_fatal: true
+  when: mysql_role == 'primary'
+  block:
+
+    - name: write root password
+      copy:
+        dest: '/root/.my.cnf'
+        content: |
+          [client]
+          user="{{ mysql_root_username }}"
+          password="{{ mysql_root_password }}"
+
+    - name: write dbsu password
+      copy:
+        dest: '{{ mysql_dbsu_home }}/.my.cnf'
+        owner: "{{ mysql_dbsu }}"
+        group: "mysql"
+        owner: 0600
+        content: |
+          [client]
+          user="{{ mysql_root_username }}"
+          password="{{ mysql_root_password }}"
+
+
+
+#--------------------------------------------------------------#
+# Databases                                           [mysql_db]
+#--------------------------------------------------------------#
+- name: create mysql databases
+  tags: mysql_db
+  shell: |
+    mysql -NBe "CREATE DATABASE IF NOT EXISTS {{ dbname }} CHARACTER SET '{{ encoding }}' COLLATE '{{ collate }}' DEFAULT ENCRYPTION='{{ encrypt }}';"
+  args: { executable: /bin/bash }
+  vars:
+    dbname: "{{ item.name }}"
+    encoding: "{{ item.encoding|default('utf8mb4') }}"
+    collate: "{{ item.collate|default('utf8mb4_0900_ai_ci') }}"
+    encrypt: "{{ item.encrypt|default('N') }}"
+  with_items: "{{ mysql_databases }}"
+
+#--------------------------------------------------------------#
+# Users                                             [mysql_user]
+#--------------------------------------------------------------#
+- name: create mysql users
+  tags: mysql_user
+  shell: |
+    mysql -NBe "CREATE USER IF NOT EXISTS {{ user }};";
+    {% if 'password' in item %}
+    mysql -NBe "ALTER USER IF EXISTS {{ user }} IDENTIFIED BY '{{ item.password }}';";
+    {% else %}
+    mysql -NBe "ALTER USER IF EXISTS {{ user }} DISCARD OLD PASSWORD;";
+    {% endif %}
+    {% if 'connlimit' in item %}
+    mysql -NBe "ALTER USER IF EXISTS {{ user }}  WITH MAX_USER_CONNECTIONS '{{ item.connlimit }}';";
+    {% endif %}
+
+    {% if 'priv' in item and item.priv is mapping %}
+    {% for key, value in item.priv.items() %}
+    mysql -NBe "GRANT {{ value }} ON {{ key }} TO {{ user }};"
+    {% endfor %}
+    mysql -NBe "FLUSH PRIVILEGES;"
+    
+    {% endif %}
+
+  args: { executable: /bin/bash }
+  vars:
+    user: "'{{ item.name }}'{% if 'host' in item %}@'{{ item.host }}'{% endif %}"    
+    host: "{{ item.host | default('%') }}"
+  with_items: "{{ mysql_users }}"
+
+
+#--------------------------------------------------------------#
+# Monitor                                       [mysql_exporter]
+#--------------------------------------------------------------#
+- name: config mysqld_exporter
+  tags: [ mysql_exporter ]
+  block:
+
+    # mysqld_exporter systemd
+    - name: config default mysqld_exporter options
+      template: src=mysqld_exporter.j2 dest=/etc/default/mysqld_exporter owner={{ mysql_dbsu }} group=mysql mode=0600
+
+    - name: launch mysqld_exporter systemd unit
+      systemd: name=mysqld_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: wait for mysqld_exporter online
+      wait_for: host=127.0.0.1 port={{ mysql_exporter_port }} state=started timeout=10
+
+
+
+#--------------------------------------------------------------#
+# Register Prometheus      [mysql_register, register_prometheus]
+#--------------------------------------------------------------#
+- name: register mysql to prometheus
+  tags: [ mysql_register, register_prometheus ]
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
+  ignore_errors: true
+  copy:
+    dest: /etc/prometheus/targets/mysql/{{ mysql_cluster }}-{{ mysql_seq }}.yml
+    owner: prometheus
+    content: |
+      # {{ mysql_cluster }}-{{ mysql_seq }} [{{ mysql_role }}] @ {{ inventory_hostname }}
+      - labels: { cls: {{ mysql_cluster }}, ins: {{ mysql_cluster }}-{{ mysql_seq }}, ip: {{ inventory_hostname }} }
+        targets:
+          - {{ inventory_hostname }}:{{ mysql_exporter_port }}
+
+...
