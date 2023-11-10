@@ -96,6 +96,8 @@ bin/node-add <cls>                # 为集群 <cls> 初始化节点             
 bin/pgsql-add <cls>               # 初始化集群 <cls> 的pgsql实例             # ./pgsql.yml -l <cls>
 ```
 
+> 请注意，PGSQL 模块需要在 Pigsty 纳管的节点上安装，请先使用 `bin/node-add` 纳管节点。
+
 <details><summary>示例：创建集群</summary>
 
 [![asciicast](https://asciinema.org/a/568810.svg)](https://asciinema.org/a/568810)

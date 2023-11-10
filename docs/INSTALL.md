@@ -513,4 +513,4 @@ bin/pgsql-add  pg-test      # init HA PGSQL Cluster pg-test
 bin/redis-add  redis-ms     # init redis cluster redis-ms
 ```
 
-Check [PGSQL](PGSQL.md), [NODE](NODE.md), and [REDIS](REDIS.md) for detail.
+Remember that most modules require the [`NODE`] module installed first. Check [PGSQL](PGSQL.md), [REDIS](REDIS.md) for detail.

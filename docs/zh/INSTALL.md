@@ -506,4 +506,6 @@ bin/pgsql-add  pg-test      # 初始化一个3节点的 pg-test 高可用PG集�
 bin/redis-add  redis-ms     # 初始化 Redis 集群： redis-ms
 ```
 
-更多细节请参见： [PGSQL](PGSQL.md)，[NODE](NODE.md)，以及 [REDIS](REDIS.md)。
+请记住绝大多数模块都依赖 [NODE](NODE.md) 模块，请确保节点已经被纳入 Pigsty 管理后再加装其他模块
+
+更多细节请参见： [PGSQL](PGSQL.md)，[REDIS](REDIS.md)，……

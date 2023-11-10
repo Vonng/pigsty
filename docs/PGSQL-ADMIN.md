@@ -96,6 +96,8 @@ bin/node-add <cls>                # init nodes for cluster <cls>           # ./n
 bin/pgsql-add <cls>               # init pgsql instances of cluster <cls>  # ./pgsql.yml -l <cls>
 ```
 
+> Beware, perform `bin/node-add` first, then `bin/pgsql-add`, PGSQL works on managed nodes only.
+
 <details><summary>Example: Create Cluster</summary>
 
 [![asciicast](https://asciinema.org/a/568810.svg)](https://asciinema.org/a/568810)
