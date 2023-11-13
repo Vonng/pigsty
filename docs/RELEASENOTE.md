@@ -35,6 +35,23 @@
 | v0.0.2          | 2020-04-30 | First Commit                                             | [v0.0.2](https://github.com/Vonng/pigsty/commit/dd646775624ddb33aef7884f4f030682bdc371f8) |
 | v0.0.1          | 2019-05-15 | POC                                                      | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
+----------------
+
+## v2.5.1 (WIP)
+
+Routine update with v16.1, v15.5, 14.10, 13.13, 12.17, 11.22
+
+- Software Version Upgrade：
+  - PostgreSQL to v16.1, v15.5, 14.10, 13.13, 12.17, 11.22 
+  - Patroni v3.2.0
+  - Citus 12.1
+  - TimescaleDB 2.12.2
+  - Grafana v10.2.0
+  - FerretDB 1.14
+  - SealOS 4.3.7
+
+- MySQL role implementation (alpha)
+- MySQL Monitoring (beta)
 
 
 ----------------
