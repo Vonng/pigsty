@@ -102,11 +102,11 @@ Pigsty 使用 master 主干分支进行开发，请始终使用特定版本的 [
 
 <details><summary>如何加速从上游仓库下载 RPM ?</summary><br>
 
-考虑使用本地仓库镜像，仓库镜像在[`repo_upstream`](param#repo_upstream) 参数中配置，你可以选择 [`region`](param#region) 来使用不同镜像站。
+考虑使用本地仓库镜像，仓库镜像在[`repo_upstream`](PARAM#repo_upstream) 参数中配置，你可以选择 [`region`](PARAM#region) 来使用不同镜像站。
 
 例如，您可以设置 `region` = `china`，这样将使用 `baseurl` 中键为 `china` 的 URL 而不是 `default`。
 
-如果防火墙或GFW屏蔽了某些仓库，考虑使用[`proxy_env`](param#proxy_env) 来绕过。
+如果防火墙或GFW屏蔽了某些仓库，考虑使用[`proxy_env`](PARAM#proxy_env) 来绕过。
 
 </details><br>
 
@@ -214,8 +214,8 @@ Pigsty 提供了 280+ 配置参数，可以对整个环境与各个模块 infra/
 
 通常在单节点安装中，你不需要对默认生成的配置文件进行任何调整。但如果需要，可以关注以下这些参数：
 
-- 当访问 web 服务组件时，域名由 [`infra_portal`](param#infra_portal) 指定，有些服务只能通过 Nginx 代理使用域名访问。
-- Pigsty 假定存在一个 `/data` 目录用于存放所有数据；如果数据磁盘的挂载点与此不同，你可以使用 [`node_data`](param#node_data) 调整这些路径。
+- 当访问 web 服务组件时，域名由 [`infra_portal`](PARAM#infra_portal) 指定，有些服务只能通过 Nginx 代理使用域名访问。
+- Pigsty 假定存在一个 `/data` 目录用于存放所有数据；如果数据磁盘的挂载点与此不同，你可以使用 [`node_data`](PARAM#node_data) 调整这些路径。
 - 进行生产部署时，不要忘记在配置文件中更改**密码**，更多细节请参考 [安全考量](security)。
 
 </details>
@@ -444,7 +444,7 @@ bin/pgmon-rm <ins>     # 用于从 Prometheus 中移除单个实例 'ins' 的监
 <br>
 <details><summary>如何重新向 Grafana 注册 PostgreSQL 数据源？</summary><br>
 
-在 [`pg_databases`](param#pg_databases) 中定义的 PGSQL 数据库默认会被注册为 Grafana 数据源（以供 PGCAT 应用使用）。
+在 [`pg_databases`](PARAM#pg_databases) 中定义的 PGSQL 数据库默认会被注册为 Grafana 数据源（以供 PGCAT 应用使用）。
 
 如果你不小心删除了在 Grafana 中注册的 postgres 数据源，你可以使用以下命令再次注册它们：
 
@@ -488,7 +488,7 @@ PGSQL 集群/实例域名默认注册到 infra 节点的 `/etc/hosts.d/<name>`�
 <br>
 <details><summary>如何使用Nginx对外暴露新的上游服务？</summary><br>
 
-如果你希望通过 Nginx 门户公开新的 WebUI 服务，你可以将服务定义添加到 [`infra_portal`](param#infra_portal) 参数中。
+如果你希望通过 Nginx 门户公开新的 WebUI 服务，你可以将服务定义添加到 [`infra_portal`](PARAM#infra_portal) 参数中。
 
 然后重新运行 `./infra.yml -t nginx_config,nginx_launch` 来更新并应用 Nginx 配置。
 
@@ -585,7 +585,7 @@ pg-test:
 
 **执行部署和更改时**，使用的管理员用户**必须**对所有节点拥有`ssh`和`sudo`权限。无需密码免密登录。
 
-您可以在执行剧本时通过`-k|-K`参数传入ssh和sudo密码，甚至可以通过`-e`[`ansible_host`](param#connect)`=<another_user>`使用另一个用户来运行剧本。
+您可以在执行剧本时通过`-k|-K`参数传入ssh和sudo密码，甚至可以通过`-e`[`ansible_host`](PARAM#connect)`=<another_user>`使用另一个用户来运行剧本。
 
 但是，Pigsty强烈建议为管理员用户配置SSH**无密码登录**以及无密码的`sudo`。
 
@@ -596,7 +596,7 @@ pg-test:
 <br>
 <details><summary>如何使用已有的管理员用户创建专用管理员用户？</summary><br>
 
-使用以下命令，使用该节点上现有的管理员用户，创建由[`node_admin_username`](param#node_admin_username)定义的新的标准的管理员用户。
+使用以下命令，使用该节点上现有的管理员用户，创建由[`node_admin_username`](PARAM#node_admin_username)定义的新的标准的管理员用户。
 
 ```bash
 ./node.yml -k -K -e ansible_user=<another_admin> -t node_admin
@@ -609,7 +609,7 @@ pg-test:
 <br>
 <details><summary>如何使用节点上的HAProxy对外暴露服务？</summary><br>
 
-您可以在配置中中使用[`haproxy_services`](param#haproxy_services)来暴露服务，并使用 `node.yml -t haproxy_config,haproxy_reload` 来更新配置。
+您可以在配置中中使用[`haproxy_services`](PARAM#haproxy_services)来暴露服务，并使用 `node.yml -t haproxy_config,haproxy_reload` 来更新配置。
 
 以下是使用它暴露MinIO服务的示例：[暴露MinIO服务](minio#暴露服务)
 
@@ -620,13 +620,13 @@ pg-test:
 <br>
 <details><summary>为什么我的 /etc/yum.repos.d/* 全没了？</summary><br>
 
-Pigsty会在infra节点上构建的本地软件仓库源中包含所有依赖项。而所有普通节点会根据[`node_repo_local_urls`](param#node_repo_local_urls)的默认配置来使用这个 Infra 节点上的本地软件源。
+Pigsty会在infra节点上构建的本地软件仓库源中包含所有依赖项。而所有普通节点会根据[`node_repo_local_urls`](PARAM#node_repo_local_urls)的默认配置来使用这个 Infra 节点上的本地软件源。
 
 这一设计从而避免了互联网访问，增强了安装过程的稳定性与可靠性。所有原有的源定义文件会被移动到 `/etc/yum.repos.d/backup` 目录中，您只要按需复制回来即可。
 
-如果您想在普通节点安装过程中保留原有的源定义文件，将 [`node_repo_remove`](param#node_repo_remove)设置为`false`即可。
+如果您想在普通节点安装过程中保留原有的源定义文件，将 [`node_repo_remove`](PARAM#node_repo_remove)设置为`false`即可。
 
-如果您想在 Infra 节点构建本地源的过程中保留原有的源定义文件，将 [`repo_remove`](param#repo_remove)设置为`false`即可。
+如果您想在 Infra 节点构建本地源的过程中保留原有的源定义文件，将 [`repo_remove`](PARAM#repo_remove)设置为`false`即可。
 
 </details>
 
@@ -767,9 +767,9 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 
 这意味着正在初始化的 Redis 实例已经存在了，使用 `redis_clean = true` 和 `redis_safeguard = false` 来强制清除redis数据
 
-当您运行`redis.yml`来初始化一个已经在运行的redis实例，并且[`redis_clean`](param#redis_clean)设置为`false`时，就会出现这种情况。
+当您运行`redis.yml`来初始化一个已经在运行的redis实例，并且[`redis_clean`](PARAM#redis_clean)设置为`false`时，就会出现这种情况。
 
-如果`redis_clean`设置为`true`（并且 [`redis_safeguard`](param#redis_safeguard) 也设置为`false`），`redis.yml`剧本将删除现有的redis实例并将其重新初始化为一个新的实例，这使得`redis.yml`剧本完全具有幂等性。
+如果`redis_clean`设置为`true`（并且 [`redis_safeguard`](PARAM#redis_safeguard) 也设置为`false`），`redis.yml`剧本将删除现有的redis实例并将其重新初始化为一个新的实例，这使得`redis.yml`剧本完全具有幂等性。
 
 </details>
 
@@ -779,9 +779,9 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 
 <details><summary>Redis初始化失败：ABORT due to redis_safeguard enabled</summary><br>
 
-这意味着正准备清理的 Redis 实例打开了防误删保险：当 [`redis_safeguard`](param#redis_safeguard) 设置为 `true` 时，尝试移除一个redis实例时就会出现这种情况。
+这意味着正准备清理的 Redis 实例打开了防误删保险：当 [`redis_safeguard`](PARAM#redis_safeguard) 设置为 `true` 时，尝试移除一个redis实例时就会出现这种情况。
 
-您可以关闭 [`redis_safeguard`](param#redis_safeguard) 来移除Redis实例。这就是 `redis_safeguard` 的作用。
+您可以关闭 [`redis_safeguard`](PARAM#redis_safeguard) 来移除Redis实例。这就是 `redis_safeguard` 的作用。
 
 </details>
 
@@ -835,7 +835,7 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 
 这意味着正准备清理的 PostgreSQL 实例打开了防误删保险， 禁用 `pg_safeguard` 以移除 Postgres 实例。
 
-如果防误删保险 [`pg_safeguard`](param#pg_safeguard) 打开，那么你就不能使用 `bin/pgsql-rm` 和 `pgsql-rm.yml` 剧本移除正在运行的 PGSQL 实例了。
+如果防误删保险 [`pg_safeguard`](PARAM#pg_safeguard) 打开，那么你就不能使用 `bin/pgsql-rm` 和 `pgsql-rm.yml` 剧本移除正在运行的 PGSQL 实例了。
 
 要禁用 `pg_safeguard`，你可以在配置清单中将 `pg_safeguard` 设置为 `false`，或者在执行剧本时使用命令参数 `-e pg_safeguard=false`。
 
@@ -946,7 +946,7 @@ pg restart <cls>                          # 重启 postgres 以使用 hugepage
 
 如果磁盘写满了，连 Shell 命令都无法执行，`rm -rf /pg/dummy` 可以释放一些救命空间。
 
-默认情况下，[`pg_dummy_filesize`](param#pg_dummy_filesize) 设置为 `64MB`。在生产环境中，建议将其增加到 `8GB` 或更大。
+默认情况下，[`pg_dummy_filesize`](PARAM#pg_dummy_filesize) 设置为 `64MB`。在生产环境中，建议将其增加到 `8GB` 或更大。
 
 它将被放置在 PGSQL 主数据磁盘上的 `/pg/dummy` 路径下。你可以删除该文件以释放一些紧急空间：至少可以让你在该节点上运行一些 shell 脚本来进一步回收其他空间。
 

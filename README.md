@@ -6,7 +6,7 @@
 >
 > [Release v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/Mu2b6Wxr) ｜ [中文文档](https://doc.pigsty.cc/#/zh/)
 >
-> [Get Started](docs/INSTALL.md) latest [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) beta with `curl -fsSL https://get.pigsty.cc/beta | bash`
+> [Get Started](docs/INSTALL.md) latest [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) beta with `curl -fsSL https://get.pigsty.cc/latest | bash`
 
 
 

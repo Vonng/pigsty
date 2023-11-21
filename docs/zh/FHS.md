@@ -96,7 +96,7 @@ rsync -avz ./ meta-2:~/pigsty
 
 ## NODE FHS
 
-节点的数据目录由参数 [`node_data`](param#node_data) 指定，默认为 `/data`，由 `root` 用户持有，权限为 `0777`。
+节点的数据目录由参数 [`node_data`](PARAM#node_data) 指定，默认为 `/data`，由 `root` 用户持有，权限为 `0777`。
 
 每个组件的默认数据目录都位于这个数据库目录下，如下所示：
 
@@ -163,11 +163,11 @@ Prometheus 相关的脚本与规则定义放置于 pigsty 主目录下的 [`file
 
 以下参数与PostgreSQL数据库目录结构相关:
 
-* [pg_dbsu_home](param#pg_dbsu_home)： Postgres 默认用户的家目录，默认为`/var/lib/pgsql`
-* [pg_bin_dir](param#pg_bin_dir)： Postgres二进制目录，默认为`/usr/pgsql/bin/`
-* [pg_data](param#pg_data)：Postgres数据库目录，默认为`/pg/data`
-* [pg_fs_main](param#pg_fs_main)：Postgres主数据盘挂载点，默认为`/data`
-* [pg_fs_bkup](param#pg_fs_bkup)：Postgres备份盘挂载点，默认为`/var/backups`（可选，也可以选择备份到主数据盘上的子目录）
+* [pg_dbsu_home](PARAM#pg_dbsu_home)： Postgres 默认用户的家目录，默认为`/var/lib/pgsql`
+* [pg_bin_dir](PARAM#pg_bin_dir)： Postgres二进制目录，默认为`/usr/pgsql/bin/`
+* [pg_data](PARAM#pg_data)：Postgres数据库目录，默认为`/pg/data`
+* [pg_fs_main](PARAM#pg_fs_main)：Postgres主数据盘挂载点，默认为`/data`
+* [pg_fs_bkup](PARAM#pg_fs_bkup)：Postgres备份盘挂载点，默认为`/var/backups`（可选，也可以选择备份到主数据盘上的子目录）
 
 
 ```yaml
@@ -249,13 +249,13 @@ Prometheus 相关的脚本与规则定义放置于 pigsty 主目录下的 [`file
 /usr/pgsql-${pg_version}/
 ```
 
-Pigsty 会创建一个名为 `/usr/pgsql` 的软连接，指向由 [`pg_version`](param#pg_version) 参数指定的实际版本，例如
+Pigsty 会创建一个名为 `/usr/pgsql` 的软连接，指向由 [`pg_version`](PARAM#pg_version) 参数指定的实际版本，例如
 
 ```bash
 /usr/pgsql -> /usr/pgsql-15
 ```
 
-因此，默认的 [`pg_bin_dir`](param#pg_bin_dir) 是 `/usr/pgsql/bin/`，而该路径会被添加至系统的 `PATH` 环境变量中，定义文件为：`/etc/profile.d/pgsql.sh`.
+因此，默认的 [`pg_bin_dir`](PARAM#pg_bin_dir) 是 `/usr/pgsql/bin/`，而该路径会被添加至系统的 `PATH` 环境变量中，定义文件为：`/etc/profile.d/pgsql.sh`.
 
 ```bash
 export PATH="/usr/pgsql/bin:/pg/bin:$PATH"

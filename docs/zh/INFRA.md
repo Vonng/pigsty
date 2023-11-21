@@ -151,7 +151,7 @@ DNSMASQ 提供环境内的DNS**解析**服务，其他模块的域名将会注�
 
 DNS记录默认放置于所有INFRA节点的 `/etc/hosts.d/` 目录中。
 
-DNSMASQ相关配置参数位于：[配置：INFRA - DNS](param#dns)
+DNSMASQ相关配置参数位于：[配置：INFRA - DNS](PARAM#dns)
 
 
 
@@ -162,7 +162,7 @@ DNSMASQ相关配置参数位于：[配置：INFRA - DNS](param#dns)
 
 NTP服务用于同步环境内所有节点的时间（可选）
 
-NTP相关配置参数位于：[配置：NODES - NTP](param#node_time)
+NTP相关配置参数位于：[配置：NODES - NTP](PARAM#node_time)
 
 
 

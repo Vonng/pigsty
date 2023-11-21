@@ -276,7 +276,7 @@ ALTER USER dbuser_monitor SET log_min_duration_statement = 1000;  -- 建议设�
 ALTER USER dbuser_monitor SET search_path = monitor,public;       -- 建议设置此参数，避免 pg_stat_statements 扩展无法生效
 ```
 
-请注意，这里创建的监控用户与密码需要与 [`pg_monitor_username`](param#pg_monitor_username) 与 [`pg_monitor_password`](param#pg_monitor_password) 保持一致。
+请注意，这里创建的监控用户与密码需要与 [`pg_monitor_username`](PARAM#pg_monitor_username) 与 [`pg_monitor_password`](PARAM#pg_monitor_password) 保持一致。
 
 
 ---------------------

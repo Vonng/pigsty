@@ -101,7 +101,7 @@ Pigsty 所纳管的每个节点上都默认启用了 Haproxy 以对外暴露服�
 
 Pigsty的服务交付边界止步于集群的HAProxy，用户可以用各种手段访问这些负载均衡器，请参考[接入服务](#接入服务)。
 
-所有的服务都通过配置文件进行声明，例如，PostgreSQL 默认服务就是由 [`pg_default_services`](param#pg_default_services) 参数所定义的：
+所有的服务都通过配置文件进行声明，例如，PostgreSQL 默认服务就是由 [`pg_default_services`](PARAM#pg_default_services) 参数所定义的：
 
 ```yaml
 pg_default_services:
@@ -120,7 +120,7 @@ pg_default_services:
 
 Pigsty 允许您定义自己的服务：
 
-- [`pg_default_services`](param#pg_default_services)：所有 PostgreSQL 集群统一对外暴露的服务，默认有四个。
+- [`pg_default_services`](PARAM#pg_default_services)：所有 PostgreSQL 集群统一对外暴露的服务，默认有四个。
 - [`pg_services`](PARAM#pg_services)：额外的 PostgreSQL 服务，可以视需求在全局或集群级别定义。
 - [`haproxy_servies`](PARAM#haproxy_services)：直接定制 HAProxy 服务内容，可以用于其他组件的接入
 
@@ -181,7 +181,7 @@ Primary服务可能是生产环境中最关键的服务，它在 5433 端口提�
 
 - 选择器参数 `selector: "[]"` 意味着所有集群成员都将被包括在Primary服务中
 - 但只有主库能够通过健康检查（`check: /primary`），实际承载Primary服务的流量。
-- 目的地参数 `dest: default` 意味着Primary服务的目的地受到 [`pg_default_service_dest`](param#pg_default_service_dest) 参数的影响
+- 目的地参数 `dest: default` 意味着Primary服务的目的地受到 [`pg_default_service_dest`](PARAM#pg_default_service_dest) 参数的影响
 - `dest` 默认值 `default` 会被替换为 `pg_default_service_dest` 的值，默认为 `pgbouncer`。
 - 默认情况下 Primary 服务的目的地默认是主库上的连接池，也就是由 [`pgbouncer_port`](PARAM#pgbouncer_port) 指定的端口，默认为 6432
 
@@ -229,7 +229,7 @@ Replica服务在生产环境中的重要性仅次于Primary服务，它在 5434 
 - 所有实例都能够通过健康检查（`check: /read-only`），承载Replica服务的流量。
 - 备份选择器：`[? pg_role == 'primary' || pg_role == 'offline' ]` 将主库和[离线从库](PGSQL-CONF#离线从库)标注为备份服务器。
 - 只有当所有[普通从库](PGSQL-CONF#只读从库)都宕机后，Replica服务才会由主库或离线从库来承载。
-- 目的地参数 `dest: default` 意味着Replica服务的目的地也受到 [`pg_default_service_dest`](param#pg_default_service_dest) 参数的影响
+- 目的地参数 `dest: default` 意味着Replica服务的目的地也受到 [`pg_default_service_dest`](PARAM#pg_default_service_dest) 参数的影响
 - `dest` 默认值 `default` 会被替换为 `pg_default_service_dest` 的值，默认为 `pgbouncer`，这一点和 [Primary服务](#primary服务) 相同
 - 默认情况下 Replica 服务的目的地默认是从库上的连接池，也就是由 [`pgbouncer_port`](PARAM#pgbouncer_port) 指定的端口，默认为 6432
 
@@ -308,9 +308,9 @@ Default服务在 5438 端口上提供服务，它也绕开连接池直接访问 
 - { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]"}
 ```
 
-Offline服务将流量直接路由到专用的[离线从库](PGSQL-CONF#离线从库)上，或者带有 [`pg_offline_query`](param#pg_offline_query) 标记的普通[只读实例](PGSQL-CONF#只读从库)。
+Offline服务将流量直接路由到专用的[离线从库](PGSQL-CONF#离线从库)上，或者带有 [`pg_offline_query`](PARAM#pg_offline_query) 标记的普通[只读实例](PGSQL-CONF#只读从库)。
 
-- 选择器参数从集群中筛选出了两种实例：[`pg_role`](param#pg_role) = `offline` 的离线从库，或是带有 [`pg_offline_query`](param#pg_offline_query) = `true` 标记的普通[只读实例](PGSQL-CONF#只读从库)
+- 选择器参数从集群中筛选出了两种实例：[`pg_role`](PARAM#pg_role) = `offline` 的离线从库，或是带有 [`pg_offline_query`](PARAM#pg_offline_query) = `true` 标记的普通[只读实例](PGSQL-CONF#只读从库)
 - 专用离线从库和打标记的普通从库主要的区别在于：前者默认不承载 [Replica服务](#replica服务) 的请求，避免快慢请求混在一起，而后者默认会承载。
 - 备份选择器参数从集群中筛选出了一种实例：不带 offline 标记的普通从库，这意味着如果离线实例或者带Offline标记的普通从库挂了之后，其他普通的从库可以用来承载Offline服务。
 - 健康检查 `/replica` 只会针对从库返回 200， 主库会返回错误，因此 Offline服务 永远不会将流量分发到主库实例上去，哪怕集群中只剩这一台主库。
@@ -440,7 +440,7 @@ postgres://test@10.10.10.11:6432,10.10.10.12:6432,10.10.10.13:6432/test?target_s
 
 你可以通过多种方式覆盖默认的服务配置，一种常见的需求是让 [Primary服务](#primary服务) 与 [Replica服务](#replica服务) 绕过Pgbouncer连接池，直接访问 PostgreSQL 数据库。
 
-为了实现这一点，你可以将 [`pg_default_service_dest`](param#pg_default_service_dest) 更改为 `postgres`，这样所有服务定义中 `svc.dest='default'` 的服务都会使用 `postgres` 而不是默认的 `pgbouncer` 作为目标。
+为了实现这一点，你可以将 [`pg_default_service_dest`](PARAM#pg_default_service_dest) 更改为 `postgres`，这样所有服务定义中 `svc.dest='default'` 的服务都会使用 `postgres` 而不是默认的 `pgbouncer` 作为目标。
 
 如果您已经将 [Primary服务](#primary服务) 指向了 PostgreSQL，那么 [default服务](#default服务) 就会比较多余，可以考虑移除。
 
@@ -457,7 +457,7 @@ Pigsty 通过节点上的 haproxy 暴露 PostgreSQL 服务。整个集群中的�
 
 但是，你可以将 pg 服务委托给特定的节点分组（例如，专门的 haproxy 负载均衡器集群），而不是 PostgreSQL 集群成员上的 haproxy。
 
-为此，你需要使用 [`pg_default_services`](param#pg_default_services) 覆盖默认的服务定义，并将 [`pg_service_provider`](param#pg_service_provider) 设置为代理组名称。
+为此，你需要使用 [`pg_default_services`](PARAM#pg_default_services) 覆盖默认的服务定义，并将 [`pg_service_provider`](PARAM#pg_service_provider) 设置为代理组名称。
 
 例如，此配置将在端口 10013 的 `proxy` haproxy 节点组上公开 pg 集群的主服务。
 

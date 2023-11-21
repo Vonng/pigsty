@@ -31,13 +31,13 @@ Pigsty 已经提供了开箱即用的[认证](PGSQL-HBA)与[访问控制](PGSQL-
 ### 密码
 
 **在生产环境部署时，必须更改这些密码，不要使用默认值！**
-- [`grafana_admin_password`](param#grafana_admin_password)   : `pigsty`
-- [`pg_admin_password`](param#pg_admin_password)             : `DBUser.DBA`
-- [`pg_monitor_password`](param#pg_monitor_password)         : `DBUser.Monitor`
-- [`pg_replication_password`](param#pg_replication_password) : `DBUser.Replicator`
-- [`patroni_password`](param#patroni_password)               : `Patroni.API`
-- [`haproxy_admin_password`](param#haproxy_admin_password)   : `pigsty`
-- [`minio_secret_key`](param#minio_secret_key)               : `minioadmin`
+- [`grafana_admin_password`](PARAM#grafana_admin_password)   : `pigsty`
+- [`pg_admin_password`](PARAM#pg_admin_password)             : `DBUser.DBA`
+- [`pg_monitor_password`](PARAM#pg_monitor_password)         : `DBUser.Monitor`
+- [`pg_replication_password`](PARAM#pg_replication_password) : `DBUser.Replicator`
+- [`patroni_password`](PARAM#patroni_password)               : `Patroni.API`
+- [`haproxy_admin_password`](PARAM#haproxy_admin_password)   : `pigsty`
+- [`minio_secret_key`](PARAM#minio_secret_key)               : `minioadmin`
 
 **如果您使用MinIO，请修改MinIO的默认用户密码，与pgbackrest中的引用**
 - 请修改 MinIO 普通用户的密码：[`minio_users`.`[pgbacrest]`.`secret_key`](PARAM#minio_users)
@@ -48,14 +48,14 @@ Pigsty 已经提供了开箱即用的[认证](PGSQL-HBA)与[访问控制](PGSQL-
 - 设置密码时可以使用 `${pg_cluster}` 作为密码的一部分，避免所有集群使用同一个密码
 
 **为 PostgreSQL 使用安全可靠的密码加密算法**
-- 使用 [`pg_pwd_enc`](param#pg_pwd_enc) 默认值 `scram-sha-256` 替代传统的 `md5`
+- 使用 [`pg_pwd_enc`](PARAM#pg_pwd_enc) 默认值 `scram-sha-256` 替代传统的 `md5`
 - 这是默认行为，如果没有特殊理由（出于对历史遗留老旧客户端的支持），请不要将其修改回 `md5`
 
 **使用 `passwordcheck` 扩展强制执行强密码**。
-- 在 [`pg_libs`](param#pg_libs) 中添加 `$lib/passwordcheck` 来强制密码策略。
+- 在 [`pg_libs`](PARAM#pg_libs) 中添加 `$lib/passwordcheck` 来强制密码策略。
 
 **使用加密算法加密远程备份**
-- 在 [`pgbackrest_repo`](param#pgbackrest_repo) 的备份仓库定义中使用 `repo_cipher_type` 启用加密
+- 在 [`pgbackrest_repo`](PARAM#pgbackrest_repo) 的备份仓库定义中使用 `repo_cipher_type` 启用加密
 
 **为业务用户配置密码自动过期实践**
 - 你应当为每个[业务用户](PGSQL-USER#定义用户)设置一个密码自动过期时间，以满足合规要求。
@@ -85,7 +85,7 @@ Pigsty 已经提供了开箱即用的[认证](PGSQL-HBA)与[访问控制](PGSQL-
 ### IP地址
 
 **为 postgres/pgbouncer/patroni 绑定指定的 IP 地址，而不是所有地址。**
-- 默认的 [`pg_listen`](param#pg_listen) 地址是 `0.0.0.0`，即所有 IPv4 地址。
+- 默认的 [`pg_listen`](PARAM#pg_listen) 地址是 `0.0.0.0`，即所有 IPv4 地址。
 - 考虑使用 `pg_listen: '${ip},${vip},${lo}'` 绑定到特定IP地址（列表）以增强安全性。
 
 **不要将任何端口直接暴露到公网IP上，除了基础设施出口Nginx使用的端口（默认80/443）**
@@ -106,16 +106,16 @@ Pigsty 已经提供了开箱即用的[认证](PGSQL-HBA)与[访问控制](PGSQL-
 ### 网络流量
 
 **使用 SSL 和域名，通过Nginx访问基础设施组件**
-- Nginx SSL 由 [`nginx_sslmode`](param#nginx_sslmode) 控制，默认为 `enable`。
-- Nginx 域名由 [`infra_portal.<component>.domain`](param#infra_portal) 指定。
+- Nginx SSL 由 [`nginx_sslmode`](PARAM#nginx_sslmode) 控制，默认为 `enable`。
+- Nginx 域名由 [`infra_portal.<component>.domain`](PARAM#infra_portal) 指定。
 
 **使用 SSL 保护 Patroni REST API**
-- [`patroni_ssl_enabled`](param#patroni_ssl_enabled) 默认为禁用。
+- [`patroni_ssl_enabled`](PARAM#patroni_ssl_enabled) 默认为禁用。
 - 由于它会影响健康检查和 API 调用。
 - 注意这是一个全局选项，在部署前你必须做出决定。
 
 **使用 SSL 保护 Pgbouncer 客户端流量**
-- [`pgbouncer_sslmode`](param#pgbouncer_sslmode) 默认为 `disable`
+- [`pgbouncer_sslmode`](PARAM#pgbouncer_sslmode) 默认为 `disable`
 - 它会对 Pgbouncer 有显著的性能影响，所以这里是默认关闭的。
 
 
@@ -126,14 +126,14 @@ Pigsty 已经提供了开箱即用的[认证](PGSQL-HBA)与[访问控制](PGSQL-
 ## 完整性
 
 **为关键场景下的 PostgreSQL 数据库集群配置一致性优先模式（例如与钱相关的库）**
-- [`pg_conf`](param#pg_conf) 数据库调优模板，使用 `crit.yml` 将以一些可用性为代价，换取最佳的数据一致性。
+- [`pg_conf`](PARAM#pg_conf) 数据库调优模板，使用 `crit.yml` 将以一些可用性为代价，换取最佳的数据一致性。
 
 **使用crit节点调优模板，以获得更好的一致性。**
-- [`node_tune`](param#node_tune) 主机调优模板使用 `crit` ，可以以减少脏页比率，降低数据一致性风险。
+- [`node_tune`](PARAM#node_tune) 主机调优模板使用 `crit` ，可以以减少脏页比率，降低数据一致性风险。
 
 **启用数据校验和，以检测静默数据损坏。**
-- [`pg_checksum`](param#pg_checksum) 默认为 `off`，但建议开启。
-- 当启用 [`pg_conf`](param#pg_conf) = `crit.yml` 数据库模板时，校验和是强制开启的。
+- [`pg_checksum`](PARAM#pg_checksum) 默认为 `off`，但建议开启。
+- 当启用 [`pg_conf`](PARAM#pg_conf) = `crit.yml` 数据库模板时，校验和是强制开启的。
 
 **记录建立/切断连接的日志**
 - 该配置默认关闭，但在 `crit.yml` 配置模板中是默认启用的。
@@ -155,8 +155,8 @@ Pigsty 已经提供了开箱即用的[认证](PGSQL-HBA)与[访问控制](PGSQL-
 - 如果你只有一个节点，请使用外部的 S3/MinIO 进行冷备份和 WAL 归档存储。
 
 **对于 PostgreSQL，在可用性和一致性之间进行权衡**
-- [`pg_rpo`](param#pg_rpo) : **可用性与一致性之间的权衡**
-- [`pg_rto`](param#pg_rto) : **故障概率与影响之间的权衡**
+- [`pg_rpo`](PARAM#pg_rpo) : **可用性与一致性之间的权衡**
+- [`pg_rto`](PARAM#pg_rto) : **故障概率与影响之间的权衡**
 
 **不要直接通过固定的 IP 地址访问数据库；请使用 VIP、DNS、HAProxy 或它们的排列组合**
 - 使用 HAProxy 进行服务[接入](PGSQL-SVC#接入服务)
