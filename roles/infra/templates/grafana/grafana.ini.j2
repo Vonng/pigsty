@@ -626,6 +626,10 @@ org_name = Pigsty
 ;api_url = https://openidconnect.googleapis.com/v1/userinfo
 ;allowed_domains =
 ;hosted_domain =
+;allowed_groups =
+;role_attribute_path =
+;role_attribute_strict = false
+;allow_assign_grafana_admin = false
 ;skip_org_role_sync = false
 ;use_pkce = true
 
@@ -746,6 +750,8 @@ org_name = Pigsty
 ;cache_ttl = 60m
 ;expect_claims = {"aud": ["foo", "bar"]}
 ;key_file = /path/to/key/file
+# Use in conjunction with key_file in case the JWT token's header specifies a key ID in "kid" field
+;key_id = some-key-id
 ;role_attribute_path =
 ;role_attribute_strict = false
 ;auto_sign_up = false
@@ -839,6 +845,9 @@ org_name = Pigsty
 # Reset basic roles permissions on boot
 # Warning left to true, basic roles permissions will be reset on every boot
 #reset_basic_roles = false
+
+# Validate permissions' action and scope on role creation and update
+; permission_validation_enabled = true
 
 #################################### SMTP / Emailing ##########################
 [smtp]
@@ -1285,6 +1294,18 @@ news_feed_enabled = false
 [tracing.opentelemetry]
 # attributes that will always be included in when creating new spans. ex (key1:value1,key2:value2)
 ;custom_attributes = key1:value1,key2:value2
+# Type specifies the type of the sampler: const, probabilistic, rateLimiting, or remote
+; sampler_type = remote
+# Sampler configuration parameter
+# for "const" sampler, 0 or 1 for always false/true respectively
+# for "probabilistic" sampler, a probability between 0.0 and 1.0
+# for "rateLimiting" sampler, the number of spans per second
+# for "remote" sampler, param is the same as for "probabilistic"
+#   and indicates the initial sampling rate before the actual one
+#   is received from the sampling server (set at sampling_server_url)
+; sampler_param = 0.5
+# specifies the URL of the sampling server when sampler_type is remote
+; sampling_server_url = http://localhost:5778/sampling
 
 [tracing.opentelemetry.jaeger]
 # jaeger destination (ex http://localhost:14268/api/traces)
@@ -1373,6 +1394,8 @@ enable_alpha = true
 # Force download of the public key for verifying plugin signature on startup. If disabled, the public key will be retrieved every 10 days.
 # Requires public_key_retrieval_disabled to be false to have any effect.
 ; public_key_retrieval_on_startup = false
+# Enter a comma-separated list of plugin identifiers to avoid loading (including core plugins). These plugins will be hidden in the catalog.
+; disable_plugins =
 
 #################################### Grafana Live ##########################################
 [live]
@@ -1394,6 +1417,9 @@ enable_alpha = true
 # For now we only support Redis connection address in "host:port" format.
 # This option is EXPERIMENTAL.
 ;ha_engine_address = "127.0.0.1:6379"
+
+# ha_engine_password allows setting an optional password to authenticate with the engine
+;ha_engine_password = ""
 
 #################################### Grafana Image Renderer Plugin ##########################
 [plugin.grafana-image-renderer]
@@ -1540,5 +1566,14 @@ enable = timeSeriesTable
 
 ################################## Feature Management ##############################################
 [feature_management]
-hidden_toggles =
-read_only_toggles =
+# Options to configure the experimental Feature Toggle Admin Page feature, which is behind the `featureToggleAdminPage` feature toggle. Use at your own risk.
+# Allow editing of feature toggles in the feature management page
+;allow_editing = false
+# Allow customization of URL for the controller that manages feature toggles
+;update_webhook =
+# Allow configuring an auth token for feature management update requests
+;update_webhook_token =
+# Hide specific feature toggles from the feature management page
+;hidden_toggles =
+# Disable updating specific feature toggles in the feature management page
+;read_only_toggles =
