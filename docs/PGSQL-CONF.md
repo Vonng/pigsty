@@ -436,7 +436,7 @@ Pigsty works on PostgreSQL 10+. While the pre-packaged packages only includes 12
 - L1 extensions: `wal2json`, `pg_repack`, `passwordcheck_cracklib`  (Available on PG 12, 13, 14, 15, 16-)
 - L2 extensions: `postgis`, `citus`, `timescaledb`, `pgvector`, `pg_logical`, `pg_cron` (Available on PG 14,15)
 - L3 extensions: Other miscellaneous extensions (Available on PG 15 only)
-- There are some missing extensions on PG 16: `pg_repack`, `timescaledb`
+- There are some missing extensions on PG 16: `timescaledb`
 
 Since some extensions are not available on PG 12,13,16, you may have to change [`pg_extensions`](PARAM#pg_extensions) and [`pg_libs`](PARAM#pg_libs) to fit your needs.
 
