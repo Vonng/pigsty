@@ -2,13 +2,13 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2023-10-15
+# Mtime     :   2023-11-29
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 # pigsty version string
-VERSION?=v2.5.0
+VERSION?=v2.5.1
 
 # variables
 SRC_PKG=pigsty-$(VERSION).tgz

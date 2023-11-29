@@ -42,18 +42,20 @@
 
 跟进 PostgreSQL v16.1, v15.5, 14.10, 13.13, 12.17, 11.22 的例行更新
 
+现在 PostgreSQL 16 的所有重要扩展已经就绪（新增 pg_repack 与 timescaledb 支持）
+
 - 软件更新：
   - PostgreSQL to v16.1, v15.5, 14.10, 13.13, 12.17, 11.22
   - Patroni v3.2.0
+  - PgBackrest v2.49
   - Citus 12.1
-  - TimescaleDB 2.12.2
+  - TimescaleDB 2.13
   - Grafana v10.2.0
-  - FerretDB 1.14
+  - FerretDB 1.15
   - SealOS 4.3.7
 
 - MySQL 数据库监控 (beta)
 - MySQL 主从部署实现 (alpha)
-
 
 
 ----------------
