@@ -413,25 +413,22 @@ SELECT create_reference_table('pgbench_tellers')          ; SELECT truncate_loca
 
 Pigsty 从 PostgreSQL 10 开始提供支持，不过目前预打包的离线软件包中仅包含 12 - 16 版本。
 
-Pigsty 对不同大版本的支持力度是不同，如下表所示：
+Pigsty 对不同大版本的支持力度不同，如下表所示：
 
-| 版本 | 说明                  | 软件包支持程度         |
-|----|---------------------|-----------------|
-| 16 | 刚发布的新版本，少量扩展缺失     | Core, L1, L2-   |
+| 版本 | 说明                  | 软件包支持程度          |
+|----|---------------------|------------------|
+| 16 | 刚发布的新版本，支持重要扩展      | Core, L1, L2     |
 | 15 | 稳定的主版本，支持全部扩展（默认）   | Core, L1, L2, L3 |
-| 14 | 旧的稳定主版本，支持 L1、L2 扩展 | Core, L1        |
-| 13 | 更旧的主版本，仅支持 L1 扩展    | Core, L1        |
-| 12 | 更旧的主版本，仅支持 L1 扩展    | Core, L1        |
+| 14 | 旧的稳定主版本，支持 L1、L2 扩展 | Core, L1         |
+| 13 | 更旧的主版本，仅支持 L1 扩展    | Core, L1         |
+| 12 | 更旧的主版本，仅支持 L1 扩展    | Core, L1         |
 
-- 内核: `postgresql*`，提供 12 - 16
-- 1类扩展: `wal2json`, `pg_repack`, `passwordcheck_cracklib` (在 PG 12, 13, 14, 15 中提供)
-  - 其中由 Pigsty 维护的扩展在 12 - 16 均提供，部分未纳入离线软件包： , `zhparser`, `apache-age`, `pgsql-http`, `pg_tle`, `pg_roaringbitmap`,...
-- 2类扩展: `postgis`, `citus`, `timescaledb`, `pgvector`, `pg_logical`, `pg_cron` (在 PG 14,15 中提供)
-- 3类扩展: 其他杂项扩展 (只有 PG 15 提供)
-- PG 16新发布，目前缺少扩展：`pg_repack`,`timescaledb`
+- 内核: `postgresql*`，提供 12 - 16 支持
+- 1类扩展: `wal2json`，`pg_repack`，`passwordcheck_cracklib` (在 PG 12, 13, 14, 15, 16 中提供) 
+- 2类扩展: `postgis`， `citus`， `timescaledb`， `pgvector` (在 PG 15,16 中提供)
+- 3类扩展: 其他扩展 (目前只在 PG 15 提供)
 
-
-一些扩展在 PG 12,13,16 上不可用，您可能需要更改 [`pg_extensions`](PARAM#pg_extensions) 和 [`pg_libs`](PARAM#pg_libs) 以满足您的需求。
+一些扩展在 PG 12,13,14,16 上不可用，您可能需要更改 [`pg_extensions`](PARAM#pg_extensions) 和 [`pg_libs`](PARAM#pg_libs) 以满足您的需求。
 
 如果您确实希望在较老的大版本上使用这些扩展，可以参考[添加软件](PGSQL-ADMIN#添加软件)和[安装扩展](PGSQL-ADMIN#安装扩展)的说明，手工从PGDG源下载并安装。
 
@@ -444,7 +441,7 @@ pg-v12:
     pg_cluster: pg-v12
     pg_version: 12
     pg_libs: 'pg_stat_statements, auto_explain'
-    pg_extensions: [ 'wal2json_13* pg_repack_13* passwordcheck_cracklib_13*' ]
+    pg_extensions: [ 'wal2json_12* pg_repack_12* passwordcheck_cracklib_12*' ]
 
 pg-v13:
   hosts: { 10.10.10.13: { pg_seq: 1 ,pg_role: primary } }
@@ -471,7 +468,4 @@ pg-v16:
   vars:
     pg_cluster: pg-v16
     pg_version: 16
-    pg_libs: 'pg_stat_statements, auto_explain'
-    pg_extensions: [ ]
 ```
- 

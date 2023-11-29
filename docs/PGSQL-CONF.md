@@ -144,7 +144,7 @@ synchronous_node_count: 2       # at least 2 nodes to confirm a commit
 ```
 
 If you have more replicas and wish to have more sync standby, increase `synchronous_node_count` accordingly.
-Beware to adjust `synchronous_node_count` accordingly when you [append](PGSQL-ADMIN#append-replica) or [remove](PGSQL-ADMIN#remove-replica) replicas.
+Beware of adjust `synchronous_node_count` accordingly when you [append](PGSQL-ADMIN#append-replica) or [remove](PGSQL-ADMIN#remove-replica) replicas.
 
 The postgres `synchronous_standby_names` parameter will be managed by patroni:
 
@@ -207,7 +207,7 @@ Apply these changes? [y/N]: y
 
 After applying the configuration, we can see that all replicas are no longer sync standby, but just normal replicas.
 
-However when we can check `pg_stat_replication.sync_state`, it becomes `quorum` instead of `sync` or `async`.
+After that, when we can check `pg_stat_replication.sync_state`, it becomes `quorum` instead of `sync` or `async`.
 
 </details>
 
@@ -424,21 +424,22 @@ SELECT create_reference_table('pgbench_tellers')          ; SELECT truncate_loca
 
 Pigsty works on PostgreSQL 10+. While the pre-packaged packages only includes 12 - 16 for now.
 
-| version | Comment                                                          | Packages        |
-|---------|------------------------------------------------------------------|-----------------|
-| 16      | The latest version with some important extensions                | Core, L1 L2-    |
-| 15      | The stable major version, with full extension support, (default) | Core, L1,L2, L3 |
-| 14      | The old stable major version, with L1, L2 extension support      | Core, L1        |
-| 13      | Older major version, with L1 extension support only              | Core, L1        |
-| 12      | Older major version, with L1 extension support only              | Core, L1        |
+| version | Comment                                                         | Packages       |
+|---------|-----------------------------------------------------------------|----------------|
+| 16      | The latest version with important extensions                    | Core, L1 L2    |
+| 15      | The stable major version, with full extension support (default) | Core, L1,L2,L3 |
+| 14      | The old stable major version, ith L1 extension support only     | Core, L1       |
+| 13      | Older major version, with L1 extension support only             | Core, L1       |
+| 12      | Older major version, with L1 extension support only             | Core, L1       |
 
-- Core: `postgresql*`
-- L1 extensions: `wal2json`, `pg_repack`, `passwordcheck_cracklib`  (Available on PG 12, 13, 14, 15, 16-)
-- L2 extensions: `postgis`, `citus`, `timescaledb`, `pgvector`, `pg_logical`, `pg_cron` (Available on PG 14,15)
-- L3 extensions: Other miscellaneous extensions (Available on PG 15 only)
-- There are some missing extensions on PG 16: `timescaledb`
+- Core: `postgresql*`, available on PG 12 - 16 
+- L1 extensions: `wal2json`, `pg_repack`, `passwordcheck_cracklib` (PG 12 - 16)
+- L2 extensions: `postgis`, `citus`, `timescaledb`, `pgvector` (PG15, PG16)
+- L3 extensions: Other miscellaneous extensions (PG15 only)
 
-Since some extensions are not available on PG 12,13,16, you may have to change [`pg_extensions`](PARAM#pg_extensions) and [`pg_libs`](PARAM#pg_libs) to fit your needs.
+
+
+Since some extensions are not available on PG 12,13,14,16, you may have to change [`pg_extensions`](PARAM#pg_extensions) and [`pg_libs`](PARAM#pg_libs) to fit your needs.
 
 Here are some example cluster definition with different major versions.
 
@@ -449,7 +450,7 @@ pg-v12:
     pg_cluster: pg-v12
     pg_version: 12
     pg_libs: 'pg_stat_statements, auto_explain'
-    pg_extensions: [ 'wal2json_13* pg_repack_13* passwordcheck_cracklib_13*' ]
+    pg_extensions: [ 'wal2json_12* pg_repack_12* passwordcheck_cracklib_12*' ]
 
 pg-v13:
   hosts: { 10.10.10.13: { pg_seq: 1 ,pg_role: primary } }
@@ -476,8 +477,6 @@ pg-v16:
   vars:
     pg_cluster: pg-v16
     pg_version: 16
-    pg_libs: 'pg_stat_statements, auto_explain'
-    pg_extensions: [ ]
 ```
 
 Beware that these extensions are just not included in Pigsty's default repo. You can have these extensions on older pg version with proper configuration. 

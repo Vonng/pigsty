@@ -569,8 +569,8 @@ repo_packages:                    # which packages to be included
   - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived
   - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws pgFormatter # pgxnclient
   - postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* imgsmlr_15* pg_bigm_15* pg_similarity_15*
-  - postgresql15* pg_repack_15* wal2json_15* citus_15* pglogical_15* pgvector_15* postgis34_15* passwordcheck_cracklib_15* pg_cron_15* pointcloud_15* pg_tle_15* pgsql-http_15* zhparser_15* pg_roaringbitmap_15* pg_net_15* vault_15 pgjwt_15 pg_graphql_15 timescaledb-2-postgresql-15*
-  - postgresql16* pg_repack_16* wal2json_16* citus_16* pglogical_16* pgvector_16* postgis34_16* passwordcheck_cracklib_16* pg_cron_16* pointcloud_16* pg_tle_16* pgsql-http_16* zhparser_16* pg_roaringbitmap_16* pg_net_16* vault_16 pgjwt_16 pg_graphql_16 apache-age_15* pgml_15* hydra_15*
+  - postgresql15* pg_repack_15* wal2json_15* citus_15* pglogical_15* pgvector_15* postgis34_15* passwordcheck_cracklib_15* pg_cron_15* pointcloud_15* pg_tle_15* pgsql-http_15* zhparser_15* pg_roaringbitmap_15* pg_net_15* vault_15 pgjwt_15 pg_graphql_15 timescaledb-2-postgresql-15* apache-age_15* pgml_15* hydra_15*
+  - postgresql16* pg_repack_16* wal2json_16* citus_16* pglogical_16* pgvector_16* postgis34_16* passwordcheck_cracklib_16* pg_cron_16* pointcloud_16* pg_tle_16* pgsql-http_16* zhparser_16* pg_roaringbitmap_16* pg_net_16* vault_16 pgjwt_16 pg_graphql_16 timescaledb-2-postgresql-16*
   - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15
   - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15* pgtt_15 pgq_15* hypopg_15* timestamp9_15* semver_15* prefix_15* periods_15* ip4r_15* tdigest_15* hll_15* pgmp_15 topn_15* geoip_15 extra_window_functions_15 pgsql_tweaks_15 count_distinct_15
   - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15
@@ -756,8 +756,8 @@ repo_packages:                    # which packages to be included
 - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived
 - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws pgFormatter # pgxnclient
 - postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* imgsmlr_15* pg_bigm_15* pg_similarity_15*
-- postgresql15* pg_repack_15* wal2json_15* citus_15* pglogical_15* pgvector_15* postgis34_15* passwordcheck_cracklib_15* pg_cron_15* pointcloud_15* pg_tle_15* pgsql-http_15* zhparser_15* pg_roaringbitmap_15* pg_net_15* vault_15 pgjwt_15 pg_graphql_15 timescaledb-2-postgresql-15*
-- postgresql16* pg_repack_16* wal2json_16* citus_16* pglogical_16* pgvector_16* postgis34_16* passwordcheck_cracklib_16* pg_cron_16* pointcloud_16* pg_tle_16* pgsql-http_16* zhparser_16* pg_roaringbitmap_16* pg_net_16* vault_16 pgjwt_16 pg_graphql_16 apache-age_15* pgml_15* hydra_15*
+- postgresql15* pg_repack_15* wal2json_15* citus_15* pglogical_15* pgvector_15* postgis34_15* passwordcheck_cracklib_15* pg_cron_15* pointcloud_15* pg_tle_15* pgsql-http_15* zhparser_15* pg_roaringbitmap_15* pg_net_15* vault_15 pgjwt_15 pg_graphql_15 timescaledb-2-postgresql-15* apache-age_15* pgml_15* hydra_15*
+- postgresql16* pg_repack_16* wal2json_16* citus_16* pglogical_16* pgvector_16* postgis34_16* passwordcheck_cracklib_16* pg_cron_16* pointcloud_16* pg_tle_16* pgsql-http_16* zhparser_16* pg_roaringbitmap_16* pg_net_16* vault_16 pgjwt_16 pg_graphql_16 timescaledb-2-postgresql-16*
 - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15
 - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15* pgtt_15 pgq_15* hypopg_15* timestamp9_15* semver_15* prefix_15* periods_15* ip4r_15* tdigest_15* hll_15* pgmp_15 topn_15* geoip_15 extra_window_functions_15 pgsql_tweaks_15 count_distinct_15
 - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15
@@ -3843,7 +3843,9 @@ postgres monitor username, `dbuser_monitor` by default, which is a global monito
 
 name: `pg_monitor_password`, type: `password`, level: `G`
 
-postgres monitor password, `DBUser.Monitor` by default.
+postgres monitor password, `DBUser.Monitor` by default. 
+
+Try not using the `@:/` character in the password to avoid problems with PGURL string.
 
 > WARNING: CHANGE THIS IN PRODUCTION ENVIRONMENT!!!!
 
