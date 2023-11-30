@@ -178,8 +178,8 @@ The `terraform/` dir have two example templates: one for AWS, and one for Aliyun
 Take Aliyun as example:
 
 ```bash
-cd terraform                         # goto the terraform dir
-cp spec/alicloud.tf terraform.tf     # use aliyun template
+cd terraform                          # goto the terraform dir
+cp spec/aliyun.tf terraform.tf        # use aliyun template
 ```
 
 You have to perform `terraform init` before `terraform apply`:
@@ -191,7 +191,4 @@ terraform apply     # generate execution plans: create VMs, virtual segments/swi
 
 After running `apply` and answering `yes` to the prompt, Terraform will create the VMs and configure the network for you.
 
-The admin node ip address will be printed out at the end of the execution, you can log in and start pigsty [installation](INSTALL) 
-
-
-
+The admin node ip address will be printed out at the end of the execution, you can ssh login and start pigsty [installation](INSTALL).

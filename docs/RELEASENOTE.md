@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.5.1](#v251) | 2023-11-30 | Routine update, pg16 extensions, mysql alpha support     | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
+| [v2.5.1](#v251) | 2023-12-01 | Routine update, pg16 major extensions                    | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
 | [v2.5.0](#v250) | 2023-10-24 | Ubuntu/Debian Support:  bullseye, bookworm, jammy, focal | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
 | [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML support, graphql, jwt, pg_net, vault | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
 | [v2.4.0](#v240) | 2023-09-14 | PG16, RDS Monitor, New Extensions                        | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
@@ -43,7 +43,7 @@
 
 Routine update with v16.1, v15.5, 14.10, 13.13, 12.17, 11.22
 
-Now PostgreSQL 16 has all the core extensions available (pg_repack & timescaledb added)
+Now PostgreSQL 16 has all the core extensions available (`pg_repack` & `timescaledb` added)
 
 - Software Version Upgrade：
   - PostgreSQL to v16.1, v15.5, 14.10, 13.13, 12.17, 11.22 
@@ -55,8 +55,15 @@ Now PostgreSQL 16 has all the core extensions available (pg_repack & timescaledb
   - FerretDB 1.15
   - SealOS 4.3.7
 
-- MySQL role implementation (alpha) & MySQL Monitoring (beta)
-
+```
+MD5 (pigsty-pkg-v2.5.1.el7.x86_64.tgz) = 31ee48df1007151009c060e0edbd74de
+MD5 (pigsty-pkg-v2.5.1.el8.x86_64.tgz) = a40f1b864ae8a19d9431bcd8e74fa116
+MD5 (pigsty-pkg-v2.5.1.el9.x86_64.tgz) = cdb57044b17a6b7c87b87a6d65705e29
+MD5 (pigsty-pkg-v2.5.1.ubuntu20.x86_64.tgz) = 99048d09fa75ccb8db8e22e2a3b41f28
+MD5 (pigsty-pkg-v2.5.1.ubuntu22.x86_64.tgz) = 431668425f8ce19388d38e5bfa3a948c
+MD5 (pigsty-pkg-v2.5.1.debian11.x86_64.tgz) = 7fc1b5bdd3afa267a5fc1d7cb1f3c9a7
+MD5 (pigsty-pkg-v2.5.1.debian12.x86_64.tgz) = add0731dc7ed37f134d3cb5b6646624e
+```
 
 ----------------
 

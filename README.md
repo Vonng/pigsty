@@ -466,7 +466,7 @@ all:
     pg_shard: pg-citus                # citus shard name: pg-citus
     patroni_citus_db: meta            # citus distributed database name
     pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
-  pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
+    pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
     pg_extensions: 
       - pg_repack_${ pg_version }* wal2json_${ pg_version }* passwordcheck_cracklib_${ pg_version }* 
       - postgis3*_${ pg_version }* timescaledb-2-postgresql-${ pg_version }* pgvector_${ pg_version }* citus_${ pg_version }*
@@ -574,7 +574,7 @@ While any EL 7,8,9 / Ubuntu 20.04,22.04 / Debian 11/12 compatible OS Distributio
 * ⭐️ PostgreSQL 15 is currently the Major supported version with full extension support.
 * ⭐ PostgreSQL 16 is the major support candidate, will be promoted when ready.
 * ⚠️ EL7 Does not have an official PostgreSQL 16 support, and will EOL in 2024.
-* ⚠️ Ubuntu & Debian support is introduced in Pigsty v2.5.0, use with caution.
+* ⚠️ Ubuntu & Debian support is newly introduced in Pigsty v2.5.0, use with caution.
 
 
 
