@@ -68,17 +68,17 @@ brew install vagrant virtualbox ansible   # 在 MacOS 中可以轻松一键安�
 
 [`vagarnt/Vagranfile`](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) 是一个 Ruby 脚本文件，用来描述 Vagrant 要创建的虚拟机节点。Pigsty 提供了一些默认的配置模板：
 
-|                                      模板                                       | 快捷方式 |       规格        |          注释          |
-|:-----------------------------------------------------------------------------:|:----:|:---------------:|:--------------------:|
-|  [meta.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/meta.rb)  | `v1` |    4C8G x 1     |      单一 Meta 节点      |
-|  [full.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/full.rb)  | `v4` | 2C4G + 1C2G x 3 |      完整的4节点沙盒示例      |
-|   [el7.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/el7.rb)   | `v7` | 2C4G + 1C2G x 3 |     EL7 3-节点测试环境     |
-|   [el8.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/el8.rb)   | `v8` | 2C4G + 1C2G x 3 |     EL8 3-节点测试环境     |
-|   [el9.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/el9.rb)   | `v9` | 2C4G + 1C2G x 3 |     EL9 3-节点测试环境     |
-| [build.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/build.rb) | `vb` |    2C4G x 3     |  3-节点 EL7,8,9 构建环境   |
-| [check.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/check.rb) | `vc` | 2C4G x 30       | 30 EL7-9, PG12-16 测试环境 |
-| [minio.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/minio.rb) | `vm` | 2C4G x 3 + Disk | 3-节点 MinIO/etcd 测试环境 |
-|  [prod.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/prod.rb)  | `vp` | 2C4G x 42       |     42节点的生产模拟环境      |
+|                                      模板                                       | 快捷方式 |       规格        |           注释           |
+|:-----------------------------------------------------------------------------:|:----:|:---------------:|:----------------------:|
+|  [meta.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/meta.rb)  | `v1` |    4C8G x 1     |       单一 Meta 节点       |
+|  [full.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/full.rb)  | `v4` | 2C4G + 1C2G x 3 |       完整的4节点沙盒示例       |
+|   [el7.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/el7.rb)   | `v7` | 2C4G + 1C2G x 3 |      EL7 3-节点测试环境      |
+|   [el8.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/el8.rb)   | `v8` | 2C4G + 1C2G x 3 |      EL8 3-节点测试环境      |
+|   [el9.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/el9.rb)   | `v9` | 2C4G + 1C2G x 3 |      EL9 3-节点测试环境      |
+| [build.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/build.rb) | `vb` |    2C4G x 3     |   3-节点 EL7,8,9 构建环境    |
+| [check.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/check.rb) | `vc` |    2C4G x 30    | 30 EL7-9, PG12-16 测试环境 |
+| [minio.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/minio.rb) | `vm` | 2C4G x 3 + Disk |  3-节点 MinIO/etcd 测试环境  |
+|  [prod.rb](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/prod.rb)  | `vp` |    2C4G x 42    |      42节点的生产模拟环境       |
 
 每个规格文件包含一个描述虚拟机节点的 `Specs` 变量。例如，`full.rb` 包含4节点沙盒规格的描述：
 

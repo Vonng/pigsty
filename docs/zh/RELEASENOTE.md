@@ -2,6 +2,7 @@
 
 | 版本              |    发布时间    | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v2.5.1](#v251) | 2023-11-30 | 例行小版本更新，PG16重要扩展支持，MySQL初步性支持                              | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
 | [v2.5.0](#v250) | 2023-09-24 | Ubuntu/Debian支持：bullseye, bookworm, jammy, focal           | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
 | [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML支持与各种新扩展：graphql, jwt, pg_net, vault    | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
 | [v2.4.0](#v240) | 2023-09-14 | PG16，监控RDS，服务咨询支持，新扩展：中文分词全文检索/图/HTTP/嵌入等                  | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
@@ -38,11 +39,11 @@
 
 ----------------
 
-## v2.5.1 (WIP)
+## v2.5.1
 
 跟进 PostgreSQL v16.1, v15.5, 14.10, 13.13, 12.17, 11.22 的例行更新
 
-现在 PostgreSQL 16 的所有重要扩展已经就绪（新增 pg_repack 与 timescaledb 支持）
+现在 PostgreSQL 16 的所有重要扩展已经就绪（新增 `pg_repack` 与 `timescaledb` 支持）
 
 - 软件更新：
   - PostgreSQL to v16.1, v15.5, 14.10, 13.13, 12.17, 11.22

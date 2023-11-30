@@ -424,11 +424,11 @@ Pigsty 对不同大版本的支持力度不同，如下表所示：
 | 12 | 更旧的主版本，仅支持 L1 扩展    | Core, L1         |
 
 - 内核: `postgresql*`，提供 12 - 16 支持
-- 1类扩展: `wal2json`，`pg_repack`，`passwordcheck_cracklib` (在 PG 12, 13, 14, 15, 16 中提供) 
+- 1类扩展: `wal2json`，`pg_repack`，`passwordcheck_cracklib` (在 PG 12 - 16 中提供) 
 - 2类扩展: `postgis`， `citus`， `timescaledb`， `pgvector` (在 PG 15,16 中提供)
 - 3类扩展: 其他扩展 (目前只在 PG 15 提供)
 
-一些扩展在 PG 12,13,14,16 上不可用，您可能需要更改 [`pg_extensions`](PARAM#pg_extensions) 和 [`pg_libs`](PARAM#pg_libs) 以满足您的需求。
+除了 PG15 之外，其他大版本上可能会有一些扩展不可用，您可能需要更改 [`pg_extensions`](PARAM#pg_extensions) 和 [`pg_libs`](PARAM#pg_libs) 以满足您的需求。
 
 如果您确实希望在较老的大版本上使用这些扩展，可以参考[添加软件](PGSQL-ADMIN#添加软件)和[安装扩展](PGSQL-ADMIN#安装扩展)的说明，手工从PGDG源下载并安装。
 

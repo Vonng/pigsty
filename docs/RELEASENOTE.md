@@ -2,6 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v2.5.1](#v251) | 2023-11-30 | Routine update, pg16 extensions, mysql alpha support     | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
 | [v2.5.0](#v250) | 2023-10-24 | Ubuntu/Debian Support:  bullseye, bookworm, jammy, focal | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
 | [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML support, graphql, jwt, pg_net, vault | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
 | [v2.4.0](#v240) | 2023-09-14 | PG16, RDS Monitor, New Extensions                        | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
@@ -38,7 +39,7 @@
 
 ----------------
 
-## v2.5.1 (WIP)
+## v2.5.1
 
 Routine update with v16.1, v15.5, 14.10, 13.13, 12.17, 11.22
 
@@ -54,8 +55,7 @@ Now PostgreSQL 16 has all the core extensions available (pg_repack & timescaledb
   - FerretDB 1.15
   - SealOS 4.3.7
 
-- MySQL role implementation (alpha)
-- MySQL Monitoring (beta)
+- MySQL role implementation (alpha) & MySQL Monitoring (beta)
 
 
 ----------------

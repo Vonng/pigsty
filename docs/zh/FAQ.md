@@ -117,19 +117,19 @@ Pigsty 使用 master 主干分支进行开发，请始终使用特定版本的 [
 离线包可以在[准备/`bootstrap`](install#bootstrap) 过程中提示下载，或者您也可以直接通过以下链接从 GitHub 上下载：
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v2.5.0/pigsty-v2.5.0.tgz                   # 源代码包
-https://github.com/Vonng/pigsty/releases/download/v2.5.0/pigsty-pkg-v2.5.0.el7.x86_64.tgz    # el7离线包
-https://github.com/Vonng/pigsty/releases/download/v2.5.0/pigsty-pkg-v2.5.0.el8.x86_64.tgz    # el8离线包
-https://github.com/Vonng/pigsty/releases/download/v2.5.0/pigsty-pkg-v2.5.0.el9.x86_64.tgz    # el9离线包
+https://github.com/Vonng/pigsty/releases/download/v2.5.1/pigsty-v2.5.1.tgz                   # 源代码包
+https://github.com/Vonng/pigsty/releases/download/v2.5.1/pigsty-pkg-v2.5.1.el7.x86_64.tgz    # el7离线包
+https://github.com/Vonng/pigsty/releases/download/v2.5.1/pigsty-pkg-v2.5.1.el8.x86_64.tgz    # el8离线包
+https://github.com/Vonng/pigsty/releases/download/v2.5.1/pigsty-pkg-v2.5.1.el9.x86_64.tgz    # el9离线包
 ```
 
 中国大陆用户可以考虑使用 CDN 下载：
 
 ```bash
-https://get.pigsty.cc/v2.5.0/pigsty-v2.5.0.tgz                   # 源代码
-https://get.pigsty.cc/v2.5.0/pigsty-pkg-v2.5.0.el7.x86_64.tgz    # el7离线包
-https://get.pigsty.cc/v2.5.0/pigsty-pkg-v2.5.0.el8.x86_64.tgz    # el8离线包
-https://get.pigsty.cc/v2.5.0/pigsty-pkg-v2.5.0.el9.x86_64.tgz    # el9离线包
+https://get.pigsty.cc/v2.5.1/pigsty-v2.5.1.tgz                   # 源代码
+https://get.pigsty.cc/v2.5.1/pigsty-pkg-v2.5.1.el7.x86_64.tgz    # el7离线包
+https://get.pigsty.cc/v2.5.1/pigsty-pkg-v2.5.1.el8.x86_64.tgz    # el8离线包
+https://get.pigsty.cc/v2.5.1/pigsty-pkg-v2.5.1.el9.x86_64.tgz    # el9离线包
 ```
 
 </details><br>

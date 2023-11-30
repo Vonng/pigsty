@@ -4,7 +4,7 @@
 >
 > —— **开箱即用，本地优先的 RDS PostgreSQL 开源替代**
 >
-> 最新版本：[v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
+> 最新版本：[v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
 >
 > [快速上手](INSTALL.md)：`curl -fsSL https://get.pigsty.cc/latest | bash`
 
@@ -240,12 +240,12 @@ FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL https://get.pigsty.cc/v2.5.0/pigsty-v2.5.0.tgz
+[ OK ] $ curl -SL https://get.pigsty.cc/v2.5.1/pigsty-v2.5.1.tgz
 ...
-MD5: d5dc4a51efc81932a03d7c010d0d5d64  /tmp/pigsty-v2.5.0.tgz
+MD5: d5dc4a51efc81932a03d7c010d0d5d64  /tmp/pigsty-v2.5.1.tgz
 [Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.5.0.tgz' to '/home/vagrant/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.5.0.tgz -C ~;
+[ OK ] extract '/tmp/pigsty-v2.5.1.tgz' to '/home/vagrant/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.5.1.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
 Get Started:     https://doc.pigsty.cc/#/INSTALL
@@ -269,7 +269,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
-cd pigsty; git checkout v2.5.0
+cd pigsty; git checkout v2.5.1
 ```
 
 </details>
@@ -284,16 +284,16 @@ cd pigsty; git checkout v2.5.0
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 
 # 或者直接使用 curl 从 GitHub 上下载
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.5.0/pigsty-v2.5.0.tgz -o ~/pigsty.tgz                 # 源码包
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.5.0/pigsty-pkg-v2.5.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9 离线软件包
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.5.0/pigsty-pkg-v2.5.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8 离线软件包
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.5.0/pigsty-pkg-v2.5.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7 离线软件包
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.5.1/pigsty-v2.5.1.tgz -o ~/pigsty.tgz                 # 源码包
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.5.1/pigsty-pkg-v2.5.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9 离线软件包
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.5.1/pigsty-pkg-v2.5.1.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8 离线软件包
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.5.1/pigsty-pkg-v2.5.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7 离线软件包
 
 # 对于中国大陆用户来说，也可以选择从中国 CDN 下载
-curl -L https://get.pigsty.cc/v2.5.0/pigsty-v2.5.0.tgz -o ~/pigsty.tgz                 # 源码包
-curl -L https://get.pigsty.cc/v2.5.0/pigsty-pkg-v2.5.0.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9 离线软件包
-curl -L https://get.pigsty.cc/v2.5.0/pigsty-pkg-v2.5.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8 离线软件包
-curl -L https://get.pigsty.cc/v2.5.0/pigsty-pkg-v2.5.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7 离线软件包
+curl -L https://get.pigsty.cc/v2.5.1/pigsty-v2.5.1.tgz -o ~/pigsty.tgz                 # 源码包
+curl -L https://get.pigsty.cc/v2.5.1/pigsty-pkg-v2.5.1.el9.x86_64.tgz -o /tmp/pkg.tgz  # EL9 离线软件包
+curl -L https://get.pigsty.cc/v2.5.1/pigsty-pkg-v2.5.1.el8.x86_64.tgz -o /tmp/pkg.tgz  # EL8 离线软件包
+curl -L https://get.pigsty.cc/v2.5.1/pigsty-pkg-v2.5.1.el7.x86_64.tgz -o /tmp/pkg.tgz  # EL7 离线软件包
 ```
 
 </details>
@@ -627,9 +627,9 @@ minio:
 
 ## 兼容性
 
-我们建议使用 RockyLinux 8.8， Ubuntu 22.04 (jammy)， Debian 12 (bookworm) 作为安装 Pigsty 的操作系统。
+我们建议使用 RockyLinux 8.8/9.2， Ubuntu 22.04 (jammy)， Debian 12 (bookworm) 作为安装 Pigsty 的操作系统。
 
-任何与 EL 7,8,9 / Ubuntu 20.04,22.04 / Debian 11/12 兼容的操作系统发行版都应当可以正常工作。
+任何与 EL 7,8,9 / Ubuntu 20.04,22.04 / Debian 11,12 兼容的操作系统发行版都应当可以正常工作。
 
 | 代码  | 操作系统发行版 / PG 大版本                  | PG16 | PG15 | PG14 | PG13 | PG12 | 局限性                                          |
 |:---:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|----------------------------------------------|
@@ -641,10 +641,9 @@ minio:
 | U20 | Ubuntu 20.04 (focal)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | supabase, PostGIS3, RDKit, pgml 不可用          |
 | U22 | Ubuntu 22.04 (jammy)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **DEB功能基准**     (supabase 不可用)               |
 
-
 * ⭐️ PostgreSQL 15 是当前主要支持的大版本，在离线软件包中带有所有的功能扩展集。
-* ⭐ PostgreSQL 16 是备选的主要支持大版本，当时机成熟后（重要扩展均完成适配）会被提升为主要大版本。
-* ⚠️ EL7 将于 2024 年 EOL，并且 PGDG 官方已经不再提供 PG 16 的支持。
+* ⭐️ PostgreSQL 16 是备选大版本，带有重要扩展支持，当所有扩展齐备后将会被提升为主要大版本。
+* ⚠️ EL7 将于 2024 年 EOL，并且 PGDG 官方已经不再提供 PG 16 的支持，建议不要再使用。
 * ⚠️ Ubuntu & Debian 支持在 Pigsty v2.5.0 引入，尚未经过大规模生产测试，请小心使用。
 
 
