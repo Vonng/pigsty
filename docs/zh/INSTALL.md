@@ -218,7 +218,7 @@ https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz   # �
 Bootstrap 过程会用各种方式安装 `ansible`，如果需要的话，会提示您下载离线软件包（Ansible本身亦包含其中）。
 
 ```bash
-./boostrap [-p <path>=/tmp/pkg.tgz]   # 离线软件包的下载地址 (默认是/tmp/pkg.tgz，通常不需修改)
+./bootstrap [-p <path>=/tmp/pkg.tgz]   # 离线软件包的下载地址 (默认是/tmp/pkg.tgz，通常不需修改)
            [-y|--yes] [-n|--no]       # 直接决定 是/否 下载离线软件包 (如果不指定，会交互式询问)
 ```
 
