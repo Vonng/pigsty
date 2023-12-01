@@ -9,7 +9,6 @@
 > [Get Started](INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash`
 
 
-
 ----------------
 
 ## Features
