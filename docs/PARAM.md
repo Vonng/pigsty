@@ -561,7 +561,7 @@ repo_upstream:                    # where to download #
 - { name: prometheus     ,description: 'Prometheus'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' ,china: 'https://get.pigsty.cc/yum/prometheus/el$releasever.$basearch' }}
 - { name: grafana        ,description: 'Grafana'           ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com' ,china: 'https://get.pigsty.cc/yum/grafana/$basearch' }}
 repo_packages:                    # which packages to be included
-  - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools
+  - ansible python3 python3-pip python3-virtualenv python3-requests python3-jmespath python3.11-jmespath python3.11-pip dnf-utils modulemd-tools
   - grafana loki logcli promtail prometheus2 alertmanager pushgateway victoria-logs vector
   - node_exporter blackbox_exporter nginx_exporter redis_exporter mysqld_exporter mongodb_exporter kafka_exporter keepalived_exporter
   - redis etcd minio mcli haproxy vip-manager pg_exporter ferretdb sealos nginx createrepo_c sshpass chrony dnsmasq docker-ce docker-compose-plugin
@@ -748,7 +748,7 @@ which packages to be included, default values:
 
 ```yaml
 repo_packages:                    # which packages to be included
-- ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools
+- ansible python3 python3-pip python3-virtualenv python3-requests python3-jmespath python3.11-jmespath python3.11-pip dnf-utils modulemd-tools
 - grafana loki logcli promtail prometheus2 alertmanager pushgateway victoria-logs vector
 - node_exporter blackbox_exporter nginx_exporter redis_exporter mysqld_exporter mongodb_exporter kafka_exporter keepalived_exporter
 - redis etcd minio mcli haproxy vip-manager pg_exporter ferretdb sealos nginx createrepo_c sshpass chrony dnsmasq docker-ce docker-compose-plugin
@@ -770,7 +770,7 @@ EL7 packages is slightly different, here are some ad hoc packages:
 
 * EL7:  `python36-requests python36-idna yum-utils yum-utils`, and `postgis33`
 * EL8:  `python3.11-jmespath dnf-utils modulemd-tools`, and `postgis34`
-* EL9:  Same as EL8, Missing `pgxnclient` yet
+* EL9:  Same as EL8, Missing `pgxnclient` yet, add `python3-jmespath`
 
 For debian/ubuntu, the proper value needs to be explicitly specified in global/cluster/host vars:
 

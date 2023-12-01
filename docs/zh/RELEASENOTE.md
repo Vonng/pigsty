@@ -41,7 +41,7 @@
 
 ## v2.5.1
 
-跟进 PostgreSQL v16.1, v15.5, 14.10, 13.13, 12.17, 11.22 的例行更新
+跟进 PostgreSQL v16.1, v15.5, 14.10, 13.13, 12.17, 11.22 小版本例行更新。
 
 现在 PostgreSQL 16 的所有重要扩展已经就位（新增 `pg_repack` 与 `timescaledb` 支持）
 
@@ -54,16 +54,11 @@
   - Grafana v10.2.0
   - FerretDB 1.15
   - SealOS 4.3.7
+  - Bytebase 2.11.1
 
-```
-MD5 (pigsty-pkg-v2.5.1.el7.x86_64.tgz) = 31ee48df1007151009c060e0edbd74de
-MD5 (pigsty-pkg-v2.5.1.el8.x86_64.tgz) = a40f1b864ae8a19d9431bcd8e74fa116
-MD5 (pigsty-pkg-v2.5.1.el9.x86_64.tgz) = cdb57044b17a6b7c87b87a6d65705e29
-MD5 (pigsty-pkg-v2.5.1.ubuntu20.x86_64.tgz) = 99048d09fa75ccb8db8e22e2a3b41f28
-MD5 (pigsty-pkg-v2.5.1.ubuntu22.x86_64.tgz) = 431668425f8ce19388d38e5bfa3a948c
-MD5 (pigsty-pkg-v2.5.1.debian11.x86_64.tgz) = 7fc1b5bdd3afa267a5fc1d7cb1f3c9a7
-MD5 (pigsty-pkg-v2.5.1.debian12.x86_64.tgz) = add0731dc7ed37f134d3cb5b6646624e
-```
+* 移除  PGCAT 监控面板中查询对 `monitor` 模式前缀（允许用户将 `pg_stat_statements` 扩展装到别的地方）
+* 新的配置模板 `wool.yml`，为阿里云免费99 ECS 单机针对设计。
+* 为 EL9 新增 `python3-jmespath` 软件包，解决 Ansible 依赖更新后 bootstrap 缺少 jmespath 的问题
 
 
 
@@ -374,7 +369,7 @@ MD5 (pigsty-pkg-v2.3.0.el9.x86_64.tgz) = 4bc9ae920e7de6dd8988ca7ee681459d
   - 移除 `citus`: 现在 PGDG 中有完整的 EL7 - EL9 citus 12 支持
   - 移除 `remi`: redis 现在由 pigsty-el 仓库提供，不再需要 `redis` 模块。
 - `repo_packages`:
-  - ansible python3 python3-pip python3-requests python3.11-jmespath dnf-utils modulemd-tools # el7: python36-requests python36-idna yum-utils
+  - ansible python3 python3-pip python3-requests python3-jmespath python3.11-jmespath dnf-utils modulemd-tools # el7: python36-requests python36-idna yum-utils
   - grafana loki logcli promtail prometheus2 alertmanager karma pushgateway node_exporter blackbox_exporter nginx_exporter redis_exporter
   - redis etcd minio mcli haproxy vip-manager pg_exporter nginx createrepo_c sshpass chrony dnsmasq docker-ce docker-compose-plugin flamegraph
   - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned perf nvme-cli numactl grubby sysstat iotop htop rsync tcpdump

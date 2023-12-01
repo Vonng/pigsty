@@ -561,7 +561,7 @@ repo_upstream:                    # where to download #
 - { name: pigsty-redis   ,description: 'Pigsty Redis'      ,module: redis ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.cc/rpm/redis/el$releasever.$basearch'  }}
 - { name: pigsty-minio   ,description: 'Pigsty MinIO'      ,module: minio ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.cc/rpm/minio/$basearch'  }}
 repo_packages:                    # which packages to be included
-  - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools
+  - ansible python3 python3-pip python3-virtualenv python3-requests python3-jmespath python3.11-jmespath python3.11-pip dnf-utils modulemd-tools
   - grafana loki logcli promtail prometheus2 alertmanager pushgateway victoria-logs vector
   - node_exporter blackbox_exporter nginx_exporter redis_exporter mysqld_exporter mongodb_exporter kafka_exporter keepalived_exporter
   - redis etcd minio mcli haproxy vip-manager pg_exporter ferretdb sealos nginx createrepo_c sshpass chrony dnsmasq docker-ce docker-compose-plugin
@@ -762,7 +762,7 @@ Pigsty 构建配置模板 [`build.yml`](https://github.com/Vonng/pigsty/blob/mas
 
 ```yaml
 repo_packages:                    # which packages to be included
-  - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools
+  - ansible python3 python3-pip python3-virtualenv python3-requests python3-jmespath python3.11-jmespath python3.11-pip dnf-utils modulemd-tools
   - grafana loki logcli promtail prometheus2 alertmanager pushgateway victoria-logs vector
   - node_exporter blackbox_exporter nginx_exporter redis_exporter mysqld_exporter mongodb_exporter kafka_exporter keepalived_exporter
   - redis etcd minio mcli haproxy vip-manager pg_exporter ferretdb sealos nginx createrepo_c sshpass chrony dnsmasq docker-ce docker-compose-plugin
@@ -781,7 +781,7 @@ repo_packages:                    # which packages to be included
 不同的 EL 大版本所包含的软件包会有微量差别，在当前版本中：
 
 * EL7:  `python36-requests python36-idna yum-utils yum-utils`，以及 `postgis33*`
-* EL8:  `python3.11-jmespath dnf-utils modulemd-tools`，以及 `postgis34*`
+* EL8:  `python3-jmespath python3.11-jmespath dnf-utils modulemd-tools`，以及 `postgis34*`
 * EL9:  与 EL8 相同，唯独缺少 `pgxnclient` 软件包
 
 对于 Debian 系操作系统，合理默认值有所不同：

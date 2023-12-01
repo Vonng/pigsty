@@ -248,7 +248,7 @@ It will also download / extract / setup the offline [packages](#offline-packages
 3. install boot utils from the available repo
    * el7,8,9: `ansible createrepo_c unzip wget yum-utils sshpass`
    * el8 extra: `ansible python3.11-jmespath createrepo_c unzip wget dnf-utils sshpass modulemd-tools`
-   * el9 extra: `ansible python3.11-jmespath createrepo_c unzip wget dnf-utils sshpass modulemd-tools`
+   * el9 extra: `ansible python3-jmespath python3.11-jmespath createrepo_c unzip wget dnf-utils sshpass modulemd-tools`
    * ubuntu/debian: `ansible python3-jmespath dpkg-dev unzip wget sshpass acl`
 4. Check `ansible` availability.
 
