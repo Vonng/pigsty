@@ -9,7 +9,7 @@
 Prepare a fresh Linux x86_64 node that meets the [requirement](#requirement), then run as a **sudo-able** user:
 
 ```bash
-curl https://get.pigsty.cc/latest | bash
+curl -L https://get.pigsty.cc/latest | bash
 ```
 
 It will [download](#download) Pigsty source to your home, then perform [Bootstrap](#bootstrap), [Configure](#configure), and [Install](#install). 
@@ -30,7 +30,7 @@ A pigsty singleton node will be ready with Web Services on port `80` and Postgre
 <details><summary>Download with Script</summary>
 
 ```bash
-$ curl https://get.pigsty.cc/latest | bash
+$ curl -L https://get.pigsty.cc/latest | bash
 ...
 [Checking] ===========================================
 [ OK ] SOURCE from CDN due to GFW

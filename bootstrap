@@ -250,13 +250,13 @@ function download_file(){
     else
       log_warn "data url file size ${curl_size} != local ${size}, downloading ${data_url}"
       log_info "$ curl ${data_url} -o ${data_file}"
-      curl ${data_url} -o ${data_file}
+      curl -L ${data_url} -o ${data_file}
       return $?
     fi
   else
     # log_info "download ${data_url} to ${data_file}"
     log_info "$ curl ${data_url} -o ${data_file}"
-    curl ${data_url} -o ${data_file}
+    curl -L ${data_url} -o ${data_file}
     return $?
   fi
 }
@@ -333,7 +333,11 @@ function check_repo(){
         sudo rm -rf ${repo_dir}
     fi
     log_info "repo = extract from ${pkg_path}"
-    sudo tar -xf ${pkg_path} -C ${nginx_home}  # extract to /www/pigsty
+    if ! [ -x "$(command -v tar)" ]; then
+      log_error 'tar is not installed'
+      return 1
+    fi
+    sudo tar -xf ${pkg_path} -C ${nginx_home}  # extract
 }
 
 

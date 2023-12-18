@@ -76,7 +76,7 @@ add0731dc7ed37f134d3cb5b6646624e  pigsty-pkg-v2.5.1.debian12.x86_64.tgz
 ## v2.5.0
 
 ```bash
-curl https://get.pigsty.cc/latest | bash
+curl -L https://get.pigsty.cc/latest | bash
 ```
 
 **Highlights**

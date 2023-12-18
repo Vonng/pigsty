@@ -10,7 +10,7 @@
 准备一个全新的[符合要求](#要求) 的 Linux x86_64 节点，使用带有免密 `sudo` 权限的用户，执行以下命令：
 
 ```bash
-curl https://get.pigsty.cc/latest | bash
+curl -L https://get.pigsty.cc/latest | bash
 ```
 
 该命令会[下载](#下载)并解压 Pigsty 源码至家目录，按提示完成 [准备](#准备)，[配置](#配置)，[安装](#安装)三个步骤即可完成安装。
@@ -32,7 +32,7 @@ cd ~/pigsty      # 进入 Pigsty 源码目录，完成后续 准备、配置、�
 默认的 [`latest`](https://github.com/Vonng/pigsty/blob/master/bin/latest) 脚本将下载当前的最新稳定版本，将其替换为 [`beta`](https://github.com/Vonng/pigsty/blob/master/bin/beta) 则会下载最新的测试版本。
 
 ```bash
-$ curl https://get.pigsty.cc/latest | bash
+$ curl -L https://get.pigsty.cc/latest | bash
 ...
 [Checking] ===========================================
 [ OK ] SOURCE from CDN due to GFW
@@ -145,7 +145,7 @@ Pigsty 推荐使用 `RockyLinux 8.8` (Green Obsidian) 或 `Ubuntu 22.04` (jammy)
 您可以使用以下命令获取 Pigsty 源码包：
 
 ```bash
-curl https://get.pigsty.cc/latest  | bash
+curl -L https://get.pigsty.cc/latest  | bash
 ```
 
 > 提示: 如果您需要下载最新的测试版本（Alpha/Beta/RC），请使用 `beta` 替代 `latest`

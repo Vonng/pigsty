@@ -85,7 +85,7 @@ Pigsty的离线软件包即是将已经建立好的软件源目录（yum/apt）�
 Repo定义文件位于 `/www/pigsty.repo`，默认可以通过 `http://${admin_ip}/pigsty.repo` 获取
 
 ```bash
-curl http://h.pigsty/pigsty.repo -o /etc/yum.repos.d/pigsty.repo
+curl -L http://h.pigsty/pigsty.repo -o /etc/yum.repos.d/pigsty.repo
 ```
 
 您也可以在没有Nginx的情况下直接使用文件本地源：

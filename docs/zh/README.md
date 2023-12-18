@@ -232,7 +232,7 @@ bash -c "$(curl -fsSL https://get.pigsty.cc/latest)" && cd ~/pigsty
 <details><summary>一键安装脚本</summary>
 
 ```bash
-$ curl https://get.pigsty.cc/latest | bash
+$ curl -L https://get.pigsty.cc/latest | bash
 ...
 [Checking] ===========================================
 [ OK ] SOURCE from CDN due to GFW

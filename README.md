@@ -175,7 +175,7 @@ Then you will have a pigsty singleton node ready, with Web Services on port `80`
 <details><summary>Download with Get</summary>
 
 ```bash
-$ curl https://get.pigsty.cc/latest | bash
+$ curl -fsSL https://get.pigsty.cc/latest | bash
 ...
 [Checking] ===========================================
 [ OK ] SOURCE from CDN due to GFW
