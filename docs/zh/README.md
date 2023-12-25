@@ -4,7 +4,7 @@
 >
 > —— **开箱即用，本地优先的 RDS PostgreSQL 开源替代**
 >
-> 最新版本：[v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
+> 最新版本：[v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [GPT答疑](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
 >
 > [快速上手](INSTALL.md)：`curl -fsSL https://get.pigsty.cc/latest | bash`
 

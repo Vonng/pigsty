@@ -21,6 +21,8 @@ If our work has helped you, please consider sponsoring or supporting our project
 
 The Pigsty community already offers free WeChat/Discord/Telegram Q&A Office Hours, and we are also happy to provide more free value-added services to our supporters.
 
+We have a GPTs for Pigsty documentation QA: https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul
+
 WeChat: Search `pigsty-cc` and join the User Group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
@@ -49,22 +51,21 @@ If you have the following needs, please consider our **professional services sub
 
 Service subscriptions are divided into two different levels, **Standard Service Agreement,** and **Enterprise Service Agreement**, as shown in the table below:
 
-|       Agreement/Plan       |                  AGPLv3 Open Source License                  |                  Standard Service Agreement                  |                 Enterprise Service Agreement                 |
-| :------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
+|       Agreement/Plan       |                                           AGPLv3 Open Source License                                           |                                             Standard Service Agreement                                              |                              Enterprise Service Agreement                              |
+|:--------------------------:|:--------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------:|
 |        Description         | Designed for users and developers who comply with the AGPLv3 open-source license and are fully self-sufficient | Designed for users who are mostly self-sufficient but want direct support from Pigsty and backup for complex issues | Designed for scenarios that require strict SLAs and maximum support for critical tasks |
-|       Version Range        |                       Current version                        |   Versions released within the last year and LTS versions    |         Versions released within the last five years         |
-|       Support Method       |                   WeChat group public Q&A                    |         Remote desktop / WeChat <br /> Phone / Email         | Remote desktop / WeChat / Phone /<br /> Email / On-site / On-site* |
-|   Language and Interface   |                           English                            |                        + Localization                        |                        + Localization                        |
-|           Price            |                             Free                             |     10 \$ / core·month or <br/> 100 \$ / instance·month      |     20 \$ / core·month or <br/> 200 \$ / instance·month      |
-|       Starting Price       |                                                              |                        5,000 $ / year                        |                       10,000 $ / year                        |
-|        Expert Days         |                                                              |      One expert day for every 2,000 $ subscription fee       |      One expert day for every 2,000 $ subscription fee       |
-|            SLA             |                                                              |                  Respond within < 48 hours                   |                   Respond within < 2 hours                   |
-|         Time Range         |                                                              |                 8 x 5 (local business hour)                  |                            7 x 24                            |
-|   Performance Diagnosis    |                                                              |                      ✅ Unlimited times                       |                      ✅ Unlimited times                       |
-|        Panic Button        |                                                              |                        ✅ Once a year                         |                      ✅ Unlimited times                       |
-|      Upgrade Guidance      |                                                              |                        ✅ Once a year                         |                      ✅ Unlimited times                       |
-| Annual Architecture Review |                                                              |                                                              |                        ✅ Once a year                         |
-| Annual Performance Review  |                                                              |                                                              |                        ✅ Once a year                         |
+|       Version Range        |                                                Current version                                                 |                               Versions released within the last year and LTS versions                               |                      Versions released within the last five years                      |
+|       Support Method       |                                            WeChat group public Q&A                                             |                                    Remote desktop / WeChat <br /> Phone / Email                                     |                Remote desktop / WeChat / Phone /<br /> Email / On-site                 |
+|           Price            |                                                      Free                                                      |                                 10 \$ / core·month or <br/> 100 \$ / instance·month                                 |                  20 \$ / core·month or <br/> 200 \$ / instance·month                   |
+|       Starting Price       |                                                                                                                |                                                   5,000 $ / year                                                    |                                    10,000 $ / year                                     |
+|        Expert Days         |                                                                                                                |                                  One expert day for every 2,500 $ subscription fee                                  |                   One expert day for every 2,500 $ subscription fee                    |
+|            SLA             |                                                                                                                |                                              Respond within < 48 hours                                              |                                Respond within < 2 hours                                |
+|         Time Range         |                                                                                                                |                                             8 x 5 (local business hour)                                             |                                         7 x 24                                         |
+|   Performance Diagnosis    |                                                                                                                |                                                     ✅ Unlimited                                                     |                                      ✅ Unlimited                                       |
+|        Panic Button        |                                                                                                                |                                                    ✅ Once a year                                                    |                                   ✅ Unlimited times                                    |
+|      Upgrade Guidance      |                                                                                                                |                                                    ✅ Once a year                                                    |                                   ✅ Unlimited times                                    |
+| Annual Architecture Review |                                                                                                                |                                                                                                                     |                                     ✅ Once a year                                      |
+| Annual Performance Review  |                                                                                                                |                                                                                                                     |                                     ✅ Once a year                                      |
 
 - Billing is based on CPU core or instance count, using $/(core·month) as the unit. Instances exceeding ten cores are counted as ten cores.
 - Subscriptions include limited expert days, which can be used for training, consulting, planning, upgrade guidance, fault analysis, troubleshooting, production check-ups, and teaching training.
@@ -72,7 +73,7 @@ Service subscriptions are divided into two different levels, **Standard Service 
 - The final price will be adjusted based on the self-sufficiency of your A team, and scale, scope, work time, and content will also be considered. Please refer to the contract.
 - We will do our best to provide feasible suggestions and solutions. If the consultation problem is not resolved, the fee will be reduced at our discretion. The specific SLA is based on the contract.
 
-> Check [Vantage](https://instances.vantage.sh/) for realtime cloud RDS price.
+> Check [Vantage](https://instances.vantage.sh/) for realtime cloud ECS / RDS price.
 
 Commercial support contact: Email: [rh@vonng.com](mailto:rh@vonng.com), WeChat: pigsty-cc / RuohangFeng
 
@@ -81,26 +82,25 @@ Commercial support contact: Email: [rh@vonng.com](mailto:rh@vonng.com), WeChat: 
 
 ## Miscellaneous
 
-We offer retail expert days that can be used for failure analysis, post-mortem, troubleshooting, performance analysis, problem-solving, teaching, and training, which can be purchased as needed.
+We offer retail expert days that can be used for database architecting, failure analysis, postmortem, troubleshooting, performance analysis, problem-solving, teaching, and training, which can be purchased as needed.
 
-- Top Expert: 20,000 ¥ / day (Top database experts with over ten years of experience, PCM/ACE, P9+)
-- Senior Expert: 15,000 ¥ / day (Database experts with 5-10 years of experience, P8+/ICT4+)
-- Technical Expert: 10,000 ¥ / day (P7+)
+- Top Expert: 3,000 $ / day
+- Senior Expert: 2,000 ¥ / day
+
+The above prices are exclusive of taxes. The minimum unit is half a day, less than that will be charged as half a day.
+Price is doubled outside regular working hours (5x8), and it's tripled on public holidays.
+Pricing & Discount may vary depending on the industry and the technical level of the client's team.
+
+Expert days need to be arranged at least one day before. 
+Emergency failure responding is not applicable here and only available to subscribed customers.
 
 We offer teaching and training services on PostgreSQL, priced as follows:
 
-- PostgreSQL Application Development: 20,000 ¥ / 1 day, up to 20 people.
-- PostgreSQL Operations Management: 20,000 ¥ / 1 day, up to 20 people.
-- PostgreSQL Kernel Architecture: 35,000 ¥ / 1 day, up to 10 people.
+- PostgreSQL Application Development: 1 x expert day, up to 20 people.
+- PostgreSQL Management & Operation: 1 x expert day, up to 20 people.
+- PostgreSQL Kernel Architecture: 2 x expert day, up to 10 people.
 
-We offer deployment consulting and troubleshooting services, priced as follows:
+We offer deployment consulting and architecting services, priced as follows:
 
-- Deployment Consulting: 1000¥ / case, planning a deployment solution based on your existing resources and needs.
-- Small Cases: 5000¥ / case, solving a non-urgent fault case, not exceeding half a working day, remote only.
-- Large Cases include production fault recovery, data deletion recovery, and price negotiable.
-
-Other services we offer include:
-
-- On-site DBA: Only available for large-scale subscription customers.
-- Custom Features: Database kernel modification / OS chip architecture adaptation / RDS service OEM branding.
-- Projects: Database system/data warehouse, observability, data analysis/data visualization related projects.
+- Planning a deployment solution based on your existing resources and needs.
+- 150 $/h, at least one hour per case, remote only. Delivery includes the `pigsty.yml` file. 
