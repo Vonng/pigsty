@@ -70,7 +70,7 @@ You can reuse Pigsty infra and extend it with your Modules (e.g. `GPSQL`, `KAFKA
 Moreover, Pigsty's `INFRA` module can be used alone — ideal for monitoring hosts, databases, or cloud [RDS](PGSQL-MONITOR#monitor-rds).
 
 
-[![pigsty-sandbox.jpg](https://repo.pigsty.cc/img/sandbox.jpg)](ARCH.md#模块)
+[![pigsty-sandbox.jpg](https://repo.pigsty.cc/img/pigsty-sandbox.jpg)](ARCH.md#modules)
 
 
 
