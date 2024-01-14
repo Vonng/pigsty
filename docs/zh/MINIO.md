@@ -38,9 +38,7 @@ MinIO 模块需要安装在 Pigsty 纳管的节点上（也就是安装了 [`NOD
 minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 ```
 
-The only required params are [`minio_seq`](PARAM#minio_seq) and [`minio_cluster`](PARAM#minio_cluster), which generate a unique identity for each MinIO instance. 
-
-唯一需要的参数是 [`minio_seq`](PARAM#minio_seq) 和 [`minio_cluster`](PARAM#minio_cluster)，它们会唯一标识每一个 MinIO 实例。
+单机模式下，唯一必要的参数是 [`minio_seq`](PARAM#minio_seq) 和 [`minio_cluster`](PARAM#minio_cluster)，它们会唯一标识每一个 MinIO 实例。
 
 单节点单驱动器模式仅用于开发目的，因此您可以使用一个普通的目录作为数据目录，该目录默认为 `/data/minio`。
 请注意，在多盘或多节点模式下，如果使用普通目录作为数据目录而不是挂载点，MinIO 将拒绝启动。

@@ -309,7 +309,7 @@ module_hotfixes=1
 EOF
 
 # install compiling tools, build deps and PG major versions
-yum groupinstall -y 'Development Tools'
+yum groupinstall --skip-broken -y 'Development Tools'
 yum install -y pgdg-srpm-macros clang ccache rpm-build rpmdevtools postgresql1*-server flex bison postgresql1*-devel readline-devel zlib-devel lz4-devel libzstd-devel openssl-devel krb5-devel libcurl-devel libxml2-devel CUnit cmake
 rpmdev-setuptree
 ```

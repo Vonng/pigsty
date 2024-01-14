@@ -313,7 +313,7 @@ module_hotfixes=1
 EOF
 
 # 安装编译工具，构建依赖，以及 PostgreSQL 各大版本
-yum groupinstall -y 'Development Tools'
+yum groupinstall --skip-broken -y 'Development Tools'
 yum install -y pgdg-srpm-macros clang ccache rpm-build rpmdevtools postgresql1*-server flex bison postgresql1*-devel readline-devel zlib-devel lz4-devel libzstd-devel openssl-devel krb5-devel libcurl-devel libxml2-devel CUnit cmake
 rpmdev-setuptree  # 初始化 rpm 构建目录结构
 ```
