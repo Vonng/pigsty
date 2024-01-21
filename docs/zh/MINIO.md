@@ -4,8 +4,8 @@
 
 MinIO 是一个与 S3 兼容的对象存储服务，可以用来存储文档、图片、视频和备份。它支持原生的多节点多磁盘的高可用部署，可扩展、安全且易于使用。
 
-Pigsty 中的 PGSQL 模块默认会使用本地 posix 文件系统存储备份，但您也可以选择使用 MinIO，或者外部的 S3 服务作为集中式的备份存储。
-如果使用 MinIO 作为备份存储库，那么在部署 PGSQL 集群前应当首先初始化 MinIO 集群。
+Pigsty 中的 [PGSQL](PGSQL) 模块默认会使用本地 posix 文件系统存储备份，但您也可以选择使用 MinIO，或者外部的 S3 服务作为集中式的备份存储。
+如果使用 MinIO 作为备份存储库，那么在部署 PGSQL 集群前应当首先初始化 MinIO 集群。请注意，单机部署的 MinIO 不应当用于生产环境。
 
 MinIO 模块需要安装在 Pigsty 纳管的节点上（也就是安装了 [`NODE`](NODE) 模块的节点），因为生产环境中的 MinIO 必须要使用 SSL 证书，所以会用到节点上的 CA。
 
@@ -21,7 +21,7 @@ MinIO 模块需要安装在 Pigsty 纳管的节点上（也就是安装了 [`NOD
 - [多机多盘](#多机多盘)
 - [暴露服务](#暴露服务)
 - [访问服务](#访问服务)
-- [单机单盘](#暴露管控)
+- [暴露管控](#暴露管控)
 
 
 
@@ -31,7 +31,7 @@ MinIO 模块需要安装在 Pigsty 纳管的节点上（也就是安装了 [`NOD
 
 参考：[MinIO 单机单盘部署](https://min.io/docs/minio/linux/operations/install-deploy-manage/deploy-minio-single-node-single-drive.html)
 
-定义一个单例 MinIO 实例非常简单直接：
+定义一个单例 MinIO 实例非常简单：
 
 ```yaml
 # 1 节点 1 驱动器（默认）
@@ -40,8 +40,8 @@ minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio 
 
 单机模式下，唯一必要的参数是 [`minio_seq`](PARAM#minio_seq) 和 [`minio_cluster`](PARAM#minio_cluster)，它们会唯一标识每一个 MinIO 实例。
 
-单节点单驱动器模式仅用于开发目的，因此您可以使用一个普通的目录作为数据目录，该目录默认为 `/data/minio`。
-请注意，在多盘或多节点模式下，如果使用普通目录作为数据目录而不是挂载点，MinIO 将拒绝启动。
+单节点单磁盘模式仅用于开发目的，因此您可以使用一个普通的目录作为数据目录，该目录默认为 `/data/minio`。
+请注意，在多盘或多节点模式下，如果使用普通目录作为数据目录，而不是真实磁盘挂载点，MinIO 将拒绝启动。
 
 
 ----------------
@@ -50,7 +50,7 @@ minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio 
 
 参考：[MinIO 单机多盘部署](https://min.io/docs/minio/linux/operations/install-deploy-manage/deploy-minio-single-node-multi-drive.html)
 
-要在单节点上使用多个磁盘，你需要以 `{{ prefix }}{x...y}` 的格式指定 [`minio_data`](PARAM#minio_data)，该格式定义了一系列磁盘挂载点。
+要在单节点上使用多块磁盘，你需要以 `{{ prefix }}{x...y}` 的格式指定 [`minio_data`](PARAM#minio_data)，该格式定义了一系列磁盘挂载点。
 
 ```yaml
 minio:
@@ -60,7 +60,7 @@ minio:
     minio_data: '/data{1...4}'   # minio 数据目录，使用 {x...y} 记号来指定多块磁盘
 ```
 
-此示例定义了一个带有4个驱动器的单节点 MinIO 集群：`/data1`、`/data2`、`/data3` 和 `/data4`。启动 MinIO 之前，你需要正确地挂载它们：
+本例定义了一个带有4块磁盘的单节点 MinIO 集群：`/data1`、`/data2`、`/data3` 和 `/data4`。启动 MinIO 之前，你需要正确地挂载它们：
 
 ```bash
 mkfs.xfs /dev/sdb; mkdir /data1; mount -t xfs /dev/sdb /data1;   # 挂载第一块盘……
@@ -72,7 +72,7 @@ mkfs.xfs /dev/sdb; mkdir /data1; mount -t xfs /dev/sdb /data1;   # 挂载第一�
 
 参考：[MinIO 多机多盘部署](https://min.io/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html)
 
-MinIO 多节点部署需要用到一个额外的 [`minio_node`](PARAM#minio_node) 参数：
+MinIO 多节点部署需要使用一个额外的 [`minio_node`](PARAM#minio_node) 参数：
 
 ```yaml
 minio:
@@ -86,16 +86,17 @@ minio:
     minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio 节点名称规则
 ```
 
-`${minio_cluster}` 和 `${minio_seq}` 将分别被替换为 [`minio_cluster`](PARAM#minio_cluster) 和 [`minio_seq`](PARAM#minio_seq) 的值，并用作 MinIO 节点名称。
+在 `minio_node` 中的身份参数占位符 `${minio_cluster}` 和 `${minio_seq}` 将分别被替换为 [`minio_cluster`](PARAM#minio_cluster) 和 [`minio_seq`](PARAM#minio_seq) 的值，并用作 MinIO 节点名称。
 
 
 ----------------
 
 ### 暴露服务
 
-MinIO 默认在端口 `9000` 上提供服务。如果您部署了多节点的 MinIO 集群，则可以通过任意一个节点来访问其服务。
+MinIO 默认使用 `9000` 端口提供服务。多节点 MinIO 集群可以通过任意一个节点来访问其服务。
 
-您可以选择使用 keepalived 在 MinIO 集群上绑定一个 L2 [VIP](PARAM#node_vip)，或者使用由 [`NODE`](NODE) 模块的提供的 [`haproxy`](PARAM#haproxy) 组件，通过负载均衡器对外暴露 MinIO 服务。
+多节点 MinIO 集群的高可用接入可以使用 L2 VIP 或 HAProxy 实现。例如，您可以选择使用 keepalived 在 MinIO 集群上绑定一个 L2 [VIP](PARAM#node_vip)，
+或者使用由 [`NODE`](NODE) 模块的提供的 [`haproxy`](PARAM#haproxy) 组件，通过负载均衡器对外暴露 MinIO 服务。
 
 下面是使用 HAProxy 对外暴露服务的一个例子：
 
@@ -124,11 +125,12 @@ minio:
           - { name: minio-3 ,ip: 10.10.10.12 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
 ```
 
+
 ----------------
 
 ### 访问服务
 
-如果您想要访问 [上面暴露的服务](#暴露服务)，可以修改 [`pgbackrest_repo`](PARAM#pgbackrest_repo) 中的配置，添加一个新的备份仓库定义： 
+如果您想要访问上面通过 HAProxy 暴露的 MinIO，以 PGSQL 备份配置为例，可以修改 [`pgbackrest_repo`](PARAM#pgbackrest_repo) 中的配置，添加新的备份仓库定义： 
 
 ```yaml
 # 这是新添加的 HA MinIO Repo 定义，使用此配置代替之前的单机 MinIO 配置
@@ -154,9 +156,9 @@ minio_ha:
 
 ### 暴露管控
 
-MinIO 默认在端口 `9001` 上提供一个Web管控界面。
+MinIO 默认通过 `9001` 端口提供Web管控界面。
 
-将管理界面暴露给外部不是明智的行为，如果你希望这样做，请将 MinIO 添加到 [`infra_portal`](PARAM#infra_portal) 并刷新 Nginx 配置。
+将后台管理界面暴露给外部可能存在安全隐患。如果你希望这样做，请将 MinIO 添加到 [`infra_portal`](PARAM#infra_portal) 并刷新 Nginx 配置。
 
 ```yaml
 infra_portal:   # 域名和上游服务器定义
