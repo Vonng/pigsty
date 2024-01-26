@@ -1,4 +1,4 @@
-# pigsty building environment with 3 EL nodes: centos7.9 / rocky8.7 / rocky9.1 and 4 debian nodes: debian11 / debian12 / ubuntu20.04 / ubuntu22.04
+# pigsty building environment with 7 EL / Deb nodes
 
 Specs = [
 

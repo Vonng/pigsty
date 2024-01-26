@@ -96,6 +96,10 @@ vo:
 	./switch os
 vu:
 	./switch ubuntu
+vr:
+	./switch rpm
+vd:
+	./switch deb
 
 #------------------------------#
 # production template
