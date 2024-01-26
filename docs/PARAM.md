@@ -5412,7 +5412,7 @@ overwrite extra options for pg_exporter
 default value is empty string, which will fall back the following default options: 
 
 ```
---log.level=info --log.format=logfmt
+--log.level=info
 ```
 
 If you want to customize logging options or other pg_exporter options, you can set it here.
@@ -5468,7 +5468,7 @@ name: `pgbouncer_exporter_options`, type: `arg`, level: `C`
 overwrite extra options for pgbouncer_exporter, default value is empty string.
 
 
-`--log.level=info --log.format=logfmt`
+`--log.level=info`
 
 default value is empty string, which will fall back the following default options:
 

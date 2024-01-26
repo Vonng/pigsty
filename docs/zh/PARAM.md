@@ -5505,7 +5505,7 @@ pg_exporter 连接超时（毫秒），默认为 `200` （单位毫秒）
 {% if pg_exporter_port != '' %}
 PG_EXPORTER_OPTS='--web.listen-address=:{{ pg_exporter_port }} {{ pg_exporter_options }}'
 {% else %}
-PG_EXPORTER_OPTS='--web.listen-address=:{{ pg_exporter_port }} --log.level=info --log.format=logfmt'
+PG_EXPORTER_OPTS='--web.listen-address=:{{ pg_exporter_port }} --log.level=info'
 {% endif %}
 ```
 
@@ -5566,7 +5566,7 @@ postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@:{{ pgbouncer_por
 {% if pgbouncer_exporter_options != '' %}
 PG_EXPORTER_OPTS='--web.listen-address=:{{ pgbouncer_exporter_port }} {{ pgbouncer_exporter_options }}'
 {% else %}
-PG_EXPORTER_OPTS='--web.listen-address=:{{ pgbouncer_exporter_port }} --log.level=info --log.format=logfmt'
+PG_EXPORTER_OPTS='--web.listen-address=:{{ pgbouncer_exporter_port }} --log.level=info'
 {% endif %}
 ```
 
