@@ -4,7 +4,7 @@ set -euo pipefail
 # File      :   cache
 # Desc      :   make pigsty offline packages
 # Ctime     :   2021-04-22
-# Mtime     :   2022-12-02
+# Mtime     :   2024-01-26
 # Path      :   bin/cache
 # Deps      :   gzip, tar
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -17,9 +17,10 @@ PROG_DIR="$(cd $(dirname $0) && pwd)"
 #--------------------------------------------------------------#
 # Usage
 #--------------------------------------------------------------#
-# bin/cache [pkg_path] , run as root
-# example: ./cache  will cache /www/pigsty to /tmp/pkg.tgz
+# bin/cache [version] [pkg_path] [repo_dir]
 
+# it will tarball the /www/pigsty repo by default
+# the offline package is on /tmp/pkg.tgz by default
 
 #--------------------------------------------------------------#
 # Utils
@@ -35,48 +36,209 @@ function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 
 
 #--------------------------------------------------------------#
-# Arg1: where to put cache (/tmp/pkg.tgz)
+# Args
 #--------------------------------------------------------------#
-PKG_PATH=${1-/tmp/pkg.tgz}
-REPO_DIR=${2-/www/pigsty}
+PIGSTY_VERSION=${1-'v2.5.1'}
+PKG_PATH=${2-/tmp/pkg.tgz}
+REPO_DIR=${3-/www/pigsty}
+
+REPO_NAME=$(basename ${REPO_DIR})
+REPO_HOME=$(dirname ${REPO_DIR})
+BUILD_DIR="/tmp/pigsty-build"
+ARCH="x86_64"
+OS_SERIES="el"
+OS_VENDOR=""
+OS_VERSION=""
+OS_PACKAGE=""
+OS_MANAGER=""
+DISTRO_NAME=""
+PACKAGE_NAME="pigsty-pkg-${PIGSTY_VERSION}"
 
 
-#--------------------------------------------------------------#
-# Check repo dir not empty
-#--------------------------------------------------------------#
-sudo mkdir -p ${REPO_DIR}
-if [ -z "$(ls -A ${REPO_DIR})" ]; then
-    log_error "empty repo dir ${REPO_DIR}"
-    log_hint "init meta node without pkg will download packages to ${REPO_DIR}"
-    exit 1
-else
-   log_info "repo dir = /www/pigsty"
-fi
-
-
-#--------------------------------------------------------------#
-# Check grafana plugins
-#--------------------------------------------------------------#
-if [ -f "${REPO_DIR}/plugins.tgz" ]; then
-    log_info "grafana plugins already cached, skip"
-else
-    if [ -z "$(ls -A /var/lib/grafana/plugins)" ]; then
-       log_warn "grafana plugins not found, skip"
+#----------------------------------------------#
+# check machine arch
+#----------------------------------------------#
+function check_machine(){
+    local ARCH=$(uname -m)
+    if [[ "${ARCH}" == "x86_64" ]]; then
+        log_info "machine = ${ARCH}"
+        return 0
     else
-       log_info "grafana plugins found, archiving to ${REPO_DIR}/plugins.tgz"
-       sudo tar -zcf ${REPO_DIR}/plugins.tgz -C /var/lib/grafana/ plugins  # pack grafana plugins
+        log_warn "machine = ${ARCH} , beware: not officially supported"
     fi
-fi
+}
+
+#----------------------------------------------#
+# check os vendor & version
+#----------------------------------------------#
+function check_package_manager(){
+    # get package / manager: rpm|deb and dnf|yum|apt|apt-get|zypper
+    if command -v dpkg >/dev/null 2>&1; then
+        OS_PACKAGE="deb"
+        if command -v apt >/dev/null 2>&1; then
+            OS_MANAGER="apt"
+        elif command -v apt-get >/dev/null 2>&1; then
+            OS_MANAGER="apt-get"
+        else
+            log_error "fail to determine os package manager for deb"
+            exit 2
+        fi
+    elif command -v rpm >/dev/null 2>&1; then
+        OS_PACKAGE="rpm"
+        if command -v dnf >/dev/null 2>&1; then
+            OS_MANAGER="dnf"
+        elif command -v yum >/dev/null 2>&1; then
+            OS_MANAGER="yum"
+        elif command -v zypper >/dev/null 2>&1; then
+            OS_MANAGER="zypper"
+        else
+            log_error "fail to determine os package manager for rpm"
+            exit 3
+        fi
+    else
+        log_error "fail to determine os package type"
+        exit 1
+    fi
+    log_info "pkg type = ${OS_PACKAGE}"
+}
+
+
+#----------------------------------------------#
+# os release (Linux|Darwin etc..)
+#----------------------------------------------#
+function check_vendor_version(){
+  if [[ -f /etc/os-release ]]; then
+      . /etc/os-release
+      OS_VENDOR="$ID"
+      OS_VERSION="$VERSION_ID"
+      if [[ $VERSION_ID == *.* ]]; then
+          OS_VERSION=$(echo "$VERSION_ID" | cut -d. -f1)
+      else
+          OS_VERSION="${VERSION_ID}"
+      fi
+      return 0
+  else
+      log_error "/etc/os-release file not found, unknown OS"
+      exit 4
+  fi
+}
+
+#----------------------------------------------#
+# check repo dir
+#----------------------------------------------#
+function check_repo_dir(){
+  sudo mkdir -p ${REPO_DIR}
+  if [ -z "${REPO_DIR}" ]; then
+      log_error "repo dir = empty path, abort"
+      exit 5
+  fi
+  if [ -z "$(ls -A ${REPO_DIR})" ]; then
+      log_error "repo dir = empty ${REPO_DIR}"
+      log_hint "make sure ${REPO_DIR} has packages"
+      exit 5
+  else
+     log_info "repo dir = ${REPO_DIR}"
+  fi
+}
+
+
+#----------------------------------------------#
+# prepare_repo
+#----------------------------------------------#
+function build_offline_package(){
+  mkdir -p ${BUILD_DIR}
+  # copy yum/apt repo to build dir
+  TARGET_DIR="${BUILD_DIR}/${REPO_NAME}"
+  log_info "copy ${REPO_DIR} to ${TARGET_DIR}"
+  sudo rm -rf "${TARGET_DIR}"
+  sudo cp -r "${REPO_DIR}" "${TARGET_DIR}"
+
+  # make grafana plugins tarball
+  if [ -z "$(ls -A /var/lib/grafana/plugins)" ]; then
+     if [ -f "${REPO_DIR}/plugins.tgz" ]; then
+         log_warn "grafana plugins = use ${REPO_DIR}/plugins.tgz"
+         sudo cp -f "${REPO_DIR}/plugins.tgz" "${TARGET_DIR}/"
+     else
+         log_warn "grafana plugins = not found, skip"
+      fi
+  else
+     log_info "grafana plugins = found, overwrite ${TARGET_DIR}/plugins.tgz"
+     ls /var/lib/grafana/plugins
+     sudo tar -zcf ${TARGET_DIR}/plugins.tgz -C /var/lib/grafana/ plugins  # pack grafana plugins
+  fi
+
+  # remove unnecessary packages according to os version
+  if [[ ${OS_PACKAGE} == "rpm" ]]; then
+      if [[ ${OS_VERSION} == "7" ]]; then
+          DISTRO_NAME="el7.${ARCH}"
+          log_info "create repo on ${DISTRO_NAME} $(hostname)"
+          sudo rm -rf "${TARGET_DIR}/*docs*" "${TARGET_DIR}/www/pigsty/patroni*3.0.4*" "${TARGET_DIR}/www/pigsty/*.i686.rpm"
+          sudo bash -c "cd ${TARGET_DIR} && createrepo_c ."
+      elif [[ ${OS_VERSION} == "8" ]]; then
+          DISTRO_NAME="el8.${ARCH}"
+          log_info "create repo on ${DISTRO_NAME} $(hostname)"
+          sudo rm -rf "${TARGET_DIR}/*docs*" "${TARGET_DIR}/www/pigsty/patroni*3.0.4*"
+          sudo bash -c "cd ${TARGET_DIR} && createrepo_c ."
+          sudo bash -c "cd ${TARGET_DIR} && repo2module -s stable . modules.yaml;"
+          sudo bash -c "cd ${TARGET_DIR} && modifyrepo_c --mdtype=modules modules.yaml repodata/;"
+      elif [[ ${OS_VERSION} == "9" ]]; then
+          DISTRO_NAME="el9.${ARCH}"
+          log_info "create repo on ${DISTRO_NAME} $(hostname)"
+          sudo rm -rf "${TARGET_DIR}/*docs*" "${TARGET_DIR}/www/pigsty/patroni*3.0.4*" "${TARGET_DIR}/www/pigsty/proj-data*"
+          sudo bash -c "cd ${TARGET_DIR} && createrepo_c ."
+          sudo bash -c "cd ${TARGET_DIR} && repo2module -s stable . modules.yaml;"
+          sudo bash -c "cd ${TARGET_DIR} && modifyrepo_c --mdtype=modules modules.yaml repodata/;"
+      else
+          log_info "el = no packages needs to be cleansed"
+      fi
+  elif [[ ${OS_PACKAGE} == "deb" ]]; then
+      if [[ ${OS_VERSION} == "11" ]]; then
+          DISTRO_NAME="debian11.${ARCH}"
+          log_info "debian 11 = no packages needs to be cleansed"
+      elif [[ ${OS_VERSION} == "12" ]]; then
+          DISTRO_NAME="debian12.${ARCH}"
+          log_info "debian 12 = no packages needs to be cleansed"
+      elif [[ ${OS_VERSION} == "20" ]]; then
+          DISTRO_NAME="ubuntu20.${ARCH}"
+          log_info "ubuntu 20 = no packages needs to be cleansed"
+      elif [[ ${OS_VERSION} == "22" ]]; then
+          DISTRO_NAME="ubuntu22.${ARCH}"
+          log_info "ubuntu 22 = no packages needs to be cleansed"
+      else
+          log_info "debian/ubuntu = no packages needs to be cleansed"
+      fi
+  else
+      DISTRO_NAME="unknown.${ARCH}"
+      log_warn "unknown os, nothing to be cleansed"
+  fi
+}
+
+#----------------------------------------------#
+# make offline package tarball
+#----------------------------------------------#
+function make_tarball(){
+  OFFLINE_PACKAGE_NAME="pigsty-pkg-${PIGSTY_VERSION}.${DISTRO_NAME}.tgz"
+  log_info "package = making ${OFFLINE_PACKAGE_NAME}"
+  sudo chown -R root:root "${BUILD_DIR}"
+  sudo tar cvf - -C "${BUILD_DIR}" "${REPO_NAME}" | gzip -9 > /tmp/pkg.tgz
+  sudo chmod a+r /tmp/pkg.tgz
+  if [[ ${PKG_PATH} != "/tmp/pkg.tgz" ]]; then
+      mv -f /tmp/pkg.tgz ${PKG_PATH}
+  fi
+  checksum=$(md5sum "${PKG_PATH}" | awk '{print $1}')
+  log_info "package = finish ${OFFLINE_PACKAGE_NAME} ${checksum}"
+  log_hint $(ls -alh ${PKG_PATH})
+  log_hint "scp $(hostname):${PKG_PATH} ${PIGSTY_VERSION}/${OFFLINE_PACKAGE_NAME}"
+}
 
 
 #--------------------------------------------------------------#
-# make tarball
+# Main
 #--------------------------------------------------------------#
-log_info "make tarball to ${PKG_PATH}"
-sudo tar cvf - -C /www pigsty | gzip -9 > /tmp/pkg.tgz
-sudo chmod a+r /tmp/pkg.tgz                                  # global readable
-if [[ ${PKG_PATH} != "/tmp/pkg.tgz" ]]; then
-    mv -f /tmp/pkg.tgz ${PKG_PATH}
-fi
-log_hint $(ls -ah ${PKG_PATH})
-log_info "done, cache = ${PKG_PATH}"
+log_info "create offline package on $(hostname)"
+check_package_manager
+check_vendor_version
+check_repo_dir
+build_offline_package
+make_tarball
+
