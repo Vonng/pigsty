@@ -1,4 +1,4 @@
-# pigsty os checking environment for rhe compatible distributinos & ubuntu & debian
+# pigsty os checking environment for rhe compatible distribution & ubuntu & debian
 
 Specs = [
 

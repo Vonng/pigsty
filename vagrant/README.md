@@ -28,17 +28,17 @@ make check    # 30-node check env
 
 `Vagranfile` is a ruby script file describing VM nodes. Here are some default specs of Pigsty. 
 
-|         Templates         | Shortcut |      Spec       |               Comment               |
-|:-------------------------:|:--------:|:---------------:|:-----------------------------------:|
-|  [meta.rb](spec/meta.rb)  |   `v1`   |    4C8G x 1     |          Single Meta Node           |
-|  [full.rb](spec/full.rb)  |   `v4`   | 2C4G + 1C2G x 3 |      Full 4 Nodes Sandbox Demo      |
-|   [el7.rb](spec/el7.rb)   |   `v7`   | 2C4G + 1C2G x 3 |       EL7 3-node Testing Env        |
-|   [el8.rb](spec/el8.rb)   |   `v8`   | 2C4G + 1C2G x 3 |       EL8 3-node Testing Env        |
-|   [el9.rb](spec/el9.rb)   |   `v9`   | 2C4G + 1C2G x 3 |       EL9 3-node Testing Env        |
-| [build.rb](spec/build.rb) |   `vb`   |    2C4G x 3     | 3-Node EL7,8,9 Building Environment |
-| [check.rb](spec/check.rb) |   `vc`   | 2C4G x 30       |    30 node el7-9 pg12-16 Check Env  |
-| [minio.rb](spec/minio.rb) |   `vm`   | 2C4G x 3 + Disk |    3-Node MinIO/etcd Testing Env    |
-|  [prod.rb](spec/prod.rb)  |   `vp`   |    42 nodes     |    Prod simulation with 45 Nodes    |
+|         Templates         | Shortcut |      Spec       |             Comment             |
+|:-------------------------:|:--------:|:---------------:|:-------------------------------:|
+|  [meta.rb](spec/meta.rb)  |   `v1`   |    4C8G x 1     |        Single Meta Node         |
+|  [full.rb](spec/full.rb)  |   `v4`   | 2C4G + 1C2G x 3 |    Full 4 Nodes Sandbox Demo    |
+|   [el7.rb](spec/el7.rb)   |   `v7`   | 2C4G + 1C2G x 3 |     EL7 3-node Testing Env      |
+|   [el8.rb](spec/el8.rb)   |   `v8`   | 2C4G + 1C2G x 3 |     EL8 3-node Testing Env      |
+|   [el9.rb](spec/el9.rb)   |   `v9`   | 2C4G + 1C2G x 3 |     EL9 3-node Testing Env      |
+| [build.rb](spec/build.rb) |   `vb`   |    2C4G x 5     |   5-Node Building Environment   |
+| [check.rb](spec/check.rb) |   `vc`   |    2C4G x 30    | 30 node el7-9 pg12-16 Check Env |
+| [minio.rb](spec/minio.rb) |   `vm`   | 2C4G x 3 + Disk |  3-Node MinIO/etcd Testing Env  |
+|  [prod.rb](spec/prod.rb)  |   `vp`   |    42 nodes     |  Prod simulation with 45 Nodes  |
 
 
 Each spec file contains a `Specs` variable describe VM nodes. For example, the [`full.rb`](spec/full.rb) contains:

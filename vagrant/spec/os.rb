@@ -1,4 +1,4 @@
-# pigsty os checking environment for rhel compatible distributinos & ubuntu & debian
+# pigsty os checking environment for rhel compatible distribution & ubuntu & debian
 
 Specs = [
 

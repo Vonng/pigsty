@@ -1,4 +1,4 @@
-# pigsty production simulation spec with 45 nodes and
+# pigsty production simulation spec with 45 nodes
 
 Specs = [
 
