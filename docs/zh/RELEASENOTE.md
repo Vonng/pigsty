@@ -39,6 +39,43 @@
 
 ----------------
 
+## v2.6.0 (WIP)
+
+**软件版本升级**
+
+- Grafana 10.3
+- Prometheus 2.47
+- node_exporter 1.7.0
+- Loki / Promtail 2.9.4
+- minio-20240118225128 / mcli-20240118070339
+- etcd 3.5.11
+- Redis 7.2.4
+
+**PostgreSQL x Pigsty Extensions**
+
+- PostgreSQL 16： 现在被提升为默认主版本
+- pg_exporter 0.6.1
+- Patroni 3.2.2
+- pgBadger 12.4
+- pgBackRest 2.50
+- vip-manager 2.3.0
+- PostGIS 3.4.1
+- PGVector 0.6.0
+- TimescaleDB 2.13.1
+- 新增扩展插件 [duckdb_fdw](https://github.com/alitrack/duckdb_fdw) v1.1 ，支持读写 DuckDB 数据
+- 新增扩展插件 [pgsql-gzip](https://github.com/pramsey/pgsql-gzip) ，用于支持 Gzip 压缩解压缩
+- 新增扩展插件 [pg_sparse](https://github.com/paradedb/paradedb/tree/dev/pg_sparse)，高效处理稀疏向量（ParadeDB）
+- 新增扩展插件 [pg_bm25](https://github.com/paradedb/paradedb/tree/dev/pg_bm25)，用于支持高质量全文检索 BM25 算法的插件（ParadeDB）
+- 新增扩展插件 [pg_analytics](https://github.com/paradedb/paradedb/tree/dev/pg_analytics)，支持 SIMD 与列式存储的PG分析插件（ParadeDB）
+- 升级AIML插件 [pgml](https://github.com/postgresml/postgresml) 至 v2.8.1，新增 PG 16 支持。
+- 升级列式存储插件 [hydra](https://github.com/hydradatabase/) 版本至 v1.1.0，新增 PG 16 支持。
+- 升级图扩展插件 [age](https://github.com/apache/age) 至 v1.5.0，新增 PG 16 支持。
+- 升级GraphQL插件 [pg_graphql](https://github.com/supabase/pg_graphql) 版本至 v1.4.4 ，支持 Supabase。
+
+
+
+----------------
+
 ## v2.5.1
 
 跟进 PostgreSQL v16.1, v15.5, 14.10, 13.13, 12.17, 11.22 小版本例行更新。

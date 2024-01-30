@@ -890,11 +890,11 @@ There are several possible reasons:
 
 
 <br>
-<details><summary>Install PostgreSQL 12 - 14, and 16 beta</summary>
+<details><summary>Install PostgreSQL 12 - 15</summary>
 
 To install PostgreSQL 12 - 15, you have to set `pg_version` to `12`, `13`, `14`, or `15` in the inventory. (usually at cluster level)
 
-To install PostgreSQL 16 beta, you have to change `pg_libs` and `pg_extensions` too, since most extensions are not available for pg16 yet.
+To install PostgreSQL 16, you have to change `pg_libs` and `pg_extensions` too, since most extensions are not available for pg16 yet.
 
 ```yaml
 pg_version: 16                    # install pg 16 in this template
