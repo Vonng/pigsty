@@ -41,9 +41,7 @@ all:
         10.10.10.7:  { infra_seq: 1, admin_ip: 10.10.10.7  }
         10.10.10.8:  { infra_seq: 2, admin_ip: 10.10.10.8  }
         10.10.10.9:  { infra_seq: 3, admin_ip: 10.10.10.9  }
-        10.10.10.11: { infra_seq: 4, admin_ip: 10.10.10.11 }
         10.10.10.12: { infra_seq: 5, admin_ip: 10.10.10.12 }
-        10.10.10.20: { infra_seq: 6, admin_ip: 10.10.10.20 }
         10.10.10.22: { infra_seq: 7, admin_ip: 10.10.10.22 }
       vars: { node_conf: oltp }
 
@@ -52,23 +50,9 @@ all:
         10.10.10.7:  { etcd_seq: 1 }
         10.10.10.8:  { etcd_seq: 2 }
         10.10.10.9:  { etcd_seq: 3 }
-        10.10.10.11: { etcd_seq: 4 }
-        10.10.10.12: { etcd_seq: 5 }
-        10.10.10.20: { etcd_seq: 6 }
-        10.10.10.22: { etcd_seq: 7 }
+        10.10.10.12: { etcd_seq: 4 }
+        10.10.10.22: { etcd_seq: 5 }
       vars: {  etcd_cluster: etcd  }
-
-    rpm:
-      hosts:
-        10.10.10.7:  { infra_seq: 1, admin_ip: 10.10.10.7  }
-        10.10.10.8:  { infra_seq: 2, admin_ip: 10.10.10.8  }
-        10.10.10.9:  { infra_seq: 3, admin_ip: 10.10.10.9  }
-    deb:
-      hosts:
-        10.10.10.11: { infra_seq: 4, admin_ip: 10.10.10.11 }
-        10.10.10.12: { infra_seq: 5, admin_ip: 10.10.10.12 }
-        10.10.10.20: { infra_seq: 6, admin_ip: 10.10.10.20 }
-        10.10.10.22: { infra_seq: 7, admin_ip: 10.10.10.22 }
 
     #----------------------------------#
     # build el7 packages on CentOS 7.9
@@ -136,7 +120,7 @@ all:
           - pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_auth_mon_15 pg_checksums_15 pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15
 
     #----------------------------------#
-    # build el8 packages on Rocky 8.7
+    # build el8 packages on Rocky 8.9
     #----------------------------------#
     el8:
       hosts: { 10.10.10.8: { pg_seq: 1, pg_role: primary } }
@@ -209,7 +193,7 @@ all:
           - pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_hint_plan_15* pg_auth_mon_15 pg_checksums_15 pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15 rum_15
 
     #----------------------------------#
-    # build el9 packages on Rocky 9.1
+    # build el9 packages on Rocky 9.3
     #----------------------------------#
     el9:
       hosts: { 10.10.10.9: { pg_seq: 1, pg_role: primary } }
@@ -293,7 +277,7 @@ all:
           - { name: base        ,description: 'Debian Basic'     ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename} main non-free-firmware'         ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename} main restricted universe multiverse' }}
           - { name: updates     ,description: 'Debian Updates'   ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename}-updates main non-free-firmware' ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-updates main restricted universe multiverse' }}
           - { name: security    ,description: 'Debian Security'  ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://security.debian.org/debian-security ${distro_codename}-security main non-free-firmware' }}
-          - { name: haproxy     ,description: 'HAProxy'          ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://haproxy.debian.net ${distro_codename}-backports-2.8 main'    }}
+          - { name: haproxy     ,description: 'HAProxy'          ,module: node  ,releases: [11,12] ,baseurl: { default: 'http://haproxy.debian.net ${distro_codename}-backports-2.9 main'    }}
           - { name: nginx       ,description: 'Nginx'            ,module: infra ,releases: [11,12] ,baseurl: { default: 'http://nginx.org/packages/mainline/debian ${distro_codename} nginx' }}
           - { name: docker-ce   ,description: 'Docker'           ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://download.docker.com/linux/debian ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/debian/ ${distro_codename} stable' }}
           - { name: grafana     ,description: 'Grafana'          ,module: infra ,releases: [11,12] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
@@ -365,7 +349,7 @@ all:
           - { name: updates     ,description: 'Ubuntu Updates'   ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}-backports main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}-updates   main restricted universe multiverse' }}
           - { name: backports   ,description: 'Ubuntu Backports' ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}-security  main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}-backports main restricted universe multiverse' }}
           - { name: security    ,description: 'Ubuntu Security'  ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}-updates   main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}-security  main restricted universe multiverse' }}
-          - { name: haproxy     ,description: 'HAProxy'          ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.8/${distro_name}/ ${distro_codename} main'  }}
+          - { name: haproxy     ,description: 'HAProxy'          ,module: node  ,releases: [20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.9/${distro_name}/ ${distro_codename} main'  }}
           - { name: nginx       ,description: 'Nginx'            ,module: infra ,releases: [20,22] ,baseurl: { default: 'http://nginx.org/packages/${distro_name}/  ${distro_codename} nginx' }}
           - { name: docker-ce   ,description: 'Docker'           ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name}/ ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/${distro_name}/ ${distro_codename} stable' }}
           - { name: grafana     ,description: 'Grafana'          ,module: infra ,releases: [20,22] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
