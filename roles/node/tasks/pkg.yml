@@ -8,6 +8,7 @@
 
     # remove existing repos to /etc/yum.repos.d/backup
     - name: remove and backup existing repo file
+      tags: node_repo_remove
       when: node_repo_remove|bool
       shell: |
         {% if os_package == 'rpm' %}
@@ -21,25 +22,26 @@
         /bin/true
       args: { executable: /bin/bash }
 
-    # install local repo from url (default behaviour) (rpm/yum version)
-    - name: add local yum repo file
-      when: os_package == 'rpm' and (node_repo_method == 'local' or node_repo_method == 'both')
-      get_url:
-        url: "{{ item|replace('${admin_ip}', admin_ip) }}"
-        dest: /etc/yum.repos.d/{{ item | basename }}
-      with_items: "{{ node_repo_local_urls }}"
+#    # install local repo from url (default behaviour) (rpm/yum version)
+#    - name: add local yum repo file
+#      when: os_package == 'rpm' and (node_repo_method == 'local' or node_repo_method == 'both')
+#      get_url:
+#        url: "{{ item|replace('${admin_ip}', admin_ip) }}"
+#        dest: /etc/yum.repos.d/{{ item | basename }}
+#      with_items: "{{ node_repo_urls }}"
+#
+#    # install local repo from url (default behaviour) (deb/apt version)
+#    - name: add local apt repo file
+#      when: os_package == 'deb' and ( node_repo_method == 'local' or node_repo_method == 'both')
+#      copy:
+#        dest: /etc/apt/sources.list.d/pigsty-node.list
+#        content: |
+#          {% for item in node_repo_urls %}
+#          deb [trusted=yes] {{ item | replace('${admin_ip}', admin_ip) | replace('${distro_codename}', os_codename) | replace('${distro_name}', os_vendor)}}
+#          {% endfor %}
 
-    # install local repo from url (default behaviour) (deb/apt version)
-    - name: add local apt repo file
-      when: os_package == 'deb' and ( node_repo_method == 'local' or node_repo_method == 'both')
-      copy:
-        dest: /etc/apt/sources.list.d/pigsty.list
-        content: |
-          {% for item in node_repo_local_urls %}
-          {{ item | replace('${admin_ip}', admin_ip) }}
-          {% endfor %}
-
-    - name: add public upstream repo file to node
+    - name: add upstream repo file to nodes
+      tags: [ node_repo_upstream, node_repo_add ]
       copy:
         dest: "{{ upstream_dir }}/{{ upstream_file }}"
         content: |
@@ -48,12 +50,13 @@
           {% for repo in repo_upstream %}
           {% if os_version|int in repo.releases and repo.module == module_name %}
           {% if os_package == 'rpm' %}
+          {% if (os_version|int == 8 or os_version|int == 9) and (repo.name|lower in ['baseos', 'appstream', 'extras', 'powertools', 'devel', 'live', 'nfv', 'rt', 'plus'] or repo.name|lower in ['pgdg-common', 'pgdg12', 'pgdg13', 'pgdg14', 'pgdg15', 'pgdg16'] )  %}{% set target_version = os_version_full|string %}{% else %}{% set target_version = os_version|string %}{% endif %}
           [{{ repo.name }}]
           name = {{ repo.description }} $releasever - $basearch
           {% if region in repo.baseurl and repo.baseurl[region] != '' %}
-          baseurl = {{ repo.baseurl[region] | replace('$releasever', os_version|string)  }}
+          baseurl = {{ repo.baseurl[region] | replace('${admin_ip}', admin_ip) | replace('$releasever', target_version|string)  }}
           {% else %}
-          baseurl = {{ repo.baseurl.default | replace('$releasever', os_version|string)  }}
+          baseurl = {{ repo.baseurl.default | replace('${admin_ip}', admin_ip)  | replace('$releasever', target_version|string)  }}
           {% endif %}
           gpgcheck = 0
           enabled = 1
@@ -63,9 +66,9 @@
           {% elif os_package == 'deb' %}
           {% if region in repo.baseurl and repo.baseurl[region] != '' %}
           # [module_name] [{{ os_codename }}:{{ os_version }}] {{ repo.name }}: {{ repo.description }}
-          deb [trusted=yes] {{ repo.baseurl[region] | replace('${distro_codename}', os_codename) | replace('${distro_name}', os_vendor) }} 
+          deb [trusted=yes] {{ repo.baseurl[region] | replace('${admin_ip}', admin_ip)  | replace('${distro_codename}', os_codename) | replace('${distro_name}', os_vendor) }} 
           {% else %}
-          deb [trusted=yes] {{ repo.baseurl.default | replace('${distro_codename}', os_codename) | replace('${distro_name}', os_vendor)  }}
+          deb [trusted=yes] {{ repo.baseurl.default | replace('${admin_ip}', admin_ip)  | replace('${distro_codename}', os_codename) | replace('${distro_name}', os_vendor)  }}
           {% endif %}
           {% endif %}
           
@@ -75,8 +78,7 @@
         upstream_dir: "{% if os_package == 'rpm' %}/etc/yum.repos.d{% else %}/etc/apt/sources.list.d{% endif %}"
         upstream_file: "{% if os_package == 'rpm' %}{{ item }}.repo{% else %}{{ item }}.list{% endif %}"
         module_name: "{{ item }}"
-      when: (node_repo_method == 'public' or node_repo_method == 'both')
-      with_items: "{{ repo_modules.split(',') }}"
+      with_items: "{{ node_repo_modules.split(',') }}"
 
     - name: make node local repo cache
       tags: node_repo_cache
