@@ -12,10 +12,11 @@
       shell: |
         . /etc/os-release > /dev/null
         OS_MAJOR_VERSION="${VERSION_ID}"
-        echo $ID
+        echo ${ID}
         if [[ $VERSION_ID == *.* ]]; then
             OS_MAJOR_VERSION=$(echo "${VERSION_ID}" | cut -d. -f1) 
         fi
+        echo ${VERSION_ID}
         echo ${OS_MAJOR_VERSION}
         if command -v dpkg >/dev/null 2>&1; then
             echo ${VERSION_CODENAME}
@@ -41,16 +42,17 @@
     - name: set node fact
       connection: local
       set_fact:
-        os_vendor:      "{{ node_result.stdout_lines[0] }}"
-        os_version:     "{{ node_result.stdout_lines[1]|int }}"
-        os_codename:    "{{ node_result.stdout_lines[2] }}"
-        os_arch:        "{{ node_result.stdout_lines[3] }}"
-        os_package:     "{{ node_result.stdout_lines[4] }}"
-        node_user:      "{{ node_result.stdout_lines[5] }}"
-        node_hostname:  "{{ node_result.stdout_lines[6] }}"
-        node_cpu:       "{{ node_result.stdout_lines[7]|int }}"
-        node_pages:     "{{ node_result.stdout_lines[8]|int }}"
-        node_page_size: "{{ node_result.stdout_lines[9]|int }}"
+        os_vendor:       "{{ node_result.stdout_lines[0] }}"
+        os_version_full: "{{ node_result.stdout_lines[1] }}"
+        os_version:      "{{ node_result.stdout_lines[2]|int }}"
+        os_codename:     "{{ node_result.stdout_lines[3] }}"
+        os_arch:         "{{ node_result.stdout_lines[4] }}"
+        os_package:      "{{ node_result.stdout_lines[5] }}"
+        node_user:       "{{ node_result.stdout_lines[6] }}"
+        node_hostname:   "{{ node_result.stdout_lines[7] }}"
+        node_cpu:        "{{ node_result.stdout_lines[8]|int }}"
+        node_pages:      "{{ node_result.stdout_lines[9]|int }}"
+        node_page_size:  "{{ node_result.stdout_lines[10]|int }}"
 
     # if nodename is empty, or can not be built from pgsql instance's identity
     - name: fill empty nodename with hostname
@@ -72,16 +74,16 @@
       connection: local
       debug:
         msg: >-
-           nodename: {{ nodename }},
-           node_cluster: {{ node_cluster }},
-           spec: c{{ node_cpu }}m{{ node_mem_gb }}, os: {{ os_vendor }}.{{ os_version }}.{{ os_arch }} {{ os_codename }}:{{ os_package }},
-           {% if inventory_hostname == admin_ip %}[ADMIN]{% endif %}
-           {% if inventory_hostname in groups["infra"] %}[INFRA]{% endif %}
-           {% if pg_cluster is defined %}[PGSQL: {{ pg_cluster }}]{% endif %}
-           {% if redis_cluster is defined %}[REDIS: {{ redis_cluster }}]{% endif %}
-           {% if etcd_cluster  is defined %}[ETCD: {{ etcd_cluster }}]{% endif %}
-           {% if minio_cluster is defined %}[MINIO: {{ minio_cluster }}]{% endif %}
-           {% if kafka_cluster is defined %}[KAFKA: {{ kafka_cluster }}]{% endif %}
-           {% if vip_enabled is defined and vip_enabled|bool %}[VIP: {{ vip_address }}]{% endif %}
+          nodename: {{ nodename }},
+          node_cluster: {{ node_cluster }},
+          spec: c{{ node_cpu }}m{{ node_mem_gb }}, os: {{ os_vendor }}.{{ os_version }}.{{ os_arch }} {{ os_codename }}:{{ os_package }},
+          {% if inventory_hostname == admin_ip %}[ADMIN]{% endif %}
+          {% if inventory_hostname in groups["infra"] %}[INFRA]{% endif %}
+          {% if pg_cluster is defined %}[PGSQL: {{ pg_cluster }}]{% endif %}
+          {% if redis_cluster is defined %}[REDIS: {{ redis_cluster }}]{% endif %}
+          {% if etcd_cluster  is defined %}[ETCD: {{ etcd_cluster }}]{% endif %}
+          {% if minio_cluster is defined %}[MINIO: {{ minio_cluster }}]{% endif %}
+          {% if kafka_cluster is defined %}[KAFKA: {{ kafka_cluster }}]{% endif %}
+          {% if vip_enabled is defined and vip_enabled|bool %}[VIP: {{ vip_address }}]{% endif %}
 
 ...

@@ -29,12 +29,13 @@
       {% for repo in repo_upstream %}
       {% if os_version|int in repo.releases and repo.module == module_name %}
       {% if os_package == 'rpm' %}
+      {% if (os_version|int == 8 or os_version|int == 9) and (repo.name|lower in ['baseos', 'appstream', 'extras', 'powertools', 'devel', 'live', 'nfv', 'rt', 'plus'] or repo.name|lower in ['pgdg-common', 'pgdg12', 'pgdg13', 'pgdg14', 'pgdg15', 'pgdg16'] )  %}{% set target_version = os_version_full|string %}{% else %}{% set target_version = os_version|string %}{% endif %}
       [{{ repo.name }}]
       name = {{ repo.description }} $releasever - $basearch
       {% if region in repo.baseurl and repo.baseurl[region] != '' %}
-      baseurl = {{ repo.baseurl[region] | replace('$releasever', os_version|string)  }}
+      baseurl = {{ repo.baseurl[region] | replace('${admin_ip}', admin_ip) | replace('$releasever', target_version|string)  }}
       {% else %}
-      baseurl = {{ repo.baseurl.default | replace('$releasever', os_version|string)  }}
+      baseurl = {{ repo.baseurl.default | replace('${admin_ip}', admin_ip)  | replace('$releasever', target_version|string)  }}
       {% endif %}
       gpgcheck = 0
       enabled = 1
@@ -44,9 +45,9 @@
       {% elif os_package == 'deb' %}
       {% if region in repo.baseurl and repo.baseurl[region] != '' %}
       # [module_name] [{{ os_codename }}:{{ os_version }}] {{ repo.name }}: {{ repo.description }}
-      deb [trusted=yes] {{ repo.baseurl[region] | replace('${distro_codename}', os_codename) | replace('${distro_name}', os_vendor) }} 
+      deb [trusted=yes] {{ repo.baseurl[region] | replace('${admin_ip}', admin_ip)  | replace('${distro_codename}', os_codename) | replace('${distro_name}', os_vendor) }} 
       {% else %}
-      deb [trusted=yes] {{ repo.baseurl.default | replace('${distro_codename}', os_codename) | replace('${distro_name}', os_vendor)  }}
+      deb [trusted=yes] {{ repo.baseurl.default | replace('${admin_ip}', admin_ip)  | replace('${distro_codename}', os_codename) | replace('${distro_name}', os_vendor)  }}
       {% endif %}
       {% endif %}
       
