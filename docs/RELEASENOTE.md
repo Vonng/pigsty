@@ -37,6 +37,51 @@
 | v0.0.1          | 2019-05-15 | POC                                                      | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
 
+
+----------------
+
+## v2.6.0 (WIP)
+
+**Configuration**
+
+- Disable Grafana Unified Alert to work around the "Database Locked" error。
+- Replace `node_repo_local_urls` with `node_repo_urls`.
+- Use the new pigsty repo layout
+
+**Software Upgrade**
+
+- Grafana 10.3
+- Prometheus 2.47
+- node_exporter 1.7.0
+- Loki / Promtail 2.9.4
+- minio-20240118225128 / mcli-20240118070339
+- etcd 3.5.11
+- Redis 7.2.4
+
+**PostgreSQL x Pigsty Extensions**
+
+- PostgreSQL Minor Version Upgrade 16.2, 15.6, 14.11, 13.14, 12.18
+- PostgreSQL 16 is now used as the default major version
+- pg_exporter 0.6.1
+- Patroni 3.2.2
+- pgBadger 12.4
+- pgBackRest 2.50
+- vip-manager 2.3.0
+- PostGIS 3.4.1
+- PGVector 0.6.0
+- TimescaleDB 2.13.1
+- New Extension [duckdb_fdw](https://github.com/alitrack/duckdb_fdw) v1.1
+- New Extension [pgsql-gzip](https://github.com/pramsey/pgsql-gzip) 
+- New Extension [pg_sparse](https://github.com/paradedb/paradedb/tree/dev/pg_sparse) from ParadeDB
+- New Extension [pg_bm25](https://github.com/paradedb/paradedb/tree/dev/pg_bm25) from ParadeDB
+- New Extension [pg_analytics](https://github.com/paradedb/paradedb/tree/dev/pg_analytics) from ParadeDB
+- Bump AI/ML Extension [pgml](https://github.com/postgresml/postgresml) to v2.8.1 with pg16 support
+- Bump Columnar Extension [hydra](https://github.com/hydradatabase/) to v1.1.0 with pg16 support
+- Bump Graph Extension [age](https://github.com/apache/age) to v1.5.0 with pg16 support
+- Bump GraphQL Extension [pg_graphql](https://github.com/supabase/pg_graphql) to v1.4.4 to support supabase
+
+
+
 ----------------
 
 ## v2.5.1
