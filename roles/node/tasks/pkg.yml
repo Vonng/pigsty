@@ -22,24 +22,6 @@
         /bin/true
       args: { executable: /bin/bash }
 
-#    # install local repo from url (default behaviour) (rpm/yum version)
-#    - name: add local yum repo file
-#      when: os_package == 'rpm' and (node_repo_method == 'local' or node_repo_method == 'both')
-#      get_url:
-#        url: "{{ item|replace('${admin_ip}', admin_ip) }}"
-#        dest: /etc/yum.repos.d/{{ item | basename }}
-#      with_items: "{{ node_repo_urls }}"
-#
-#    # install local repo from url (default behaviour) (deb/apt version)
-#    - name: add local apt repo file
-#      when: os_package == 'deb' and ( node_repo_method == 'local' or node_repo_method == 'both')
-#      copy:
-#        dest: /etc/apt/sources.list.d/pigsty-node.list
-#        content: |
-#          {% for item in node_repo_urls %}
-#          deb [trusted=yes] {{ item | replace('${admin_ip}', admin_ip) | replace('${distro_codename}', os_codename) | replace('${distro_name}', os_vendor)}}
-#          {% endfor %}
-
     - name: add upstream repo file to nodes
       tags: [ node_repo_upstream, node_repo_add ]
       copy:

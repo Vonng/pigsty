@@ -628,7 +628,7 @@ And here's an example of exposing MinIO service with it: [Expose MinIO Service](
 <br>
 <details><summary>Why my nodes /etc/yum.repos.d/* are nuked?</summary>
 
-Pigsty will try to include all dependencies in the local yum repo on infra nodes. This repo file will be added according to [`node_repo_local_urls`](PARAM#node_repo_local_urls).
+Pigsty will try to include all dependencies in the local yum repo on infra nodes. This repo file will be added according to [`node_repo_modules`](PARAM#node_repo_modules).
 And existing repo files will be removed by default according to the default value of [`node_repo_remove`](PARAM#node_repo_remove). This will prevent the node from using the Internet repo or some stupid issues.
 
 If you want to keep existing repo files during node init, just set [`node_repo_remove`](PARAM#node_repo_remove) to `false`.

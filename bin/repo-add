@@ -44,7 +44,7 @@ function log_line()  { printf "${__CM}[$*] =====================================
 # Param
 #--------------------------------------------------------------#
 SELECTOR=${1-''}
-MODULES=${2-'node'}
+MODULES=${2-'local'}
 
 if [[ -z "${SELECTOR}" ]]; then
     log_error "selector is empty"
@@ -57,21 +57,15 @@ if [[ -z "${SELECTOR}" ]]; then
     exit 1
 fi
 
-# if "local" in MODULES
-NODE_REPO_METHOD="public"
-if [[ "${MODULES}" =~ "local" ]]; then
-    NODE_REPO_METHOD="both"
-fi
-
 
 #--------------------------------------------------------------#
 # Execute
 #--------------------------------------------------------------#
 log_line "EXECUTE"
 log_warn "add repo [${MODULES}] for ${SELECTOR}"
-log_hint "$ ./node.yml -l '${SELECTOR}' -t node_repo -e node_repo_method=${NODE_REPO_METHOD} -e repo_modules='${MODULES}'"
+log_hint "$ ./node.yml -l '${SELECTOR}' -t node_repo -e node_repo_modules=${MODULES} -e node_repo_modules='${MODULES}'"
 
-"${PIGSTY_HOME}/node.yml" -l "${SELECTOR}" -t node_repo -e node_repo_method=${NODE_REPO_METHOD} -e repo_modules="${MODULES}"
+"${PIGSTY_HOME}/node.yml" -l "${SELECTOR}" -t node_repo -e node_repo_modules=${MODULES} -e repo_modules="${MODULES}"
 
 if [[ $? -ne 0 ]]; then
   log_line "FAILURE"

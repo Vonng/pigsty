@@ -70,9 +70,8 @@
 | 212 | [`node_dns_method`](#node_dns_method)                           |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | enum        | C     | 如何处理现有DNS服务器：add,none,overwrite                                                 |
 | 213 | [`node_dns_servers`](#node_dns_servers)                         |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | C     | /etc/resolv.conf 中的动态域名服务器列表                                                    |
 | 214 | [`node_dns_options`](#node_dns_options)                         |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | C     | /etc/resolv.conf 中的DNS解析选项                                                      |
-| 220 | [`node_repo_method`](#node_repo_method)                         |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | enum        | C     | 如何设置节点仓库：none,local,public,both                                                 |
+| 220 | [`node_repo_modules`](#node_repo_modules)                       |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | enum        | C     | 如何设置节点仓库：none,local,public,both                                                 |
 | 221 | [`node_repo_remove`](#node_repo_remove)                         |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | bool        | C     | 配置节点软件仓库时，删除节点上现有的仓库吗？                                                          |
-| 222 | [`node_repo_local_urls`](#node_repo_local_urls)                 |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | string[]    | C     | 如果 node_repo_method = local,both，使用的本地仓库URL列表                                   |
 | 223 | [`node_packages`](#node_packages)                               |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | string[]    | C     | 要在当前节点上安装的软件包列表                                                                 |
 | 224 | [`node_default_packages`](#node_default_packages)               |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | string[]    | G     | 默认在所有节点上安装的软件包列表                                                                |
 | 230 | [`node_disable_firewall`](#node_disable_firewall)               |  [`NODE`](#node)  |     [`NODE_TUNE`](#node_tune)     | bool        | C     | 禁用节点防火墙？默认为 `true`                                                              |
@@ -342,12 +341,12 @@ Pigsty使用语义化版本号，版本号字符串通常以字符 `v` 开头。
 
 许多参数都会引用此参数，例如：
 
-* [`infra_portal`](#infra_portal)
-* [`repo_endpoint`](#repo_endpoint)
-* [`dns_records`](#dns_records)
-* [`node_default_etc_hosts`](#node_default_etc_hosts)
-* [`node_etc_hosts`](#node_etc_hosts)
-* [`node_repo_local_urls`](#node_repo_local_urls)
+- [`infra_portal`](#infra_portal)
+- [`repo_endpoint`](#repo_endpoint)
+- [`repo_upstream`](#repo_upstream)
+- [`dns_records`](#dns_records)
+- [`node_default_etc_hosts`](#node_default_etc_hosts)
+- [`node_etc_hosts`](#node_etc_hosts)
 
 在这些参数中，字符串 `${admin_ip}` 会被替换为 `admin_ip` 的真实取值。使用这种机制，您可以为不同的节点指定不同的中控管理节点。
 
@@ -1701,10 +1700,8 @@ node_dns_options:                 # dns resolv options in `/etc/resolv.conf`
 Pigsty会为纳入管理的节点配置Yum源，并安装软件包。
 
 ```yaml
-node_repo_method: local           # how to setup node repo: none,local,public,both
+node_repo_modules: local          # upstream repo to be added on node, local by default.
 node_repo_remove: true            # remove existing repo on node?
-node_repo_local_urls:             # local repo url, if node_repo_method = local,both
-  - http://${admin_ip}/pigsty.repo
 node_packages: [ ]                # packages to be installed current nodes
 node_default_packages:            # default packages to be installed on all nodes
   - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,python3,python3-pip
@@ -1714,20 +1711,13 @@ node_default_packages:            # default packages to be installed on all node
 
 
 
-### `node_repo_method`
+### `node_repo_modules`
 
-参数名称： `node_repo_method`， 类型： `enum`， 层次：`C/A`
+参数名称： `node_repo_modules`， 类型： `string`， 层次：`C/A`
 
-节点配置软件源的方式，可选项包括：`none`、 `local`、 `public`、 `both`，默认为：`local`。
+需要在节点上添加的的软件源模块列表，形式同 [`repo_modules`](#repo_modules)。默认值为 `local`，即使用 [`repo_upstream`](#repo_upstream) 中 `local` 所指定的本地软件源。
 
-该参数指明了哪些上游源会被添加到节点的仓库列表中：
-
-* `local`： 使用由 [`node_repo_local_urls`](#node_repo_local_urls) 指定的本地软件源，（默认行为），推荐使用此方式。
-* `public`： 使用由 [`repo_upstream`](#repo_upstream) 与 [`repo_modules`](#repo_modules) 指定的原始上游源。
-* `both`：同时添加 `local` 与 `public` 源。
-* `none`：什么源也不添加，由用户自己管理维护。
-
-当您想要从原始上游下载安装软件时，可以考虑使用 `public` 与 `both` 模式。
+当 Pigsty 纳管节点时，会根据此参数的值来过滤 [`repo_upstream`](#repo_upstream) 中的条目，只有 `module` 字段与此参数值匹配的条目才会被添加到节点的软件源中。
 
 
 
@@ -1741,20 +1731,6 @@ node_default_packages:            # default packages to be installed on all node
 
 如果启用，则Pigsty会 **移除** 节点上`/etc/yum.repos.d`中原有的配置文件，并备份至`/etc/yum.repos.d/backup`。
 在 Debian/Ubuntu 系统上，则是 `/etc/apt/sources.list(.d)` 备份至 `/etc/apt/backup`。
-
-
-
-
-
-### `node_repo_local_urls`
-
-参数名称： `node_repo_local_urls`， 类型： `string[]`， 层次：`C`
-
-本地源的URL地址列表，默认值为：`["http://${admin_ip}/pigsty.repo"]`
-
-在 Debian/Ubuntu 系统上，合适的默认值为： `['deb [trusted=yes] http://${admin_ip}/pigsty ./']`
-
-这个参数只有当 [`node_repo_method`](#node_repo_method) = `local` 或者 `both` 的时候才会生效。
 
 
 

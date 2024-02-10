@@ -418,71 +418,70 @@ Pigsty 中的 NODE 模块提供了 6 个内容丰富的监控面板。
 
 <details><summary>完整参数列表</summary>
 
-| 参数                                                         | 参数组                                    |    类型     |  级别   | 说明                                            | 
-|------------------------------------------------------------|----------------------------------------|:---------:|:-----:|-----------------------------------------------|
-| [`nodename`](PARAM#nodename)                               | [`NODE_ID`](PARAM#node_id)             |  string   |   I   | node 实例标识，如缺失则使用主机名，可选                        |
-| [`node_cluster`](PARAM#node_cluster)                       | [`NODE_ID`](PARAM#node_id)             |  string   |   C   | node 集群标识，如缺失则使用默认值'nodes'，可选                 |
-| [`nodename_overwrite`](PARAM#nodename_overwrite)           | [`NODE_ID`](PARAM#node_id)             |   bool    |   C   | 用 nodename 覆盖节点的主机名吗？                         |
-| [`nodename_exchange`](PARAM#nodename_exchange)             | [`NODE_ID`](PARAM#node_id)             |   bool    |   C   | 在剧本主机之间交换 nodename 吗？                         |
-| [`node_id_from_pg`](PARAM#node_id_from_pg)                 | [`NODE_ID`](PARAM#node_id)             |   bool    |   C   | 如果可行，是否借用 postgres 身份作为节点身份？                  |
-| [`node_default_etc_hosts`](PARAM#node_default_etc_hosts)   | [`NODE_DNS`](PARAM#node_dns)           | string[]  |   G   | /etc/hosts 中的静态 DNS 记录                        |
-| [`node_etc_hosts`](PARAM#node_etc_hosts)                   | [`NODE_DNS`](PARAM#node_dns)           | string[]  |   C   | /etc/hosts 中的额外静态 DNS 记录                      |
-| [`node_dns_method`](PARAM#node_dns_method)                 | [`NODE_DNS`](PARAM#node_dns)           |   enum    |   C   | 如何处理现有DNS服务器：add,none,overwrite               |
-| [`node_dns_servers`](PARAM#node_dns_servers)               | [`NODE_DNS`](PARAM#node_dns)           | string[]  |   C   | /etc/resolv.conf 中的动态域名服务器列表                  |
-| [`node_dns_options`](PARAM#node_dns_options)               | [`NODE_DNS`](PARAM#node_dns)           | string[]  |   C   | /etc/resolv.conf 中的DNS解析选项                    |
-| [`node_repo_method`](PARAM#node_repo_method)               | [`NODE_PACKAGE`](PARAM#node_package)   |   enum    |  C/A  | 如何设置节点仓库：none,local,public,both               |
-| [`node_repo_remove`](PARAM#node_repo_remove)               | [`NODE_PACKAGE`](PARAM#node_package)   |   bool    |  C/A  | 配置节点软件仓库时，删除节点上现有的仓库吗？                        |
-| [`node_repo_local_urls`](PARAM#node_repo_local_urls)       | [`NODE_PACKAGE`](PARAM#node_package)   | string[]  |   C   | 如果 node_repo_method = local,both，使用的本地仓库URL列表 |
-| [`node_packages`](PARAM#node_packages)                     | [`NODE_PACKAGE`](PARAM#node_package)   | string[]  |   C   | 要在当前节点上安装的软件包列表                               |
-| [`node_default_packages`](PARAM#node_default_packages)     | [`NODE_PACKAGE`](PARAM#node_package)   | string[]  |   G   | 默认在所有节点上安装的软件包列表                              |
-| [`node_disable_firewall`](PARAM#node_disable_firewall)     | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | 禁用节点防火墙？默认为 `true`                            |
-| [`node_disable_selinux`](PARAM#node_disable_selinux)       | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | 禁用节点 selinux？默认为  `true`                      |
-| [`node_disable_numa`](PARAM#node_disable_numa)             | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | 禁用节点 numa，禁用需要重启                              |
-| [`node_disable_swap`](PARAM#node_disable_swap)             | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | 禁用节点 Swap，谨慎使用                                |
-| [`node_static_network`](PARAM#node_static_network)         | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | 重启后保留 DNS 解析器设置，即静态网络，默认启用                    |
-| [`node_disk_prefetch`](PARAM#node_disk_prefetch)           | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | 在 HDD 上配置磁盘预取以提高性能                            |
-| [`node_kernel_modules`](PARAM#node_kernel_modules)         | [`NODE_TUNE`](PARAM#node_tune)         | string[]  |   C   | 在此节点上启用的内核模块列表                                |
-| [`node_hugepage_count`](PARAM#node_hugepage_count)         | [`NODE_TUNE`](PARAM#node_tune)         |    int    |   C   | 主机节点分配的 2MB 大页数量，优先级比比例更高                     |
-| [`node_hugepage_ratio`](PARAM#node_hugepage_ratio)         | [`NODE_TUNE`](PARAM#node_tune)         |   float   |   C   | 主机节点分配的内存大页占总内存比例，0 默认禁用                      |
-| [`node_overcommit_ratio`](PARAM#node_overcommit_ratio)     | [`NODE_TUNE`](PARAM#node_tune)         |    int    |   C   | 节点内存允许的 OverCommit 超额比率 (50-100)，0 默认禁用       |
-| [`node_tune`](PARAM#node_tune)                             | [`NODE_TUNE`](PARAM#node_tune)         |   enum    |   C   | 节点调优配置文件：无，oltp,olap,crit,tiny                |
-| [`node_sysctl_params`](PARAM#node_sysctl_params)           | [`NODE_TUNE`](PARAM#node_tune)         |   dict    |   C   | 额外的 sysctl 配置参数，k:v 格式                        |
-| [`node_data`](PARAM#node_data)                             | [`NODE_ADMIN`](PARAM#node_admin)       |   path    |   C   | 节点主数据目录，默认为 `/data``                          |
-| [`node_admin_enabled`](PARAM#node_admin_enabled)           | [`NODE_ADMIN`](PARAM#node_admin)       |   bool    |   C   | 在目标节点上创建管理员用户吗？                               |
-| [`node_admin_uid`](PARAM#node_admin_uid)                   | [`NODE_ADMIN`](PARAM#node_admin)       |    int    |   C   | 节点管理员用户的 uid 和 gid                            |
-| [`node_admin_username`](PARAM#node_admin_username)         | [`NODE_ADMIN`](PARAM#node_admin)       | username  |   C   | 节点管理员用户的名称，默认为 `dba``                         |
-| [`node_admin_ssh_exchange`](PARAM#node_admin_ssh_exchange) | [`NODE_ADMIN`](PARAM#node_admin)       |   bool    |   C   | 是否在节点集群之间交换管理员 ssh 密钥                         |
-| [`node_admin_pk_current`](PARAM#node_admin_pk_current)     | [`NODE_ADMIN`](PARAM#node_admin)       |   bool    |   C   | 将当前用户的 ssh 公钥添加到管理员的 authorized_keys 中吗？      |
-| [`node_admin_pk_list`](PARAM#node_admin_pk_list)           | [`NODE_ADMIN`](PARAM#node_admin)       | string[]  |   C   | 要添加到管理员用户的 ssh 公钥                             |
-| [`node_timezone`](PARAM#node_timezone)                     | [`NODE_TIME`](PARAM#node_time)         |  string   |   C   | 设置主机节点时区，空字符串跳过                               |
-| [`node_ntp_enabled`](PARAM#node_ntp_enabled)               | [`NODE_TIME`](PARAM#node_time)         |   bool    |   C   | 启用 chronyd 时间同步服务吗？                           |
-| [`node_ntp_servers`](PARAM#node_ntp_servers)               | [`NODE_TIME`](PARAM#node_time)         | string[]  |   C   | /etc/chrony.conf 中的 ntp 服务器列表                 |
-| [`node_crontab_overwrite`](PARAM#node_crontab_overwrite)   | [`NODE_TIME`](PARAM#node_time)         |   bool    |   C   | 写入 /etc/crontab 时，追加写入还是全部覆盖？                 |
-| [`node_crontab`](PARAM#node_crontab)                       | [`NODE_TIME`](PARAM#node_time)         | string[]  |   C   | 在 /etc/crontab 中的 crontab 条目                  |
-| [`vip_enabled`](PARAM#vip_enabled)                         | [`NODE_VIP`](PARAM#node_vip)           |   bool    |   C   | 在此节点集群上启用 L2 vip 吗？                           |
-| [`vip_address`](PARAM#vip_address)                         | [`NODE_VIP`](PARAM#node_vip)           |    ip     |   C   | 节点 vip 地址的 ipv4 格式，启用 vip 时为必要参数              |
-| [`vip_vrid`](PARAM#vip_vrid)                               | [`NODE_VIP`](PARAM#node_vip)           |    int    |   C   | 所需的整数，1-254，在同一 VLAN 中应唯一                     |
-| [`vip_role`](PARAM#vip_role)                               | [`NODE_VIP`](PARAM#node_vip)           |   enum    |   I   | 可选，master/backup，默认为 backup，用作初始角色            |
-| [`vip_preempt`](PARAM#vip_preempt)                         | [`NODE_VIP`](PARAM#node_vip)           |   bool    |  C/I  | 可选，true/false，默认为 false，启用 vip 抢占             |
-| [`vip_interface`](PARAM#vip_interface)                     | [`NODE_VIP`](PARAM#node_vip)           |  string   |  C/I  | 节点 vip 网络接口监听，默认为 eth0                        |
-| [`vip_dns_suffix`](PARAM#vip_dns_suffix)                   | [`NODE_VIP`](PARAM#node_vip)           |  string   |   C   | 节点 vip DNS 名称后缀，默认为空字符串                       |
-| [`vip_exporter_port`](PARAM#vip_exporter_port)             | [`NODE_VIP`](PARAM#node_vip)           |   port    |   C   | keepalived exporter 监听端口，默认为 9650             |
-| [`haproxy_enabled`](PARAM#haproxy_enabled)                 | [`HAPROXY`](PARAM#haproxy)             |   bool    |   C   | 在此节点上启用 haproxy 吗？                            |
-| [`haproxy_clean`](PARAM#haproxy_clean)                     | [`HAPROXY`](PARAM#haproxy)             |   bool    | G/C/A | 清除所有现有的 haproxy 配置吗？                          |
-| [`haproxy_reload`](PARAM#haproxy_reload)                   | [`HAPROXY`](PARAM#haproxy)             |   bool    |   A   | 配置后重新加载 haproxy 吗？                            |
-| [`haproxy_auth_enabled`](PARAM#haproxy_auth_enabled)       | [`HAPROXY`](PARAM#haproxy)             |   bool    |   G   | 启用 haproxy 管理页面的身份验证？                         |
-| [`haproxy_admin_username`](PARAM#haproxy_admin_username)   | [`HAPROXY`](PARAM#haproxy)             | username  |   G   | haproxy 管理用户名，默认为 `admin``                    |
-| [`haproxy_admin_password`](PARAM#haproxy_admin_password)   | [`HAPROXY`](PARAM#haproxy)             | password  |   G   | haproxy 管理密码，默认为 `pigsty``                    |
-| [`haproxy_exporter_port`](PARAM#haproxy_exporter_port)     | [`HAPROXY`](PARAM#haproxy)             |   port    |   C   | haproxy exporter 的端口，默认为 9101                 |
-| [`haproxy_client_timeout`](PARAM#haproxy_client_timeout)   | [`HAPROXY`](PARAM#haproxy)             | interval  |   C   | haproxy 客户端连接超时，默认为 24h                       |
-| [`haproxy_server_timeout`](PARAM#haproxy_server_timeout)   | [`HAPROXY`](PARAM#haproxy)             | interval  |   C   | haproxy 服务器端连接超时，默认为 24h                      |
-| [`haproxy_services`](PARAM#haproxy_services)               | [`HAPROXY`](PARAM#haproxy)             | service[] |   C   | 要在节点上对外暴露的 haproxy 服务列表                       |
-| [`node_exporter_enabled`](PARAM#node_exporter_enabled)     | [`NODE_EXPORTER`](PARAM#node_exporter) |   bool    |   C   | 在此节点上配置 node_exporter 吗？                      |
-| [`node_exporter_port`](PARAM#node_exporter_port)           | [`NODE_EXPORTER`](PARAM#node_exporter) |   port    |   C   | node exporter 监听端口，默认为 9100                   |
-| [`node_exporter_options`](PARAM#node_exporter_options)     | [`NODE_EXPORTER`](PARAM#node_exporter) |    arg    |   C   | node_exporter 的额外服务器选项                        |
-| [`promtail_enabled`](PARAM#promtail_enabled)               | [`PROMTAIL`](PARAM#promtail)           |   bool    |   C   | 启用 promtail 日志收集器吗？                           |
-| [`promtail_clean`](PARAM#promtail_clean)                   | [`PROMTAIL`](PARAM#promtail)           |   bool    |  G/A  | 初始化期间清除现有的 promtail 状态文件吗？                    |
-| [`promtail_port`](PARAM#promtail_port)                     | [`PROMTAIL`](PARAM#promtail)           |   port    |   C   | promtail 监听端口，默认为 9080                        |
-| [`promtail_positions`](PARAM#promtail_positions)           | [`PROMTAIL`](PARAM#promtail)           |   path    |   C   | promtail 位置状态文件路径                             |
+| 参数                                                         | 参数组                                    |    类型     |  级别   | 说明                                       | 
+|------------------------------------------------------------|----------------------------------------|:---------:|:-----:|------------------------------------------|
+| [`nodename`](PARAM#nodename)                               | [`NODE_ID`](PARAM#node_id)             |  string   |   I   | node 实例标识，如缺失则使用主机名，可选                   |
+| [`node_cluster`](PARAM#node_cluster)                       | [`NODE_ID`](PARAM#node_id)             |  string   |   C   | node 集群标识，如缺失则使用默认值'nodes'，可选            |
+| [`nodename_overwrite`](PARAM#nodename_overwrite)           | [`NODE_ID`](PARAM#node_id)             |   bool    |   C   | 用 nodename 覆盖节点的主机名吗？                    |
+| [`nodename_exchange`](PARAM#nodename_exchange)             | [`NODE_ID`](PARAM#node_id)             |   bool    |   C   | 在剧本主机之间交换 nodename 吗？                    |
+| [`node_id_from_pg`](PARAM#node_id_from_pg)                 | [`NODE_ID`](PARAM#node_id)             |   bool    |   C   | 如果可行，是否借用 postgres 身份作为节点身份？             |
+| [`node_default_etc_hosts`](PARAM#node_default_etc_hosts)   | [`NODE_DNS`](PARAM#node_dns)           | string[]  |   G   | /etc/hosts 中的静态 DNS 记录                   |
+| [`node_etc_hosts`](PARAM#node_etc_hosts)                   | [`NODE_DNS`](PARAM#node_dns)           | string[]  |   C   | /etc/hosts 中的额外静态 DNS 记录                 |
+| [`node_dns_method`](PARAM#node_dns_method)                 | [`NODE_DNS`](PARAM#node_dns)           |   enum    |   C   | 如何处理现有DNS服务器：add,none,overwrite          |
+| [`node_dns_servers`](PARAM#node_dns_servers)               | [`NODE_DNS`](PARAM#node_dns)           | string[]  |   C   | /etc/resolv.conf 中的动态域名服务器列表             |
+| [`node_dns_options`](PARAM#node_dns_options)               | [`NODE_DNS`](PARAM#node_dns)           | string[]  |   C   | /etc/resolv.conf 中的DNS解析选项               |
+| [`node_repo_modules`](PARAM#node_repo_modules)             | [`NODE_PACKAGE`](PARAM#node_package)   |   enum    |  C/A  | 需要在节点上添加的的软件源模块列表，默认为 local              |
+| [`node_repo_remove`](PARAM#node_repo_remove)               | [`NODE_PACKAGE`](PARAM#node_package)   |   bool    |  C/A  | 配置节点软件仓库时，删除节点上现有的仓库吗？                   |
+| [`node_packages`](PARAM#node_packages)                     | [`NODE_PACKAGE`](PARAM#node_package)   | string[]  |   C   | 要在当前节点上安装的软件包列表                          |
+| [`node_default_packages`](PARAM#node_default_packages)     | [`NODE_PACKAGE`](PARAM#node_package)   | string[]  |   G   | 默认在所有节点上安装的软件包列表                         |
+| [`node_disable_firewall`](PARAM#node_disable_firewall)     | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | 禁用节点防火墙？默认为 `true`                       |
+| [`node_disable_selinux`](PARAM#node_disable_selinux)       | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | 禁用节点 selinux？默认为  `true`                 |
+| [`node_disable_numa`](PARAM#node_disable_numa)             | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | 禁用节点 numa，禁用需要重启                         |
+| [`node_disable_swap`](PARAM#node_disable_swap)             | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | 禁用节点 Swap，谨慎使用                           |
+| [`node_static_network`](PARAM#node_static_network)         | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | 重启后保留 DNS 解析器设置，即静态网络，默认启用               |
+| [`node_disk_prefetch`](PARAM#node_disk_prefetch)           | [`NODE_TUNE`](PARAM#node_tune)         |   bool    |   C   | 在 HDD 上配置磁盘预取以提高性能                       |
+| [`node_kernel_modules`](PARAM#node_kernel_modules)         | [`NODE_TUNE`](PARAM#node_tune)         | string[]  |   C   | 在此节点上启用的内核模块列表                           |
+| [`node_hugepage_count`](PARAM#node_hugepage_count)         | [`NODE_TUNE`](PARAM#node_tune)         |    int    |   C   | 主机节点分配的 2MB 大页数量，优先级比比例更高                |
+| [`node_hugepage_ratio`](PARAM#node_hugepage_ratio)         | [`NODE_TUNE`](PARAM#node_tune)         |   float   |   C   | 主机节点分配的内存大页占总内存比例，0 默认禁用                 |
+| [`node_overcommit_ratio`](PARAM#node_overcommit_ratio)     | [`NODE_TUNE`](PARAM#node_tune)         |    int    |   C   | 节点内存允许的 OverCommit 超额比率 (50-100)，0 默认禁用  |
+| [`node_tune`](PARAM#node_tune)                             | [`NODE_TUNE`](PARAM#node_tune)         |   enum    |   C   | 节点调优配置文件：无，oltp,olap,crit,tiny           |
+| [`node_sysctl_params`](PARAM#node_sysctl_params)           | [`NODE_TUNE`](PARAM#node_tune)         |   dict    |   C   | 额外的 sysctl 配置参数，k:v 格式                   |
+| [`node_data`](PARAM#node_data)                             | [`NODE_ADMIN`](PARAM#node_admin)       |   path    |   C   | 节点主数据目录，默认为 `/data``                     |
+| [`node_admin_enabled`](PARAM#node_admin_enabled)           | [`NODE_ADMIN`](PARAM#node_admin)       |   bool    |   C   | 在目标节点上创建管理员用户吗？                          |
+| [`node_admin_uid`](PARAM#node_admin_uid)                   | [`NODE_ADMIN`](PARAM#node_admin)       |    int    |   C   | 节点管理员用户的 uid 和 gid                       |
+| [`node_admin_username`](PARAM#node_admin_username)         | [`NODE_ADMIN`](PARAM#node_admin)       | username  |   C   | 节点管理员用户的名称，默认为 `dba``                    |
+| [`node_admin_ssh_exchange`](PARAM#node_admin_ssh_exchange) | [`NODE_ADMIN`](PARAM#node_admin)       |   bool    |   C   | 是否在节点集群之间交换管理员 ssh 密钥                    |
+| [`node_admin_pk_current`](PARAM#node_admin_pk_current)     | [`NODE_ADMIN`](PARAM#node_admin)       |   bool    |   C   | 将当前用户的 ssh 公钥添加到管理员的 authorized_keys 中吗？ |
+| [`node_admin_pk_list`](PARAM#node_admin_pk_list)           | [`NODE_ADMIN`](PARAM#node_admin)       | string[]  |   C   | 要添加到管理员用户的 ssh 公钥                        |
+| [`node_timezone`](PARAM#node_timezone)                     | [`NODE_TIME`](PARAM#node_time)         |  string   |   C   | 设置主机节点时区，空字符串跳过                          |
+| [`node_ntp_enabled`](PARAM#node_ntp_enabled)               | [`NODE_TIME`](PARAM#node_time)         |   bool    |   C   | 启用 chronyd 时间同步服务吗？                      |
+| [`node_ntp_servers`](PARAM#node_ntp_servers)               | [`NODE_TIME`](PARAM#node_time)         | string[]  |   C   | /etc/chrony.conf 中的 ntp 服务器列表            |
+| [`node_crontab_overwrite`](PARAM#node_crontab_overwrite)   | [`NODE_TIME`](PARAM#node_time)         |   bool    |   C   | 写入 /etc/crontab 时，追加写入还是全部覆盖？            |
+| [`node_crontab`](PARAM#node_crontab)                       | [`NODE_TIME`](PARAM#node_time)         | string[]  |   C   | 在 /etc/crontab 中的 crontab 条目             |
+| [`vip_enabled`](PARAM#vip_enabled)                         | [`NODE_VIP`](PARAM#node_vip)           |   bool    |   C   | 在此节点集群上启用 L2 vip 吗？                      |
+| [`vip_address`](PARAM#vip_address)                         | [`NODE_VIP`](PARAM#node_vip)           |    ip     |   C   | 节点 vip 地址的 ipv4 格式，启用 vip 时为必要参数         |
+| [`vip_vrid`](PARAM#vip_vrid)                               | [`NODE_VIP`](PARAM#node_vip)           |    int    |   C   | 所需的整数，1-254，在同一 VLAN 中应唯一                |
+| [`vip_role`](PARAM#vip_role)                               | [`NODE_VIP`](PARAM#node_vip)           |   enum    |   I   | 可选，master/backup，默认为 backup，用作初始角色       |
+| [`vip_preempt`](PARAM#vip_preempt)                         | [`NODE_VIP`](PARAM#node_vip)           |   bool    |  C/I  | 可选，true/false，默认为 false，启用 vip 抢占        |
+| [`vip_interface`](PARAM#vip_interface)                     | [`NODE_VIP`](PARAM#node_vip)           |  string   |  C/I  | 节点 vip 网络接口监听，默认为 eth0                   |
+| [`vip_dns_suffix`](PARAM#vip_dns_suffix)                   | [`NODE_VIP`](PARAM#node_vip)           |  string   |   C   | 节点 vip DNS 名称后缀，默认为空字符串                  |
+| [`vip_exporter_port`](PARAM#vip_exporter_port)             | [`NODE_VIP`](PARAM#node_vip)           |   port    |   C   | keepalived exporter 监听端口，默认为 9650        |
+| [`haproxy_enabled`](PARAM#haproxy_enabled)                 | [`HAPROXY`](PARAM#haproxy)             |   bool    |   C   | 在此节点上启用 haproxy 吗？                       |
+| [`haproxy_clean`](PARAM#haproxy_clean)                     | [`HAPROXY`](PARAM#haproxy)             |   bool    | G/C/A | 清除所有现有的 haproxy 配置吗？                     |
+| [`haproxy_reload`](PARAM#haproxy_reload)                   | [`HAPROXY`](PARAM#haproxy)             |   bool    |   A   | 配置后重新加载 haproxy 吗？                       |
+| [`haproxy_auth_enabled`](PARAM#haproxy_auth_enabled)       | [`HAPROXY`](PARAM#haproxy)             |   bool    |   G   | 启用 haproxy 管理页面的身份验证？                    |
+| [`haproxy_admin_username`](PARAM#haproxy_admin_username)   | [`HAPROXY`](PARAM#haproxy)             | username  |   G   | haproxy 管理用户名，默认为 `admin``               |
+| [`haproxy_admin_password`](PARAM#haproxy_admin_password)   | [`HAPROXY`](PARAM#haproxy)             | password  |   G   | haproxy 管理密码，默认为 `pigsty``               |
+| [`haproxy_exporter_port`](PARAM#haproxy_exporter_port)     | [`HAPROXY`](PARAM#haproxy)             |   port    |   C   | haproxy exporter 的端口，默认为 9101            |
+| [`haproxy_client_timeout`](PARAM#haproxy_client_timeout)   | [`HAPROXY`](PARAM#haproxy)             | interval  |   C   | haproxy 客户端连接超时，默认为 24h                  |
+| [`haproxy_server_timeout`](PARAM#haproxy_server_timeout)   | [`HAPROXY`](PARAM#haproxy)             | interval  |   C   | haproxy 服务器端连接超时，默认为 24h                 |
+| [`haproxy_services`](PARAM#haproxy_services)               | [`HAPROXY`](PARAM#haproxy)             | service[] |   C   | 要在节点上对外暴露的 haproxy 服务列表                  |
+| [`node_exporter_enabled`](PARAM#node_exporter_enabled)     | [`NODE_EXPORTER`](PARAM#node_exporter) |   bool    |   C   | 在此节点上配置 node_exporter 吗？                 |
+| [`node_exporter_port`](PARAM#node_exporter_port)           | [`NODE_EXPORTER`](PARAM#node_exporter) |   port    |   C   | node exporter 监听端口，默认为 9100              |
+| [`node_exporter_options`](PARAM#node_exporter_options)     | [`NODE_EXPORTER`](PARAM#node_exporter) |    arg    |   C   | node_exporter 的额外服务器选项                   |
+| [`promtail_enabled`](PARAM#promtail_enabled)               | [`PROMTAIL`](PARAM#promtail)           |   bool    |   C   | 启用 promtail 日志收集器吗？                      |
+| [`promtail_clean`](PARAM#promtail_clean)                   | [`PROMTAIL`](PARAM#promtail)           |   bool    |  G/A  | 初始化期间清除现有的 promtail 状态文件吗？               |
+| [`promtail_port`](PARAM#promtail_port)                     | [`PROMTAIL`](PARAM#promtail)           |   port    |   C   | promtail 监听端口，默认为 9080                   |
+| [`promtail_positions`](PARAM#promtail_positions)           | [`PROMTAIL`](PARAM#promtail)           |   path    |   C   | promtail 位置状态文件路径                        |
 
 </details>

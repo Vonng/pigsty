@@ -44,7 +44,7 @@
 **软件配置变更**
 
 - 暂时关闭 Grafana 统一告警功能，避免 "Database Locked" 错误。
-- 修改 `node_repo_local_urls` 参数的语义，直接使用软件源URL
+- 使用 `node_repo_modules` 替换 `node_repo_method` 参数，并移除 `node_repo_local_urls` 参数。
 - 针对 EL7 / EL8 / EL9 的 Node 与 PGDG 仓库，启用特定小版本
 
 **软件版本升级**

@@ -70,9 +70,8 @@
 | 212 | [`node_dns_method`](#node_dns_method)                           | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | enum        | C     | how to handle dns servers: add,none,overwrite                                 |
 | 213 | [`node_dns_servers`](#node_dns_servers)                         | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | C     | dynamic nameserver in `/etc/resolv.conf`                                      |
 | 214 | [`node_dns_options`](#node_dns_options)                         | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | C     | dns resolv options in `/etc/resolv.conf`                                      |
-| 220 | [`node_repo_method`](#node_repo_method)                         | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | enum        | C     | how to setup node repo: none,local,public,both                                |
+| 220 | [`node_repo_modules`](#node_repo_modules)                       | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string      | C     | how to setup node repo: none,local,public,both                                |
 | 221 | [`node_repo_remove`](#node_repo_remove)                         | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | bool        | C     | remove existing repo on node?                                                 |
-| 222 | [`node_repo_local_urls`](#node_repo_local_urls)                 | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string[]    | C     | local repo url, if node_repo_method = local,both                              |
 | 223 | [`node_packages`](#node_packages)                               | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string[]    | C     | packages to be installed current nodes                                        |
 | 224 | [`node_default_packages`](#node_default_packages)               | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string[]    | G     | default packages to be installed on all nodes                                 |
 | 230 | [`node_disable_firewall`](#node_disable_firewall)               | [`NODE`](#node)   | [`NODE_TUNE`](#node_tune)         | bool        | C     | disable node firewall? true by default                                        |
@@ -344,7 +343,7 @@ This parameter is referenced by many other parameters, such as:
 * [`dns_records`](#dns_records)
 * [`node_default_etc_hosts`](#node_default_etc_hosts)
 * [`node_etc_hosts`](#node_etc_hosts)
-* [`node_repo_local_urls`](#node_repo_local_urls)
+* [`node_repo_modules`](#node_repo_modules)
 
 The exact string `${admin_ip}` will be replaced with the actual `admin_ip` for above parameters.
 
@@ -961,7 +960,7 @@ name: `nginx_port`, type: `port`, level: `G`
 
 nginx listen port which serves the HTTP requests, `80` by default.
 
-If your default 80 port is occupied or unavailable, you can consider using another port, and change [`repo_endpoint`](#repo_endpoint) and [`node_repo_local_urls`](#node_repo_local_urls) accordingly.
+If your default 80 port is occupied or unavailable, you can consider using another port, and change [`repo_endpoint`](#repo_endpoint) and [`repo_upstream`](#repo_upstream) (the `local` entry) accordingly.
 
 
 
@@ -1660,10 +1659,8 @@ dns resolv options in `/etc/resolv.conf`, default value:
 This section is about upstream yum repos & packages to be installed.
 
 ```yaml
-node_repo_method: local           # how to setup node repo: none,local,public,both
+node_repo_modules: local          # upstream repo to be added on node, local by default.
 node_repo_remove: true            # remove existing repo on node?
-node_repo_local_urls:             # local repo url, if node_repo_method = local,both
-  - http://${admin_ip}/pigsty.repo
 node_packages: [ ]                # packages to be installed current nodes
 node_default_packages:            # default packages to be installed on all nodes
   - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,python3,python3-pip
@@ -1672,21 +1669,15 @@ node_default_packages:            # default packages to be installed on all node
 
 
 
+### `node_repo_modules`
 
-### `node_repo_method`
+name: `node_repo_modules`, type: `string`, level: `C/A`
 
-name: `node_repo_method`, type: `enum`, level: `C/A`
+upstream repo to be added on node, default value: `local`
 
-how to setup node repo: `none`, `local`, `public`, `both`, default values: `local`
+This parameter specifies the upstream repo to be added to the node. It is used to filter the [`repo_upstream`](#repo_upstream) entries
+and only the entries with the same `module` value will be added to the node's software source. Which is similar to the [`repo_modules`](#repo_modules) parameter.
 
-Which repos are added to `/etc/yum.repos.d` on target nodes ?
-
-* `local`: Use the local repo specified by [`node_repo_local_urls`](#node_repo_local_urls), default behavior.
-* `public`: Add public upstream repo specified by [`repo_upstream`] & [`repo_modules`](#repo_modules), if you have Internet access. 
-* `both`: Add both local repo and public repo. Useful when some rpm are missing 
-* `none`: do not add any repo to target nodes. Managed by yourself.
-
-You can use 'both' or 'public' when you have Internet access, and trying to install the latest version of softwares.
 
 
 
@@ -1700,18 +1691,6 @@ remove existing repo on node?
 default value is `true`, and thus Pigsty will move existing repo file in `/etc/yum.repos.d` to a backup dir: `/etc/yum.repos.d/backup` before adding upstream repos
 On Debian/Ubuntu, Pigsty will backup & move `/etc/apt/sources.list(.d)` to `/etc/apt/backup`.
 
-
-
-
-### `node_repo_local_urls`
-
-name: `node_repo_local_urls`, type: `string[]`, level: `C`
-
-local repo url list, default values: `["http://${admin_ip}/pigsty.repo"]`
-
-for debian/ubuntu, the proper default value is `['deb [trusted=yes] http://${admin_ip}/pigsty ./']`
-
-It is used when [`node_repo_method`](#node_repo_method) is `local` or `both`.
 
 
 

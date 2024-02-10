@@ -620,7 +620,7 @@ pg-test:
 <br>
 <details><summary>为什么我的 /etc/yum.repos.d/* 全没了？</summary><br>
 
-Pigsty会在infra节点上构建的本地软件仓库源中包含所有依赖项。而所有普通节点会根据[`node_repo_local_urls`](PARAM#node_repo_local_urls)的默认配置来使用这个 Infra 节点上的本地软件源。
+Pigsty会在infra节点上构建的本地软件仓库源中包含所有依赖项。而所有普通节点会根据[`node_repo_modules`](PARAM#node_repo_modules) 的默认配置 `local` 来引用并使用 Infra 节点上的本地软件源。
 
 这一设计从而避免了互联网访问，增强了安装过程的稳定性与可靠性。所有原有的源定义文件会被移动到 `/etc/yum.repos.d/backup` 目录中，您只要按需复制回来即可。
 

@@ -45,8 +45,9 @@
 **Configuration**
 
 - Disable Grafana Unified Alert to work around the "Database Locked" error。
-- Replace `node_repo_local_urls` with `node_repo_urls`.
+- Replace `node_repo_method` with `node_repo_modules` and remove `node_local_repo_urls`.
 - Use the new pigsty repo layout
+
 
 **Software Upgrade**
 

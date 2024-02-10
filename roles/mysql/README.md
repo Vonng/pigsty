@@ -23,7 +23,7 @@ How to install mysql on the fly
       hosts: { 10.10.10.88: { nodename: test } }
       vars:
         node_cluster: test
-        node_repo_method: both
+        node_repo_module: node,mysql
         repo_modules: node,mysql
         repo_upstream:                    # where to download #
           - { name: baseos         ,description: 'EL 8+ BaseOS'      ,module: node  ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/BaseOS/$basearch/os/'         ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/BaseOS/$basearch/os/'      ,europe: 'https://mirrors.xtom.de/rocky/$releasever/BaseOS/$basearch/os/'     }}
