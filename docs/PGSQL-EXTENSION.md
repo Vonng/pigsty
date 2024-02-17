@@ -52,17 +52,17 @@ Here are extensions maintained by Pigsty and included in the Pigsty RPM repo:
 | pg_tle        |  1.2.0  | **PIGSTY** | FEAT | Trusted Language Extensions for PostgreSQL                                                   |
 | roaringbitmap |   0.5   | **PIGSTY** | FEAT | Support for Roaring Bitmaps                                                                  |
 | zhparser      |   2.2   | **PIGSTY** | FEAT | Parser for full-text search of Chinese                                                       |
-| pg_net        |  0.7.3  | **PIGSTY** | FEAT | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
+| pg_net        |  0.8.0  | **PIGSTY** | FEAT | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
 | pgjwt         |  0.2.0  | **PIGSTY** | FEAT | JSON Web Token API for Postgresql                                                            |
 | vault         |  0.2.9  | **PIGSTY** | FEAT | Extension for storing encrypted secrets in the Vault                                         |
-| pg_graphql    |  1.4.4  | **PIGSTY** | FEAT | GraphQL support for PostgreSQL                                                               |
-| hydra         |  1.1.0  | **PIGSTY** | FEAT | Hydra is open source, column-oriented Postgres extension                                     |
+| pg_graphql    |  1.5.0  | **PIGSTY** | FEAT | GraphQL support for PostgreSQL                                                               |
+| hydra         |  1.1.1  | **PIGSTY** | FEAT | Hydra is open source, column-oriented Postgres extension                                     |
 | imgsmlr       |  1.0.0  | **PIGSTY** | FEAT | ImgSmlr method is based on Haar wavelet transform                                            |
 | pg_similarity |  1.0.0  | **PIGSTY** | FEAT | set of functions and operators for executing similarity queries                              |
 | pg_bigm       |  1.2.0  | **PIGSTY** | FEAT | full text search capability with create 2-gram (bigram) index.                               |
-| svector       |  0.5.3  | **PIGSTY** | FEAT | pg_sparse: Sparse vector data type and sparse HNSW access methods                            |
-| pg_bm25       |  0.5.3  | **PIGSTY** | FEAT | ParadeDB: pg_bm25: Full text search for PostgreSQL using BM25                                |
-| pg_analytics  |  0.5.3  | **PIGSTY** | FEAT | ParadeDB: Real-time analytics for PostgreSQL using columnar storage and vectorized execution |
+| svector       |  0.5.6  | **PIGSTY** | FEAT | pg_sparse: Sparse vector data type and sparse HNSW access methods                            |
+| pg_bm25       |  0.5.6  | **PIGSTY** | FEAT | ParadeDB: pg_bm25: Full text search for PostgreSQL using BM25                                |
+| pg_analytics  |  0.5.6  | **PIGSTY** | FEAT | ParadeDB: Real-time analytics for PostgreSQL using columnar storage and vectorized execution |
 | duckdb_fdw    |   1.1   | **PIGSTY** | FEAT | DuckDB Foreign Data Wrapper                                                                  |
 
 Extensions maintained by PGDG and included in the Pigsty offline pacakge:
@@ -96,7 +96,7 @@ Extensions maintained by PGDG and included in the Pigsty offline pacakge:
 | pg_ivm                       |   1.7   |  PGDG   | FEAT  | incremental view maintenance on PostgreSQL                                                                          |
 | pgq                          |  3.5.1  |  PGDG   | FEAT  | Generic queue for PostgreSQL                                                                                        |
 | pgsodium                     |  3.1.9  |  PGDG   | FEAT  | Postgres extension for libsodium functions                                                                          |
-| **timescaledb**              | 2.13.1  |  PGDG   | FEAT  | Enables scalable inserts and complex queries for time-series data (Apache 2 Edition)                                |
+| **timescaledb**              | 2.14.0  |  PGDG   | FEAT  | Enables scalable inserts and complex queries for time-series data (Apache 2 Edition)                                |
 | **wal2json**                 |  2.5.3  |  PGDG   | FEAT  | Capture JSON format CDC change via logical decoding                                                                 |
 | **vector**                   |  0.6.0  |  PGDG   | FEAT  | vector data type and ivfflat / hnsw access method                                                                   |
 | count_distinct               |  3.0.1  |  PGDG   | FUNC  | An alternative to COUNT(DISTINCT ...) aggregate, usable with HashAggregate                                          |

@@ -45,29 +45,28 @@ Pigsty 收录了超过 **150+** PostgreSQL 扩展插件，并编译打包整合�
 
 由 Pigsty 维护编译打包的 PostgreSQL 插件 （RPM）：
 
-| 名称              |  版本   |     来源     |  类型  | 说明                            |
-|-----------------|:-----:|:----------:|:----:|-------------------------------|
-| pgml            | 2.8.1 | **PIGSTY** | FEAT | PostgresML：用SQL运行机器学习算法并训练模型  |
-| age             | 1.5.0 | **PIGSTY** | FEAT | Apache AGE，图数据库扩展             |
-| pointcloud      | 1.2.5 | **PIGSTY** | FEAT | 提供激光雷达点云数据类型支持                |
-| http            |  1.6  | **PIGSTY** | FEAT | HTTP客户端，允许在数据库内收发HTTP请求       |
-| gzip            |  1.0  | **PIGSTY** | FEAT | 使用SQL执行Gzip压缩与解压缩             |
-| pg_tle          | 1.2.0 | **PIGSTY** | FEAT | AWS 可信语言扩展                    |
-| roaringbitmap   |  0.5  | **PIGSTY** | FEAT | 支持RoaringBitmap数据类型           |
-| zhparse         |  2.2  | **PIGSTY** | FEAT | 中文全文搜索解析器                     |
-| pg_net          | 0.7.3 | **PIGSTY** | FEAT | 用 SQL 进行异步非阻塞HTTP/HTTPS 请求的扩展 |
-| pgjwt           | 0.2.0 | **PIGSTY** | FEAT | JSON Web Token API 的PG实现      |
-| vault           | 0.2.9 | **PIGSTY** | FEAT | 在 Vault 中存储加密凭证的扩展            |
-| pg_graphql      | 1.4.4 | **PIGSTY** | FEAT | PG内的GraphQL支持                 |
-| hydra           | 1.1.0 | **PIGSTY** | FEAT | 开源列式存储扩展                      |
-| imgsmlr ❋       | 1.0.0 | **PIGSTY** | FEAT | 使用Haar小波分析计算图片相似度             |
-| pg_similarity ❋ | 1.0.0 | **PIGSTY** | FEAT | 提供17种距离度量函数                   |
-| pg_bigm ❋       | 1.2.0 | **PIGSTY** | FEAT | 基于二字组的多语言全文检索扩展               |
-| svector         | 0.5.3 | **PIGSTY** | FEAT | ParadeDB 稀疏向量数据库类型与HNSW索引     |
-| pg_bm25         | 0.5.3 | **PIGSTY** | FEAT | ParadeDB BM25算法全文检索插件         |
-| pg_analytics    | 0.5.3 | **PIGSTY** | FEAT | ParadeDB 列存x向量执行分析加速插件        |
-| duckdb_fdw      |  1.1  | **PIGSTY** | FEAT | DuckDB 外部数据源包装器               |
-
+| 名称              |  版本   |     来源     |  类型  | 说明                              |
+|-----------------|:-----:|:----------:|:----:|---------------------------------|
+| pgml            | 2.8.1 | **PIGSTY** | FEAT | PostgresML：用SQL运行机器学习算法并训练模型    |
+| age             | 1.5.0 | **PIGSTY** | FEAT | Apache AGE，图数据库扩展               |
+| pointcloud      | 1.2.5 | **PIGSTY** | FEAT | 提供激光雷达点云数据类型支持                  |
+| http            |  1.6  | **PIGSTY** | FEAT | HTTP客户端，允许在数据库内收发HTTP请求         |
+| gzip            |  1.0  | **PIGSTY** | FEAT | 使用SQL执行Gzip压缩与解压缩               |
+| pg_tle          | 1.2.0 | **PIGSTY** | FEAT | AWS 可信语言扩展                      |
+| roaringbitmap   |  0.5  | **PIGSTY** | FEAT | 支持RoaringBitmap数据类型             |
+| zhparse         |  2.2  | **PIGSTY** | FEAT | 中文全文搜索解析器                       |
+| pg_net          | 0.8.0 | **PIGSTY** | FEAT | 用 SQL 进行异步非阻塞HTTP/HTTPS 请求的扩展   |
+| pgjwt           | 0.2.0 | **PIGSTY** | FEAT | JSON Web Token API 的PG实现        |
+| vault           | 0.2.9 | **PIGSTY** | FEAT | 在 Vault 中存储加密凭证的扩展              |
+| pg_graphql      | 1.5.0 | **PIGSTY** | FEAT | PG内的GraphQL支持                   |
+| hydra           | 1.1.1 | **PIGSTY** | FEAT | 开源列式存储扩展                        |
+| imgsmlr ❋       | 1.0.0 | **PIGSTY** | FEAT | 使用Haar小波分析计算图片相似度               |
+| pg_similarity ❋ | 1.0.0 | **PIGSTY** | FEAT | 提供17种距离度量函数                     |
+| pg_bigm ❋       | 1.2.0 | **PIGSTY** | FEAT | 基于二字组的多语言全文检索扩展                 |
+| svector         | 0.5.6 | **PIGSTY** | FEAT | ParadeDB 稀疏向量数据库类型与HNSW索引       |
+| pg_bm25         | 0.5.6 | **PIGSTY** | FEAT | ParadeDB BM25算法全文检索插件           |
+| pg_analytics    | 0.5.6 | **PIGSTY** | FEAT | ParadeDB 列存x向量执行分析加速插件          |
+| duckdb_fdw      |  1.1  | **PIGSTY** | FEAT | DuckDB 外部数据源包装器 (libduck 0.9.2) |
 
 由 PostgreSQL 全球开发组，PGDG 维护，并被 Pigsty 收录的的官方插件：
 
@@ -100,7 +99,7 @@ Pigsty 收录了超过 **150+** PostgreSQL 扩展插件，并编译打包整合�
 | pg_ivm                       |  1.7   |  PGDG   | FEAT  | 增量维护的物化视图                                         |
 | pgq                          | 3.5.1  |  PGDG   | FEAT  | 通用队列的PG实现                                         |
 | pgsodium                     | 3.1.9  |  PGDG   | FEAT  | 表数据加密存储 TDE                                       |
-| **timescaledb**              | 2.13.1 |  PGDG   | FEAT  | **时序数据库扩展插件**                                     |
+| **timescaledb**              | 2.14.0 |  PGDG   | FEAT  | **时序数据库扩展插件**                                     |
 | **wal2json**                 | 2.5.3  |  PGDG   | FEAT  | **用逻辑解码捕获 JSON 格式的 CDC 变更**                       |
 | **vector**                   | 0.6.0  |  PGDG   | FEAT  | **向量数据类型和 ivfflat / hnsw 访问方法**                   |
 | count_distinct               | 3.0.1  |  PGDG   | FUNC  | COUNT(DISTINCT ...) 聚合的替代方案，可与 HashAggregate 一起使用 |
