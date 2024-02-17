@@ -1704,8 +1704,8 @@ node_repo_modules: local          # upstream repo to be added on node, local by 
 node_repo_remove: true            # remove existing repo on node?
 node_packages: [ ]                # packages to be installed current nodes
 node_default_packages:            # default packages to be installed on all nodes
-  - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,python3,python3-pip
-  - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy
+  - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,chrony,python3
+  - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3-pip
 ```  
 
 
@@ -1757,21 +1757,21 @@ node_default_packages:            # default packages to be installed on all node
 
 ```yaml
 node_default_packages:            # default packages to be installed on all nodes
-  - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,python3,python3-pip
-  - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy
+  - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,chrony,python3
+  - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3-pip
 ```
 
 对于 Ubuntu 22.04 / 20.04 ，默认值应当被替换为：
 
 ```yaml
-- lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-tools-generic,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,acl,python3,python3-pip
+- lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-tools-generic,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
 - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
 ```
 
 对于 Debian 12 / 11 ，默认值应当被替换为：
 
 ```yaml
-- lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-perf,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,acl,python3,python3-pip
+- lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-perf,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
 - netcat-openbsd,socat,tnftp,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
 ```
 

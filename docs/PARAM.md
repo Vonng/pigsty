@@ -1255,7 +1255,7 @@ default value: `none`
 
 Specify how to install Exporter:
 
-* `none`: No installation, (by default, the Exporter has been previously installed by the [`node.pkgs`](#node_default_packages) task)
+* `none`: No installation, (by default, the Exporter has been previously installed by the [`node_pkg`](#node_default_packages) task)
 * `yum`: Install using yum (if yum installation is enabled, run yum to install [`node_exporter`](#node_exporter) and [`pg_exporter`](#pg_exporter) before deploying Exporter)
 * `binary`: Install using a copy binary (copy [`node_exporter`](#node_exporter) and [`pg_exporter`](#pg_exporter) binary directly from the meta node, not recommended)
 
@@ -1704,7 +1704,7 @@ packages to be installed current nodes, default values: `[]`
 
 Each element is a comma-separated list of package names, which will be installed on the current node in addition to [`node_default_packages`](#node_default_packages)
 
-Like [`node_packages_default`](#node_default_packages), but in addition to it. designed for overwriting in cluster/instance level.
+Like [`node_default_packages`](#node_default_packages), but in addition to it. designed for overwriting in cluster/instance level.
 
 
 
@@ -1717,21 +1717,21 @@ default packages to be installed on all nodes, the default value is for EL 7/8/9
 
 ```yaml
 node_default_packages:            # default packages to be installed on all nodes
-  - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,python3,python3-pip
-  - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy
+  - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,chrony,python3
+  - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3-pip
 ```
 
 For Ubuntu, the appropriate default value would be:
 
 ```yaml
-- lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-tools-generic,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,acl,python3,python3-pip
+- lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-tools-generic,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
 - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
 ```
 
 For Debian, the appropriate default value would be:
 
 ```yaml
-- lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-perf,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,acl,python3,python3-pip
+- lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-perf,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
 - netcat-openbsd,socat,tnftp,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
 ```
 
