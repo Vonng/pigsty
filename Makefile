@@ -255,6 +255,10 @@ v9:
 	cd vagrant && make v9
 vb:
 	cd vagrant && make vb
+vbr:
+	cd vagrant && make vbr
+vbd:
+	cd vagrant && make vbd
 vc:
 	cd vagrant && make vc
 vm:
@@ -485,6 +489,12 @@ ubuntu: del vu new ssh copy-u22 use-pkg
 	cp files/pigsty/ubuntu.yml pigsty.yml
 build: del vb new ssh
 	cp files/pigsty/build.yml pigsty.yml
+rpm: build-rpm
+build-rpm: del vbr new ssh
+	cp files/pigsty/build-rpm.yml pigsty.yml
+deb: build-deb
+build-deb: del vbd new ssh
+	cp files/pigsty/build-deb.yml pigsty.yml
 build-boot:
 	bin/build-boot
 check: del vc new ssh
@@ -526,10 +536,10 @@ prod22: del vp22 new ssh
         infra pgsql repo repo-upstream repo-build prometheus grafana loki docker \
         deps dns start ssh sshb demo \
         up dw del new clean up-test dw-test del-test new-test clean \
-        st status suspend resume v1 v4 v7 v8 v9 vb vm vo vc vu vp vp7 vp9 vnew \
+        st status suspend resume v1 v4 v7 v8 v9 vb vbr vbd vm vo vc vu vp vp7 vp9 vnew \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-el7 copy-el8 copy-el9 copy-u22 copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
         r release rr remote-release rp release-pkg release-el7 release-el8 release-el9 check-all check-src check-repo check-boot pp package pb publish \
-        meta full el7 el8 el9 build check minio os ubuntu prod7 prod8 prod9 prod12 prod22
+        meta full el7 el8 el9 check minio os ubuntu prod7 prod8 prod9 prod12 prod22 build rpm deb build-rpm build-deb
 ###############################################################

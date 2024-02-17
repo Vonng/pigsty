@@ -2,6 +2,7 @@
 
 | 版本              |    发布时间    | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v2.6.0](#v260) | 2024-02-28 | PG 16 作为默认大版本，引入 ParadeDB 与 DuckDB 等扩展                     | [v2.6.0 WIP](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)                         |
 | [v2.5.1](#v251) | 2023-12-01 | 例行小版本更新，PG16重要扩展支持                                         | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
 | [v2.5.0](#v250) | 2023-09-24 | Ubuntu/Debian支持：bullseye, bookworm, jammy, focal           | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
 | [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML支持与各种新扩展：graphql, jwt, pg_net, vault    | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
@@ -40,6 +41,13 @@
 ----------------
 
 ## v2.6.0 (WIP)
+
+**亮点特性**
+
+* 现已将 PostgreSQL 16 作为默认主要版本
+* 新增 [ParadeDB](https://www.paradedb.com/) 扩展插件： `pg_analytics`, `pg_bm25`, and `pg_sparse`
+* 新增 [DuckDB](https://duckdb.org/) 与 `duckdb_fdw` 插件支持
+
 
 **软件配置变更**
 

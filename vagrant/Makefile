@@ -88,6 +88,10 @@ v9:
 	./switch el9
 vb:
 	./switch build
+vbr:
+	./switch build-rpm
+vbd:
+	./switch build-deb
 vc:
 	./switch check
 vm:
@@ -96,10 +100,7 @@ vo:
 	./switch os
 vu:
 	./switch ubuntu
-vr:
-	./switch rpm
-vd:
-	./switch deb
+
 
 #------------------------------#
 # production template
@@ -126,11 +127,16 @@ full:   del v4 up ssh
 el7:    del v7 up ssh
 el8:    del v8 up ssh
 el9:    del v9 up ssh
-build:  del vb up ssh
 check:  del vc up ssh
 minio:  del vm up ssh
 os:     del vo up ssh
 ubuntu: dev vu up ssh
+
+build:  del vb up ssh
+rpm: build-rpm
+deb: build-deb
+build-rpm:  del vbr up ssh
+build-deb:  del vbd up ssh
 prod:   del vp   up ssh
 prod7:  del vp7  up ssh
 prod8:  del vp8  up ssh
@@ -146,9 +152,9 @@ prod22: del vp22 up ssh
 ###############################################################
 .PHONY: default new ssh sshb dns \
 	start up down dw halt clean del destroy nuke st status pause suspend resume \
-	v1 v4 v7 v8 v9 vb vc vm vo vu \
+	v1 v4 v7 v8 v9 vb vbr vbd vc vm vo vu \
 	vp vp7 vp8 vp9 vp11 vp12 vp20 vp22 \
-	 meta full el7 el8 el9 build check minio os ubuntu \
+	 meta full el7 el8 el9 build rpm deb build-rpm build-deb check minio os ubuntu \
 	 prod prod7 prod8 prod9 prod11 prod12 prod20 prod22
 
 ###############################################################

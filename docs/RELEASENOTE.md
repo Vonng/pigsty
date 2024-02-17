@@ -2,6 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v2.6.0](#v260) | 2024-02-28 | PG 16 as default version, introduce ParadeDB & DuckDB    | [v2.6.0 WIP](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)                         |
 | [v2.5.1](#v251) | 2023-12-01 | Routine update, pg16 major extensions                    | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
 | [v2.5.0](#v250) | 2023-10-24 | Ubuntu/Debian Support:  bullseye, bookworm, jammy, focal | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
 | [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML support, graphql, jwt, pg_net, vault | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
@@ -42,6 +43,13 @@
 
 ## v2.6.0 (WIP)
 
+**Highlight**
+
+* Use PostgreSQL 16 as the default major version (16.2)
+* Introduce [ParadeDB](https://www.paradedb.com/) extensions: `pg_analytics`, `pg_bm25`, and `pg_sparse`
+* Introduce new extensions: `pgsql-gzip`, `duckdb_fdw`
+
+
 **Configuration**
 
 - Disable Grafana Unified Alert to work around the "Database Locked" error。
@@ -51,13 +59,14 @@
 
 **Software Upgrade**
 
-- Grafana 10.3
+- Grafana 10.3.3
 - Prometheus 2.47
 - node_exporter 1.7.0
 - Loki / Promtail 2.9.4
 - minio-20240118225128 / mcli-20240118070339
 - etcd 3.5.11
 - Redis 7.2.4
+- HAProxy 2.9.5
 
 **PostgreSQL x Pigsty Extensions**
 
@@ -66,20 +75,21 @@
 - pg_exporter 0.6.1
 - Patroni 3.2.2
 - pgBadger 12.4
+- pgBouncer 1.22
 - pgBackRest 2.50
 - vip-manager 2.3.0
 - PostGIS 3.4.1
 - PGVector 0.6.0
-- TimescaleDB 2.13.1
+- TimescaleDB 2.14.1
 - New Extension [duckdb_fdw](https://github.com/alitrack/duckdb_fdw) v1.1
-- New Extension [pgsql-gzip](https://github.com/pramsey/pgsql-gzip) 
-- New Extension [pg_sparse](https://github.com/paradedb/paradedb/tree/dev/pg_sparse) from ParadeDB
-- New Extension [pg_bm25](https://github.com/paradedb/paradedb/tree/dev/pg_bm25) from ParadeDB
-- New Extension [pg_analytics](https://github.com/paradedb/paradedb/tree/dev/pg_analytics) from ParadeDB
+- New Extension [pgsql-gzip](https://github.com/pramsey/pgsql-gzip) 1.0.0
+- New Extension [pg_sparse](https://github.com/paradedb/paradedb/tree/dev/pg_sparse) from ParadeDB: v0.5.6
+- New Extension [pg_bm25](https://github.com/paradedb/paradedb/tree/dev/pg_bm25) from ParadeDB: v0.5.6
+- New Extension [pg_analytics](https://github.com/paradedb/paradedb/tree/dev/pg_analytics) from ParadeDB: v0.5.6
 - Bump AI/ML Extension [pgml](https://github.com/postgresml/postgresml) to v2.8.1 with pg16 support
-- Bump Columnar Extension [hydra](https://github.com/hydradatabase/) to v1.1.0 with pg16 support
+- Bump Columnar Extension [hydra](https://github.com/hydradatabase/) to v1.1.1 with pg16 support
 - Bump Graph Extension [age](https://github.com/apache/age) to v1.5.0 with pg16 support
-- Bump GraphQL Extension [pg_graphql](https://github.com/supabase/pg_graphql) to v1.4.4 to support supabase
+- Bump GraphQL Extension [pg_graphql](https://github.com/supabase/pg_graphql) to v1.5.0 to support supabase
 
 
 
