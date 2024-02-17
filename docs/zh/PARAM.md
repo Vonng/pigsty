@@ -1317,7 +1317,6 @@ grafana_plugin_list:              # grafana plugins to be downloaded with grafan
   - volkovlabs-grapi-datasource
   - marcusolsson-static-datasource
   - marcusolsson-json-datasource
-  - marcusolsson-csv-datasource
   - marcusolsson-dynamictext-panel
   - marcusolsson-treemap-panel
   - marcusolsson-calendar-panel
@@ -1405,7 +1404,6 @@ grafana_plugin_list:              # grafana plugins to be downloaded with grafan
   - volkovlabs-grapi-datasource
   - marcusolsson-static-datasource
   - marcusolsson-json-datasource
-  - marcusolsson-csv-datasource
   - marcusolsson-dynamictext-panel
   - marcusolsson-treemap-panel
   - marcusolsson-calendar-panel
