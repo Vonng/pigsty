@@ -827,17 +827,18 @@ packages to be installed on infra nodes, default value:
 
 ```yaml
 infra_packages:                   # packages to be installed on infra nodes
-  - grafana,loki,logcli,promtail,prometheus2,alertmanager,karma,pushgateway
-  - node_exporter,blackbox_exporter,nginx_exporter,redis_exporter,pg_exporter
-  - nginx,dnsmasq,ansible,postgresql15,redis,mcli,etcd,python3-requests
+  - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway
+  - node_exporter,blackbox_exporter,nginx_exporter,pg_exporter
+  - nginx,dnsmasq,ansible,etcd,python3-requests,redis,mcli
 ```
 
 Default value for Debian/Ubuntu should be explicitly overwrite: 
 
 ```yaml
-- grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway,blackbox-exporter
-- node-exporter,blackbox-exporter,nginx-exporter,redis-exporter,pg-exporter
-- nginx,dnsmasq,ansible,postgresql-client-16,redis,mcli,etcd,python3-requests
+infra_packages:                   # packages to be installed on infra nodes
+  - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway,blackbox-exporter
+  - node-exporter,blackbox-exporter,nginx-exporter,redis-exporter,pg-exporter
+  - nginx,dnsmasq,ansible,etcd,python3-requests,redis,mcli
 ```
 
 
