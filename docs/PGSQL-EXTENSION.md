@@ -4,7 +4,7 @@ Extensions are the soul of PostgreSQL, and Pigsty deeply integrates the core ext
 
 Pigsty includes over **150+** PostgreSQL extension plugins and has compiled, packaged, integrated, and maintained many extensions not included in the official PGDG source. It also ensures through thorough testing that all these plugins can work together seamlessly. Including some potent extensions, such as [PostGIS](https://postgis.net/) to process geospatial data, [TimescaleDB](https://www.timescale.com/) to analyze time series/event stream data,  [Citus](https://www.citusdata.com/) to transform a standalone database into a horizontally scalable distributed cluster,  [PGVector](https://github.com/pgvector/pgvector) to store and search AI embeddings, [Apache AGE](https://age.apache.org/) for graph data storage and retrieval to works like Neo4J, and [pg_bm25](https://github.com/amutu/zhparser) for full-text search to work like ElasticSearch.
 
-Plugins are already included and placed in the yum repo of the infra nodes, which can be directly enabled through PGSQL [Cluster Config](#install-extension) or [installed manually](#install-manually) using `yum`. Pigsty also introduces a complete compilation environment and infrastructure, allowing you to [compile extensions](#compile-extension) not included in Pigsty & PGDG.
+Plugins are already included and placed in the yum repo of the infra nodes, which can be directly enabled through PGSQL [Cluster Config](#install-extension) or [installed manually](#install-manually) using `yum`. Pigsty also introduces a complete compilation environment and infrastructure, allowing you to [compile extensions](https://github.com/Vonng/pigsty-rpm) not included in Pigsty & PGDG.
 
 ![pigsty-extension.jpg](https://repo.pigsty.cc/img/pigsty-extension.jpg)
 
@@ -15,61 +15,44 @@ Some "database" are not actual PostgreSQL extensions, but also supported by pigs
 - [ParadeDB](https://www.paradedb.com/): Open-Source ElasticSearch Alternative (based on PostgreSQL)
 - [NocoDB](https://github.com/Vonng/pigsty/tree/master/app/nocodb): Open-Source Airtable Alternative (based on PostgreSQL)
 - [DuckDB](https://duckdb.org/): Open-Source Analytical SQLite Alternative (PostgreSQL Compatible)
-- EdgeDB: A GRAPH-LIKE SCHEMA WITH A RELATIONAL CORE, (based on PostgreSQL)
 
 
 ------
 
 ## Extension List
 
-Currently, the main version 15 of PostgreSQL in Pigsty provides the following extension plugins (other major versions only include core extensions but can be downloaded from the upstream repo). `sources` indicate where the extension comes from: PostgreSQL's own `CONTRIB` module, extensions provided by the official `PGDG` repo, and extensions packaged and maintained by `PIGSTY`. 
+Currently, the major version PostgreSQL 16 has the following extensions available, here are the extensions RPMs maintained by Pigsty (only available on EL7/8/9):
 
-The `type` has the following categories:
-
-- `FEAT`: New Features
-- `GIS`: Geospatial, PostGIS
-- `TYPE`: New Data type
-- `FUNC`: Functions and stored procedures
-- `INDEX`: Index access methods
-- `LANG`: Programming language support
-- `SHARD`: Horizontal Sharding
-- `ADMIN`: Management Tools
-- `AUDIT`: Audit Tools
-- `FDW`: Foreign Data Wrapper and Utils
-- `STAT`: Statistic & Observability
-
-There are some powerful extensions, such as: `postgis`, `timescaledb`, `citus`, `age`, `vector`, `zhparser`, `pg_repack`, `wal2json`, `passwordcracklib`, `pg_cron`, `age`, `hydra`, `PostgresML`, etc...
-
-Here are extensions maintained by Pigsty and included in the Pigsty RPM repo:
-
-| name          | version |   source   | type | comment                                                                                      |
-|---------------|:-------:|:----------:|:----:|----------------------------------------------------------------------------------------------|
-| pgml          |  2.8.1  | **PIGSTY** | FEAT | PostgresML: access most advanced machine learning algorithms and pretrained models with SQL  |
-| age           |  1.5.0  | **PIGSTY** | FEAT | Apache AGE graph database extension                                                          |
-| pointcloud    |  1.2.5  | **PIGSTY** | FEAT | A PostgreSQL extension for storing point cloud (LIDAR) data.                                 |
-| http          |   1.6   | **PIGSTY** | FEAT | HTTP client for PostgreSQL, allows web page retrieval inside the database.                   |
-| gzip          |   1.0   | **PIGSTY** | FEAT | Gzip and unzip with SQL                                                                      |
-| pg_tle        |  1.2.0  | **PIGSTY** | FEAT | Trusted Language Extensions for PostgreSQL                                                   |
-| roaringbitmap |   0.5   | **PIGSTY** | FEAT | Support for Roaring Bitmaps                                                                  |
-| zhparser      |   2.2   | **PIGSTY** | FEAT | Parser for full-text search of Chinese                                                       |
-| pg_net        |  0.8.0  | **PIGSTY** | FEAT | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
-| pgjwt         |  0.2.0  | **PIGSTY** | FEAT | JSON Web Token API for Postgresql                                                            |
-| vault         |  0.2.9  | **PIGSTY** | FEAT | Extension for storing encrypted secrets in the Vault                                         |
-| pg_graphql    |  1.5.0  | **PIGSTY** | FEAT | GraphQL support for PostgreSQL                                                               |
-| hydra         |  1.1.1  | **PIGSTY** | FEAT | Hydra is open source, column-oriented Postgres extension                                     |
-| imgsmlr       |  1.0.0  | **PIGSTY** | FEAT | ImgSmlr method is based on Haar wavelet transform                                            |
-| pg_similarity |  1.0.0  | **PIGSTY** | FEAT | set of functions and operators for executing similarity queries                              |
-| pg_bigm       |  1.2.0  | **PIGSTY** | FEAT | full text search capability with create 2-gram (bigram) index.                               |
-| svector       |  0.5.6  | **PIGSTY** | FEAT | pg_sparse: Sparse vector data type and sparse HNSW access methods                            |
-| pg_bm25       |  0.5.6  | **PIGSTY** | FEAT | ParadeDB: pg_bm25: Full text search for PostgreSQL using BM25                                |
-| pg_analytics  |  0.5.6  | **PIGSTY** | FEAT | ParadeDB: Real-time analytics for PostgreSQL using columnar storage and vectorized execution |
-| duckdb_fdw    |   1.1   | **PIGSTY** | FEAT | DuckDB Foreign Data Wrapper                                                                  |
+| name          | version |   source   | comment                                                                                      |
+|---------------|:-------:|:----------:|----------------------------------------------------------------------------------------------|
+| pgml          |  2.8.1  | **PIGSTY** | PostgresML: access most advanced machine learning algorithms and pretrained models with SQL  |
+| age           |  1.5.0  | **PIGSTY** | Apache AGE graph database extension                                                          |
+| pointcloud    |  1.2.5  | **PIGSTY** | A PostgreSQL extension for storing point cloud (LIDAR) data.                                 |
+| http          |   1.6   | **PIGSTY** | HTTP client for PostgreSQL, allows web page retrieval inside the database.                   |
+| gzip          |   1.0   | **PIGSTY** | Gzip and unzip with SQL                                                                      |
+| pg_tle        |  1.3.4  | **PIGSTY** | Trusted Language Extensions for PostgreSQL                                                   |
+| roaringbitmap |   0.5   | **PIGSTY** | Support for Roaring Bitmaps                                                                  |
+| zhparser      |   2.2   | **PIGSTY** | Parser for full-text search of Chinese                                                       |
+| pg_net        |  0.8.0  | **PIGSTY** | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
+| pgjwt         |  0.2.0  | **PIGSTY** | JSON Web Token API for Postgresql                                                            |
+| vault         |  0.2.9  | **PIGSTY** | Extension for storing encrypted secrets in the Vault                                         |
+| pg_graphql    |  1.5.0  | **PIGSTY** | GraphQL support for PostgreSQL                                                               |
+| hydra         |  1.1.1  | **PIGSTY** | Hydra is open source, column-oriented Postgres extension                                     |
+| imgsmlr       |  1.0.0  | **PIGSTY** | ImgSmlr method is based on Haar wavelet transform                                            |
+| pg_similarity |  1.0.0  | **PIGSTY** | set of functions and operators for executing similarity queries                              |
+| pg_bigm       |  1.2.0  | **PIGSTY** | full text search capability with create 2-gram (bigram) index.                               |
+| svector       |  0.5.6  | **PIGSTY** | pg_sparse: Sparse vector data type and sparse HNSW access methods                            |
+| pg_bm25       |  0.5.6  | **PIGSTY** | ParadeDB: pg_bm25: Full text search for PostgreSQL using BM25                                |
+| pg_analytics  |  0.5.6  | **PIGSTY** | ParadeDB: Real-time analytics for PostgreSQL using columnar storage and vectorized execution |
+| duckdb_fdw    |   1.1   | **PIGSTY** | DuckDB Foreign Data Wrapper                                                                  |
 
 Extensions maintained by PGDG and included in the Pigsty offline pacakge:
 
+9: pg_hint_plan 1.6.0    safeupdate
+
 | name                         | version | source  | type  | comment                                                                                                             |
 |------------------------------|:-------:|:-------:|:-----:|---------------------------------------------------------------------------------------------------------------------|
-| credcheck                    |  2.2.0  |  PGDG   | ADMIN | credcheck - postgresql plain text credential checker                                                                |
+| credcheck                    |  2.6.0  |  PGDG   | ADMIN | credcheck - postgresql plain text credential checker                                                                |
 | **pg_cron**                  |   1.6   |  PGDG   | ADMIN | Job scheduler for PostgreSQL                                                                                        |
 | pg_background                |   1.0   |  PGDG   | ADMIN | Run SQL queries in the background                                                                                   |
 | pg_jobmon                    |  1.4.1  |  PGDG   | ADMIN | Extension for logging and monitoring functions in PostgreSQL                                                        |
@@ -82,7 +65,7 @@ Extensions maintained by PGDG and included in the Pigsty offline pacakge:
 | prioritize                   |   1.0   |  PGDG   | ADMIN | get and set the priority of PostgreSQL backends                                                                     |
 | set_user                     |  4.0.1  |  PGDG   | AUDIT | similar to SET ROLE but with added logging                                                                          |
 | **passwordcracklib**         |  3.0.0  |  PGDG   | AUDIT | Enforce password policy                                                                                             |
-| pgaudit ❋                    |   1.7   |  PGDG   | AUDIT | provides auditing functionality                                                                                     |
+| pgaudit ❋                    |  16.0   |  PGDG   | AUDIT | provides auditing functionality                                                                                     |
 | pgcryptokey                  |   1.0   |  PGDG   | AUDIT | cryptographic key management                                                                                        |
 | hdfs_fdw                     |  2.0.5  |  PGDG   |  FDW  | foreign-data wrapper for remote hdfs servers                                                                        |
 | mongo_fdw                    |   1.1   |  PGDG   |  FDW  | foreign data wrapper for MongoDB access                                                                             |
@@ -96,9 +79,11 @@ Extensions maintained by PGDG and included in the Pigsty offline pacakge:
 | pg_ivm                       |   1.7   |  PGDG   | FEAT  | incremental view maintenance on PostgreSQL                                                                          |
 | pgq                          |  3.5.1  |  PGDG   | FEAT  | Generic queue for PostgreSQL                                                                                        |
 | pgsodium                     |  3.1.9  |  PGDG   | FEAT  | Postgres extension for libsodium functions                                                                          |
-| **timescaledb**              | 2.14.0  |  PGDG   | FEAT  | Enables scalable inserts and complex queries for time-series data (Apache 2 Edition)                                |
+| **timescaledb**              | 2.14.1  |  PGDG   | FEAT  | Enables scalable inserts and complex queries for time-series data (Apache 2 Edition)                                |
 | **wal2json**                 |  2.5.3  |  PGDG   | FEAT  | Capture JSON format CDC change via logical decoding                                                                 |
 | **vector**                   |  0.6.0  |  PGDG   | FEAT  | vector data type and ivfflat / hnsw access method                                                                   |
+| safeupdate                   |   1.4   |  PGDG   | FEAT  | Require criteria for UPDATE and DELETE                                                                              |
+| pg_hint_plan                 |  1.6.0  |  PGDG   | FEAT  | Give PostgreSQL ability to manually force some decisions in execution plans                                         |
 | count_distinct               |  3.0.1  |  PGDG   | FUNC  | An alternative to COUNT(DISTINCT ...) aggregate, usable with HashAggregate                                          |
 | ddlx                         |  0.27   |  PGDG   | FUNC  | DDL eXtractor functions                                                                                             |
 | extra_window_functions       |   1.0   |  PGDG   | FUNC  | Additional window functions to PostgreSQL                                                                           |
@@ -108,16 +93,16 @@ Extensions maintained by PGDG and included in the Pigsty offline pacakge:
 | tdigest                      |  1.4.1  |  PGDG   | FUNC  | Provides tdigest aggregate function.                                                                                |
 | topn                         |  2.6.0  |  PGDG   | FUNC  | type for top-n JSONB                                                                                                |
 | unaccent                     |   1.1   |  PGDG   | FUNC  | text search dictionary that removes accents                                                                         |
-| address_standardizer         |  3.4.1  |  PGDG   |  GIS  | Used to parse an address into constituent elements. Generally used to support geocoding address normalization step. |
-| address_standardizer_data_us |  3.4.1  |  PGDG   |  GIS  | Address Standardizer US dataset example                                                                             |
-| **postgis**                  |  3.4.1  |  PGDG   |  GIS  | PostGIS geometry and geography spatial types and functions                                                          |
-| postgis_raster               |  3.4.1  |  PGDG   |  GIS  | PostGIS raster types and functions                                                                                  |
-| postgis_sfcgal               |  3.4.1  |  PGDG   |  GIS  | PostGIS SFCGAL functions                                                                                            |
-| postgis_tiger_geocoder       |  3.4.1  |  PGDG   |  GIS  | PostGIS tiger geocoder and reverse geocoder                                                                         |
-| postgis_topology             |  3.4.1  |  PGDG   |  GIS  | PostGIS topology spatial types and functions                                                                        |
+| address_standardizer         |  3.4.2  |  PGDG   |  GIS  | Used to parse an address into constituent elements. Generally used to support geocoding address normalization step. |
+| address_standardizer_data_us |  3.4.2  |  PGDG   |  GIS  | Address Standardizer US dataset example                                                                             |
+| **postgis**                  |  3.4.2  |  PGDG   |  GIS  | PostGIS geometry and geography spatial types and functions                                                          |
+| postgis_raster               |  3.4.2  |  PGDG   |  GIS  | PostGIS raster types and functions                                                                                  |
+| postgis_sfcgal               |  3.4.2  |  PGDG   |  GIS  | PostGIS SFCGAL functions                                                                                            |
+| postgis_tiger_geocoder       |  3.4.2  |  PGDG   |  GIS  | PostGIS tiger geocoder and reverse geocoder                                                                         |
+| postgis_topology             |  3.4.2  |  PGDG   |  GIS  | PostGIS topology spatial types and functions                                                                        |
 | amcheck                      |   1.3   |  PGDG   | INDEX | functions for verifying relation integrity                                                                          |
 | bloom                        |   1.0   |  PGDG   | INDEX | bloom access method - signature file based index                                                                    |
-| hll ❋                        |  2.16   |  PGDG   | INDEX | type for storing hyperloglog data                                                                                   |
+| hll ❋                        |  2.18   |  PGDG   | INDEX | type for storing hyperloglog data                                                                                   |
 | pgtt                         |  3.1.0  |  PGDG   | INDEX | Extension to add Global Temporary Tables feature to PostgreSQL                                                      |
 | rum                          |   1.3   |  PGDG   | INDEX | RUM index access method                                                                                             |
 | hstore_plperl                |   1.0   |  PGDG   | LANG  | transform between hstore and plperl                                                                                 |
@@ -151,6 +136,7 @@ Extensions maintained by PGDG and included in the Pigsty offline pacakge:
 | semver                       | 0.32.1  |  PGDG   | TYPE  | Semantic version data type                                                                                          |
 | timestamp9                   |  1.4.0  |  PGDG   | TYPE  | timestamp nanosecond resolution                                                                                     |
 | unit ❋                       |    7    |  PGDG   | TYPE  | SI units extension                                                                                                  |
+| adminpack                    |   2.1   | CONTRIB | ADMIN | administrative functions for PostgreSQL                                                                             |
 | lo                           |   1.1   | CONTRIB | ADMIN | Large Object maintenance                                                                                            |
 | old_snapshot                 |   1.0   | CONTRIB | ADMIN | utilities in support of old_snapshot_threshold                                                                      |
 | pg_prewarm                   |   1.2   | CONTRIB | ADMIN | prewarm relation data                                                                                               |
@@ -162,7 +148,7 @@ Extensions maintained by PGDG and included in the Pigsty offline pacakge:
 | dict_int                     |   1.0   | CONTRIB | FUNC  | text search dictionary template for integers                                                                        |
 | dict_xsyn                    |   1.0   | CONTRIB | FUNC  | text search dictionary template for extended synonym processing                                                     |
 | earthdistance                |   1.1   | CONTRIB | FUNC  | calculate great-circle distances on the surface of the Earth                                                        |
-| fuzzystrmatch                |   1.1   | CONTRIB | FUNC  | determine similarities and distance between strings                                                                 |
+| fuzzystrmatch                |   1.2   | CONTRIB | FUNC  | determine similarities and distance between strings                                                                 |
 | insert_username              |   1.0   | CONTRIB | FUNC  | functions for tracking who changed a table                                                                          |
 | intagg                       |   1.1   | CONTRIB | FUNC  | integer aggregator and enumerator (obsolete)                                                                        |
 | intarray                     |   1.5   | CONTRIB | FUNC  | functions, operators, and index support for 1-D arrays of integers                                                  |
@@ -190,12 +176,12 @@ Extensions maintained by PGDG and included in the Pigsty offline pacakge:
 | plpython3u                   |   1.0   | CONTRIB | LANG  | PL/Python3U untrusted procedural language                                                                           |
 | pltcl                        |   1.0   | CONTRIB | LANG  | PL/TCL procedural language                                                                                          |
 | pltclu                       |   1.0   | CONTRIB | LANG  | PL/TCLU untrusted procedural language                                                                               |
-| pageinspect                  |  1.11   | CONTRIB | STAT  | inspect the contents of database pages at a low level                                                               |
+| pageinspect                  |  1.12   | CONTRIB | STAT  | inspect the contents of database pages at a low level                                                               |
 | pg_buffercache               |   1.3   | CONTRIB | STAT  | examine the shared buffer cache                                                                                     |
 | pg_freespacemap              |   1.2   | CONTRIB | STAT  | examine the free space map (FSM)                                                                                    |
 | pg_stat_statements           |  1.10   | CONTRIB | STAT  | track planning and execution statistics of all SQL statements executed                                              |
 | pg_visibility                |   1.2   | CONTRIB | STAT  | examine the visibility map (VM) and page-level visibility info                                                      |
-| pg_walinspect                |   1.0   | CONTRIB | STAT  | functions to inspect contents of PostgreSQL Write-Ahead Log                                                         |
+| pg_walinspect                |   1.1   | CONTRIB | STAT  | functions to inspect contents of PostgreSQL Write-Ahead Log                                                         |
 | pgrowlocks                   |   1.2   | CONTRIB | STAT  | show row-level locking information                                                                                  |
 | pgstattuple                  |   1.5   | CONTRIB | STAT  | show tuple-level statistics                                                                                         |
 | sslinfo                      |   1.2   | CONTRIB | STAT  | information about SSL certificates                                                                                  |
@@ -206,7 +192,6 @@ Extensions maintained by PGDG and included in the Pigsty offline pacakge:
 | prefix                       |  1.2.0  | CONTRIB | TYPE  | Prefix Range module for PostgreSQL                                                                                  |
 | seg                          |   1.4   | CONTRIB | TYPE  | data type for representing line segments or floating-point intervals                                                |
 | xml2                         |   1.1   | CONTRIB | TYPE  | XPath querying and XSLT                                                                                             |
-
 
 
 ----------------
@@ -289,145 +274,3 @@ CREATE EXTENSION age;          -- install the graph database extension
 ```
 
 
-
-----------------
-
-## Compile Extension
-
-If the extension you want is not included in Pigsty or the official [PGDG](https://download.postgresql.org/pub/repos/yum/) repo, you can compile them into RPMs.
-
-To compile the extension, you need to install `rpmbuild`, `gcc/clang`, and other related `-devel` packages; you also need `pgdg-srpm-macros` to build standard PGDG-style extension RPMs.
-
-The installed 3-node el7-9 building environment [`build.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/full.yml) could be used as a base for compiling extensions.
-You can install the dependencies required for compilation in this environment:
-
-```bash
-make build check-repo install    # setup building VMs, copy pkg.tgz and init
-bin/repo-add infra node,pgsql    # add upstream repo to all 3 infra nodes
-
-# add srpm repo to infra nodes
-cat > /etc/yum.repos.d/pgdg-srpm.repo <<-'EOF'
-[pgdg-common-srpm]
-name = PostgreSQL 15 SRPM $releasever - $basearch
-baseurl=https://download.postgresql.org/pub/repos/yum/srpms/common/redhat/rhel-$releasever-x86_64/
-gpgcheck = 0
-enabled = 1
-module_hotfixes=1
-EOF
-
-# install compiling tools, build deps and PG major versions
-yum groupinstall --skip-broken -y 'Development Tools'
-yum install -y pgdg-srpm-macros clang ccache rpm-build rpmdevtools postgresql1*-server flex bison postgresql1*-devel readline-devel zlib-devel lz4-devel libzstd-devel openssl-devel krb5-devel libcurl-devel libxml2-devel CUnit cmake
-rpmdev-setuptree
-```
-
-
-For example, here are the instructions for compiling the PostgreSQL `pgsql-http` extension:
-
-Let's add the package specification file to: `/root/rpmbuild/SPECS/pgsql-http.spec`.
-
-<details><summary>Example: RPM SPEC for http extension</summary>
-
-```
-%global pname http
-%global sname pgsql-http
-%global pginstdir /usr/pgsql-%{pgmajorversion}
-
-%ifarch ppc64 ppc64le s390 s390x armv7hl
- %if 0%{?rhel} && 0%{?rhel} == 7
-  %{!?llvm:%global llvm 0}
- %else
-  %{!?llvm:%global llvm 1}
- %endif
-%else
- %{!?llvm:%global llvm 1}
-%endif
-
-Name:		%{sname}_%{pgmajorversion}
-Version:	1.6.0
-Release:	PIGSTY1%{?dist}
-Summary:	HNSW algorithm for vector similarity search in PostgreSQL.
-License:	MIT
-URL:		https://github.com/pramsey/%{sname}
-Source0:	https://github.com/pramsey/%{sname}/archive/refs/tags/v%{version}.tar.gz
-#           https://github.com/pramsey/pgsql-http/archive/refs/tags/v1.6.0.tar.gz
-
-BuildRequires:	postgresql%{pgmajorversion}-devel pgdg-srpm-macros >= 1.0.27
-Requires:	postgresql%{pgmajorversion}-server
-
-%description
-Wouldn't it be nice to be able to write a trigger that called a web service? Either to get back a result,
- or to poke that service into refreshing itself against the new state of the database? This extension is for that.
-
-
-%if %llvm
-%package llvmjit
-Summary:	Just-in-time compilation support for %{sname}
-Requires:	%{name}%{?_isa} = %{version}-%{release}
-%if 0%{?rhel} && 0%{?rhel} == 7
-%ifarch aarch64
-Requires:	llvm-toolset-7.0-llvm >= 7.0.1
-%else
-Requires:	llvm5.0 >= 5.0
-%endif
-%endif
-%if 0%{?suse_version} >= 1315 && 0%{?suse_version} <= 1499
-BuildRequires:	llvm6-devel clang6-devel
-Requires:	llvm6
-%endif
-%if 0%{?suse_version} >= 1500
-BuildRequires:	llvm15-devel clang15-devel
-Requires:	llvm15
-%endif
-%if 0%{?fedora} || 0%{?rhel} >= 8
-Requires:	llvm => 13.0
-%endif
-
-%description llvmjit
-This packages provides JIT support for %{sname}
-%endif
-
-
-%prep
-%setup -q -n %{sname}-%{version}
-
-%build
-PATH=%{pginstdir}/bin:$PATH %{__make} %{?_smp_mflags}
-
-%install
-%{__rm} -rf %{buildroot}
-PATH=%{pginstdir}/bin:$PATH %{__make} %{?_smp_mflags} install DESTDIR=%{buildroot}
-
-%files
-%doc README.md
-%{pginstdir}/lib/%{pname}.so
-%{pginstdir}/share/extension/%{pname}.control
-%{pginstdir}/share/extension/%{pname}*sql
-%if %llvm
-%files llvmjit
-   %{pginstdir}/lib/bitcode/*
-%endif
-
-%changelog
-* Wed Sep 13 2023 Vonng <rh@vonng.com> - 1.6.0
-- Initial RPM release, used by Pigsty <https://pigsty.cc>
-```
-
-</details>
-
-You can download the source code package of this extension to `/root/rpmbuild/SOURCES`, and then use the `rpmbuild` command to compile for different PG major versions:
-
-
-```bash
-rpmbuild --define "pgmajorversion 16" -ba ~/rpmbuild/SPECS/pgsql-http.spec;
-rpmbuild --define "pgmajorversion 15" -ba ~/rpmbuild/SPECS/pgsql-http.spec;
-rpmbuild --define "pgmajorversion 14" -ba ~/rpmbuild/SPECS/pgsql-http.spec;
-rpmbuild --define "pgmajorversion 13" -ba ~/rpmbuild/SPECS/pgsql-http.spec;
-rpmbuild --define "pgmajorversion 12" -ba ~/rpmbuild/SPECS/pgsql-http.spec;
-```
-
-The compilation results will be placed in `/root/rpmbuild/RPMS`.
-Move them to the Pigsty local source `/www/pigsty` and execute `./infra.yml -t repo_create` to rebuild the local source.
-You can then use the compiled extension RPM package on other hosts.
-
-For more details, please refer to the RPM build documentation, which will not be expanded further.

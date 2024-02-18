@@ -47,15 +47,19 @@
 
 * Use PostgreSQL 16 as the default major version (16.2)
 * Introduce [ParadeDB](https://www.paradedb.com/) extensions: `pg_analytics`, `pg_bm25`, and `pg_sparse`
-* Introduce new extensions: `pgsql-gzip`, `duckdb_fdw`
-
+* Introduce [DuckDB](https://duckdb.org/) and corresponding foreign data wrapper: `duckdb_fdw`
+* Cloudflare CDN https://repo.pigsty.io and QCloud CDN https://repo.pigsty.cc 
 
 **Configuration**
 
 - Disable Grafana Unified Alert to work around the "Database Locked" error。
-- Replace `node_repo_method` with `node_repo_modules` and remove `node_local_repo_urls`.
-- Use the new pigsty repo layout
-
+- add `node_repo_modules` to add upstream repos (including local one) to node
+- remove `node_local_repo_urls`, replaced by `node_repo_modules` & `repo_upstream`.
+- remove `node_repo_method`, replaced by `node_repo_modules`.
+- add the new `local` repo into `repo_upstream` instead of `node_local_repo_urls`
+- add `chrony` into `node_default_packages`
+- remove redis,minio,postgresql client from infra packages
+- replace `repo_upstream.baseurl` $releasever on el8/el9 with major.minor version if applicable
 
 **Software Upgrade**
 
@@ -63,10 +67,12 @@
 - Prometheus 2.47
 - node_exporter 1.7.0
 - Loki / Promtail 2.9.4
-- minio-20240118225128 / mcli-20240118070339
+- minio-20240216110548 / mcli-20240217011557
 - etcd 3.5.11
 - Redis 7.2.4
 - HAProxy 2.9.5
+- DuckDB 0.10.0
+- FerretDB 1.19
 
 **PostgreSQL x Pigsty Extensions**
 
@@ -89,8 +95,8 @@
 - Bump AI/ML Extension [pgml](https://github.com/postgresml/postgresml) to v2.8.1 with pg16 support
 - Bump Columnar Extension [hydra](https://github.com/hydradatabase/) to v1.1.1 with pg16 support
 - Bump Graph Extension [age](https://github.com/apache/age) to v1.5.0 with pg16 support
+- Bump Packaging Extension [pg_tle](https://github.com/aws/pg_tle) to v1.3.4 with pg16 support
 - Bump GraphQL Extension [pg_graphql](https://github.com/supabase/pg_graphql) to v1.5.0 to support supabase
-
 
 
 ----------------

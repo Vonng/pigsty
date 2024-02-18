@@ -44,16 +44,21 @@
 
 **亮点特性**
 
-* 现已将 PostgreSQL 16 作为默认主要版本
+* 现已将 PostgreSQL 16 作为默认主要版本（16.2）
 * 新增 [ParadeDB](https://www.paradedb.com/) 扩展插件： `pg_analytics`, `pg_bm25`, and `pg_sparse`
 * 新增 [DuckDB](https://duckdb.org/) 与 `duckdb_fdw` 插件支持
-
+* 全球 Cloudflare CDN https://repo.pigsty.io 与中国大路CDN https://repo.pigsty.cc
 
 **软件配置变更**
 
-- 暂时关闭 Grafana 统一告警功能，避免 "Database Locked" 错误。
 - 使用 `node_repo_modules` 替换 `node_repo_method` 参数，并移除 `node_repo_local_urls` 参数。
-- 针对 EL7 / EL8 / EL9 的 Node 与 PGDG 仓库，启用特定小版本
+- 暂时关闭 Grafana 统一告警功能，避免 "Database Locked" 错误。
+- 新增 `node_repo_modules` 参数，用于指定在节点上添加的上游仓库源。
+- 移除 `node_local_repo_urls`，其功能由 `node_repo_modules` & `repo_upstream` 替代。
+- 移除 `node_repo_method` 参数，其功能由 `node_repo_modules` 替代。
+- 在 `repo_upstream` 添加新的 `local` 源，并通过 `node_repo_modules` 使用，替代 `node_local_repo_urls` 的功能
+- 重排 `node_default_packages`，`infra_packages`，`pg_packages`，`pg_extensions` 参数默认值。
+- 在 `repo_upstream` 中替换 `repo_upstream.baseurl` 时，如果 EL8/9 小版本特定的仓库可用，使用 major.minor 替换 $releasever，提高小版本兼容性。
 
 **软件版本升级**
 
@@ -65,18 +70,18 @@
 - etcd 3.5.11
 - Redis 7.2.4
 
-**PostgreSQL x Pigsty Extensions**
+**PostgreSQL扩展插件**
 
 - PostgreSQL 小版本升级： 16.2, 15.6, 14.11, 13.14, 12.18 
 - PostgreSQL 16： 现在被提升为默认主版本
-- pg_exporter 0.6.1
+- pg_exporter 0.6.1：安全修复
 - Patroni 3.2.2
 - pgBadger 12.4
 - pgBackRest 2.50
 - vip-manager 2.3.0
-- PostGIS 3.4.1
-- PGVector 0.6.0
-- TimescaleDB 2.13.1
+- PostGIS 3.4.2
+- TimescaleDB 2.14.1
+- 向量扩展 PGVector 0.6.0：新增并行创建 HNSW 索引功能
 - 新增扩展插件 [duckdb_fdw](https://github.com/alitrack/duckdb_fdw) v1.1 ，支持读写 DuckDB 数据
 - 新增扩展插件 [pgsql-gzip](https://github.com/pramsey/pgsql-gzip) ，用于支持 Gzip 压缩解压缩
 - 新增扩展插件 [pg_sparse](https://github.com/paradedb/paradedb/tree/dev/pg_sparse)，高效处理稀疏向量（ParadeDB）
@@ -86,6 +91,7 @@
 - 升级列式存储插件 [hydra](https://github.com/hydradatabase/) 版本至 v1.1.0，新增 PG 16 支持。
 - 升级图扩展插件 [age](https://github.com/apache/age) 至 v1.5.0，新增 PG 16 支持。
 - 升级GraphQL插件 [pg_graphql](https://github.com/supabase/pg_graphql) 版本至 v1.4.4 ，支持 Supabase。
+
 
 
 
