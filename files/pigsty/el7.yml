@@ -16,16 +16,24 @@
 all:
   children:
 
-    # infra cluster for proxy, monitor, alert, etc..
+    #----------------------------------#
+    # infra: monitor, alert, repo, etc..
+    #----------------------------------#
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
-    # etcd cluster for ha postgres
+    #----------------------------------#
+    # etcd cluster for HA postgres DCS
+    #----------------------------------#
     etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
 
-    # minio cluster, optional backup repo for pgbackrest
+    #----------------------------------#
+    # minio (OPTIONAL backup repo)
+    #----------------------------------#
     #minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 
-    # postgres cluster 'pg-meta' with single primary instance
+    #----------------------------------#
+    # pgsql (singleton on current node)
+    #----------------------------------#
     pg-meta:
       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
       vars:
@@ -35,11 +43,12 @@ all:
         pg_users:
           - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
           - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
-        pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add extra extensions to shared_preload_libraries
+        pg_libs: 'pg_stat_statements, auto_explain' # add extra extensions to shared_preload_libraries
         node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ] # make a full backup every 1am
 
-
-    # example cluster: pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
+    #----------------------------------#
+    # example cluster (3-node pg-test)
+    #----------------------------------#
     # pg-test:                          # define the new 3-node cluster pg-test
     #   hosts:
     #     10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
@@ -59,7 +68,9 @@ all:
     #       - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
 
 
-
+  #----------------------------------#
+  # GLOBAL VARS
+  #----------------------------------#
   vars:                               # global parameters
     version: v2.6.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
@@ -73,18 +84,23 @@ all:
       loki         : { endpoint: "${admin_ip}:3100" }
       #minio        : { domain: sss.pigsty  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
 
-    # if disabled, original /etc/yum.repos.d/ will be kept
-    repo_remove: true       # remove existing repo on admin node during repo bootstrap
-    node_repo_remove: true  # remove existing node repo for node managed by pigsty
-
-    # if you want to use minio as backup repo instead of local fs, uncomment minio related lines
-    # don't forget to configure pgbackrest_repo and change credentials there!
-    #pgbackrest_method: minio
-    #minio_users:
+    #----------------------------------#
+    # MinIO Related Options
+    #----------------------------------#
+    #pgbackrest_method: minio          # if you want to use minio as backup repo instead of 'local' fs, uncomment this
+    #minio_users:                      # and configure `pgbackrest_repo` & `minio_users` accordingly
     #  - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
     #  - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
+    #pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+    #  minio: ...                      # optional minio repo for pgbackrest ...
+    #    s3_key: pgbackrest            # minio user access key for pgbackrest
+    #    s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
+    #    cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
+    # if you want to use minio as backup repo instead of 'local' fs, uncomment this, and configure `pgbackrest_repo`
 
-    # WARNING: CHANGE THESE PASSWORDS
+    #----------------------------------#
+    # Credential: CHANGE THESE PASSWORDS
+    #----------------------------------#
     #grafana_admin_username: admin
     grafana_admin_password: pigsty
     #pg_admin_username: dbuser_dba
@@ -98,8 +114,13 @@ all:
     #haproxy_admin_username: admin
     haproxy_admin_password: pigsty
 
-    # repo_xxx are used if you want to build your own yum repo from upstream directly
-    repo_modules: infra,node,pgsql
+    #----------------------------------#
+    # Repo, Node, Packages
+    #----------------------------------#
+    repo_modules: infra,node,pgsql    # install upstream repo during repo bootstrap
+    repo_remove: true                 # remove existing repo on admin node during repo bootstrap
+    node_repo_modules: local          # install the local module in repo_upstream for all nodes
+    node_repo_remove: true            # remove existing node repo for node managed by pigsty
     repo_upstream:                    # where to download #
       - { name: pigsty-local   ,description: 'Pigsty Local'      ,module: local ,releases: [7,8,9] ,baseurl: { default: 'http://${admin_ip}/pigsty'  }} # used by intranet nodes
       - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/infra/$basearch' ,china: 'https://repo.pigsty.cc/rpm/infra/$basearch' }}
@@ -130,13 +151,10 @@ all:
       - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15* pgtt_15 pgq_15* hypopg_15* timestamp9_15* semver_15* prefix_15* periods_15* ip4r_15* tdigest_15* hll_15* pgmp_15 topn_15* geoip_15 extra_window_functions_15 pgsql_tweaks_15 count_distinct_15
       - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15 rum_15
       - pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_auth_mon_15 pg_checksums_15 pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15
-    infra_packages:                   # packages to be installed on infra nodes
-      - nginx,dnsmasq,ansible,etcd,python3-requests,redis,mcli
-      - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway,node_exporter,blackbox_exporter,nginx_exporter,pg_exporter
-    node_default_packages:            # default packages to be installed on all nodes
-      - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,chrony,python3
-      - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3-pip
 
+    #----------------------------------#
+    # PostgreSQL Packages & Extensions
+    #----------------------------------#
     pg_version: 15                    # el7 only have pg 15 support so far
     pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
       - postgresql${pg_version}*
@@ -145,9 +163,9 @@ all:
     pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
       - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
       - postgis33_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}* hydra_15*
-      #- pglogical_15* pg_cron_15* citus_15* apache-age_15* imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql-http_15* pgsql-gzip_15* pg_sparse_15* vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15*
-      #- orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15
-      #- plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15* pgtt_15 pgq_15* hypopg_15* timestamp9_15* semver_15* prefix_15* periods_15* ip4r_15* tdigest_15* hll_15* pgmp_15 topn_15* geoip_15 extra_window_functions_15 pgsql_tweaks_15 count_distinct_15
-      #- pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15 rum_15
-      #- pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_auth_mon_15 pg_checksums_15 pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15
+      #- pglogical_${pg_version}* pg_cron_${pg_version}* citus_${pg_version}* apache-age_${pg_version}* imgsmlr_${pg_version}* pg_bigm_${pg_version}* pg_similarity_${pg_version}* pgsql-http_${pg_version}* pgsql-gzip_${pg_version}* pg_sparse_${pg_version}* vault_${pg_version} pgjwt_${pg_version} pg_tle_${pg_version}* pg_roaringbitmap_${pg_version}* pointcloud_${pg_version}* zhparser_${pg_version}*
+      #- orafce_${pg_version}* mysqlcompat_${pg_version} mongo_fdw_${pg_version}* tds_fdw_${pg_version}* mysql_fdw_${pg_version} hdfs_fdw_${pg_version} sqlite_fdw_${pg_version} pgbouncer_fdw_${pg_version} multicorn2_${pg_version}* powa_${pg_version}* pg_stat_kcache_${pg_version}* pg_stat_monitor_${pg_version}* pg_qualstats_${pg_version} pg_track_settings_${pg_version} pg_wait_sampling_${pg_version} system_stats_${pg_version}
+      #- plprofiler_${pg_version}* plproxy_${pg_version} plsh_${pg_version}* pldebugger_${pg_version} plpgsql_check_${pg_version}* pgtt_${pg_version} pgq_${pg_version}* hypopg_${pg_version}* timestamp9_${pg_version}* semver_${pg_version}* prefix_${pg_version}* periods_${pg_version}* ip4r_${pg_version}* tdigest_${pg_version}* hll_${pg_version}* pgmp_${pg_version} topn_${pg_version}* geoip_${pg_version} extra_window_functions_${pg_version} pgsql_tweaks_${pg_version} count_distinct_${pg_version}
+      #- pg_background_${pg_version} e-maj_${pg_version} pg_catcheck_${pg_version} pg_prioritize_${pg_version} pgcopydb_${pg_version} pgcryptokey_${pg_version} logerrors_${pg_version} pg_top_${pg_version} pg_comparator_${pg_version} pg_ivm_${pg_version}* pgsodium_${pg_version}* pgfincore_${pg_version}* ddlx_${pg_version} credcheck_${pg_version} safeupdate_${pg_version} pg_squeeze_${pg_version}* pg_fkpart_${pg_version} pg_jobmon_${pg_version} rum_${pg_version}
+      #- pg_partman_${pg_version} pg_permissions_${pg_version} pgexportdoc_${pg_version} pgimportdoc_${pg_version} pg_statement_rollback_${pg_version}* pg_auth_mon_${pg_version} pg_checksums_${pg_version} pg_failover_slots_${pg_version} pg_readonly_${pg_version}* postgresql-unit_${pg_version}* pg_store_plans_${pg_version}* pg_uuidv7_${pg_version}* set_user_${pg_version}* pgaudit17_${pg_version}
 ...

@@ -3,7 +3,7 @@
 # File      :   el.yml
 # Desc      :   Pigsty auto generated config for el8, el9
 # Ctime     :   2020-05-22
-# Mtime     :   2023-03-31
+# Mtime     :   2024-02-18
 # Docs      :   https://doc.pigsty.cc/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -16,29 +16,67 @@
 all:
   children:
 
-    # infra cluster for proxy, monitor, alert, etc..
+    #----------------------------------#
+    # infra: monitor, alert, repo, etc..
+    #----------------------------------#
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
-    # etcd cluster for ha postgres
+    #----------------------------------#
+    # etcd cluster for HA postgres DCS
+    #----------------------------------#
     etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
 
-    # minio cluster, optional backup repo for pgbackrest
+    #----------------------------------#
+    # minio (OPTIONAL backup repo)
+    #----------------------------------#
     #minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 
-    # postgres cluster 'pg-meta' with single primary instance
+    #----------------------------------#
+    # pgsql (singleton on current node)
+    #----------------------------------#
     pg-meta:
       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
       vars:
         pg_cluster: pg-meta
-        pg_databases: [ { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [{name: postgis, schema: public}] }]
+        pg_databases:
+          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [{ name: postgis, schema: public }] }
         pg_users:
           - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
           - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
         pg_libs: 'pg_stat_statements, auto_explain' # add extra extensions to shared_preload_libraries
         node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ] # make a full backup every 1am
 
-  vars:                               # global parameters
-    version: v2.5.1                   # pigsty version string
+    #----------------------------------#
+    # example cluster (3-node pg-test)
+    #----------------------------------#
+    # pg-test:                          # define the new 3-node cluster pg-test
+    #   hosts:
+    #     10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
+    #     10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
+    #     10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
+    #   vars:
+    #     pg_cluster: pg-test           # define pgsql cluster name
+    #     pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
+    #     pg_databases: [{ name: test }] # create a database and user named 'test'
+    #     node_tune: tiny
+    #     pg_conf: tiny.yml
+    #     pg_vip_enabled: true
+    #     pg_vip_address: 10.10.10.3/24
+    #     pg_vip_interface: eth1
+    #     node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
+    #       - '00 01 * * 1 postgres /pg/bin/pg-backup full'
+    #       - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
+
+
+  #----------------------------------#
+  # GLOBAL VARS
+  #----------------------------------#
+  vars:
+
+    #----------------------------------#
+    # Meta Data
+    #----------------------------------#
+    version: v2.6.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default,china,europe
     infra_portal:                     # domain names and upstream servers
@@ -50,15 +88,24 @@ all:
       loki         : { endpoint: "${admin_ip}:3100" }
       #minio        : { domain: sss.pigsty  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
 
-    # if you want to use minio as backup repo instead of local fs, uncomment minio related lines
-    # don't forget to configure pgbackrest_repo and change credentials there!
+    #----------------------------------#
+    # MinIO Related Options
+    #----------------------------------#
+    #pgbackrest_method: minio          # if you want to use minio as backup repo instead of 'local' fs, uncomment this
+    #minio_users:                      # and configure `pgbackrest_repo` & `minio_users` accordingly
+    #  - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
+    #  - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
+    #pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+    #  minio: ...                      # optional minio repo for pgbackrest ...
+    #    s3_key: pgbackrest            # minio user access key for pgbackrest
+    #    s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
+    #    cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
+    # if you want to use minio as backup repo instead of 'local' fs, uncomment this, and configure `pgbackrest_repo`
     #pgbackrest_method: minio
 
-    # if disabled, original /etc/yum.repos.d will be kept
-    repo_remove: true       # remove existing repo on admin node during repo bootstrap
-    node_repo_remove: true  # remove existing node repo for node managed by pigsty
-
-    # WARNING: CHANGE THESE PASSWORDS
+    #----------------------------------#
+    # Credential: CHANGE THESE PASSWORDS
+    #----------------------------------#
     #grafana_admin_username: admin
     grafana_admin_password: pigsty
     #pg_admin_username: dbuser_dba
@@ -72,7 +119,73 @@ all:
     #haproxy_admin_username: admin
     haproxy_admin_password: pigsty
 
-    # this config template assume you are using pre-packed offline packages
-    # If you wish to download upstream yum packages directly from internet,
-    # consider using ad hoc `el7.yml`, `el8.yml`, `el9.yml` config instead.
+    #----------------------------------#
+    # Repo, Node, Packages
+    #----------------------------------#
+    # if you wish to customize your own repo, change these settings:
+    repo_modules: infra,node,pgsql    # install upstream repo during repo bootstrap
+    repo_remove: true                 # remove existing repo on admin node during repo bootstrap
+    node_repo_modules: local          # install the local module in repo_upstream for all nodes
+    node_repo_remove: true            # remove existing node repo for node managed by pigsty
+    repo_upstream:                    # where to download #
+      - { name: pigsty-local   ,description: 'Pigsty Local'      ,module: local ,releases: [7,8,9] ,baseurl: { default: 'http://${admin_ip}/pigsty'  }} # used by intranet nodes
+      - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/infra/$basearch' ,china: 'https://repo.pigsty.cc/rpm/infra/$basearch' }}
+      - { name: pigsty-pgsql   ,description: 'Pigsty PGSQL'      ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/pgsql/el$releasever.$basearch' ,china: 'https://repo.pigsty.cc/rpm/pgsql/el$releasever.$basearch' }}
+      - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' }}
+      - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'        ,china: 'https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable'  ,europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' }}
+      - { name: appstream      ,description: 'EL 8+ AppStream'   ,module: node  ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/AppStream/$basearch/os/'      ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/AppStream/$basearch/os/'       ,europe: 'https://mirrors.xtom.de/rocky/$releasever/AppStream/$basearch/os/'  }}
+      - { name: extras         ,description: 'EL 8+ Extras'      ,module: node  ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/extras/$basearch/os/'         ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/extras/$basearch/os/'          ,europe: 'https://mirrors.xtom.de/rocky/$releasever/extras/$basearch/os/'     }}
+      - { name: epel           ,description: 'EL 8+ EPEL'        ,module: node  ,releases: [  8,9] ,baseurl: { default: 'http://download.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/Everything/$basearch/'     ,europe: 'https://mirrors.xtom.de/epel/$releasever/Everything/$basearch/'     }}
+      - { name: crb            ,description: 'EL 9 CRB'          ,module: node  ,releases: [    9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/CRB/$basearch/os/'            ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/CRB/$basearch/os/'             ,europe: 'https://mirrors.xtom.de/rocky/$releasever/CRB/$basearch/os/'        }}
+      - { name: powertools     ,description: 'EL 8 PowerTools'   ,module: node  ,releases: [  8  ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/PowerTools/$basearch/os/'     ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/PowerTools/$basearch/os/'      ,europe: 'https://mirrors.xtom.de/rocky/$releasever/PowerTools/$basearch/os/' }}
+      - { name: crb            ,description: 'EL 9 CRB'          ,module: node  ,releases: [    9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/CRB/$basearch/os/'            ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/CRB/$basearch/os/'             ,europe: 'https://mirrors.xtom.de/rocky/$releasever/CRB/$basearch/os/'        }}
+      - { name: pgdg-common    ,description: 'PostgreSQL Common' ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' }}
+      - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' }}
+      - { name: pgdg-el8fix    ,description: 'PostgreSQL EL8FIX' ,module: pgsql ,releases: [  8  ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' } }
+      - { name: pgdg-el9fix    ,description: 'PostgreSQL EL9FIX' ,module: pgsql ,releases: [    9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/'  ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/' }}
+      - { name: pgdg16         ,description: 'PostgreSQL 16'     ,module: pgsql ,releases: [  8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/16/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/16/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/16/redhat/rhel-$releasever-$basearch' }}
+      - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
+    repo_packages:
+      - ansible python3 python3-pip python3-virtualenv python3-requests python3-jmespath python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass # Distro & Boot
+      - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter                                                                                            # Pigsty Addons
+      - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter                              # Infra Packages
+      - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph             # Node Tools 1
+      - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                   # Node Tools 2
+      - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb pgFormatter # pgxnclient missing in el9      # PGSQL Common Tools
+      - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*   # PGDG 16 Packages
+      - pgml_16* pg_graphql_16 pg_net_16* pgsql-http_16* pgsql-gzip_16* vault_16 pgjwt_16 pg_tle_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_sparse_16* pg_sparse_16* pg_bm25_16* pg_analytics_16*
+      - orafce_16* mongo_fdw_16* tds_fdw_16* mysql_fdw_16 hdfs_fdw_16 sqlite_fdw_16 pgbouncer_fdw_16 powa_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_qualstats_16 pg_track_settings_16 pg_wait_sampling_16 hll_16 pgaudit_16
+      - plprofiler_16* plsh_16* pldebugger_16 plpgsql_check_16* pgtt_16 pgq_16* pgsql_tweaks_16 count_distinct_16 hypopg_16 timestamp9_16* semver_16* prefix_16* periods_16 ip4r_16 tdigest_16 pgmp_16 extra_window_functions_16 topn_16
+      - pg_background_16 e-maj_16 pg_prioritize_16 pgcryptokey_16 logerrors_16 pg_top_16 pg_comparator_16 pg_ivm_16* pgsodium_16* pgfincore_16* ddlx_16 credcheck_16 safeupdate_16 pg_squeeze_16* pg_fkpart_16 pg_jobmon_16
+      - pg_partman_16 pg_permissions_16 pgexportdoc_16 pgimportdoc_16 pg_statement_rollback_16* pg_hint_plan_16* pg_auth_mon_16 pg_checksums_16 pg_failover_slots_16 pg_readonly_16* pg_uuidv7_16* set_user_16* rum_16
+      - redis_exporter mysqld_exporter mongodb_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos  # Miscellaneous Packages
+      #- mysqlcompat_16 system_stats_16 multicorn2_16* plproxy_16 geoip_16 pgcopydb_16 pg_catcheck_16 pg_store_plans_16* postgresql-unit_16 # not available for PG 16 yet
+    repo_url_packages:
+      - https://repo.pigsty.cc/etc/pev.html
+      - https://repo.pigsty.cc/etc/chart.tgz
+      - https://repo.pigsty.cc/etc/plugins.tgz
+    infra_packages:                   # packages to be installed on infra nodes
+      - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway
+      - node_exporter,blackbox_exporter,nginx_exporter,pg_exporter
+      - nginx,dnsmasq,ansible,etcd,python3-requests,redis,mcli
+    node_default_packages:            # default packages to be installed on all nodes
+      - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,chrony,python3
+      - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3-pip
+
+    #----------------------------------#
+    # PostgreSQL Packages & Extensions
+    #----------------------------------#
+    pg_version: 16                    # el8 / el9 will use postgresql 16 as the default major version
+    pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
+      - postgresql${pg_version}*
+      - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager patroni-etcd             # pgdg common tools
+      - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # important extensions
+    pg_extensions: # citus & hydra are exclusive
+      - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}* hydra_${pg_version}*
+      #- pglogical_${pg_version}* pg_cron_${pg_version}* citus_${pg_version}* apache-age_${pg_version}* duckdb_fdw_${pg_version}* pg_roaringbitmap_${pg_version}* pointcloud_${pg_version}* zhparser_${pg_version}* pgsql-gzip_${pg_version}*
+      #- pgml_${pg_version}* pg_bm25_${pg_version}* pg_analytics_${pg_version}* pg_sparse_${pg_version}* pg_graphql_${pg_version} pg_net_${pg_version}* pgsql-http_${pg_version}* vault_${pg_version} pgjwt_${pg_version} pg_tle_${pg_version}*
+      #- orafce_${pg_version}* mongo_fdw_${pg_version}* tds_fdw_${pg_version}* mysql_fdw_${pg_version} hdfs_fdw_${pg_version} sqlite_fdw_${pg_version} pgbouncer_fdw_${pg_version} powa_${pg_version}* pg_stat_kcache_${pg_version}* pg_stat_monitor_${pg_version}* pg_qualstats_${pg_version} pg_track_settings_${pg_version} pg_wait_sampling_${pg_version} hll_${pg_version} pgaudit_${pg_version}
+      #- plprofiler_${pg_version}* plsh_${pg_version}* pldebugger_${pg_version} plpgsql_check_${pg_version}* pgtt_${pg_version} pgq_${pg_version}* pgsql_tweaks_${pg_version} count_distinct_${pg_version} hypopg_${pg_version} timestamp9_${pg_version}* semver_${pg_version}* prefix_${pg_version}* periods_${pg_version} ip4r_${pg_version} tdigest_${pg_version} pgmp_${pg_version} extra_window_functions_${pg_version} topn_${pg_version}
+      #- pg_background_${pg_version} e-maj_${pg_version} pg_prioritize_${pg_version} pgcryptokey_${pg_version} logerrors_${pg_version} pg_top_${pg_version} pg_comparator_${pg_version} pg_ivm_${pg_version}* pgsodium_${pg_version}* pgfincore_${pg_version}* ddlx_${pg_version} credcheck_${pg_version} safeupdate_${pg_version} pg_squeeze_${pg_version}* pg_fkpart_${pg_version} pg_jobmon_${pg_version}
+      #- pg_partman_${pg_version} pg_permissions_${pg_version} pgexportdoc_${pg_version} pgimportdoc_${pg_version} pg_statement_rollback_${pg_version}* pg_hint_plan_${pg_version}* pg_auth_mon_${pg_version} pg_checksums_${pg_version} pg_failover_slots_${pg_version} pg_readonly_${pg_version}* pg_uuidv7_${pg_version}* set_user_${pg_version}* rum_${pg_version}
 ...
