@@ -3879,11 +3879,11 @@ pg_version: 15                    # 要安装的 postgres 主版本，默认为 
 pg_bin_dir: /usr/pgsql/bin        # postgres 二进制目录，默认为 `/usr/pgsql/bin`
 pg_log_dir: /pg/log/postgres      # postgres 日志目录，默认为 `/pg/log/postgres`
 pg_packages:                      # 要安装的 pg 包，`${pg_version}` 将被替换
-  - postgresql${pg_version}*
-  - pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest
+  - postgresql-*-${pg_version}
+  - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
+  - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
 pg_extensions:                    # 要安装的 pg 扩展，`${pg_version}` 将被替换
-  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
-  - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
+  - postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector postgresql-${pg_version}-citus-12.1
 ```
 
 
@@ -4008,15 +4008,17 @@ PostgreSQL 日志目录，默认为：`/pg/log/postgres`，[Promtail](#promtail)
 ```yaml
 pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
   - postgresql${pg_version}*
-  - pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest
+  - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager patroni-etcd             # pgdg common tools
+  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # important extensions
 ```
 
 对于 Ubuntu/Debian 来说，合适的取值需要显式地在配置文件中指定：
 
 ```yaml
-pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced (ubuntu version)
+pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
   - postgresql-*-${pg_version}
-  - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager2
+  - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
+  - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
 ```
 
 
@@ -4033,8 +4035,7 @@ pg_packages:                      # pg packages to be installed, `${pg_version}`
 Pigsty 默认会为所有数据库实例安装以下扩展：`postgis`、`timescaledb`、`pgvector`、`pg_repack`、`wal2json` 和 `passwordcheck_cracklib`。
 
 ```yaml
-pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+pg_extensions: # citus & hydra are exclusive
   - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
 ```
 
@@ -4042,9 +4043,7 @@ pg_extensions:                    # pg extensions to be installed, `${pg_version
 
 ```yaml
 pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-  - postgresql-${pg_version}-wal2json postgresql-${pg_version}-repack
-  - timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector
-  - postgresql-${pg_version}-postgis-3 # postgis-3 broken in ubuntu20
+  - postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector postgresql-${pg_version}-citus-12.1
 ```
 
 请注意，并不是所有扩展都在所有大版本可用，但 Pigsty 确保重要的扩展 `wal2json`，`pg_repack` 和 `passwordcheck_cracklib`（仅限EL） 在所有PG大版本上都可用。

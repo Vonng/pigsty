@@ -201,11 +201,9 @@ Extensions maintained by PGDG and included in the Pigsty offline pacakge:
 When you init a PostgreSQL cluster, the extensions listed in [`pg_extensions`](PARAM#pg_extension) will be installed. The default value for this parameter is:
 
 ```yaml
-pg_extensions:  # pg extensions to be installed, `${pg_version}` will be replaced
-  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
-  - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
+- pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # important extensions is always installed on pg_packages
+- postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}* hydra_${pg_version}*   # default extensions to be installed
 ```
-
 
 Here, `${pg_version}` is a placeholder that will be replaced with the actual major version number [`pg_version`](PARAM#pg_version) of that PostgreSQL cluster
 Therefore, the default configuration will install these extensions:
@@ -238,8 +236,7 @@ pg-v15:
           - { name: age }
     pg_libs: 'timescaledb, pg_cron, pg_stat_statements, auto_explain' # <- some extension require a share library to work
     pg_extensions:
-      - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
-      - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
+      - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}* hydra_${pg_version}*   # default extensions to be installed
       - pg_cron_${pg_version}*        # <---- new extension: pg_cron
       - apache-age_${pg_version}*     # <---- new extension: apache-age
       - zhparser_${pg_version}*       # <---- new extension: zhparser

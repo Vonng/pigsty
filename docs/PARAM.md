@@ -3857,9 +3857,9 @@ pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, `/usr/pgsql/bin` by def
 pg_log_dir: /pg/log/postgres      # postgres log dir, `/pg/log/postgres` by default
 pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
   - postgresql${pg_version}*
-  - pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest
-pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+  - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager patroni-etcd             # pgdg common tools
+  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # important extensions
+pg_extensions: # citus & hydra are exclusive
   - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
 ```
 
@@ -3976,15 +3976,17 @@ PostgreSQL, pgbouncer, pg_exporter, pgbadger, vip-manager, patroni, pgbackrest a
 ```yaml
 pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
   - postgresql${pg_version}*
-  - pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest
+  - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager patroni-etcd             # pgdg common tools
+  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # important extensions
 ```
 
 For Ubuntu/Debian, the proper value has to be replaced explicitly:
 
 ```yaml
-pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced (ubuntu version)
+pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
   - postgresql-*-${pg_version}
-  - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager2
+  - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
+  - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
 ```
 
 
@@ -3999,8 +4001,7 @@ pg extensions to be installed, `${pg_version}` will be replaced with actual [`pg
 Pigsty will install the following extensions for all database instances by default: `postgis`, `timescaledb`, `pgvector`, `pg_repack`, `wal2json` and `passwordcheck_cracklib`.
 
 ```yaml
-pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+pg_extensions: # citus & hydra are exclusive
   - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
 ```
 
@@ -4008,9 +4009,7 @@ For Ubuntu/Debian, the proper value has to be replaced explicitly:
 
 ```yaml
 pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-  - postgresql-${pg_version}-wal2json postgresql-${pg_version}-repack
-  - timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector
-  - postgresql-${pg_version}-postgis-3 # postgis-3 broken in ubuntu20
+  - postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector 
 ```
 
 Beware that not all extensions are available with other PG major versions, but Pigsty guarantees that important extensions `wal2json`, `pg_repack` and `passwordcheck_cracklib` (EL only) are available on all PG major versions.
