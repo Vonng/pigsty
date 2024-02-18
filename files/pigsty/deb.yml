@@ -31,8 +31,8 @@ all:
     repo_modules: infra,node,pgsql,redis
     repo_upstream:                    # where to download #
       - { name: pigsty-local  ,description: 'Pigsty Local'     ,module: local ,releases: [11,12,20,22] ,baseurl: { default: 'http://${admin_ip}/pigsty ./' }}
-      - { name: pigsty-pgsql  ,description: 'Pigsty PgSQL'     ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/deb/pgsql/${distro_codename}.amd64/ ./', china: 'https://repo.pigsty.cc/beta/deb/pgsql/${distro_codename}.amd64/ ./' }}
-      - { name: pigsty-infra  ,description: 'Pigsty Infra'     ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/deb/infra/amd64/ ./', china: 'https://repo.pigsty.cc/beta/deb/infra/amd64/ ./' }}
+      - { name: pigsty-pgsql  ,description: 'Pigsty PgSQL'     ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/deb/pgsql/${distro_codename}.amd64/ ./', china: 'https://repo.pigsty.cc/deb/pgsql/${distro_codename}.amd64/ ./' }}
+      - { name: pigsty-infra  ,description: 'Pigsty Infra'     ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/deb/infra/amd64/ ./', china: 'https://repo.pigsty.cc/deb/infra/amd64/ ./' }}
       - { name: nginx         ,description: 'Nginx'            ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'http://nginx.org/packages/mainline/${distro_name} ${distro_codename} nginx' }}
       - { name: base          ,description: 'Debian Basic'     ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename} main non-free-firmware'         ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename} main restricted universe multiverse' }}
       - { name: updates       ,description: 'Debian Updates'   ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename}-updates main non-free-firmware' ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-updates main restricted universe multiverse' }}
@@ -46,16 +46,16 @@ all:
       - { name: timescaledb   ,description: 'Timescaledb'      ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
       - { name: redis         ,description: 'Redis'            ,module: redis ,releases: [11,12,20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
       - { name: docker-ce     ,description: 'Docker'           ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
-      #- { name: grafana       ,description: 'Grafana'          ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
-      #- { name: haproxy       ,description: 'HAProxy Debian'   ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://haproxy.debian.net ${distro_codename}-backports-2.9 main'    }}
-      #- { name: haproxy       ,description: 'HAProxy Ubuntu'   ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.9/ubuntu/ ${distro_codename} main'  }}
-      #- { name: pgml          ,description: 'PostgresML'       ,module: pgsql ,releases: [         22] ,baseurl: { default: 'deb [trusted=yes] https://apt.postgresml.org ${distro_codename} main'  }}
+      #- { name: grafana      ,description: 'Grafana'          ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
+      #- { name: haproxy      ,description: 'HAProxy Debian'   ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://haproxy.debian.net ${distro_codename}-backports-2.9 main'    }}
+      #- { name: haproxy      ,description: 'HAProxy Ubuntu'   ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.9/ubuntu/ ${distro_codename} main'  }}
+      #- { name: pgml         ,description: 'PostgresML'       ,module: pgsql ,releases: [         22] ,baseurl: { default: 'https://apt.postgresml.org ${distro_codename} main'  }}
     repo_url_packages:
       - https://repo.pigsty.cc/etc/pev.html
       - https://repo.pigsty.cc/etc/chart.tgz
       - https://repo.pigsty.cc/etc/plugins.tgz
     infra_packages:                   # packages to be installed on infra nodes
-      - nginx,dnsmasq,ansible,etcd,python3-requests,postgresql-client-16,redis,mcli
+      - nginx,dnsmasq,ansible,etcd,python3-requests,redis,mcli
       - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway,blackbox-exporter,node-exporter,blackbox-exporter,nginx-exporter,redis-exporter,pg-exporter
     node_default_packages:            # default node packages to be installed on ubuntu22 node: (ubuntu: linux-tools-generic,netcat,ftp ; debian: linux-perf,netcat-openbsd,tnftp)
       - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
@@ -68,6 +68,7 @@ all:
       - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
     pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
       - postgresql-${pg_version}-postgis* postgresql-${pg_version}-citus-12.1 postgresql-${pg_version}-pgvector timescaledb-2-postgresql-${pg_version}
+
 
   children:
     infra:
@@ -104,7 +105,12 @@ all:
           - netcat-openbsd socat tnftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl # Node Tools 2
           - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Common Tools
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
-          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16
+          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
+          - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery
+          - postgresql-16-londiste-sql postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
+          - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
+          - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
+          #- postgresql-16-pljava postgresql-16-plr postgresql-16-rdkit postgresql-16-pgrouting-doc postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-pgdg-pgroonga postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
         node_default_packages:            # default node packages to be installed on debian11 node: (linux-perf,netcat-openbsd,tnftp)
           - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
           - netcat-openbsd,tnftp,socat,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
@@ -127,7 +133,12 @@ all:
           - netcat-openbsd socat tnftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl # Node Tools 2
           - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Common Tools
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
-          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16
+          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
+          - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery
+          - postgresql-16-londiste-sql postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
+          - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
+          - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
+          #- postgresql-16-pljava postgresql-16-plr postgresql-16-rdkit postgresql-16-pgrouting-doc postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-pgdg-pgroonga postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
         node_default_packages:            # default node packages to be installed on debian12 node: (linux-perf,netcat-openbsd,tnftp)
           - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
           - netcat-openbsd,tnftp,socat,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
@@ -150,7 +161,18 @@ all:
           - netcat socat ftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl chrony    # Node Tools 2
           - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Common Tools
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
-          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16
+          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
+          - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery
+          - postgresql-16-londiste-sql postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
+          - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
+          - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
+          #- postgresql-16-pljava postgresql-16-plr postgresql-16-rdkit postgresql-16-pgrouting-doc postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-pgdg-pgroonga postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
+        pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
+          - postgresql-16 postgresql-client-${pg_version} postgresql-pl*-${pg_version} #postgresql-server-dev-${pg_version}
+          - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
+          - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16 # postgresql-16-postgis* not available on ubuntu 20.04
 
 
     #----------------------------------#
@@ -170,10 +192,11 @@ all:
           - netcat socat ftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl chrony    # Node Tools 2
           - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Packages
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
-          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16
+          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
+          - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery
+          - postgresql-16-londiste-sql postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
+          - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
+          - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
           - pg-graphql pg-net pg-analytics pg-bm25 pg-sparse
-        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-          - postgresql-${pg_version}-postgis* postgresql-${pg_version}-citus-12.1 postgresql-${pg_version}-pgvector timescaledb-2-postgresql-${pg_version}
-          - pg-graphql pg-net pg-analytics pg-bm25 pg-sparse # Ubuntu 22.04 jammy ad hoc packages
-
+          #- postgresql-16-pljava postgresql-16-plr postgresql-16-rdkit postgresql-16-pgrouting-doc postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-pgdg-pgroonga postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
 ...

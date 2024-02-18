@@ -29,8 +29,8 @@ all:
     repo_modules: infra,node,pgsql
     repo_upstream:
       - { name: pigsty-local   ,description: 'Pigsty Local'      ,module: local ,releases: [7,8,9] ,baseurl: { default: 'http://${admin_ip}/pigsty'  }} # used by intranet nodes
-      - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/infra/$basearch' ,china: 'https://repo.pigsty.cc/beta/rpm/infra/$basearch' }}
-      - { name: pigsty-pgsql   ,description: 'Pigsty PGSQL'      ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/pgsql/el$releasever.$basearch' ,china: 'https://repo.pigsty.cc/beta/rpm/pgsql/el$releasever.$basearch' }}
+      - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/infra/$basearch' ,china: 'https://repo.pigsty.cc/rpm/infra/$basearch' }}
+      - { name: pigsty-pgsql   ,description: 'Pigsty PGSQL'      ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/pgsql/el$releasever.$basearch' ,china: 'https://repo.pigsty.cc/rpm/pgsql/el$releasever.$basearch' }}
       - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' }}
       - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'        ,china: 'https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable'  ,europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' }}
       - { name: base           ,description: 'EL 7 Base'         ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/os/$basearch/'                    ,china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/'           ,europe: 'https://mirrors.xtom.de/centos/$releasever/os/$basearch/'           }}
@@ -58,7 +58,7 @@ all:
       - https://repo.pigsty.cc/etc/chart.tgz
       - https://repo.pigsty.cc/etc/plugins.tgz
     infra_packages:                   # packages to be installed on infra nodes
-      - nginx,dnsmasq,ansible,etcd,python3-requests,postgresql16,redis,mcli
+      - nginx,dnsmasq,ansible,etcd,python3-requests,redis,mcli
       - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway,node_exporter,blackbox_exporter,nginx_exporter,pg_exporter
     node_default_packages:            # default packages to be installed on all nodes
       - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,chrony,python3
@@ -109,8 +109,7 @@ all:
           - redis_exporter mysqld_exporter mongodb_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos  # Miscellaneous Packages
         pg_extensions: # choose one from citus or hydra
           - postgis33_15* timescaledb-2-postgresql-15* pgvector_15* pglogical_15* pg_cron_15* citus_15* #hydra_15*
-          - apache-age_15* imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql-http_15* pgsql-gzip_15*
-          - pg_sparse_15*  vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15*
+          - apache-age_15* imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql-http_15* pgsql-gzip_15* pg_sparse_15* vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15*
 
 
     #----------------------------------#
@@ -138,8 +137,7 @@ all:
           #- mysqlcompat_16 system_stats_16 multicorn2_16* plproxy_16 geoip_16 pgcopydb_16 pg_catcheck_16 pg_store_plans_16* postgresql-unit_16 # not available for PG 16 yet
         pg_extensions: # citus & hydra are exclusive
           - postgis34_16* timescaledb-2-postgresql-16* pgvector_16* pglogical_16* pg_cron_16* citus_16* #hydra_16*
-          - apache-age_16* duckdb_fdw_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* pgsql-gzip_16*
-          - pgml_16* pg_bm25_16* pg_analytics_16* pg_sparse_16* pg_graphql_16 pg_net_16* pgsql-http_16* vault_16 pgjwt_16 pg_tle_16*
+          - apache-age_16* duckdb_fdw_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* pgsql-gzip_16* pgml_16* pg_bm25_16* pg_analytics_16* pg_sparse_16* pg_graphql_16 pg_net_16* pgsql-http_16* vault_16 pgjwt_16 pg_tle_16*
 
 
     #----------------------------------#
@@ -167,8 +165,6 @@ all:
           #- mysqlcompat_16 system_stats_16 multicorn2_16* plproxy_16 geoip_16 pgcopydb_16 pg_catcheck_16 pg_store_plans_16* postgresql-unit_16 # not available for PG 16 yet
         pg_extensions: # citus & hydra are exclusive
           - postgis34_16* timescaledb-2-postgresql-16* pgvector_16* pglogical_16* pg_cron_16* citus_16* #hydra_16*
-          - apache-age_16* duckdb_fdw_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* pgsql-gzip_16*
-          - pgml_16* pg_bm25_16* pg_analytics_16* pg_sparse_16* pg_graphql_16 pg_net_16* pgsql-http_16* vault_16 pgjwt_16 pg_tle_16*
-
+          - apache-age_16* duckdb_fdw_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* pgsql-gzip_16* pgml_16* pg_bm25_16* pg_analytics_16* pg_sparse_16* pg_graphql_16 pg_net_16* pgsql-http_16* vault_16 pgjwt_16 pg_tle_16*
 
 ...
