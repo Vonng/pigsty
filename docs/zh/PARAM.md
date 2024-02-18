@@ -201,7 +201,7 @@
 | 842 | [`pg_dbsu_sudo`](#pg_dbsu_sudo)                                 | [`PGSQL`](#pgsql) |    [`PG_INSTALL`](#pg_install)    | enum        | C     | dbsu sudo 权限, none,limit,all,nopass，默认为 limit，有限sudo权限                          |
 | 843 | [`pg_dbsu_home`](#pg_dbsu_home)                                 | [`PGSQL`](#pgsql) |    [`PG_INSTALL`](#pg_install)    | path        | C     | postgresql 主目录，默认为 `/var/lib/pgsql`                                             |
 | 844 | [`pg_dbsu_ssh_exchange`](#pg_dbsu_ssh_exchange)                 | [`PGSQL`](#pgsql) |    [`PG_INSTALL`](#pg_install)    | bool        | C     | 在 pgsql 集群之间交换 postgres dbsu ssh 密钥                                             |
-| 845 | [`pg_version`](#pg_version)                                     | [`PGSQL`](#pgsql) |    [`PG_INSTALL`](#pg_install)    | enum        | C     | 要安装的 postgres 主版本，默认为 16                                                         |
+| 845 | [`pg_version`](#pg_version)                                     | [`PGSQL`](#pgsql) |    [`PG_INSTALL`](#pg_install)    | enum        | C     | 要安装的 postgres 主版本，默认为 16                                                        |
 | 846 | [`pg_bin_dir`](#pg_bin_dir)                                     | [`PGSQL`](#pgsql) |    [`PG_INSTALL`](#pg_install)    | path        | C     | postgres 二进制目录，默认为 `/usr/pgsql/bin`                                             |
 | 847 | [`pg_log_dir`](#pg_log_dir)                                     | [`PGSQL`](#pgsql) |    [`PG_INSTALL`](#pg_install)    | path        | C     | postgres 日志目录，默认为 `/pg/log/postgres`                                            |
 | 848 | [`pg_packages`](#pg_packages)                                   | [`PGSQL`](#pgsql) |    [`PG_INSTALL`](#pg_install)    | string[]    | C     | 要安装的 pg 包，`${pg_version}` 将被替换为实际主版本号                                           |
@@ -1732,14 +1732,14 @@ node_default_packages:            # default packages to be installed on all node
   - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3-pip
 ```
 
-对于 Ubuntu 22.04 / 20.04 ，默认值应当被替换为：
+对于 Ubuntu 22.04 / 20.04 ，默认值应当被显式替换为：
 
 ```yaml
-- lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-tools-generic,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
-- netcat,socat,ftp,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
+- lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
+- netcat,ftp,socat,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
 ```
 
-对于 Debian 12 / 11 ，默认值应当被替换为：
+对于 Debian 12 / 11 ，默认值应当被显式替换为：
 
 ```yaml
 - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,linux-perf,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
