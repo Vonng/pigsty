@@ -886,8 +886,6 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 
 要安装 PostgreSQL 12 - 15，你必须在配置清单中设置 `pg_version` 为 `12`、`13`、`14` 或 `15`，通常在集群级别配置这个参数。
 
-请注意，如果您想要安装 PostgreSQL 12, 13, 16beta，你还需要更改 `pg_libs` 和 `pg_extensions`，这些版本并没有提供完整的核心扩展插件：即只有数据库内核可用。
-
 ```yaml
 pg_version: 16                    # 在此模板中安装 pg 16
 pg_libs: 'pg_stat_statements, auto_explain' # 从 pg 16 beta 中移除 timescaledb，因为它不可用

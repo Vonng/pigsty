@@ -894,8 +894,6 @@ There are several possible reasons:
 
 To install PostgreSQL 12 - 15, you have to set `pg_version` to `12`, `13`, `14`, or `15` in the inventory. (usually at cluster level)
 
-To install PostgreSQL 16, you have to change `pg_libs` and `pg_extensions` too, since most extensions are not available for pg16 yet.
-
 ```yaml
 pg_version: 16                    # install pg 16 in this template
 pg_libs: 'pg_stat_statements, auto_explain' # remove timescaledb from pg 16 beta

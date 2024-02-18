@@ -67,7 +67,7 @@ For examples:
 * Override an instance role with Instance Level Parameter `pg_role` on Host Vars
 * Override a cluster name with Cluster Level Parameter `pg_cluster` on Group Vars.
 * Specify global NTP servers with Global Parameter `node_ntp_servers` on Global Vars
-* If no `pg_version` is set, it will use the default value from role implementation
+* If no `pg_version` is set, it will use the default value from role implementation (16 by default)
 
 
 ----------------
