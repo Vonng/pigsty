@@ -3,16 +3,13 @@
 # File      :   prod.yml
 # Desc      :   Pigsty config for a prod simulation env on a BM
 # Ctime     :   2023-07-20
-# Mtime     :   2023-12-01
+# Mtime     :   2024-02-19
 # Docs      :   https://doc.pigsty.cc/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 
-#==============================================================#
-# 10.10.10.1  <------- pg-dell-1  the bare metal 72C 256G 4T SSD
-# Vagrantfile: vagrant/spec/dell.rb
-#==============================================================#
+
 all:
 
   children:
@@ -131,73 +128,74 @@ all:
         pg_hba_rules:
           - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
         pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-          - pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pg_cron_15* # citus_15*
-          - postgis34_15* timescaledb-2-postgresql-15* pgvector_15* hydra_15* pgml_15* apache-age_15
-          - pointcloud_15* pg_tle_15* pgsql-http_15* zhparser_15* pg_roaringbitmap_15* pg_net_15* vault_15 pg_graphql_15*
+          - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}* pglogical_${pg_version}* pg_cron_${pg_version}* hydra_${pg_version}* # citus_${pg_version}*
+          - apache-age_${pg_version}* duckdb_fdw_${pg_version}* pg_roaringbitmap_${pg_version}* pointcloud_${pg_version}* zhparser_${pg_version}* pgsql-gzip_${pg_version}*
+          - pgml_${pg_version}* pg_bm25_${pg_version}* pg_analytics_${pg_version}* pg_sparse_${pg_version}* pg_graphql_${pg_version} pg_net_${pg_version}* pgsql-http_${pg_version}* vault_${pg_version} pgjwt_${pg_version} pg_tle_${pg_version}*
+          #- orafce_${pg_version}* mongo_fdw_${pg_version}* tds_fdw_${pg_version}* mysql_fdw_${pg_version} hdfs_fdw_${pg_version} sqlite_fdw_${pg_version} pgbouncer_fdw_${pg_version} powa_${pg_version}* pg_stat_kcache_${pg_version}* pg_stat_monitor_${pg_version}* pg_qualstats_${pg_version} pg_track_settings_${pg_version} pg_wait_sampling_${pg_version} hll_${pg_version} pgaudit_${pg_version}
+          #- plprofiler_${pg_version}* plsh_${pg_version}* pldebugger_${pg_version} plpgsql_check_${pg_version}* pgtt_${pg_version} pgq_${pg_version}* pgsql_tweaks_${pg_version} count_distinct_${pg_version} hypopg_${pg_version} timestamp9_${pg_version}* semver_${pg_version}* prefix_${pg_version}* periods_${pg_version} ip4r_${pg_version} tdigest_${pg_version} pgmp_${pg_version} extra_window_functions_${pg_version} topn_${pg_version}
+          #- pg_background_${pg_version} e-maj_${pg_version} pg_prioritize_${pg_version} pgcryptokey_${pg_version} logerrors_${pg_version} pg_top_${pg_version} pg_comparator_${pg_version} pg_ivm_${pg_version}* pgsodium_${pg_version}* pgfincore_${pg_version}* ddlx_${pg_version} credcheck_${pg_version} safeupdate_${pg_version} pg_squeeze_${pg_version}* pg_fkpart_${pg_version} pg_jobmon_${pg_version}
+          #- pg_partman_${pg_version} pg_permissions_${pg_version} pgexportdoc_${pg_version} pgimportdoc_${pg_version} pg_statement_rollback_${pg_version}* pg_hint_plan_${pg_version}* pg_auth_mon_${pg_version} pg_checksums_${pg_version} pg_failover_slots_${pg_version} pg_readonly_${pg_version}* pg_uuidv7_${pg_version}* set_user_${pg_version}* rum_${pg_version}
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
         node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
           - '00 01 * * 1 postgres /pg/bin/pg-backup full'
           - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
 
     #==========================================================#
-    # pg-v12 - v16
+    # pg-v12 - v16 (no longer supported in OSS ver since 2.6)
     #==========================================================#
     # ./pgsql.yml -l pg-v*
-    #pg-v12:
-    #  hosts: { 10.10.10.12: { pg_seq: 1 ,pg_role: primary } }
-    #  vars:
-    #    pg_cluster: pg-v12
-    #    pg_version: 12
-    #    pg_packages: [ 'postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest' ]
-    #    pg_extensions: []
-    #    pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
-    #    pg_databases: [ { name: v12 } ]
-    #    pg_service_provider: proxy       # use load balancer on group `proxy` with port 10012
-    #    pg_default_services:  [{ name: primary ,port: 10012 ,dest: postgres  ,check: /primary   ,selector: "[]" }]
-    #
-    #pg-v13:
-    #  hosts: { 10.10.10.13: { pg_seq: 1 ,pg_role: primary } }
-    #  vars:
-    #    pg_cluster: pg-v13
-    #    pg_version: 13
-    #    pg_packages: [ 'postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest' ]
-    #    pg_extensions: []
-    #    pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
-    #    pg_databases: [ { name: v13 } ]
-    #    pg_service_provider: proxy       # use load balancer on group `proxy` with port 10013
-    #    pg_default_services:  [{ name: primary ,port: 10013 ,dest: postgres  ,check: /primary   ,selector: "[]" }]
-    #
-    #pg-v14:
-    #  hosts: { 10.10.10.14: { pg_seq: 1 ,pg_role: primary } }
-    #  vars:
-    #    pg_cluster: pg-v14
-    #    pg_version: 14
-    #    pg_packages: [ 'postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* pgbouncer pg_exporter pgbadger vip-manager patroni patroni-etcd pgbackrest' ]
-    #    pg_extensions: []
-    #    pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
-    #    pg_databases: [ { name: v14 } ]
-    #    pg_service_provider: proxy       # use load balancer on group `proxy` with port 10014
-    #    pg_default_services:  [{ name: primary ,port: 10014 ,dest: postgres  ,check: /primary   ,selector: "[]" }]
-    #
-    #pg-v15:
-    #  hosts: { 10.10.10.15: { pg_seq: 1 ,pg_role: primary } }
-    #  vars:
-    #    pg_cluster: pg-v15
-    #    pg_version: 15
-    #    pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
-    #    pg_databases: [ { name: v15 } ]
-    #    pg_service_provider: proxy       # use load balancer on group `proxy` with port 10013
-    #    pg_default_services:  [{ name: primary ,port: 10015 ,dest: postgres  ,check: /primary   ,selector: "[]" }]
-    #
-    #pg-v16: # PostgreSQL 16 is not available on el7
-    #  hosts: { 10.10.10.16: { pg_seq: 1 ,pg_role: primary } }
-    #  vars:
-    #    pg_cluster: pg-v16
-    #    pg_version: 16
-    #    pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
-    #    pg_databases: [ { name: v16 } ]
-    #    pg_service_provider: proxy       # use load balancer on group `proxy` with port 10013
-    #    pg_default_services:  [{ name: primary ,port: 10016 ,dest: postgres  ,check: /primary   ,selector: "[]" }]
+    pg-v12:
+      hosts: { 10.10.10.12: { pg_seq: 1 ,pg_role: primary } }
+      vars:
+        pg_cluster: pg-v12
+        #pg_version: 12
+        pg_extensions: []
+        pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: v12 } ]
+        pg_service_provider: proxy       # use load balancer on group `proxy` with port 10012
+        pg_default_services:  [{ name: primary ,port: 10012 ,dest: postgres  ,check: /primary   ,selector: "[]" }]
+
+    pg-v13:
+      hosts: { 10.10.10.13: { pg_seq: 1 ,pg_role: primary } }
+      vars:
+        pg_cluster: pg-v13
+        #pg_version: 13
+        pg_extensions: []
+        pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: v13 } ]
+        pg_service_provider: proxy       # use load balancer on group `proxy` with port 10013
+        pg_default_services:  [{ name: primary ,port: 10013 ,dest: postgres  ,check: /primary   ,selector: "[]" }]
+
+    pg-v14:
+      hosts: { 10.10.10.14: { pg_seq: 1 ,pg_role: primary } }
+      vars:
+        pg_cluster: pg-v14
+        #pg_version: 14
+        pg_extensions: []
+        pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: v14 } ]
+        pg_service_provider: proxy       # use load balancer on group `proxy` with port 10014
+        pg_default_services:  [{ name: primary ,port: 10014 ,dest: postgres  ,check: /primary   ,selector: "[]" }]
+
+    pg-v15:
+      hosts: { 10.10.10.15: { pg_seq: 1 ,pg_role: primary } }
+      vars:
+        pg_cluster: pg-v15
+        #pg_version: 15
+        pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: v15 } ]
+        pg_service_provider: proxy       # use load balancer on group `proxy` with port 10013
+        pg_default_services:  [{ name: primary ,port: 10015 ,dest: postgres  ,check: /primary   ,selector: "[]" }]
+
+    pg-v16: # beware that PostgreSQL 16 is not available on el7
+      hosts: { 10.10.10.16: { pg_seq: 1 ,pg_role: primary } }
+      vars:
+        pg_cluster: pg-v16
+        #pg_version: 16
+        pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: v16 } ]
+        pg_service_provider: proxy       # use load balancer on group `proxy` with port 10013
+        pg_default_services:  [{ name: primary ,port: 10016 ,dest: postgres  ,check: /primary   ,selector: "[]" }]
 
 
     #==========================================================#
@@ -286,7 +284,7 @@ all:
 
 
     #==========================================================#
-    # pg-src: dedicate 3 node testing cluster, version 14
+    # pg-src: dedicate 3 node testing cluster
     #==========================================================#
     # ./pgsql.yml -l pg-src
     pg-src:
@@ -296,7 +294,7 @@ all:
         10.10.10.47: { pg_seq: 3 ,pg_role: replica }
       vars:
         pg_cluster: pg-src
-        pg_version: 14
+        #pg_version: 14
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.4/24
         pg_vip_interface: eth1
@@ -339,9 +337,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.60/24
         pg_vip_interface: eth1
-        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
-          - citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
+        pg_extensions: [ 'citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -364,9 +360,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.61/24
         pg_vip_interface: eth1
-        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
-          - citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
+        pg_extensions: [ 'citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -389,9 +383,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.62/24
         pg_vip_interface: eth1
-        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
-          - citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
+        pg_extensions: [ 'citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -414,9 +406,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.63/24
         pg_vip_interface: eth1
-        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
-          - citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
+        pg_extensions: [ 'citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -439,9 +429,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.64/24
         pg_vip_interface: eth1
-        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
-          - citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
+        pg_extensions: [ 'citus_${pg_version}* postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -541,7 +529,7 @@ all:
       hosts: { 10.10.10.88: { nodename: test } }
       vars:
         node_cluster: test
-        node_packages: [ 'etcd,logcli,mcli,redis,postgresql15' ]
+        node_packages: [ 'etcd,logcli,mcli,redis' ]
 
 
   #============================================================#
@@ -590,9 +578,7 @@ all:
       - "https://hub-mirror.c.163.com"
       - "https://mirror.baidubce.com"
     node_admin_ssh_exchange: false    # exchange admin ssh key among node cluster
-    pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-      - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
-    # - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
+
 
     #==========================================================#
     # PGSQL
