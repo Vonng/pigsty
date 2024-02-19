@@ -35,7 +35,8 @@ These templates will demonstrate how to configure a cluster with different size 
 * [build.yml](build.yml) : building config for el7, el8, el9 nodes
 * [build.yml](build.yml) : building config for ubuntu20/22 and debian 11/12
 * [check.yml](check.yml) : Validate pigsty on different EL distributions
-* [prod.yml](prod.yml) : Production emulation config with 42 nodes and 71C
+* [prod.yml](prod.yml) : Production emulation config with 42 nodes and 71C (EL8/9)
+* [prod-deb.yml](prod-deb.yml) : Production emulation config with 42 nodes and 71C (Ubuntu 22/Debian 12)
 * [test.yml](test.yml) : config for 3 different EL distribution testing
 * [os.yml](os.yml) : Run pigsty on different OS distributions
 
