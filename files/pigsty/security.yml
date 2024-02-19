@@ -3,7 +3,7 @@
 # File      :   security.yml
 # Desc      :   Pigsty security enhance template
 # Ctime     :   2020-05-22
-# Mtime     :   2023-03-17
+# Mtime     :   2024-02-19
 # Docs      :   https://doc.pigsty.cc/#/CONFIG
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -76,7 +76,7 @@ all:
   #                          Parameters                              #
   ####################################################################
   vars:                               # global variables
-    version: v2.5.1                   # pigsty version string
+    version: v2.6.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     patroni_ssl_enabled: true         # secure patroni RestAPI communications with SSL?
@@ -84,6 +84,9 @@ all:
     pg_default_service_dest: postgres # default service destination to postgres instead of pgbouncer
     pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
 
+    #----------------------------------#
+    # Credentials
+    #----------------------------------#
     #grafana_admin_username: admin
     grafana_admin_password: You.Have2Use-A_VeryStrongPassword
     #pg_admin_username: dbuser_dba
@@ -97,9 +100,40 @@ all:
     #haproxy_admin_username: admin
     haproxy_admin_password: GneratePasswordWith-pwgen-s-16-1
 
-    # add passwordcheck extension to enforce strong password
-    pg_libs: 'timescaledb, $libdir/passwordcheck, pg_stat_statements, auto_explain'
+    #----------------------------------#
+    # MinIO Related Options
+    #----------------------------------#
+    minio_users:                      # and configure `pgbackrest_repo` & `minio_users` accordingly
+      - { access_key: dba , secret_key: S3User.DBA.Strong.Password, policy: consoleAdmin }
+      - { access_key: pgbackrest , secret_key: Min10.bAckup ,policy: readwrite }
+    pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+      local:                          # default pgbackrest repo with local posix fs
+        path: /pg/backup              # local backup directory, `/pg/backup` by default
+        retention_full_type: count    # retention full backups by count
+        retention_full: 2             # keep 2, at most 3 full backup when using local fs repo
+      minio:                          # optional minio repo for pgbackrest
+        s3_key: pgbackrest            # <-------- CHANGE THIS, SAME AS `minio_users` access_key
+        s3_key_secret: Min10.bAckup   # <-------- CHANGE THIS, SAME AS `minio_users` secret_key
+        cipher_pass: 'pgBR.${pg_cluster}'  # <-------- CHANGE THIS, you can use cluster name as part of password
+        type: s3                      # minio is s3-compatible, so s3 is used
+        s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default
+        s3_region: us-east-1          # minio region, us-east-1 by default, useless for minio
+        s3_bucket: pgsql              # minio bucket name, `pgsql` by default
+        s3_uri_style: path            # use path style uri for minio rather than host style
+        path: /pgbackrest             # minio backup path, default is `/pgbackrest`
+        storage_port: 9000            # minio port, 9000 by default
+        storage_ca_file: /etc/pki/ca.crt  # minio ca file path, `/etc/pki/ca.crt` by default
+        bundle: y                     # bundle small files into a single file
+        cipher_type: aes-256-cbc      # enable AES encryption for remote backup repo
+        retention_full_type: time     # retention full backup by time on minio repo
+        retention_full: 14            # keep full backup for last 14 days
 
+
+    #----------------------------------#
+    # Access Control
+    #----------------------------------#
+    # add passwordcheck extension to enforce strong password policy
+    pg_libs: '$libdir/passwordcheck, pg_stat_statements, auto_explain'
     pg_default_roles:                 # default roles and users in postgres cluster
       - { name: dbrole_readonly  ,login: false ,comment: role for global read-only access     }
       - { name: dbrole_offline   ,login: false ,comment: role for restricted read-only access }
