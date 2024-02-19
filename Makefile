@@ -471,9 +471,9 @@ check-boot:
 	ssh debian12 "cd pigsty; ./bootstrap -n ; ./configure -m el   -i 10.10.10.12 -n";
 	ssh ubuntu22 "cd pigsty; ./bootstrap -n ; ./configure -m el   -i 10.10.10.22 -n";
 
-meta:  del v1 new ssh copy-el9 use-pkg
+meta: del v1 new ssh copy-el8 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
-full: del v4 new ssh copy-el9 use-pkg
+full: del v4 new ssh copy-el8 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
 el7: del v7 new ssh copy-el7 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
@@ -481,7 +481,7 @@ el8: del v8 new ssh copy-el8 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
 el9: del v9 new ssh copy-el9 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
-minio: del vm new ssh copy-el9 use-pkg
+minio: del vm new ssh copy-el8 use-pkg
 	cp files/pigsty/citus.yml pigsty.yml
 os: del vo new ssh
 	cp files/pigsty/os.yml pigsty.yml
