@@ -70,7 +70,7 @@
 | 212 | [`node_dns_method`](#node_dns_method)                           | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | enum        | C     | how to handle dns servers: add,none,overwrite                                 |
 | 213 | [`node_dns_servers`](#node_dns_servers)                         | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | C     | dynamic nameserver in `/etc/resolv.conf`                                      |
 | 214 | [`node_dns_options`](#node_dns_options)                         | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | C     | dns resolv options in `/etc/resolv.conf`                                      |
-| 220 | [`node_repo_modules`](#node_repo_modules)                       | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string      | C     | how to setup node repo: none,local,public,both                                |
+| 220 | [`node_repo_modules`](#node_repo_modules)                       | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string      | C     | upstream repo to be added on node, local by default                           |
 | 221 | [`node_repo_remove`](#node_repo_remove)                         | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | bool        | C     | remove existing repo on node?                                                 |
 | 223 | [`node_packages`](#node_packages)                               | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string[]    | C     | packages to be installed current nodes                                        |
 | 224 | [`node_default_packages`](#node_default_packages)               | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string[]    | G     | default packages to be installed on all nodes                                 |
@@ -172,7 +172,7 @@
 | 730 | [`redis_aof_enabled`](#redis_aof_enabled)                       | [`REDIS`](#redis) | [`REDIS`](#redis)                 | bool        | C     | enable redis append only file?                                                |
 | 731 | [`redis_rename_commands`](#redis_rename_commands)               | [`REDIS`](#redis) | [`REDIS`](#redis)                 | dict        | C     | rename redis dangerous commands                                               |
 | 732 | [`redis_cluster_replicas`](#redis_cluster_replicas)             | [`REDIS`](#redis) | [`REDIS`](#redis)                 | int         | C     | replica number for one master in redis cluster                                |
-| 733 | [`redis_sentinel_monitor`](#redis_sentinel_monitor)             | [`REDIS`](#redis) | [`REDIS`](#redis)                 | master[]    |   C   | sentinel master list, works on sentinel cluster only                          |
+| 733 | [`redis_sentinel_monitor`](#redis_sentinel_monitor)             | [`REDIS`](#redis) | [`REDIS`](#redis)                 | master[]    | C     | sentinel master list, works on sentinel cluster only                          |
 | 801 | [`pg_mode`](#pg_mode)                                           | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | enum        | C     | pgsql cluster mode: pgsql,citus,gpsql                                         |
 | 802 | [`pg_cluster`](#pg_cluster)                                     | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | string      | C     | pgsql cluster name, REQUIRED identity parameter                               |
 | 803 | [`pg_seq`](#pg_seq)                                             | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | int         | I     | pgsql instance seq number, REQUIRED identity parameter                        |
@@ -530,7 +530,7 @@ repo_home: /www                   # repo home dir, `/www` by default
 repo_name: pigsty                 # repo name, pigsty by default
 repo_endpoint: http://${admin_ip}:80 # access point to this repo by domain or ip:port
 repo_remove: true                 # remove existing upstream repo
-repo_modules: infra,node,pgsql,redis,minio # which repo modules are installed in repo_upstream
+repo_modules: infra,node,pgsql    # install upstream repo during repo bootstrap
 repo_upstream:                    # where to download
   - { name: pigsty-local   ,description: 'Pigsty Local'      ,module: local ,releases: [7,8,9] ,baseurl: { default: 'http://${admin_ip}/pigsty'  }} # used by intranet nodes
   - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/infra/$basearch' ,china: 'https://repo.pigsty.cc/rpm/infra/$basearch' }}
@@ -642,11 +642,11 @@ If you want to keep existing upstream repo, set this value to `false`.
 
 name: `repo_modules`, type: `string`, level: `G/A`
 
-which repo modules are installed in repo_upstream, default value: `infra,node,pgsql,redis,minio`
+which repo modules are installed in repo_upstream, default value: `infra,node,pgsql`
 
 This is a comma separated value string, it is used to filter entries in [`repo_upstream`](#repo_upstream) with corresponding `module` field. 
 
-
+For Ubuntu / Debian users, you can add redis to the list: `infra,node,pgsql,redis`
 
 
 

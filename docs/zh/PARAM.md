@@ -70,7 +70,7 @@
 | 212 | [`node_dns_method`](#node_dns_method)                           |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | enum        | C     | 如何处理现有DNS服务器：add,none,overwrite                                                 |
 | 213 | [`node_dns_servers`](#node_dns_servers)                         |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | C     | /etc/resolv.conf 中的动态域名服务器列表                                                    |
 | 214 | [`node_dns_options`](#node_dns_options)                         |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | C     | /etc/resolv.conf 中的DNS解析选项                                                      |
-| 220 | [`node_repo_modules`](#node_repo_modules)                       |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | enum        | C     | 如何设置节点仓库：none,local,public,both                                                 |
+| 220 | [`node_repo_modules`](#node_repo_modules)                       |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | enum        | C     | 在节点上启用哪些软件源模块？默认为 local 使用本地源                                                   |
 | 221 | [`node_repo_remove`](#node_repo_remove)                         |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | bool        | C     | 配置节点软件仓库时，删除节点上现有的仓库吗？                                                          |
 | 223 | [`node_packages`](#node_packages)                               |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | string[]    | C     | 要在当前节点上安装的软件包列表                                                                 |
 | 224 | [`node_default_packages`](#node_default_packages)               |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | string[]    | G     | 默认在所有节点上安装的软件包列表                                                                |
@@ -527,7 +527,7 @@ repo_home: /www                   # repo home dir, `/www` by default
 repo_name: pigsty                 # repo name, pigsty by default
 repo_endpoint: http://${admin_ip}:80 # access point to this repo by domain or ip:port
 repo_remove: true                 # remove existing upstream repo
-repo_modules: infra,node,pgsql,redis,minio  # which repo modules are installed in repo_upstream
+repo_modules: infra,node,pgsql    # install upstream repo during repo bootstrap
 repo_upstream:                    # where to download
   - { name: pigsty-local   ,description: 'Pigsty Local'      ,module: local ,releases: [7,8,9] ,baseurl: { default: 'http://${admin_ip}/pigsty'  }} # used by intranet nodes
   - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/infra/$basearch' ,china: 'https://repo.pigsty.cc/rpm/infra/$basearch' }}
@@ -651,10 +651,11 @@ Pigsty 默认会在基础设施节点 80/443 端口启动 Nginx，对外提供�
 
 参数名称： `repo_modules`， 类型： `string`， 层次：`G/A`
 
-哪些上游仓库模块会被添加到本地软件源中，默认值： `infra,node,pgsql,redis,minio`
+哪些上游仓库模块会被添加到本地软件源中，默认值： `infra,node,pgsql`
 
 当 Pigsty 尝试添加上游仓库时，会根据此参数的值来过滤 [`repo_upstream`](#repo_upstream) 中的条目，只有 `module` 字段与此参数值匹配的条目才会被添加到本地软件源中。
 
+对于 Ubuntu/Debian 用户来说，如果希望使用 Rediscover 相关功能，此参数应当显式配置为 `infra,node,pgsql,redis` 以启用 Redis 上游源。
 
 
 
