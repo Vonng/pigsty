@@ -991,6 +991,159 @@ revoke anon, authenticated, service_role from supabase_storage_admin;
 
 
 
+----------------------------------------------------
+-- 20231017062225_grant_pg_graphql_permissions_for_custom_roles.sql
+----------------------------------------------------
+-- migrate:up
+
+create or replace function extensions.grant_pg_graphql_access()
+    returns event_trigger
+    language plpgsql
+AS $func$
+DECLARE
+    func_is_graphql_resolve bool;
+BEGIN
+    func_is_graphql_resolve = (
+        SELECT n.proname = 'resolve'
+        FROM pg_event_trigger_ddl_commands() AS ev
+                 LEFT JOIN pg_catalog.pg_proc AS n
+                           ON ev.objid = n.oid
+    );
+
+    IF func_is_graphql_resolve
+    THEN
+        -- Update public wrapper to pass all arguments through to the pg_graphql resolve func
+        DROP FUNCTION IF EXISTS graphql_public.graphql;
+        create or replace function graphql_public.graphql(
+            "operationName" text default null,
+            query text default null,
+            variables jsonb default null,
+            extensions jsonb default null
+        )
+            returns jsonb
+            language sql
+        as $$
+        select graphql.resolve(
+                       query := query,
+                       variables := coalesce(variables, '{}'),
+                       "operationName" := "operationName",
+                       extensions := extensions
+               );
+        $$;
+
+        -- This hook executes when `graphql.resolve` is created. That is not necessarily the last
+        -- function in the extension so we need to grant permissions on existing entities AND
+        -- update default permissions to any others that are created after `graphql.resolve`
+        grant usage on schema graphql to postgres, anon, authenticated, service_role;
+        grant select on all tables in schema graphql to postgres, anon, authenticated, service_role;
+        grant execute on all functions in schema graphql to postgres, anon, authenticated, service_role;
+        grant all on all sequences in schema graphql to postgres, anon, authenticated, service_role;
+        alter default privileges in schema graphql grant all on tables to postgres, anon, authenticated, service_role;
+        alter default privileges in schema graphql grant all on functions to postgres, anon, authenticated, service_role;
+        alter default privileges in schema graphql grant all on sequences to postgres, anon, authenticated, service_role;
+
+        -- Allow postgres role to allow granting usage on graphql and graphql_public schemas to custom roles
+        grant usage on schema graphql_public to postgres with grant option;
+        grant usage on schema graphql to postgres with grant option;
+    END IF;
+
+END;
+$func$;
+
+-- Cycle the extension off and back on to apply the permissions update.
+
+drop extension if exists pg_graphql;
+-- Avoids limitation of only being able to load the extension via dashboard
+-- Only install as well if the extension is actually installed
+DO $$
+    DECLARE
+        graphql_exists boolean;
+    BEGIN
+        graphql_exists = (
+            select count(*) = 1
+            from pg_available_extensions
+            where name = 'pg_graphql'
+        );
+
+        IF graphql_exists
+        THEN
+            create extension if not exists pg_graphql;
+        END IF;
+    END $$;
+
+-- migrate:down
+
+
+----------------------------------------------------
+-- 20231020085357_revoke_writes_on_cron_job_from_postgres.sql
+----------------------------------------------------
+-- migrate:up
+do $$
+    begin
+        if exists (select from pg_extension where extname = 'pg_cron') then
+            revoke all on table cron.job from postgres;
+            grant select on table cron.job to postgres with grant option;
+        end if;
+    end $$;
+
+CREATE OR REPLACE FUNCTION extensions.grant_pg_cron_access() RETURNS event_trigger
+    LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF EXISTS (
+        SELECT
+        FROM pg_event_trigger_ddl_commands() AS ev
+                 JOIN pg_extension AS ext
+                      ON ev.objid = ext.oid
+        WHERE ext.extname = 'pg_cron'
+    )
+    THEN
+        grant usage on schema cron to postgres with grant option;
+
+        alter default privileges in schema cron grant all on tables to postgres with grant option;
+        alter default privileges in schema cron grant all on functions to postgres with grant option;
+        alter default privileges in schema cron grant all on sequences to postgres with grant option;
+
+        alter default privileges for user supabase_admin in schema cron grant all
+            on sequences to postgres with grant option;
+        alter default privileges for user supabase_admin in schema cron grant all
+            on tables to postgres with grant option;
+        alter default privileges for user supabase_admin in schema cron grant all
+            on functions to postgres with grant option;
+
+        grant all privileges on all tables in schema cron to postgres with grant option;
+        revoke all on table cron.job from postgres;
+        grant select on table cron.job to postgres with grant option;
+    END IF;
+END;
+$$;
+
+drop event trigger if exists issue_pg_cron_access;
+CREATE EVENT TRIGGER issue_pg_cron_access ON ddl_command_end
+    WHEN TAG IN ('CREATE EXTENSION')
+EXECUTE FUNCTION extensions.grant_pg_cron_access();
+
+-- migrate:down
+
+----------------------------------------------------
+-- 20231130133139_set_lock_timeout_to_authenticator_role.sql
+----------------------------------------------------
+-- migrate:up
+ALTER ROLE authenticator set lock_timeout to '8s';
+
+-- migrate:down
+
+
+----------------------------------------------------
+-- 20240124080435_alter_lo_export_lo_import_owner.sql
+----------------------------------------------------
+-- migrate:up
+    alter function pg_catalog.lo_export owner to supabase_admin;
+alter function pg_catalog.lo_import(text) owner to supabase_admin;
+alter function pg_catalog.lo_import(text, oid) owner to supabase_admin;
+
+-- migrate:down
+
 
 
 ----------------------------------------------------
