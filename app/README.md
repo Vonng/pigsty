@@ -13,14 +13,14 @@ Here are some docker compose templates for popular applications that works well 
 * [Gitea](gitea/) : Self-Hosting Git Services
 * [Wiki](wiki/) : Local Wiki Service
 * [NocoDB](nocodb/) : Open source airtable alternative
-* edge: Graph database based on Postgres
+* [Metabase](metabase/) : Fast analytics with the friendly UX and integrated tooling
 * etc....
 
 
 **Docker**
 
-You can install docker with the `docker.yml` playbook. 
-If you wish to use a mirror, add them to `docker_registry_mirrors`. To use another registry:
+You can install docker with the [`docker.yml`](https://github.com/Vonng/pigsty/blob/master/docker.yml) playbook. 
+If you wish to use a mirror, add them to `docker_registry_mirrors`. To use another registry: 
 
 ```bash
 docker login quay.io
@@ -49,7 +49,7 @@ docker pull dpage/pgadmin4
 docker pull sosedoff/pgweb
 docker pull vonng/pg_exporter
 docker pull postgrest/postgrest
-docker pull bytebase/bytebase:2.10.0
+docker pull bytebase/bytebase:2.13.2
 docker pull alpine
 docker pull registry
 docker pull andrewjones/schemaspy-postgres
@@ -68,7 +68,7 @@ docker save dpage/pgadmin4                   | gzip -9 -c > /tmp/docker/pgadmin4
 docker save sosedoff/pgweb                   | gzip -9 -c > /tmp/docker/pgweb.tgz
 docker save vonng/pg_exporter                | gzip -9 -c > /tmp/docker/pg_exporter.tgz
 docker save postgrest/postgrest              | gzip -9 -c > /tmp/docker/postgrest.tgz
-docker save bytebase/bytebase:2.9.1          | gzip -9 -c > /tmp/docker/bytebase.tgz
+docker save bytebase/bytebase:2.13.2         | gzip -9 -c > /tmp/docker/bytebase.tgz
 docker save alpine                           | gzip -9 -c > /tmp/docker/alpine.tgz
 docker save registry                         | gzip -9 -c > /tmp/docker/registry.tgz
 docker save andrewjones/schemaspy-postgres   | gzip -9 -c > /tmp/docker/schemaspy.tgz
