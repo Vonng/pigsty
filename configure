@@ -3,7 +3,7 @@
 # File      :   configure
 # Desc      :   generate pigsty.yml config according to env
 # Ctime     :   2021-05-17
-# Mtime     :   2024-02-19
+# Mtime     :   2024-02-20
 # Path      :   configure
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -371,7 +371,7 @@ function check_mode(){
     # use el by default, and adhoc template for el7, will be obsolete soon (2024)
     if [[ ${OS_PACKAGE} == "rpm" ]]; then
         if [[ "${OS_VERSION}" == "7" ]]; then
-            MODE=el7
+            MODE=el7    # deprecated os support: el7
             return 0
         fi
         MODE=el
@@ -384,6 +384,10 @@ function check_mode(){
             MODE=debian
             return 0
         elif [[ "${OS_VENDOR}" == "ubuntu" ]]; then
+            if [[ "${OS_VERSION}" == "20" ]]; then
+                MODE=ubuntu20     # deprecated os support: ubuntu20
+                return 0
+            fi
             MODE=ubuntu
             return 0
         fi
