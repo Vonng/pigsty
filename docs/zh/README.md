@@ -620,24 +620,14 @@ minio:
 
 ## 兼容性
 
-我们建议使用 RockyLinux 8.8/9.2， Ubuntu 22.04 (jammy)， Debian 12 (bookworm) 作为安装 Pigsty 的操作系统。
+我们建议使用 **RockyLinux 8.9/9.3**， **Ubuntu 22.04** (jammy) 作为安装 Pigsty 的操作系统，我们针对这三个发行版预先准备了[离线软件包](INSTALL#离线软件包)。
+EL系操作系统是我们首要支持的操作系统，带有标准的功能集合。Debian系操作系统在扩展上与 EL系有所不同（缺少由Pigsty维护的扩展，但也有一些独有的扩展插件可用）
 
-任何与 EL 7,8,9 / Ubuntu 20.04,22.04 / Debian 11,12 兼容的操作系统发行版都应当可以正常工作。
+任何与 EL 7,8,9 / Ubuntu 20.04,22.04 / Debian 11,12 兼容的操作系统发行版（例如：RHEL，Rocky，Alma，CentOS，Anolis，OracleLinux）都应当可以正常工作。
+但请注意，直接使用针对特定小版本预制的离线软件包有可能会出现包依赖冲突问题，建议您执行 **在线安装**，或自行打包离线软件包后备用。
 
-| 代码  | 操作系统发行版 / PG 大版本                  | PG16 | PG15 | PG14 | PG13 | PG12 | 局限性                                          |
-|:---:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|----------------------------------------------|
-| EL7 | RHEL7 / CentOS7                   |  ⚠️  |  ⭐️  |  ✅   |  ✅   |  ✅   | PG16, supabase, pgml, pg_graphql, pg_net 不可用 |
-| EL8 | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **EL功能基准**                                   |
-| EL9 | RHEL 9 / Rocky9 / Alma9           |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | pgxnclient missing, perf 依赖冲突                |
-| D11 | Debian 11 (bullseye)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | supabase, pgml, RDKit 不可用                    |
-| D12 | Debian 12 (bookworm)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | supabase, pgml 不可用                           |
-| U20 | Ubuntu 20.04 (focal)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | supabase, PostGIS3, RDKit, pgml 不可用          |
-| U22 | Ubuntu 22.04 (jammy)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **DEB功能基准**     (supabase 不可用)               |
-
-* ⭐️ PostgreSQL 15 是当前主要支持的大版本，在离线软件包中带有所有的功能扩展集。
-* ⭐️ PostgreSQL 16 是备选大版本，带有重要扩展支持，当所有扩展齐备后将会被提升为主要大版本。
-* ⚠️ EL7 将于 2024 年 EOL，并且 PGDG 官方已经不再提供 PG 16 的支持，建议不要再使用。
-* ⚠️ Ubuntu & Debian 支持在 Pigsty v2.5.0 引入，尚未经过大规模生产测试，请小心使用。
+PostgreSQL 16 是当前主要支持的大版本，使用 Pigsty 部署管理 12 ～ 15 也是可行的，但需要对配置进行修改。
+如果您有对兼容性的高级需求，例如使用特定操作系统发行版、支持特定版本的 PostgreSQL，或者需要咨询答疑与服务支持，我们也提供[商业支持](SUPPORT)选项。
 
 
 ----------------
@@ -660,4 +650,4 @@ Discord: https://discord.gg/Mu2b6Wxr
 
 协议: [AGPL-3.0](LICENSE)
 
-版权所有 2018-2023 rh@vonng.com
+版权所有 2018-2024 rh@vonng.com

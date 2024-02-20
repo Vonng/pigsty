@@ -620,12 +620,14 @@ Check [**Configuration**](CONFIG) & [**PGSQL Conf**](PGSQL-CONF.md) for details.
 
 ## Compatibility
 
-We recommend using RockyLinux 8.9, 9.3 and Ubuntu 22.04 (jammy) as the underlying Operating System.
+We recommend using **RockyLinux 8.9, 9.3** and **Ubuntu 22.04** (jammy) as the underlying Operating System, we have pre-packed [offline packages](INSTALL#offline-packages) for these three distributions.
+EL 8/9 is our primary supported OS, with the standard feature set. Debian has some difference in PG extensions (lack of Pigsty maintained RPMs, but also has some unique extension extensions available, e.g: pgml).
 
-While any EL 7,8,9 / Ubuntu 20.04,22.04 / Debian 11/12 and their compatible Distributions should work.
+While any EL 7,8,9 / Ubuntu 20.04,22.04 / Debian 11/12 compatible Distributions could work, such as RHEL, Rocky, Alma, CentOS, Anolis, OracleLinux, etc.
+You have to perform **online installation** or make your own offline packages due to potential package dependency conflicts.
 
-PostgreSQL 16 is currently the Major supported version with full extension support. But you can also use PostgreSQL 12/13/14/15 too.
-
+PostgreSQL is currently the Major supported PG version, with full extensions. But you can also use PostgreSQL 12/13/14/15 too with some extra modifications.
+If you have advanced compatibility requirements, such as using a specific OS distribution, supporting a specific version of PostgreSQL, or need consulting & support, we also provide [commercial support](SUPPORT) options. 
 
 
 ----------------
@@ -648,4 +650,4 @@ Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
 License: [AGPL-3.0](LICENSE)
 
-Copyright 2018-2023 rh@vonng.com
+Copyright 2018-2024 rh@vonng.com
