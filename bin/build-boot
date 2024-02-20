@@ -4,7 +4,7 @@ set -euo pipefail
 # File      :   build-boot
 # Desc      :   boot pigsty building environment with offline pkg
 # Ctime     :   2023-10-15
-# Mtime     :   2023-10-15
+# Mtime     :   2024-02-20
 # Path      :   bin/build-boot
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -41,13 +41,13 @@ rsync -avz dist/${VERSION}/pigsty-${VERSION}.tgz ubuntu22:~/pigsty.tgz   &
 wait
 
 log_info "configure building environment"
-ssh -t build-el7 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m el7     -i 10.10.10.7 " &
-ssh -t build-el8 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m el      -i 10.10.10.8 " &
-ssh -t build-el9 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m el      -i 10.10.10.9 " &
-ssh -t debian11  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m debian  -i 10.10.10.11" &
-ssh -t debian12  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m debian  -i 10.10.10.12" &
-ssh -t ubuntu20  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m ubuntu  -i 10.10.10.20" &
-ssh -t ubuntu22  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -m ubuntu  -i 10.10.10.22" &
+ssh -t build-el7 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -i 10.10.10.7"  &
+ssh -t build-el8 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -i 10.10.10.8"  &
+ssh -t build-el9 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -i 10.10.10.9"  &
+ssh -t debian11  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -i 10.10.10.11" &
+ssh -t debian12  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -i 10.10.10.12" &
+ssh -t ubuntu20  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -i 10.10.10.20" &
+ssh -t ubuntu22  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -i 10.10.10.22" &
 wait
 
 log_info "copy offline packages to building VMs"
@@ -72,6 +72,6 @@ wait
 
 log_info "building bootstrap complete"
 log_info "extracted, now proceed with:"
-log_hint "./install.yml -i files/pigsty/build-rpm.yml"
-log_hint "./install.yml -i files/pigsty/build-deb.yml"
+log_hint "./install.yml -i files/pigsty/rpm.yml"
+log_hint "./install.yml -i files/pigsty/deb.yml"
 log_hint "./install.yml"
