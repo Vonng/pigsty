@@ -2,28 +2,26 @@
 
 > "**P**ostgreSQL **I**n **G**reat **STY**le."
 >
-> —— **开箱即用，本地优先的 RDS PostgreSQL 开源替代**
+> —— **开箱即用、本地优先的 PostgreSQL 发行版，开源RDS替代**
 >
-> 最新版本：[v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)  | Beta: [v2.6.0-b1](https://github.com/Vonng/pigsty/releases/tag/v2.6.0-b1) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [GPT答疑](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
+> 最新版本：[v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [GPT答疑](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
 >
-> [快速上手](INSTALL.md)：`curl -fsSL https://get.pigsty.cc/latest | bash`
+> [快速上手](INSTALL.md)：`curl -fsSL https://get.pigsty.cc/latest | bash` （使用 `beta` 替换 `latest` 则安装测试版）
 
 
 ----------------
 
 ## 功能特性
 
-Pigsty 是一个更好的本地开源 RDS for PostgreSQL 替代，具有以下特点：
+Pigsty 是一个更好的本地开源 RDS for PostgreSQL 替代，具有以下特性：
 
-- 开箱即用的 [PostgreSQL](https://www.postgresql.org/) 发行版，深度整合地理、时序、分布式、图、向量、搜索、AI等 150 余个[扩展插件](PGSQL-EXTENSION.md)！
-- 运行于裸操作系统之上，无需容器支持，支持主流操作系统： EL7/8/9, Ubuntu 20.04/22.04 以及 Debian 11/12。
-- 基于现代的 [Prometheus](https://prometheus.io/) 与 [Grafana](https://grafana.com/) 技术栈，提供令人惊艳，无可比拟的数据库观测能力：[画廊](https://github.com/Vonng/pigsty/wiki/Gallery) & [演示站点](https://demo.pigsty.cc)
-- 基于 [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), 与[etcd](https://etcd.io/)，打造故障自愈的高可用架构：硬件故障自动切换，流量无缝衔接。
-- 基于 [pgBackRest](https://pgbackrest.org/) 与可选的 [MinIO](https://min.io/) 集群提供开箱即用的 PITR 时间点恢复，为软件缺陷与人为删库兜底。
-- 基于 [Ansible](https://www.ansible.com/) 提供声明式的 API 对复杂度进行抽象，以 **Database-as-Code** 的方式极大简化了日常运维管理操作。
-- Pigsty用途广泛，可用作完整应用运行时，开发演示数据/可视化应用，大量使用 PG 的软件可用 [Docker](https://www.docker.com/) 模板一键拉起。
-- 提供基于 [Vagrant](https://www.vagrantup.com/) 的本地开发测试沙箱环境，与基于 [Terraform](https://www.terraform.io/) 的云端自动部署方案，开发测试生产保持环境一致。
-- 部署并监控专用的 [Redis](https://redis.io/)（主从，哨兵，集群），MinIO，Etcd，Haproxy，MongoDB([FerretDB](https://www.ferretdb.io/)) 集群
+* **可靠性**: 快速创建高可用、故障自愈的PostgreSQL集群，自动配置时间点恢复、访问控制、自签名CA与SSL，确保数据坚如磐石。
+* **可用性**: 交付稳定可靠，自动路由与池化、预置读写分离的数据库服务，通过 HAProxy，Pgbouncer，L2 VIP 提供灵活的接入模式。
+* **扩展性**: 强力扩展开箱即用：深度整合地理空间、时序、向量、图、分布式、列存、全文检索、分词、AI/ML 等 **150+** PG生态插件。
+* **兼容性**: 运行于裸操作系统上，无需容器支持，支持 EL7/8/9 (RHEL, Rocky, CentOS, Alma, Oracle, Anolis) 与 Debian12 / Ubuntu22.04。
+* **可观测性**: 基于 Prometheus & Grafana 现代可观测性技术栈，提供惊艳的监控最佳实践。模块化设计，可独立使用：[画廊](https://github.com/Vonng/pigsty/wiki/Gallery) & [Demo](https://demo.pigsty.cc)。
+* **可维护性**: 基础设施即代码，管理SOP预案，自动调优的配置模板，本地软件仓库，vagrant 沙箱与 terraform 模板，不停机迁移方案。
+* **其他功能**: Redis，MinIO，ETCD，FerretDB，DuckDB，自托管的 Supabase & PostgresML，以及诸多 PG 相关的 Docker 软件/工具模板。
 
 [![pigsty-distro.jpg](https://repo.pigsty.cc/img/pigsty-distro.jpg)](FEATURE.md)
 

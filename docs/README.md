@@ -1,33 +1,33 @@
 # Pigsty
 
-> "**P**ostgreSQL **I**n **G**reat **STY**le."
+> "**P**ostgreSQL **i**n **G**reat **STY**le."
 >
-> —— **A battery-included, local-first, open-source RDS PG alternative.**
+> —— Battery-Included, Local-First **PostgreSQL** Distribution as a Free **RDS** Alternative
 >
-> Latest Release: [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1) | Beta: [v2.6.0-b1](https://github.com/Vonng/pigsty/releases/tag/v2.6.0-b1) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [Website](https://pigsty.cc/en/)  | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/Mu2b6Wxr) | [中文文档](/zh/)
+> Latest Release: [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [Website](https://pigsty.cc/en/)  | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/Mu2b6Wxr) | [中文文档](/zh/)
 >
-> [Get Started](INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash`
+> [Get Started](INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash` (or replace `latest` with `beta`)
 
 
 ----------------
 
 ## Features
 
-Free RDS for PostgreSQL! check [**Feature**](FEATURE.md) | [**特性**](/zh/FEATURE.md) for details.
+Free RDS for PostgreSQL! check [**Feature**](FEATURE.md) | [**特性**](zh/FEATURE.md) for details.
 
-- Battery-Included PostgreSQL distribution with **150+** optional [Extensions](PGSQL-EXTENSION.md).
-- Run on bare OS without container: [EL](https://en.wikipedia.org/wiki/Red_Hat_Enterprise_Linux_derivatives) 7/8/9, [Ubuntu](https://ubuntu.com/) 20.04/22.04 and [Debian](https://www.debian.org/) 11/12.
-- Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack. [Demo](https://demo.pigsty.cc) & [Gallery](https://github.com/Vonng/pigsty/wiki/Gallery).
-- Self-healing [HA](PGSQL-ARCH) PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/). auto-tuned.
-- Auto-Configured [PITR](PGSQL-PITR), powered by [pgBackRest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) repo (or S3/FS).
-- Declarative [API](CONFIG), Database-as-Code implemented with [Ansible](https://www.ansible.com/) playbooks: [SOP](PGSQL-ADMIN).
-- Handy IaC Templates, provisioning Infra with [Terraform](https://github.com/Vonng/pigsty/tree/master/terraform/README.md) and try [sandbox](docs/PROVISION.md) with [Vagrant](https://github.com/Vonng/pigsty/tree/master/vagrant/README.md).
-- Pre-pack stable versions, create [local repos](INSTALL#offline-packages) and install without Internet access.
+* **Reliability**: Create self-healing high available PostgreSQL clusters with pre-configured PITR, built-in ACL, CA & SSL in minutes.
+* **Availability**: Deliver auto-routed, high-performance, and flexible database services access with haproxy, pgbouncer and VIP. 
+* **Extensibility**: Powerful extensions battery-included: PostGIS, TimescaleDB, Citus, PGVector, Search, HTAP, AIML and 150 more.
+* **Compatibility**: Run on bare OS without containerization: EL (RHEL,Rocky,CentOS,Alma,Oracle) 7/8/9, Ubuntu22 & Debian12
+* **Observability**: Monitoring best practice build upon the Prometheus & Grafana stack : Check our [Public Demo](https://demo.pigsty.cc) & [Gallery](https://github.com/Vonng/pigsty/wiki/Gallery).
+* **Maintainability**: Infra as Code API, Admin SOP, auto-tuned templates, local yum/apt repo, vagrant sandbox & terraform spec.
+* **Bonus Features**: Redis, MinIO, ETCD, FerretDB, DuckDB, Self-Hosting Supabase & PostgresML, and Docker software templates.
+
 
 [![pigsty-distro.jpg](https://repo.pigsty.cc/img/pigsty-distro.jpg)](FEATURE.md)
 
 Pigsty can be used in different scenarios:
-- Run HA [PostgreSQL](docs/PGSQL.md) RDS for production usage, with PostGIS, TimescaleDB, Citus, Hydra, etc...
+- Run HA [PostgreSQL](PGSQL.md) RDS for production usage, with PostGIS, TimescaleDB, Citus, Hydra, etc...
 - Run AI infra stack with `pgvector` and [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml/README.md).
 - Develop low-code apps with self-hosted [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase/README.md), [FerretDB](MONGO), and [NocoDB](https://github.com/Vonng/pigsty/tree/master/app/nocodb/README.md).
 - Run various business software & [apps](https://github.com/Vonng/pigsty/blob/master/app/README.md) with docker-compose templates.
