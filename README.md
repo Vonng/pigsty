@@ -4,7 +4,7 @@
 >
 > —— **A battery-included, local-first, open-source PostgreSQL RDS alternative.**
 >
-> [Release v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/Mu2b6Wxr) ｜ [中文文档](https://doc.pigsty.cc/#/zh/)
+> Latest Release: [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1) | Beta: [v2.6.0-b1](https://github.com/Vonng/pigsty/releases/tag/v2.6.0-b1) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/Mu2b6Wxr) ｜ [中文文档](https://doc.pigsty.cc/#/zh/)
 >
 > [Get Started](docs/INSTALL.md) latest [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1) beta with `curl -fsSL https://get.pigsty.cc/latest | bash`
 
@@ -556,24 +556,11 @@ Check [**Configuration**](docs/CONFIG.md) for details.
 
 ## Compatibility
 
-We recommend using RockyLinux 8.8, Ubuntu 22.04 (jammy), Debian 12 (bookworm) as the base OS for Pigsty.
+We recommend using RockyLinux 8.9, 9.3 and Ubuntu 22.04 (jammy) as the underlying Operating System.
 
-While any EL 7,8,9 / Ubuntu 20.04,22.04 / Debian 11/12 compatible OS Distribution should work.
+While any EL 7,8,9 / Ubuntu 20.04,22.04 / Debian 11/12 and their compatible Distributions should work.
 
-| Code | OS Distro / PG Ver                | PG16 | PG15 | PG14 | PG13 | PG12 | Limitation                                           |
-|:----:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|------------------------------------------------------|
-| EL7  | RHEL7 / CentOS7                   |  ⚠️  |  ⭐️  |  ✅   |  ✅   |  ✅   | PG16, supabase, pgml, pg_graphql, pg_net unavailable |
-| EL8  | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **EL default feature set**                           |
-| EL9  | RHEL 9 / Rocky9 / Alma9           |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | pgxnclient missing, perf dependency conflict         |
-| D11  | Debian 11 (bullseye)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | supabase, pgml, RDKit unavailable                    |
-| D12  | Debian 12 (bookworm)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | supabase, pgml unavailable                           |
-| U20  | Ubuntu 20.04 (focal)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | supabase, PostGIS3, RDKit, pgml unavailable          |
-| U22  | Ubuntu 22.04 (jammy)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **DEB default feature set** (supabase unavailable)   |
-
-* ⭐️ PostgreSQL 15 is currently the Major supported version with full extension support.
-* ⭐ PostgreSQL 16 is the major support candidate, will be promoted when ready.
-* ⚠️ EL7 Does not have an official PostgreSQL 16 support, and will EOL in 2024.
-* ⚠️ Ubuntu & Debian support is newly introduced in Pigsty v2.5.0, use with caution.
+PostgreSQL 16 is currently the Major supported version with full extension support. But you can also use PostgreSQL 12/13/14/15 too.
 
 
 
