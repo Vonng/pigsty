@@ -1,6 +1,6 @@
 # Support and Subscription
 
-Pigsty is a ready-to-use PostgreSQL database distribution, a local-first alternative to RDS/cloud database services, allowing users to run a fully-featured local RDS service at a hardware cost of just a few core months. The software itself is completely open-source and free. If it has helped you, please consider [sponsoring us](#sponsorship).
+Pigsty is a battery-included use PostgreSQL database distribution, a local-first alternative to RDS/cloud database services, allowing users to run a fully-featured local RDS service at a hardware cost of just a few core months. The software itself is completely open-source and free. If it has helped you, please consider [sponsoring us](#sponsorship).
 
 Although Pigsty is designed to replace manual database operations with database autopilot software, even the best software can only solve some problems. There will always be some infrequent issues and various problems not limited to technology that require expert intervention. Therefore, we also offer professional [service subscriptions](#service-subscription).
 
@@ -27,7 +27,7 @@ WeChat: Search `pigsty-cc` and join the User Group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/Mu2b6Wxr
+Discord: https://discord.gg/V6sBDXN9
 
 
 ------------------

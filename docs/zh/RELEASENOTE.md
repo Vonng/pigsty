@@ -2,7 +2,7 @@
 
 | 版本              |    发布时间    | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.6.0](#v260) | 2024-02-28 | PG 16 作为默认大版本，引入 ParadeDB 与 DuckDB 等扩展                     | [v2.6.0 WIP](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)                         |
+| [v2.6.0](#v260) | 2024-02-28 | PG 16 作为默认大版本，引入 ParadeDB 与 DuckDB 等扩展                     | [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)                             |
 | [v2.5.1](#v251) | 2023-12-01 | 例行小版本更新，PG16重要扩展支持                                         | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
 | [v2.5.0](#v250) | 2023-09-24 | Ubuntu/Debian支持：bullseye, bookworm, jammy, focal           | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
 | [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML支持与各种新扩展：graphql, jwt, pg_net, vault    | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
@@ -40,14 +40,14 @@
 
 ----------------
 
-## v2.6.0 (WIP)
+## v2.6.0
 
 **亮点特性**
 
 * 现已将 PostgreSQL 16 作为默认主要版本（16.2）
-* 新增 [ParadeDB](https://www.paradedb.com/) 扩展插件： `pg_analytics`, `pg_bm25`, and `pg_sparse`
+* 新增 [ParadeDB](https://www.paradedb.com/) 扩展插件：`pg_analytics`, `pg_bm25`, and `pg_sparse`
 * 新增 [DuckDB](https://duckdb.org/) 与 `duckdb_fdw` 插件支持
-* 全球 Cloudflare CDN https://repo.pigsty.io 与中国大路CDN https://repo.pigsty.cc
+* 全球 Cloudflare CDN https://repo.pigsty.io 与中国大陆CDN https://repo.pigsty.cc
 
 **软件配置变更**
 
@@ -65,10 +65,15 @@
 - Grafana 10.3
 - Prometheus 2.47
 - node_exporter 1.7.0
+- HAProxy 2.9.5
 - Loki / Promtail 2.9.4
-- minio-20240118225128 / mcli-20240118070339
+- minio-20240216110548 / mcli-20240217011557
 - etcd 3.5.11
 - Redis 7.2.4
+- Bytebase 2.13.2
+- DuckDB 0.10.0
+- FerretDB 1.19
+- Metabase：新Docker应用模板
 
 **PostgreSQL扩展插件**
 
@@ -82,15 +87,15 @@
 - PostGIS 3.4.2
 - TimescaleDB 2.14.1
 - 向量扩展 PGVector 0.6.0：新增并行创建 HNSW 索引功能
-- 新增扩展插件 [duckdb_fdw](https://github.com/alitrack/duckdb_fdw) v1.1 ，支持读写 DuckDB 数据
-- 新增扩展插件 [pgsql-gzip](https://github.com/pramsey/pgsql-gzip) ，用于支持 Gzip 压缩解压缩
-- 新增扩展插件 [pg_sparse](https://github.com/paradedb/paradedb/tree/dev/pg_sparse)，高效处理稀疏向量（ParadeDB）
-- 新增扩展插件 [pg_bm25](https://github.com/paradedb/paradedb/tree/dev/pg_bm25)，用于支持高质量全文检索 BM25 算法的插件（ParadeDB）
-- 新增扩展插件 [pg_analytics](https://github.com/paradedb/paradedb/tree/dev/pg_analytics)，支持 SIMD 与列式存储的PG分析插件（ParadeDB）
+- 新增扩展插件 [duckdb_fdw](https://github.com/alitrack/duckdb_fdw) v1.1 ，支持读写 DuckDB 数据 v1.1
+- 新增扩展插件 [pgsql-gzip](https://github.com/pramsey/pgsql-gzip) ，用于支持 Gzip 压缩解压缩 v1.0.0
+- 新增扩展插件 [pg_sparse](https://github.com/paradedb/paradedb/tree/dev/pg_sparse)，高效处理稀疏向量（ParadeDB） v0.5.6
+- 新增扩展插件 [pg_bm25](https://github.com/paradedb/paradedb/tree/dev/pg_bm25)，用于支持高质量全文检索 BM25 算法的插件（ParadeDB） v0.5.6
+- 新增扩展插件 [pg_analytics](https://github.com/paradedb/paradedb/tree/dev/pg_analytics)，支持 SIMD 与列式存储的PG分析插件（ParadeDB） v0.5.6
 - 升级AIML插件 [pgml](https://github.com/postgresml/postgresml) 至 v2.8.1，新增 PG 16 支持。
-- 升级列式存储插件 [hydra](https://github.com/hydradatabase/) 版本至 v1.1.0，新增 PG 16 支持。
+- 升级列式存储插件 [hydra](https://github.com/hydradatabase/) 版本至 v1.1.1，新增 PG 16 支持。
 - 升级图扩展插件 [age](https://github.com/apache/age) 至 v1.5.0，新增 PG 16 支持。
-- 升级GraphQL插件 [pg_graphql](https://github.com/supabase/pg_graphql) 版本至 v1.4.4 ，支持 Supabase。
+- 升级GraphQL插件 [pg_graphql](https://github.com/supabase/pg_graphql) 版本至 v1.5.0 ，支持 Supabase。
 
 
 

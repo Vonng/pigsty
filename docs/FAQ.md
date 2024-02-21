@@ -118,19 +118,19 @@ If a firewall or GFW blocks some repo, consider using a [`proxy_env`](PARAM#prox
 Offline packages can be downloaded during [`bootstrap`](INSTALL#bootstrap), or you can download them directly via:
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v2.5.1/pigsty-v2.5.1.tgz                   # source code
-https://github.com/Vonng/pigsty/releases/download/v2.5.1/pigsty-pkg-v2.5.1.el7.x86_64.tgz    # el7 package
-https://github.com/Vonng/pigsty/releases/download/v2.5.1/pigsty-pkg-v2.5.1.el8.x86_64.tgz    # el8 package
-https://github.com/Vonng/pigsty/releases/download/v2.5.1/pigsty-pkg-v2.5.1.el9.x86_64.tgz    # el9 package
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz                   # source code
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz    # el7 package
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz    # el8 package
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz    # el9 package
 ```
 
 For mainland China users, you can download these packages from the following mirror:
 
 ```bash
-https://get.pigsty.cc/v2.5.1/pigsty-v2.5.1.tgz                   # source code
-https://get.pigsty.cc/v2.5.1/pigsty-pkg-v2.5.1.el7.x86_64.tgz    # el7 package
-https://get.pigsty.cc/v2.5.1/pigsty-pkg-v2.5.1.el8.x86_64.tgz    # el8 package
-https://get.pigsty.cc/v2.5.1/pigsty-pkg-v2.5.1.el9.x86_64.tgz    # el9 package
+https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz                   # source code
+https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz    # el7 package
+https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz    # el8 package
+https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz    # el9 package
 ```
 
 </details><br>
