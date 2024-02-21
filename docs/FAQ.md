@@ -14,12 +14,12 @@
 <details><summary>Operating System Recommendations</summary><br>
 
 Pigsty supports mainstream OS such as EL 7/8/9, Debian 11/12, Ubuntu 20.04/22.04. We recommend using a freshly installed, minimalistic operating system to avoid unnecessary package conflicts.
-The offline software package builds for Pigsty are based on the following operating system versions: CentOS 7.9, Rocky 8.7, Rocky 9.1, Ubuntu 22.04 / 20.04, Debian 12 / 11
+The offline software package builds for Pigsty are based on the following operating system versions: CentOS 7.9, Rocky 8.9, Rocky 9.3, Ubuntu 22.04 / 20.04, Debian 12 / 11
 
-For EL-based operating systems, we recommend RockyLinux 8.8 as the preferred choice, with CentOS 7.9 and Rocky 9.2 as conservative and advanced alternatives, respectively.
+For EL-based systems, we recommend RockyLinux 8.9 as the preferred choice, with CentOS 7.9 and Rocky 9.3 as conservative and advanced alternatives, respectively.
 Other EL-based compatible operating systems can also be used, such as AlmaLinux, Oracle Linux, CentOS Stream, but there may be minor RPM conflicts. It is advisable not to use offline software packages and install directly from the upstream internet sources.
 
-For Ubuntu/Debian series operating systems, Pigsty provides preliminary support starting from v2.5.0. It has not been extensively tested in large-scale production environments, so use with caution, and feel free to report any issues.
+For Ubuntu/Debian series systems, Pigsty provides preliminary support starting from v2.5.0. It has not been extensively tested in large-scale production environments, so use with caution, and feel free to report any issues.
 If you require specific packages like RDKit, PostgresML + CUDA, and AI-related components, then Ubuntu is the recommended choice. We suggest using Ubuntu 22.04 Jammy (LTS) and also offer support for Ubuntu 20.04 Focal (LTS). For Debian, consider using 12 (Bookworm) or 11 (Bullseye).
 
 In terms of domestic operating systems, we recommend using OpenAnolis 8.8 (RHCK), which is fully compatible with EL8 packages without additional adaptation.
@@ -28,7 +28,7 @@ We also offer additional paid support for domestic operating systems such as Ope
 - Choose EL-based operating systems when you prioritize these features:
   - Thorough testing and stability verification with large-scale use cases.
   - Want to use locally hosted Supbase (important extensions currently only available in EL distributions).
-  - Recommended to use Rocky 8.8 or equivalent compatible distributions, also supports EL 9; EL 7 is supported but not recommended as it is nearing end of life.
+  - Recommended to use Rocky 8.9 or equivalent compatible distributions, also supports EL 9; EL 7 is supported but not recommended as it is nearing end of life.
 
 - Choose Ubuntu-based operating systems when you prioritize these features:
   - Extensive use of PostgresML, and desire to use CUDA.
@@ -41,12 +41,12 @@ We also offer additional paid support for domestic operating systems such as Ope
 | Code | OS Distro / PG Ver                | PG16 | PG15 | PG14 | PG13 | PG12 | Limitation                                   |
 |:----:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|----------------------------------------------|
 | EL7  | RHEL7 / CentOS7                   |  ⚠️  |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: PG16, supabase, pg_graphql, pgml, pg_net |
-| EL8  | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **EL Standard Feature Set**                  |
-| EL9  | RHEL 9 / Rocky9 / Alma9           |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: pgxnclient                               |
-| D11  | Debian 11 (bullseye)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: RDKit                                    |
-| D12  | Ubuntu 12 (bookworm)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Debian Standard Feature Set**              |
-| U20  | Ubuntu 20.04 (focal)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | NA: PostGIS, RDKit                           |
-| U22  | Ubuntu 22.04 (jammy)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Ubuntu Standard Feature Set**              |
+| EL8  | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | **EL Standard Feature Set**                  |
+| EL9  | RHEL 9 / Rocky9 / Alma9           |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | NA: pgxnclient                               |
+| D11  | Debian 11 (bullseye)              |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | NA: RDKit                                    |
+| D12  | Ubuntu 12 (bookworm)              |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | **Debian Standard Feature Set**              |
+| U20  | Ubuntu 20.04 (focal)              |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | NA: PostGIS, RDKit                           |
+| U22  | Ubuntu 22.04 (jammy)              |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | **Ubuntu Standard Feature Set**              |
 
 </details><br>
 
@@ -118,19 +118,34 @@ If a firewall or GFW blocks some repo, consider using a [`proxy_env`](PARAM#prox
 Offline packages can be downloaded during [`bootstrap`](INSTALL#bootstrap), or you can download them directly via:
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz                   # source code
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz    # el7 package
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz    # el8 package
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz    # el9 package
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz                     # Pigsty Source Code
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz      # Package: EL 7(.9)            
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz      # Package: EL 8(.9)            
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz      # Package: EL 9(.3)            
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian11.x86_64.tgz # Package: Debian 11    (bullseye)                 
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian12.x86_64.tgz # Package: Debian 12    (bookworm)                 
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu20.x86_64.tgz # Package: Ubuntu 20.04 (focal)                 
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu22.x86_64.tgz # Package: Ubuntu 22.04 (jammy)                 
 ```
 
-For mainland China users, you can download these packages from the following mirror:
+You can also get offline packages from CDN, and specify a specific version:
 
 ```bash
-https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz                   # source code
-https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz    # el7 package
-https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz    # el8 package
-https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz    # el9 package
+VERSION=v2.6.0
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz        # Offline Package：EL 7(.9)
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz        # Offline Package：EL 8(.9)
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz        # Offline Package：EL 9(.3)
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.debian11.x86_64.tgz   # Offline Package：Debian 11    (bullseye)
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz   # Offline Package：Debian 12    (bookworm)
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz   # Offline Package：Ubuntu 20.04 (focal)
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz   # Offline Package：Ubuntu 22.04 (jammy)
+```
+
+For example, download v2.6.0 offline packages for EL8.x86_64:
+
+```bash
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz  -o /tmp/pkg.tgz
+curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
 ```
 
 </details><br>
@@ -147,9 +162,15 @@ https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz    # el9 package
 
 > Check the environment, ask for downloading offline packages, and make sure the essential tool `ansible` is installed.
 
+It will make sure the essential tool `ansible` is installed by various means.
 
+When you download the Pigsty source code, you can enter the directory and execute the [`bootstrap`](INSTALL#bootstrap) script.
+It will check if your node environment is ready, and if it does not find offline packages, it will ask if you want to download them from the internet if applicable.
 
-The **configure** procedure will detect your node environment and generate a pigsty config file: `pigsty.yml` for you.
+You can choose "yes" to use offline packages, which will make the installation procedure faster.
+You can also choose "no" to skip and download directly from the internet during the installation process,
+which will download the latest software versions and reduce the chance of RPM conflicts.
+
 
 </details>
 
@@ -324,19 +345,6 @@ repotrack annobin gcc-plugin-annobin libuser
 
 
 
-<br>
-
-<details><summary>PostGIS 3 Failure on Ubuntu 20.04</summary>
-
-> PostGIS 3 Offline Deps broken on ubuntu 20.04, remove it from `pgsql_extensions` to skip. 
-
-```
-failed: [10.10.10.20] (item=postgresql-${pg_version}-postgis-3) => {"ansible_loop_var": "item", "cache_update_time": 1697348716, "cache_updated": false, "changed": false, "item": "postgresql-${pg_version}-postgis-3", "msg": "'/usr/bin/apt-get -y -o \"Dpkg::Options::=--force-confdef\" -o \"Dpkg::Options::=--force-confold\"      install 'postgresql-15-postgis-3'' failed: E: Unable to correct problems, you have held broken packages.\n", "rc": 100, "stderr": "E: Unable to correct problems, you have held broken packages.\n", "stderr_lines": ["E: Unable to correct problems, you have held broken packages."], "stdout": "Reading package lists...\nBuilding dependency tree...\nReading state information...\nSome packages could not be installed. This may mean that you have\nrequested an impossible situation or if you are using the unstable\ndistribution that some required packages have not yet been created\nor been moved out of Incoming.\nThe following information may help to resolve the situation:\n\nThe following packages have unmet dependencies:\n postgresql-15-postgis-3 : Depends: libgdal26 (>= 2.4.0) but it is not going to be installed\n", "stdout_lines": ["Reading package lists...", "Building dependency tree...", "Reading state information...", "Some packages could not be installed. This may mean that you have", "requested an impossible situation or if you are using the unstable", "distribution that some required packages have not yet been created", "or been moved out of Incoming.", "The following information may help to resolve the situation:", "", "The following packages have unmet dependencies:", " postgresql-15-postgis-3 : Depends: libgdal26 (>= 2.4.0) but it is not going to be installed"]}
-```
-
-You can fix this by add upstream apt repo directly, In that case, this problem can be resolved by manually install postgis.
-
-</details>
 
 
 

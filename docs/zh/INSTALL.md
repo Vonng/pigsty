@@ -187,14 +187,15 @@ Pigsty 针对主流 Linux 发行版的最新小版本提供了离线软件包，
 您可以选择从 Github 上的发布页面上直接下载离线软件包。
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz                     # Pigsty源码包         
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz      # 离线软件包：EL 7(.9)            
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz      # 离线软件包：EL 8(.9)            
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz      # 离线软件包：EL 9(.3)            
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian11.x86_64.tgz # 离线软件包：Debian 11    (bullseye)                 
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian12.x86_64.tgz # 离线软件包：Debian 12    (bookworm)                 
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu20.x86_64.tgz # 离线软件包：Ubuntu 20.04 (focal)                 
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu22.x86_64.tgz # 离线软件包：Ubuntu 22.04 (jammy)                 
+VERSION=v2.6.0
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-${VERSION}.tgz                     # Pigsty源码包         
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.el7.x86_64.tgz      # 离线软件包：EL 7(.9)            
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.el8.x86_64.tgz      # 离线软件包：EL 8(.9)            
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.el9.x86_64.tgz      # 离线软件包：EL 9(.3)            
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.debian11.x86_64.tgz # 离线软件包：Debian 11    (bullseye)                 
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.debian12.x86_64.tgz # 离线软件包：Debian 12    (bookworm)                 
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz # 离线软件包：Ubuntu 20.04 (focal)                 
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz # 离线软件包：Ubuntu 22.04 (jammy)                 
 ```
 
 您也可以从（中国大陆） CDN 下载离线软件包，也可以在下载时指定特定的版本号：
@@ -208,6 +209,13 @@ https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.debian11.x86_64.tgz   # �
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz   # 离线软件包：Debian 12    (bookworm)
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz   # 离线软件包：Ubuntu 20.04 (focal)
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz   # 离线软件包：Ubuntu 22.04 (jammy)
+```
+
+例如，如果要下载 v2.6.0 版本，针对 EL8.9 制作的的离线软件包：
+
+```bash
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz  -o /tmp/pkg.tgz
+curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
 ```
 
 </details>

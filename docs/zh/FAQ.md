@@ -11,22 +11,21 @@
 <details><summary>操作系统建议</summary><br>
 
 Pigsty 支持 EL 7/8/9，Debian 11/12，Ubuntu 20/22 等主流操作系统，我们建议您使用全新精简安装的操作系统，避免无谓的软件冲突问题。
-Pigsty 离线软件包构建使用的操作系统版本为： CentOS 7.9, Rocky 8.7，Rocky 9.1，Ubuntu 22.04 / 20.04，Debian 12 / 11。
+Pigsty 离线软件包构建使用的操作系统版本为： CentOS 7.9, Rocky 8.9，Rocky 9.3，Ubuntu 22.04 / 20.04，Debian 12 / 11。
 
-对于EL系操作系统，我们建议用户选择 RockyLinux 8.8 作为首选操作系统，CentOS 7.9 与 Rocky 9.2 作为保守、激进的备选。
+对于EL系操作系统，我们建议用户选择 RockyLinux 8.9 作为首选操作系统，CentOS 7.9 与 Rocky 9.3 作为保守、激进的备选。
 其他EL系兼容操作系统也可使用，例如 AlmaLinux，Oracle Linux，CentOS Stream，但可能会出现少量 RPM 冲突问题，建议不使用离线软件包，直接从互联网上游安装。
 
-对于 Ubuntu / Debian 系列操作系统，Pigsty 在 v2.5.0 提供了初步支持，尚未在大规模生产环境中得到验证，请谨慎使用，欢迎随时反馈问题。
-如果您需要使用到一些特殊的软件包，例如 RDKit，或者 PostgresML + CUDA，以及 AI 相关的组件，那么 Ubuntu 是不二之选。
-我们建议使用 Ubuntu 22.04 jammy (LTS)，也提供对 Ubuntu 20.04 focal (LTS) 的支持。Debian 建议使用 12 (bookworm) 或 11 (bullseye)。
+对于 Ubuntu / Debian 系列操作系统，Pigsty 在 v2.5.0 提供了初步支持，请谨慎使用，欢迎随时反馈问题。
+我们强烈建议使用 Ubuntu 22.04 jammy (LTS)，也提供对 Ubuntu 20.04 focal (LTS) 的支持。Debian 建议使用 12 (bookworm) 或 11 (bullseye)。
+如果您需要使用到一些特殊的软件包，例如 RDKit，或者 PostgresML + CUDA，以及 AI 相关的组件，那么 Ubuntu 22.04 是不二之选。
 
-国产操作系统中，我们建议使用 OpenAnolis 8.8 （RHCK），完全兼容 EL8 的软件包，无需额外适配。
-在[企业级服务协议](SUPPORT.md)中，我们也提供对信创国产操作系统的额外付费支持（例如OpenEuler/UOS）。
+国产操作系统中，我们建议使用 OpenAnolis 8.8 （RHCK），完全兼容 EL8 的软件包，无需额外适配。在[企业级服务协议](SUPPORT.md)中，我们也提供对信创国产操作系统的额外付费支持（例如OpenEuler / UOS）。
 
 - 当您看重这些特性时，选择 EL 系操作系统：
   - 最充分的测试与稳定性验证，大规模使用案例
-  - 希望使用本地托管的 Supbase （目前依赖的重要扩展仅在 EL 发行版中提供）
-  - 建议使用 Rocky 8.8 或等效兼容发行版，也支持 EL 9；EL 7 支持但不建议使用，即将 EOL。
+  - 希望使用本地托管的 Supabase （目前依赖的重要扩展仅在 EL 发行版中提供）
+  - 建议使用 Rocky 8.9 或等效兼容发行版，也支持 EL 9；EL 7 支持但不建议使用，即将 EOL。
 
 - 当您看重这些特性时，选择 Ubuntu 系操作系统
   - 深度使用 PostgresML ，希望使用 CUDA
@@ -37,16 +36,15 @@ Pigsty 离线软件包构建使用的操作系统版本为： CentOS 7.9, Rocky 
   - 喜欢由开源社区主导的 Linux 发行版
   - 建议使用 Debian 12 bookworm ，也支持 Debian 11 bullseye
 
-| 代码  | 操作系统发行版 / PG 大版本                  | PG16 | PG15 | PG14 | PG13 | PG12 | 局限性                                          |
-|:---:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|----------------------------------------------|
-| EL7 | RHEL7 / CentOS7                   |  ⚠️  |  ⭐️  |  ✅   |  ✅   |  ✅   | PG16, supabase, pg_graphql, pgml, pg_net 不可用 |
-| EL8 | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **EL功能标准集**                                  |
-| EL9 | RHEL 9 / Rocky9 / Alma9           |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | pgxnclient 缺失                                |
-| D11 | Debian 11 (bullseye)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | RDKit 不可用                                    |
-| D12 | Ubuntu 12 (bookworm)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Debian功能标准集**                              |
-| U20 | Ubuntu 20.04 (focal)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | PostGIS, RDKit 不可用                           |
-| U22 | Ubuntu 22.04 (jammy)              |  ✅   |  ⭐️  |  ✅   |  ✅   |  ✅   | **Ubuntu功能标准集**                              |
-
+| 代码  | 操作系统发行版 / PG 大版本                  | PG16 | PG15 | PG14 | PG13 | PG12 | 局限性                                     |
+|:---:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|-----------------------------------------|
+| EL7 | RHEL7 / CentOS7                   |  ⚠️  |  ⭐️  |  ✅   |  ✅   |  ✅   | PG16, supabase, pgml, duckdb_fdw 等扩展不可用 |
+| EL8 | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | **EL功能标准集**                             |
+| EL9 | RHEL 9 / Rocky9 / Alma9           |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | pgxnclient 缺失                           |
+| D11 | Debian 11 (bullseye)              |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | RDKit 不可用                               |
+| D12 | Ubuntu 12 (bookworm)              |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | **Debian功能标准集**                         |
+| U20 | Ubuntu 20.04 (focal)              |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | PostGIS 需要在线安装                          |
+| U22 | Ubuntu 22.04 (jammy)              |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | **Ubuntu功能标准集**                         |
 
 </details><br>
 
@@ -114,24 +112,33 @@ Pigsty 使用 master 主干分支进行开发，请始终使用特定版本的 [
 
 <details><summary>哪里可以下载 Pigsty 的离线软件包？</summary><br>
 
-离线包可以在[准备/`bootstrap`](install#bootstrap) 过程中提示下载，或者您也可以直接通过以下链接从 GitHub 上下载：
+离线包可以在[准备/`bootstrap`](install#准备) 过程中提示下载，或者您也可以直接通过以下链接从 GitHub 上下载：
+
+您可以选择从 Github 上的发布页面上直接下载离线软件包。
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz                   # 源代码包
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz    # el7离线包
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz    # el8离线包
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz    # el9离线包
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz                     # Pigsty源码包         
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz      # 离线软件包：EL 7(.9)            
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz      # 离线软件包：EL 8(.9)            
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz      # 离线软件包：EL 9(.3)            
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian11.x86_64.tgz # 离线软件包：Debian 11    (bullseye)                 
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian12.x86_64.tgz # 离线软件包：Debian 12    (bookworm)                 
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu20.x86_64.tgz # 离线软件包：Ubuntu 20.04 (focal)                 
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu22.x86_64.tgz # 离线软件包：Ubuntu 22.04 (jammy)                 
 ```
 
-中国大陆用户可以考虑使用 CDN 下载：
+您也可以从（中国大陆） CDN 下载离线软件包，也可以在下载时指定特定的版本号：
 
 ```bash
-https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz                   # 源代码
-https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz    # el7离线包
-https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz    # el8离线包
-https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz    # el9离线包
+VERSION=v2.6.0
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz        # 离线软件包：EL 7(.9)
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz        # 离线软件包：EL 8(.8)
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz        # 离线软件包：EL 9(.3)
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.debian11.x86_64.tgz   # 离线软件包：Debian 11    (bullseye)
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz   # 离线软件包：Debian 12    (bookworm)
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz   # 离线软件包：Ubuntu 20.04 (focal)
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz   # 离线软件包：Ubuntu 22.04 (jammy)
 ```
-
 </details><br>
 
 
@@ -148,7 +155,7 @@ https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz    # el9离线包
 
 当你下载 Pigsty 源码后，可以进入目录并执行 [`bootstrap`](INSTALL#准备) 脚本。它会检测你的节点环境，如果没有发现离线软件包，它会询问你要不要从互联网下载。
 
-你可以选择“是”，直接使用离线软件包安装又快又稳定。你也可以选“否”跳过，选择后面在安装过程中直接从互联网上游下载，这样会下载最新的软件版本，而且几乎不会遇到 RPM 冲突问题。
+你可以选择“是”，直接使用离线软件包安装又快又稳定。你也可以选“否”跳过，在安装时直接从互联网上游下载最新的软件包，这样会极大减少出现 RPM/DEB 包冲突的概率。
 
 如果使用了离线软件包，bootstrap 会直接从离线软件包中安装 ansible，否则会从上游下载 ansible 并安装，如果你没有互联网访问，又没有 DVD，或者内网软件源，那就只能用离线软件包来安装了。
 
@@ -246,7 +253,7 @@ Pigsty 提供了 280+ 配置参数，可以对整个环境与各个模块 infra/
 <br>
 <details><summary>安装遇到RPM冲突怎么办？</summary><br>
 
-在安装 node/infra/pgsql 软件包期间，可能有微小的几率出现 rpm 冲突。特别是，如果您使用的 EL 7-9 小版本不同于 7.9, 8.7, 9.1 ，或者使用了一些冷门换皮魔改发行版的话，可能会出现这种情况。
+在安装 node/infra/pgsql 软件包期间，可能有微小的几率出现 rpm 冲突。特别是，如果您使用的 EL 7-9 小版本不同于 7.9, 8.9, 9.3 ，或者使用了一些冷门换皮魔改发行版的话，可能会出现这种情况。
 
 解决这个问题的最简单方法是：不使用离线包进行安装，这将直接从上游仓库中下载最合适您当前系统的软件包。如果只有少数几个 RPM 包有问题，你可以使用一个小技巧快速修复：
 
@@ -305,34 +312,6 @@ repotrack annobin gcc-plugin-annobin libuser
 
 
 
-
-<br>
-
-<details><summary>在 Ubuntu 20.04 上安装时，PostGIS 3 安装失败</summary>
-
-> 正如配置文件 [`ubuntu.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/ubuntu.yml) 中说明的：Ubuntu 20.04 中 PostGIS 3 离线安装会有一些问题。 
-
-在安装过程中如果见到以下错误，可以尝试添加 NODE / PGDG 上游源后直接从互联网安装 `postgresql-15-postgis-3` 包，通常可以解决此问题。
-
-如果您用不到 PostGIS，也可以
-
-```
-E: Unable to correct problems, you have held broken packages."], "stdout": "Reading package lists...
-Building dependency tree...
-Reading state information...
-Some packages could not be installed. This may mean that you have
-requested an impossible situation or if you are using the unstable
-distribution that some required packages have not yet been created
-or been moved out of Incoming.
-The following information may help to resolve the situation:
-
-The following packages have unmet dependencies:
- postgresql-15-postgis-3 : Depends: libgdal26 (>= 2.4.0) but it is not going to be installed
-```
-
-You can fix this by add upstream apt repo directly, In that case, this problem can be resolved by manually install postgis.
-
-</details>
 
 
 

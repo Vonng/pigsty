@@ -210,11 +210,11 @@ https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz   # O
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz   # Offline Package：Ubuntu 22.04 (jammy)
 ```
 
-For example, download v2.6.0 offline packages for EL7.x86_64:
+For example, download v2.6.0 offline packages for EL8.x86_64:
 
 ```bash
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz  -o /tmp/pkg.tgz
-curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz  -o /tmp/pkg.tgz
+curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
 ```
 
 </details>

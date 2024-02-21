@@ -61,9 +61,9 @@
 
 ## Ansible
 
-执行剧本需要 `ansible-playbook` 可执行文件，该文件包含在 `ansible` 包中。
+执行剧本需要 `ansible-playbook` 可执行文件，该文件包含在 `ansible` rpm/deb 包中。
 
-Pigsty 将在 [准备](install#准备) 期间在 `admin` 节点上安装 `ansible`。
+Pigsty 将在 [**准备**](install#准备) 期间在尽最大努力尝试在当前节点安装 `ansible`。
 
 您可以自己使用 `yum` / `apt` / `brew`  `install ansible` 来安装 Ansible，它含在各大发行版的默认仓库中。
 
