@@ -1,8 +1,8 @@
 # PostgreSQL Extensions
 
-Extensions are the soul of PostgreSQL, and Pigsty deeply integrates the core extension plugins of the PostgreSQL ecosystem, providing you with battery-included distributed temporal, geospatial text, graph, and vector database capabilities! Check [extension list](PGSQL-EXTENSION#extension-list) for details.
+Extensions are the soul of PostgreSQL, and Pigsty deeply integrates the core extension plugins of the PostgreSQL ecosystem, providing you with battery-included distributed temporal, geospatial text, graph, and vector database capabilities! Check [**extension list**](#extension-list) for details.
 
-Pigsty includes over **150+** PostgreSQL extension plugins and has compiled, packaged, integrated, and maintained many extensions not included in the official PGDG source. It also ensures through thorough testing that all these plugins can work together seamlessly. Including some potent extensions, such as [PostGIS](https://postgis.net/) to process geospatial data, [TimescaleDB](https://www.timescale.com/) to analyze time series/event stream data,  [Citus](https://www.citusdata.com/) to transform a standalone database into a horizontally scalable distributed cluster,  [PGVector](https://github.com/pgvector/pgvector) to store and search AI embeddings, [Apache AGE](https://age.apache.org/) for graph data storage and retrieval to works like Neo4J, and [pg_bm25](https://github.com/amutu/zhparser) for full-text search to work like ElasticSearch.
+Pigsty includes over **150+** PostgreSQL extension plugins and has compiled, packaged, integrated, and maintained many extensions not included in the official PGDG source. It also ensures through thorough testing that all these plugins can work together seamlessly. Including some potent extensions, such as [`PostGIS`](https://postgis.net/) to process geospatial data, [`TimescaleDB`](https://www.timescale.com/) to analyze time series/event stream data,  [`Citus`](https://www.citusdata.com/) to transform a standalone database into a horizontally scalable distributed cluster, [`PGVector`](https://github.com/pgvector/pgvector) to store and search AI embeddings, [`Apache AGE`](https://age.apache.org/) for graph data storage and retrieval to works like Neo4J, [`pg_bm25`](https://blog.paradedb.com/pages/introducing_bm25) & [`zhparser`](https://github.com/amutu/zhparser) for ElasticSearch grade full-text & hybrid search  ElasticSearch. Use [`hydra`](https://www.hydra.so/), [`pg_analytics`](https://blog.paradedb.com/pages/introducing_analytics) and [`duckdb_fdw`](https://github.com/alitrack/duckdb_fdw) for OLAP workloads. etc...
 
 Plugins are already included and placed in the yum repo of the infra nodes, which can be directly enabled through PGSQL [Cluster Config](#install-extension) or [installed manually](#install-manually) using `yum`. Pigsty also introduces a complete compilation environment and infrastructure, allowing you to [compile extensions](https://github.com/Vonng/pigsty-rpm) not included in Pigsty & PGDG.
 
@@ -14,7 +14,7 @@ Some "database" are not actual PostgreSQL extensions, but also supported by pigs
 - [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb): Open-Source MongoDB Alternative (based on PostgreSQL)
 - [ParadeDB](https://www.paradedb.com/): Open-Source ElasticSearch Alternative (based on PostgreSQL)
 - [NocoDB](https://github.com/Vonng/pigsty/tree/master/app/nocodb): Open-Source Airtable Alternative (based on PostgreSQL)
-- [DuckDB](https://duckdb.org/): Open-Source Analytical SQLite Alternative (PostgreSQL Compatible)
+- [DuckDB](https://github.com/Vonng/pigsty/tree/master/app/duckdb): Open-Source Analytical SQLite Alternative (PostgreSQL Compatible)
 
 
 ------
@@ -23,32 +23,35 @@ Some "database" are not actual PostgreSQL extensions, but also supported by pigs
 
 Currently, the major version PostgreSQL 16 has the following extensions available, here are the extensions RPMs maintained by Pigsty (only available on EL7/8/9):
 
-| name          | version |   source   | comment                                                                                      |
-|---------------|:-------:|:----------:|----------------------------------------------------------------------------------------------|
-| pgml          |  2.8.1  | **PIGSTY** | PostgresML: access most advanced machine learning algorithms and pretrained models with SQL  |
-| age           |  1.5.0  | **PIGSTY** | Apache AGE graph database extension                                                          |
-| pointcloud    |  1.2.5  | **PIGSTY** | A PostgreSQL extension for storing point cloud (LIDAR) data.                                 |
-| http          |   1.6   | **PIGSTY** | HTTP client for PostgreSQL, allows web page retrieval inside the database.                   |
-| gzip          |   1.0   | **PIGSTY** | Gzip and unzip with SQL                                                                      |
-| pg_tle        |  1.3.4  | **PIGSTY** | Trusted Language Extensions for PostgreSQL                                                   |
-| roaringbitmap |   0.5   | **PIGSTY** | Support for Roaring Bitmaps                                                                  |
-| zhparser      |   2.2   | **PIGSTY** | Parser for full-text search of Chinese                                                       |
-| pg_net        |  0.8.0  | **PIGSTY** | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
-| pgjwt         |  0.2.0  | **PIGSTY** | JSON Web Token API for Postgresql                                                            |
-| vault         |  0.2.9  | **PIGSTY** | Extension for storing encrypted secrets in the Vault                                         |
-| pg_graphql    |  1.5.0  | **PIGSTY** | GraphQL support for PostgreSQL                                                               |
-| hydra         |  1.1.1  | **PIGSTY** | Hydra is open source, column-oriented Postgres extension                                     |
-| imgsmlr       |  1.0.0  | **PIGSTY** | ImgSmlr method is based on Haar wavelet transform                                            |
-| pg_similarity |  1.0.0  | **PIGSTY** | set of functions and operators for executing similarity queries                              |
-| pg_bigm       |  1.2.0  | **PIGSTY** | full text search capability with create 2-gram (bigram) index.                               |
-| svector       |  0.5.6  | **PIGSTY** | pg_sparse: Sparse vector data type and sparse HNSW access methods                            |
-| pg_bm25       |  0.5.6  | **PIGSTY** | ParadeDB: pg_bm25: Full text search for PostgreSQL using BM25                                |
-| pg_analytics  |  0.5.6  | **PIGSTY** | ParadeDB: Real-time analytics for PostgreSQL using columnar storage and vectorized execution |
-| duckdb_fdw    |   1.1   | **PIGSTY** | DuckDB Foreign Data Wrapper                                                                  |
+| name             | version |   source   | comment                                                                                      |
+|------------------|:-------:|:----------:|----------------------------------------------------------------------------------------------|
+| pgml             |  2.8.1  | **PIGSTY** | PostgresML: access most advanced machine learning algorithms and pretrained models with SQL  |
+| age              |  1.5.0  | **PIGSTY** | Apache AGE graph database extension                                                          |
+| pointcloud       |  1.2.5  | **PIGSTY** | A PostgreSQL extension for storing point cloud (LIDAR) data.                                 |
+| http             |   1.6   | **PIGSTY** | HTTP client for PostgreSQL, allows web page retrieval inside the database.                   |
+| gzip             |   1.0   | **PIGSTY** | Gzip and unzip with SQL                                                                      |
+| pg_tle           |  1.3.4  | **PIGSTY** | Trusted Language Extensions for PostgreSQL                                                   |
+| roaringbitmap    |   0.5   | **PIGSTY** | Support for Roaring Bitmaps                                                                  |
+| zhparser         |   2.2   | **PIGSTY** | Parser for full-text search of Chinese                                                       |
+| pg_net           |  0.8.0  | **PIGSTY** | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
+| pgjwt            |  0.2.0  | **PIGSTY** | JSON Web Token API for Postgresql                                                            |
+| vault            |  0.2.9  | **PIGSTY** | Extension for storing encrypted secrets in the Vault                                         |
+| pg_graphql       |  1.5.0  | **PIGSTY** | GraphQL support for PostgreSQL                                                               |
+| hydra            |  1.1.1  | **PIGSTY** | Hydra is open source, column-oriented Postgres extension                                     |
+| imgsmlr ❋        |  1.0.0  | **PIGSTY** | ImgSmlr method is based on Haar wavelet transform                                            |
+| pg_similarity ❋  |  1.0.0  | **PIGSTY** | set of functions and operators for executing similarity queries                              |
+| pg_bigm ❋        |  1.2.0  | **PIGSTY** | full text search capability with create 2-gram (bigram) index.                               |
+| svector          |  0.5.6  | **PIGSTY** | pg_sparse: Sparse vector data type and sparse HNSW access methods                            |
+| pg_bm25          |  0.5.6  | **PIGSTY** | ParadeDB: pg_bm25: Full text search for PostgreSQL using BM25                                |
+| pg_analytics     |  0.5.6  | **PIGSTY** | ParadeDB: Real-time analytics for PostgreSQL using columnar storage and vectorized execution |
+| duckdb_fdw       |   1.1   | **PIGSTY** | DuckDB Foreign Data Wrapper                                                                  |
+
+> Caveat: some extensions are **not** available on Debian/Ubuntu systems, you can build from source, including:
+> 
+> `http`, `gzip`, `pg_tle`, `roaringbitmap`, `zhparser`, `pgjwt`, `vault`, `hydra`, `imgsmlr`, `pg_bigm`, `duckdb_fdw`
+
 
 Extensions maintained by PGDG and included in the Pigsty offline pacakge:
-
-9: pg_hint_plan 1.6.0    safeupdate
 
 | name                         | version | source  | type  | comment                                                                                                             |
 |------------------------------|:-------:|:-------:|:-----:|---------------------------------------------------------------------------------------------------------------------|
@@ -192,40 +195,53 @@ Extensions maintained by PGDG and included in the Pigsty offline pacakge:
 | prefix                       |  1.2.0  | CONTRIB | TYPE  | Prefix Range module for PostgreSQL                                                                                  |
 | seg                          |   1.4   | CONTRIB | TYPE  | data type for representing line segments or floating-point intervals                                                |
 | xml2                         |   1.1   | CONTRIB | TYPE  | XPath querying and XSLT                                                                                             |
+> Extension marked with `❋` is not support PostgreSQL 16 yet, but can be installed on lower version: 12/13/14/15.
 
 
 ----------------
 
 ## Install Extension
 
-When you init a PostgreSQL cluster, the extensions listed in [`pg_extensions`](PARAM#pg_extension) will be installed. The default value for this parameter is:
+When you init a PostgreSQL cluster, the extensions listed in [`pg_packages`](PARAM#pg_packages) & [`pg_extensions`](PARAM#pg_extension) will be installed.
+
+For default EL systems, the default values of `pg_packages` and `pg_extensions` are defined as follows:
 
 ```yaml
-- pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # important extensions is always installed on pg_packages
-- postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}* hydra_${pg_version}*   # default extensions to be installed
+pg_packages:     # these extensions are always installed by default : pg_repack, wal2json, passwordcheck_cracklib
+  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # important extensions
+pg_extensions:   # install postgis, timescaledb, pgvector by default
+  - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
+```
+
+For ubuntu / debian, package names are different, and `passwordcheck_cracklib` is not available. 
+
+```yaml
+pg_packages:    # these extensions are always installed by default : pg_repack, wal2json
+  - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
+pg_extensions:  # these extensions are installed by default:
+  - postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector postgresql-${pg_version}-citus-12.1
 ```
 
 Here, `${pg_version}` is a placeholder that will be replaced with the actual major version number [`pg_version`](PARAM#pg_version) of that PostgreSQL cluster
 Therefore, the default configuration will install these extensions:
 
-- `postgis34`: Geospatial database extension
-- `timescaledb`: Time-series database extension
-- `citus`: Distributed/columnar storage extension
-- `pgvector`: Vector database/index extension
-- `pg_repack`: Extension for online table bloat processing
+- `pg_repack`: Extension for online table bloat processing.
 - `wal2json`: Extracts changes in JSON format through logical decoding.
-- `passwordcheck_cracklib`: Enforce password policy
+- `passwordcheck_cracklib`: Enforce password policy. (EL only)
+- `postgis`: Geospatial database extension (postgis34, EL7: postgis33)
+- `timescaledb`: Time-series database extension
+- `pgvector`: Vector datatype and ivfflat/hnsw index
+- `citus`: Distributed/columnar storage extension, (citus is conflict with `hydra`, choose one of them on EL systems)
 
-Please note that not all PostgreSQL major versions offer all of the above extensions, except for 15, the main supported versions by Pigsty. For example, as of 2023-09-15, when PostgreSQL 16 was just released, PG 16 still needs the `pg_repack`, `citus`, and `timescaledb` extensions. In such cases, you should modify the `pg_extensions` parameter in the cluster configuration to remove unsupported extensions.
 
 If you want to enable certain extensions in a target cluster that has not yet been created, you can directly declare them with the parameters:
 
 
 ```yaml
-pg-v15:
+pg-meta:
   hosts: { 10.10.10.10: { pg_seq: 1 ,pg_role: primary } }
   vars:
-    pg_cluster: pg-v15
+    pg_cluster: pg-meta
     pg_databases:
       - name: test
         extensions:                 # <----- install these extensions for database `test`
@@ -245,7 +261,7 @@ pg-v15:
 You can run the `pg_extension` sub-task in [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) to add extensions to clusters that have already been created.
 
 ```bash
-./pgsql.yml -l pg-v15 -t pg_extension    # install specified extensions for cluster pg-v15
+./pgsql.yml -l pg-meta -t pg_extension    # install specified extensions for cluster pg-v15
 ```
 
 To install **all** available extensions in one pass, you can just specify `pg_extensions: ['*${pg_version}*']`, which is really a bold move.
@@ -258,16 +274,15 @@ To install **all** available extensions in one pass, you can just specify `pg_ex
 After the PostgreSQL cluster is inited, you can manually install plugins via Ansible or Shell commands. For example, if you want to enable a specific extension on a cluster that has already been initialized:
 
 ```bash
-cd ~/pigsty;  # enter pigsty home dir and install the apache age extension for the pg-test cluster
-ansible pg-test -m yum -b -a 'name=apache-age_15*'     # The extension name usually has a suffix like `_<pgmajorversion>`
+cd ~/pigsty;    # enter pigsty home dir and install the apache age extension for the pg-test cluster
+ansible pg-test -m yum -b -a 'name=apache-age_16*'     # The extension name usually has a suffix like `_<pgmajorversion>`
 ```
 
-Most plugins are already included in the yum repository on the infrastructure node and can be installed directly using the yum command. If not included, you can consider downloading from the PGDG upstream source using the `repotrack` command or compiling source code into RPMs for distribution.
+Most plugins are already included in the yum repository on the infrastructure node and can be installed directly using the yum command. If not included, you can consider downloading from the PGDG upstream source using the `repotrack` / `apt download` command or compiling source code into RPMs for distribution.
 
 After the extension installation, you should be able to see them in the `pg_available_extensions` view of the target database cluster. Next, execute in the database where you want to install the extension:
 
 ```sql
 CREATE EXTENSION age;          -- install the graph database extension
 ```
-
 

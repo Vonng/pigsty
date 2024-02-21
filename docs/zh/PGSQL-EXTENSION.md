@@ -1,11 +1,12 @@
 # PostgreSQL 扩展插件
 
-扩展是 PostgreSQL 的灵魂，而 Pigsty 深度整合了 PostgreSQL 生态的核心扩展插件，为您提供开箱即用的分布式的时序地理空间图文向量数据库能力！详见[扩展列表](PGSQL-EXTENSION#扩展列表)。
+扩展是 PostgreSQL 的灵魂，而 Pigsty 深度整合了 PostgreSQL 生态的核心扩展插件，为您提供开箱即用的分布式的时序地理空间图文向量数据库能力！详见 [**扩展列表**](PGSQL-EXTENSION#扩展列表)。
 
 Pigsty 收录了超过 **150+** PostgreSQL 扩展插件，并编译打包整合维护了许多官方 PGDG 源没有收录的扩展。并且通过充分的测试确保所有这些插件可以正常协同工作。其中还包括了一些非常强力的组件，例如：
-您可以使用 [PostGIS](https://postgis.net/) 处理地理空间数据，使用 [TimescaleDB](https://www.timescale.com/) 分析时序/事件流数据，
-使用 [Citus](https://www.citusdata.com/) 将单机数据库原地改造为水平扩展的分布式集群，使用 [PGVector](https://github.com/pgvector/pgvector) 存储并搜索 AI 嵌入，
-使用 [Apache AGE](https://age.apache.org/) 进行图数据存储与检索实现 Neo4J 的效果，使用 [BM25](https://github.com/amutu/zhparser) 实现 ElasticSearch 的效果。
+您可以使用 [`PostGIS`](https://postgis.net/) 处理地理空间数据，使用 [`TimescaleDB`](https://www.timescale.com/) 分析时序/事件流数据，
+使用 [`Citus`](https://www.citusdata.com/) 将单机数据库原地改造为水平扩展的分布式集群，使用 [`PGVector`](https://github.com/pgvector/pgvector) 存储并搜索 AI 嵌入，
+使用 [`Apache AGE`](https://age.apache.org/) 进行图数据存储与检索实现 Neo4J 的效果，使用 [`zhparser`](https://github.com/amutu/zhparser)进行中文分词， 使用 [`pg_bm25`](https://blog.paradedb.com/pages/introducing_bm25) 实现 ElasticSearch 级的全文检索；
+使用 [`hydra`](https://www.hydra.so/)， [`pg_analytics`](https://blog.paradedb.com/pages/introducing_analytics) 以及 [`duckdb_fdw`](https://github.com/alitrack/duckdb_fdw) 处理 OLAP 工作负载。
 
 绝大多数插件插件都已经收录放置在基础设施节点上的本地软件源中，可以直接通过 PGSQL [集群配置](#扩展安装) 自动启用，或使用 `yum` 命令[手工安装](#手工安装扩展)。Pigsty 还包含了完整的编译环境与基础设施，允许您方便地自行[编译加装](https://github.com/Vonng/pigsty-rpm)其他未收录的扩展。
 
@@ -17,7 +18,7 @@ Pigsty 收录了超过 **150+** PostgreSQL 扩展插件，并编译打包整合�
 - [FerretDB](https://github.com/Vonng/pigsty/tree/master/app/ferretdb): 开源 MongoDB 替代 (基于PostgreSQL)
 - [ParadeDB](https://www.paradedb.com/): 开源 ElasticSearch 替代，使用 BM25 与稀疏向量混合检索（基于PostgreSQL）
 - [NocoDB](https://github.com/Vonng/pigsty/tree/master/app/nocodb): 开源 Airtable 替代 (基于PostgreSQL)
-- [DuckDB](https://duckdb.org/): 开源分析 SQLite 替代（兼容PostgreSQL协议）
+- [DuckDB](https://github.com/Vonng/pigsty/tree/master/app/duckdb): 开源分析数据库（兼容PostgreSQL协议）
 
 
 ----------------
@@ -50,6 +51,11 @@ Pigsty 收录了超过 **150+** PostgreSQL 扩展插件，并编译打包整合�
 | pg_bm25         | 0.5.6 | **PIGSTY** | FEAT | ParadeDB BM25算法全文检索插件           |
 | pg_analytics    | 0.5.6 | **PIGSTY** | FEAT | ParadeDB 列存x向量执行分析加速插件          |
 | duckdb_fdw      |  1.1  | **PIGSTY** | FEAT | DuckDB 外部数据源包装器 (libduck 0.9.2) |
+
+> 注意：一些扩展在 Debian/Ubuntu 系统上不可用，您可以从源码构建安装，包括：
+>
+> `http`, `gzip`, `pg_tle`, `roaringbitmap`, `zhparser`, `pgjwt`, `vault`, `hydra`, `imgsmlr`, `pg_bigm`, `duckdb_fdw`
+
 
 由 PostgreSQL 全球开发组，PGDG 维护，并被 Pigsty 收录的的官方插件：
 
@@ -202,22 +208,35 @@ Pigsty 收录了超过 **150+** PostgreSQL 扩展插件，并编译打包整合�
 
 ## 扩展安装
 
-当您初始化 PostgreSQL 集群时，列于 [`pg_extensions`](PARAM#pg_extension) 的扩展插件将会被安装。该参数的默认值为：
+当您初始化 PostgreSQL 集群时，列于 [`pg_extensions`](PARAM#pg_extension) 的扩展插件将会被安装。该参数的默认值在 EL系统中为：
 
 ```yaml
-pg_extensions:     # 待安装的 pg 扩展列表，`${pg_version}` 会被替换为真实的数据库大版本 pg_version
+
+pg_packages:     # 这三个扩展插件总是随主干大版本一起安装： pg_repack, wal2json, passwordcheck_cracklib
   - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
+pg_extensions:   # 待安装的 pg 扩展列表，默认安装 postgis，timescaledb，pgvector
   - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
+```
+
+在 Ubuntu/Debian 中，包的名称略有不同，且 `passwordcheck_cracklib` 扩展不可用。
+
+```yaml
+pg_packages:    # 这两个扩展插件总是随主干大版本一起安装： pg_repack, wal2json
+  - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
+pg_extensions:  # 待安装的 pg 扩展列表，默认安装 postgis，timescaledb，pgvector，citus
+  - postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector postgresql-${pg_version}-citus-12.1
 ```
 
 其中 `${pg_version}` 是一个占位符变量，将在实际安装时被替换为 PostgreSQL 数据库集群大版本号。因此，默认的配置文件会安装这些扩展：
 
-- `postgis34`：地理空间数据库扩展
-- `timescaledb`：时序流式数据库扩展
-- `pgvector`：向量数据库/索引扩展
 - `pg_repack`：在线处理表膨胀的扩展
 - `wal2json`：通过逻辑解码抽取JSON格式的变更。
-- `passwordcheck_cracklib`：强制用户密码强度/过期策略
+- `passwordcheck_cracklib`：强制用户密码强度/过期策略 （仅EL可用）
+- `postgis`：地理空间数据库扩展（注意 EL7 的版本为 3.3，不再更新）
+- `timescaledb`：时序流式数据库扩展
+- `pgvector`：向量数据库/索引扩展
+- `citus`：默认在 Debian/Ubuntu 中安装，EL系因为与 Fork 出来的列存插件 `hydra`冲突，用户可以二者择一安装。
+
 
 请注意，Pigsty 默认只提供主要版本（PG16）上的扩展插件。当您使用其他大版本的 PostgreSQL 时，应当从上游下载对应大版本的扩展，并调整集群配置里的 `pg_extensions` 参数，移除不受支持的扩展。
 
@@ -266,7 +285,7 @@ ansible pg-test -m yum -b -a 'name=zhparser_16*'       # 例如，您的数据�
 ```
 
 绝大多数插件插件都已经收录放置在基础设施节点上的软件源中，可以直接通过 yum/apt 命令安装。
-如果没有收录，您可以考虑从 PGDG 上游源使用 `repotrack`/`apt download` 命令下载，或者选择在本地[编译](#扩展编译)好后打包成 RPM/DEB 包分发。
+如果没有收录，您可以考虑从 PGDG 上游源使用 `repotrack`/`apt download` 命令下载，或者选择在本地编译好后打包成 RPM/DEB 包分发。
 
 扩展安装完成后，您应当能在目标数据库集群的 `pg_available_extensions` 视图中看到它们，接下来在想要安装扩展的数据库中执行：
 
