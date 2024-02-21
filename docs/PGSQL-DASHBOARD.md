@@ -1,8 +1,8 @@
 # PGSQL Dashboard
 
-> Grafana Dashboards for Pigsty managed PostgreSQL clusters
+> Grafana Dashboards for PostgreSQL clusters:  [Demo](https://demo.pigsty.cc/d/pgsql-overview) & [Gallery](https://github.com/Vonng/pigsty/wiki/Gallery).
 
-![pigsty-dashboard.jpg](https://repo.pigsty.cc/img/pigsty-dashboard.jpg)
+[![pigsty-dashboard.jpg](https://repo.pigsty.cc/img/pigsty-dashboard.jpg)](https://github.com/Vonng/pigsty/wiki/Gallery)
 
 There are 26 default grafana dashboards about PostgreSQL and categorized into 4 levels. and categorized into [PGSQL](#overview), [PGCAT](#pgcat) & [PGLOG](#pglog) by datasource.
 
