@@ -40,16 +40,18 @@ resource "alicloud_security_group_rule" "allow_all_tcp" {
 # pg-test: 1c1G x3
 
 # Available IMAGES: https://help.aliyun.com/zh/ecs/user-guide/release-notes-for-2023
-# CentOS 7.9   :  centos_7_9_x64_20G_alibase_20230815.vhd
-# Rocky 8.8    :  rockylinux_8_8_x64_20G_alibase_20230613.vhd
-# Rocky 9.2    :  rockylinux_9_2_x64_20G_alibase_20230613.vhd
-# Ubuntu 20.04 :  ubuntu_20_04_x64_20G_alibase_20230815.vhd
-# Ubuntu 22.04 :  ubuntu_22_04_x64_20G_alibase_20230815.vhd
+# CentOS 7.9   :  centos_7_9_x64_20G_alibase_20231220.vhd
+# Rocky 8.9    :  rockylinux_8_9_x64_20G_alibase_20231221.vhd
+# Rocky 9.3    :  rockylinux_9_3_x64_20G_alibase_20231221.vhd
+# Ubuntu 20.04 :  ubuntu_20_04_x64_20G_alibase_20231221.vhd
+# Ubuntu 22.04 :  ubuntu_22_04_x64_20G_alibase_20231221.vhd
+# Debian 11.7  :  debian_11_7_x64_20G_alibase_20230907.vhd
+# Debian 12    :  debian_12_4_x64_20G_alibase_20231220.vhd
 # Anolis 8.8   :  anolisos_8_8_x64_20G_rhck_alibase_20230804.vhd
-# Debian 11.7  :  debian_11_7_x64_20G_alibase_20230718.vhd
+
 data "alicloud_images" "images_ds" {
   owners     = "system"
-  name_regex = "^rockylinux_8_8_x64"
+  name_regex = "^rockylinux_8_9_x64"    # use rocky 8.9 by default
 }
 # ${data.alicloud_images.images_ds.images.0.id}
 
@@ -58,7 +60,7 @@ data "alicloud_images" "images_ds" {
 resource "alicloud_instance" "pg-meta-1" {
   instance_name              = "pg-meta-1"
   host_name                  = "pg-meta-1"
-  instance_type              = "ecs.s6-c1m2.small"
+  instance_type              = "ecs.n1.small"
   vswitch_id                 = "${alicloud_vswitch.vsw.id}"
   security_groups            = ["${alicloud_security_group.default.id}"]
   image_id                   = "${data.alicloud_images.images_ds.images.0.id}"
@@ -73,7 +75,7 @@ resource "alicloud_instance" "pg-test-groups" {
   instance_name   = "pg-test-${each.key}"
   host_name       = "pg-test-${each.key}"
   private_ip      = "10.10.10.1${each.key}"
-  instance_type   = "ecs.s6-c1m1.small"
+  instance_type   = "ecs.n1.tiny"
   vswitch_id      = "${alicloud_vswitch.vsw.id}"
   security_groups = ["${alicloud_security_group.default.id}"]
   image_id        = "${data.alicloud_images.images_ds.images.0.id}"
