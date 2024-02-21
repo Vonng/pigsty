@@ -1245,9 +1245,9 @@ AlertManager 的额外的命令行参数，默认值：空字符串。
 
 指明安装Exporter的方式：
 
-* `none`：不安装，（默认行为，Exporter已经在先前由 [`node.pkgs`](/zh/docs/nodes/config#node_packages_default) 任务完成安装）
-* `yum`：使用yum（apt）安装（如果启用yum安装，在部署Exporter前执行yum安装 [`node_exporter`](#node_exporter) 与 [`pg_exporter`](/zh/docs/pgsql/config#pg_exporter) ）
-* `binary`：使用拷贝二进制的方式安装（从元节点中直接拷贝[`node_exporter`](#node_exporter) 与 [`pg_exporter`](/zh/docs/pgsql/config#pg_exporter) 二进制，不推荐）
+* `none`：不安装，（默认行为，Exporter已经在先前由 [`node_pkg`](NODE#nodeyml) 任务完成安装）
+* `yum`：使用yum（apt）安装（如果启用yum安装，在部署Exporter前执行yum安装 [`node_exporter`](#node_exporter) 与 [`pg_exporter`](#pg_exporter) ）
+* `binary`：使用拷贝二进制的方式安装（从元节点中直接拷贝[`node_exporter`](#node_exporter) 与 [`pg_exporter`](#pg_exporter) 二进制，不推荐）
 
 使用`yum`安装时，如果指定了`exporter_repo_url`（不为空），在执行安装时会首先将该URL下的REPO文件安装至`/etc/yum.repos.d`中。这一功能可以在不执行节点基础设施初始化的环境下直接进行Exporter的安装。
 不推荐普通用户使用`binary`安装，这种模式通常用于紧急故障抢修与临时问题修复。
@@ -1928,7 +1928,7 @@ node_kernel_modules: [ softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_wrr, ip_vs_
 * `olap`：常规OLAP模板，优化吞吐量
 * `crit`：核心金融业务模板，优化脏页数量
 
-通常，数据库的调优模板 [`pg_conf`](/zh/docs/pgsql/config#pg_conf)应当与机器调优模板配套，详情请参考[定制PGSQL模版](/zh/docs/pgsql/customize)。
+通常，数据库的调优模板 [`pg_conf`](PARAM#pg_conf)应当与机器调优模板配套。
 
 
 

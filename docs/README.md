@@ -41,12 +41,13 @@
 Prepare a fresh Linux x86_64 node that runs [**compatible**](#compatibility) operating systems distributions (EL 7/8/9, Ubuntu 20.04/22.04, Debian 11/12)
 
 ```bash
-# run as the admin user with no password ssh & sudo capability
+# run as the admin user with no password ssh & sudo capability (`root` is not recommended)
 curl -fsSL https://get.pigsty.cc/latest | bash
 cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 ```
 
-Then you will have a pigsty singleton node ready, with Web Services on port `80` and Postgres on port `5432`.
+Then you will have a pigsty singleton node ready, with Web Services on port `80/443` through Nginx [**Infra Portal**](INFRA#overview), and you can [access](PGSQL-SVC#access-service) the PostgreSQL [service](PGSQL-SVC#default-service) through the `5432` port.
+
 
 <details><summary>Download with Get</summary>
 
@@ -61,7 +62,7 @@ FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigs
 [ OK ] download pigsty source code from CDN
 [ OK ] $ curl -SL https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz
 ...
-MD5: d5dc4a51efc81932a03d7c010d0d5d64  /tmp/pigsty-v2.6.0.tgz
+MD5: xxxxxxxxxxxx  /tmp/pigsty-v2.6.0.tgz
 [Extracting] ===========================================
 [ OK ] extract '/tmp/pigsty-v2.6.0.tgz' to '/home/vagrant/pigsty'
 [ OK ] $ tar -xf /tmp/pigsty-v2.6.0.tgz -C ~;
@@ -112,6 +113,8 @@ curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6
 curl -L https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz
 curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz -o /tmp/pkg.tgz       # EL8: Rocky 8.9 ...
 ```
+
+Beware that pre-packed offline packages are OS Minor version specific, if you are using a different minor version (e.g: 7.6, 8.6, 9.1), consider not using the offline package and perform the default online installation.
 
 </details>
 
@@ -445,7 +448,7 @@ Check [**Configuration**](CONFIG) & [**PGSQL Conf**](PGSQL-CONF.md) for details.
 
 ## Compatibility
 
-Pigsty runs on bare OS without containerization: EL  7/8/9 (RHEL, Rocky, CentOS, Alma, Oracle, Anolis, etc...), Ubuntu 20.04 / 22.04 & Debian 11/12. EL 8/9 is our primary supported OS, while Ubuntu/Debian support is newly introduced since v2.5. They have slight differences in package names and available [extension](PGSQL-EXTENSION) list.
+Pigsty runs on bare OS without containerization: EL 7/8/9 (RHEL, Rocky, CentOS, Alma, Oracle, Anolis, etc...), Ubuntu 20.04 / 22.04 & Debian 11/12. EL 8/9 is our primary supported OS, while Ubuntu/Debian support is newly introduced since v2.5. They have slight differences in package names and available [extension](PGSQL-EXTENSION) list.
 
 We highly recommend using **RockyLinux** **8.9**, **9.3**, and **Ubuntu 22.04** (jammy) as the Operating System for Pigsty. We have pre-packed [offline packages](INSTALL#offline-packages) for these three distros, ensuring a smooth installation process even **without Internet** access. For other OS and their compatible distros, the initial installation requires Internet access to download and build a local YUM/APT repo.
 
