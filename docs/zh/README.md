@@ -1,6 +1,6 @@
 # Pigsty
 
-> "**P**ostgreSQL **I**n **G**reat **STY**le."
+> "**P**ostgreSQL **I**n **G**reat **STY**le": **P**ostgres, **I**nfras, **G**raphics, **S**ervice, **T**oolbox, it's all **Y**ours.
 >
 > —— **开箱即用、本地优先的 PostgreSQL 发行版，开源RDS替代**
 >
@@ -15,19 +15,17 @@
 
 > Pigsty 提出以下六条 [**价值主张**](FEATURE#价值主张) ，更多详情请参阅 [**功能特性**](FEATURE.md) 。
 
-**可靠性**: 快速创建高可用、故障自愈的PostgreSQL集群，自动配置时间点恢复、访问控制、自签名CA与SSL，确保数据坚如磐石。
+[**可扩展性**](https://repo.pigsty.cc/img/pigsty-extension.jpg)： 强力[**扩展**](PGSQL-EXTENSION)开箱即用：深度整合地理空间、时序、向量、图、分布式、列存、全文检索、分词、AI/ML 等 [**150+**](PGSQL-EXTENSION#扩展列表) PG生态插件。
 
-**可用性**: 交付稳定可靠，自动路由与池化、预置读写分离的数据库服务，通过 HAProxy，Pgbouncer，L2 VIP 提供灵活的接入模式。
+[**可靠性**](https://repo.pigsty.cc/img/pigsty-arch.jpg)：快速创建[**高可用**](PGSQL-ARCH#高可用)、故障自愈的PostgreSQL集群，自动配置时间点恢复、访问控制、自签名CA与SSL，确保数据坚如磐石。
 
-**扩展性**: 强力扩展开箱即用：深度整合地理空间、时序、向量、图、分布式、列存、全文检索、分词、AI/ML 等 **150+** PG生态插件。
+[**可观测性**](https://repo.pigsty.cc/img/pigsty-dashboard.jpg)： 基于 **Prometheus** & **Grafana** 现代可观测性技术栈，提供惊艳的监控最佳实践。模块化设计，可独立使用：[**画廊**](https://github.com/Vonng/pigsty/wiki/Gallery) & [**Demo**](https://demo.pigsty.cc)。
 
-**兼容性**: 运行于裸操作系统上，无需容器支持，支持 EL7/8/9 (RHEL, Rocky, CentOS, Alma, Oracle, Anolis) 与 Debian12 / Ubuntu22.04。
+[**可用性**](https://repo.pigsty.cc/img/pgsql-ha.jpg)：交付稳定可靠，自动路由与池化、预置读写分离的高性能数据库[**服务**](PGSQL-SVC#默认服务)，通过 HAProxy，Pgbouncer，VIP 提供灵活的[**接入**](PGSQL-SVC#接入服务)模式。
 
-**可观测性**: 基于 Prometheus & Grafana 现代可观测性技术栈，提供惊艳的监控最佳实践。模块化设计，可独立使用：[画廊](https://github.com/Vonng/pigsty/wiki/Gallery) & [Demo](https://demo.pigsty.cc)。
+[**可维护性**](https://repo.pigsty.cc/img/pigsty-iac.jpg)：[**简单易用**](INSTALL)，[**基础设施即代码**](PGSQL-CONF)，[**管理SOP预案**](PGSQL-ADMIN)，自动调参，本地软件仓库，[**Vagrant**](PROVISION#vagrant) 沙箱与 [**Terraform**](PROVISION#terraform) 模板，不停机[**迁移**](PGSQL-MIGRATION)方案。
 
-**可维护性**: 基础设施即代码，管理SOP预案，自动调优的配置模板，本地软件仓库，vagrant 沙箱与 terraform 模板，不停机迁移方案。
-
-**其他功能**: Redis，MinIO，ETCD，FerretDB，DuckDB，自托管的 Supabase & PostgresML，以及诸多 PG 相关的 Docker 软件/工具模板。
+[**可组合性**](https://repo.pigsty.cc/img/pigsty-sandbox.jpg)：[**模块化**](ARCH#模块)架构设计，可复用的 [**Infra**](INFRA)，多种可选功能模块：[**Redis**](REDIS), [**MinIO**](MINIO), [**ETCD**](ETCD), [**FerretDB**](MONGO), [**DuckDB**](https://github.com/Vonng/pigsty/tree/master/app/duckdb), [**Supabase**](https://github.com/Vonng/pigsty/tree/master/app/supabase), [**Docker**](APP) 应用。
 
 [![pigsty-distro](https://repo.pigsty.cc/img/pigsty-distro.jpg)](FEATURE#价值主张)
 

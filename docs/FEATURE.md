@@ -1,12 +1,33 @@
 # Features
 
-Pigsty is a **Me-Better, Battery-Included, Open-Source RDS PG Alternative**:
+> "**P**ostgreSQL **I**n **G**reat **STY**le": **P**ostgres, **I**nfras, **G**raphics, **S**ervice, **T**oolbox, it's all **Y**ours.
+>
+> —— Battery-Included, Local-First **PostgreSQL** Distribution as an Open-Source **RDS** Alternative
+
+
+----------------
+
+## Values
+
+- [**Extensibility**](https://repo.pigsty.cc/img/pigsty-extension.jpg): Powerful [**Extensions**](PGSQL-EXTENSION) Ready for use: **PostGIS**, **TimescaleDB**, **Citus**, **PGVector**, Search, HTAP, AIML, and [**150+**](PGSQL-EXTENSION#extension-list) more.
+- [**Reliability**](https://repo.pigsty.cc/img/pigsty-arch.jpg): Create self-healing [**High Available**](PGSQL-ARCH#high-availability) [**PostgreSQL**](PGSQL) clusters with pre-configured [**PITR**](PGSQL-ARCH#point-in-time-recovery), built-in [**ACL**](PGSQL-ACL), [**CA**](PARAM#ca) & **SSL** in minutes.
+- [**Observability**](https://repo.pigsty.cc/img/pigsty-dashboard.jpg): Monitoring best practices build upon the modern **Prometheus** & **Grafana** stack: Check our live [**Demo**](https://demo.pigsty.cc) & [**Gallery**](https://github.com/Vonng/pigsty/wiki/Gallery).
+- [**Availability**](https://repo.pigsty.cc/img/pgsql-ha.jpg): Deliver auto-routed, high-performance, and flexible database [**Services**](PGSQL-SVC#default-service) [**Access**](PGSQL-SVC#access-service) with **haproxy**, **pgbouncer**, and VIP.
+- [**Maintainability**](https://repo.pigsty.cc/img/pigsty-iac.jpg): Easy to [**use**](INSTALL), Infra as Code [**API**](PGSQL-CONF), Admin [**SOP**](PGSQL-ADMIN), **auto-tuned**, local yum/apt repo, [**Vagrant**](PROVISION#vagrant) sandbox, [**Terraform**](PROVISION#terraform) spec.
+- [**Composability**](https://repo.pigsty.cc/img/pigsty-sandbox.jpg): [**Modular**](ARCH#modules) design, Flexible [**Arch**](ARCH#singleton-meta), bonus features: [**Redis**](REDIS), [**MinIO**](MINIO), [**ETCD**](ETCD), [**FerretDB**](MONGO), [**DuckDB**](https://github.com/Vonng/pigsty/tree/master/app/duckdb), [**Supabase**](https://github.com/Vonng/pigsty/tree/master/app/supabase), [**Docker**](APP) Apps.
+
+[![pigsty-value](https://repo.pigsty.cc/img/pigsty-value.jpg)](https://repo.pigsty.cc/img/pigsty-value.jpg)
+
+
+----------------
+
+## Overview
 
 - [Battery-Included RDS](#battery-included-rds): Delivers production-ready PostgreSQL services from version 12-16 on Linux x86, spanning kernel to RDS distribution.
 - [Plentiful Extensions](#plentiful-extensions): Integrates 150+ extensions, providing turnkey capabilities for time-series, geospatial, full-text-search, vector and more!
-- [Flexible Architecture](#flexible-architecture): Compose Redis/Etcd/MinIO/Mongo modules on nodes, monitoring existing cluster and remote RDS, self hosting Supabase/PostgresML.
+- [Flexible Architecture](#flexible-architecture): Compose Redis/Etcd/MinIO/Mongo modules on nodes, monitoring existing cluster and remote RDS, self-hosting Supabase.
 - [Stunning Observability](#stunning-observability): Leveraging the Prometheus/Grafana modern observability stack, and provides unmatched database insights.
-- [Proven Reliability](#proven-reliability): Self-healing HA architecture with automatic failover and uninterrupted client access, and auto-configured PITR.
+- [Proven Reliability](#proven-reliability): Self-healing HA architecture with automatic failover and uninterrupted client access, and pre-configured PITR.
 - [Great Maintainability](#great-maintainability): Declarative API, GitOps ready, foolproof design, Database/Infra-as-Code, and management SOP seals complexity!
 - [Sound Security](#sound-security): Nothing needs to be worried about database security, as long as your hardware & credentials are safe.
 - [Versatile Application](#versatile-application): Lots of applications work well with PostgreSQL. Run them in one command with docker.
@@ -48,7 +69,7 @@ Pigsty boasts over **150** PostgreSQL extensions, and maintaining some not found
 
 You can also run self-hosted [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase/README.md) & [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml) with Pigsty managed HA PostgreSQL. If you want to add your own extension, feel free to [suggest](https://github.com/Vonng/pigsty/discussions/333) or [compile](PGSQL-EXTENSION.md#compile-extension) it by yourself.
 
-[![pigsty-distro.jpg](https://repo.pigsty.cc/img/pigsty-distro.jpg)](PGSQL-EXTENSION.md)
+[![pigsty-extension.jpg](https://repo.pigsty.cc/img/pigsty-extension.jpg)](PGSQL-EXTENSION.md)
 
 
 

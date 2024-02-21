@@ -1,5 +1,28 @@
 # 亮点特性
 
+> "**P**ostgreSQL **I**n **G**reat **STY**le": **P**ostgres, **I**nfras, **G**raphics, **S**ervice, **T**oolbox, it's all **Y**ours.
+>
+> —— **开箱即用、本地优先的 PostgreSQL 发行版，开源RDS替代**
+
+
+----------------
+
+## 价值主张
+
+- [**可扩展性**](https://repo.pigsty.cc/img/pigsty-extension.jpg)： 强力[**扩展**](PGSQL-EXTENSION)开箱即用：深度整合地理空间、时序、向量、图、分布式、列存、全文检索、分词、AI/ML 等 [**150+**](PGSQL-EXTENSION#扩展列表) PG生态插件。
+- [**可靠性**](https://repo.pigsty.cc/img/pigsty-arch.jpg)：快速创建[**高可用**](PGSQL-ARCH#高可用)、故障自愈的PostgreSQL集群，自动配置时间点恢复、访问控制、自签名CA与SSL，确保数据坚如磐石。
+- [**可观测性**](https://repo.pigsty.cc/img/pigsty-dashboard.jpg)： 基于 **Prometheus** & **Grafana** 现代可观测性技术栈，提供惊艳的监控最佳实践。模块化设计，可独立使用：[**画廊**](https://github.com/Vonng/pigsty/wiki/Gallery) & [**Demo**](https://demo.pigsty.cc)。
+- [**可用性**](https://repo.pigsty.cc/img/pgsql-ha.jpg)：交付稳定可靠，自动路由与池化、预置读写分离的高性能数据库[**服务**](PGSQL-SVC#默认服务)，通过 HAProxy，Pgbouncer，VIP 提供灵活的[**接入**](PGSQL-SVC#接入服务)模式。
+- [**可维护性**](https://repo.pigsty.cc/img/pigsty-iac.jpg)：[**简单易用**](INSTALL)，[**基础设施即代码**](PGSQL-CONF)，[**管理SOP预案**](PGSQL-ADMIN)，自动调参，本地软件仓库，[**Vagrant**](PROVISION#vagrant) 沙箱与 [**Terraform**](PROVISION#terraform) 模板，不停机[**迁移**](PGSQL-MIGRATION)方案。
+- [**可组合性**](https://repo.pigsty.cc/img/pigsty-sandbox.jpg)：[**模块化**](ARCH#模块)架构设计，可复用的 [**Infra**](INFRA)，多种可选功能模块：[**Redis**](REDIS), [**MinIO**](MINIO), [**ETCD**](ETCD), [**FerretDB**](MONGO), [**DuckDB**](https://github.com/Vonng/pigsty/tree/master/app/duckdb), [**Supabase**](https://github.com/Vonng/pigsty/tree/master/app/supabase), [**Docker**](APP) 应用。
+
+[![pigsty-value](https://repo.pigsty.cc/img/pigsty-value.jpg)](https://repo.pigsty.cc/img/pigsty-value.jpg)
+
+
+----------------
+
+## 总览
+
 Pigsty 是一个更好的本地开源 RDS for PostgreSQL 替代：
 
 - [开箱即用的RDS](#开箱即用的rds)：从内核到RDS发行版，在 EL7-9 下提供 12-16 版本的生产级 PostgreSQL 数据库服务。
@@ -11,8 +34,6 @@ Pigsty 是一个更好的本地开源 RDS for PostgreSQL 替代：
 - [扎实的安全实践](#扎实的安全实践)：加密备份一应俱全，自带基础ACL最佳实践。只要硬件与密钥安全，您无需操心数据库的安全性！
 - [广泛的应用场景](#广泛的应用场景)：低代码数据应用开发，或使用预置的 Docker Compose 模板，一键拉起使用PostgreSQL的海量软件！
 - [开源的自由软件](#开源的自由软件)：以云数据库1/10不到的成本拥有与更好的数据库服务！帮您真正“拥有”自己的数据，实现自主可控！
-
-[![pigsty-home.jpg](https://repo.pigsty.cc/img/pigsty-home.jpg)](https://demo.pigsty.cc)
 
 
 ----------------

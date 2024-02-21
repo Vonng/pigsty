@@ -4,9 +4,10 @@
 >
 > —— Battery-Included, Local-First **PostgreSQL** Distribution as an Open-Source **RDS** Alternative
 >
-> Latest Release: [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/V6sBDXN9) ｜ [中文文档](https://doc.pigsty.cc/#/zh/)
+> Latest Beta: [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/V6sBDXN9) ｜ [中文文档](https://doc.pigsty.cc/#/zh/)
 >
-> [Get Started](docs/INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash` (or replace `latest` with `beta`)
+> [Get Started](docs/INSTALL.md) with `curl -fsSL https://get.pigsty.cc/beta | bash` (beta 2.6.0) 
+
 
 
 ----------------
@@ -28,7 +29,6 @@
 [**Composability**](https://repo.pigsty.cc/img/pigsty-sandbox.jpg): [**Modular**](docs/ARCH.md#modules) design, Flexible [**Arch**](docs/ARCH.md#singleton-meta), bonus features: [**Redis**](docs/REDIS.md), [**MinIO**](docs/MINIO.md), [**ETCD**](docs/ETCD.md), [**FerretDB**](docs/MONGO.md), [**DuckDB**](https://github.com/Vonng/pigsty/tree/master/app/duckdb), [**Supabase**](https://github.com/Vonng/pigsty/tree/master/app/supabase), [**Docker**](docs/APP.md) Apps.
 
 [![pigsty-distro](https://repo.pigsty.cc/img/pigsty-distro.jpg)](docs/FEATURE.md#values)
-
 
 
 
@@ -444,11 +444,14 @@ Check [**Configuration**](docs/CONFIG.md) & [**PGSQL Conf**](docs/PGSQL-CONF.md)
 
 ## Compatibility
 
-Pigsty runs on bare OS without containerization: EL  7/8/9 (RHEL, Rocky, CentOS, Alma, Oracle, Anolis, etc...), Ubuntu 20.04 / 22.04 & Debian 11/12. EL 8/9 is our primary supported OS, while Ubuntu/Debian support is newly introduced since v2.5. They have slight differences in package names and available [extension](docs/PGSQL-EXTENSION.md) list.
+Pigsty runs on bare OS without containerization: EL 7/8/9 (RHEL, Rocky, CentOS, Alma, Oracle, Anolis, etc...), Ubuntu 20.04 / 22.04 & Debian 11/12.
+EL 8/9 is our primary supported OS, while Ubuntu/Debian support is newly introduced since v2.5. They have slight differences in package names and available [extension](docs/PGSQL-EXTENSION.md) list.
 
-We highly recommend using **RockyLinux** **8.9**, **9.3**, and **Ubuntu 22.04** (jammy) as the Operating System for Pigsty. We have pre-packed [offline packages](docs/INSTALL.md#offline-packages) for these three distros, ensuring a smooth installation process even **without Internet** access. For other OS and their compatible distros, the initial installation requires Internet access to download and build a local YUM/APT repo.
+We highly recommend using **RockyLinux** **8.9**, **9.3**, and **Ubuntu 22.04** (jammy) as the Operating System for Pigsty. We have pre-packed [offline packages](docs/INSTALL.md#offline-packages) for these three distros, ensuring a smooth installation process even **without Internet** access. 
+For other OS and their compatible distros, the initial installation requires Internet access to download and build a local YUM/APT repo.
 
-PostgreSQL **16** is the primary supported version, with full extension support. But you can also use older PostgreSQL 12 / 13 / 14 / 15 with some slight modifications. We have also extended compatibility support (OS, Distro, PG, Arch) in our service [subscriptions](docs/SUPPORT.md).
+PostgreSQL **16** is the primary supported version, with full extension support. But you can also use older PostgreSQL 12 / 13 / 14 / 15 with some slight modifications.
+We have also extended compatibility support (OS, Distro, PG, Arch) in our service [subscriptions](docs/SUPPORT.md).
 
 
 ----------------
