@@ -53,7 +53,9 @@ resource "alicloud_security_group_rule" "allow_all_tcp" {
 
 data "alicloud_images" "images_ds" {
   owners     = "system"
-  name_regex = "^rockylinux_8_9_x64"
+  name_regex = "^rockylinux_8_9_x64"    # use rocky 8.9 by default
+  #name_regex = "^rockylinux_9_3_x64"    # use rocky 9.3 by default
+  #name_regex = "^ubuntu_22_04_x64"      # use ubuntu 22.04 by default
 }
 # ${data.alicloud_images.images_ds.images.0.id}
 
