@@ -3,7 +3,7 @@
 # File      :   bootstrap
 # Desc      :   setup local repo & install boot utils
 # Ctime     :   2022-10-16
-# Mtime     :   2024-02-19
+# Mtime     :   2024-02-21
 # Path      :   bootstrap
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -287,6 +287,36 @@ function check_pkg(){
         else
             log_warn "cache = ${pkg_path} exists but invalid"
             rm -rf ${pkg_path}
+        fi
+    fi
+
+    # skip distro that does not have pre-packed offline packages, we currently support EL 8.9, EL 9.3, and Ubuntu 22.04
+    if [[ ${OS_PACKAGE} == "rpm" ]]; then
+        if [[ $OS_VERSION == "7" ]]; then
+            log_warn "EL 7.9 has DEPRECATED offline package available, use with caution"
+            #return 0
+        elif [[ $OS_VERSION == "8" ]]; then
+            log_info "EL 8.9 has pre-packed offline package available (beware the minor OS version)"
+        elif [[ $OS_VERSION == "9" ]]; then
+            log_info "EL 8.9 & 9.3 has pre-packed offline package available (beware the minor OS version)"
+        else
+          log_warn "${OS_VENDOR} ${OS_VERSION} ${OS_CODENAME} does not have corresponding offline package, use online install"
+        fi
+    elif [[ ${OS_PACKAGE} == "deb" ]]; then
+        if [[ ${OS_CODENAME} == "jammy" ]]; then
+            log_info "Ubuntu 22.04 jammy has pre-packed offline package available"
+        elif [[ ${OS_CODENAME} == "bookworm" ]]; then
+            return 0
+            #log_info "Debian 12 bookworm has pre-packed offline package available"
+        elif [[ ${OS_CODENAME} == "focal" ]]; then
+            return 0
+            #log_info "Ubuntu 20.04 focal has offline package available, use with caution"
+        elif [[ ${OS_CODENAME} == "bullseye" ]]; then
+            return 0
+            # log_info "Debian 11 bullseye has offline package available, use with caution"
+        else
+            log_warn "${OS_VENDOR} ${OS_VERSION} ${OS_CODENAME} does not have corresponding offline package, use online install"
+            return 0
         fi
     fi
 
