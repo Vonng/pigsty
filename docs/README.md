@@ -459,8 +459,6 @@ PostgreSQL **16** is the primary supported version, with full extension support.
 
 ## About
 
-> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "**P**ostgreSQL **I**n **G**reat **STY**le."
-
 Docs: https://doc.pigsty.cc/
 
 Website: https://pigsty.cc/en/ | https://pigsty.cc/zh/

@@ -451,14 +451,12 @@ We highly recommend using **RockyLinux** **8.9**, **9.3**, and **Ubuntu 22.04** 
 For other OS and their compatible distros, the initial installation requires Internet access to download and build a local YUM/APT repo.
 
 PostgreSQL **16** is the primary supported version, with full extension support. But you can also use older PostgreSQL 12 / 13 / 14 / 15 with some slight modifications.
-We have also extended compatibility support (OS, Distro, PG, Arch) in our service [subscriptions](docs/SUPPORT.md).
+We have also extended compatibility support (OS, Distro, PG, Arch) in our service [subscription](docs/SUPPORT.md).
 
 
 ----------------
 
 ## About
-
-> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "**P**ostgreSQL **I**n **G**reat **STY**le."
 
 Docs: https://doc.pigsty.cc/
 

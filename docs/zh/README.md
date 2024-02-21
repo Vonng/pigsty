@@ -463,8 +463,6 @@ PostgreSQL 16 是 Pigsty 当前主要支持的数据库大版本，使用 Pigsty
 
 ## 关于
 
-> Pigsty (/ˈpɪɡˌstaɪ/) 是 "**P**ostgreSQL **I**n **G**reat **STY**le" 的缩写，即“全盛状态的PostgreSQL”
-
 文档: https://doc.pigsty.cc/
 
 网站: https://pigsty.cc/en/ | https://pigsty.cc/zh/
