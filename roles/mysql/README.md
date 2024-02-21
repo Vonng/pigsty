@@ -34,7 +34,7 @@ How to install mysql on the fly
           - { name: mysql          ,description: 'MySQL'             ,module: mysql ,releases: [7,8,9] ,baseurl: { default: 'https://repo.mysql.com/yum/mysql-8.0-community/el/$releasever/$basearch/'  }}
         node_packages:
           - mysql-community*
-          - etcd,logcli,mcli,redis,postgresql15
+          - etcd,logcli,mcli,redis,postgresql16
 ```
 
 ## PMM
