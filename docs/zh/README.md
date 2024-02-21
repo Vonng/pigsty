@@ -2,7 +2,7 @@
 
 > "**P**ostgreSQL **I**n **G**reat **STY**le": **P**ostgres, **I**nfras, **G**raphics, **S**ervice, **T**oolbox, it's all **Y**ours.
 >
-> —— **开箱即用、本地优先的 PostgreSQL 发行版，开源RDS替代**
+> —— **开箱即用、本地优先的 PostgreSQL 发行版，开源 RDS 替代**
 >
 > 最新版本：[v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [GPT答疑](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
 >
@@ -15,13 +15,13 @@
 
 > Pigsty 提出以下六条 [**价值主张**](FEATURE#价值主张) ，更多详情请参阅 [**功能特性**](FEATURE.md) 。
 
-[**可扩展性**](https://repo.pigsty.cc/img/pigsty-extension.jpg)： 强力[**扩展**](PGSQL-EXTENSION)开箱即用：深度整合地理空间、时序、向量、图、分布式、列存、全文检索、分词、AI/ML 等 [**150+**](PGSQL-EXTENSION#扩展列表) PG生态插件。
+[**可扩展性**](https://repo.pigsty.cc/img/pigsty-extension.jpg)： 强力[**扩展**](PGSQL-EXTENSION)开箱即用：深度整合**PostGIS**, **TimescaleDB**, **Citus**, **PGVector**, **ParadeDB**, **Hydra**, **AGE** , **PGML** 等 [**150+**](PGSQL-EXTENSION#扩展列表) PG生态插件。
 
-[**可靠性**](https://repo.pigsty.cc/img/pigsty-arch.jpg)：快速创建[**高可用**](PGSQL-ARCH#高可用)、故障自愈的PostgreSQL集群，自动配置时间点恢复、访问控制、自签名CA与SSL，确保数据坚如磐石。
+[**可靠性**](https://repo.pigsty.cc/img/pigsty-arch.jpg)：快速创建[**高可用**](PGSQL-ARCH#高可用)、故障自愈的 [**PostgreSQL**](PGSQL) 集群，自动预置的[**时间点恢复**](PGSQL-ARCH#时间点恢复)、[**访问控制**](PGSQL-ACL)、自签名 [**CA**](PARAM#ca) 与 [**SSL**](SECURITY)，确保数据坚如磐石。
 
-[**可观测性**](https://repo.pigsty.cc/img/pigsty-dashboard.jpg)： 基于 **Prometheus** & **Grafana** 现代可观测性技术栈，提供惊艳的监控最佳实践。模块化设计，可独立使用：[**画廊**](https://github.com/Vonng/pigsty/wiki/Gallery) & [**Demo**](https://demo.pigsty.cc)。
+[**可观测性**](https://repo.pigsty.cc/img/pigsty-dashboard.jpg)： 基于 [**Prometheus**](INFRA#prometheus) & [**Grafana**](INFRA#grafana) 现代可观测性技术栈，提供惊艳的监控最佳实践。模块化设计，可独立使用：[**画廊**](https://github.com/Vonng/pigsty/wiki/Gallery) & [**Demo**](https://demo.pigsty.cc)。
 
-[**可用性**](https://repo.pigsty.cc/img/pgsql-ha.jpg)：交付稳定可靠，自动路由与池化、预置读写分离的高性能数据库[**服务**](PGSQL-SVC#默认服务)，通过 HAProxy，Pgbouncer，VIP 提供灵活的[**接入**](PGSQL-SVC#接入服务)模式。
+[**可用性**](https://repo.pigsty.cc/img/pgsql-ha.jpg)：交付稳定可靠，自动路由，事务池化、读写分离的高性能数据库[**服务**](PGSQL-SVC#默认服务)，通过 HAProxy，Pgbouncer，VIP 提供灵活的[**接入**](PGSQL-SVC#接入服务)模式。
 
 [**可维护性**](https://repo.pigsty.cc/img/pigsty-iac.jpg)：[**简单易用**](INSTALL)，[**基础设施即代码**](PGSQL-CONF)，[**管理SOP预案**](PGSQL-ADMIN)，自动调参，本地软件仓库，[**Vagrant**](PROVISION#vagrant) 沙箱与 [**Terraform**](PROVISION#terraform) 模板，不停机[**迁移**](PGSQL-MIGRATION)方案。
 
@@ -35,9 +35,9 @@
 
 ## 快速上手
 
-Pigsty可以一键安装! 详情请参阅[**快速上手**](install)。
+> Pigsty可以一键安装! 详情请参阅 [**快速上手**](INSTALL)。
 
-准备一个使用 Linux x86_64 [兼容系统](#兼容性)的全新节点，使用带有免密 `sudo` 权限的用户执行：
+准备一个装有[兼容](#兼容性)操作系统的 Linux x86_64 全新节点，登陆并执行：
 
 ```bash
 # 使用带有免密 ssh/sudo 权限的管理员用户执行（尽量避免用 `root`）

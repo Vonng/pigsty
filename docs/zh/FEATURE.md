@@ -2,17 +2,17 @@
 
 > "**P**ostgreSQL **I**n **G**reat **STY**le": **P**ostgres, **I**nfras, **G**raphics, **S**ervice, **T**oolbox, it's all **Y**ours.
 >
-> —— **开箱即用、本地优先的 PostgreSQL 发行版，开源RDS替代**
+> —— **开箱即用、本地优先的 PostgreSQL 发行版，开源 RDS 替代**
 
 
 ----------------
 
 ## 价值主张
 
-- [**可扩展性**](https://repo.pigsty.cc/img/pigsty-extension.jpg)： 强力[**扩展**](PGSQL-EXTENSION)开箱即用：深度整合地理空间、时序、向量、图、分布式、列存、全文检索、分词、AI/ML 等 [**150+**](PGSQL-EXTENSION#扩展列表) PG生态插件。
-- [**可靠性**](https://repo.pigsty.cc/img/pigsty-arch.jpg)：快速创建[**高可用**](PGSQL-ARCH#高可用)、故障自愈的PostgreSQL集群，自动配置时间点恢复、访问控制、自签名CA与SSL，确保数据坚如磐石。
-- [**可观测性**](https://repo.pigsty.cc/img/pigsty-dashboard.jpg)： 基于 **Prometheus** & **Grafana** 现代可观测性技术栈，提供惊艳的监控最佳实践。模块化设计，可独立使用：[**画廊**](https://github.com/Vonng/pigsty/wiki/Gallery) & [**Demo**](https://demo.pigsty.cc)。
-- [**可用性**](https://repo.pigsty.cc/img/pgsql-ha.jpg)：交付稳定可靠，自动路由与池化、预置读写分离的高性能数据库[**服务**](PGSQL-SVC#默认服务)，通过 HAProxy，Pgbouncer，VIP 提供灵活的[**接入**](PGSQL-SVC#接入服务)模式。
+- [**可扩展性**](https://repo.pigsty.cc/img/pigsty-extension.jpg)： 强力[**扩展**](PGSQL-EXTENSION)开箱即用：深度整合**PostGIS**, **TimescaleDB**, **Citus**, **PGVector**, **ParadeDB**, **Hydra**, **AGE** , **PGML** 等 [**150+**](PGSQL-EXTENSION#扩展列表) PG生态插件。
+- [**可靠性**](https://repo.pigsty.cc/img/pigsty-arch.jpg)：快速创建[**高可用**](PGSQL-ARCH#高可用)、故障自愈的 [**PostgreSQL**](PGSQL) 集群，自动预置的[**时间点恢复**](PGSQL-ARCH#时间点恢复)、[**访问控制**](PGSQL-ACL)、自签名 [**CA**](PARAM#ca) 与 [**SSL**](SECURITY)，确保数据坚如磐石。
+- [**可观测性**](https://repo.pigsty.cc/img/pigsty-dashboard.jpg)： 基于 [**Prometheus**](INFRA#prometheus) & [**Grafana**](INFRA#grafana) 现代可观测性技术栈，提供惊艳的监控最佳实践。模块化设计，可独立使用：[**画廊**](https://github.com/Vonng/pigsty/wiki/Gallery) & [**Demo**](https://demo.pigsty.cc)。
+- [**可用性**](https://repo.pigsty.cc/img/pgsql-ha.jpg)：交付稳定可靠，自动路由，事务池化、读写分离的高性能数据库[**服务**](PGSQL-SVC#默认服务)，通过 HAProxy，Pgbouncer，VIP 提供灵活的[**接入**](PGSQL-SVC#接入服务)模式。
 - [**可维护性**](https://repo.pigsty.cc/img/pigsty-iac.jpg)：[**简单易用**](INSTALL)，[**基础设施即代码**](PGSQL-CONF)，[**管理SOP预案**](PGSQL-ADMIN)，自动调参，本地软件仓库，[**Vagrant**](PROVISION#vagrant) 沙箱与 [**Terraform**](PROVISION#terraform) 模板，不停机[**迁移**](PGSQL-MIGRATION)方案。
 - [**可组合性**](https://repo.pigsty.cc/img/pigsty-sandbox.jpg)：[**模块化**](ARCH#模块)架构设计，可复用的 [**Infra**](INFRA)，多种可选功能模块：[**Redis**](REDIS), [**MinIO**](MINIO), [**ETCD**](ETCD), [**FerretDB**](MONGO), [**DuckDB**](https://github.com/Vonng/pigsty/tree/master/app/duckdb), [**Supabase**](https://github.com/Vonng/pigsty/tree/master/app/supabase), [**Docker**](APP) 应用。
 
@@ -69,7 +69,7 @@ Pigsty 收录了超过 150+ PostgreSQL 扩展插件，编译维护打包了一�
 Pigsty 还允许您在裸机高可用 PostgreSQL 集群上自行托管 [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase/README.md) 与 [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml) ，并与海量扩展组合使用。
 如果您想要的扩展没有被 Pigsty 收录，欢迎提出收录[建议](https://github.com/Vonng/pigsty/discussions/333) 或自行[编译](PGSQL-EXTENSION#扩展编译)加装。
 
-[![pigsty-distro.jpg](https://repo.pigsty.cc/img/pigsty-distro.jpg)](PGSQL-EXTENSION.md)
+[![pigsty-extension.jpg](https://repo.pigsty.cc/img/pigsty-extension.jpg)](PGSQL-EXTENSION.md)
 
 
 
