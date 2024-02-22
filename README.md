@@ -16,19 +16,7 @@
 
 > Pigsty have six core values shown below, for more details, check [**Feature**](docs/FEATURE.md) or [**特性**](docs/zh/FEATURE.md)
 
-[**Extensibility**](https://repo.pigsty.cc/img/pigsty-extension.jpg): Powerful [**Extensions**](docs/PGSQL-EXTENSION.md) Ready for use: **PostGIS**, **TimescaleDB**, **Citus**, **PGVector**, Search, HTAP, AIML, and [**150+**](docs/PGSQL-EXTENSIO.mdN#extension-list) more.
-
-[**Reliability**](https://repo.pigsty.cc/img/pigsty-arch.jpg): Create self-healing [**High Available**](docs/PGSQL-ARCH.md#high-availability) [**PostgreSQL**](docs/PGSQL.md) clusters with pre-configured [**PITR**](docs/PGSQL-ARCH.md#point-in-time-recovery), built-in [**ACL**](docs/PGSQL-ACL.md), [**CA**](docs/PARAM.md#ca) & **SSL** in minutes.
-
-[**Observability**](https://repo.pigsty.cc/img/pigsty-dashboard.jpg): Monitoring best practices build upon the modern **Prometheus** & **Grafana** stack: Check our live [**Demo**](https://demo.pigsty.cc) & [**Gallery**](https://github.com/Vonng/pigsty/wiki/Gallery).
-
-[**Availability**](https://repo.pigsty.cc/img/pgsql-ha.jpg): Deliver auto-routed, high-performance, and flexible database [**Services**](docs/PGSQL-SVC.md#default-service) [**Access**](docs/PGSQL-SVC.md#access-service) with **haproxy**, **pgbouncer**, and VIP.
-
-[**Maintainability**](https://repo.pigsty.cc/img/pigsty-iac.jpg): Easy to [**use**](docs/INSTALL.md), Infra as Code [**API**](docs/PGSQL-CONF.md), Admin [**SOP**](docs/PGSQL-ADMIN.md), **auto-tuned**, local yum/apt repo, [**Vagrant**](docs/PROVISION.md#vagrant) sandbox, [**Terraform**](docs/PROVISION.md#terraform) spec.
-
-[**Composability**](https://repo.pigsty.cc/img/pigsty-sandbox.jpg): [**Modular**](docs/ARCH.md#modules) design, Flexible [**Arch**](docs/ARCH.md#singleton-meta), bonus features: [**Redis**](docs/REDIS.md), [**MinIO**](docs/MINIO.md), [**ETCD**](docs/ETCD.md), [**FerretDB**](docs/MONGO.md), [**DuckDB**](https://github.com/Vonng/pigsty/tree/master/app/duckdb), [**Supabase**](https://github.com/Vonng/pigsty/tree/master/app/supabase), [**Docker**](docs/APP.md) Apps.
-
-[![pigsty-distro](https://repo.pigsty.cc/img/pigsty-distro.jpg)](docs/FEATURE.md#values)
+[![pigsty-value](https://repo.pigsty.cc/img/pigsty-value.jpg)](docs/FEATURE.md#values)
 
 
 
