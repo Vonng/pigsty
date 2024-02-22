@@ -33,6 +33,22 @@
 - [Versatile Application](#versatile-application): Lots of applications work well with PostgreSQL. Run them in one command with docker.
 - [Open Source & Free](#open-source-amp-free): Pigsty is a free & open source software under AGPLv3. It was built for PostgreSQL with love.
 
+- Battery-Included PostgreSQL distribution with **150+** optional [Extensions](PGSQL-EXTENSION.md).
+- Run on bare OS without container: [EL](https://en.wikipedia.org/wiki/Red_Hat_Enterprise_Linux_derivatives) 7/8/9, [Ubuntu](https://ubuntu.com/) 20.04/22.04 and [Debian](https://www.debian.org/) 11/12.
+- Incredible observability powered by [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) stack. [Demo](https://demo.pigsty.cc) & [Gallery](https://github.com/Vonng/pigsty/wiki/Gallery).
+- Self-healing [HA](PGSQL-ARCH) PGSQL cluster, powered by [patroni](https://patroni.readthedocs.io/en/latest/), [haproxy](http://www.haproxy.org/), [etcd](https://etcd.io/). auto-tuned.
+- Auto-Configured [PITR](PGSQL-PITR), powered by [pgBackRest](https://pgbackrest.org/) and optional [MinIO](https://min.io/) repo (or S3/FS).
+- Declarative [API](CONFIG), Database-as-Code implemented with [Ansible](https://www.ansible.com/) playbooks: [SOP](PGSQL-ADMIN).
+- Handy IaC Templates, provisioning Infra with [Terraform](https://github.com/Vonng/pigsty/tree/master/terraform/README.md) and try [sandbox](docs/PROVISION.md) with [Vagrant](https://github.com/Vonng/pigsty/tree/master/vagrant/README.md).
+- Pre-pack stable versions, create [local repos](INSTALL#offline-packages) and install without Internet access.
+
+Pigsty can be used in different scenarios:
+- Run HA [PostgreSQL](PGSQL.md) RDS for production usage, with PostGIS, TimescaleDB, Citus, Hydra, etc...
+- Run AI infra stack with `pgvector` and [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml/README.md).
+- Develop low-code apps with self-hosted [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase/README.md), [FerretDB](MONGO), and [NocoDB](https://github.com/Vonng/pigsty/tree/master/app/nocodb/README.md).
+- Run various business software & [apps](https://github.com/Vonng/pigsty/blob/master/app/README.md) with docker-compose templates.
+- Run demos & data apps, analyze data, and [visualize](https://demo.pigsty.cc/d/isd-overview/) them with ECharts panels.
+
 [![pigsty-home.jpg](https://repo.pigsty.cc/img/pigsty-home.jpg)](https://demo.pigsty.cc)
 
 

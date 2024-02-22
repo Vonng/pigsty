@@ -545,15 +545,18 @@ ansible pg-test -b -m package -a "name=pg_cron_15,topn_15,pg_stat_monitor_15*"  
 
 ```bash
 # add repo upstream on admin node, then download them manually
-cd ~/pigsty; ./infra.yml -t repo_upstream                 # add upstream repo (internet)
-cd /www/pigsty;  repotrack "some_new_package_name"        # download the latest RPMs
-cd ~/pigsty; ./infra.yml -t repo_create                   # re-create local software repo
+cd ~/pigsty; ./infra.yml -t repo_upstream,repo_cache # add upstream repo (internet)
+cd /www/pigsty;  repotrack "some_new_package_name"   # download the latest RPMs
+
+# re-create local repo on admin node, then refresh yum/apt cache on all nodes
+cd ~/pigsty; ./infra.yml -t repo_create              # recreate local repo on admin node
+./node.yml -t node_repo                              # refresh yum/apt cache on all nodes
+
+# alternatives: clean and remake cache on all nodes with ansible command
 ansible all -b -a 'yum clean all'                         # clean node repo cache
 ansible all -b -a 'yum makecache'                         # remake cache from the new repo
-
-# For Ubuntu/Debian users, use apt instead
-ansible all -b -a 'apt clean'                             # clean node repo cache
-ansible all -b -a 'apt update'                            # remake cache from the new repo
+ansible all -b -a 'apt clean'                             # clean node repo cache (Ubuntu/Debian)
+ansible all -b -a 'apt update'                            # remake cache from the new repo (Ubuntu/Debian)
 ```
 
 For example, you can then install or upgrade packages with:

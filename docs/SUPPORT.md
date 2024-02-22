@@ -13,7 +13,7 @@ Pigsty is a free & open-source software nurtured by the passion of PostgreSQL co
 
 If our work has helped you, please consider sponsoring or supporting our project. Every penny counts, and advertisements are also a form of support:
 
-- Donate to us:  [Aifadian](https://afdian.net/a/pigsty).
+- Make Donation & Sponsor us.
 - Share your experiences and use cases of Pigsty through articles, lectures, and videos.
 - Allow us to mention your organization in "These users who use Pigsty"
 - Nominate/Recommend our project and services to your friends, colleagues, and clients in need.
@@ -38,7 +38,6 @@ Discord: https://discord.gg/V6sBDXN9
 |:----------:|:---------------------------------------------:|:--------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------:|
 |    Who     |     Self-sufficient OSS Guru, Developers      |                   Elite tech team who seeks additional support                   |                                   suitable choice for common users                                   |                                                    critical scenarios that require strict SLAs                                                     |
 |   Price    |           **Free** under **AGPLv3**           |                                **7,000** $ / Year                                |                                         **20,000** $ / Year                                          |                                                                **50,000** $ / Year                                                                 |
-|  Buy-Out   |           **Free** under **AGPLv3**           |         **20,000** \$ Perm License <br />**2,000** \$ / Year for Service         |                  **50,000** \$ Perm License <br />**15,000** \$ / Year for Service                   |                                         **150,000** \$ Perm License <br />**20,000** \$ / Year for Service                                         |
 | Node Size  |                 **Unlimited**                 |                                     **<= 5**                                     |                                              **<= 15**                                               |                                                                     **<= 40**                                                                      |
 |  Consult   | Community Support<br />Groups, Issues, Discuz |           **Bug Fix & Security Patch**<br />**Failure Analysis**<br />           | **Bug Fix & Security Patch**<br />**Failure Analysis**<br />**Upgrade Path**<br />**DBA Consulting** | **Bug Fix & Security Patch**<br />**Failure Analysis**<br />**Upgrade Path**<br />**DBA Consulting**<br />**Arch Review**<br />**Failure on-call** |
 |  Service   |                       -                       |                           One-time setup (< 1 workday)                           |                                       Two free workdays / Year                                       |                                                             Four free workdays / Year                                                              |
@@ -56,11 +55,6 @@ Pigsty subscriptions operate on an annual payment model, providing users with an
 This includes access to the latest software versions and upgrade paths released within the year, along with comprehensive consulting, Q&A, and service support. 
 A larger scale implies more complex scenarios, more issues, and a higher chance of failure events: thus, each subscription comes with a node scale limit. 
 For example, if you are using the Pro subscription and manage 15 nodes, you will need to pay an additional subscription fee for each node beyond the limit (10,000 RMB per node).
-
-Pigsty licensing offers a one-time payment option for those looking to convert Opex into Capex.
-By choosing this option, you can purchase a perpetual license for the current commercial version of Pigsty, granting you a permanent license to run the specific commercial version of Pigsty without any additional costs forever.
-Under this model, we only provide default support for software vulnerability/defect fixes. If you wish to acquire full consulting, Q&A, and service support, and receive software updates, you need to pay an extra subscription fee each year,
-which is a certain percentage of the product licensing fee (Starter: 2k/20k, Pro: 15k/50k, Enterprise: 20k/150k). If you decide you do not need Q&A, service support, or feature updates, you can stop your subscription, but resubscribing will require you to pay for the missing years' subscription fees.
 
 Pigsty's pricing strategy ensures value for money — you can immediately obtain top-notch DBA database architecture solutions and management best practices, all backed by consulting, Q&A, and service support, at a cost that is highly competitive compared to find-out & hiring rare database Guru or using cloud RDS.
 

@@ -547,16 +547,18 @@ ansible pg-test -b -m package -a "name=pg_cron_15,topn_15,pg_stat_monitor_15*"  
 
 ```bash
 # 在基础设施/管理节点上添加上游软件仓库，然后手工下载所需的软件包
-cd ~/pigsty; ./infra.yml -t repo_upstream                 # 添加上游仓库（互联网）
-cd /www/pigsty;  repotrack "some_new_package_name"        # 下载最新的 RPM 包
-cd ~/pigsty; ./infra.yml -t repo_create                   # 重新创建本地软件仓库
-ansible all -b -a 'yum clean all'                         # 清理节点软件仓库缓存
-ansible all -b -a 'yum makecache'                         # 从新的仓库重建yum/apt缓存
+cd ~/pigsty; ./infra.yml -t repo_upstream,repo_cache # 添加上游仓库（互联网）
+cd /www/pigsty;  repotrack "some_new_package_name"   # 下载最新的 RPM 包
 
+# 更新本地软件仓库元数据
+cd ~/pigsty; ./infra.yml -t repo_create              # 重新创建本地软件仓库
+./node.yml -t node_repo                              # 刷新所有节点上的 YUM/APT 缓存
 
-# 对于 Ubuntu/Debian 用户来说，使用 apt 代替 yum
-ansible all -b -a 'apt clean'                             # 清理 APT 缓存
-ansible all -b -a 'apt update'                            # 重建 APT 缓存
+# 也可以使用 Ansible 手工刷新节点上的 YUM/APT 缓存
+ansible all -b -a 'yum clean all'                    # 清理节点软件仓库缓存
+ansible all -b -a 'yum makecache'                    # 从新的仓库重建yum/apt缓存
+ansible all -b -a 'apt clean'                        # 清理 APT 缓存（Ubuntu/Debian）
+ansible all -b -a 'apt update'                       # 重建 APT 缓存（Ubuntu/Debian）
 ```
 
 例如，你可以使用以下方式安装或升级包：
