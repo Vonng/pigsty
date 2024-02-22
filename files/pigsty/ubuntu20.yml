@@ -98,6 +98,16 @@ all:
             pool_connlimit: -1              # optional, max database connections at user level, default -1 disable limit
           - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
 
+        # install extensions here: # define HBA rules here: https://doc.pigsty.cc/#/PGSQL-EXTENSION?id=install-extension
+        pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector postgresql-${pg_version}-citus-12.1
+          #- postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck  postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery
+          #- postgresql-16-londiste-sql postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
+          #- postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
+          #- postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
+          #- postgresql-16-rdkit postgresql-16-pgrouting-doc postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-pgdg-pgroonga postgresql-16-pgpool2 # postgresql-16-slony1-2 postgresql-16-repmgr postgresql-16-pljava postgresql-16-plr
+
         # define HBA rules here: https://doc.pigsty.cc/#/PGSQL-HBA?id=define-hba
         pg_hba_rules:                       # example hba rules
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
@@ -105,7 +115,6 @@ all:
         #pg_vip_enabled: true               # define a L2 VIP which bind to cluster primary instance
         #pg_vip_address: 10.10.10.2/24      # L2 VIP Address and netmask
         #pg_vip_interface: eth1             # L2 VIP Network interface, overwrite on host vars if member have different network interface names
-        pg_libs: 'timescaledb, pg_stat_statements, auto_explain'        # add timescaledb to shared_preload_libraries
         node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ] # make a full backup every 1am
 
     #----------------------------------#
