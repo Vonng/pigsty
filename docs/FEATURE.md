@@ -16,7 +16,7 @@
 - [**Maintainability**](https://repo.pigsty.cc/img/pigsty-iac.jpg): Easy to [**use**](INSTALL), Infra as Code [**API**](PGSQL-CONF), Admin [**SOP**](PGSQL-ADMIN), **auto-tuned**, local yum/apt repo, [**Vagrant**](PROVISION#vagrant) sandbox, [**Terraform**](PROVISION#terraform) spec.
 - [**Composability**](https://repo.pigsty.cc/img/pigsty-sandbox.jpg): [**Modular**](ARCH#modules) design, Flexible [**Arch**](ARCH#singleton-meta), bonus features: [**Redis**](REDIS), [**MinIO**](MINIO), [**ETCD**](ETCD), [**FerretDB**](MONGO), [**DuckDB**](https://github.com/Vonng/pigsty/tree/master/app/duckdb), [**Supabase**](https://github.com/Vonng/pigsty/tree/master/app/supabase), [**Docker**](APP) Apps.
 
-[![pigsty-value](https://repo.pigsty.cc/img/pigsty-value.jpg)](https://repo.pigsty.cc/img/pigsty-value.jpg)
+[![pigsty-desc](https://repo.pigsty.cc/img/pigsty-intro.jpg)](https://repo.pigsty.cc/img/pigsty-intro.png)
 
 
 ----------------

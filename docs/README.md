@@ -27,8 +27,7 @@
 
 [**Composability**](https://repo.pigsty.cc/img/pigsty-sandbox.jpg): [**Modular**](ARCH#modules) design, Flexible [**Arch**](ARCH#singleton-meta), bonus features: [**Redis**](REDIS), [**MinIO**](MINIO), [**ETCD**](ETCD), [**FerretDB**](MONGO), [**DuckDB**](https://github.com/Vonng/pigsty/tree/master/app/duckdb), [**Supabase**](https://github.com/Vonng/pigsty/tree/master/app/supabase), [**Docker**](APP) Apps.
 
-[![pigsty-distro](https://repo.pigsty.cc/img/pigsty-distro.jpg)](FEATURE#values)
-
+[![pigsty-banner](https://repo.pigsty.cc/img/pigsty-banner.jpg)](FEATURE#values)
 
 
 

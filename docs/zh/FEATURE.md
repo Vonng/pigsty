@@ -16,7 +16,7 @@
 - [**可维护性**](https://repo.pigsty.cc/img/pigsty-iac.jpg)：[**简单易用**](INSTALL)，[**基础设施即代码**](PGSQL-CONF)，[**管理SOP预案**](PGSQL-ADMIN)，自动调参，本地软件仓库，[**Vagrant**](PROVISION#vagrant) 沙箱与 [**Terraform**](PROVISION#terraform) 模板，不停机[**迁移**](PGSQL-MIGRATION)方案。
 - [**可组合性**](https://repo.pigsty.cc/img/pigsty-sandbox.jpg)：[**模块化**](ARCH#模块)架构设计，可复用的 [**Infra**](INFRA)，多种可选功能模块：[**Redis**](REDIS), [**MinIO**](MINIO), [**ETCD**](ETCD), [**FerretDB**](MONGO), [**DuckDB**](https://github.com/Vonng/pigsty/tree/master/app/duckdb), [**Supabase**](https://github.com/Vonng/pigsty/tree/master/app/supabase), [**Docker**](APP) 应用。
 
-[![pigsty-value](https://repo.pigsty.cc/img/pigsty-value.jpg)](https://repo.pigsty.cc/img/pigsty-value.jpg)
+[![pigsty-desc](https://repo.pigsty.cc/img/pigsty-intro.jpg)](https://repo.pigsty.cc/img/pigsty-intro.png)
 
 
 ----------------

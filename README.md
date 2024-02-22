@@ -4,9 +4,9 @@
 >
 > —— Battery-Included, Local-First **PostgreSQL** Distribution as an Open-Source **RDS** Alternative
 >
-> Latest Beta: [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/V6sBDXN9) ｜ [中文文档](https://doc.pigsty.cc/#/zh/)
+> Latest Beta: [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [Blog](https://pigsty.cc/en/) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/V6sBDXN9) | [中文文档](https://doc.pigsty.cc/#/zh/)
 >
-> [Get Started](docs/INSTALL.md) with `curl -fsSL https://get.pigsty.cc/beta | bash` (beta 2.6.0) 
+> [Get Started](docs/INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash` (stable v2.5.1) 
 
 
 
@@ -14,10 +14,9 @@
 
 ## Features
 
-> Pigsty have six core values shown below, for more details, check [**Feature**](docs/FEATURE.md) or [**特性**](docs/zh/FEATURE.md)
+> Pigsty is your postgres, infra, grafana service toolbox, check [**Feature**](docs/FEATURE.md) | [**特性**](docs/zh/FEATURE.md) and [**Demo**](https://demo.pigsty.cc) for details.
 
-[![pigsty-value](https://repo.pigsty.cc/img/pigsty-value.jpg)](docs/FEATURE.md#values)
-
+[![pigsty-desc](https://repo.pigsty.cc/img/pigsty-intro.jpg)](docs/FEATURE.md#values)
 
 
 ----------------
@@ -26,7 +25,7 @@
 
 > Setup everything with one command! Check [**Get Started**](docs/INSTALL.md) | [**快速上手**](docs/zh/INSTALL.md) for details.
 
-Prepare a fresh Linux x86_64 node that runs [**compatible**](#compatibility) operating systems distributions (EL 7/8/9, Ubuntu 20.04/22.04, Debian 11/12)
+Prepare a fresh Linux x86_64 node that runs [**compatible**](#compatibility) operating systems distros:
 
 ```bash
 # run as the admin user with no password ssh & sudo capability
@@ -34,7 +33,7 @@ curl -fsSL https://get.pigsty.cc/latest | bash
 cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 ```
 
-Then you will have a pigsty singleton node ready, with Web Services on port `80` and Postgres on port `5432`.
+Then you will have a pigsty singleton node ready, with Web Services on port `80/443` and Postgres on port `5432`.
 
 <details><summary>Download with Get</summary>
 
@@ -91,9 +90,9 @@ You can also download pigsty source & [offline packages](docs/INSTALL.md#offline
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 
 # or download tarball directly with curl
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz                      # SRC
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz -o /tmp/pkg.tgz       # EL9: Rocky 9.3
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz -o /tmp/pkg.tgz       # EL8: Rocky 8.9
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz                      # Pigsty Source
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz      -o /tmp/pkg.tgz  # Rocky 9.3 (EL9)
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz      -o /tmp/pkg.tgz  # Rocky 8.9 (EL8)
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04
 
 # alternative CDN in china 

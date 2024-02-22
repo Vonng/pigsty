@@ -27,7 +27,7 @@
 
 [**可组合性**](https://repo.pigsty.cc/img/pigsty-sandbox.jpg)：[**模块化**](ARCH#模块)架构设计，可复用的 [**Infra**](INFRA)，多种可选功能模块：[**Redis**](REDIS), [**MinIO**](MINIO), [**ETCD**](ETCD), [**FerretDB**](MONGO), [**DuckDB**](https://github.com/Vonng/pigsty/tree/master/app/duckdb), [**Supabase**](https://github.com/Vonng/pigsty/tree/master/app/supabase), [**Docker**](APP) 应用。
 
-[![pigsty-distro](https://repo.pigsty.cc/img/pigsty-distro.jpg)](FEATURE#价值主张)
+[![pigsty-banner](https://repo.pigsty.cc/img/pigsty-banner.jpg)](FEATURE#价值主张)
 
 
 
