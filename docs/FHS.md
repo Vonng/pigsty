@@ -94,7 +94,7 @@ rsync -avz ./ meta-2:~/pigsty
 
 ## NODE FHS
 
-Node main data dir is specified by [`node_data`](param#node_data) parameter, which is `/data` by default.
+Node main data dir is specified by [`node_data`](PARAM#node_data) parameter, which is `/data` by default.
 
 The data dir is owned by root with mode `0777`. All modules' local data will be stored under this directory by default.
 

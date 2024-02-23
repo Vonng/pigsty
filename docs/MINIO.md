@@ -287,7 +287,7 @@ There are two dashboards for [`MINIO`](MINIO) module.
 
 ## Parameter
 
-There are 15 parameters in [`MINIO`](PARAM#MINIO) module.
+There are 15 parameters in [`MINIO`](PARAM#minio) module.
 
 
 | Parameter                                    |   Type   | Level | Comment                                                 |

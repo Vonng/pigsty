@@ -33,7 +33,7 @@ Let's get started with ER diagram. There are four types of core entities in Pigs
 
 ## Identity Parameter
 
-Pigsty uses **identity parameters** to identify entities: [`PG_ID`](PARAM#PG_ID).
+Pigsty uses **identity parameters** to identify entities: [`PG_ID`](PARAM#pg_id).
 
 In addition to the node IP address, three parameters: [`pg_cluster`](PARAM#pg_cluster), [`pg_role`](PARAM#pg_role), and [`pg_seq`](PARAM#pg_seq) are the minimum set of parameters necessary to define a postgres cluster.
 Take the [sandbox](PROVISION#sandbox) testing cluster `pg-test` as an example:
@@ -130,7 +130,7 @@ Here is how PostgreSQL module components and their interactions. From top to bot
 
 Pigsty's PostgreSQL cluster has battery-included high-availability powered by [patroni](https://patroni.readthedocs.io/en/latest/), [etcd](https://etcd.io/), and [haproxy](http://www.haproxy.org/) 
 
-[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](PGSQL-ARCH.md)
+![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)
 
 When the primary fails, one of the replicas will be promoted to primary automatically, and read-write traffic will be routed to the new primary immediately. The impact is: write queries will be blocked for 15 ~ 40s until the new leader is elected.
 

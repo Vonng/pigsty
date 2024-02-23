@@ -88,7 +88,7 @@ This design is akin to the NodePort service in Kubernetes. Similarly, in Pigsty,
 
 The boundary of Pigsty's service delivery stops at the cluster's HAProxy. Users can access these load balancers in various ways. Please refer to [Access Service](#access-service).
 
-All services are declared through configuration files. For instance, the default PostgreSQL service is defined by the [`pg_default_services`](param#pg_default_services) parameter:
+All services are declared through configuration files. For instance, the default PostgreSQL service is defined by the [`pg_default_services`](PARAM#pg_default_services) parameter:
 
 ```yaml
 - { name: primary ,port: 5433 ,dest: default  ,check: /primary   ,selector: "[]" }

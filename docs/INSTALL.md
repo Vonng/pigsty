@@ -118,7 +118,7 @@ If you use a different minor OS version with those offline packages, you may enc
 
 <details><summary>Aliyun VM Image Versions</summary>
 
-If you are using cloud virtual machines or [Terraform](PROVISION.md#terraform), the following image can be taken into considerations (aliyun):
+If you are using cloud virtual machines or [Terraform](PROVISION#terraform), the following image can be taken into considerations (aliyun):
 
 ```bash
 # CentOS 7.9   :  centos_7_9_x64_20G_alibase_20231220.vhd
@@ -219,7 +219,7 @@ curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz -o /tmp/pk
 
 </details>
 
-Not all combinations of OS and architecture are supported yet. Please check the [RELEASENOTE](RELEASENOTE.md) page.
+Not all combinations of OS and architecture are supported yet. Please check the [RELEASENOTE](RELEASENOTE) page.
 You can always choose to install without it, and pull the latest packages from upstream.
 
 
@@ -368,7 +368,7 @@ proceed with ./configure
 
 ## Configure
 
-[`configure`](CONFIG.md) will create a [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) config file according to your environment.
+[`configure`](CONFIG) will create a [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) config file according to your environment.
 
 ```bash
 ./configure [-n|--non-interactive] [-i|--ip <ipaddr>] [-m|--mode <name>] [-r|--region <default|china|europe>]
@@ -381,7 +381,7 @@ proceed with ./configure
 
 When `-n|--non-interactive` is specified, you have to specify a primary IP address with `-i|--ip <ipaddr>` in case of multiple IP address, since there's no default value for primary IP address in this case.
 
-?> HINT: `configure` is **OPTIONAL** if you know how to [configure](CONFIG.md) pigsty manually.
+?> HINT: `configure` is **OPTIONAL** if you know how to [configure](CONFIG) pigsty manually.
 
 
 <details><summary>configure example output</summary>
@@ -422,7 +422,7 @@ You can run [`install.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.y
 ./install.yml    # install everything in one-pass
 ```
 
-It's a standard ansible [playbook](PLAYBOOK.md), you can have fine-grained control with ansible options:
+It's a standard ansible [playbook](PLAYBOOK), you can have fine-grained control with ansible options:
 
 * `-l`: limit execution targets
 * `-t`: limit execution tasks
@@ -465,10 +465,10 @@ localhost                  : ok=3    changed=0    unreachable=0    failed=0    s
 
 ## Interface
 
-Once installed, you'll have 4 module [INFRA](INFRA.md), [NODE](NODE.md), [**ETCD**](ETCD.md) , [**PGSQL**](PGSQL.md) installed on the current node. 
+Once installed, you'll have 4 module [INFRA](INFRA), [NODE](NODE), [**ETCD**](ETCD) , [**PGSQL**](PGSQL) installed on the current node. 
 
-* [**INFRA**](INFRA.md): Monitoring infrastructure can be accessed via `http://<ip>:80`
-* [**PGSQL**](PGSQL.md): PostgreSQL cluster can be [accessed](PGSQL-SVC.md#personal-user) via default PGURL:
+* [**INFRA**](INFRA): Monitoring infrastructure can be accessed via `http://<ip>:80`
+* [**PGSQL**](PGSQL): PostgreSQL cluster can be [accessed](PGSQL-SVC#personal-user) via default PGURL:
 
 ```bash
 psql postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta     # database superuser 
@@ -476,7 +476,7 @@ psql postgres://dbuser_meta:DBUser.Meta@10.10.10.10/meta   # business administra
 psql postgres://dbuser_view:DBUser.View@pg-meta/meta       # default read-only user via domain name
 ```
 
-There are several services are exposed by Nginx (configured by [`infra_portal`](PARAM.md#infra_portal)):
+There are several services are exposed by Nginx (configured by [`infra_portal`](PARAM#infra_portal)):
 
 |  Component   | Port |   Domain   | Comment                  | Public Demo                                |
 |:------------:|:----:|:----------:|--------------------------|--------------------------------------------|
@@ -488,7 +488,7 @@ There are several services are exposed by Nginx (configured by [`infra_portal`](
 You can configure public domain names for these infra services or just use local static DNS records & resolver.
 e.g: write records to `/etc/hosts` and access via DNS.
 
-If [`nginx_sslmode`](PARAM.md#nginx_sslmode) is set to `enabled` or `enforced`, you can trust self-signed ca: `files/pki/ca/ca.crt` to use `https` in your browser.
+If [`nginx_sslmode`](PARAM#nginx_sslmode) is set to `enabled` or `enforced`, you can trust self-signed ca: `files/pki/ca/ca.crt` to use `https` in your browser.
 
 ```
 http://g.pigsty ️-> http://10.10.10.10:80 (nginx) -> http://10.10.10.10:3000 (grafana)
@@ -523,4 +523,4 @@ bin/pgsql-add  pg-test      # init HA PGSQL Cluster pg-test
 bin/redis-add  redis-ms     # init redis cluster redis-ms
 ```
 
-Remember that most modules require the [`NODE`] module installed first. Check [PGSQL](PGSQL.md), [REDIS](REDIS.md) for detail.
+Remember that most modules require the [`NODE`] module installed first. Check [PGSQL](PGSQL), [REDIS](REDIS) for detail.

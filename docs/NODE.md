@@ -92,9 +92,9 @@ Pigsty uses **IP** as a unique identifier for **database nodes**. **This IP must
 
 You can use `ansible_*` parameters to overwrite `ssh` behavior, e.g. connect via domain name / alias, but the primary IPv4 is still the core identity of the node.
 
-[`nodename`](param#nodename) and [`node_cluster`](param#node_cluster) are not **mandatory**; [`nodename`](param#nodename) will use the node's current hostname by default, while [`node_cluster`](param#node_cluster) will use the fixed default value: `nodes`.
+[`nodename`](PARAM#nodename) and [`node_cluster`](PARAM#node_cluster) are not **mandatory**; [`nodename`](PARAM#nodename) will use the node's current hostname by default, while [`node_cluster`](PARAM#node_cluster) will use the fixed default value: `nodes`.
 
-If [`node_id_from_pg`](param#node_id_from_pg) is enabled, the node will borrow [`PGSQL`](PGSQL) [identity](param#pg_id) and use it as Node's identity, i.e. [`node_cluster`](param#node_cluster) is set to [`pg_cluster`](param#pg_cluster) if applicable, and [`nodename`](param#nodename) is set to `${pg_cluster}-${pg_seq}`. If [`nodename_overwrite`](param#nodename_overwrite) is enabled, node's hostname will be overwritten by [`nodename`](param#nodename)
+If [`node_id_from_pg`](PARAM#node_id_from_pg) is enabled, the node will borrow [`PGSQL`](PGSQL) [identity](PARAM#pg_id) and use it as Node's identity, i.e. [`node_cluster`](PARAM#node_cluster) is set to [`pg_cluster`](PARAM#pg_cluster) if applicable, and [`nodename`](PARAM#nodename) is set to `${pg_cluster}-${pg_seq}`. If [`nodename_overwrite`](PARAM#nodename_overwrite) is enabled, node's hostname will be overwritten by [`nodename`](PARAM#nodename)
 
 Pigsty labels a node with identity parameters in the monitoring system. Which maps `nodename` to `ins`, and `node_cluster` into `cls`.
 
@@ -102,8 +102,8 @@ Pigsty labels a node with identity parameters in the monitoring system. Which ma
 |              Name                    |   Type   | Level | Necessity    | Comment               |
 |:------------------------------------:|:--------:|:-----:|--------------|-----------------------|
 |      `inventory_hostname`            |   `ip`   | **-** | **Required** | **Node IP**           |
-|     [`nodename`](param#nodename)     | `string` | **I** | Optional     | **Node Name**         |
-| [`node_cluster`](param#node_cluster) | `string` | **C** | Optional     | **Node cluster name** |
+|     [`nodename`](PARAM#nodename)     | `string` | **I** | Optional     | **Node Name**         |
+| [`node_cluster`](PARAM#node_cluster) | `string` | **C** | Optional     | **Node cluster name** |
 
 The following cluster config declares a three-node node cluster:
 

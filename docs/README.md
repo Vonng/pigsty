@@ -6,14 +6,14 @@
 >
 > Latest Release: [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [Website](https://pigsty.cc/en/)  | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/V6sBDXN9) | [中文文档](/zh/)
 >
-> [Get Started](INSTALL.md) with `curl -fsSL https://get.pigsty.cc/latest | bash` (or replace `latest` with `beta`)
+> [Get Started](INSTALL) with `curl -fsSL https://get.pigsty.cc/latest | bash` (or replace `latest` with `beta`)
 
 
 ----------------
 
 ## Features
 
-> Pigsty is your postgres, infra, grafana service toolbox, check [**Feature**](FEATURE.md) | [**特性**](zh/FEATURE.md) and [**Demo**](https://demo.pigsty.cc) for details.
+> Pigsty is your postgres, infra, grafana service toolbox, check [**Feature**](FEATURE) | [**特性**](zh/FEATURE) and [**Demo**](https://demo.pigsty.cc) for details.
 
 [**Extensibility**](https://repo.pigsty.cc/img/pigsty-extension.jpg): Powerful [**Extensions**](PGSQL-EXTENSION) Ready for use: **PostGIS**, **TimescaleDB**, **Citus**, **PGVector**, Search, HTAP, AIML, and [**150+**](PGSQL-EXTENSION#extension-list) more.
 
@@ -35,7 +35,7 @@
 
 ## Get Started
 
-> Setup everything with one command! Check [**Get Started**](INSTALL.md) | [**快速上手**](zh/INSTALL.md) for details.
+> Setup everything with one command! Check [**Get Started**](INSTALL) | [**快速上手**](zh/INSTALL) for details.
 
 Prepare a fresh Linux x86_64 node that runs [**compatible**](#compatibility) operating systems distributions (EL 7/8/9, Ubuntu 20.04/22.04, Debian 11/12)
 
@@ -142,7 +142,7 @@ The default [`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.
 which gives you a battery-included PostgreSQL singleton instance (`admin_ip:5432`) with everything ready.
 This node can be used as an admin center & infra provider to manage, deploy & monitor more nodes & clusters.
 
-[![pigsty-arch.jpg](https://repo.pigsty.cc/img/pigsty-arch.jpg)](ARCH.md)
+[![pigsty-arch.jpg](https://repo.pigsty.cc/img/pigsty-arch.jpg)](ARCH)
 
 
 
@@ -167,7 +167,7 @@ Then create it with built-in playbooks:
 bin/pgsql-add pg-test   # init pg-test cluster 
 ```
 
-[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](PGSQL-ARCH.md)
+[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](PGSQL-ARCH)
 
 You can deploy different kinds of instance roles such as primary, replica, offline, delayed, sync standby, and different kinds of clusters, such as standby clusters, Citus clusters, and even Redis / MinIO / Etcd clusters.
 
@@ -439,7 +439,7 @@ minio:
 </details>
 
 
-Check [**Configuration**](CONFIG) & [**PGSQL Conf**](PGSQL-CONF.md) for details.
+Check [**Configuration**](CONFIG) & [**PGSQL Conf**](PGSQL-CONF) for details.
 
 
 

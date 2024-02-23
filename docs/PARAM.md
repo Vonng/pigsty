@@ -4072,7 +4072,7 @@ name: `pg_safeguard`, type: `bool`, level: `G/C/A`
 
 prevent purging running postgres instance? false by default
 
-If enabled, [`pgsql.yml`](PGSQL-PLAYBOOk#pgsqlyml) & [`pgsql-rm.yml`](PGSQL-PLAYBOOk#pgsql-rmyml) will abort immediately if any postgres instance is running.
+If enabled, [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) & [`pgsql-rm.yml`](PGSQL-PLAYBOOK#pgsql-rmyml) will abort immediately if any postgres instance is running.
 
 
 
@@ -4085,7 +4085,7 @@ purging existing postgres during pgsql init? true by default
 
 default value is `true`, it will purge existing postgres instance during [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) init. which makes the playbook idempotent.
 
-if set to `false`, [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) will abort if there's already a running postgres instance. and [`pgsql-rm.yml`](PGSQL-PLAYBOOk#pgsql-rmyml) will NOT remove postgres data (only stop the server).
+if set to `false`, [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) will abort if there's already a running postgres instance. and [`pgsql-rm.yml`](PGSQL-PLAYBOOK#pgsql-rmyml) will NOT remove postgres data (only stop the server).
 
 
 

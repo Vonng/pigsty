@@ -263,7 +263,7 @@ ALTER USER dbuser_monitor SET log_min_duration_statement = 1000;  -- set this to
 ALTER USER dbuser_monitor SET search_path = monitor,public;       -- set this to avoid pg_stat_statements extension not working
 ```
 
-The monitor user here should have consistent [`pg_monitor_username`](param#pg_monitor_username) and [`pg_monitor_password`](param#pg_monitor_password) with Pigsty config inventory.
+The monitor user here should have consistent [`pg_monitor_username`](PARAM#pg_monitor_username) and [`pg_monitor_password`](PARAM#pg_monitor_password) with Pigsty config inventory.
 
 ---------------------
 

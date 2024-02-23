@@ -36,7 +36,7 @@ But if you want to further strengthen the security of the system, the following 
   - [`pg_replication_password`](PARAM#pg_replication_password) : `DBUser.Replicator`
   - [`patroni_password`](PARAM#patroni_password)               : `Patroni.API`
   - [`haproxy_admin_password`](PARAM#haproxy_admin_password)   : `pigsty`
-  - [`minio_secret_key`](param#minio_secret_key)               : `minioadmin`
+  - [`minio_secret_key`](PARAM#minio_secret_key)               : `minioadmin`
 
 **Please change MinIO user secret key and pgbackrest_repo references**
 - Please change the password for [`minio_users`.`[pgbacrest]`.`secret_key`](PARAM#minio_users)
@@ -129,7 +129,7 @@ But if you want to further strengthen the security of the system, the following 
 - Use `crit.yml` templates for [`pg_conf`](PARAM#pg_conf) will trade some availability for the best consistency.
 
 **Use node crit tuned template for better consistency**
-- set [`node_tune`](param#node_tune) to `crit` to reduce dirty page ratio.
+- set [`node_tune`](PARAM#node_tune) to `crit` to reduce dirty page ratio.
 
 * Enable data checksum to detect silent data corruption.
   - [`pg_checksum`](PARAM#pg_checksum) is disabled by default, and enabled for `crit.yml` by default

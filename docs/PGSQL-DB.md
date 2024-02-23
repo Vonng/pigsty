@@ -61,7 +61,7 @@ Each database definition is a dict with the following fields:
 
 The only required field is `name`, which should be a valid and unique database name in PostgreSQL.
 
-Newly created databases are forked from `template1` database by default. which is customized by [`PG_PROVISION`](PARAM#PG_PROVISION) during cluster bootstrap.
+Newly created databases are forked from `template1` database by default. which is customized by [`PG_PROVISION`](PARAM#pg_provision) during cluster bootstrap.
 
 Check [ACL: Database Privilege](PGSQL-ACL#database-privilege) for details about database-level privilege.
 

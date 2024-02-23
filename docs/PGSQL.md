@@ -69,12 +69,12 @@
 
 > Materialize the cluster with idempotent [playbooks](PGSQL-PLAYBOOK)
 
-- [`pgsql.yml`](PGSQL-PLAYBOOk#pgsqlyml) : Init HA PostgreSQL clusters or add new replicas.
-- [`pgsql-rm.yml`](PGSQL-PLAYBOOk#pgsql-rmyml) : Remove PostgreSQL cluster, or remove replicas
-- [`pgsql-user.yml`](PGSQL-PLAYBOOk#pgsql-useryml) : Add new business user to existing PostgreSQL cluster
-- [`pgsql-db.yml`](PGSQL-PLAYBOOk#pgsql-dbyml) : Add new business database to existing PostgreSQL cluster
-- [`pgsql-monitor.yml`](PGSQL-PLAYBOOk#pgsql-monitoryml) : Monitor remote PostgreSQL instance with local exporters
-- [`pgsql-migration.yml`](PGSQL-PLAYBOOk#pgsql-migrationyml) : Generate Migration manual & scripts for existing PostgreSQL
+- [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) : Init HA PostgreSQL clusters or add new replicas.
+- [`pgsql-rm.yml`](PGSQL-PLAYBOOK#pgsql-rmyml) : Remove PostgreSQL cluster, or remove replicas
+- [`pgsql-user.yml`](PGSQL-PLAYBOOK#pgsql-useryml) : Add new business user to existing PostgreSQL cluster
+- [`pgsql-db.yml`](PGSQL-PLAYBOOK#pgsql-dbyml) : Add new business database to existing PostgreSQL cluster
+- [`pgsql-monitor.yml`](PGSQL-PLAYBOOK#pgsql-monitoryml) : Monitor remote PostgreSQL instance with local exporters
+- [`pgsql-migration.yml`](PGSQL-PLAYBOOK#pgsql-migrationyml) : Generate Migration manual & scripts for existing PostgreSQL
 
 <details><summary>Example: Install PGSQL module</summary>
 

@@ -331,7 +331,7 @@ Check [Playbook: One-Pass Install](PLAYBOOK#one-pass-install) for details.
 
 ## Parameter
 
-API Reference for [`INFRA`](PARAM#INFRA) module:
+API Reference for [`INFRA`](PARAM#infra) module:
 
 - [`META`](PARAM#meta): infra meta data
 - [`CA`](PARAM#ca): self-signed CA
