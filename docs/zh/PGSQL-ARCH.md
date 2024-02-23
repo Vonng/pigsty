@@ -31,7 +31,7 @@ PGSQL模块在生产环境中以**集群**的形式组织，这些**集群**是�
 
 ## 身份参数
 
-Pigsty使用**身份参数**来识别实体：[`PG_ID`](PARAM#PG_ID)。
+Pigsty使用**身份参数**来识别实体：[`PG_ID`](PARAM#pg_id)。
 
 除了节点IP地址，[`pg_cluster`](PARAM#pg_cluster)、[`pg_role`](PARAM#pg_role)和[`pg_seq`](PARAM#pg_seq)三个参数是定义postgres集群所必需的最小参数集。
 以[沙箱环境](PROVISION#沙箱环境)测试集群`pg-test`为例：
@@ -128,7 +128,7 @@ pg_up{cls="pg-test", ins="pg-test-3", ip="10.10.10.13", job="pgsql"}
 
 Pigsty 的 PostgreSQL 集群带有开箱即用的高可用方案，由 [patroni](https://patroni.readthedocs.io/en/latest/)、[etcd](https://etcd.io/) 和 [haproxy](http://www.haproxy.org/) 强力驱动。
 
-[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](PGSQL-ARCH.md)
+![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)
 
 当主库故障时，将触发新一轮领导者竞选，集群中最为健康的从库将胜出，并被提升为新的主库。读写流量将立即路由至新的主库。主库故障影响是：默认情况下写入查询将被阻塞 15 ~ 40s，直到选出新的领导者来。
 

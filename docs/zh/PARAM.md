@@ -4102,7 +4102,7 @@ pgbouncer_sslmode: disable        # pgbouncer client ssl mode, disable by defaul
 
 是否防止清除正在运行的Postgres实例？默认为：`false`。
 
-如果启用，[`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) 和 [`pgsql-rm.yml`](PGSQL-PLAYBOOk#pgsql-rmyml) 在检测到任何正在运行的postgres实例时将立即中止。
+如果启用，[`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) 和 [`pgsql-rm.yml`](PGSQL-PLAYBOOK#pgsql-rmyml) 在检测到任何正在运行的postgres实例时将立即中止。
 
 
 
@@ -4115,7 +4115,7 @@ pgbouncer_sslmode: disable        # pgbouncer client ssl mode, disable by defaul
 
 默认值为`true`，在 [`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) 初始化期间它将清除现有的postgres实例，这使得playbook具有幂等性。
 
-如果设置为 `false`，[`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) 会在遇到正在运行的 PostgreSQL 实例时中止。而 [`pgsql-rm.yml`](PGSQL-PLAYBOOk#pgsql-rmyml) 将不会删除 PostgreSQL 的数据目录（只会停止服务器）。
+如果设置为 `false`，[`pgsql.yml`](PGSQL-PLAYBOOK#pgsqlyml) 会在遇到正在运行的 PostgreSQL 实例时中止。而 [`pgsql-rm.yml`](PGSQL-PLAYBOOK#pgsql-rmyml) 将不会删除 PostgreSQL 的数据目录（只会停止服务器）。
 
 
 

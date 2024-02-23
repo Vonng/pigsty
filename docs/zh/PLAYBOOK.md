@@ -1,6 +1,6 @@
 # 幂等剧本
 
-在 Pigsty 中，剧本 / Playbooks 用于在节点上安装[模块](arch#模块)。
+在 Pigsty 中，剧本 / Playbooks 用于在节点上安装[模块](ARCH#模块)。
 
 剧本可以视作可执行文件直接执行，例如：`./install.yml`.
 
@@ -49,7 +49,7 @@
 [pgsql.yml] ./pgsql.yml                                                          [+pgsql]
 ```
 
-请注意，[`NODE`](node) 和 [`INFRA`](infra) 之间存在循环依赖：为了在 INFRA 上注册 NODE，INFRA 应该已经存在，而 INFRA 模块依赖于 INFRA节点上的 NODE 模块才能工作。
+请注意，[`NODE`](NODE) 和 [`INFRA`](INFRA) 之间存在循环依赖：为了在 INFRA 上注册 NODE，INFRA 应该已经存在，而 INFRA 模块依赖于 INFRA节点上的 NODE 模块才能工作。
 
 为了解决这个问题，INFRA 模块的安装剧本也会在 INFRA 节点上安装 NODE 模块。所以，请确保首先初始化 INFRA 节点。
 
@@ -63,7 +63,7 @@
 
 执行剧本需要 `ansible-playbook` 可执行文件，该文件包含在 `ansible` rpm/deb 包中。
 
-Pigsty 将在 [**准备**](install#准备) 期间在尽最大努力尝试在当前节点安装 `ansible`。
+Pigsty 将在 [**准备**](INSTALL#准备) 期间在尽最大努力尝试在当前节点安装 `ansible`。
 
 您可以自己使用 `yum` / `apt` / `brew`  `install ansible` 来安装 Ansible，它含在各大发行版的默认仓库中。
 

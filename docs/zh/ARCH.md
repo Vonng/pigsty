@@ -2,7 +2,7 @@
 
 Pigsty 使用 **模块化架构** 与 **声明式接口**。
 
-* Pigsty 使用[配置清单](config)描述整套部署环境，并通过 ansible [剧本](playbook)实现。
+* Pigsty 使用[配置清单](CONFIG)描述整套部署环境，并通过 ansible [剧本](PLAYBOOK)实现。
 * Pigsty 在可以在任意节点上运行，无论是物理裸机还是虚拟机，只要操作系统[兼容](INSTALL#要求)即可。
 * Pigsty 的行为由配置参数控制，具有幂等性的剧本 会将节点调整到配置所描述的状态。
 * Pigsty 采用模块化设计，可自由组合以适应不同场景。使用剧本将模块安装到配置指定的节点上。
@@ -12,18 +12,18 @@ Pigsty 使用 **模块化架构** 与 **声明式接口**。
 
 ## 模块
 
-Pigsty 采用模块化设计，有六个主要的默认模块：[`PGSQL`](pgsql)、[`INFRA`](infra)、[`NODE`](node)、[`ETCD`](etcd)、[`REDIS`](redis) 和 [`MINIO`](minio)。
+Pigsty 采用模块化设计，有六个主要的默认模块：[`PGSQL`](PGSQL)、[`INFRA`](INFRA)、[`NODE`](NODE)、[`ETCD`](etcd)、[`REDIS`](REDIS) 和 [`MINIO`](MINIO)。
 
-* [`PGSQL`](pgsql)：由 Patroni、Pgbouncer、HAproxy、PgBackrest 等驱动的自治高可用 Postgres 集群。
-* [`INFRA`](infra)：本地软件仓库、Prometheus、Grafana、Loki、AlertManager、PushGateway、Blackbox Exporter...
-* [`NODE`](node)：调整节点到所需状态、名称、时区、NTP、ssh、sudo、haproxy、docker、promtail、keepalived
-* [`ETCD`](etcd)：分布式键值存储，用作高可用 Postgres 集群的 DCS：共识选主/配置管理/服务发现。
-* [`REDIS`](redis)：Redis 服务器，支持独立主从、哨兵、集群模式，并带有完整的监控支持。
-* [`MINIO`](minio)：与 S3 兼容的简单对象存储服务器，可作为 PG数据库备份的可选目的地。
+* [`PGSQL`](PGSQL)：由 Patroni、Pgbouncer、HAproxy、PgBackrest 等驱动的自治高可用 Postgres 集群。
+* [`INFRA`](INFRA)：本地软件仓库、Prometheus、Grafana、Loki、AlertManager、PushGateway、Blackbox Exporter...
+* [`NODE`](NODE)：调整节点到所需状态、名称、时区、NTP、ssh、sudo、haproxy、docker、promtail、keepalived
+* [`ETCD`](ETCD)：分布式键值存储，用作高可用 Postgres 集群的 DCS：共识选主/配置管理/服务发现。
+* [`REDIS`](REDIS)：Redis 服务器，支持独立主从、哨兵、集群模式，并带有完整的监控支持。
+* [`MINIO`](MINIO)：与 S3 兼容的简单对象存储服务器，可作为 PG数据库备份的可选目的地。
 
-你可以声明式地自由组合它们。如果你想要主机监控，在基础设施节点上安装[`INFRA`](infra)模块，并在纳管节点上安装 [`NODE`](node) 模块就足够了。
- [`ETCD`](etcd) 和 [`PGSQL`](pgsql) 模块用于搭建高可用 PG 集群，将模块安装在多个节点上，可以自动形成一个高可用的数据库集群。
-您可以复用 Pigsty 基础架构并开发您自己的模块，[`REDIS`](redis) 和 [`MINIO`](minio) 可以作为一个样例。后续还会有更多的模块加入，例如对 Mongo 与 MySQL 的初步支持已经提上了日程。
+你可以声明式地自由组合它们。如果你想要主机监控，在基础设施节点上安装[`INFRA`](INFRA)模块，并在纳管节点上安装 [`NODE`](NODE) 模块就足够了。
+ [`ETCD`](ETCD) 和 [`PGSQL`](PGSQL) 模块用于搭建高可用 PG 集群，将模块安装在多个节点上，可以自动形成一个高可用的数据库集群。
+您可以复用 Pigsty 基础架构并开发您自己的模块，[`REDIS`](REDIS) 和 [`MINIO`](MINIO) 可以作为一个样例。后续还会有更多的模块加入，例如对 Mongo 与 MySQL 的初步支持已经提上了日程。
 
 [![pigsty-sandbox.jpg](https://repo.pigsty.cc/img/pigsty-sandbox.jpg)](PROVISION)
 
@@ -33,7 +33,7 @@ Pigsty 采用模块化设计，有六个主要的默认模块：[`PGSQL`](pgsql)
 
 ## 单机安装
 
-默认情况下，Pigsty 将在单个 **节点** (物理机/虚拟机) 上安装。[`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.yml) 剧本将在**当前**节点上安装 [`INFRA`](infra)、[`ETCD`](etcd)、[`PGSQL`](pgsql) 和可选的 [`MINIO`](minio) 模块，
+默认情况下，Pigsty 将在单个 **节点** (物理机/虚拟机) 上安装。[`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.yml) 剧本将在**当前**节点上安装 [`INFRA`](INFRA)、[`ETCD`](ETCD)、[`PGSQL`](PGSQL) 和可选的 [`MINIO`](MINIO) 模块，
 这将为你提供一个功能完备的可观测性技术栈全家桶 (Prometheus、Grafana、Loki、AlertManager、PushGateway、BlackboxExporter 等) ，以及一个内置的 PostgreSQL 单机实例作为 CMDB，也可以开箱即用。 (集群名 `pg-meta`，库名为 `meta`)。
 
 这个节点现在会有完整的自我监控系统、可视化工具集，以及一个自动配置有 PITR 的 Postgres 数据库（HA不可用，因为你只有一个节点）。你可以使用此节点作为开发箱、测试、运行演示以及进行数据可视化和分析。或者，还可以把这个节点当作管理节点，部署纳管更多的节点！
@@ -94,11 +94,11 @@ $ bin/pgsql-add pg-test  # 初始化集群 'pg-test'
 
 Pigsty 遵循 IaC（基础设施即代码）与 GitOPS 理念：Pigsty 的部署由声明式的[配置清单](config#配置清单)描述，并通过幂等[剧本](PLAYBOOK)来实现。
 
-用户用声明的方式通过[参数](param)来描述自己期望的状态，而剧本则以幂等的方式调整目标节点以达到这个状态。这就像 Kubernetes 的 CRD & Operator，但 Pigsty 在裸机和虚拟机上实现了这一点。
+用户用声明的方式通过[参数](PARAM)来描述自己期望的状态，而剧本则以幂等的方式调整目标节点以达到这个状态。这就像 Kubernetes 的 CRD & Operator，但 Pigsty 在裸机和虚拟机上实现了这一点。
 
 [![pigsty-iac.jpg](https://repo.pigsty.cc/img/pigsty-iac.jpg)](CONFIG)
 
-以下面的默认配置片段为例，这段配置描述了一个节点 `10.10.10.10`，其上安装了 [`INFRA`](infra)、[`NODE`](node)、[`ETCD`](etcd) 和 [`PGSQL`](pgsql) 模块。
+以下面的默认配置片段为例，这段配置描述了一个节点 `10.10.10.10`，其上安装了 [`INFRA`](INFRA)、[`NODE`](NODE)、[`ETCD`](ETCD) 和 [`PGSQL`](PGSQL) 模块。
 
 ```yaml
 # 监控、告警、DNS、NTP 等基础设施集群...
@@ -141,5 +141,5 @@ $ bin/pgsql-add  pg-test  10.10.10.13
 
 您还可以使用这种方法来管理许多 PostgreSQL 中的实体对象：用户/角色、数据库、服务、HBA 规则、扩展、模式等...
 
-更多信息，请参阅 [PGSQL配置](pgsql-conf)。
+更多信息，请参阅 [PGSQL配置](PGSQL-CONF)。
 

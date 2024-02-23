@@ -88,7 +88,7 @@ pg-meta:
 - `pool_size_min`： 数据库级别的 pgbouncer 池的最小大小，默认为 0
 - `pool_max_db_conn`： 数据库级别的 pgbouncer 连接池最大数据库连接数，默认为 100
 
-新创建的数据库默认会从 `template1` 数据库 Fork 出来，这个模版数据库会在 [`PG_PROVISION`](PARAM#PG_PROVISION) 阶段进行定制修改：
+新创建的数据库默认会从 `template1` 数据库 Fork 出来，这个模版数据库会在 [`PG_PROVISION`](PARAM#pg_provision) 阶段进行定制修改：
 配置好扩展，模式以及默认权限，因此新创建的数据库也会继承这些配置，除非您显式使用一个其他的数据库作为模板。
 
 关于数据库的访问权限，请参考 [ACL：数据库权限](PGSQL-ACL#数据库权限) 一节。

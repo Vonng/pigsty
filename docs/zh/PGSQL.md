@@ -55,7 +55,7 @@
 - [创建用户](PGSQL-ADMIN#创建用户)
 - [创建数据库](PGSQL-ADMIN#创建数据库)
 - [重载服务](PGSQL-ADMIN#重载服务)
-- [重载HBA](PGSQL-ADMIN#重载HBA)
+- [重载HBA](PGSQL-ADMIN#重载hba)
 - [配置集群](PGSQL-ADMIN#配置集群)
 - [添加实例](PGSQL-ADMIN#添加实例)
 - [移除实例](PGSQL-ADMIN#移除实例)
@@ -63,7 +63,7 @@
 - [主动切换](PGSQL-ADMIN#主动切换)
 - [备份集群](PGSQL-ADMIN#备份集群)
 - [恢复集群](PGSQL-ADMIN#恢复集群)
-- [疑难杂症](FAQ#PGSQL)
+- [疑难杂症](FAQ#pgsql)
 
 
 ----------------

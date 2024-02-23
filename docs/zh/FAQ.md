@@ -1,6 +1,6 @@
 # 常见问题
 
-> 这里列出了Pigsty用户常遇到的问题，如果您遇到了难以解决的问题，可以提交 [Issue](https://github.com/Vonng/pigsty/issues/new) 或者 [联系我们](overview#about)。
+> 这里列出了Pigsty用户常遇到的问题，如果您遇到了难以解决的问题，可以提交 [Issue](https://github.com/Vonng/pigsty/issues/new) 或者[联系我们](README#关于)。
 
 
 ----------------
@@ -20,7 +20,7 @@ Pigsty 离线软件包构建使用的操作系统版本为： CentOS 7.9, Rocky 
 我们强烈建议使用 Ubuntu 22.04 jammy (LTS)，也提供对 Ubuntu 20.04 focal (LTS) 的支持。Debian 建议使用 12 (bookworm) 或 11 (bullseye)。
 如果您需要使用到一些特殊的软件包，例如 RDKit，或者 PostgresML + CUDA，以及 AI 相关的组件，那么 Ubuntu 22.04 是不二之选。
 
-国产操作系统中，我们建议使用 OpenAnolis 8.8 （RHCK），完全兼容 EL8 的软件包，无需额外适配。在[企业级服务协议](SUPPORT.md)中，我们也提供对信创国产操作系统的额外付费支持（例如OpenEuler / UOS）。
+国产操作系统中，我们建议使用 OpenAnolis 8.8 （RHCK），完全兼容 EL8 的软件包，无需额外适配。在[订阅服务](SUPPORT)中，我们也提供对信创国产操作系统的额外付费支持（例如OpenEuler / UOS）。
 
 - 当您看重这些特性时，选择 EL 系操作系统：
   - 最充分的测试与稳定性验证，大规模使用案例
@@ -112,7 +112,7 @@ Pigsty 使用 master 主干分支进行开发，请始终使用特定版本的 [
 
 <details><summary>哪里可以下载 Pigsty 的离线软件包？</summary><br>
 
-离线包可以在[准备/`bootstrap`](install#准备) 过程中提示下载，或者您也可以直接通过以下链接从 GitHub 上下载：
+离线包可以在[准备/`bootstrap`](INSTALL#准备) 过程中提示下载，或者您也可以直接通过以下链接从 GitHub 上下载：
 
 您可以选择从 Github 上的发布页面上直接下载离线软件包。
 
@@ -223,7 +223,7 @@ Pigsty 提供了 280+ 配置参数，可以对整个环境与各个模块 infra/
 
 - 当访问 web 服务组件时，域名由 [`infra_portal`](PARAM#infra_portal) 指定，有些服务只能通过 Nginx 代理使用域名访问。
 - Pigsty 假定存在一个 `/data` 目录用于存放所有数据；如果数据磁盘的挂载点与此不同，你可以使用 [`node_data`](PARAM#node_data) 调整这些路径。
-- 进行生产部署时，不要忘记在配置文件中更改**密码**，更多细节请参考 [安全考量](security)。
+- 进行生产部署时，不要忘记在配置文件中更改**密码**，更多细节请参考 [安全考量](SECURITY)。
 
 </details>
 
@@ -590,7 +590,7 @@ pg-test:
 
 您可以在配置中中使用[`haproxy_services`](PARAM#haproxy_services)来暴露服务，并使用 `node.yml -t haproxy_config,haproxy_reload` 来更新配置。
 
-以下是使用它暴露MinIO服务的示例：[暴露MinIO服务](minio#暴露服务)
+以下是使用它暴露MinIO服务的示例：[暴露MinIO服务](MINIO#暴露服务)
 
 </details>
 
@@ -630,8 +630,8 @@ Pigsty 使用的 Shell 命令行提示符是由环境变量 `PS1` 指定，定�
 <br>
 <details><summary>ETCD集群如果不可用了会有什么影响？</summary><br>
 
-[ETCD](etcd) 对于 PGSQL 集群的高可用至关重要，而 etcd 本身的可用性是通过使用多个节点来保证的。使用3节点的 etcd 集群允许最多一个节点宕机，而其他两个节点仍然可以正常工作；
-使用五节点的 ETCD 集群则可以容忍两个节点失效。如果超过一半的 ETCD 节点宕机，ETCD 集群及其服务将不可用。在 Patroni 3.0 之前，这可能导致 [PGSQL](pgsql) 全局故障；所有的主节点将被降级并拒绝写请求。
+[ETCD](ETCD) 对于 PGSQL 集群的高可用至关重要，而 etcd 本身的可用性是通过使用多个节点来保证的。使用3节点的 etcd 集群允许最多一个节点宕机，而其他两个节点仍然可以正常工作；
+使用五节点的 ETCD 集群则可以容忍两个节点失效。如果超过一半的 ETCD 节点宕机，ETCD 集群及其服务将不可用。在 Patroni 3.0 之前，这可能导致 [PGSQL](PGSQL) 全局故障；所有的主节点将被降级并拒绝写请求。
 
 自从 pigsty 2.0 起，默认启用了 patroni 3.0 的 [DCS 容错模式](https://patroni.readthedocs.io/en/master/dcs_failsafe_mode.html)，
 当 etcd 集群不可用时，如果 PostgreSQL 集群主库可以感知到所有成员，就会 **锁定** PGSQL 集群状态。
@@ -694,9 +694,9 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 <br>
 <details><summary>启动多节点/多盘MinIO集群失败怎么办？</summary><br>
 
-在[单机多盘](MINIO#单机多盘)或[多机多盘](minio#多机多盘)模式下，如果数据目录不是有效的磁盘挂载点，MinIO会拒绝启动。
+在[单机多盘](MINIO#单机多盘)或[多机多盘](MINIO#多机多盘)模式下，如果数据目录不是有效的磁盘挂载点，MinIO会拒绝启动。
 
-请使用已挂载的磁盘作为MinIO的数据目录，而不是普通目录。您只能在[单机单盘](minio#单机单盘)模式下使用普通目录作为 MinIO 的数据目录，作为开发测试之用。
+请使用已挂载的磁盘作为MinIO的数据目录，而不是普通目录。您只能在[单机单盘](MINIO#单机单盘)模式下使用普通目录作为 MinIO 的数据目录，作为开发测试之用。
 
 </details>
 
@@ -706,7 +706,7 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 <br>
 <details><summary>如何部署一个多节点/多盘MinIO集群？</summary><br>
 
-> 请参阅[创建多节点多盘的MinIO集群](minio#多机多盘)
+> 请参阅[创建多节点多盘的MinIO集群](MINIO#多机多盘)
 
 </details>
 
@@ -728,7 +728,7 @@ etcdctl member remove <etcd_server_id>   # 在管理节点上从集群中踢出�
 
 > 使用可选的负载均衡器和不同的端口访问HA MinIO集群。
 
-这里有一个示例：[访问MinIO服务](minio#访问服务)
+这里有一个示例：[访问MinIO服务](MINIO#访问服务)
 
 </details>
 
@@ -907,11 +907,11 @@ pg restart <cls>                          # 重启 postgres 以使用 hugepage
 <br>
 <details><summary>如何确保故障转移中数据不丢失？</summary><br>
 
-> 使用 `crit.yml` 参数模板，设置 `pg_rpo` 为 `0`，或[配置集群](pgsql-admin#配置集群)为同步提交模式。
+> 使用 `crit.yml` 参数模板，设置 `pg_rpo` 为 `0`，或[配置集群](PGSQL-ADMIN#配置集群)为同步提交模式。
 
-考虑使用 [同步备库](PGSQL-CONF#同步备库) 和 [法定多数提交](pgsql-conf#法定人数提交) 来确保故障转移过程中的零数据丢失。
+考虑使用 [同步备库](PGSQL-CONF#同步备库) 和 [法定多数提交](PGSQL-CONF#法定人数提交) 来确保故障转移过程中的零数据丢失。
 
-更多细节，可以参考 [安全考量 - 可用性](SECURITY.md#可用性) 的相关介绍。
+更多细节，可以参考 [安全考量 - 可用性](SECURITY#可用性) 的相关介绍。
 
 </details>
 

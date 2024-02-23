@@ -82,7 +82,7 @@ redis-test: # redis 原生集群： 3主 x 3从
 
 ## 管理
 
-下面是 REDIS 模块常用的管理任务，更多问题请参考 [FAQ：REDIS](FAQ#REDIS)
+下面是 REDIS 模块常用的管理任务，更多问题请参考 [FAQ：REDIS](FAQ#redis)
 
 
 -------------
@@ -229,7 +229,7 @@ redis_sentinel_monitor:  # 需要被监控的主库列表，端口、密码、�
 
 ## 剧本
 
-REDIS模块提供了两个[剧本](playbook)，用于拉起/销毁 传统主从Redis集群/节点/实例：
+REDIS模块提供了两个[剧本](PLAYBOOK)，用于拉起/销毁 传统主从Redis集群/节点/实例：
 
 - [`redis.yml`](#redisyml)：初始Redis集群/节点/实例。
 - [`redis-rm.yml`](#redis-rmyml)：移除Redis集群/节点/实例

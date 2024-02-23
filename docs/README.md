@@ -13,7 +13,7 @@
 
 ## Features
 
-> Pigsty have six core values shown below, for more details, check [**Feature**](FEATURE) or [**特性**](zh/FEATURE)
+> Pigsty is your postgres, infra, grafana service toolbox, check [**Feature**](FEATURE.md) | [**特性**](zh/FEATURE.md) and [**Demo**](https://demo.pigsty.cc) for details.
 
 [**Extensibility**](https://repo.pigsty.cc/img/pigsty-extension.jpg): Powerful [**Extensions**](PGSQL-EXTENSION) Ready for use: **PostGIS**, **TimescaleDB**, **Citus**, **PGVector**, Search, HTAP, AIML, and [**150+**](PGSQL-EXTENSION#extension-list) more.
 

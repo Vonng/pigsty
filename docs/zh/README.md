@@ -6,14 +6,14 @@
 >
 > 最新版本：[v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [GPT答疑](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
 >
-> [快速上手](INSTALL.md)：`curl -fsSL https://get.pigsty.cc/latest | bash` （使用 `beta` 替换 `latest` 则安装测试版）
+> [快速上手](INSTALL)：`curl -fsSL https://get.pigsty.cc/latest | bash` （使用 `beta` 替换 `latest` 则安装测试版）
 
 
 ----------------
 
 ## 功能特性
 
-> Pigsty 提出以下六条 [**价值主张**](FEATURE#价值主张) ，更多详情请参阅 [**功能特性**](FEATURE.md) 。
+> Pigsty 提出以下六条 [**价值主张**](FEATURE#价值主张) ，更多详情请参阅 [**功能特性**](FEATURE) 。
 
 [**可扩展性**](https://repo.pigsty.cc/img/pigsty-extension.jpg)： 强力[**扩展**](PGSQL-EXTENSION)开箱即用：深度整合**PostGIS**, **TimescaleDB**, **Citus**, **PGVector**, **ParadeDB**, **Hydra**, **AGE** , **PGML** 等 [**150+**](PGSQL-EXTENSION#扩展列表) PG生态插件。
 
@@ -145,7 +145,7 @@ Pigsty 采用模块化设计，有六个主要的默认模块：[`PGSQL`](PGSQL)
 这将为你提供一个功能完备的可观测性技术栈全家桶 (Prometheus、Grafana、Loki、AlertManager、PushGateway、BlackboxExporter 等) ，以及一个内置的 PostgreSQL 单机实例作为 CMDB，也可以开箱即用。 (集群名 `pg-meta`，库名为 `meta`)。
 这个节点现在会有完整的自我监控系统、可视化工具集，以及一个自动配置有 PITR 的 Postgres 数据库（单机安装时HA不可用，因为你只有一个节点）。你可以使用此节点作为开发箱、测试、运行演示以及进行数据可视化和分析。或者，还可以把这个节点当作管理节点，部署纳管更多的节点！
 
-[![pigsty-arch.jpg](https://repo.pigsty.cc/img/pigsty-arch.jpg)](ARCH.md)
+[![pigsty-arch.jpg](https://repo.pigsty.cc/img/pigsty-arch.jpg)](ARCH)
 
 
 
@@ -165,13 +165,13 @@ pg-test:
   vars:  { pg_cluster: pg-test }
 ```
 
-定义完后，可以使用[剧本](playbook)将其创建：
+定义完后，可以使用[剧本](PLAYBOOK)将其创建：
 
 ```bash
 bin/pgsql-add pg-test   # 初始化 pg-test 集群 
 ```
 
-[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](PGSQL-ARCH.md)
+[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](PGSQL-ARCH)
 
 你可以使用不同的的实例角色，例如 [主库](PGSQL-CONF#读写主库)（primary），[从库](PGSQL-CONF#只读从库)（replica），[离线从库](PGSQL-CONF#读写主库)（offline），[延迟从库](PGSQL-CONF#延迟集群)（delayed），[同步备库](PGSQL-CONF#同步备库)（sync standby）；
 以及不同的集群：例如[备份集群](PGSQL-CONF#备份集群)（Standby Cluster），[Citus集群](PGSQL-CONF#citus集群)，甚至是 [Redis](REDIS) / [MinIO](MINIO) / [Etcd](ETCD) 集群，如下所示：
@@ -440,7 +440,7 @@ minio:
 
 </details><br>
 
-详情请参考 [**Pigsty配置**](config) 与 [**PGSQL配置**](pgsql-conf)。
+详情请参考 [**Pigsty配置**](CONFIG) 与 [**PGSQL配置**](PGSQL-CONF)。
 
 
 

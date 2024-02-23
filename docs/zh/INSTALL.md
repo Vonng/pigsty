@@ -220,7 +220,7 @@ curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz -o /tmp/pk
 
 </details>
 
-离线软件包支持的操作系统，请参考[发布注记](RELEASENOTE.md)。如果您的环境有互联网访问，或者使用了不同的操作系统小版本，您可以选择不使用离线软件包，直接从互联网上游拉取最新软件包。
+离线软件包支持的操作系统，请参考[发布注记](RELEASENOTE)。如果您的环境有互联网访问，或者使用了不同的操作系统小版本，您可以选择不使用离线软件包，直接从互联网上游拉取最新软件包。
 
 
 
@@ -365,7 +365,7 @@ proceed with ./configure
 
 ## 配置
 
-配置 / [`configure`](CONFIG.md) 会根据您当前的环境，自动生成推荐的（单机安装） [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) 配置文件。
+配置 / [`configure`](CONFIG) 会根据您当前的环境，自动生成推荐的（单机安装） [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) 配置文件。
 
 提示: 如果您已经了解了如何配置 Pigsty， `configure` 这个步骤是可选的，可以跳过。
 
@@ -420,7 +420,7 @@ proceed with ./install.yml
 ./install.yml    # 一次性在所有节点上完成安装
 ```
 
-这是一个标准的 Ansible [剧本](PLAYBOOK.md)，您可以使用以下参数控制其执行的目标、任务、并传递额外的命令参数：
+这是一个标准的 Ansible [剧本](PLAYBOOK)，您可以使用以下参数控制其执行的目标、任务、并传递额外的命令参数：
 
 * `-l`: 限制执行的目标对象
 * `-t`: 限制要执行的任务
@@ -463,10 +463,10 @@ localhost                  : ok=3    changed=0    unreachable=0    failed=0    s
 
 ## 用户界面
 
-当安装完成后，当前节点会安装有四个模块： [**INFRA**](INFRA.md), [**NODE**](NODE.md), [**ETCD**](ETCD.md) , [**PGSQL**](PGSQL.md) 。
+当安装完成后，当前节点会安装有四个模块： [**INFRA**](INFRA), [**NODE**](NODE), [**ETCD**](ETCD) , [**PGSQL**](PGSQL) 。
 
-* [**INFRA**](INFRA.md): Pigsty Web界面可以通过 80 端口访问 `http://<ip>:80`: 
-* [**PGSQL**](PGSQL.md): 您可以使用默认连接串[访问](PGSQL-SVC.md#单机用户)PGSQL数据库:
+* [**INFRA**](INFRA): Pigsty Web界面可以通过 80 端口访问 `http://<ip>:80`: 
+* [**PGSQL**](PGSQL): 您可以使用默认连接串[访问](PGSQL-SVC#单机用户)PGSQL数据库:
 
 ```bash
 psql postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta     # 直接用 DBA 超级用户连接
@@ -474,7 +474,7 @@ psql postgres://dbuser_meta:DBUser.Meta@10.10.10.10/meta   # 用默认的业务�
 psql postgres://dbuser_view:DBUser.View@pg-meta/meta       # 用默认的只读用户走实例域名连接
 ```
 
-基础设施服务组件会使用 Nginx 对外暴露 WebUI (可通过参数 [`infra_portal`](PARAM.md#infra_portal) 进行配置):
+基础设施服务组件会使用 Nginx 对外暴露 WebUI (可通过参数 [`infra_portal`](PARAM#infra_portal) 进行配置):
 
 |      组件      |  端口  |     域名     | 说明               | Demo地址                                     |
 |:------------:|:----:|:----------:|------------------|--------------------------------------------|
@@ -521,6 +521,6 @@ bin/pgsql-add  pg-test      # 初始化一个3节点的 pg-test 高可用PG集�
 bin/redis-add  redis-ms     # 初始化 Redis 集群： redis-ms
 ```
 
-请记住绝大多数模块都依赖 [NODE](NODE.md) 模块，请确保节点已经被纳入 Pigsty 管理后再加装其他模块
+请记住绝大多数模块都依赖 [NODE](NODE) 模块，请确保节点已经被纳入 Pigsty 管理后再加装其他模块
 
-更多细节请参见： [PGSQL](PGSQL.md)，[REDIS](REDIS.md)，……
+更多细节请参见： [PGSQL](PGSQL)，[REDIS](REDIS)，……

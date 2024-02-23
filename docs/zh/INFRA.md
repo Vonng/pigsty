@@ -441,7 +441,7 @@ INFRA模块剧本 [`install.yml`](https://github.com/vonng/pigsty/blob/master/in
 
 ## 参数
 
-[`INFRA`](PARAM#INFRA) 模块有下列10个参数组。
+[`INFRA`](PARAM#infra) 模块有下列10个参数组。
 
 - [`META`](PARAM#meta)：Pigsty元数据
 - [`CA`](PARAM#ca)：自签名公私钥基础设施/CA

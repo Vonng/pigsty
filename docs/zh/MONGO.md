@@ -181,7 +181,7 @@ mongosh 'mongodb://dbuser_meta:DBUser.Meta@10.10.10.10:27017?authMechanism=PLAIN
 
 ## 剧本
 
-Pigsty 提供了一个内置的剧本： [`mongo.yml`](mongoyml)，用于在节点上安装 FerretDB 集群。
+Pigsty 提供了一个内置的剧本： [`mongo.yml`](#mongoyml)，用于在节点上安装 FerretDB 集群。
 
 ### `mongo.yml`
 

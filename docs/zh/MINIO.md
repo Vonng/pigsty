@@ -177,7 +177,7 @@ infra_portal:   # 域名和上游服务器定义
 
 ## 管理
 
-下面是 MinIO 模块中常用的管理命令，更多问题请参考 [FAQ：MINIO](FAQ#MINIO)。
+下面是 MinIO 模块中常用的管理命令，更多问题请参考 [FAQ：MINIO](FAQ#minio)。
 
 
 ### 创建集群
