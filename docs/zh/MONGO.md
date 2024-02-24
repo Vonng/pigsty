@@ -11,7 +11,7 @@
 
 PostgreSQL 的 JSON 功能支持已经足够完善了：二进制存储 JSONB，GIN 任意字段索引 ，各种 JSON 处理函数，JSON PATH 和 JSON Schema，它早已是一个功能完备，性能强大的文档数据库了。但是提供替代的功能，和**直接仿真**还是不一样的。FerretDB 可以为使用 MongoDB 驱动的应用程序提供一个丝滑迁移到 PostgreSQL 的过渡方案。
 
-Pigsty 在 1.x 中就提供了基于 [Docker](https://github.com/Vonng/pigsty/tree/master/app) 的 FerretDB 模板，在 v2.3 中更是提供了[原生](https://doc.pigsty.cc/#/MONGO)部署支持。它作为一个选装项，对丰富 PostgreSQL 生态大有裨益。Pigsty 社区已经与 FerretDB 社区成为了合作伙伴，后续将进行深度的合作与适配支持。
+Pigsty 在 1.x 中就提供了基于 [Docker](https://github.com/Vonng/pigsty/tree/master/app) 的 FerretDB 模板，在 v2.3 中更是提供了原生部署支持。它作为一个选装项，对丰富 PostgreSQL 生态大有裨益。Pigsty 社区已经与 FerretDB 社区成为了合作伙伴，后续将进行深度的合作与适配支持。
 
 
 

@@ -371,8 +371,6 @@ MD5 (pigsty-pkg-v2.3.1.el9.x86_64.tgz) = 4bc9ae920e7de6dd8988ca7ee681459d
 
 Get started with `bash -c "$(curl -fsSL http://get.pigsty.cc/latest)"`
 
-Release Note: https://doc.pigsty.cc/#/RELEASENOTE
-
 **Highlight**
 
 * Monitoring Dashboards Overhaul: https://demo.pigsty.cc

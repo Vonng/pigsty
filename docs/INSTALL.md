@@ -46,10 +46,8 @@ MD5: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxx9  /tmp/pigsty-v2.6.0.tgz
 [ OK ] $ tar -xf /tmp/pigsty-v2.6.0.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
-Get Started:     https://doc.pigsty.cc/#/INSTALL
-Documentation:   https://doc.pigsty.cc
-Github Repo:     https://github.com/Vonng/pigsty
 Public Demo:     https://demo.pigsty.cc
+Github Repo:     https://github.com/Vonng/pigsty
 [Proceeding] ===========================================
 cd ~/pigsty      # entering pigsty home directory before proceeding
 ./bootstrap      # install ansible & download the optional offline packages
@@ -153,7 +151,7 @@ curl -fsSL https://get.pigsty.cc/latest | bash
 If you want to download a specific version, use the following URLs:
 
 ```bash
-VERSION=v2.6.0   # version string, check https://doc.pigsty.cc/#/RELEASENOTE
+VERSION=v2.6.0   # version string, check https://pigsty.io/en/docs/releasenote
 https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty-${VERSION}.tgz
 ```
 

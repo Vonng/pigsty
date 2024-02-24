@@ -47,10 +47,8 @@ MD5: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxx9  /tmp/pigsty-v2.6.0.tgz
 [ OK ] $ tar -xf /tmp/pigsty-v2.6.0.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
-Get Started:     https://doc.pigsty.cc/#/INSTALL
-Documentation:   https://doc.pigsty.cc
-Github Repo:     https://github.com/Vonng/pigsty
 Public Demo:     https://demo.pigsty.cc
+Github Repo:     https://github.com/Vonng/pigsty
 [Proceeding] ===========================================
 cd ~/pigsty      # entering pigsty home directory before proceeding
 ./bootstrap      # install ansible & download the optional offline packages
@@ -153,7 +151,7 @@ curl -L https://get.pigsty.cc/latest  | bash
 <details><summary>下载特定版本的Pigsty源码包</summary>
 
 ```bash
-VERSION=v2.6.0  # 指定版本字符串，可参考发布注记：https://doc.pigsty.cc/#/zh/RELEASENOTE
+VERSION=v2.6.0  # 指定版本字符串，可参考发布注记：https://pigsty.io/zh/docs/releasenote
 https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty-${VERSION}.tgz
 ```
 

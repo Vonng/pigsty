@@ -4,9 +4,9 @@
 >
 > —— **开箱即用、本地优先的 PostgreSQL 发行版，开源 RDS 替代**
 >
-> 最新版本：[v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [文档](https://doc.pigsty.cc/) | [网站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [GPT答疑](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA)  | [英文文档](/)
+> [网站](https://pigsty.io/zh/) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [博客](https://pigsty.io/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA) | [Website](https://pigsty.io/en/)
 >
-> [快速上手](INSTALL)：`curl -fsSL https://get.pigsty.cc/latest | bash` （使用 `beta` 替换 `latest` 则安装测试版）
+> [快速上手](INSTALL) 最新版本的 Pigsty [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)：`curl -fsSL https://get.pigsty.cc/latest`
 
 
 ----------------
@@ -67,7 +67,7 @@ MD5: xxxxxxxxxxxx  /tmp/pigsty-v2.6.0.tgz
 [ OK ] $ tar -xf /tmp/pigsty-v2.6.0.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
-Get Started:     https://doc.pigsty.cc/#/INSTALL
+Get Started:     https://pigsty.io/en/docs/install
 Documentation:   https://doc.pigsty.cc
 Github Repo:     https://github.com/Vonng/pigsty
 Public Demo:     https://demo.pigsty.cc

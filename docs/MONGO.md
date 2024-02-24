@@ -13,7 +13,7 @@
 
 PostgreSQL's JSON functionality is already well-rounded: binary storage JSONB, GIN arbitrary field indexing, various JSON processing functions, JSON PATH, and JSON Schema, it has long been a fully-featured, high-performance document database. However, providing alternative functionality and direct emulation are not the same. FerretDB can provide a smooth transition to PostgreSQL for applications driven by MongoDB drivers.
 
-Pigsty provided a [Docker-Compose](https://github.com/Vonng/pigsty/tree/master/app) support for FerretDB in 1.x, and [native deployment](https://doc.pigsty.cc/#/MONGO) support since v2.3. As an optional feature, it greatly benefits the enrichment of the PostgreSQL ecosystem. The Pigsty community has already become a partner with the FerretDB community, and we shall find more opportunities to work together in the future.
+Pigsty provided a [Docker-Compose](https://github.com/Vonng/pigsty/tree/master/app) support for FerretDB in 1.x, and [native deployment](https://pigsty.io/en/docs/mongo) support since v2.3. As an optional feature, it greatly benefits the enrichment of the PostgreSQL ecosystem. The Pigsty community has already become a partner with the FerretDB community, and we shall find more opportunities to work together in the future.
 
 
 

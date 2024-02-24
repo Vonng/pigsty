@@ -4,9 +4,9 @@
 >
 > —— Battery-Included, Local-First **PostgreSQL** Distribution as an Open-Source **RDS** Alternative
 >
-> Latest Release: [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) | [Repo](https://github.com/Vonng/pigsty) | [Demo](https://demo.pigsty.cc) | [Docs](https://doc.pigsty.cc/) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [Website](https://pigsty.cc/en/)  | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/V6sBDXN9) | [中文文档](/zh/)
+> [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) |  [Blog](https://pigsty.io/zh/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/V6sBDXN9) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站点](https://pigsty.io/zh/)
 >
-> [Get Started](INSTALL) with `curl -fsSL https://get.pigsty.cc/latest | bash` (or replace `latest` with `beta`)
+> [Get Started](INSTALL) with the latest [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) release: `curl -fsSL https://get.pigsty.cc/latest`
 
 
 ----------------
@@ -67,7 +67,7 @@ MD5: xxxxxxxxxxxx  /tmp/pigsty-v2.6.0.tgz
 [ OK ] $ tar -xf /tmp/pigsty-v2.6.0.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
-Get Started:     https://doc.pigsty.cc/#/INSTALL
+Get Started:     https://pigsty.io/en/docs/install
 Documentation:   https://doc.pigsty.cc
 Github Repo:     https://github.com/Vonng/pigsty
 Public Demo:     https://demo.pigsty.cc
@@ -458,9 +458,9 @@ PostgreSQL **16** is the primary supported version, with full extension support.
 
 ## About
 
-Docs: https://doc.pigsty.cc/
+Docs: https://pigsty.io/
 
-Website: https://pigsty.cc/en/ | https://pigsty.cc/zh/
+Website: https://pigsty.io/en/ | https://pigsty.io/zh/
 
 WeChat: Search `pigsty-cc` to join the WeChat group.
 
