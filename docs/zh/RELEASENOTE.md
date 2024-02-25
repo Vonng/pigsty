@@ -58,7 +58,7 @@
 - 移除 `node_repo_method` 参数，其功能由 `node_repo_modules` 替代。
 - 在 `repo_upstream` 添加新的 `local` 源，并通过 `node_repo_modules` 使用，替代 `node_local_repo_urls` 的功能
 - 重排 `node_default_packages`，`infra_packages`，`pg_packages`，`pg_extensions` 参数默认值。
-- 在 `repo_upstream` 中替换 `repo_upstream.baseurl` 时，如果 EL8/9 小版本特定的仓库可用，使用 major.minor 替换 $releasever，提高小版本兼容性。
+- 在 `repo_upstream` 中替换 `repo_upstream.baseurl` 时，如果 EL8/9 PGDG小版本特定的仓库可用，使用 `major.minor` 而不是 `major` 替换 $releasever，提高小版本兼容性。
 
 **软件版本升级**
 

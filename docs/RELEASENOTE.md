@@ -59,7 +59,7 @@
 - add the new `local` repo into `repo_upstream` instead of `node_local_repo_urls`
 - add `chrony` into `node_default_packages`
 - remove redis,minio,postgresql client from infra packages
-- replace `repo_upstream.baseurl` $releasever on el8/el9 with major.minor version if applicable
+- replace `repo_upstream.baseurl` $releasever for pgdg el8/el9 with `major.minor` instead of `major` version
 
 **Software Upgrade**
 

@@ -4,7 +4,7 @@
 >
 > —— Battery-Included, Local-First **PostgreSQL** Distribution as an Open-Source **RDS** Alternative
 >
-> [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) |  [Blog](https://pigsty.io/en/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/V6sBDXN9) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站点](https://pigsty.io/zh/)
+> [Website](https://pigsty.io/en/) | [Demo](https://demo.pigsty.cc) |  [Blog](https://pigsty.io/en/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/V6sBDXN9) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站点](https://pigsty.io/zh/)
 >
 > [Get Started](docs/INSTALL.md) with the latest [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) release: `curl -fsSL https://get.pigsty.cc/latest`
 
@@ -434,7 +434,7 @@ Pigsty runs on bare OS without containerization: EL 7/8/9 (RHEL, Rocky, CentOS, 
 EL 8/9 is our primary supported OS, while Ubuntu/Debian support is newly introduced since v2.5. They have slight differences in package names and available [extension](docs/PGSQL-EXTENSION.md) list.
 
 We highly recommend using **RockyLinux** **8.9**, **9.3**, and **Ubuntu 22.04** (jammy) as the Operating System for Pigsty. We have pre-packed [offline packages](docs/INSTALL.md#offline-packages) for these three distros, ensuring a smooth installation process even **without Internet** access. 
-For other OS and their compatible distros, the initial installation requires Internet access to download and build a local YUM/APT repo.
+For other OS and their compatible distros, the initial installation requires Internet access to download and build a local YUM/APT repo. If you have any RPM conflicts, consider using the `major.minor` version in `repo_upstream`.`baseurl` instead of `major` version repo without offline installation. 
 
 PostgreSQL **16** is the primary supported version, with full extension support. But you can also use older PostgreSQL 12 / 13 / 14 / 15 with some slight modifications.
 We have also extended compatibility support (OS, Distro, PG, Arch) in our service [subscription](docs/SUPPORT.md).
