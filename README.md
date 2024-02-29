@@ -13,16 +13,16 @@
 
 ## Features
 
-> Pigsty is your postgres, infra, grafana service toolbox, check [**Feature**](docs/FEATURE.md) | [**特性**](docs/zh/FEATURE.md) and [**Demo**](https://demo.pigsty.cc) for details.
+> Pigsty is your postgres, infra, grafana service toolbox, check [**Feature**](https://pigsty.io/docs/about/feature/) | [**特性**](https://pigsty.io/zh/docs/about/feature/) and [**Demo**](https://demo.pigsty.cc) for details.
 
-[![pigsty-desc](https://repo.pigsty.cc/img/pigsty-intro.jpg)](docs/FEATURE.md#values)
+[![pigsty-desc](https://repo.pigsty.cc/img/pigsty-intro.jpg)](https://pigsty.io/)
 
 
 ----------------
 
 ## Get Started
 
-> Setup everything with one command! Check [**Get Started**](docs/INSTALL.md) | [**快速上手**](docs/zh/INSTALL.md) for details.
+> Setup everything with one command! Check [**Get Started**](https://pigsty.io/docs/setup/install/) | [**快速上手**](https://pigsty.io/zh/docs/setup/install/) for details.
 
 Prepare a fresh Linux x86_64 node that runs [**compatible**](#compatibility) operating systems distros:
 
