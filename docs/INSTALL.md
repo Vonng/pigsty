@@ -151,7 +151,7 @@ curl -fsSL https://get.pigsty.cc/latest | bash
 If you want to download a specific version, use the following URLs:
 
 ```bash
-VERSION=v2.6.0   # version string, check https://pigsty.io/en/docs/releasenote
+VERSION=v2.6.0   # version string, check https://pigsty.io/docs/releasenote
 https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty-${VERSION}.tgz
 ```
 

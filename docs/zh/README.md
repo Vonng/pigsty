@@ -4,7 +4,7 @@
 >
 > —— **开箱即用、本地优先的 PostgreSQL 发行版，开源 RDS 替代**
 >
-> [网站](https://pigsty.io/zh/) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [博客](https://pigsty.io/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA) | [Website](https://pigsty.io/en/)
+> [网站](https://pigsty.io/zh/) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [博客](https://pigsty.io/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA) | [Website](https://pigsty.io/)
 >
 > [快速上手](INSTALL) 最新版本的 Pigsty [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)：`curl -fsSL https://get.pigsty.cc/latest`
 
@@ -67,7 +67,7 @@ MD5: xxxxxxxxxxxx  /tmp/pigsty-v2.6.0.tgz
 [ OK ] $ tar -xf /tmp/pigsty-v2.6.0.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
-Get Started:     https://pigsty.io/en/docs/install
+Get Started:     https://pigsty.io/docs/setup/install/
 Documentation:   https://doc.pigsty.cc
 Github Repo:     https://github.com/Vonng/pigsty
 Public Demo:     https://demo.pigsty.cc

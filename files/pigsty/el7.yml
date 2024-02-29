@@ -4,7 +4,7 @@
 # Desc      :   Pigsty auto generated config for el7 singleton
 # Ctime     :   2020-05-22
 # Mtime     :   2024-02-22
-# Docs      :   https://pigsty.io/en/docs/config
+# Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
@@ -43,7 +43,7 @@ all:
       vars:
         pg_cluster: pg-meta
 
-        # define business databases here: https://pigsty.io/en/docs/pgsql/db/
+        # define business databases here: https://pigsty.io/docs/pgsql/db/
         pg_databases:                       # define business databases on this cluster, array of database definition
           - name: meta                      # REQUIRED, `name` is the only mandatory field of a database definition
             baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g: files/)
@@ -72,7 +72,7 @@ all:
             #pool_max_db_conn: 100          # optional, max database connections at database level, default 100
           #- { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }  # define another database
 
-        # define business users here: https://pigsty.io/en/docs/pgsql/user/
+        # define business users here: https://pigsty.io/docs/pgsql/user/
         pg_users:                           # define business users/roles on this cluster, array of user definition
           - name: dbuser_meta               # REQUIRED, `name` is the only mandatory field of a user definition
             password: DBUser.Meta           # optional, password, can be a scram-sha-256 hash string or plain text
@@ -94,7 +94,7 @@ all:
             pool_connlimit: -1              # optional, max database connections at user level, default -1 disable limit
           - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
 
-        # install extensions here: # define HBA rules here: https://pigsty.io/en/docs/pgsql/extension/#install-extension
+        # install extensions here: # define HBA rules here: https://pigsty.io/docs/pgsql/extension/#install-extension
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
         pg_extensions: # install extension on this cluster (citus & hydra are mutually exclusive! choose one between them!)
           - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}* hydra_${pg_version}* #citus_${pg_version}*
@@ -104,7 +104,7 @@ all:
           #- pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15 rum_15
           #- pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_auth_mon_15 pg_checksums_15 pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15
 
-        # define HBA rules here: https://pigsty.io/en/docs/pgsql/hba/#define-hba
+        # define HBA rules here: https://pigsty.io/docs/pgsql/hba/#define-hba
         pg_hba_rules:                       # example hba rules
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
 

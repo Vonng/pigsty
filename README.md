@@ -4,7 +4,7 @@
 >
 > —— Battery-Included, Local-First **PostgreSQL** Distribution as an Open-Source **RDS** Alternative
 >
-> [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) |  [Blog](https://pigsty.io/en/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/V6sBDXN9) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站点](https://pigsty.io/zh/)
+> [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) |  [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/V6sBDXN9) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站点](https://pigsty.io/zh/)
 >
 > [Get Started](docs/INSTALL.md) with the latest [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) release: `curl -fsSL https://get.pigsty.cc/latest`
 
@@ -53,7 +53,7 @@ MD5: xxxxxx.......xxxxxxxxxx  /tmp/pigsty-v2.6.0.tgz
 [ OK ] $ tar -xf /tmp/pigsty-v2.6.0.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
-Get Started:     https://pigsty.io/en/docs/install
+Get Started:     https://pigsty.io/docs/setup/install/
 Documentation:   https://doc.pigsty.cc
 Github Repo:     https://github.com/Vonng/pigsty
 Public Demo:     https://demo.pigsty.cc
@@ -446,7 +446,7 @@ We have also extended compatibility support (OS, Distro, PG, Arch) in our servic
 
 Docs: https://pigsty.io/
 
-Website: https://pigsty.io/en/ | https://pigsty.io/zh/
+Website: https://pigsty.io/ | https://pigsty.io/zh/
 
 WeChat: Search `pigsty-cc` to join the WeChat group.
 

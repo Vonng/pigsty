@@ -67,7 +67,7 @@ MD5: xxxxxxxxxxxx  /tmp/pigsty-v2.6.0.tgz
 [ OK ] $ tar -xf /tmp/pigsty-v2.6.0.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
-Get Started:     https://pigsty.io/en/docs/install
+Get Started:     https://pigsty.io/docs/setup/install/
 Documentation:   https://doc.pigsty.cc
 Github Repo:     https://github.com/Vonng/pigsty
 Public Demo:     https://demo.pigsty.cc
@@ -460,7 +460,7 @@ PostgreSQL **16** is the primary supported version, with full extension support.
 
 Docs: https://pigsty.io/
 
-Website: https://pigsty.io/en/ | https://pigsty.io/zh/
+Website: https://pigsty.io/ | https://pigsty.io/zh/
 
 WeChat: Search `pigsty-cc` to join the WeChat group.
 

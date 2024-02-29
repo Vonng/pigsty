@@ -1,6 +1,6 @@
 # Configuration Template
 
-This directory (`files/pigsty`) contains pigsty config templates, Which will be used during [`configure`](https://pigsty.io/en/docs/install) procedure.
+This directory (`files/pigsty`) contains pigsty config templates, Which will be used during [`configure`](https://pigsty.io/docs/setup/install/#configure) procedure.
 
 Config templates are named as `<mode>.yml`.  `<mode>` can be designated using `./configure -m <mode>`
 
