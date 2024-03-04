@@ -91,7 +91,7 @@ Pigsty 具有一套内置的，开箱即用的访问控制 / [ACL](PGSQL-ACL#默
 
 在 [`pg_default_roles`](PARAM#pg_default_roles) 和 [`pg_users`](PARAM#pg_users) 中[定义](#定义用户)的用户和角色，将在集群初始化的 PROVISION 阶段中自动逐一创建。
 如果您希望在现有的集群上[创建用户](PGSQL-ADMIN#创建用户)，可以使用 `bin/pgsql-user` 工具。
-将新用户/角色定义添加到 `all.children.<cls>.pg_users`，并使用以下方法创建该数据库：
+将新用户/角色定义添加到 `all.children.<cls>.pg_users`，并使用以下方法创建该用户：
 
 ```bash
 bin/pgsql-user <cls> <username>    # pgsql-user.yml -l <cls> -e username=<username>
