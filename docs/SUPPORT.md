@@ -27,7 +27,7 @@ WeChat: Search `pigsty-cc` and join the User Group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/V6sBDXN9
+Discord: https://discord.gg/D92HzV2s
 
 
 ------------------

@@ -4,7 +4,7 @@
 >
 > —— Battery-Included, Local-First **PostgreSQL** Distribution as an Open-Source **RDS** Alternative
 >
-> [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) |  [Blog](https://pigsty.io/zh/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/V6sBDXN9) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站点](https://pigsty.io/zh/)
+> [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) |  [Blog](https://pigsty.io/zh/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/D92HzV2s) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站点](https://pigsty.io/zh/)
 >
 > [Get Started](INSTALL) with the latest [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) release: `curl -fsSL https://get.pigsty.cc/latest`
 
@@ -466,7 +466,7 @@ WeChat: Search `pigsty-cc` to join the WeChat group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/V6sBDXN9
+Discord: https://discord.gg/D92HzV2s
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 

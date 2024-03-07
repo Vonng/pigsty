@@ -4,7 +4,7 @@
 >
 > —— Battery-Included, Local-First **PostgreSQL** Distribution as an Open-Source **RDS** Alternative
 >
-> [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) |  [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/V6sBDXN9) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站点](https://pigsty.io/zh/)
+> [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) |  [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/D92HzV2s) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站点](https://pigsty.io/zh/)
 >
 > [Get Started](docs/INSTALL.md) with the latest [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) release: `curl -fsSL https://get.pigsty.cc/latest`
 
@@ -115,8 +115,8 @@ Pigsty uses a **modular** design. There are six default modules available:
 * [`NODE`](docs/NODE.md):   Init node name, repo, pkg, NTP, ssh, admin, tune, expose services, collect logs & metrics.
 * [`ETCD`](docs/ETCD.md):   Init etcd cluster for HA Postgres DCS or Kubernetes, used as distributed config store.
 * [`PGSQL`](docs/PGSQL.md): Autonomous self-healing PostgreSQL cluster powered by Patroni, Pgbouncer, PgBackrest & HAProxy
-* [`REDIS`](docs/REDIS.md): Deploy Redis servers in standalone master-replica, sentinel, and native cluster mode, optional.
-* [`MINIO`](docs/MINIO.md): S3-compatible object storage service used as an optional central backup server for `PGSQL`.
+* [`REDIS`](docs/REDIS.md): Deploy Redis servers in standalone master-replica, sentinel, and native cluster mode, **optional**.
+* [`MINIO`](docs/MINIO.md): S3-compatible object storage service used as an optional central backup server for `PGSQL`, **optional**.
 
 You can compose them freely in a declarative manner. If you want host monitoring, `INFRA` & `NODE` will suffice.
 `ETCD` and `PGSQL` are used for HA PG clusters, install them on multiple nodes will automatically form a HA cluster.
@@ -452,7 +452,7 @@ WeChat: Search `pigsty-cc` to join the WeChat group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/V6sBDXN9
+Discord: https://discord.gg/D92HzV2s
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 

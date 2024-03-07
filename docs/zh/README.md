@@ -471,7 +471,7 @@ PostgreSQL 16 是 Pigsty 当前主要支持的数据库大版本，使用 Pigsty
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/V6sBDXN9
+Discord: https://discord.gg/D92HzV2s
 
 作者: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 

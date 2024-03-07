@@ -24,7 +24,7 @@ Pigsty社区已经提供了免费的微信群/Discord答疑服务，我们也非
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/V6sBDXN9
+Discord: https://discord.gg/D92HzV2s
 
 
 ------------------
