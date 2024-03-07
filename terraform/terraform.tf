@@ -40,14 +40,14 @@ resource "alicloud_security_group_rule" "allow_all_tcp" {
 # pg-test: 1c1G x3
 
 # Available IMAGES: https://help.aliyun.com/zh/ecs/user-guide/release-notes-for-2023
-# CentOS 7.9   :  centos_7_9_x64_20G_alibase_20231220.vhd
-# Rocky 8.9    :  rockylinux_8_9_x64_20G_alibase_20231221.vhd
-# Rocky 9.3    :  rockylinux_9_3_x64_20G_alibase_20231221.vhd
-# Ubuntu 20.04 :  ubuntu_20_04_x64_20G_alibase_20231221.vhd
-# Ubuntu 22.04 :  ubuntu_22_04_x64_20G_alibase_20231221.vhd
-# Debian 11.7  :  debian_11_7_x64_20G_alibase_20230907.vhd
-# Debian 12    :  debian_12_4_x64_20G_alibase_20231220.vhd
-# Anolis 8.8   :  anolisos_8_8_x64_20G_rhck_alibase_20230804.vhd
+# CentOS 7.9     :  centos_7_9_x64_20G_alibase_20231220.vhd
+# Rocky 8.9      :  rockylinux_8_9_x64_20G_alibase_20231221.vhd
+# Rocky 9.3      :  rockylinux_9_3_x64_20G_alibase_20231221.vhd
+# Ubuntu 20.04.3 :  ubuntu_20_04_x64_20G_alibase_20231221.vhd
+# Ubuntu 22.04.6 :  ubuntu_22_04_x64_20G_alibase_20231221.vhd
+# Debian 11.8    :  debian_11_8_x64_20G_alibase_20231220.vhd
+# Debian 12.4    :  debian_12_4_x64_20G_alibase_20231220.vhd
+# Anolis 8.8     :  anolisos_8_8_x64_20G_rhck_alibase_20230804.vhd
 
 data "alicloud_images" "images_ds" {
   owners     = "system"
