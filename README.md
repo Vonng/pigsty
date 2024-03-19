@@ -4,9 +4,9 @@
 >
 > —— Battery-Included, Local-First **PostgreSQL** Distribution as an Open-Source **RDS** Alternative
 >
-> [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) |  [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/D92HzV2s) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站点](https://pigsty.io/zh/)
+> [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/D92HzV2s) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [站点](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog)
 >
-> [Get Started](docs/INSTALL.md) with the latest [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) release: `curl -fsSL https://get.pigsty.cc/latest`
+> [Get Started](https://pigsty.io/docs/setup/install/) with the latest [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) release: `curl -fsSL https://get.pigsty.cc/latest`
 
 
 ----------------
@@ -15,7 +15,7 @@
 
 > Pigsty is your postgres, infra, grafana service toolbox, check [**Feature**](https://pigsty.io/docs/about/feature/) | [**特性**](https://pigsty.io/zh/docs/about/feature/) and [**Demo**](https://demo.pigsty.cc) for details.
 
-[![pigsty-desc](https://repo.pigsty.cc/img/pigsty-intro.jpg)](https://pigsty.io/)
+[![pigsty-desc](https://pigsty.io/img/pigsty/desc.png)](https://pigsty.io/)
 
 
 ----------------
@@ -24,7 +24,7 @@
 
 > Setup everything with one command! Check [**Get Started**](https://pigsty.io/docs/setup/install/) | [**快速上手**](https://pigsty.io/zh/docs/setup/install/) for details.
 
-Prepare a fresh Linux x86_64 node that runs [**compatible**](#compatibility) operating systems distros:
+Prepare a fresh Linux x86_64 node that runs [**compatible**](https://pigsty.io/docs/reference/compatibility/) OS distros:
 
 ```bash
 # run as the admin user with no password ssh & sudo capability
@@ -82,7 +82,7 @@ cd pigsty; git checkout v2.6.0
 
 <details><summary>Download Directly</summary>
 
-You can also download pigsty source & [offline packages](docs/INSTALL.md#offline-packages) directly from GitHub release page.
+You can also download pigsty source & [offline packages](https://pigsty.io/docs/setup/offline/) directly from GitHub release page.
 
 ```bash
 # get from GitHub
@@ -109,14 +109,14 @@ curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz -o /tmp/pk
 
 ## Architecture
 
-Pigsty uses a **modular** design. There are six default modules available:
+Pigsty uses a **modular** design. There are six default [**modules**](https://pigsty.io/docs/about/module/) available:
 
-* [`INFRA`](docs/INFRA.md): Local yum repo, Nginx, DNS, and entire Prometheus & Grafana observability stack.
-* [`NODE`](docs/NODE.md):   Init node name, repo, pkg, NTP, ssh, admin, tune, expose services, collect logs & metrics.
-* [`ETCD`](docs/ETCD.md):   Init etcd cluster for HA Postgres DCS or Kubernetes, used as distributed config store.
-* [`PGSQL`](docs/PGSQL.md): Autonomous self-healing PostgreSQL cluster powered by Patroni, Pgbouncer, PgBackrest & HAProxy
-* [`REDIS`](docs/REDIS.md): Deploy Redis servers in standalone master-replica, sentinel, and native cluster mode, **optional**.
-* [`MINIO`](docs/MINIO.md): S3-compatible object storage service used as an optional central backup server for `PGSQL`, **optional**.
+* [`INFRA`](https://pigsty.io/docs/infra/): Local yum repo, Nginx, DNS, and entire Prometheus & Grafana observability stack.
+* [`NODE`](https://pigsty.io/docs/node/):   Init node name, repo, pkg, NTP, ssh, admin, tune, expose services, collect logs & metrics.
+* [`ETCD`](https://pigsty.io/docs/etcd/):   Init etcd cluster for HA Postgres DCS or Kubernetes, used as distributed config store.
+* [`PGSQL`](https://pigsty.io/docs/pgsql/): Autonomous self-healing PostgreSQL cluster powered by Patroni, Pgbouncer, PgBackrest & HAProxy
+* [`REDIS`](https://pigsty.io/docs/redis/): Deploy Redis servers in standalone master-replica, sentinel, and native cluster mode, **optional**.
+* [`MINIO`](https://pigsty.io/docs/minio/): S3-compatible object storage service used as an optional central backup server for `PGSQL`, **optional**.
 
 You can compose them freely in a declarative manner. If you want host monitoring, `INFRA` & `NODE` will suffice.
 `ETCD` and `PGSQL` are used for HA PG clusters, install them on multiple nodes will automatically form a HA cluster.
@@ -126,7 +126,7 @@ The default [`install.yml`](https://github.com/Vonng/pigsty/blob/master/install.
 which gives you a battery-included PostgreSQL singleton instance (`admin_ip:5432`) with everything ready.
 This node can be used as an admin center & infra provider to manage, deploy & monitor more nodes & clusters.
 
-[![pigsty-arch.jpg](https://repo.pigsty.cc/img/pigsty-arch.jpg)](docs/ARCH.md)
+[![pigsty-arch.jpg](https://pigsty.io/img/pigsty/arch.jpg)](https://pigsty.io/docs/concept/arch/)
 
 
 
@@ -151,7 +151,7 @@ Then create it with built-in playbooks:
 bin/pgsql-add pg-test   # init pg-test cluster 
 ```
 
-[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](docs/PGSQL-ARCH.md)
+[![](https://pigsty.io/img/pigsty/ha.png)](https://pigsty.io/docs/concept/ha/)
 
 You can deploy different kinds of instance roles such as primary, replica, offline, delayed, sync standby, and different kinds of clusters, such as standby clusters, Citus clusters, and even Redis / MinIO / Etcd clusters.
 
@@ -422,22 +422,7 @@ minio:
 </details>
 
 
-Check [**Configuration**](docs/CONFIG.md) & [**PGSQL Conf**](docs/PGSQL-CONF.md) for details.
-
-
-
-----------------
-
-## Compatibility
-
-Pigsty runs on bare OS without containerization: EL 7/8/9 (RHEL, Rocky, CentOS, Alma, Oracle, Anolis, etc...), Ubuntu 20.04 / 22.04 & Debian 11/12.
-EL 8/9 is our primary supported OS, while Ubuntu/Debian support is newly introduced since v2.5. They have slight differences in package names and available [extension](docs/PGSQL-EXTENSION.md) list.
-
-We highly recommend using **RockyLinux** **8.9**, **9.3**, and **Ubuntu 22.04** (jammy) as the Operating System for Pigsty. We have pre-packed [offline packages](docs/INSTALL.md#offline-packages) for these three distros, ensuring a smooth installation process even **without Internet** access. 
-For other OS and their compatible distros, the initial installation requires Internet access to download and build a local YUM/APT repo. If you have any RPM conflicts, consider using the `major.minor` version in `repo_upstream`.`baseurl` instead of `major` version repo without offline installation. 
-
-PostgreSQL **16** is the primary supported version, with full extension support. But you can also use older PostgreSQL 12 / 13 / 14 / 15 with some slight modifications.
-We have also extended compatibility support (OS, Distro, PG, Arch) in our service [subscription](docs/SUPPORT.md).
+Check [**Configuration**](https://pigsty.io/docs/setup/config/) & [**PGSQL Conf**](https://pigsty.io/docs/pgsql/config/) for details.
 
 
 ----------------
