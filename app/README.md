@@ -13,6 +13,7 @@ Here are some docker compose templates for popular applications that works well 
 * [Gitea](gitea/) : Self-Hosting Git Services
 * [Wiki](wiki/) : Local Wiki Service
 * [NocoDB](nocodb/) : Open source airtable alternative
+* [Odoo](odoo/) : Open Source ERP
 * [Metabase](metabase/) : Fast analytics with the friendly UX and integrated tooling
 * etc....
 
@@ -40,6 +41,7 @@ gitea     : { domain: git.pigsty  ,endpoint: "127.0.0.1:8889"   }
 minio     : { domain: sss.pigsty  ,endpoint: "127.0.0.1:9000"   }
 wiki      : { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002"   }
 noco      : { domain: noco.pigsty ,endpoint: "127.0.0.1:9003"   }
+odoo      : { domain: odoo.pigsty ,endpoint: "127.0.0.1:8069"   }
 ```
 
 **Pull Image**
@@ -56,6 +58,7 @@ docker pull andrewjones/schemaspy-postgres
 docker pull requarks/wiki
 docker pull gitea/gitea
 docker pull kong
+docker pull odoo
 docker pull quay.io/ferretdb/ferretdb
 ```
 
@@ -75,6 +78,7 @@ docker save andrewjones/schemaspy-postgres   | gzip -9 -c > /tmp/docker/schemasp
 docker save requarks/wiki                    | gzip -9 -c > /tmp/docker/wiki.tgz
 docker save gitea/gitea                      | gzip -9 -c > /tmp/docker/gitea.tgz
 docker save kong                             | gzip -9 -c > /tmp/docker/kong.tgz
+docker save odoo                             | gzip -9 -c > /tmp/docker/odoo.tgz
 docker save quay.io/ferretdb/ferretdb        | gzip -9 -c > /tmp/docker/ferretdb.tgz
 docker save nocodb/nocodb                    | gzip -9 -c > /tmp/docker/nocodb.tgz
 ```
@@ -91,6 +95,7 @@ cat /tmp/docker/bytebase.tgz     | gzip -d -c - | docker load;
 cat /tmp/docker/wiki.tgz         | gzip -d -c - | docker load;
 cat /tmp/docker/gitea.tgz        | gzip -d -c - | docker load;
 cat /tmp/docker/kong.tgz         | gzip -d -c - | docker load;
+cat /tmp/docker/odoo.tgz         | gzip -d -c - | docker load;
 cat /tmp/docker/alpine.tgz       | gzip -d -c - | docker load;
 cat /tmp/docker/registry.tgz     | gzip -d -c - | docker load;
 cat /tmp/docker/schemaspy.tgz    | gzip -d -c - | docker load;
@@ -104,7 +109,6 @@ There are lots of software using PostgreSQL / Redis.
 
 * KeyCloak : SSO Solution
 * Gitlab : Code Management
-* Odoo : CRM/ERP
 * Jira : Project Management
 * Confluence: Document Management
 * Harbour : Image Management
@@ -114,7 +118,6 @@ There are lots of software using PostgreSQL / Redis.
 * Discourse : Community
 
 ```bash
-docker pull odoo                                        # latest   # 1.49GB
 docker pull quay.io/keycloak/keycloak:18.0.0            # 18.0.0   # 562MB
 docker pull tootsuite/mastodon                          # latest   # 1.76GB
 docker pull cptactionhank/atlassian-confluence:7.7.3    # 7.7.3    # 835MB
@@ -127,7 +130,7 @@ docker pull grafana/grafana-oss                         # latest   # 286MB
 **Make Cache for Software**
 
 ```bash
-docker save odoo quay.io/keycloak/keycloak tootsuite/mastodon cptactionhank/atlassian-confluence cptactionhank/atlassian-jira-software jupyter/scipy-notebook gitlab/gitlab-ee grafana/grafana-oss | gzip -c - > docker.tgz
+docker save quay.io/keycloak/keycloak tootsuite/mastodon cptactionhank/atlassian-confluence cptactionhank/atlassian-jira-software jupyter/scipy-notebook gitlab/gitlab-ee grafana/grafana-oss | gzip -c - > docker.tgz
 cat /tmp/docker.tgz | gzip -d -c - | docker load  
 ```
 
