@@ -1311,11 +1311,12 @@ INSERT INTO pigsty.default_var VALUES
 (204, 'nodename_exchange', 'false', 'NODE', 'NODE_ID', 'bool', 'C', 'exchange nodename among play hosts?', NULL),
 (205, 'node_id_from_pg', 'true', 'NODE', 'NODE_ID', 'bool', 'C', 'use postgres identity as node identity if applicable?', NULL),
 
-(210, 'node_default_etc_hosts', '["${admin_ip} h.pigsty a.pigsty p.pigsty g.pigsty"]', 'NODE', 'NODE_DNS', 'string[]', 'G', 'static dns records in `/etc/hosts`', NULL),
-(211, 'node_etc_hosts', '[]', 'NODE', 'NODE_DNS', 'string[]', 'C', 'extra static dns records in `/etc/hosts`', NULL),
-(212, 'node_dns_method', '"add"', 'NODE', 'NODE_DNS', 'enum', 'C', 'how to handle dns servers: add,none,overwrite', NULL),
-(213, 'node_dns_servers', '["${admin_ip}"]', 'NODE', 'NODE_DNS', 'string[]', 'C', 'dynamic nameserver in `/etc/resolv.conf`', NULL),
-(214, 'node_dns_options', '["options single-request-reopen timeout:1"]', 'NODE', 'NODE_DNS', 'string[]', 'C', 'dns resolv options in `/etc/resolv.conf`', NULL),
+(210, 'node_write_etc_hosts', 'true', 'NODE', 'NODE_DNS', 'bool', 'G|C|I', 'modify `/etc/hosts on target node?', NULL),
+(211, 'node_default_etc_hosts', '["${admin_ip} h.pigsty a.pigsty p.pigsty g.pigsty"]', 'NODE', 'NODE_DNS', 'string[]', 'G', 'static dns records in `/etc/hosts`', NULL),
+(212, 'node_etc_hosts', '[]', 'NODE', 'NODE_DNS', 'string[]', 'C', 'extra static dns records in `/etc/hosts`', NULL),
+(213, 'node_dns_method', '"add"', 'NODE', 'NODE_DNS', 'enum', 'C', 'how to handle dns servers: add,none,overwrite', NULL),
+(214, 'node_dns_servers', '["${admin_ip}"]', 'NODE', 'NODE_DNS', 'string[]', 'C', 'dynamic nameserver in `/etc/resolv.conf`', NULL),
+(215, 'node_dns_options', '["options single-request-reopen timeout:1"]', 'NODE', 'NODE_DNS', 'string[]', 'C', 'dns resolv options in `/etc/resolv.conf`', NULL),
 
 (220, 'node_repo_modules', '"local"', 'NODE', 'NODE_PACKAGE', 'string', 'C/A', 'upstream repo to be added on node, local by default', NULL),
 (221, 'node_repo_remove', 'true', 'NODE', 'NODE_PACKAGE', 'bool', 'C/A', 'remove existing repo on node?', NULL),

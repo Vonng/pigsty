@@ -65,11 +65,12 @@
 | 203 | [`nodename_overwrite`](#nodename_overwrite)                     | [`NODE`](#node)   | [`NODE_ID`](#node_id)             | bool        | C     | overwrite node's hostname with nodename?                                      |
 | 204 | [`nodename_exchange`](#nodename_exchange)                       | [`NODE`](#node)   | [`NODE_ID`](#node_id)             | bool        | C     | exchange nodename among play hosts?                                           |
 | 205 | [`node_id_from_pg`](#node_id_from_pg)                           | [`NODE`](#node)   | [`NODE_ID`](#node_id)             | bool        | C     | use postgres identity as node identity if applicable?                         |
-| 210 | [`node_default_etc_hosts`](#node_default_etc_hosts)             | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | G     | static dns records in `/etc/hosts`                                            |
-| 211 | [`node_etc_hosts`](#node_etc_hosts)                             | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | C     | extra static dns records in `/etc/hosts`                                      |
-| 212 | [`node_dns_method`](#node_dns_method)                           | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | enum        | C     | how to handle dns servers: add,none,overwrite                                 |
-| 213 | [`node_dns_servers`](#node_dns_servers)                         | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | C     | dynamic nameserver in `/etc/resolv.conf`                                      |
-| 214 | [`node_dns_options`](#node_dns_options)                         | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | C     | dns resolv options in `/etc/resolv.conf`                                      |
+| 210 | [`node_write_etc_hosts`](PARAM#node_write_etc_hosts)            | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | bool        | G/C/I | modify `/etc/hosts` on target node?                                           |
+| 211 | [`node_default_etc_hosts`](#node_default_etc_hosts)             | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | G     | static dns records in `/etc/hosts`                                            |
+| 212 | [`node_etc_hosts`](#node_etc_hosts)                             | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | C     | extra static dns records in `/etc/hosts`                                      |
+| 213 | [`node_dns_method`](#node_dns_method)                           | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | enum        | C     | how to handle dns servers: add,none,overwrite                                 |
+| 214 | [`node_dns_servers`](#node_dns_servers)                         | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | C     | dynamic nameserver in `/etc/resolv.conf`                                      |
+| 215 | [`node_dns_options`](#node_dns_options)                         | [`NODE`](#node)   | [`NODE_DNS`](#node_dns)           | string[]    | C     | dns resolv options in `/etc/resolv.conf`                                      |
 | 220 | [`node_repo_modules`](#node_repo_modules)                       | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string      | C     | upstream repo to be added on node, local by default                           |
 | 221 | [`node_repo_remove`](#node_repo_remove)                         | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | bool        | C     | remove existing repo on node?                                                 |
 | 223 | [`node_packages`](#node_packages)                               | [`NODE`](#node)   | [`NODE_PACKAGE`](#node_package)   | string[]    | C     | packages to be installed current nodes                                        |
@@ -1528,6 +1529,7 @@ Pigsty configs static DNS records and dynamic DNS resolver for nodes.
 If you already have a DNS server, set [`node_dns_method`](#node_dns_method) to `none` to disable dynamic DNS setup.
 
 ```yaml
+node_write_etc_hosts: true        # modify `/etc/hosts` on target node?
 node_default_etc_hosts:           # static dns records in `/etc/hosts`
   - "${admin_ip} h.pigsty a.pigsty p.pigsty g.pigsty"
 node_etc_hosts: []                # extra static dns records in `/etc/hosts`
@@ -1536,6 +1538,16 @@ node_dns_servers: ['${admin_ip}'] # dynamic nameserver in `/etc/resolv.conf`
 node_dns_options:                 # dns resolv options in `/etc/resolv.conf`
   - options single-request-reopen timeout:1
 ```
+
+
+
+### node_write_etc_hosts
+
+name: `node_write_etc_hosts`, type: 'bool', level: `G|C|I`
+
+modify `/etc/hosts` on target node?
+
+
 
 
 ### `node_default_etc_hosts`

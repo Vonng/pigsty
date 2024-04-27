@@ -65,11 +65,12 @@
 | 203 | [`nodename_overwrite`](#nodename_overwrite)                     |  [`NODE`](#node)  |       [`NODE_ID`](#node_id)       | bool        | C     | 用 nodename 覆盖节点的主机名吗？                                                           |
 | 204 | [`nodename_exchange`](#nodename_exchange)                       |  [`NODE`](#node)  |       [`NODE_ID`](#node_id)       | bool        | C     | 在剧本主机之间交换 nodename 吗？                                                           |
 | 205 | [`node_id_from_pg`](#node_id_from_pg)                           |  [`NODE`](#node)  |       [`NODE_ID`](#node_id)       | bool        | C     | 如果可行，是否借用 postgres 身份作为节点身份？                                                    |
-| 210 | [`node_default_etc_hosts`](#node_default_etc_hosts)             |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | G     | /etc/hosts 中的静态 DNS 记录                                                          |
-| 211 | [`node_etc_hosts`](#node_etc_hosts)                             |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | C     | /etc/hosts 中的额外静态 DNS 记录                                                        |
-| 212 | [`node_dns_method`](#node_dns_method)                           |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | enum        | C     | 如何处理现有DNS服务器：add,none,overwrite                                                 |
-| 213 | [`node_dns_servers`](#node_dns_servers)                         |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | C     | /etc/resolv.conf 中的动态域名服务器列表                                                    |
-| 214 | [`node_dns_options`](#node_dns_options)                         |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | C     | /etc/resolv.conf 中的DNS解析选项                                                      |
+| 210 | [`node_write_etc_hosts`](#node_write_etc_hosts)                 | [`NODE`](#node)   |      [`NODE_DNS`](#node_dns)      | bool        | G/C/I | 是否修改目标节点上的 `/etc/hosts`？                                                        |
+| 211 | [`node_default_etc_hosts`](#node_default_etc_hosts)             |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | G     | /etc/hosts 中的静态 DNS 记录                                                          |
+| 212 | [`node_etc_hosts`](#node_etc_hosts)                             |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | C     | /etc/hosts 中的额外静态 DNS 记录                                                        |
+| 213 | [`node_dns_method`](#node_dns_method)                           |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | enum        | C     | 如何处理现有DNS服务器：add,none,overwrite                                                 |
+| 214 | [`node_dns_servers`](#node_dns_servers)                         |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | C     | /etc/resolv.conf 中的动态域名服务器列表                                                    |
+| 215 | [`node_dns_options`](#node_dns_options)                         |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | C     | /etc/resolv.conf 中的DNS解析选项                                                      |
 | 220 | [`node_repo_modules`](#node_repo_modules)                       |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | enum        | C     | 在节点上启用哪些软件源模块？默认为 local 使用本地源                                                   |
 | 221 | [`node_repo_remove`](#node_repo_remove)                         |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | bool        | C     | 配置节点软件仓库时，删除节点上现有的仓库吗？                                                          |
 | 223 | [`node_packages`](#node_packages)                               |  [`NODE`](#node)  |  [`NODE_PACKAGE`](#node_package)  | string[]    | C     | 要在当前节点上安装的软件包列表                                                                 |
@@ -1567,6 +1568,7 @@ Pigsty会为节点配置静态DNS解析记录与动态DNS服务器。
 如果您的节点供应商已经为您配置了DNS服务器，您可以将 [`node_dns_method`](#node_dns_method) 设置为 `none` 跳过DNS设置。
 
 ```yaml
+node_write_etc_hosts: true        # modify `/etc/hosts` on target node?
 node_default_etc_hosts:           # static dns records in `/etc/hosts`
   - "${admin_ip} h.pigsty a.pigsty p.pigsty g.pigsty"
 node_etc_hosts: []                # extra static dns records in `/etc/hosts`
@@ -1575,6 +1577,15 @@ node_dns_servers: ['${admin_ip}'] # dynamic nameserver in `/etc/resolv.conf`
 node_dns_options:                 # dns resolv options in `/etc/resolv.conf`
   - options single-request-reopen timeout:1
 ```
+
+
+
+### node_write_etc_hosts
+
+参数名称： `node_write_etc_hosts`， 类型： `bool`， 层次：`G|C|I`
+
+是否修改目标节点上的 `/etc/hosts`？例如，在容器环境中通常不允许修改此配置文件。
+
 
 
 
