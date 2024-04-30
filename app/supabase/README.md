@@ -4,6 +4,8 @@
 
 Pigsty allow you to self-host **supabase** with existing managed HA postgres cluster, and launch the stateless part of supabase with docker-compose.
 
+> Notice: Supabase is [GA](https://supabase.com/ga) since 2024.04.15
+
 
 -----------------------
 
@@ -77,9 +79,9 @@ pg-meta:
 ```
 
 Beware that `baseline: supa.sql` parameter will use the [`files/supa.sql`](https://github.com/Vonng/pigsty/blob/master/files/supa.sql) as database baseline schema, which is gathered from [here](https://github.com/supabase/postgres/tree/develop/migrations/db/init-scripts).
-You also have to run the migration script: [`migration.sql`](migration.sql) after the cluster provisioning, which is gathered from [supabase/postgres/migrations/db/migrations](https://github.com/supabase/postgres/tree/develop/migrations/db/migrations) in chronological order and slightly modified to fit Pigsty.
+You also have to run the migration script: [`migration.sql`](migration.sqlc) after the cluster provisioning, which is gathered from [supabase/postgres/migrations/db/migrations](https://github.com/supabase/postgres/tree/develop/migrations/db/migrations) in chronological order and slightly modified to fit Pigsty.
 
-You can check the latest migration files and add them to [`migration.sql`](migration.sql), the current script is synced with [20231013070755](https://github.com/supabase/postgres/blob/develop/migrations/db/migrations/20231013070755_grant_authenticator_to_supabase_storage_admin.sql).
+You can check the latest migration files and add them to [`migration.sql`](migration.sqlc), the current script is synced with [20231013070755](https://github.com/supabase/postgres/blob/develop/migrations/db/migrations/20231013070755_grant_authenticator_to_supabase_storage_admin.sql).
 You can run migration on provisioned postgres cluster `pg-meta` with simple `psql` command: 
 
 
@@ -161,3 +163,24 @@ cd ~/pigsty/app/supabase; make up    #  = docker compose up
 ```
 
 
+
+
+-----------------------
+
+## Expose Service
+
+The supabase studio dashboard is exposed on port `8000` by default, you can add this service to the `infra_portal` to expose it to the public through Nginx and SSL. 
+
+```yaml
+    infra_portal:                     # domain names and upstream servers
+      # ...
+      supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }
+```
+
+To expose the service, you can run the `infra.yml` playbook with the `nginx` tag:
+
+```bash
+./infra.yml -t nginx
+```
+
+Make suare `supa.pigsty` or your own domain is resolvable to the `infra_portal` server, and you can access the supabase studio dashboard via `https://supa.pigsty`.
