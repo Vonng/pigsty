@@ -2,6 +2,10 @@
 
 This is an example of running pg_exporter inside docker
 
+Which expose meta sample database on (10.10.10.10) on local port 9632. 
+
+Change `.env` file to adapt to your own postgres targets
+
 ```bash
 cd ~/pigsty/app/pg_exporter ; docker compose up -d
 ```
@@ -27,12 +31,13 @@ Replace bare metal pg_exporter with docker:
 
 ```bash
 systemctl stop pg_exporter # stop existing pg_exporter on bare metal
-docker run --init --name pg_exporter -p 9630:9630 \
-    -e PG_EXPORTER_URL='postgres://dbuser_monitor:DBUser.Monitor@10.10.10.10:5432/postgres?sslmode=disable' \
+docker run --init --name pg_exporter -p 9632:9630 \
+    -e PG_EXPORTER_URL='postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/postgres?sslmode=disable' \
     -e PG_EXPORTER_AUTO_DISCOVERY='true' \
     vonng/pg_exporter
 ```
 
 ```bash
 curl http://127.0.0.1:9630/metrics  # get metrics from pg_exporter inside docker
+make view   # or use the shortcut
 ```

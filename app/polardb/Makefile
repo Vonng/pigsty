@@ -3,7 +3,7 @@ default: up view
 up: view
 	docker compose up -d
 
-run: pg
+run:
 	mkdir -p /data/polardb;
 	docker run -it \
         -v /data/polardb:/var/polardb \
@@ -14,7 +14,10 @@ run: pg
         echo 'done'
 
 view:
-	@echo psql -p 5532 -U postgres (default password: postgres)
+	@echo psql postgres://postgres:postgres@10.10.10.10:5532/postgres
+
+conn:
+	psql postgres://postgres:postgres@10.10.10.10:5532/postgres
 
 log:
 	docker logs -f polardb

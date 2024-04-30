@@ -26,6 +26,8 @@ make load       # load polardb image from /tmp
 ```
 
 
+-------------
+
 ## Docker Compose 
 
 ```yaml
@@ -45,3 +47,25 @@ services:
       - 5532:5432
 ```
 
+
+-------------
+
+## How to Monitor PolarDB?
+
+You can define PolarDB as a remote Postgres instance:
+
+```yaml
+all:
+  children:
+    infra:
+      hosts: { 10.10.10.10: { infra_seq: 1 } }
+      vars:
+        pg_exporters:
+          20001: { pg_cluster: pg-polar, pg_seq: 1, pg_host: 10.10.10.10 , pg_exporter_url: 'postgres://postgres:postgres@10.10.10.10:5532/postgres' }
+```
+
+And monitor it with Pigsty's observability stack with:
+
+```bash
+bin/pgmon-add pg-polar
+```
