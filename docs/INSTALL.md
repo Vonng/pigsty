@@ -12,13 +12,13 @@ Prepare a fresh Linux x86_64 node that meets the [requirement](#requirement), th
 curl -L https://get.pigsty.cc/latest | bash
 ```
 
-It will [download](#download) Pigsty source to your home, then perform [Bootstrap](#bootstrap), [Configure](#configure), and [Install](#install). 
+It will [download](#download) Pigsty source to your home, then perform [Bootstrap](#bootstrap), [Configure](#configure), and [Install](#install).
 
 ```bash
-bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"  
+bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 cd ~/pigsty   # get pigsty source and entering dir
 ./bootstrap   # download bootstrap pkgs & ansible [optional]
-./configure   # pre-check and config templating   [optional] 
+./configure   # pre-check and config templating   [optional]
 ./install.yml # install pigsty according to pigsty.yml
 ```
 
@@ -110,7 +110,7 @@ Pigsty run on bare OS, and support EL, Debian, and Ubuntu. There may be slight d
 Major OS version supported: RedHat 7/8/9, Debian 11/12, and Ubuntu 20/22, and any compatible OS distros such as RHEL, Rocky, Alma, Oracle, Anolis, etc...
 We recommend using `RockyLinux 8.9` (Green Obsidian) or `Ubuntu 22.04` (jammy), as they offer the most comprehensive support among all RHEL/DEB OS distros.
 
-For the latest minor version of each supported major version (`9.3`, `8.9`, `7.9`, `jammy` / `focal` / `bookworm` / `bullseye` ), 
+For the latest minor version of each supported major version (`9.3`, `8.9`, `7.9`, `jammy` / `focal` / `bookworm` / `bullseye` ),
 We have pre-built [offline packages](#offline-packages) for deployment without the Internet access.
 If you use a different minor OS version with those offline packages, you may encounter RPM/DEB package conflicts. Check [FAQ](FAQ#installation) or install without offline packages.
 
@@ -157,7 +157,7 @@ https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty-${VERSION}.t
 
 For example, Pigsty v2.6.0 source can be acquired with:
 
-```bash 
+```bash
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz
 curl -L https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz   # China CDN Mirror
 ```
@@ -169,13 +169,13 @@ curl -L https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz   # China
 ### Offline Packages
 
 Pigsty will download rpm/deb packages from the upstream yum/apt repo during the initial installation.
-It will take a snapshot of the software it uses and create a fast & reliable local software repo to accelerate the installation process and make sure the software version is consistent across all nodes. 
+It will take a snapshot of the software it uses and create a fast & reliable local software repo to accelerate the installation process and make sure the software version is consistent across all nodes.
 
 The "Offline Packages" is actually a snapshot of the local software repo (`/www/pigsty`) after the installation of Pigsty on the target node.
 We offer pre-packed offline packages for the latest minor version of major OS versions, and test them thoroughly before release.
 
 During the [Bootstrap](#bootstrap) procedure, you can choose whether to download the corresponding offline package (`--yes|--no`) if applicable.
-Or just ignore it and let Pigsty pull the latest packages from upstream (which requires Internet access). 
+Or just ignore it and let Pigsty pull the latest packages from upstream (which requires Internet access).
 
 To make an offline package, you can run the [`cache`](https://github.com/Vonng/pigsty/blob/master/bin/cache) script, it will create the pkg on `/tmp/pkg.tgz`.
 To deploy Pigsty on a node without Internet access and non-standard OS, you can install Pigsty on a node that has the same OS and Internet access.
@@ -186,16 +186,16 @@ Then create an offline package and upload it to the production environment for o
 
 ```bash
 https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz                     # Pigsty Source Code
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz      # Package: EL 7(.9)            
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz      # Package: EL 8(.9)            
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz      # Package: EL 9(.3)            
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian11.x86_64.tgz # Package: Debian 11    (bullseye)                 
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian12.x86_64.tgz # Package: Debian 12    (bookworm)                 
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu20.x86_64.tgz # Package: Ubuntu 20.04 (focal)                 
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu22.x86_64.tgz # Package: Ubuntu 22.04 (jammy)                 
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz      # Package: EL 7(.9)
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz      # Package: EL 8(.9)
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz      # Package: EL 9(.3)
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian11.x86_64.tgz # Package: Debian 11    (bullseye)
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian12.x86_64.tgz # Package: Debian 12    (bookworm)
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu20.x86_64.tgz # Package: Ubuntu 20.04 (focal)
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu22.x86_64.tgz # Package: Ubuntu 22.04 (jammy)
 ```
 
-You can also get offline packages from CDN, and specify a specific version: 
+You can also get offline packages from CDN, and specify a specific version:
 
 ```bash
 VERSION=v2.6.0
@@ -226,7 +226,7 @@ You can always choose to install without it, and pull the latest packages from u
 
 ## Bootstrap
 
-`bootstrap` script will make sure one thing: [**Ansible**](PLAYBOOK#ansible) is ready for using. 
+`bootstrap` script will make sure one thing: [**Ansible**](PLAYBOOK#ansible) is ready for using.
 
 It will also download / extract / setup the offline [packages](#offline-packagess) if you choose to do so.
 
@@ -243,7 +243,7 @@ It will also download / extract / setup the offline [packages](#offline-packages
 
 2. Check local repo exists ?
    * Y -> Extract to `/www/pigsty` and create repo file to enable it
-   * N -> Download offline package from the Internet? 
+   * N -> Download offline package from the Internet?
      * Y -> Download from GitHub / CDN and extract & enable it
      * N -> Add basic os upstream repo file manually ?
           * Y -> add according to region / version
@@ -306,7 +306,7 @@ bootstrap pigsty v2.6.0 begin
 [ OK ] repo file = use /etc/yum.repos.d/pigsty-local.repo
 [ OK ] repo cache = created
 [ OK ] install el7 utils
-...... (yum install createrepo_c sshpass unzip output) 
+...... (yum install createrepo_c sshpass unzip output)
 ==================================================================================================================
  Package                        Arch                Version                       Repository                 Size
 ==================================================================================================================
@@ -369,13 +369,14 @@ proceed with ./configure
 [`configure`](CONFIG) will create a [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) config file according to your environment.
 
 ```bash
-./configure [-n|--non-interactive] [-i|--ip <ipaddr>] [-m|--mode <name>] [-r|--region <default|china|europe>]
+./configure [-n|--non-interactive] [-i|--ip <ipaddr>] [-m|--mode <name>] [-r|--region <default|china|europe>] [-x|--proxy]
 ```
 
 * `-m|--mode`: Generate config from [templates](https://github.com/Vonng/pigsty/tree/master/files/pigsty) according to `mode`: (`auto|demo|sec|citus|el|el7|ubuntu|prod...`)
 * `-i|--ip`: Replace IP address placeholder `10.10.10.10` with your primary ipv4 address of current node.
 * `-r|--region`: Set upstream repo mirror according to `region` (`default|china|europe`)
 * `-n|--non-interactive`: skip interactive wizard and using default/arg values
+* `-x|--proxy`: use value of global env `http_proxy` `https_proxy` `all_proxy` `no_proxy`， if `no_proxy` blank then use default internal value。
 
 When `-n|--non-interactive` is specified, you have to specify a primary IP address with `-i|--ip <ipaddr>` in case of multiple IP address, since there's no default value for primary IP address in this case.
 
@@ -392,6 +393,30 @@ configure pigsty v2.6.0 begin
 [ OK ] machine = x86_64
 [ OK ] sudo = vagrant ok
 [ OK ] ssh = vagrant@127.0.0.1 ok
+[WARN] Multiple IP address candidates found:
+    (1) 10.0.2.15	    inet 10.0.2.15/24 brd 10.0.2.255 scope global noprefixroute dynamic eth0
+    (2) 10.10.10.10	    inet 10.10.10.10/24 brd 10.10.10.255 scope global noprefixroute eth1
+[ OK ] primary_ip = 10.10.10.10 (from demo)
+[ OK ] admin = vagrant@10.10.10.10 ok
+[ OK ] mode = demo (vagrant demo)
+[ OK ] config = demo @ 10.10.10.10
+[ OK ] ansible = ansible 2.9.27
+[ OK ] configure pigsty done
+proceed with ./install.yml
+```
+
+```bash
+[vagrant@meta pigsty]$ ./configure -x
+configure pigsty v2.6.0 begin
+[ OK ] region = china
+[ OK ] kernel = Linux
+[ OK ] machine = x86_64
+[ OK ] sudo = vagrant ok
+[ OK ] ssh = vagrant@127.0.0.1 ok
+[ OK ] http_proxy = http://192.168.1.1:7890
+[ OK ] https_proxy = http://192.168.1.1:7890
+[ OK ] all_proxy = socks://192.168.1.1:7890
+[ OK ] no_proxy = localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn
 [WARN] Multiple IP address candidates found:
     (1) 10.0.2.15	    inet 10.0.2.15/24 brd 10.0.2.255 scope global noprefixroute dynamic eth0
     (2) 10.10.10.10	    inet 10.10.10.10/24 brd 10.10.10.255 scope global noprefixroute eth1
@@ -463,13 +488,13 @@ localhost                  : ok=3    changed=0    unreachable=0    failed=0    s
 
 ## Interface
 
-Once installed, you'll have 4 module [INFRA](INFRA), [NODE](NODE), [**ETCD**](ETCD) , [**PGSQL**](PGSQL) installed on the current node. 
+Once installed, you'll have 4 module [INFRA](INFRA), [NODE](NODE), [**ETCD**](ETCD) , [**PGSQL**](PGSQL) installed on the current node.
 
 * [**INFRA**](INFRA): Monitoring infrastructure can be accessed via `http://<ip>:80`
 * [**PGSQL**](PGSQL): PostgreSQL cluster can be [accessed](PGSQL-SVC#personal-user) via default PGURL:
 
 ```bash
-psql postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta     # database superuser 
+psql postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta     # database superuser
 psql postgres://dbuser_meta:DBUser.Meta@10.10.10.10/meta   # business administrator
 psql postgres://dbuser_view:DBUser.View@pg-meta/meta       # default read-only user via domain name
 ```

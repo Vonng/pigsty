@@ -157,7 +157,7 @@ https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty-${VERSION}.t
 
 以 Pigsty `v2.6.0` 版本为例，您可以使用以下命令从 CDN 或 Github 下载
 
-```bash 
+```bash
 curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz
 curl -L https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz   # CDN Mirror
 ```
@@ -186,14 +186,14 @@ Pigsty 针对主流 Linux 发行版的最新小版本提供了离线软件包，
 
 ```bash
 VERSION=v2.6.0
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-${VERSION}.tgz                     # Pigsty源码包         
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.el7.x86_64.tgz      # 离线软件包：EL 7(.9)            
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.el8.x86_64.tgz      # 离线软件包：EL 8(.9)            
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.el9.x86_64.tgz      # 离线软件包：EL 9(.3)            
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.debian11.x86_64.tgz # 离线软件包：Debian 11    (bullseye)                 
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.debian12.x86_64.tgz # 离线软件包：Debian 12    (bookworm)                 
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz # 离线软件包：Ubuntu 20.04 (focal)                 
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz # 离线软件包：Ubuntu 22.04 (jammy)                 
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-${VERSION}.tgz                     # Pigsty源码包
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.el7.x86_64.tgz      # 离线软件包：EL 7(.9)
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.el8.x86_64.tgz      # 离线软件包：EL 8(.9)
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.el9.x86_64.tgz      # 离线软件包：EL 9(.3)
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.debian11.x86_64.tgz # 离线软件包：Debian 11    (bullseye)
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.debian12.x86_64.tgz # 离线软件包：Debian 12    (bookworm)
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz # 离线软件包：Ubuntu 20.04 (focal)
+https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz # 离线软件包：Ubuntu 22.04 (jammy)
 ```
 
 您也可以从（中国大陆） CDN 下载离线软件包，也可以在下载时指定特定的版本号：
@@ -368,13 +368,14 @@ proceed with ./configure
 提示: 如果您已经了解了如何配置 Pigsty， `configure` 这个步骤是可选的，可以跳过。
 
 ```bash
-./configure [-n|--non-interactive] [-i|--ip <ipaddr>] [-m|--mode <name>] [-r|--region <default|china|europe>]
+./configure [-n|--non-interactive] [-i|--ip <ipaddr>] [-m|--mode <name>] [-r|--region <default|china|europe>] [-x|--proxy]
 ```
 
 * `-m|--mode`: 直接指定配置[模板](https://github.com/Vonng/pigsty/tree/master/files/pigsty) : (`auto|demo|sec|citus|el|el7|ubuntu|prod...`)
 * `-i|--ip`: 用于替换IP地址占位符 `10.10.10.10` 的IP地址，即当前主机的首要内网IP地址（特别是在有多块网卡与多个IP地址时）
 * `-r|--region`: 用于指定上游源的区域： (`default|china|europe`)
 * `-n|--non-interactive`: 直接使用命令行参数提供首要IP地址，跳过交互式向导。
+* `-x|--proxy`: 直接使用全局环境变量 `http_proxy` `https_proxy` `all_proxy` `no_proxy`， 若 `no_proxy` 空则使用内置默认值。
 
 当使用 `-n|--non-interactive` 参数时，您需要使用 `-i|--ip <ipaddr>` 指定当前节点的首要IP地址，特别是在有多块网卡与多个IP地址时。
 
@@ -390,6 +391,30 @@ configure pigsty v2.6.0 begin
 [ OK ] machine = x86_64
 [ OK ] sudo = vagrant ok
 [ OK ] ssh = vagrant@127.0.0.1 ok
+[WARN] Multiple IP address candidates found:
+    (1) 10.0.2.15	    inet 10.0.2.15/24 brd 10.0.2.255 scope global noprefixroute dynamic eth0
+    (2) 10.10.10.10	    inet 10.10.10.10/24 brd 10.10.10.255 scope global noprefixroute eth1
+[ OK ] primary_ip = 10.10.10.10 (from demo)
+[ OK ] admin = vagrant@10.10.10.10 ok
+[ OK ] mode = demo (vagrant demo)
+[ OK ] config = demo @ 10.10.10.10
+[ OK ] ansible = ansible 2.9.27
+[ OK ] configure pigsty done
+proceed with ./install.yml
+```
+
+```bash
+[vagrant@meta pigsty]$ ./configure -x
+configure pigsty v2.6.0 begin
+[ OK ] region = china
+[ OK ] kernel = Linux
+[ OK ] machine = x86_64
+[ OK ] sudo = vagrant ok
+[ OK ] ssh = vagrant@127.0.0.1 ok
+[ OK ] http_proxy = http://192.168.1.1:7890
+[ OK ] https_proxy = http://192.168.1.1:7890
+[ OK ] all_proxy = socks://192.168.1.1:7890
+[ OK ] no_proxy = localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn
 [WARN] Multiple IP address candidates found:
     (1) 10.0.2.15	    inet 10.0.2.15/24 brd 10.0.2.255 scope global noprefixroute dynamic eth0
     (2) 10.10.10.10	    inet 10.10.10.10/24 brd 10.10.10.255 scope global noprefixroute eth1
@@ -463,7 +488,7 @@ localhost                  : ok=3    changed=0    unreachable=0    failed=0    s
 
 当安装完成后，当前节点会安装有四个模块： [**INFRA**](INFRA), [**NODE**](NODE), [**ETCD**](ETCD) , [**PGSQL**](PGSQL) 。
 
-* [**INFRA**](INFRA): Pigsty Web界面可以通过 80 端口访问 `http://<ip>:80`: 
+* [**INFRA**](INFRA): Pigsty Web界面可以通过 80 端口访问 `http://<ip>:80`:
 * [**PGSQL**](PGSQL): 您可以使用默认连接串[访问](PGSQL-SVC#单机用户)PGSQL数据库:
 
 ```bash
