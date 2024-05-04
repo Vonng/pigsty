@@ -376,7 +376,7 @@ proceed with ./configure
 * `-i|--ip`: Replace IP address placeholder `10.10.10.10` with your primary ipv4 address of current node.
 * `-r|--region`: Set upstream repo mirror according to `region` (`default|china|europe`)
 * `-n|--non-interactive`: skip interactive wizard and using default/arg values
-* `-x|--proxy`: use value of global env `http_proxy` `https_proxy` `all_proxy` `no_proxy`， if `no_proxy` blank then use default internal value。
+* `-x|--proxy`: setup `proxy_env` from current environment variables (`http_proxy`/`HTTP_PROXY`， `HTTPS_PROXY`， `ALL_PROXY`， `NO_PROXY`).
 
 When `-n|--non-interactive` is specified, you have to specify a primary IP address with `-i|--ip <ipaddr>` in case of multiple IP address, since there's no default value for primary IP address in this case.
 
@@ -393,30 +393,6 @@ configure pigsty v2.6.0 begin
 [ OK ] machine = x86_64
 [ OK ] sudo = vagrant ok
 [ OK ] ssh = vagrant@127.0.0.1 ok
-[WARN] Multiple IP address candidates found:
-    (1) 10.0.2.15	    inet 10.0.2.15/24 brd 10.0.2.255 scope global noprefixroute dynamic eth0
-    (2) 10.10.10.10	    inet 10.10.10.10/24 brd 10.10.10.255 scope global noprefixroute eth1
-[ OK ] primary_ip = 10.10.10.10 (from demo)
-[ OK ] admin = vagrant@10.10.10.10 ok
-[ OK ] mode = demo (vagrant demo)
-[ OK ] config = demo @ 10.10.10.10
-[ OK ] ansible = ansible 2.9.27
-[ OK ] configure pigsty done
-proceed with ./install.yml
-```
-
-```bash
-[vagrant@meta pigsty]$ ./configure -x
-configure pigsty v2.6.0 begin
-[ OK ] region = china
-[ OK ] kernel = Linux
-[ OK ] machine = x86_64
-[ OK ] sudo = vagrant ok
-[ OK ] ssh = vagrant@127.0.0.1 ok
-[ OK ] http_proxy = http://192.168.1.1:7890
-[ OK ] https_proxy = http://192.168.1.1:7890
-[ OK ] all_proxy = socks://192.168.1.1:7890
-[ OK ] no_proxy = localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn
 [WARN] Multiple IP address candidates found:
     (1) 10.0.2.15	    inet 10.0.2.15/24 brd 10.0.2.255 scope global noprefixroute dynamic eth0
     (2) 10.10.10.10	    inet 10.10.10.10/24 brd 10.10.10.255 scope global noprefixroute eth1

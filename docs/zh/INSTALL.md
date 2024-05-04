@@ -375,7 +375,7 @@ proceed with ./configure
 * `-i|--ip`: 用于替换IP地址占位符 `10.10.10.10` 的IP地址，即当前主机的首要内网IP地址（特别是在有多块网卡与多个IP地址时）
 * `-r|--region`: 用于指定上游源的区域： (`default|china|europe`)
 * `-n|--non-interactive`: 直接使用命令行参数提供首要IP地址，跳过交互式向导。
-* `-x|--proxy`: 直接使用全局环境变量 `http_proxy` `https_proxy` `all_proxy` `no_proxy`， 若 `no_proxy` 空则使用内置默认值。
+* `-x|--proxy`: 使用当前环境变量配置 `proxy_env` 变量（影响 `http_proxy`/`HTTP_PROXY`， `HTTPS_PROXY`， `ALL_PROXY`， `NO_PROXY`）。
 
 当使用 `-n|--non-interactive` 参数时，您需要使用 `-i|--ip <ipaddr>` 指定当前节点的首要IP地址，特别是在有多块网卡与多个IP地址时。
 
@@ -391,30 +391,6 @@ configure pigsty v2.6.0 begin
 [ OK ] machine = x86_64
 [ OK ] sudo = vagrant ok
 [ OK ] ssh = vagrant@127.0.0.1 ok
-[WARN] Multiple IP address candidates found:
-    (1) 10.0.2.15	    inet 10.0.2.15/24 brd 10.0.2.255 scope global noprefixroute dynamic eth0
-    (2) 10.10.10.10	    inet 10.10.10.10/24 brd 10.10.10.255 scope global noprefixroute eth1
-[ OK ] primary_ip = 10.10.10.10 (from demo)
-[ OK ] admin = vagrant@10.10.10.10 ok
-[ OK ] mode = demo (vagrant demo)
-[ OK ] config = demo @ 10.10.10.10
-[ OK ] ansible = ansible 2.9.27
-[ OK ] configure pigsty done
-proceed with ./install.yml
-```
-
-```bash
-[vagrant@meta pigsty]$ ./configure -x
-configure pigsty v2.6.0 begin
-[ OK ] region = china
-[ OK ] kernel = Linux
-[ OK ] machine = x86_64
-[ OK ] sudo = vagrant ok
-[ OK ] ssh = vagrant@127.0.0.1 ok
-[ OK ] http_proxy = http://192.168.1.1:7890
-[ OK ] https_proxy = http://192.168.1.1:7890
-[ OK ] all_proxy = socks://192.168.1.1:7890
-[ OK ] no_proxy = localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn
 [WARN] Multiple IP address candidates found:
     (1) 10.0.2.15	    inet 10.0.2.15/24 brd 10.0.2.255 scope global noprefixroute dynamic eth0
     (2) 10.10.10.10	    inet 10.10.10.10/24 brd 10.10.10.255 scope global noprefixroute eth1
