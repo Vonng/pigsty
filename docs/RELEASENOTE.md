@@ -2,6 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v2.7.0](#v270) | 2024-05-31 | Docker Playground, Supabase, Odoo, PolarDB               | [v2.7.0-beta](https://github.com/Vonng/pigsty/releases)                                   |
 | [v2.6.0](#v260) | 2024-02-28 | PG 16 as default version,  ParadeDB & DuckDB             | [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)                             |
 | [v2.5.1](#v251) | 2023-12-01 | Routine update, pg16 major extensions                    | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
 | [v2.5.0](#v250) | 2023-10-24 | Ubuntu/Debian Support:  bullseye, bookworm, jammy, focal | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
@@ -37,6 +38,49 @@
 | v0.0.2          | 2020-04-30 | First Commit                                             | [v0.0.2](https://github.com/Vonng/pigsty/commit/dd646775624ddb33aef7884f4f030682bdc371f8) |
 | v0.0.1          | 2019-05-15 | POC                                                      | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
+
+----------------
+
+## v2.7.0 (WIP)
+
+**Highlight**
+
+* Running inside Docker VM containers
+* Install pigsty without observability stack
+* New Docker App Template: Odoo, PolarDB
+* Bump supabase to the latest GA version.
+* Relocatable prometheus target directory
+* New installation scripts from cloudflare
+* Pre-configured stack template (OLTP, GIS, Crit, Search, OLAP, AIML, Graph, ERP, Etc...)
+
+**Software Upgrade**
+
+- Grafana 10.4.2
+- Prometheus 2.51
+- Loki & Promtail: 3.0.0
+- Alertmanager 0.27.0
+- BlackBox Exporter 0.25.0
+- Node Exporter 1.8.0
+- pgBackrest Exporter 0.17.0
+- duckdb 0.10.2
+- etcd 3.5.13
+
+**Extension Upgrade**
+
+- pgvector 0.7.0
+- pg_tle: v1.3.4 -> v1.4.0
+- hydra: v1.1.1 -> v1.1.2
+- duckdb_fdw: v1.1.0 recompile with libduckdb 0.10.2
+- pg_bm25 0.5.6 -> pg_search 0.6.1
+- pg_analytics: 0.5.6 -> 0.6.1
+- pg_sparse (deprecated)
+- pgml: v2.8.1 -> v2.8.2 (TBD)
+- pg_graphql: 1.5.0 -> 1.5.2 (TBD)
+
+**API Change**
+
+- New parameter `node_write_etc_hosts` to control whether to write `/etc/hosts` file on target nodes
+- Change the default value of `pg_lc_ctype` from `en_US.UTF8` to `C.UTF8` to improve reliability during delivery.
 
 
 ----------------

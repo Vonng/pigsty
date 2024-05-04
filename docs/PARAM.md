@@ -1547,6 +1547,8 @@ name: `node_write_etc_hosts`, type: 'bool', level: `G|C|I`
 
 modify `/etc/hosts` on target node?
 
+For example, the docker VM can not modify `/etc/hosts` by default, so you can set this value to `false` to disable the modification.
+
 
 
 
