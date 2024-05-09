@@ -50,6 +50,10 @@ all:
         pg_vip_address: 10.10.10.2/24
         pg_vip_interface: eth1
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
+        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+          - postgis34_16* timescaledb-2-postgresql-16* pgvector_16* pglogical_16* pg_cron_16* # citus_16*
+          - pg_net_16* pgsql-http_16* pgsql-gzip_16* vault_16 pgjwt_16 pg_tle_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16*
+          - pgml_16* pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16* pg_analytics_16* pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16 parquet_s3_fdw_16*
         node_crontab:  # make a full backup 1 am everyday
           - '00 01 * * * postgres /pg/bin/pg-backup full'
 
@@ -133,9 +137,4 @@ all:
       - pool cn.pool.ntp.org iburst
       - pool ${admin_ip} iburst       # assume non-admin nodes does not have internet access
     pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
-    pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-      - postgis34_16* timescaledb-2-postgresql-16* pgvector_16* pglogical_16* pg_cron_16* hydra_16* # citus_16*
-      - apache-age_16* duckdb_fdw_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* pgsql-gzip_16*
-      - pgml_16* pg_bm25_16* pg_analytics_16* pg_sparse_16* pg_graphql_16 pg_net_16* pgsql-http_16* vault_16 pgjwt_16 pg_tle_16*
-    pg_libs: 'pg_stat_statements, auto_explain'  # extensions to be loaded
 ...
