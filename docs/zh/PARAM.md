@@ -2786,7 +2786,7 @@ MinIO 是一个与S3兼容的对象存储服务，它被用作PostgreSQL的可�
 
 ```yaml
 #minio_seq: 1                     # minio instance identifier, REQUIRED
-minio_cluster: minio              # minio cluster name, minio by default
+#minio_cluster: minio             # minio cluster identifier, REQUIRED
 minio_clean: false                # cleanup minio during init?, false by default
 minio_user: minio                 # minio os user, `minio` by default
 minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio node name pattern

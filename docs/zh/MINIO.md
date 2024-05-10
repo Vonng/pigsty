@@ -56,7 +56,7 @@ minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio 
 minio:
   hosts: { 10.10.10.10: { minio_seq: 1 } }
   vars:
-    minio_cluster: minio         # minio 集群名称，默认为 minio
+    minio_cluster: minio         # minio 集群名称
     minio_data: '/data{1...4}'   # minio 数据目录，使用 {x...y} 记号来指定多块磁盘
 ```
 
@@ -312,7 +312,7 @@ Pigsty 提供了两个与 [`MINIO`](MINIO) 模块有关的监控面板：
 
 ```yaml
 #minio_seq: 1                     # minio 实例标识符，必填
-minio_cluster: minio              # minio 集群名称，默认为 minio
+#minio_cluster: minio             # minio 集群名称
 minio_clean: false                # 初始化时清除 minio？默认为 false
 minio_user: minio                 # minio 操作系统用户，默认为 `minio`
 minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio 节点名模式
