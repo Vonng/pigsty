@@ -147,7 +147,7 @@
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
   copy:
-    dest: /etc/prometheus/targets/node/{{ inventory_hostname }}.yml
+    dest: "{{ prometheus_sd_dir }}/node/{{ inventory_hostname }}.yml"
     owner: prometheus
     content: |
       # {{ inventory_hostname }}
@@ -166,7 +166,7 @@
       - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }}  }
         targets: [ {{ inventory_hostname }}:9323 ]
       {% endif %}
-
+      
       
       {% if vip_enabled|bool and vip_address is defined and vip_address != '' %}
       # keepalived
@@ -181,7 +181,7 @@
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
   copy:
-    dest: /etc/prometheus/targets/ping/{{ inventory_hostname }}.yml
+    dest: "{{ prometheus_sd_dir }}/ping/{{ inventory_hostname }}.yml"
     owner: prometheus
     content: |
       # {{ inventory_hostname }}
@@ -195,7 +195,7 @@
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
   copy:
-    dest: /etc/prometheus/targets/ping/{{ vip_address }}---{{ inventory_hostname }}.yml
+    dest: "{{ prometheus_sd_dir }}/ping/{{ vip_address }}---{{ inventory_hostname }}.yml"
     owner: prometheus
     content: |
       # {{ vip_address }}@{{ inventory_hostname }}

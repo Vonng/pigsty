@@ -8,7 +8,7 @@
   ignore_errors: yes
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
-  file: state=absent path=/etc/prometheus/targets/node/{{ inventory_hostname }}.yml
+  file: state=absent path={{ prometheus_sd_dir }}/node/{{ inventory_hostname }}.yml
 
 - name: remove node ping target from prometheus
   tags: [ register, prometheus ]
@@ -16,7 +16,7 @@
   ignore_errors: yes
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
-  file: state=absent path=/etc/prometheus/targets/ping/{{ inventory_hostname }}.yml
+  file: state=absent path={{ prometheus_sd_dir }}/ping/{{ inventory_hostname }}.yml
 
 - name: remove vip ping target from prometheus
   tags: [ register, prometheus ]
@@ -25,7 +25,7 @@
   ignore_errors: yes
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
-  file: state=absent path=/etc/prometheus/targets/ping/{{ vip_address }}---{{ inventory_hostname }}.yml
+  file: state=absent path={{ prometheus_sd_dir }}/ping/{{ vip_address }}---{{ inventory_hostname }}.yml
 
 
 #--------------------------------------------------------------#

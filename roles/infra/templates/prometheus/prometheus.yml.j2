@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   prometheus.yml
 # Ctime     :   2020-04-03
-# Mtime     :   2023-09-10
+# Mtime     :   2024-05-10
 # Desc      :   Prometheus Configuration File
 # Path      :   /etc/prometheus/prometheus.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -17,9 +17,8 @@
 #  ^-----alertmanager.yml  # alertmanger main config file
 #  ^-----@bin              # util scripts: check,reload,status,new
 #  ^-----@rules            # record & alerting rules definition
-#  ^
-# /etc/prometheus/
-#  ^-----@targets          # file based service discovery targets definition
+#
+# {{ prometheus_sd_dir }}
 #            ^-----@node   # node static targets definition
 #            ^-----@node   # ping targets definition
 #            ^-----@pgsql  # pgsql static targets definition
@@ -28,8 +27,8 @@
 #            ^-----@etcd   # etcd static targets definition
 #            ^-----@minio  # minio static targets definition
 #            ^-----@infra  # infra static targets definition
-#            ^-----@mongo   # mongo static targets definition
-#            ^-----@mysql   # mysql static targets definition
+#            ^-----@mongo  # mongo static targets definition
+#            ^-----@mysql  # mysql static targets definition
 #--------------------------------------------------------------#
 
 
@@ -87,7 +86,7 @@ scrape_configs:
     params: {module: [icmp]}
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/ping/*.yml ]
+        files: [ {{ prometheus_sd_dir }}/ping/*.yml ]
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
@@ -106,7 +105,7 @@ scrape_configs:
     metrics_path: /metrics
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/infra/*.yml ]
+        files: [ {{ prometheus_sd_dir }}/infra/*.yml ]
 
   #--------------------------------------------------------------#
   # job: node
@@ -118,7 +117,7 @@ scrape_configs:
     metrics_path: {{ exporter_metrics_path }}
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/node/*.yml ]
+        files: [ {{ prometheus_sd_dir }}/node/*.yml ]
 
   #--------------------------------------------------------------#
   # job: etcd
@@ -129,7 +128,7 @@ scrape_configs:
     metrics_path: /metrics
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/etcd/*.yml ]
+        files: [ {{ prometheus_sd_dir }}/etcd/*.yml ]
     scheme: https
     tls_config:
       ca_file:   /etc/pki/ca.crt
@@ -145,7 +144,7 @@ scrape_configs:
     metrics_path: /minio/v2/metrics/cluster
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/minio/*.yml ]
+        files: [ {{ prometheus_sd_dir }}/minio/*.yml ]
     scheme: https
     tls_config:
       ca_file:   /etc/pki/ca.crt
@@ -162,7 +161,7 @@ scrape_configs:
     metrics_path: {{ exporter_metrics_path }}
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/pgsql/*.yml ]
+        files: [ {{ prometheus_sd_dir }}/pgsql/*.yml ]
 
 {% if patroni_ssl_enabled|bool %}
   #--------------------------------------------------------------#
@@ -178,7 +177,7 @@ scrape_configs:
       ca_file: /etc/pki/ca.crt
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/patroni/*.yml ]
+        files: [ {{ prometheus_sd_dir }}/patroni/*.yml ]
 {% endif %}
 
   #--------------------------------------------------------------#
@@ -191,7 +190,7 @@ scrape_configs:
     metrics_path: {{ exporter_metrics_path }}
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/pgrds/*.yml ]
+        files: [ {{ prometheus_sd_dir }}/pgrds/*.yml ]
 
   #--------------------------------------------------------------#
   # job: redis
@@ -203,7 +202,7 @@ scrape_configs:
     metrics_path: /scrape
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/redis/*.yml ]
+        files: [ {{ prometheus_sd_dir }}/redis/*.yml ]
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
@@ -230,7 +229,7 @@ scrape_configs:
     metrics_path: {{ exporter_metrics_path }}
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/mysql/*.yml ]
+        files: [ {{ prometheus_sd_dir }}/mysql/*.yml ]
 
   #--------------------------------------------------------------#
   # job: mongo (ferretdb)
@@ -241,6 +240,6 @@ scrape_configs:
     metrics_path: /debug/metrics
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/mongo/*.yml ]
+        files: [ {{ prometheus_sd_dir }}/mongo/*.yml ]
 
 ...

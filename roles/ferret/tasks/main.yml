@@ -62,7 +62,7 @@
       delegate_to: '{{ item }}'
       with_items: '{{ groups["infra"] }}'
       file:
-        path: "/etc/prometheus/targets/mongo/{{ mongo_cluster }}-{{ mongo_seq }}.yml"
+        path: "{{ prometheus_sd_dir }}/mongo/{{ mongo_cluster }}-{{ mongo_seq }}.yml"
         state: absent
 
 
@@ -118,7 +118,7 @@
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
   copy:
-    dest: /etc/prometheus/targets/mongo/{{ mongo_cluster }}-{{ mongo_seq }}.yml
+    dest: "{{ prometheus_sd_dir }}/mongo/{{ mongo_cluster }}-{{ mongo_seq }}.yml"
     owner: prometheus
     content: |
       # {{ mongo_cluster }}-{{ mongo_seq }} @ {{ inventory_hostname }}
