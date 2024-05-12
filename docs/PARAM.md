@@ -1874,7 +1874,7 @@ Percent of this memory will be allocated as HugePage, and reserved for PostgreSQ
 
 It should be equal or slightly larger than [`pg_shared_buffer_ratio`](#pg_shared_buffer_ratio), if not zero.
 
-For example, if you have default 25% mem for postgres shard buffers, you can set this value to 27 ~ 30.  Wasted hugepage can be reclaimed later with `/pg/bin/pg-tune-hugepage`
+For example, if you have default 25% mem for postgres shard buffers, you can set this value to 0.27 ~ 0.30,  Wasted hugepage can be reclaimed later with `/pg/bin/pg-tune-hugepage`
 
 
 

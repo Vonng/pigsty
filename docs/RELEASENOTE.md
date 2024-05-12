@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.7.0](#v270) | 2024-05-31 | Docker Playground, Supabase, Odoo, PolarDB               | [v2.7.0-beta](https://github.com/Vonng/pigsty/releases)                                   |
+| [v2.7.0](#v270) | 2024-05-10 | Docker Playground, Supabase, Odoo, PolarDB               | [v2.7.0-a1](https://github.com/Vonng/pigsty/releases/tag/v2.7.0-a1)                       |
 | [v2.6.0](#v260) | 2024-02-28 | PG 16 as default version,  ParadeDB & DuckDB             | [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)                             |
 | [v2.5.1](#v251) | 2023-12-01 | Routine update, pg16 major extensions                    | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
 | [v2.5.0](#v250) | 2023-10-24 | Ubuntu/Debian Support:  bullseye, bookworm, jammy, focal | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
@@ -45,16 +45,42 @@
 
 **Highlight**
 
-* Running inside Docker VM containers
-* Install pigsty without observability stack
-* New Docker App Template: Odoo, PolarDB
-* Bump supabase to the latest GA version.
-* Relocatable prometheus target directory
-* New installation scripts from cloudflare
-* Pre-configured stack template (OLTP, GIS, Crit, Search, OLAP, AIML, Graph, ERP, Etc...)
+Extension Overwhelming, adding numerous new extensions written in `rust` & `pgrx`:
+
+- [pgml](https://github.com/postgresml/postgresml) v2.8.2 : The GPU-powered AI application database
+- [pg_search](https://github.com/paradedb/paradedb/tree/dev/pg_search)       v0.6.1 : Full text search over SQL tables using the BM25 algorithm
+- [pg_analytics](https://github.com/paradedb/paradedb/tree/dev/pg_analytics) v0.5.6 : Accelerates analytical query processing inside Postgres
+- [pg_graphql](https://github.com/supabase/pg_graphql) v1.5.4 : GraphQL support to your PostgreSQL database.
+- [pg_jsonschema](https://github.com/supabase/pg_jsonschema) v0.3.1 : PostgreSQL extension providing JSON Schema validation
+- [wrappers](https://github.com/supabase/wrappers) v0.3.1 : Postgres Foreign Data Wrappers Collections by Supabase
+- [pgmq](https://github.com/tembo-io/pgmq) v1.5.2 : A lightweight message queue. Like AWS SQS and RSMQ but on Postgres.
+- [pg_tier](https://github.com/tembo-io/pg_tier) v0.0.3 : Postgres Extension written in Rust, to enable data tiering to AWS S3
+- [pg_vectorize](https://github.com/tembo-io/pg_vectorize) v0.15.0 : A lightweight message queue. Like AWS SQS and RSMQ but on Postgres.
+- [pg_later](https://github.com/tembo-io/pg_later) v0.1.0 : Execute SQL now and get the results later.
+- [pg_idkit](https://github.com/VADOSWARE/pg_idkit) v0.2.3 : Generating many popular types of identifiers
+- [plprql](https://github.com/kaspermarstal/plprql) v0.1.0 : Use PRQL in PostgreSQL
+- [pgsmcrypto](https://github.com/zhuobie/pgsmcrypto) v0.1.0 : PostgreSQL SM Algorithm Extension
+- [pg_tiktoken](https://github.com/kelvich/pg_tiktoken) v0.0.1 : OpenAI tiktoken tokenizer for postgres
+- [pgdd](https://github.com/rustprooflabs/pgdd) v0.5.2 : Access Data Dictionary metadata with pure SQL
+
+And some new extensions in plain C & C++
+
+- [parquet_s3_fdw](https://github.com/pgspider/parquet_s3_fdw) 1.1.0 : ParquetS3 Foreign Data Wrapper for PostgresSQL
+- [plv8](https://github.com/plv8/plv8) 3.2.2 : V8 Engine Javascript Procedural Language add-on for PostgreSQL
+- [md5hash](https://github.com/tvondra/md5hash) 1.0.1 : Custom data type for storing MD5 hashes rather than text.
+- [pg_tde](https://github.com/Percona-Lab/pg_tde) 1.0 alpha: Experimental encrypted access method for PostgreSQ
+- [pg_dirtyread](https://github.com/df7cb/pg_dirtyread) 2.6 : Read dead but unvacuumed tuples from a PostgreSQL relation
+
+**New Features**
+
+* running inside `docker` containers
+* prepare arm64 packages for infra & pgsql packages
+* new installation script to download from cloudflare
 
 **Software Upgrade**
 
+- **PostgreSQL 16.3**
+- Patroni 3.3.0
 - Grafana 10.4.2
 - Prometheus 2.51
 - Loki & Promtail: 3.0.0
@@ -64,23 +90,45 @@
 - pgBackrest Exporter 0.17.0
 - duckdb 0.10.2
 - etcd 3.5.13
-
-**Extension Upgrade**
-
-- pgvector 0.7.0
+- pgvector 0.6.1 -> 0.7.0
 - pg_tle: v1.3.4 -> v1.4.0
 - hydra: v1.1.1 -> v1.1.2
 - duckdb_fdw: v1.1.0 recompile with libduckdb 0.10.2
 - pg_bm25 0.5.6 -> pg_search 0.6.1
 - pg_analytics: 0.5.6 -> 0.6.1
 - pg_sparse (deprecated)
-- pgml: v2.8.1 -> v2.8.2 (TBD)
-- pg_graphql: 1.5.0 -> 1.5.2 (TBD)
+- pg_graphql: 1.5.0 -> 1.5.4
+- pg_net 0.9.1
+
+- **Docker Application**
+
+- [Odoo](https://github.com/Vonng/pigsty/tree/master/app/odoo): launch open source ERP and plugins
+- [PolarDB](https://github.com/Vonng/pigsty/tree/master/app/polardb): run the demo PG RAC playground.
+- [supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase): bump to the latest GA version.
+- [bytebase](https://github.com/Vonng/pigsty/tree/master/app/bytebase): use the `latest` tag instead of ad hoc version.
+- [pg_exporter](https://github.com/Vonng/pigsty/tree/master/app/pg_exporter): update docker image example
+
+**Bug Fix**
+
+- Fix role pg_exporters white space in variable templates
+- Fix `minio_cluster` not commented in global variables
+- Fix the non-exist `postgis34` in el7 config template
+
 
 **API Change**
 
 - New parameter `node_write_etc_hosts` to control whether to write `/etc/hosts` file on target nodes
 - Change the default value of `pg_lc_ctype` from `en_US.UTF8` to `C.UTF8` to improve reliability during delivery.
+- Relocatable prometheus target directory with new parameter `prometheus_sd_dir`
+- Add `-x|--proxy` flag to enable and use value of global proxy env by @waitingsong in https://github.com/Vonng/pigsty/pull/405
+
+**New Contributors**
+
+- @NeroSong made their first contribution in https://github.com/Vonng/pigsty/pull/373
+- @waitingsong made their first contribution in https://github.com/Vonng/pigsty/pull/405
+
+**Full Changelog**: https://github.com/Vonng/pigsty/compar
+
 
 
 ----------------

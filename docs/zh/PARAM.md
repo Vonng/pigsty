@@ -1886,7 +1886,7 @@ node_kernel_modules: [ softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_wrr, ip_vs_
 
 本参数应该等于或略大于[`pg_shared_buffer_ratio`](#pg_shared_buffer_ratio)，如果不为零。
 
-例如，如果您为Postgres共享缓冲区默认分配了25%的内存，您可以将此值设置为27 ~ 30。稍后可以使用 `/pg/bin/pg-tune-hugepage` 精准回收浪费的大页。
+例如，如果您为Postgres共享缓冲区默认分配了25%的内存，您可以将此值设置为 0.27 ~ 0.30，并在初始化后使用 `/pg/bin/pg-tune-hugepage` 精准回收浪费的大页。
 
 
 
