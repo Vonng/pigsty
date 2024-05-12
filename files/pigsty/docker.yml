@@ -1,0 +1,187 @@
+---
+#==============================================================#
+# File      :   docker.yml (on vonng/rocky:8 image)
+# Desc      :   Pigsty singleton config for docker container
+# Ctime     :   2024-05-12
+# Mtime     :   2024-05-12
+# Docs      :   https://pigsty.io/docs/setup/config/
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+# This config is designed for the corresponding docker image
+# To run pigsty singleton-meta inside a docker container
+
+
+all:
+  children:
+
+    #----------------------------------#
+    # infra: monitor, alert, repo, etc..
+    #----------------------------------#
+    infra: { hosts: { 127.0.0.1: { infra_seq: 1 } } }
+
+    #----------------------------------#
+    # etcd cluster for HA postgres DCS
+    #----------------------------------#
+    etcd: { hosts: { 127.0.0.1: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+
+    #----------------------------------#
+    # minio (OPTIONAL backup repo)
+    #----------------------------------#
+    #minio: { hosts: { 127.0.0.1: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+
+    #----------------------------------#
+    # pgsql (singleton on current node)
+    #----------------------------------#
+    # this is an example single-node postgres cluster with postgis & timescaledb installed, with one biz database & two biz users
+    pg-meta:
+      hosts: { 127.0.0.1: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-meta
+
+        # define business databases here: https://pigsty.io/docs/pgsql/db/
+        pg_databases:                       # define business databases on this cluster, array of database definition
+          - name: meta                      # REQUIRED, `name` is the only mandatory field of a database definition
+            baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g: files/)
+            schemas: [ pigsty ]             # optional, additional schemas to be created, array of schema names
+            extensions:                     # optional, additional extensions to be installed: array of `{name[,schema]}`
+              - { name: postgis     }       # install postgis extension on this database
+              - { name: timescaledb }       # install timescaledb extension on this database
+            comment: pigsty meta database   # optional, comment string for this database
+            #pgbouncer: true                # optional, add this database to pgbouncer database list? true by default
+            #owner: postgres                # optional, database owner, postgres by default
+            #template: template1            # optional, which template to use, template1 by default
+            #encoding: UTF8                 # optional, database encoding, UTF8 by default. (MUST same as template database)
+            #locale: C                      # optional, database locale, C by default.  (MUST same as template database)
+            #lc_collate: C                  # optional, database collate, C by default. (MUST same as template database)
+            #lc_ctype: C                    # optional, database ctype, C by default.   (MUST same as template database)
+            #tablespace: pg_default         # optional, default tablespace, 'pg_default' by default.
+            #allowconn: true                # optional, allow connection, true by default. false will disable connect at all
+            #revokeconn: false              # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
+            #register_datasource: true      # optional, register this database to grafana datasources? true by default
+            #connlimit: -1                  # optional, database connection limit, default -1 disable limit
+            #pool_auth_user: dbuser_meta    # optional, all connection to this pgbouncer database will be authenticated by this user
+            #pool_mode: transaction         # optional, pgbouncer pool mode at database level, default transaction
+            #pool_size: 64                  # optional, pgbouncer pool size at database level, default 64
+            #pool_size_reserve: 32          # optional, pgbouncer pool size reserve at database level, default 32
+            #pool_size_min: 0               # optional, pgbouncer pool size min at database level, default 0
+            #pool_max_db_conn: 100          # optional, max database connections at database level, default 100
+          #- { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }  # define another database
+
+        # define business users here: https://pigsty.io/docs/pgsql/user/
+        pg_users:                           # define business users/roles on this cluster, array of user definition
+          - name: dbuser_meta               # REQUIRED, `name` is the only mandatory field of a user definition
+            password: DBUser.Meta           # optional, password, can be a scram-sha-256 hash string or plain text
+            login: true                     # optional, can log in, true by default  (new biz ROLE should be false)
+            superuser: false                # optional, is superuser? false by default
+            createdb: false                 # optional, can create database? false by default
+            createrole: false               # optional, can create role? false by default
+            inherit: true                   # optional, can this role use inherited privileges? true by default
+            replication: false              # optional, can this role do replication? false by default
+            bypassrls: false                # optional, can this role bypass row level security? false by default
+            pgbouncer: true                 # optional, add this user to pgbouncer user-list? false by default (production user should be true explicitly)
+            connlimit: -1                   # optional, user connection limit, default -1 disable limit
+            expire_in: 3650                 # optional, now + n days when this role is expired (OVERWRITE expire_at)
+            expire_at: '2030-12-31'         # optional, YYYY-MM-DD 'timestamp' when this role is expired  (OVERWRITTEN by expire_in)
+            comment: pigsty admin user      # optional, comment string for this user/role
+            roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
+            parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
+            pool_mode: transaction          # optional, pgbouncer pool mode at user level, transaction by default
+            pool_connlimit: -1              # optional, max database connections at user level, default -1 disable limit
+          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
+
+        # install extensions here: # define HBA rules here: https://pigsty.io/docs/pgsql/extension/#install-extension
+        pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
+        pg_extensions: # install extension on this cluster (citus & hydra are mutually exclusive! choose one between them!)
+          - postgis33_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}* hydra_${pg_version}* #citus_${pg_version}*
+          #- pglogical_15* pg_cron_15* imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql-http_15* pgsql-gzip_15* vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15* apache-age_15* hydra_15* pg_sparse_15*
+          #- orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15
+          #- plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15* pgtt_15 pgq_15* hypopg_15* timestamp9_15* semver_15* prefix_15* periods_15* ip4r_15* tdigest_15* hll_15* pgmp_15 topn_15* geoip_15 extra_window_functions_15 pgsql_tweaks_15 count_distinct_15
+          #- pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15 rum_15
+          #- pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_auth_mon_15 pg_checksums_15 pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15
+
+        # define HBA rules here: https://pigsty.io/docs/pgsql/hba/#define-hba
+        pg_hba_rules:                       # example hba rules
+          - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
+
+        #pg_vip_enabled: true               # define a L2 VIP which bind to cluster primary instance
+        #pg_vip_address: 10.10.10.2/24      # L2 VIP Address and netmask
+        #pg_vip_interface: eth1             # L2 VIP Network interface, overwrite on host vars if member have different network interface names
+        node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ] # make a full backup every 1am
+
+
+  #----------------------------------#
+  # GLOBAL VARS
+  #----------------------------------#
+  vars:                               # global parameters
+    version: v2.7.0                   # pigsty version string
+    admin_ip: 127.0.0.1             # admin node ip address
+    region: default                   # upstream mirror region: default,china,europe
+    infra_portal:                     # domain names and upstream servers
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
+
+
+    #----------------------------------#
+    # MinIO Related Options
+    #----------------------------------#
+    #pgbackrest_method: minio          # if you want to use minio as backup repo instead of 'local' fs, uncomment this
+    #minio_users:                      # and configure `pgbackrest_repo` & `minio_users` accordingly
+    #  - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
+    #  - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
+    #pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+    #  minio: ...                      # optional minio repo for pgbackrest ...
+    #    s3_key: pgbackrest            # minio user access key for pgbackrest
+    #    s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
+    #    cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
+    # if you want to use minio as backup repo instead of 'local' fs, uncomment this, and configure `pgbackrest_repo`
+
+    #----------------------------------#
+    # Credential: CHANGE THESE PASSWORDS
+    #----------------------------------#
+    #grafana_admin_username: admin
+    grafana_admin_password: pigsty
+    #pg_admin_username: dbuser_dba
+    pg_admin_password: DBUser.DBA
+    #pg_monitor_username: dbuser_monitor
+    pg_monitor_password: DBUser.Monitor
+    #pg_replication_username: replicator
+    pg_replication_password: DBUser.Replicator
+    #patroni_username: postgres
+    patroni_password: Patroni.API
+    #haproxy_admin_username: admin
+    haproxy_admin_password: pigsty
+
+    #----------------------------------#
+    # Docker Config: Node Repo Pkg
+    #----------------------------------#
+    # dns are managed by docker itself
+    node_write_etc_hosts: false  # do not write /etc/hosts inside container
+    node_dns_method: none        # /etc/hosts is managed by docker itself
+    node_ntp_enabled: false      # use the ntp on the bare metal instead
+    node_disable_firewall: false # there's no firewalld inside container
+    dns_enabled: falses          # do not launch DNSMASQ inside container
+
+    # we don't need repo inside containers
+    repo_enabled: false         # do not build repo inside container (already installed)
+    repo_modules: infra,node,pgsql    # install upstream repo during repo bootstrap
+    repo_remove: true                 # remove existing repo on admin node during repo bootstrap
+    repo_upstream: []           # do not add repo upstream
+    repo_packages: []           # do not download any repo_packages
+    #repo_url_packages: []      # we may still need that, since they are not rpm installed
+    node_repo_modules: ''       # install the local module in repo_upstream for all nodes
+    node_repo_remove: false     # remove existing node repo for node managed by pigsty
+
+    # packages are already installed on docker image
+    infra_packages: [ ]         # do not install infra packages
+    node_packages: [ ]          # do not install node packages
+    node_default_packages: [ ]  # do not install node packages
+    pg_packages: []             # do not install pg packages
+    pg_extensions: []           # do not install pg extensions
+
+...
