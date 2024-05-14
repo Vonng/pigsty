@@ -1,7 +1,7 @@
 #==============================================================#
 # File      :   loki.yml
 # Ctime     :   2021-04-03
-# Mtime     :   2024-04-27
+# Mtime     :   2024-05-14
 # Desc      :   Loki configuration file
 # Path      :   /etc/loki/config.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -76,6 +76,21 @@ query_range:
       embedded_cache:
         enabled: true
         max_size_mb: 100
+
+storage_config:
+  boltdb_shipper:
+    active_index_directory: {{ loki_data }}/boltdb-shipper-active
+    cache_location: {{ loki_data }}/boltdb-shipper-cache
+    cache_ttl: 24h   # Can be increased for faster performance over longer query periods, uses more disk space
+
+  tsdb_shipper:
+    active_index_directory: {{ loki_data }}/tsdb-shipper-active
+    cache_location: {{ loki_data }}/tsdb-shipper-cache
+    cache_ttl: 24h   # Can be increased for faster performance over longer query periods, uses more disk space
+
+# setup compactor working directory
+compactor:
+  working_directory: {{ loki_data }}/tmp/boltdb-shipper-compactor
 
 # increase frontend limits
 frontend:

@@ -1,7 +1,7 @@
 #==============================================================#
 # File      :   config.yml
 # Ctime     :   2021-04-03
-# Mtime     :   2024-05-14
+# Mtime     :   2022-12-04
 # Desc      :   Promtail logging collector agent
 # Path      :   /etc/promtail/config.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -82,24 +82,26 @@ scrape_configs:
           __path__: /var/log/nginx-error.log
 
     pipeline_stages:
-     - match:
-         selector: '{src="nginx"}'
-         stages:
-           - regex:
-               # Log line example:
-               # 127.0.0.1 - - [21/Apr/2020:13:59:45 +0000] "GET /?foo=bar HTTP/1.1" 200 612 "http://example.com/lekkebot.html" "curl/7.58.0"
-               expression: '\[(?P<timestamp>[^\]]+)\]'
-           - labels:
-               timestamp:
+      - match:
+          selector: '{src="nginx"}'
+          stages:
+            - regex:
+                # logline example: 127.0.0.1 - - [21/Apr/2020:13:59:45 +0000] "GET /?foo=bar HTTP/1.1" 200 612 "http://example.com/lekkebot.html" "curl/7.58.0"
+                expression: '.*\[(?P<timestamp>.*)\].*'
+            - timestamp:
+                source: timestamp
+                format: '02/Jan/2006:15:04:05 -0700'
 
-     - match:
-         selector: '{src="nginx-error"}'
-         stages:
-           - regex:
-               # Assume similar log structure for errors, adjust regex if different
-               expression: '\[(?P<timestamp>[^\]]+)\]'
-           - labels:
-               timestamp:
+      - match:
+          selector: '{src="nginx-error"}'
+          stages:
+            - regex:
+                # logline example: 127.0.0.1 - - [21/Apr/2020:13:59:45 +0000] "GET /?foo=bar HTTP/1.1" 200 612 "http://example.com/lekkebot.html" "curl/7.58.0"
+                expression: '(?P<timestamp>\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}).*'
+            - timestamp:
+                source: timestamp
+                format: '2006/Jan/02 15:04:05'
+
 {% endif %}
 
 {% endif %}
