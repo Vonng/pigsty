@@ -83,17 +83,19 @@ And some new extensions in plain C & C++
 - **PostgreSQL 16.3**
 - Patroni 3.3.0
 - pgBackRest 2.51
-- VIP-Manager v2.5.0
+- vip-manager v2.5.0
 - Haproxy 2.9.7
 - Grafana 10.4.2
 - Prometheus 2.51
-- Loki & Promtail: 3.0.0
+- Loki & Promtail: 3.0.0 (breaking changes!)
 - Alertmanager 0.27.0
 - BlackBox Exporter 0.25.0
 - Node Exporter 1.8.0
 - pgBackrest Exporter 0.17.0
 - duckdb 0.10.2
 - etcd 3.5.13
+- minio-20240510014138 / mcli-20240509170424
+- pev2 v1.8.0 -> v1.11.0
 - **pgvector** 0.6.1 -> 0.7.0
 - pg_tle: v1.3.4 -> v1.4.0
 - hydra: v1.1.1 -> v1.1.2
@@ -101,7 +103,7 @@ And some new extensions in plain C & C++
 - pg_bm25 0.5.6 -> pg_search 0.7.0
 - pg_analytics: 0.5.6 -> 0.6.1
 - pg_graphql: 1.5.0 -> 1.5.4
-- pg_net 0.9.1
+- pg_net 0.8.0 -> 0.9.1
 - pg_sparse (deprecated)
 
 - **Docker Application**
@@ -122,7 +124,6 @@ And some new extensions in plain C & C++
 **API Change**
 
 - New parameter `node_write_etc_hosts` to control whether to write `/etc/hosts` file on target nodes.
-- Change the default value of `pg_lc_ctype` from `en_US.UTF8` to `C.UTF8` to improve reliability during delivery.
 - Relocatable prometheus target directory with new parameter `prometheus_sd_dir`.
 - Add `-x|--proxy` flag to enable and use value of global proxy env by @waitingsong in https://github.com/Vonng/pigsty/pull/405
 

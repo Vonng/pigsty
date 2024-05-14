@@ -88,13 +88,15 @@
 - Haproxy 2.9.7
 - Grafana 10.4.2
 - Prometheus 2.51
-- Loki & Promtail: 3.0.0
+- Loki & Promtail: 3.0.0 (警告：大版本非兼容性变更！)
 - Alertmanager 0.27.0
 - BlackBox Exporter 0.25.0
 - Node Exporter 1.8.0
 - pgBackrest Exporter 0.17.0
 - duckdb 0.10.2
 - etcd 3.5.13
+- minio-20240510014138 / mcli-20240509170424
+- pev2 v1.8.0 -> v1.11.0
 - **pgvector** 0.6.1 -> 0.7.0
 - pg_tle: v1.3.4 -> v1.4.0
 - hydra: v1.1.1 -> v1.1.2
@@ -102,30 +104,29 @@
 - pg_bm25 0.5.6 -> pg_search 0.7.0
 - pg_analytics: 0.5.6 -> 0.6.1
 - pg_graphql: 1.5.0 -> 1.5.4
-- pg_net 0.9.1
+- pg_net 0.8.0 -> 0.9.1
 - pg_sparse (deprecated)
 
 - **Docker应用模板**
 
-- [Odoo](https://github.com/Vonng/pigsty/tree/master/app/odoo): launch open source ERP and plugins
-- [PolarDB](https://github.com/Vonng/pigsty/tree/master/app/polardb): run the demo PG RAC playground.
-- [supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase): bump to the latest GA version.
-- [bytebase](https://github.com/Vonng/pigsty/tree/master/app/bytebase): use the `latest` tag instead of ad hoc version.
-- [pg_exporter](https://github.com/Vonng/pigsty/tree/master/app/pg_exporter): update docker image example
+- [Odoo](https://github.com/Vonng/pigsty/tree/master/app/odoo)：开源 ERP 软件与插件
+- [PolarDB](https://github.com/Vonng/pigsty/tree/master/app/polardb): 运行“国产数据库” PolarDB，应付信创检查！
+- [supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase): 更新至最近的 GA 版本
+- [bytebase](https://github.com/Vonng/pigsty/tree/master/app/bytebase): 使用 `latest` 标签替代特定版本号。
+- [pg_exporter](https://github.com/Vonng/pigsty/tree/master/app/pg_exporter): 更新了 Docker 镜像的例子。
 
 **缺陷修复**
 
-- Fix role pg_exporters white space in variable templates
-- Fix `minio_cluster` not commented in global variables
-- Fix the non-exist `postgis34` in el7 config template
-- Fix EL8 `python3.11-cryptography` deps to `python3-cryptography` according to upstream
+- 修复了 pg_exporters 角色中的变量空白问题。
+- 修复了 `minio_cluster` 变量没有在全局配置中注释掉的问题
+- 修复了 EL7 模板中的 `postgis34` 插件名称问题，应该使用 `postgis33`
+- 修复了 EL8 `python3.11-cryptography` 依赖名的问题，上游现在变更为 `python3-cryptography`。
 
 **API变更**
 
-- New parameter `node_write_etc_hosts` to control whether to write `/etc/hosts` file on target nodes.
-- Change the default value of `pg_lc_ctype` from `en_US.UTF8` to `C.UTF8` to improve reliability during delivery.
-- Relocatable prometheus target directory with new parameter `prometheus_sd_dir`.
-- Add `-x|--proxy` flag to enable and use value of global proxy env by @waitingsong in https://github.com/Vonng/pigsty/pull/405
+- 新参数 `node_write_etc_hosts`，用于控制是否向目标节点的 `/etc/hosts` 文件写入静态 DNS 解析记录
+- 新增了 `prometheus_sd_dir` 参数，用于指定 Prometheus 静态服务发现的目标文件目录
+- configure 脚本新增了 `-x|--proxy` 参数，用于将当前环境的代理信息写入配置文件 by @waitingsong in https://github.com/Vonng/pigsty/pull/405
 
 **新的贡献者**
 
