@@ -4,14 +4,13 @@
 - name: create pg private key
   tags: pg_cert_private
   become: no
+  delegate_to: localhost
   block:
 
     # check pg sever private key on primary instance
-    - name: check if pg private key exists
-      delegate_to: localhost
-      stat: path=files/pki/pgsql/{{ pg_cluster }}.key
-      register: pg_key_exists
-
+    #- name: check if pg private key exists
+    #  stat: path=files/pki/pgsql/{{ pg_cluster }}.key
+    #  register: pg_key_exists
     # try to fetch private key from primary instance
     #- name: check if pg private key exists on primary
     #  when: not pg_key_exists.stat.exists|bool
@@ -21,10 +20,9 @@
     #  when: not pg_key_exists.stat.exists|bool and pg_key_primary_exists.stat.exists|bool
     #  fetch: src=/pg/cert/server.key dest=files/pki/pgsql/{{ pg_cluster }}.key flat=yes
 
-    # generate pg private key if not exists on local or primary instance
+    # generate pg private key if not exists on local instance
     - name: generate pg private key
-      delegate_to: localhost
-      when: not pg_key_exists.stat.exists|bool #and not pg_key_primary_exists.stat.exists|bool
+      connection: local
       openssl_privatekey: path=files/pki/pgsql/{{ pg_cluster }}.key mode=0600
 
 
@@ -39,6 +37,7 @@
 
     # generate csr for each member
     - name: generate pg server signing request
+      connection: local
       openssl_csr:
         path: "files/pki/csr/{{ pg_cluster }}-{{ pg_seq }}.csr"
         privatekey_path: "files/pki/pgsql/{{ pg_cluster }}.key"
@@ -54,6 +53,7 @@
           - "IP:{{ inventory_hostname }}"
 
     - name: issue pg server certificate
+      connection: local
       openssl_certificate:
         path: "files/pki/pgsql/{{ pg_cluster }}-{{ pg_seq }}.crt"
         csr_path: "files/pki/csr/{{ pg_cluster }}-{{ pg_seq }}.csr"
