@@ -549,8 +549,8 @@ repo_upstream:                    # where to download
   - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
   #- { name: pgdg16-nonfree ,description: 'PostgreSQL 16+'    ,module: pgsql ,releases: [  8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/non-free/16/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/non-free/16/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/non-free/16/redhat/rhel-$releasever-$basearch' }}
 repo_packages:
-  - ansible python3 python3-pip python3-virtualenv python3-requests python3-jmespath python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass # Distro & Boot
-  - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter                                                                                            # Pigsty Addons
+  - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass                  # Distro & Boot
+  - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter python3-jmespath python3-cryptography                                                      # Pigsty Addons
   - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter                              # Infra Packages
   - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph             # Node Tools 1
   - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                   # Node Tools 2
@@ -721,8 +721,8 @@ Pigsty 构建配置模板 [`build.yml`](https://github.com/Vonng/pigsty/blob/mas
 
 ```yaml
 repo_packages:
-  - ansible python3 python3-pip python3-virtualenv python3-requests python3-jmespath python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass # Distro & Boot
-  - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter                                                                                            # Pigsty Addons
+  - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass                  # Distro & Boot
+  - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter python3-jmespath python3-cryptography                                                      # Pigsty Addons
   - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter                              # Infra Packages
   - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph             # Node Tools 1
   - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                   # Node Tools 2
@@ -748,8 +748,8 @@ repo_packages:
 
 ```yaml
 repo_packages:                    # which packages to be included
-  - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
-  - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
+  - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass  # Distro & Boot
+  - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter python3-jmespath python3-cryptography                                      # Pigsty Addons
   - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter              # Infra Packages
   - redis-exporter mysqld-exporter mongodb-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos                           # Miscellaneous
   - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-tools-generic  # Node Tools 1
