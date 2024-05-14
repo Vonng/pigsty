@@ -561,12 +561,12 @@ repo_packages:
   - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb libarrow-s3 pgFormatter # pgxnclient el9     # PGSQL Common Tools
   - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*   # PGDG 16 Packages
   - pg_net_16* pgsql-http_16* pgsql-gzip_16* vault_16 pgjwt_16 pg_tle_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16*
-  - pgml_16* pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16* pg_analytics_16* pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16 parquet_s3_fdw_16*
+  - pgml_16* pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16* pg_lakehouse_16* pg_analytics_16* pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16 parquet_s3_fdw_16*
   - orafce_16* mongo_fdw_16* tds_fdw_16* mysql_fdw_16 hdfs_fdw_16 sqlite_fdw_16 pgbouncer_fdw_16 powa_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_qualstats_16 pg_track_settings_16 pg_wait_sampling_16 hll_16 pgaudit_16
   - plprofiler_16* plsh_16* pldebugger_16 plpgsql_check_16* pgtt_16 pgq_16* pgsql_tweaks_16 count_distinct_16 hypopg_16 timestamp9_16* semver_16* prefix_16* periods_16 ip4r_16 tdigest_16 pgmp_16 extra_window_functions_16 topn_16
   - pg_background_16 e-maj_16 pg_prioritize_16 pgcryptokey_16 logerrors_16 pg_top_16 pg_comparator_16 pg_ivm_16* pgsodium_16* pgfincore_16* ddlx_16 credcheck_16 safeupdate_16 pg_squeeze_16* pg_fkpart_16 pg_jobmon_16
   - pg_partman_16 pg_permissions_16 pgexportdoc_16 pgimportdoc_16 pg_statement_rollback_16* pg_hint_plan_16* pg_auth_mon_16 pg_checksums_16 pg_failover_slots_16 pg_readonly_16* pg_uuidv7_16* set_user_16* rum_16
-  - system_stats_16* pg_store_plans_16* pg_catcheck_16 pgcopydb # mysqlcompat_16 multicorn2_16* plproxy_16 geoip_16 postgresql-unit_16 # not available for PG 16 yet
+  - system_stats_16* pg_store_plans_16* pg_catcheck_16 pgcopydb pg_profile_16 # mysqlcompat_16 multicorn2_16* plproxy_16 geoip_16 postgresql-unit_16 # not available for PG 16 yet
   - redis_exporter mysqld_exporter mongodb_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos  # Miscellaneous Packages
 repo_url_packages:
   - https://repo.pigsty.cc/etc/pev.html
@@ -724,12 +724,12 @@ repo_packages:
   - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb libarrow-s3 pgFormatter # pgxnclient el9     # PGSQL Common Tools
   - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*   # PGDG 16 Packages
   - pg_net_16* pgsql-http_16* pgsql-gzip_16* vault_16 pgjwt_16 pg_tle_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16*
-  - pgml_16* pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16* pg_analytics_16* pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16 parquet_s3_fdw_16*
+  - pgml_16* pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16* pg_lakehouse_16* pg_analytics_16* pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16 parquet_s3_fdw_16*
   - orafce_16* mongo_fdw_16* tds_fdw_16* mysql_fdw_16 hdfs_fdw_16 sqlite_fdw_16 pgbouncer_fdw_16 powa_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_qualstats_16 pg_track_settings_16 pg_wait_sampling_16 hll_16 pgaudit_16
   - plprofiler_16* plsh_16* pldebugger_16 plpgsql_check_16* pgtt_16 pgq_16* pgsql_tweaks_16 count_distinct_16 hypopg_16 timestamp9_16* semver_16* prefix_16* periods_16 ip4r_16 tdigest_16 pgmp_16 extra_window_functions_16 topn_16
   - pg_background_16 e-maj_16 pg_prioritize_16 pgcryptokey_16 logerrors_16 pg_top_16 pg_comparator_16 pg_ivm_16* pgsodium_16* pgfincore_16* ddlx_16 credcheck_16 safeupdate_16 pg_squeeze_16* pg_fkpart_16 pg_jobmon_16
   - pg_partman_16 pg_permissions_16 pgexportdoc_16 pgimportdoc_16 pg_statement_rollback_16* pg_hint_plan_16* pg_auth_mon_16 pg_checksums_16 pg_failover_slots_16 pg_readonly_16* pg_uuidv7_16* set_user_16* rum_16
-  - system_stats_16* pg_store_plans_16* pg_catcheck_16 pgcopydb # mysqlcompat_16 multicorn2_16* plproxy_16 geoip_16 postgresql-unit_16 # not available for PG 16 yet
+  - system_stats_16* pg_store_plans_16* pg_catcheck_16 pgcopydb pg_profile_16 # mysqlcompat_16 multicorn2_16* plproxy_16 geoip_16 postgresql-unit_16 # not available for PG 16 yet
   - redis_exporter mysqld_exporter mongodb_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos  # Miscellaneous Packages
 ```
 
