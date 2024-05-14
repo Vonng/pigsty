@@ -37,19 +37,20 @@
 | 150 | [`prometheus_enabled`](#prometheus_enabled)                     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | enable prometheus on this infra node?                                         |
 | 151 | [`prometheus_clean`](#prometheus_clean)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/A   | clean prometheus data during init?                                            |
 | 152 | [`prometheus_data`](#prometheus_data)                           | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | path        | G     | prometheus data dir, `/data/prometheus` by default                            |
-| 153 | [`prometheus_sd_interval`](#prometheus_sd_interval)             | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | interval    | G     | prometheus target refresh interval, 5s by default                             |
-| 154 | [`prometheus_scrape_interval`](#prometheus_scrape_interval)     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | interval    | G     | prometheus scrape & eval interval, 10s by default                             |
-| 155 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)       | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | interval    | G     | prometheus global scrape timeout, 8s by default                               |
-| 156 | [`prometheus_options`](#prometheus_options)                     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | prometheus extra server options                                               |
-| 157 | [`pushgateway_enabled`](#pushgateway_enabled)                   | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | setup pushgateway on this infra node?                                         |
-| 158 | [`pushgateway_options`](#pushgateway_options)                   | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | pushgateway extra server options                                              |
-| 159 | [`blackbox_enabled`](#blackbox_enabled)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | setup blackbox_exporter on this infra node?                                   |
-| 160 | [`blackbox_options`](#blackbox_options)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | blackbox_exporter extra server options                                        |
-| 161 | [`alertmanager_enabled`](#alertmanager_enabled)                 | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | setup alertmanager on this infra node?                                        |
-| 162 | [`alertmanager_options`](#alertmanager_options)                 | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | alertmanager extra server options                                             |
-| 163 | [`exporter_metrics_path`](#exporter_metrics_path)               | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | path        | G     | exporter metric path, `/metrics` by default                                   |
-| 164 | [`exporter_install`](#exporter_install)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | enum        | G     | how to install exporter? none,yum,binary                                      |
-| 165 | [`exporter_repo_url`](#exporter_repo_url)                       | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | url         | G     | exporter repo file url if install exporter via yum                            |
+| 153 | [`prometheus_sd_dir`](#prometheus_sd_dir)                       | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | path        | G     | prometheus file service discovery directory                                   |
+| 154 | [`prometheus_sd_interval`](#prometheus_sd_interval)             | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | interval    | G     | prometheus target refresh interval, 5s by default                             |
+| 155 | [`prometheus_scrape_interval`](#prometheus_scrape_interval)     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | interval    | G     | prometheus scrape & eval interval, 10s by default                             |
+| 156 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)       | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | interval    | G     | prometheus global scrape timeout, 8s by default                               |
+| 157 | [`prometheus_options`](#prometheus_options)                     | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | prometheus extra server options                                               |
+| 158 | [`pushgateway_enabled`](#pushgateway_enabled)                   | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | setup pushgateway on this infra node?                                         |
+| 159 | [`pushgateway_options`](#pushgateway_options)                   | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | pushgateway extra server options                                              |
+| 160 | [`blackbox_enabled`](#blackbox_enabled)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | setup blackbox_exporter on this infra node?                                   |
+| 161 | [`blackbox_options`](#blackbox_options)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | blackbox_exporter extra server options                                        |
+| 162 | [`alertmanager_enabled`](#alertmanager_enabled)                 | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | bool        | G/I   | setup alertmanager on this infra node?                                        |
+| 163 | [`alertmanager_options`](#alertmanager_options)                 | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | arg         | G     | alertmanager extra server options                                             |
+| 164 | [`exporter_metrics_path`](#exporter_metrics_path)               | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | path        | G     | exporter metric path, `/metrics` by default                                   |
+| 165 | [`exporter_install`](#exporter_install)                         | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | enum        | G     | how to install exporter? none,yum,binary                                      |
+| 166 | [`exporter_repo_url`](#exporter_repo_url)                       | [`INFRA`](#infra) | [`PROMETHEUS`](#prometheus)       | url         | G     | exporter repo file url if install exporter via yum                            |
 | 170 | [`grafana_enabled`](#grafana_enabled)                           | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | bool        | G/I   | enable grafana on this infra node?                                            |
 | 171 | [`grafana_clean`](#grafana_clean)                               | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | bool        | G/A   | clean grafana data during init?                                               |
 | 172 | [`grafana_admin_username`](#grafana_admin_username)             | [`INFRA`](#infra) | [`GRAFANA`](#grafana)             | username    | G     | grafana admin username, `admin` by default                                    |
@@ -1036,6 +1037,7 @@ Prometheus is used as time-series database for metrics scrape, storage & analysi
 prometheus_enabled: true          # enable prometheus on this infra node?
 prometheus_clean: true            # clean prometheus data during init?
 prometheus_data: /data/prometheus # prometheus data dir, `/data/prometheus` by default
+prometheus_sd_dir: /etc/prometheus/targets # prometheus file service discovery directory
 prometheus_sd_interval: 5s        # prometheus target refresh interval, 5s by default
 prometheus_scrape_interval: 10s   # prometheus scrape & eval interval, 10s by default
 prometheus_scrape_timeout: 8s     # prometheus global scrape timeout, 8s by default
@@ -1085,11 +1087,24 @@ prometheus data dir, `/data/prometheus` by default
 
 
 
+### `prometheus_sd_dir`
+
+name: `prometheus_sd_dir`, type: `path`, level: `G`, default value: `/etc/prometheus/targets`
+
+prometheus static file service discovery target dir, prometheus will find dynamic monitoring targets from this directory. 
+
+
+
+
+
+
 ### `prometheus_sd_interval`
 
 name: `prometheus_sd_interval`, type: `interval`, level: `G`
 
 prometheus target refresh interval, `5s` by default
+
+Prometheus will check [`prometheus_sd_interval`](#prometheus_sd_interval) dir per 5s by default to find out new monitoring targets.
 
 
 

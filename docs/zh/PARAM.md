@@ -37,19 +37,20 @@
 | 150 | [`prometheus_enabled`](#prometheus_enabled)                     | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | bool        | G/I   | 在此基础设施节点上启用 prometheus？                                                         |
 | 151 | [`prometheus_clean`](#prometheus_clean)                         | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | bool        | G/A   | 初始化Prometheus的时候清除现有数据？                                                         |
 | 152 | [`prometheus_data`](#prometheus_data)                           | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | path        | G     | Prometheus 数据目录，默认为 `/data/prometheus`                                          |
-| 153 | [`prometheus_sd_interval`](#prometheus_sd_interval)             | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | interval    | G     | Prometheus 目标刷新间隔，默认为 5s                                                        |
-| 154 | [`prometheus_scrape_interval`](#prometheus_scrape_interval)     | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | interval    | G     | Prometheus 抓取 & 评估间隔，默认为 10s                                                    |
-| 155 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)       | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | interval    | G     | Prometheus 全局抓取超时，默认为 8s                                                        |
-| 156 | [`prometheus_options`](#prometheus_options)                     | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | arg         | G     | Prometheus 额外的命令行参数选项                                                           |
-| 157 | [`pushgateway_enabled`](#pushgateway_enabled)                   | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | bool        | G/I   | 在此基础设施节点上设置 pushgateway？                                                        |
-| 158 | [`pushgateway_options`](#pushgateway_options)                   | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | arg         | G     | pushgateway 额外的命令行参数选项                                                          |
-| 159 | [`blackbox_enabled`](#blackbox_enabled)                         | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | bool        | G/I   | 在此基础设施节点上设置 blackbox_exporter？                                                  |
-| 160 | [`blackbox_options`](#blackbox_options)                         | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | arg         | G     | blackbox_exporter 额外的命令行参数选项                                                    |
-| 161 | [`alertmanager_enabled`](#alertmanager_enabled)                 | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | bool        | G/I   | 在此基础设施节点上设置 alertmanager？                                                       |
-| 162 | [`alertmanager_options`](#alertmanager_options)                 | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | arg         | G     | alertmanager 额外的命令行参数选项                                                         |
-| 163 | [`exporter_metrics_path`](#exporter_metrics_path)               | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | path        | G     | exporter 指标路径，默认为 /metrics                                                      |
-| 164 | [`exporter_install`](#exporter_install)                         | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | enum        | G     | 如何安装 exporter？none,yum,binary                                                   |
-| 165 | [`exporter_repo_url`](#exporter_repo_url)                       | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | url         | G     | 通过 yum 安装exporter时使用的yum仓库文件地址                                                  |
+| 153 | [`prometheus_sd_dir`](#prometheus_sd_dir)                       | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | path        | G     | Prometheus 服务发现目标文件目录                                                           |
+| 154 | [`prometheus_sd_interval`](#prometheus_sd_interval)             | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | interval    | G     | Prometheus 目标刷新间隔，默认为 5s                                                        |
+| 155 | [`prometheus_scrape_interval`](#prometheus_scrape_interval)     | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | interval    | G     | Prometheus 抓取 & 评估间隔，默认为 10s                                                    |
+| 156 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)       | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | interval    | G     | Prometheus 全局抓取超时，默认为 8s                                                        |
+| 157 | [`prometheus_options`](#prometheus_options)                     | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | arg         | G     | Prometheus 额外的命令行参数选项                                                           |
+| 158 | [`pushgateway_enabled`](#pushgateway_enabled)                   | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | bool        | G/I   | 在此基础设施节点上设置 pushgateway？                                                        |
+| 159 | [`pushgateway_options`](#pushgateway_options)                   | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | arg         | G     | pushgateway 额外的命令行参数选项                                                          |
+| 160 | [`blackbox_enabled`](#blackbox_enabled)                         | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | bool        | G/I   | 在此基础设施节点上设置 blackbox_exporter？                                                  |
+| 161 | [`blackbox_options`](#blackbox_options)                         | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | arg         | G     | blackbox_exporter 额外的命令行参数选项                                                    |
+| 162 | [`alertmanager_enabled`](#alertmanager_enabled)                 | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | bool        | G/I   | 在此基础设施节点上设置 alertmanager？                                                       |
+| 163 | [`alertmanager_options`](#alertmanager_options)                 | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | arg         | G     | alertmanager 额外的命令行参数选项                                                         |
+| 164 | [`exporter_metrics_path`](#exporter_metrics_path)               | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | path        | G     | exporter 指标路径，默认为 /metrics                                                      |
+| 165 | [`exporter_install`](#exporter_install)                         | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | enum        | G     | 如何安装 exporter？none,yum,binary                                                   |
+| 166 | [`exporter_repo_url`](#exporter_repo_url)                       | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | url         | G     | 通过 yum 安装exporter时使用的yum仓库文件地址                                                  |
 | 170 | [`grafana_enabled`](#grafana_enabled)                           | [`INFRA`](#infra) |       [`GRAFANA`](#grafana)       | bool        | G/I   | 在此基础设施节点上启用 Grafana？                                                            |
 | 171 | [`grafana_clean`](#grafana_clean)                               | [`INFRA`](#infra) |       [`GRAFANA`](#grafana)       | bool        | G/A   | 初始化Grafana期间清除数据？                                                               |
 | 172 | [`grafana_admin_username`](#grafana_admin_username)             | [`INFRA`](#infra) |       [`GRAFANA`](#grafana)       | username    | G     | Grafana 管理员用户名，默认为 `admin`                                                      |
@@ -65,7 +66,7 @@
 | 203 | [`nodename_overwrite`](#nodename_overwrite)                     |  [`NODE`](#node)  |       [`NODE_ID`](#node_id)       | bool        | C     | 用 nodename 覆盖节点的主机名吗？                                                           |
 | 204 | [`nodename_exchange`](#nodename_exchange)                       |  [`NODE`](#node)  |       [`NODE_ID`](#node_id)       | bool        | C     | 在剧本主机之间交换 nodename 吗？                                                           |
 | 205 | [`node_id_from_pg`](#node_id_from_pg)                           |  [`NODE`](#node)  |       [`NODE_ID`](#node_id)       | bool        | C     | 如果可行，是否借用 postgres 身份作为节点身份？                                                    |
-| 210 | [`node_write_etc_hosts`](#node_write_etc_hosts)                 | [`NODE`](#node)   |      [`NODE_DNS`](#node_dns)      | bool        | G/C/I | 是否修改目标节点上的 `/etc/hosts`？                                                        |
+| 210 | [`node_write_etc_hosts`](#node_write_etc_hosts)                 |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | bool        | G/C/I | 是否修改目标节点上的 `/etc/hosts`？                                                        |
 | 211 | [`node_default_etc_hosts`](#node_default_etc_hosts)             |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | G     | /etc/hosts 中的静态 DNS 记录                                                          |
 | 212 | [`node_etc_hosts`](#node_etc_hosts)                             |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | string[]    | C     | /etc/hosts 中的额外静态 DNS 记录                                                        |
 | 213 | [`node_dns_method`](#node_dns_method)                           |  [`NODE`](#node)  |      [`NODE_DNS`](#node_dns)      | enum        | C     | 如何处理现有DNS服务器：add,none,overwrite                                                 |
@@ -1090,13 +1091,25 @@ Prometheus数据库目录, 默认位置为 `/data/prometheus`。
 
 
 
+### `prometheus_sd_dir`
+
+参数名称： `prometheus_sd_dir`， 类型： `path`， 层次：`G`
+
+Prometheus 静态文件服务发现的对象存储目录，默认值为 `/etc/prometheus/targets`。
+
+
+
+
+
+
+
 ### `prometheus_sd_interval`
 
 参数名称： `prometheus_sd_interval`， 类型： `interval`， 层次：`G`
 
 Prometheus 静态文件服务发现的刷新周期，默认值为 `5s`。
 
-这意味着 Prometheus 每隔这样长的时间就会重新扫描一次 `/etc/prometheus/targets` 目录，以发现新的目标。
+这意味着 Prometheus 每隔这样长的时间就会重新扫描一次 [`prometheus_sd_dir`](#prometheus_sd_dir) （默认为：`/etc/prometheus/targets` 目录），以发现新的监控对象。
 
 
 

@@ -382,6 +382,7 @@ API Reference for [`INFRA`](PARAM#infra) module:
 | [`prometheus_enabled`](PARAM#prometheus_enabled)                 | [`PROMETHEUS`](PARAM#prometheus)       |    bool    |  G/I  | enable prometheus on this infra node?              |
 | [`prometheus_clean`](PARAM#prometheus_clean)                     | [`PROMETHEUS`](PARAM#prometheus)       |    bool    |  G/A  | clean prometheus data during init?                 |
 | [`prometheus_data`](PARAM#prometheus_data)                       | [`PROMETHEUS`](PARAM#prometheus)       |    path    |   G   | prometheus data dir, `/data/prometheus` by default |
+| [`prometheus_sd_dir`](PARAM#prometheus_sd_dir)                   | [`PROMETHEUS`](PARAM#prometheus)       |    path    |   G   | prometheus file service discovery directory        |
 | [`prometheus_sd_interval`](PARAM#prometheus_sd_interval)         | [`PROMETHEUS`](PARAM#prometheus)       |  interval  |   G   | prometheus target refresh interval, 5s by default  |
 | [`prometheus_scrape_interval`](PARAM#prometheus_scrape_interval) | [`PROMETHEUS`](PARAM#prometheus)       |  interval  |   G   | prometheus scrape & eval interval, 10s by default  |
 | [`prometheus_scrape_timeout`](PARAM#prometheus_scrape_timeout)   | [`PROMETHEUS`](PARAM#prometheus)       |  interval  |   G   | prometheus global scrape timeout, 8s by default    |
