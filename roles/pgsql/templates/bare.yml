@@ -88,7 +88,7 @@ log:
 etcd3:
   hosts: '{% for ip in groups['etcd']|sort %}{% if not loop.first %},{% endif %}{{ ip }}:{{ etcd_port }}{% endfor %}'
   protocol: https
-  cacert: /etc/pki/ca.crt
+  cacert: /pg/cert/ca.crt
   cert:   /pg/cert/server.crt
   key:    /pg/cert/server.key
 
@@ -100,7 +100,7 @@ restapi:
   listen: {{ inventory_hostname }}:{{ patroni_port }}
   connect_address: {{ inventory_hostname }}:{{ patroni_port }}
 {% if patroni_ssl_enabled|bool %}
-  cacert:   '/etc/pki/ca.crt'
+  cacert:   '/pg/cert/ca.crt'
   certfile: '/pg/cert/server.crt'
   keyfile:  '/pg/cert/server.key'
   verify_client: optional  # none|optional|required
@@ -117,7 +117,7 @@ restapi:
 ctl:
 {% if patroni_ssl_enabled|bool %}
   insecure: false
-  cacert:   '/etc/pki/ca.crt'
+  cacert:   '/pg/cert/ca.crt'
   certfile: '/pg/cert/server.crt'
   keyfile:  '/pg/cert/server.key'
 {% else %}
@@ -308,7 +308,7 @@ bootstrap:
         ssl: on                                 # enable server ssl
         ssl_cert_file: '/pg/cert/server.crt'    # public cert path
         ssl_key_file: '/pg/cert/server.key'     # private key path
-        ssl_ca_file: '/etc/pki/ca.crt'          # ca file path
+        ssl_ca_file: '/pg/cert/ca.crt'          # ca file path
 
         #------------------------------------------------------#
         # RESOURCE USAGE (except WAL)

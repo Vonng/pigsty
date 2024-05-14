@@ -25,14 +25,14 @@ listen {{ pg_cluster }}-{{ service.name }}
 {% for host in pg_service_members %}
 {% if service.dest is not defined or service.dest == 'default' %}{% set svc_dest_port = pg_default_service_dest|default('postgres') %}{% else %}{% set svc_dest_port = service.dest %}{% endif %}
     server {{ host.pg_cluster }}-{{ host.pg_seq }} {{ host.inventory_hostname }}:{% if svc_dest_port is number %}{{ svc_dest_port }}{% elif svc_dest_port == 'postgres' %}{{ host.pg_port|default(5432) }}{% elif svc_dest_port == 'pgbouncer' %}{{ host.pgbouncer_port|default(6432) }}{% else %}5432{% endif %}
-{% if host.patroni_ssl_enabled|default(false)|bool %} check-ssl ca-file /etc/pki/ca.crt{% endif %} check port {{ host.patroni_port|default(8008) }} weight {{ host.pg_weight|default(100) }} {% if host.inventory_hostname in pg_service_backup_names %}backup{% endif %}
+{% if host.patroni_ssl_enabled|default(false)|bool %} check-ssl ca-file /pg/cert/ca.crt{% endif %} check port {{ host.patroni_port|default(8008) }} weight {{ host.pg_weight|default(100) }} {% if host.inventory_hostname in pg_service_backup_names %}backup{% endif %}
 
 {% endfor %}
 {% for host in pg_service_backups %}
 {% if host.inventory_hostname not in pg_service_member_names %}
 {% if service.dest is not defined or service.dest == 'default' %}{% set svc_dest_port = pg_default_service_dest|default('postgres') %}{% else %}{% set svc_dest_port = service.dest %}{% endif %}
     server {{ host.pg_cluster }}-{{ host.pg_seq }} {{ host.inventory_hostname }}:{% if svc_dest_port is number %}{{ svc_dest_port }}{% elif svc_dest_port == 'postgres' %}{{ host.pg_port|default(5432) }}{% elif svc_dest_port == 'pgbouncer' %}{{ host.pgbouncer_port|default(6432) }}{% else %}5432{% endif %}
-{% if host.patroni_ssl_enabled|default(false)|bool %} check-ssl ca-file /etc/pki/ca.crt{% endif %} check port {{ host.patroni_port|default(8008) }} weight {{ host.pg_weight|default(100) }} backup
+{% if host.patroni_ssl_enabled|default(false)|bool %} check-ssl ca-file /pg/cert/ca.crt{% endif %} check port {{ host.patroni_port|default(8008) }} weight {{ host.pg_weight|default(100) }} backup
 {% endif %}
 
 {% endfor %}
