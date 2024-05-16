@@ -2,7 +2,7 @@
 
 | 版本              |    发布时间    | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.7.0](#v270) | 2024-05-20 | 扩展大爆炸，新增20强力扩展插件，为Docker版铺平道路                              | [v2.7.0-a1](https://github.com/Vonng/pigsty/releases/tag/v2.7.0-a1)                       |
+| [v2.7.0](#v270) | 2024-05-16 | 扩展大爆炸，新增20强力扩展插件，为Docker版铺平道路                              | [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0)                             |
 | [v2.6.0](#v260) | 2024-02-28 | PG 16 作为默认大版本，引入 ParadeDB 与 DuckDB 等扩展                     | [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)                             |
 | [v2.5.1](#v251) | 2023-12-01 | 例行小版本更新，PG16重要扩展支持                                         | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
 | [v2.5.0](#v250) | 2023-09-24 | Ubuntu/Debian支持：bullseye, bookworm, jammy, focal           | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
@@ -42,7 +42,7 @@
 
 ----------------
 
-## v2.7.0 (WIP)
+## v2.7.0
 
 **亮点特性**
 
@@ -107,7 +107,7 @@
 - pg_net 0.8.0 -> 0.9.1
 - pg_sparse (deprecated)
 
-- **Docker应用模板**
+**Docker应用模板**
 
 - [Odoo](https://github.com/Vonng/pigsty/tree/master/app/odoo)：开源 ERP 软件与插件
 - [PolarDB](https://github.com/Vonng/pigsty/tree/master/app/polardb): 运行“国产数据库” PolarDB，应付信创检查！
@@ -138,6 +138,13 @@
 
 **完整的变更日志**: https://github.com/Vonng/pigsty/compar
 
+**离线软件包校验和**
+
+```bash
+c03dd19fe5c304eb2553f2e327cfd0bc  pigsty-pkg-v2.7.0.el8.x86_64.tgz
+9b5596e65c1de1720cdb6694c0d8a6a4  pigsty-pkg-v2.7.0.debian12.x86_64.tgz
+44ad94b2f7ba19162d5e677a74dffb74  pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz
+```
 
 
 ----------------

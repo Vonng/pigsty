@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.7.0](#v270) | 2024-05-20 | Extension Overwhelming, docker VM playground             | [v2.7.0-a1](https://github.com/Vonng/pigsty/releases/tag/v2.7.0-a1)                       |
+| [v2.7.0](#v270) | 2024-05-16 | Extension Overwhelming, docker VM playground             | [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0)                             |
 | [v2.6.0](#v260) | 2024-02-28 | PG 16 as default version,  ParadeDB & DuckDB             | [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)                             |
 | [v2.5.1](#v251) | 2023-12-01 | Routine update, pg16 major extensions                    | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
 | [v2.5.0](#v250) | 2023-10-24 | Ubuntu/Debian Support:  bullseye, bookworm, jammy, focal | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
@@ -41,7 +41,7 @@
 
 ----------------
 
-## v2.7.0 (WIP)
+## v2.7.0
 
 **Highlight**
 
@@ -106,7 +106,7 @@ And some new extensions in plain C & C++
 - pg_net 0.8.0 -> 0.9.1
 - pg_sparse (deprecated)
 
-- **Docker Application**
+**Docker Application**
 
 - [Odoo](https://github.com/Vonng/pigsty/tree/master/app/odoo): launch open source ERP and plugins
 - [PolarDB](https://github.com/Vonng/pigsty/tree/master/app/polardb): run the demo PG RAC playground.
@@ -139,7 +139,11 @@ And some new extensions in plain C & C++
 
 **Package Checksums**
 
-
+```bash
+c03dd19fe5c304eb2553f2e327cfd0bc  pigsty-pkg-v2.7.0.el8.x86_64.tgz
+9b5596e65c1de1720cdb6694c0d8a6a4  pigsty-pkg-v2.7.0.debian12.x86_64.tgz
+44ad94b2f7ba19162d5e677a74dffb74  pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz
+```
 
 ----------------
 
