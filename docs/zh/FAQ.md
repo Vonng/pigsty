@@ -36,15 +36,15 @@ Pigsty 离线软件包构建使用的操作系统版本为： CentOS 7.9, Rocky 
   - 喜欢由开源社区主导的 Linux 发行版
   - 建议使用 Debian 12 bookworm ，也支持 Debian 11 bullseye
 
-| 代码  | 操作系统发行版 / PG 大版本                  | PG16 | PG15 | PG14 | PG13 | PG12 | 局限性                                     |
-|:---:|-----------------------------------|:----:|:----:|:----:|:----:|:----:|-----------------------------------------|
-| EL7 | RHEL7 / CentOS7                   |  ⚠️  |  ⭐️  |  ✅   |  ✅   |  ✅   | PG16, supabase, pgml, duckdb_fdw 等扩展不可用 |
-| EL8 | RHEL 8 / Rocky8 / Alma8 / Anolis8 |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | **EL功能标准集**                             |
-| EL9 | RHEL 9 / Rocky9 / Alma9           |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | pgxnclient 缺失                           |
-| D11 | Debian 11 (bullseye)              |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | RDKit 不可用                               |
-| D12 | Ubuntu 12 (bookworm)              |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | **Debian功能标准集**                         |
-| U20 | Ubuntu 20.04 (focal)              |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | PostGIS 需要在线安装                          |
-| U22 | Ubuntu 22.04 (jammy)              |  ⭐️  |  ✅   |  ✅   |  ✅   |  ✅   | **Ubuntu功能标准集**                         |
+| 代码  | 操作系统发行版 / PG 大版本        | PG16  | PG15  | PG14  | PG13  | PG12  | 局限性                                        |
+| :---: | --------------------------------- | :---: | :---: | :---: | :---: | :---: | --------------------------------------------- |
+|  EL7  | RHEL7 / CentOS7                   |   ⚠️   |   ⭐️   |   ✅   |   ✅   |   ✅   | PG16, supabase, pgml, duckdb_fdw 等扩展不可用 |
+|  EL8  | RHEL 8 / Rocky8 / Alma8 / Anolis8 |   ⭐️   |   ✅   |   ✅   |   ✅   |   ✅   | **EL功能标准集**                              |
+|  EL9  | RHEL 9 / Rocky9 / Alma9           |   ⭐️   |   ✅   |   ✅   |   ✅   |   ✅   | pgxnclient 缺失                               |
+|  D11  | Debian 11 (bullseye)              |   ⭐️   |   ✅   |   ✅   |   ✅   |   ✅   | RDKit 不可用                                  |
+|  D12  | Ubuntu 12 (bookworm)              |   ⭐️   |   ✅   |   ✅   |   ✅   |   ✅   | **Debian功能标准集**                          |
+|  U20  | Ubuntu 20.04 (focal)              |   ⭐️   |   ✅   |   ✅   |   ✅   |   ✅   | PostGIS 需要在线安装                          |
+|  U22  | Ubuntu 22.04 (jammy)              |   ⭐️   |   ✅   |   ✅   |   ✅   |   ✅   | **Ubuntu功能标准集**                          |
 
 </details><br>
 
@@ -887,7 +887,7 @@ pg_extensions: []                 # 目前缺少 pg16 扩展
 
 如果你计划启用大页（HugePage），请考虑使用 [`node_hugepage_count`](PARAM#node_hugepage_count) 和 [`node_hugepage_ratio`](PARAM#node_hugepage_ratio)，并配合 `./node.yml -t node_tune` 进行应用。
 
-大页对于数据库来说有利有弊，利是内存是专门管理的，不用担心被挪用，降低数据库 OOM 风险。缺点是某些场景下可能对性能由负面影响。 
+大页对于数据库来说有利有弊，利是内存是专门管理的，不用担心被挪用，降低数据库 OOM 风险。缺点是某些场景下可能对性能有负面影响。 
 
 在 PostgreSQL 启动前，您需要分配 **足够多的** 大页，浪费的部分可以使用 `pg-tune-hugepage` 脚本对其进行回收，不过此脚本仅 PostgreSQL 15+ 可用。
 
