@@ -4,9 +4,9 @@
 >
 > —— Battery-Included, Local-First **PostgreSQL** Distribution as an Open-Source **RDS** Alternative
 >
-> [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) |  [Blog](https://pigsty.io/zh/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/D92HzV2s) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站点](https://pigsty.io/zh/)
+> [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) |  [Blog](https://pigsty.io/zh/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/j5pG8qfKxU) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站点](https://pigsty.io/zh/)
 >
-> [Get Started](INSTALL) with the latest [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0) release: `curl -fsSL https://get.pigsty.cc/latest`
+> [Get Started](INSTALL) with the latest [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0) release: `bash -c "$(curl -fsSL https://get.pigsty.cc/install)"`
 
 
 ----------------
@@ -37,46 +37,48 @@
 
 > Setup everything with one command! Check [**Get Started**](INSTALL) | [**快速上手**](zh/INSTALL) for details.
 
-Prepare a fresh Linux x86_64 node that runs [**compatible**](#compatibility) operating systems distributions (EL 7/8/9, Ubuntu 20.04/22.04, Debian 11/12)
+[Prepare](https://pigsty.io/docs/setup/prepare/) a fresh Linux x86_64 node that runs [**compatible**](https://pigsty.io/docs/reference/compatibility/) OS distros,
+run this [`install`](https://github.com/Vonng/pigsty/blob/master/bin/install) script as the admin user with nopass `ssh` & `sudo` capability:
 
 ```bash
-# run as the admin user with no password ssh & sudo capability (`root` is not recommended)
-curl -fsSL https://get.pigsty.cc/latest | bash
+bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
 cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 ```
 
 Then you will have a pigsty singleton node ready, with Web Services on port `80/443` through Nginx [**Infra Portal**](INFRA#overview), and you can [access](PGSQL-SVC#access-service) the PostgreSQL [service](PGSQL-SVC#default-service) through the `5432` port.
 
 
-<details><summary>Download with Get</summary>
+<details><summary>Install Script Example</summary>
+
+If you don't like the idea of running the [`install`](https://github.com/Vonng/pigsty/blob/master/bin/install) script from the Internet,
+Consider download pigsty src & offline package and perform an [offline install](https://pigsty.io/docs/setup/offline/) without the Internet access.
+
 
 ```bash
-$ curl -fsSL https://get.pigsty.cc/latest | bash
-...
-[Checking] ===========================================
-[ OK ] SOURCE from CDN due to GFW
-FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
-FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
-[Downloading] ===========================================
-[ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz
-...
-MD5: xxxxxxxxxxxx  /tmp/pigsty-v2.7.0.tgz
-[Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.7.0.tgz' to '/home/vagrant/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.7.0.tgz -C ~;
-[Reference] ===========================================
-Official Site:   https://pigsty.cc
-Get Started:     https://pigsty.io/docs/setup/install/
-Documentation:   https://doc.pigsty.cc
-Github Repo:     https://github.com/Vonng/pigsty
-Public Demo:     https://demo.pigsty.cc
-[Proceeding] ===========================================
-cd ~/pigsty      # entering pigsty home directory before proceeding
-./bootstrap      # install ansible & download the optional offline packages
-./configure      # preflight-check and generate config according to your env
-./install.yml    # install pigsty on this node and init it as the admin node
-[ OK ] ~/pigsty is ready to go now!
+$ bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
+[v2.7.0] ===========================================
+$ curl -fsSL https://pigsty.cc/install | bash
+[Site] https://pigsty.io
+[Demo] https://demo.pigsty.cc
+[Repo] https://github.com/Vonng/pigsty
+[Docs] https://pigsty.io/docs/setup/install
+[Download] ===========================================
+[ OK ] version = v2.7.0 (from default)
+curl -fSL https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o /tmp/pigsty-v2.7.0.tgz
+########################################################################### 100.0%
+[ OK ] md5sums = 72bdc9a5b1c3cb107f5c9b00ecc324f5  /tmp/pigsty-v2.7.0.tgz
+[Install] ===========================================
+[ OK ] install = /home/dba/pigsty, from /tmp/pigsty-v2.7.0.tgz
+[Resource] ===========================================
+[HINT] rocky 8  have [OPTIONAL] offline package available: https://pigsty.io/docs/setup/offline
+curl -fSL https://github.com/Vonng/pigsty/releases/download/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz
+curl -fSL https://get.pigsty.cc/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz # or use alternative CDN
+[TodoList] ===========================================
+cd /home/dba/pigsty
+./bootstrap      # [OPTIONAL] install ansible & use offline package
+./configure      # [OPTIONAL] preflight-check and config generation
+./install.yml    # install pigsty modules according to your config.
+[Complete] ===========================================
 ```
 
 </details>
@@ -84,7 +86,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 
 <details><summary>Download with Git</summary>
 
-You can also download pigsty source with `git`, don't forget to use a specific version tag.
+You can also download pigsty source with `git`, don't forget to check out a specific version tag, the `master` branch is for development.
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
@@ -99,18 +101,17 @@ cd pigsty; git checkout v2.7.0
 You can also download pigsty source & [offline packages](INSTALL#offline-packages) directly from GitHub release page.
 
 ```bash
-# get from GitHub
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
+# download tarball directly from GitHub with curl
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz     # Pigsty Source Tarball
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz -o /tmp/pkg.tgz  # Debian 12    (12.4)
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      -o /tmp/pkg.tgz  # Rocky 8      (8.9)
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04 (22.04.3)
 
-# or download tarball directly with curl
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz                      # SRC
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el9.x86_64.tgz -o /tmp/pkg.tgz       # EL9: Rocky 9.3
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz       # EL8: Rocky 8.9
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04
-
-# alternative CDN in china 
+# or use the alternative CDN in china
 curl -L https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz
-curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz       # EL8: Rocky 8.9 ...
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz -o /tmp/pkg.tgz  # Debian 12    (12.4)
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      -o /tmp/pkg.tgz  # Rocky 8      (8.9)
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04 (22.04.3)
 ```
 
 Beware that pre-packed offline packages are OS Minor version specific, if you are using a different minor version (e.g: 7.6, 8.6, 9.1), consider not using the offline package and perform the default online installation.
@@ -125,7 +126,7 @@ Beware that pre-packed offline packages are OS Minor version specific, if you ar
 
 ## Architecture
 
-Pigsty uses a **modular** design. There are six default modules available:
+Pigsty uses a **modular** design. There are six default [**modules**](https://pigsty.io/docs/about/module/) available:
 
 * [`INFRA`](INFRA): Local yum|apt repo, Nginx, DNS, and entire Prometheus & Grafana observability stack.
 * [`NODE`](NODE):   Init node name, repo, pkg, NTP, ssh, admin, tune, expose services, collect logs & metrics.
@@ -167,7 +168,7 @@ Then create it with built-in playbooks:
 bin/pgsql-add pg-test   # init pg-test cluster 
 ```
 
-[![pgsql-ha.jpg](https://repo.pigsty.cc/img/pgsql-ha.jpg)](PGSQL-ARCH)
+[![](https://pigsty.io/img/pigsty/ha.png)](PGSQL-ARCH)
 
 You can deploy different kinds of instance roles such as primary, replica, offline, delayed, sync standby, and different kinds of clusters, such as standby clusters, Citus clusters, and even Redis / MinIO / Etcd clusters.
 
@@ -358,7 +359,6 @@ all:
       - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet'  }
 ```
 
-
 </details>
 
 <details><summary>Example: Redis Cluster/Sentinel/Standalone</summary>
@@ -442,31 +442,19 @@ minio:
 Check [**Configuration**](CONFIG) & [**PGSQL Conf**](PGSQL-CONF) for details.
 
 
-
-----------------
-
-## Compatibility
-
-Pigsty runs on bare OS without containerization: EL 7/8/9 (RHEL, Rocky, CentOS, Alma, Oracle, Anolis, etc...), Ubuntu 20.04 / 22.04 & Debian 11/12. EL 8/9 is our primary supported OS, while Ubuntu/Debian support is newly introduced since v2.5. They have slight differences in package names and available [extension](PGSQL-EXTENSION) list.
-
-We highly recommend using **RockyLinux** **8.9**, **9.3**, and **Ubuntu 22.04** (jammy) as the Operating System for Pigsty. We have pre-packed [offline packages](INSTALL#offline-packages) for these three distros, ensuring a smooth installation process even **without Internet** access. For other OS and their compatible distros, the initial installation requires Internet access to download and build a local YUM/APT repo.
-
-PostgreSQL **16** is the primary supported version, with full extension support. But you can also use older PostgreSQL 12 / 13 / 14 / 15 with some slight modifications. We have also extended compatibility support (OS, Distro, PG, Arch) in our service [subscriptions](SUPPORT).
-
-
 ----------------
 
 ## About
 
-Docs: https://pigsty.io/
+Docs: https://pigsty.io/docs/
 
-Website: https://pigsty.io/ | https://pigsty.io/zh/
+Website: https://pigsty.io/ | https://pigsty.cc/zh/
 
 WeChat: Search `pigsty-cc` to join the WeChat group.
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/D92HzV2s
+Discord: https://discord.gg/j5pG8qfKxU
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 

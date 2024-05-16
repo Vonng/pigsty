@@ -9,13 +9,12 @@
 Prepare a fresh Linux x86_64 node that meets the [requirement](#requirement), then run as a **sudo-able** user:
 
 ```bash
-curl -L https://get.pigsty.cc/latest | bash
+bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
 ```
 
-It will [download](#download) Pigsty source to your home, then perform [Bootstrap](#bootstrap), [Configure](#configure), and [Install](#install).
+It will [download](#download) Pigsty source to your home. then perform [Bootstrap](#bootstrap), [Configure](#configure), and [Install](#install).
 
 ```bash
-bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 cd ~/pigsty   # get pigsty source and entering dir
 ./bootstrap   # download bootstrap pkgs & ansible [optional]
 ./configure   # pre-check and config templating   [optional]
@@ -30,30 +29,30 @@ A pigsty singleton node will be ready with Web Services on port `80/443` and Pos
 <details><summary>Download with Script</summary>
 
 ```bash
-$ curl -L https://get.pigsty.cc/latest | bash
-...
-[Checking] ===========================================
-[ OK ] SOURCE from CDN due to GFW
-FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
-FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
-[Downloading] ===========================================
-[ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz
-...
-MD5: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxx9  /tmp/pigsty-v2.7.0.tgz
-[Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.7.0.tgz' to '/home/vagrant/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.7.0.tgz -C ~;
-[Reference] ===========================================
-Official Site:   https://pigsty.cc
-Public Demo:     https://demo.pigsty.cc
-Github Repo:     https://github.com/Vonng/pigsty
-[Proceeding] ===========================================
-cd ~/pigsty      # entering pigsty home directory before proceeding
-./bootstrap      # install ansible & download the optional offline packages
-./configure      # preflight-check and generate config according to your env
-./install.yml    # install pigsty on this node and init it as the admin node
-[ OK ] ~/pigsty is ready to go now!
+$ bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
+[v2.7.0] ===========================================
+$ curl -fsSL https://pigsty.cc/install | bash
+[Site] https://pigsty.io
+[Demo] https://demo.pigsty.cc
+[Repo] https://github.com/Vonng/pigsty
+[Docs] https://pigsty.io/docs/setup/install
+[Download] ===========================================
+[ OK ] version = v2.7.0 (from default)
+curl -fSL https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o /tmp/pigsty-v2.7.0.tgz
+########################################################################### 100.0%
+[ OK ] md5sums = 72bdc9a5b1c3cb107f5c9b00ecc324f5  /tmp/pigsty-v2.7.0.tgz
+[Install] ===========================================
+[ OK ] install = /home/dba/pigsty, from /tmp/pigsty-v2.7.0.tgz
+[Resource] ===========================================
+[HINT] rocky 8  have [OPTIONAL] offline package available: https://pigsty.io/docs/setup/offline
+curl -fSL https://github.com/Vonng/pigsty/releases/download/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz
+curl -fSL https://get.pigsty.cc/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz # or use alternative CDN
+[TodoList] ===========================================
+cd /home/dba/pigsty
+./bootstrap      # [OPTIONAL] install ansible & use offline package
+./configure      # [OPTIONAL] preflight-check and config generation
+./install.yml    # install pigsty modules according to your config.
+[Complete] ===========================================
 ```
 
 </details>
@@ -61,7 +60,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 
 <details><summary>Download with Git</summary>
 
-You can also download pigsty source with `git`, don't forget to check out a specific version.
+You can also download pigsty source with `git`, don't forget to check out a specific version tag, the `master` branch is for development.
 
 ```bash
 git clone https://github.com/Vonng/pigsty;  # master branch is for develop purpose
@@ -73,9 +72,9 @@ cd pigsty; git checkout v2.7.0              # always checkout a specific version
 
 <details><summary>Download Directly</summary>
 
-You can also download pigsty source (and optional [offline pkgs](#offline-packages)) directly from GitHub or CDN:
+You can also download pigsty source & [offline packages](https://pigsty.io/docs/setup/offline/) directly from GitHub release page.
 
-```
+```bash
 https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz   # Github Release
 https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz                               # Pigsty CDN
 ```
@@ -95,22 +94,12 @@ The minimum spec is `1C1G`. It is recommended to use bare metals or VMs with at 
 
 Public key `ssh` access to localhost and NOPASSWD `sudo` privilege is required to perform the installation, and do not use the `root` user.
 
-Pigsty run on bare OS, and support EL, Debian, and Ubuntu. There may be slight differences in different OS Distros:
-
-| Code | OS Distribution                  | Limitations                                          |
-|:----:|----------------------------------|------------------------------------------------------|
-| EL7  | RHEL7 / CentOS7                  | PG16, supabase, pgml, pg_graphql, pg_net unavailable |
-| EL8  | RHEL8 / Rocky8 / Alma8 / Anolis8 | **EL default feature set**                           |
-| EL9  | RHEL9 / Rocky9 / Alma9           | pgxnclient missing, perf dependency conflict         |
-| D11  | Debian 11 (bullseye)             | supabase, pgml, RDKit unavailable                    |
-| D12  | Debian 12 (bookworm)             | supabase, pgml unavailable                           |
-| U20  | Ubuntu 20.04 (focal)             | supabase, PostGIS3, RDKit, pgml unavailable          |
-| U22  | Ubuntu 22.04 (jammy)             | **Deb default feature set** (supabase unavailable)   |
+Pigsty run on bare OS, and support EL, Debian, and Ubuntu. There may be slight differences in different OS Distros, for example, most pigsty supported extensions are only available on EL(8/9) distros.
 
 Major OS version supported: RedHat 7/8/9, Debian 11/12, and Ubuntu 20/22, and any compatible OS distros such as RHEL, Rocky, Alma, Oracle, Anolis, etc...
-We recommend using `RockyLinux 8.9` (Green Obsidian) or `Ubuntu 22.04` (jammy), as they offer the most comprehensive support among all RHEL/DEB OS distros.
+We recommend using `RockyLinux 8.9` (Green Obsidian), `Debian 12.04` (bookworm), and `Ubuntu 22.04` (jammy), as they offer the most comprehensive support among all RHEL/DEB OS distros.
 
-For the latest minor version of each supported major version (`9.3`, `8.9`, `7.9`, `jammy` / `focal` / `bookworm` / `bullseye` ),
+For the latest minor version of each supported major version (`Rocky 8.9`，`Debian bookworm`，`Ubuntu jammy`),
 We have pre-built [offline packages](#offline-packages) for deployment without the Internet access.
 If you use a different minor OS version with those offline packages, you may encounter RPM/DEB package conflicts. Check [FAQ](FAQ#installation) or install without offline packages.
 
@@ -119,13 +108,15 @@ If you use a different minor OS version with those offline packages, you may enc
 If you are using cloud virtual machines or [Terraform](PROVISION#terraform), the following image can be taken into considerations (aliyun):
 
 ```bash
-# CentOS 7.9   :  centos_7_9_x64_20G_alibase_20231220.vhd
 # Rocky 8.9    :  rockylinux_8_9_x64_20G_alibase_20231221.vhd
-# Rocky 9.3    :  rockylinux_9_3_x64_20G_alibase_20231221.vhd
-# Ubuntu 20.04 :  ubuntu_20_04_x64_20G_alibase_20231221.vhd
-# Ubuntu 22.04 :  ubuntu_22_04_x64_20G_alibase_20231221.vhd
-# Debian 11.7  :  debian_11_7_x64_20G_alibase_20230907.vhd
 # Debian 12    :  debian_12_4_x64_20G_alibase_20231220.vhd
+# Ubuntu 22.04 :  ubuntu_22_04_x64_20G_alibase_20231221.vhd
+
+# other supported os distro
+# CentOS 7.9   :  centos_7_9_x64_20G_alibase_20231220.vhd
+# Rocky 9.3    :  rockylinux_9_3_x64_20G_alibase_20231221.vhd
+# Debian 11.7  :  debian_11_7_x64_20G_alibase_20230907.vhd
+# Ubuntu 20.04 :  ubuntu_20_04_x64_20G_alibase_20231221.vhd
 # Anolis 8.8   :  anolisos_8_8_x64_20G_rhck_alibase_20230804.vhd
 ```
 
@@ -140,10 +131,15 @@ If you are using cloud virtual machines or [Terraform](PROVISION#terraform), the
 You can get & extract pigsty source via the following command:
 
 ```bash
-curl -fsSL https://get.pigsty.cc/latest | bash
+bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
 ```
 
-> HINT: Get the latest beta release with `beta` instead of `latest`.
+> HINT: To install a specfic version, passing the version string as the first parameter:
+>
+> ```bash
+> bash -c "$(curl -fsSL https://get.pigsty.cc/i)" -- v2.6.0
+> curl -fsSL https://get.pigsty.cc/i | bash -s v2.6.0
+> ```
 
 
 <details><summary>Download Pigsty Source with Specific Version</summary>
@@ -185,26 +181,18 @@ Then create an offline package and upload it to the production environment for o
 <details><summary>Download offline packages manually</summary>
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz                     # Pigsty Source Code
-https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el7.x86_64.tgz      # Package: EL 7(.9)
-https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      # Package: EL 8(.9)
-https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el9.x86_64.tgz      # Package: EL 9(.3)
-https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian11.x86_64.tgz # Package: Debian 11    (bullseye)
-https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz # Package: Debian 12    (bookworm)
-https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu20.x86_64.tgz # Package: Ubuntu 20.04 (focal)
-https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz # Package: Ubuntu 22.04 (jammy)
+VERSION=v2.7.0
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.el8.x86_64.tgz      # Package: EL 8(.9)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.debian12.x86_64.tgz # Package: Debian 12    (bookworm)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz # Package: Ubuntu 22.04 (jammy)
 ```
 
 You can also get offline packages from CDN, and specify a specific version:
 
 ```bash
 VERSION=v2.7.0
-https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz        # Offline Package：EL 7(.9)
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz        # Offline Package：EL 8(.9)
-https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz        # Offline Package：EL 9(.3)
-https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.debian11.x86_64.tgz   # Offline Package：Debian 11    (bullseye)
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz   # Offline Package：Debian 12    (bookworm)
-https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz   # Offline Package：Ubuntu 20.04 (focal)
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz   # Offline Package：Ubuntu 22.04 (jammy)
 ```
 

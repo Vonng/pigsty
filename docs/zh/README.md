@@ -4,9 +4,9 @@
 >
 > —— **开箱即用、本地优先的 PostgreSQL 发行版，开源 RDS 替代**
 >
-> [网站](https://pigsty.io/zh/) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [博客](https://pigsty.io/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA) | [Website](https://pigsty.io/)
+> [网站](https://pigsty.io/zh/) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [博客](https://pigsty.cc/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA) | [Website](https://pigsty.cc/zh/)
 >
-> [快速上手](INSTALL) 最新版本的 Pigsty [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0)：`curl -fsSL https://get.pigsty.cc/latest`
+> [快速上手](INSTALL) 最新版本的 Pigsty [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0)：`bash -c "$(curl -fsSL https://get.pigsty.cc/install)"`
 
 
 ----------------
@@ -37,46 +37,44 @@
 
 > Pigsty可以一键安装! 详情请参阅 [**快速上手**](INSTALL)。
 
-准备一个装有[兼容](#兼容性)操作系统的 Linux x86_64 全新节点，登陆并执行：
+[准备](https://pigsty.io/docs/setup/prepare/) 一个装有[兼容](#兼容性)操作系统的 Linux x86_64 全新节点，
+使用带有免密 ssh/sudo 权限的管理员用户执行 [`install`](https://github.com/Vonng/pigsty/blob/master/bin/install) 安装脚本 
 
 ```bash
-# 使用带有免密 ssh/sudo 权限的管理员用户执行（尽量避免用 `root`）
-curl -fsSL https://get.pigsty.cc/latest | bash
+bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
 cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 ```
 
 安装完成后，您可以通过域名或`80/443`端口通过 Nginx 访问 [WEB界面](INFRA#概览)，通过 `5432` 端口[访问](PGSQL-SVC#单机用户)默认的 PostgreSQL 数据库[服务](PGSQL-SVC#服务概述)。
 
 
-<details><summary>一键安装脚本</summary>
+<details><summary>安装脚本输出结果</summary>
 
 ```bash
-$ curl -L https://get.pigsty.cc/latest | bash
-...
-[Checking] ===========================================
-[ OK ] SOURCE from CDN due to GFW
-FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
-FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
-[Downloading] ===========================================
-[ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz
-...
-MD5: xxxxxxxxxxxx  /tmp/pigsty-v2.7.0.tgz
-[Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.7.0.tgz' to '/home/vagrant/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.7.0.tgz -C ~;
-[Reference] ===========================================
-Official Site:   https://pigsty.cc
-Get Started:     https://pigsty.io/docs/setup/install/
-Documentation:   https://doc.pigsty.cc
-Github Repo:     https://github.com/Vonng/pigsty
-Public Demo:     https://demo.pigsty.cc
-[Proceeding] ===========================================
-cd ~/pigsty      # entering pigsty home directory before proceeding
-./bootstrap      # install ansible & download the optional offline packages
-./configure      # preflight-check and generate config according to your env
-./install.yml    # install pigsty on this node and init it as the admin node
-[ OK ] ~/pigsty is ready to go now!
+$ bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
+[v2.7.0] ===========================================
+$ curl -fsSL https://pigsty.cc/install | bash
+[Site] https://pigsty.io
+[Demo] https://demo.pigsty.cc
+[Repo] https://github.com/Vonng/pigsty
+[Docs] https://pigsty.io/docs/setup/install
+[Download] ===========================================
+[ OK ] version = v2.7.0 (from default)
+curl -fSL https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o /tmp/pigsty-v2.7.0.tgz
+########################################################################### 100.0%
+[ OK ] md5sums = 72bdc9a5b1c3cb107f5c9b00ecc324f5  /tmp/pigsty-v2.7.0.tgz
+[Install] ===========================================
+[ OK ] install = /home/dba/pigsty, from /tmp/pigsty-v2.7.0.tgz
+[Resource] ===========================================
+[HINT] rocky 8  have [OPTIONAL] offline package available: https://pigsty.io/docs/setup/offline
+curl -fSL https://github.com/Vonng/pigsty/releases/download/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz
+curl -fSL https://get.pigsty.cc/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz # or use alternative CDN
+[TodoList] ===========================================
+cd /home/dba/pigsty
+./bootstrap      # [OPTIONAL] install ansible & use offline package
+./configure      # [OPTIONAL] preflight-check and config generation
+./install.yml    # install pigsty modules according to your config.
+[Complete] ===========================================
 ```
 
 </details>
@@ -84,7 +82,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 
 <details><summary>Git检出安装</summary>
 
-你也可以使用 `git` 来下载安装 Pigsty 源代码，不要忘了检出特定的版本。
+你也可以使用 `git` 来下载安装 Pigsty 源代码，请务必检出特定版本使用，不要使用默认的 `master` 分支。
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
@@ -99,20 +97,17 @@ cd pigsty; git checkout v2.7.0
 您还可以直接从 GitHub 发布页面下载源代码包与[离线软件包](INSTALL#离线软件包)：
 
 ```bash
-# 执行 Github 上的下载脚本
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
-
-# 或者直接使用 curl 从 GitHub 上下载
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz                      # 源码包
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el9.x86_64.tgz -o /tmp/pkg.tgz       # EL9 离线软件包: Rocky 9.3
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz       # EL8 离线软件包: Rocky 8.9
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04 离线软件包
+# 直接使用 curl 从 GitHub Release 下载
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz     # Pigsty 源码包
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz -o /tmp/pkg.tgz  # 离线软件包 Debian 12    (12.4)
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      -o /tmp/pkg.tgz  # 离线软件包 Rocky 8      (8.9)
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # 离线软件包 Ubuntu 22.04 (22.04.3)
 
 # 对于中国大陆用户来说，也可以选择从中国 CDN 下载
-curl -L https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz                      # 源码包
-curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el9.x86_64.tgz -o /tmp/pkg.tgz       # EL9 离线软件包
-curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz       # EL8 离线软件包
-curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04 离线软件包
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz # 源码包
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz -o /tmp/pkg.tgz  # 离线软件包 Debian 12    (12.4)
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      -o /tmp/pkg.tgz  # 离线软件包 Rocky 8      (8.9)
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # 离线软件包 Ubuntu 22.04 (22.04.3)
 ```
 
 请注意，离线软件包是与操作系统**小版本**相关的！如果您的操作系统小版本与上述之不同，例如 7.6，8.6，9.1 等，请考虑不使用离线软件包，直接执行在线安装。
@@ -127,7 +122,7 @@ curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /t
 
 ## 系统架构
 
-Pigsty 采用模块化设计，有六个主要的默认模块：[`PGSQL`](PGSQL)、[`INFRA`](INFRA)、[`NODE`](NODE)、[`ETCD`](ETCD)、[`REDIS`](REDIS) 和 [`MINIO`](MINIO)。
+Pigsty 采用模块化设计，有六个主要的 [模块](https://pigsty.cc/zh/docs/about/module/)：[`PGSQL`](PGSQL)、[`INFRA`](INFRA)、[`NODE`](NODE)、[`ETCD`](ETCD)、[`REDIS`](REDIS) 和 [`MINIO`](MINIO)。
 
 * [`PGSQL`](PGSQL)：由 Patroni、Pgbouncer、HAproxy、PgBackrest 等驱动的自治高可用 Postgres 集群。
 * [`INFRA`](INFRA)：本地软件仓库、Prometheus、Grafana、Loki、AlertManager、PushGateway、Blackbox Exporter...
@@ -354,6 +349,9 @@ all:
     pg_shard: pg-citus                # citus shard name: pg-citus
     patroni_citus_db: meta            # citus distributed database name
     pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
+    pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
+    pg_extensions:
+      - postgis34_${ pg_version }* timescaledb-2-postgresql-${ pg_version }* pgvector_${ pg_version }* citus_${ pg_version }*
     pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
     pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
     pg_hba_rules:
@@ -451,7 +449,7 @@ minio:
 Pigsty 不使用任何虚拟化容器化技术，直接运行于裸操作系统上。支持的操作系统包括 EL 7/8/9 (RHEL, Rocky, CentOS, Alma, Oracle, Anolis,...)，Ubuntu 20.04 / 22.04 & Debian 11/12。
 其中 EL 8/9 是我们长期支持的操作系统，而 Ubuntu/Debian 系统的支持是在近期的 v2.5 版本引入，两者之间的主要差别是，软件包名有显著差异，另外默认可用的 PostgreSQL 扩展插件列表略有不同。
 
-我们强烈建议使用 **RockyLinux 8.9/9.3**， **Ubuntu 22.04 LTS** 作为安装 Pigsty 的操作系统，我们针对这三个发行版预先准备了[离线软件包](INSTALL#离线软件包)。
+我们强烈建议使用 **RockyLinux 8.9**， **Debian 12**，以及 **Ubuntu 22.04 LTS** 作为安装 Pigsty 的操作系统，我们针对这三个发行版预先准备了[离线软件包](INSTALL#离线软件包)。
 可以确保在没有互联网访问的情况下也能稳定可靠丝滑地完成安装。使用其他操作系统发行版首次安装时，通常需要您有互联网访问，以便下载并构建本地 YUM/APT 软件仓库。
 
 PostgreSQL 16 是 Pigsty 当前主要支持的数据库大版本，使用 Pigsty 部署管理 12 ～ 15 也是可行的，但需对配置文件进行少许变更。
@@ -463,15 +461,15 @@ PostgreSQL 16 是 Pigsty 当前主要支持的数据库大版本，使用 Pigsty
 
 ## 关于
 
-文档: https://doc.pigsty.cc/
+文档: https://pigsty.cc/zh/
 
-网站: https://pigsty.cc/en/ | https://pigsty.cc/zh/
+网站: https://pigsty.io/ | https://pigsty.cc/zh/
 
 微信: 搜索 `pigsty-cc` 加入 PGSQL x Pigsty 交流群
 
 Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
 
-Discord: https://discord.gg/D92HzV2s
+Discord: https://discord.gg/j5pG8qfKxU
 
 作者: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 

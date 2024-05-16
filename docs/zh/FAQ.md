@@ -88,7 +88,7 @@ Pigsty 使用 master 主干分支进行开发，请始终使用特定版本的 [
 <br>
 <details><summary>如何获取Pigsty软件源码包？</summary><br>
 
-使用以下命令一键安装 Pigsty： `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`
+使用以下命令一键安装 Pigsty： `bash -c "$(curl -fsSL https://get.pigsty.cc/install)"`
 
 上述命令会自动下载最新的稳定版本 `pigsty.tgz` 并解压到 `~/pigsty` 目录。您也可以从以下位置手动下载 Pigsty 源代码的特定版本。
 

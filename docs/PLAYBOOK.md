@@ -32,7 +32,7 @@ Here are default playbooks included in Pigsty.
 | [`minio.yml`](https://github.com/vonng/pigsty/blob/master/minio.yml)                     | Init minio cluster (optional for pgbackrest repo)           |
 | [`cert.yml`](https://github.com/vonng/pigsty/blob/master/cert.yml)                       | Issue cert with pigsty self-signed CA (e.g. for pg clients) |
 | [`docker.yml`](https://github.com/vonng/pigsty/blob/master/docker.yml)                   | Install docker on nodes                                     |
-| [`mongo.yml`](https://github.com/vonng/pigsty/blob/master/mongo.yml)                     | 在节点上安装 Mongo/FerretDB                                       |
+| [`mongo.yml`](https://github.com/vonng/pigsty/blob/master/mongo.yml)                     | Install Mongo/FerretDB                                      |
 
 
 **One-Pass Install**

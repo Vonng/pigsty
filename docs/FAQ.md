@@ -92,7 +92,7 @@ Pigsty tries to release a Minor Release every 1-3 months and a Major Release eve
 <br>
 <details><summary>Where to download the Pigsty source code?</summary>
 
-> `bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"`
+> `bash -c "$(curl -fsSL https://get.pigsty.cc/install)"`
 
 The above command will automatically download the latest stable version of `pigsty.tgz` and extract it to the `~/pigsty` dir.
 You can also manually download a specific version of Pigsty source code from the following location.

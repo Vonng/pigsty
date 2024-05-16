@@ -9,7 +9,7 @@
 准备一个全新的[符合要求](#要求) 的 Linux x86_64 节点，使用带有免密 `sudo` 权限的用户，执行以下命令：
 
 ```bash
-curl -L https://get.pigsty.cc/latest | bash
+bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
 ```
 
 该命令会[下载](#下载)并解压 Pigsty 源码至家目录，按提示完成 [准备](#准备)，[配置](#配置)，[安装](#安装)三个步骤即可完成安装。
@@ -31,30 +31,30 @@ cd ~/pigsty      # 进入 Pigsty 源码目录，完成后续 准备、配置、�
 默认的 [`latest`](https://github.com/Vonng/pigsty/blob/master/bin/latest) 脚本将下载当前的最新稳定版本，将其替换为 [`beta`](https://github.com/Vonng/pigsty/blob/master/bin/beta) 则会下载最新的测试版本。
 
 ```bash
-$ curl -L https://get.pigsty.cc/latest | bash
-...
-[Checking] ===========================================
-[ OK ] SOURCE from CDN due to GFW
-FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
-FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
-[Downloading] ===========================================
-[ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz
-...
-MD5: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxx9  /tmp/pigsty-v2.7.0.tgz
-[Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.7.0.tgz' to '/home/vagrant/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.7.0.tgz -C ~;
-[Reference] ===========================================
-Official Site:   https://pigsty.cc
-Public Demo:     https://demo.pigsty.cc
-Github Repo:     https://github.com/Vonng/pigsty
-[Proceeding] ===========================================
-cd ~/pigsty      # entering pigsty home directory before proceeding
-./bootstrap      # install ansible & download the optional offline packages
-./configure      # preflight-check and generate config according to your env
-./install.yml    # install pigsty on this node and init it as the admin node
-[ OK ] ~/pigsty is ready to go now!
+$ bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
+[v2.7.0] ===========================================
+$ curl -fsSL https://pigsty.cc/install | bash
+[Site] https://pigsty.io
+[Demo] https://demo.pigsty.cc
+[Repo] https://github.com/Vonng/pigsty
+[Docs] https://pigsty.io/docs/setup/install
+[Download] ===========================================
+[ OK ] version = v2.7.0 (from default)
+curl -fSL https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o /tmp/pigsty-v2.7.0.tgz
+########################################################################### 100.0%
+[ OK ] md5sums = 72bdc9a5b1c3cb107f5c9b00ecc324f5  /tmp/pigsty-v2.7.0.tgz
+[Install] ===========================================
+[ OK ] install = /home/dba/pigsty, from /tmp/pigsty-v2.7.0.tgz
+[Resource] ===========================================
+[HINT] rocky 8  have [OPTIONAL] offline package available: https://pigsty.io/docs/setup/offline
+curl -fSL https://github.com/Vonng/pigsty/releases/download/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz
+curl -fSL https://get.pigsty.cc/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz # or use alternative CDN
+[TodoList] ===========================================
+cd /home/dba/pigsty
+./bootstrap      # [OPTIONAL] install ansible & use offline package
+./configure      # [OPTIONAL] preflight-check and config generation
+./install.yml    # install pigsty modules according to your config.
+[Complete] ===========================================
 ```
 
 </details>
@@ -76,7 +76,7 @@ cd pigsty; git checkout v2.7.0               # master为开发分支，请务必
 
 对于没有互联网访问的环境，您也可以选择直接从 Github 或 Pigsty CDN 直接下载好源码包（以及可选的[离线软件包](#离线软件包)）并上传至目标服务器。
 
-```
+```bash
 https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz   # Github Release
 https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz                               # Pigsty CDN
 ```
@@ -96,22 +96,12 @@ Pigsty 支持 `Linux` 内核与 `x86_64/amd64` 架构处理器，可以运行在
 
 您需要拥有主机的 `ssh` 登陆权限与 `sudo` 权限：不建议使用 `root` 安装，使用的管理用户应当可以公钥免密登陆本机并免密 `sudo`。
 
-Pigsty 无需容器，直接运行在裸操作系统上，目前支持 EL、Debian、Ubuntu 系统。不同操作系统版本下的功能集会有少量差异，如下表所示：
-
-| 代码  | OS发行版                            | 局限性                                          |
-|:---:|----------------------------------|----------------------------------------------|
-| EL7 | RHEL7 / CentOS7                  | PG16, supabase, pgml, pg_graphql, pg_net 不可用 |
-| EL8 | RHEL8 / Rocky8 / Alma8 / Anolis8 | **EL功能基准**                                   |
-| EL9 | RHEL9 / Rocky9 / Alma9           | pgxnclient 缺失，perf 依赖冲突                      |
-| D11 | Debian 11 (bullseye)             | supabase, pgml, RDKit 不可用                    |
-| D12 | Debian 12 (bookworm)             | supabase, pgml 不可用                           |
-| U20 | Ubuntu 20.04 (focal)             | supabase, PostGIS3, RDKit, pgml 不可用          |
-| U22 | Ubuntu 22.04 (jammy)             | **DEB功能基准** (supabase不可用)                    |
+Pigsty 无需容器，直接运行在裸操作系统上，目前支持 EL、Debian、Ubuntu 系统。不同操作系统版本下的功能集会有少量差异，例如，由 Pigsty 维护的扩展插件通常只在 EL 系列发行版中可用。
 
 Pigsty 支持的OS大版本包括 RedHat 7/8/9、以及 Debian 11/12 与 Ubuntu 20/22，以及与其兼容的OS发行版：RHEL，Rocky，Alma，Oracle，Anolis 等。
-Pigsty 推荐使用 `RockyLinux 8.9` (Green Obsidian) 或 `Ubuntu 22.04` (jammy)，两者是 RHEL / DEB 系中功能支持最完善的版本。
+Pigsty 推荐使用 `RockyLinux 8.9` (Green Obsidian)， `Debian 12.04` (bookworm)，以及  `Ubuntu 22.04` (jammy)，他们是 RHEL / DEB 系中功能支持最完善的版本。
 
-针对每个OS发行版的最新小版本（`9.3`, `8.9`, `7.9`, `jammy` / `focal` / `bookworm` / `bullseye`），Pigsty 提供了预构建的[离线软件包](#离线软件包)，无需互联网即可完成部署。
+针对每个OS发行版的最新小版本（ `Rocky 8.9`，`Debian bookworm`，`Ubuntu jammy`），Pigsty 提供了预构建的[离线软件包](#离线软件包)，无需互联网即可完成部署。
 如果您使用了不同的OS小版本，那么使用离线软件包安装有小概率出现 RPM/DEB 包冲突问题。请参照 [FAQ](FAQ#安装) 解决，或直接从互联网安装以避免此问题。
 
 <details><summary>阿里云虚拟机镜像版本参考</summary>
@@ -119,13 +109,15 @@ Pigsty 推荐使用 `RockyLinux 8.9` (Green Obsidian) 或 `Ubuntu 22.04` (jammy)
 如果您使用云虚拟机或者 [Terraform](PROVISION#terraform)，下列镜像版本可供参考（阿里云）：
 
 ```bash
-# CentOS 7.9   :  centos_7_9_x64_20G_alibase_20231220.vhd
 # Rocky 8.9    :  rockylinux_8_9_x64_20G_alibase_20231221.vhd
-# Rocky 9.3    :  rockylinux_9_3_x64_20G_alibase_20231221.vhd
-# Ubuntu 20.04 :  ubuntu_20_04_x64_20G_alibase_20231221.vhd
-# Ubuntu 22.04 :  ubuntu_22_04_x64_20G_alibase_20231221.vhd
-# Debian 11.7  :  debian_11_7_x64_20G_alibase_20230907.vhd
 # Debian 12    :  debian_12_4_x64_20G_alibase_20231220.vhd
+# Ubuntu 22.04 :  ubuntu_22_04_x64_20G_alibase_20231221.vhd
+
+# other supported os distro
+# CentOS 7.9   :  centos_7_9_x64_20G_alibase_20231220.vhd
+# Rocky 9.3    :  rockylinux_9_3_x64_20G_alibase_20231221.vhd
+# Debian 11.7  :  debian_11_7_x64_20G_alibase_20230907.vhd
+# Ubuntu 20.04 :  ubuntu_20_04_x64_20G_alibase_20231221.vhd
 # Anolis 8.8   :  anolisos_8_8_x64_20G_rhck_alibase_20230804.vhd
 ```
 
@@ -142,10 +134,15 @@ Pigsty 推荐使用 `RockyLinux 8.9` (Green Obsidian) 或 `Ubuntu 22.04` (jammy)
 您可以使用以下命令获取 Pigsty 源码包：
 
 ```bash
-curl -L https://get.pigsty.cc/latest  | bash
+bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
 ```
 
-> 提示: 如果您需要下载最新的测试版本（Beta），请使用 `beta` 替代 `latest`
+> 提示: 如果您需要下载安装特定版本的 Pigsty，请将版本号作为首要参数传入此脚本中：
+> 
+> ```bash
+> bash -c "$(curl -fsSL https://get.pigsty.cc/i)" -- v2.6.0
+> curl -fsSL https://get.pigsty.cc/i | bash -s v2.6.0
+> ```
 
 
 <details><summary>下载特定版本的Pigsty源码包</summary>
@@ -187,12 +184,8 @@ Pigsty 针对主流 Linux 发行版的最新小版本提供了离线软件包，
 ```bash
 VERSION=v2.7.0
 https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-${VERSION}.tgz                     # Pigsty源码包
-https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.el7.x86_64.tgz      # 离线软件包：EL 7(.9)
 https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.el8.x86_64.tgz      # 离线软件包：EL 8(.9)
-https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.el9.x86_64.tgz      # 离线软件包：EL 9(.3)
-https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.debian11.x86_64.tgz # 离线软件包：Debian 11    (bullseye)
 https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.debian12.x86_64.tgz # 离线软件包：Debian 12    (bookworm)
-https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz # 离线软件包：Ubuntu 20.04 (focal)
 https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz # 离线软件包：Ubuntu 22.04 (jammy)
 ```
 
@@ -200,12 +193,8 @@ https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.u
 
 ```bash
 VERSION=v2.7.0
-https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz        # 离线软件包：EL 7(.9)
-https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz        # 离线软件包：EL 8(.8)
-https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz        # 离线软件包：EL 9(.3)
-https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.debian11.x86_64.tgz   # 离线软件包：Debian 11    (bullseye)
+https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz        # 离线软件包：EL 8.9 (Green Obsedian)
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz   # 离线软件包：Debian 12    (bookworm)
-https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz   # 离线软件包：Ubuntu 20.04 (focal)
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz   # 离线软件包：Ubuntu 22.04 (jammy)
 ```
 
