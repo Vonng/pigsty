@@ -1,6 +1,6 @@
 # PostgreSQL 扩展插件
 
-> 扩展是 PostgreSQL 的灵魂所在
+> 扩展是 PostgreSQL 的灵魂所在，完整的扩展列表，请参考[这里](https://pigsty.cc/zh/docs/reference/extension/)
 
 Pigsty 收录了超过 160 个预先编译打包、开箱即用的 PostgreSQL 强力扩展插件，其中包括一些强力扩展：
 
@@ -164,38 +164,56 @@ Pigsty 默认从 PostgreSQL 官方软件源下载扩展插件，如果您希望�
 
 
 
-
+``
 
 ----------------
 
 ## 扩展列表
 
-当前，Pigsty 使用的 PostgreSQL 主版本 16 提供以下扩展插件。
+其中由 Pigsty 维护编译打包的 33 个 PostgreSQL 插件由下表所列出：
 
-其中由 Pigsty 维护编译打包的 PostgreSQL 插件由下表所列出：
+Pigsty has maintained and packaged 33 extensions for PostgreSQL 16 on EL systems, which are available on Pigsty's PGSQL repo for EL8 & EL9 systems:
 
-| 名称              |  版本   |     来源     |  类型  | 说明                              |
-|-----------------|:-----:|:----------:|:----:|---------------------------------|
-| pgml            | 2.8.1 | **PIGSTY** | FEAT | PostgresML：用SQL运行机器学习算法并训练模型    |
-| age             | 1.5.0 | **PIGSTY** | FEAT | Apache AGE，图数据库扩展               |
-| pointcloud      | 1.2.5 | **PIGSTY** | FEAT | 提供激光雷达点云数据类型支持                  |
-| http            |  1.6  | **PIGSTY** | FEAT | HTTP客户端，允许在数据库内收发HTTP请求         |
-| gzip            |  1.0  | **PIGSTY** | FEAT | 使用SQL执行Gzip压缩与解压缩               |
-| pg_tle          | 1.3.4 | **PIGSTY** | FEAT | AWS 可信语言扩展                      |
-| roaringbitmap   |  0.5  | **PIGSTY** | FEAT | 支持RoaringBitmap数据类型             |
-| zhparse         |  2.2  | **PIGSTY** | FEAT | 中文全文搜索解析器                       |
-| pg_net          | 0.8.0 | **PIGSTY** | FEAT | 用 SQL 进行异步非阻塞HTTP/HTTPS 请求的扩展   |
-| pgjwt           | 0.2.0 | **PIGSTY** | FEAT | JSON Web Token API 的PG实现        |
-| vault           | 0.2.9 | **PIGSTY** | FEAT | 在 Vault 中存储加密凭证的扩展              |
-| pg_graphql      | 1.5.0 | **PIGSTY** | FEAT | PG内的GraphQL支持                   |
-| hydra           | 1.1.1 | **PIGSTY** | FEAT | 开源列式存储扩展                        |
-| imgsmlr ❋       | 1.0.0 | **PIGSTY** | FEAT | 使用Haar小波分析计算图片相似度               |
-| pg_similarity ❋ | 1.0.0 | **PIGSTY** | FEAT | 提供17种距离度量函数                     |
-| pg_bigm ❋       | 1.2.0 | **PIGSTY** | FEAT | 基于二字组的多语言全文检索扩展                 |
-| svector         | 0.5.6 | **PIGSTY** | FEAT | ParadeDB 稀疏向量数据库类型与HNSW索引       |
-| pg_bm25         | 0.5.6 | **PIGSTY** | FEAT | ParadeDB BM25算法全文检索插件           |
-| pg_analytics    | 0.5.6 | **PIGSTY** | FEAT | ParadeDB 列存x向量执行分析加速插件          |
-| duckdb_fdw      |  1.1  | **PIGSTY** | FEAT | DuckDB 外部数据源包装器 (libduck 0.9.2) |
+| name                                                                       |  version  |   source   | comment                                                                                      |
+|----------------------------------------------------------------------------|:---------:|:----------:|----------------------------------------------------------------------------------------------|
+| [pgml](https://github.com/postgresml/postgresml)                           |   2.8.1   | **PIGSTY** | PostgresML: access most advanced machine learning algorithms and pretrained models with SQL  |
+| [age](https://github.com/apache/age)                                       |   1.5.0   | **PIGSTY** | Apache AGE graph database extension                                                          |
+| [pointcloud](https://github.com/pgpointcloud/pointcloud)                   |   1.2.5   | **PIGSTY** | A PostgreSQL extension for storing point cloud (LIDAR) data.                                 |
+| [pgsql-http](https://github.com/pramsey/pgsql-http)                        |    1.6    | **PIGSTY** | HTTP client for PostgreSQL, allows web page retrieval inside the database.                   |
+| [pgsql-gzip](https://github.com/pramsey/pgsql-gzip)                        |    1.0    | **PIGSTY** | Gzip and unzip with SQL                                                                      |
+| [pg_tle](https://github.com/aws/pg_tle)                                    |   1.4.0   | **PIGSTY** | Trusted Language Extensions for PostgreSQL                                                   |
+| [roaringbitmap](https://github.com/ChenHuajun/pg_roaringbitmap)            |    0.5    | **PIGSTY** | Support for Roaring Bitmaps                                                                  |
+| [zhparser](https://github.com/amutu/zhparser)                              |    2.2    | **PIGSTY** | Parser for full-text search of Chinese                                                       |
+| [pg_net](https://github.com/supabase/pg_net)                               |   0.9.1   | **PIGSTY** | A PostgreSQL extension that enables asynchronous (non-blocking) HTTP/HTTPS requests with SQL |
+| [pgjwt](https://github.com/michelp/pgjwt)                                  |   0.2.0   | **PIGSTY** | JSON Web Token API for Postgresql                                                            |
+| [pg_graphql](https://github.com/supabase/pg_graphql)                       |   1.5.4   | **PIGSTY** | GraphQL support to your PostgreSQL database.                                                 |
+| [pg_jsonschema](https://github.com/supabase/pg_jsonschema)                 |   0.3.1   | **PIGSTY** | PostgreSQL extension providing JSON Schema validation                                        |
+| [vault](https://github.com/supabase/vault)                                 |   0.2.9   | **PIGSTY** | Extension for storing encrypted secrets in the Vault                                         |
+| [hydra](https://github.com/hydradatabase/hydra)                            |   1.1.2   | **PIGSTY** | Hydra is open source, column-oriented Postgres extension                                     |
+| [wrappers](https://github.com/supabase/wrappers)                           |   0.3.1   | **PIGSTY** | Postgres Foreign Data Wrappers Collections by Supabase                                       |
+| [duckdb_fdw](https://github.com/alitrack/duckdb_fdw)                       |    1.1    | **PIGSTY** | DuckDB Foreign Data Wrapper                                                                  |
+| [pg_search](https://github.com/paradedb/paradedb/tree/dev/pg_search)       |   0.7.0   | **PIGSTY** | Full text search over SQL tables using the BM25 algorithm                                    |
+| [pg_lakehouse](https://github.com/paradedb/paradedb/tree/dev/pg_lakehouse) |   0.7.0   | **PIGSTY** | ery engine over object stores like S3 and table formats like Delta Lake                      |
+| [pg_analytics](https://github.com/paradedb/pg_analytics)                   |   0.6.1   | **PIGSTY** | Accelerates analytical query processing inside Postgres                                      |
+| [pgmq](https://github.com/tembo-io/pgmq)                                   |   1.5.2   | **PIGSTY** | A lightweight message queue. Like AWS SQS and RSMQ but on Postgres.                          |
+| [pg_tier](https://github.com/tembo-io/pg_tier)                             |   0.0.3   | **PIGSTY** | Postgres Extension written in Rust, to enable data tiering to AWS S3                         |
+| [pg_vectorize](https://github.com/tembo-io/pg_vectorize)                   |  0.15.0   | **PIGSTY** | The simplest way to orchestrate vector search on Postgres                                    |
+| [pg_later](https://github.com/tembo-io/pg_later)                           |   0.1.0   | **PIGSTY** | Execute SQL now and get the results later.                                                   |
+| [pg_idkit](https://github.com/VADOSWARE/pg_idkit)                          |   0.2.3   | **PIGSTY** | Generating many popular types of identifiers                                                 |
+| [plprql](https://github.com/kaspermarstal/plprql)                          |   0.1.0   | **PIGSTY** | Use PRQL in PostgreSQL                                                                       |
+| [pgsmcrypto](https://github.com/zhuobie/pgsmcrypto)                        |   0.1.0   | **PIGSTY** | PostgreSQL SM Algorithm Extension                                                            |
+| [pg_tiktoken](https://github.com/kelvich/pg_tiktoken)                      |   0.0.1   | **PIGSTY** | OpenAI tiktoken tokenizer for postgres                                                       |
+| [pgdd](https://github.com/rustprooflabs/pgdd)                              |   0.5.2   | **PIGSTY** | Access Data Dictionary metadata with pure SQL                                                |
+| [parquet_s3_fdw](https://github.com/pgspider/parquet_s3_fdw)               |   1.1.0   | **PIGSTY** | ParquetS3 Foreign Data Wrapper for PostgresSQL                                               |
+| [plv8](https://github.com/plv8/plv8)                                       |   3.2.2   | **PIGSTY** | V8 Engine Javascript Procedural Language add-on for PostgreSQL                               |
+| [md5hash](https://github.com/tvondra/md5hash)                              |   1.0.1   | **PIGSTY** | Custom data type for storing MD5 hashes rather than text                                     |
+| [pg_tde](https://github.com/Percona-Lab/pg_tde)                            | 1.0-alpha | **PIGSTY** | Experimental encrypted access method for PostgreSQL                                          |
+| [pg_dirtyread](https://github.com/df7cb/pg_dirtyread)                      |    2.6    | **PIGSTY** | Read dead but unvacuumed tuples from a PostgreSQL relation                                   |
+| pg_bm25 ❋                                                                  |   0.5.6   | **PIGSTY** | ParadeDB: pg_bm25: Full text search for PostgreSQL using BM25 (rename to pg_search)          |
+| svector ❋                                                                  |   0.5.6   | **PIGSTY** | pg_sparse: Sparse vector data type and sparse HNSW access methods (depreciated)              |
+| imgsmlr ❋                                                                  |   1.0.0   | **PIGSTY** | ImgSmlr method is based on Haar wavelet transform (pg 16 not supported)                      |
+| pg_similarity ❋                                                            |   1.0.0   | **PIGSTY** | set of functions and operators for executing similarity queries(covered by pgvector)         |
+| pg_bigm ❋                                                                  |   1.2.0   | **PIGSTY** | full text search capability with create 2-gram (bigram) index. (pg 16 not supported)         |
 
 > 注意：一些扩展在 Debian/Ubuntu 系统上不可用，您可以从源码构建安装，包括：`http`, `gzip`, `pg_tle`, `roaringbitmap`, `zhparser`, `pgjwt`, `vault`, `hydra`, `imgsmlr`, `pg_bigm`, `duckdb_fdw`。其中图扩展 `age`， 点云扩展 `pointcloud` 在 Deb 仓库中默认可用，`pg_graphql`，`pg_net`，`pg_bm25`，`pg_analytics`，`svector` 在 Ubuntu 22.04 上可用。
 

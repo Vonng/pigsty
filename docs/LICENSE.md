@@ -7,14 +7,8 @@
 
 ## Summary
 
-Permissions of this strongest copyleft license are conditioned on making available complete source code of licensed works and modifications,
-which include larger works using a licensed work, under the same license.
-Copyright and license notices must be preserved. Contributors provide an express grant of patent rights.
-When a modified version is used to provide a service over a network, the complete source code of the modified version must be made available.
-
-But beware when you distribute, host, or create derivative works of Pigsty, you must also distribute the source code under the same AGPL v3 license.
-For those common use cases, you don't need to worry about license issues. And we won't pursue any legal action against any users ;) (except for public cloud vendors!)
-
+Pigsty use the [AGPLv3](https://github.com/Vonng/pigsty/blob/master/LICENSE) license, which is a strong copyleft license that requires you to also distribute the source code of your derivative works under the same license.
+If you distribute Pigsty, you must make the source code available under the same license, and you must make it clear that the source code is available.
 
 **Permissions:**
 
@@ -40,40 +34,97 @@ For those common use cases, you don't need to worry about license issues. And we
 
 ----------------
 
+## Exemptions
+
+While employing the **AGPLv3** license for Pigsty, we extend exemptions to common end users under terms akin to the **Apache 2.0** license. Common end users are defined as all entities except **public cloud** and **database service** vendors.
+
+These users may utilize Pigsty for commercial activities and service provision without licensing concerns. Our [subscription](/docs/about/service) include written guarantees of these terms for additional assurance.
+
+We encourage cloud & databases vendors adhering to AGPLv3 to use Pigsty for derivative works and to contribute to the community.
+
+
+
+----------------
+
 ## BOM Inventory
 
 Related software and open source project:
 
-|  Module  |                             Software Name                              | License                                                                                                   |
-|:--------:|:----------------------------------------------------------------------:|-----------------------------------------------------------------------------------------------------------|
-|  PGSQL   |               [PostgreSQL](https://www.postgresql.org/)                | [PostgreSQL License](https://www.postgresql.org/about/licence/) (BSD-Like)                                |
-|  PGSQL   |                    [PostGIS](https://postgis.net/)                     | [PostGIS Licensing](https://git.osgeo.org/gitea/postgis/postgis/src/branch/master/LICENSE.TXT) (GPLv2+)   |
-|  PGSQL   |                  [Citus](https://www.citusdata.com/)                   | [GNU Affero General Public License v3.0](https://github.com/citusdata/citus/blob/main/LICENSE)            |
-|  PGSQL   |               [TimescaleDB](https://www.timescale.com/)                | [Timescale License](https://www.timescale.com/legal/licenses/)                                            |
-|  PGSQL   |            [PGVector](https://github.com/pgvector/pgvector)            | [PostgreSQL License](https://github.com/pgvector/pgvector/blob/master/LICENSE) (BSD-Like)                 |
-|  PGSQL   |            [pg_repack](https://github.com/reorg/pg_repack)             | [BSD 3-Clause License](https://github.com/reorg/pg_repack/blob/master/COPYRIGHT)                          |
-|  PGSQL   |            [wal2json](https://github.com/eulerto/wal2json)             | [BSD 3-Clause License](https://github.com/eulerto/wal2json/blob/master/LICENSE)                           |
-|  PGSQL   |         [pgbouncer](https://www.pgbouncer.org/community.html)          | [ISC License](https://github.com/pgbouncer/pgbouncer/blob/master/COPYRIGHT)                               |
-|  PGSQL   |          [patroni](https://patroni.readthedocs.io/en/latest/)          | [MIT License](https://github.com/zalando/patroni/blob/master/LICENSE)                                     |
-|  PGSQL   |                 [pgbackrest](https://pgbackrest.org/)                  | [MIT License](https://github.com/pgbackrest/pgbackrest/blob/main/LICENSE)                                 |
-|  PGSQL   |   [vip-manager](https://github.com/cybertec-postgresql/vip-manager)    | [BSD 2-Clause License](https://github.com/cybertec-postgresql/vip-manager/blob/master/LICENSE)            |
-|  PGSQL   |          [pg_exporter](https://github.com/Vonng/pg_exporter)           | [Apache License 2.0](https://github.com/Vonng/pg_exporter/blob/master/LICENSE)                            |
-|   NODE   |      [node_exporter](https://github.com/prometheus/node_exporter)      | [Apache License 2.0](https://github.com/prometheus/node_exporter/blob/master/LICENSE)                     |
-|   NODE   |            [docker-ce](https://github.com/docker/docker-ce)            | [Apache License 2.0](https://github.com/docker/docker-ce/blob/master/LICENSE)                             |
-|   NODE   |                  [haproxy](https://www.haproxy.org/)                   | [HAPROXY's License](https://www.haproxy.org/download/1.3/doc/LICENSE) (GPLv2)                             |
-|   NODE   |               [keepalived](https://www.keepalived.org/)                | [MIT License](https://github.com/umich-arc/keepalived/blob/master/LICENSE)                                |
-|  INFRA   | [Grafana](https://grafana.com/), [Loki](https://grafana.com/oss/loki/) | [GNU Affero General Public License v3.0](https://github.com/grafana/grafana/blob/main/LICENSE)            |
-|  INFRA   |                  [Prometheus](https://prometheus.io/)                  | [Apache License 2.0](https://github.com/prometheus/prometheus/blob/main/LICENSE)                          |
-|  INFRA   |         [DNSMASQ](https://thekelleys.org.uk/dnsmasq/doc.html)          | [GPLv2](https://thekelleys.org.uk/dnsmasq/doc.html) / [GPLv3](https://thekelleys.org.uk/dnsmasq/doc.html) |
-|  INFRA   |     [Ansible](https://docs.ansible.com/ansible/latest/index.html)      | [GNU General Public License v3.0](https://github.com/ansible/ansible/blob/devel/COPYING)                  |
-|   ETCD   |                        [etcd](https://etcd.io/)                        | [Apache License 2.0](https://github.com/etcd-io/etcd/blob/main/LICENSE)                                   |
-|  MINIO   |                        [MinIO](https://min.io/)                        | [GNU Affero General Public License v3.0](https://github.com/minio/minio/blob/master/LICENSE)              |
-|  REDIS   |                       [Redis](https://redis.io/)                       | [Redis License](https://redis.io/docs/about/license/) (3-clause BSD)                                      |
-|  REDIS   |     [Redis Exporter](https://github.com/oliver006/redis_exporter)      | [MIT License](https://github.com/oliver006/redis_exporter/blob/master/LICENSE)                            |
-|  MONGO   |                  [FerretDB](https://www.ferretdb.io/)                  | [Apache License 2.0](https://github.com/FerretDB/FerretDB/blob/main/LICENSE)                              |
-| External |                 [Vagrant](https://www.vagrantup.com/)                  | [Business Source License 1.1](https://github.com/hashicorp/vagrant/blob/main/LICENSE)                     |
-| External |                 [Terraform](https://www.terraform.io/)                 | [Business Source License 1.1](https://github.com/hashicorp/terraform/blob/main/LICENSE)                   |
-| External |               [Virtualbox](https://www.virtualbox.org/)                | [GPLv2](https://www.virtualbox.org/wiki/Licensing_FAQ)                                                    |
+|  Module  |                               Software Name                                | License                                                                                                   |
+|:--------:|:--------------------------------------------------------------------------:|-----------------------------------------------------------------------------------------------------------|
+|  PGSQL   |                 [PostgreSQL](https://www.postgresql.org/)                  | [PostgreSQL License](https://www.postgresql.org/about/licence/) (BSD-Like)                                |
+|  PGSQL   |           [pgbouncer](https://www.pgbouncer.org/community.html)            | [ISC License](https://github.com/pgbouncer/pgbouncer/blob/master/COPYRIGHT)                               |
+|  PGSQL   |            [patroni](https://patroni.readthedocs.io/en/latest/)            | [MIT License](https://github.com/zalando/patroni/blob/master/LICENSE)                                     |
+|  PGSQL   |                   [pgbackrest](https://pgbackrest.org/)                    | [MIT License](https://github.com/pgbackrest/pgbackrest/blob/main/LICENSE)                                 |
+|  PGSQL   |     [vip-manager](https://github.com/cybertec-postgresql/vip-manager)      | [BSD 2-Clause License](https://github.com/cybertec-postgresql/vip-manager/blob/master/LICENSE)            |
+|  PGSQL   |            [pg_exporter](https://github.com/Vonng/pg_exporter)             | [Apache License 2.0](https://github.com/Vonng/pg_exporter/blob/master/LICENSE)                            |
+|   NODE   |        [node_exporter](https://github.com/prometheus/node_exporter)        | [Apache License 2.0](https://github.com/prometheus/node_exporter/blob/master/LICENSE)                     |
+|   NODE   |                    [haproxy](https://www.haproxy.org/)                     | [HAPROXY's License](https://www.haproxy.org/download/1.3/doc/LICENSE) (GPLv2)                             |
+|   NODE   |                 [keepalived](https://www.keepalived.org/)                  | [MIT License](https://github.com/umich-arc/keepalived/blob/master/LICENSE)                                |
+|  INFRA   |   [Grafana](https://grafana.com/), [Loki](https://grafana.com/oss/loki/)   | [GNU Affero General Public License v3.0](https://github.com/grafana/grafana/blob/main/LICENSE)            |
+|  INFRA   |                    [Prometheus](https://prometheus.io/)                    | [Apache License 2.0](https://github.com/prometheus/prometheus/blob/main/LICENSE)                          |
+|  INFRA   |           [DNSMASQ](https://thekelleys.org.uk/dnsmasq/doc.html)            | [GPLv2](https://thekelleys.org.uk/dnsmasq/doc.html) / [GPLv3](https://thekelleys.org.uk/dnsmasq/doc.html) |
+|  INFRA   |       [Ansible](https://docs.ansible.com/ansible/latest/index.html)        | [GNU General Public License v3.0](https://github.com/ansible/ansible/blob/devel/COPYING)                  |
+|   ETCD   |                          [etcd](https://etcd.io/)                          | [Apache License 2.0](https://github.com/etcd-io/etcd/blob/main/LICENSE)                                   |
+|  MINIO   |                          [MinIO](https://min.io/)                          | [GNU Affero General Public License v3.0](https://github.com/minio/minio/blob/master/LICENSE)              |
+|  REDIS   |                         [Redis](https://redis.io/)                         | [Redis License](https://redis.io/docs/about/license/) (3-clause BSD)                                      |
+|  REDIS   |       [Redis Exporter](https://github.com/oliver006/redis_exporter)        | [MIT License](https://github.com/oliver006/redis_exporter/blob/master/LICENSE)                            |
+|  MONGO   |                    [FerretDB](https://www.ferretdb.io/)                    | [Apache License 2.0](https://github.com/FerretDB/FerretDB/blob/main/LICENSE)                              |
+|  DOCKER  |              [docker-ce](https://github.com/docker/docker-ce)              | [Apache License 2.0](https://github.com/docker/docker-ce/blob/master/LICENSE)                             |
+|  CLOUD   |       [Sealos](https://github.com/labring/sealos/blob/main/LICENSE)        | [Apache License 2.0](https://github.com/labring/sealos/blob/main/LICENSE)                                 |
+|  DUCKDB  |                 [DuckDB](https://github.com/duckdb/duckdb)                 | [MIT](https://github.com/duckdb/duckdb/blob/main/LICENSE)                                                 |
+| External |                   [Vagrant](https://www.vagrantup.com/)                    | [Business Source License 1.1](https://github.com/hashicorp/vagrant/blob/main/LICENSE)                     |
+| External |                   [Terraform](https://www.terraform.io/)                   | [Business Source License 1.1](https://github.com/hashicorp/terraform/blob/main/LICENSE)                   |
+| External |                 [Virtualbox](https://www.virtualbox.org/)                  | [GPLv2](https://www.virtualbox.org/wiki/Licensing_FAQ)                                                    |
+
+PostgreSQL Extensions:
+
+|                               Extension Name                               | License                                                                                       |
+|:--------------------------------------------------------------------------:|-----------------------------------------------------------------------------------------------|
+|                      [PostGIS](https://postgis.net/)                       | [PostGIS](https://git.osgeo.org/gitea/postgis/postgis/src/branch/master/LICENSE.TXT) (GPLv2+) |
+|                    [Citus](https://www.citusdata.com/)                     | [AGPLv3](https://github.com/citusdata/citus/blob/main/LICENSE)                                |
+|                 [TimescaleDB](https://www.timescale.com/)                  | [Timescale](https://www.timescale.com/legal/licenses/)                                        |
+|              [PGVector](https://github.com/pgvector/pgvector)              | [PostgreSQL](https://github.com/pgvector/pgvector/blob/master/LICENSE) (BSD-Like)             |
+|              [pg_repack](https://github.com/reorg/pg_repack)               | [BSD 3-Clause](https://github.com/reorg/pg_repack/blob/master/COPYRIGHT)                      |
+|              [wal2json](https://github.com/eulerto/wal2json)               | [BSD 3-Clause](https://github.com/eulerto/wal2json/blob/master/LICENSE)                       |
+|                  [scws](https://github.com/hightman/scws)                  | [BSD-Like](https://github.com/hightman/scws/blob/master/COPYING)                              |
+|               [zhparser](https://github.com/amutu/zhparser)                | [BSD-Like](https://github.com/amutu/zhparser/blob/master/COPYRIGHT)                           |
+|     [pg_roaringbitmap](https://github.com/ChenHuajun/pg_roaringbitmap)     | [Apache-2.0](https://github.com/ChenHuajun/pg_roaringbitmap/blob/master/LICENSE)              |
+|                  [pg_tle](https://github.com/aws/pg_tle)                   | [Apache-2.0](https://github.com/aws/pg_tle/blob/main/LICENSE)                                 |
+|            [pgsql-http](https://github.com/pramsey/pgsql-http)             | [MIT](https://github.com/pramsey/pgsql-http/blob/master/LICENSE.md)                           |
+|            [pgsql-gzip](https://github.com/pramsey/pgsql-gzip)             | [MIT](https://github.com/pramsey/pgsql-gzip/blob/master/LICENSE.md)                           |
+|                 [pgjwt](https://github.com/michelp/pgjwt)                  | [MIT](https://github.com/michelp/pgjwt/blob/master/LICENSE)                                   |
+|                 [vault](https://github.com/supabase/vault)                 | [Apache-2.0](https://github.com/supabase/vault/blob/main/LICENSE)                             |
+|          [pointcloud](https://github.com/pgpointcloud/pointcloud)          | [Apache-Like](https://github.com/pgpointcloud/pointcloud/blob/master/COPYRIGHT)               |
+|             [imgsmlr](https://github.com/postgrespro/imgsmlr)              | [Postgres License](https://github.com/postgrespro/imgsmlr/blob/master/LICENSE)                |
+|         [pg_similarity](https://github.com/eulerto/pg_similarity)          | [BSD-Like](https://github.com/eulerto/pg_similarity/blob/master/COPYRIGHT)                    |
+|                [pg_bigm](https://github.com/pgbigm/pg_bigm)                | [BSD-Like](https://github.com/pgbigm/pg_bigm/blob/master/LICENSE)                             |
+|              [hydra](https://github.com/hydradatabase/hydra)               | [AGPLv3](https://github.com/hydradatabase/hydra/blob/main/columnar/LICENSE)                   |
+|                [pg_net](https://github.com/supabase/pg_net)                | [Apache-2.0](https://github.com/supabase/pg_net/blob/master/LICENSE)                          |
+|            [pg_filedump](https://github.com/df7cb/pg_filedump)             | [GPLv2](https://github.com/df7cb/pg_filedump)                                                 |
+|                    [age](https://github.com/apache/age)                    | [Apache-2.0](https://github.com/apache/age)                                                   |
+|            [duckdb_fdw](https://github.com/alitrack/duckdb_fdw)            | [MIT](https://github.com/alitrack/duckdb_fdw/blob/main/LICENSE)                               |
+|    [pg_sparse](https://github.com/paradedb/paradedb/tree/dev/pg_sparse)    | [Postgres License](https://github.com/paradedb/paradedb/blob/dev/pg_sparse/LICENSE)           |
+|            [pg_graphql](https://github.com/supabase/pg_graphql)            | [Apache-2.0](https://github.com/supabase/pg_graphql/blob/master/LICENSE)                      |
+|              [pgml](https://github.com/postgresml/postgresml)              | [MIT](https://github.com/postgresml/postgresml/blob/master/MIT-LICENSE.txt)                   |
+|    [pg_search](https://github.com/paradedb/paradedb/tree/dev/pg_search)    | [AGPLv3](https://github.com/paradedb/paradedb/blob/dev/LICENSE)                               |
+| [pg_analytics](https://github.com/paradedb/paradedb/tree/dev/pg_analytics) | [AGPLv3](https://github.com/paradedb/paradedb/blob/dev/LICENSE)                               |
+|            [pg_graphql](https://github.com/supabase/pg_graphql)            | [Apache-2.0](https://github.com/supabase/pg_graphql/blob/master/LICENSE)                      |
+|         [pg_jsonschema](https://github.com/supabase/pg_jsonschema)         | [Apache-2.0](https://github.com/supabase/pg_jsonschema/blob/master/LICENSE)                   |
+|              [wrappers](https://github.com/supabase/wrappers)              | [Apache-2.0](https://github.com/supabase/wrappers/blob/main/LICENSE)                          |
+|                  [pgmq](https://github.com/tembo-io/pgmq)                  | [PostgreSQL](https://github.com/tembo-io/pgmq)                                                |
+|               [pg_tier](https://github.com/tembo-io/pg_tier)               | [Apache-2.0](https://github.com/tembo-io/pg_tier/blob/main/LICENSE)                           |
+|          [pg_vectorize](https://github.com/tembo-io/pg_vectorize)          | [PostgreSQL](https://github.com/tembo-io/pg_vectorize/blob/main/LICENSE)                      |
+|              [pg_later](https://github.com/tembo-io/pg_later)              | [PostgreSQL](https://github.com/tembo-io/pg_later/blob/main/LICENSE)                          |
+|             [pg_idkit](https://github.com/VADOSWARE/pg_idkit)              | [Apache-2.0](https://github.com/VADOSWARE/pg_idkit/blob/main/LICENSE)                         |
+|             [plprql](https://github.com/kaspermarstal/plprql)              | [Apache-2.0](https://github.com/kaspermarstal/plprql/blob/main/LICENSE)                       |
+|            [pgsmcrypto](https://github.com/zhuobie/pgsmcrypto)             | [MIT](https://github.com/zhuobie/pgsmcrypto/blob/main/LICENSE)                                |
+|           [pg_tiktoken](https://github.com/kelvich/pg_tiktoken)            | [Apache-2.0](https://github.com/kelvich/pg_tiktoken/blob/main/LICENSE)                        |
+|               [pgdd](https://github.com/rustprooflabs/pgdd)                | [MIT](https://github.com/zhuobie/pgsmcrypto/blob/main/LICENSE)                                |
+|                    [plv8](https://github.com/plv8/plv8)                    | [BSD 2-Clause Like](https://github.com/plv8/plv8/blob/r3.2/COPYRIGHT)                         |
+|              [pg_tde](https://github.com/Percona-Lab/pg_tde)               | [MIT](https://github.com/Percona-Lab/pg_tde/blob/main/LICENSE)                                |
+|               [md5hash](https://github.com/tvondra/md5hash)                | [BSD Like?](https://github.com/tvondra/md5hash/blob/master/LICENSE)                           |
+|           [pg_dirtyread](https://github.com/df7cb/pg_dirtyread)            | [BSD 3-Clause Like](https://github.com/df7cb/pg_dirtyread/blob/master/LICENSE)                |
 
 
 

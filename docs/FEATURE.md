@@ -9,7 +9,7 @@
 
 ## Values
 
-- [**Extensibility**](https://repo.pigsty.cc/img/pigsty-extension.jpg): Powerful [**Extensions**](PGSQL-EXTENSION) Ready for use: **PostGIS**, **TimescaleDB**, **Citus**, **PGVector**, Search, HTAP, AIML, and [**150+**](PGSQL-EXTENSION#extension-list) more.
+- [**Extensibility**](https://repo.pigsty.cc/img/pigsty-extension.jpg): Powerful [**Extensions**](PGSQL-EXTENSION) Ready for use: **PostGIS**, **TimescaleDB**, **Citus**, **PGVector**, Search, HTAP, AIML, and [**200+**](PGSQL-EXTENSION#extension-list) more.
 - [**Reliability**](https://repo.pigsty.cc/img/pigsty-arch.jpg): Create self-healing [**High Available**](PGSQL-ARCH#high-availability) [**PostgreSQL**](PGSQL) clusters with pre-configured [**PITR**](PGSQL-ARCH#point-in-time-recovery), built-in [**ACL**](PGSQL-ACL), [**CA**](PARAM#ca) & **SSL** in minutes.
 - [**Observability**](https://repo.pigsty.cc/img/pigsty-dashboard.jpg): Monitoring best practices build upon the modern **Prometheus** & **Grafana** stack: Check our live [**Demo**](https://demo.pigsty.cc) & [**Gallery**](https://github.com/Vonng/pigsty/wiki/Gallery).
 - [**Availability**](https://repo.pigsty.cc/img/pgsql-ha.jpg): Deliver auto-routed, high-performance, and flexible database [**Services**](PGSQL-SVC#default-service) [**Access**](PGSQL-SVC#access-service) with **haproxy**, **pgbouncer**, and VIP.
@@ -24,7 +24,7 @@
 ## Overview
 
 - [Battery-Included RDS](#battery-included-rds): Delivers production-ready PostgreSQL services from version 12-16 on Linux x86, spanning kernel to RDS distribution.
-- [Plentiful Extensions](#plentiful-extensions): Integrates 150+ extensions, providing turnkey capabilities for time-series, geospatial, full-text-search, vector and more!
+- [Plentiful Extensions](#plentiful-extensions): Integrates 200+ extensions, providing turnkey capabilities for time-series, geospatial, full-text-search, vector and more!
 - [Flexible Architecture](#flexible-architecture): Compose Redis/Etcd/MinIO/Mongo modules on nodes, monitoring existing cluster and remote RDS, self-hosting Supabase.
 - [Stunning Observability](#stunning-observability): Leveraging the Prometheus/Grafana modern observability stack, and provides unmatched database insights.
 - [Proven Reliability](#proven-reliability): Self-healing HA architecture with automatic failover and uninterrupted client access, and pre-configured PITR.
@@ -81,7 +81,7 @@ All you need to do is run the command and connect with the given URL.
 
 PostgreSQL's has an unique [extension](PGSQL-EXTENSION#extension-list) ecosystem. Pigsty seamlessly integrates these powerful extensions, delivering turnkey distributed solutions for time-series, geospatial, and vector capabilities.
 
-Pigsty boasts over **150** PostgreSQL extensions, and maintaining some not found in official PGDG repositories. Rigorous testing ensures flawless integration for **core** extensions: Leverage [PostGIS](https://postgis.net/) for geospatial data, [TimescaleDB](https://www.timescale.com/) for time-series analysis, [Citus](https://www.citusdata.com/) for horizontal scale out, [PGVector](https://github.com/pgvector/pgvector) for AI embeddings, [Apache AGE](https://age.apache.org/) for graph data, and [zhparser](https://github.com/amutu/zhparser) for Full-Text Search.
+Pigsty boasts over **200+** PostgreSQL extensions, and maintaining some not found in official PGDG repositories. Rigorous testing ensures flawless integration for **core** extensions: Leverage [PostGIS](https://postgis.net/) for geospatial data, [TimescaleDB](https://www.timescale.com/) for time-series analysis, [Citus](https://www.citusdata.com/) for horizontal scale out, [PGVector](https://github.com/pgvector/pgvector) for AI embeddings, [Apache AGE](https://age.apache.org/) for graph data, and [zhparser](https://github.com/amutu/zhparser) for Full-Text Search.
 
 You can also run self-hosted [Supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase/README.md) & [PostgresML](https://github.com/Vonng/pigsty/tree/master/app/pgml) with Pigsty managed HA PostgreSQL. If you want to add your own extension, feel free to [suggest](https://github.com/Vonng/pigsty/discussions/333) or compile it by yourself.
 
