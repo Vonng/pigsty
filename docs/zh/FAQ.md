@@ -117,20 +117,20 @@ Pigsty 使用 master 主干分支进行开发，请始终使用特定版本的 [
 您可以选择从 Github 上的发布页面上直接下载离线软件包。
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz                     # Pigsty源码包         
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz      # 离线软件包：EL 7(.9)            
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz      # 离线软件包：EL 8(.9)            
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz      # 离线软件包：EL 9(.3)            
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian11.x86_64.tgz # 离线软件包：Debian 11    (bullseye)                 
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian12.x86_64.tgz # 离线软件包：Debian 12    (bookworm)                 
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu20.x86_64.tgz # 离线软件包：Ubuntu 20.04 (focal)                 
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu22.x86_64.tgz # 离线软件包：Ubuntu 22.04 (jammy)                 
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz                     # Pigsty源码包         
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el7.x86_64.tgz      # 离线软件包：EL 7(.9)            
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      # 离线软件包：EL 8(.9)            
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el9.x86_64.tgz      # 离线软件包：EL 9(.3)            
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian11.x86_64.tgz # 离线软件包：Debian 11    (bullseye)                 
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz # 离线软件包：Debian 12    (bookworm)                 
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu20.x86_64.tgz # 离线软件包：Ubuntu 20.04 (focal)                 
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz # 离线软件包：Ubuntu 22.04 (jammy)                 
 ```
 
 您也可以从（中国大陆） CDN 下载离线软件包，也可以在下载时指定特定的版本号：
 
 ```bash
-VERSION=v2.6.0
+VERSION=v2.7.0
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz        # 离线软件包：EL 7(.9)
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz        # 离线软件包：EL 8(.8)
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz        # 离线软件包：EL 9(.3)

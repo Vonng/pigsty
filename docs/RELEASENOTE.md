@@ -47,7 +47,6 @@
 
 Extension Overwhelming, adding numerous new extensions written in `rust` & `pgrx`:
 
-- [pgml](https://github.com/postgresml/postgresml) v2.8.2 : The GPU-powered AI application database
 - [pg_search](https://github.com/paradedb/paradedb/tree/dev/pg_search) v0.7.0 : Full text search over SQL tables using the BM25 algorithm
 - [pg_lakehouse](https://github.com/paradedb/paradedb/tree/dev/pg_lakehouse) v0.7.0 : Query engine over object stores like S3 and table formats like Delta Lake
 - [pg_analytics](https://github.com/paradedb/pg_analytics) v0.6.1 : Accelerates analytical query processing inside Postgres
@@ -71,6 +70,7 @@ And some new extensions in plain C & C++
 - [md5hash](https://github.com/tvondra/md5hash) 1.0.1 : Custom data type for storing MD5 hashes rather than text
 - [pg_tde](https://github.com/Percona-Lab/pg_tde) 1.0 alpha: Experimental encrypted access method for PostgreSQL
 - [pg_dirtyread](https://github.com/df7cb/pg_dirtyread) 2.6 : Read dead but unvacuumed tuples from a PostgreSQL relation
+- [pg_profile](https://github.com/zubkov-andrei/pg_profile) 4.6 : Postgres historic workload reports
 
 **New Features**
 
@@ -126,6 +126,9 @@ And some new extensions in plain C & C++
 - New parameter `node_write_etc_hosts` to control whether to write `/etc/hosts` file on target nodes.
 - Relocatable prometheus target directory with new parameter `prometheus_sd_dir`.
 - Add `-x|--proxy` flag to enable and use value of global proxy env by @waitingsong in https://github.com/Vonng/pigsty/pull/405
+- No longer parse infra nginx log details since it brings too much labels to the log.
+- Use alertmanager API Version v2 instead of v1 in prometheus config.
+- Use `/pg/cert/ca.crt` instead of `/etc/pki/ca.crt` in pgsql roles.
 
 **New Contributors**
 
@@ -133,6 +136,8 @@ And some new extensions in plain C & C++
 - @waitingsong made their first contribution in https://github.com/Vonng/pigsty/pull/405
 
 **Full Changelog**: https://github.com/Vonng/pigsty/compar
+
+**Package Checksums**
 
 
 

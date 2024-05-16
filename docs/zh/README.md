@@ -6,7 +6,7 @@
 >
 > [网站](https://pigsty.io/zh/) | [仓库](https://github.com/Vonng/pigsty) | [演示](https://demo.pigsty.cc) | [博客](https://pigsty.io/zh/blog) | [论坛](https://github.com/Vonng/pigsty/discussions) | [GPTs](https://chat.openai.com/g/g-y0USNfoXJ-pigsty-consul) | [微信公众号](https://mp.weixin.qq.com/s/-E_-HZ7LvOze5lmzy3QbQA) | [Website](https://pigsty.io/)
 >
-> [快速上手](INSTALL) 最新版本的 Pigsty [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)：`curl -fsSL https://get.pigsty.cc/latest`
+> [快速上手](INSTALL) 最新版本的 Pigsty [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0)：`curl -fsSL https://get.pigsty.cc/latest`
 
 
 ----------------
@@ -59,12 +59,12 @@ FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz
+[ OK ] $ curl -SL https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz
 ...
-MD5: xxxxxxxxxxxx  /tmp/pigsty-v2.6.0.tgz
+MD5: xxxxxxxxxxxx  /tmp/pigsty-v2.7.0.tgz
 [Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.6.0.tgz' to '/home/vagrant/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.6.0.tgz -C ~;
+[ OK ] extract '/tmp/pigsty-v2.7.0.tgz' to '/home/vagrant/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.7.0.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
 Get Started:     https://pigsty.io/docs/setup/install/
@@ -88,7 +88,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
-cd pigsty; git checkout v2.6.0
+cd pigsty; git checkout v2.7.0
 ```
 
 </details>
@@ -103,16 +103,16 @@ cd pigsty; git checkout v2.6.0
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 
 # 或者直接使用 curl 从 GitHub 上下载
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz                      # 源码包
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz -o /tmp/pkg.tgz       # EL9 离线软件包: Rocky 9.3
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz -o /tmp/pkg.tgz       # EL8 离线软件包: Rocky 8.9
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04 离线软件包
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz                      # 源码包
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el9.x86_64.tgz -o /tmp/pkg.tgz       # EL9 离线软件包: Rocky 9.3
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz       # EL8 离线软件包: Rocky 8.9
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04 离线软件包
 
 # 对于中国大陆用户来说，也可以选择从中国 CDN 下载
-curl -L https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz                      # 源码包
-curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz -o /tmp/pkg.tgz       # EL9 离线软件包
-curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz -o /tmp/pkg.tgz       # EL8 离线软件包
-curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04 离线软件包
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz                      # 源码包
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el9.x86_64.tgz -o /tmp/pkg.tgz       # EL9 离线软件包
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz       # EL8 离线软件包
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04 离线软件包
 ```
 
 请注意，离线软件包是与操作系统**小版本**相关的！如果您的操作系统小版本与上述之不同，例如 7.6，8.6，9.1 等，请考虑不使用离线软件包，直接执行在线安装。

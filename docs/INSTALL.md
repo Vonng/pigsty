@@ -38,12 +38,12 @@ FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz
+[ OK ] $ curl -SL https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz
 ...
-MD5: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxx9  /tmp/pigsty-v2.6.0.tgz
+MD5: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxx9  /tmp/pigsty-v2.7.0.tgz
 [Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.6.0.tgz' to '/home/vagrant/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.6.0.tgz -C ~;
+[ OK ] extract '/tmp/pigsty-v2.7.0.tgz' to '/home/vagrant/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.7.0.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
 Public Demo:     https://demo.pigsty.cc
@@ -65,7 +65,7 @@ You can also download pigsty source with `git`, don't forget to check out a spec
 
 ```bash
 git clone https://github.com/Vonng/pigsty;  # master branch is for develop purpose
-cd pigsty; git checkout v2.6.0              # always checkout a specific version
+cd pigsty; git checkout v2.7.0              # always checkout a specific version
 ```
 
 </details>
@@ -76,8 +76,8 @@ cd pigsty; git checkout v2.6.0              # always checkout a specific version
 You can also download pigsty source (and optional [offline pkgs](#offline-packages)) directly from GitHub or CDN:
 
 ```
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz   # Github Release
-https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz                               # Pigsty CDN
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz   # Github Release
+https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz                               # Pigsty CDN
 ```
 
 </details>
@@ -151,15 +151,15 @@ curl -fsSL https://get.pigsty.cc/latest | bash
 If you want to download a specific version, use the following URLs:
 
 ```bash
-VERSION=v2.6.0   # version string, check https://pigsty.io/docs/releasenote
+VERSION=v2.7.0   # version string, check https://pigsty.io/docs/releasenote
 https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty-${VERSION}.tgz
 ```
 
-For example, Pigsty v2.6.0 source can be acquired with:
+For example, Pigsty v2.7.0 source can be acquired with:
 
 ```bash
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz
-curl -L https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz   # China CDN Mirror
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz   # China CDN Mirror
 ```
 
 </details>
@@ -185,20 +185,20 @@ Then create an offline package and upload it to the production environment for o
 <details><summary>Download offline packages manually</summary>
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz                     # Pigsty Source Code
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz      # Package: EL 7(.9)
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz      # Package: EL 8(.9)
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz      # Package: EL 9(.3)
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian11.x86_64.tgz # Package: Debian 11    (bullseye)
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.debian12.x86_64.tgz # Package: Debian 12    (bookworm)
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu20.x86_64.tgz # Package: Ubuntu 20.04 (focal)
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu22.x86_64.tgz # Package: Ubuntu 22.04 (jammy)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz                     # Pigsty Source Code
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el7.x86_64.tgz      # Package: EL 7(.9)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      # Package: EL 8(.9)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el9.x86_64.tgz      # Package: EL 9(.3)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian11.x86_64.tgz # Package: Debian 11    (bullseye)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz # Package: Debian 12    (bookworm)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu20.x86_64.tgz # Package: Ubuntu 20.04 (focal)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz # Package: Ubuntu 22.04 (jammy)
 ```
 
 You can also get offline packages from CDN, and specify a specific version:
 
 ```bash
-VERSION=v2.6.0
+VERSION=v2.7.0
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz        # Offline Package：EL 7(.9)
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz        # Offline Package：EL 8(.9)
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz        # Offline Package：EL 9(.3)
@@ -208,11 +208,11 @@ https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz   # O
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz   # Offline Package：Ubuntu 22.04 (jammy)
 ```
 
-For example, download v2.6.0 offline packages for EL8.x86_64:
+For example, download v2.7.0 offline packages for EL8.x86_64:
 
 ```bash
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz  -o /tmp/pkg.tgz
-curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz  -o /tmp/pkg.tgz
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
 ```
 
 </details>
@@ -266,7 +266,7 @@ It will also download / extract / setup the offline [packages](#offline-packages
 If `/tmp/pkg.tgz` already exists, bootstrap will use it directly:
 
 ```bash
-bootstrap pigsty v2.6.0 begin
+bootstrap pigsty v2.7.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -290,7 +290,7 @@ proceed with ./configure
 Download `pkg.tgz` from GitHub and extract it:
 
 ```bash
-bootstrap pigsty v2.6.0 begin
+bootstrap pigsty v2.7.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -298,7 +298,7 @@ bootstrap pigsty v2.6.0 begin
 [ OK ] sudo = vagrant ok
 [ IN ] Cache /tmp/pkg.tgz not exists, download? (y/n):
 => y
-[ OK ] download from Github https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz to /tmp/pkg.tgz
+[ OK ] download from Github https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el7.x86_64.tgz to /tmp/pkg.tgz
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100  913M  100  913M    0     0   661k      0  0:23:33  0:23:33 --:--:--  834k
@@ -387,7 +387,7 @@ When `-n|--non-interactive` is specified, you have to specify a primary IP addre
 
 ```bash
 [vagrant@meta pigsty]$ ./configure
-configure pigsty v2.6.0 begin
+configure pigsty v2.7.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64

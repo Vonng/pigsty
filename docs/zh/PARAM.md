@@ -304,7 +304,7 @@
 这一小节指定了一套 Pigsty 部署的元数据：包括版本号，管理员节点 IP 地址，软件源镜像上游[`区域`](#region) 和下载软件包时使用的 http(s) 代理。
 
 ```yaml
-version: v2.6.0                   # pigsty 版本号
+version: v2.7.0                   # pigsty 版本号
 admin_ip: 10.10.10.10             # 管理节点IP地址
 region: default                   # 上游镜像区域：default,china,europe
 proxy_env:                        # 全局HTTPS代理，用于下载、安装软件包。
@@ -319,7 +319,7 @@ proxy_env:                        # 全局HTTPS代理，用于下载、安装软
 
 参数名称： `version`， 类型： `string`， 层次：`G`
 
-Pigsty 版本号字符串，默认值为当前版本：`v2.6.0`。
+Pigsty 版本号字符串，默认值为当前版本：`v2.7.0`。
 
 Pigsty 内部会使用版本号进行功能控制与内容渲染。
 

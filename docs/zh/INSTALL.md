@@ -39,12 +39,12 @@ FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz
+[ OK ] $ curl -SL https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz
 ...
-MD5: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxx9  /tmp/pigsty-v2.6.0.tgz
+MD5: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxx9  /tmp/pigsty-v2.7.0.tgz
 [Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.6.0.tgz' to '/home/vagrant/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.6.0.tgz -C ~;
+[ OK ] extract '/tmp/pigsty-v2.7.0.tgz' to '/home/vagrant/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.7.0.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
 Public Demo:     https://demo.pigsty.cc
@@ -66,7 +66,7 @@ cd ~/pigsty      # entering pigsty home directory before proceeding
 
 ```bash
 git clone https://github.com/Vonng/pigsty;   # 您科学上网了吗？
-cd pigsty; git checkout v2.6.0               # master为开发分支，请务必检出特定版本使用！
+cd pigsty; git checkout v2.7.0               # master为开发分支，请务必检出特定版本使用！
 ```
 
 </details>
@@ -77,8 +77,8 @@ cd pigsty; git checkout v2.6.0               # master为开发分支，请务必
 对于没有互联网访问的环境，您也可以选择直接从 Github 或 Pigsty CDN 直接下载好源码包（以及可选的[离线软件包](#离线软件包)）并上传至目标服务器。
 
 ```
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz   # Github Release
-https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz                               # Pigsty CDN
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz   # Github Release
+https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz                               # Pigsty CDN
 ```
 
 </details>
@@ -151,15 +151,15 @@ curl -L https://get.pigsty.cc/latest  | bash
 <details><summary>下载特定版本的Pigsty源码包</summary>
 
 ```bash
-VERSION=v2.6.0  # 指定版本字符串，可参考发布注记：https://pigsty.io/zh/docs/releasenote
+VERSION=v2.7.0  # 指定版本字符串，可参考发布注记：https://pigsty.io/zh/docs/releasenote
 https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty-${VERSION}.tgz
 ```
 
-以 Pigsty `v2.6.0` 版本为例，您可以使用以下命令从 CDN 或 Github 下载
+以 Pigsty `v2.7.0` 版本为例，您可以使用以下命令从 CDN 或 Github 下载
 
 ```bash
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz
-curl -L https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz   # CDN Mirror
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz   # CDN Mirror
 ```
 
 </details>
@@ -185,21 +185,21 @@ Pigsty 针对主流 Linux 发行版的最新小版本提供了离线软件包，
 您可以选择从 Github 上的发布页面上直接下载离线软件包。
 
 ```bash
-VERSION=v2.6.0
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-${VERSION}.tgz                     # Pigsty源码包
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.el7.x86_64.tgz      # 离线软件包：EL 7(.9)
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.el8.x86_64.tgz      # 离线软件包：EL 8(.9)
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.el9.x86_64.tgz      # 离线软件包：EL 9(.3)
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.debian11.x86_64.tgz # 离线软件包：Debian 11    (bullseye)
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.debian12.x86_64.tgz # 离线软件包：Debian 12    (bookworm)
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz # 离线软件包：Ubuntu 20.04 (focal)
-https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz # 离线软件包：Ubuntu 22.04 (jammy)
+VERSION=v2.7.0
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-${VERSION}.tgz                     # Pigsty源码包
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.el7.x86_64.tgz      # 离线软件包：EL 7(.9)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.el8.x86_64.tgz      # 离线软件包：EL 8(.9)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.el9.x86_64.tgz      # 离线软件包：EL 9(.3)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.debian11.x86_64.tgz # 离线软件包：Debian 11    (bullseye)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.debian12.x86_64.tgz # 离线软件包：Debian 12    (bookworm)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz # 离线软件包：Ubuntu 20.04 (focal)
+https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz # 离线软件包：Ubuntu 22.04 (jammy)
 ```
 
 您也可以从（中国大陆） CDN 下载离线软件包，也可以在下载时指定特定的版本号：
 
 ```bash
-VERSION=v2.6.0
+VERSION=v2.7.0
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz        # 离线软件包：EL 7(.9)
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz        # 离线软件包：EL 8(.8)
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz        # 离线软件包：EL 9(.3)
@@ -209,11 +209,11 @@ https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu20.x86_64.tgz   # �
 https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz   # 离线软件包：Ubuntu 22.04 (jammy)
 ```
 
-例如，如果要下载 v2.6.0 版本，针对 EL8.9 制作的的离线软件包：
+例如，如果要下载 v2.7.0 版本，针对 EL8.9 制作的的离线软件包：
 
 ```bash
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz  -o /tmp/pkg.tgz
-curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz  -o /tmp/pkg.tgz
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz  # China CDN Mirror
 ```
 
 </details>
@@ -263,7 +263,7 @@ Bootstrap 的详细逻辑如下：
 如果离线软件包存在于 `/tmp/pkg.tgz`， bootstrap 会直接使用它：
 
 ```bash
-bootstrap pigsty v2.6.0 begin
+bootstrap pigsty v2.7.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -287,7 +287,7 @@ proceed with ./configure
 从 Github/CDN 下载 `pkg.tgz` 并解压使用：
 
 ```bash
-bootstrap pigsty v2.6.0 begin
+bootstrap pigsty v2.7.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
@@ -295,7 +295,7 @@ bootstrap pigsty v2.6.0 begin
 [ OK ] sudo = vagrant ok
 [ IN ] Cache /tmp/pkg.tgz not exists, download? (y/n):
 => y
-[ OK ] download from Github https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el7.x86_64.tgz to /tmp/pkg.tgz
+[ OK ] download from Github https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el7.x86_64.tgz to /tmp/pkg.tgz
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100  913M  100  913M    0     0   661k      0  0:23:33  0:23:33 --:--:--  834k
@@ -385,7 +385,7 @@ proceed with ./configure
 
 ```bash
 [vagrant@meta pigsty]$ ./configure
-configure pigsty v2.6.0 begin
+configure pigsty v2.7.0 begin
 [ OK ] region = china
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64

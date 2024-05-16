@@ -6,7 +6,7 @@
 >
 > [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/D92HzV2s) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [站点](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog)
 >
-> [Get Started](https://pigsty.io/docs/setup/install/) with the latest [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0) release: `curl -fsSL https://get.pigsty.cc/latest`
+> [Get Started](https://pigsty.io/docs/setup/install/) with the latest [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0) release: `curl -fsSL https://get.pigsty.cc/latest`
 
 
 ----------------
@@ -45,12 +45,12 @@ FROM CDN    : bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 FROM GITHUB : bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 [Downloading] ===========================================
 [ OK ] download pigsty source code from CDN
-[ OK ] $ curl -SL https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz
+[ OK ] $ curl -SL https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz
 ...
-MD5: xxxxxx.......xxxxxxxxxx  /tmp/pigsty-v2.6.0.tgz
+MD5: xxxxxx.......xxxxxxxxxx  /tmp/pigsty-v2.7.0.tgz
 [Extracting] ===========================================
-[ OK ] extract '/tmp/pigsty-v2.6.0.tgz' to '/home/vagrant/pigsty'
-[ OK ] $ tar -xf /tmp/pigsty-v2.6.0.tgz -C ~;
+[ OK ] extract '/tmp/pigsty-v2.7.0.tgz' to '/home/vagrant/pigsty'
+[ OK ] $ tar -xf /tmp/pigsty-v2.7.0.tgz -C ~;
 [Reference] ===========================================
 Official Site:   https://pigsty.cc
 Get Started:     https://pigsty.io/docs/setup/install/
@@ -74,7 +74,7 @@ You can also download pigsty source with `git`, don't forget to use a specific v
 
 ```bash
 git clone https://github.com/Vonng/pigsty;
-cd pigsty; git checkout v2.6.0
+cd pigsty; git checkout v2.7.0
 ```
 
 </details>
@@ -89,14 +89,14 @@ You can also download pigsty source & [offline packages](https://pigsty.io/docs/
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Vonng/pigsty/master/bin/latest)"
 
 # or download tarball directly with curl
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz                      # Pigsty Source
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el9.x86_64.tgz      -o /tmp/pkg.tgz  # Rocky 9.3 (EL9)
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz      -o /tmp/pkg.tgz  # Rocky 8.9 (EL8)
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.6.0/pigsty-pkg-v2.6.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz                      # Pigsty Source
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el9.x86_64.tgz      -o /tmp/pkg.tgz  # Rocky 9.3 (EL9)
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      -o /tmp/pkg.tgz  # Rocky 8.9 (EL8)
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04
 
 # alternative CDN in china 
-curl -L https://get.pigsty.cc/v2.6.0/pigsty-v2.6.0.tgz -o ~/pigsty.tgz
-curl -L https://get.pigsty.cc/v2.6.0/pigsty-pkg-v2.6.0.el8.x86_64.tgz -o /tmp/pkg.tgz       # EL8: Rocky 8.9 ...
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz       # EL8: Rocky 8.9 ...
 ```
 
 </details>

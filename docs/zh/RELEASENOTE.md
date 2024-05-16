@@ -48,7 +48,6 @@
 
 新增了大量强力扩展插件，特别是一些使用 `rust` 与 `pgrx` 进行开发的强力扩展：
 
-- [pgml](https://github.com/postgresml/postgresml) v2.8.2：GPU 驱动的 AI 应用数据库
 - [pg_search](https://github.com/paradedb/paradedb/tree/dev/pg_search) v0.7.0：使用 BM25 算法对 SQL 表进行全文搜索
 - [pg_lakehouse](https://github.com/paradedb/paradedb/tree/dev/pg_lakehouse) v0.7.0：在对象存储（如 S3）和表格式（如 DeltaLake）上进行查询的引擎
 - [pg_analytics](https://github.com/paradedb/pg_analytics) v0.6.1：加速 PostgreSQL 内部的分析查询处理
@@ -72,6 +71,7 @@
 - [md5hash](https://github.com/tvondra/md5hash) 1.0.1：用于存储原生MD5哈希数据类型，而非文本。
 - [pg_tde](https://github.com/Percona-Lab/pg_tde) 1.0 alpha：PostgreSQL 的实验性加密存储引擎。
 - [pg_dirtyread](https://github.com/df7cb/pg_dirtyread) 2.6：从 PostgreSQL 表中读取未清理的死元组，用于脏读
+- [pg_profile](https://github.com/zubkov-andrei/pg_profile) 4.6 : Postgres 历史工作负载报表，PG AWR
 
 **新特性**
 
@@ -127,6 +127,9 @@
 - 新参数 `node_write_etc_hosts`，用于控制是否向目标节点的 `/etc/hosts` 文件写入静态 DNS 解析记录
 - 新增了 `prometheus_sd_dir` 参数，用于指定 Prometheus 静态服务发现的目标文件目录
 - configure 脚本新增了 `-x|--proxy` 参数，用于将当前环境的代理信息写入配置文件 by @waitingsong in https://github.com/Vonng/pigsty/pull/405
+- 不再使用 Promtail & Loki 解析 Infra 节点上的 Nginx 日志细节标签，因为这样会导致标签基数爆炸。
+- 在 Promtheus 配置中使用 alertmanager API v2 替代 v1
+- 在 PGSQL 模块中，使用 `/pg/cert/ca.crt` 代替 `/etc/pki/ca.crt`，降低对节点根证书的依赖。 
 
 **新的贡献者**
 
