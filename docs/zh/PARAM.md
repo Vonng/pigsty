@@ -36,7 +36,7 @@
 | 142 | [`dns_records`](#dns_records)                                   | [`INFRA`](#infra) |           [`DNS`](#dns)           | string[]    | G     | 由 dnsmasq 解析的动态 DNS 记录                                                          |
 | 150 | [`prometheus_enabled`](#prometheus_enabled)                     | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | bool        | G/I   | 在此基础设施节点上启用 prometheus？                                                         |
 | 151 | [`prometheus_clean`](#prometheus_clean)                         | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | bool        | G/A   | 初始化Prometheus的时候清除现有数据？                                                         |
-| 152 | [`prometheus_data`](#prometheus_data)                           | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | path        | G     | Prometheus 数据目录，默认为 `/data/prometheus`                                          |
+| 152 | [`prometheus_data`](#prometheus_data)                           | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | path        | G     | Prometheus 数据目录，默认为 `/target/prometheus`                                        |
 | 153 | [`prometheus_sd_dir`](#prometheus_sd_dir)                       | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | path        | G     | Prometheus 服务发现目标文件目录                                                           |
 | 154 | [`prometheus_sd_interval`](#prometheus_sd_interval)             | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | interval    | G     | Prometheus 目标刷新间隔，默认为 5s                                                        |
 | 155 | [`prometheus_scrape_interval`](#prometheus_scrape_interval)     | [`INFRA`](#infra) |    [`PROMETHEUS`](#prometheus)    | interval    | G     | Prometheus 抓取 & 评估间隔，默认为 10s                                                    |
@@ -1040,6 +1040,7 @@ Prometheus 被用作时序数据库，用于存储和分析监控指标数据，
 prometheus_enabled: true          # enable prometheus on this infra node?
 prometheus_clean: true            # clean prometheus data during init?
 prometheus_data: /data/prometheus # prometheus data dir, `/data/prometheus` by default
+prometheus_sd_dir: /etc/prometheus/targets # prometheus file service discovery directory
 prometheus_sd_interval: 5s        # prometheus target refresh interval, 5s by default
 prometheus_scrape_interval: 10s   # prometheus scrape & eval interval, 10s by default
 prometheus_scrape_timeout: 8s     # prometheus global scrape timeout, 8s by default

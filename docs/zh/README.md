@@ -62,15 +62,15 @@ $ curl -fsSL https://pigsty.cc/install | bash
 [ OK ] version = v2.7.0 (from default)
 curl -fSL https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o /tmp/pigsty-v2.7.0.tgz
 ########################################################################### 100.0%
-[ OK ] md5sums = 72bdc9a5b1c3cb107f5c9b00ecc324f5  /tmp/pigsty-v2.7.0.tgz
+[ OK ] md5sums = some_random_md5_hash_value_here_  /tmp/pigsty-v2.7.0.tgz
 [Install] ===========================================
-[ OK ] install = /home/dba/pigsty, from /tmp/pigsty-v2.7.0.tgz
+[ OK ] install = /home/vagrant/pigsty, from /tmp/pigsty-v2.7.0.tgz
 [Resource] ===========================================
 [HINT] rocky 8  have [OPTIONAL] offline package available: https://pigsty.io/docs/setup/offline
-curl -fSL https://github.com/Vonng/pigsty/releases/download/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz
-curl -fSL https://get.pigsty.cc/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz # or use alternative CDN
+curl -fSL https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz
+curl -fSL https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz -o /tmp/pkg.tgz # or use alternative CDN
 [TodoList] ===========================================
-cd /home/dba/pigsty
+cd /home/vagrant/pigsty
 ./bootstrap      # [OPTIONAL] install ansible & use offline package
 ./configure      # [OPTIONAL] preflight-check and config generation
 ./install.yml    # install pigsty modules according to your config.
@@ -114,7 +114,17 @@ curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /t
 
 </details>
 
-[![asciicast](https://asciinema.org/a/603609.svg)](https://asciinema.org/a/603609)
+----------------
+
+**样例：在 Ubuntu 22.04 节点上，在线单机安装流程**
+
+[![asciicast](https://asciinema.org/a/659640.svg)](https://asciinema.org/a/659640)
+
+<details><summary>样例：在 EL8 节点上，使用离线软件包完成安装</summary>
+
+[![asciicast](https://asciinema.org/a/659637.svg)](https://asciinema.org/a/659637)
+
+</details>
 
 
 
