@@ -134,7 +134,7 @@ You can get & extract pigsty source via the following command:
 bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
 ```
 
-> HINT: To install a specfic version, passing the version string as the first parameter:
+> HINT: To install a specific version, passing the version string as the first parameter:
 >
 > ```bash
 > bash -c "$(curl -fsSL https://get.pigsty.cc/i)" -- v2.6.0

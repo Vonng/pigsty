@@ -6,7 +6,7 @@
 >
 > [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/j5pG8qfKxU) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [站点](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog)
 >
-> [Get Started](https://pigsty.io/docs/setup/install/) with the latest [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0) release: `bash -c "$(curl -fsSL https://get.pigsty.cc/install)"`
+> [Get Started](https://pigsty.io/docs/setup/install/) with the latest [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0) release: `curl -fsSL https://get.pigsty.cc/i | bash`
 
 
 ----------------
@@ -24,8 +24,9 @@
 
 > Setup everything with one command! Check [**Get Started**](https://pigsty.io/docs/setup/install/) | [**快速上手**](https://pigsty.io/zh/docs/setup/install/) for details.
 
-[Prepare](https://pigsty.io/docs/setup/prepare/) a fresh Linux x86_64 node that runs [**compatible**](https://pigsty.io/docs/reference/compatibility/) OS distros,
-run this [`install`](https://github.com/Vonng/pigsty/blob/master/bin/install) script as the admin user with nopass `ssh` & `sudo` capability:
+[**Prepare**](https://pigsty.io/docs/setup/prepare/) a fresh Linux x86_64 node that runs [**compatible**](https://pigsty.io/docs/reference/compatibility/) OS distros,
+
+Run this [**`install`**](https://github.com/Vonng/pigsty/blob/master/bin/install) script as the admin user with nopass `ssh` & `sudo` privilege:
 
 ```bash
 bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
@@ -34,10 +35,11 @@ cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 
 Then you will have a pigsty singleton node ready, with Web Services on port `80/443` and Postgres on port `5432`.
 
-<details><summary>Install Script Example</summary>
+<details><summary>Install Script Output</summary><br>
 
-If you don't like the idea of running the [`install`](https://github.com/Vonng/pigsty/blob/master/bin/install) script from the Internet,
-Consider download pigsty src & offline package and perform an [offline install](https://pigsty.io/docs/setup/offline/) without the Internet access. 
+If you don't like the idea of running the [`install`](https://github.com/Vonng/pigsty/blob/master/bin/install) script from the Internet.
+
+Consider download pigsty source tarball & offline package and perform an [offline install](https://pigsty.io/docs/setup/offline/) without the Internet access. 
 
 ```bash
 $ bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
@@ -66,6 +68,13 @@ cd /home/dba/pigsty
 [Complete] ===========================================
 ```
 
+> HINT: To install a specific version, passing the version string as the first parameter:
+>
+> ```bash
+> bash -c "$(curl -fsSL https://get.pigsty.cc/i)" -- v2.6.0
+> curl -fsSL https://get.pigsty.cc/i | bash -s v2.6.0
+> ```
+
 </details>
 
 
@@ -83,23 +92,23 @@ cd pigsty; git checkout v2.7.0
 
 <details><summary>Download Directly</summary>
 
-You can also download pigsty source & [offline packages](https://pigsty.io/docs/setup/offline/) directly from GitHub release page.
+You can also download pigsty source tarball & [offline packages](https://pigsty.io/docs/setup/offline/) directly from GitHub release page.
 
 ```bash
 # download tarball directly from GitHub with curl
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz     # Pigsty Source Tarball
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz -o /tmp/pkg.tgz  # Debian 12    (12.4)
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      -o /tmp/pkg.tgz  # Rocky 8      (8.9)
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04 (22.04.3)
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz                      # Pigsty Source Tarball
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      -o /tmp/pkg.tgz  # Offline Package for Rocky 8.9    (Green Obsidian)
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz -o /tmp/pkg.tgz  # Offline Package for Debian 12    (bookworm, 12.4)
+curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Offline Package for Ubuntu 22.04 (jammy, 22.04.3)
 
 # or use the alternative CDN in china
-curl -L https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz
-curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz -o /tmp/pkg.tgz  # Debian 12    (12.4)
-curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      -o /tmp/pkg.tgz  # Rocky 8      (8.9)
-curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Ubuntu 22.04 (22.04.3)
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz                      # Pigsty Source Tarball
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      -o /tmp/pkg.tgz  # Offline Package for Rocky 8.9    (Green Obsidian)
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz -o /tmp/pkg.tgz  # Offline Package for Debian 12    (bookworm, 12.4)
+curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Offline Package for Ubuntu 22.04 (jammy, 22.04.3)
 ```
 
-Beware that pre-packed offline packages are OS Minor version specific, if you are using a different minor version (e.g: 7.6, 8.6, 9.1), consider not using the offline package and perform the default online installation.
+Beware that pre-packed offline packages are OS Minor version specific, if you are using a different minor version (e.g: 8.6, 22.04.2), consider not using the offline package and perform the default online installation.
 
 </details>
 
@@ -111,7 +120,7 @@ Beware that pre-packed offline packages are OS Minor version specific, if you ar
 
 ## Architecture
 
-Pigsty uses a **modular** design. There are six default [**modules**](https://pigsty.io/docs/about/module/) available:
+Pigsty uses a **modular** design. There are several default [**modules**](https://pigsty.io/docs/about/module/) available:
 
 * [`INFRA`](https://pigsty.io/docs/infra/): Local yum|apt repo, Nginx, DNS, and entire Prometheus & Grafana observability stack.
 * [`NODE`](https://pigsty.io/docs/node/):   Init node name, repo, pkg, NTP, ssh, admin, tune, expose services, collect logs & metrics.
@@ -136,7 +145,7 @@ This node can be used as an admin center & infra provider to manage, deploy & mo
 
 ## More Clusters
 
-To deploy a 3-node HA Postgres Cluster with streaming replication, [**define**](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L54) a new cluster on `all.children.pg-test` of [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml):
+To deploy a 3-node HA Postgres Cluster with streaming replication, [**define**](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L53) a new cluster on `all.children.pg-test` of [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml):
 
 ```yaml 
 pg-test:

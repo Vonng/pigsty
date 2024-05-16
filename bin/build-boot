@@ -70,6 +70,16 @@ ssh -t ubuntu20  "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp
 ssh -t ubuntu22  "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www;" &
 wait
 
+log_info "bootstrap building environment"
+ssh -t build-el7 "cd ~/pigsty && ./bootstrap -n" &
+ssh -t build-el8 "cd ~/pigsty && ./bootstrap -n" &
+ssh -t build-el9 "cd ~/pigsty && ./bootstrap -n" &
+ssh -t debian11  "cd ~/pigsty && ./bootstrap -n" &
+ssh -t debian12  "cd ~/pigsty && ./bootstrap -n" &
+ssh -t ubuntu20  "cd ~/pigsty && ./bootstrap -n" &
+ssh -t ubuntu22  "cd ~/pigsty && ./bootstrap -n" &
+wait
+
 log_info "building bootstrap complete"
 log_info "extracted, now proceed with:"
 log_hint "./install.yml -i files/pigsty/rpm.yml"
