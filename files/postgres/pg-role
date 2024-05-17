@@ -3,16 +3,20 @@
 # File      :   pg-role
 # Desc      :   fetch pgsql instance role using different approach
 # Ctime     :   2020-05-16
-# Mtime     :   2020-12-17
+# Mtime     :   2024-05-17
 # Path      :   /pg/bin/pg-role
 # Depend    :   psql
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-import os, json
+import os, pwd
+
 
 def get_user():
-    return os.environ["USER"]
+    try:
+        return pwd.getpwuid(os.geteuid()).pw_name
+    except KeyError:
+        return ""
 
 
 def role_result(pg_alive, pg_role, source):
@@ -27,7 +31,7 @@ def role_result(pg_alive, pg_role, source):
 def pg_role_from_ps():
     """
     infer postgres role from process list
-    this method guaranteed to report a result, but may not authorized as psql result
+    this method guaranteed to report a result, but may not authorize as psql result
     :return: primary | replica | None
     """
     processes = [i.rstrip('\n') for i in os.popen('ps h -u postgres -o command')]
@@ -136,7 +140,7 @@ def get_pg_role():
         if role_psql["role"] != None:
             pg_role, source = role_psql["role"], role_psql["source"]  # psql result always win!
             if role_psql["role"] != role_ps["role"]:
-                # if role not same , use psql result, but raise a warn
+                # if role not same , use psql result, but raise a warning
                 print("[WARN] psql role %s is not equal to ps role %s" % (role_psql["role"], role_ps["role"]))
         return role_result(pg_alive, pg_role, source)
 
@@ -159,6 +163,7 @@ def pg_role():
             return "unknown"
     except:
         return "unknown"
+
 
 #--------------------------------------------------------------#
 #                             Main                             #
