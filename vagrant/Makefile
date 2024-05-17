@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   vagrant shortcuts
 # Ctime     :   2023-07-29
-# Mtime     :   2024-02-18
+# Mtime     :   2024-05-17
 # Path      :   vagrant/Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -97,7 +97,7 @@ vc:
 vm:
 	./switch minio
 vo:
-	./switch os
+	./switch oss
 vu:
 	./switch ubuntu
 
@@ -129,7 +129,7 @@ el8:    del v8 up ssh
 el9:    del v9 up ssh
 check:  del vc up ssh
 minio:  del vm up ssh
-os:     del vo up ssh
+oss:    del vo up ssh
 ubuntu: dev vu up ssh
 build:  del vb up ssh
 rpm:    del vbr up ssh
@@ -151,7 +151,7 @@ prod22: del vp22 up ssh
 	start up down dw halt clean del destroy nuke st status pause suspend resume \
 	v1 v4 v7 v8 v9 vb vr vd vc vm vo vu \
 	vp vp7 vp8 vp9 vp11 vp12 vp20 vp22 \
-	 meta full el7 el8 el9 build rpm deb check minio os ubuntu \
+	 meta full el7 el8 el9 build rpm deb check minio oss ubuntu \
 	 prod prod7 prod8 prod9 prod11 prod12 prod20 prod22
 
 ###############################################################

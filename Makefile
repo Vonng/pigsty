@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-05-16
+# Mtime     :   2024-05-17
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -29,7 +29,7 @@ U22_PKG=pigsty-pkg-$(VERSION).ubuntu22.x86_64.tgz
 # run with nopass SUDO user (or root) on CentOS 7.x node
 default: tip
 tip:
-	@echo "# Run on Linux x86_64 EL7-9 node with sudo & ssh access"
+	@echo "# Run on Linux node with nopass sudo & ssh access"
 	@echo 'bash -c "$$(curl -fsSL https://get.pigsty.cc/install)"'
 	@echo "./bootstrap     # prepare local repo & ansible"
 	@echo "./configure     # pre-check and templating config"
@@ -440,7 +440,8 @@ remote-release: release copy-src use-src
 rp: release-package
 release-package:
 	bin/release-pkg ${VERSION}
-
+release-oss:
+	bin/release-oss ${VERSION}
 # publish pigsty packages to https://get.pigsty.cc
 pb: publish
 publish:
@@ -483,8 +484,8 @@ el9: del v9 new ssh copy-el9 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
 minio: del vm new ssh copy-el8 use-pkg
 	cp files/pigsty/citus.yml pigsty.yml
-os: del vo new ssh
-	cp files/pigsty/os.yml pigsty.yml
+oss: del vo new ssh
+	cp files/pigsty/oss.yml pigsty.yml
 ubuntu: del vu new ssh copy-u22 use-pkg
 	cp files/pigsty/ubuntu.yml pigsty.yml
 build: del vb new ssh
@@ -499,7 +500,6 @@ check: del vc new ssh
 	cp files/pigsty/check.yml pigsty.yml
 checkb: del vc new ssh check-all
 	cp files/pigsty/check.yml pigsty.yml
-
 prod7: del vp7 new ssh
 	cp files/pigsty/prod.yml pigsty.yml
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
@@ -538,6 +538,6 @@ prod22: del vp22 new ssh
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-el7 copy-el8 copy-el9 copy-u22 copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
-        r release rr remote-release rp release-pkg release-el7 release-el8 release-el9 check-all check-src check-repo check-boot pp package pb publish \
-        meta full el7 el8 el9 check minio os ubuntu prod7 prod8 prod9 prod12 prod22 build rpm deb
+        r release rr remote-release rp release-pkg release-oss release-el7 release-el8 release-el9 check-all check-src check-repo check-boot pp package pb publish \
+        meta full el7 el8 el9 check minio oss ubuntu prod7 prod8 prod9 prod12 prod22 build rpm deb
 ###############################################################

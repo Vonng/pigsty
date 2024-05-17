@@ -1,0 +1,79 @@
+#!/bin/bash
+set -euo pipefail
+#==============================================================#
+# File      :   release-oss
+# Desc      :   release pigsty oss offline packages
+# Ctime     :   2024-05-17
+# Mtime     :   2024-05-17
+# Path      :   bin/release-oss
+# Deps      :   gzip, tar, ssh, rsync
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+PROG_NAME="$(basename $0)"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+VERSION=${1-'v2.7.0'}
+
+CACHE_SCRIPT=${PROG_DIR}/cache
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+# bin/release-oss
+
+#--------------------------------------------------------------#
+# Utils
+#--------------------------------------------------------------#
+__CN='\033[0m';__CB='\033[0;30m';__CR='\033[0;31m';__CG='\033[0;32m';
+__CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\033[0;37m';
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+
+
+#--------------------------------------------------------------#
+# Prepare Repo
+#--------------------------------------------------------------#
+#log_info "trim /www/pigsty packages"
+#ssh build-el7 "sudo rm -rf /www/pigsty/*docs* /www/pigsty/patroni*3.0.4*"
+#ssh build-el8 "sudo rm -rf /www/pigsty/*docs* /www/pigsty/patroni*3.0.4*"
+#cd ${PROG_DIR}/../ && ./infra.yml -t repo_create -i files/pigsty/build.yml
+
+
+#--------------------------------------------------------------#
+# Copy building script
+#--------------------------------------------------------------#
+log_info "copy /tmp/cache script"
+CACHE_SCRIPT=${PROG_DIR}/cache
+scp ${CACHE_SCRIPT} build-el8:/tmp/cache &
+scp ${CACHE_SCRIPT} debian12:/tmp/cache  &
+scp ${CACHE_SCRIPT} ubuntu22:/tmp/cache  &
+wait
+
+
+#--------------------------------------------------------------#
+# Make Offline Package
+#--------------------------------------------------------------#
+log_info "make offline packages"
+ssh -t build-el8 "sudo bash /tmp/cache" &
+ssh -t debian12  "sudo bash /tmp/cache" &
+ssh -t ubuntu22  "sudo bash /tmp/cache" &
+wait
+
+
+#--------------------------------------------------------------#
+# Copy to local dist dir
+#--------------------------------------------------------------#
+log_info "copy pigsty-pkg to local dist dir"
+mkdir -p dist/${VERSION}/
+scp build-el8:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz      &
+scp debian12:/tmp/pkg.tgz  dist/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz &
+scp ubuntu22:/tmp/pkg.tgz  dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz &
+wait
+
+log_info "building complete"
+ls -alh "${PROG_DIR}/../dist/${VERSION}"
+cd "${PROG_DIR}/../dist/${VERSION}/" && md5sum *.tgz > checksums && cat checksums
