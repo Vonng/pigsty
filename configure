@@ -23,7 +23,7 @@ PIGSTY_VERSION=v2.7.0
 #==============================================================#
 # args
 #  -i  --ip  <ip addr>    : set local primary ip address
-#  -m  --mode             : mode, (el7|el8|el9|demo|sec|citus|redis)
+#  -m  --mode             : mode, (el7|el8|el9|ubuntu20|debian|...)
 #  -n  --non-interactive  : flag, run as non-interactive mode
 #  -x  --proxy            : flag, setup proxy_env from environment
 #==============================================================#
@@ -408,8 +408,17 @@ function check_mode(){
         if [[ "${OS_VERSION}" == "7" ]]; then
             MODE=el7    # deprecated os support: el7
             return 0
+        elif [[ "${OS_VERSION}" == "8" ]]; then
+            MODE=el8
+            return 0
+        elif [[ "${OS_VERSION}" == "9" ]]; then
+            MODE=el9
+            return 0
         fi
-        MODE=el
+
+        # fallback to el8 by default
+        log_warn "mode = ${OS_VENDOR} ${OS_VERSION} unknown, fallback to el8"
+        MODE=el8
         return 0
     fi
 
