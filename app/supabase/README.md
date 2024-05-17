@@ -88,8 +88,9 @@ You can run migration on provisioned postgres cluster `pg-meta` with simple `psq
 > Known issue: "ERROR:  unrecognized configuration parameter "pgsodium.enable_event_trigger": https://github.com/Vonng/pigsty/issues/350 , fix with:
 
 ```bash
-pg edit-config pg-meta --force -p pgsodium.enable_event_trigger='off'    # setup pgsodium event trigger
-psql ${PGURL} -c 'SHOW pgsodium.enable_event_trigger;'      # should be off or false
+pg edit-config pg-meta --force -p pgsodium.enable_event_trigger='off' # setup pgsodium event trigger
+psql ${PGURL} -c 'SHOW pgsodium.enable_event_trigger;'                # should be off or false
+pg restart pg-meta                                                    # restart pg-meta to enable the new configuration
 ```
 
 
@@ -107,6 +108,14 @@ psql ${PGURL} -v ON_ERROR_STOP=1 --no-psqlrc -f ~/pigsty/app/supabase/migration.
 The database is now ready for supabase!
 
 
+**Optional**: setup `pg_cron` extension
+
+```bash
+# install pg_cron
+pg edit-config pg-meta --force -p cron.database_name='supa'           # setup pg_cron database_name parameter
+psql ${PGURL} -c 'SHOW cron.database_name;'                           # should be the underlying database name for supabase
+psql ${PGURL} -c 'CREATE EXTENSION pg_cron;';                         # create pg_cron extension on the database 'supa'
+```
 
 
 -----------------------

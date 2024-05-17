@@ -3,12 +3,13 @@
 # File      :   supabase.yml
 # Desc      :   Pigsty 1 node installation for supabase (el8/el9)
 # Ctime     :   2020-05-22
-# Mtime     :   2024-05-16
+# Mtime     :   2024-05-17
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 
+# Tutorial: https://github.com/Vonng/pigsty/tree/master/app/supabase
 
 all:
   children:
@@ -17,7 +18,7 @@ all:
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } }}
 
     # minio cluster, s3 compatible object storage
-    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+    #minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 
     # etcd cluster for ha postgres
     etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
@@ -29,11 +30,7 @@ all:
       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
       vars:
         pg_cluster: pg-meta
-        pg_libs: 'pg_net, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
-        pg_extensions:                                        # required extensions
-          - pg_repack_${pg_version}* wal2json_${pg_version}* pgvector_${pg_version}* pg_cron_${pg_version}* pgsodium_${pg_version}*
-          - vault_${pg_version}* pgjwt_${pg_version}* pg_net_${pg_version}* pgsql-http_${pg_version}*
-          - pg_graphql_${pg_version} wrappers_${pg_version} pg_jsonschema_${pg_version}
+
         pg_users:
           # supabase roles: anon, authenticated, dashboard_user
           - { name: anon           ,login: false }
@@ -48,8 +45,11 @@ all:
           - { name: supabase_functions_admin   ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true }
           - { name: supabase_replication_admin ,password: 'DBUser.Supa' ,replication: true }
           - { name: supabase_read_only_user    ,password: 'DBUser.Supa' ,bypassrls: true ,roles: [ pg_read_all_data ] }
+
         pg_databases:
-          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ]} # the pigsty cmdb, optional
+          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ]} # the optional pigsty cmdb
+
+          # the supabase database (pg_cron should be installed in this database after bootstrap)
           - name: supa
             baseline: supa.sql    # the init-scripts: https://github.com/supabase/postgres/tree/develop/migrations/db/init-scripts
             owner: supabase_admin
@@ -57,22 +57,33 @@ all:
             schemas: [ extensions ,auth ,realtime ,storage ,graphql_public ,supabase_functions ,_analytics ,_realtime ]
             extensions:
               - { name: pgcrypto  ,schema: extensions  } # 1.3   : cryptographic functions
-              - { name: pg_net    ,schema: extensions  } # 0.8.0 : Async HTTP
-              - { name: pgjwt     ,schema: extensions  } # 0.2.0 : JSON Web Token API for Postgresql
+              - { name: pg_net    ,schema: extensions  } # 0.9.1 : async HTTP
+              - { name: pgjwt     ,schema: extensions  } # 0.2.0 : json web token API for postgres
               - { name: uuid-ossp ,schema: extensions  } # 1.1   : generate universally unique identifiers (UUIDs)
               - { name: pgsodium        }                # 3.1.9 : pgsodium is a modern cryptography library for Postgres.
               - { name: supabase_vault  }                # 0.2.8 : Supabase Vault Extension
-              - { name: pg_graphql      }                # 1.5.0 : pg_graphql: GraphQL support
+              - { name: pg_graphql      }                # 1.5.4 : pg_graphql: GraphQL support
+              - { name: pg_jsonschema   }                # 0.3.1 : pg_jsonschema: Validate json schema
+              - { name: wrappers        }                # 0.3.1 : wrappers: FDW collections
+              - { name: http            }                # 1.6   : http: allows web page retrieval inside the database.
+
+        # supabase required extensions
+        pg_libs: 'pg_net, pg_cron, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
+        pg_extensions:                                         # supabase required extensions
+          - pg_repack_16* wal2json_16* pgvector_16* pg_cron_16* pgsodium_16*
+          - pg_graphql_16 pg_jsonschema_16 wrappers_16 vault_16* pgjwt_16* pg_net_16* pgsql_http_16*
+
+        # supabase hba rules, require access from docker network
         pg_hba_rules:
-          - { user: all ,db: supa ,addr: intra       ,auth: pwd ,title: 'allow supa database access from intranet'}
+          - { user: all ,db: supa ,addr: intra       ,auth: pwd ,title: 'allow supa database access from intranet'      }
           - { user: all ,db: supa ,addr: 172.0.0.0/8 ,auth: pwd ,title: 'allow supa database access from docker network'}
+          - { user: all ,db: supa ,addr: all         ,auth: pwd ,title: 'allow supa database access from entire world'  }  # not safe!
 
   vars:                               # global variables
     version: v2.7.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
-    node_tune: tiny                   # use tiny template for NODE  in demo environment
-    pg_conf: tiny.yml                 # use tiny template for PGSQL in demo environment
+
     infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
@@ -80,13 +91,11 @@ all:
       alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
-      minio        : { domain: sss.pigsty  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
-      postgrest    : { domain: api.pigsty  ,endpoint: "127.0.0.1:8884" }
-      pgadmin      : { domain: adm.pigsty  ,endpoint: "127.0.0.1:8885" }
-      pgweb        : { domain: cli.pigsty  ,endpoint: "127.0.0.1:8886" }
-      bytebase     : { domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887" }
-      supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }
+      supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }     # <---- expose web UI
+
+    # don't forget to add the DNS name `supa.pigsty` to your /etc/hosts or resolver
     nginx_navbar:                    # application nav links on home page
+      - { name: Supabase   , url : 'http://supa.pigsty' , comment: 'Supabase Studio'          } # <--- access via domain
       - { name: PgAdmin4   , url : 'http://adm.pigsty'  , comment: 'PgAdmin4 for PostgreSQL'  }
       - { name: PGWeb      , url : 'http://cli.pigsty'  , comment: 'PGWEB Browser Client'     }
       - { name: ByteBase   , url : 'http://ddl.pigsty'  , comment: 'ByteBase Schema Migrator' }
@@ -99,9 +108,5 @@ all:
       - { name: PG Logs    , url : '/logs'              , comment: 'postgres raw csv logs'    }
       - { name: Schemas    , url : '/schema'            , comment: 'schemaspy summary report' }
       - { name: Reports    , url : '/report'            , comment: 'pgbadger summary report'  }
-    node_timezone: Asia/Hong_Kong     # use Asia/Hong_Kong Timezone
-    node_ntp_servers:                 # NTP servers in /etc/chrony.conf
-      - pool cn.pool.ntp.org iburst
-      - pool ${admin_ip} iburst       # assume non-admin nodes does not have internet access
-    pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
+
 ...
