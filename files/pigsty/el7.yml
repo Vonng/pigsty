@@ -3,7 +3,7 @@
 # File      :   el7.yml
 # Desc      :   Pigsty auto generated config for el7 singleton
 # Ctime     :   2020-05-22
-# Mtime     :   2024-05-17
+# Mtime     :   2024-05-18
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -43,7 +43,8 @@ all:
         #10.10.10.x: { pg_seq: 2, pg_role: replica } # <---- read only replica for read-only online traffic
         #10.10.10.y: { pg_seq: 3, pg_role: offline } # <---- offline instance of ETL & interactive queries
       vars:
-        pg_cluster: pg-meta
+        pg_cluster: pg-meta                 # required identity parameter, usually same as group name
+        pg_conf: oltp.yml                   # oltp|tiny|olap|crit|... (default: oltp)
 
         # define business databases here: https://pigsty.io/docs/pgsql/db/
         pg_databases:                       # define business databases on this cluster, array of database definition
@@ -98,13 +99,19 @@ all:
 
         # install extensions here: # define HBA rules here: https://pigsty.io/docs/pgsql/extension/#install-extension
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
-        pg_extensions: # install extension on this cluster (citus & hydra are mutually exclusive! choose one between them!)
-          - postgis33_15* timescaledb-2-postgresql-15* pgvector_15* hydra_15* # citus_15*
-          #- pglogical_15* pg_cron_15* imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql-http_15* pgsql-gzip_15* vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15* apache-age_15* pg_sparse_15* md5hash_15* pg_dirtyread_15*
-          #- orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15
-          #- plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15* pgtt_15 pgq_15* hypopg_15* timestamp9_15* semver_15* prefix_15* periods_15* ip4r_15* tdigest_15* hll_15* pgmp_15 topn_15* geoip_15 extra_window_functions_15 pgsql_tweaks_15 count_distinct_15
-          #- pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15 rum_15
-          #- pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_auth_mon_15 pg_checksums_15 pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15
+        pg_extensions: # extensions to be installed on this cluster
+          - postgis33_$v* timescaledb-2-postgresql-$v* pgvector_$v* # default extensions to be installed
+          #[ GIS & Timeseries  ]# - timescaledb-2-postgresql-$v* postgis33_$v* pointcloud_$v* ip4r_$v* geoip_$v* # h3-pg_$v* pgrouting_$v*
+          #[ Vector Search RAG ]# - pgvector_$v* zhparser_$v* imgsmlr_$v* pg_bigm_$v* pg_similarity_$v*
+          #[ OLAP & Sharding   ]# - hydra_$v* pg_fkpart_$v* pg_partman_$v* # citus_$v* plproxy_$v* # pg_strom_$v*
+          #[ Featured & AM     ]# - apache-age_$v* hypopg_$v* pg_ivm_$v* pgq_$v* pgtt_$v* periods_$v* pg_statement_rollback_$v* hll_$v* rum_$v
+          #[ Function & Test   ]# - pgjwt_$v* pg_uuidv7_$v* pg_background_$v* pgsql-gzip_$v* pgsql-http_$v* pgsql_tweaks_$v* count_distinct_$v* extra_window_functions_$v* tdigest_$v* topn_$v*
+          #[ FDW & Compatible  ]# - mongo_fdw_$v* mysql_fdw_$v* sqlite_fdw_$v* tds_fdw_$v* hdfs_fdw_$v* pgbouncer_fdw_$v* orafce_$v* mysqlcompat_$v* multicorn2_$v* # pg_dbms_job_$v* # oracle_fdw_$v* db2_fdw_$v*
+          #[ Type, PL, Test    ]# - prefix_$v* timestamp9_$v* semver_$v* pgmp_$v* pg_roaringbitmap_$v* md5hash_$v* pg_tle_$v* luapgsql pldebugger_$v* plpgsql_check_$v* plprofiler_$v* plsh_$v* # plr_$v* # postgresql_faker_$v* # postgresql-unit_$v* pgtap_$v*
+          #[ Administration    ]# - pg_cron_$v* pg_repack_$v* pg_squeeze_$v* pg_dirtyread_$v* pgfincore_$v* pg_prioritize_$v* pg_readonly_$v* pg_checksums_$v* safeupdate_$v* ddlx_$v* pg_permissions_$v* pg_catcheck_$v* pgxnclient pg_filedump # pgpool-II-pg$v-extensions
+          #[ Monitor & Stat    ]# - pg_stat_kcache_$v* pg_stat_monitor_$v* pg_qualstats_$v* pg_store_plans_$v* pg_top_$v* pg_track_settings_$v* pg_wait_sampling_$v* system_stats_$v* bgw_replstatus_$v* powa_$v* # pgexporter_ext_$v*
+          #[ Security & Audit  ]# - passwordcheck_cracklib_$v* pgsodium_$v* vault_$v* postgresql_anonymizer_$v* pgaudit17_$v* pgauditlogtofile_$v* pg_auth_mon_$v* credcheck_$v* pgcryptokey_$v* pg_jobmon_$v* logerrors_$v* set_user_$v*
+          #[ ETL, CDC, REPL    ]# - pglogical_$v* wal2json_$v* pg_failover_slots_$v* pg_bulkload_$v* pg_comparator_$v* pgimportdoc_$v* pgexportdoc_$v* pgcopydb pgloader # repmgr_$v*
 
         # define HBA rules here: https://pigsty.io/docs/pgsql/hba/#define-hba
         pg_hba_rules:                       # example hba rules
@@ -227,28 +234,29 @@ all:
       - redis_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                                 # Miscellaneous
       - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph           # Node Packages 1
       - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                 # Node Packages 2
-      - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws pgxnclient pgFormatter                               # PG Common Tools
+      - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws pgFormatter pgxnclient luapgsql pgcopydb             # PG Common Tools
       - postgresql15* pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pglogical_15* pg_cron_15* postgis33_15* timescaledb-2-postgresql-15* pgvector_15* citus_15* # PGDG 15 Packages
-      - imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql-http_15* pgsql-gzip_15* vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15* apache-age_15* hydra_15* pg_sparse_15* md5hash_15* pg_dirtyread_15*
-      - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15
-      - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15* pgtt_15 pgq_15* hypopg_15* timestamp9_15* semver_15* prefix_15* periods_15* ip4r_15* tdigest_15* hll_15* pgmp_15 topn_15* geoip_15 extra_window_functions_15 pgsql_tweaks_15 count_distinct_15
-      - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15 rum_15
-      - pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_auth_mon_15 pg_checksums_15 pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15
+      - imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql-http_15* pgsql-gzip_15* vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15* apache-age_15* hydra_15* pg_sparse_15* md5hash_15* pg_dirtyread_15* pg_filedump_15*
+      - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15* pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15* pg_track_settings_15* pg_wait_sampling_15* system_stats_15* bgw_replstatus_15*
+      - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15* pgtt_15 pgq_15* hypopg_15* timestamp9_15* semver_15* prefix_15* periods_15* ip4r_15* tdigest_15* hll_15* pgmp_15 topn_15* geoip_15 extra_window_functions_15 pgsql_tweaks_15 count_distinct_15 pg_bulkload_15*
+      - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15 rum_15 pgagent_15 postgresql_anonymizer_15*
+      - pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_auth_mon_15* pg_checksums_15 pg_auto_failover_15* pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15 pgauditlogtofile_15*
+    infra_packages:                   # packages to be installed on infra nodes
+      - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway
+      - node_exporter,blackbox_exporter,nginx_exporter,pg_exporter
+      - nginx,dnsmasq,ansible,etcd,python3-requests,redis,mcli
+    node_default_packages:            # default packages to be installed on all nodes
+      - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,chrony,python3
+      - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3-pip
 
     #----------------------------------#
     # PostgreSQL Packages & Extensions
     #----------------------------------#
-    pg_version: 15                    # el7 only have pg 15 support so far
-    pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
-      - postgresql${pg_version}*
-      - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager patroni-etcd             # pgdg common tools
-      - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # important extensions
-    pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-      - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}*
-      - postgis33_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}* hydra_${pg_version}*
-      #- pglogical_${pg_version}* pg_cron_${pg_version}* citus_${pg_version}* apache-age_${pg_version}* imgsmlr_${pg_version}* pg_bigm_${pg_version}* pg_similarity_${pg_version}* pgsql-http_${pg_version}* pgsql-gzip_${pg_version}* pg_sparse_${pg_version}* vault_${pg_version} pgjwt_${pg_version} pg_tle_${pg_version}* pg_roaringbitmap_${pg_version}* pointcloud_${pg_version}* zhparser_${pg_version}*
-      #- orafce_${pg_version}* mysqlcompat_${pg_version} mongo_fdw_${pg_version}* tds_fdw_${pg_version}* mysql_fdw_${pg_version} hdfs_fdw_${pg_version} sqlite_fdw_${pg_version} pgbouncer_fdw_${pg_version} multicorn2_${pg_version}* powa_${pg_version}* pg_stat_kcache_${pg_version}* pg_stat_monitor_${pg_version}* pg_qualstats_${pg_version} pg_track_settings_${pg_version} pg_wait_sampling_${pg_version} system_stats_${pg_version}
-      #- plprofiler_${pg_version}* plproxy_${pg_version} plsh_${pg_version}* pldebugger_${pg_version} plpgsql_check_${pg_version}* pgtt_${pg_version} pgq_${pg_version}* hypopg_${pg_version}* timestamp9_${pg_version}* semver_${pg_version}* prefix_${pg_version}* periods_${pg_version}* ip4r_${pg_version}* tdigest_${pg_version}* hll_${pg_version}* pgmp_${pg_version} topn_${pg_version}* geoip_${pg_version} extra_window_functions_${pg_version} pgsql_tweaks_${pg_version} count_distinct_${pg_version}
-      #- pg_background_${pg_version} e-maj_${pg_version} pg_catcheck_${pg_version} pg_prioritize_${pg_version} pgcopydb_${pg_version} pgcryptokey_${pg_version} logerrors_${pg_version} pg_top_${pg_version} pg_comparator_${pg_version} pg_ivm_${pg_version}* pgsodium_${pg_version}* pgfincore_${pg_version}* ddlx_${pg_version} credcheck_${pg_version} safeupdate_${pg_version} pg_squeeze_${pg_version}* pg_fkpart_${pg_version} pg_jobmon_${pg_version} rum_${pg_version}
-      #- pg_partman_${pg_version} pg_permissions_${pg_version} pgexportdoc_${pg_version} pgimportdoc_${pg_version} pg_statement_rollback_${pg_version}* pg_auth_mon_${pg_version} pg_checksums_${pg_version} pg_failover_slots_${pg_version} pg_readonly_${pg_version}* postgresql-unit_${pg_version}* pg_store_plans_${pg_version}* pg_uuidv7_${pg_version}* set_user_${pg_version}* pgaudit17_${pg_version}
+    pg_version: 15                    # el9 is using postgresql 15 as the default major version (there's no pg16 support on el7)
+    pg_packages:                      # pg packages to be installed, `$pg_version` and `$v` will be replaced to `pg_version`
+      - postgresql$v*
+      - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager patroni-etcd   # pgdg common tools
+      - pg_repack_$v* wal2json_$v* passwordcheck_cracklib_$v*                        # important extensions
+    pg_extensions:                    # global installed extensions, can be overwritten by group vars
+      - postgis33_$v* timescaledb-2-postgresql-$v* pgvector_$v*                      # featured extensions installed by default
 ...
