@@ -10,14 +10,14 @@
     # install postgres basic packages
     - name: install postgres packages
       environment: "{{ proxy_env | default({}) }}"
-      package: name={{ item | replace('${pg_version}', pg_version|string)|regex_replace('\s+',',') }}
+      package: name={{ item|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string)|regex_replace('\s+',',') }}
       with_items: "{{ pg_packages }}"
 
     # install postgres extensions
     - name: install postgres extensions
       tags: pg_extension
       environment: "{{ proxy_env | default({}) }}"
-      package: name={{ item | replace('${pg_version}', pg_version|string)|regex_replace('\s+',',') }}
+      package: name={{ item|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string)|regex_replace('\s+',',') }}
       with_items: "{{ pg_extensions }}"
 
     # fix run dir ownership

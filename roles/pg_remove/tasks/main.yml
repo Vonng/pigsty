@@ -107,12 +107,12 @@
 
     # uninstall postgres extensions
     - name: uninstall pg extensions
-      package: state=absent name={{ item|replace('${pg_version}', pg_version|string)|replace(' ',',') }}
+      package: state=absent name={{ item|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string)|regex_replace('\s+',',') }}
       with_items: "{{ pg_extensions }}"
 
     # uninstall postgres basic packages
     - name: uninstall pg packages
-      package: state=absent name={{ item|replace('${pg_version}', pg_version|string)|replace(' ',',') }}
+      package: state=absent name={{ item|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string)|regex_replace('\s+',',') }}
       with_items: "{{ pg_packages }}"
 
 ...
