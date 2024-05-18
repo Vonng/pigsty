@@ -129,12 +129,19 @@ all:
         pg_hba_rules:
           - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
         pg_extensions:
-          - postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector postgresql-${pg_version}-citus-12.1
-          #- postgresql-${version}-age postgresql-${version}-asn1oid postgresql-${version}-auto-failover postgresql-${version}-bgw-replstatus postgresql-${version}-pg-catcheck postgresql-${version}-pg-checksums postgresql-${version}-credcheck  postgresql-${version}-debversion postgresql-${version}-decoderbufs postgresql-${version}-dirtyread postgresql-${version}-extra-window-functions postgresql-${version}-first-last-agg postgresql-${version}-hll postgresql-${version}-hypopg postgresql-${version}-icu-ext postgresql-${version}-ip4r postgresql-${version}-jsquery
-          #- postgresql-${version}-londiste-sql postgresql-${version}-mimeo postgresql-${version}-mysql-fdw postgresql-${version}-numeral postgresql-${version}-ogr-fdw postgresql-${version}-omnidb postgresql-${version}-oracle-fdw postgresql-${version}-orafce postgresql-${version}-partman postgresql-${version}-periods postgresql-${version}-pgaudit postgresql-${version}-pgauditlogtofile postgresql-${version}-pgextwlist postgresql-${version}-pg-fact-loader postgresql-${version}-pg-failover-slots postgresql-${version}-pgfincore postgresql-${version}-pgl-ddl-deploy postgresql-${version}-pglogical postgresql-${version}-pglogical-ticker
-          #- postgresql-${version}-pgmemcache postgresql-${version}-pgmp postgresql-${version}-pgpcre postgresql-${version}-pgq3 postgresql-${version}-pgq-node postgresql-${version}-pg-qualstats postgresql-${version}-pgsphere postgresql-${version}-pg-stat-kcache postgresql-${version}-pgtap postgresql-${version}-pg-track-settings postgresql-${version}-pg-wait-sampling postgresql-${version}-pldebugger postgresql-${version}-pllua postgresql-${version}-plpgsql-check postgresql-${version}-plprofiler postgresql-${version}-plproxy postgresql-${version}-plsh postgresql-${version}-pointcloud
-          #- postgresql-${version}-powa postgresql-${version}-prefix postgresql-${version}-preprepare postgresql-${version}-prioritize postgresql-${version}-q3c postgresql-${version}-rational postgresql-${version}-rum postgresql-${version}-semver postgresql-${version}-set-user postgresql-${version}-show-plans postgresql-${version}-similarity postgresql-${version}-snakeoil postgresql-${version}-squeeze postgresql-${version}-tablelog postgresql-${version}-tdigest postgresql-${version}-tds-fdw postgresql-${version}-toastinfo postgresql-${version}-topn postgresql-${version}-unit
-          #- postgresql-${version}-rdkit postgresql-${version}-pgrouting-doc postgresql-${version}-pgrouting postgresql-${version}-pgrouting-scripts postgresql-${version}-h3 postgresql-${version}-pgdg-pgroonga # postgresql-${version}-pgpool2 postgresql-${version}-slony1-2 postgresql-${version}-repmgr postgresql-${version}-pljava postgresql-${version}-plr
+          - postgresql-$v-postgis* timescaledb-2-postgresql-$v postgresql-$v-pgvector postgresql-$v-citus-12.1
+          #[ GIS & Timeseries  ]# - timescaledb-2-postgresql-$v postgresql-$v-postgis-3* postgresql-$v-pgrouting* postgresql-$v-pointcloud postgresql-$v-h3 postgresql-$v-ip4r postgresql-$v-mobilitydb
+          #[ Vector Search RAG ]# - postgresql-$v-pgvector postgresql-$v-similarity pg-search
+          #[ OLAP & Sharding   ]# - postgresql-$v-citus-12.1 postgresql-$v-plproxy postgresql-$v-partman pg-lakehouse pg-analytics
+          #[ Featured & AM     ]# - postgresql-$v-rdkit postgresql-$v-age pg-graphql pg-jsonschema postgresql-$v-jsquery postgresql-$v-pg-hint-plan postgresql-$v-hypopg postgresql-$v-pgq* postgresql-$v-periods postgresql-$v-hll postgresql-$v-rum postgresql-$v-preprepare
+          #[ Function & Test   ]# - postgresql-$v-http pg-net postgresql-$v-extra-window-functions postgresql-$v-tdigest postgresql-$v-topn postgresql-$v-first-last-agg postgresql-$v-pgpcre postgresql-$v-icu-ext
+          #[ FDW & Compatible  ]# - wrappers postgresql-$v-mysql-fdw postgresql-$v-ogr-fdw postgresql-$v-orafce postgresql-$v-tds-fdw postgresql-$v-oracle-fdw postgresql-$v-pgmemcache
+          #[ New Data Types    ]# - postgresql-$v-prefix postgresql-$v-asn1oid postgresql-$v-numeral postgresql-$v-rational postgresql-$v-q3c postgresql-$v-pgsphere postgresql-$v-semver postgresql-$v-debversion postgresql-$v-pg-rrule postgresql-$v-pgmp postgresql-$v-roaringbitmap postgresql-$v-pgfaceting
+          #[ Program Language  ]# - postgresql-$v-pllua postgresql-$v-pldebugger postgresql-$v-plpgsql-check postgresql-$v-plprofiler postgresql-$v-plsh postgresql-$v-omnidb postgresql-$v-unit postgresql-$v-pgtap # postgresql-$v-pljava postgresql-$v-plr
+          #[ Administration    ]# - postgresql-$v-cron postgresql-$v-repack postgresql-$v-squeeze postgresql-$v-dirtyread pgdd-jammy-pg$v postgresql-$v-pgfincore postgresql-$v-pgl-ddl-deploy postgresql-$v-prioritize postgresql-$v-pg-checksums postgresql-$v-auto-failover postgresql-$v-pg-catcheck pgxnclient postgresql-filedump # postgresql-$v-pgpool2
+          #[ Monitor & Stat    ]# - postgresql-$v-show-plans postgresql-$v-pg-stat-kcache postgresql-$v-pg-qualstats postgresql-$v-pg-track-settings postgresql-$v-pg-wait-sampling postgresql-$v-bgw-replstatus postgresql-$v-powa postgresql-$v-toastinfo
+          #[ Security & Audit  ]# - postgresql-$v-pgaudit postgresql-$v-pgauditlogtofile postgresql-$v-credcheck postgresql-$v-set-user postgresql-$v-tablelog postgresql-$v-snakeoil postgresql-$v-pgextwlist
+          #[ ETL, CDC, REPL    ]# - postgresql-$v-pglogical* postgresql-$v-decoderbufs postgresql-$v-wal2json postgresql-$v-pg-failover-slots postgresql-$v-londiste-sql postgresql-$v-mimeo postgresql-$v-pg-fact-loader pgloader # postgresql-$v-repmgr postgresql-$v-slony1-2
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
         node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
           - '00 01 * * 1 postgres /pg/bin/pg-backup full'
@@ -334,7 +341,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.60/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector postgresql-${pg_version}-citus-12.1' ]
+        pg_extensions: [ 'postgresql-$v-postgis* timescaledb-2-postgresql-$v postgresql-$v-pgvector postgresql-$v-citus-12.1' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -357,7 +364,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.61/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector postgresql-${pg_version}-citus-12.1' ]
+        pg_extensions: [ 'postgresql-$v-postgis* timescaledb-2-postgresql-$v postgresql-$v-pgvector postgresql-$v-citus-12.1' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -380,7 +387,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.62/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector postgresql-${pg_version}-citus-12.1' ]
+        pg_extensions: [ 'postgresql-$v-postgis* timescaledb-2-postgresql-$v postgresql-$v-pgvector postgresql-$v-citus-12.1' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -403,7 +410,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.63/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector postgresql-${pg_version}-citus-12.1' ]
+        pg_extensions: [ 'postgresql-$v-postgis* timescaledb-2-postgresql-$v postgresql-$v-pgvector postgresql-$v-citus-12.1' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -426,7 +433,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.64/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector postgresql-${pg_version}-citus-12.1' ]
+        pg_extensions: [ 'postgresql-$v-postgis* timescaledb-2-postgresql-$v postgresql-$v-pgvector postgresql-$v-citus-12.1' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -613,12 +620,12 @@ all:
     #==========================================================#
     pg_conf: tiny.yml
     pg_dbsu_uid: 543
-    pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
-      - postgresql-*-${pg_version}
+    pg_packages:                      # pg packages to be installed, `${pg_version}` & `$v` will be replaced
+      - postgresql-*-$v
       - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
-      - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
-    pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-      - postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector postgresql-${pg_version}-citus-12.1
+      - postgresql-$v-repack postgresql-$v-wal2json
+    pg_extensions:                    # pg extensions to be installed, `$v` will be replaced
+      - postgresql-$v-postgis* timescaledb-2-postgresql-$v postgresql-$v-pgvector postgresql-$v-citus-12.1
     pgbackrest_method: minio          # USE THE HA MINIO THROUGH A LOAD BALANCER
     pg_dbsu_ssh_exchange: false       # do not exchange dbsu ssh key among pgsql cluster
     pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository

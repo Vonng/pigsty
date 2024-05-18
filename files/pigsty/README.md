@@ -12,14 +12,16 @@ There are several built-in templates for your reference, you can also create you
 
 If `-m <mode>` is specified, corresponding `<mode>.yml` is used, otherwise pigsty will auto-selected the following singleton templates according to your OS distribution:
 
-* [el.yml](el.yml) : Pigsty auto generated config for el8, el9 compatible singleton node
-* [ubuntu.yml](ubuntu.yml) : Pigsty auto generated config for ubuntu singleton node (22.04)
-* [debian.yml](debian.yml) : Pigsty auto generated config for debian singleton node (12/11)
+* [el8.yml](el8.yml): EL8, Rocky 8.9 and compatible OS
+* [debian12.yml](debian12.yml): Debian 12 bookworm and compatible OS
+* [ubuntu22.yml](ubuntu22.yml): Ubuntu 22.04 jammy and compatible OS
 
-Deprecated config templates:
+The above 3 os distro have corresponding offline packages available. And the following os distros can only be online installed:
 
-* [el7.yml](el7.yml) : Pigsty auto generated config for el7 compatible singleton node
-* [ubuntu20.yml](ubuntu20.yml) : Pigsty auto generated config for ubuntu 22.04 focal node
+* [el7.yml](el7.yml): EL7, CentOS 7.9 and compatible OS
+* [el9.yml](el9.yml): EL9, Rocky 9.3 and compatible OS
+* [debian11.yml](debian11.yml): Debian 11 bullseye and compatible OS
+* [ubuntu20.yml](ubuntu20.yml): Ubuntu 20.04 focal and compatible OS
 
 The `configure` procedure is optional. You can always skip it and create `pigsty.yml` by yourself.
 
@@ -44,7 +46,8 @@ These templates will demonstrate how to configure a cluster with different size 
 
 There config templates are used for development and testing purpose.
 
-* [build.yml](build.yml) : building config for EL 7-9, Ubuntu, Debian nodes
+* [oss.yml](oss.yml) : building config for EL 8, Debian 12, and Ubuntu 22.04 OSS version offline package.
+* [build.yml](build.yml) : building config for EL 7-9, Ubuntu, Debian pro version
 * [rpm.yml](rpm.yml) : building config for EL 7/8/9
 * [deb.yml](deb.yml) : building config for ubuntu20/22 and debian 11/12
 * [check.yml](check.yml) : Validate pigsty on different EL distributions

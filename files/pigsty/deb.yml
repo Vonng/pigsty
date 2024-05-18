@@ -3,7 +3,7 @@
 # File      :   deb.yml
 # Desc      :   Pigsty building environment for ubuntu/debian
 # Ctime     :   2022-10-12
-# Mtime     :   2024-05-09
+# Mtime     :   2024-05-18
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -65,11 +65,11 @@ all:
     pg_version: 16                    # the default pg major version
     pg_dbsu_uid: 543                  # manually assigned uid/gid for postgres dbsu
     pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
-      - postgresql-*-${pg_version}
+      - postgresql-*-$v
       - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
-      - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
+      - postgresql-$v-repack postgresql-$v-wal2json
     pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-      - postgresql-${pg_version}-postgis* timescaledb-2-postgresql-${pg_version} postgresql-${pg_version}-pgvector postgresql-${pg_version}-citus-12.1
+      - postgresql-$v-postgis* timescaledb-2-postgresql-$v postgresql-$v-pgvector
 
 
   children:
@@ -83,10 +83,10 @@ all:
 
     etcd:
       hosts:
-        #10.10.10.11: { etcd_seq: 4 }
+        10.10.10.11: { etcd_seq: 4 }
         10.10.10.12: { etcd_seq: 5 }
         #10.10.10.20: { etcd_seq: 6 }
-        #10.10.10.22: { etcd_seq: 7 }
+        10.10.10.22: { etcd_seq: 7 }
       vars: {  etcd_cluster: etcd  }
 
 
@@ -102,20 +102,34 @@ all:
           - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter              # Infra Packages
-          - redis-exporter mysqld-exporter mongodb-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos                           # Miscellaneous
+          - redis-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                   # Miscellaneous
           - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-perf chrony    # Node Tools 1
           - netcat-openbsd socat tnftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl # Node Tools 2
           - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Common Tools
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
           - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
-          - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery
-          - postgresql-16-londiste-sql postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
+          - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery postgresql-16-londiste-sql
+          - postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
           - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
-          #- postgresql-16-pljava postgresql-16-plr postgresql-16-rdkit postgresql-16-pgrouting-doc postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-pgdg-pgroonga postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
+          - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 # postgresql-16-rdkit postgresql-16-statviz
+          - pg-graphql pg-net pg-jsonschema wrappers plprql
         node_default_packages:            # default node packages to be installed on debian11 node: (linux-perf,netcat-openbsd,tnftp)
           - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
           - netcat-openbsd,tnftp,socat,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
+        pg_extensions:
+          - timescaledb-2-postgresql-$v postgresql-$v-postgis-3* postgresql-$v-pgrouting* postgresql-$v-pointcloud postgresql-$v-h3 postgresql-$v-ip4r postgresql-$v-mobilitydb
+          - postgresql-$v-pgvector postgresql-$v-similarity
+          - postgresql-$v-citus-12.1 postgresql-$v-plproxy postgresql-$v-partman
+          - postgresql-$v-age pg-graphql pg-jsonschema postgresql-$v-jsquery postgresql-$v-pg-hint-plan postgresql-$v-hypopg postgresql-$v-pgq* postgresql-$v-periods postgresql-$v-hll postgresql-$v-rum postgresql-$v-preprepare # postgresql-$v-rdkit
+          - postgresql-$v-http pg-net postgresql-$v-extra-window-functions postgresql-$v-tdigest postgresql-$v-topn postgresql-$v-first-last-agg postgresql-$v-pgpcre postgresql-$v-icu-ext
+          - wrappers postgresql-$v-mysql-fdw postgresql-$v-ogr-fdw postgresql-$v-orafce postgresql-$v-tds-fdw postgresql-$v-oracle-fdw postgresql-$v-pgmemcache
+          - postgresql-$v-prefix postgresql-$v-asn1oid postgresql-$v-numeral postgresql-$v-rational postgresql-$v-q3c postgresql-$v-pgsphere postgresql-$v-semver postgresql-$v-debversion postgresql-$v-pg-rrule postgresql-$v-pgmp postgresql-$v-roaringbitmap postgresql-$v-pgfaceting
+          - plprql postgresql-$v-pllua postgresql-$v-pldebugger postgresql-$v-plpgsql-check postgresql-$v-plprofiler postgresql-$v-plsh postgresql-$v-omnidb postgresql-$v-unit postgresql-$v-pgtap # postgresql-$v-pljava postgresql-$v-plr
+          - postgresql-$v-cron postgresql-$v-repack postgresql-$v-squeeze postgresql-$v-dirtyread postgresql-$v-pgfincore postgresql-$v-pgl-ddl-deploy postgresql-$v-prioritize postgresql-$v-pg-checksums postgresql-$v-auto-failover postgresql-$v-pg-catcheck pgxnclient postgresql-filedump # postgresql-$v-pgpool2
+          - postgresql-$v-show-plans postgresql-$v-pg-stat-kcache postgresql-$v-pg-qualstats postgresql-$v-pg-track-settings postgresql-$v-pg-wait-sampling postgresql-$v-bgw-replstatus postgresql-$v-powa postgresql-$v-toastinfo # postgresql-$v-statviz
+          - postgresql-$v-pgaudit postgresql-$v-pgauditlogtofile postgresql-$v-credcheck postgresql-$v-set-user postgresql-$v-tablelog postgresql-$v-snakeoil postgresql-$v-pgextwlist
+          - postgresql-$v-pglogical* postgresql-$v-decoderbufs postgresql-$v-wal2json postgresql-$v-pg-failover-slots postgresql-$v-londiste-sql postgresql-$v-mimeo postgresql-$v-pg-fact-loader pgloader # postgresql-$v-repmgr postgresql-$v-slony1-2
 
 
     #----------------------------------#
@@ -130,20 +144,35 @@ all:
           - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter              # Infra Packages
-          - redis-exporter mysqld-exporter mongodb-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos                           # Miscellaneous
+          - redis-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                   # Miscellaneous
           - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-perf chrony    # Node Tools 1
           - netcat-openbsd socat tnftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl # Node Tools 2
           - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Common Tools
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
           - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
-          - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery
-          - postgresql-16-londiste-sql postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
+          - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery postgresql-16-londiste-sql
+          - postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
           - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
-          #- pg-graphql pg-net pg-jsonschema plprql wrappers #- postgresql-16-pljava postgresql-16-plr postgresql-16-rdkit postgresql-16-pgrouting-doc postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-pgdg-pgroonga postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
+          - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-rdkit postgresql-16-statviz
+          - pg-graphql pg-net pg-jsonschema wrappers plprql
+          # too heavy # - postgresql-16-pljava postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
         node_default_packages:            # default node packages to be installed on debian12 node: (linux-perf,netcat-openbsd,tnftp)
           - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
           - netcat-openbsd,tnftp,socat,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
+        pg_extensions:
+          - timescaledb-2-postgresql-$v postgresql-$v-postgis-3* postgresql-$v-pgrouting* postgresql-$v-pointcloud postgresql-$v-h3 postgresql-$v-ip4r postgresql-$v-mobilitydb
+          - postgresql-$v-pgvector postgresql-$v-similarity
+          - postgresql-$v-citus-12.1 postgresql-$v-plproxy postgresql-$v-partman
+          - postgresql-$v-rdkit postgresql-$v-age pg-graphql pg-jsonschema postgresql-$v-jsquery postgresql-$v-pg-hint-plan postgresql-$v-hypopg postgresql-$v-pgq* postgresql-$v-periods postgresql-$v-hll postgresql-$v-rum postgresql-$v-preprepare
+          - postgresql-$v-http pg-net postgresql-$v-extra-window-functions postgresql-$v-tdigest postgresql-$v-topn postgresql-$v-first-last-agg postgresql-$v-pgpcre postgresql-$v-icu-ext
+          - wrappers postgresql-$v-mysql-fdw postgresql-$v-ogr-fdw postgresql-$v-orafce postgresql-$v-tds-fdw postgresql-$v-oracle-fdw postgresql-$v-pgmemcache
+          - postgresql-$v-prefix postgresql-$v-asn1oid postgresql-$v-numeral postgresql-$v-rational postgresql-$v-q3c postgresql-$v-pgsphere postgresql-$v-semver postgresql-$v-debversion postgresql-$v-pg-rrule postgresql-$v-pgmp postgresql-$v-roaringbitmap postgresql-$v-pgfaceting
+          - plprql postgresql-$v-pllua postgresql-$v-pldebugger postgresql-$v-plpgsql-check postgresql-$v-plprofiler postgresql-$v-plsh postgresql-$v-omnidb postgresql-$v-unit postgresql-$v-pgtap # postgresql-$v-pljava postgresql-$v-plr
+          - postgresql-$v-cron postgresql-$v-repack postgresql-$v-squeeze postgresql-$v-dirtyread postgresql-$v-pgfincore postgresql-$v-pgl-ddl-deploy postgresql-$v-prioritize postgresql-$v-pg-checksums postgresql-$v-auto-failover postgresql-$v-pg-catcheck pgxnclient postgresql-filedump # postgresql-$v-pgpool2
+          - postgresql-$v-show-plans postgresql-$v-pg-stat-kcache postgresql-$v-pg-qualstats postgresql-$v-pg-track-settings postgresql-$v-pg-wait-sampling postgresql-$v-bgw-replstatus postgresql-$v-powa postgresql-$v-toastinfo postgresql-$v-statviz
+          - postgresql-$v-pgaudit postgresql-$v-pgauditlogtofile postgresql-$v-credcheck postgresql-$v-set-user postgresql-$v-tablelog postgresql-$v-snakeoil postgresql-$v-pgextwlist
+          - postgresql-$v-pglogical* postgresql-$v-decoderbufs postgresql-$v-wal2json postgresql-$v-pg-failover-slots postgresql-$v-londiste-sql postgresql-$v-mimeo postgresql-$v-pg-fact-loader pgloader # postgresql-$v-repmgr postgresql-$v-slony1-2
 
 
     #----------------------------------#
@@ -158,23 +187,36 @@ all:
           - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter              # Infra Packages
-          - redis-exporter mysqld-exporter mongodb-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos                           # Miscellaneous
+          - redis-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                   # Miscellaneous
           - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-tools-generic  # Node Tools 1
           - netcat socat ftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl chrony    # Node Tools 2
-          - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Common Tools
+          - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Packages
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
           - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
-          - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery
-          - postgresql-16-londiste-sql postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
+          - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery postgresql-16-londiste-sql
+          - postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
           - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
-          #- postgresql-16-pljava postgresql-16-plr postgresql-16-rdkit postgresql-16-pgrouting-doc postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-pgdg-pgroonga postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
-        pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
-          - postgresql-16 postgresql-client-${pg_version} postgresql-pl*-${pg_version} #postgresql-server-dev-${pg_version}
+          - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting
+          - pg-graphql pg-net pg-jsonschema wrappers
+            # too heavy # - postgresql-16-pljava postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
+        pg_packages:                      # pg packages to be installed, `$pg_version` and `$v` will be replaced to `pg_version`
+          - postgresql-$v postgresql-client-$v postgresql-pl*-$v # postgresql-server-dev-${pg_version} has broken llvm deps in ubuntu 20.04 (postgresql-*-$v)
           - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
-          - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
-        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-          - postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16 # postgresql-16-postgis* not available on ubuntu 20.04
+          - postgresql-$v-repack postgresql-$v-wal2json
+        pg_extensions:
+          - timescaledb-2-postgresql-$v postgresql-$v-postgis-3* postgresql-$v-pointcloud postgresql-$v-ip4r postgresql-$v-mobilitydb # postgresql-$v-h3
+          - postgresql-$v-pgvector postgresql-$v-similarity
+          - postgresql-$v-citus-12.1 postgresql-$v-plproxy postgresql-$v-partman
+          - postgresql-$v-age pg-graphql pg-jsonschema postgresql-$v-jsquery postgresql-$v-pg-hint-plan postgresql-$v-hypopg postgresql-$v-pgq* postgresql-$v-periods postgresql-$v-hll postgresql-$v-rum postgresql-$v-preprepare # postgresql-16-rdkit postgresql-16-pgrouting postgresql-16-pgrouting-scripts
+          - postgresql-$v-http pg-net postgresql-$v-extra-window-functions postgresql-$v-tdigest postgresql-$v-topn postgresql-$v-first-last-agg postgresql-$v-pgpcre postgresql-$v-icu-ext
+          - wrappers postgresql-$v-ogr-fdw postgresql-$v-orafce postgresql-$v-tds-fdw postgresql-$v-oracle-fdw postgresql-$v-pgmemcache # postgresql-$v-mysql-fdw
+          - postgresql-$v-prefix postgresql-$v-asn1oid postgresql-$v-numeral postgresql-$v-rational postgresql-$v-q3c postgresql-$v-pgsphere postgresql-$v-semver postgresql-$v-debversion postgresql-$v-pg-rrule postgresql-$v-pgmp postgresql-$v-roaringbitmap postgresql-$v-pgfaceting
+          - postgresql-$v-pllua postgresql-$v-pldebugger postgresql-$v-plpgsql-check postgresql-$v-plprofiler postgresql-$v-plsh postgresql-$v-omnidb postgresql-$v-unit postgresql-$v-pgtap # postgresql-$v-pljava postgresql-$v-plr
+          - postgresql-$v-cron postgresql-$v-repack postgresql-$v-squeeze postgresql-$v-dirtyread postgresql-$v-pgfincore postgresql-$v-pgl-ddl-deploy postgresql-$v-prioritize postgresql-$v-pg-checksums postgresql-$v-auto-failover postgresql-$v-pg-catcheck pgxnclient postgresql-filedump # postgresql-$v-pgpool2 pgdd-jammy-pg$v
+          - postgresql-$v-show-plans postgresql-$v-pg-stat-kcache postgresql-$v-pg-qualstats postgresql-$v-pg-track-settings postgresql-$v-pg-wait-sampling postgresql-$v-bgw-replstatus postgresql-$v-powa postgresql-$v-toastinfo
+          - postgresql-$v-pgaudit postgresql-$v-pgauditlogtofile postgresql-$v-credcheck postgresql-$v-set-user postgresql-$v-tablelog postgresql-$v-snakeoil postgresql-$v-pgextwlist
+          - postgresql-$v-pglogical* postgresql-$v-decoderbufs postgresql-$v-wal2json postgresql-$v-pg-failover-slots postgresql-$v-londiste-sql postgresql-$v-mimeo postgresql-$v-pg-fact-loader pgloader # postgresql-$v-repmgr postgresql-$v-slony1-2
 
 
     #----------------------------------#
@@ -189,15 +231,31 @@ all:
           - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter              # Infra Packages
-          - redis-exporter mysqld-exporter mongodb-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos                           # Miscellaneous
+          - redis-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                   # Miscellaneous
           - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-tools-generic  # Node Tools 1
           - netcat socat ftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl chrony    # Node Tools 2
           - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Packages
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
           - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
-          - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery
-          - postgresql-16-londiste-sql postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
+          - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery postgresql-16-londiste-sql
+          - postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
           - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
-          #- pg-graphql pg-net pg-jsonschema wrappers pg-analytics pg-bm25 # postgresql-16-pljava postgresql-16-plr postgresql-16-rdkit postgresql-16-pgrouting-doc postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-pgdg-pgroonga postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
+          - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-rdkit
+          - pg-graphql pg-net pg-jsonschema wrappers pg-analytics pg-search pg-lakehouse pgdd-jammy-pg16
+        # too heavy # - postgresql-16-pljava postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
+        pg_extensions:
+          - timescaledb-2-postgresql-$v postgresql-$v-postgis-3* postgresql-$v-pgrouting* postgresql-$v-pointcloud postgresql-$v-h3 postgresql-$v-ip4r postgresql-$v-mobilitydb
+          - postgresql-$v-pgvector postgresql-$v-similarity pg-search
+          - postgresql-$v-citus-12.1 postgresql-$v-plproxy postgresql-$v-partman pg-lakehouse pg-analytics
+          - postgresql-$v-rdkit postgresql-$v-age pg-graphql pg-jsonschema postgresql-$v-jsquery postgresql-$v-pg-hint-plan postgresql-$v-hypopg postgresql-$v-pgq* postgresql-$v-periods postgresql-$v-hll postgresql-$v-rum postgresql-$v-preprepare
+          - postgresql-$v-http pg-net postgresql-$v-extra-window-functions postgresql-$v-tdigest postgresql-$v-topn postgresql-$v-first-last-agg postgresql-$v-pgpcre postgresql-$v-icu-ext
+          - wrappers postgresql-$v-mysql-fdw postgresql-$v-ogr-fdw postgresql-$v-orafce postgresql-$v-tds-fdw postgresql-$v-oracle-fdw postgresql-$v-pgmemcache
+          - postgresql-$v-prefix postgresql-$v-asn1oid postgresql-$v-numeral postgresql-$v-rational postgresql-$v-q3c postgresql-$v-pgsphere postgresql-$v-semver postgresql-$v-debversion postgresql-$v-pg-rrule postgresql-$v-pgmp postgresql-$v-roaringbitmap postgresql-$v-pgfaceting
+          - postgresql-$v-pllua postgresql-$v-pldebugger postgresql-$v-plpgsql-check postgresql-$v-plprofiler postgresql-$v-plsh postgresql-$v-omnidb postgresql-$v-unit postgresql-$v-pgtap # postgresql-$v-pljava postgresql-$v-plr
+          - postgresql-$v-cron postgresql-$v-repack postgresql-$v-squeeze postgresql-$v-dirtyread pgdd-jammy-pg$v postgresql-$v-pgfincore postgresql-$v-pgl-ddl-deploy postgresql-$v-prioritize postgresql-$v-pg-checksums postgresql-$v-auto-failover postgresql-$v-pg-catcheck pgxnclient postgresql-filedump # postgresql-$v-pgpool2
+          - postgresql-$v-show-plans postgresql-$v-pg-stat-kcache postgresql-$v-pg-qualstats postgresql-$v-pg-track-settings postgresql-$v-pg-wait-sampling postgresql-$v-bgw-replstatus postgresql-$v-powa postgresql-$v-toastinfo
+          - postgresql-$v-pgaudit postgresql-$v-pgauditlogtofile postgresql-$v-credcheck postgresql-$v-set-user postgresql-$v-tablelog postgresql-$v-snakeoil postgresql-$v-pgextwlist
+          - postgresql-$v-pglogical* postgresql-$v-decoderbufs postgresql-$v-wal2json postgresql-$v-pg-failover-slots postgresql-$v-londiste-sql postgresql-$v-mimeo postgresql-$v-pg-fact-loader pgloader # postgresql-$v-repmgr postgresql-$v-slony1-2
+
 ...
