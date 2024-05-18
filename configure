@@ -425,14 +425,26 @@ function check_mode(){
     # use ubuntu by default
     if [[ ${OS_PACKAGE} == "deb" ]]; then
         if [[ "${OS_VENDOR}" == "debian" ]]; then
-            MODE=debian
+            if [[ "${OS_VERSION}" == "11" ]]; then
+                MODE=debian11
+                return 0
+            elif [[ "${OS_VERSION}" == "12" ]]; then
+                MODE=debian12
+                return 0
+            fi
+            MODE=debian12
+            log_warn "mode = ${OS_VENDOR} ${OS_VERSION} unknown, fallback to debian 12"
             return 0
         elif [[ "${OS_VENDOR}" == "ubuntu" ]]; then
             if [[ "${OS_VERSION}" == "20" ]]; then
                 MODE=ubuntu20     # deprecated os support: ubuntu20
                 return 0
+            elif [[ "${OS_VERSION}" == "22" ]]; then
+                MODE=ubuntu22
+                return 0
             fi
-            MODE=ubuntu
+            MODE=ubuntu22
+            log_warn "mode = ${OS_VENDOR} ${OS_VERSION} unknown, fallback to ubuntu 22"
             return 0
         fi
     fi
