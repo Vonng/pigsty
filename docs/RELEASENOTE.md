@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.7.0](#v270) | 2024-05-20 | Extension Overwhelming, docker VM playground             | [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0)                             |
+| [v2.7.0](#v270) | 2024-05-20 | Extension Overwhelming, new docker apps                  | [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0)                             |
 | [v2.6.0](#v260) | 2024-02-28 | PG 16 as default version,  ParadeDB & DuckDB             | [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)                             |
 | [v2.5.1](#v251) | 2023-12-01 | Routine update, pg16 major extensions                    | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
 | [v2.5.0](#v250) | 2023-10-24 | Ubuntu/Debian Support:  bullseye, bookworm, jammy, focal | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
@@ -74,10 +74,12 @@ And some new extensions in plain C & C++
 
 **New Features**
 
-* running on certain `docker` containers.
-* prepare arm64 packages for infra & pgsql packages for el & deb distros
-* new installation script to download from cloudflare, and more hint.
-* new monitoring dashboard for PGSQL PITR  
+- running on certain `docker` containers.
+- prepare arm64 packages for infra & pgsql packages for el & deb distros.
+- new installation script to download from cloudflare, and more hint.
+- new monitoring dashboard for PGSQL PITR to assist the PITR procedure. 
+- make preparation for running pigsty inside docker VM containers
+- add a [fool-proof design](https://github.com/Vonng/pigsty/issues/402) for running pgsql.yml on node that is not managed by pigsty
 
 **Software Upgrade**
 
@@ -148,6 +150,10 @@ c03dd19fe5c304eb2553f2e327cfd0bc  pigsty-pkg-v2.7.0.el8.x86_64.tgz
 9b5596e65c1de1720cdb6694c0d8a6a4  pigsty-pkg-v2.7.0.debian12.x86_64.tgz
 44ad94b2f7ba19162d5e677a74dffb74  pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz
 ```
+
+
+
+
 
 ----------------
 

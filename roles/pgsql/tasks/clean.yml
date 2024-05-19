@@ -1,22 +1,25 @@
 ---
-#---------------------------------------------------------------
-# PURGE PROCEDURE
-#---------------------------------------------------------------
-# check postgres instance precondition
-#  --- empty  ---> clean ---> init
-#  --- exist  ^--> [pg_safeguard=true]  ---> abort
-#             ^--> [pg_safeguard=false]
-#                         ^--> [pg_clean=false] ---> abort
-#                         ^--> [pg_clean=true]  ---> purge
-#---------------------------------------------------------------
-
-
 #--------------------------------------------------------------#
 # Check PostgreSQL Exists                             [pg_check]
 #--------------------------------------------------------------#
 - name: check postgres exists
   tags: pg_check
   block:
+
+    # check node is managed by pigsty by the existence of ca.crt
+    - name: check if node is managed by pigsty
+      stat: path=/etc/pki/ca.crt
+      register: check_ca_crt_result
+
+    # abort if any node is not init by pigsty (TODO, validate use the same CA crt)
+    - name: ABORT due to install on unmanaged node
+      when: not check_ca_crt_result.stat.exists
+      connection: local
+      any_errors_fatal: true
+      ignore_errors: false
+      fail:
+        msg: >-
+          Abort because the node {{ inventory_hostname }} seems not managed by pigsty, use ./node.yml to init node first.  
 
     # check postgres by listening port
     - name: check postgres exists
@@ -41,6 +44,18 @@
           Abort because pg instance {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }} exists. 
            {% if pg_safeguard|bool %}pg_safeguard enabled, please disable it before purging.{% endif %}
            {% if not pg_clean|bool %}pg_clean = false, use -e pg_safeguard=false to override.{% endif %}
+
+
+#---------------------------------------------------------------
+# PURGE PROCEDURE
+#---------------------------------------------------------------
+# check postgres instance precondition
+#  --- empty  ---> clean ---> init
+#  --- exist  ^--> [pg_safeguard=true]  ---> abort
+#             ^--> [pg_safeguard=false]
+#                         ^--> [pg_clean=false] ---> abort
+#                         ^--> [pg_clean=true]  ---> purge
+#---------------------------------------------------------------
 
 
 #--------------------------------------------------------------#

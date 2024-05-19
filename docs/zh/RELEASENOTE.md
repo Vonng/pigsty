@@ -2,7 +2,7 @@
 
 | 版本              |    发布时间    | 摘要                                                         | 地址                                                                                        |
 |:----------------|:----------:|------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.7.0](#v270) | 2024-05-16 | 扩展大爆炸，新增20强力扩展插件，为Docker版铺平道路                              | [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0)                             |
+| [v2.7.0](#v270) | 2024-05-20 | 扩展大爆炸，新增20强力扩展插件，与多款Docker应用                               | [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0)                             |
 | [v2.6.0](#v260) | 2024-02-28 | PG 16 作为默认大版本，引入 ParadeDB 与 DuckDB 等扩展                     | [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)                             |
 | [v2.5.1](#v251) | 2023-12-01 | 例行小版本更新，PG16重要扩展支持                                         | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
 | [v2.5.0](#v250) | 2023-09-24 | Ubuntu/Debian支持：bullseye, bookworm, jammy, focal           | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
@@ -75,9 +75,12 @@
 
 **新特性**
 
-* 允许 Pigsty 在特定 Docker 虚拟机镜像中运行。
-* 针对 Ubuntu 与 EL 系操作系统发行版准备了 INFRA & PGSQL 模块的 arm64 软件包
-* 新安装脚本，可从 cloudflare 下载软件，可以指定版本，提供更完善的提示信息。
+- 允许 Pigsty 在特定 Docker 虚拟机镜像中运行。
+- 针对 Ubuntu 与 EL 系操作系统发行版准备了 INFRA & PGSQL 模块的 arm64 软件包
+- 新安装脚本，可从 cloudflare 下载软件，可以指定版本，提供更完善的提示信息。
+- 新增的 PGSQL PITR 监控面板，用于在 PITR 过程中提供更好的可观测性
+- 针对在 Docker 虚拟机镜像中运行 Pigsty 进行了一系列铺垫与准备。
+- 新增了 [防呆设计](https://github.com/Vonng/pigsty/issues/402)，避免在非 Pigsty 纳管的节点上运行 pgsql.yml 剧本 （[AdamYLK](https://github.com/AdamYLK)）
 
 **软件版本升级**
 
