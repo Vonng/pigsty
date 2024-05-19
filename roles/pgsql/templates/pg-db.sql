@@ -14,7 +14,7 @@
 --                            EXECUTION                             --
 --==================================================================--
 -- run as dbsu (postgres by default)
--- createdb -w -p {{ pg_port|default(5432) }} {% if 'owner'      in  database and database.owner != ''      %}-O "{{ database.owner      }}" {% endif %}
+-- createdb -w -p {{ pg_port|default(5432) }} {% if 'owner' in database and database.owner != '' %}-O "{{ database.owner      }}" {% endif %}
 {% if 'template'   in  database and database.template != ''   %}-T '{{ database.template   }}' {% endif %}
 {% if 'encoding'   in  database and database.encoding != ''   %}-E '{{ database.encoding   }}' {% endif %}
 {% if 'locale'     in  database and database.locale != ''     %}-l '{{ database.locale     }}' {% endif %}
@@ -47,12 +47,12 @@
 --==================================================================--
 -- owner
 {% if 'owner' in database and database.owner is not none and database.owner != '' %}
-ALTER DATABASE "{{ database.name }}" OWNER TO {{ database.owner }};
+ALTER DATABASE "{{ database.name }}" OWNER TO "{{ database.owner }}";
 {% endif %}
 
 -- tablespace
 {% if 'tablespace' in database and database.tablespace != '' %}
-ALTER DATABASE "{{ database.name }}" SET TABLESPACE {{ database.tablespace }};
+ALTER DATABASE "{{ database.name }}" SET TABLESPACE "{{ database.tablespace }}";
 {% endif %}
 
 -- allow connection
@@ -114,6 +114,38 @@ REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 
 -- admin can create objects in public schema
 GRANT CREATE ON SCHEMA public TO "dbrole_admin";
+
+
+--==================================================================--
+--                          Default Privileges                      --
+--==================================================================--
+{% if 'owner' in database and database.owner is not none and database.owner != '' %}
+{% if pg_default_privileges is defined and pg_default_privileges is iterable and pg_default_privileges is not string and pg_default_privileges | length > 0 %}
+-- setup default privileges for database owner from pg_default_privileges
+{% for priv in pg_default_privileges %}
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" {{ priv }};
+{% endfor %}
+{% else %}
+-- setup default privileges for database owner from default settings
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT USAGE      ON SCHEMAS   TO dbrole_readonly;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT SELECT     ON TABLES    TO dbrole_readonly;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT SELECT     ON SEQUENCES TO dbrole_readonly;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT EXECUTE    ON FUNCTIONS TO dbrole_readonly;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT USAGE      ON SCHEMAS   TO dbrole_offline;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT SELECT     ON TABLES    TO dbrole_offline;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT SELECT     ON SEQUENCES TO dbrole_offline;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT EXECUTE    ON FUNCTIONS TO dbrole_offline;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT INSERT     ON TABLES    TO dbrole_readwrite;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT UPDATE     ON TABLES    TO dbrole_readwrite;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT DELETE     ON TABLES    TO dbrole_readwrite;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT USAGE      ON SEQUENCES TO dbrole_readwrite;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT UPDATE     ON SEQUENCES TO dbrole_readwrite;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT TRUNCATE   ON TABLES    TO dbrole_admin;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT REFERENCES ON TABLES    TO dbrole_admin;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT TRIGGER    ON TABLES    TO dbrole_admin;
+ALTER DEFAULT PRIVILEGES FOR ROLE "{{ database.owner }}" GRANT CREATE     ON SCHEMAS   TO dbrole_admin;
+{% endif %}
+{% endif %}
 
 
 --==================================================================--
