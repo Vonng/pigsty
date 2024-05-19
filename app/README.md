@@ -15,6 +15,7 @@ Here are some docker compose templates for popular applications that works well 
 * [NocoDB](nocodb/) : Open source airtable alternative
 * [Odoo](odoo/) : Open Source ERP
 * [Metabase](metabase/) : Fast analytics with the friendly UX and integrated tooling
+* [Jupyter](jupyter/) : Run jupyter notebook, the data analysis IDE with docker
 * etc....
 
 
@@ -37,6 +38,7 @@ postgrest : { domain: api.pigsty  ,endpoint: "127.0.0.1:8884"   }
 pgadmin   : { domain: adm.pigsty  ,endpoint: "127.0.0.1:8885"   }
 pgweb     : { domain: cli.pigsty  ,endpoint: "127.0.0.1:8886"   }
 bytebase  : { domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887"   }
+jupyter   : { domain: lab.pigsty  ,endpoint: "127.0.0.1:8888", websocket: true }
 gitea     : { domain: git.pigsty  ,endpoint: "127.0.0.1:8889"   }
 minio     : { domain: sss.pigsty  ,endpoint: "127.0.0.1:9000"   }
 wiki      : { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002"   }
@@ -52,6 +54,8 @@ docker pull sosedoff/pgweb
 docker pull vonng/pg_exporter
 docker pull postgrest/postgrest
 docker pull bytebase/bytebase
+docker pull jupyter/minimal-notebook
+#docker pull jupyter/scipy-notebook:latest 
 docker pull alpine
 docker pull registry
 docker pull andrewjones/schemaspy-postgres
@@ -72,6 +76,7 @@ docker save sosedoff/pgweb                   | gzip -9 -c > /tmp/docker/pgweb.tg
 docker save vonng/pg_exporter                | gzip -9 -c > /tmp/docker/pg_exporter.tgz
 docker save postgrest/postgrest              | gzip -9 -c > /tmp/docker/postgrest.tgz
 docker save bytebase/bytebase                | gzip -9 -c > /tmp/docker/bytebase.tgz
+docker save jupyter/minimal-notebook         | gzip -9 -c > /tmp/docker/jupyter.tgz
 docker save alpine                           | gzip -9 -c > /tmp/docker/alpine.tgz
 docker save registry                         | gzip -9 -c > /tmp/docker/registry.tgz
 docker save andrewjones/schemaspy-postgres   | gzip -9 -c > /tmp/docker/schemaspy.tgz
@@ -92,6 +97,7 @@ cat /tmp/docker/postgrest.tgz    | gzip -d -c - | docker load;
 cat /tmp/docker/pgweb.tgz        | gzip -d -c - | docker load;
 cat /tmp/docker/pgadmin4.tgz     | gzip -d -c - | docker load;
 cat /tmp/docker/bytebase.tgz     | gzip -d -c - | docker load;
+cat /tmp/docker/jupyter.tgz      | gzip -d -c - | docker load;
 cat /tmp/docker/wiki.tgz         | gzip -d -c - | docker load;
 cat /tmp/docker/gitea.tgz        | gzip -d -c - | docker load;
 cat /tmp/docker/kong.tgz         | gzip -d -c - | docker load;
