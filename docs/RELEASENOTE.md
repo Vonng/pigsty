@@ -2,7 +2,7 @@
 
 | Version         |    Time    | Description                                              | Release                                                                                   |
 |:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.7.0](#v270) | 2024-05-16 | Extension Overwhelming, docker VM playground             | [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0)                             |
+| [v2.7.0](#v270) | 2024-05-20 | Extension Overwhelming, docker VM playground             | [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0)                             |
 | [v2.6.0](#v260) | 2024-02-28 | PG 16 as default version,  ParadeDB & DuckDB             | [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)                             |
 | [v2.5.1](#v251) | 2023-12-01 | Routine update, pg16 major extensions                    | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
 | [v2.5.0](#v250) | 2023-10-24 | Ubuntu/Debian Support:  bullseye, bookworm, jammy, focal | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
@@ -77,6 +77,7 @@ And some new extensions in plain C & C++
 * running on certain `docker` containers.
 * prepare arm64 packages for infra & pgsql packages for el & deb distros
 * new installation script to download from cloudflare, and more hint.
+* new monitoring dashboard for PGSQL PITR  
 
 **Software Upgrade**
 
@@ -109,6 +110,7 @@ And some new extensions in plain C & C++
 **Docker Application**
 
 - [Odoo](https://github.com/Vonng/pigsty/tree/master/app/odoo): launch open source ERP and plugins
+- [Jupyter](https://github.com/Vonng/pigsty/tree/master/app/jupyter): run jupyter notebook container
 - [PolarDB](https://github.com/Vonng/pigsty/tree/master/app/polardb): run the demo PG RAC playground.
 - [supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase): bump to the latest GA version.
 - [bytebase](https://github.com/Vonng/pigsty/tree/master/app/bytebase): use the `latest` tag instead of ad hoc version.
@@ -120,6 +122,8 @@ And some new extensions in plain C & C++
 - Fix `minio_cluster` not commented in global variables
 - Fix the non-exist `postgis34` in el7 config template
 - Fix EL8 `python3.11-cryptography` deps to `python3-cryptography` according to upstream
+- Fix `/pg/bin/pg-role` can not get OS user name from environ in non-interact mode
+- Fix `/pg/bin/pg-pitr` can not hint -X -P flag properly
 
 **API Change**
 

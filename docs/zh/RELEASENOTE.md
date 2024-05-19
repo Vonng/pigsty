@@ -110,10 +110,11 @@
 **Docker应用模板**
 
 - [Odoo](https://github.com/Vonng/pigsty/tree/master/app/odoo)：开源 ERP 软件与插件
-- [PolarDB](https://github.com/Vonng/pigsty/tree/master/app/polardb): 运行“国产数据库” PolarDB，应付信创检查！
-- [supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase): 更新至最近的 GA 版本
-- [bytebase](https://github.com/Vonng/pigsty/tree/master/app/bytebase): 使用 `latest` 标签替代特定版本号。
-- [pg_exporter](https://github.com/Vonng/pigsty/tree/master/app/pg_exporter): 更新了 Docker 镜像的例子。
+- [Jupyter](https://github.com/Vonng/pigsty/tree/master/app/jupyter)：使用容器运行 Jupyter Notebook
+- [PolarDB](https://github.com/Vonng/pigsty/tree/master/app/polardb)：运行“国产数据库” PolarDB，应付信创检查！
+- [supabase](https://github.com/Vonng/pigsty/tree/master/app/supabase)：更新至最近的 GA 版本
+- [bytebase](https://github.com/Vonng/pigsty/tree/master/app/bytebase)：使用 `latest` 标签替代特定版本号。
+- [pg_exporter](https://github.com/Vonng/pigsty/tree/master/app/pg_exporter)：更新了 Docker 镜像的例子。
 
 **缺陷修复**
 
@@ -121,6 +122,8 @@
 - 修复了 `minio_cluster` 变量没有在全局配置中注释掉的问题
 - 修复了 EL7 模板中的 `postgis34` 插件名称问题，应该使用 `postgis33`
 - 修复了 EL8 `python3.11-cryptography` 依赖名的问题，上游现在变更为 `python3-cryptography`。
+- 修复了 `/pg/bin/pg-role` 无法在非交互式 Shell 模式下获取操作系统用户名的问题
+- 修复了 `/pg/bin/pg-pitr` 无法正确提示 `-X` `-P` 选项的问题
 
 **API变更**
 
@@ -128,7 +131,7 @@
 - 新增了 `prometheus_sd_dir` 参数，用于指定 Prometheus 静态服务发现的目标文件目录
 - configure 脚本新增了 `-x|--proxy` 参数，用于将当前环境的代理信息写入配置文件 by @waitingsong in https://github.com/Vonng/pigsty/pull/405
 - 不再使用 Promtail & Loki 解析 Infra 节点上的 Nginx 日志细节标签，因为这样会导致标签基数爆炸。
-- 在 Promtheus 配置中使用 alertmanager API v2 替代 v1
+- 在 Prometheus 配置中使用 alertmanager API v2 替代 v1
 - 在 PGSQL 模块中，使用 `/pg/cert/ca.crt` 代替 `/etc/pki/ca.crt`，降低对节点根证书的依赖。 
 
 **新的贡献者**
