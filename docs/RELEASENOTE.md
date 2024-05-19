@@ -70,7 +70,8 @@ And some new extensions in plain C & C++
 - [md5hash](https://github.com/tvondra/md5hash) 1.0.1 : Custom data type for storing MD5 hashes rather than text
 - [pg_tde](https://github.com/Percona-Lab/pg_tde) 1.0 alpha: Experimental encrypted access method for PostgreSQL
 - [pg_dirtyread](https://github.com/df7cb/pg_dirtyread) 2.6 : Read dead but unvacuumed tuples from a PostgreSQL relation
-- [pg_profile](https://github.com/zubkov-andrei/pg_profile) 4.6 : Postgres historic workload reports
+- New deb PGDG extensions: `pg_roaringbitmap`, `pgfaceting`, `mobilitydb`, `pgsql-http`, `pg_hint_plan`, `pg_statviz`, `pg_rrule`
+- New rpm PGDG extensions: `pg_profile`, `pg_show_plans`, use PGDG's `pgsql_http`, `pgsql_gzip`, `pg_net`, `pg_bigm` instead of Pigsty RPM. 
 
 **New Features**
 
@@ -80,6 +81,7 @@ And some new extensions in plain C & C++
 - new monitoring dashboard for PGSQL PITR to assist the PITR procedure. 
 - make preparation for running pigsty inside docker VM containers
 - add a [fool-proof design](https://github.com/Vonng/pigsty/issues/402) for running pgsql.yml on node that is not managed by pigsty
+- add config template for each major version: el7, el8, el9, debian11, debian12, ubuntu20, ubuntu22
 
 **Software Upgrade**
 
@@ -141,14 +143,12 @@ And some new extensions in plain C & C++
 - @NeroSong made their first contribution in https://github.com/Vonng/pigsty/pull/373
 - @waitingsong made their first contribution in https://github.com/Vonng/pigsty/pull/405
 
-**Full Changelog**: https://github.com/Vonng/pigsty/compar
-
 **Package Checksums**
 
 ```bash
-c03dd19fe5c304eb2553f2e327cfd0bc  pigsty-pkg-v2.7.0.el8.x86_64.tgz
-9b5596e65c1de1720cdb6694c0d8a6a4  pigsty-pkg-v2.7.0.debian12.x86_64.tgz
-44ad94b2f7ba19162d5e677a74dffb74  pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz
+ec271a1d34b2b1360f78bfa635986c3a  pigsty-pkg-v2.7.0.el8.x86_64.tgz
+f3304bfd896b7e3234d81d8ff4b83577  pigsty-pkg-v2.7.0.debian12.x86_64.tgz
+5b071c2a651e8d1e68fc02e7e922f2b3  pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz
 ```
 
 
