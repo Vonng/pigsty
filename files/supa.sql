@@ -1,46 +1,62 @@
 -- supabase init schema baseline, run this as postgres the dbsu
-
+--
+-- Tutorial: https://github.com/Vonng/pigsty/tree/master/app/supabase
+--
 -- # supabase example cluster: pg-meta
---     pg-meta:
---       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
---       vars:
---         pg_cluster: pg-meta
---         pg_libs: 'pg_net, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
---         pg_extensions:                                        # required extensions
---           - pg_repack_${pg_version}* wal2json_${pg_version}* pgvector_${pg_version}* pg_cron_${pg_version}* pgsodium_${pg_version}*
---           - vault_${pg_version}* pg_graphql_${pg_version}* pgjwt_${pg_version}* pg_net_${pg_version}* pgsql-http_${pg_version}*
---         pg_users:
---           # supabase roles: anon, authenticated, dashboard_user
---           - { name: anon           ,login: false }
---           - { name: authenticated  ,login: false }
---           - { name: dashboard_user ,login: false ,replication: true ,createdb: true ,createrole: true }
---           - { name: service_role   ,login: false ,bypassrls: true }
---           # supabase users: please use the same password
---           - { name: supabase_admin             ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: true   ,superuser: true ,replication: true ,createdb: true ,createrole: true ,bypassrls: true }
---           - { name: authenticator              ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,roles: [ authenticated ,anon ,service_role ] }
---           - { name: supabase_auth_admin        ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true }
---           - { name: supabase_storage_admin     ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true ,roles: [ authenticated ,anon ,service_role ] }
---           - { name: supabase_functions_admin   ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true }
---           - { name: supabase_replication_admin ,password: 'DBUser.Supa' ,replication: true }
---           - { name: supabase_read_only_user    ,password: 'DBUser.Supa' ,bypassrls: true ,roles: [ pg_read_all_data ] }
---         pg_databases:
---           - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty]} # the pigsty cmdb, optional
---           - name: supa
---             baseline: supa.sql    # the init-scripts: https://github.com/supabase/postgres/tree/develop/migrations/db/init-scripts
---             owner: supabase_admin
---             comment: supabase postgres database
---             schemas: [ extensions ,auth ,realtime ,storage ,graphql_public ,supabase_functions ,_analytics ,_realtime ]
---             extensions:
---               - { name: pgcrypto         ,schema: extensions  } # 1.3   : cryptographic functions
---               - { name: pg_net           ,schema: extensions  } # 0.7.1 : Async HTTP
---               - { name: pgjwt            ,schema: extensions  } # 0.2.0 : JSON Web Token API for Postgresql
---               - { name: uuid-ossp        ,schema: extensions  } # 1.1   : generate universally unique identifiers (UUIDs)
---               - { name: pgsodium        }                       # 3.1.8 : pgsodium is a modern cryptography library for Postgres.
---               - { name: supabase_vault  }                       # 0.2.8 : Supabase Vault Extension
---               - { name: pg_graphql      }                       # 1.3.0 : pg_graphql: GraphQL support
---         pg_hba_rules:
---           - { user: all ,db: supa ,addr: intra       ,auth: pwd ,title: 'allow supa database access from intranet'}
---           - { user: all ,db: supa ,addr: 172.0.0.0/8 ,auth: pwd ,title: 'allow supa database access from docker network'}
+--
+-- pg-meta:
+--   hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+--   vars:
+--     pg_cluster: pg-meta
+--
+--     pg_users:
+--       # supabase roles: anon, authenticated, dashboard_user
+--       - { name: anon           ,login: false }
+--       - { name: authenticated  ,login: false }
+--       - { name: dashboard_user ,login: false ,replication: true ,createdb: true ,createrole: true }
+--       - { name: service_role   ,login: false ,bypassrls: true }
+--       # supabase users: please use the same password
+--       - { name: supabase_admin             ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: true   ,superuser: true ,replication: true ,createdb: true ,createrole: true ,bypassrls: true }
+--       - { name: authenticator              ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,roles: [ authenticated ,anon ,service_role ] }
+--       - { name: supabase_auth_admin        ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true }
+--       - { name: supabase_storage_admin     ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true ,roles: [ authenticated ,anon ,service_role ] }
+--       - { name: supabase_functions_admin   ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true }
+--       - { name: supabase_replication_admin ,password: 'DBUser.Supa' ,replication: true }
+--       - { name: supabase_read_only_user    ,password: 'DBUser.Supa' ,bypassrls: true ,roles: [ pg_read_all_data ] }
+--
+--     pg_databases:
+--       - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ]} # the optional pigsty cmdb
+--
+--       # the supabase database (pg_cron should be installed in this database after bootstrap)
+--       - name: supa
+--         baseline: supa.sql    # the init-scripts: https://github.com/supabase/postgres/tree/develop/migrations/db/init-scripts
+--         owner: supabase_admin
+--         comment: supabase postgres database
+--         schemas: [ extensions ,auth ,realtime ,storage ,graphql_public ,supabase_functions ,_analytics ,_realtime ]
+--         extensions:
+--           - { name: pgcrypto  ,schema: extensions  } # 1.3   : cryptographic functions
+--           - { name: pg_net    ,schema: extensions  } # 0.9.1 : async HTTP
+--           - { name: pgjwt     ,schema: extensions  } # 0.2.0 : json web token API for postgres
+--           - { name: uuid-ossp ,schema: extensions  } # 1.1   : generate universally unique identifiers (UUIDs)
+--           - { name: pgsodium        }                # 3.1.9 : pgsodium is a modern cryptography library for Postgres.
+--           - { name: supabase_vault  }                # 0.2.8 : Supabase Vault Extension
+--           - { name: pg_graphql      }                # 1.5.4 : pg_graphql: GraphQL support
+--           - { name: pg_jsonschema   }                # 0.3.1 : pg_jsonschema: Validate json schema
+--           - { name: wrappers        }                # 0.3.1 : wrappers: FDW collections
+--           - { name: http            }                # 1.6   : http: allows web page retrieval inside the database.
+--
+--     # supabase required extensions
+--     pg_libs: 'pg_net, pg_cron, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
+--     pg_extensions:                                         # supabase required extensions
+--       - pg_repack_16* wal2json_16* pgvector_16* pg_cron_16* pgsodium_16*
+--       - pg_graphql_16 pg_jsonschema_16 wrappers_16 vault_16* pgjwt_16* pg_net_16* pgsql_http_16*
+--
+--     # supabase hba rules, require access from docker network
+--     pg_hba_rules:
+--       - { user: all ,db: supa ,addr: intra       ,auth: pwd ,title: 'allow supa database access from intranet'      }
+--       - { user: all ,db: supa ,addr: 172.0.0.0/8 ,auth: pwd ,title: 'allow supa database access from docker network'}
+--       - { user: all ,db: supa ,addr: all         ,auth: pwd ,title: 'allow supa database access from entire world'  }  # not safe!
+
 
 -----------------------------------------
 --- name: 01-initial-schema

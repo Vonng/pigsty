@@ -1,9 +1,9 @@
 ---
 #==============================================================#
 # File      :   build.yml
-# Desc      :   Pigsty building environment for all distros
+# Desc      :   Pigsty Pro building env for 7 major distros
 # Ctime     :   2022-10-12
-# Mtime     :   2024-05-14
+# Mtime     :   2024-05-17
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -163,17 +163,20 @@ all:
         repo_packages:
           - ansible python3 python3-pip python36-virtualenv python36-requests python36-idna yum-utils createrepo_c sshpass                                                  # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter                                                                                          # Pigsty Addons
-          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter                            # Infra Packages
-          - redis_exporter mysqld_exporter mongodb_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos                                         # Miscellaneous
+          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter victoria-metrics*          # Infra Packages
+          - redis_exporter mysqld_exporter mongodb_exporter kafka_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos victoria-logs vector     # Miscellaneous
           - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph           # Node Packages 1
           - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                 # Node Packages 2
           - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws pgxnclient pgFormatter                               # PG Common Tools
+          - postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* postgresql12* wal2json_12* pg_repack_12*
           - postgresql15* pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pglogical_15* pg_cron_15* postgis33_15* timescaledb-2-postgresql-15* pgvector_15* citus_15* # PGDG 15 Packages
-          - imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql-http_15* pgsql-gzip_15* vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15* apache-age_15* hydra_15* pg_sparse_15*
+          - imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql-http_15* pgsql-gzip_15* vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15* apache-age_15* hydra_15* pg_sparse_15* md5hash_15* pg_dirtyread_15*
           - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15 pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15 pg_track_settings_15 pg_wait_sampling_15 system_stats_15
           - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15* pgtt_15 pgq_15* hypopg_15* timestamp9_15* semver_15* prefix_15* periods_15* ip4r_15* tdigest_15* hll_15* pgmp_15 topn_15* geoip_15 extra_window_functions_15 pgsql_tweaks_15 count_distinct_15
           - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcopydb_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15 rum_15
           - pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_auth_mon_15 pg_checksums_15 pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15
+
+
         pg_extensions: # choose one from citus or hydra
           - postgis33_15* timescaledb-2-postgresql-15* pgvector_15* pglogical_15* pg_cron_15* citus_15* #hydra_15*
           - apache-age_15* imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql-http_15* pgsql-gzip_15* pg_sparse_15* vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15*
@@ -189,27 +192,39 @@ all:
         repo_packages:
           - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass                  # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter python3-jmespath python3-cryptography                                                      # Pigsty Addons
-          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter                              # Infra Packages
+          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter victoria-metrics*            # Infra Packages
+          - redis_exporter mysqld_exporter mongodb_exporter kafka_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos victoria-logs vector       # Miscellaneous
           - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph             # Node Packages 1
           - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                   # Node Packages 2
-          - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb libarrow-s3 pgFormatter pgxnclient           # PGSQL Common Tools
+
+          - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb libarrow-s3 pgFormatter pgxnclient luapgsql pgcopydb # PGDG Common
           - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*   # PGDG 16 Packages
-          - pg_net_16* pgsql-http_16* pgsql-gzip_16* vault_16 pgjwt_16 pg_tle_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16*
-          - pgml_16* pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16* pg_lakehouse_16* pg_analytics_16* pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16 parquet_s3_fdw_16*
-          - orafce_16* mongo_fdw_16* tds_fdw_16* mysql_fdw_16 hdfs_fdw_16 sqlite_fdw_16 pgbouncer_fdw_16 powa_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_qualstats_16 pg_track_settings_16 pg_wait_sampling_16 hll_16 pgaudit_16
-          - plprofiler_16* plsh_16* pldebugger_16 plpgsql_check_16* pgtt_16 pgq_16* pgsql_tweaks_16 count_distinct_16 hypopg_16 timestamp9_16* semver_16* prefix_16* periods_16 ip4r_16 tdigest_16 pgmp_16 extra_window_functions_16 topn_16
-          - pg_background_16 e-maj_16 pg_prioritize_16 pgcryptokey_16 logerrors_16 pg_top_16 pg_comparator_16 pg_ivm_16* pgsodium_16* pgfincore_16* ddlx_16 credcheck_16 safeupdate_16 pg_squeeze_16* pg_fkpart_16 pg_jobmon_16
-          - pg_partman_16 pg_permissions_16 pgexportdoc_16 pgimportdoc_16 pg_statement_rollback_16* pg_hint_plan_16* pg_auth_mon_16 pg_checksums_16 pg_failover_slots_16 pg_readonly_16* pg_uuidv7_16* set_user_16* rum_16
-          - system_stats_16* pg_store_plans_16* pg_catcheck_16 pgcopydb pg_profile_16 # mysqlcompat_16 multicorn2_16* plproxy_16 geoip_16 postgresql-unit_16 # not available for PG 16 yet
-          - redis_exporter mysqld_exporter mongodb_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos  # Miscellaneous Packages
+          - vault_16* pgjwt_16* pg_roaringbitmap_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16* parquet_s3_fdw_16* # Pigsty Extension
+          - pgml_16 pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16 pg_lakehouse_16 pg_analytics_16 pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16
+          - bgw_replstatus_16* count_distinct_16* credcheck_16* ddlx_16* e-maj_16* extra_window_functions_16* h3-pg_16* hdfs_fdw_16* hll_16* hypopg_16* ip4r_16* jsquery_16*  # PGDG Extensions
+
+          # pg 12,13,14 packages
+          - postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* postgresql12* wal2json_12* pg_repack_12*
+          # pg15 packages
+          - postgresql15* pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pglogical_15* pg_cron_15* postgis34_15* timescaledb-2-postgresql-15* pgvector_15* citus_15*
+          - vault_15* pgjwt_15* pg_roaringbitmap_15* zhparser_15* hydra_15* apache-age_15* duckdb_fdw_15* pg_tde_15* md5hash_15* pg_dirtyread_15*
+          - pgml_15 pg_graphql_15 wrappers_15 pg_jsonschema_15 pg_search_15 pg_lakehouse_15 pg_analytics_15 pgmq_15 pg_later_15 pg_vectorize_15 pg_tiktoken_15 pgdd_15 plprql_15 pgsmcrypto_15 pg_idkit_15
+
+          # pg16 packages
+          - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*
+          - vault_16* pgjwt_16* pg_roaringbitmap_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16* parquet_s3_fdw_16*
+          - pgml_16 pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16 pg_lakehouse_16 pg_analytics_16 pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16
+          - bgw_replstatus_16* count_distinct_16* credcheck_16* ddlx_16* e-maj_16* extra_window_functions_16* h3-pg_16* hdfs_fdw_16* hll_16* hypopg_16* ip4r_16* jsquery_16*  # PGDG Extensions
+          - logerrors_16* login_hook_16* mongo_fdw_16* mysql_fdw_16* ogr_fdw_16* orafce_16* passwordcheck_cracklib_16* periods_16* pg_auth_mon_16* pg_auto_failover_16* pg_background_16* pgfincore_16* pgimportdoc_16* pgl_ddl_deploy_16* pgmemcache_16* pgmeminfo_16* pgmp_16* pgq_16* pgrouting_16* pgsodium_16* pgsql_gzip_16* pgsql_http_16* pgsql_tweaks_16*
+          - pgtt_16* pguint_16* pg_bigm_16* pg_bulkload_16* pg_catcheck_16* pg_checksums_16* pg_comparator_16* pg_dbms_lock_16* pg_dbms_metadata_16* pg_extra_time_16* pg_fact_loader_16* pg_failover_slots_16* pg_filedump_16* pg_fkpart_16* pg_hint_plan_16* pg_ivm_16* pg_jobmon_16* pg_net_16* pg_partman_16* pg_permissions_16* pg_prioritize_16* pg_profile_16*
+          - pg_qualstats_16* pg_readonly_16* pg_show_plans_16* pg_squeeze_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_statement_rollback_16* pg_statviz_extension_16 pg_store_plans_16* pg_tle_16* pg_top_16* pg_track_settings_16* pg_uuidv7_16* pg_wait_sampling_16* pgagent_16* pgaudit_16* pgauditlogtofile_16* pgbouncer_fdw_16* pgcryptokey_16* pgexportdoc_16*
+          - pldebugger_16* pllua_16* plpgsql_check_16* plprofiler_16* plsh_16* pointcloud_16* postgres-decoderbufs_16* postgresql_anonymizer_16* postgresql_faker_16* powa-archivist_16* powa_16* prefix_16* rum_16 safeupdate_16* semver_16* set_user_16* sqlite_fdw_16* system_stats_16* table_version_16* tdigest_16* tds_fdw_16* temporal_tables_16* timestamp9_16* topn_16*
+            # too heavy # - plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions
+            # not ready # - mysqlcompat_16 multicorn2_16* plproxy_16 geoip_16 postgresql-unit_16*
+            # dep break # - pg_dbms_job_16* pgtap_16*
         pg_extensions: # citus & hydra are exclusive
           - postgis34_16* timescaledb-2-postgresql-16* pgvector_16* pglogical_16* pg_cron_16* # citus_16* or hydra_16* are exclusive
-          - pg_net_16* pgsql-http_16* pgsql-gzip_16* vault_16 pgjwt_16 pg_tle_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16*
-          - pgml_16* pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16* pg_lakehouse_16* pg_analytics_16* pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16 parquet_s3_fdw_16*
-          - orafce_16* mongo_fdw_16* tds_fdw_16* mysql_fdw_16 hdfs_fdw_16 sqlite_fdw_16 pgbouncer_fdw_16 powa_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_qualstats_16 pg_track_settings_16 pg_wait_sampling_16 hll_16 pgaudit_16
-          - plprofiler_16* plsh_16* pldebugger_16 plpgsql_check_16* pgtt_16 pgq_16* pgsql_tweaks_16 count_distinct_16 hypopg_16 timestamp9_16* semver_16* prefix_16* periods_16 ip4r_16 tdigest_16 pgmp_16 extra_window_functions_16 topn_16
-          - pg_background_16 e-maj_16 pg_prioritize_16 pgcryptokey_16 logerrors_16 pg_top_16 pg_comparator_16 pg_ivm_16* pgsodium_16* pgfincore_16* ddlx_16 credcheck_16 safeupdate_16 pg_squeeze_16* pg_fkpart_16 pg_jobmon_16
-          - pg_partman_16 pg_permissions_16 pgexportdoc_16 pgimportdoc_16 pg_statement_rollback_16* pg_hint_plan_16* pg_auth_mon_16 pg_checksums_16 pg_failover_slots_16 pg_readonly_16* pg_uuidv7_16* set_user_16* rum_16
+
 
     #----------------------------------#
     # build el9 packages on Rocky 9.3
@@ -222,27 +237,43 @@ all:
         repo_packages:
           - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass                  # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter python3-jmespath python3-cryptography                                                      # Pigsty Addons
-          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter                              # Infra Packages
+          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter victoria-metrics*            # Infra Packages
+          - redis_exporter mysqld_exporter mongodb_exporter kafka_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos victoria-logs vector       # Miscellaneous
           - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph             # Node Packages 1
           - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                   # Node Packages 2
-          - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb libarrow-s3 pgFormatter # pgxnclient el9     # PGSQL Common Tools
+
+          - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb libarrow-s3 pgFormatter luapgsql pgcopydb    # PGDG Common
           - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*   # PGDG 16 Packages
-          - pg_net_16* pgsql-http_16* pgsql-gzip_16* vault_16 pgjwt_16 pg_tle_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16*
-          - pgml_16* pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16* pg_lakehouse_16* pg_analytics_16* pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16 parquet_s3_fdw_16*
-          - orafce_16* mongo_fdw_16* tds_fdw_16* mysql_fdw_16 hdfs_fdw_16 sqlite_fdw_16 pgbouncer_fdw_16 powa_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_qualstats_16 pg_track_settings_16 pg_wait_sampling_16 hll_16 pgaudit_16
-          - plprofiler_16* plsh_16* pldebugger_16 plpgsql_check_16* pgtt_16 pgq_16* pgsql_tweaks_16 count_distinct_16 hypopg_16 timestamp9_16* semver_16* prefix_16* periods_16 ip4r_16 tdigest_16 pgmp_16 extra_window_functions_16 topn_16
-          - pg_background_16 e-maj_16 pg_prioritize_16 pgcryptokey_16 logerrors_16 pg_top_16 pg_comparator_16 pg_ivm_16* pgsodium_16* pgfincore_16* ddlx_16 credcheck_16 safeupdate_16 pg_squeeze_16* pg_fkpart_16 pg_jobmon_16
-          - pg_partman_16 pg_permissions_16 pgexportdoc_16 pgimportdoc_16 pg_statement_rollback_16* pg_hint_plan_16* pg_auth_mon_16 pg_checksums_16 pg_failover_slots_16 pg_readonly_16* pg_uuidv7_16* set_user_16* rum_16
-          - system_stats_16* pg_store_plans_16* pg_catcheck_16 pgcopydb pg_profile_16 # mysqlcompat_16 multicorn2_16* plproxy_16 geoip_16 postgresql-unit_16 # not available for PG 16 yet
-          - redis_exporter mysqld_exporter mongodb_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos  # Miscellaneous Packages
+          - vault_16* pgjwt_16* pg_roaringbitmap_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16* parquet_s3_fdw_16* # Pigsty Extension (C)
+          - pgml_16 pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16 pg_lakehouse_16 pg_analytics_16 pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16
+          - bgw_replstatus_16* count_distinct_16* credcheck_16* ddlx_16* e-maj_16* extra_window_functions_16* h3-pg_16* hdfs_fdw_16* hll_16* hypopg_16* ip4r_16* jsquery_16*  # PGDG Extensions
+
+          # pg 12,13,14 packages
+          - postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* pglogical_14* pg_cron_14* pgvector_14* hydra_14* duckdb_fdw_14*
+          - postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* pglogical_13* pg_cron_13* pgvector_13* hydra_13* duckdb_fdw_13*
+          - postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* pglogical_12* pg_cron_12* pgvector_12* hydra_12* duckdb_fdw_12*
+
+          # pg15 packages
+          - postgresql15* pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pglogical_15* pg_cron_15* postgis34_15* timescaledb-2-postgresql-15* pgvector_15* citus_15*
+          - vault_15* pgjwt_15* pg_roaringbitmap_15* zhparser_15* hydra_15* apache-age_15* duckdb_fdw_15* pg_tde_15* md5hash_15* pg_dirtyread_15*
+          - pgml_15 pg_graphql_15 wrappers_15 pg_jsonschema_15 pg_search_15 pg_lakehouse_15 pg_analytics_15 pgmq_15 pg_later_15 pg_vectorize_15 pg_tiktoken_15 pgdd_15 plprql_15 pgsmcrypto_15 pg_idkit_15
+
+          - postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* postgresql12* wal2json_12* pg_repack_12*
+          - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*   # PGDG 16 Packages
+          - vault_16* pgjwt_16* pg_roaringbitmap_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16* parquet_s3_fdw_16* # Pigsty Extension (C)
+          - pgml_16 pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16 pg_lakehouse_16 pg_analytics_16 pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16     # Pigsty Extension (pgrx)
+          - pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16 scws libduckdb libarrow-s3 pgFormatter luapgsql pgcopydb                                                              # Pigsty Extension (Deps)
+          - bgw_replstatus_16* count_distinct_16* credcheck_16* ddlx_16* e-maj_16* extra_window_functions_16* h3-pg_16* hdfs_fdw_16* hll_16* hypopg_16* ip4r_16* jsquery_16*  # PGDG Extensions
+          - logerrors_16* login_hook_16* mongo_fdw_16* mysql_fdw_16* ogr_fdw_16* orafce_16* passwordcheck_cracklib_16* periods_16* pg_auth_mon_16* pg_auto_failover_16* pg_background_16* pgfincore_16* pgimportdoc_16* pgl_ddl_deploy_16* pgmemcache_16* pgmeminfo_16* pgmp_16* pgq_16* pgrouting_16* pgsodium_16* pgsql_gzip_16* pgsql_http_16* pgsql_tweaks_16*
+          - pgtt_16* pguint_16* pg_bigm_16* pg_bulkload_16* pg_catcheck_16* pg_checksums_16* pg_comparator_16* pg_dbms_lock_16* pg_dbms_metadata_16* pg_extra_time_16* pg_fact_loader_16* pg_failover_slots_16* pg_filedump_16* pg_fkpart_16* pg_hint_plan_16* pg_ivm_16* pg_jobmon_16* pg_net_16* pg_partman_16* pg_permissions_16* pg_prioritize_16* pg_profile_16*
+          - pg_qualstats_16* pg_readonly_16* pg_show_plans_16* pg_squeeze_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_statement_rollback_16* pg_statviz_extension_16 pg_store_plans_16* pg_tle_16* pg_top_16* pg_track_settings_16* pg_uuidv7_16* pg_wait_sampling_16* pgagent_16* pgaudit_16* pgauditlogtofile_16* pgbouncer_fdw_16* pgcryptokey_16* pgexportdoc_16*
+          - pldebugger_16* pllua_16* plpgsql_check_16* plprofiler_16* plsh_16* pointcloud_16* postgres-decoderbufs_16* postgresql_anonymizer_16* postgresql_faker_16* powa-archivist_16* powa_16* prefix_16* rum_16 safeupdate_16* semver_16* set_user_16* sqlite_fdw_16* system_stats_16* tdigest_16* tds_fdw_16* temporal_tables_16* timestamp9_16* topn_16*
+          - sequential_uuids_16* firebird_fdw_16* # el9 specific
+            # too heavy # - plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions pljava_16*
+            # not ready # - mysqlcompat_16 multicorn2_16* plproxy_16 geoip_16 postgresql-unit_16* table_version_16*
+            # dep break # - pg_dbms_job_16* pgtap_16*
         pg_extensions: # citus & hydra are exclusive
           - postgis34_16* timescaledb-2-postgresql-16* pgvector_16* pglogical_16* pg_cron_16* # citus_16* or hydra_16* are exclusive
-          - pg_net_16* pgsql-http_16* pgsql-gzip_16* vault_16 pgjwt_16 pg_tle_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16*
-          - pgml_16* pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16* pg_lakehouse_16* pg_analytics_16* pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16 parquet_s3_fdw_16*
-          - orafce_16* mongo_fdw_16* tds_fdw_16* mysql_fdw_16 hdfs_fdw_16 sqlite_fdw_16 pgbouncer_fdw_16 powa_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_qualstats_16 pg_track_settings_16 pg_wait_sampling_16 hll_16 pgaudit_16
-          - plprofiler_16* plsh_16* pldebugger_16 plpgsql_check_16* pgtt_16 pgq_16* pgsql_tweaks_16 count_distinct_16 hypopg_16 timestamp9_16* semver_16* prefix_16* periods_16 ip4r_16 tdigest_16 pgmp_16 extra_window_functions_16 topn_16
-          - pg_background_16 e-maj_16 pg_prioritize_16 pgcryptokey_16 logerrors_16 pg_top_16 pg_comparator_16 pg_ivm_16* pgsodium_16* pgfincore_16* ddlx_16 credcheck_16 safeupdate_16 pg_squeeze_16* pg_fkpart_16 pg_jobmon_16
-          - pg_partman_16 pg_permissions_16 pgexportdoc_16 pgimportdoc_16 pg_statement_rollback_16* pg_hint_plan_16* pg_auth_mon_16 pg_checksums_16 pg_failover_slots_16 pg_readonly_16* pg_uuidv7_16* set_user_16* rum_16
 
     #----------------------------------#
     # build d11 packages on Debian 11
@@ -253,15 +284,19 @@ all:
         admin_ip: 10.10.10.11
         pg_cluster: pg-d11
         repo_packages:                    # which packages to be included
-          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
-          - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
-          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter              # Infra Packages
-          - redis-exporter mysqld-exporter mongodb-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos                           # Miscellaneous
-          - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-perf chrony    # Node Tools 1
-          - netcat-openbsd socat tnftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl # Node Tools 2
-          - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Common Tools
+          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                                    # Distro & Boot
+          - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                                        # Pigsty Addon
+          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter victoria-metrics*        # Infra Packages
+          - redis-exporter mysqld-exporter mongodb-exporter kafka-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos victoria-logs vector   # Miscellaneous
+          - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-perf chrony                # Node Packages 1
+          - netcat-openbsd socat tnftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl             # Node Packages 2
+          - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                                    # PGSQL Common Tools
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
-          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
+          - postgresql-client-15 postgresql-15 postgresql-server-dev-15 postgresql-plpython3-15 postgresql-plperl-15 postgresql-pltcl-15 postgresql-15-wal2json postgresql-15-repack
+          - postgresql-client-14 postgresql-14 postgresql-server-dev-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-14-wal2json postgresql-14-repack
+          - postgresql-client-13 postgresql-13 postgresql-server-dev-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-13-wal2json postgresql-13-repack
+          - postgresql-client-12 postgresql-12 postgresql-server-dev-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-12-wal2json postgresql-12-repack
+          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16                           # PGDG 16 Extensions
           - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery
           - postgresql-16-londiste-sql postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
@@ -286,15 +321,19 @@ all:
         admin_ip: 10.10.10.12
         pg_cluster: pg-d12
         repo_packages:                    # which packages to be included
-          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
-          - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
-          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter              # Infra Packages
-          - redis-exporter mysqld-exporter mongodb-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos                           # Miscellaneous
-          - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-perf chrony    # Node Tools 1
-          - netcat-openbsd socat tnftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl # Node Tools 2
-          - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Common Tools
+          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                                    # Distro & Boot
+          - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                                        # Pigsty Addon
+          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter victoria-metrics*        # Infra Packages
+          - redis-exporter mysqld-exporter mongodb-exporter kafka-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos victoria-logs vector   # Miscellaneous
+          - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-perf chrony                # Node Tools 1
+          - netcat-openbsd socat tnftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl             # Node Tools 2
+          - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                                    # PGSQL Common Tools
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
-          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
+          - postgresql-client-15 postgresql-15 postgresql-server-dev-15 postgresql-plpython3-15 postgresql-plperl-15 postgresql-pltcl-15 postgresql-15-wal2json postgresql-15-repack
+          - postgresql-client-14 postgresql-14 postgresql-server-dev-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-14-wal2json postgresql-14-repack
+          - postgresql-client-13 postgresql-13 postgresql-server-dev-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-13-wal2json postgresql-13-repack
+          - postgresql-client-12 postgresql-12 postgresql-server-dev-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-12-wal2json postgresql-12-repack
+          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16                           # PGDG 16 Extensions
           - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery
           - postgresql-16-londiste-sql postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
@@ -319,15 +358,19 @@ all:
         admin_ip: 10.10.10.20
         pg_cluster: pg-u20
         repo_packages:                    # which packages to be included
-          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
-          - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
-          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter              # Infra Packages
-          - redis-exporter mysqld-exporter mongodb-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos                           # Miscellaneous
-          - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-tools-generic  # Node Tools 1
-          - netcat socat ftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl chrony    # Node Tools 2
-          - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Common Tools
+          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                                    # Distro & Boot
+          - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                                        # Pigsty Addon
+          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter victoria-metrics*        # Infra Packages
+          - redis-exporter mysqld-exporter mongodb-exporter kafka-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos victoria-logs vector   # Miscellaneous
+          - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-tools-generic              # Node Tools 1
+          - netcat socat ftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl chrony                # Node Tools 2
+          - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                                    # PGSQL Common Tools
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
-          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
+          - postgresql-client-15 postgresql-15 postgresql-server-dev-15 postgresql-plpython3-15 postgresql-plperl-15 postgresql-pltcl-15 postgresql-15-wal2json postgresql-15-repack
+          - postgresql-client-14 postgresql-14 postgresql-server-dev-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-14-wal2json postgresql-14-repack
+          - postgresql-client-13 postgresql-13 postgresql-server-dev-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-13-wal2json postgresql-13-repack
+          - postgresql-client-12 postgresql-12 postgresql-server-dev-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-12-wal2json postgresql-12-repack
+          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16                           # PGDG 16 Extensions
           - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery
           - postgresql-16-londiste-sql postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
@@ -352,15 +395,19 @@ all:
         admin_ip: 10.10.10.22
         pg_cluster: pg-u22
         repo_packages:                    # which packages to be included
-          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
-          - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
-          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter              # Infra Packages
-          - redis-exporter mysqld-exporter mongodb-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos                           # Miscellaneous
-          - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-tools-generic  # Node Tools 1
-          - netcat socat ftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl chrony    # Node Tools 2
-          - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Packages
+          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                                    # Distro & Boot
+          - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                                        # Pigsty Addon
+          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter victoria-metrics*        # Infra Packages
+          - redis-exporter mysqld-exporter mongodb-exporter kafka-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos victoria-logs vector   # Miscellaneous
+          - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-tools-generic              # Node Tools 1
+          - netcat socat ftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl chrony                # Node Tools 2
+          - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                                    # PGSQL Packages
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
-          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
+          - postgresql-client-15 postgresql-15 postgresql-server-dev-15 postgresql-plpython3-15 postgresql-plperl-15 postgresql-pltcl-15 postgresql-15-wal2json postgresql-15-repack
+          - postgresql-client-14 postgresql-14 postgresql-server-dev-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-14-wal2json postgresql-14-repack
+          - postgresql-client-13 postgresql-13 postgresql-server-dev-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-13-wal2json postgresql-13-repack
+          - postgresql-client-12 postgresql-12 postgresql-server-dev-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-12-wal2json postgresql-12-repack
+          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16                           # PGDG 16 Extensions
           - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery
           - postgresql-16-londiste-sql postgresql-16-mimeo postgresql-16-mysql-fdw postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-oracle-fdw postgresql-16-orafce postgresql-16-partman postgresql-16-periods postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgextwlist postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pgfincore postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
