@@ -28,10 +28,10 @@ clean:
 	docker stop odoo; docker rm -f odoo
 
 pull:
-	docker pull odoo/odoo:17.0
+	docker compose pull
 
 rmi:
-	docker rmi odoo/odoo:17.0
+	docker rmi odoo:17.0
 
 save:
 	mkdir -p /tmp/docker

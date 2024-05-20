@@ -3,7 +3,7 @@
 # File      :   public.yml
 # Desc      :   Pigsty Public Demo Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2024-05-18
+# Mtime     :   2024-05-20
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -49,6 +49,7 @@ all:
           - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service       }
           - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
           - {name: dbuser_noco     ,password: DBUser.Noco     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for nocodb service      }
+          - {name: dbuser_odoo     ,password: DBUser.Odoo     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for odoo - OpenERP      }
         pg_databases:
           - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
           - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
@@ -57,24 +58,31 @@ all:
           - { name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
           - { name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
           - { name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database }
+          - { name: odoo     ,owner: dbuser_odoo     ,revokeconn: true ,comment: nocodb database }
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
         pg_extensions: # extensions to be installed on this cluster
           - postgis34_$v* timescaledb-2-postgresql-$v* pgvector_$v* # default extensions to be installed
-          #[ GIS & Timeseries  ]# - timescaledb-2-postgresql-$v* postgis34_$v* pgrouting_$v* pointcloud_$v* h3-pg_$v* ip4r_$v* # geoip_$v*
-          #[ Vector Search RAG ]# - pgvector_$v* pg_vectorize_$v pg_tiktoken_$v pgml_$v pg_search_$v pg_bigm_$v* zhparser_$v*
-          #[ OLAP & Sharding   ]# - hydra_$v* duckdb_fdw_$v* parquet_s3_fdw_$v* pg_lakehouse_$v pg_analytics_$v pg_tier_$v pg_fkpart_$v* pg_partman_$v* # citus_$v* plproxy_$v* # pg_strom_$v*
-          #[ Featured & AM     ]# - apache-age_$v* pg_graphql_$v pg_jsonschema_$v jsquery_$v* pg_hint_plan_$v* hypopg_$v* pg_ivm_$v* pgmq_$v pgq_$v* pgtt_$v* temporal_tables_$v* e-maj_$v* periods_$v* table_version_$v* pg_statement_rollback_$v* hll_$v* rum_$v
-          #[ Function & Test   ]# - pgjwt_$v* pg_idkit_$v pg_uuidv7_$v* pg_later_$v pg_background_$v* pgsql_gzip_$v* pgsql_http_$v* pg_net_$v* pgsql_tweaks_$v* count_distinct_$v* extra_window_functions_$v* tdigest_$v* pg_extra_time_$v* topn_$v*
-          #[ FDW & Compatible  ]# - wrappers_$v mongo_fdw_$v* mysql_fdw_$v* ogr_fdw_$v* sqlite_fdw_$v* tds_fdw_$v* hdfs_fdw_$v* pgbouncer_fdw_$v* orafce_$v* pgmemcache_$v* pg_dbms_lock_$v* pg_dbms_metadata_$v* # pg_dbms_job_$v* mysqlcompat_$v* # multicorn2_$v* oracle_fdw_$v* db2_fdw_$v*
-          #[ Type, PL, Test    ]# - prefix_$v* timestamp9_$v* semver_$v* pgmp_$v* pguint_$v* pg_roaringbitmap_$v* md5hash_$v* pg_tle_$v* plv8_$v* pllua_$v* luapgsql plprql_$v pldebugger_$v* plpgsql_check_$v* plprofiler_$v* plsh_$v* # plr_$v* # postgresql_faker_$v* # dbt2-pg$v-extensions* # postgresql-unit_$v* pgtap_$v*
-          #[ Administration    ]# - pg_cron_$v* pg_repack_$v* pg_squeeze_$v* pg_dirtyread_$v* pgdd_$v pgfincore_$v* pgl_ddl_deploy_$v* pg_prioritize_$v* pg_readonly_$v* pgagent_$v* pg_checksums_$v* safeupdate_$v* ddlx_$v* pg_permissions_$v* pg_auto_failover_$v* pg_catcheck_$v* pgxnclient pg_filedump # pgpool-II-pg$v-extensions
-          #[ Monitor & Stat    ]# - pg_profile_$v* pg_show_plans_$v* pg_stat_kcache_$v* pg_stat_monitor_$v* pg_qualstats_$v* pg_statviz_extension_$v pg_store_plans_$v* pg_top_$v* pg_track_settings_$v* pg_wait_sampling_$v* system_stats_$v* bgw_replstatus_$v* powa-archivist_$v* powa_$v* pgmeminfo_$v* # pgexporter_ext_$v*
-          #[ Security & Audit  ]# - passwordcheck_cracklib_$v* pgsodium_$v* vault_$v* postgresql_anonymizer_$v* pg_tde_$v* pgsmcrypto_$v pgaudit_$v* pgauditlogtofile_$v* pg_auth_mon_$v* credcheck_$v* pgcryptokey_$v* pg_jobmon_$v* logerrors_$v* login_hook_$v* set_user_$v*
-          #[ ETL, CDC, REPL    ]# - pglogical_$v* postgres-decoderbufs_$v* wal2json_$v* pg_failover_slots_$v* pg_fact_loader_$v* pg_bulkload_$v* pg_comparator_$v* pgimportdoc_$v* pgexportdoc_$v* pgcopydb pgloader # repmgr_$v*
+          - timescaledb-2-postgresql-$v* postgis34_$v* pgrouting_$v* pointcloud_$v* h3-pg_$v* ip4r_$v* # geoip_$v*
+          - pgvector_$v* pg_vectorize_$v pg_tiktoken_$v pgml_$v pg_search_$v pg_bigm_$v* zhparser_$v*
+          - hydra_$v* duckdb_fdw_$v* parquet_s3_fdw_$v* pg_lakehouse_$v pg_analytics_$v pg_tier_$v pg_fkpart_$v* pg_partman_$v* # citus_$v* plproxy_$v* # pg_strom_$v*
+          - apache-age_$v* pg_graphql_$v pg_jsonschema_$v jsquery_$v* pg_hint_plan_$v* hypopg_$v* pg_ivm_$v* pgmq_$v pgq_$v* pgtt_$v* temporal_tables_$v* e-maj_$v* periods_$v* table_version_$v* pg_statement_rollback_$v* hll_$v* rum_$v
+          - pgjwt_$v* pg_idkit_$v pg_uuidv7_$v* pg_later_$v pg_background_$v* pgsql_gzip_$v* pgsql_http_$v* pg_net_$v* pgsql_tweaks_$v* count_distinct_$v* extra_window_functions_$v* tdigest_$v* pg_extra_time_$v* topn_$v*
+          - wrappers_$v mongo_fdw_$v* mysql_fdw_$v* ogr_fdw_$v* sqlite_fdw_$v* tds_fdw_$v* hdfs_fdw_$v* pgbouncer_fdw_$v* orafce_$v* pgmemcache_$v* pg_dbms_lock_$v* pg_dbms_metadata_$v* # pg_dbms_job_$v* mysqlcompat_$v* # multicorn2_$v* oracle_fdw_$v* db2_fdw_$v*
+          - prefix_$v* timestamp9_$v* semver_$v* pgmp_$v* pguint_$v* pg_roaringbitmap_$v* md5hash_$v* pg_tle_$v* plv8_$v* pllua_$v* luapgsql plprql_$v pldebugger_$v* plpgsql_check_$v* plprofiler_$v* plsh_$v* # plr_$v* # postgresql_faker_$v* # dbt2-pg$v-extensions* # postgresql-unit_$v* pgtap_$v*
+          - pg_cron_$v* pg_repack_$v* pg_squeeze_$v* pg_dirtyread_$v* pgdd_$v pgfincore_$v* pgl_ddl_deploy_$v* pg_prioritize_$v* pg_readonly_$v* pgagent_$v* pg_checksums_$v* safeupdate_$v* ddlx_$v* pg_permissions_$v* pg_auto_failover_$v* pg_catcheck_$v* pgxnclient pg_filedump # pgpool-II-pg$v-extensions
+          - pg_profile_$v* pg_show_plans_$v* pg_stat_kcache_$v* pg_stat_monitor_$v* pg_qualstats_$v* pg_statviz_extension_$v pg_store_plans_$v* pg_top_$v* pg_track_settings_$v* pg_wait_sampling_$v* system_stats_$v* bgw_replstatus_$v* powa-archivist_$v* powa_$v* pgmeminfo_$v* # pgexporter_ext_$v*
+          - passwordcheck_cracklib_$v* pgsodium_$v* vault_$v* postgresql_anonymizer_$v* pg_tde_$v* pgsmcrypto_$v pgaudit_$v* pgauditlogtofile_$v* pg_auth_mon_$v* credcheck_$v* pgcryptokey_$v* pg_jobmon_$v* logerrors_$v* login_hook_$v* set_user_$v*
+          - pglogical_$v* postgres-decoderbufs_$v* wal2json_$v* pg_failover_slots_$v* pg_fact_loader_$v* pg_bulkload_$v* pg_comparator_$v* pgimportdoc_$v* pgexportdoc_$v* pgcopydb pgloader # repmgr_$v*
 
-        node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
-          - '00 01 * * 1 postgres /pg/bin/pg-backup full'
-          - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
+    redis-ms: # redis classic primary & replica
+      hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6379: { }, 6380: { replica_of: '10.10.10.10 6379' } } } }
+      vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
+
+    ferret:
+      hosts: { 10.10.10.10: { mongo_seq: 1 } }
+      vars:
+        mongo_cluster: ferret
+        mongo_pgurl: 'postgres://dbuser_meta:DBUser.Meta@10.10.10.10:5432/grafana'
 
     # pgsql cluster: pg-test (PostgreSQL 15)
     #pg-test:
@@ -94,10 +102,6 @@ all:
     #      - '00 01 * * 1 postgres /pg/bin/pg-backup full'
     #      - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
 
-    redis-ms: # redis classic primary & replica
-      hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6379: { }, 6380: { replica_of: '10.10.10.10 6379' } } } }
-      vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
-
     #redis-meta: # redis sentinel x 3
     #  hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 26379: { } ,26380: { } ,26381: { } } } }
     #  vars:
@@ -113,11 +117,6 @@ all:
     #    10.10.10.13: { redis_node: 2 ,redis_instances: { 6379: { } ,6380: { } ,6381: { } } }
     #  vars: { redis_cluster: redis-test ,redis_password: 'redis.test' ,redis_mode: cluster, redis_max_memory: 32MB }
 
-    ferret:
-      hosts: { 10.10.10.10: { mongo_seq: 1 } }
-      vars:
-        mongo_cluster: ferret
-        mongo_pgurl: 'postgres://dbuser_meta:DBUser.Meta@10.10.10.10:5432/grafana'
 
   vars:                               # global variables
     version: v2.7.0                   # pigsty version string
@@ -126,20 +125,21 @@ all:
     infra_portal:                     # domain names and upstream servers
       home         : { domain: home.pigsty.cc }
       grafana      : { domain: demo.pigsty.cc ,endpoint: "${admin_ip}:3000" ,websocket: true }
-      prometheus   : { domain: p.pigsty.cc ,endpoint: "${admin_ip}:9090" }
-      alertmanager : { domain: a.pigsty.cc ,endpoint: "${admin_ip}:9093" }
+      prometheus   : { domain: p.pigsty.cc    ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty.cc    ,endpoint: "${admin_ip}:9093" }
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
-      minio        : { domain: sss.pigsty  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
+      minio        : { domain: sss.pigsty     ,endpoint: "${admin_ip}:9001" ,websocket: true ,scheme: https }
       postgrest    : { domain: api.pigsty.cc  ,endpoint: "127.0.0.1:8884"   }
       pgadmin      : { domain: adm.pigsty.cc  ,endpoint: "127.0.0.1:8885"   }
       pgweb        : { domain: cli.pigsty.cc  ,endpoint: "127.0.0.1:8886"   }
       bytebase     : { domain: ddl.pigsty.cc  ,endpoint: "127.0.0.1:8887"   }
-      jupyter      : { domain: lab.pigsty  ,endpoint: "127.0.0.1:8888", websocket: true }
+      jupyter      : { domain: lab.pigsty.cc  ,endpoint: "127.0.0.1:8888" ,websocket: true }
       gitea        : { domain: git.pigsty.cc  ,endpoint: "127.0.0.1:8889"   }
       wiki         : { domain: wiki.pigsty.cc ,endpoint: "127.0.0.1:9002"   }
       noco         : { domain: noco.pigsty.cc ,endpoint: "127.0.0.1:9003"   }
-      supa         : { domain: supa.pigsty.cc ,endpoint: "127.0.0.1:8000", websocket: true }
+      odoo         : { domain: odoo.pigsty.cc ,endpoint: "127.0.0.1:8069" ,websocket: true }
+      supa         : { domain: supa.pigsty.cc ,endpoint: "127.0.0.1:8000" ,websocket: true }
     nginx_navbar:                     # application nav links on home page
       - { name: PgAdmin4   , url: 'http://adm.pigsty.cc'           , comment: 'PgAdmin4 for PostgreSQL'     }
       - { name: PGWeb      , url: 'http://cli.pigsty.cc'           , comment: 'PGWEB Browser Client'        }
@@ -150,6 +150,7 @@ all:
       - { name: Minio      , url: 'http://sss.pigsty.cc'           , comment: 'Minio Object Storage'        }
       - { name: Wiki       , url: 'http://wiki.pigsty.cc'          , comment: 'Local Wikipedia'             }
       - { name: Nocodb     , url: 'http://noco.pigsty.cc'          , comment: 'Nocodb Example'              }
+      - { name: Odoo       , url: 'http://odoo.pigsty.cc'          , comment: 'Odoo - the OpenERP'          }
       - { name: Explain    , url: '/pigsty/pev.html'               , comment: 'postgres explain visualizer' }
       - { name: Package    , url: '/pigsty'                        , comment: 'local yum repo packages'     }
       - { name: PG Logs    , url: '/logs'                          , comment: 'postgres raw csv logs'       }
@@ -165,5 +166,4 @@ all:
       - pool cn.pool.ntp.org iburst
       - pool ${admin_ip} iburst       # assume non-admin nodes does not have internet access
     pgbackrest_method: minio
-    docker_registry_mirrors: [ "https://mirror.ccs.tencentyun.com" ]  # use tencent cloud mirror
 ...

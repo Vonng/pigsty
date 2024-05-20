@@ -32,7 +32,7 @@ clean:
 	docker stop polardb; docker rm -f polardb
 
 pull:
-	docker pull polardb/polardb_pg_local_instance
+	docker compose pull
 
 rmi:
 	docker rmi polardb/polardb_pg_local_instance

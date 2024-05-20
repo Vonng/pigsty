@@ -19,7 +19,7 @@ clean:
 	docker stop wiki; docker rm -f wiki
 
 pull:
-	docker pull requarks/wiki
+	docker compose pull
 
 rmi:
 	docker rmi requarks/wiki

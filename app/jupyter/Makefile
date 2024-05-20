@@ -31,10 +31,10 @@ purge:
 	sudo rm -rf /data/jupyter
 
 pull:
-	docker pull sosedoff/jupyter
+	docker compose pull
 
 rmi:
-	docker rmi sosedoff/jupyter
+	docker rmi jupyter/minimal-notebook
 
 save:
 	mkdir -p /tmp/docker

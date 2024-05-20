@@ -3,8 +3,9 @@
 Here are some docker compose templates for popular applications that works well with PostgreSQL
 
 * [Supabase](supabase/) : The open source Firebase alternative, built on Postgres
-* [FerretDB](ferretdb/) : Open Source MongoDB alternative, built on Postgres
 * [PostgresML](pgml/) : Run LLMs & classical Machine Learning with SQL
+* [FerretDB](ferretdb/) : Open Source MongoDB alternative, built on Postgres
+* [PolarDB](polardb/) : Open Source RAC alternative, built on Postgres
 * [PgAdmin4](pgadmin/) : Postgres Admin Tools
 * [PgWeb](pgweb/) : Postgres Web Console
 * [ByteBase](bytebase/) : Postgres DDL Migration
@@ -38,12 +39,13 @@ postgrest : { domain: api.pigsty  ,endpoint: "127.0.0.1:8884"   }
 pgadmin   : { domain: adm.pigsty  ,endpoint: "127.0.0.1:8885"   }
 pgweb     : { domain: cli.pigsty  ,endpoint: "127.0.0.1:8886"   }
 bytebase  : { domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887"   }
-jupyter   : { domain: lab.pigsty  ,endpoint: "127.0.0.1:8888", websocket: true }
+jupyter   : { domain: lab.pigsty  ,endpoint: "127.0.0.1:8888" ,websocket: true }
 gitea     : { domain: git.pigsty  ,endpoint: "127.0.0.1:8889"   }
 minio     : { domain: sss.pigsty  ,endpoint: "127.0.0.1:9000"   }
 wiki      : { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002"   }
 noco      : { domain: noco.pigsty ,endpoint: "127.0.0.1:9003"   }
-odoo      : { domain: odoo.pigsty ,endpoint: "127.0.0.1:8069"   }
+odoo      : { domain: odoo.pigsty ,endpoint: "127.0.0.1:8069" ,websocket: true }
+supa      : { domain: supa.pigsty ,endpoint: "127.0.0.1:8000" ,websocket: true }
 ```
 
 **Pull Image**
