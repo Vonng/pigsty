@@ -15,7 +15,7 @@
 
 > Pigsty is your postgres, infra, grafana service toolbox, check [**Feature**](FEATURE) | [**特性**](zh/FEATURE) and [**Demo**](https://demo.pigsty.cc) for details.
 
-[**Extensibility**](https://repo.pigsty.cc/img/pigsty-extension.jpg): Powerful [**Extensions**](PGSQL-EXTENSION) Ready for use: **PostGIS**, **TimescaleDB**, **Citus**, **PGVector**, Search, HTAP, AIML, and [**150+**](PGSQL-EXTENSION#extension-list) more.
+[**Extensibility**](https://repo.pigsty.cc/img/pigsty-extension.jpg): Powerful [**Extensions**](PGSQL-EXTENSION) Ready for use: **PostGIS**, **TimescaleDB**, **Citus**, **PGVector**, Search, HTAP, AIML, and [**255**](PGSQL-EXTENSION#extension-list) more.
 
 [**Reliability**](https://repo.pigsty.cc/img/pigsty-arch.jpg): Create self-healing [**High Available**](PGSQL-ARCH#high-availability) [**PostgreSQL**](PGSQL) clusters with pre-configured [**PITR**](PGSQL-ARCH#point-in-time-recovery), built-in [**ACL**](PGSQL-ACL), [**CA**](PARAM#ca) & [**SSL**](SECURITY) in minutes.
 

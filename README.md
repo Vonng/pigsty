@@ -17,6 +17,7 @@
 
 [![pigsty-desc](https://pigsty.io/img/pigsty/desc.png)](https://pigsty.io/)
 
+There are **255** unique [extensions](https://pigsty.io/docs/reference/extension) available in Pigsty, **34** of which are maintained by Pigsty itself.
 
 ----------------
 

@@ -15,7 +15,7 @@
 
 > Pigsty 提出以下六条 [**价值主张**](FEATURE#价值主张) ，更多详情请参阅 [**功能特性**](FEATURE) 。
 
-[**可扩展性**](https://repo.pigsty.cc/img/pigsty-extension.jpg)： 强力[**扩展**](PGSQL-EXTENSION)开箱即用：深度整合**PostGIS**, **TimescaleDB**, **Citus**, **PGVector**, **ParadeDB**, **Hydra**, **AGE** , **PGML** 等 [**150+**](PGSQL-EXTENSION#扩展列表) PG生态插件。
+[**可扩展性**](https://repo.pigsty.cc/img/pigsty-extension.jpg)： 强力[**扩展**](PGSQL-EXTENSION)开箱即用：深度整合**PostGIS**, **TimescaleDB**, **Citus**, **PGVector**, **ParadeDB**, **Hydra**, **AGE** , **PGML** 等 [**255+**](PGSQL-EXTENSION#扩展列表) PG生态插件。
 
 [**可靠性**](https://repo.pigsty.cc/img/pigsty-arch.jpg)：快速创建[**高可用**](PGSQL-ARCH#高可用)、故障自愈的 [**PostgreSQL**](PGSQL) 集群，自动预置的[**时间点恢复**](PGSQL-ARCH#时间点恢复)、[**访问控制**](PGSQL-ACL)、自签名 [**CA**](PARAM#ca) 与 [**SSL**](SECURITY)，确保数据坚如磐石。
 
