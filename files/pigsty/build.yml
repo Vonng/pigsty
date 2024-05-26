@@ -3,7 +3,7 @@
 # File      :   build.yml
 # Desc      :   Pigsty Pro building env for 7 major distros
 # Ctime     :   2022-10-12
-# Mtime     :   2024-05-17
+# Mtime     :   2024-05-26
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -30,9 +30,9 @@ all:
     proxy_env:                        # global proxy env when downloading packages
       no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
     repo_url_packages:
-      - https://repo.pigsty.cc/etc/pev.html
-      - https://repo.pigsty.cc/etc/chart.tgz
-      - https://repo.pigsty.cc/etc/plugins.tgz
+      - http://10.10.10.1/etc/pev.html
+      - http://10.10.10.1/etc/chart.tgz
+      - http://10.10.10.1/etc/plugins.tgz
     pg_version: 16                    # the default pg major version (except for el7)
 
 
@@ -53,10 +53,10 @@ all:
         10.10.10.7:  { etcd_seq: 1 }
         10.10.10.8:  { etcd_seq: 2 }
         10.10.10.9:  { etcd_seq: 3 }
-        10.10.10.11: { etcd_seq: 4 }
-        10.10.10.12: { etcd_seq: 5 }
-        10.10.10.20: { etcd_seq: 6 }
-        10.10.10.22: { etcd_seq: 7 }
+        #10.10.10.11: { etcd_seq: 4 }
+        #10.10.10.12: { etcd_seq: 5 }
+        #10.10.10.20: { etcd_seq: 6 }
+        #10.10.10.22: { etcd_seq: 7 }
       vars: {  etcd_cluster: etcd  }
 
 
@@ -70,8 +70,8 @@ all:
         repo_modules: infra,node,pgsql
         repo_upstream:
           - { name: pigsty-local   ,description: 'Pigsty Local'      ,module: local ,releases: [7,8,9] ,baseurl: { default: 'http://${admin_ip}/pigsty'  }} # used by intranet nodes
-          - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/infra/$basearch' ,china: 'https://repo.pigsty.cc/rpm/infra/$basearch' }}
-          - { name: pigsty-pgsql   ,description: 'Pigsty PGSQL'      ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/pgsql/el$releasever.$basearch' ,china: 'https://repo.pigsty.cc/rpm/pgsql/el$releasever.$basearch' }}
+          - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://10.10.10.1/rpm/infra/$basearch' ,china: 'http://10.10.10.1/rpm/infra/$basearch' }}
+          - { name: pigsty-pgsql   ,description: 'Pigsty PGSQL'      ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'http://10.10.10.1/rpm/pgsql/el$releasever.$basearch' ,china: 'http://10.10.10.1/rpm/pgsql/el$releasever.$basearch' }}
           - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' }}
           - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'        ,china: 'https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable'  ,europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' }}
           - { name: base           ,description: 'EL 7 Base'         ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/os/$basearch/'                    ,china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/'           ,europe: 'https://mirrors.xtom.de/centos/$releasever/os/$basearch/'           }}
@@ -90,13 +90,17 @@ all:
           - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' }}
           - { name: pgdg-el8fix    ,description: 'PostgreSQL EL8FIX' ,module: pgsql ,releases: [  8  ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' } }
           - { name: pgdg-el9fix    ,description: 'PostgreSQL EL9FIX' ,module: pgsql ,releases: [    9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/'  ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/' }}
-          - { name: pgdg15         ,description: 'PostgreSQL 15'     ,module: pgsql ,releases: [7    ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' }}
+          - { name: pgdg12         ,description: 'PostgreSQL 12'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/12/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/12/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/12/redhat/rhel-$releasever-$basearch' }}
+          - { name: pgdg13         ,description: 'PostgreSQL 13'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch' }}
+          - { name: pgdg14         ,description: 'PostgreSQL 14'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch' }}
+          - { name: pgdg15         ,description: 'PostgreSQL 15'     ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' }}
           - { name: pgdg16         ,description: 'PostgreSQL 16'     ,module: pgsql ,releases: [  8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/16/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/16/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/16/redhat/rhel-$releasever-$basearch' }}
+          - { name: pgdg17-beta    ,description: 'PostgreSQL 17 Beta',module: pgsql ,releases: [  8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/testing/17/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/17/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/testing/17/redhat/rhel-$releasever-$basearch' }}
           - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
         repo_url_packages:
-          - https://repo.pigsty.cc/etc/pev.html
-          - https://repo.pigsty.cc/etc/chart.tgz
-          - https://repo.pigsty.cc/etc/plugins.tgz
+          - http://10.10.10.1/etc/pev.html
+          - http://10.10.10.1/etc/chart.tgz
+          - http://10.10.10.1/etc/plugins.tgz
         infra_packages:                   # packages to be installed on infra nodes
           - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway
           - node_exporter,blackbox_exporter,nginx_exporter,pg_exporter
@@ -104,11 +108,11 @@ all:
         node_default_packages:            # default packages to be installed on all nodes
           - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,chrony,python3
           - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3-pip
-        pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
-          - postgresql${pg_version}*
+        pg_packages:                      # pg packages to be installed, `$v` will be replaced
+          - postgresql$v*
           - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager patroni-etcd             # pgdg common tools
-          - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # important extensions
-
+          - pg_repack_$v* wal2json_$v* passwordcheck_cracklib_$v*                                  # important extensions
+        pg_extensions: []
 
     # debian general settings
     deb:
@@ -121,8 +125,8 @@ all:
         repo_modules: infra,node,pgsql,redis
         repo_upstream:                    # where to download #
           - { name: pigsty-local  ,description: 'Pigsty Local'     ,module: local ,releases: [11,12,20,22] ,baseurl: { default: 'http://${admin_ip}/pigsty ./' }}
-          - { name: pigsty-pgsql  ,description: 'Pigsty PgSQL'     ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/deb/pgsql/${distro_codename}.amd64/ ./', china: 'https://repo.pigsty.cc/deb/pgsql/${distro_codename}.amd64/ ./' }}
-          - { name: pigsty-infra  ,description: 'Pigsty Infra'     ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/deb/infra/amd64/ ./', china: 'https://repo.pigsty.cc/deb/infra/amd64/ ./' }}
+          - { name: pigsty-pgsql  ,description: 'Pigsty PgSQL'     ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'http://10.10.10.1/deb/pgsql/${distro_codename}.amd64/ ./', china: 'http://10.10.10.1/deb/pgsql/${distro_codename}.amd64/ ./' }}
+          - { name: pigsty-infra  ,description: 'Pigsty Infra'     ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'http://10.10.10.1/deb/infra/amd64/ ./', china: 'http://10.10.10.1/deb/infra/amd64/ ./' }}
           - { name: nginx         ,description: 'Nginx'            ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'http://nginx.org/packages/mainline/${distro_name} ${distro_codename} nginx' }}
           - { name: base          ,description: 'Debian Basic'     ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename} main non-free-firmware'         ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename} main restricted universe multiverse' }}
           - { name: updates       ,description: 'Debian Updates'   ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename}-updates main non-free-firmware' ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-updates main restricted universe multiverse' }}
@@ -136,19 +140,26 @@ all:
           - { name: timescaledb   ,description: 'Timescaledb'      ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
           - { name: redis         ,description: 'Redis'            ,module: redis ,releases: [11,12,20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
           - { name: docker-ce     ,description: 'Docker'           ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
+          #- { name: pgdg-17-beta  ,description: 'PGDG 17 Beta'     ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg-testing main 17' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg-testing main 17' }}
           #- { name: grafana      ,description: 'Grafana'          ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
           #- { name: haproxy      ,description: 'HAProxy Debian'   ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://haproxy.debian.net ${distro_codename}-backports-2.9 main'    }}
           #- { name: haproxy      ,description: 'HAProxy Ubuntu'   ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.9/ubuntu/ ${distro_codename} main'  }}
           #- { name: pgml         ,description: 'PostgresML'       ,module: pgsql ,releases: [         22] ,baseurl: { default: 'https://apt.postgresml.org ${distro_codename} main'  }}
         repo_url_packages:
-          - https://repo.pigsty.cc/etc/pev.html
-          - https://repo.pigsty.cc/etc/chart.tgz
-          - https://repo.pigsty.cc/etc/plugins.tgz
+          - http://10.10.10.1/etc/pev.html
+          - http://10.10.10.1/etc/chart.tgz
+          - http://10.10.10.1/etc/plugins.tgz
         infra_packages:                   # packages to be installed on infra nodes
           - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway,blackbox-exporter
           - node-exporter,blackbox-exporter,nginx-exporter,redis-exporter,pg-exporter
           - nginx,dnsmasq,ansible,etcd,python3-requests,redis,mcli
         pg_dbsu_uid: 543                  # manually assigned uid/gid for postgres dbsu
+        pg_packages:                      # pg packages to be installed, `$v` will be replaced
+          - postgresql-*-$v
+          - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
+          - postgresql-$v-repack postgresql-$v-wal2json
+        pg_extensions: []
+
 
 
     #----------------------------------#
@@ -163,18 +174,23 @@ all:
         repo_packages:
           - ansible python3 python3-pip python36-virtualenv python36-requests python36-idna yum-utils createrepo_c sshpass                                                  # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter                                                                                          # Pigsty Addons
-          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter                            # Infra Packages
-          - redis_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                                 # Miscellaneous
+          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter victoria-metrics*          # Infra Packages
+          - redis_exporter mysqld_exporter mongodb_exporter kafka_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos victoria-logs vector     # Miscellaneous
           - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph           # Node Packages 1
           - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                 # Node Packages 2
           - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws pgFormatter pgxnclient luapgsql pgcopydb             # PGDG Common
+          # pg 12,13,14 packages
+          - postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* pglogical_14* pg_cron_14* pgvector_14* hydra_14*
+          - postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* pglogical_13* pg_cron_13* pgvector_13* hydra_13*
+          - postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* pglogical_12* pg_cron_12* pgvector_12* hydra_12*
+          # pg 15 packages
           - postgresql15* pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pglogical_15* pg_cron_15* postgis33_15* timescaledb-2-postgresql-15* pgvector_15* citus_15* # PGDG 15 Packages
           - imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql-http_15* pgsql-gzip_15* vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15* apache-age_15* hydra_15* pg_sparse_15* md5hash_15* pg_dirtyread_15* pg_filedump_15*
           - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15* pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15* pg_track_settings_15* pg_wait_sampling_15* system_stats_15* bgw_replstatus_15*
           - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15* pgtt_15 pgq_15* hypopg_15* timestamp9_15* semver_15* prefix_15* periods_15* ip4r_15* tdigest_15* hll_15* pgmp_15 topn_15* geoip_15 extra_window_functions_15 pgsql_tweaks_15 count_distinct_15 pg_bulkload_15*
           - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15 rum_15 pgagent_15 postgresql_anonymizer_15*
           - pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_auth_mon_15* pg_checksums_15 pg_auto_failover_15* pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15 pgauditlogtofile_15*
-        pg_extensions: []
+
 
 
     #----------------------------------#
@@ -186,13 +202,21 @@ all:
         admin_ip: 10.10.10.8
         pg_cluster: pg-el8
         repo_packages:
-          - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass                  # Distro & Boot
-          - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter python3-jmespath python3-cryptography                                                      # Pigsty Addons
-          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter                              # Infra Packages
-          - redis_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                                   # Miscellaneous
-          - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph             # Node Packages 1
-          - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                   # Node Packages 2
+          - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass                # Distro & Boot
+          - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter python3-jmespath python3-cryptography                                                    # Pigsty Addons
+          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter victoria-metrics*          # Infra Packages
+          - redis_exporter mysqld_exporter mongodb_exporter kafka_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos victoria-logs vector     # Miscellaneous
+          - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph           # Node Packages 1
+          - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                 # Node Packages 2
           - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb libarrow-s3 pgFormatter pgxnclient luapgsql pgcopydb # PGDG Common
+          # pg 12,13,14 packages
+          - postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* pglogical_12* pg_cron_12* pgvector_12* pg_bigm_12* zhparser_12*
+          - postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* pglogical_13* pg_cron_13* pgvector_13* pg_bigm_13* zhparser_13* hydra_13*
+          - postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* pglogical_14* pg_cron_14* pgvector_14* pg_bigm_14* zhparser_14* hydra_14*
+          # pg15 packages
+          - postgresql15* pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pglogical_15* pg_cron_15* postgis34_15* timescaledb-2-postgresql-15* pgvector_15* citus_15* vault_15* pgjwt_15* pg_roaringbitmap_15* zhparser_15* hydra_15* apache-age_15* duckdb_fdw_15* md5hash_15* pg_dirtyread_15*
+          - pgml_15 pg_graphql_15 wrappers_15 pg_jsonschema_15 pg_search_15 pg_lakehouse_15 pg_analytics_15 pgmq_15 pg_later_15 pg_vectorize_15 pg_tiktoken_15 pgdd_15 plprql_15 pgsmcrypto_15 pg_idkit_15
+          # pg16 packages
           - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*   # PGDG 16 Packages
           - vault_16* pgjwt_16* pg_roaringbitmap_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16* parquet_s3_fdw_16* # Pigsty Extension
           - pgml_16 pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16 pg_lakehouse_16 pg_analytics_16 pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16
@@ -201,10 +225,12 @@ all:
           - pgtt_16* pguint_16* pg_bigm_16* pg_bulkload_16* pg_catcheck_16* pg_checksums_16* pg_comparator_16* pg_dbms_lock_16* pg_dbms_metadata_16* pg_extra_time_16* pg_fact_loader_16* pg_failover_slots_16* pg_filedump_16* pg_fkpart_16* pg_hint_plan_16* pg_ivm_16* pg_jobmon_16* pg_net_16* pg_partman_16* pg_permissions_16* pg_prioritize_16* pg_profile_16*
           - pg_qualstats_16* pg_readonly_16* pg_show_plans_16* pg_squeeze_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_statement_rollback_16* pg_statviz_extension_16 pg_store_plans_16* pg_tle_16* pg_top_16* pg_track_settings_16* pg_uuidv7_16* pg_wait_sampling_16* pgagent_16* pgaudit_16* pgauditlogtofile_16* pgbouncer_fdw_16* pgcryptokey_16* pgexportdoc_16*
           - pldebugger_16* pllua_16* plpgsql_check_16* plprofiler_16* plsh_16* pointcloud_16* postgres-decoderbufs_16* postgresql_anonymizer_16* postgresql_faker_16* powa-archivist_16* powa_16* prefix_16* rum_16 safeupdate_16* semver_16* set_user_16* sqlite_fdw_16* system_stats_16* table_version_16* tdigest_16* tds_fdw_16* temporal_tables_16* timestamp9_16* topn_16*
-            # too heavy # - plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions
-            # not ready # - mysqlcompat_16 multicorn2_16* plproxy_16 geoip_16 postgresql-unit_16*
-            # dep break # - pg_dbms_job_16* pgtap_16*
-        pg_extensions: []
+          # too heavy # - plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions
+          # not ready # - mysqlcompat_16 multicorn2_16* plproxy_16 geoip_16 postgresql-unit_16*
+          # dep break # - pg_dbms_job_16* pgtap_16*
+          # pg17 beta packages
+          - postgresql17-17 postgresql17-server-17 postgresql17-libs-17 postgresql17-contrib-17 postgresql17-devel-17 postgresql17-plperl-17 postgresql17-plpython3-17 postgresql17-pltcl-17 postgresql17-test-17 # postgresql17-llvmjit-17 postgresql17-docs-17
+
 
 
     #----------------------------------#
@@ -216,14 +242,23 @@ all:
         admin_ip: 10.10.10.9
         pg_cluster: pg-el9
         repo_packages:
-          - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass                  # Distro & Boot
-          - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter python3-jmespath python3-cryptography                                                      # Pigsty Addons
-          - redis_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                                   # Miscellaneous
-          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter                              # Infra Packages
-          - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph             # Node Packages 1
-          - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                   # Node Packages 2
-          - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb libarrow-s3 pgFormatter luapgsql pgcopydb    # PGDG Common
-          - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*   # PGDG 16 Packages
+          - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass                # Distro & Boot
+          - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter python3-jmespath python3-cryptography                                                    # Pigsty Addons
+          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter victoria-metrics*          # Infra Packages
+          - redis_exporter mysqld_exporter mongodb_exporter kafka_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos victoria-logs vector     # Miscellaneous
+          - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph           # Node Packages 1
+          - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                 # Node Packages 2
+          - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb libarrow-s3 pgFormatter luapgsql pgcopydb  # PGDG Common
+          # pg 12,13,14 packages
+          - postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* pglogical_12* pg_cron_12* pgvector_12* duckdb_fdw_12*
+          - postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* pglogical_13* pg_cron_13* pgvector_13* duckdb_fdw_13* hydra_13*
+          - postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* pglogical_14* pg_cron_14* pgvector_14* duckdb_fdw_14* hydra_14*
+          # pg15 packages
+          - postgresql15* pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pglogical_15* pg_cron_15* postgis34_15* timescaledb-2-postgresql-15* pgvector_15* citus_15*
+          - vault_15* pgjwt_15* pg_roaringbitmap_15* zhparser_15* hydra_15* apache-age_15* duckdb_fdw_15* md5hash_15* pg_dirtyread_15*
+          - pgml_15 pg_graphql_15 wrappers_15 pg_jsonschema_15 pg_search_15 pg_lakehouse_15 pg_analytics_15 pgmq_15 pg_later_15 pg_vectorize_15 pg_tiktoken_15 pgdd_15 plprql_15 pgsmcrypto_15 pg_idkit_15
+          # pg16 packages
+          - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16* # PGDG 16 Packages
           - vault_16* pgjwt_16* pg_roaringbitmap_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16* parquet_s3_fdw_16* # Pigsty Extension (C)
           - pgml_16 pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16 pg_lakehouse_16 pg_analytics_16 pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16
           - bgw_replstatus_16* count_distinct_16* credcheck_16* ddlx_16* e-maj_16* extra_window_functions_16* h3-pg_16* hdfs_fdw_16* hll_16* hypopg_16* ip4r_16* jsquery_16*  # PGDG Extensions
@@ -232,10 +267,12 @@ all:
           - pg_qualstats_16* pg_readonly_16* pg_show_plans_16* pg_squeeze_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_statement_rollback_16* pg_statviz_extension_16 pg_store_plans_16* pg_tle_16* pg_top_16* pg_track_settings_16* pg_uuidv7_16* pg_wait_sampling_16* pgagent_16* pgaudit_16* pgauditlogtofile_16* pgbouncer_fdw_16* pgcryptokey_16* pgexportdoc_16*
           - pldebugger_16* pllua_16* plpgsql_check_16* plprofiler_16* plsh_16* pointcloud_16* postgres-decoderbufs_16* postgresql_anonymizer_16* postgresql_faker_16* powa-archivist_16* powa_16* prefix_16* rum_16 safeupdate_16* semver_16* set_user_16* sqlite_fdw_16* system_stats_16* tdigest_16* tds_fdw_16* temporal_tables_16* timestamp9_16* topn_16*
           - sequential_uuids_16* firebird_fdw_16* # el9 specific
-            # too heavy # - plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions pljava_16*
-            # not ready # - mysqlcompat_16 multicorn2_16* plproxy_16 geoip_16 postgresql-unit_16* table_version_16*
-            # dep break # - pg_dbms_job_16* pgtap_16*
-        pg_extensions: []
+          # too heavy # - plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions pljava_16*
+          # not ready # - mysqlcompat_16 multicorn2_16* plproxy_16 geoip_16 postgresql-unit_16* table_version_16*
+          # dep break # - pg_dbms_job_16* pgtap_16*
+          # pg17 beta packages
+          - postgresql17-17 postgresql17-server-17 postgresql17-libs-17 postgresql17-contrib-17 postgresql17-devel-17 postgresql17-plperl-17 postgresql17-plpython3-17 postgresql17-pltcl-17 postgresql17-test-17 # postgresql17-llvmjit-17 postgresql17-docs-17
+
 
     #----------------------------------#
     # build d11 packages on Debian 11
@@ -249,10 +286,18 @@ all:
           - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter              # Infra Packages
-          - redis-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                   # Miscellaneous
+          - victoria-metrics victoria-metrics-utils victoria-metrics-cluster victoria-logs vector mysqld-exporter mongodb-exporter kafka-exporter             # Infra Packages2
+          - redis-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos                                                            # Miscellaneous
           - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-perf chrony    # Node Tools 1
           - netcat-openbsd socat tnftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl # Node Tools 2
           - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Common Tools
+          # pg 12,13,14 packages
+          - postgresql-12 postgresql-client-12 postgresql-server-dev-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-12-wal2json postgresql-12-repack postgresql-12-pgvector
+          - postgresql-13 postgresql-client-13 postgresql-server-dev-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-13-wal2json postgresql-13-repack postgresql-13-pgvector
+          - postgresql-14 postgresql-client-14 postgresql-server-dev-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-14-wal2json postgresql-14-repack postgresql-14-pgvector
+          # pg15 packages
+          - postgresql-15 postgresql-client-15 postgresql-server-dev-15 postgresql-plpython3-15 postgresql-plperl-15 postgresql-pltcl-15 postgresql-15-wal2json postgresql-15-repack postgresql-15-pgvector
+          # pg16 packages
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
           - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
           - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery postgresql-16-londiste-sql
@@ -261,14 +306,12 @@ all:
           - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
           - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 # postgresql-16-rdkit postgresql-16-statviz
           - pg-graphql pg-net pg-jsonschema wrappers plprql
+          # pg17 beta packages
+          #- postgresql-17 postgresql-client-17 postgresql-server-dev-17 postgresql-plpython3-17 postgresql-plperl-17 postgresql-pltcl-17 # postgresql-17-wal2json postgresql-17-repack
         node_default_packages:            # default node packages to be installed on debian11 node: (linux-perf,netcat-openbsd,tnftp)
           - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
           - netcat-openbsd,tnftp,socat,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
-        pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
-          - postgresql-*-${pg_version}
-          - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
-          - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
-        pg_extensions: []
+
 
     #----------------------------------#
     # build d12 packages on Debian 12
@@ -282,10 +325,18 @@ all:
           - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter              # Infra Packages
+          - victoria-metrics victoria-metrics-utils victoria-metrics-cluster victoria-logs vector mysqld-exporter mongodb-exporter kafka-exporter             # Infra Packages2
           - redis-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                   # Miscellaneous
           - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-perf chrony    # Node Tools 1
           - netcat-openbsd socat tnftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl # Node Tools 2
           - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Common Tools
+          # pg 12,13,14 packages
+          - postgresql-12 postgresql-client-12 postgresql-server-dev-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-12-wal2json postgresql-12-repack postgresql-12-pgvector
+          - postgresql-13 postgresql-client-13 postgresql-server-dev-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-13-wal2json postgresql-13-repack postgresql-13-pgvector
+          - postgresql-14 postgresql-client-14 postgresql-server-dev-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-14-wal2json postgresql-14-repack postgresql-14-pgvector
+          # pg15 packages
+          - postgresql-15 postgresql-client-15 postgresql-server-dev-15 postgresql-plpython3-15 postgresql-plperl-15 postgresql-pltcl-15 postgresql-15-wal2json postgresql-15-repack postgresql-15-pgvector
+          # pg16 packages
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
           - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
           - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery postgresql-16-londiste-sql
@@ -294,14 +345,12 @@ all:
           - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
           - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-rdkit postgresql-16-statviz
           - pg-graphql pg-net pg-jsonschema wrappers plprql
+          # pg17 beta packages
+          #- postgresql-17 postgresql-client-17 postgresql-server-dev-17 postgresql-plpython3-17 postgresql-plperl-17 postgresql-pltcl-17 # postgresql-17-wal2json postgresql-17-repack
         node_default_packages:            # default node packages to be installed on debian12 node: (linux-perf,netcat-openbsd,tnftp)
           - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
           - netcat-openbsd,tnftp,socat,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
-        pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
-          - postgresql-*-${pg_version}
-          - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
-          - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
-        pg_extensions: []
+
 
     #----------------------------------#
     # build u20 packages on Ubuntu 20.04
@@ -315,10 +364,18 @@ all:
           - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter              # Infra Packages
+          - victoria-metrics victoria-metrics-utils victoria-metrics-cluster victoria-logs vector mysqld-exporter mongodb-exporter kafka-exporter             # Infra Packages2
           - redis-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                   # Miscellaneous
           - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-tools-generic  # Node Tools 1
           - netcat socat ftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl chrony    # Node Tools 2
           - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Packages
+          # pg 12,13,14 packages
+          - postgresql-12 postgresql-client-12 postgresql-server-dev-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-12-wal2json postgresql-12-repack postgresql-12-pgvector
+          - postgresql-13 postgresql-client-13 postgresql-server-dev-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-13-wal2json postgresql-13-repack postgresql-13-pgvector
+          - postgresql-14 postgresql-client-14 postgresql-server-dev-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-14-wal2json postgresql-14-repack postgresql-14-pgvector
+          # pg15 packages
+          - postgresql-15 postgresql-client-15 postgresql-server-dev-15 postgresql-plpython3-15 postgresql-plperl-15 postgresql-pltcl-15 postgresql-15-wal2json postgresql-15-repack postgresql-15-pgvector
+          # pg16 packages
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
           - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
           - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery postgresql-16-londiste-sql
@@ -328,14 +385,12 @@ all:
           - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting
           - pg-graphql pg-net pg-jsonschema wrappers
           # too heavy # - postgresql-16-pljava postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
+          # pg17 beta packages
+          #- postgresql-17 postgresql-client-17 postgresql-server-dev-17 postgresql-plpython3-17 postgresql-plperl-17 postgresql-pltcl-17 # postgresql-17-wal2json postgresql-17-repack
         node_default_packages:            # default node packages to be installed on ubuntu22 node: (ubuntu: linux-tools-generic,netcat,ftp ; debian: linux-perf,netcat-openbsd,tnftp)
           - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
           - netcat,ftp,socat,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
-        pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
-          - postgresql-16 postgresql-client-${pg_version} postgresql-pl*-${pg_version} #postgresql-server-dev-${pg_version}
-          - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
-          - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
-        pg_extensions: []
+
 
     #----------------------------------#
     # build u22 packages on Ubuntu 22.04
@@ -349,10 +404,18 @@ all:
           - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
           - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter              # Infra Packages
+          - victoria-metrics victoria-metrics-utils victoria-metrics-cluster victoria-logs vector mysqld-exporter mongodb-exporter kafka-exporter             # Infra Packages2
           - redis-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                   # Miscellaneous
           - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump linux-tools-generic  # Node Tools 1
           - netcat socat ftp lrzsz net-tools ipvsadm dnsutils telnet ca-certificates openssl openssh-client libreadline-dev vim-tiny keepalived acl chrony    # Node Tools 2
           - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity pgloader pg-activity postgresql-filedump pgxnclient pgformatter                        # PGSQL Packages
+          # pg 12,13,14 packages
+          - postgresql-12 postgresql-client-12 postgresql-server-dev-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-12-wal2json postgresql-12-repack postgresql-12-pgvector
+          - postgresql-13 postgresql-client-13 postgresql-server-dev-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-13-wal2json postgresql-13-repack postgresql-13-pgvector
+          - postgresql-14 postgresql-client-14 postgresql-server-dev-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-14-wal2json postgresql-14-repack postgresql-14-pgvector
+          # pg15 packages
+          - postgresql-15 postgresql-client-15 postgresql-server-dev-15 postgresql-plpython3-15 postgresql-plperl-15 postgresql-pltcl-15 postgresql-15-wal2json postgresql-15-repack postgresql-15-pgvector
+          # pg16 packages
           - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
           - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16               # PGDG 16 Extensions
           - postgresql-16-age postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-credcheck postgresql-16-cron postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-hll postgresql-16-hypopg postgresql-16-icu-ext postgresql-16-ip4r postgresql-16-jsquery postgresql-16-londiste-sql
@@ -362,14 +425,15 @@ all:
           - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-rdkit
           - pg-graphql pg-net pg-jsonschema wrappers pg-analytics pg-search pg-lakehouse pgdd-jammy-pg16
           # too heavy # - postgresql-16-pljava postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
+          # pg17 beta packages
+          #- postgresql-17 postgresql-client-17 postgresql-server-dev-17 postgresql-plpython3-17 postgresql-plperl-17 postgresql-pltcl-17 # postgresql-17-wal2json postgresql-17-repack
+          #- postgresql-17-asn1oid postgresql-17-bgw-replstatus postgresql-17-extra-window-functions postgresql-17-first-last-agg postgresql-17-http postgresql-17-hypopg postgresql-17-ip4r postgresql-17-jsquery
+          #- postgresql-17-londiste-sql postgresql-17-mimeo postgresql-17-numeral postgresql-17-omnidb postgresql-17-oracle-fdw postgresql-17-orafce postgresql-17-pg-rrule
+          #- postgresql-17-pg-track-settings postgresql-17-pg-wait-sampling postgresql-17-pgextwlist postgresql-17-pgfincore postgresql-17-pgmemcache postgresql-17-pgpcre postgresql-17-pgpool2 postgresql-17-pgq-node postgresql-17-pgq3
+          #- postgresql-17-pgsphere postgresql-17-pgtap postgresql-17-pgvector postgresql-17-plpgsql-check postgresql-17-plproxy postgresql-17-plsh postgresql-17-pointcloud postgresql-17-prioritize postgresql-17-rational
+          #- postgresql-17-roaringbitmap postgresql-17-semver postgresql-17-show-plans postgresql-17-similarity postgresql-17-snakeoil
         node_default_packages:            # default node packages to be installed on ubuntu22 node: (ubuntu: linux-tools-generic,netcat,ftp ; debian: linux-perf,netcat-openbsd,tnftp)
           - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
           - netcat,ftp,socat,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy
-        pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
-          - postgresql-*-${pg_version}
-          - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
-          - postgresql-${pg_version}-repack postgresql-${pg_version}-wal2json
-        pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
-          - postgresql-16-postgis* postgresql-16-citus-12.1 postgresql-16-pgvector timescaledb-2-postgresql-16
 
 ...
