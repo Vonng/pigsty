@@ -1,0 +1,179 @@
+# https://github.com/langgenius/dify/blob/main/docker/docker-compose.yaml
+
+services:
+
+  #============================================================#
+  # API service
+  #============================================================#
+  api:
+    image: langgenius/dify-api:0.6.11
+    restart: always
+    environment:
+
+      MODE: api                     # Startup mode, 'api' starts the API server.
+      LOG_LEVEL: "${LOG_LEVEL}"     # The log level for the application. Supported values are `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`
+
+      #======================#
+      # Database Credentials #
+      #======================#
+      # A secret key that is used for securely signing the session cookie and encrypting sensitive information on the database. You can generate a strong key using `openssl rand -base64 42`.
+      SECRET_KEY: "${SECRET_KEY}"
+
+      # The configurations of postgres database connection. It is consistent with the configuration in the 'db' service below.
+      DB_USERNAME: "${PG_USERNAME}"
+      DB_PASSWORD: "${PG_PASSWORD}"
+      DB_HOST: "${PG_HOST}"
+      DB_PORT: "${PG_PORT}"
+      DB_DATABASE: "${PG_DATABASE}"
+
+      # The type of vector store to use. Supported values are `weaviate`, `qdrant`, `milvus`, `relyt`.
+      VECTOR_STORE: pgvector
+      PGVECTOR_USERNAME: "${PG_USERNAME}"
+      PGVECTOR_PASSWORD: "${PG_PASSWORD}"
+      PGVECTOR_HOST: "${PG_HOST}"
+      PGVECTOR_PORT: "${PG_PORT}"
+      PGVECTOR_DATABASE: "${PG_DATABASE}"
+
+      # The configurations of redis connection. It is consistent with the configuration in the 'redis' service below.
+      REDIS_HOST: "${REDIS_HOST}"
+      REDIS_PORT: "${REDIS_PORT}"
+      REDIS_USERNAME: "${REDIS_USERNAME}"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      REDIS_USE_SSL: 'false'
+      REDIS_DB: 0 # use redis db 0 for redis cache
+      CELERY_BROKER_URL: "redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/1" # The configurations of celery broker. Use redis as the broker, and redis db 1 for celery broker.
+
+      # object storage
+      STORAGE_TYPE: local         # The type of storage to use for storing user files. Supported values are `local` and `s3` and `azure-blob` and `google-storage`, Default: `local`
+      STORAGE_LOCAL_PATH: storage # The path to the local storage directory, the directory relative the root path of API service codes or absolute path. Default: `storage` or `/home/john/storage`. only available when STORAGE_TYPE is `local`.
+
+      #======================#
+      # Misc API Optional
+      #======================#
+      CONSOLE_WEB_URL: '' # The base URL of console application web frontend, refers to the Console base URL of WEB service if console domain is different from api or web app domain. example: http://cloud.dify.ai
+      INIT_PASSWORD: ''   # Password for admin user initialization. If left unset, admin user will not be prompted for a password when creating the initial admin account.
+      CONSOLE_API_URL: '' # The base URL of console application api server, refers to the Console base URL of WEB service if console domain is different from api or web app domain. example: http://cloud.dify.ai
+      SERVICE_API_URL: '' # The URL prefix for Service API endpoints, refers to the base URL of the current API service if api domain is different from console domain. example: http://api.dify.ai
+      APP_WEB_URL: ''     # The URL prefix for Web APP frontend, refers to the Web App base URL of WEB service if web app domain is different from console or api domain. example: http://udify.app
+      FILES_URL: ''       # File preview or download Url prefix. used to display File preview or download Url to the front-end or as Multi-model inputs; Url is signed and has expiration time.
+      FILES_ACCESS_TIMEOUT: 300  # File Access Time specifies a time interval in seconds for the file to be accessed. The default value is 300 seconds.
+      MIGRATION_ENABLED: 'true'  # When enabled, migrations will be executed prior to application startup and the application will start after the migrations have completed.
+
+      # SSRF Proxy server
+      SSRF_PROXY_HTTP_URL: 'http://ssrf_proxy:3128'
+      SSRF_PROXY_HTTPS_URL: 'http://ssrf_proxy:3128'
+      WEB_API_CORS_ALLOW_ORIGINS: '*' # Specifies the allowed origins for cross-origin requests to the Web API, e.g. https://dify.app or * for all origins.
+      CONSOLE_CORS_ALLOW_ORIGINS: '*' # Specifies the allowed origins for cross-origin requests to the console API, e.g. https://cloud.dify.ai or * for all origins.
+      INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH: 1000 # Indexing configuration
+
+    volumes:
+      - ./volumes/app/storage:/app/api/storage # Mount the storage directory to the container, for storing user files.
+    # ports: # uncomment to expose dify-api port to host
+    #   - "5001:5001"
+    networks:
+      - ssrf_proxy_network
+      - default
+
+  #============================================================#
+  # Worker Service
+  #============================================================#
+  worker: # The Celery worker for processing the queue.
+    image: langgenius/dify-api:0.6.11
+    restart: always
+    environment:
+
+      MODE: worker    # Startup mode, 'worker' starts the Celery worker for processing the queue.
+      LOG_LEVEL: "${LOG_LEVEL}"   # The log level for the application. Supported values are `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`
+
+      #======================#
+      # Database Credentials #
+      #======================#
+      # A secret key that is used for securely signing the session cookie and encrypting sensitive information on the database. You can generate a strong key using `openssl rand -base64 42`.
+      SECRET_KEY: "${SECRET_KEY}"
+
+      # The configurations of postgres database connection. It is consistent with the configuration in the 'db' service below.
+      DB_USERNAME: "${PG_USERNAME}"
+      DB_PASSWORD: "${PG_PASSWORD}"
+      DB_HOST: "${PG_HOST}"
+      DB_PORT: "${PG_PORT}"
+      DB_DATABASE: "${PG_DATABASE}"
+
+      # The type of vector store to use. Supported values are `weaviate`, `qdrant`, `milvus`, `relyt`.
+      VECTOR_STORE: pgvector
+      PGVECTOR_USERNAME: "${PG_USERNAME}"
+      PGVECTOR_PASSWORD: "${PG_PASSWORD}"
+      PGVECTOR_HOST: "${PG_HOST}"
+      PGVECTOR_PORT: "${PG_PORT}"
+      PGVECTOR_DATABASE: "${PG_DATABASE}"
+
+      # The configurations of redis connection. It is consistent with the configuration in the 'redis' service below.
+      REDIS_HOST: "${REDIS_HOST}"
+      REDIS_PORT: "${REDIS_PORT}"
+      REDIS_USERNAME: "${REDIS_USERNAME}"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      REDIS_USE_SSL: 'false'
+      REDIS_DB: 0 # use redis db 0 for redis cache
+      CELERY_BROKER_URL: "redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/1" # The configurations of celery broker. Use redis as the broker, and redis db 1 for celery broker.
+
+      # object storage
+      STORAGE_TYPE: local         # The type of storage to use for storing user files. Supported values are `local` and `s3` and `azure-blob` and `google-storage`, Default: `local`
+      STORAGE_LOCAL_PATH: storage # The path to the local storage directory, the directory relative the root path of API service codes or absolute path. Default: `storage` or `/home/john/storage`. only available when STORAGE_TYPE is `local`.
+
+      #======================#
+      # Misc Worker Optional
+      #======================#
+      CONSOLE_WEB_URL: ''
+
+    volumes:
+      - ./volumes/app/storage:/app/api/storage # Mount the storage directory to the container, for storing user files.
+    networks:
+      - ssrf_proxy_network
+      - default
+
+  #============================================================#
+  # Frontend Web App
+  #============================================================#
+  web:
+    image: langgenius/dify-web:0.6.11
+    restart: always
+    environment:
+      CONSOLE_API_URL: ''  # The base URL of console application api server, refers to the Console base URL of WEB service if console domain is different from api or web app domain. example: http://cloud.dify.ai
+      APP_API_URL: ''      # The URL for Web APP api server, refers to the Web App base URL of WEB service if web app domain is different from console or api domain. example: http://udify.app
+      SENTRY_DSN: ''       # The DSN for Sentry error reporting. If not set, Sentry error reporting will be disabled.
+    # ports:               # uncomment to expose dify-web port to host
+    #   - "3000:3000"
+
+
+  #============================================================#
+  # Access Layer
+  #============================================================#
+  ssrf_proxy: # ssrf_proxy server: https://docs.dify.ai/getting-started/install-self-hosted/install-faq#id-16.-why-is-ssrf_proxy-needed
+    image: ubuntu/squid:latest
+    restart: always
+    volumes:
+      - ./volumes/ssrf_proxy/squid.conf:/etc/squid/squid.conf # pls clearly modify the squid.conf file to fit your network environment.
+    networks:
+      - ssrf_proxy_network
+      - default
+
+  nginx: # The nginx reverse proxy. used for reverse proxying the API service and Web service.
+    image: nginx:latest
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/proxy.conf:/etc/nginx/proxy.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      #- ./nginx/ssl:/etc/ssl
+    depends_on:
+      - api
+      - web
+    ports:
+      - "${DIFY_PORT}:80"
+
+#============================================================#
+# Internal Network
+#============================================================#
+networks:
+  ssrf_proxy_network: # create a network between sandbox, api and ssrf_proxy, and can not access outside.
+    driver: bridge
+    internal: true
