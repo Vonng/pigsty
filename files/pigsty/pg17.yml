@@ -3,12 +3,13 @@
 # File      :   pg17.yml
 # Desc      :   Pigsty config template for pg17
 # Ctime     :   2020-05-22
-# Mtime     :   2024-05-26
+# Mtime     :   2024-06-22
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 
+# this config file template is based on 4-node el8 sandbox
 
 all:
   children:
@@ -123,11 +124,10 @@ all:
     node_repo_modules: local          # install the local module in repo_upstream for all nodes
     node_repo_remove: true            # remove existing node repo for node managed by pigsty
     repo_upstream:                    # where to download #
-      - { name: pigsty-local   ,description: 'Pigsty Local'      ,module: local ,releases: [7,8,9] ,baseurl: { default: 'http://${admin_ip}/pigsty'  }} # used by intranet nodes
+      - { name: pigsty-local   ,description: 'Pigsty LOCAL'      ,module: local ,releases: [7,8,9] ,baseurl: { default: 'http://${admin_ip}/pigsty'  }} # used by intranet nodes
       - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/infra/$basearch' ,china: 'https://repo.pigsty.cc/rpm/infra/$basearch' }}
       - { name: pigsty-pgsql   ,description: 'Pigsty PGSQL'      ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/pgsql/el$releasever.$basearch' ,china: 'https://repo.pigsty.cc/rpm/pgsql/el$releasever.$basearch' }}
       - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' }}
-      - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'        ,china: 'https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable'  ,europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' }}
       - { name: baseos         ,description: 'EL 8+ BaseOS'      ,module: node  ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/BaseOS/$basearch/os/'         ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/BaseOS/$basearch/os/'          ,europe: 'https://mirrors.xtom.de/rocky/$releasever/BaseOS/$basearch/os/'     }}
       - { name: appstream      ,description: 'EL 8+ AppStream'   ,module: node  ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/AppStream/$basearch/os/'      ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/AppStream/$basearch/os/'       ,europe: 'https://mirrors.xtom.de/rocky/$releasever/AppStream/$basearch/os/'  }}
       - { name: extras         ,description: 'EL 8+ Extras'      ,module: node  ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/extras/$basearch/os/'         ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/extras/$basearch/os/'          ,europe: 'https://mirrors.xtom.de/rocky/$releasever/extras/$basearch/os/'     }}
@@ -137,14 +137,13 @@ all:
       - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' }}
       - { name: pgdg-el8fix    ,description: 'PostgreSQL EL8FIX' ,module: pgsql ,releases: [  8  ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' } }
       - { name: pgdg17-beta    ,description: 'PostgreSQL 17 Beta',module: pgsql ,releases: [  8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/testing/17/redhat/rhel-$releasever-$basearch' ,china: 'https://download.postgresql.org/pub/repos/yum/testing/17/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/testing/17/redhat/rhel-$releasever-$basearch' }}
-      - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
     repo_packages:                    # which packages to be included
       - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass           # Distro & Boot
       - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter python3-jmespath python3-cryptography                                               # Pigsty Addons
-      - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter docker-compose-plugin # Infra Packages
+      - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter                       # Infra Packages
       - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph      # Node Packages 1
       - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony            # Node Packages 2
-      - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity timescaledb-tools pgFormatter                                                      # PGDG Common
+      - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity                                                                                    # PGDG Common
       - postgresql17-17 postgresql17-server-17 postgresql17-libs-17 postgresql17-contrib-17 postgresql17-devel-17 postgresql17-plperl-17 postgresql17-plpython3-17 postgresql17-pltcl-17 postgresql17-test-17 # postgresql17-llvmjit-17 postgresql17-docs-17
     infra_packages:                   # packages to be installed on infra nodes
       - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway
