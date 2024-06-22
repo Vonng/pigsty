@@ -12,7 +12,7 @@ log:
 	docker compose logs -f
 
 info:
-	docker compose ps | jq
+	docker compose ps
 
 down: stop
 stop:
@@ -20,8 +20,13 @@ stop:
 
 clean:
 	docker compose rm
-	rm -rf volumes/app;
+	sudo rm -rf volumes/app;
+	@echo "dont' forget to nuke the dify database in postgres"
 
+pg:
+	@echo "cd ~/pigsty"
+	@echo "bin/pgsql-user pg-meta dbuser_dify"
+	@echo "bin/pgsql-db   pg-meta dify"
 
 pull:
 	docker compose pull

@@ -15,6 +15,7 @@ Here are some docker compose templates for popular applications that works well 
 * [Wiki](wiki/) : Local Wiki Service
 * [NocoDB](nocodb/) : Open source airtable alternative
 * [Odoo](odoo/) : Open Source ERP
+* [Dify](dify/) : Open Source AI Workflow Platform for GenAI Apps.
 * [Metabase](metabase/) : Fast analytics with the friendly UX and integrated tooling
 * [Jupyter](jupyter/) : Run jupyter notebook, the data analysis IDE with docker
 * etc....
@@ -46,6 +47,7 @@ wiki      : { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002"   }
 noco      : { domain: noco.pigsty ,endpoint: "127.0.0.1:9003"   }
 odoo      : { domain: odoo.pigsty ,endpoint: "127.0.0.1:8069" ,websocket: true }
 supa      : { domain: supa.pigsty ,endpoint: "127.0.0.1:8000" ,websocket: true }
+dify      : { domain: dify.pigsty ,endpoint: "127.0.0.1:8001" ,websocket: true }
 ```
 
 **Pull Image**
