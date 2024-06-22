@@ -7,5 +7,25 @@
   "storage-driver": "overlay2",
   "metrics-addr" : "{{ inventory_hostname }}:9323",
   "experimental" : true,
+{% if proxy_env is defined and proxy_env is mapping %}
+  "proxies": {
+{% if 'http_proxy' in proxy_env %}
+    "http-proxy": "{{ proxy_env['http_proxy'] }}",
+{% elif 'all_proxy' in proxy_env %}
+    "http-proxy": "{{ proxy_env['all_proxy'] }}",
+{% endif %}
+{% if 'https_proxy' in proxy_env %}
+    "https-proxy": "{{ proxy_env['http_proxy'] }}",
+{% elif 'all_proxy' in proxy_env %}
+    "https-proxy": "{{ proxy_env['all_proxy'] }}",
+{% endif %}
+{% if 'no_proxy' in proxy_env %}
+    "no-proxy": "{{ proxy_env['no_proxy'] }}"
+{% else %}
+    "no-proxy": "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty"
+{% endif %}
+  },
+{% endif %}
+
   "registry-mirrors" : {{ docker_registry_mirrors | to_json }}
 }
