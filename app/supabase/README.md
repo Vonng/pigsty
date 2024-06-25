@@ -6,6 +6,7 @@ Pigsty allow you to self-host **supabase** with existing managed HA postgres clu
 
 > Notice: Supabase is [GA](https://supabase.com/ga) since 2024.04.15
 
+> Official Tutorial: https://pigsty.io/docs/software/supabase
 
 -----------------------
 
@@ -79,7 +80,7 @@ pg-meta:
 ```
 
 Beware that `baseline: supa.sql` parameter will use the [`files/supa.sql`](https://github.com/Vonng/pigsty/blob/master/files/supa.sql) as database baseline schema, which is gathered from [here](https://github.com/supabase/postgres/tree/develop/migrations/db/init-scripts).
-You also have to run the migration script: [`migration.sql`](migration.sqlc) after the cluster provisioning, which is gathered from [supabase/postgres/migrations/db/migrations](https://github.com/supabase/postgres/tree/develop/migrations/db/migrations) in chronological order and slightly modified to fit Pigsty.
+You also have to run the migration script: [`migration.sql`](migration.sql) after the cluster provisioning, which is gathered from [supabase/postgres/migrations/db/migrations](https://github.com/supabase/postgres/tree/develop/migrations/db/migrations) in chronological order and slightly modified to fit Pigsty.
 
 You can check the latest migration files and add them to [`migration.sql`](migration.sqlc), the current script is synced with [20231013070755](https://github.com/supabase/postgres/blob/develop/migrations/db/migrations/20231013070755_grant_authenticator_to_supabase_storage_admin.sql).
 You can run migration on provisioned postgres cluster `pg-meta` with simple `psql` command: 
