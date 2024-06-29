@@ -492,6 +492,8 @@ build: del vb new ssh
 	cp files/pigsty/build.yml pigsty.yml
 rpm: del vr new ssh
 	cp files/pigsty/rpm.yml pigsty.yml
+	@echo ./node.yml -i files/pigsty/rpmbuild.yml -t node_repo,node_pkg
+	@echo el8:    sudo yum groupinstall --nobest -y 'Development Tools'
 deb: del vd new ssh
 	cp files/pigsty/deb.yml pigsty.yml
 build-boot:

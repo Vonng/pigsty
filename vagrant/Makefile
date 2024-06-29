@@ -132,8 +132,8 @@ minio:  del vm up ssh
 oss:    del vo up ssh
 ubuntu: dev vu up ssh
 build:  del vb up ssh
-rpm:    del vbr up ssh
-deb:    del vbd up ssh
+rpm:    del vr up ssh
+deb:    del vd up ssh
 prod:   del vp   up ssh
 prod7:  del vp7  up ssh
 prod8:  del vp8  up ssh
