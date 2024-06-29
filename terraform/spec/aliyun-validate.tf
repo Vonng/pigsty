@@ -41,20 +41,20 @@ resource "alicloud_security_group_rule" "allow_all_tcp" {
 # pg-meta: 1c2G x1
 # pg-test: 1c1G x3
 
-# Available IMAGES: https://help.aliyun.com/zh/ecs/user-guide/release-notes-for-2023
-# CentOS 7.9     :  centos_7_9_x64_20G_alibase_20231220.vhd
-# Rocky 8.9      :  rockylinux_8_9_x64_20G_alibase_20231221.vhd
-# Rocky 9.3      :  rockylinux_9_3_x64_20G_alibase_20231221.vhd
-# Ubuntu 20.04.3 :  ubuntu_20_04_x64_20G_alibase_20231221.vhd
-# Ubuntu 22.04.6 :  ubuntu_22_04_x64_20G_alibase_20231221.vhd
-# Debian 11.8    :  debian_11_8_x64_20G_alibase_20231220.vhd
-# Debian 12.4    :  debian_12_4_x64_20G_alibase_20231220.vhd
-# Anolis 8.8     :  anolisos_8_8_x64_20G_rhck_alibase_20230804.vhd
+# Available IMAGES: https://help.aliyun.com/zh/ecs/user-guide/release-notes-for-2024
+# CentOS 7.9     :  centos_7_9_x64_20G_alibase_20240531.vhd
+# Rocky 8.9      :  rockylinux_8_9_x64_20G_alibase_20240228.vhd
+# Rocky 9.4      :  rockylinux_9_4_x64_20G_alibase_20240531.vhd
+# Ubuntu 20.04   :  ubuntu_20_04_x64_20G_alibase_20240530.vhd
+# Ubuntu 22.04   :  ubuntu_22_04_x64_20G_alibase_20240530.vhd
+# Debian 11.9    :  debian_11_9_x64_20G_alibase_20240531.vhd
+# Debian 12.5    :  debian_12_5_x64_20G_alibase_20240531.vhd
+# Anolis 8.8     :  anolisos_8_8_x64_20G_rhck_alibase_20240221.vhd
 
 data "alicloud_images" "images_ds" {
   owners     = "system"
   name_regex = "^rockylinux_8_9_x64"    # use rocky 8.9 by default
-  #name_regex = "^rockylinux_9_3_x64"    # use rocky 9.3 by default
+  #name_regex = "^rockylinux_9_4_x64"    # use rocky 9.4 by default
   #name_regex = "^ubuntu_22_04_x64"      # use ubuntu 22.04 by default
 }
 # ${data.alicloud_images.images_ds.images.0.id}
