@@ -7,6 +7,7 @@ USERNAME = os.environ.get("GRAFANA_USERNAME", 'admin')
 PASSWORD = os.environ.get("GRAFANA_PASSWORD", 'pigsty')
 PORTALS = os.environ.get("INFRA_PORTAL", "")
 USE_HTTPS = os.environ.get("USE_HTTPS", "false")
+CREATE_FOLDERS = True
 
 METADB_PASSWORD = 'DBUser.Viewer'
 DEFAULT_DATASOURCES = {
@@ -92,10 +93,11 @@ def add_dashboard(d, folder=None):
     """put raw dashboard"""
     d["id"] = None
     payload = {"dashboard": d, "overwrite": True}
-    if folder is not None and folder != "":
-        payload["folderUid"] = folder
-    else:
-        payload["folderId"] = 0
+    if CREATE_FOLDERS:
+        if folder is not None and folder != "":
+            payload["folderUid"] = folder
+        else:
+            payload["folderId"] = 0
     return post('dashboards/db', payload)
 
 
@@ -129,6 +131,8 @@ def list_folders():
 
 
 def add_folder(uid, title=""):
+    if not CREATE_FOLDERS:
+        return
     if title == "":
         title = uid.upper()
     post('folders', {"uid": uid, "title": title})
