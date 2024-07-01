@@ -3,7 +3,7 @@
 # File      :   oss.yml
 # Desc      :   Pigsty OSS building env for 3 major distros
 # Ctime     :   2024-05-17
-# Mtime     :   2024-05-18
+# Mtime     :   2024-07-01
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -20,7 +20,7 @@
 all:
   vars:
     version: v2.7.0
-    admin_ip: 10.10.10.7
+    admin_ip: 10.10.10.8
     region: china
     etcd_clean: true
     proxy_env:                        # global proxy env when downloading packages
@@ -84,7 +84,7 @@ all:
           - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb libarrow-s3 pgFormatter pgxnclient luapgsql pgcopydb # PGDG Common
           - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*   # PGDG 16 Packages
           - vault_16* pgjwt_16* pg_roaringbitmap_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16* parquet_s3_fdw_16* # Pigsty Extension
-          - pgml_16 pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16 pg_lakehouse_16 pg_analytics_16 pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16
+          - pgml_16 pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16 pg_lakehouse_16 pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16 pgvectorscale_16
           - bgw_replstatus_16* count_distinct_16* credcheck_16* ddlx_16* e-maj_16* extra_window_functions_16* h3-pg_16* hdfs_fdw_16* hll_16* hypopg_16* ip4r_16* jsquery_16*  # PGDG Extensions
           - logerrors_16* login_hook_16* mongo_fdw_16* mysql_fdw_16* ogr_fdw_16* orafce_16* passwordcheck_cracklib_16* periods_16* pg_auth_mon_16* pg_auto_failover_16* pg_background_16* pgfincore_16* pgimportdoc_16* pgl_ddl_deploy_16* pgmemcache_16* pgmeminfo_16* pgmp_16* pgq_16* pgrouting_16* pgsodium_16* pgsql_gzip_16* pgsql_http_16* pgsql_tweaks_16*
           - pgtt_16* pguint_16* pg_bigm_16* pg_bulkload_16* pg_catcheck_16* pg_checksums_16* pg_comparator_16* pg_dbms_lock_16* pg_dbms_metadata_16* pg_extra_time_16* pg_fact_loader_16* pg_failover_slots_16* pg_filedump_16* pg_fkpart_16* pg_hint_plan_16* pg_ivm_16* pg_jobmon_16* pg_net_16* pg_partman_16* pg_permissions_16* pg_prioritize_16* pg_profile_16*
@@ -106,8 +106,8 @@ all:
           - pg_repack_$v* wal2json_$v* passwordcheck_cracklib_$v* # important extensions
         pg_extensions: # extensions to be installed on this cluster, $v & $v will be replaced by actual pg_version
           - timescaledb-2-postgresql-$v* postgis34_$v* pgrouting_$v* pointcloud_$v* h3-pg_$v* ip4r_$v* # geoip_$v*
-          - pgvector_$v* pg_vectorize_$v pg_tiktoken_$v pgml_$v pg_search_$v pg_bigm_$v* zhparser_$v*
-          - hydra_$v* duckdb_fdw_$v* parquet_s3_fdw_$v* pg_lakehouse_$v pg_analytics_$v pg_tier_$v pg_fkpart_$v* pg_partman_$v* # citus_$v* plproxy_$v* # pg_strom_$v*
+          - pgvector_$v* pgvectorscale_$v pg_vectorize_$v pg_tiktoken_$v pgml_$v pg_search_$v pg_bigm_$v* zhparser_$v*
+          - hydra_$v* duckdb_fdw_$v* parquet_s3_fdw_$v* pg_lakehouse_$v pg_tier_$v pg_fkpart_$v* pg_partman_$v* # citus_$v* plproxy_$v* # pg_strom_$v*
           - apache-age_$v* pg_graphql_$v pg_jsonschema_$v jsquery_$v* pg_hint_plan_$v* hypopg_$v* pg_ivm_$v* pgmq_$v pgq_$v* pgtt_$v* temporal_tables_$v* e-maj_$v* periods_$v* table_version_$v* pg_statement_rollback_$v* hll_$v* rum_$v
           - pgjwt_$v* pg_idkit_$v pg_uuidv7_$v* pg_later_$v pg_background_$v* pgsql_gzip_$v* pgsql_http_$v* pg_net_$v* pgsql_tweaks_$v* count_distinct_$v* extra_window_functions_$v* tdigest_$v* pg_extra_time_$v* topn_$v*
           - wrappers_$v mongo_fdw_$v* mysql_fdw_$v* ogr_fdw_$v* sqlite_fdw_$v* tds_fdw_$v* hdfs_fdw_$v* pgbouncer_fdw_$v* orafce_$v* pgmemcache_$v* pg_dbms_lock_$v* pg_dbms_metadata_$v* # pg_dbms_job_$v* mysqlcompat_$v* # multicorn2_$v* oracle_fdw_$v* db2_fdw_$v*
@@ -138,10 +138,7 @@ all:
           - { name: pgdg          ,description: 'PGDG'             ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg main' }}
           - { name: citus         ,description: 'Citus'            ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/${distro_name}/ ${distro_codename} main'   }}
           - { name: timescaledb   ,description: 'Timescaledb'      ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
-          - { name: redis         ,description: 'Redis'            ,module: redis ,releases: [11,12,20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
           - { name: docker-ce     ,description: 'Docker'           ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
-          #- { name: grafana      ,description: 'Grafana'          ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
-          #- { name: haproxy      ,description: 'HAProxy Debian'   ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://haproxy.debian.net ${distro_codename}-backports-2.9 main'    }}
         repo_packages:                    # which packages to be included
           - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
@@ -157,7 +154,7 @@ all:
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
           - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
           - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting postgresql-16-rdkit postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-statviz
-          - pg-graphql pg-net pg-jsonschema wrappers plprql
+          - pg-graphql pg-net pg-jsonschema wrappers pg-search pg-lakehouse plprql pgvectorscale-postgresql-16
           # too heavy # - postgresql-16-pljava postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
         infra_packages:                   # packages to be installed on infra nodes
           - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway,blackbox-exporter
@@ -173,8 +170,8 @@ all:
           - postgresql-$v-repack postgresql-$v-wal2json
         pg_extensions:                    # pg extensions to be installed, `$v` will be replaced
           - timescaledb-2-postgresql-$v postgresql-$v-postgis-3* postgresql-$v-pgrouting* postgresql-$v-pointcloud postgresql-$v-h3 postgresql-$v-ip4r postgresql-$v-mobilitydb
-          - postgresql-$v-pgvector postgresql-$v-similarity
-          - postgresql-$v-citus-12.1 postgresql-$v-plproxy postgresql-$v-partman
+          - postgresql-$v-pgvector pgvectorscale-postgresql-$v postgresql-$v-similarity pg-search
+          - pg-lakehouse postgresql-$v-plproxy postgresql-$v-partman postgresql-$v-citus-12.1
           - postgresql-$v-rdkit postgresql-$v-age pg-graphql pg-jsonschema postgresql-$v-jsquery postgresql-$v-pg-hint-plan postgresql-$v-hypopg postgresql-$v-pgq* postgresql-$v-periods postgresql-$v-hll postgresql-$v-rum postgresql-$v-preprepare
           - postgresql-$v-http pg-net postgresql-$v-extra-window-functions postgresql-$v-tdigest postgresql-$v-topn postgresql-$v-first-last-agg postgresql-$v-pgpcre postgresql-$v-icu-ext
           - wrappers postgresql-$v-mysql-fdw postgresql-$v-ogr-fdw postgresql-$v-orafce postgresql-$v-tds-fdw postgresql-$v-oracle-fdw postgresql-$v-pgmemcache
@@ -207,11 +204,7 @@ all:
           - { name: pgdg          ,description: 'PGDG'             ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg main' }}
           - { name: citus         ,description: 'Citus'            ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/${distro_name}/ ${distro_codename} main'   }}
           - { name: timescaledb   ,description: 'Timescaledb'      ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
-          - { name: redis         ,description: 'Redis'            ,module: redis ,releases: [11,12,20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
           - { name: docker-ce     ,description: 'Docker'           ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
-          #- { name: grafana      ,description: 'Grafana'          ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
-          #- { name: haproxy      ,description: 'HAProxy Ubuntu'   ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.9/ubuntu/ ${distro_codename} main'  }}
-          #- { name: pgml         ,description: 'PostgresML'       ,module: pgsql ,releases: [         22] ,baseurl: { default: 'https://apt.postgresml.org ${distro_codename} main'  }}
         repo_packages:                    # which packages to be included
           - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                                        # Distro & Boot
           - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                            # Pigsty Addon
@@ -227,8 +220,8 @@ all:
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
           - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
           - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-rdkit # postgresql-16-statviz
-          - pg-graphql pg-net pg-jsonschema wrappers pg-analytics pg-search pg-lakehouse pgdd-jammy-pg16
-            # too heavy # - postgresql-16-pljava postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
+          - pg-graphql pg-net pg-jsonschema wrappers pg-search pg-lakehouse pgdd-jammy-pg16 pgvectorscale-postgresql-16
+          # too heavy # - postgresql-16-pljava postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
         infra_packages:                   # packages to be installed on infra nodes
           - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway,blackbox-exporter
           - node-exporter,blackbox-exporter,nginx-exporter,redis-exporter,pg-exporter
@@ -243,8 +236,8 @@ all:
           - postgresql-$v-repack postgresql-$v-wal2json
         pg_extensions:                    # pg extensions to be installed, `$v` will be replaced
           - timescaledb-2-postgresql-$v postgresql-$v-postgis-3* postgresql-$v-pgrouting* postgresql-$v-pointcloud postgresql-$v-h3 postgresql-$v-ip4r postgresql-$v-mobilitydb
-          - postgresql-$v-pgvector postgresql-$v-similarity pg-search
-          - pg-lakehouse pg-analytics postgresql-$v-partman postgresql-$v-citus-12.1 postgresql-$v-plproxy
+          - postgresql-$v-pgvector pgvectorscale-postgresql-$v postgresql-$v-similarity pg-search
+          - pg-lakehouse postgresql-$v-plproxy postgresql-$v-partman postgresql-$v-citus-12.1
           - postgresql-$v-rdkit postgresql-$v-age pg-graphql pg-jsonschema postgresql-$v-jsquery postgresql-$v-pg-hint-plan postgresql-$v-hypopg postgresql-$v-pgq* postgresql-$v-periods postgresql-$v-hll postgresql-$v-rum postgresql-$v-preprepare
           - postgresql-$v-http pg-net postgresql-$v-extra-window-functions postgresql-$v-tdigest postgresql-$v-topn postgresql-$v-first-last-agg postgresql-$v-pgpcre postgresql-$v-icu-ext
           - wrappers postgresql-$v-mysql-fdw postgresql-$v-ogr-fdw postgresql-$v-orafce postgresql-$v-tds-fdw postgresql-$v-oracle-fdw postgresql-$v-pgmemcache

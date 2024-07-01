@@ -39,6 +39,59 @@
 | v0.0.1          | 2019-05-15 | POC                                                      | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
 
+
+----------------
+
+## v2.8.0 (WIP)
+
+**Highlight**
+
+**New Features**
+
+- [ ] Grafana 11 migration
+- [x] PG Exporter 0.7 for PostgreSQL 17beta2 metrics support
+- [ ] Observability enhancement
+- [ ] duckdb: duckdb, libduckdb, duckdb_fdw version v1.0.0
+- [ ] paradedb: bump pg_search & pg_lakehouse to v0.8,
+- [ ] bump default rocky minor version to 8.10 and 9.4
+- [ ] write `proxy_env` for docker daemon
+- [ ] VictoriaMetrics & Vector ?
+- [ ] Migration pigsty repo entirely to Cloudflare?
+- [ ] Bump FerretDB, SealOS to the latest version
+- [ ] `pgvectorscale` extension with DiskANN support
+- [ ] Find some other duckdb related extensions?
+- [ ] specify config in `infra_portal` config to use existing certs
+
+**Software Upgrade**
+
+- Haproxy 3.0.2
+- Patroni 3.3.1
+- pgBackRest 2.52
+- Grafana 11.1
+- pgBadger 12.4
+- sealos 5.0.0 
+- pgvector 0.7.2
+- pg_graphql: 1.5.6
+- pgml: 2.9.1
+- pgmq: 1.1.1 -> 1.3.3
+- pg_tier: 0.0.4
+- pg_vectorize: 0.16.0
+- pg_later: v1.1
+- pg_search 0.8.0
+- pg_lakehouse 0.8.0
+- pg_analytics (deprecated)
+- duckdb / libduckdb / duckdb_fdw 1.0.0
+
+**Docker Application**
+
+- [Dify](https://github.com/Vonng/pigsty/tree/master/app/dify): AI Agent Workflow & LLMOps
+
+**Bug Fix**
+
+**API Change**
+
+
+
 ----------------
 
 ## v2.7.0
