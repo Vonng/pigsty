@@ -111,7 +111,7 @@ all:
         10.10.10.20: {}
         10.10.10.22: {}
       vars:
-        repo_modules: infra,node,pgsql,redis
+        repo_modules: infra,node,pgsql
         repo_upstream:                    # where to download #
           - { name: pigsty-local  ,description: 'Pigsty Local'     ,module: local ,releases: [11,12,20,22] ,baseurl: { default: 'http://${admin_ip}/pigsty ./' }}
           - { name: pigsty-pgsql  ,description: 'Pigsty PgSQL'     ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'http://10.10.10.1/deb/pgsql/${distro_codename}.amd64/ ./', china: 'http://10.10.10.1/deb/pgsql/${distro_codename}.amd64/ ./' }}
@@ -127,12 +127,11 @@ all:
           - { name: pgdg          ,description: 'PGDG'             ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg main' }}
           - { name: citus         ,description: 'Citus'            ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/${distro_name}/ ${distro_codename} main'   }}
           - { name: timescaledb   ,description: 'Timescaledb'      ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
-          - { name: redis         ,description: 'Redis'            ,module: redis ,releases: [11,12,20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
           - { name: docker-ce     ,description: 'Docker'           ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
-          #- { name: pgdg-17-beta  ,description: 'PGDG 17 Beta'     ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg-testing main 17' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg-testing main 17' }}
           #- { name: grafana      ,description: 'Grafana'          ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
           #- { name: haproxy      ,description: 'HAProxy Debian'   ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://haproxy.debian.net ${distro_codename}-backports-2.9 main'    }}
           #- { name: haproxy      ,description: 'HAProxy Ubuntu'   ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.9/ubuntu/ ${distro_codename} main'  }}
+          #- { name: redis        ,description: 'Redis'            ,module: redis ,releases: [11,12,20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
           #- { name: pgml         ,description: 'PostgresML'       ,module: pgsql ,releases: [         22] ,baseurl: { default: 'https://apt.postgresml.org ${distro_codename} main'  }}
         repo_url_packages:
           - http://10.10.10.1/etc/pev.html
@@ -294,7 +293,7 @@ all:
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
           - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
           - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 # postgresql-16-rdkit postgresql-16-statviz
-          - pg-graphql pg-net pg-jsonschema wrappers plprql
+          - pg-graphql pg-net pg-jsonschema wrappers plprql pgvectorscale-postgresql-16
           # pg17 beta packages
           #- postgresql-17 postgresql-client-17 postgresql-server-dev-17 postgresql-plpython3-17 postgresql-plperl-17 postgresql-pltcl-17 # postgresql-17-wal2json postgresql-17-repack
         node_default_packages:            # default node packages to be installed on debian11 node: (linux-perf,netcat-openbsd,tnftp)
@@ -333,7 +332,7 @@ all:
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
           - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
           - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-rdkit postgresql-16-statviz
-          - pg-graphql pg-net pg-jsonschema wrappers plprql
+          - pg-graphql pg-net pg-jsonschema wrappers plprql pgvectorscale-postgresql-16 pg-search pg-lakehouse
           # pg17 beta packages
           #- postgresql-17 postgresql-client-17 postgresql-server-dev-17 postgresql-plpython3-17 postgresql-plperl-17 postgresql-pltcl-17 # postgresql-17-wal2json postgresql-17-repack
         node_default_packages:            # default node packages to be installed on debian12 node: (linux-perf,netcat-openbsd,tnftp)
@@ -372,7 +371,7 @@ all:
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
           - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
           - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting
-          - pg-graphql pg-net pg-jsonschema wrappers
+          - pg-graphql pg-net pg-jsonschema wrappers plprql pgvectorscale-postgresql-16
           # too heavy # - postgresql-16-pljava postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
           # pg17 beta packages
           #- postgresql-17 postgresql-client-17 postgresql-server-dev-17 postgresql-plpython3-17 postgresql-plperl-17 postgresql-pltcl-17 # postgresql-17-wal2json postgresql-17-repack
@@ -412,7 +411,7 @@ all:
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
           - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
           - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-rdkit
-          - pg-graphql pg-net pg-jsonschema wrappers pg-search pg-lakehouse pgdd-jammy-pg16
+          - pg-graphql pg-net pg-jsonschema wrappers pg-search pg-lakehouse pgdd-jammy-pg16 pgvectorscale-postgresql-16
           # too heavy # - postgresql-16-pljava postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
           # pg17 beta packages
           #- postgresql-17 postgresql-client-17 postgresql-server-dev-17 postgresql-plpython3-17 postgresql-plperl-17 postgresql-pltcl-17 # postgresql-17-wal2json postgresql-17-repack
