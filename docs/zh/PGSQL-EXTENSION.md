@@ -88,14 +88,13 @@ pg-meta:
         extensions:  # <----- 在数据库中启用这些扩展 (`CREATE EXTENSION`)
           - { name: postgis, schema: public }
           - { name: timescaledb  }
-          - { name: pg_analytics } # <---- 新增扩展
           - { name: duckdb_fdw   } # <---- 新增扩展
           - { name: hydra        } # <---- 新增扩展
 
     pg_libs: 'timescaledb, pg_cron, pg_stat_statements, auto_explain' # <- 个别扩展需要加载动态库方可运行
     pg_extensions:   # 安装到集群中的扩展列表 (yum/apt install)
       - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*          # 默认安装的三个扩展，如果需要，不要忘记保留
-      - pg_analytics_${pg_version}* duckdb_fdw_${pg_version}* hydra_${pg_version}* #citus_${pg_version}*  # <-----+ 新增扩展
+      - duckdb_fdw_${pg_version}* hydra_${pg_version}* #citus_${pg_version}*                              # <-----+ 新增扩展
       
       #- pg_bm25_${pg_version}* pg_sparse_${pg_version}* zhparser_${pg_version}*                          # 其他备选扩展
       #- pg_graphql_${pg_version} pg_net_${pg_version}* pgsql-http_${pg_version}* vault_${pg_version} pgjwt_${pg_version} pg_tle_${pg_version}*
@@ -115,7 +114,7 @@ pg-meta:
 您也可以在数据库服务器上使用 `yum` | `apt` 命令直接安装扩展软件包，或者使用 Ansible 模块来批量完成安装，但是这样您必须显式指明扩展的大版本号（目前为 16）：
 
 ```bash
-cd ~/pigsty;               # 在管理节点上进入 pigsty 源码目录，为 pg-test 集群安装 pg_analytics 与 hydra 扩展
+cd ~/pigsty;               # 在管理节点上进入 pigsty 源码目录，为 pg-test 集群安装 hydra 扩展
 ansible pg-meta -m package -b -a 'name=duckdb_fdw_16*'      # 扩展的名称通常后缀以 `_<pgmajorversion>`
 ansible pg-meta -m package -b -a 'name=hydra_16*'           # 例如，您的数据库大版本为16，那么就应该在扩展yum包之后添加 `_16`
 ```

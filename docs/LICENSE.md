@@ -108,7 +108,7 @@ PostgreSQL Extensions:
 |            [pg_graphql](https://github.com/supabase/pg_graphql)            | [Apache-2.0](https://github.com/supabase/pg_graphql/blob/master/LICENSE)                      |
 |              [pgml](https://github.com/postgresml/postgresml)              | [MIT](https://github.com/postgresml/postgresml/blob/master/MIT-LICENSE.txt)                   |
 |    [pg_search](https://github.com/paradedb/paradedb/tree/dev/pg_search)    | [AGPLv3](https://github.com/paradedb/paradedb/blob/dev/LICENSE)                               |
-| [pg_analytics](https://github.com/paradedb/paradedb/tree/dev/pg_analytics) | [AGPLv3](https://github.com/paradedb/paradedb/blob/dev/LICENSE)                               |
+| [pg_lakehouse](https://github.com/paradedb/paradedb/tree/dev/pg_lakehouse) | [AGPLv3](https://github.com/paradedb/paradedb/blob/dev/LICENSE)                               |
 |            [pg_graphql](https://github.com/supabase/pg_graphql)            | [Apache-2.0](https://github.com/supabase/pg_graphql/blob/master/LICENSE)                      |
 |         [pg_jsonschema](https://github.com/supabase/pg_jsonschema)         | [Apache-2.0](https://github.com/supabase/pg_jsonschema/blob/master/LICENSE)                   |
 |              [wrappers](https://github.com/supabase/wrappers)              | [Apache-2.0](https://github.com/supabase/wrappers/blob/main/LICENSE)                          |

@@ -11,20 +11,19 @@
 
 
 #==============================================================#
-# 1.  el7 : 10.10.10.7  (4 Core | 8GB)  CentOS 7.9             #
-# 2.  el8 : 10.10.10.8  (4 Core | 8GB)  Rocky 8.9              #
-# 3.  el9 : 10.10.10.9  (4 Core | 8GB)  Rocky 9.3              #
-# 4.  d11 : 10.10.10.11 (4 Core | 8GB)  Debian 11 bullseye     #
-# 5.  d12 : 10.10.10.12 (4 Core | 8GB)  Debian 12 bookworm     #
-# 6.  u20 : 10.10.10.22 (4 Core | 8GB)  Ubuntu 20.04 focal     #
-# 7.  u22 : 10.10.10.22 (4 Core | 8GB)  Ubuntu 22.04 jammy     #
+# 1.  el8 : 10.10.10.8  (4 Core | 8GB)  Rocky 8.9              #
+# 2.  el9 : 10.10.10.9  (4 Core | 8GB)  Rocky 9.3              #
+# 3.  d11 : 10.10.10.11 (4 Core | 8GB)  Debian 11 bullseye     #
+# 4.  d12 : 10.10.10.12 (4 Core | 8GB)  Debian 12 bookworm     #
+# 5.  u20 : 10.10.10.22 (4 Core | 8GB)  Ubuntu 20.04 focal     #
+# 6.  u22 : 10.10.10.22 (4 Core | 8GB)  Ubuntu 22.04 jammy     #
 #==============================================================#
 
 
 all:
   vars:
     version: v2.7.0
-    admin_ip: 10.10.10.7
+    admin_ip: 10.10.10.8
     region: china
     etcd_clean: true
     proxy_env:                        # global proxy env when downloading packages
@@ -39,31 +38,27 @@ all:
   children:
     infra:
       hosts:
-        10.10.10.7:  { infra_seq: 1, admin_ip: 10.10.10.7  }
-        10.10.10.8:  { infra_seq: 2, admin_ip: 10.10.10.8  }
-        10.10.10.9:  { infra_seq: 3, admin_ip: 10.10.10.9  }
-        10.10.10.11: { infra_seq: 4, admin_ip: 10.10.10.11 }
-        10.10.10.12: { infra_seq: 5, admin_ip: 10.10.10.12 }
-        10.10.10.20: { infra_seq: 6, admin_ip: 10.10.10.20 }
-        10.10.10.22: { infra_seq: 7, admin_ip: 10.10.10.22 }
+        10.10.10.8:  { infra_seq: 1, admin_ip: 10.10.10.8  }
+        10.10.10.9:  { infra_seq: 2, admin_ip: 10.10.10.9  }
+        10.10.10.11: { infra_seq: 3, admin_ip: 10.10.10.11 }
+        10.10.10.12: { infra_seq: 4, admin_ip: 10.10.10.12 }
+        10.10.10.20: { infra_seq: 5, admin_ip: 10.10.10.20 }
+        10.10.10.22: { infra_seq: 6, admin_ip: 10.10.10.22 }
       vars: { node_conf: oltp }
 
     etcd:
       hosts:
-        10.10.10.7:  { etcd_seq: 1 }
-        10.10.10.8:  { etcd_seq: 2 }
-        10.10.10.9:  { etcd_seq: 3 }
-        #10.10.10.11: { etcd_seq: 4 }
-        #10.10.10.12: { etcd_seq: 5 }
-        #10.10.10.20: { etcd_seq: 6 }
-        #10.10.10.22: { etcd_seq: 7 }
+        10.10.10.8:  { etcd_seq: 1 }
+        #10.10.10.9:  { etcd_seq: 2 }
+        #10.10.10.11: { etcd_seq: 3 }
+        #10.10.10.12: { etcd_seq: 4 }
+        #10.10.10.20: { etcd_seq: 5 }
+        #10.10.10.22: { etcd_seq: 6 }
       vars: {  etcd_cluster: etcd  }
-
 
     # EL general settings
     rpm:
       hosts:
-        10.10.10.7: {}
         10.10.10.8: {}
         10.10.10.9: {}
       vars:
@@ -74,12 +69,6 @@ all:
           - { name: pigsty-pgsql   ,description: 'Pigsty PGSQL'      ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'http://10.10.10.1/rpm/pgsql/el$releasever.$basearch' ,china: 'http://10.10.10.1/rpm/pgsql/el$releasever.$basearch' }}
           - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' }}
           - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'        ,china: 'https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable'  ,europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' }}
-          - { name: base           ,description: 'EL 7 Base'         ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/os/$basearch/'                    ,china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/'           ,europe: 'https://mirrors.xtom.de/centos/$releasever/os/$basearch/'           }}
-          - { name: updates        ,description: 'EL 7 Updates'      ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/updates/$basearch/'               ,china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/updates/$basearch/'      ,europe: 'https://mirrors.xtom.de/centos/$releasever/updates/$basearch/'      }}
-          - { name: extras         ,description: 'EL 7 Extras'       ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/extras/$basearch/'                ,china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/extras/$basearch/'       ,europe: 'https://mirrors.xtom.de/centos/$releasever/extras/$basearch/'       }}
-          - { name: epel           ,description: 'EL 7 EPEL'         ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://download.fedoraproject.org/pub/epel/$releasever/$basearch/'            ,china: 'https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/$basearch/'                ,europe: 'https://mirrors.xtom.de/epel/$releasever/$basearch/'                }}
-          - { name: centos-sclo    ,description: 'EL 7 SCLo'         ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/sclo/$basearch/sclo/'             ,china: 'https://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/sclo/'              ,europe: 'https://mirrors.xtom.de/centos/$releasever/sclo/$basearch/sclo/'    }}
-          - { name: centos-sclo-rh ,description: 'EL 7 SCLo rh'      ,module: node  ,releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/sclo/$basearch/rh/'               ,china: 'https://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/rh/'                ,europe: 'https://mirrors.xtom.de/centos/$releasever/sclo/$basearch/rh/'      }}
           - { name: baseos         ,description: 'EL 8+ BaseOS'      ,module: node  ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/BaseOS/$basearch/os/'         ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/BaseOS/$basearch/os/'          ,europe: 'https://mirrors.xtom.de/rocky/$releasever/BaseOS/$basearch/os/'     }}
           - { name: appstream      ,description: 'EL 8+ AppStream'   ,module: node  ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/AppStream/$basearch/os/'      ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/AppStream/$basearch/os/'       ,europe: 'https://mirrors.xtom.de/rocky/$releasever/AppStream/$basearch/os/'  }}
           - { name: extras         ,description: 'EL 8+ Extras'      ,module: node  ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/extras/$basearch/os/'         ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/extras/$basearch/os/'          ,europe: 'https://mirrors.xtom.de/rocky/$releasever/extras/$basearch/os/'     }}
@@ -215,7 +204,7 @@ all:
           - postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* pglogical_14* pg_cron_14* pgvector_14* pg_bigm_14* zhparser_14* hydra_14*
           # pg15 packages
           - postgresql15* pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pglogical_15* pg_cron_15* postgis34_15* timescaledb-2-postgresql-15* pgvector_15* citus_15* vault_15* pgjwt_15* pg_roaringbitmap_15* zhparser_15* hydra_15* apache-age_15* duckdb_fdw_15* md5hash_15* pg_dirtyread_15*
-          - pgml_15 pg_graphql_15 wrappers_15 pg_jsonschema_15 pg_search_15 pg_lakehouse_15 pg_analytics_15 pgmq_15 pg_later_15 pg_vectorize_15 pg_tiktoken_15 pgdd_15 plprql_15 pgsmcrypto_15 pg_idkit_15
+          - pgml_15 pg_graphql_15 wrappers_15 pg_jsonschema_15 pg_search_15 pg_lakehouse_15 pgmq_15 pg_later_15 pg_vectorize_15 pg_tiktoken_15 pgdd_15 plprql_15 pgsmcrypto_15 pg_idkit_15 pgvectorscale_15
           # pg16 packages
           - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*   # PGDG 16 Packages
           - vault_16* pgjwt_16* pg_roaringbitmap_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16* parquet_s3_fdw_16* # Pigsty Extension
@@ -256,7 +245,7 @@ all:
           # pg15 packages
           - postgresql15* pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pglogical_15* pg_cron_15* postgis34_15* timescaledb-2-postgresql-15* pgvector_15* citus_15*
           - vault_15* pgjwt_15* pg_roaringbitmap_15* zhparser_15* hydra_15* apache-age_15* duckdb_fdw_15* md5hash_15* pg_dirtyread_15*
-          - pgml_15 pg_graphql_15 wrappers_15 pg_jsonschema_15 pg_search_15 pg_lakehouse_15 pg_analytics_15 pgmq_15 pg_later_15 pg_vectorize_15 pg_tiktoken_15 pgdd_15 plprql_15 pgsmcrypto_15 pg_idkit_15
+          - pgml_15 pg_graphql_15 wrappers_15 pg_jsonschema_15 pg_search_15 pg_lakehouse_15 pgmq_15 pg_later_15 pg_vectorize_15 pg_tiktoken_15 pgdd_15 plprql_15 pgsmcrypto_15 pg_idkit_15 pgvectorscale_15
           # pg16 packages
           - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16* # PGDG 16 Packages
           - vault_16* pgjwt_16* pg_roaringbitmap_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16* parquet_s3_fdw_16* # Pigsty Extension (C)
@@ -423,7 +412,7 @@ all:
           - postgresql-16-pgmemcache postgresql-16-pgmp postgresql-16-pgpcre postgresql-16-pgq3 postgresql-16-pgq-node postgresql-16-pg-qualstats postgresql-16-pgsphere postgresql-16-pg-stat-kcache postgresql-16-pgtap postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plsh postgresql-16-pointcloud
           - postgresql-16-powa postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-squeeze postgresql-16-tablelog postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit
           - postgresql-16-pg-hint-plan postgresql-16-mobilitydb postgresql-16-roaringbitmap postgresql-16-pg-rrule postgresql-16-http postgresql-16-pgfaceting postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-h3 postgresql-16-rdkit
-          - pg-graphql pg-net pg-jsonschema wrappers pg-analytics pg-search pg-lakehouse pgdd-jammy-pg16
+          - pg-graphql pg-net pg-jsonschema wrappers pg-search pg-lakehouse pgdd-jammy-pg16
           # too heavy # - postgresql-16-pljava postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
           # pg17 beta packages
           #- postgresql-17 postgresql-client-17 postgresql-server-dev-17 postgresql-plpython3-17 postgresql-plperl-17 postgresql-pltcl-17 # postgresql-17-wal2json postgresql-17-repack

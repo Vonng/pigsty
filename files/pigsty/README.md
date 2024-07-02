@@ -18,7 +18,6 @@ If `-m <mode>` is specified, corresponding `<mode>.yml` is used, otherwise pigst
 
 The above 3 os distro have corresponding offline packages available. And the following os distros can only be online installed:
 
-* [el7.yml](el7.yml): EL7, CentOS 7.9 and compatible OS
 * [el9.yml](el9.yml): EL9, Rocky 9.3 and compatible OS
 * [debian11.yml](debian11.yml): Debian 11 bullseye and compatible OS
 * [ubuntu20.yml](ubuntu20.yml): Ubuntu 20.04 focal and compatible OS

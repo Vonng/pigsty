@@ -48,7 +48,6 @@ function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 #--------------------------------------------------------------#
 log_info "copy /tmp/cache script"
 CACHE_SCRIPT=${PROG_DIR}/cache
-scp ${CACHE_SCRIPT} build-el7:/tmp/cache &
 scp ${CACHE_SCRIPT} build-el8:/tmp/cache &
 scp ${CACHE_SCRIPT} build-el9:/tmp/cache &
 scp ${CACHE_SCRIPT} debian12:/tmp/cache  &
@@ -62,7 +61,6 @@ wait
 # Make Offline Package
 #--------------------------------------------------------------#
 log_info "make offline packages"
-ssh -t build-el7 "sudo bash /tmp/cache" &
 ssh -t build-el8 "sudo bash /tmp/cache" &
 ssh -t build-el9 "sudo bash /tmp/cache" &
 ssh -t debian12  "sudo bash /tmp/cache" &
@@ -77,7 +75,6 @@ wait
 #--------------------------------------------------------------#
 log_info "copy pigsty-pkg to local dist dir"
 mkdir -p dist/${VERSION}/
-scp build-el7:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz      &
 scp build-el8:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz      &
 scp build-el9:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz      &
 scp debian12:/tmp/pkg.tgz  dist/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz &

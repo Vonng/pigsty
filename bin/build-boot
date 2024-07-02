@@ -31,7 +31,6 @@ function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
 function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 
 log_info "copy source packages to building VMs"
-rsync -avz dist/${VERSION}/pigsty-${VERSION}.tgz build-el7:~/pigsty.tgz  &
 rsync -avz dist/${VERSION}/pigsty-${VERSION}.tgz build-el8:~/pigsty.tgz  &
 rsync -avz dist/${VERSION}/pigsty-${VERSION}.tgz build-el9:~/pigsty.tgz  &
 rsync -avz dist/${VERSION}/pigsty-${VERSION}.tgz debian11:~/pigsty.tgz   &
@@ -41,7 +40,6 @@ rsync -avz dist/${VERSION}/pigsty-${VERSION}.tgz ubuntu22:~/pigsty.tgz   &
 wait
 
 log_info "configure building environment"
-ssh -t build-el7 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -i 10.10.10.7"  &
 ssh -t build-el8 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -i 10.10.10.8"  &
 ssh -t build-el9 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -i 10.10.10.9"  &
 ssh -t debian11  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -i 10.10.10.11" &
@@ -51,7 +49,6 @@ ssh -t ubuntu22  "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configur
 wait
 
 log_info "copy offline packages to building VMs"
-rsync -avz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz      build-el7:/tmp/pkg.tgz  &
 rsync -avz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz      build-el8:/tmp/pkg.tgz  &
 rsync -avz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz      build-el9:/tmp/pkg.tgz  &
 rsync -avz dist/${VERSION}/pigsty-pkg-${VERSION}.debian11.x86_64.tgz debian11:/tmp/pkg.tgz   &
@@ -61,7 +58,6 @@ rsync -avz dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz ubuntu22:/t
 wait
 
 log_info "extract /tmp/pkg.tgz tarball"
-ssh -t build-el7 "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www;" &
 ssh -t build-el8 "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www;" &
 ssh -t build-el9 "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www;" &
 ssh -t debian11  "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www;" &
@@ -71,7 +67,6 @@ ssh -t ubuntu22  "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp
 wait
 
 log_info "bootstrap building environment"
-ssh -t build-el7 "cd ~/pigsty && ./bootstrap -n" &
 ssh -t build-el8 "cd ~/pigsty && ./bootstrap -n" &
 ssh -t build-el9 "cd ~/pigsty && ./bootstrap -n" &
 ssh -t debian11  "cd ~/pigsty && ./bootstrap -n" &

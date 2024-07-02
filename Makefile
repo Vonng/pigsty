@@ -8,13 +8,12 @@
 # License   :   AGPLv3
 #==============================================================#
 # pigsty version string
-VERSION?=v2.7.0
+VERSION?=v2.8.0
 
 # variables
 SRC_PKG=pigsty-$(VERSION).tgz
 APP_PKG=pigsty-app-$(VERSION).tgz
 DOCKER_PKG=pigsty-docker-$(VERSION).tgz
-EL7_PKG=pigsty-pkg-$(VERSION).el7.x86_64.tgz
 EL8_PKG=pigsty-pkg-$(VERSION).el8.x86_64.tgz
 EL9_PKG=pigsty-pkg-$(VERSION).el9.x86_64.tgz
 D11_PKG=pigsty-pkg-$(VERSION).debian11.x86_64.tgz
@@ -376,8 +375,6 @@ cc: release copy-src copy-pkg use-src use-pkg
 # copy pigsty source code
 copy-src:
 	scp "dist/${VERSION}/${SRC_PKG}" meta:~/pigsty.tgz
-copy-el7:
-	scp dist/${VERSION}/${EL7_PKG} meta:/tmp/pkg.tgz
 copy-el8:
 	scp dist/${VERSION}/${EL8_PKG} meta:/tmp/pkg.tgz
 copy-el9:
@@ -454,19 +451,16 @@ publish:
 # validate offline packages with build environment
 check-all: check-src check-repo check-boot
 check-src:
-	scp dist/${VERSION}/${SRC_PKG} build-el7:~/pigsty.tgz ; ssh build-el7 "tar -xf pigsty.tgz";
 	scp dist/${VERSION}/${SRC_PKG} build-el8:~/pigsty.tgz ; ssh build-el8 "tar -xf pigsty.tgz";
 	scp dist/${VERSION}/${SRC_PKG} build-el9:~/pigsty.tgz ; ssh build-el9 "tar -xf pigsty.tgz";
 	scp dist/${VERSION}/${SRC_PKG} debian12:~/pigsty.tgz ; ssh debian12  "tar -xf pigsty.tgz";
 	scp dist/${VERSION}/${SRC_PKG} ubuntu22:~/pigsty.tgz ; ssh ubuntu22  "tar -xf pigsty.tgz";
 check-repo:
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz build-el7:/tmp/pkg.tgz ; ssh build-el7 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz build-el8:/tmp/pkg.tgz ; ssh build-el8 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz build-el9:/tmp/pkg.tgz ; ssh build-el9 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz debian12:/tmp/pkg.tgz ; ssh debian12 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz ubuntu22:/tmp/pkg.tgz ; ssh ubuntu22 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 check-boot:
-	ssh build-el7 "cd pigsty; ./bootstrap -n ; ./configure -m el7  -i 10.10.10.7 -n";
 	ssh build-el8 "cd pigsty; ./bootstrap -n ; ./configure -m el   -i 10.10.10.8 -n";
 	ssh build-el9 "cd pigsty; ./bootstrap -n ; ./configure -m el   -i 10.10.10.9 -n";
 	ssh debian12 "cd pigsty; ./bootstrap -n ; ./configure -m el   -i 10.10.10.12 -n";
@@ -476,8 +470,6 @@ meta: del v1 new ssh copy-el8 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
 full: del v4 new ssh copy-el8 use-pkg
 	cp files/pigsty/demo.yml pigsty.yml
-el7: del v7 new ssh copy-el7 use-pkg
-	cp files/pigsty/test.yml pigsty.yml
 el8: del v8 new ssh copy-el8 use-pkg
 	cp files/pigsty/test.yml pigsty.yml
 el9: del v9 new ssh copy-el9 use-pkg
@@ -502,10 +494,6 @@ check: del vc new ssh
 	cp files/pigsty/check.yml pigsty.yml
 checkb: del vc new ssh check-all
 	cp files/pigsty/check.yml pigsty.yml
-prod7: del vp7 new ssh
-	cp files/pigsty/prod.yml pigsty.yml
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 prod8: del vp8 new ssh
 	cp files/pigsty/prod.yml pigsty.yml
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
@@ -539,7 +527,7 @@ prod22: del vp22 new ssh
         st status suspend resume v1 v4 v7 v8 v9 vb vr vd vm vo vc vu vp vp7 vp9 vnew \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
-        copy copy-src copy-pkg copy-el7 copy-el8 copy-el9 copy-u22 copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
-        r release rr remote-release rp release-pkg release-oss release-el7 release-el8 release-el9 check-all check-src check-repo check-boot pp package pb publish \
-        meta full el7 el8 el9 check minio oss ubuntu prod7 prod8 prod9 prod12 prod22 build rpm deb
+        copy copy-src copy-pkg copy-el8 copy-el9 copy-u22 copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
+        r release rr remote-release rp release-pkg release-oss release-el8 release-el9 check-all check-src check-repo check-boot pp package pb publish \
+        meta full el8 el9 check minio oss ubuntu prod7 prod8 prod9 prod12 prod22 build rpm deb
 ###############################################################
