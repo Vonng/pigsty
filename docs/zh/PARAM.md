@@ -557,7 +557,7 @@ repo_packages:
   - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                   # Node Tools 2
   - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb libarrow-s3 pgFormatter # pgxnclient el9     # PGSQL Common Tools
   - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*   # PGDG 16 Packages
-  - pg_net_16* pgsql-http_16* pgsql-gzip_16* vault_16 pgjwt_16 pg_tle_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16*
+  - pg_net_16* pgsql_http_16* pgsql-gzip_16* vault_16 pgjwt_16 pg_tle_16* pg_roaringbitmap_16* pointcloud_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16*
   - pgml_16* pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16* pg_lakehouse_16* pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16 parquet_s3_fdw_16* pgvectorscale_16
   - orafce_16* mongo_fdw_16* tds_fdw_16* mysql_fdw_16 hdfs_fdw_16 sqlite_fdw_16 pgbouncer_fdw_16 powa_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_qualstats_16 pg_track_settings_16 pg_wait_sampling_16 hll_16 pgaudit_16
   - plprofiler_16* plsh_16* pldebugger_16 plpgsql_check_16* pgtt_16 pgq_16* pgsql_tweaks_16 count_distinct_16 hypopg_16 timestamp9_16* semver_16* prefix_16* periods_16 ip4r_16 tdigest_16 pgmp_16 extra_window_functions_16 topn_16

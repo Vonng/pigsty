@@ -97,7 +97,7 @@ pg-meta:
       - duckdb_fdw_${pg_version}* hydra_${pg_version}* #citus_${pg_version}*                              # <-----+ 新增扩展
       
       #- pg_bm25_${pg_version}* pg_sparse_${pg_version}* zhparser_${pg_version}*                          # 其他备选扩展
-      #- pg_graphql_${pg_version} pg_net_${pg_version}* pgsql-http_${pg_version}* vault_${pg_version} pgjwt_${pg_version} pg_tle_${pg_version}*
+      #- pg_graphql_${pg_version} pg_net_${pg_version}* pgsql_http_${pg_version}* vault_${pg_version} pgjwt_${pg_version} pg_tle_${pg_version}*
       #- pgml_${pg_version}* apache-age_${pg_version}* pg_roaringbitmap_${pg_version}* pointcloud_${pg_version}* pgsql-gzip_${pg_version}* pglogical_${pg_version}* pg_cron_${pg_version}*
       #- orafce_${pg_version}* mongo_fdw_${pg_version}* tds_fdw_${pg_version}* mysql_fdw_${pg_version} hdfs_fdw_${pg_version} sqlite_fdw_${pg_version} pgbouncer_fdw_${pg_version} powa_${pg_version}* pg_stat_kcache_${pg_version}* pg_stat_monitor_${pg_version}* pg_qualstats_${pg_version} pg_track_settings_${pg_version} pg_wait_sampling_${pg_version} hll_${pg_version} pgaudit_${pg_version}
       #- plprofiler_${pg_version}* plsh_${pg_version}* pldebugger_${pg_version} plpgsql_check_${pg_version}* pgtt_${pg_version} pgq_${pg_version}* pgsql_tweaks_${pg_version} count_distinct_${pg_version} hypopg_${pg_version} timestamp9_${pg_version}* semver_${pg_version}* prefix_${pg_version}* periods_${pg_version} ip4r_${pg_version} tdigest_${pg_version} pgmp_${pg_version} extra_window_functions_${pg_version} topn_${pg_version}
