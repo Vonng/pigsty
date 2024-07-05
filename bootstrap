@@ -3,7 +3,7 @@
 # File      :   bootstrap
 # Desc      :   setup local repo & install boot utils
 # Ctime     :   2022-10-16
-# Mtime     :   2024-02-29
+# Mtime     :   2024-07-05
 # Path      :   bootstrap
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -365,39 +365,60 @@ function add_el7_repo(){
     local releasever=7
     local basearch=x86_64
     if [ "${region}" = "china" ]; then
-      baseurl="https://mirrors.tuna.tsinghua.edu.cn"
-    elif [ "${region}" = "europe" ]; then
-      baseurl="https://mirrors.xtom.de"
-    else
-      baseurl="http://mirror.centos.org"
-    fi
-    cat > "/tmp/el${releasever}.repo" <<-EOF
-[base-default]
-name = EL 7 Base 7 - \$basearch
-baseurl = ${baseurl}/centos/7/os/\$basearch/
+      cat > "/tmp/el${releasever}.repo" <<-EOF
+[base]
+name = EL 7 Base $releasever - $basearch
+baseurl = https://mirrors.aliyun.com/centos/7/os/$basearch/
 gpgcheck = 0
 enabled = 1
-skip_if_unavailable = 1
-[epel-default]
-name = EL 7 EPEL \7 - \$basearch
-baseurl = ${baseurl}/epel/7/\$basearch/
+[updates]
+name = EL 7 Updates $releasever - $basearch
+baseurl = https://mirrors.aliyun.com/centos/7/updates/$basearch/
 gpgcheck = 0
 enabled = 1
-skip_if_unavailable = 1
-[extras-default]
-name = EL 7 Extras 7 - \$basearch
-baseurl = ${baseurl}/centos/7/extras/\$basearch/
+[extras]
+name = EL 7 Extras $releasever - $basearch
+baseurl = https://mirrors.aliyun.com/centos/7/extras/$basearch/
 gpgcheck = 0
 enabled = 1
-skip_if_unavailable = 1
-[updates-default]
-name = EL 7 Updates 7 - \$basearch
-baseurl = ${baseurl}/centos/7/updates/\$basearch/
+[epel]
+name = EL 7 EPEL $releasever - $basearch
+baseurl = https://mirrors.aliyun.com/epel/7/$basearch/
 gpgcheck = 0
 enabled = 1
-skip_if_unavailable = 1
 EOF
-      sudo mv -f "/tmp/el${releasever}.repo" "/etc/yum.repos.d/el${releasever}.repo"
+
+    else
+      cat > "/tmp/el${releasever}.repo" <<-EOF
+[base]
+name = EL 7 Base $releasever - $basearch
+baseurl = https://vault.centos.org/7.9.2009/os/x86_64/
+gpgcheck = 0
+enabled = 1
+[updates]
+name = EL 7 Updates $releasever - $basearch
+baseurl = https://vault.centos.org/7.9.2009/updates/x86_64/
+gpgcheck = 0
+enabled = 1
+[extras]
+name = EL 7 Extras $releasever - $basearch
+baseurl = https://vault.centos.org/7.9.2009/extras/x86_64/
+gpgcheck = 0
+enabled = 1
+[epel]
+name = EL 7 EPEL $releasever - $basearch
+baseurl = http://download.fedoraproject.org/pub/epel/7/x86_64/
+gpgcheck = 0
+enabled = 1
+EOF
+
+    fi
+
+    # el7's existing repo may not working anymore after EOL
+    sudo mkdir -p /etc/yum.repos.d/backup
+    sudo mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ 2> /dev/null || true
+    sudo mv -f /tmp/pigsty-local.repo /etc/yum.repos.d/pigsty-local.repo
+    sudo mv -f "/tmp/el${releasever}.repo" "/etc/yum.repos.d/el${releasever}.repo"
 }
 
 # Usage: add_el89_repo [region] (default|china|europe)
@@ -484,7 +505,7 @@ function add_local_repo(){
 
     # add local repo for el compatible releases
     if [[ ${OS_PACKAGE} == "rpm" ]]; then
-        local releasever=OS_VERSION
+        local releasever=${OS_VERSION}
         cat > /tmp/pigsty-local.repo  <<-EOF
 [pigsty-local]
 name=pigsty local \$releasever - \$basearch
