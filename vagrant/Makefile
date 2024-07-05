@@ -112,8 +112,6 @@ vp8:
 	./switch prod # the default prod template is rocky8
 vp9:
 	./switch prod; sed -ie 's/rocky8/rocky9/g' Vagrantfile ; rm -rf Vagrantfilee ;
-vp11:
-	./switch prod; sed -ie 's/rocky8/debian11/g' Vagrantfile ; rm -rf Vagrantfilee ;
 vp12:
 	./switch prod; sed -ie 's/rocky8/debian12/g' Vagrantfile ; rm -rf Vagrantfilee ;
 vp20:

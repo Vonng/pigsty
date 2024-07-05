@@ -16,7 +16,6 @@ APP_PKG=pigsty-app-$(VERSION).tgz
 DOCKER_PKG=pigsty-docker-$(VERSION).tgz
 EL8_PKG=pigsty-pkg-$(VERSION).el8.x86_64.tgz
 EL9_PKG=pigsty-pkg-$(VERSION).el9.x86_64.tgz
-D11_PKG=pigsty-pkg-$(VERSION).debian11.x86_64.tgz
 D12_PKG=pigsty-pkg-$(VERSION).debian12.x86_64.tgz
 U20_PKG=pigsty-pkg-$(VERSION).ubuntu20.x86_64.tgz
 U22_PKG=pigsty-pkg-$(VERSION).ubuntu22.x86_64.tgz
@@ -379,8 +378,6 @@ copy-el8:
 	scp dist/${VERSION}/${EL8_PKG} meta:/tmp/pkg.tgz
 copy-el9:
 	scp dist/${VERSION}/${EL9_PKG} meta:/tmp/pkg.tgz
-copy-d11:
-	scp dist/${VERSION}/${D11_PKG} meta:/tmp/pkg.tgz
 copy-d12:
 	scp dist/${VERSION}/${D12_PKG} meta:/tmp/pkg.tgz
 copy-u20:

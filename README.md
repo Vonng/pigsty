@@ -19,6 +19,8 @@
 
 There are **255** unique [extensions](https://pigsty.io/docs/reference/extension) available in Pigsty, **34** of which are maintained by Pigsty itself.
 
+[![pigsty-ecosystem.jpg](https://pigsty.io/img/pigsty/ecosystem.jpg)](/docs/reference/extension/)
+
 ----------------
 
 ## Get Started
