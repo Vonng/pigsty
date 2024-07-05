@@ -46,6 +46,8 @@
 
 **Highlight**
 
+EL7 (CentOS 7.9) & Debian 11 support deprecate due to EOL. 
+
 **New Features**
 
 - [ ] Grafana 11 migration
@@ -61,11 +63,13 @@
 - [ ] `pgvectorscale` extension with DiskANN support
 - [ ] Find some other duckdb related extensions?
 - [ ] specify config in `infra_portal` config to use existing certs
+- [ ] New Extension for PG 16: `wal2mongo`, `multicorn2`, `pgtap`, `pg_dbms_job`
 
 **Software Upgrade**
 
 - Haproxy 3.0.2
 - Patroni 3.3.1
+- pgBouncer 1.23
 - pgBackRest 2.52
 - Grafana 11.1
 - pgBadger 12.4
