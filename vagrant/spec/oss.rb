@@ -1,9 +1,14 @@
-# pigsty oss building environment with el8 / debian12 / ubuntu22
+# oss: pigsty open-source building environment templates： RockyLinux 8.9 / Debian 12.4 / Ubuntu 22.04
 
 Specs = [
 
-  { "name" => "build-el8"     , "ip" => "10.10.10.8"    , "cpu" => "4"    , "mem" => "8192"    , "image" =>  "generic/rocky8"     },
-  { "name" => "debian12"      , "ip" => "10.10.10.12"   , "cpu" => "4"    , "mem" => "8192"    , "image" =>  "generic/debian12"   },
-  { "name" => "ubuntu22"      , "ip" => "10.10.10.22"   , "cpu" => "4"    , "mem" => "8192"    , "image" =>  "generic/ubuntu2204" },
+  # RockyLinux 8.9
+  { "name" => "el8",    "ip" => "10.10.10.8" ,  "cpu" => "1",  "mem" => "2048",  "image" =>  "generic/rocky8"         },
+
+  # Debian 12.4
+  { "name" => "d12",    "ip" => "10.10.10.12",  "cpu" => "1",  "mem" => "2048",  "image" =>  "generic/debian12"       },
+
+  # Ubuntu 22.04
+  { "name" => "u22",    "ip" => "10.10.10.22",  "cpu" => "1",  "mem" => "2048",  "image" =>  "generic/ubuntu2204"     },
 
 ]

@@ -6,80 +6,102 @@
 
 
 
+--------
+
 ## Quick Start
 
 Create pre-configured environment with `make` shortcuts:
 
 ```bash
-make meta     # singleton meta
-make full     # 4-node sandbox
-make el7      # 3-node el7 test
-make el8      # 3-node el8 test
-make el9      # 3-node el9 test
-make prod     # 42-node prod simulation
-make oss      # 3-node oss building env
-make build    # 7-node pro building env
-make minio    # 3-node minio env
-make check    # 30-node check env
+make meta       # 1-node devbox for quick start, dev, test & playground
+make full       # 4-node sandbox for HA-testing & feature demonstration
+make prod       # 43-node simubox for production environment simulation
+
+# seldom used templates:
+make dual       # 2-node env
+make trio       # 3-node env
+```
+
+You can use variant alias to create environment with different base image:
+
+```bash
+make meta9      # create singleton-meta node with generic/rocky9 image
+make full22     # create 4-node sandbox with generic/ubuntu22 image
+make prod12     # create 43-node production env simubox with generic/debian12 image
+...             # available suffix: 7,8,9,11,12,20,22
+```
+
+You can also launch pigsty building env with these alias, base image will not be substituted:
+
+```bash
+make pro        # 5-node pro version building env
+make oss        # 3-node oss version building env
+make rpm        # 3-node el7/8/9 building env
+make deb        # 4-node debian11/12 ubuntu20/22
 ```
 
 
+--------
 
 ## Specifications
 
 `Vagranfile` is a ruby script file describing VM nodes. Here are some default specs of Pigsty. 
 
-|         Templates         | Shortcut |      Spec       |             Comment             |
-|:-------------------------:|:--------:|:---------------:|:-------------------------------:|
-|  [meta.rb](spec/meta.rb)  |   `v1`   |    4C8G x 1     |        Single Meta Node         |
-|  [full.rb](spec/full.rb)  |   `v4`   | 2C4G + 1C2G x 3 |    Full 4 Nodes Sandbox Demo    |
-|   [el7.rb](spec/el7.rb)   |   `v7`   | 2C4G + 1C2G x 3 |     EL7 3-node Testing Env      |
-|   [el8.rb](spec/el8.rb)   |   `v8`   | 2C4G + 1C2G x 3 |     EL8 3-node Testing Env      |
-|   [el9.rb](spec/el9.rb)   |   `v9`   | 2C4G + 1C2G x 3 |     EL9 3-node Testing Env      |
-|   [oss.rb](spec/oss.rb)   |   `vo`   |    4C8G x 3     | 3-Node OSS Building Environment |
-|   [rpm.rb](spec/oss.rb)   |   `vr`   |    4C8G x 3     | 3-Node Rpm Building Environment |
-|   [deb.rb](spec/oss.rb)   |   `vd`   |    4C8G x 4     | 4-Node Deb Building Environment |
-| [build.rb](spec/build.rb) |   `vb`   |    2C4G x 7     | 7-Node Pro Building Environment |
-| [check.rb](spec/check.rb) |   `vc`   |    2C4G x 30    | 30 node el7-9 pg12-16 Check Env |
-| [minio.rb](spec/minio.rb) |   `vm`   | 2C4G x 3 + Disk |  3-Node MinIO/etcd Testing Env  |
-|  [prod.rb](spec/prod.rb)  |   `vp`   |    42 nodes     |  Prod simulation with 45 Nodes  |
+|        Templates        | Shortcut |      Spec       |         Comment         |  Alias  |
+|:-----------------------:|:--------:|:---------------:|:-----------------------:|:-------:|
+| [meta.rb](spec/meta.rb) |  3 node  |    2c4g x 1     |    Single Node Meta     | Devbox  |
+| [dual.rb](spec/dual.rb) |  3 node  |    1c2g x 2     |       Dual Nodes        |         |
+| [trio.rb](spec/trio.rb) |  3 node  |    1c2G x 3     |       Three Nodes       |         |
+| [full.rb](spec/full.rb) |  3 node  | 2c4g + 1c2g x 3 |  Full-Featured 4 Node   | Sandbox |
+| [prod.rb](spec/prod.rb) | 43 node  |      misc       |   Prod Env Simulation   | Simubox |
+|  [pro.rb](spec/pro.rb)  |  5 node  |    1c2g x 5     | 5-Node Pro Building Env | Devbox  |
+|  [oss.rb](spec/oss.rb)  |  3 node  |    1c2g x 3     | 3-Node OSS Building Env |         |
+|  [rpm.rb](spec/rpm.rb)  |  3 node  |    1c2G x 3     | 3-Node EL Building Env  |         |
+|  [deb.rb](spec/deb.rb)  |  3 node  |    1c2G x 4     | 4-Node Deb Building Env |         |
 
 
 Each spec file contains a `Specs` variable describe VM nodes. For example, the [`full.rb`](spec/full.rb) contains:
 
 ```ruby
+# full: pigsty full-featured 4-node sandbox for HA-testing & tutorial & practices
+
 Specs = [
-  {"name" => "meta",   "ip" => "10.10.10.10", "cpu" => "2",  "mem" => "4096", "image" => "generic/rocky9" },
-  {"name" => "node-1", "ip" => "10.10.10.11", "cpu" => "1",  "mem" => "2048", "image" => "generic/rocky9" },
-  {"name" => "node-2", "ip" => "10.10.10.12", "cpu" => "1",  "mem" => "2048", "image" => "generic/rocky9" },
-  {"name" => "node-3", "ip" => "10.10.10.13", "cpu" => "1",  "mem" => "2048", "image" => "generic/rocky9" },
+  { "name" => "meta"   , "ip" => "10.10.10.10" ,  "cpu" => "2" ,  "mem" => "4096" ,  "image" => "generic/rocky8"  },
+  { "name" => "node-1" , "ip" => "10.10.10.11" ,  "cpu" => "1" ,  "mem" => "2048" ,  "image" => "generic/rocky8"  },
+  { "name" => "node-2" , "ip" => "10.10.10.12" ,  "cpu" => "1" ,  "mem" => "2048" ,  "image" => "generic/rocky8"  },
+  { "name" => "node-3" , "ip" => "10.10.10.13" ,  "cpu" => "1" ,  "mem" => "2048" ,  "image" => "generic/rocky8"  },
 ]
+
 ```
 
-You can switch specs with the [`switch`](switch) script, it will render the final `Vagrantfile` according to the spec.
+You can use specs with the [`config`](config) script, it will render the final `Vagrantfile` according to the spec and other options
 
 ```bash
 cd ~/pigsty
-vagrant/switch <spec>
+vagrant/config [spec] [image] [scale] [provider]
 
-vagrant/switch meta     # singleton meta        | alias:  `make v1`
-vagrant/switch full     # 4-node sandbox        | alias:  `make v4`
-vagrant/switch el7      # 3-node el7 test       | alias:  `make v7`
-vagrant/switch el8      # 3-node el8 test       | alias:  `make v8`
-vagrant/switch el9      # 3-node el9 test       | alias:  `make v9`
-vagrant/switch oss      # 3-node oss build      | alias:  `make vo`
-vagrant/switch rpm      # 3-node rpm build      | alias:  `make vr`
-vagrant/switch deb      # 4-node deb build      | alias:  `make vd`
-vagrant/switch prod     # prod simulation       | alias:  `make vp`
-vagrant/switch build    # building environment  | alias:  `make vd`
-vagrant/switch check    # 30-node check env
-vagrant/switch minio    # 3-node minio env
+vagrant/config meta                # use the 1-node spec, default el8 image
+vagrant/config dual el9            # use the 2-node spec, use el9 image instead 
+vagrant/config trio d12 2          # use the 3-node spec, use debian12 image, double the cpu/mem resource
+vagrant/config full u22 4          # use the 4-node spec, use ubuntu22 image instead, use 4x cpu/mem resource         
+vagrant/config prod u20 1 libvirt  # use the 43-node spec, use ubuntu20 image instead, use libvirt as provider instead of virtualbox 
 ```
 
-> You can also add your own specs to [`spec/<name>.rb`] and switch to it with `vagrant/switch name`
+You can scale the resource unit with environment variable `VM_SCALE`, the default value is `1`.
+
+For example, if you use `VM_SCALE=2` with `vagrant/config meta`, it will double the cpu / mem resources of the meta node.
+
+```bash
+# pigsty singleton-meta environment (4C8G)
+
+Specs = [
+  { "name" => "meta"          , "ip" => "10.10.10.10"   , "cpu" => "8"    , "mem" => "16384"    , "image" => "generic/rocky8"   },
+]
+````
 
 
 
+--------
 
 ## Shortcuts
 
@@ -108,20 +130,7 @@ make nuke    # destroy all vm & volumes with virsh (if using libvirt)
 
 
 
-## Available Images
-
-Pigsty on EL 7 ~ 9, you can use following OS images from vagrant cloud. It is recommended to use rocky9, rocky8, and centos7.
-
-```ruby
-Images = {
-  "RHEL"   => { "7"=> "generic/rhel7"   , "8"=> "generic/rhel8"   , "9"=> "generic/rhel9"   },
-  "CentOS" => { "7"=> "generic/centos7"                                                     },
-  "Rocky"  => {                           "8"=> "generic/rocky8"  , "9"=> "generic/rocky9"  },
-  "Oracle" => { "7"=> "generic/oracle7" , "8"=> "generic/oracle8" , "9"=> "generic/oracle9" },
-  "Alma"   => {                           "8"=> "generic/alma8"   , "9"=> "generic/alma9"   },
-}
-```
-
+--------
 
 ## Caveat
 

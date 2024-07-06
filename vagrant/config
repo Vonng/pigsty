@@ -1,0 +1,170 @@
+#!/usr/bin/python3
+# ==============================================================#
+# File      :   config
+# Desc      :   generate vagrantfile
+# Ctime     :   2024-07-05
+# Mtime     :   2024-07-05
+# Path      :   vagrant/config
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+# ==============================================================#
+# this script will generate vagrant/Vagrantfile base on parameters
+
+import os
+import sys
+import re
+
+IMAGES = {
+    "ubuntu2204": "generic/ubuntu2204", "ubuntu22": "generic/ubuntu2204", "u22": "generic/ubuntu2204", "ubuntu": "generic/ubuntu2204", "22": "generic/ubuntu2204",
+    "ubuntu2004": "generic/ubuntu2004", "ubuntu20": "generic/ubuntu2004", "u20": "generic/ubuntu2004", "20": "generic/ubuntu2004",
+    "debian12": "generic/debian12", "deb12": "generic/debian12", "d12": "generic/debian12", "12": "generic/debian12",
+    "debian11": "generic/debian11", "deb11": "generic/debian11", "d11": "generic/debian11", "11": "generic/debian11",
+    "el7": "generic/centos7", "rhel7": "generic/rhel7", "centos": "generic/centos7", "7": "generic/centos7", "oracle7": "generic/oracle7",
+    "el8": "generic/rocky8", "rocky8": "generic/rocky8", "rhel8": "generic/rhel8", "alma8": "generic/alma8", "oracle8": "generic/oracle8", "el": "generic/rocky8", "8": "generic/rocky8",
+    "el9": "generic/rocky9", "rocky9": "generic/rocky9", "rhel9": "generic/rhel9", "alma9": "generic/alma9", "oracle9": "generic/oracle9", "9": "generic/rocky9",
+}
+
+# do not substitute image in building specs
+BUILD_SPECS = ["oss", "pro", "rpm", "deb"]
+
+ARGS = {
+    'spec': 'meta',
+    'image': IMAGES['el8'],
+    'scale': 1,
+    'provider': "virtualbox",
+}
+
+def usage():
+    print("Usage: %s [spec] [image] [scale] [provider]" % sys.argv[0])
+    print("  [VM_SPEC]     spec:    meta, full, prod, dual, trio, oss, pro, rpm, deb, ...")
+    print("  [VM_IMAGE]    image:   el8, el9, d11, d12, u20, u22")
+    print("  [VM_SCALE]    scale:   1, 2, 3, ...")
+    print("  [VM_PROVIDER] provider: virtualbox, libvirt")
+    sys.exit(1)
+
+def parse_arg():
+    # check environment variables first
+    if 'VM_SPEC' in os.environ:
+        ARGS['spec'] = os.environ['VM_SPEC']
+    if 'VM_IMAGE' in os.environ:
+        ARGS['image'] = os.environ['VM_IMAGE']
+    if 'VM_SCALE' in os.environ:
+        ARGS['scale'] = int(os.environ['VM_SCALE'])
+    if 'VM_PROVIDER' in os.environ:
+        ARGS['provider'] = os.environ['VM_PROVIDER']
+
+    if len(sys.argv) > 1:
+        ARGS['spec'] = sys.argv[1]
+    if len(sys.argv) > 2:
+        ARGS['image'] = sys.argv[2]
+    if len(sys.argv) > 3:
+        ARGS['scale'] = int(sys.argv[3])
+    if len(sys.argv) > 4:
+        ARGS['provider'] = sys.argv[4]
+
+    if ARGS['image'] in IMAGES:
+        ARGS['image'] = IMAGES[ARGS['image']]
+
+    if ARGS['spec'] == 'prod':
+        ARGS['scale'] = 1  # do not scale prod template
+
+    print(
+        "[INFO] spec=%s image=%s scale=%d provider=%s" % (ARGS['spec'], ARGS['image'], ARGS['scale'], ARGS['provider']))
+
+    return ARGS
+
+
+def get_spec(spec_name):
+    vagrant_dir = os.path.dirname(os.path.realpath(__file__))
+    spec_path = os.path.join(vagrant_dir, 'spec', '%s.rb' % spec_name)
+
+    # raise error if spec file not found
+    if not os.path.exists(spec_path):
+        print("[ERRR] spec %s not found" % (spec_name))
+        sys.exit(1)
+
+    modified_specs = []
+    with open(spec_path, 'r') as f:
+        lines = f.readlines()
+
+    print("[INFO] get %s spec from %s" % (spec_name, spec_path))
+    total_cpu = 0
+    total_mem = 0
+    scale_factor = int(ARGS['scale'])
+    if scale_factor < 0 or scale_factor > 64:
+        print("[ERRR] scale factor should be in range [1, 64]")
+        sys.exit(1)
+    for line in lines:
+        line2 = line.lstrip().rstrip()
+        if line2.startswith('{'):  # this is a node definition line
+            try:
+                name = re.findall('"name"\\s*=>\\s*"([^"]+)"', line)[0]
+                cpu = int(re.findall('"cpu"\\s*=>\\s*"([^"]+)"', line)[0])
+                mem = int(re.findall('"mem"\\s*=>\\s*"([^"]+)"', line)[0])
+                image = re.findall('"image"\\s*=>\\s*"([^"]+)"', line)[0]
+
+                new_cpu = scale_factor * cpu
+                new_mem = scale_factor * mem
+                total_cpu += new_cpu
+                total_mem += new_mem
+            except:
+                print("[ERRR] failed to parse cpu, mem, image from line: %s" % line)
+                sys.exit(1)
+
+            # if found, replace these fields
+            line = re.sub('"cpu"\\s*=>\\s*"([^"]+)"', '"cpu" => "%d"' % new_cpu, line)
+            line = re.sub('"mem"\\s*=>\\s*"([^"]+)"', '"mem" => "%d"' % new_mem, line)
+            if ARGS['spec'] not in BUILD_SPECS:
+                line = re.sub('"image"\\s*=>\\s*"([^"]+)"', '"image" => "%s"' % ARGS['image'], line)
+        modified_specs.append(line)
+
+    if scale_factor != 1:
+        print("[INFO] total_cpu = %d, total_mem = %d GiB [scale factor = %d]" % (
+            total_cpu, total_mem / 1024, scale_factor))
+    else:
+        print("[INFO] total_cpu = %d, total_mem = %d GiB " % (total_cpu, total_mem / 1024))
+    return ''.join(modified_specs)
+
+
+def get_provider(provider):
+    vagrant_dir = os.path.dirname(os.path.realpath(__file__))
+    provider_path = os.path.join(vagrant_dir, 'Vagrantfile.%s' % provider)
+
+    # raise error if provider file not found
+    if not os.path.exists(provider_path):
+        print("[ERRR] provider %s not supported" % (provider))
+        sys.exit(2)
+
+    with open(provider_path, 'r') as f:
+        return f.read()
+
+
+def get_conf():
+    spec_conf = get_spec(ARGS['spec'])
+    provider_conf = get_provider(ARGS['provider'])
+    print('[SPEC]\n')
+    print(spec_conf)
+    print('\n')
+    return "%s\n\n%s" % (spec_conf, provider_conf)
+
+
+def write_conf(content):
+    vagrantfile_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Vagrantfile')
+    if os.access(vagrantfile_path, os.W_OK):
+        with open(vagrantfile_path, 'w') as f:
+            f.write(content)
+        print("[INFO] write config to %s" % vagrantfile_path)
+    else:
+        print("[ERRR] no write permission to %s" % vagrantfile_path)
+        sys.exit(3)
+
+
+def main():
+    print("[INFO] generate vagrant config")
+    parse_arg()
+    conf = get_conf()
+    write_conf(conf)
+
+
+if __name__ == '__main__':
+    main()

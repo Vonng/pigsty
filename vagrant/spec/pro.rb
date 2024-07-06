@@ -1,9 +1,12 @@
-# deb: pigsty 4-node debian/ubuntu building environment templates : Debian11 / Debian12 / Ubuntu20.04 / Ubuntu22.04
+# pro: pigsty 5-node pro building environment templates: RockyLinux 8.9/9.3 / Debian 12 / Ubuntu 20.4/22.04
 
 Specs = [
 
-  # Debian 11/12
-  { "name" => "d11",    "ip" => "10.10.10.11",  "cpu" => "1",  "mem" => "2048",  "image" =>  "generic/debian11"       },
+  # EL 8/9
+  { "name" => "el8",    "ip" => "10.10.10.8" ,  "cpu" => "1",  "mem" => "2048",  "image" =>  "generic/rocky8"         },
+  { "name" => "el9",    "ip" => "10.10.10.9" ,  "cpu" => "1",  "mem" => "2048",  "image" =>  "generic/rocky9"         },
+
+  # Debian 12
   { "name" => "d12",    "ip" => "10.10.10.12",  "cpu" => "1",  "mem" => "2048",  "image" =>  "generic/debian12"       },
 
   # Ubuntu 20.04/22.04
