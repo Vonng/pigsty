@@ -398,12 +398,12 @@ remote-release: release copy-src use-src
 	scp meta:~/pigsty/dist/${VERSION}/${SRC_PKG} dist/${VERSION}/${SRC_PKG}
 
 # release offline packages with build environment
-rp: release-package
-release-package:
+rp: release-pkg
+release-pkg:
 	bin/release-pkg ${VERSION}
-release-oss:
-	bin/release-oss ${VERSION}
-# publish pigsty packages to https://get.pigsty.cc
+rpro: release-pro
+release-pro:
+	bin/release-pro ${VERSION}
 pb: publish
 publish:
 	bin/publish ${VERSION}
@@ -426,8 +426,8 @@ rpm: del vrpm new ssh
 	@echo el8:    sudo yum groupinstall --nobest -y 'Development Tools'
 deb: del vdeb new ssh
 	cp files/pigsty/deb.yml pigsty.yml
-boot:
-	bin/build-boot
+pro-boot:
+	bin/pro-boot
 
 vpro: # pro building environment
 	vagrant/config pro
@@ -572,7 +572,6 @@ vtrio12:
 vtrio22:
 	vagrant/config trio ubuntu22
 
-
 ###############################################################
 
 
@@ -590,7 +589,7 @@ vtrio22:
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-el8 copy-el9 copy-u22 copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb push pull git-sync git-restore \
-        r release rr remote-release rp release-pkg release-oss release-el8 release-el9 check-all check-src check-repo check-boot pp package pb publish \
+        r release rr remote-release rp rpro release-pkg release-pro release-el8 release-el9 pp package pb publish \
         pro oss rpm deb vpro voss vrpm vdeb \
         meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vfull11 vmeta12 vmeta20 vmeta22 \
         full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 \
