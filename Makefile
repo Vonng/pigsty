@@ -416,10 +416,14 @@ publish:
 #------------------------------#
 #     Building Environment     #
 #------------------------------#
-pro: del vpro up ssh
-oss: del voss up ssh
-rpm: del vrpm up ssh
-deb: del vdeb up ssh
+pro: del vpro new ssh
+	cp files/pigsty/pro.yml pigsty.yml
+oss: del voss new ssh
+	cp files/pigsty/oss.yml pigsty.yml
+rpm: del vrpm new ssh
+	cp files/pigsty/rpm.yml pigsty.yml
+deb: del vdeb new ssh
+	cp files/pigsty/deb.yml pigsty.yml
 
 vpro: # pro building environment
 	vagrant/config pro
