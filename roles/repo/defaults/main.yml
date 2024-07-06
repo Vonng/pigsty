@@ -9,7 +9,7 @@ repo_endpoint: http://${admin_ip}:80 # access point to this repo by domain or ip
 repo_remove: true                 # remove existing upstream repo
 repo_modules: infra,node,pgsql    # which repo modules are installed in repo_upstream
 #repo_upstream: []                # this default vault is pick from repo_upstream_default according to `os_package` if not explicitly defined
-repo_upstream_default:            # this variable is internally used by `repo_upstream`, it's not public accessible
+repo_upstream_default:            # used according to `os_package`, if `repo_upstream` not set
   rpm:
     - { name: pigsty-local   ,description: 'Pigsty Local'      ,module: local ,releases: [7,8,9] ,baseurl: { default: 'http://${admin_ip}/pigsty'  }} # used by intranet nodes
     - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/infra/$basearch' }}
@@ -52,15 +52,15 @@ repo_upstream_default:            # this variable is internally used by `repo_up
     - { name: timescaledb   ,description: 'Timescaledb'      ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
     - { name: docker-ce     ,description: 'Docker'           ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
 
-#repo_packages: []                # this default vault is pick from repo_upstream_default according to `os_package` if not explicitly defined
-repo_packages_default:            # this variable is internally used by `repo_packages`, it's not public accessible
+#repo_packages: []                # default packages to be downloaded to local repo
+repo_packages_default:            # used according to `os_package`, if `repo_packages` not set
   rpm:
     - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass                  # Distro & Boot
     - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter python3-jmespath python3-cryptography                                                      # Pigsty Addons
     - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter                              # Infra Packages
     - redis_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                                   # Miscellaneous
     - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph             # Node Packages 1
-    - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates readline vim-minimal keepalived chrony openssl openssh                           # Node Packages 2
+    - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates readline vim-minimal keepalived chrony openssl openssh-server openssh-clients    # Node Packages 2
     - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb libarrow-s3 pgFormatter luapgsql pgcopydb    # PGDG Common
     - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*   # PGDG 16 Packages
     - vault_16* pgjwt_16* pg_roaringbitmap_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16* parquet_s3_fdw_16* # Pigsty Extension
