@@ -7,15 +7,11 @@
   tags: pg_pkg
   block:
 
-    - name: use default pg packages if not set
-      set_fact: { pg_packages: "{{ pg_packages_default[os_package] }}" }
-      when: pg_packages is not defined
-
     # install postgres basic packages
     - name: install postgres packages
       environment: "{{ proxy_env | default({}) }}"
       package: name={{ item|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string)|regex_replace('\s+',',') }}
-      with_items: "{{ pg_packages }}"
+      with_items: "{{ pg_packages | default(pg_packages_default[os_package]) | default([]) }}"
 
     # install postgres extensions
     - name: install postgres extensions

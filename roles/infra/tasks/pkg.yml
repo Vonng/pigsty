@@ -2,18 +2,11 @@
 #--------------------------------------------------------------#
 # Infra rpm/deb Packages                             [infra_pkg]
 #--------------------------------------------------------------#
-- name: install infra packages
+- name: install infra node packages
   tags: infra_pkg
-  block:
-
-    - name: use default infra packages if not set
-      set_fact: { infra_packages: "{{ infra_packages_default[os_package] }}" }
-      when: infra_packages is not defined
-
-    - name: install infra node packages
-      environment: "{{ proxy_env | default({}) }}"
-      package: name={{ item }}
-      with_items: "{{ infra_packages }}"
+  environment: "{{ proxy_env | default({}) }}"
+  package: name={{ item }}
+  with_items: "{{ infra_packages | default(infra_packages_default[os_package]) | default([]) }}"
 
 
 #--------------------------------------------------------------#

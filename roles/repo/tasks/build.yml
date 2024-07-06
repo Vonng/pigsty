@@ -114,11 +114,6 @@
 #--------------------------------------------------------------#
 # 3.6 Download rpm Packages                           [repo_pkg]
 #--------------------------------------------------------------#
-- name: use default repo packages if not set
-  tags: repo_pkg
-  set_fact: { repo_packages: "{{ repo_packages_default[os_package] }}" }
-  when: repo_packages is not defined
-
 - name: download repo packages
   tags: repo_pkg
   environment: "{{ proxy_env }}"
@@ -143,7 +138,7 @@
       apt-get download $candidates;
       {% endif %}
   args: { executable: /bin/bash }
-  with_items: "{{ repo_packages }}"
+  with_items: "{{ repo_packages|default(repo_packages_default[os_package])|default([]) }}"
 
 
 #--------------------------------------------------------------#
