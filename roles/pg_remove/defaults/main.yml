@@ -35,11 +35,11 @@ pg_dbsu_home: /var/lib/pgsql      # postgresql home directory, `/var/lib/pgsql` 
 pg_version: 16                    # postgres major version to be installed, 16 by default
 pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, `/usr/pgsql/bin` by default
 pg_log_dir: /pg/log/postgres      # postgres log dir, `/pg/log/postgres` by default
-pg_packages:                      # pg packages to be installed, `${pg_version}` will be replaced
-  - postgresql${pg_version}*
-  - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager patroni-etcd             # pgdg common tools
-  - pg_repack_${pg_version}* wal2json_${pg_version}* passwordcheck_cracklib_${pg_version}* # important extensions
-pg_extensions:                    # pg extensions to be installed, `${pg_version}` will be replaced
+#pg_packages: []                  # pg packages to be installed, `${pg_version}` or `$v` will be replaced
+pg_packages_default:              # used according to `os_package`, if `pg_packages` not set
+  rpm: [ 'postgresql$v*', 'patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager patroni-etcd' ]
+  deb: [ 'postgresql-*-$v', 'patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager' ]
+pg_extensions:                    # pg extensions to be installed, `${pg_version}` or `$v` will be replaced
   - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
 #-----------------------------------------------------------------
 # PG_BOOTSTRAP (Reference)

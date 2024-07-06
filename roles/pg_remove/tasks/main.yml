@@ -105,12 +105,11 @@
         - /etc/profile.d/pgsql.sh
         - /etc/profile.d/pg-alias.sh
 
-    # uninstall postgres extensions
-    - name: uninstall pg extensions
-      package: state=absent name={{ item|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string)|regex_replace('\s+',',') }}
-      with_items: "{{ pg_extensions }}"
+    - name: use default pg packages if not set
+      set_fact: { pg_packages: "{{ pg_packages_default[os_package] }}" }
+      when: pg_packages is not defined
 
-    # uninstall postgres basic packages
+    # uninstall postgres basic packages (extension will be removed automatically)
     - name: uninstall pg packages
       package: state=absent name={{ item|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string)|regex_replace('\s+',',') }}
       with_items: "{{ pg_packages }}"
