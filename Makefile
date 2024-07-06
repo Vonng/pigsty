@@ -422,8 +422,12 @@ oss: del voss new ssh
 	cp files/pigsty/oss.yml pigsty.yml
 rpm: del vrpm new ssh
 	cp files/pigsty/rpm.yml pigsty.yml
+	@echo ./node.yml -i files/pigsty/rpmbuild.yml -t node_repo,node_pkg
+	@echo el8:    sudo yum groupinstall --nobest -y 'Development Tools'
 deb: del vdeb new ssh
 	cp files/pigsty/deb.yml pigsty.yml
+boot:
+	bin/build-boot
 
 vpro: # pro building environment
 	vagrant/config pro
@@ -433,20 +437,6 @@ vrpm: # rpm building environment
 	vagrant/config rpm
 vdeb: # deb building environment
 	vagrant/config deb
-
-pro: del vpro new ssh
-	cp files/pigsty/pro.yml pigsty.yml
-oss: del voss new ssh
-	cp files/pigsty/oss.yml pigsty.yml
-rpm: del vrpm new ssh
-	cp files/pigsty/rpm.yml pigsty.yml
-	@echo ./node.yml -i files/pigsty/rpmbuild.yml -t node_repo,node_pkg
-	@echo el8:    sudo yum groupinstall --nobest -y 'Development Tools'
-deb: del vdeb new ssh
-	cp files/pigsty/deb.yml pigsty.yml
-boot:
-	bin/build-boot
-
 
 #------------------------------#
 # meta, single node, the devbox

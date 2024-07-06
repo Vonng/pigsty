@@ -85,6 +85,10 @@
   tags: node_pkg
   block:
 
+    - name: use default node packages if not set
+      set_fact: { node_default_packages: "{{ node_packages_default[os_package] }}" }
+      when: node_default_packages is not defined
+
     - name: supress deb auto start with policy-rc.d
       copy: src=policy-rc.d dest=/usr/sbin/policy-rc.d mode=0755
       when: os_package == 'deb'
