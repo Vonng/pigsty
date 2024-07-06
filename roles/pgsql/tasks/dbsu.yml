@@ -7,6 +7,12 @@
   tags: pg_dbsu
   block:
 
+    # uid = 26 (el rpm default) is already used by other user in debian system
+    - name: use another default pg_dbsu_uid for deb system
+      connection: local
+      set_fact: { pg_dbsu_uid: 543 }
+      when: os_package is defined and os_package == 'deb' and pg_dbsu_uid = 26
+
     # - dbsu user and group - #
     - name: create os group postgres
       group: name=postgres gid={{ pg_dbsu_uid }}
