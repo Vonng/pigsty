@@ -25,7 +25,13 @@
     dest: "{{ upstream_dir }}/{{ upstream_file }}"
     content: |
       #=========# [{{ module_name }}] on {{ os_vendor }}{{ os_version }} : {{ os_codename }} {{ os_package }} repo
-      
+      {% if repo_upstream is not defined %}
+      {% set repo_upstream = repo_upstream_default[os_package] %}
+      # this upstream repo are generated from pigsty role default configuration  
+      {% else %}
+      # this upstream repo are generated from pigsty user defined configration
+      {% endif %}
+
       {% for repo in repo_upstream %}
       {% if os_version|int in repo.releases and repo.module == module_name %}
       {% if os_package == 'rpm' %}
