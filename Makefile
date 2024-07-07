@@ -325,7 +325,7 @@ du: dashboard-clean dashboard-init    # update grafana dashboards
 #------------------------------#
 # copy source & packages
 #------------------------------#
-# copy latest pro source code
+# copy latest source code
 copy: copy-src copy-pkg use-src use-pkg
 cc: release copy-src copy-pkg use-src use-pkg
 
@@ -401,9 +401,9 @@ remote-release: release copy-src use-src
 rp: release-pkg
 release-pkg:
 	bin/release-pkg ${VERSION}
-rpro: release-pro
+rpp: release-pro
 release-pro:
-	bin/release-pro ${VERSION}
+	bin/release-pkg ${VERSION} pro
 pb: publish
 publish:
 	bin/publish ${VERSION}
@@ -416,26 +416,25 @@ publish:
 #------------------------------#
 #     Building Environment     #
 #------------------------------#
-pro: del vpro new ssh
-	cp files/pigsty/pro.yml pigsty.yml
-oss: del voss new ssh
-	cp files/pigsty/oss.yml pigsty.yml
+build: del vb new ssh
+	cp files/pigsty/build.yml pigsty.yml
+build-pro: del vb new ssh
+	cp files/pigsty/build-pro.yml pigsty.yml
+build-boot:
+	bin/build-boot
+
 rpm: del vrpm new ssh
 	cp files/pigsty/rpm.yml pigsty.yml
 	@echo ./node.yml -i files/pigsty/rpmbuild.yml -t node_repo,node_pkg
 	@echo el8:    sudo yum groupinstall --nobest -y 'Development Tools'
 deb: del vdeb new ssh
 	cp files/pigsty/deb.yml pigsty.yml
-pro-boot:
-	bin/pro-boot
 
-vpro: # pro building environment
-	vagrant/config pro
-voss: # oss building environment
-	vagrant/config oss
-vrpm: # rpm building environment
+vb: # pigsty building environment
+	vagrant/config build
+vr: # rpm building environment
 	vagrant/config rpm
-vdeb: # deb building environment
+vd: # deb building environment
 	vagrant/config deb
 
 #------------------------------#
@@ -585,12 +584,12 @@ vtrio22:
         infra pgsql repo repo-upstream repo-build prometheus grafana loki docker \
         deps dns start ssh sshb demo \
         up dw del new clean up-test dw-test del-test new-test clean \
-        st status suspend resume v1 v4 v7 v8 v9 vb vr vd vm vo vc vu vp vp7 vp9 vnew \
+        st status suspend resume v1 v4 v7 v8 v9 vb vr vd vm vo vc vu vp vp7 vp9 \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-el8 copy-el9 copy-u22 copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb push pull git-sync git-restore \
-        r release rr remote-release rp rpro release-pkg release-pro release-el8 release-el9 pp package pb publish \
-        pro oss rpm deb vpro voss vrpm vdeb \
+        r release rr remote-release rp rpp release-pkg release-pro release-el8 release-el9 pp package pb publish \
+        build build-pro build-boot rpm deb vb vr vd \
         meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vfull11 vmeta12 vmeta20 vmeta22 \
         full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 \
         prod prod8 prod9 prod12 prod20 prod22 vprod vprod8 vprod9 vprod12 vprod20 vprod22 \

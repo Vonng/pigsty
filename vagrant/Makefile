@@ -101,18 +101,14 @@ info:
 #------------------------------#
 #     Building Environment     #
 #------------------------------#
-pro: del vpro up ssh
-oss: del voss up ssh
-rpm: del vrpm up ssh
-deb: del vdeb up ssh
-
-vpro: # pro building environment
-	./switch pro
-voss: # oss building environment
-	./switch oss
-vrpm: # rpm building environment
+build: del vb up ssh
+rpm:   del vr up ssh
+deb:   del vd up ssh
+vb: # pigsty building environment
+	./switch build
+vr: # rpm building environment
 	./switch rpm
-vdeb: # deb building environment
+vd: # deb building environment
 	./switch deb
 
 #------------------------------#
@@ -120,14 +116,14 @@ vdeb: # deb building environment
 #------------------------------#
 # simple 1-node devbox for quick setup, demonstration, and development
 
-meta:   del vmeta   up ssh
-meta7:  del vmeta7  up ssh
-meta8:  del vmeta8  up ssh
-meta9:  del vmeta9  up ssh
-meta11: del vmeta11 up ssh
-meta12: del vmeta12 up ssh
-meta20: del vmeta20 up ssh
-meta22: del vmeta22 up ssh
+meta:   del vm   up ssh
+meta7:  del vm7  up ssh
+meta8:  del vm8  up ssh
+meta9:  del vm9  up ssh
+meta11: del vm11 up ssh
+meta12: del vm12 up ssh
+meta20: del vm20 up ssh
+meta22: del vm22 up ssh
 
 vmeta: vmeta8
 vmeta7:
@@ -264,7 +260,7 @@ vtrio22:
 #                        Inventory                            #
 ###############################################################
 .PHONY: default new ssh sshb dns start up down dw halt clean del destroy nuke st status pause suspend resume info \
-	pro oss rpm deb vpro voss vrpm vdeb \
+	build rpm deb vb vr vd \
 	meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vmeta12 vmeta20 vmeta22 \
 	dual dual7 dual8 dual9 dual11 dual12 dual20 dual22 vdual vdual7 vdual8 vdual9 vdual11 vdual12 vdual20 vdual22 \
 	trio trio7 trio8 trio9 trio11 trio12 trio20 trio22 vtrio vtrio7 vtrio8 vtrio9 vtrio11 vtrio12 vtrio20 vtrio22 \

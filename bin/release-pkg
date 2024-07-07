@@ -2,24 +2,28 @@
 set -euo pipefail
 #==============================================================#
 # File      :   release-pkg
-# Desc      :   release pigsty oss offline packages
-# Ctime     :   2024-05-17
-# Mtime     :   2024-07-06
-# Path      :   bin/release-oss
+# Desc      :   release pigsty offline packages
+# Ctime     :   2023-09-19
+# Mtime     :   2024-07-07
+# Path      :   bin/release-pkg
 # Deps      :   gzip, tar, ssh, rsync
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 PROG_NAME="$(basename $0)"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
-VERSION=${1-'v2.7.0'}
+PIGSTY_DIR="$(cd $(dirname ${PROG_DIR}) && pwd)"
+DIST_DIR="${PIGSTY_DIR}/dist"
 
-CACHE_SCRIPT=${PROG_DIR}/cache
+VERSION=${1-'v2.7.0'}
+SUBDIR=${2-''}
 
 #--------------------------------------------------------------#
 # Usage
 #--------------------------------------------------------------#
-# bin/release-pkg
+# bin/release-pkg [version] [release_dir=<relpath>]
+# bin/release-pkg v2.7.0       # release v2.7.0 pkg.tgz
+# bin/release-pkg v2.7.0 pro   # release under pro folder
 
 #--------------------------------------------------------------#
 # Utils
@@ -34,36 +38,58 @@ function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
 function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 
 #--------------------------------------------------------------#
+# Param
+#--------------------------------------------------------------#
+CACHE_SCRIPT=${PROG_DIR}/cache
+RELEASE_DIR="${DIST_DIR}/${VERSION}"
+if [ -n "${SUBDIR}" ]; then
+  # validate $2 is a string consist of [a-zA-Z0-9]
+  if [[ ! "$2" =~ ^[a-zA-Z0-9]+$ ]]; then
+      log_error "invalid release_dir: $2"
+      exit 1
+  fi
+    RELEASE_DIR="${RELEASE_DIR}/$2"
+fi
+
+# make sure release dir exists
+mkdir -p ${RELEASE_DIR}
+log_info "release pigsty pkg.tgz ${VERSION} to ${RELEASE_DIR}"
+
+
+#--------------------------------------------------------------#
 # Copy building script
 #--------------------------------------------------------------#
 log_info "copy /tmp/cache script"
-CACHE_SCRIPT="${PROG_DIR}/cache"
-scp "${CACHE_SCRIPT}" el8:/tmp/cache &
-scp "${CACHE_SCRIPT}" d12:/tmp/cache  &
-scp "${CACHE_SCRIPT}" u22:/tmp/cache  &
+CACHE_SCRIPT=${PROG_DIR}/cache
+scp ${CACHE_SCRIPT} el8:/tmp/cache &
+scp ${CACHE_SCRIPT} el9:/tmp/cache &
+scp ${CACHE_SCRIPT} d12:/tmp/cache  &
+scp ${CACHE_SCRIPT} u22:/tmp/cache  &
 wait
+
 
 #--------------------------------------------------------------#
 # Make Offline Package
 #--------------------------------------------------------------#
 log_info "make offline packages"
 ssh -t el8 "sudo bash /tmp/cache" &
+ssh -t el9 "sudo bash /tmp/cache" &
 ssh -t d12 "sudo bash /tmp/cache" &
 ssh -t u22 "sudo bash /tmp/cache" &
 wait
 
+
 #--------------------------------------------------------------#
 # Copy to local dist dir
 #--------------------------------------------------------------#
-log_info "copy pigsty-pkg to local dist dir"
-mkdir -p dist/${VERSION}/
-scp el8:/tmp/pkg.tgz "dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz"      &
-scp d12:/tmp/pkg.tgz "dist/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz" &
-scp u22:/tmp/pkg.tgz "dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz" &
+log_info "copy pkg.tgz to release dir"
+mkdir -p dist/${VERSION}/pro/
+scp el8:/tmp/pkg.tgz  "${RELEASE_DIR}/pigsty-pkg-${VERSION}.el8.x86_64.tgz"      &
+scp el9:/tmp/pkg.tgz  "${RELEASE_DIR}/pigsty-pkg-${VERSION}.el9.x86_64.tgz"      &
+scp d12:/tmp/pkg.tgz  "${RELEASE_DIR}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz" &
+scp u22:/tmp/pkg.tgz  "${RELEASE_DIR}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz" &
 wait
 
-log_info "building complete"
-ls -alh "${PROG_DIR}/../dist/${VERSION}"
-cd "${PROG_DIR}/../dist/${VERSION}/" && md5sum *.tgz > checksums && cat checksums
-
-
+log_info "building complete on ${RELEASE_DIR}"
+ls -alh "${RELEASE_DIR}"
+cd "${RELEASE_DIR}" && md5sum *.tgz > checksums && cat checksums

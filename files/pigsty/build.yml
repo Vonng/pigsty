@@ -1,0 +1,87 @@
+---
+#==============================================================#
+# File      :   build.yml
+# Desc      :   Pigsty building env for 4 major distros
+# Ctime     :   2022-10-12
+# Mtime     :   2024-07-07
+# Docs      :   https://pigsty.io/docs/setup/config/
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+#==========================================#
+# 1.  el8 : 10.10.10.8  Rocky 8.9          #
+# 2.  el9 : 10.10.10.9  Rocky 9.3          #
+# 3.  d12 : 10.10.10.12 Debian 12 bookworm #
+# 4.  u22 : 10.10.10.22 Ubuntu 22.04 jammy #
+#==========================================#
+
+
+all:
+  vars:
+    version: v2.7.0
+    admin_ip: 10.10.10.8
+    region: china
+    etcd_clean: true
+    proxy_env: # global proxy env when downloading packages
+      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
+    repo_url_packages:
+      - http://10.10.10.1/etc/pev.html
+      - http://10.10.10.1/etc/chart.tgz
+      - http://10.10.10.1/etc/plugins.tgz
+
+  children:
+    infra:
+      hosts:
+        10.10.10.8:  { infra_seq: 1, admin_ip: 10.10.10.8  }
+        10.10.10.9:  { infra_seq: 2, admin_ip: 10.10.10.9  }
+        10.10.10.12: { infra_seq: 3, admin_ip: 10.10.10.12 }
+        10.10.10.22: { infra_seq: 4, admin_ip: 10.10.10.22 }
+      vars: { node_conf: oltp }
+
+    etcd: { hosts: 10.10.10.8:  { etcd_seq: 1 } , vars: {  etcd_cluster: etcd  } }
+
+    #----------------------------------#
+    # build el8 packages on Rocky 8.9
+    #----------------------------------#
+    el8:
+      hosts: { 10.10.10.8: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-el8
+        repo_extra_packages: [ 'pgxnclient table_version_16*']
+        # too heavy # - plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions
+        # not ready # - mysqlcompat_16 plproxy_16 geoip_16 postgresql-unit_16*
+
+    #----------------------------------#
+    # build el9 packages on Rocky 9.3
+    #----------------------------------#
+    el9:
+      hosts: { 10.10.10.9: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-el9
+        repo_extra_packages: [ 'sequential_uuids_16* firebird_fdw_16*' ]
+        # too heavy # - plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions pljava_16*
+        # not ready # - mysqlcompat_16 plproxy_16 geoip_16 postgresql-unit_16* table_version_16*
+
+    #----------------------------------#
+    # build d12 packages on Debian 12
+    #----------------------------------#
+    d12:
+      hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-d12
+        repo_extra_packages: [ 'netcat-openbsd tnftp linux-perf plprql postgresql-16-statviz' ]
+        # too heavy # - postgresql-16-pljava postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
+
+    #----------------------------------#
+    # build u22 packages on Ubuntu 22.04
+    #----------------------------------#
+    u22:
+      hosts: { 10.10.10.22: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-u22
+        repo_extra_packages: [ 'netcat ftp linux-tools-generic pgdd-jammy-pg16' ]
+        # too heavy # - postgresql-16-pljava postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
+
+...

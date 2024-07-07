@@ -34,8 +34,7 @@ make prod12     # create 43-node production env simubox with generic/debian12 im
 You can also launch pigsty building env with these alias, base image will not be substituted:
 
 ```bash
-make pro        # 5-node pro version building env
-make oss        # 3-node oss version building env
+make build      # 4-node building environment 
 make rpm        # 3-node el7/8/9 building env
 make deb        # 4-node debian11/12 ubuntu20/22
 ```
@@ -47,18 +46,16 @@ make deb        # 4-node debian11/12 ubuntu20/22
 
 `Vagranfile` is a ruby script file describing VM nodes. Here are some default specs of Pigsty. 
 
-|        Templates        | Shortcut |      Spec       |         Comment         |  Alias  |
-|:-----------------------:|:--------:|:---------------:|:-----------------------:|:-------:|
-| [meta.rb](spec/meta.rb) |  3 node  |    2c4g x 1     |    Single Node Meta     | Devbox  |
-| [dual.rb](spec/dual.rb) |  3 node  |    1c2g x 2     |       Dual Nodes        |         |
-| [trio.rb](spec/trio.rb) |  3 node  |    1c2G x 3     |       Three Nodes       |         |
-| [full.rb](spec/full.rb) |  3 node  | 2c4g + 1c2g x 3 |  Full-Featured 4 Node   | Sandbox |
-| [prod.rb](spec/prod.rb) | 43 node  |      misc       |   Prod Env Simulation   | Simubox |
-|  [pro.rb](spec/pro.rb)  |  5 node  |    1c2g x 5     | 5-Node Pro Building Env | Devbox  |
-|  [oss.rb](spec/oss.rb)  |  3 node  |    1c2g x 3     | 3-Node OSS Building Env |         |
-|  [rpm.rb](spec/rpm.rb)  |  3 node  |    1c2G x 3     | 3-Node EL Building Env  |         |
-|  [deb.rb](spec/deb.rb)  |  3 node  |    1c2G x 4     | 4-Node Deb Building Env |         |
-
+|         Templates         | Shortcut |      Spec       |         Comment         |  Alias   |
+|:-------------------------:|:--------:|:---------------:|:-----------------------:|:--------:|
+|  [meta.rb](spec/meta.rb)  |  3 node  |    2c4g x 1     |    Single Node Meta     |  Devbox  |
+|  [dual.rb](spec/dual.rb)  |  3 node  |    1c2g x 2     |       Dual Nodes        |          |
+|  [trio.rb](spec/trio.rb)  |  3 node  |    1c2G x 3     |       Three Nodes       |          |
+|  [full.rb](spec/full.rb)  |  3 node  | 2c4g + 1c2g x 3 |  Full-Featured 4 Node   | Sandbox  |
+|  [prod.rb](spec/prod.rb)  | 43 node  |      misc       |   Prod Env Simulation   | Simubox  |
+|   [rpm.rb](spec/rpm.rb)   |  3 node  |    1c2G x 3     | 3-Node EL Building Env  |          |
+|   [deb.rb](spec/deb.rb)   |  3 node  |    1c2G x 4     | 4-Node Deb Building Env |          |
+| [build.rb](spec/build.rb) |  4 node  |    1c2g x 4     |   4-Node Building Env   | Buildbox |
 
 Each spec file contains a `Specs` variable describe VM nodes. For example, the [`full.rb`](spec/full.rb) contains:
 
