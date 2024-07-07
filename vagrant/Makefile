@@ -104,6 +104,7 @@ info:
 build: del vb up ssh
 rpm:   del vr up ssh
 deb:   del vd up ssh
+
 vb: # pigsty building environment
 	./switch build
 vr: # rpm building environment
@@ -116,16 +117,18 @@ vd: # deb building environment
 #------------------------------#
 # simple 1-node devbox for quick setup, demonstration, and development
 
-meta:   del vm   up ssh
-meta7:  del vm7  up ssh
-meta8:  del vm8  up ssh
-meta9:  del vm9  up ssh
-meta11: del vm11 up ssh
-meta12: del vm12 up ssh
-meta20: del vm20 up ssh
-meta22: del vm22 up ssh
+meta:   del vmeta   up ssh
+meta7:  del vmeta7  up ssh
+meta8:  del vmeta8  up ssh
+meta9:  del vmeta9  up ssh
+meta11: del vmeta11 up ssh
+meta12: del vmeta12 up ssh
+meta20: del vmeta20 up ssh
+meta22: del vmeta22 up ssh
 
-vmeta: vmeta8
+vm: vmeta
+vmeta:
+	./config meta
 vmeta7:
 	./config meta el7
 vmeta8:
@@ -144,7 +147,7 @@ vmeta22:
 #------------------------------#
 # full-featured 4-node sandbox for HA-testing & tutorial & practices
 
-full:   full8
+full:   del vfull   up ssh
 full7:  del vfull7  up ssh
 full8:  del vfull8  up ssh
 full9:  del vfull9  up ssh
@@ -153,7 +156,9 @@ full12: del vfull12 up ssh
 full20: del vfull20 up ssh
 full22: del vfull22 up ssh
 
-vfull: vfull8
+vf: vfull
+vfull:
+	./config full
 vfull7:
 	./config full el7
 vfull8:
@@ -174,7 +179,7 @@ vfull22:
 #------------------------------#
 # complex 43-node simubox for production simulation & complete testing
 
-prod:   prod8
+prod:   del vprod   up ssh
 prod7:  del vprod7  up ssh
 prod8:  del vprod8  up ssh
 prod9:  del vprod9  up ssh
@@ -183,7 +188,9 @@ prod12: del vprod12 up ssh
 prod20: del vprod20 up ssh
 prod22: del vprod22 up ssh
 
-vprod: vprod8
+vp: vprod
+vprod:
+	./config prod
 vprod7:
 	./config prod el7
 vprod8:
@@ -213,7 +220,8 @@ dual12: del vdual12 up ssh
 dual20: del vdual20 up ssh
 dual22: del vdual22 up ssh
 
-vdual: vdual8
+vdual:
+	./config dual
 vdual7:
 	./config dual el7
 vdual8:
@@ -241,7 +249,8 @@ trio12: del vtrio12 up ssh
 trio20: del vtrio20 up ssh
 trio22: del vtrio22 up ssh
 
-vtrio: vtrio8
+vtrio:
+	./config trio
 vtrio7:
 	./config trio el7
 vtrio8:
@@ -260,7 +269,7 @@ vtrio22:
 #                        Inventory                            #
 ###############################################################
 .PHONY: default new ssh sshb dns start up down dw halt clean del destroy nuke st status pause suspend resume info \
-	build rpm deb vb vr vd \
+	build rpm deb vb vr vd vm vf vp \
 	meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vmeta12 vmeta20 vmeta22 \
 	dual dual7 dual8 dual9 dual11 dual12 dual20 dual22 vdual vdual7 vdual8 vdual9 vdual11 vdual12 vdual20 vdual22 \
 	trio trio7 trio8 trio9 trio11 trio12 trio20 trio22 vtrio vtrio7 vtrio8 vtrio9 vtrio11 vtrio12 vtrio20 vtrio22 \

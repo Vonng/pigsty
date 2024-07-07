@@ -3,7 +3,7 @@
 # File      :   config
 # Desc      :   generate vagrantfile
 # Ctime     :   2024-07-05
-# Mtime     :   2024-07-05
+# Mtime     :   2024-07-07
 # Path      :   vagrant/config
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -25,11 +25,11 @@ IMAGES = {
 }
 
 # do not substitute image in building specs
-BUILD_SPECS = ["oss", "pro", "rpm", "deb"]
+BUILD_SPECS = ["build", "rpm", "deb"]
 
 ARGS = {
     'spec': 'meta',
-    'image': IMAGES['el8'],
+    # 'image': IMAGES['el8'],
     'scale': 1,
     'provider': "virtualbox",
 }
@@ -62,14 +62,14 @@ def parse_arg():
     if len(sys.argv) > 4:
         ARGS['provider'] = sys.argv[4]
 
-    if ARGS['image'] in IMAGES:
+    if 'image' in ARGS and ARGS['image'] in IMAGES:
         ARGS['image'] = IMAGES[ARGS['image']]
 
     if ARGS['spec'] == 'prod':
         ARGS['scale'] = 1  # do not scale prod template
 
     print(
-        "[INFO] spec=%s image=%s scale=%d provider=%s" % (ARGS['spec'], ARGS['image'], ARGS['scale'], ARGS['provider']))
+        "[INFO] spec=%s image=%s scale=%d provider=%s" % (ARGS['spec'], ARGS.get('image'), ARGS['scale'], ARGS['provider']))
 
     return ARGS
 
@@ -101,7 +101,8 @@ def get_spec(spec_name):
                 name = re.findall('"name"\\s*=>\\s*"([^"]+)"', line)[0]
                 cpu = int(re.findall('"cpu"\\s*=>\\s*"([^"]+)"', line)[0])
                 mem = int(re.findall('"mem"\\s*=>\\s*"([^"]+)"', line)[0])
-                image = re.findall('"image"\\s*=>\\s*"([^"]+)"', line)[0]
+                if 'image' in ARGS:
+                    image = re.findall('"image"\\s*=>\\s*"([^"]+)"', line)[0]
 
                 new_cpu = scale_factor * cpu
                 new_mem = scale_factor * mem
@@ -114,7 +115,7 @@ def get_spec(spec_name):
             # if found, replace these fields
             line = re.sub('"cpu"\\s*=>\\s*"([^"]+)"', '"cpu" => "%d"' % new_cpu, line)
             line = re.sub('"mem"\\s*=>\\s*"([^"]+)"', '"mem" => "%d"' % new_mem, line)
-            if ARGS['spec'] not in BUILD_SPECS:
+            if ARGS['spec'] not in BUILD_SPECS and 'image' in ARGS:
                 line = re.sub('"image"\\s*=>\\s*"([^"]+)"', '"image" => "%s"' % ARGS['image'], line)
         modified_specs.append(line)
 

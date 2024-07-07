@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-07-05
+# Mtime     :   2024-07-07
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -458,7 +458,9 @@ meta20: del vmeta20 new ssh copy-u20 use-pkg
 meta22: del vmeta22 new ssh copy-u22 use-pkg
 	cp files/pigsty/ubuntu22.yml pigsty.yml
 
-vmeta: vmeta8
+vm: vmeta
+vmeta:
+	vagrant/config meta
 vmeta7:
 	vagrant/config meta el7
 vmeta8:
@@ -486,7 +488,9 @@ full12: del vfull12 up ssh
 full20: del vfull20 up ssh
 full22: del vfull22 up ssh
 
-vfull: vfull8
+vf: vfull
+vfull:
+	vagrant/config full
 vfull7:
 	vagrant/config full el7
 vfull8:
@@ -507,7 +511,9 @@ vfull22:
 #------------------------------#
 # complex 43-node simubox for production simulation & complete testing
 
-vprod: vprod8
+vp: vprod
+vprod:
+	vagrant/config prod
 vprod8:
 	vagrant/config prod el8
 vprod9:
@@ -544,7 +550,8 @@ dual9:  del vdual9  up ssh
 dual12: del vdual12 up ssh
 dual22: del vdual22 up ssh
 
-vdual: vdual8
+vdual:
+	vagrant/config dual
 vdual8:
 	vagrant/config dual el8
 vdual9:
@@ -561,7 +568,8 @@ trio8:  del vtrio8  up ssh
 trio9:  del vtrio9  up ssh
 trio12: del vtrio12 up ssh
 trio22: del vtrio22 up ssh
-vtrio: vtrio8
+vtrio:
+	vagrant/config trio
 vtrio8:
 	vagrant/config trio el8
 vtrio9:
@@ -589,7 +597,7 @@ vtrio22:
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-el8 copy-el9 copy-u22 copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb push pull git-sync git-restore \
         r release rr remote-release rp rpp release-pkg release-pro release-el8 release-el9 pp package pb publish \
-        build build-pro build-boot rpm deb vb vr vd \
+        build build-pro build-boot rpm deb vb vr vd vm vf vp \
         meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vfull11 vmeta12 vmeta20 vmeta22 \
         full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 \
         prod prod8 prod9 prod12 prod20 prod22 vprod vprod8 vprod9 vprod12 vprod20 vprod22 \
