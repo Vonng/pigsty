@@ -1,0 +1,535 @@
+---
+pg_package_map:
+
+  #================================#
+  # EL / Rocky Package Map
+  #================================#
+  rpm:
+
+    # default
+    postgresql:                 "postgresql$v*"
+    pgsql-common:               "patroni,patroni-etcd,pgbouncer,pgbackrest,pg_exporter,pgbadger,vip-manager"
+    pgsql-utils:                "wal2json_$v*,pg_repack_$v*"
+
+    # kernel
+    pgsql:                      "postgresql$v*"
+    pgsql-client:               "postgresql$v"
+    pgsql-server:               "postgresql$v-server,postgresql16-libs,postgresql$v-contrib"
+    pgsql-simple:               "postgresql$v,postgresql$v-contrib,postgresql$v-libs,postgresql$v-plperl,postgresql$v-plpython3,postgresql$v-pltcl,postgresql$v-server,postgresql$v-tcl" # without llvmjit, devel, docs, test
+    pgsql-all:                  "postgresql$v,postgresql$v-contrib,postgresql$v-devel,postgresql$v-docs,postgresql$v-libs,postgresql$v-llvmjit,postgresql$v-odbc,postgresql$v-plperl,postgresql$v-plpython3,postgresql$v-pltcl,postgresql$v-server,postgresql$v-tcl,postgresql$v-test"
+    pgsql-devel:                "postgresql$v-devel"
+    pgsql-devel-all:            "postgresql16-devel,postgresql15-devel,postgresql14-devel,postgresql13-devel,postgresql12-devel"
+    pgsql-17:                   "postgresql17*"
+    pgsql-16:                   "postgresql16*"
+    pgsql-15:                   "postgresql15*"
+    pgsql-14:                   "postgresql14*"
+    pgsql-13:                   "postgresql13*"
+    pgsql-12:                   "postgresql12*"
+
+    # common
+    patroni:                    "patroni,patroni-etcd"
+    pgbouncer:                  "pgbouncer"
+    pgbackrest:                 "pgbackrest"
+    pg_exporter:                "pg_exporter"
+    vip-manager:                "vip-manager"
+    pgbadger:                   "pgbadger"
+    pgloader:                   "pgloader"
+    pg_activity:                "pg_activity"
+    pg_filedump:                "pg_filedump"
+    pgxnclient:                 "pgxnclient"
+    pgformatter:                "pgformatter"
+    pgcopydb:                   "pgcopydb"
+
+    # stack
+    min-stack:                  "wal2json_$v*,pg_repack_$v*" # essential extension
+    rag-stack:                  "pgvector_$v*,pgvectorscale_$v,pg_vectorize_$v,pg_tiktoken_$v,pgml_$v"
+    gis-stack:                  "postgis34_$v*,pointcloud_$v,h3-pg_$v*"
+    fts-stack:                  "pg_search_$v,pg_bigm_$v*,zhparser_$v*,scws" # elasticsearch & full-text search
+    fdw-stack:                  "multicorn2_$v*,wrappers_$v*,mongo_fdw_$v*,mysql_fdw_$v*,ogr_fdw_$v*,sqlite_fdw_$v*,tds_fdw_$v*,hdfs_fdw_$v*,pgbouncer_fdw_$v*,orafce_$v*"
+    cdc-stack:                  "pglogical_$v*,postgres-decoderbufs_$v*,wal2json_$v*,wal2mongo_$v*"
+    etl-stack:                  "pglogical_$v*,pg_fact_loader_$v*,pg_bulkload_$v*,pg_comparator_$v*,pgloader,pgcopydb"
+    olap-stack:                 "timescaledb-2-postgresql-$v*,postgis34_$v*,hydra_$v*,duckdb_fdw_$v*,parquet_s3_fdw_$v*,pg_lakehouse_$v,pg_tier_$v,pg_cron_$v*,duckdb"
+    dist-stack:                 "citus_$v*,pg_fkpart_$v*,pg_partman_$v*"
+    supa-stack:                 "pgvector_$v*,pg_cron_$v*,pgsodium_$v*,pg_graphql_$v,pg_jsonschema_$v,wrappers_$v,vault_$v,pgjwt_$v*,pgsql_http_$v*,pg_net_$v*"
+    stat-stack:                 "pg_profile_$v*,pg_show_plans_$v*,pg_stat_kcache_$v*,pg_stat_monitor_$v*,pg_qualstats_$v*,pg_store_plans_$v*,pg_track_settings_$v*,pg_wait_sampling_$v*"
+    json-stack:                 "plv8_$v*,pg_jsonschema_$v,pgjwt_$v*,jsquery_$v*,mongo_fdw_$v*,pg_graphql_$v,ferretdb"
+    test-stack:                 "pldebugger_$v*,plprofiler_$v*,postgresql_faker_$v*"
+    duck-stack:                 "duckdb,duckdb_fdw_$v*,sqlite_fdw_$v*"
+
+    # timeseries
+    timescaledb:                "timescaledb-2-postgresql-$v*"
+
+    # gis
+    postgis:                    "postgis34_$v*"
+    pgrouting:                  "pgrouting_$v*"
+    pointcloud:                 "pointcloud_$v*"
+    h3:                         "h3-pg_$v*"
+    ip4r:                       "ip4r_$v*"
+    geoip:                      "geoip_$v*"  # not ready for pg16 yet
+    #mobilitydb:                 # not included in el distro
+
+    # AI / ML / vector
+    vector:                     "pgvector_$v*"
+    vectorscale:                "pgvectorscale_$v"
+    vectorize:                  "pg_vectorize_$v"
+    pg_tiktoken:                "pg_tiktoken_$v"
+    pgml:                       "pgml_$v"
+
+    # full-text search
+    pg_search:                  "pg_search_$v"
+    pg_bigm:                    "pg_bigm_$v*"
+    zhparser:                   "zhparser_$v*"
+    imgsmlr:                    "imgsmlr_$v*"       # pg15 only
+    pg_similarity:              "pg_similarity_$v*" # pg15 only
+
+    # analytics & lakehouse
+    hydra:                      "hydra_$v*" # CAUTIOUS: conflict with citus!
+    duckdb_fdw:                 "duckdb_fdw_$v*"
+    parquet_s3_fdw:             "parquet_s3_fdw_$v*"
+    pg_lakehouse:               "pg_lakehouse_$v"
+    pg_tier:                    "pg_tier_$v"
+    pg_strom:                   "pg_strom_$v*"     # non-free repo, not included by default
+
+    # sharding
+    citus:                      "citus_$v*" # CAUTIOUS: conflict with hydra!
+    pg_fkpart:                  "pg_fkpart_$v*"
+    pg_partman:                 "pg_partman_$v*"
+    plproxy:                    "plproxy_$v*"      # not ready for pg16
+
+    # featured
+    age:                        "apache-age_$v*"
+    pg_graphql:                 "pg_graphql_$v"
+    pg_jsonschema:              "pg_jsonschema_$v"
+    jsquery:                    "jsquery_$v*"
+    pg_hint_plan:               "pg_hint_plan_$v*"
+    hypopg:                     "hypopg_$v*"
+    pg_ivm:                     "pg_ivm_$v*"
+    pgmq:                       "pgmq_$v"
+    pgq:                        "pgq_$v*"
+    pgtt:                       "pgtt_$v*"
+    temporal_tables:            "temporal_tables_$v*"
+    emaj:                       "e-maj_$v*"
+    periods:                    "periods_$v*"
+    table_version:              "table_version_$v*" # not ready on el9 yet (available on el8)
+    pg_statement_rollback:      "pg_statement_rollback_$v*"
+    hll:                        "hll_$v*"
+    rum:                        "rum_$v"
+    #rdkit:                      # not included in el distro
+    #preprepare:                 # not included in el distro
+
+    # function
+    pgjwt:                      "pgjwt_$v*"
+    pg_idkit:                   "pg_idkit_$v"
+    pg_uuidv7:                  "pg_uuidv7_$v*"
+    pg_later:                   "pg_later_$v"
+    pg_background:              "pg_background_$v*"
+    gzip:                       "pgsql_gzip_$v*"
+    http:                       "pgsql_http_$v*"
+    pg_net:                     "pg_net_$v*"
+    pgsql_tweaks:               "pgsql_tweaks_$v*"
+    count_distinct:             "count_distinct_$v*"
+    extra_window_functions:     "extra_window_functions_$v*"
+    tdigest:                    "tdigest_$v*"
+    pg_extra_time:              "pg_extra_time_$v*"
+    topn:                       "topn_$v*"
+    mysqlcompat:                "mysqlcompat_$v*" # not ready, not included by default
+    #first-last-agg:            # not included in el distro
+    #pgpcre:                    # not included in el distro
+    #icu-ext:                   # not included in el distro
+
+    # fdw
+    wrappers:                   "wrappers_$v"
+    mongo_fdw:                  "mongo_fdw_$v*"
+    multicorn:                  "multicorn2_$v*"
+    mysql_fdw:                  "mysql_fdw_$v*"
+    ogr_fdw:                    "ogr_fdw_$v*"
+    sqlite_fdw:                 "sqlite_fdw_$v*"
+    tds_fdw:                    "tds_fdw_$v*"
+    hdfs_fdw:                   "hdfs_fdw_$v*"
+    pgbouncer_fdw:              "pgbouncer_fdw_$v*"
+    orafce:                     "orafce_$v*"
+    pgmemcache:                 "pgmemcache_$v*"
+    pg_dbms_lock:               "pg_dbms_lock_$v*"
+    pg_dbms_metadata:           "pg_dbms_metadata_$v*"
+    pg_dbms_job:                "pg_dbms_job_$v*"
+    oracle_fdw:                 "oracle_fdw_$v*"  # non-free repo, not included by default
+    db2_fdw:                    "db2_fdw_$v*"     # non-free repo, not included by default
+
+    # type
+    prefix:                     "prefix_$v*"
+    timestamp9:                 "timestamp9_$v*"
+    semver:                     "semver_$v*"
+    pgmp:                       "pgmp_$v*"
+    uint:                       "pguint_$v*"
+    roaringbitmap:              "pg_roaringbitmap_$v*"
+    md5hash:                    "md5hash_$v*"
+    #asn1oid:                   # not included in el distro
+    #numeral:                   # not included in el distro
+    #rational:                  # not included in el distro
+    #q3c:                       # not included in el distro
+    #pgsphere:                  # not included in el distro
+    #debversion:                # not included in el distro
+    #rrule:                     # not included in el distro
+
+    # pl/lanaguage
+    pg_tle:                     "pg_tle_$v*"
+    plv8:                       "plv8_$v*"
+    pllua:                      "pllua_$v*"
+    plprql:                     "plprql_$v"
+    pldebugger:                 "pldebugger_$v*"
+    plpgsql_check:              "plpgsql_check_$v*"
+    plprofiler:                 "plprofiler_$v*"
+    plsh:                       "plsh_$v*"
+    plr:                        "plr_$v*" # too-heavy, not included by default
+    pljava:                     "pljava_$v*" # too-heavy, not included by default, only available on el9 (el8 not available)
+
+    # test
+    faker:                      "postgresql_faker_$v*"
+    pgtap:                      "pgtap_$v*"
+    dbt2 :                      "dbt2-pg$v-extensions*"
+    unit:                       "postgresql-unit_$v*" # not ready for pg16 yet
+
+    # admin
+    pg_repack:                  "pg_repack_$v*"
+    pg_cron:                    "pg_cron_$v*"
+    pg_squeeze:                 "pg_squeeze_$v*"
+    pg_dirtyread:               "pg_dirtyread_$v*"
+    pgdd:                       "pgdd_$v" # pg15, pg16
+    pgfincore:                  "pgfincore_$v*"
+    pgl_ddl_deploy:             "pgl_ddl_deploy_$v*"
+    pg_prioritize:              "pg_prioritize_$v*"
+    pg_readonly:                "pg_readonly_$v*"
+    pgagent:                    "pgagent_$v*"
+    pg_checksums:               "pg_checksums_$v*"
+    safeupdate:                 "safeupdate_$v*"
+    ddlx:                       "ddlx_$v*"
+    pg_permissions:             "pg_permissions_$v*"
+    pg_auto_failover:           "pg_auto_failover_$v*"
+    pg_catcheck:                "pg_catcheck_$v*"
+    filedump:                   "pg_filedump_$v*" # this is version ad-hoc pg_filedump
+    pgpool:                     "pgpool-II-pg$v-extensions" # not used, not included by default
+
+    # monitor & stat
+    pg_profile:                 "pg_profile_$v*"
+    pg_show_plans:              "pg_show_plans_$v*"
+    pg_stat_kcache:             "pg_stat_kcache_$v*"
+    pg_stat_monitor:            "pg_stat_monitor_$v*"
+    pg_qualstats:               "pg_qualstats_$v*"
+    pg_statviz:                 "pg_statviz_extension_$v"
+    pg_store_plans:             "pg_store_plans_$v*"
+    pg_top:                     "pg_top_$v*"
+    pg_track_settings:          "pg_track_settings_$v*"
+    pg_wait_sampling:           "pg_wait_sampling_$v*"
+    system_stats:               "system_stats_$v*"
+    bgw_replstatus:             "bgw_replstatus_$v*"
+    powa:                       "powa_$v*"
+    powa-archivist:             "powa-archivist_$v*"
+    pgmeminfo:                  "pgmeminfo_$v*"
+    pgexporter_ext:             "pgexporter_ext_$v*"  # not used, not included by default
+    #toastinfo:                  # not included in el distro
+    #omnidb:                     # not included in el distro
+
+    # security
+    passwordcheck_cracklib:     "passwordcheck_cracklib_$v*"
+    pgsodium:                   "pgsodium_$v*"
+    vault:                      "vault_$v*"
+    anon:                       "postgresql_anonymizer_$v*"
+    pg_tde:                      "pg_tde_$v*"
+    pgsmcrypto:                 "pgsmcrypto_$v"
+    pgaudit:                    "pgaudit_$v*"
+    pgauditlogtofile:           "pgauditlogtofile_$v*"
+    pg_auth_mon:                "pg_auth_mon_$v*"
+    credcheck:                  "credcheck_$v*"
+    pgcryptokey:                "pgcryptokey_$v*"
+    pg_jobmon:                  "pg_jobmon_$v*"
+    logerrors:                  "logerrors_$v*"
+    login_hook:                 "login_hook_$v*"
+    set_user:                   "set_user_$v*"
+    #tablelog:                   # not included in el distro
+    #snakeoil:                   # not included in el distro
+    #pgextwlist:                 # not included in el distro
+
+    # replication
+    pglogical:                  "pglogical_$v*"
+    decoderbufs:                "postgres-decoderbufs_$v*"
+    wal2json:                   "wal2json_$v*"
+    wal2mongo:                  "wal2mongo_$v*"
+    pg_failover_slots:          "pg_failover_slots_$v*"
+    repmgr:                     "repmgr_$v*" # not used, not included by default
+    #londiste:                   # not included in el distro
+    #mimeo:                      # not included in el distro
+    #slony:                      # not included in el distro
+
+    # etl
+    pg_fact_loader:             "pg_fact_loader_$v*"
+    pg_bulkload:                "pg_bulkload_$v*"
+    pg_comparator:              "pg_comparator_$v*"
+    pgimportdoc:                "pgimportdoc_$v*"
+    pgexportdoc:                "pgexportdoc_$v*"
+
+  #================================#
+  # Debian / Ubuntu Package Map
+  #================================#
+  deb:
+
+    # default
+    postgresql:               "postgresql-*-$v"
+    pgsql-common:             "patroni,pgbouncer,pgbackrest,pg-exporter,pgbadger,vip-manager"
+    pgsql-utils:              "postgresql-$v-repack,postgresql-$v-wal2json"
+
+    # kernel
+    pgsql:                    "postgresql-*-$v"
+    pgsql-client:             "postgresql-client-$v"
+    pgsql-server:             "postgresql-$v"
+    pgsql-simple:             "postgresql-$v,postgresql-client-$v,postgresql-plperl-$v,postgresql-plpython3-$v,postgresql-pltcl-$v"
+    pgsql-all:                "postgresql-$v,postgresql-client-$v,postgresql-plperl-$v,postgresql-plpython3-$v,postgresql-pltcl-$v,postgresql-server-dev-$v"
+    pgsql-devel:              "postgresql-server-dev-$v"
+    pgsql-devel-all:          "postgresql-server-dev-16,postgresql-server-dev-15,postgresql-server-dev-14,postgresql-server-dev-13,postgresql-server-dev-12"
+    pgsql-17:                 "postgresql-*-17"
+    pgsql-16:                 "postgresql-*-16"
+    pgsql-15:                 "postgresql-*-15"
+    pgsql-14:                 "postgresql-*-14"
+    pgsql-13:                 "postgresql-*-13"
+    pgsql-12:                 "postgresql-*-12"
+
+    # common
+    patroni:                  "patroni"
+    pgbouncer:                "pgbouncer"
+    pgbackrest:               "pgbackrest"
+    pg_exporter:              "pg-exporter"
+    vip-manager:              "vip-manager"
+    pgbadger:                 "pgbadger"
+    pgloader:                 "pgloader"
+    pg_activity:              "pg-activity"
+    pg_filedump:              "postgresql-filedump"
+    pgxnclient:               "pgxnclient"
+    pgformatter:              "pgformatter"
+    #pgcopydb:                 # not included in debian/ubuntu
+
+    # stack
+    min-stack:                "postgresql-$v-repack,postgresql-$v-wal2json"
+    rag-stack:                "postgresql-$v-pgvector,pgvectorscale-postgresql-$v"
+    gis-stack:                "postgresql-$v-postgis-3*,postgresql-$v-pointcloud"
+    fts-stack:                "pg-search,postgresql-$v-similarity"
+    fdw-stack:                "postgresql-$v-mysql-fdw,postgresql-$v-ogr-fdw,postgresql-$v-tds-fdw,postgresql-$v-orafce"
+    cdc-stack:                "postgresql-$v-pglogical*,postgresql-$v-decoderbufs,postgresql-$v-wal2json"
+    etl-stack:                "postgresql-$v-pglogical*,postgresql-$v-pg-fact-loader,pgloader"
+    olap-stack:               "timescaledb-2-postgresql-$v,postgresql-$v-cron,pg-lakehouse,duckdb"
+    dist-stack:               "postgresql-$v-citus-12.1,postgresql-$v-partman,postgresql-$v-plproxy"
+    supa-stack:               "postgresql-$v-pgvector,postgresql-$v-cron,pg-graphql,pg-jsonschema,wrappers,pg-net" # incomplete: missing pgsodium,vault,pgjwt
+    stat-stack:               "postgresql-$v-show-plans,postgresql-$v-pg-stat-kcache,postgresql-$v-pg-qualstats,postgresql-$v-pg-track-settings,postgresql-$v-pg-wait-sampling"
+    json-stack:               "postgresql-$v-jsquery,pg-jsonschema,pg-graphql,ferretdb"
+    test-stack:               "postgresql-$v-pldebugger,postgresql-$v-plprofiler,postgresql-$v-pgtap,postgresql-$v-unit"
+    duck-stack:               "duckdb"
+
+    # timeseries
+    timescaledb:              "timescaledb-2-postgresql-$v"
+
+    # gis
+    postgis:                  "postgresql-$v-postgis-3*"
+    pgrouting:                "postgresql-$v-pgrouting*"
+    pointcloud:               "postgresql-$v-pointcloud"
+    h3:                       "postgresql-$v-h3"
+    ip4r:                     "postgresql-$v-ip4r"
+    mobilitydb:               "postgresql-$v-mobilitydb"
+    #geoip:                    # not included in debian/ubuntu
+
+    # AI / ML / vector
+    vector:                   "postgresql-$v-pgvector"
+    vectorscale:              "pgvectorscale-postgresql-$v" # pg15, pg16
+    pgml:                     "postgresml-$v" # ubuntu 22.04 only, not included, check https://postgresml.org/docs/resources/developer-docs/self-hosting/
+    #vectorize:                # not included in debian/ubuntu
+    #pg_tiktoken:              # not included in debian/ubuntu
+
+    # full-text search
+    pg_search:                "pg-search"
+    pg_similarity:            "postgresql-$v-similarity"
+    #imgsmlr:                  # not included in debian/ubuntu
+    #pg_bigm:                  # not included in debian/ubuntu
+    #zhparser:                 # not included in debian/ubuntu
+
+    # analytics & lakehouse
+    pg_lakehouse:             "pg-lakehouse"
+    #duckdb_fdw:               # not included in debian/ubuntu
+    #parquet_s3_fdw:           # not included in debian/ubuntu
+    #pg_tier:                  # not included in debian/ubuntu
+    #pg_strom:                 # not included in debian/ubuntu
+    #hydra:                    # not included in debian/ubuntu
+
+    # sharding
+    citus:                    "postgresql-$v-citus-12.1"
+    pg_partman:               "postgresql-$v-partman"
+    plproxy:                  "postgresql-$v-plproxy"
+    #pg_fkpart:                # not included in debian/ubuntu
+
+    # featured
+    rdkit:                    "postgresql-$v-rdkit" # available on ubuntu 22.04 / debian 12 (N/A in u20, d11)
+    age:                      "postgresql-$v-age"
+    pg_graphql:               "pg-graphql"
+    pg_jsonschema:            "pg-jsonschema"
+    jsquery:                  "postgresql-$v-jsquery"
+    pg_hint_plan:             "postgresql-$v-pg-hint-plan"
+    hypopg:                   "postgresql-$v-hypopg"
+    pgq:                      "postgresql-$v-pgq*"
+    periods:                  "postgresql-$v-periods"
+    hll:                      "postgresql-$v-hll"
+    rum:                      "postgresql-$v-rum"
+    preprepare:               "postgresql-$v-preprepare"
+    #temporal_tables:          # not included in debian/ubuntu
+    #emaj:                     # not included in debian/ubuntu
+    #pgtt:                     # not included in debian/ubuntu
+    #pg_ivm:                   # not included in debian/ubuntu
+    #pgmq:                     # not included in debian/ubuntu
+    #table_version:            # not included in debian/ubuntu
+    #pg_statement_rollback:    # not included in debian/ubuntu
+
+    # function
+    http:                     "postgresql-$v-http"
+    pg_net:                   "pg-net"
+    extra_window_functions:   "postgresql-$v-extra-window-functions"
+    tdigest:                  "postgresql-$v-tdigest"
+    topn:                     "postgresql-$v-topn"
+    first_last_agg:           "postgresql-$v-first-last-agg"
+    pgpcre:                   "postgresql-$v-pgpcre"
+    icu:                      "postgresql-$v-icu-ext"
+    #pgjwt:                    # not included in debian/ubuntu
+    #pg_idkit:                 # not included in debian/ubuntu
+    #pg_uuidv7:                # not included in debian/ubuntu
+    #pg_later:                 # not included in debian/ubuntu
+    #pg_background:            # not included in debian/ubuntu
+    #gzip:                     # not included in debian/ubuntu
+    #pgsql_tweaks:             # not included in debian/ubuntu
+    #count_distinct:           # not included in debian/ubuntu
+    #pg_extra_time:            # not included in debian/ubuntu
+
+    # fdw
+    wrappers:                 "wrappers"
+    mysql_fdw:                "postgresql-$v-mysql-fdw"
+    ogr_fdw:                  "postgresql-$v-ogr-fdw"
+    tds_fdw:                  "postgresql-$v-tds-fdw"
+    orafce:                   "postgresql-$v-orafce"
+    pgmemcache:               "postgresql-$v-pgmemcache"
+    oracle_fdw:               "postgresql-$v-oracle-fdw"  # extra oracle deps
+    #mongo_fdw:                # not included in debian/ubuntu
+    #multicorn:                # not included in debian/ubuntu
+    #sqlite_fdw:               # not included in debian/ubuntu
+    #hdfs_fdw:                 # not included in debian/ubuntu
+    #pgbouncer_fdw:            # not included in debian/ubuntu
+    #pg_dbms_lock:             # not included in debian/ubuntu
+    #pg_dbms_metadata:         # not included in debian/ubuntu
+    #pg_dbms_job:              # not included in debian/ubuntu
+    #mysqlcompat:              # not included in debian/ubuntu
+    #db2_fdw:                  # not included in debian/ubuntu
+
+    # type
+    prefix:                   "postgresql-$v-prefix"
+    semver:                   "postgresql-$v-semver"
+    pgmp:                     "postgresql-$v-pgmp"
+    roaringbitmap:            "postgresql-$v-roaringbitmap"
+    asn1oid:                  "postgresql-$v-asn1oid"
+    numeral:                  "postgresql-$v-numeral"
+    rational:                 "postgresql-$v-rational"
+    q3c:                      "postgresql-$v-q3c"
+    pgsphere:                 "postgresql-$v-pgsphere"
+    debversion:               "postgresql-$v-debversion"
+    rrule:                    "postgresql-$v-pg-rrule"
+    faceting:                 "postgresql-$v-pgfaceting"
+    #timestamp9:               # not included in debian/ubuntu
+    #uint:                     # not included in debian/ubuntu
+    #md5hash:                  # not included in debian/ubuntu
+
+    # pl/lanaguage
+    pllua:                    "postgresql-$v-pllua"
+    plprql:                   "plprql"
+    pldebugger:               "postgresql-$v-pldebugger"
+    plpgsql_check:            "postgresql-$v-plpgsql-check"
+    plprofiler:               "postgresql-$v-plprofiler"
+    plsh:                     "postgresql-$v-plsh"
+    plr:                      "postgresql-$v-plr" # too-heavy, not included by default
+    pljava:                   "postgresql-$v-pljava" # too-heavy, not included by default
+    #pg_tle:                   # not included in debian/ubuntu
+    #plv8:                     # not included in debian/ubuntu
+
+    # test
+    pgtap:                    "postgresql-$v-pgtap"
+    unit:                     "postgresql-$v-unit"
+
+    # admin
+    pg_repack:                "postgresql-$v-repack"
+    pg_cron:                  "postgresql-$v-cron"
+    pg_squeeze:               "postgresql-$v-squeeze"
+    pg_dirtyread:             "postgresql-$v-dirtyread"
+    pgdd:                     "pgdd-jammy-pg16" # only available on ubuntu 22.04
+    pgfincore:                "postgresql-$v-pgfincore"
+    pgl_ddl_deploy:           "postgresql-$v-pgl-ddl-deploy"
+    pg_prioritize:            "postgresql-$v-prioritize"
+    pg_checksums:             "postgresql-$v-pg-checksums"
+    pg_auto_failover:         "postgresql-$v-auto-failover"
+    pg_catcheck:              "postgresql-$v-pg-catcheck"
+    pgpool:                   "postgresql-$v-pgpool2" # not used, not included by default
+    #pg_readonly:              # not included in debian/ubuntu
+    #pgagent:                  # not included in debian/ubuntu
+    #safeupdate:               # not included in debian/ubuntu
+    #ddlx:                     # not included in debian/ubuntu
+    #pg_permissions:           # not included in debian/ubuntu
+
+    # monitor & stat
+    pg_show_plans:            "postgresql-$v-show-plans"
+    pg_stat_kcache:           "postgresql-$v-pg-stat-kcache"
+    pg_qualstats:             "postgresql-$v-pg-qualstats"
+    pg_track_settings:        "postgresql-$v-pg-track-settings"
+    pg_wait_sampling:         "postgresql-$v-pg-wait-sampling"
+    bgw_replstatus:           "postgresql-$v-bgw-replstatus"
+    powa:                     "postgresql-$v-powa"
+    toastinfo:                "postgresql-$v-toastinfo"
+    omnidb:                   "postgresql-$v-omnidb"
+    #pg_profile:               # not included in debian/ubuntu
+    #pg_stat_monitor:          # not included in debian/ubuntu
+    #pg_statviz:               # not included in debian/ubuntu
+    #pg_store_plans:           # not included in debian/ubuntu
+    #system_stats:             # not included in debian/ubuntu
+    #pg_top:                   # not included in debian/ubuntu
+    #powa-archivist:           # not included in debian/ubuntu
+    #pgmeminfo:                # not included in debian/ubuntu
+    #pgexporter_ext:           # not included in debian/ubuntu
+
+    # security
+    pgaudit:                  "postgresql-$v-pgaudit"
+    pgauditlogtofile:         "postgresql-$v-pgauditlogtofile"
+    credcheck:                "postgresql-$v-credcheck"
+    login_hook:               "login_hook_$v*"
+    set_user:                 "postgresql-$v-set-user"
+    tablelog:                 "postgresql-$v-tablelog"
+    snakeoil:                 "postgresql-$v-snakeoil"
+    pgextwlist:               "postgresql-$v-pgextwlist"
+    #passwordcheck_cracklib:   # not included in debian/ubuntu
+    #pgsodium:                 # not included in debian/ubuntu
+    #vault:                    # not included in debian/ubuntu
+    #anon:                     # not included in debian/ubuntu
+    #pg_tde:                   # not included in debian/ubuntu
+    #pgsmcrypto:               # not included in debian/ubuntu
+    #pg_auth_mon:              # not included in debian/ubuntu
+    #pgcryptokey:              # not included in debian/ubuntu
+    #pg_jobmon:                # not included in debian/ubuntu
+    #logerrors:                # not included in debian/ubuntu
+
+    # replication
+    pglogical:                "postgresql-$v-pglogical*"
+    decoderbufs:              "postgresql-$v-decoderbufs"
+    wal2json:                 "postgresql-$v-wal2json"
+    pg_failover_slots:        "postgresql-$v-pg-failover-slots"
+    repmgr:                   "postgresql-$v-repmgr" # not used, not included by default
+    londiste:                 "postgresql-$v-londiste-sql"
+    mimeo:                    "postgresql-$v-mimeo"
+    slony:                    "postgresql-$v-slony1-2"
+    #wal2mongo:                # not included in debian/ubuntu
+
+    # etl
+    pg_fact_loader:           "postgresql-$v-pg-fact-loader"
+    #pg_bulkload:              # not included in debian/ubuntu
+    #pg_comparator:            # not included in debian/ubuntu
+    #pgimportdoc:              # not included in debian/ubuntu
+    #pgexportdoc:              # not included in debian/ubuntu
+
+
+...

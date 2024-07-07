@@ -92,6 +92,11 @@
 #--------------------------------------------------------------#
 # remove packages                                       [pg_pkg]
 #--------------------------------------------------------------#
+# pigsty will NOT uninstall postgres packages unless explicitly specified
+# example: ./pgsql-rm.yml -l <cls> -t pg_pkg -e pg_uninstall=true
+# to uninstall pg_extensions only:
+# ./pgsql-rm.yml -t pg_extension -e pg_uninstall=true
+
 - name: remove postgres packages
   tags: pg_pkg
   when: pg_uninstall|bool
@@ -105,9 +110,37 @@
         - /etc/profile.d/pgsql.sh
         - /etc/profile.d/pg-alias.sh
 
-    # uninstall postgres basic packages (extension will be removed automatically)
+    # read pg_package_map from role `pgsql` and translate pg_packages & pg_extensions
+    - name: load {{ os_package }} package map
+      become: no
+      connection: local
+      tags: pg_extension
+      include_vars: { file: "{{ role_path }}/../pgsql/vars/pg_package_map.yml" }
+
+    - name: lookup pg packages & extensions names
+      become: no
+      connection: local
+      tags: pg_extension
+      set_fact:
+        pg_packages_list: |-
+          {% set pkg_map = pg_package_map[os_package] | default({}) %}
+          {% for pkg_list in pg_packages %}{% for pkg in pkg_list|trim|regex_replace('(,|\\s)+', ',') |split(',')|default([]) %}{% if pkg != '' %}{% if pkg in pkg_map %}{% set pkg = pkg_map[pkg] %}{% endif %}{% if not loop.first %},{% endif %}{{ pkg|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string) }}{% endif %}{% endfor %}
+          
+          {% endfor %}
+        pg_extension_list: |-
+          {% set pkg_map = pg_package_map[os_package] | default({}) %}
+          {% for ext_list in pg_extensions %}{% for ext in ext_list|trim|regex_replace('(,|\\s)+', ',') |split(',')|default([]) %}{% if ext != '' %}{% if ext in pkg_map %}{% set ext = pkg_map[ext] %}{% endif %}{% if not loop.first %},{% endif %}{{ ext|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string) }}{% endif %}{% endfor %}
+          
+          {% endfor %}
+
+    # uninstall extensions first
+    - name: uninstall pg extensions
+      tags: pg_extension
+      package: name={{ item }} state=absent
+      with_items: "{{ pg_extension_list | trim | split('\n') | map('replace', '$v', pg_version|string)|map('replace', '${pg_version}', pg_version|string) | map('regex_replace', '(,|\\s)+', ',' ) }}"
+
     - name: uninstall pg packages
-      package: state=absent name={{ item|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string)|regex_replace('\s+',',') }}
-      with_items: "{{ pg_packages | default(pg_packages_default[os_package]) | default([]) }}"
+      package: name={{ item }} state=absent
+      with_items: "{{ pg_packages_list | trim | split('\n') | map('replace', '$v', pg_version|string)|map('replace', '${pg_version}', pg_version|string) | map('regex_replace', '(,|\\s)+', ',' ) }}"
 
 ...

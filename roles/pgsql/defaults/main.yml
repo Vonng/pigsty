@@ -42,12 +42,11 @@ pg_dbsu_ssh_exchange: true        # exchange postgres dbsu ssh key among same pg
 pg_version: 16                    # postgres major version to be installed, 16 by default
 pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, `/usr/pgsql/bin` by default
 pg_log_dir: /pg/log/postgres      # postgres log dir, `/pg/log/postgres` by default
-#pg_packages: []                  # pg packages to be installed, `${pg_version}` or `$v` will be replaced
-pg_extensions:                    # pg extensions to be installed, `${pg_version}` or `$v` will be replaced
-  - postgis34_${pg_version}* timescaledb-2-postgresql-${pg_version}* pgvector_${pg_version}*
-pg_packages_default:              # used according to `os_package`, if `pg_packages` not set
-  rpm: [ 'postgresql$v*', 'patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager patroni-etcd' ]
-  deb: [ 'postgresql-*-$v', 'patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager' ]
+pg_packages:                      # pg packages to be installed, alias can be used
+  - postgresql
+  - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager wal2json pg_repack
+pg_extensions:                    # pg extensions to be installed, alias can be used
+  - postgis timescaledb vector
 
 #-----------------------------------------------------------------
 # PG_BOOTSTRAP
@@ -235,7 +234,6 @@ pgbouncer_exporter_options: ''         # overwrite extra options for pgbouncer_e
 #-----------------------------------------------------------------
 pg_exists: false
 pg_cert_exists: false
-
 #-----------------------------------------------------------------
 # CA (Reference)
 #-----------------------------------------------------------------
