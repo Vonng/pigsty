@@ -379,6 +379,24 @@ copy-src-all:
 	ssh -t el9 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	ssh -t d12 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	ssh -t u22 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+csr: copy-src-rpm
+copy-src-rpm:
+	scp "dist/${VERSION}/${SRC_PKG}" el7:~/pigsty.tgz
+	scp "dist/${VERSION}/${SRC_PKG}" el8:~/pigsty.tgz
+	scp "dist/${VERSION}/${SRC_PKG}" el9:~/pigsty.tgz
+	ssh -t el7 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t el8 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t el9 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+csd: copy-src-deb
+copy-src-deb:
+	scp "dist/${VERSION}/${SRC_PKG}" d11:~/pigsty.tgz
+	scp "dist/${VERSION}/${SRC_PKG}" d12:~/pigsty.tgz
+	scp "dist/${VERSION}/${SRC_PKG}" u20:~/pigsty.tgz
+	scp "dist/${VERSION}/${SRC_PKG}" u22:~/pigsty.tgz
+	ssh -t d11 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t d12 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t u20 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t u22 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 dfx: deb-fix
 deb-fix:
 	scp /etc/resolv.conf u22:/tmp/resolv.conf;
@@ -445,14 +463,12 @@ build-pro: del vb new ssh dfx
 	cp files/pigsty/build-pro.yml pigsty.yml
 build-boot:
 	bin/build-boot
-
-rpm: del vrpm new ssh
+rpm: del vr new ssh copy-src-rpm
 	cp files/pigsty/rpm.yml pigsty.yml
 	@echo ./node.yml -i files/pigsty/rpmbuild.yml -t node_repo,node_pkg
 	@echo el8:    sudo yum groupinstall --nobest -y 'Development Tools'
-deb: del vdeb new ssh
+deb: del vd new ssh copy-src-deb
 	cp files/pigsty/deb.yml pigsty.yml
-
 vb: # pigsty building environment
 	vagrant/config build
 vr: # rpm building environment
