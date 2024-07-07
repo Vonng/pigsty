@@ -41,31 +41,27 @@ pg_package_map:
     pgcopydb:                   "pgcopydb"
 
     # stack
-    min-stack:                  "wal2json_$v*,pg_repack_$v*" # essential extension
-    rag-stack:                  "pgvector_$v*,pgvectorscale_$v,pg_vectorize_$v,pg_tiktoken_$v,pgml_$v"
-    gis-stack:                  "postgis34_$v*,pointcloud_$v,h3-pg_$v*"
-    fts-stack:                  "pg_search_$v,pg_bigm_$v*,zhparser_$v*,scws" # elasticsearch & full-text search
+    gis-stack:                  "postgis34_$v*,pointcloud_$v,h3-pg_$v*,pgrouting_$v*"
+    rag-stack:                  "pgvector_$v*,pgvectorscale_$v,pg_vectorize_$v,pg_tiktoken_$v,pgml_$v,pg_search_$v,pg_bigm_$v*,zhparser_$v*"
     fdw-stack:                  "multicorn2_$v*,wrappers_$v*,mongo_fdw_$v*,mysql_fdw_$v*,ogr_fdw_$v*,sqlite_fdw_$v*,tds_fdw_$v*,hdfs_fdw_$v*,pgbouncer_fdw_$v*,orafce_$v*"
-    cdc-stack:                  "pglogical_$v*,postgres-decoderbufs_$v*,wal2json_$v*,wal2mongo_$v*"
-    etl-stack:                  "pglogical_$v*,pg_fact_loader_$v*,pg_bulkload_$v*,pg_comparator_$v*,pgloader,pgcopydb"
-    olap-stack:                 "timescaledb-2-postgresql-$v*,postgis34_$v*,hydra_$v*,duckdb_fdw_$v*,parquet_s3_fdw_$v*,pg_lakehouse_$v,pg_tier_$v,pg_cron_$v*,duckdb"
-    dist-stack:                 "citus_$v*,pg_fkpart_$v*,pg_partman_$v*"
+    etl-stack:                  "pglogical_$v*,wal2json_$v*,wal2mongo_$v*,postgres-decoderbufs_$v*,pg_fact_loader_$v*,pg_bulkload_$v*,pg_comparator_$v*,pgloader,pgcopydb"
+    olap-stack:                 "timescaledb-2-postgresql-$v*,postgis34_$v*,hydra_$v*,pg_fkpart_$v*,pg_partman_$v*,duckdb_fdw_$v*,parquet_s3_fdw_$v*,pg_lakehouse_$v,pg_tier_$v,pg_cron_$v*,duckdb"
     supa-stack:                 "pgvector_$v*,pg_cron_$v*,pgsodium_$v*,pg_graphql_$v,pg_jsonschema_$v,wrappers_$v,vault_$v,pgjwt_$v*,pgsql_http_$v*,pg_net_$v*"
     stat-stack:                 "pg_profile_$v*,pg_show_plans_$v*,pg_stat_kcache_$v*,pg_stat_monitor_$v*,pg_qualstats_$v*,pg_store_plans_$v*,pg_track_settings_$v*,pg_wait_sampling_$v*"
     json-stack:                 "plv8_$v*,pg_jsonschema_$v,pgjwt_$v*,jsquery_$v*,mongo_fdw_$v*,pg_graphql_$v,ferretdb"
     test-stack:                 "pldebugger_$v*,plprofiler_$v*,postgresql_faker_$v*"
-    duck-stack:                 "duckdb,duckdb_fdw_$v*,sqlite_fdw_$v*"
 
     # timeseries
     timescaledb:                "timescaledb-2-postgresql-$v*"
 
     # gis
     postgis:                    "postgis34_$v*"
+    postgis33:                  "postgis33_$v*"
     pgrouting:                  "pgrouting_$v*"
     pointcloud:                 "pointcloud_$v*"
     h3:                         "h3-pg_$v*"
     ip4r:                       "ip4r_$v*"
-    geoip:                      "geoip_$v*"  # not ready for pg16 yet
+    geoip:                      "geoip_$v*" # not ready for pg16 yet
     #mobilitydb:                 # not included in el distro
 
     # AI / ML / vector
@@ -79,7 +75,7 @@ pg_package_map:
     pg_search:                  "pg_search_$v"
     pg_bigm:                    "pg_bigm_$v*"
     zhparser:                   "zhparser_$v*"
-    imgsmlr:                    "imgsmlr_$v*"       # pg15 only
+    imgsmlr:                    "imgsmlr_$v*" # pg15 only
     pg_similarity:              "pg_similarity_$v*" # pg15 only
 
     # analytics & lakehouse
@@ -88,13 +84,13 @@ pg_package_map:
     parquet_s3_fdw:             "parquet_s3_fdw_$v*"
     pg_lakehouse:               "pg_lakehouse_$v"
     pg_tier:                    "pg_tier_$v"
-    pg_strom:                   "pg_strom_$v*"     # non-free repo, not included by default
+    pg_strom:                   "pg_strom_$v*" # non-free repo, not included by default
 
     # sharding
     citus:                      "citus_$v*" # CAUTIOUS: conflict with hydra!
     pg_fkpart:                  "pg_fkpart_$v*"
     pg_partman:                 "pg_partman_$v*"
-    plproxy:                    "plproxy_$v*"      # not ready for pg16
+    plproxy:                    "plproxy_$v*" # not ready for pg16
 
     # featured
     age:                        "apache-age_$v*"
@@ -132,6 +128,7 @@ pg_package_map:
     tdigest:                    "tdigest_$v*"
     pg_extra_time:              "pg_extra_time_$v*"
     topn:                       "topn_$v*"
+    sequential_uuids:           "sequential_uuids_16*" # el9 only
     mysqlcompat:                "mysqlcompat_$v*" # not ready, not included by default
     #first-last-agg:            # not included in el distro
     #pgpcre:                    # not included in el distro
@@ -152,6 +149,7 @@ pg_package_map:
     pg_dbms_lock:               "pg_dbms_lock_$v*"
     pg_dbms_metadata:           "pg_dbms_metadata_$v*"
     pg_dbms_job:                "pg_dbms_job_$v*"
+    firebird_fdw:               "firebird_fdw_16*" # el9 only
     oracle_fdw:                 "oracle_fdw_$v*"  # non-free repo, not included by default
     db2_fdw:                    "db2_fdw_$v*"     # non-free repo, not included by default
 
@@ -234,7 +232,7 @@ pg_package_map:
     pgsodium:                   "pgsodium_$v*"
     vault:                      "vault_$v*"
     anon:                       "postgresql_anonymizer_$v*"
-    pg_tde:                      "pg_tde_$v*"
+    pg_tde:                     "pg_tde_$v*"
     pgsmcrypto:                 "pgsmcrypto_$v"
     pgaudit:                    "pgaudit_$v*"
     pgauditlogtofile:           "pgauditlogtofile_$v*"
@@ -307,20 +305,15 @@ pg_package_map:
     #pgcopydb:                 # not included in debian/ubuntu
 
     # stack
-    min-stack:                "postgresql-$v-repack,postgresql-$v-wal2json"
-    rag-stack:                "postgresql-$v-pgvector,pgvectorscale-postgresql-$v"
-    gis-stack:                "postgresql-$v-postgis-3*,postgresql-$v-pointcloud"
-    fts-stack:                "pg-search,postgresql-$v-similarity"
+    gis-stack:                "postgresql-$v-postgis-3*,postgresql-$v-pointcloud,postgresql-$v-h3,postgresql-$v-pgrouting*"
+    rag-stack:                "postgresql-$v-pgvector,pgvectorscale-postgresql-$v,pg-search,postgresql-$v-similarity"
     fdw-stack:                "postgresql-$v-mysql-fdw,postgresql-$v-ogr-fdw,postgresql-$v-tds-fdw,postgresql-$v-orafce"
-    cdc-stack:                "postgresql-$v-pglogical*,postgresql-$v-decoderbufs,postgresql-$v-wal2json"
-    etl-stack:                "postgresql-$v-pglogical*,postgresql-$v-pg-fact-loader,pgloader"
-    olap-stack:               "timescaledb-2-postgresql-$v,postgresql-$v-cron,pg-lakehouse,duckdb"
-    dist-stack:               "postgresql-$v-citus-12.1,postgresql-$v-partman,postgresql-$v-plproxy"
+    etl-stack:                "postgresql-$v-pglogical*,postgresql-$v-decoderbufs,postgresql-$v-wal2json,postgresql-$v-pg-fact-loader,pgloader"
+    olap-stack:               "postgresql-$v-citus-12.1,timescaledb-2-postgresql-$v,postgresql-$v-cron,postgresql-$v-partman,postgresql-$v-plproxy,pg-lakehouse,duckdb"
     supa-stack:               "postgresql-$v-pgvector,postgresql-$v-cron,pg-graphql,pg-jsonschema,wrappers,pg-net" # incomplete: missing pgsodium,vault,pgjwt
     stat-stack:               "postgresql-$v-show-plans,postgresql-$v-pg-stat-kcache,postgresql-$v-pg-qualstats,postgresql-$v-pg-track-settings,postgresql-$v-pg-wait-sampling"
     json-stack:               "postgresql-$v-jsquery,pg-jsonschema,pg-graphql,ferretdb"
     test-stack:               "postgresql-$v-pldebugger,postgresql-$v-plprofiler,postgresql-$v-pgtap,postgresql-$v-unit"
-    duck-stack:               "duckdb"
 
     # timeseries
     timescaledb:              "timescaledb-2-postgresql-$v"
@@ -483,9 +476,9 @@ pg_package_map:
     powa:                     "postgresql-$v-powa"
     toastinfo:                "postgresql-$v-toastinfo"
     omnidb:                   "postgresql-$v-omnidb"
+    pg_statviz:               "postgresql-$v-statviz"
     #pg_profile:               # not included in debian/ubuntu
     #pg_stat_monitor:          # not included in debian/ubuntu
-    #pg_statviz:               # not included in debian/ubuntu
     #pg_store_plans:           # not included in debian/ubuntu
     #system_stats:             # not included in debian/ubuntu
     #pg_top:                   # not included in debian/ubuntu
@@ -497,13 +490,13 @@ pg_package_map:
     pgaudit:                  "postgresql-$v-pgaudit"
     pgauditlogtofile:         "postgresql-$v-pgauditlogtofile"
     credcheck:                "postgresql-$v-credcheck"
-    login_hook:               "login_hook_$v*"
     set_user:                 "postgresql-$v-set-user"
     tablelog:                 "postgresql-$v-tablelog"
     snakeoil:                 "postgresql-$v-snakeoil"
     pgextwlist:               "postgresql-$v-pgextwlist"
     #passwordcheck_cracklib:   # not included in debian/ubuntu
     #pgsodium:                 # not included in debian/ubuntu
+    #login_hook:               # not included in debian/ubuntu
     #vault:                    # not included in debian/ubuntu
     #anon:                     # not included in debian/ubuntu
     #pg_tde:                   # not included in debian/ubuntu
@@ -518,10 +511,10 @@ pg_package_map:
     decoderbufs:              "postgresql-$v-decoderbufs"
     wal2json:                 "postgresql-$v-wal2json"
     pg_failover_slots:        "postgresql-$v-pg-failover-slots"
-    repmgr:                   "postgresql-$v-repmgr" # not used, not included by default
     londiste:                 "postgresql-$v-londiste-sql"
     mimeo:                    "postgresql-$v-mimeo"
     slony:                    "postgresql-$v-slony1-2"
+    repmgr:                   "postgresql-$v-repmgr" # not used, not included by default
     #wal2mongo:                # not included in debian/ubuntu
 
     # etl
@@ -531,5 +524,7 @@ pg_package_map:
     #pgimportdoc:              # not included in debian/ubuntu
     #pgexportdoc:              # not included in debian/ubuntu
 
-
+    # misc
+    debian-node-addon:         "netcat-openbsd,tnftp,linux-perf"
+    ubuntu-node-addon:         "netcat,ftp,linux-tools-generic"
 ...

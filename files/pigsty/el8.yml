@@ -3,7 +3,7 @@
 # File      :   el8.yml
 # Desc      :   Pigsty auto generated config for el8
 # Ctime     :   2020-05-22
-# Mtime     :   2024-07-05
+# Mtime     :   2024-07-07
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -98,18 +98,19 @@ all:
         # install extensions here: # define HBA rules here: https://pigsty.io/docs/pgsql/extension/#install-extension
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
         pg_extensions: # extensions to be installed on this cluster
-          - postgis34_$v* timescaledb-2-postgresql-$v* pgvector_$v* # default extensions to be installed
-          #[ GIS & Timeseries  ]# - timescaledb-2-postgresql-$v* postgis34_$v* pgrouting_$v* pointcloud_$v* h3-pg_$v* ip4r_$v* # geoip_$v*
-          #[ Vector Search RAG ]# - pgvector_$v* pgvectorscale_$v pg_vectorize_$v pg_tiktoken_$v pgml_$v pg_search_$v pg_bigm_$v* zhparser_$v*
-          #[ OLAP & Sharding   ]# - hydra_$v* duckdb_fdw_$v* parquet_s3_fdw_$v* pg_lakehouse_$v pg_tier_$v pg_fkpart_$v* pg_partman_$v* # citus_$v* plproxy_$v* # pg_strom_$v*
-          #[ Featured & AM     ]# - apache-age_$v* pg_graphql_$v pg_jsonschema_$v jsquery_$v* pg_hint_plan_$v* hypopg_$v* pg_ivm_$v* pgmq_$v pgq_$v* pgtt_$v* temporal_tables_$v* e-maj_$v* periods_$v* table_version_$v* pg_statement_rollback_$v* hll_$v* rum_$v
-          #[ Function & Test   ]# - pgjwt_$v* pg_idkit_$v pg_uuidv7_$v* pg_later_$v pg_background_$v* pgsql_gzip_$v* pgsql_http_$v* pg_net_$v* pgsql_tweaks_$v* count_distinct_$v* extra_window_functions_$v* tdigest_$v* pg_extra_time_$v* topn_$v*
-          #[ FDW & Compatible  ]# - wrappers_$v mongo_fdw_$v* multicorn2_$v* mysql_fdw_$v* ogr_fdw_$v* sqlite_fdw_$v* tds_fdw_$v* hdfs_fdw_$v* pgbouncer_fdw_$v* orafce_$v* pgmemcache_$v* pg_dbms_lock_$v* pg_dbms_metadata_$v* pg_dbms_job_$v* # mysqlcompat_$v* # oracle_fdw_$v* db2_fdw_$v*
-          #[ Type, PL, Test    ]# - prefix_$v* timestamp9_$v* semver_$v* pgmp_$v* pguint_$v* pg_roaringbitmap_$v* md5hash_$v* pg_tle_$v* plv8_$v* pllua_$v* luapgsql plprql_$v pldebugger_$v* plpgsql_check_$v* plprofiler_$v* plsh_$v* # plr_$v* # postgresql_faker_$v* pgtap_$v* # dbt2-pg$v-extensions* # postgresql-unit_$v*
-          #[ Administration    ]# - pg_cron_$v* pg_repack_$v* pg_squeeze_$v* pg_dirtyread_$v* pgdd_$v pgfincore_$v* pgl_ddl_deploy_$v* pg_prioritize_$v* pg_readonly_$v* pgagent_$v* pg_checksums_$v* safeupdate_$v* ddlx_$v* pg_permissions_$v* pg_auto_failover_$v* pg_catcheck_$v* pgxnclient pg_filedump # pgpool-II-pg$v-extensions
-          #[ Monitor & Stat    ]# - pg_profile_$v* pg_show_plans_$v* pg_stat_kcache_$v* pg_stat_monitor_$v* pg_qualstats_$v* pg_statviz_extension_$v pg_store_plans_$v* pg_top_$v* pg_track_settings_$v* pg_wait_sampling_$v* system_stats_$v* bgw_replstatus_$v* powa-archivist_$v* powa_$v* pgmeminfo_$v* # pgexporter_ext_$v*
-          #[ Security & Audit  ]# - passwordcheck_cracklib_$v* pgsodium_$v* vault_$v* postgresql_anonymizer_$v* pg_tde_$v* pgsmcrypto_$v pgaudit_$v* pgauditlogtofile_$v* pg_auth_mon_$v* credcheck_$v* pgcryptokey_$v* pg_jobmon_$v* logerrors_$v* login_hook_$v* set_user_$v*
-          #[ ETL, CDC, REPL    ]# - pglogical_$v* postgres-decoderbufs_$v* wal2json_$v* wal2mongo_$v* pg_failover_slots_$v* pg_fact_loader_$v* pg_bulkload_$v* pg_comparator_$v* pgimportdoc_$v* pgexportdoc_$v* pgcopydb pgloader # repmgr_$v*
+          - postgis timescaledb vector # default extensions to be installed
+          #[ Predefined Stacks ]# - gis-stack rag-stack fdw-stack etl-stack olap-stack supa-stack stat-stack json-stack test-stack
+          #[ GIS & Timeseries  ]# - timescaledb postgis pgrouting pointcloud h3 ip4r # geoip
+          #[ Vector Search RAG ]# - vector vectorscale vectorize pg_tiktoken pgml pg_search pg_bigm zhparser
+          #[ OLAP & Sharding   ]# - hydra duckdb_fdw parquet_s3_fdw pg_lakehouse pg_tier pg_fkpart pg_partman # citus plproxy pg_strom
+          #[ Featured & AM     ]# - age pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg pg_ivm pgmq pgq pgtt temporal_tables emaj periods pg_statement_rollback hll rum table_version
+          #[ Function & Test   ]# - pgjwt pg_idkit pg_uuidv7 pg_later pg_background gzip http pg_net pgsql_tweaks count_distinct extra_window_functions tdigest pg_extra_time topn # mysqlcompat
+          #[ FDW & Compatible  ]# - wrappers mongo_fdw multicorn2 mysql_fdw ogr_fdw sqlite_fdw tds_fdw hdfs_fdw pgbouncer_fdw orafce pgmemcache pg_dbms_lock pg_dbms_metadata pg_dbms_job # oracle_fdw db2_fdw
+          #[ Type, PL, Test    ]# - prefix timestamp9 semver pgmp uint roaringbitmap md5hash pg_tle plv8 pllua luapgsql plprql pldebugger plpgsql_check plprofiler plsh faker pgtap # pljava plr dbt2
+          #[ Administration    ]# - pg_repack pg_cron pg_squeeze pg_dirtyread pgdd pgfincore pgl_ddl_deploy pg_prioritize pg_readonly pgagent pg_checksums safeupdate ddlx pg_permissions pg_auto_failover pg_catcheck filedump # pgpool
+          #[ Monitor & Stat    ]# - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_statviz pg_store_plans pg_top pg_track_settings pg_wait_sampling system_stats bgw_replstatus powa-archivist powa pgmeminfo # pgexporter_ext
+          #[ Security & Audit  ]# - passwordcheck_cracklib pgsodium vault anon pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user
+          #[ ETL, CDC, REPL    ]# - pglogical decoderbufs wal2json wal2mongo pg_failover_slots pg_fact_loader pg_bulkload pg_comparator pgimportdoc pgexportdoc pgcopydb pgloader # repmgr
 
         # define HBA rules here: https://pigsty.io/docs/pgsql/hba/#define-hba
         pg_hba_rules:                       # example hba rules
@@ -150,7 +151,7 @@ all:
     #----------------------------------#
     # Meta Data
     #----------------------------------#
-    version: v2.7.0                   # pigsty version string
+    version: v2.8.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default,china,europe
     infra_portal:                     # domain names and upstream servers
@@ -176,6 +177,7 @@ all:
     #    cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
     # if you want to use minio as backup repo instead of 'local' fs, uncomment this, and configure `pgbackrest_repo`
     #pgbackrest_method: minio
+    #node_etc_hosts: [ '10.10.10.10 h.pigsty a.pigsty p.pigsty g.pigsty sss.pigsty' ]
 
     #----------------------------------#
     # Credential: CHANGE THESE PASSWORDS
@@ -208,57 +210,19 @@ all:
     repo_remove: true                 # remove existing repo on admin node during repo bootstrap
     node_repo_modules: local          # install the local module in repo_upstream for all nodes
     node_repo_remove: true            # remove existing node repo for node managed by pigsty
-    repo_upstream:                    # where to download #
-      - { name: pigsty-local   ,description: 'Pigsty Local'      ,module: local ,releases: [7,8,9] ,baseurl: { default: 'http://${admin_ip}/pigsty'  }} # used by intranet nodes
-      - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/infra/$basearch' ,china: 'https://repo.pigsty.cc/rpm/infra/$basearch' }}
-      - { name: pigsty-pgsql   ,description: 'Pigsty PGSQL'      ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/pgsql/el$releasever.$basearch' ,china: 'https://repo.pigsty.cc/rpm/pgsql/el$releasever.$basearch' }}
-      - { name: nginx          ,description: 'Nginx Repo'        ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' }}
-      - { name: docker-ce      ,description: 'Docker CE'         ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'        ,china: 'https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable'  ,europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' }}
-      - { name: baseos         ,description: 'EL 8+ BaseOS'      ,module: node  ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/BaseOS/$basearch/os/'         ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/BaseOS/$basearch/os/'          ,europe: 'https://mirrors.xtom.de/rocky/$releasever/BaseOS/$basearch/os/'     }}
-      - { name: appstream      ,description: 'EL 8+ AppStream'   ,module: node  ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/AppStream/$basearch/os/'      ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/AppStream/$basearch/os/'       ,europe: 'https://mirrors.xtom.de/rocky/$releasever/AppStream/$basearch/os/'  }}
-      - { name: extras         ,description: 'EL 8+ Extras'      ,module: node  ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/extras/$basearch/os/'         ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/extras/$basearch/os/'          ,europe: 'https://mirrors.xtom.de/rocky/$releasever/extras/$basearch/os/'     }}
-      - { name: powertools     ,description: 'EL 8 PowerTools'   ,module: node  ,releases: [  8  ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/PowerTools/$basearch/os/'     ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/PowerTools/$basearch/os/'      ,europe: 'https://mirrors.xtom.de/rocky/$releasever/PowerTools/$basearch/os/' }}
-      - { name: epel           ,description: 'EL 8+ EPEL'        ,module: node  ,releases: [  8,9] ,baseurl: { default: 'http://download.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/Everything/$basearch/'     ,europe: 'https://mirrors.xtom.de/epel/$releasever/Everything/$basearch/'     }}
-      - { name: pgdg-common    ,description: 'PostgreSQL Common' ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' }}
-      - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' }}
-      - { name: pgdg-el8fix    ,description: 'PostgreSQL EL8FIX' ,module: pgsql ,releases: [  8  ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' } }
-      - { name: pgdg16         ,description: 'PostgreSQL 16'     ,module: pgsql ,releases: [  8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/16/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/16/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/16/redhat/rhel-$releasever-$basearch' }}
-      - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
-      #- { name: pgdg16-nonfree ,description: 'PostgreSQL 16+'    ,module: pgsql ,releases: [  8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/non-free/16/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/non-free/16/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/non-free/16/redhat/rhel-$releasever-$basearch' }}
-    repo_packages:                    # which packages to be included
-      - ansible python3 python3-pip python3-virtualenv python3-requests python3.11-jmespath python3.11-pip dnf-utils modulemd-tools createrepo_c sshpass                  # Distro & Boot
-      - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter python3-jmespath python3-cryptography                                                      # Pigsty Addons
-      - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter                              # Infra Packages
-      - redis_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                                   # Miscellaneous
-      - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph             # Node Packages 1
-      - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony                   # Node Packages 2
-      - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws libduckdb libarrow-s3 pgFormatter pgxnclient luapgsql pgcopydb # PGDG Common
-      - postgresql16* pg_repack_16* wal2json_16* passwordcheck_cracklib_16* pglogical_16* pg_cron_16* postgis34_16* timescaledb-2-postgresql-16* pgvector_16* citus_16*   # PGDG 16 Packages
-      - vault_16* pgjwt_16* pg_roaringbitmap_16* zhparser_16* hydra_16* apache-age_16* duckdb_fdw_16* pg_tde_16* md5hash_16* pg_dirtyread_16* plv8_16* parquet_s3_fdw_16* # Pigsty Extension
-      - pgml_16 pg_graphql_16 wrappers_16 pg_jsonschema_16 pg_search_16 pg_lakehouse_16 pgmq_16 pg_tier_16 pg_later_16 pg_vectorize_16 pg_tiktoken_16 pgdd_16 plprql_16 pgsmcrypto_16 pg_idkit_16 pgvectorscale_16
-      - bgw_replstatus_16* count_distinct_16* credcheck_16* ddlx_16* e-maj_16* extra_window_functions_16* h3-pg_16* hdfs_fdw_16* hll_16* hypopg_16* ip4r_16* jsquery_16*  # PGDG Extensions
-      - logerrors_16* login_hook_16* mongo_fdw_16* multicorn2_16* mysql_fdw_16* ogr_fdw_16* orafce_16* passwordcheck_cracklib_16* periods_16* pg_auth_mon_16* pg_auto_failover_16* pg_background_16* pgfincore_16* pgimportdoc_16* pgl_ddl_deploy_16* pgmemcache_16* pgmeminfo_16* pgmp_16* pgq_16* pgrouting_16* pgsodium_16* pgsql_gzip_16* pgsql_http_16* pgsql_tweaks_16*
-      - pgtt_16* pguint_16* pg_bigm_16* pg_bulkload_16* pg_catcheck_16* pg_checksums_16* pg_comparator_16* pg_dbms_lock_16* pg_dbms_metadata_16* pg_dbms_job_16* pg_extra_time_16* pg_fact_loader_16* pg_failover_slots_16* pg_filedump_16* pg_fkpart_16* pg_hint_plan_16* pg_ivm_16* pg_jobmon_16* pg_net_16* pg_partman_16* pg_permissions_16* pg_prioritize_16* pg_profile_16*
-      - pg_qualstats_16* pg_readonly_16* pg_show_plans_16* pg_squeeze_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_statement_rollback_16* pg_statviz_extension_16 pg_store_plans_16* pgtap_16* pg_tle_16* pg_top_16* pg_track_settings_16* pg_uuidv7_16* pg_wait_sampling_16* pgagent_16* pgaudit_16* pgauditlogtofile_16* pgbouncer_fdw_16* pgcryptokey_16* pgexportdoc_16*
-      - pldebugger_16* pllua_16* plpgsql_check_16* plprofiler_16* plsh_16* pointcloud_16* postgres-decoderbufs_16* postgresql_anonymizer_16* postgresql_faker_16* powa-archivist_16* powa_16* prefix_16* rum_16 safeupdate_16* semver_16* set_user_16* sqlite_fdw_16* system_stats_16* table_version_16* tdigest_16* tds_fdw_16* temporal_tables_16* timestamp9_16* topn_16* wal2mongo_16*
+    repo_extra_packages:
+      - pgxnclient table_version_16*
       # too heavy # - plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions
       # not ready # - mysqlcompat_16 plproxy_16 geoip_16 postgresql-unit_16*
-    infra_packages:                   # packages to be installed on infra nodes
-      - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway
-      - node_exporter,blackbox_exporter,nginx_exporter,pg_exporter
-      - nginx,dnsmasq,ansible,etcd,python3-requests,redis,mcli
-    node_default_packages:            # default packages to be installed on all nodes
-      - lz4,unzip,bzip2,zlib,yum,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,grubby,sysstat,iotop,htop,rsync,tcpdump,chrony,python3
-      - netcat,socat,ftp,lrzsz,net-tools,ipvsadm,bind-utils,telnet,audit,ca-certificates,openssl,readline,vim-minimal,node_exporter,etcd,haproxy,python3-pip
 
     #----------------------------------#
     # PostgreSQL Packages & Extensions
     #----------------------------------#
-    pg_version: 16                    # el8 is using postgresql 16 as the default major version
-    pg_packages:                      # pg packages to be installed, `$pg_version` and `$v` will be replaced to `pg_version`
-      - postgresql$v*
-      - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager patroni-etcd   # pgdg common tools
-      - pg_repack_$v* wal2json_$v* passwordcheck_cracklib_$v*                        # important extensions
-    pg_extensions:                    # global installed extensions, can be overwritten by group vars
-      - postgis34_$v* timescaledb-2-postgresql-$v* pgvector_$v*                      # featured extensions installed by default
+    # check available alias mapping: roles/pgsql/vars/pg_packages_map.yml
+    # https://github.com/Vonng/pigsty/blob/master/roles/pgsql/vars/pg_package_map.yml
+    pg_packages:                      # pg packages to be installed, alias can be used
+      - postgresql
+      - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager wal2json pg_repack
+    pg_extensions:                    # pg extensions to be installed, alias can be used
+      - postgis timescaledb vector
 ...
