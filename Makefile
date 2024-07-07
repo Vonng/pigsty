@@ -126,12 +126,14 @@ repo-upstream:
 	./infra.yml --tags=repo_upstream
 
 repo-check:
-	./install.yml -t node_repo,node_pkg,infra_pkg,pg_install
+	./install.yml -t node_repo,node_pkg,infra_pkg,pg_pkg
 
 # download repo packages
-repo-build:
-	ansible infra -b -a 'rm -rf /www/pigsty/repo_complete'
-	./infra.yml --tags=repo_upstream,repo_build
+repo-build: repo-clean
+	./infra.yml --tags=repo_upstream,repo_pkg
+
+repo-clean:
+	ansible all -b -a 'rm -rf /www/pigsty/repo_complete'
 
 # init prometheus
 prometheus:
@@ -364,6 +366,27 @@ cmdb:
 	bin/inventory_cmdb
 
 #------------------------------#
+# build env shortcuts
+#------------------------------#
+# copy src to build environment
+csa: copy-src-all
+copy-src-all:
+	scp "dist/${VERSION}/${SRC_PKG}" el8:~/pigsty.tgz
+	scp "dist/${VERSION}/${SRC_PKG}" el9:~/pigsty.tgz
+	scp "dist/${VERSION}/${SRC_PKG}" d12:~/pigsty.tgz
+	scp "dist/${VERSION}/${SRC_PKG}" u22:~/pigsty.tgz
+	ssh -t el8 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t el9 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t d12 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t u22 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+dfx: deb-fix
+deb-fix:
+	scp /etc/resolv.conf u22:/tmp/resolv.conf;
+	ssh -t u22 'sudo mv /tmp/resolv.conf /etc/resolv.conf'
+	scp /etc/resolv.conf d12:/tmp/resolv.conf;
+	ssh -t d12 'sudo mv /tmp/resolv.conf /etc/resolv.conf'
+
+#------------------------------#
 # push / pull
 #------------------------------#
 push:
@@ -416,9 +439,9 @@ publish:
 #------------------------------#
 #     Building Environment     #
 #------------------------------#
-build: del vb new ssh
+build: del vb new ssh dfx
 	cp files/pigsty/build.yml pigsty.yml
-build-pro: del vb new ssh
+build-pro: del vb new ssh dfx
 	cp files/pigsty/build-pro.yml pigsty.yml
 build-boot:
 	bin/build-boot
@@ -589,13 +612,14 @@ vtrio22:
 .PHONY: default tip link doc all bootstrap config install \
         src pkg \
         c \
-        infra pgsql repo repo-upstream repo-build prometheus grafana loki docker \
+        infra pgsql repo repo-upstream repo-build repo-clean prometheus grafana loki docker \
         deps dns start ssh sshb demo \
         up dw del new clean up-test dw-test del-test new-test clean \
         st status suspend resume v1 v4 v7 v8 v9 vb vr vd vm vo vc vu vp vp7 vp9 \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
-        copy copy-src copy-pkg copy-el8 copy-el9 copy-u22 copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb push pull git-sync git-restore \
+        copy copy-src copy-pkg copy-el8 copy-el9 copy-u22 copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
+        csa copy-src-all df deb-fix push pull git-sync git-restore \
         r release rr remote-release rp rpp release-pkg release-pro release-el8 release-el9 pp package pb publish \
         build build-pro build-boot rpm deb vb vr vd vm vf vp \
         meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vfull11 vmeta12 vmeta20 vmeta22 \
