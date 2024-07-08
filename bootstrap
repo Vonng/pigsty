@@ -54,7 +54,9 @@ PKG_PATH=/tmp/pkg.tgz   # which pkg to be used ? (/tmp/pkg.tgz by default)
 #
 # 3. install boot utils from available repo
 #     nginx,wget,sshpass,createrepo_c,yum-utils
-#     dnf-utils,modulemd-tools,python3.11-jmespath (el8/9)
+#     dnf-utils,modulemd-tools
+#     python3.12-jmespath (el8)
+#     python3-jmespath (el9)
 #
 # 4. Check ansible availability.
 #--------------------------------------------------------------#
@@ -594,11 +596,11 @@ function check_utils(){
         elif [[ $OS_VERSION == "8" ]]; then
             log_info "install el8 utils"
             sudo dnf install -y createrepo_c unzip wget dnf-utils sshpass modulemd-tools
-            sudo dnf install -y ansible python3.11-jmespath python3-cryptography
+            sudo dnf install -y ansible python3.12-jmespath python3-cryptography
         elif [[ $OS_VERSION == "9" ]]; then
             log_info "install el9 utils"
             sudo dnf install -y createrepo_c unzip wget dnf-utils sshpass modulemd-tools
-            sudo dnf install -y ansible python3.11-jmespath python3-jmespath
+            sudo dnf install -y ansible python3-jmespath
         fi
         # restore backup repo
         sudo cp -f /etc/yum.repos.d/backup/*.repo /etc/yum.repos.d/ 2> /dev/null || true
