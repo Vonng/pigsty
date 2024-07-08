@@ -52,24 +52,31 @@ all:
           - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates readline vim-minimal keepalived chrony openssl openssh-server openssh-clients  # Node Packages 2
           - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump timescaledb-tools scws pgFormatter pgxnclient luapgsql pgcopydb             # PG Common Tools
           - postgresql15* pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pglogical_15* pg_cron_15* postgis33_15* timescaledb-2-postgresql-15* pgvector_15* citus_15* # PGDG 15 Packages
-          - imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql_http_15* pgsql_gzip_15* vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15* apache-age_15* hydra_15* pg_sparse_15* md5hash_15* pg_dirtyread_15* pg_filedump_15*
+          - imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql_http_15* pgsql_gzip_15* vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15* apache-age_15* hydra_15* pg_sparse_15* md5hash_15* pg_dirtyread_15* pg_filedump_15* postgresql_faker_15*
           - orafce_15* mysqlcompat_15 mongo_fdw_15* tds_fdw_15* mysql_fdw_15 hdfs_fdw_15 sqlite_fdw_15* pgbouncer_fdw_15 multicorn2_15* powa_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15* pg_track_settings_15* pg_wait_sampling_15* system_stats_15* bgw_replstatus_15*
           - plprofiler_15* plproxy_15 plsh_15* pldebugger_15 plpgsql_check_15* pgtt_15 pgq_15* hypopg_15* timestamp9_15* semver_15* prefix_15* periods_15* ip4r_15* tdigest_15* hll_15* pgmp_15 topn_15* geoip_15 extra_window_functions_15 pgsql_tweaks_15 count_distinct_15 pg_bulkload_15*
           - pg_background_15 e-maj_15 pg_catcheck_15 pg_prioritize_15 pgcryptokey_15 logerrors_15 pg_top_15 pg_comparator_15 pg_ivm_15* pgsodium_15* pgfincore_15* ddlx_15 credcheck_15 safeupdate_15 pg_squeeze_15* pg_fkpart_15 pg_jobmon_15 rum_15 pgagent_15 postgresql_anonymizer_15*
-          - pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_auth_mon_15* pg_checksums_15 pg_auto_failover_15* pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15 pgauditlogtofile_15*
-        pg_extensions: # choose one from citus or hydra
-          - timescaledb postgis33 pointcloud ip4r geoip # pgrouting h3
-          - vector pg_bigm zhparser imgsmlr pg_similarity
-          - hydra pg_fkpart pg_partman # citus plproxy pg_strom
-          - age hypopg pg_ivm pgq pgtt periods pg_statement_rollback hll rum
-          - pgjwt pg_uuidv7 pg_background gzip http pg_net pgsql_tweaks count_distinct extra_window_functions tdigest topn mysqlcompat
-          - mongo_fdw multicorn2 mysql_fdw sqlite_fdw tds_fdw hdfs_fdw pgbouncer_fdw orafce pg_dbms_job # oracle_fdw db2_fdw
-          - prefix timestamp9 semver pgmp roaringbitmap md5hash pg_tle luapgsql pldebugger plpgsql_check plprofiler plsh faker pgtap uint # plr dbt2
-          - pg_repack pg_cron pg_squeeze pg_dirtyread pgfincore pg_prioritize pg_readonly pg_checksums safeupdate ddlx pg_permissions pgxnclient pg_catcheck filedump pgagent # pgpool
-          - pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_top pg_track_settings pg_wait_sampling system_stats bgw_replstatus powa # pgexporter_ext
-          - passwordcheck_cracklib pgsodium vault anon pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors set_user
-          - pglogical wal2json pg_failover_slots pg_bulkload pg_comparator pgimportdoc pgexportdoc pgcopydb pgloader # repmgr
+          - pg_partman_15 pg_permissions_15 pgexportdoc_15 pgimportdoc_15 pg_statement_rollback_15* pg_auth_mon_15* pg_checksums_15 pg_auto_failover_15* pg_failover_slots_15 pg_readonly_15* postgresql-unit_15* pg_store_plans_15* pg_uuidv7_15* set_user_15* pgaudit17_15* pgauditlogtofile_15*
 
+          # observability stack
+          - victoria-metrics* victoria-logs vector mysqld_exporter mongodb_exporter kafka_exporter sealos
+          # pg 12,13,14 packages
+          - postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* pglogical_12* pg_cron_12* pgvector_12* pg_bigm_12* zhparser_12*
+          - postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* pglogical_13* pg_cron_13* pgvector_13* pg_bigm_13* zhparser_13* hydra_13*
+          - postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* pglogical_14* pg_cron_14* pgvector_14* pg_bigm_14* zhparser_14* hydra_14*
+
+        pg_extensions: # choose one from citus or hydra
+          - timescaledb postgis33 pointcloud ip4r geoip # pgrouting h3                                                                                        #[ GIS & Timeseries  ]#
+          - pgvector pg_bigm zhparser imgsmlr pg_similarity                                                                                                   #[ Vector Search RAG ]#
+          - hydra pg_fkpart pg_partman # citus plproxy pg_strom                                                                                               #[ OLAP & Sharding   ]#
+          - age hypopg pg_ivm pgq pgtt periods pg_statement_rollback hll rum                                                                                  #[ Featured & AM     ]#
+          - pgjwt pg_uuidv7 pg_background gzip http pgsql_tweaks count_distinct extra_window_functions tdigest topn mysqlcompat                               #[ Function & Test   ]#
+          - mongo_fdw multicorn2 mysql_fdw sqlite_fdw tds_fdw hdfs_fdw pgbouncer_fdw orafce # oracle_fdw db2_fdw pg_dbms_job                                  #[ FDW & Compatible  ]#
+          - prefix timestamp9 semver pgmp roaringbitmap md5hash pg_tle luapgsql pldebugger plpgsql_check plprofiler plsh faker pgtap uint # plr dbt2          #[ Type, PL, Test    ]#
+          - pg_repack pg_cron pg_squeeze pg_dirtyread pgfincore pg_prioritize pg_readonly pg_checksums safeupdate ddlx pg_permissions pgxnclient pg_catcheck  #[ Administration    ]#
+          - pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_top pg_track_settings pg_wait_sampling system_stats bgw_replstatus powa pgagent     #[ Monitor & Stat    ]#
+          - passwordcheck_cracklib pgsodium vault anon pgaudit17_15* pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors set_user filedump #[ Security & Audit  ]#
+          - pglogical wal2json pg_failover_slots pg_bulkload pg_comparator pgimportdoc pgexportdoc pgcopydb pgloader # repmgr pgpool pgexporter_ext           #[ ETL, CDC, REPL    ]#
 
     #----------------------------------#
     # build el8 packages on Rocky 8.9
@@ -83,19 +90,34 @@ all:
           - python3.12-jmespath pgxnclient table_version_16*
           # too heavy # - plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions
           # not ready # - mysqlcompat_16 plproxy_16 geoip_16 postgresql-unit_16*
+
+          ## observability stack
+          #- victoria-metrics* victoria-logs vector mysqld_exporter mongodb_exporter kafka_exporter sealos
+          ## pg 12,13,14 packages
+          #- postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* pglogical_12* pg_cron_12* pgvector_12* pg_bigm_12* zhparser_12*
+          #- postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* pglogical_13* pg_cron_13* pgvector_13* pg_bigm_13* zhparser_13* hydra_13*
+          #- postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* pglogical_14* pg_cron_14* pgvector_14* pg_bigm_14* zhparser_14* hydra_14*
+          ## pg15 packages
+          #- postgresql15* pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pglogical_15* pg_cron_15* postgis34_15* timescaledb-2-postgresql-15* pgvector_15* citus_15* vault_15* pgjwt_15* pg_roaringbitmap_15* zhparser_15* hydra_15* apache-age_15* duckdb_fdw_15* md5hash_15* pg_dirtyread_15*
+          #- pgml_15 pg_graphql_15 wrappers_15 pg_jsonschema_15 pg_search_15 pg_lakehouse_15 pgmq_15 pg_later_15 pg_vectorize_15 pg_tiktoken_15 pgdd_15 plprql_15 pgsmcrypto_15 pg_idkit_15 pgvectorscale_15
+          ## pg16 packages
+          #- table_version_16* plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions # not ready # - mysqlcompat_16 plproxy_16 geoip_16 postgresql-unit_16*
+          ## pg17 beta packages
+          #- postgresql17-17 postgresql17-server-17 postgresql17-libs-17 postgresql17-contrib-17 postgresql17-devel-17 postgresql17-plperl-17 postgresql17-plpython3-17 postgresql17-pltcl-17 postgresql17-test-17 # postgresql17-llvmjit-17 postgresql17-docs-17
+
         pg_extensions: # citus & hydra are exclusive
-          - timescaledb postgis pgrouting pointcloud h3 ip4r # geoip
-          - vector vectorscale vectorize pg_tiktoken pgml pg_search pg_bigm zhparser
-          - hydra duckdb_fdw parquet_s3_fdw pg_lakehouse pg_tier pg_fkpart pg_partman # citus plproxy pg_strom
-          - age pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg pg_ivm pgmq pgq pgtt temporal_tables emaj periods pg_statement_rollback hll rum table_version
-          - pgjwt pg_idkit pg_uuidv7 pg_later pg_background gzip http pg_net pgsql_tweaks count_distinct extra_window_functions tdigest pg_extra_time topn # mysqlcompat
-          - wrappers mongo_fdw multicorn2 mysql_fdw ogr_fdw sqlite_fdw tds_fdw hdfs_fdw pgbouncer_fdw orafce pgmemcache pg_dbms_lock pg_dbms_metadata pg_dbms_job # oracle_fdw db2_fdw
-          - prefix timestamp9 semver pgmp uint roaringbitmap md5hash pg_tle plv8 pllua luapgsql plprql pldebugger plpgsql_check plprofiler plsh faker pgtap # pljava plr dbt2
-          - pg_repack pg_cron pg_squeeze pg_dirtyread pgdd pgfincore pgl_ddl_deploy pg_prioritize pg_readonly pgagent pg_checksums safeupdate ddlx pg_permissions pg_auto_failover pg_catcheck filedump # pgpool
-          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_statviz pg_store_plans pg_top pg_track_settings pg_wait_sampling system_stats bgw_replstatus powa-archivist powa pgmeminfo # pgexporter_ext
-          - passwordcheck_cracklib pgsodium vault anon pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user
-          - pglogical decoderbufs wal2json wal2mongo pg_failover_slots pg_fact_loader pg_bulkload pg_comparator pgimportdoc pgexportdoc pgcopydb pgloader # repmgr
-          - gis-stack rag-stack fdw-stack etl-stack olap-stack supa-stack stat-stack json-stack test-stack
+          - timescaledb postgis pgrouting pointcloud h3 ip4r # geoip                                                                                                                            #[ GIS & Timeseries  ]#
+          - pgvector pgvectorscale vectorize pg_tiktoken pgml pg_search pg_bigm zhparser                                                                                                        #[ Vector Search RAG ]#
+          - hydra duckdb_fdw parquet_s3_fdw pg_lakehouse pg_tier pg_fkpart pg_partman # citus plproxy pg_strom                                                                                  #[ OLAP & Sharding   ]#
+          - age pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg pg_ivm pgmq pgq pgtt temporal_tables emaj periods pg_statement_rollback hll rum table_version                              #[ Featured & AM     ]#
+          - pgjwt pg_idkit pg_uuidv7 pg_later pg_background gzip http pg_net pgsql_tweaks count_distinct extra_window_functions tdigest pg_extra_time topn # mysqlcompat                        #[ Function & Test   ]#
+          - wrappers mongo_fdw multicorn2 mysql_fdw ogr_fdw sqlite_fdw tds_fdw hdfs_fdw pgbouncer_fdw orafce pgmemcache pg_dbms_lock pg_dbms_metadata # oracle_fdw db2_fdw pg_dbms_job          #[ FDW & Compatible  ]#
+          - prefix timestamp9 semver pgmp uint roaringbitmap md5hash pg_tle plv8 pllua luapgsql plprql pldebugger plpgsql_check plprofiler plsh faker # pljava plr dbt2 pgtap                   #[ Type, PL, Test    ]#
+          - pg_repack pg_cron pg_squeeze pg_dirtyread pgdd pgfincore pgl_ddl_deploy pg_prioritize pg_readonly pgagent pg_checksums safeupdate ddlx pg_permissions pg_auto_failover pg_catcheck  #[ Administration    ]#
+          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_statviz pg_store_plans pg_top pg_track_settings pg_wait_sampling system_stats bgw_replstatus powa pgmeminfo #[ Monitor & Stat    ]#
+          - passwordcheck_cracklib pgsodium vault anon pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user filedump            #[ Security & Audit  ]#
+          - pglogical decoderbufs wal2json wal2mongo pg_failover_slots pg_fact_loader pg_bulkload pg_comparator pgimportdoc pgexportdoc pgcopydb pgloader # repmgr pgpool pgexporter_ext        #[ ETL, CDC, REPL    ]#
+          - gis-stack rag-stack fdw-stack etl-stack olap-stack supa-stack stat-stack json-stack test-stack                                                                                      #[ Predefined Stacks ]#
 
     #----------------------------------#
     # build el9 packages on Rocky 9.1
@@ -109,19 +131,35 @@ all:
           - sequential_uuids_16* firebird_fdw_16*
           # too heavy # - plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions pljava_16*
           # not ready # - mysqlcompat_16 plproxy_16 geoip_16 postgresql-unit_16* table_version_16*
+
+          ## observability stack
+          #- victoria-metrics* victoria-logs vector mysqld_exporter mongodb_exporter kafka_exporter sealos
+          ## pg 12,13,14 packages
+          #- postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* pglogical_12* pg_cron_12* pgvector_12* duckdb_fdw_12*
+          #- postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* pglogical_13* pg_cron_13* pgvector_13* duckdb_fdw_13* hydra_13*
+          #- postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* pglogical_14* pg_cron_14* pgvector_14* duckdb_fdw_14* hydra_14*
+          ## pg15 packages
+          #- postgresql15* pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pglogical_15* pg_cron_15* postgis34_15* timescaledb-2-postgresql-15* pgvector_15* citus_15*
+          #- vault_15* pgjwt_15* pg_roaringbitmap_15* zhparser_15* hydra_15* apache-age_15* duckdb_fdw_15* md5hash_15* pg_dirtyread_15*
+          #- pgml_15 pg_graphql_15 wrappers_15 pg_jsonschema_15 pg_search_15 pg_lakehouse_15 pgmq_15 pg_later_15 pg_vectorize_15 pg_tiktoken_15 pgdd_15 plprql_15 pgsmcrypto_15 pg_idkit_15 pgvectorscale_15
+          ## pg16 packages
+          #- sequential_uuids_16* firebird_fdw_16* plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions pljava_16* # not ready # - mysqlcompat_16 plproxy_16 geoip_16 postgresql-unit_16* table_version_16*
+          ## pg17 beta packages
+          #- postgresql17-17 postgresql17-server-17 postgresql17-libs-17 postgresql17-contrib-17 postgresql17-devel-17 postgresql17-plperl-17 postgresql17-plpython3-17 postgresql17-pltcl-17 postgresql17-test-17 # postgresql17-llvmjit-17 postgresql17-docs-17
+
         pg_extensions: # citus & hydra are exclusive
-          - timescaledb postgis pgrouting pointcloud h3 ip4r # geoip
-          - vector vectorscale vectorize pg_tiktoken pgml pg_search pg_bigm zhparser
-          - hydra duckdb_fdw parquet_s3_fdw pg_lakehouse pg_tier pg_fkpart pg_partman # citus plproxy pg_strom
-          - age pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg pg_ivm pgmq pgq pgtt temporal_tables emaj periods pg_statement_rollback hll rum # table_version
-          - pgjwt pg_idkit pg_uuidv7 pg_later pg_background gzip http pg_net pgsql_tweaks count_distinct extra_window_functions tdigest pg_extra_time topn sequential_uuids # mysqlcompat
-          - wrappers mongo_fdw multicorn2 mysql_fdw ogr_fdw sqlite_fdw tds_fdw hdfs_fdw pgbouncer_fdw orafce pgmemcache pg_dbms_lock pg_dbms_metadata pg_dbms_job firebird_fdw # oracle_fdw db2_fdw
-          - prefix timestamp9 semver pgmp uint roaringbitmap md5hash pg_tle plv8 pllua luapgsql plprql pldebugger plpgsql_check plprofiler plsh faker pgtap # pljava plr dbt2
-          - pg_repack pg_cron pg_squeeze pg_dirtyread pgdd pgfincore pgl_ddl_deploy pg_prioritize pg_readonly pgagent pg_checksums safeupdate ddlx pg_permissions pg_auto_failover pg_catcheck filedump # pgpool
-          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_statviz pg_store_plans pg_top pg_track_settings pg_wait_sampling system_stats bgw_replstatus powa-archivist powa pgmeminfo # pgexporter_ext
-          - passwordcheck_cracklib pgsodium vault anon pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user
-          - pglogical decoderbufs wal2json wal2mongo pg_failover_slots pg_fact_loader pg_bulkload pg_comparator pgimportdoc pgexportdoc pgcopydb pgloader # repmgr
-          - gis-stack rag-stack fdw-stack etl-stack olap-stack supa-stack stat-stack json-stack test-stack
+          - timescaledb postgis pgrouting pointcloud h3 ip4r # geoip                                                                                                                                 #[ GIS & Timeseries  ]#
+          - pgvector pgvectorscale vectorize pg_tiktoken pgml pg_search pg_bigm zhparser                                                                                                             #[ Vector Search RAG ]#
+          - hydra duckdb_fdw parquet_s3_fdw pg_lakehouse pg_tier pg_fkpart pg_partman # citus plproxy pg_strom                                                                                       #[ OLAP & Sharding   ]#
+          - age pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg pg_ivm pgmq pgq pgtt temporal_tables emaj periods pg_statement_rollback hll rum # table_version                                 #[ Featured & AM     ]#
+          - pgjwt pg_idkit pg_uuidv7 pg_later pg_background gzip http pg_net pgsql_tweaks count_distinct extra_window_functions tdigest pg_extra_time topn sequential_uuids # mysqlcompat            #[ Function & Test   ]#
+          - wrappers mongo_fdw multicorn2 mysql_fdw ogr_fdw sqlite_fdw tds_fdw hdfs_fdw pgbouncer_fdw orafce pgmemcache pg_dbms_lock pg_dbms_metadata pg_dbms_job firebird_fdw # oracle_fdw db2_fdw  #[ FDW & Compatible  ]#
+          - prefix timestamp9 semver pgmp uint roaringbitmap md5hash pg_tle plv8 pllua luapgsql plprql pldebugger plpgsql_check plprofiler plsh faker pgtap # pljava plr dbt2                        #[ Type, PL, Test    ]#
+          - pg_repack pg_cron pg_squeeze pg_dirtyread pgdd pgfincore pgl_ddl_deploy pg_prioritize pg_readonly pgagent pg_checksums safeupdate ddlx pg_permissions pg_auto_failover pg_catcheck       #[ Administration    ]#
+          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_statviz pg_store_plans pg_top pg_track_settings pg_wait_sampling system_stats bgw_replstatus powa pgmeminfo      #[ Monitor & Stat    ]#
+          - passwordcheck_cracklib pgsodium vault anon pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user filedump                 #[ Security & Audit  ]#
+          - pglogical decoderbufs wal2json wal2mongo pg_failover_slots pg_fact_loader pg_bulkload pg_comparator pgimportdoc pgexportdoc pgcopydb pgloader # repmgr pgpool pgexporter_ext             #[ ETL, CDC, REPL    ]#
+          - gis-stack rag-stack fdw-stack etl-stack olap-stack supa-stack stat-stack json-stack test-stack                                                                                           #[ Predefined Stacks ]#
 
     #----------------------------------#
     # Validating on compatible distros
@@ -191,6 +229,5 @@ all:
       - http://10.10.10.1/etc/pev.html
       - http://10.10.10.1/etc/chart.tgz
       - http://10.10.10.1/etc/plugins.tgz
-
 
 ...

@@ -97,20 +97,19 @@ all:
 
         # install extensions here: # define HBA rules here: https://pigsty.io/docs/pgsql/extension/#install-extension
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
-        pg_extensions: # extensions to be installed on this cluster
-          - postgis timescaledb vector # default extensions to be installed
-          #[ Predefined Stacks ]# - gis-stack rag-stack fdw-stack etl-stack olap-stack supa-stack stat-stack json-stack test-stack
-          #[ GIS & Timeseries  ]# - timescaledb postgis pgrouting pointcloud h3 ip4r # geoip
-          #[ Vector Search RAG ]# - vector vectorscale vectorize pg_tiktoken pgml pg_search pg_bigm zhparser
-          #[ OLAP & Sharding   ]# - hydra duckdb_fdw parquet_s3_fdw pg_lakehouse pg_tier pg_fkpart pg_partman # citus plproxy pg_strom
-          #[ Featured & AM     ]# - age pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg pg_ivm pgmq pgq pgtt temporal_tables emaj periods pg_statement_rollback hll rum table_version
-          #[ Function & Test   ]# - pgjwt pg_idkit pg_uuidv7 pg_later pg_background gzip http pg_net pgsql_tweaks count_distinct extra_window_functions tdigest pg_extra_time topn # mysqlcompat
-          #[ FDW & Compatible  ]# - wrappers mongo_fdw multicorn2 mysql_fdw ogr_fdw sqlite_fdw tds_fdw hdfs_fdw pgbouncer_fdw orafce pgmemcache pg_dbms_lock pg_dbms_metadata pg_dbms_job # oracle_fdw db2_fdw
-          #[ Type, PL, Test    ]# - prefix timestamp9 semver pgmp uint roaringbitmap md5hash pg_tle plv8 pllua luapgsql plprql pldebugger plpgsql_check plprofiler plsh faker pgtap # pljava plr dbt2
-          #[ Administration    ]# - pg_repack pg_cron pg_squeeze pg_dirtyread pgdd pgfincore pgl_ddl_deploy pg_prioritize pg_readonly pgagent pg_checksums safeupdate ddlx pg_permissions pg_auto_failover pg_catcheck filedump # pgpool
-          #[ Monitor & Stat    ]# - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_statviz pg_store_plans pg_top pg_track_settings pg_wait_sampling system_stats bgw_replstatus powa-archivist powa pgmeminfo # pgexporter_ext
-          #[ Security & Audit  ]# - passwordcheck_cracklib pgsodium vault anon pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user
-          #[ ETL, CDC, REPL    ]# - pglogical decoderbufs wal2json wal2mongo pg_failover_slots pg_fact_loader pg_bulkload pg_comparator pgimportdoc pgexportdoc pgcopydb pgloader # repmgr
+        #pg_extensions: # extensions to be installed on this cluster
+        #  - timescaledb postgis pgrouting pointcloud h3 ip4r # geoip                                                                                                                            #[ GIS & Timeseries  ]#
+        #  - pgvector pgvectorscale vectorize pg_tiktoken pgml pg_search pg_bigm zhparser                                                                                                        #[ Vector Search RAG ]#
+        #  - hydra duckdb_fdw parquet_s3_fdw pg_lakehouse pg_tier pg_fkpart pg_partman # citus plproxy pg_strom                                                                                  #[ OLAP & Sharding   ]#
+        #  - age pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg pg_ivm pgmq pgq pgtt temporal_tables emaj periods pg_statement_rollback hll rum table_version                              #[ Featured & AM     ]#
+        #  - pgjwt pg_idkit pg_uuidv7 pg_later pg_background gzip http pg_net pgsql_tweaks count_distinct extra_window_functions tdigest pg_extra_time topn # mysqlcompat                        #[ Function & Test   ]#
+        #  - wrappers mongo_fdw multicorn2 mysql_fdw ogr_fdw sqlite_fdw tds_fdw hdfs_fdw pgbouncer_fdw orafce pgmemcache pg_dbms_lock pg_dbms_metadata # oracle_fdw db2_fdw pg_dbms_job          #[ FDW & Compatible  ]#
+        #  - prefix timestamp9 semver pgmp uint roaringbitmap md5hash pg_tle plv8 pllua luapgsql plprql pldebugger plpgsql_check plprofiler plsh faker # pljava plr dbt2 pgtap                   #[ Type, PL, Test    ]#
+        #  - pg_repack pg_cron pg_squeeze pg_dirtyread pgdd pgfincore pgl_ddl_deploy pg_prioritize pg_readonly pgagent pg_checksums safeupdate ddlx pg_permissions pg_auto_failover pg_catcheck  #[ Administration    ]#
+        #  - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_statviz pg_store_plans pg_top pg_track_settings pg_wait_sampling system_stats bgw_replstatus powa pgmeminfo #[ Monitor & Stat    ]#
+        #  - passwordcheck_cracklib pgsodium vault anon pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user filedump            #[ Security & Audit  ]#
+        #  - pglogical decoderbufs wal2json wal2mongo pg_failover_slots pg_fact_loader pg_bulkload pg_comparator pgimportdoc pgexportdoc pgcopydb pgloader # repmgr pgpool pgexporter_ext        #[ ETL, CDC, REPL    ]#
+        #  - gis-stack rag-stack fdw-stack etl-stack olap-stack supa-stack stat-stack json-stack test-stack                                                                                      #[ Predefined Stacks ]#
 
         # define HBA rules here: https://pigsty.io/docs/pgsql/hba/#define-hba
         pg_hba_rules:                       # example hba rules
@@ -224,5 +223,5 @@ all:
       - postgresql
       - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager wal2json pg_repack
     pg_extensions:                    # pg extensions to be installed, alias can be used
-      - postgis timescaledb vector
+      - postgis timescaledb pgvector
 ...
