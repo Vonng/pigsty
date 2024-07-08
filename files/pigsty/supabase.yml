@@ -3,7 +3,7 @@
 # File      :   supabase.yml
 # Desc      :   Pigsty 1 node installation for supabase (el8/el9)
 # Ctime     :   2020-05-22
-# Mtime     :   2024-07-02
+# Mtime     :   2024-07-08
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -70,9 +70,8 @@ all:
 
         # supabase required extensions
         pg_libs: 'pg_net, pg_cron, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
-        pg_extensions:                                         # supabase required extensions
-          - pg_repack_16* wal2json_16* pgvector_16* pg_cron_16* pgsodium_16*
-          - pg_graphql_16 pg_jsonschema_16 wrappers_16 vault_16* pgjwt_16* pg_net_16* pgsql_http_16*
+        pg_extensions: [ 'supa-stack' ]
+        # - pg_repack wal2json pgvector pg_cron pg_sodium pg_graphql pg_jsonschema wrappers vault pgjwt pg_net pgsql_http
 
         # supabase hba rules, require access from docker network
         pg_hba_rules:
@@ -81,7 +80,7 @@ all:
           - { user: all ,db: supa ,addr: all         ,auth: pwd ,title: 'allow supa database access from entire world'  }  # not safe!
 
   vars:                               # global variables
-    version: v2.7.0                   # pigsty version string
+    version: v2.8.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
 

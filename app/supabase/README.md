@@ -73,9 +73,8 @@ pg-meta:
     pg_hba_rules:
       - { user: all ,db: supa ,addr: intra       ,auth: pwd ,title: 'allow supa database access from intranet'}
       - { user: all ,db: supa ,addr: 172.0.0.0/8 ,auth: pwd ,title: 'allow supa database access from docker network'}
-    pg_extensions:                                        # required extensions
-      - pg_repack_${pg_version}* wal2json_${pg_version}* pgvector_${pg_version}* pg_cron_${pg_version}* pgsodium_${pg_version}*
-      - vault_${pg_version}* pg_graphql_${pg_version}* pgjwt_${pg_version}* pg_net_${pg_version}* pgsql_http_${pg_version}*
+    pg_extensions: [ 'supa-stack' ]
+    # - pg_repack wal2json pgvector pg_cron pg_sodium pg_graphql pg_jsonschema wrappers vault pgjwt pg_net pgsql_http
     pg_libs: 'pg_net, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
 ```
 
