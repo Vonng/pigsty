@@ -105,6 +105,7 @@ build: del vb up ssh
 rpm:   del vr up ssh
 deb:   del vd up ssh
 all:   del va up ssh
+old:   del vo up ssh
 
 vb: # pigsty building environment
 	./switch build
@@ -114,6 +115,8 @@ vd: # deb building environment
 	./switch deb
 va: # deb building environment
 	./switch all
+vo: # old building environment
+	./switch old
 
 #------------------------------#
 # meta, single node, the devbox
@@ -272,7 +275,7 @@ vtrio22:
 #                        Inventory                            #
 ###############################################################
 .PHONY: default new ssh sshb dns start up down dw halt clean del destroy nuke st status pause suspend resume info \
-	build rpm deb vb vr vd vm vf vp \
+	build rpm deb all old vb vr vd vm vf vp va vo\
 	meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vmeta12 vmeta20 vmeta22 \
 	dual dual7 dual8 dual9 dual11 dual12 dual20 dual22 vdual vdual7 vdual8 vdual9 vdual11 vdual12 vdual20 vdual22 \
 	trio trio7 trio8 trio9 trio11 trio12 trio20 trio22 vtrio vtrio7 vtrio8 vtrio9 vtrio11 vtrio12 vtrio20 vtrio22 \
