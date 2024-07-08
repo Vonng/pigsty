@@ -37,6 +37,7 @@ You can also launch pigsty building env with these alias, base image will not be
 make build      # 4-node building environment 
 make rpm        # 3-node el7/8/9 building env
 make deb        # 4-node debian11/12 ubuntu20/22
+make all        # 7-node building env with all base images
 ```
 
 
@@ -53,9 +54,10 @@ make deb        # 4-node debian11/12 ubuntu20/22
 |  [trio.rb](spec/trio.rb)  |  3 node  |    1c2G x 3     |       Three Nodes       |          |
 |  [full.rb](spec/full.rb)  |  3 node  | 2c4g + 1c2g x 3 |  Full-Featured 4 Node   | Sandbox  |
 |  [prod.rb](spec/prod.rb)  | 43 node  |      misc       |   Prod Env Simulation   | Simubox  |
+| [build.rb](spec/build.rb) |  4 node  |    1c2g x 4     |   4-Node Building Env   | Buildbox |
 |   [rpm.rb](spec/rpm.rb)   |  3 node  |    1c2G x 3     | 3-Node EL Building Env  |          |
 |   [deb.rb](spec/deb.rb)   |  3 node  |    1c2G x 4     | 4-Node Deb Building Env |          |
-| [build.rb](spec/build.rb) |  4 node  |    1c2g x 4     |   4-Node Building Env   | Buildbox |
+|   [all.rb](spec/deb.rb)   |  3 node  |    1c2G x 7     | 7-Node All Building Env |          |
 
 Each spec file contains a `Specs` variable describe VM nodes. For example, the [`full.rb`](spec/full.rb) contains:
 

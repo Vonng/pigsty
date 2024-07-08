@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   vagrant shortcuts
 # Ctime     :   2023-07-29
-# Mtime     :   2024-07-05
+# Mtime     :   2024-07-08
 # Path      :   vagrant/Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -104,6 +104,7 @@ info:
 build: del vb up ssh
 rpm:   del vr up ssh
 deb:   del vd up ssh
+all:   del va up ssh
 
 vb: # pigsty building environment
 	./switch build
@@ -111,6 +112,8 @@ vr: # rpm building environment
 	./switch rpm
 vd: # deb building environment
 	./switch deb
+va: # deb building environment
+	./switch all
 
 #------------------------------#
 # meta, single node, the devbox

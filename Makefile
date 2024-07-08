@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-07-07
+# Mtime     :   2024-07-08
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -340,8 +340,6 @@ copy-el9:
 	scp dist/${VERSION}/${EL9_PKG} meta:/tmp/pkg.tgz
 copy-d12:
 	scp dist/${VERSION}/${D12_PKG} meta:/tmp/pkg.tgz
-copy-u20:
-	scp dist/${VERSION}/${U20_PKG} meta:/tmp/pkg.tgz
 copy-u22:
 	scp dist/${VERSION}/${U22_PKG} meta:/tmp/pkg.tgz
 copy-app:
@@ -469,12 +467,17 @@ rpm: del vr new ssh copy-src-rpm
 	@echo el8:    sudo yum groupinstall --nobest -y 'Development Tools'
 deb: del vd new ssh copy-src-deb
 	cp files/pigsty/deb.yml pigsty.yml
+all: del va new ssh copy-src-rpm copy-src-deb
+	@echo ./install.yml -i files/pigsty/rpm.yml
+	@echo ./install.yml -i files/pigsty/deb.yml
 vb: # pigsty building environment
 	vagrant/config build
 vr: # rpm building environment
 	vagrant/config rpm
 vd: # deb building environment
 	vagrant/config deb
+va: # all building environment
+	vagrant/config all
 
 #------------------------------#
 # meta, single node, the devbox
