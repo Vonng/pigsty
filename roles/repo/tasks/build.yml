@@ -26,7 +26,7 @@
     content: |
       #=========# [{{ module_name }}] on {{ os_vendor }}{{ os_version }} : {{ os_codename }} {{ os_package }} repo
       {% if repo_upstream is not defined %}
-      {% set repo_upstream = repo_upstream_default[os_package] %}
+      {% set repo_upstream = repo_upstream_default|default([]) %}
       # this upstream repo are generated from pigsty role default configuration  
       {% else %}
       # this upstream repo are generated from pigsty user defined configration
@@ -138,7 +138,7 @@
       apt-get download $candidates;
       {% endif %}
   args: { executable: /bin/bash }
-  with_items: "{{ repo_packages|default(repo_packages_default[os_package])|default([]) + repo_extra_packages|default([]) }}"
+  with_items: "{{ repo_packages|default(repo_packages_default)|default([]) + repo_extra_packages|default([]) }}"
 
 
 #--------------------------------------------------------------#

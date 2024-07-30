@@ -40,6 +40,7 @@
 
     # calculate node identity
     - name: set node fact
+      become: no
       connection: local
       set_fact:
         os_vendor:       "{{ node_result.stdout_lines[0] }}"
@@ -53,6 +54,12 @@
         node_cpu:        "{{ node_result.stdout_lines[8]|int }}"
         node_pages:      "{{ node_result.stdout_lines[9]|int }}"
         node_page_size:  "{{ node_result.stdout_lines[10]|int }}"
+
+    # load rpm / deb package list/map according to os_package (rpm/deb)
+    - name: load {{ os_package }} package map
+      become: no
+      connection: local
+      include_vars: { file: "{{ role_path }}/vars/{{ os_package }}.yml" }
 
     # if nodename is empty, or can not be built from pgsql instance's identity
     - name: fill empty nodename with hostname

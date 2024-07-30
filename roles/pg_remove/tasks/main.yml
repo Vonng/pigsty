@@ -110,25 +110,18 @@
         - /etc/profile.d/pgsql.sh
         - /etc/profile.d/pg-alias.sh
 
-    # read pg_package_map from role `pgsql` and translate pg_packages & pg_extensions
-    - name: load {{ os_package }} package map
-      become: no
-      connection: local
-      tags: pg_extension
-      include_vars: { file: "{{ role_path }}/../pgsql/vars/pg_package_map.yml" }
-
     - name: lookup pg packages & extensions names
       become: no
       connection: local
       tags: pg_extension
       set_fact:
         pg_packages_list: |-
-          {% set pkg_map = pg_package_map[os_package] | default({}) %}
+          {% set pkg_map = pg_package_map | default({}) %}
           {% for pkg_list in pg_packages %}{% for pkg in pkg_list | trim | regex_replace('(,|\\s)+', ',') | regex_findall('([^,\\s]+)') | default([]) %}{% if pkg != '' %}{% if pkg in pkg_map %}{% set pkg = pkg_map[pkg] %}{% endif %}{% if not loop.first %},{% endif %}{{ pkg|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string) }}{% endif %}{% endfor %}
           
           {% endfor %}
         pg_extension_list: |-
-          {% set pkg_map = pg_package_map[os_package] | default({}) %}
+          {% set pkg_map = pg_package_map | default({}) %}
           {% for ext_list in pg_extensions %}{% for ext in ext_list | trim | regex_replace('(,|\\s)+', ',') | regex_findall('([^,\\s]+)') | default([]) %}{% if ext != '' %}{% if ext in pkg_map %}{% set ext = pkg_map[ext] %}{% endif %}{% if not loop.first %},{% endif %}{{ ext|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string) }}{% endif %}{% endfor %}
           
           {% endfor %}

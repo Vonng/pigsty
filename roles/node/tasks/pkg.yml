@@ -29,7 +29,7 @@
         content: |
           #=========# [{{ module_name }}] on {{ os_vendor }}{{ os_version }} : {{ os_codename }} {{ os_package }} repo
           {% if repo_upstream is not defined %}
-          {% set repo_upstream = repo_upstream_default[os_package] %}
+          {% set repo_upstream = repo_upstream_default|default([]) %}
           # this upstream repo are generated from pigsty role default configuration  
           {% else %}
           # this upstream repo are generated from pigsty user defined configration
@@ -92,7 +92,7 @@
     - name: install default node packages
       environment: "{{ proxy_env | default({}) }}"
       package: name={{ item }} state=present
-      with_items: "{{ node_default_packages | default(node_packages_default[os_package]) | default([]) }}"
+      with_items: "{{ node_default_packages | default(node_packages_default) | default([]) }}"
 
     - name: install extra node packages
       environment: "{{ proxy_env | default({}) }}"

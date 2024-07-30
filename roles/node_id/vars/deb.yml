@@ -1,0 +1,363 @@
+---
+repo_upstream_default:            # used according to `os_package`, if `repo_upstream` not set
+  - { name: pigsty-local  ,description: 'Pigsty Local'     ,module: local ,releases: [11,12,20,22] ,baseurl: { default: 'http://${admin_ip}/pigsty ./' }}
+  - { name: pigsty-pgsql  ,description: 'Pigsty PgSQL'     ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/deb/pgsql/${distro_codename}.amd64/ ./' }}
+  - { name: pigsty-infra  ,description: 'Pigsty Infra'     ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/deb/infra/amd64/ ./' }}
+  - { name: nginx         ,description: 'Nginx'            ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'http://nginx.org/packages/mainline/${distro_name} ${distro_codename} nginx' }}
+  - { name: base          ,description: 'Debian Basic'     ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename} main non-free-firmware'         ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename} main restricted universe multiverse' }}
+  - { name: updates       ,description: 'Debian Updates'   ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename}-updates main non-free-firmware' ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-updates main restricted universe multiverse' }}
+  - { name: security      ,description: 'Debian Security'  ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://security.debian.org/debian-security ${distro_codename}-security main non-free-firmware' }}
+  - { name: base          ,description: 'Ubuntu Basic'     ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}   main universe multiverse restricted' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}   main restricted universe multiverse' }}
+  - { name: updates       ,description: 'Ubuntu Updates'   ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-backports main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-updates   main restricted universe multiverse' }}
+  - { name: backports     ,description: 'Ubuntu Backports' ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-security  main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-backports main restricted universe multiverse' }}
+  - { name: security      ,description: 'Ubuntu Security'  ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-updates   main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-security  main restricted universe multiverse' }}
+  - { name: pgdg          ,description: 'PGDG'             ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg main' }}
+  - { name: citus         ,description: 'Citus'            ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/${distro_name}/ ${distro_codename} main'   }}
+  - { name: timescaledb   ,description: 'Timescaledb'      ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
+  - { name: docker-ce     ,description: 'Docker'           ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
+
+repo_packages_default:            # used according to `os_package`, if `repo_packages` not set
+  - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                              # Distro & Boot
+  - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                  # Pigsty Addon
+  - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter    # Infra Packages
+  - redis-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                         # Miscellaneous
+  - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump acl chrony # Node Tools 1
+  - socat lrzsz net-tools ipvsadm dnsutils telnet ca-certificates libreadline-dev vim-tiny keepalived openssl openssh-server openssh-client # Node Tools 2
+  - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity postgresql-filedump pgxnclient pgformatter pg-timetable pgcopydb             # PGDG Common
+  - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
+  - postgresql-16-age postgresql-16-anonymizer postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-citus-12.1 postgresql-16-count-distinct postgresql-16-credcheck postgresql-16-cron postgresql-16-ddlx postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-duckdb-fdw postgresql-16-emaj postgresql-16-extra-window-functions
+  - postgresql-16-first-last-agg postgresql-16-geoip postgresql-16-gzip postgresql-16-h3 postgresql-16-hll postgresql-16-http postgresql-16-hunspell-cs-cz postgresql-16-hunspell-de-de postgresql-16-hunspell-en-us postgresql-16-hunspell-fr postgresql-16-hunspell-ne-np postgresql-16-hunspell-nl-nl postgresql-16-hunspell-nn-no postgresql-16-hunspell-pt-pt postgresql-16-hunspell-ru-ru postgresql-16-hunspell-ru-ru-aot postgresql-16-hydra postgresql-16-hypopg
+  - postgresql-16-icu-ext postgresql-16-imgsmlr postgresql-16-ip4r postgresql-16-jsquery postgresql-16-logerrors postgresql-16-login-hook postgresql-16-londiste-sql postgresql-16-md5hash postgresql-16-mimeo postgresql-16-mobilitydb postgresql-16-mysql-fdw postgresql-16-mysqlcompat postgresql-16-numeral postgresql-16-ogr-fdw postgresql-16-omnidb postgresql-16-orafce # postgresql-16-oracle-fdw sequential_uuids_16* firebird_fdw_16* python3.12-jmespath
+  - postgresql-16-partman postgresql-16-passwordcheck-cracklib postgresql-16-periods postgresql-16-permuteseq postgresql-16-pg-auth-mon postgresql-16-pg-background postgresql-16-pg-bigm postgresql-16-pg-bulkload postgresql-16-pg-catcheck postgresql-16-pg-checksums postgresql-16-pg-extra-time postgresql-16-pg-fact-loader postgresql-16-pg-failover-slots postgresql-16-pg-fkpart postgresql-16-pg-graphql postgresql-16-pg-hashids postgresql-16-pg-hint-plan
+  - postgresql-16-pg-idkit postgresql-16-pg-ivm postgresql-16-pg-jobmon postgresql-16-pg-jsonschema postgresql-16-pg-lakehouse postgresql-16-pg-later postgresql-16-pg-net postgresql-16-pg-permissions postgresql-16-pg-proctab postgresql-16-pg-profile postgresql-16-pg-qualstats postgresql-16-pg-readonly postgresql-16-pg-rrule postgresql-16-pg-safeupdate postgresql-16-pg-search postgresql-16-pg-sqlog postgresql-16-pg-stat-kcache postgresql-16-pg-stat-monitor postgresql-16-pg-statement-rollback postgresql-16-pg-store-plan
+  - postgresql-16-pg-tde postgresql-16-pg-tier postgresql-16-pg-tiktoken postgresql-16-pg-tle postgresql-16-pg-track-settings postgresql-16-pg-uuidv7 postgresql-16-pg-vectorize postgresql-16-pg-wait-sampling postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pgcryptokey postgresql-16-pgdd postgresql-16-pgextwlist postgresql-16-pgfaceting postgresql-16-pgfincore postgresql-16-pgjwt
+  - postgresql-16-pgl-ddl-deploy postgresql-16-pglogical postgresql-16-pglogical-ticker postgresql-16-pgmemcache postgresql-16-pgmeminfo postgresql-16-pgml postgresql-16-pgmp postgresql-16-pgmq postgresql-16-pgpcre postgresql-16-pgq-node postgresql-16-pgq3 postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-pgsmcrypto postgresql-16-pgsodium postgresql-16-pgsphere
+  - postgresql-16-pgsql-tweaks postgresql-16-pgtap postgresql-16-pgtt postgresql-16-pguint postgresql-16-pgvector postgresql-16-pgvectorscale postgresql-16-pldebugger postgresql-16-pllua postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plproxy postgresql-16-plprql postgresql-16-plsh postgresql-16-plv8 postgresql-16-pointcloud postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-powa
+  - postgresql-16-prefix postgresql-16-preprepare postgresql-16-prioritize postgresql-16-q3c postgresql-16-rational postgresql-16-rdkit postgresql-16-roaringbitmap postgresql-16-rum postgresql-16-semver postgresql-16-set-user postgresql-16-shacrypt postgresql-16-show-plans postgresql-16-similarity postgresql-16-snakeoil postgresql-16-sqlite-fdw postgresql-16-squeeze
+  - postgresql-16-supautils postgresql-16-system-stats postgresql-16-tablelog postgresql-16-tableversion postgresql-16-tdigest postgresql-16-tds-fdw postgresql-16-temporal-tables postgresql-16-toastinfo postgresql-16-topn postgresql-16-unit postgresql-16-vault postgresql-16-wal2mongo postgresql-16-wrappers postgresql-16-zhparser timescaledb-2-postgresql-16
+
+node_packages_default:            # used according to `os_package`, if `node_default_packages` not set
+  - lz4,unzip,bzip2,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump
+  - python3,python3-pip,socat,lrzsz,net-tools,ipvsadm,telnet,ca-certificates,openssl,keepalived,etcd,haproxy,chrony
+  - zlib1g,acl,dnsutils,libreadline-dev,vim-tiny,node-exporter,openssh-server,openssh-client
+
+infra_packages_default:            # used according to `os_package`, if `infra_packages` not set
+  - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway
+  - node-exporter,blackbox-exporter,nginx-exporter,pg-exporter
+  - nginx,dnsmasq,ansible,etcd,python3-requests,redis,mcli
+
+pg_package_map:
+
+  #-----------------------------------------------------------------
+  # MODULE: NODE
+  #-----------------------------------------------------------------
+  debian-node-adhoc:          "netcat-openbsd,tnftp,linux-perf"
+  ubuntu-node-adhoc:          "netcat,ftp,linux-tools-generic"
+
+  #-----------------------------------------------------------------
+  # MODULE: PGSQL
+  #-----------------------------------------------------------------
+
+  #--------------------------------#
+  # ALIAS: Minimal Installation
+  #--------------------------------#
+  postgresql:                 "postgresql-*-$v"
+  pgsql-common:               "patroni,pgbouncer,pgbackrest,pg-exporter,pgbadger,pg-timetable,vip-manager"
+  pgsql-utils:                "postgresql-$v-repack,postgresql-$v-wal2json"
+
+  #--------------------------------#
+  # PGSQL: the Kernel Packages
+  #--------------------------------#
+  pgsql:                      "postgresql-*-$v"
+  pgsql-client:               "postgresql-client-$v"
+  pgsql-server:               "postgresql-$v"
+  pgsql-simple:               "postgresql-$v,postgresql-client-$v,postgresql-plperl-$v,postgresql-plpython3-$v,postgresql-pltcl-$v"
+  pgsql-all:                  "postgresql-$v,postgresql-client-$v,postgresql-plperl-$v,postgresql-plpython3-$v,postgresql-pltcl-$v,postgresql-server-dev-$v"
+  pgsql-devel:                "postgresql-server-dev-$v"
+  pgsql-devel-all:            "postgresql-server-dev-16,postgresql-server-dev-15,postgresql-server-dev-14,postgresql-server-dev-13,postgresql-server-dev-12"
+  pgsql-17:                   "postgresql-*-17"
+  pgsql-16:                   "postgresql-*-16"
+  pgsql-15:                   "postgresql-*-15"
+  pgsql-14:                   "postgresql-*-14"
+  pgsql-13:                   "postgresql-*-13"
+  pgsql-12:                   "postgresql-*-12"
+
+  #--------------------------------#
+  # COMMON: Important Utils
+  #--------------------------------#
+  patroni:                    "patroni"
+  pgbouncer:                  "pgbouncer"
+  pgbackrest:                 "pgbackrest"
+  pg_exporter:                "pg-exporter"
+  vip-manager:                "vip-manager"
+  pgbadger:                   "pgbadger"
+  pgloader:                   "pgloader"
+  pg_activity:                "pg-activity"
+  pg_filedump:                "postgresql-filedump"
+  pgxnclient:                 "pgxnclient"
+  pgformatter:                "pgformatter"
+  pgcopydb:                   "pgcopydb"
+
+  #--------------------------------#
+  # STACK: Pre-defined Collections
+  #--------------------------------#
+  gis-stack:                  "postgresql-$v-postgis-3*,postgresql-$v-pointcloud,postgresql-$v-h3,postgresql-$v-pgrouting*,postgresql-$v-geoip"
+  rag-stack:                  "postgresql-$v-pgvector,postgresql-$v-pgvectorscale,postgresql-$v-pg-vectorize,postgresql-$v-similarity,postgresql-$v-pg-tiktoken,postgresql-$v-pgml"
+  fts-stack:                  "postgresql-$v-pg-search,postgresql-$v-pg-bigm,postgresql-$v-zhparser,postgresql-$v-hunspell-cs-cz,postgresql-$v-hunspell-de-de,postgresql-$v-hunspell-en-us,postgresql-$v-hunspell-fr,postgresql-$v-hunspell-ne-np,postgresql-$v-hunspell-nl-nl,postgresql-$v-hunspell-nn-no,postgresql-$v-hunspell-ru-ru,postgresql-$v-hunspell-ru-ru-aot"
+  fdw-stack:                  "postgresql-$v-wrappers,postgresql-$v-mysql-fdw,postgresql-$v-ogr-fdw,postgresql-$v-tds-fdw,postgresql-$v-sqlite-fdw"
+  etl-stack:                  "postgresql-$v-pglogical*,postgresql-$v-pgl-ddl-deploy,postgresql-$v-wal2json,postgresql-$v-wal2mongo,postgresql-$v-decoderbufs,postgresql-$v-pg-fact-loader,postgresql-$v-pg-bulkload,pgloader,pgcopydb"
+  feat-stack:                 "postgresql-$v-age,postgresql-$v-hll,postgresql-$v-rum,postgresql-$v-pg-graphql,postgresql-$v-pg-jsonschema,postgresql-$v-jsquery,postgresql-$v-pg-ivm,postgresql-$v-pgq3,postgresql-$v-gzip,postgresql-$v-http,postgresql-$v-topn,postgresql-$v-pgjwt"
+  olap-stack:                 "duckdb,postgresql-$v-duckdb-fdw,postgresql-$v-pg-lakehouse,postgresql-$v-hydra,timescaledb-2-postgresql-$v,postgresql-$v-pg-fkpart,postgresql-$v-partman,postgresql-$v-plproxy"
+  supa-stack:                 "postgresql-$v-pg-graphql,postgresql-$v-pg-jsonschema,postgresql-$v-wrappers,postgresql-$v-pgvector,postgresql-$v-cron,postgresql-$v-supautils,postgresql-$v-pgsodium,postgresql-$v-vault,postgresql-$v-pgjwt,postgresql-$v-http,postgresql-$v-pg-net"
+  stat-stack:                 "postgresql-$v-show-plans,postgresql-$v-pg-stat-kcache,postgresql-$v-pg-qualstats,postgresql-$v-pg-track-settings,postgresql-$v-pg-wait-sampling,postgresql-$v-pg-sqlog"
+  json-stack:                 "postgresql-$v-plv8,postgresql-$v-pg-jsonschema,postgresql-$v-pgjwt,postgresql-$v-jsquery,postgresql-$v-pg-graphql,ferretdb"
+
+  #--------------------------------#
+  # TIME: TSDB, Temporal
+  #--------------------------------#
+  timescaledb:                "timescaledb-2-postgresql-$v"
+  periods:                    "postgresql-$v-periods"
+  temporal_tables:            "postgresql-$v-temporal-tables"
+  emaj:                       "postgresql-$v-emaj"
+  table_version:              "postgresql-$v-tableversion"
+  pg_cron:                    "postgresql-$v-cron"
+  pg_later:                   "postgresql-$v-pg-later"
+  pg_background:              "postgresql-$v-pg-background"
+  pg_timetable:               "pg-timetable"
+
+  #--------------------------------#
+  # GIS: GeoSpatial, Routing
+  #--------------------------------#
+  postgis:                    "postgresql-$v-postgis-3*"
+  pgrouting:                  "postgresql-$v-pgrouting*"
+  pointcloud:                 "postgresql-$v-pointcloud"
+  h3:                         "postgresql-$v-h3"
+  geoip:                      "postgresql-$v-geoip"
+  mobilitydb:                 "postgresql-$v-mobilitydb"
+
+  #--------------------------------#
+  # RAG: AI, ML, Vector
+  #--------------------------------#
+  pgvector:                   "postgresql-$v-pgvector"
+  pgvectorscale:              "postgresql-$v-pgvectorscale"
+  vectorize:                  "postgresql-$v-pg-vectorize"
+  pg_similarity:              "postgresql-$v-similarity"
+  pg_tiktoken:                "postgresql-$v-pg-tiktoken"
+  pgml:                       "postgresql-$v-pgml"
+
+  #--------------------------------#
+  # FTS: Full-Text Search
+  #--------------------------------#
+  pg_search:                  "postgresql-$v-pg-search"
+  pg_bigm:                    "postgresql-$v-pg-bigm"
+  zhparser:                   "postgresql-$v-zhparser"
+  hunspell:                   "postgresql-$v-hunspell-cs-cz,postgresql-$v-hunspell-de-de,postgresql-$v-hunspell-en-us,postgresql-$v-hunspell-fr,postgresql-$v-hunspell-ne-np,postgresql-$v-hunspell-nl-nl,postgresql-$v-hunspell-nn-no,postgresql-$v-hunspell-ru-ru,postgresql-$v-hunspell-ru-ru-aot"
+  hunspell_cs_cz:             "postgresql-$v-hunspell-cs-cz"
+  hunspell_de_de:             "postgresql-$v-hunspell-de-de"
+  hunspell_en_us:             "postgresql-$v-hunspell-en-us"
+  hunspell_fr:                "postgresql-$v-hunspell-fr"
+  hunspell_ne_np:             "postgresql-$v-hunspell-ne-np"
+  hunspell_nl_nl:             "postgresql-$v-hunspell-nl-nl"
+  hunspell_nn_no:             "postgresql-$v-hunspell-nn-no"
+  hunspell_pt_pt:             "postgresql-$v-hunspell-pt-pt"
+  hunspell_ru_ru:             "postgresql-$v-hunspell-ru-ru"
+  hunspell_ru_ru_aot:         "postgresql-$v-hunspell-ru-ru-aot"
+
+  #--------------------------------#
+  # OLAP: Columnar, Lakehouse, Shard
+  #--------------------------------#
+  citus:                      "postgresql-$v-citus-12.1"   # conflict with hydra, choose one from them
+  hydra:                      "postgresql-$v-hydra"        # conflict with citus, choose one from them
+  pg_lakehouse:               "postgresql-$v-pg-lakehouse"
+  duckdb_fdw:                 "postgresql-$v-duckdb-fdw"
+  pg_fkpart:                  "postgresql-$v-pg-fkpart"
+  pg_partman:                 "postgresql-$v-partman"
+  plproxy:                    "postgresql-$v-plproxy"
+  #pg_strom:                  # N/A in debian/ubuntu
+
+  #--------------------------------#
+  # FEAT: Featured, Graph, AM, MQ
+  #--------------------------------#
+  rdkit:                      "postgresql-$v-rdkit"
+  age:                        "postgresql-$v-age"
+  hll:                        "postgresql-$v-hll"
+  rum:                        "postgresql-$v-rum"
+  pg_graphql:                 "postgresql-$v-pg-graphql"
+  pg_jsonschema:              "postgresql-$v-pg-jsonschema"
+  jsquery:                    "postgresql-$v-jsquery"
+  pg_hint_plan:               "postgresql-$v-pg-hint-plan"
+  hypopg:                     "postgresql-$v-hypopg"
+  imgsmlr:                    "postgresql-$v-imgsmlr"
+  pg_ivm:                     "postgresql-$v-pg-ivm"
+  pgmq:                       "postgresql-$v-pgmq"
+  pgq:                        "postgresql-$v-pgq3"
+  pg_statement_rollback:      "postgresql-$v-pg-statement-rollback"
+
+  #--------------------------------#
+  # FUNC: Agg, Utils, Compatibility
+  #--------------------------------#
+  gzip:                       "postgresql-$v-gzip"
+  http:                       "postgresql-$v-http"
+  topn:                       "postgresql-$v-topn"
+  pg_net:                     "postgresql-$v-pg-net"
+  pgjwt:                      "postgresql-$v-pgjwt"
+  shacrypt:                   "postgresql-$v-shacrypt"
+  pgsql_tweaks:               "postgresql-$v-pgsql-tweaks"
+  pg_extra_time:              "postgresql-$v-pg-extra-time"
+  count_distinct:             "postgresql-$v-count-distinct"
+  extra_win_agg:              "postgresql-$v-extra-window-functions"
+  first_last_agg:             "postgresql-$v-first-last-agg"
+  tdigest:                    "postgresql-$v-tdigest"
+  pgpcre:                     "postgresql-$v-pgpcre"
+  icu_ext:                    "postgresql-$v-icu-ext"
+  pg_idkit:                   "postgresql-$v-pg-idkit"
+  pg_hashids:                 "postgresql-$v-pg-hashids"
+  pg_uuidv7:                  "postgresql-$v-pg-uuidv7"
+  permuteseq:                 "postgresql-$v-permuteseq"
+  mysqlcompat:                "postgresql-$v-mysqlcompat"
+  pgmemcache:                 "postgresql-$v-pgmemcache"
+  orafce:                     "postgresql-$v-orafce"
+  pgtt:                       "postgresql-$v-pgtt"
+  #pg_dbms_lock:              # N/A in debian/ubuntu
+  #pg_dbms_metadata:          # N/A in debian/ubuntu
+  #pg_dbms_job:               # N/A in debian/ubuntu
+  #sequential_uuids:          # N/A in debian/ubuntu
+
+  #--------------------------------#
+  # TYPE: New Data Types
+  #--------------------------------#
+  prefix:                     "postgresql-$v-prefix"
+  semver:                     "postgresql-$v-semver"
+  pgmp:                       "postgresql-$v-pgmp"
+  uint:                       "postgresql-$v-pguint"
+  unit:                       "postgresql-$v-unit"
+  roaringbitmap:              "postgresql-$v-roaringbitmap"
+  md5hash:                    "postgresql-$v-md5hash"
+  asn1oid:                    "postgresql-$v-asn1oid"
+  numeral:                    "postgresql-$v-numeral"
+  pg_rational:                "postgresql-$v-rational"
+  ip4r:                       "postgresql-$v-ip4r"
+  q3c:                        "postgresql-$v-q3c"
+  pgsphere:                   "postgresql-$v-pgsphere"
+  pg_rrule:                   "postgresql-$v-pg-rrule" # broken
+  pgfaceting:                 "postgresql-$v-pgfaceting"
+  debversion:                 "postgresql-$v-debversion"
+  #timestamp9:                 # N/A in debian/ubuntu
+
+  #--------------------------------#
+  # LANG: PL/Languages & Test
+  #--------------------------------#
+  pg_tle:                     "postgresql-$v-pg-tle"
+  plv8:                       "postgresql-$v-plv8"
+  pllua:                      "postgresql-$v-pllua"
+  plprql:                     "postgresql-$v-plprql"
+  pldebugger:                 "postgresql-$v-pldebugger"
+  plpgsql_check:              "postgresql-$v-plpgsql-check"
+  plprofiler:                 "postgresql-$v-plprofiler"
+  plsh:                       "postgresql-$v-plsh"
+  pljava:                     "postgresql-$v-pljava"
+  plr:                        "postgresql-$v-plr"   # too-heavy, N/A by default
+  pgtap:                      "postgresql-$v-pgtap" # error prone with broken perl deps
+  #faker:                     # N/A in debian/ubuntu
+  #dbt2 :                     # N/A in debian/ubuntu
+
+  #--------------------------------#
+  # ADMIN: Tools & Utilities
+  #--------------------------------#
+  pg_repack:                  "postgresql-$v-repack"
+  pg_squeeze:                 "postgresql-$v-squeeze"
+  pg_dirtyread:               "postgresql-$v-dirtyread"
+  pgfincore:                  "postgresql-$v-pgfincore"
+  pgdd:                       "postgresql-$v-pgdd"
+  ddlx:                       "postgresql-$v-ddlx"
+  pg_prioritize:              "postgresql-$v-prioritize"
+  pg_checksums:               "postgresql-$v-pg-checksums"
+  pg_readonly:                "postgresql-$v-pg-readonly"
+  safeupdate:                 "postgresql-$v-pg-safeupdate"
+  pg_permissions:             "postgresql-$v-pg-permissions"
+  pg_auto_failover:           "postgresql-$v-auto-failover"
+  pg_catcheck:                "postgresql-$v-pg-catcheck"
+  preprepare:                 "postgresql-$v-preprepare"
+  pgpool:                     "postgresql-$v-pgpool2" # not used, N/A by default
+  #pgagent:                   # N/A in debian/ubuntu
+
+  #--------------------------------#
+  # STAT: Monitor & Observability
+  #--------------------------------#
+  pg_profile:                 "postgresql-$v-pg-profile"
+  pg_show_plans:              "postgresql-$v-show-plans"
+  pg_stat_kcache:             "postgresql-$v-pg-stat-kcache"
+  pg_stat_monitor:            "postgresql-$v-pg-stat-monitor"
+  pg_qualstats:               "postgresql-$v-pg-qualstats"
+  pg_store_plans:             "postgresql-$v-pg-store-plan"
+  pg_track_settings:          "postgresql-$v-pg-track-settings"
+  pg_wait_sampling:           "postgresql-$v-pg-wait-sampling"
+  system_stats:               "postgresql-$v-system-stats"
+  bgw_replstatus:             "postgresql-$v-bgw-replstatus"
+  pg_proctab:                 "postgresql-$v-pg-proctab"
+  pg_sqlog:                   "postgresql-$v-pg-sqlog"
+  powa:                       "postgresql-$v-powa"
+  pgmeminfo:                  "postgresql-$v-pgmeminfo"
+  toastinfo:                  "postgresql-$v-toastinfo"
+  pg_statviz:                 "postgresql-$v-statviz"
+  #pg_top:                    # N/A in debian/ubuntu (building failure)
+
+  #--------------------------------#
+  # SEC: ACL, Audit, Crypto
+  #--------------------------------#
+  passwordcheck:              "postgresql-$v-passwordcheck-cracklib"
+  supautils:                  "postgresql-$v-supautils"
+  pgsodium:                   "postgresql-$v-pgsodium"
+  vault:                      "postgresql-$v-vault"
+  anonymizer:                 "postgresql-$v-anonymizer"
+  pg_tde:                     "postgresql-$v-pg-tde"
+  pgsmcrypto:                 "postgresql-$v-pgsmcrypto"
+  pgaudit:                    "postgresql-$v-pgaudit"
+  pgauditlogtofile:           "postgresql-$v-pgauditlogtofile"
+  pg_auth_mon:                "postgresql-$v-pg-auth-mon"
+  credcheck:                  "postgresql-$v-credcheck"
+  pgcryptokey:                "postgresql-$v-pgcryptokey"
+  pg_jobmon:                  "postgresql-$v-pg-jobmon"
+  logerrors:                  "postgresql-$v-logerrors"
+  login_hook:                 "postgresql-$v-login-hook"
+  set_user:                   "postgresql-$v-set-user"
+  tablelog:                   "postgresql-$v-tablelog"
+  pg_snakeoil:                "postgresql-$v-snakeoil"
+  pgextwlist:                 "postgresql-$v-pgextwlist"
+
+  #--------------------------------#
+  # FDW: Foreign-Data-Wrapper
+  #--------------------------------#
+  wrappers:                   "postgresql-$v-wrappers"
+  #multicorn:                 # N/A in debian/ubuntu
+  #mongo_fdw:                 # N/A in debian/ubuntu
+  mysql_fdw:                  "postgresql-$v-mysql-fdw"
+  ogr_fdw:                    "postgresql-$v-ogr-fdw"
+  tds_fdw:                    "postgresql-$v-tds-fdw"
+  sqlite_fdw:                 "postgresql-$v-sqlite-fdw"
+  #hdfs_fdw:                  # N/A in debian/ubuntu
+  #pgbouncer_fdw:             # N/A in debian/ubuntu
+  oracle_fdw:                 "postgresql-$v-oracle-fdw"  # extra oracle deps required
+  #db2_fdw:                   # N/A in debian/ubuntu
+  #firebird_fdw:              # N/A in debian/ubuntu
+
+  #--------------------------------#
+  # ETL: CDC, Decoding, Replication
+  #--------------------------------#
+  pglogical:                  "postgresql-$v-pglogical*"
+  pgl_ddl_deploy:             "postgresql-$v-pgl-ddl-deploy"
+  decoderbufs:                "postgresql-$v-decoderbufs"
+  wal2json:                   "postgresql-$v-wal2json"
+  wal2mongo:                  "postgresql-$v-wal2mongo"
+  pg_failover_slots:          "postgresql-$v-pg-failover-slots"
+  mimeo:                      "postgresql-$v-mimeo"
+  repmgr:                     "postgresql-$v-repmgr"   # not used
+  slony:                      "postgresql-$v-slony1-2" # not used
+  pg_fact_loader:             "postgresql-$v-pg-fact-loader" # not an extension
+  pg_bulkload:                "postgresql-$v-pg-bulkload"    # not an extension
+  #pg_comparator:             # N/A in debian/ubuntu  # obsolete
+  #pgimportdoc:               # N/A in debian/ubuntu
+  #pgexportdoc:               # N/A in debian/ubuntu
+
+
+...
