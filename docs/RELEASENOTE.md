@@ -46,45 +46,86 @@
 
 **Highlight**
 
-EL7 (CentOS 7.9) & Debian 11 support deprecate due to EOL. 
+**Great Alignment**: All 36 rpm extensions maintained by Pigsty are now having deb packages.
+  - Now you can run supabase on Ubuntu / Debian with these necessary extensions
+  - All rust extensions are also available on both EL and Deb platforms 
+
+Deprecate support on EOL OS Distro: EL7 (CentOS 7.9), Debian 11 (Bullseye), and Ubuntu 20.04 (focal)
+  - Pigsty now focus on RockyLinux 9.3, Debian 12, and Ubuntu 22.04 as the main supported OS distros.
+  - If you wish to run Pigsty on legacy EOL platforms, consider using our [subscription service](https://pigsty.io/docs/about/service)
 
 **New Features**
 
-- [ ] Grafana 11 migration
+- [x] Grafana 11 migration
 - [x] PG Exporter 0.7 for PostgreSQL 17beta2 metrics support
+- [x] duckdb: duckdb, libduckdb, duckdb_fdw version v1.0.0
+- [x] paradedb: bump pg_search & pg_lakehouse to v0.8,
+- [x] write `proxy_env` for docker daemon
+- [x] Bump FerretDB, SealOS to the latest version
+- [x] `pgvectorscale` extension with DiskANN support
+- [x] New Extension for PG 16: `wal2mongo`, `multicorn2`, `pgtap`, `pg_dbms_job`
 - [ ] Observability enhancement
-- [ ] duckdb: duckdb, libduckdb, duckdb_fdw version v1.0.0
-- [ ] paradedb: bump pg_search & pg_lakehouse to v0.8,
-- [ ] bump default rocky minor version to 8.10 and 9.4
-- [ ] write `proxy_env` for docker daemon
+- [ ] specify config in `infra_portal` config to use existing certs
+- [ ] bump default rocky minor version to 9.3
 - [ ] VictoriaMetrics & Vector ?
 - [ ] Migration pigsty repo entirely to Cloudflare?
-- [ ] Bump FerretDB, SealOS to the latest version
-- [ ] `pgvectorscale` extension with DiskANN support
-- [ ] Find some other duckdb related extensions?
-- [ ] specify config in `infra_portal` config to use existing certs
-- [ ] New Extension for PG 16: `wal2mongo`, `multicorn2`, `pgtap`, `pg_dbms_job`
+- [ ] Fix openssh CVE vulnerability
 
 **Software Upgrade**
 
-- Haproxy 3.0.2
-- Patroni 3.3.1
-- pgBouncer 1.23
-- pgBackRest 2.52
-- Grafana 11.1
-- pgBadger 12.4
-- sealos 5.0.0 
-- pgvector 0.7.2
-- pg_graphql: 1.5.6
-- pgml: 2.9.1
-- pgmq: 1.1.1 -> 1.3.3
-- pg_tier: 0.0.4
-- pg_vectorize: 0.16.0
-- pg_later: v1.1
-- pg_search 0.8.0
-- pg_lakehouse 0.8.0
-- pg_analytics (deprecated)
-- duckdb / libduckdb / duckdb_fdw 1.0.0
+- PostgreSQL 16.3, 15.7, 14.12, 13.15, and 12.19
+- pg_exporter: 0.7.0
+- Patroni: 3.3.1
+- pgBouncer: 1.23
+- pgBackRest: 2.53
+- vip-manager: 2.5.0
+- Haproxy: 3.0.2
+- FerretDB: 1.22
+- sealos: 5.0.0
+- duckdb: v1.0.0
+- etcd: 3.5.15
+- Grafana: 10.4.5
+- Loki: 3.1.0
+- Prometheus: 2.53.1
+- pushgateway: 1.9.0
+- node_exporter: 1.8.2
+- nginx: exporter 1.2.0
+- victoriametrics: 1.102.0
+- victorialogs: 0.28.0
+- redis_exporter: 1.62.0
+- vector: 0.39.0
+
+**New Postgres Extensions**
+
+- There are 20 new extensions available, both in rpm / deb.
+- [hunspell](https://github.com/postgrespro/hunspell_dicts) : v1.0 (with 10 variant languages)
+- [pg_sqlog](https://github.com/kouber/pg_sqlog) : v1.6
+- [pg_proctab](https://gitlab.com/pg_proctab/pg_proctab) : v0.0.10
+- [pg_hashids](https://github.com/iCyberon/pg_hashids) : v1.3
+- [postgres_shacrypt](https://github.com/dverite/postgres-shacrypt) : v1.1
+- [permuteseq](https://github.com/dverite/permuteseq) : v1.2.2
+- [supautils](https://github.com/supabase/supautils) : v2.2.1
+- [pg_similarity](https://github.com/eulerto/pg_similarity) : v1.0 for PG16
+- [imgsmlr](https://github.com/postgrespro/imgsmlr) : v1.0 for PG16
+- [vectorscale](https://github.com/timescale/pgvectorscale) 0.2.0
+- [duckdb_fdw](https://github.com/alitrack/duckdb_fdw) : v1.0.0
+- [libduckdb](https://github.com/duckdb/duckdb) : v1.0.0
+- [pg_timetable](https://github.com/cybertec-postgresql/pg_timetable) 5.9.0 (INFRA)
+
+**Extension Upgrade**
+
+- pgml: 2.9.2
+- pgmq: 1.1.1 -> 1.2.1
+- pg_tier: 0.0.3 -> 0.0.4
+- pg_vectorize: 0.16.0 0.17.0
+- pg_search 0.7.0 -> 0.8.5
+- pg_lakehouse 0.7.0 -> 0.8.5
+- wrappers 0.3.1 -> 0.4.1
+- pg_graphql: 1.5.4 -> 1.5.7
+- PostGIS 3.4.1
+- PGVector 0.7.2
+- TimescaleDB 2.15.1
+- Citus 12.5
 
 **Docker Application**
 
