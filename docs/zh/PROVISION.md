@@ -91,21 +91,21 @@ Specs = [
 ]
 ```
 
-您可以使用 `vagrant/switch` 脚本切换 Vagrant 配置文件，它会根据规格以及虚拟机软件类型，渲染生成最终的 `Vagrantfile`。
+您可以使用 `vagrant/config` 脚本切换 Vagrant 配置文件，它会根据规格以及虚拟机软件类型，渲染生成最终的 `Vagrantfile`。
 
 ```bash
 cd ~/pigsty
-vagrant/switch <spec>
+vagrant/config <spec>
 
-vagrant/switch meta     # singleton meta        | 别名：`make v1`
-vagrant/switch full     # 4-node sandbox        | 别名：`make v4`
-vagrant/switch el7      # 3-node el7 test       | 别名：`make v7`
-vagrant/switch el8      # 3-node el8 test       | 别名：`make v8`
-vagrant/switch el9      # 3-node el9 test       | 别名：`make v9`
-vagrant/switch prod     # prod simulation       | 别名：`make vp`
-vagrant/switch build    # building environment  | 别名：`make vd`
-vagrant/switch minio    # 3-node minio env
-vagrant/switch check    # 30-node check env
+vagrant/config meta     # singleton meta        | 别名：`make v1`
+vagrant/config full     # 4-node sandbox        | 别名：`make v4`
+vagrant/config el7      # 3-node el7 test       | 别名：`make v7`
+vagrant/config el8      # 3-node el8 test       | 别名：`make v8`
+vagrant/config el9      # 3-node el9 test       | 别名：`make v9`
+vagrant/config prod     # prod simulation       | 别名：`make vp`
+vagrant/config build    # building environment  | 别名：`make vd`
+vagrant/config minio    # 3-node minio env
+vagrant/config check    # 30-node check env
 ```
 
 ----------------

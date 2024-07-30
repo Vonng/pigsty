@@ -108,15 +108,15 @@ all:   del va up ssh
 old:   del vo up ssh
 
 vb: # pigsty building environment
-	./switch build
+	./config build
 vr: # rpm building environment
-	./switch rpm
+	./config rpm
 vd: # deb building environment
-	./switch deb
+	./config deb
 va: # deb building environment
-	./switch all
+	./config all
 vo: # old building environment
-	./switch old
+	./config old
 
 #------------------------------#
 # meta, single node, the devbox

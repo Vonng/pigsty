@@ -92,21 +92,21 @@ Specs = [
 ]
 ```
 
-You can switch specs with the `vagrant/switch` script, it will render the final `Vagrantfile` according to the spec.
+You can switch specs with the `vagrant/config` script, it will render the final `Vagrantfile` according to the spec.
 
 ```bash
 cd ~/pigsty
-vagrant/switch <spec>
+vagrant/config <spec>
 
-vagrant/switch meta     # singleton meta        | alias:  `make v1`
-vagrant/switch full     # 4-node sandbox        | alias:  `make v4`
-vagrant/switch el7      # 3-node el7 test       | alias:  `make v7`
-vagrant/switch el8      # 3-node el8 test       | alias:  `make v8`
-vagrant/switch el9      # 3-node el9 test       | alias:  `make v9`
-vagrant/switch prod     # prod simulation       | alias:  `make vp`
-vagrant/switch build    # building environment  | alias:  `make vd`
-vagrant/switch minio    # 3-node minio env
-vagrant/switch check    # 30-node check env
+vagrant/config meta     # singleton meta        | alias:  `make v1`
+vagrant/config full     # 4-node sandbox        | alias:  `make v4`
+vagrant/config el7      # 3-node el7 test       | alias:  `make v7`
+vagrant/config el8      # 3-node el8 test       | alias:  `make v8`
+vagrant/config el9      # 3-node el9 test       | alias:  `make v9`
+vagrant/config prod     # prod simulation       | alias:  `make vp`
+vagrant/config build    # building environment  | alias:  `make vd`
+vagrant/config minio    # 3-node minio env
+vagrant/config check    # 30-node check env
 ```
 
 
