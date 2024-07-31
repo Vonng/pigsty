@@ -30,7 +30,7 @@ repo_packages_default:            # used according to `os_package`, if `repo_pac
   - redis_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                                                   # Miscellaneous
   - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph             # Node Packages 1
   - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates readline vim-minimal keepalived chrony openssl openssh-server openssh-clients    # Node Packages 2
-  - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity pg_filedump pgxnclient pgFormatter timescaledb-tools pg_timetable luapgsql pgcopydb       # PGDG Common
+  - patroni patroni-etcd pgbouncer pgbadger pgbackrest pg_activity pg_filedump pgxnclient pgFormatter timescaledb-tools pg_timetable luapgsql pgcopydb pgloader       # PGDG Common
   - postgresql16*
   - apache-age_16* asn1oid_16* bgw_replstatus_16* citus_16* count_distinct_16* credcheck_16* ddlx_16* duckdb_fdw_16* e-maj_16* extra_window_functions_16* first_last_agg_16* geoip_16 h3-pg_16* hdfs_fdw_16* hll_16* hunspell_*_16* hydra_16* hypopg_16*
   - icu_ext_16* imgsmlr_16* ip4r_16* jsquery_16* logerrors_16* login_hook_16* md5hash_16* mimeo_16* mongo_fdw_16* multicorn2_16* mysql_fdw_16* mysqlcompat_16 numeral_16* ogr_fdw_16* orafce_16* # oracle_fdw_16* db2_fdw_16*
@@ -100,12 +100,10 @@ pg_package_map:
   pg_exporter:                "pg_exporter"
   vip-manager:                "vip-manager"
   pgbadger:                   "pgbadger"
-  pgloader:                   "pgloader"
   pg_activity:                "pg_activity"
   pg_filedump:                "pg_filedump"
   pgxnclient:                 "pgxnclient"
   pgformatter:                "pgformatter"
-  pgcopydb:                   "pgcopydb"
 
   #--------------------------------#
   # STACK: Pre-defined Collections
@@ -138,7 +136,6 @@ pg_package_map:
   # GIS: GeoSpatial, Routing
   #--------------------------------#
   postgis:                    "postgis34_$v*"
-  postgis33:                  "postgis33_$v*"
   pgrouting:                  "pgrouting_$v*"
   pointcloud:                 "pointcloud_$v*"
   pg_h3:                      "h3-pg_$v*"
@@ -146,6 +143,7 @@ pg_package_map:
   ogr_fdw:                    "ogr_fdw_$v*"
   geoip:                      "geoip_$v*"
   #mobilitydb:                 # N/A in el distro
+  postgis33:                  "postgis33_$v*" # used by el7 only
 
   #--------------------------------#
   # RAG: AI, ML, Vector
@@ -202,61 +200,10 @@ pg_package_map:
   pg_ivm:                     "pg_ivm_$v*"
   pgmq:                       "pgmq_$v"
   pgq:                        "pgq_$v*"
-  pg_statement_rollback:      "pg_statement_rollback_$v*"
   #rdkit:                      # N/A in el distro
 
   #--------------------------------#
-  # FUNC: Agg, Utils, Compatibility
-  #--------------------------------#
-  pg_gzip:                    "pgsql_gzip_$v*"
-  pg_http:                    "pgsql_http_$v*"
-  topn:                       "topn_$v*"
-  pg_net:                     "pg_net_$v*"
-  pgjwt:                      "pgjwt_$v*"
-  shacrypt:                   "postgres_shacrypt_$v*"
-  pgsql_tweaks:               "pgsql_tweaks_$v*"
-  pg_extra_time:              "pg_extra_time_$v*"
-  count_distinct:             "count_distinct_$v*"
-  extra_win_agg:              "extra_window_functions_$v*"
-  first_last_agg:             "first_last_agg_$v"
-  tdigest:                    "tdigest_$v*"
-  pgpcre:                     "pgpcre_$v"
-  icu_ext:                    "icu_ext_$v*"
-  pg_idkit:                   "pg_idkit_$v"
-  pg_hashids:                 "pg_hashids_$v*"
-  pg_uuidv7:                  "pg_uuidv7_$v*"
-  permuteseq:                 "permuteseq_$v*"
-  mysqlcompat:                "mysqlcompat_$v*"
-  orafce:                     "orafce_$v*"
-  pgmemcache:                 "pgmemcache_$v*"
-  pg_dbms_lock:               "pg_dbms_lock_$v*"
-  pg_dbms_metadata:           "pg_dbms_metadata_$v*"
-  pg_dbms_job:                "pg_dbms_job_$v*"  # error prone with broken perl deps
-  pgtt:                       "pgtt_$v*"
-  sequential_uuids:           "sequential_uuids_16*"  # el9 only
-
-  #--------------------------------#
-  # TYPE: New Data Types
-  #--------------------------------#
-  prefix:                     "prefix_$v*"
-  semver:                     "semver_$v*"
-  pgmp:                       "pgmp_$v*"
-  pguint:                     "pguint_$v*"
-  pgunit:                     "postgresql-unit_$v*"
-  roaringbitmap:              "pg_roaringbitmap_$v*"
-  md5hash:                    "md5hash_$v*"
-  asn1oid:                    "asn1oid_$v*"
-  numeral:                    "numeral_$v*"
-  pg_rational:                "pg_rational_$v*"
-  ip4r:                       "ip4r_$v*"
-  pgsphere:                   "pgsphere_$v"
-  #pg_rrule:                   "pg_rrule_$v" # build break on el system!
-  pgfaceting:                 "pgfaceting_$v" # require pg_roaringbitmap
-  #debversion:                # N/A in el distro (build fail on el)
-  timestamp9:                 "timestamp9_$v*"
-
-  #--------------------------------#
-  # LANG: PL/Languages & Test
+  # LANG: PL/Languages & Testing
   #--------------------------------#
   pg_tle:                     "pg_tle_$v*"
   plv8:                       "plv8_$v*"
@@ -273,6 +220,49 @@ pg_package_map:
   dbt2:                       "dbt2-pg$v-extensions*"
 
   #--------------------------------#
+  # TYPE: New Data Types
+  #--------------------------------#
+  prefix:                     "prefix_$v*"
+  semver:                     "semver_$v*"
+  pgmp:                       "pgmp_$v*"
+  pguint:                     "pguint_$v*"
+  pgunit:                     "postgresql-unit_$v*"
+  roaringbitmap:              "pg_roaringbitmap_$v*"
+  md5hash:                    "md5hash_$v*"
+  asn1oid:                    "asn1oid_$v*"
+  numeral:                    "numeral_$v*"
+  pg_rational:                "pg_rational_$v*"
+  ip4r:                       "ip4r_$v*"
+  pgsphere:                   "pgsphere_$v"
+  pg_rrule:                   "pg_rrule_$v"   # build break on el system!
+  pgfaceting:                 "pgfaceting_$v" # require pg_roaringbitmap
+  #debversion:                # N/A in el distro (build fail on el system)
+  timestamp9:                 "timestamp9_$v*"
+
+  #--------------------------------#
+  # FUNC: Agg, Utils, IDKits
+  #--------------------------------#
+  pg_gzip:                    "pgsql_gzip_$v*"
+  pg_http:                    "pgsql_http_$v*"
+  topn:                       "topn_$v*"
+  pg_net:                     "pg_net_$v*"
+  pgjwt:                      "pgjwt_$v*"
+  shacrypt:                   "postgres_shacrypt_$v*"
+  pgsql_tweaks:               "pgsql_tweaks_$v*"
+  pg_extra_time:              "pg_extra_time_$v*"
+  count_distinct:             "count_distinct_$v*"
+  extra_window_functions:     "extra_window_functions_$v*"
+  first_last_agg:             "first_last_agg_$v"
+  tdigest:                    "tdigest_$v*"
+  pgpcre:                     "pgpcre_$v"
+  icu_ext:                    "icu_ext_$v*"
+  pg_idkit:                   "pg_idkit_$v"
+  pg_hashids:                 "pg_hashids_$v*"
+  pg_uuidv7:                  "pg_uuidv7_$v*"
+  permuteseq:                 "permuteseq_$v*"
+  sequential_uuids:           "sequential_uuids_16*"  # el9 only
+
+  #--------------------------------#
   # ADMIN: Tools & Utilities
   #--------------------------------#
   pg_repack:                  "pg_repack_$v*"
@@ -287,8 +277,8 @@ pg_package_map:
   safeupdate:                 "safeupdate_$v*"
   pg_permissions:             "pg_permissions_$v*"
   pg_auto_failover:           "pg_auto_failover_$v*"
-  pg_catcheck:                "pg_catcheck_$v*"
   preprepare:                 "preprepare_$v*"
+  pg_catcheck:                "pg_catcheck_$v*"
   pgpool:                     "pgpool-II-pg$v-extensions" # not used
   pgagent:                    "pgagent_$v*"
 
@@ -343,13 +333,30 @@ pg_package_map:
   multicorn:                  "multicorn2_$v*"
   mongo_fdw:                  "mongo_fdw_$v*"
   mysql_fdw:                  "mysql_fdw_$v*"
-  tds_fdw:                    "tds_fdw_$v*"
   sqlite_fdw:                 "sqlite_fdw_$v*"
   hdfs_fdw:                   "hdfs_fdw_$v*"
   pgbouncer_fdw:              "pgbouncer_fdw_$v*"
-  oracle_fdw:                 "oracle_fdw_$v*"  # non-free repo, N/A by default
-  db2_fdw:                    "db2_fdw_$v*"     # non-free repo, N/A by default
+  tds_fdw:                    "tds_fdw_$v*"
+  oracle_fdw:                 "oracle_fdw_$v*"   # non-free repo, N/A by default
+  db2_fdw:                    "db2_fdw_$v*"      # non-free repo, N/A by default
   firebird_fdw:               "firebird_fdw_16*" # el9 only
+
+  #--------------------------------#
+  # SIM: MySQL, Oracle, MSSQL,...
+  #--------------------------------#
+  mysqlcompat:                "mysqlcompat_$v*"
+  pgmemcache:                 "pgmemcache_$v*"
+  pgtt:                       "pgtt_$v*"
+  orafce:                     "orafce_$v*"
+  pg_statement_rollback:      "pg_statement_rollback_$v*"
+  pg_dbms_lock:               "pg_dbms_lock_$v*"
+  pg_dbms_metadata:           "pg_dbms_metadata_$v*"
+  pg_dbms_job:                "pg_dbms_job_$v*"      # error prone with broken perl deps
+  babelfish_common:           "babelfishpg-common*"  # require WiltonDB repo and special fork
+  babelfish_tsql:             "babelfishpg-tsql*"    # require WiltonDB repo and special fork
+  babelfish_tds:              "babelfishpg-tds*"     # require WiltonDB repo and special fork
+  babelfish_money:            "babelfishpg-money*"   # require WiltonDB repo and special fork
+  babelfish:                  "babelfishpg-common*,babelfishpg-tsql*,babelfishpg-tds*,babelfishpg-money*"
 
   #--------------------------------#
   # ETL: CDC, Decoding, Replication
@@ -361,12 +368,13 @@ pg_package_map:
   wal2mongo:                  "wal2mongo_$v*"
   pg_failover_slots:          "pg_failover_slots_$v*"
   mimeo:                      "mimeo_$v"
-  repmgr:                     "repmgr_$v*" # not used, N/A by default
+  repmgr:                     "repmgr_$v*" # not used
   slony:                      "slony1_$v*" # not used, and not ready for pg16 yet
+  pgcopydb:                   "pgcopydb" # standalone binary
+  pgloader:                   "pgloader" # standalone binary
   pg_fact_loader:             "pg_fact_loader_$v*"
   pg_bulkload:                "pg_bulkload_$v*"
   pg_comparator:              "pg_comparator_$v*" # obsolete
   pgimportdoc:                "pgimportdoc_$v*"
   pgexportdoc:                "pgexportdoc_$v*"
-
 ...

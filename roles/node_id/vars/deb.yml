@@ -29,7 +29,7 @@ repo_packages_default:            # used according to `os_package`, if `repo_pac
   - redis-exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb                                                         # Miscellaneous
   - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump acl chrony # Node Tools 1
   - socat lrzsz net-tools ipvsadm dnsutils telnet ca-certificates libreadline-dev vim-tiny keepalived openssl openssh-server openssh-client # Node Tools 2
-  - patroni pgbouncer pgbackrest pgbadger pgloader pg-activity postgresql-filedump pgxnclient pgformatter pg-timetable pgcopydb             # PGDG Common
+  - patroni pgbouncer pgbackrest pgbadger pg-activity postgresql-filedump pgxnclient pgformatter pg-timetable pgcopydb pgloader             # PGDG Common
   - postgresql-client-16 postgresql-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-16-wal2json postgresql-16-repack
   - postgresql-16-age postgresql-16-anonymizer postgresql-16-asn1oid postgresql-16-auto-failover postgresql-16-bgw-replstatus postgresql-16-citus-12.1 postgresql-16-count-distinct postgresql-16-credcheck postgresql-16-cron postgresql-16-ddlx postgresql-16-debversion postgresql-16-decoderbufs postgresql-16-dirtyread postgresql-16-duckdb-fdw postgresql-16-emaj postgresql-16-extra-window-functions
   - postgresql-16-first-last-agg postgresql-16-geoip postgresql-16-gzip postgresql-16-h3 postgresql-16-hll postgresql-16-http postgresql-16-hunspell-cs-cz postgresql-16-hunspell-de-de postgresql-16-hunspell-en-us postgresql-16-hunspell-fr postgresql-16-hunspell-ne-np postgresql-16-hunspell-nl-nl postgresql-16-hunspell-nn-no postgresql-16-hunspell-pt-pt postgresql-16-hunspell-ru-ru postgresql-16-hunspell-ru-ru-aot postgresql-16-hydra postgresql-16-hypopg
@@ -97,12 +97,11 @@ pg_package_map:
   pg_exporter:                "pg-exporter"
   vip-manager:                "vip-manager"
   pgbadger:                   "pgbadger"
-  pgloader:                   "pgloader"
   pg_activity:                "pg-activity"
   pg_filedump:                "postgresql-filedump"
   pgxnclient:                 "pgxnclient"
   pgformatter:                "pgformatter"
-  pgcopydb:                   "pgcopydb"
+
 
   #--------------------------------#
   # STACK: Pre-defined Collections
@@ -186,7 +185,6 @@ pg_package_map:
   #--------------------------------#
   # FEAT: Featured, Graph, AM, MQ
   #--------------------------------#
-  rdkit:                      "postgresql-$v-rdkit"
   age:                        "postgresql-$v-age"
   hll:                        "postgresql-$v-hll"
   rum:                        "postgresql-$v-rum"
@@ -199,57 +197,7 @@ pg_package_map:
   pg_ivm:                     "postgresql-$v-pg-ivm"
   pgmq:                       "postgresql-$v-pgmq"
   pgq:                        "postgresql-$v-pgq3"
-  pg_statement_rollback:      "postgresql-$v-pg-statement-rollback"
-
-  #--------------------------------#
-  # FUNC: Agg, Utils, Compatibility
-  #--------------------------------#
-  pg_gzip:                    "postgresql-$v-gzip"
-  pg_http:                    "postgresql-$v-http"
-  topn:                       "postgresql-$v-topn"
-  pg_net:                     "postgresql-$v-pg-net"
-  pgjwt:                      "postgresql-$v-pgjwt"
-  shacrypt:                   "postgresql-$v-shacrypt"
-  pgsql_tweaks:               "postgresql-$v-pgsql-tweaks"
-  pg_extra_time:              "postgresql-$v-pg-extra-time"
-  count_distinct:             "postgresql-$v-count-distinct"
-  extra_win_agg:              "postgresql-$v-extra-window-functions"
-  first_last_agg:             "postgresql-$v-first-last-agg"
-  tdigest:                    "postgresql-$v-tdigest"
-  pgpcre:                     "postgresql-$v-pgpcre"
-  icu_ext:                    "postgresql-$v-icu-ext"
-  pg_idkit:                   "postgresql-$v-pg-idkit"
-  pg_hashids:                 "postgresql-$v-pg-hashids"
-  pg_uuidv7:                  "postgresql-$v-pg-uuidv7"
-  permuteseq:                 "postgresql-$v-permuteseq"
-  mysqlcompat:                "postgresql-$v-mysqlcompat"
-  pgmemcache:                 "postgresql-$v-pgmemcache"
-  orafce:                     "postgresql-$v-orafce"
-  pgtt:                       "postgresql-$v-pgtt"
-  #pg_dbms_lock:              # N/A in debian/ubuntu
-  #pg_dbms_metadata:          # N/A in debian/ubuntu
-  #pg_dbms_job:               # N/A in debian/ubuntu
-  #sequential_uuids:          # N/A in debian/ubuntu
-
-  #--------------------------------#
-  # TYPE: New Data Types
-  #--------------------------------#
-  prefix:                     "postgresql-$v-prefix"
-  semver:                     "postgresql-$v-semver"
-  pgmp:                       "postgresql-$v-pgmp"
-  pguint:                     "postgresql-$v-pguint"
-  pgunit:                     "postgresql-$v-unit"
-  roaringbitmap:              "postgresql-$v-roaringbitmap"
-  md5hash:                    "postgresql-$v-md5hash"
-  asn1oid:                    "postgresql-$v-asn1oid"
-  numeral:                    "postgresql-$v-numeral"
-  pg_rational:                "postgresql-$v-rational"
-  ip4r:                       "postgresql-$v-ip4r"
-  pgsphere:                   "postgresql-$v-pgsphere"
-  pg_rrule:                   "postgresql-$v-pg-rrule" # broken
-  pgfaceting:                 "postgresql-$v-pgfaceting"
-  debversion:                 "postgresql-$v-debversion"
-  #timestamp9:                 # N/A in debian/ubuntu
+  rdkit:                      "postgresql-$v-rdkit"
 
   #--------------------------------#
   # LANG: PL/Languages & Test
@@ -269,6 +217,49 @@ pg_package_map:
   #dbt2 :                     # N/A in debian/ubuntu
 
   #--------------------------------#
+  # TYPE: New Data Types
+  #--------------------------------#
+  prefix:                     "postgresql-$v-prefix"
+  semver:                     "postgresql-$v-semver"
+  pgmp:                       "postgresql-$v-pgmp"
+  pguint:                     "postgresql-$v-pguint"
+  pgunit:                     "postgresql-$v-unit"
+  roaringbitmap:              "postgresql-$v-roaringbitmap"
+  md5hash:                    "postgresql-$v-md5hash"
+  asn1oid:                    "postgresql-$v-asn1oid"
+  numeral:                    "postgresql-$v-numeral"
+  pg_rational:                "postgresql-$v-rational"
+  ip4r:                       "postgresql-$v-ip4r"
+  pgsphere:                   "postgresql-$v-pgsphere"
+  pg_rrule:                   "postgresql-$v-pg-rrule"
+  pgfaceting:                 "postgresql-$v-pgfaceting" # require pg_roaringbitmap
+  debversion:                 "postgresql-$v-debversion"
+  #timestamp9:                 # N/A in debian/ubuntu (build failure in deb system)
+
+  #--------------------------------#
+  # FUNC: Agg, Utils, IDKits
+  #--------------------------------#
+  pg_gzip:                    "postgresql-$v-gzip"
+  pg_http:                    "postgresql-$v-http"
+  topn:                       "postgresql-$v-topn"
+  pg_net:                     "postgresql-$v-pg-net"
+  pgjwt:                      "postgresql-$v-pgjwt"
+  shacrypt:                   "postgresql-$v-shacrypt"
+  pgsql_tweaks:               "postgresql-$v-pgsql-tweaks"
+  pg_extra_time:              "postgresql-$v-pg-extra-time"
+  count_distinct:             "postgresql-$v-count-distinct"
+  extra_window_functions:     "postgresql-$v-extra-window-functions"
+  first_last_agg:             "postgresql-$v-first-last-agg"
+  tdigest:                    "postgresql-$v-tdigest"
+  pgpcre:                     "postgresql-$v-pgpcre"
+  icu_ext:                    "postgresql-$v-icu-ext"
+  pg_idkit:                   "postgresql-$v-pg-idkit"
+  pg_hashids:                 "postgresql-$v-pg-hashids"
+  pg_uuidv7:                  "postgresql-$v-pg-uuidv7"
+  permuteseq:                 "postgresql-$v-permuteseq"
+  #sequential_uuids:          # N/A in debian/ubuntu
+
+  #--------------------------------#
   # ADMIN: Tools & Utilities
   #--------------------------------#
   pg_repack:                  "postgresql-$v-repack"
@@ -283,8 +274,8 @@ pg_package_map:
   safeupdate:                 "postgresql-$v-pg-safeupdate"
   pg_permissions:             "postgresql-$v-pg-permissions"
   pg_auto_failover:           "postgresql-$v-auto-failover"
-  pg_catcheck:                "postgresql-$v-pg-catcheck"
   preprepare:                 "postgresql-$v-preprepare"
+  pg_catcheck:                "postgresql-$v-pg-catcheck"
   pgpool:                     "postgresql-$v-pgpool2" # not used
   pgagent:                    "pgagent"               # not used
 
@@ -339,13 +330,30 @@ pg_package_map:
   #multicorn:                 # N/A in debian/ubuntu
   #mongo_fdw:                 # N/A in debian/ubuntu
   mysql_fdw:                  "postgresql-$v-mysql-fdw"
-  tds_fdw:                    "postgresql-$v-tds-fdw"
   sqlite_fdw:                 "postgresql-$v-sqlite-fdw"
   #hdfs_fdw:                  # N/A in debian/ubuntu
   #pgbouncer_fdw:             # N/A in debian/ubuntu
+  tds_fdw:                    "postgresql-$v-tds-fdw"
   oracle_fdw:                 "postgresql-$v-oracle-fdw"  # extra oracle deps required
   #db2_fdw:                   # N/A in debian/ubuntu
   #firebird_fdw:              # N/A in debian/ubuntu
+
+  #--------------------------------#
+  # SIM: MySQL, Oracle, MSSQL,...
+  #--------------------------------#
+  mysqlcompat:                "postgresql-$v-mysqlcompat"
+  pgmemcache:                 "postgresql-$v-pgmemcache"
+  pgtt:                       "postgresql-$v-pgtt"
+  orafce:                     "postgresql-$v-orafce"
+  pg_statement_rollback:      "postgresql-$v-pg-statement-rollback"
+  #pg_dbms_lock:              # N/A in debian/ubuntu
+  #pg_dbms_metadata:          # N/A in debian/ubuntu
+  #pg_dbms_job:               # N/A in debian/ubuntu
+  babelfish_common:           "babelfishpg-common" # require WiltonDB repo and special fork to work
+  babelfish_tsql:             "babelfishpg-tsql"   # require WiltonDB repo and special fork to work
+  babelfish_tds:              "babelfishpg-tds"    # require WiltonDB repo and special fork to work
+  babelfish_money:            "babelfishpg-money"  # require WiltonDB repo and special fork to work
+  babelfish:                  "babelfishpg-common*,babelfishpg-tsql*,babelfishpg-tds*,babelfishpg-money*"
 
   #--------------------------------#
   # ETL: CDC, Decoding, Replication
@@ -359,11 +367,11 @@ pg_package_map:
   mimeo:                      "postgresql-$v-mimeo"
   repmgr:                     "postgresql-$v-repmgr"   # not used
   slony:                      "postgresql-$v-slony1-2" # not used
+  pgcopydb:                   "pgcopydb" # standalone binary
+  pgloader:                   "pgloader" # standalone binary
   pg_fact_loader:             "postgresql-$v-pg-fact-loader" # not an extension
   pg_bulkload:                "postgresql-$v-pg-bulkload"    # not an extension
   #pg_comparator:             # N/A in debian/ubuntu  # obsolete
   #pgimportdoc:               # N/A in debian/ubuntu
   #pgexportdoc:               # N/A in debian/ubuntu
-
-
 ...
