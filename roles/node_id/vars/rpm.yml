@@ -1,8 +1,8 @@
 ---
 repo_upstream_default:            # used according to `os_package`, if `repo_upstream` not set
   - { name: pigsty-local   ,description: 'Pigsty Local'      ,module: local    ,releases: [7,8,9] ,baseurl: { default: 'http://${admin_ip}/pigsty'  }} # used by intranet nodes
-  - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra    ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/infra/$basearch' }}
-  - { name: pigsty-pgsql   ,description: 'Pigsty PGSQL'      ,module: pgsql    ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/rpm/pgsql/el$releasever.$basearch' }}
+  - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra    ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/yum/infra/$basearch' }}
+  - { name: pigsty-pgsql   ,description: 'Pigsty PGSQL'      ,module: pgsql    ,releases: [7,8,9] ,baseurl: { default: 'https://repo.pigsty.io/yum/pgsql/el$releasever.$basearch' }}
   - { name: nginx          ,description: 'Nginx Repo'        ,module: infra    ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' }}
   - { name: docker-ce      ,description: 'Docker CE'         ,module: infra    ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'    ,china: 'https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable'  ,europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' }}
   - { name: baseos         ,description: 'EL 8+ BaseOS'      ,module: node     ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/BaseOS/$basearch/os/'     ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/BaseOS/$basearch/os/'          ,europe: 'https://mirrors.xtom.de/rocky/$releasever/BaseOS/$basearch/os/'     }}
@@ -110,9 +110,9 @@ pg_package_map:
   #--------------------------------#
   # STACK: Pre-defined Collections
   #--------------------------------#
-  gis-stack:                  "postgis34_$v*,pointcloud_$v,h3-pg_$v*,pgrouting_$v*,geoip_$v*"
+  gis-stack:                  "postgis34_$v*,pointcloud_$v,h3-pg_$v*,q3c_$v*,ogr_fdw_$v*,pgrouting_$v*,geoip_$v*"
   rag-stack:                  "pgvector_$v*,pgvectorscale_$v,pg_vectorize_$v,pg_tiktoken_$v,pgml_$v"
-  fdw-stack:                  "multicorn2_$v*,wrappers_$v*,mongo_fdw_$v*,mysql_fdw_$v*,ogr_fdw_$v*,sqlite_fdw_$v*,tds_fdw_$v*,hdfs_fdw_$v*,pgbouncer_fdw_$v*,duckdb_fdw_$v*"
+  fdw-stack:                  "multicorn2_$v*,wrappers_$v*,mongo_fdw_$v*,mysql_fdw_$v*,sqlite_fdw_$v*,tds_fdw_$v*,hdfs_fdw_$v*,pgbouncer_fdw_$v*,duckdb_fdw_$v*"
   fts-stack:                  "pg_search_$v,pg_bigm_$v*,zhparser_$v*,hunspell_cs_cz_$v,hunspell_de_de_$v,hunspell_en_us_$v,hunspell_fr_$v,hunspell_ne_np_$v,hunspell_nl_nl_$v,hunspell_nn_no_$v,hunspell_ru_ru_$v,hunspell_ru_ru_aot_$v"
   etl-stack:                  "pglogical_$v*,pgl_ddl_deploy_$v*,wal2json_$v*,wal2mongo_$v*,postgres-decoderbufs_$v*,pg_fact_loader_$v*,pg_bulkload_$v*,pg_comparator_$v*,pgloader,pgcopydb"
   feat-stack:                 "apache-age_$v*,hll_$v*,rum_$v,pg_graphql_$v,pg_jsonschema_$v,jsquery_$v*,pg_ivm_$v*,pgmq_$v,pgq_$v*,pgsql_gzip_$v*,pgsql_http_$v*,topn_$v*,pgjwt_$v*"
@@ -142,6 +142,8 @@ pg_package_map:
   pgrouting:                  "pgrouting_$v*"
   pointcloud:                 "pointcloud_$v*"
   pg_h3:                      "h3-pg_$v*"
+  q3c:                        "q3c_$v*"
+  ogr_fdw:                    "ogr_fdw_$v*"
   geoip:                      "geoip_$v*"
   #mobilitydb:                 # N/A in el distro
 
@@ -247,7 +249,6 @@ pg_package_map:
   numeral:                    "numeral_$v*"
   pg_rational:                "pg_rational_$v*"
   ip4r:                       "ip4r_$v*"
-  q3c:                        "q3c_$v"
   pgsphere:                   "pgsphere_$v"
   #pg_rrule:                   "pg_rrule_$v" # build break on el system!
   pgfaceting:                 "pgfaceting_$v" # require pg_roaringbitmap
@@ -342,7 +343,6 @@ pg_package_map:
   multicorn:                  "multicorn2_$v*"
   mongo_fdw:                  "mongo_fdw_$v*"
   mysql_fdw:                  "mysql_fdw_$v*"
-  ogr_fdw:                    "ogr_fdw_$v*"
   tds_fdw:                    "tds_fdw_$v*"
   sqlite_fdw:                 "sqlite_fdw_$v*"
   hdfs_fdw:                   "hdfs_fdw_$v*"

@@ -1,8 +1,8 @@
 ---
 repo_upstream_default:            # used according to `os_package`, if `repo_upstream` not set
   - { name: pigsty-local  ,description: 'Pigsty Local'     ,module: local     ,releases: [11,12,20,22] ,baseurl: { default: 'http://${admin_ip}/pigsty ./' }}
-  - { name: pigsty-pgsql  ,description: 'Pigsty PgSQL'     ,module: pgsql     ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/deb/pgsql/${distro_codename}.amd64/ ./' }}
-  - { name: pigsty-infra  ,description: 'Pigsty Infra'     ,module: infra     ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/deb/infra/amd64/ ./' }}
+  - { name: pigsty-pgsql  ,description: 'Pigsty PgSQL'     ,module: pgsql     ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/apt/pgsql/ ${distro_codename} main' }}
+  - { name: pigsty-infra  ,description: 'Pigsty Infra'     ,module: infra     ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/apt/infra/ generic main' }}
   - { name: nginx         ,description: 'Nginx'            ,module: infra     ,releases: [11,12,20,22] ,baseurl: { default: 'http://nginx.org/packages/mainline/${distro_name} ${distro_codename} nginx' }}
   - { name: base          ,description: 'Debian Basic'     ,module: node      ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename} main non-free-firmware'         ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename} main restricted universe multiverse' }}
   - { name: updates       ,description: 'Debian Updates'   ,module: node      ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename}-updates main non-free-firmware' ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-updates main restricted universe multiverse' }}
@@ -107,10 +107,10 @@ pg_package_map:
   #--------------------------------#
   # STACK: Pre-defined Collections
   #--------------------------------#
-  gis-stack:                  "postgresql-$v-postgis-3*,postgresql-$v-pointcloud,postgresql-$v-h3,postgresql-$v-pgrouting*,postgresql-$v-geoip"
+  gis-stack:                  "postgresql-$v-postgis-3*,postgresql-$v-pointcloud,postgresql-$v-h3,postgresql-$v-q3c,postgresql-$v-ogr-fdw,postgresql-$v-pgrouting*,postgresql-$v-geoip"
   rag-stack:                  "postgresql-$v-pgvector,postgresql-$v-pgvectorscale,postgresql-$v-pg-vectorize,postgresql-$v-similarity,postgresql-$v-pg-tiktoken,postgresql-$v-pgml"
   fts-stack:                  "postgresql-$v-pg-search,postgresql-$v-pg-bigm,postgresql-$v-zhparser,postgresql-$v-hunspell-cs-cz,postgresql-$v-hunspell-de-de,postgresql-$v-hunspell-en-us,postgresql-$v-hunspell-fr,postgresql-$v-hunspell-ne-np,postgresql-$v-hunspell-nl-nl,postgresql-$v-hunspell-nn-no,postgresql-$v-hunspell-ru-ru,postgresql-$v-hunspell-ru-ru-aot"
-  fdw-stack:                  "postgresql-$v-wrappers,postgresql-$v-mysql-fdw,postgresql-$v-ogr-fdw,postgresql-$v-tds-fdw,postgresql-$v-sqlite-fdw"
+  fdw-stack:                  "postgresql-$v-wrappers,postgresql-$v-mysql-fdw,postgresql-$v-tds-fdw,postgresql-$v-sqlite-fdw"
   etl-stack:                  "postgresql-$v-pglogical*,postgresql-$v-pgl-ddl-deploy,postgresql-$v-wal2json,postgresql-$v-wal2mongo,postgresql-$v-decoderbufs,postgresql-$v-pg-fact-loader,postgresql-$v-pg-bulkload,pgloader,pgcopydb"
   feat-stack:                 "postgresql-$v-age,postgresql-$v-hll,postgresql-$v-rum,postgresql-$v-pg-graphql,postgresql-$v-pg-jsonschema,postgresql-$v-jsquery,postgresql-$v-pg-ivm,postgresql-$v-pgq3,postgresql-$v-gzip,postgresql-$v-http,postgresql-$v-topn,postgresql-$v-pgjwt"
   olap-stack:                 "duckdb,postgresql-$v-duckdb-fdw,postgresql-$v-pg-lakehouse,postgresql-$v-hydra,timescaledb-2-postgresql-$v,postgresql-$v-pg-fkpart,postgresql-$v-partman,postgresql-$v-plproxy"
@@ -138,6 +138,8 @@ pg_package_map:
   pgrouting:                  "postgresql-$v-pgrouting*"
   pointcloud:                 "postgresql-$v-pointcloud"
   pg_h3:                      "postgresql-$v-h3"
+  q3c:                        "postgresql-$v-q3c"
+  ogr_fdw:                    "postgresql-$v-ogr-fdw"
   geoip:                      "postgresql-$v-geoip"
   mobilitydb:                 "postgresql-$v-mobilitydb"
 
@@ -243,7 +245,6 @@ pg_package_map:
   numeral:                    "postgresql-$v-numeral"
   pg_rational:                "postgresql-$v-rational"
   ip4r:                       "postgresql-$v-ip4r"
-  q3c:                        "postgresql-$v-q3c"
   pgsphere:                   "postgresql-$v-pgsphere"
   pg_rrule:                   "postgresql-$v-pg-rrule" # broken
   pgfaceting:                 "postgresql-$v-pgfaceting"
@@ -284,8 +285,8 @@ pg_package_map:
   pg_auto_failover:           "postgresql-$v-auto-failover"
   pg_catcheck:                "postgresql-$v-pg-catcheck"
   preprepare:                 "postgresql-$v-preprepare"
-  pgpool:                     "postgresql-$v-pgpool2" # not used, N/A by default
-  #pgagent:                   # N/A in debian/ubuntu
+  pgpool:                     "postgresql-$v-pgpool2" # not used
+  pgagent:                    "pgagent"               # not used
 
   #--------------------------------#
   # STAT: Monitor & Observability
@@ -338,7 +339,6 @@ pg_package_map:
   #multicorn:                 # N/A in debian/ubuntu
   #mongo_fdw:                 # N/A in debian/ubuntu
   mysql_fdw:                  "postgresql-$v-mysql-fdw"
-  ogr_fdw:                    "postgresql-$v-ogr-fdw"
   tds_fdw:                    "postgresql-$v-tds-fdw"
   sqlite_fdw:                 "postgresql-$v-sqlite-fdw"
   #hdfs_fdw:                  # N/A in debian/ubuntu
