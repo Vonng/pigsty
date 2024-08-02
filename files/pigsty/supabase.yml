@@ -31,7 +31,6 @@ all:
       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
       vars:
         pg_cluster: pg-meta
-
         pg_users:
           # supabase roles: anon, authenticated, dashboard_user
           - { name: anon           ,login: false }
@@ -67,13 +66,14 @@ all:
               - { name: pg_jsonschema   }                # 0.3.1 : pg_jsonschema: Validate json schema
               - { name: wrappers        }                # 0.4.1 : wrappers: FDW collections
               - { name: http            }                # 1.6   : http: allows web page retrieval inside the database.
-
+              - { name: pg_cron         }
         # supabase required extensions
         pg_libs: 'pg_net, pg_cron, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
-        pg_extensions: [ 'supa-stack' ]
-        # - pg_repack wal2json pgvector pg_cron pg_sodium pg_graphql pg_jsonschema wrappers vault pgjwt pg_net pgsql_http
+        pg_extensions:
+          - wal2json pg_repack
+          - supa-stack # pgvector pg_cron pgsodium pg_graphql pg_jsonschema wrappers pgjwt pgsql_http pg_net supautils
         pg_parameters:
-          cron.database: supa
+          cron.database_name: supa
           pgsodium.enable_event_trigger: off
         pg_hba_rules: # supabase hba rules, require access from docker network
           - { user: all ,db: supa ,addr: intra       ,auth: pwd ,title: 'allow supa database access from intranet'      }
@@ -84,7 +84,6 @@ all:
     version: v2.8.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
-
     infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
