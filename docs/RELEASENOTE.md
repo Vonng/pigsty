@@ -64,12 +64,13 @@ Deprecate support on EOL OS Distro: EL7 (CentOS 7.9), Debian 11 (Bullseye), and 
 - [x] Bump FerretDB, SealOS to the latest version
 - [x] `pgvectorscale` extension with DiskANN support
 - [x] New Extension for PG 16: `wal2mongo`, `multicorn2`, `pgtap`, `pg_dbms_job`
+- [x] specify config in `infra_portal` config to use existing certs
+- [x] Fix openssh CVE vulnerability
 - [ ] Observability enhancement
-- [ ] specify config in `infra_portal` config to use existing certs
-- [ ] bump default rocky minor version to 9.3
-- [ ] VictoriaMetrics & Vector ?
-- [ ] Migration pigsty repo entirely to Cloudflare?
-- [ ] Fix openssh CVE vulnerability
+- [ ] bump default rocky minor version to 9.3 (TBD)
+- [ ] VictoriaMetrics & Vector ? (NOT PLANNED)
+- [ ] Migration pigsty repo entirely to Cloudflare? (PLANNING)
+
 
 **Software Upgrade**
 
