@@ -36,7 +36,7 @@
         {% if 'locale'     in  database and database.locale != ''     %}-l '{{ database.locale     }}' {% endif %}
         {% if 'tablespace' in  database and database.tablespace != '' %}-D '{{ database.tablespace }}' {% endif %}
         '{{ database.name }}' || true
-        db_exists=$({{ pg_bin_dir }}/psql -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} -AXtwq postgres -c "SELECT true WHERE EXISTS(SELECT * FROM pg_database WHERE datname = '{{ database.name }}' LIMIT 1);")
+        db_exists=$({{ pg_bin_dir|default('/usr/pgsql/bin') }}/psql -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} -AXtwq postgres -c "SELECT true WHERE EXISTS(SELECT * FROM pg_database WHERE datname = '{{ database.name }}' LIMIT 1);")
         [[ -z "${db_exists}" ]] && exit 1 || exit 0
       args: { executable: /bin/bash }
 
