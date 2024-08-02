@@ -160,8 +160,12 @@ bin/pgsql-hba <cls> ip1 ip2...      # reload hba rules of specific instances
 The underlying command: are:
 
 ```bash
-./pgsql.yml -l <cls> -e pg_reload=true -t pg_hba
+./pgsql.yml -l <cls> -e pg_reload=true -t pg_hba,pg_reload
 ./pgsql.yml -l <cls> -e pg_reload=true -t pgbouncer_hba,pgbouncer_reload
+
+# if you wish to check before reload:
+./pgsql.yml -l <cls> -e pg_reload=false -t pg_hba,pg_reload
+./pgsql.yml -l <cls> -e pg_reload=false -t pgbouncer_hba,pgbouncer_reload
 ```
 
 

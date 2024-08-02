@@ -179,8 +179,8 @@ bin/pgsql-svc <cls> [ip...]       # pgsql.yml -l ip... -t pg_service -e pg_reloa
 要在整个集群或特定实例上重新加载 postgres 和 pgbouncer 的 HBA 规则：
 
 ```bash
-bin/pgsql-hba <cls>               # pgsql.yml -l <cls> -t pg_hba,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
-bin/pgsql-hba <cls> [ip...]       # pgsql.yml -l ip... -t pg_hba,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
+bin/pgsql-hba <cls>               # pgsql.yml -l <cls> -t pg_hba,pg_reload,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
+bin/pgsql-hba <cls> [ip...]       # pgsql.yml -l ip... -t pg_hba,pg_reload,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
 ```
 
 <details><summary>示例：重载集群 HBA 规则</summary>

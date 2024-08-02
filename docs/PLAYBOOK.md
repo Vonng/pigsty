@@ -125,7 +125,7 @@ Here are some examples of task limit:
 ./pgsql.yml -t pg_register # register postgres to pigsty infrastructure
 
 # run multiple tasks: reload postgres & pgbouncer hba rules
-./pgsql.yml -t pg_hba,pgbouncer_hba,pgbouncer_reload
+./pgsql.yml -t pg_hba,pg_reload,pgbouncer_hba,pgbouncer_reload
 
 # run multiple tasks: refresh haproxy config & reload it
 ./node.yml -t haproxy_config,haproxy_reload

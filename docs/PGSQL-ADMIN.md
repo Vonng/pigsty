@@ -178,8 +178,8 @@ If you have any role-specific HBA rules, you may have to reload hba after a swit
 To reload postgres & pgbouncer HBA rules on entire cluster or specific instances:
 
 ```bash
-bin/pgsql-hba <cls>               # pgsql.yml -l <cls> -t pg_hba,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
-bin/pgsql-hba <cls> [ip...]       # pgsql.yml -l ip... -t pg_hba,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
+bin/pgsql-hba <cls>               # pgsql.yml -l <cls> -t pg_hba,pg_reload,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
+bin/pgsql-hba <cls> [ip...]       # pgsql.yml -l ip... -t pg_hba,pg_reload,pgbouncer_hba,pgbouncer_reload -e pg_reload=true
 ```
 
 <details><summary>Example: Reload Cluster HBA Rules</summary>

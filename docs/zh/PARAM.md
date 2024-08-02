@@ -4362,6 +4362,20 @@ Patroni 3.0的原生citus支持，将为citus指定一个由patroni自身创建�
 
 
 
+
+
+### `pg_parameters`
+
+参数名称： `pg_parameters`， 类型： `dict`， 层次：`G/C/I`
+
+在 `postgresql.auto.conf` 中额外指定的 PostgreSQL 参数。通常用于在实例层面覆盖 Patroni / DCS 中的集群配置参数。
+
+注意，有一些特别参数是由 Patroni 直接管理的，你必须通过 Patroni 命令行工具进行变更。
+
+
+
+
+
 ### `pg_conf`
 
 参数名称： `pg_conf`， 类型： `enum`， 层次：`C`

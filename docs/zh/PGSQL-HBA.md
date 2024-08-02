@@ -170,8 +170,12 @@ bin/pgsql-hba <cls> ip1 ip2...      # 重新加载特定实例的 hba 规则
 底层实际执行的 Ansible 剧本命令为：
 
 ```bash
-./pgsql.yml -l <cls> -e pg_reload=true -t pg_hba
+./pgsql.yml -l <cls> -e pg_reload=true -t pg_hba,pg_reload
 ./pgsql.yml -l <cls> -e pg_reload=true -t pgbouncer_hba,pgbouncer_reload
+
+# 如果你想检查后再执行，可以设置 pg_reload=false
+./pgsql.yml -l <cls> -e pg_reload=false -t pg_hba,pg_reload
+./pgsql.yml -l <cls> -e pg_reload=false -t pgbouncer_hba,pgbouncer_reload
 ```
 
 
