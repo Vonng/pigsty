@@ -84,13 +84,13 @@
 - name: link pg bin dir to current version
   tags: pg_path
   file: src="{{ pg_home_dir }}" dest={{ pg_bin_dir | dirname }} state=link
-  vars: { pg_home_dir : "{% if os_package is defined and os_package == 'deb' %}/usr/lib/postgresql/{{ pg_version }}{% else %}/usr/pgsql-{{ pg_version }}{% endif %}" }
+  vars: { pg_home_dir: "{% if os_package is defined and os_package == 'deb' %}/usr/lib/postgresql/{{ pg_version }}{% else %}/usr/pgsql-{{ pg_version }}{% endif %}" }
 
 
 #--------------------------------------------------------------#
 # Setup pgsql profile                                   [pg_env]
 #--------------------------------------------------------------#
-# add /usr/pgsql/bin/ to PATH environment variable
+# add {{ pg_bin_dir }} to PATH environment variable
 - name: add pgsql path to system profile
   tags: pg_env
   copy:

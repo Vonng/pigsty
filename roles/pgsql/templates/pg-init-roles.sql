@@ -22,7 +22,7 @@
 {% if 'inherit' in user and not user.inherit %} --no-inherit{% endif %}
 {% if 'replication' in user and user.replication %} --replication{% endif %}
 '{{ user.name }}';
--- psql -p {{ pg_port }} -AXtwqf /pg/tmp/pg-user-{{ user.name }}.sql
+-- {{ pg_bin_dir}}/psql -p {{ pg_port }} -AXtwqf /pg/tmp/pg-user-{{ user.name }}.sql
 
 --==================================================================--
 --                           CREATE USER                            --

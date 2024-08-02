@@ -30,13 +30,13 @@
       ignore_errors: true
       become_user: "{{ pg_dbsu|default('postgres') }}"
       shell: |
-        createdb -w -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} {% if 'owner' in  database and database.owner != '' %}-O "{{ database.owner }}" {% endif %}
+        {{ pg_bin_dir|default('/usr/pgsql/bin') }}/createdb -w -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} {% if 'owner' in  database and database.owner != '' %}-O "{{ database.owner }}" {% endif %}
         {% if 'template'   in  database and database.template != ''   %}-T '{{ database.template   }}' {% endif %}
         {% if 'encoding'   in  database and database.encoding != ''   %}-E '{{ database.encoding   }}' {% endif %}
         {% if 'locale'     in  database and database.locale != ''     %}-l '{{ database.locale     }}' {% endif %}
         {% if 'tablespace' in  database and database.tablespace != '' %}-D '{{ database.tablespace }}' {% endif %}
         '{{ database.name }}' || true
-        db_exists=$(psql -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} -AXtwq postgres -c "SELECT true WHERE EXISTS(SELECT * FROM pg_database WHERE datname = '{{ database.name }}' LIMIT 1);")
+        db_exists=$({{ pg_bin_dir }}/psql -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} -AXtwq postgres -c "SELECT true WHERE EXISTS(SELECT * FROM pg_database WHERE datname = '{{ database.name }}' LIMIT 1);")
         [[ -z "${db_exists}" ]] && exit 1 || exit 0
       args: { executable: /bin/bash }
 
@@ -44,13 +44,15 @@
       tags: pg_db_create
       ignore_errors: true
       become_user: "{{ pg_dbsu|default('postgres') }}"
-      command: psql {{ database.name }} -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} -AXtwqf /pg/tmp/pg-db-{{ database.name }}.sql
+      shell: |
+        {{ pg_bin_dir|default('/usr/pgsql/bin') }}/psql {{ database.name }} -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} -AXtwf /pg/tmp/pg-db-{{ database.name }}.sql >> /pg/tmp/pg-db-{{ database.name }}.log
 
     - name: load database {{ database.name }} baseline
       tags: pg_db_create
       ignore_errors: true
       become_user: "{{ pg_dbsu|default('postgres') }}"
-      command: psql {{ database.name }} -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} -AXtwqf /pg/tmp/pg-db-{{ database.name }}-baseline.sql
+      shell: |
+        {{ pg_bin_dir|default('/usr/pgsql/bin') }}/psql {{ database.name }} -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} -AXtwf /pg/tmp/pg-db-{{ database.name }}-baseline.sql >> /pg/tmp/pg-db-{{ database.name }}-baseline.log
       when: database.baseline is defined
 
 ...

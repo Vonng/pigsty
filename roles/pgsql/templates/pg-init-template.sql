@@ -12,7 +12,7 @@
 --==================================================================--
 --                           Executions                             --
 --==================================================================--
--- psql template1 -AXtwqf /pg/tmp/pg-init-template.sql
+-- {{ pg_bin_dir}}/psql template1 -AXtwqf /pg/tmp/pg-init-template.sql
 -- this sql scripts is responsible for post-init procedure
 -- it will
 --    * create system users such as replicator, monitor user, admin user

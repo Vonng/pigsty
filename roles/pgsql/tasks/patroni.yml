@@ -34,7 +34,8 @@
 
     - name: check postgres primary ready
       become_user: "{{ pg_dbsu }}"
-      command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
+      shell: |
+        {{ pg_bin_dir }}/pg_isready -p {{ pg_port }}
 
     - name: remove postgres backup conf
       file: path={{ item }} state=absent
@@ -75,7 +76,8 @@
     - name: check postgres primary inited
       tags: pg_init_exec
       become_user: "{{ pg_dbsu }}"
-      command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
+      shell: |
+        {{ pg_bin_dir }}/pg_isready -p {{ pg_port }}
 
 
 #--------------------------------------------------------------#
@@ -115,7 +117,8 @@
       become_user: "{{ pg_dbsu }}"
       environment:
         PGPASSWORD: "{{ pg_replication_password }}"
-      command: psql -w -h {{ pg_primary_ip }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
+      shell: |
+        {{ pg_bin_dir }}/psql -w -h {{ pg_primary_ip }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
 
     - name: launch patroni replica
       systemd: name=patroni state=restarted enabled=yes daemon_reload=yes
@@ -129,7 +132,8 @@
 
     - name: check postgres replica ready
       become_user: "{{ pg_dbsu }}"
-      command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
+      shell: |
+        {{ pg_bin_dir }}/pg_isready -p {{ pg_port }}
 
 
 #--------------------------------------------------------------#
@@ -145,8 +149,10 @@
 
     - name: reload postgres hba rules
       when: pg_reload|bool
-      shell: "{{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} reload;"
+      shell: |
+        {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} reload
       args: { executable: /bin/bash }
+
 
 #--------------------------------------------------------------#
 # Reload Patroni Conf                           [patroni_reload]

@@ -17,21 +17,21 @@ PROG_DIR="$(cd $(dirname $0) && pwd)"
 #--------------------------------------------------------------#
 #                        Default Roles                         #
 #--------------------------------------------------------------#
-psql postgres -qAXwtf /pg/tmp/pg-init-roles.sql
+{{ pg_bin_dir}}/psql postgres -qAXwtf /pg/tmp/pg-init-roles.sql
 
 
 #--------------------------------------------------------------#
 #                        System Template                       #
 #--------------------------------------------------------------#
 # system default template
-psql template1 -qAXwtf /pg/tmp/pg-init-template.sql
+{{ pg_bin_dir}}/psql template1 -qAXwtf /pg/tmp/pg-init-template.sql
 
 # make postgres same as templated database (optional)
-psql postgres  -qAXwtf /pg/tmp/pg-init-template.sql
+{{ pg_bin_dir}}/psql postgres  -qAXwtf /pg/tmp/pg-init-template.sql
 
 {% if pg_mode == 'citus' and patroni_citus_db != 'postgres' %}
 # patroni_citus_db are created by patroni, init with templates
-psql {{ patroni_citus_db }}  -qAXwtf /pg/tmp/pg-init-template.sql
+{{ pg_bin_dir}}/psql {{ patroni_citus_db }}  -qAXwtf /pg/tmp/pg-init-template.sql
 {% endif %}
 
 #--------------------------------------------------------------#
