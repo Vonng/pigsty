@@ -175,7 +175,7 @@
 | 731 | [`redis_rename_commands`](#redis_rename_commands)               | [`REDIS`](#redis) |         [`REDIS`](#redis)         | dict        | C     | Redis危险命令重命名列表                                                                  |
 | 732 | [`redis_cluster_replicas`](#redis_cluster_replicas)             | [`REDIS`](#redis) |         [`REDIS`](#redis)         | int         | C     | Redis原生集群中每个主库配几个从库？                                                            |
 | 733 | [`redis_sentinel_monitor`](#redis_sentinel_monitor)             | [`REDIS`](#redis) |         [`REDIS`](#redis)         | master[]    | C     | Redis哨兵监控的主库列表，只在哨兵集群上使用                                                        |
-| 801 | [`pg_mode`](#pg_mode)                                           | [`PGSQL`](#pgsql) |         [`PG_ID`](#pg_id)         | enum        | C     | pgsql 集群模式: pgsql,citus,gpsql                                                   |
+| 801 | [`pg_mode`](#pg_mode)                                           | [`PGSQL`](#pgsql) |         [`PG_ID`](#pg_id)         | enum        | C     | pgsql 集群模式: pgsql,citus,gpsql,mssql                                             |
 | 802 | [`pg_cluster`](#pg_cluster)                                     | [`PGSQL`](#pgsql) |         [`PG_ID`](#pg_id)         | string      | C     | pgsql 集群名称, 必选身份参数                                                              |
 | 803 | [`pg_seq`](#pg_seq)                                             | [`PGSQL`](#pgsql) |         [`PG_ID`](#pg_id)         | int         | I     | pgsql 实例号, 必选身份参数                                                               |
 | 804 | [`pg_role`](#pg_role)                                           | [`PGSQL`](#pgsql) |         [`PG_ID`](#pg_id)         | enum        | I     | pgsql 实例角色, 必选身份参数, 可为 primary，replica，offline                                  |
@@ -3401,7 +3401,7 @@ pg-test:
 
 参数名称： `pg_mode`， 类型： `enum`， 层次：`C`
 
-PostgreSQL 集群模式，可选值为：`pgsql`，`citus`，或 `gpsql`，默认值为 `pgsql`，即标准的 PostgreSQL 集群。
+PostgreSQL 集群模式，可选值为：`pgsql`，`citus`， `gpsql` 或 `mssql`，默认值为 `pgsql`，即标准的 PostgreSQL 集群。
 
 如果 `pg_mode` 设置为 `citus` 或 `gpsql`，则需要两个额外的必选身份参数 [`pg_shard`](#pg_shard) 和 [`pg_group`](#pg_group) 来定义水平分片集群的身份。
 

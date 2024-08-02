@@ -921,7 +921,7 @@ curl -L https://github.com/Vonng/pigsty/releases/download/v2.0.0/pigsty-pkg-v2.0
 - `NODE`.`NODE_TUNE`.`node_hugepage_ratio`        : mem hugepage ratio, 0 disable it by default
 - `NODE`.`NODE_TUNE`.`node_overcommit_ratio`      : node mem overcommit ratio, 0 disable it by default
 - `NODE`.`HAPROXY`.`haproxy_service`              : list of haproxy service to be exposed
-- `PGSQL`.`PG_ID`.`pg_mode`                       : pgsql cluster mode: pgsql,citus,gpsql
+- `PGSQL`.`PG_ID`.`pg_mode`                       : pgsql cluster mode: pgsql,citus,gpsql,mssql
 - `PGSQL`.`PG_BUSINESS`.`pg_dbsu_password`        : dbsu password, empty string means no dbsu password by default
 - `PGSQL`.`PG_INSTALL`.`pg_log_dir`               : postgres log dir, `/pg/data/log` by default
 - `PGSQL`.`PG_BOOTSTRAP`.`pg_storage_type`        : SSD|HDD, SSD by default

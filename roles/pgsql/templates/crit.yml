@@ -54,21 +54,17 @@
 # namespace, instance, cluster/shard scope
 namespace: {{ pg_namespace }}/
 name: {{ pg_instance }}
-{% if pg_mode == 'pgsql' %}
-scope: {{ pg_cluster }}   # common pgsql cluster
-{% elif pg_mode == 'citus' %}
-scope: {{ pg_shard }}   # citus shard cluster: {{ pg_cluster }}
-{% else %}
-{{ abort("invalid pg_mode: " + pg_mode) }}
-{% endif %}
-
 {% if pg_mode == 'citus' %}
+scope: {{ pg_shard }}   # citus shard cluster: {{ pg_cluster }}
+
 #--------------------------------------------------------------#
 # citus
 #--------------------------------------------------------------#
 citus:
   group: {{ pg_group }}
   database: {{ pg_primary_db }}
+{% else %}
+scope: {{ pg_cluster }}   # common pgsql cluster
 {% endif %}
 
 #--------------------------------------------------------------#

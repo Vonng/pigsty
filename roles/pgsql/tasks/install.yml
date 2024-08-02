@@ -75,16 +75,18 @@
         /bin/true;
       args: { executable: /bin/bash }
 
+
 #--------------------------------------------------------------#
 # Setup bin path                                       [pg_path]
 #--------------------------------------------------------------#
 # soft link pgsql bin dir to specific pgsql binary version
 # RHEL  : /usr/pgsql-{{ pg_version }}
+#   - MSSQL (WiltonDB): /usr
 # Debian: /usr/lib/postgresql/{{ pg_version }}
 - name: link pg bin dir to current version
   tags: pg_path
   file: src="{{ pg_home_dir }}" dest={{ pg_bin_dir | dirname }} state=link
-  vars: { pg_home_dir: "{% if os_package is defined and os_package == 'deb' %}/usr/lib/postgresql/{{ pg_version }}{% else %}/usr/pgsql-{{ pg_version }}{% endif %}" }
+  vars: { pg_home_dir : "{% if os_package is defined and os_package == 'deb' %}/usr/lib/postgresql/{{ pg_version }}{% else %}{% if pg_mode=='mssql' %}/usr{% else %}/usr/pgsql-{{ pg_version }}{% endif %}{% endif %}" }
 
 
 #--------------------------------------------------------------#

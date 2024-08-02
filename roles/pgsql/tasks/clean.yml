@@ -106,10 +106,10 @@
       delegate_to: '{{ admin_ip }}'
       become: no
       shell: |
-        {% if pg_mode == 'pgsql' %}
-        META_DIR="{{ pg_namespace|default('/pg') }}/{{ pg_cluster }}"
-        {% elif pg_mode == 'citus '%}
+        {% if pg_mode == 'citus' %}
         META_DIR="{{ pg_namespace|default('/pg') }}/{{ pg_shard }}/{{ pg_group }}"
+        {% else %}
+        META_DIR="{{ pg_namespace|default('/pg') }}/{{ pg_cluster }}"
         {% endif %}
         
         export ETCDCTL_API=3

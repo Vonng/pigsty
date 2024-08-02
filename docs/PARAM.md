@@ -175,7 +175,7 @@
 | 731 | [`redis_rename_commands`](#redis_rename_commands)               | [`REDIS`](#redis) | [`REDIS`](#redis)                 | dict        | C     | rename redis dangerous commands                                               |
 | 732 | [`redis_cluster_replicas`](#redis_cluster_replicas)             | [`REDIS`](#redis) | [`REDIS`](#redis)                 | int         | C     | replica number for one master in redis cluster                                |
 | 733 | [`redis_sentinel_monitor`](#redis_sentinel_monitor)             | [`REDIS`](#redis) | [`REDIS`](#redis)                 | master[]    | C     | sentinel master list, works on sentinel cluster only                          |
-| 801 | [`pg_mode`](#pg_mode)                                           | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | enum        | C     | pgsql cluster mode: pgsql,citus,gpsql                                         |
+| 801 | [`pg_mode`](#pg_mode)                                           | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | enum        | C     | pgsql cluster mode: pgsql,citus,gpsql,mssql                                   |
 | 802 | [`pg_cluster`](#pg_cluster)                                     | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | string      | C     | pgsql cluster name, REQUIRED identity parameter                               |
 | 803 | [`pg_seq`](#pg_seq)                                             | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | int         | I     | pgsql instance seq number, REQUIRED identity parameter                        |
 | 804 | [`pg_role`](#pg_role)                                           | [`PGSQL`](#pgsql) | [`PG_ID`](#pg_id)                 | enum        | I     | pgsql role, REQUIRED, could be primary,replica,offline                        |
@@ -3386,9 +3386,11 @@ All other params can be inherited from the global config or the default config, 
 
 name: `pg_mode`, type: `enum`, level: `C`
 
-pgsql cluster mode, cloud be `pgsql`, `citus`, or `gpsql`, `pgsql` by default.
+pgsql cluster mode, cloud be `pgsql`, `citus`, `gpsql`, or `mssql`, `pgsql` by default.
 
 If `pg_mode` is set to `citus` or `gpsql`, [`pg_shard`](#pg_shard) and [`pg_group`](#pg_group) will be required for horizontal sharding clusters.
+
+If `pg_mode` is set to `mssql`, it will change the default binary dir according to WiltonDB's FHS layout.
 
 
 
