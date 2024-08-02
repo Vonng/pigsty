@@ -359,7 +359,7 @@ Pigsty 原生支持 Citus。可以参考 [`files/pigsty/citus.yml`](https://gith
 
 - [`pg_mode`](PARAM#pg_mode) 必须设置为 `citus`，而不是默认的 `pgsql`
 - 在每个分片集群上都必须定义分片名 [`pg_shard`](PARAM#pg_shard) 和分片号 [`pg_group`](PARAM#pg_group)
-- 必须定义 [`patroni_citus_db`](PARAM#patroni_citus_db) 来指定由 Patroni 管理的数据库。
+- 必须定义 [`pg_primary_db`](PARAM#pg_primary_db) 来指定由 Patroni 管理的数据库。
 - 如果您想使用 [`pg_dbsu`](PARAM#pg_dbsu) 的 `postgres` 而不是默认的 [`pg_admin_username`](PARAM#pg_admin_username) 来执行管理命令，那么 [`pg_dbsu_password`](PARAM#pg_dbsu_password) 必须设置为非空的纯文本密码
 
 此外，还需要额外的 hba 规则，允许从本地和其他数据节点进行 SSL 访问。如下所示：
@@ -384,7 +384,7 @@ all:
   vars:                               # 所有 Citus 集群的全局参数
     pg_mode: citus                    # pgsql 集群模式需要设置为： citus
     pg_shard: pg-citus                # citus 水平分片名称： pg-citus
-    patroni_citus_db: meta            # citus 数据库名称：meta
+    pg_primary_db: meta               # citus 数据库名称：meta
     pg_dbsu_password: DBUser.Postgres # 如果使用 dbsu ，那么需要为其配置一个密码
     pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
     pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]

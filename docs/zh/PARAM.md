@@ -227,7 +227,7 @@
 | 866 | [`patroni_watchdog_mode`](#patroni_watchdog_mode)               | [`PGSQL`](#pgsql) |  [`PG_BOOTSTRAP`](#pg_bootstrap)  | enum        | C     | patroni 看门狗模式：automatic,required,off，默认为 off                                    |
 | 867 | [`patroni_username`](#patroni_username)                         | [`PGSQL`](#pgsql) |  [`PG_BOOTSTRAP`](#pg_bootstrap)  | username    | C     | patroni restapi 用户名，默认为 `postgres`                                              |
 | 868 | [`patroni_password`](#patroni_password)                         | [`PGSQL`](#pgsql) |  [`PG_BOOTSTRAP`](#pg_bootstrap)  | password    | C     | patroni restapi 密码，默认为 `Patroni.API`                                            |
-| 869 | [`patroni_citus_db`](#patroni_citus_db)                         | [`PGSQL`](#pgsql) |  [`PG_BOOTSTRAP`](#pg_bootstrap)  | string      | C     | 由 Patroni 所管理的 Citus 数据库名称，默认为 `postgres`                                       |
+| 869 | [`pg_primary_db`](#pg_primary_db)                               | [`PGSQL`](#pgsql) |  [`PG_BOOTSTRAP`](#pg_bootstrap)  | string      | C     | 由 Patroni 所管理的 Citus 数据库名称，默认为 `postgres`                                       |
 | 870 | [`pg_conf`](#pg_conf)                                           | [`PGSQL`](#pgsql) |  [`PG_BOOTSTRAP`](#pg_bootstrap)  | enum        | C     | 配置模板：oltp,olap,crit,tiny，默认为 `oltp.yml`                                         |
 | 871 | [`pg_max_conn`](#pg_max_conn)                                   | [`PGSQL`](#pgsql) |  [`PG_BOOTSTRAP`](#pg_bootstrap)  | int         | C     | postgres 最大连接数，`auto` 将使用推荐值                                                    |
 | 872 | [`pg_shared_buffer_ratio`](#pg_shared_buffer_ratio)             | [`PGSQL`](#pgsql) |  [`PG_BOOTSTRAP`](#pg_bootstrap)  | float       | C     | postgres 共享缓冲区内存比率，默认为 0.25，范围 0.1~0.4                                          |
@@ -4083,7 +4083,7 @@ patroni_ssl_enabled: false        # secure patroni RestAPI communications with S
 patroni_watchdog_mode: off        # patroni watchdog mode: automatic,required,off. off by default
 patroni_username: postgres        # patroni restapi username, `postgres` by default
 patroni_password: Patroni.API     # patroni restapi password, `Patroni.API` by default
-patroni_citus_db: postgres        # citus database managed by patroni, postgres by default
+pg_primary_db: postgres           # citus database managed by patroni, postgres by default
 pg_conf: oltp.yml                 # config template: oltp,olap,crit,tiny. `oltp.yml` by default
 pg_max_conn: auto                 # postgres max connections, `auto` will use recommended value
 pg_shared_buffer_ratio: 0.25      # postgres shared buffer ratio, 0.25 by default, 0.1~0.4
@@ -4350,9 +4350,11 @@ Patroni REST API 密码，默认为`Patroni.API`。
 
 
 
-### `patroni_citus_db`
+### `pg_primary_db`
 
-参数名称： `patroni_citus_db`， 类型： `string`， 层次：`C`
+参数名称： `pg_primary_db`， 类型： `string`， 层次：`C`
+
+显式指定集群中的首要数据库，在 Citus 等模式中使用，默认为 `postgres`。
 
 由 Patroni 管理的 citus 业务数据库，默认为 `postgres`。
 

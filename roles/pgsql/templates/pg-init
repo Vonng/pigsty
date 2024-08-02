@@ -29,9 +29,9 @@ PROG_DIR="$(cd $(dirname $0) && pwd)"
 # make postgres same as templated database (optional)
 {{ pg_bin_dir}}/psql postgres  -qAXwtf /pg/tmp/pg-init-template.sql
 
-{% if pg_mode == 'citus' and patroni_citus_db != 'postgres' %}
-# patroni_citus_db are created by patroni, init with templates
-{{ pg_bin_dir}}/psql {{ patroni_citus_db }}  -qAXwtf /pg/tmp/pg-init-template.sql
+{% if pg_mode == 'citus' and pg_primary_db != 'postgres' %}
+# pg_primary_db are created by patroni, init with templates
+{{ pg_bin_dir}}/psql {{ pg_primary_db }}  -qAXwtf /pg/tmp/pg-init-template.sql
 {% endif %}
 
 #--------------------------------------------------------------#

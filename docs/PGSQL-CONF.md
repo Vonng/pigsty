@@ -370,7 +370,7 @@ To define a citus cluster, you have to specify the following parameters:
 
 - [`pg_mode`](PARAM#pg_mode) has to be set to `citus` instead of default `pgsql`
 - [`pg_shard`](PARAM#pg_shard) & [`pg_group`](PARAM#pg_group) has to be defined on each sharding cluster
-- [`patroni_citus_db`](PARAM#patroni_citus_db) has to be defined to specify the database to be managed
+- [`pg_primary_db`](PARAM#pg_primary_db) has to be defined to specify the database to be managed
 - [`pg_dbsu_password`](PARAM#pg_dbsu_password) has to be set to a non-empty string plain password if you want to use the [`pg_dbsu`](PARAM#pg_dbsu) `postgres` rather than default [`pg_admin_username`](PARAM#pg_admin_username) to perform admin commands 
 
 Besides, extra hba rules that allow ssl access from local & other data nodes are required. Which may looks like this  
@@ -395,7 +395,7 @@ all:
   vars:                               # global parameters for all citus clusters
     pg_mode: citus                    # pgsql cluster mode: citus
     pg_shard: pg-citus                # citus shard name: pg-citus
-    patroni_citus_db: meta            # citus distributed database name
+    pg_primary_db: meta               # citus distributed database name
     pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
     pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
     pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]

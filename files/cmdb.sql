@@ -1493,7 +1493,7 @@ INSERT INTO pigsty.default_var VALUES
 (866, 'patroni_watchdog_mode', '"off"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'patroni watchdog mode: automatic,required,off. off by default', NULL),
 (867, 'patroni_username', '"postgres"', 'PGSQL', 'PG_BOOTSTRAP', 'username', 'C', 'patroni restapi username, `postgres` by default', NULL),
 (868, 'patroni_password', '"Patroni.API"', 'PGSQL', 'PG_BOOTSTRAP', 'password', 'C', 'patroni restapi password, `Patroni.API` by default', NULL),
-(869, 'patroni_citus_db', '"postgres"', 'PGSQL', 'PG_BOOTSTRAP', 'string', 'C', 'citus database managed by patroni, postgres by default', NULL),
+(869, 'pg_primary_db', '"postgres"', 'PGSQL', 'PG_BOOTSTRAP', 'string', 'C', 'primary database in this cluster, optional, postgres by default', NULL),
 (870, 'pg_conf', '"oltp.yml"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'config template: oltp,olap,crit,tiny. `oltp.yml` by default', NULL),
 (871, 'pg_max_conn', '"auto"', 'PGSQL', 'PG_BOOTSTRAP', 'int', 'C', 'postgres max connections, `auto` will use recommended value', NULL),
 (872, 'pg_shared_buffer_ratio', '0.25', 'PGSQL', 'PG_BOOTSTRAP', 'float', 'C', 'postgres shared buffer memory ratio, 0.25 by default, 0.1~0.4', NULL),
