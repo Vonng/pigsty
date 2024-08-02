@@ -3,7 +3,7 @@
 # File      :   prod-deb.yml
 # Desc      :   Pigsty config for a prod simulation (ubuntu/debian)
 # Ctime     :   2023-10-16
-# Mtime     :   2024-05-16
+# Mtime     :   2024-08-02
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -128,20 +128,24 @@ all:
           - { name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database }
         pg_hba_rules:
           - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
-        pg_extensions:
-          - postgresql-$v-postgis* timescaledb-2-postgresql-$v postgresql-$v-pgvector postgresql-$v-citus-12.1
-          #[ GIS & Timeseries  ]# - timescaledb-2-postgresql-$v postgresql-$v-postgis-3* postgresql-$v-pgrouting* postgresql-$v-pointcloud postgresql-$v-h3 postgresql-$v-ip4r postgresql-$v-mobilitydb
-          #[ Vector Search RAG ]# - postgresql-$v-pgvector postgresql-$v-similarity pg-search
-          #[ OLAP & Sharding   ]# - postgresql-$v-citus-12.1 postgresql-$v-plproxy postgresql-$v-partman pg-lakehouse
-          #[ Featured & AM     ]# - postgresql-$v-rdkit postgresql-$v-age pg-graphql pg-jsonschema postgresql-$v-jsquery postgresql-$v-pg-hint-plan postgresql-$v-hypopg postgresql-$v-pgq* postgresql-$v-periods postgresql-$v-hll postgresql-$v-rum postgresql-$v-preprepare
-          #[ Function & Test   ]# - postgresql-$v-http pg-net postgresql-$v-extra-window-functions postgresql-$v-tdigest postgresql-$v-topn postgresql-$v-first-last-agg postgresql-$v-pgpcre postgresql-$v-icu-ext
-          #[ FDW & Compatible  ]# - wrappers postgresql-$v-mysql-fdw postgresql-$v-ogr-fdw postgresql-$v-orafce postgresql-$v-tds-fdw postgresql-$v-oracle-fdw postgresql-$v-pgmemcache
-          #[ New Data Types    ]# - postgresql-$v-prefix postgresql-$v-asn1oid postgresql-$v-numeral postgresql-$v-rational postgresql-$v-q3c postgresql-$v-pgsphere postgresql-$v-semver postgresql-$v-debversion postgresql-$v-pg-rrule postgresql-$v-pgmp postgresql-$v-roaringbitmap postgresql-$v-pgfaceting
-          #[ Program Language  ]# - postgresql-$v-pllua postgresql-$v-pldebugger postgresql-$v-plpgsql-check postgresql-$v-plprofiler postgresql-$v-plsh postgresql-$v-omnidb postgresql-$v-unit postgresql-$v-pgtap # postgresql-$v-pljava postgresql-$v-plr
-          #[ Administration    ]# - postgresql-$v-cron postgresql-$v-repack postgresql-$v-squeeze postgresql-$v-dirtyread pgdd-jammy-pg$v postgresql-$v-pgfincore postgresql-$v-pgl-ddl-deploy postgresql-$v-prioritize postgresql-$v-pg-checksums postgresql-$v-auto-failover postgresql-$v-pg-catcheck pgxnclient postgresql-filedump # postgresql-$v-pgpool2
-          #[ Monitor & Stat    ]# - postgresql-$v-show-plans postgresql-$v-pg-stat-kcache postgresql-$v-pg-qualstats postgresql-$v-pg-track-settings postgresql-$v-pg-wait-sampling postgresql-$v-bgw-replstatus postgresql-$v-powa postgresql-$v-toastinfo
-          #[ Security & Audit  ]# - postgresql-$v-pgaudit postgresql-$v-pgauditlogtofile postgresql-$v-credcheck postgresql-$v-set-user postgresql-$v-tablelog postgresql-$v-snakeoil postgresql-$v-pgextwlist
-          #[ ETL, CDC, REPL    ]# - postgresql-$v-pglogical* postgresql-$v-decoderbufs postgresql-$v-wal2json postgresql-$v-pg-failover-slots postgresql-$v-londiste-sql postgresql-$v-mimeo postgresql-$v-pg-fact-loader pgloader # postgresql-$v-repmgr postgresql-$v-slony1-2
+        #pg_extensions:
+        #  - timescaledb periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable                         #[TIME]#
+        #  - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip mobilitydb                                                             #[GIS]#
+        #  - pgvector pgvectorscale pg_vectorize pg_similarity pg_tiktoken pgml                                                          #[RAG]#
+        #  - pg_search pg_bigm zhparser hunspell                                                                                         #[FTS]#
+        #  - hydra pg_lakehouse duckdb_fdw pg_fkpart pg_partman plproxy #citus                                                          #[OLAP]#
+        #  - age hll rum pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg imgsmlr pg_ivm pgmq pgq rdkit                             #[FEAT]#
+        #  - pg_tle plv8 pllua plprql pldebugger plpgsql_check plprofiler plsh pljava #pgtap plr                                        #[LANG]#
+        #  - prefix semver pgmp pguint pgunit roaringbitmap md5hash asn1oid numeral pg_rational pgsphere ip4r pg_rrule pgfaceting debversion #[TYPE]# #[FUNC]# #[ADMIN]# #[STAT]# #[SEC]#
+        #  - pg_gzip pg_http topn pg_net pgjwt shacrypt pgsql_tweaks pg_extra_time count_distinct extra_window_functions first_last_agg tdigest pgpcre icu_ext pg_idkit pg_hashids pg_uuidv7 permuteseq
+        #  - pg_repack pg_squeeze pg_dirtyread pgfincore pgdd ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pg_auto_failover pg_catcheck preprepare
+        #  - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats bgw_replstatus pg_proctab pg_sqlog powa pgmeminfo toastinfo
+        #  - passwordcheck supautils pgsodium pg_vault anonymizer pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user tablelog pg_snakeoil pgextwlist
+        #  - wrappers mysql_fdw sqlite_fdw tds_fdw #oracle_fdw                                                                           #[FDW]#
+        #  - mysqlcompat pgmemcache orafce pg_statement_rollback #pgtt babelfish                                                         #[SIM]#
+        #  - pglogical pgl_ddl_deploy decoderbufs wal2json wal2mongo pg_failover_slots mimeo pg_fact_loader pg_bulkload #repmgr slony    #[ETL]#
+        #  - gis-stack rag-stack fdw-stack fts-stack etl-stack feat-stack olap-stack supa-stack stat-stack json-stack                  #[STACK]#
+
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
         node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
           - '00 01 * * 1 postgres /pg/bin/pg-backup full'
@@ -566,40 +570,11 @@ all:
     dns_records:                      # dynamic dns records resolved by dnsmasq
       - 10.10.10.1 h.pigsty a.pigsty p.pigsty g.pigsty
 
-    repo_modules: infra,node,pgsql
-    repo_upstream:                    # where to download #
-      - { name: pigsty-local  ,description: 'Pigsty Local'     ,module: local ,releases: [11,12,20,22] ,baseurl: { default: 'http://${admin_ip}/pigsty ./' }}
-      - { name: pigsty-pgsql  ,description: 'Pigsty PgSQL'     ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/apt/pgsql/ ${distro_codename} main', china: 'https://repo.pigsty.cc/apt/pgsql/ ${distro_codename} main' }}
-      - { name: pigsty-infra  ,description: 'Pigsty Infra'     ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.pigsty.io/apt/infra/amd64/ generic main', china: 'https://repo.pigsty.cc/apt/infra/amd64/ generic main' }}
-      - { name: nginx         ,description: 'Nginx'            ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'http://nginx.org/packages/mainline/${distro_name} ${distro_codename} nginx' }}
-      - { name: base          ,description: 'Debian Basic'     ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename} main non-free-firmware'         ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename} main restricted universe multiverse' }}
-      - { name: updates       ,description: 'Debian Updates'   ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename}-updates main non-free-firmware' ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-updates main restricted universe multiverse' }}
-      - { name: security      ,description: 'Debian Security'  ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://security.debian.org/debian-security ${distro_codename}-security main non-free-firmware' }}
-      - { name: base          ,description: 'Ubuntu Basic'     ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}   main universe multiverse restricted' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}   main restricted universe multiverse' }}
-      - { name: updates       ,description: 'Ubuntu Updates'   ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-backports main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-updates   main restricted universe multiverse' }}
-      - { name: backports     ,description: 'Ubuntu Backports' ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-security  main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-backports main restricted universe multiverse' }}
-      - { name: security      ,description: 'Ubuntu Security'  ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-updates   main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-security  main restricted universe multiverse' }}
-      - { name: pgdg          ,description: 'PGDG'             ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg main' }}
-      - { name: citus         ,description: 'Citus'            ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/${distro_name}/ ${distro_codename} main'   }}
-      - { name: timescaledb   ,description: 'Timescaledb'      ,module: pgsql ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
-      - { name: docker-ce     ,description: 'Docker'           ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
-      #- { name: grafana      ,description: 'Grafana'          ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
-      #- { name: haproxy      ,description: 'HAProxy Debian'   ,module: node  ,releases: [11,12      ] ,baseurl: { default: 'http://haproxy.debian.net ${distro_codename}-backports-2.9 main'    }}
-      #- { name: haproxy      ,description: 'HAProxy Ubuntu'   ,module: node  ,releases: [      20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.9/ubuntu/ ${distro_codename} main'  }}
-      #- { name: redis        ,description: 'Redis'            ,module: redis ,releases: [11,12,20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
-      #- { name: pgml         ,description: 'PostgresML'       ,module: pgsql ,releases: [         22] ,baseurl: { default: 'https://apt.postgresml.org ${distro_codename} main'  }}
-    infra_packages:                   # packages to be installed on infra nodes
-      - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway,blackbox-exporter
-      - node-exporter,blackbox-exporter,nginx-exporter,redis-exporter,pg-exporter
-      - nginx,dnsmasq,ansible,etcd,python3-requests,redis,mcli
 
     #==========================================================#
     # NODE
     #==========================================================#
     node_conf: tiny                   # use small vm tune template
-    node_default_packages:            # default node packages to be installed on ubuntu22 node (linux-perf,netcat-openbsd,tnftp)
-      - lz4,unzip,bzip2,zlib1g,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump,chrony,acl,python3,python3-pip
-      - socat,lrzsz,net-tools,ipvsadm,dnsutils,telnet,ca-certificates,openssl,openssh-client,libreadline-dev,vim-tiny,keepalived,node-exporter,etcd,haproxy # netcat,ftp
     node_timezone: Asia/Hong_Kong     # use Asia/Hong_Kong Timezone
     node_dns_servers:                 # DNS servers in /etc/resolv.conf
       - 10.10.10.10
@@ -620,14 +595,7 @@ all:
     # PGSQL
     #==========================================================#
     pg_conf: tiny.yml
-    pg_dbsu_uid: 543
-    pg_packages:                      # pg packages to be installed, `${pg_version}` & `$v` will be replaced
-      - postgresql-*-$v
-      - patroni pgbouncer pgbackrest pg-exporter pgbadger vip-manager
-      - postgresql-$v-repack postgresql-$v-wal2json
-    pg_extensions:                    # pg extensions to be installed, `$v` will be replaced
-      - postgresql-$v-postgis* timescaledb-2-postgresql-$v postgresql-$v-pgvector postgresql-$v-citus-12.1
-    pgbackrest_method: minio          # USE THE HA MINIO THROUGH A LOAD BALANCER
+    pgbackrest_method: local          # USE THE HA MINIO THROUGH A LOAD BALANCER
     pg_dbsu_ssh_exchange: false       # do not exchange dbsu ssh key among pgsql cluster
     pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
       local:                          # default pgbackrest repo with local posix fs
