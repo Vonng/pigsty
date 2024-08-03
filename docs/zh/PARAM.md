@@ -4083,7 +4083,7 @@ patroni_ssl_enabled: false        # secure patroni RestAPI communications with S
 patroni_watchdog_mode: off        # patroni watchdog mode: automatic,required,off. off by default
 patroni_username: postgres        # patroni restapi username, `postgres` by default
 patroni_password: Patroni.API     # patroni restapi password, `Patroni.API` by default
-pg_primary_db: postgres           # citus database managed by patroni, postgres by default
+pg_primary_db: postgres           # primary database name, used by citus,etc... ,postgres by default
 pg_conf: oltp.yml                 # config template: oltp,olap,crit,tiny. `oltp.yml` by default
 pg_max_conn: auto                 # postgres max connections, `auto` will use recommended value
 pg_shared_buffer_ratio: 0.25      # postgres shared buffer ratio, 0.25 by default, 0.1~0.4

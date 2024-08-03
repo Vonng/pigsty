@@ -17,7 +17,7 @@
 
 [![pigsty-desc](https://pigsty.io/img/pigsty/desc.png)](https://pigsty.io/)
 
-There are **255** unique [extensions](https://pigsty.io/docs/reference/extension) available in Pigsty, **34** of which are maintained by Pigsty itself.
+There are **280** unique [extensions](https://pigsty.io/docs/reference/extension) available in Pigsty.
 
 [![pigsty-ecosystem.jpg](https://pigsty.io/img/pigsty/ecosystem.jpg)](https://pigsty.io/docs/reference/extension)
 
@@ -362,7 +362,7 @@ all:
   vars:                               # global parameters for all citus clusters
     pg_mode: citus                    # pgsql cluster mode: citus
     pg_shard: pg-citus                # citus shard name: pg-citus
-    pg_primary_db: meta               # citus distributed database name
+    pg_primary_db: meta               # primary database used by citus
     pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
     pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
     pg_extensions:

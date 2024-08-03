@@ -395,7 +395,7 @@ all:
   vars:                               # global parameters for all citus clusters
     pg_mode: citus                    # pgsql cluster mode: citus
     pg_shard: pg-citus                # citus shard name: pg-citus
-    pg_primary_db: meta               # citus distributed database name
+    pg_primary_db: meta               # primary database used by citus
     pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
     pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
     pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]

@@ -227,7 +227,7 @@
 | 866 | [`patroni_watchdog_mode`](#patroni_watchdog_mode)               | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | enum        | C     | patroni watchdog mode: automatic,required,off. off by default                 |
 | 867 | [`patroni_username`](#patroni_username)                         | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | username    | C     | patroni restapi username, `postgres` by default                               |
 | 868 | [`patroni_password`](#patroni_password)                         | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | password    | C     | patroni restapi password, `Patroni.API` by default                            |
-| 869 | [`pg_primary_db`](#pg_primary_db)                               | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | string      | C     | citus database managed by patroni, postgres by default                        |
+| 869 | [`pg_primary_db`](#pg_primary_db)                               | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | string      | C     | primary database name, used by citus,etc... ,postgres by default              |
 | 870 | [`pg_conf`](#pg_conf)                                           | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | enum        | C     | config template: oltp,olap,crit,tiny. `oltp.yml` by default                   |
 | 871 | [`pg_max_conn`](#pg_max_conn)                                   | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | int         | C     | postgres max connections, `auto` will use recommended value                   |
 | 872 | [`pg_shared_buffer_ratio`](#pg_shared_buffer_ratio)             | [`PGSQL`](#pgsql) | [`PG_BOOTSTRAP`](#pg_bootstrap)   | float       | C     | postgres shared buffer memory ratio, 0.25 by default, 0.1~0.4                 |
@@ -4066,7 +4066,7 @@ patroni_ssl_enabled: false        # secure patroni RestAPI communications with S
 patroni_watchdog_mode: off        # patroni watchdog mode: automatic,required,off. off by default
 patroni_username: postgres        # patroni restapi username, `postgres` by default
 patroni_password: Patroni.API     # patroni restapi password, `Patroni.API` by default
-pg_primary_db: postgres           # citus database managed by patroni, postgres by default
+pg_primary_db: postgres           # primary database name, used by citus,etc... ,postgres by default
 pg_parameters: {}                 # extra parameters in postgresql.auto.conf
 pg_conf: oltp.yml                 # config template: oltp,olap,crit,tiny. `oltp.yml` by default
 pg_max_conn: auto                 # postgres max connections, `auto` will use recommended value
