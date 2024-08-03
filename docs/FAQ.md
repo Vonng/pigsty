@@ -194,12 +194,12 @@ The **configure** procedure will detect your node environment and generate a pig
 
 > `pigsty.yml` under the pigsty home dir is the default config file.
 
-Pigsty uses a single config file `pigsty.yml,` to describe the entire environment, and you can define everything there. There are many config examples in [`files/pigsty`](https://github.com/Vonng/pigsty/tree/master/files/pigsty) for your reference.
+Pigsty uses a single config file `pigsty.yml,` to describe the entire environment, and you can define everything there. There are many config examples in [`conf/`](https://github.com/Vonng/pigsty/tree/master/conf/) for your reference.
 
 You can pass the `-i <path>` to playbooks to use other configuration files. For example, you want to install redis according to another config: `redis.yml`:
 
 ```bash
-./redis.yml -i files/pigsty/redis.yml
+./redis.yml -i conf/sample/redis.yml
 ```
 
 </details>

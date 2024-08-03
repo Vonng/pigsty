@@ -702,7 +702,7 @@ repo_upstream:                    # where to download
   - { name: docker-ce     ,description: 'Docker'           ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
 ```
 
-Pigsty [`build.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/build.yml) will have the default value for each OS.
+Pigsty [`build.yml`](https://github.com/Vonng/pigsty/blob/master/conf/build/oss.yml) will have the default value for each OS.
 
 
 
@@ -770,7 +770,7 @@ There are some differences between Ubuntu / Debian too:
 
 Each line is a set of package names separated by spaces, where the specified software and their dependencies will be downloaded via `repotrack` or `apt download` accordingly.
 
-Pigsty [`build.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/build.yml) will have the default value for each OS.
+Pigsty [`build.yml`](https://github.com/Vonng/pigsty/blob/master/conf/build/oss.yml) will have the default value for each OS.
 
 
 

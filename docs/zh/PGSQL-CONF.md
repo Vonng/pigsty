@@ -353,7 +353,7 @@ Apply these changes? [y/N]: y
 
 ## Citus集群
 
-Pigsty 原生支持 Citus。可以参考 [`files/pigsty/citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/citus.yml) 与 [`prod.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/prod.yml#L298) 作为样例。
+Pigsty 原生支持 Citus。可以参考 [`conf/sample/citus.yml.yml`](https://github.com/Vonng/pigsty/blob/master/conf/sample/citus.yml.yml) 与 [`prod.yml`](https://github.com/Vonng/pigsty/blob/master/conf//prod.yml#L298) 作为样例。
 
 要定义一个 citus 集群，您需要指定以下参数：
 

@@ -1,16 +1,16 @@
 ---
 #==============================================================#
-# File      :   security.yml
-# Desc      :   Pigsty security enhance template
+# File      :   trio.yml
+# Desc      :   Pigsty 3-node security enhance template
 # Ctime     :   2020-05-22
-# Mtime     :   2024-02-19
+# Mtime     :   2024-08-04
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 
 
-# SECURITY ENHANCEMENT MODE
+#===== SECURITY ENHANCEMENT CONFIG TEMPLATE WITH 3 NODES ======#
 #   * 3 infra nodes, 3 etcd nodes, single minio node
 #   * 3-instance pgsql cluster with an extra delayed instance
 #   * crit.yml templates, no data loss, checksum enforced
@@ -32,12 +32,12 @@ all:
         10.10.10.12: { infra_seq: 3, repo_enabled: false }
       vars: { patroni_watchdog_mode: off }
 
-    minio:  # minio cluster, s3 compatible object storage
+    minio: # minio cluster, s3 compatible object storage
       hosts: { 10.10.10.10: { minio_seq: 1 } }
       vars: { minio_cluster: minio }
 
     etcd: # dcs service for postgres/patroni ha consensus
-      hosts:  # 1 node for testing, 3 or 5 for production
+      hosts: # 1 node for testing, 3 or 5 for production
         10.10.10.10: { etcd_seq: 1 }  # etcd_seq required
         10.10.10.11: { etcd_seq: 2 }  # assign from 1 ~ n
         10.10.10.12: { etcd_seq: 3 }  # odd number please
@@ -46,7 +46,7 @@ all:
         etcd_safeguard: false # safeguard against purging
         etcd_clean: true # purge etcd during init process
 
-    pg-meta:      # 3 instance postgres cluster `pg-meta`
+    pg-meta: # 3 instance postgres cluster `pg-meta`
       hosts:
         10.10.10.10: { pg_seq: 1, pg_role: primary }
         10.10.10.11: { pg_seq: 2, pg_role: replica }
@@ -58,7 +58,7 @@ all:
           - { name: dbuser_meta , password: Pleas3-ChangeThisPwd ,expire_in: 7300 ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
           - { name: dbuser_view , password: Make.3ure-Compl1ance  ,expire_in: 7300 ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
         pg_databases:
-          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}]}
+          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [ { name: postgis, schema: public } ] }
         pg_services:
           - { name: standby , ip: "*" ,port: 5435 , dest: default ,selector: "[]" , backup: "[? pg_role == `primary`]" }
         pg_listen: '${ip},${vip},${lo}'
@@ -67,7 +67,7 @@ all:
         pg_vip_interface: eth1
 
     # OPTIONAL delayed cluster for pg-meta
-    pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
+    pg-meta-delay: # delayed instance for pg-meta (1 hour ago)
       hosts: { 10.10.10.13: { pg_seq: 1, pg_role: primary, pg_upstream: 10.10.10.10, pg_delay: 1h } }
       vars: { pg_cluster: pg-meta-delay }
 
@@ -75,7 +75,7 @@ all:
   ####################################################################
   #                          Parameters                              #
   ####################################################################
-  vars:                               # global variables
+  vars: # global variables
     version: v2.8.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
@@ -103,15 +103,15 @@ all:
     #----------------------------------#
     # MinIO Related Options
     #----------------------------------#
-    minio_users:                      # and configure `pgbackrest_repo` & `minio_users` accordingly
+    minio_users: # and configure `pgbackrest_repo` & `minio_users` accordingly
       - { access_key: dba , secret_key: S3User.DBA.Strong.Password, policy: consoleAdmin }
       - { access_key: pgbackrest , secret_key: Min10.bAckup ,policy: readwrite }
-    pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
-      local:                          # default pgbackrest repo with local posix fs
+    pgbackrest_repo: # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+      local: # default pgbackrest repo with local posix fs
         path: /pg/backup              # local backup directory, `/pg/backup` by default
         retention_full_type: count    # retention full backups by count
         retention_full: 2             # keep 2, at most 3 full backup when using local fs repo
-      minio:                          # optional minio repo for pgbackrest
+      minio: # optional minio repo for pgbackrest
         s3_key: pgbackrest            # <-------- CHANGE THIS, SAME AS `minio_users` access_key
         s3_key_secret: Min10.bAckup   # <-------- CHANGE THIS, SAME AS `minio_users` secret_key
         cipher_pass: 'pgBR.${pg_cluster}'  # <-------- CHANGE THIS, you can use cluster name as part of password
@@ -134,34 +134,34 @@ all:
     #----------------------------------#
     # add passwordcheck extension to enforce strong password policy
     pg_libs: '$libdir/passwordcheck, pg_stat_statements, auto_explain'
-    pg_default_roles:                 # default roles and users in postgres cluster
-      - { name: dbrole_readonly  ,login: false ,comment: role for global read-only access     }
+    pg_default_roles: # default roles and users in postgres cluster
+      - { name: dbrole_readonly  ,login: false ,comment: role for global read-only access }
       - { name: dbrole_offline   ,login: false ,comment: role for restricted read-only access }
-      - { name: dbrole_readwrite ,login: false ,roles: [dbrole_readonly]               ,comment: role for global read-write access }
-      - { name: dbrole_admin     ,login: false ,roles: [pg_monitor, dbrole_readwrite]  ,comment: role for object creation }
+      - { name: dbrole_readwrite ,login: false ,roles: [ dbrole_readonly ]               ,comment: role for global read-write access }
+      - { name: dbrole_admin     ,login: false ,roles: [ pg_monitor, dbrole_readwrite ]  ,comment: role for object creation }
       - { name: postgres     ,superuser: true  ,expire_in: 7300                        ,comment: system superuser }
-      - { name: replicator ,replication: true  ,expire_in: 7300 ,roles: [pg_monitor, dbrole_readonly]   ,comment: system replicator }
-      - { name: dbuser_dba   ,superuser: true  ,expire_in: 7300 ,roles: [dbrole_admin]  ,pgbouncer: true ,pool_mode: session, pool_connlimit: 16 , comment: pgsql admin user }
-      - { name: dbuser_monitor ,roles: [pg_monitor] ,expire_in: 7300 ,pgbouncer: true ,parameters: {log_min_duration_statement: 1000 } ,pool_mode: session ,pool_connlimit: 8 ,comment: pgsql monitor user }
-    pg_default_hba_rules:             # postgres host-based auth rules by default
-      - {user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident'  }
-      - {user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident' }
-      - {user: '${repl}'    ,db: replication ,addr: localhost ,auth: ssl   ,title: 'replicator replication from localhost'}
-      - {user: '${repl}'    ,db: replication ,addr: intra     ,auth: ssl   ,title: 'replicator replication from intranet' }
-      - {user: '${repl}'    ,db: postgres    ,addr: intra     ,auth: ssl   ,title: 'replicator postgres db from intranet' }
-      - {user: '${monitor}' ,db: all         ,addr: localhost ,auth: pwd   ,title: 'monitor from localhost with password' }
-      - {user: '${monitor}' ,db: all         ,addr: infra     ,auth: ssl   ,title: 'monitor from infra host with password'}
-      - {user: '${admin}'   ,db: all         ,addr: infra     ,auth: ssl   ,title: 'admin @ infra nodes with pwd & ssl'   }
-      - {user: '${admin}'   ,db: all         ,addr: world     ,auth: cert  ,title: 'admin @ everywhere with ssl & cert'   }
-      - {user: '+dbrole_readonly',db: all    ,addr: localhost ,auth: ssl   ,title: 'pgbouncer read/write via local socket'}
-      - {user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: ssl   ,title: 'read/write biz user via password'     }
-      - {user: '+dbrole_offline' ,db: all    ,addr: intra     ,auth: ssl   ,title: 'allow etl offline tasks from intranet'}
-    pgb_default_hba_rules:            # pgbouncer host-based authentication rules
-      - {user: '${dbsu}'    ,db: pgbouncer   ,addr: local     ,auth: peer  ,title: 'dbsu local admin access with os ident'}
-      - {user: 'all'        ,db: all         ,addr: localhost ,auth: pwd   ,title: 'allow all user local access with pwd' }
-      - {user: '${monitor}' ,db: pgbouncer   ,addr: intra     ,auth: ssl   ,title: 'monitor access via intranet with pwd' }
-      - {user: '${monitor}' ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other monitor access addr' }
-      - {user: '${admin}'   ,db: all         ,addr: intra     ,auth: ssl   ,title: 'admin access via intranet with pwd'   }
-      - {user: '${admin}'   ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other admin access addr'   }
-      - {user: 'all'        ,db: all         ,addr: intra     ,auth: ssl   ,title: 'allow all user intra access with pwd' }
+      - { name: replicator ,replication: true  ,expire_in: 7300 ,roles: [ pg_monitor, dbrole_readonly ]   ,comment: system replicator }
+      - { name: dbuser_dba   ,superuser: true  ,expire_in: 7300 ,roles: [ dbrole_admin ]  ,pgbouncer: true ,pool_mode: session, pool_connlimit: 16 , comment: pgsql admin user }
+      - { name: dbuser_monitor ,roles: [ pg_monitor ] ,expire_in: 7300 ,pgbouncer: true ,parameters: { log_min_duration_statement: 1000 } ,pool_mode: session ,pool_connlimit: 8 ,comment: pgsql monitor user }
+    pg_default_hba_rules: # postgres host-based auth rules by default
+      - { user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident' }
+      - { user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident' }
+      - { user: '${repl}'    ,db: replication ,addr: localhost ,auth: ssl   ,title: 'replicator replication from localhost' }
+      - { user: '${repl}'    ,db: replication ,addr: intra     ,auth: ssl   ,title: 'replicator replication from intranet' }
+      - { user: '${repl}'    ,db: postgres    ,addr: intra     ,auth: ssl   ,title: 'replicator postgres db from intranet' }
+      - { user: '${monitor}' ,db: all         ,addr: localhost ,auth: pwd   ,title: 'monitor from localhost with password' }
+      - { user: '${monitor}' ,db: all         ,addr: infra     ,auth: ssl   ,title: 'monitor from infra host with password' }
+      - { user: '${admin}'   ,db: all         ,addr: infra     ,auth: ssl   ,title: 'admin @ infra nodes with pwd & ssl' }
+      - { user: '${admin}'   ,db: all         ,addr: world     ,auth: cert  ,title: 'admin @ everywhere with ssl & cert' }
+      - { user: '+dbrole_readonly',db: all    ,addr: localhost ,auth: ssl   ,title: 'pgbouncer read/write via local socket' }
+      - { user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: ssl   ,title: 'read/write biz user via password' }
+      - { user: '+dbrole_offline' ,db: all    ,addr: intra     ,auth: ssl   ,title: 'allow etl offline tasks from intranet' }
+    pgb_default_hba_rules: # pgbouncer host-based authentication rules
+      - { user: '${dbsu}'    ,db: pgbouncer   ,addr: local     ,auth: peer  ,title: 'dbsu local admin access with os ident' }
+      - { user: 'all'        ,db: all         ,addr: localhost ,auth: pwd   ,title: 'allow all user local access with pwd' }
+      - { user: '${monitor}' ,db: pgbouncer   ,addr: intra     ,auth: ssl   ,title: 'monitor access via intranet with pwd' }
+      - { user: '${monitor}' ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other monitor access addr' }
+      - { user: '${admin}'   ,db: all         ,addr: intra     ,auth: ssl   ,title: 'admin access via intranet with pwd' }
+      - { user: '${admin}'   ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other admin access addr' }
+      - { user: 'all'        ,db: all         ,addr: intra     ,auth: ssl   ,title: 'allow all user intra access with pwd' }
 ...

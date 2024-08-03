@@ -1,9 +1,9 @@
 ---
 #==============================================================#
-# File      :   demo.yml
-# Desc      :   Pigsty Local Sandbox 4-node Demo Config
+# File      :   meta.yml
+# Desc      :   Pigsty Devbox: One singleton node mete
 # Ctime     :   2020-05-22
-# Mtime     :   2024-07-01
+# Mtime     :   2024-08-03
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -16,11 +16,11 @@ all:
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } }}
 
-    # minio cluster, s3 compatible object storage
-    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
-
     # etcd cluster for ha postgres
     etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+
+    # minio cluster, s3 compatible object storage
+    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 
     # postgres example cluster: pg-meta
     pg-meta:
@@ -46,74 +46,24 @@ all:
           - {name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database }
         pg_hba_rules:
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
-
-        pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
-        pg_extensions: # extensions to be installed on this cluster
-          - postgis34_$v* timescaledb-2-postgresql-$v* pgvector_$v* # default extensions to be installed
-          #[ GIS & Timeseries  ]# - timescaledb-2-postgresql-$v* postgis34_$v* pgrouting_$v* pointcloud_$v* h3-pg_$v* ip4r_$v* # geoip_$v*
-          #[ Vector Search RAG ]# - pgvector_$v* pgvectorscale_$v pg_vectorize_$v pg_tiktoken_$v pgml_$v pg_search_$v pg_bigm_$v* zhparser_$v*
-          #[ OLAP & Sharding   ]# - hydra_$v* duckdb_fdw_$v* parquet_s3_fdw_$v* pg_lakehouse_$v pg_tier_$v pg_fkpart_$v* pg_partman_$v* # citus_$v* plproxy_$v* # pg_strom_$v*
-          #[ Featured & AM     ]# - apache-age_$v* pg_graphql_$v pg_jsonschema_$v jsquery_$v* pg_hint_plan_$v* hypopg_$v* pg_ivm_$v* pgmq_$v pgq_$v* pgtt_$v* temporal_tables_$v* e-maj_$v* periods_$v* table_version_$v* pg_statement_rollback_$v* hll_$v* rum_$v
-          #[ Function & Test   ]# - pgjwt_$v* pg_idkit_$v pg_uuidv7_$v* pg_later_$v pg_background_$v* pgsql_gzip_$v* pgsql_http_$v* pg_net_$v* pgsql_tweaks_$v* count_distinct_$v* extra_window_functions_$v* tdigest_$v* pg_extra_time_$v* topn_$v*
-          #[ FDW & Compatible  ]# - wrappers_$v mongo_fdw_$v* mysql_fdw_$v* ogr_fdw_$v* sqlite_fdw_$v* tds_fdw_$v* hdfs_fdw_$v* pgbouncer_fdw_$v* orafce_$v* pgmemcache_$v* pg_dbms_lock_$v* pg_dbms_metadata_$v* # pg_dbms_job_$v* mysqlcompat_$v* # multicorn2_$v* oracle_fdw_$v* db2_fdw_$v*
-          #[ Type, PL, Test    ]# - prefix_$v* timestamp9_$v* semver_$v* pgmp_$v* pguint_$v* pg_roaringbitmap_$v* md5hash_$v* pg_tle_$v* plv8_$v* pllua_$v* luapgsql plprql_$v pldebugger_$v* plpgsql_check_$v* plprofiler_$v* plsh_$v* # plr_$v* # postgresql_faker_$v* # dbt2-pg$v-extensions* # postgresql-unit_$v* pgtap_$v*
-          #[ Administration    ]# - pg_cron_$v* pg_repack_$v* pg_squeeze_$v* pg_dirtyread_$v* pgdd_$v pgfincore_$v* pgl_ddl_deploy_$v* pg_prioritize_$v* pg_readonly_$v* pgagent_$v* pg_checksums_$v* safeupdate_$v* ddlx_$v* pg_permissions_$v* pg_auto_failover_$v* pg_catcheck_$v* pgxnclient pg_filedump # pgpool-II-pg$v-extensions
-          #[ Monitor & Stat    ]# - pg_profile_$v* pg_show_plans_$v* pg_stat_kcache_$v* pg_stat_monitor_$v* pg_qualstats_$v* pg_statviz_extension_$v pg_store_plans_$v* pg_top_$v* pg_track_settings_$v* pg_wait_sampling_$v* system_stats_$v* bgw_replstatus_$v* powa-archivist_$v* powa_$v* pgmeminfo_$v* # pgexporter_ext_$v*
-          #[ Security & Audit  ]# - passwordcheck_cracklib_$v* pgsodium_$v* vault_$v* postgresql_anonymizer_$v* pg_tde_$v* pgsmcrypto_$v pgaudit_$v* pgauditlogtofile_$v* pg_auth_mon_$v* credcheck_$v* pgcryptokey_$v* pg_jobmon_$v* logerrors_$v* login_hook_$v* set_user_$v*
-          #[ ETL, CDC, REPL    ]# - pglogical_$v* postgres-decoderbufs_$v* wal2json_$v* pg_failover_slots_$v* pg_fact_loader_$v* pg_bulkload_$v* pg_comparator_$v* pgimportdoc_$v* pgexportdoc_$v* pgcopydb pgloader # repmgr_$v*
-
+        pg_libs: 'timescaledb, pg_stat_statements, auto_explain'
+        pg_extensions: [ postgis, timescaledb, pgvector ]
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.2/24
         pg_vip_interface: eth1
-        node_crontab:  # make a full backup 1 am everyday
+        node_crontab:  # make one full backup 1 am everyday
           - '00 01 * * * postgres /pg/bin/pg-backup full'
-
-    # pgsql 3 node ha cluster: pg-test
-    pg-test:
-      hosts:
-        10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
-        10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
-        10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
-      vars:
-        pg_cluster: pg-test           # define pgsql cluster name
-        pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
-        pg_databases: [{ name: test }]
-        pg_vip_enabled: true
-        pg_vip_address: 10.10.10.3/24
-        pg_vip_interface: eth1
-        node_tune: tiny
-        pg_conf: tiny.yml
-        node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
-          - '00 01 * * 1 postgres /pg/bin/pg-backup full'
-          - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
 
     redis-ms: # redis classic primary & replica
       hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6379: { }, 6380: { replica_of: '10.10.10.10 6379' } } } }
       vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
 
-    redis-meta: # redis sentinel x 3
-      hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 26379: { } ,26380: { } ,26381: { } } } }
-      vars:
-        redis_cluster: redis-meta
-        redis_password: 'redis.meta'
-        redis_mode: sentinel
-        redis_max_memory: 16MB
-        redis_sentinel_monitor: # primary list for redis sentinel, use cls as name, primary ip:port
-          - { name: redis-ms, host: 10.10.10.10, port: 6379 ,password: redis.ms, quorum: 2 }
-
-    redis-test: # redis native cluster: 3m x 3s
-      hosts:
-        10.10.10.12: { redis_node: 1 ,redis_instances: { 6379: { } ,6380: { } ,6381: { } } }
-        10.10.10.13: { redis_node: 2 ,redis_instances: { 6379: { } ,6380: { } ,6381: { } } }
-      vars: { redis_cluster: redis-test ,redis_password: 'redis.test' ,redis_mode: cluster, redis_max_memory: 32MB }
-
-
   vars:                               # global variables
     version: v2.8.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
-    node_tune: tiny                   # use tiny template for NODE  in demo environment
-    pg_conf: tiny.yml                 # use tiny template for PGSQL in demo environment
+    node_tune: tiny                   # oltp|olap|tiny|cirt
+    pg_conf: tiny.yml                 # oltp.yml|olap.yml|tiny.yml|cirt.yml
     infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
@@ -131,6 +81,8 @@ all:
       wiki         : { domain: wiki.pigsty ,endpoint: "127.0.0.1:9002" }
       noco         : { domain: noco.pigsty ,endpoint: "127.0.0.1:9003" }
       supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }
+      dify         : { domain: dify.pigsty ,endpoint: "10.10.10.10:8001", websocket: true }
+
     nginx_navbar:                    # application nav links on home page
       - { name: PgAdmin4   , url : 'http://adm.pigsty'  , comment: 'PgAdmin4 for PostgreSQL'  }
       - { name: PGWeb      , url : 'http://cli.pigsty'  , comment: 'PGWEB Browser Client'     }
@@ -148,5 +100,7 @@ all:
     node_ntp_servers:                 # NTP servers in /etc/chrony.conf
       - pool cn.pool.ntp.org iburst
       - pool ${admin_ip} iburst       # assume non-admin nodes does not have internet access
-    pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
+    node_etc_hosts: [ '10.10.10.10 h.pigsty a.pigsty p.pigsty g.pigsty sss.pigsty' ]
+    dns_records: [ "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty wiki.pigsty" ]
+    pgbackrest_method: local          # if you want to use minio as backup repo instead of 'local' fs, uncomment this
 ...

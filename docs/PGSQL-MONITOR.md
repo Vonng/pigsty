@@ -170,7 +170,7 @@ You can use more parameters to override the default `pg_exporter` options. Here 
 
 <details><summary>Example: Monitor Aliyun RDS PG & PolarDB</summary>
 
-Check [remote.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/remote.yml) config for details.
+Check [remote.yml](https://github.com/Vonng/pigsty/blob/master/conf/sample/remote.yml) config for details.
 
 ```yaml
 infra:            # infra cluster for proxy, monitor, alert, etc..

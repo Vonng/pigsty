@@ -262,7 +262,7 @@ curl https://get.pigsty.cc/latest | bash
 
 **亮点特性**
 
-- [Ubuntu](https://github.com/Vonng/pigsty/blob/master/files/pigsty/ubuntu.yml) / [Debian](https://github.com/Vonng/pigsty/blob/master/files/pigsty/debian.yml)  支持： bullseye, bookworm, jammy, focal
+- [Ubuntu](https://github.com/Vonng/pigsty/blob/master/conf/default/u22.yml) / [Debian](https://github.com/Vonng/pigsty/blob/master/conf/default/d12.yml)  支持： bullseye, bookworm, jammy, focal
 - 使用CDN `repo.pigsty.cc` 软件源，提供 rpm/deb 软件包下载。
 - Anolis 操作系统支持（ 兼容 EL 8.8 ）。
 - 使用 PostgreSQL 16 替代 PostgreSQL 14 作为备选主要支持版本  
@@ -297,7 +297,7 @@ curl https://get.pigsty.cc/latest | bash
 
 Pigsty 支持了 Ubuntu 22.04 (jammy) 与 20.04 (focal) 两个 LTS 版本，并提供相应的离线软件安装包。
 
-相比 EL 系操作系统，一些参数的默认值需要显式指定调整，详情请参考 [`ubuntu.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/ubuntu.yml)
+相比 EL 系操作系统，一些参数的默认值需要显式指定调整，详情请参考 [`ubuntu.yml`](https://github.com/Vonng/pigsty/blob/master/conf/default/u22.yml)
 
 - `repo_upstream`：按照 Ubuntu/Debian 的包名进行了调整
 - `repo_packages`：按照 Ubuntu/Debian 的包名进行了调整

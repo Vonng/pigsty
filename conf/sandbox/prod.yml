@@ -1,9 +1,9 @@
 ---
 #==============================================================#
 # File      :   prod.yml
-# Desc      :   Pigsty config for a prod simulation env on a BM
+# Desc      :   Pigsty Simubox: a 43 node prod simulation env
 # Ctime     :   2023-07-20
-# Mtime     :   2024-08-02
+# Mtime     :   2024-08-03
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -13,7 +13,6 @@
 all:
 
   children:
-
 
     #==========================================================#
     # infra: 2 nodes
@@ -46,7 +45,7 @@ all:
 
 
     #==========================================================#
-    # node: 42 nodes 71C-174G
+    # nodes: 43 nodes
     #==========================================================#
     # ./node.yml
     nodes:
@@ -127,24 +126,6 @@ all:
           - { name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database }
         pg_hba_rules:
           - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
-        #pg_extensions:
-        #  - timescaledb periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable                         #[TIME]#
-        #  - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip                                                                        #[GIS]#
-        #  - pgvector pgvectorscale pg_vectorize pg_similarity pg_tiktoken pgml                                                          #[RAG]#
-        #  - pg_search pg_bigm zhparser hunspell                                                                                         #[FTS]#
-        #  - hydra pg_lakehouse duckdb_fdw pg_fkpart pg_partman plproxy #citus pg_strom                                                 #[OLAP]#
-        #  - age hll rum pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg imgsmlr pg_ivm pgmq pgq                                   #[FEAT]#
-        #  - pg_tle plv8 pllua plprql pldebugger plpgsql_check plprofiler plsh pljava #plr faker pgtap                                  #[LANG]#
-        #  - prefix semver pgmp pguint pgunit roaringbitmap md5hash asn1oid numeral pg_rational ip4r pgsphere pgfaceting timestamp9     #[TYPE]# #[FUNC]# #[ADMIN]# #[STAT]# #[SEC]#
-        #  - pg_gzip pg_http topn pg_net pgjwt shacrypt pgsql_tweaks pg_extra_time count_distinct extra_window_functions first_last_agg tdigest pgpcre icu_ext pg_idkit pg_hashids pg_uuidv7 permuteseq sequential_uuids
-        #  - pg_repack pg_squeeze pg_dirtyread pgfincore pgdd ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pg_auto_failover preprepare pg_catcheck
-        #  - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats bgw_replstatus pg_sqlog powa pgmeminfo toastinfo
-        #  - passwordcheck supautils pgsodium pg_vault anonymizer pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user tablelog pg_snakeoil pgextwlist
-        #  - wrappers multicorn mongo_fdw mysql_fdw tds_fdw sqlite_fdw hdfs_fdw pgbouncer_fdw firebird_fdw #oracle_fdw db2_fdw           #[FDW]#
-        #  - mysqlcompat pgmemcache pgtt orafce pg_statement_rollback pg_dbms_lock pg_dbms_metadata #pg_dbms_job babelfish               #[SIM]#
-        #  - pglogical pgl_ddl_deploy decoderbufs wal2json wal2mongo pg_failover_slots mimeo pg_fact_loader pg_bulkload #repmgr slony    #[ETL]#
-        #  - gis-stack rag-stack fdw-stack fts-stack etl-stack feat-stack olap-stack supa-stack stat-stack json-stack                  #[STACK]#
-
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
         node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
           - '00 01 * * 1 postgres /pg/bin/pg-backup full'
@@ -192,6 +173,7 @@ all:
       vars:
         pg_cluster: pg-v15
         #pg_version: 15
+        pg_extensions: []
         pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
         pg_databases: [ { name: v15 } ]
         pg_service_provider: proxy       # use load balancer on group `proxy` with port 10013
@@ -202,6 +184,7 @@ all:
       vars:
         pg_cluster: pg-v16
         #pg_version: 16
+        pg_extensions: []
         pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] } ]
         pg_databases: [ { name: v16 } ]
         pg_service_provider: proxy       # use load balancer on group `proxy` with port 10013
@@ -347,7 +330,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.60/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'citus_$v* postgis34_$v* timescaledb-2-postgresql-$v* pgvector_$v*' ]
+        pg_extensions: [ 'citus postgis timescaledb pgvector' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -370,7 +353,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.61/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'citus_$v* postgis34_$v* timescaledb-2-postgresql-$v* pgvector_$v*' ]
+        pg_extensions: [ 'citus postgis timescaledb pgvector' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -393,7 +376,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.62/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'citus_$v* postgis34_$v* timescaledb-2-postgresql-$v* pgvector_$v*' ]
+        pg_extensions: [ 'citus postgis timescaledb pgvector' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -416,7 +399,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.63/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'citus_$v* postgis34_$v* timescaledb-2-postgresql-$v* pgvector_$v*' ]
+        pg_extensions: [ 'citus postgis timescaledb pgvector' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -439,7 +422,7 @@ all:
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.64/24
         pg_vip_interface: eth1
-        pg_extensions: [ 'citus_$v* postgis34_$v* timescaledb-2-postgresql-$v* pgvector_$v*' ]
+        pg_extensions: [ 'citus postgis timescaledb pgvector' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
         pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
@@ -551,8 +534,8 @@ all:
     # INFRA
     #==========================================================#
     version: v2.8.0                   # pigsty version string
-    admin_ip: 10.10.10.11             # admin node ip address
-    region: china                     # upstream mirror region: default|china|europe
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default|china|europe
     infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "10.10.10.10:3000" , websocket: true }
@@ -565,7 +548,7 @@ all:
       pgadmin      : { domain: adm.pigsty  ,endpoint: "127.0.0.1:8885" }
       pgweb        : { domain: cli.pigsty  ,endpoint: "127.0.0.1:8886" }
       bytebase     : { domain: ddl.pigsty  ,endpoint: "127.0.0.1:8887" }
-      jupyter      : { domain: lab.pigsty  ,endpoint: "127.0.0.1:8888", websocket: true }
+      jupyter      : { domain: lab.pigsty  ,endpoint: "127.0.0.1:8888"  , websocket: true }
       supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }
     nginx_navbar: []
     dns_records:                      # dynamic dns records resolved by dnsmasq
@@ -574,7 +557,7 @@ all:
     #==========================================================#
     # NODE
     #==========================================================#
-    node_conf: tiny
+    node_conf: tiny                   # use small vm tune template
     node_timezone: Asia/Hong_Kong     # use Asia/Hong_Kong Timezone
     node_dns_servers:                 # DNS servers in /etc/resolv.conf
       - 10.10.10.10
@@ -585,9 +568,6 @@ all:
     node_ntp_servers:                 # NTP servers in /etc/chrony.conf
       - pool cn.pool.ntp.org iburst
       - pool 10.10.10.10 iburst
-    docker_registry_mirrors:          # docker mirror in mainland china
-      - "https://hub-mirror.c.163.com"
-      - "https://mirror.baidubce.com"
     node_admin_ssh_exchange: false    # exchange admin ssh key among node cluster
 
     #==========================================================#

@@ -360,7 +360,7 @@ proceed with ./configure
 ./configure [-n|--non-interactive] [-i|--ip <ipaddr>] [-m|--mode <name>] [-r|--region <default|china|europe>] [-x|--proxy]
 ```
 
-* `-m|--mode`: Generate config from [templates](https://github.com/Vonng/pigsty/tree/master/files/pigsty) according to `mode`: (`auto|demo|sec|citus|el|el7|ubuntu|prod...`)
+* `-m|--mode`: Generate config from [templates](https://github.com/Vonng/pigsty/tree/master/conf/) according to `mode`: (`auto|demo|sec|citus|el|el7|ubuntu|prod...`)
 * `-i|--ip`: Replace IP address placeholder `10.10.10.10` with your primary ipv4 address of current node.
 * `-r|--region`: Set upstream repo mirror according to `region` (`default|china|europe`)
 * `-n|--non-interactive`: skip interactive wizard and using default/arg values

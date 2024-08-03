@@ -94,7 +94,7 @@ Pigsty 已经提供了开箱即用的[认证](PGSQL-HBA)与[访问控制](PGSQL-
 - 出于便利考虑，Redis服务器默认监听所有IP地址，您可以修改 [`redis_bind_address`](PARAM#redis_bind_address) 只监听内网IP地址。
 
 **使用 [HBA](PGSQL-HBA) 限制 postgres 客户端访问**
-- 有一个增强安全性的配置模板：[`security.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/security.yml)
+- 有一个增强安全性的配置模板：[`security.yml`](https://github.com/Vonng/pigsty/blob/master/conf/trio.yml)
 
 **限制 patroni 管理访问权限：仅 infra/admin 节点可调用控制API**
 - 默认情况下，这是通过 [`restapi.allowlist`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/oltp.yml#L109) 限制的。

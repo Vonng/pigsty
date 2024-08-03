@@ -357,7 +357,7 @@ host     all                all                192.168.0.0/16     scram-sha-256
 
 ## Security Enhancement
 
-For those critical cases, we have a [security.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/security.yml) template with the following hba rule set as a reference:
+For those critical cases, we have a [security.yml](https://github.com/Vonng/pigsty/blob/master/conf/trio.yml) template with the following hba rule set as a reference:
 
 ```yaml
 pg_default_hba_rules:             # postgres host-based auth rules by default

@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-07-08
+# Mtime     :   2024-08-03
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -14,11 +14,13 @@ VERSION?=v2.8.0
 SRC_PKG=pigsty-$(VERSION).tgz
 APP_PKG=pigsty-app-$(VERSION).tgz
 DOCKER_PKG=pigsty-docker-$(VERSION).tgz
+EL7_PKG=pigsty-pkg-$(VERSION).el7.x86_64.tgz
 EL8_PKG=pigsty-pkg-$(VERSION).el8.x86_64.tgz
 EL9_PKG=pigsty-pkg-$(VERSION).el9.x86_64.tgz
-D12_PKG=pigsty-pkg-$(VERSION).debian12.x86_64.tgz
-U20_PKG=pigsty-pkg-$(VERSION).ubuntu20.x86_64.tgz
-U22_PKG=pigsty-pkg-$(VERSION).ubuntu22.x86_64.tgz
+D11_PKG=pigsty-pkg-$(VERSION).d11.x86_64.tgz
+D12_PKG=pigsty-pkg-$(VERSION).d12.x86_64.tgz
+U20_PKG=pigsty-pkg-$(VERSION).u20.x86_64.tgz
+U22_PKG=pigsty-pkg-$(VERSION).u22.x86_64.tgz
 
 
 ###############################################################
@@ -40,7 +42,6 @@ link:
 	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/${SRC_PKG} | gzip -d | tar -xC ~ ; cd ~/pigsty"
 	@echo "[CDN Download]"
 	@echo "curl -SL https://get.pigsty.cc/${VERSION}/${SRC_PKG} | gzip -d | tar -xC ~ ; cd ~/pigsty"
-
 
 # serve a local docs with docsify or python http
 doc:
@@ -196,18 +197,6 @@ dns:
 start: up ssh      # 1-node version
 ssh:               # add current ssh config to your ~/.ssh/pigsty_config
 	vagrant/ssh
-sshb:              # add build ssh config to your ~/.ssh/build_config
-	vagrant/ssh build
-
-#------------------------------#
-# 4. demo
-#------------------------------#
-# launch one-node demo
-demo: demo-prepare
-	ssh meta "cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/${SRC_PKG} -o ~/pigsty.tgz && tar -xf pigsty.tgz"
-	ssh meta 'cd ~/pigsty; ./bootstrap -y'
-	ssh meta 'cd ~/pigsty; ./configure --ip 10.10.10.10 --non-interactive -m demo'
-	ssh meta 'cd ~/pigsty; ./install.yml'
 
 #------------------------------#
 # vagrant vm management
@@ -460,23 +449,38 @@ publish:
 ###############################################################
 
 #------------------------------#
+#     Change Configuration     #
+#------------------------------#
+cmeta:
+	cp conf/sandbox/meta.yml pigsty.yml
+cdual:
+	cp conf/sandbox/dual.yml pigsty.yml
+ctrio:
+	cp conf/sandbox/trio.yml pigsty.yml
+cfull:
+	cp conf/sandbox/full.yml pigsty.yml
+cprod:
+	cp conf/sandbox/prod.yml pigsty.yml
+cbuild:
+	cp conf/build/oss.yml pigsty.yml
+cpro:
+	cp conf/build/pro.yml pigsty.yml
+cext:
+	cp conf/build/ext.yml pigsty.yml
+crpm:
+	cp conf/build/rpm.yml pigsty.yml
+cdeb:
+	cp conf/build/deb.yml pigsty.yml
+
+#------------------------------#
 #     Building Environment     #
 #------------------------------#
-build: del vb new ssh dfx
-	cp files/pigsty/build.yml pigsty.yml
-build-pro: del vb new ssh dfx
-	cp files/pigsty/build-pro.yml pigsty.yml
+build: cbuild del vb new ssh dfx
+pro: cpro del va new ssh copy-src-rpm copy-src-deb
 build-boot:
 	bin/build-boot
-rpm: del vr new ssh copy-src-rpm
-	cp files/pigsty/rpm.yml pigsty.yml
-	@echo ./node.yml -i files/pigsty/rpmbuild.yml -t node_repo,node_pkg
-	@echo el8:    sudo yum groupinstall --nobest -y 'Development Tools'
-deb: del vd new ssh copy-src-deb
-	cp files/pigsty/deb.yml pigsty.yml
-all: del va new ssh copy-src-rpm copy-src-deb
-	@echo ./install.yml -i files/pigsty/rpm.yml
-	@echo ./install.yml -i files/pigsty/deb.yml
+rpm: crpm del vr new ssh copy-src-rpm
+deb: cdeb del vd new ssh copy-src-deb
 old: del va new ssh
 vb: # pigsty building environment
 	vagrant/config build
@@ -488,26 +492,22 @@ va: # all building environment
 	vagrant/config all
 vo: # old building environment
 	vagrant/config old
+
+
+
 #------------------------------#
 # meta, single node, the devbox
 #------------------------------#
 # simple 1-node devbox for quick setup, demonstration, and development
 
 meta: meta8
-meta7: del vmeta7 new ssh copy-el7 use-pkg
-	cp files/pigsty/el7.yml pigsty.yml
-meta8: del vmeta8 new ssh copy-el8 use-pkg
-	cp files/pigsty/el8.yml pigsty.yml
-meta9: del vmeta9 new ssh copy-el9 use-pkg
-	cp files/pigsty/el9.yml pigsty.yml
-meta11: del vmeta11 new ssh copy-d11 use-pkg
-	cp files/pigsty/debian11.yml pigsty.yml
-meta12: del vmeta12 new ssh copy-d12 use-pkg
-	cp files/pigsty/debian12.yml pigsty.yml
-meta20: del vmeta20 new ssh copy-u20 use-pkg
-	cp files/pigsty/ubuntu20.yml pigsty.yml
-meta22: del vmeta22 new ssh copy-u22 use-pkg
-	cp files/pigsty/ubuntu22.yml pigsty.yml
+meta7:  cmeta del vmeta7  up ssh copy-el7 use-pkg
+meta8:  cmeta del vmeta8  up ssh copy-el8 use-pkg
+meta9:  cmeta del vmeta9  up ssh copy-el9 use-pkg
+meta11: cmeta del vmeta11 up ssh copy-d11 use-pkg
+meta12: cmeta del vmeta12 up ssh copy-d12 use-pkg
+meta20: cmeta del vmeta20 up ssh copy-u20 use-pkg
+meta22: cmeta del vmeta22 up ssh copy-u22 use-pkg
 
 vm: vmeta
 vmeta:
@@ -531,13 +531,13 @@ vmeta22:
 # full-featured 4-node sandbox for HA-testing & tutorial & practices
 
 full:   full8
-full7:  del vfull7  up ssh
-full8:  del vfull8  up ssh
-full9:  del vfull9  up ssh
-full11: del vfull11 up ssh
-full12: del vfull12 up ssh
-full20: del vfull20 up ssh
-full22: del vfull22 up ssh
+full7:  cfull del vfull7  up ssh copy-el7 use-pkg
+full8:  cfull del vfull8  up ssh copy-el8 use-pkg
+full9:  cfull del vfull9  up ssh copy-el9 use-pkg
+full11: cfull del vfull11 up ssh copy-d11 use-pkg
+full12: cfull del vfull12 up ssh copy-d12 use-pkg
+full20: cfull del vfull20 up ssh copy-u20 use-pkg
+full22: cfull del vfull22 up ssh copy-u22 use-pkg
 
 vf: vfull
 vfull:
@@ -561,7 +561,8 @@ vfull22:
 # prod, 43 nodes, the simubox
 #------------------------------#
 # complex 43-node simubox for production simulation & complete testing
-
+prod-conf:
+	cp conf/sandbox/prod.yml pigsty.yml
 vp: vprod
 vprod:
 	vagrant/config prod
@@ -575,31 +576,27 @@ vprod22:
 	vagrant/config prod ubuntu22
 
 prod: prod8
-prod8: del vprod8 new ssh
-	cp files/pigsty/prod.yml pigsty.yml
+prod8: cprod del vprod8 new ssh
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-prod9: del vprod9 new ssh
-	cp files/pigsty/prod.yml pigsty.yml
+prod9: cprod del vprod9 new ssh
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-prod12: del vprod12 new ssh
-	cp files/pigsty/prod-deb.yml pigsty.yml
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-prod22: del vprod22 new ssh
-	cp files/pigsty/prod-deb.yml pigsty.yml
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+prod12: cprod del vprod12 new ssh
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.d12.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.d12.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+prod22: cprod del vprod22 new ssh
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.u22.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.u22.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 
 #------------------------------#
 # dual & trio
 #------------------------------#
-dual:   del vdual   up ssh
-dual8:  del vdual8  up ssh
-dual9:  del vdual9  up ssh
-dual12: del vdual12 up ssh
-dual22: del vdual22 up ssh
+dual:   cdual del vdual   up ssh
+dual8:  cdual del vdual8  up ssh
+dual9:  cdual del vdual9  up ssh
+dual12: cdual del vdual12 up ssh
+dual22: cdual del vdual22 up ssh
 
 vdual:
 	vagrant/config dual
@@ -614,11 +611,11 @@ vdual20:
 vdual22:
 	vagrant/config dual ubuntu22
 
-trio:   del vtrio   up ssh
-trio8:  del vtrio8  up ssh
-trio9:  del vtrio9  up ssh
-trio12: del vtrio12 up ssh
-trio22: del vtrio22 up ssh
+trio:   ctrio del vtrio   up ssh
+trio8:  ctrio del vtrio8  up ssh
+trio9:  ctrio del vtrio9  up ssh
+trio12: ctrio del vtrio12 up ssh
+trio22: ctrio del vtrio22 up ssh
 vtrio:
 	vagrant/config trio
 vtrio8:
@@ -641,7 +638,7 @@ vtrio22:
         src pkg \
         c \
         infra pgsql repo repo-upstream repo-build repo-clean prometheus grafana loki docker \
-        deps dns start ssh sshb demo \
+        deps dns start ssh \
         up dw del new clean up-test dw-test del-test new-test clean \
         st status suspend resume v1 v4 v7 v8 v9 vb vr vd vm vo vc vu vp vp7 vp9 \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
@@ -654,5 +651,6 @@ vtrio22:
         full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 \
         prod prod8 prod9 prod12 prod20 prod22 vprod vprod8 vprod9 vprod12 vprod20 vprod22 \
         dual dual8 dual9 dual12 dual20 dual22 vdual vdual8 vdual9 vdual12 vdual20 vdual22 \
-        trio trio8 trio9 trio12 trio20 trio22 vtrio vtrio8 vtrio9 vtrio12 vtrio20 vtrio22
+        trio trio8 trio9 trio12 trio20 trio22 vtrio vtrio8 vtrio9 vtrio12 vtrio20 vtrio22 \
+        cmeta cdual ctrio cfull cprod cbuild cpro cext crpm cdeb
 ###############################################################

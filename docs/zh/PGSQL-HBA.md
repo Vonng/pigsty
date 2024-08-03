@@ -127,7 +127,7 @@ psql 'postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta?sslkey=/path/to/dbu
 
 ### 3. 定义位置
 
-通常，全局的HBA定义在 `all.vars` 中，如果您想要修改全局默认的HBA规则，可以从 [`full.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/full.yml#L690) 模板中复制一份到 `all.vars` 中进行修改。
+通常，全局的HBA定义在 `all.vars` 中，如果您想要修改全局默认的HBA规则，可以从 [`full.yml`](https://github.com/Vonng/pigsty/blob/master/conf//full.yml#L690) 模板中复制一份到 `all.vars` 中进行修改。
 
 - [`pg_default_hba_rules`](PARAM#pg_default_hba_rules)：postgres 全局默认HBA规则
 - [`pgb_default_hba_rules`](PARAM#pgb_default_hba_rules)：pgbouncer 全局默认HBA规则
@@ -364,7 +364,7 @@ host     all                all                192.168.0.0/16     scram-sha-256
 
 ## 安全加固
 
-对于那些需要更高安全性的场合，我们提供了一个安全加固的配置模板 [security.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/security.yml)，使用了以下的默认 HBA 规则集： 
+对于那些需要更高安全性的场合，我们提供了一个安全加固的配置模板 [security.yml](https://github.com/Vonng/pigsty/blob/master/conf/trio.yml)，使用了以下的默认 HBA 规则集： 
 
 ```yaml
 pg_default_hba_rules:             # postgres host-based auth rules by default

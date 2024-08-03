@@ -57,7 +57,7 @@ make all        # 7-node building env with all base images
 | [build.rb](spec/build.rb) |  4 node  |    1c2g x 4     |   4-Node Building Env   | Buildbox |
 |   [rpm.rb](spec/rpm.rb)   |  3 node  |    1c2G x 3     | 3-Node EL Building Env  |          |
 |   [deb.rb](spec/deb.rb)   |  3 node  |    1c2G x 4     | 4-Node Deb Building Env |          |
-|   [all.rb](spec/deb.rb)   |  3 node  |    1c2G x 7     | 7-Node All Building Env |          |
+|   [all.rb](spec/all.rb)   |  7 node  |    1c2G x 7     | 7-Node All Building Env |          |
 
 Each spec file contains a `Specs` variable describe VM nodes. For example, the [`full.rb`](spec/full.rb) contains:
 

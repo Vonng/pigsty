@@ -9,7 +9,7 @@ Pigsty 在节点上运行，这些节点可以是裸机或虚拟机。您可以�
 
 Pigsty 带有一个演示沙箱，所谓沙箱，就是专门用来演示/测试的环境：IP地址和其他标识符都预先固定配置好，便于复现各种演示用例。
 
-默认的沙箱环境由4个节点组成，配置文件请参考 [`demo.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/demo.yml)。
+默认的沙箱环境由4个节点组成，配置文件请参考 [`demo.yml`](https://github.com/Vonng/pigsty/blob/master/conf/full.yml)。
 
 沙箱的 4 个节点有着固定的 IP 地址：`10.10.10.10`、`10.10.10.11`、`10.10.10.12`、`10.10.10.13`。
 
@@ -38,7 +38,7 @@ Pigsty 带有一个演示沙箱，所谓沙箱，就是专门用来演示/测试
 
 * 云沙箱可以轻松创建和共享，单需要一个公有云帐户才行。云上虚拟机可以按需创建/一键销毁，对于快速测试来说非常便宜省事。
 
-此外，Pigsty 还提供了一个 42节点 的生产仿真环境沙箱 [`prod.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/demo.yml)。
+此外，Pigsty 还提供了一个 42节点 的生产仿真环境沙箱 [`prod.yml`](https://github.com/Vonng/pigsty/blob/master/conf/full.yml)。
 
 
 

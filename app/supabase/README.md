@@ -12,7 +12,7 @@ Pigsty allow you to self-host **supabase** with existing managed HA postgres clu
 
 ## Quick Start
 
-To run supabase with existing postgres instance, prepare the [database](#database) with [`supabase.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/supabase.yml)
+To run supabase with existing postgres instance, prepare the [database](#database) with [`supabase.yml`](https://github.com/Vonng/pigsty/blob/master/conf/sample/supabase.yml)
 
 then launch the [stateless part](#stateless-part) with the [`docker-compose`](docker-compose.yml) file:
 
@@ -30,7 +30,7 @@ You can also configure the `infra_portal` to expose the WebUI to the public thro
 
 ## Database
 
-Supabase require certain PostgreSQL extensions, schemas, and roles to work, which can be pre-configured by Pigsty: [`supabase.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/supabase.yml).
+Supabase require certain PostgreSQL extensions, schemas, and roles to work, which can be pre-configured by Pigsty: [`supabase.yml`](https://github.com/Vonng/pigsty/blob/master/conf/sample/supabase.yml).
 
 The following example will configure the default `pg-meta` cluster as underlying postgres for supabase:
 
@@ -154,7 +154,7 @@ POSTGRES_PASSWORD=DBUser.Supa       # supabase dbsu password (shared by multiple
 
 Usually you'll have to change these parameters accordingly. Here we'll use fixed username, password and IP:Port database connstr for simplicity.
 
-The postgres username is fixed as `supabase_admin` and the password is `DBUser.Supa`, change that according to your [`supabase.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/supabase.yml#L43)
+The postgres username is fixed as `supabase_admin` and the password is `DBUser.Supa`, change that according to your [`supabase.yml`](https://github.com/Vonng/pigsty/blob/master/conf/sample/supabase.yml#L43)
 And the supabase studio WebUI credential is managed by `DASHBOARD_USERNAME` and `DASHBOARD_PASSWORD`, which is `supabase` and `pigsty` by default.
 
 The official tutorial: [Self-Hosting with Docker](https://supabase.com/docs/guides/self-hosting/docker) just have all the details you need.

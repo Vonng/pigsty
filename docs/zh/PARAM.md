@@ -706,7 +706,7 @@ repo_upstream:                    # where to download #
   - { name: docker-ce     ,description: 'Docker'           ,module: infra ,releases: [11,12,20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
 ```
 
-Pigsty 构建配置模板 [`build.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/build.yml) 提供了不同操作系统下的权威默认值。
+Pigsty 构建配置模板 [`build.yml`](https://github.com/Vonng/pigsty/blob/master/conf/build/oss.yml) 提供了不同操作系统下的权威默认值。
 
 
 
@@ -773,7 +773,7 @@ repo_packages:                    # which packages to be included
 
 每一行都是 **由空格分隔** 的软件包列表字符串，这些软件包会使用 `repotrack` 或 `apt download` 下载本地以及所有依赖。
 
-Pigsty 构建配置模板 [`build.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/build.yml) 提供了不同操作系统下的权威默认值。
+Pigsty 构建配置模板 [`build.yml`](https://github.com/Vonng/pigsty/blob/master/conf/build/oss.yml) 提供了不同操作系统下的权威默认值。
 
 
 

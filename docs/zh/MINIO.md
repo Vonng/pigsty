@@ -168,7 +168,7 @@ infra_portal:   # 域名和上游服务器定义
   minio3       : { domain: sss3.pigsty ,endpoint: 10.10.10.12:9001 ,scheme: https ,websocket: true }
 ```
 
-查看 MinIO 示例[配置](https://github.com/Vonng/pigsty/blob/master/files/pigsty/minio.yml) 与专用的样例 [Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/minio.rb) 来获取更多信息。
+查看 MinIO 示例[配置](https://github.com/Vonng/pigsty/blob/master/conf/sample/minio.yml.yml) 与专用的样例 [Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/minio.rb) 来获取更多信息。
 
 
 

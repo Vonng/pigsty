@@ -1,0 +1,107 @@
+---
+#==============================================================#
+# File      :   pg17.yml
+# Desc      :   Pigsty config template for pg17
+# Ctime     :   2020-05-22
+# Mtime     :   2024-06-22
+# Docs      :   https://pigsty.io/docs/setup/config/
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+# this config file template is based on 4-node full sandbox
+
+all:
+  children:
+
+    # infra: monitor, alert, repo, etc..
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
+
+    # etcd cluster for HA postgres DCS
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+
+    #----------------------------------#
+    # pgsql (singleton on current node)
+    #----------------------------------#
+    # this is an example single-node postgres cluster with postgis & timescaledb installed, with one biz database & two biz users
+    pg-meta:
+      hosts:
+        10.10.10.10: { pg_seq: 1, pg_role: primary } # <---- primary instance with read-write capability
+      vars:
+        pg_cluster: pg-meta                 # required identity parameter, usually same as group name
+        pg_databases:                       # define business databases here: https://pigsty.io/docs/pgsql/db/
+          - name: meta                      # REQUIRED, `name` is the only mandatory field of a database definition
+            baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g: files/)
+            schemas: [ pigsty ]             # optional, additional schemas to be created, array of schema names
+            extensions:                     # optional, additional extensions to be installed: array of `{name[,schema]}`
+              - { name: postgis }           # install postgis extension on this database
+            comment: pigsty meta database   # optional, comment string for this database
+        pg_users:                           # define business users here: https://pigsty.io/docs/pgsql/user/
+          - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
+          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+        pg_libs: 'pg_stat_statements, auto_explain'
+        pg_hba_rules: # define HBA rules here: https://pigsty.io/docs/pgsql/hba/#define-hba
+          - { user: dbuser_view ,db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
+
+    # pgsql 3 node ha cluster: pg-test
+    pg-test:
+      hosts:
+        10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
+        10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
+        10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
+      vars:
+        pg_cluster: pg-test           # define pgsql cluster name
+        pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
+        pg_databases: [{ name: test }]
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.3/24
+        pg_vip_interface: eth1
+
+  #----------------------------------#
+  # GLOBAL VARS
+  #----------------------------------#
+  vars:
+
+    #----------------------------------#
+    # Meta Data
+    #----------------------------------#
+    version: v2.8.0                   # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default|china|europe
+    node_tune: tiny                   # oltp|olap|tiny|cirt
+    pg_conf: tiny.yml                 # oltp.yml|olap.yml|tiny.yml|cirt.yml
+    infra_portal:                     # domain names and upstream servers
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
+
+    #----------------------------------#
+    # Repo, Node, Packages
+    #----------------------------------#
+    # if you wish to customize your own repo, change these settings:
+    repo_modules: infra,node,pgsql,extra # install upstream repo during repo bootstrap
+    node_repo_modules: local          # install the local module in repo_upstream for all nodes
+    repo_packages:                    # which packages to be included
+      - ansible python3 python3-pip python3-virtualenv python3-requests dnf-utils modulemd-tools createrepo_c sshpass                                              # Distro & Boot
+      - nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter python3-jmespath python3-cryptography                                               # Pigsty Addons
+      - grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter                       # Infra Packages
+      - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph      # Node Packages 1
+      - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates openssl openssh-clients readline vim-minimal keepalived chrony            # Node Packages 2
+      - patroni patroni-etcd pgbouncer pgbadger pgbackrest pgloader pg_activity                                                                                    # PGDG Common
+      - postgresql17-17 postgresql17-server-17 postgresql17-libs-17 postgresql17-contrib-17 postgresql17-devel-17 postgresql17-plperl-17 postgresql17-plpython3-17 postgresql17-pltcl-17 postgresql17-test-17 # postgresql17-llvmjit-17 postgresql17-docs-17
+      - postgis35_17* bgw_replstatus_17* count_distinct_17* e-maj_17 extra_window_functions_17* hll_17* hypopg_17* ip4r_17* jsquery_17* system_stats_17*
+
+    #----------------------------------#
+    # PostgreSQL Packages & Extensions
+    #----------------------------------#
+    pg_version: 17                    # el9 is using postgresql 16 as the default major version
+    pg_packages:                      # pg packages to be installed, `$pg_version` and `$v` will be replaced to `pg_version`
+      - postgresql$v*
+      - patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager patroni-etcd    # pgdg common tools
+    pg_extensions:                    # global installed extensions, can be overwritten by group vars
+      - postgis
+      #- pg_repack wal2json
+...

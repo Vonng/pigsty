@@ -184,7 +184,7 @@ Pigsty 提供三种监控模式，以适应不同的监控需求。
 
 <details><summary>示例：监控阿里云 RDS for PostgreSQL 与 PolarDB</summary>
 
-详情请参考：[remote.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/remote.yml)
+详情请参考：[remote.yml](https://github.com/Vonng/pigsty/blob/master/conf/remote.yml)
 
 ```yaml
 infra:            # 代理、监控、警报等的infra集群..

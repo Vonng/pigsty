@@ -92,7 +92,7 @@ But if you want to further strengthen the security of the system, the following 
 - You can also implement it with the security group or firewall rules.
 
 **Limit postgres client access with [HBA](PGSQL-HBA)**
-- There's a security enhance config template: [`security.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/security.yml)
+- There's a security enhance config template: [`security.yml`](https://github.com/Vonng/pigsty/blob/master/conf/trio.yml)
 
 **Limit patroni admin access from the infra/admin node.**
   - This is restricted by default with [`restapi.allowlist`](https://github.com/Vonng/pigsty/blob/master/roles/pgsql/templates/oltp.yml#L109)

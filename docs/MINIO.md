@@ -168,7 +168,7 @@ infra_portal:   # domain names and upstream servers
   minio3       : { domain: sss3.pigsty ,endpoint: 10.10.10.12:9001 ,scheme: https ,websocket: true }
 ```
 
-Check the MinIO demo [config](https://github.com/Vonng/pigsty/blob/master/files/pigsty/minio.yml) and special [Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/minio.rb) for more details.
+Check the MinIO demo [config](https://github.com/Vonng/pigsty/blob/master/conf/sample/minio.yml.yml) and special [Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/spec/minio.rb) for more details.
 
 
 

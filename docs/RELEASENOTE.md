@@ -362,7 +362,7 @@ curl -L https://get.pigsty.cc/latest | bash
 
 **Highlights**
 
-- [Ubuntu](https://github.com/Vonng/pigsty/blob/master/files/pigsty/ubuntu.yml) / [Debian](https://github.com/Vonng/pigsty/blob/master/files/pigsty/debian.yml) Support:  bullseye, bookworm, jammy, focal
+- [Ubuntu](https://github.com/Vonng/pigsty/blob/master/conf/default/u22.yml) / [Debian](https://github.com/Vonng/pigsty/blob/master/conf/default/d12.yml) Support:  bullseye, bookworm, jammy, focal
 - Dedicate yum/apt repo on `repo.pigsty.cc` and mirror on packagecloud.io
 - Anolis OS Support (EL 8.8 Compatible)
 - PG Major Candidate: Use PostgreSQL 16 instead of PostgreSQL 14.
@@ -396,7 +396,7 @@ curl -L https://get.pigsty.cc/latest | bash
 
 Pigsty has two ubuntu LTS support: 22.04 (jammy) and 20.04 (focal), and ship corresponding offline packages for them.
 
-Some parameters need to be specified explicitly when deploying on Ubuntu, please refer to [`ubuntu.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/ubuntu.yml)
+Some parameters need to be specified explicitly when deploying on Ubuntu, please refer to [`ubuntu.yml`](https://github.com/Vonng/pigsty/blob/master/conf/default/u22.yml)
 
 - `repo_upstream`: Adjust according to ubuntu / debian repo.
 - `repo_packages`: Adjust according to ubuntu / debian naming convention

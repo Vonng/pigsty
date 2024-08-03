@@ -177,9 +177,9 @@ https://get.pigsty.cc/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz   # �
 <br>
 <details><summary>Pigsty配置文件是干什么的？</summary><br>
 
-Pigsty主目录下的 `pigsty.yml` 是默认的配置文件，可以用来描述整套部署的环境，在 [`files/pigsty`](https://github.com/Vonng/pigsty/tree/master/files/pigsty) 有许多配置示例供你参考。
+Pigsty主目录下的 `pigsty.yml` 是默认的配置文件，可以用来描述整套部署的环境，在 [`files/pigsty`](https://github.com/Vonng/pigsty/tree/master/conf/) 有许多配置示例供你参考。
 
-当执行剧本时，你可以使用 `-i <path>` 参数，选用其他位置的配置文件。例如，你想根据另一个专门的配置文件 `redis.yml` 来安装 redis：`./redis.yml -i files/pigsty/redis.yml`
+当执行剧本时，你可以使用 `-i <path>` 参数，选用其他位置的配置文件。例如，你想根据另一个专门的配置文件 `redis.yml` 来安装 redis：`./redis.yml -i conf/sample/redis.yml`
 
 </details>
 
@@ -871,7 +871,7 @@ pg_libs: 'pg_stat_statements, auto_explain' # 从 pg 16 beta 中移除 timescale
 pg_extensions: []                 # 目前缺少 pg16 扩展
 ```
 
-在 [prod.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/prod.yml#L110) 42节点生产环境仿真模板中提供了安装 12 - 16 大版本集群的示例。
+在 [prod.yml](https://github.com/Vonng/pigsty/blob/master/conf/prod.yml#L110) 42节点生产环境仿真模板中提供了安装 12 - 16 大版本集群的示例。
 
 详情请参考 [PGSQL配置：切换大版本](PGSQL-CONF#大版本切换)
 

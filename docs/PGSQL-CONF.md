@@ -364,7 +364,7 @@ It takes more resources, but can be much faster and have less impact than [PITR]
 
 ## Citus Cluster
 
-Pigsty has native citus support. Check [`files/pigsty/citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/citus.yml) & [`prod.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/prod.yml#L298) for example.
+Pigsty has native citus support. Check [`conf/sample/citus.yml.yml`](https://github.com/Vonng/pigsty/blob/master/conf/sample/citus.yml.yml) & [`prod.yml`](https://github.com/Vonng/pigsty/blob/master/conf//prod.yml#L298) for example.
 
 To define a citus cluster, you have to specify the following parameters:
 

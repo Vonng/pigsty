@@ -468,4 +468,4 @@ pg_default_services:  [{ name: primary ,port: 10013 ,dest: postgres  ,check: /pr
 
 用户需要确保每个委托服务的端口，在代理集群中都是**唯一**的。
 
-在42节点生产环境仿真[沙箱](PROVISION#沙箱环境)中提供了一个使用专用负载均衡器集群的例子：[prod.yml](https://github.com/Vonng/pigsty/blob/master/files/pigsty/prod.yml#L111) 
+在42节点生产环境仿真[沙箱](PROVISION#沙箱环境)中提供了一个使用专用负载均衡器集群的例子：[prod.yml](https://github.com/Vonng/pigsty/blob/master/conf/prod.yml#L111) 

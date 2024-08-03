@@ -358,7 +358,7 @@ proceed with ./configure
 ./configure [-n|--non-interactive] [-i|--ip <ipaddr>] [-m|--mode <name>] [-r|--region <default|china|europe>] [-x|--proxy]
 ```
 
-* `-m|--mode`: 直接指定配置[模板](https://github.com/Vonng/pigsty/tree/master/files/pigsty) : (`auto|demo|sec|citus|el|el7|ubuntu|prod...`)
+* `-m|--mode`: 直接指定配置[模板](https://github.com/Vonng/pigsty/tree/master/conf/) : (`auto|demo|sec|citus|el|el7|ubuntu|prod...`)
 * `-i|--ip`: 用于替换IP地址占位符 `10.10.10.10` 的IP地址，即当前主机的首要内网IP地址（特别是在有多块网卡与多个IP地址时）
 * `-r|--region`: 用于指定上游源的区域： (`default|china|europe`)
 * `-n|--non-interactive`: 直接使用命令行参数提供首要IP地址，跳过交互式向导。

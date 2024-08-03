@@ -11,7 +11,7 @@ Pigsty runs on nodes, which are Bare Metals or Virtual Machines. You can prepare
 ## Sandbox
 
 Pigsty has a sandbox, which is a 4-node deployment with fixed IP addresses and other identifiers.
-Check [`demo.yml`](https://github.com/Vonng/pigsty/blob/master/files/pigsty/demo.yml) for details.
+Check [`full.yml`](https://github.com/Vonng/pigsty/blob/master/conf/full.yml) for details.
 
 The sandbox consists of 4 nodes with fixed IP addresses: `10.10.10.10`, `10.10.10.11`, `10.10.10.12`, `10.10.10.13`.
 

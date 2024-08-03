@@ -10,7 +10,7 @@ There are several built-in templates for your reference, you can also create you
 
 ## Default Templates
 
-If `-m <mode>` is specified, corresponding `<mode>.yml` is used, otherwise pigsty will auto-selected the following singleton templates according to your OS distribution:
+Pigsty will auto-select the following singleton templates according to your OS distribution (if configure mode is not specified):
 
 * [el8.yml](el8.yml): EL8, Rocky 8.9 and compatible OS
 * [debian12.yml](debian12.yml): Debian 12 bookworm and compatible OS
