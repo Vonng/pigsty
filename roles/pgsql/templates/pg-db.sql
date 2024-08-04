@@ -162,7 +162,11 @@ CREATE SCHEMA IF NOT EXISTS "{{ schema_name }}";
 --==================================================================--
 -- create extensions
 {% if 'extensions' in database and database.extensions is not none and database.extensions|length > 0 %}{% for extension in database.extensions %}
-CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension %} WITH SCHEMA "{{ extension.schema }}"{% endif %};
+{% if extension is string %}
+CREATE EXTENSION IF NOT EXISTS "{{ extension }}" CASCADE;
+{% elif extension is mapping and 'name' in extension %}
+CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension %} WITH SCHEMA "{{ extension.schema }}"{% endif %}{% if 'version' in extension %} VERSION "{{ extension.version }}"{% endif %} CASCADE;
+{% endif %}
 {% endfor %}{% endif %}
 
 
