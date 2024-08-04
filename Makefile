@@ -493,8 +493,6 @@ va: # all building environment
 vo: # old building environment
 	vagrant/config old
 
-
-
 #------------------------------#
 # meta, single node, the devbox
 #------------------------------#
