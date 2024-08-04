@@ -565,10 +565,10 @@ repo_packages:
   - pg_partman_16 pg_permissions_16 pgexportdoc_16 pgimportdoc_16 pg_statement_rollback_16* pg_hint_plan_16* pg_auth_mon_16 pg_checksums_16 pg_failover_slots_16 pg_readonly_16* pg_uuidv7_16* set_user_16* rum_16
   - system_stats_16* pg_store_plans_16* pg_catcheck_16 pgcopydb pg_profile_16 # mysqlcompat_16 multicorn2_16* plproxy_16 geoip_16 postgresql-unit_16 # not available for PG 16 yet
   - redis_exporter mysqld_exporter mongodb_exporter docker-ce docker-compose-plugin redis minio mcli ferretdb duckdb sealos  # Miscellaneous Packages
-repo_url_packages:
-  - https://repo.pigsty.cc/etc/pev.html
-  - https://repo.pigsty.cc/etc/chart.tgz
-  - https://repo.pigsty.cc/etc/plugins.tgz
+repo_url_packages:                # extra packages from url
+  - { name: "pev.html"    ,url: "https://repo.pigsty.io/etc/pev-1.11.0.html"    }
+  - { name: "chart.tgz"   ,url: "https://repo.pigsty.io/etc/chart-1.0.0.tgz"    }
+  - { name: "plugins.tgz" ,url: "https://repo.pigsty.io/etc/plugins-11.1.3.tgz" }
 ```
 
 
@@ -787,10 +787,10 @@ Pigsty 构建配置模板 [`build.yml`](https://github.com/Vonng/pigsty/blob/mas
 直接使用 URL 从互联网上下载的软件包，默认为：
 
 ```yaml
-repo_url_packages:
-  - https://repo.pigsty.cc/etc/pev.html     # postgres 执行计划可视化
-  - https://repo.pigsty.cc/etc/chart.tgz    # grafana 额外地图数据 GeoJson
-  - https://repo.pigsty.cc/etc/plugins.tgz  # grafana 插件，可选
+repo_url_packages:                # extra packages from url
+  - { name: "pev.html"    ,url: "https://repo.pigsty.io/etc/pev-1.11.0.html"    }
+  - { name: "chart.tgz"   ,url: "https://repo.pigsty.io/etc/chart-1.0.0.tgz"    }
+  - { name: "plugins.tgz" ,url: "https://repo.pigsty.io/etc/plugins-11.1.3.tgz" }
 ```
 
 这几个都是可选的加装项：例如，如果不下载 `plugins.tgz`，Grafana 初始化的时候就会直接从互联网上下载插件，这样会导致初始化时间变长（而且有可能被墙），但是不会影响最终结果。

@@ -568,10 +568,10 @@ repo_packages:
   - pgtt_16* pguint_16* pg_bigm_16* pg_bulkload_16* pg_catcheck_16* pg_checksums_16* pg_comparator_16* pg_dbms_lock_16* pg_dbms_metadata_16* pg_extra_time_16* pg_fact_loader_16* pg_failover_slots_16* pg_filedump_16* pg_fkpart_16* pg_hint_plan_16* pg_ivm_16* pg_jobmon_16* pg_net_16* pg_partman_16* pg_permissions_16* pg_prioritize_16* pg_profile_16*
   - pg_qualstats_16* pg_readonly_16* pg_show_plans_16* pg_squeeze_16* pg_stat_kcache_16* pg_stat_monitor_16* pg_statement_rollback_16* pg_statviz_extension_16 pg_store_plans_16* pg_tle_16* pg_top_16* pg_track_settings_16* pg_uuidv7_16* pg_wait_sampling_16* pgagent_16* pgaudit_16* pgauditlogtofile_16* pgbouncer_fdw_16* pgcryptokey_16* pgexportdoc_16*
   - pldebugger_16* pllua_16* plpgsql_check_16* plprofiler_16* plsh_16* pointcloud_16* postgres-decoderbufs_16* postgresql_anonymizer_16* postgresql_faker_16* powa-archivist_16* powa_16* prefix_16* rum_16 safeupdate_16* semver_16* set_user_16* sqlite_fdw_16* system_stats_16* tdigest_16* tds_fdw_16* temporal_tables_16* timestamp9_16* topn_16*
-repo_url_packages:
-  - https://repo.pigsty.cc/etc/pev.html
-  - https://repo.pigsty.cc/etc/chart.tgz
-  - https://repo.pigsty.cc/etc/plugins.tgz
+repo_url_packages:                # extra packages from url
+  - { name: "pev.html"    ,url: "https://repo.pigsty.io/etc/pev-1.11.0.html"    }
+  - { name: "chart.tgz"   ,url: "https://repo.pigsty.io/etc/chart-1.0.0.tgz"    }
+  - { name: "plugins.tgz" ,url: "https://repo.pigsty.io/etc/plugins-11.1.3.tgz" }
 ```
 
 
@@ -784,10 +784,10 @@ name: `repo_url_packages`, type: `string[]`, level: `G`
 extra packages from url, default values:
 
 ```yaml
-repo_url_packages:
-  - https://repo.pigsty.cc/etc/pev.html     # postgres explain visualizer
-  - https://repo.pigsty.cc/etc/chart.tgz    # grafana extra map geojson data
-  - https://repo.pigsty.cc/etc/plugins.tgz  # grafana plugins
+repo_url_packages:                # extra packages from url
+  - { name: "pev.html"    ,url: "https://repo.pigsty.io/etc/pev-1.11.0.html"    }
+  - { name: "chart.tgz"   ,url: "https://repo.pigsty.io/etc/chart-1.0.0.tgz"    }
+  - { name: "plugins.tgz" ,url: "https://repo.pigsty.io/etc/plugins-11.1.3.tgz" }
 ```
 
 These are optional add-ons, which will be downloaded via URL from the Internet directly.
