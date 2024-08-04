@@ -50,6 +50,8 @@
   - Now you can run supabase on Ubuntu / Debian with these necessary extensions
   - All rust extensions are also available on both EL and Deb platforms 
 
+**Babelfish Support**: Provide MSSQL compatibility through WiltonDB & Babelfish Extensions.
+
 Deprecate support on EOL OS Distro: EL7 (CentOS 7.9), Debian 11 (Bullseye), and Ubuntu 20.04 (focal)
   - Pigsty now focus on RockyLinux 9.3, Debian 12, and Ubuntu 22.04 as the main supported OS distros.
   - If you wish to run Pigsty on legacy EOL platforms, consider using our [subscription service](https://pigsty.io/docs/about/service)
@@ -59,13 +61,21 @@ Deprecate support on EOL OS Distro: EL7 (CentOS 7.9), Debian 11 (Bullseye), and 
 - [x] Grafana 11 migration
 - [x] PG Exporter 0.7 for PostgreSQL 17beta2 metrics support
 - [x] duckdb: duckdb, libduckdb, duckdb_fdw version v1.0.0
-- [x] paradedb: bump pg_search & pg_lakehouse to v0.8,
+- [x] paradedb: bump pg_search & pg_lakehouse to v0.8.6
 - [x] write `proxy_env` for docker daemon
 - [x] Bump FerretDB, SealOS to the latest version
 - [x] `pgvectorscale` extension with DiskANN support
 - [x] New Extension for PG 16: `wal2mongo`, `multicorn2`, `pgtap`, `pg_dbms_job`
 - [x] specify config in `infra_portal` config to use existing certs
 - [x] Fix openssh CVE vulnerability
+- [x] Use plain extension name string in `pg_databases.extensions`
+- [x] Specify extension version in `pg_databases.extensions`
+- [x] PG Instance level parameter management through `pg_parameters`
+- [x] Rename and use region ad hoc in param `repo_url_packages`
+- [x] Designate a primary database among pgsql cluster: `patroni_citus_db` -> `pg_primary_db`
+- [x] Add new mode `mssql` support for `pg_mode` in `pg_databases`
+- [x] Adjust files/pigsty config dir to `./conf`
+- [x] Supabase support for Debian 12 and Ubuntu 22.04
 - [ ] Observability enhancement
 - [ ] bump default rocky minor version to 9.3 (TBD)
 - [ ] VictoriaMetrics & Vector ? (NOT PLANNED)
@@ -81,7 +91,7 @@ Deprecate support on EOL OS Distro: EL7 (CentOS 7.9), Debian 11 (Bullseye), and 
 - pgBackRest: 2.53
 - vip-manager: 2.5.0
 - Haproxy: 3.0.2
-- FerretDB: 1.22
+- FerretDB: 1.23
 - sealos: 5.0.0
 - duckdb: v1.0.0
 - etcd: 3.5.15
@@ -125,7 +135,7 @@ Deprecate support on EOL OS Distro: EL7 (CentOS 7.9), Debian 11 (Bullseye), and 
 - pg_graphql: 1.5.4 -> 1.5.7
 - PostGIS 3.4.1
 - PGVector 0.7.2
-- TimescaleDB 2.15.1
+- TimescaleDB 2.16.0
 - Citus 12.5
 
 **Docker Application**
