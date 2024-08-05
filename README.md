@@ -17,9 +17,10 @@
 
 [![pigsty-desc](https://pigsty.io/img/pigsty/desc.png)](https://pigsty.io/)
 
-There are **280** unique [extensions](https://pigsty.io/docs/reference/extension) available in Pigsty.
+There are **280** unique [extensions](https://pigsty.io/docs/pgext/list) available in Pigsty.
 
 [![pigsty-ecosystem.jpg](https://pigsty.io/img/pigsty/ecosystem.jpg)](https://pigsty.io/docs/reference/extension)
+
 
 ----------------
 
@@ -39,11 +40,7 @@ cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 Then you will have a pigsty singleton node ready, with Web Services on port `80/443` and Postgres on port `5432`.
 
 <details><summary>Install Script Output</summary><br>
-
-If you don't like the idea of running the [`install`](https://github.com/Vonng/pigsty/blob/master/bin/install) script from the Internet.
-
-Consider download pigsty source tarball & offline package and perform an [offline install](https://pigsty.io/docs/setup/offline/) without the Internet access. 
-
+ 
 ```bash
 $ bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
 [v2.7.0] ===========================================
@@ -89,37 +86,6 @@ You can also download pigsty source with `git`, don't forget to check out a spec
 git clone https://github.com/Vonng/pigsty;
 cd pigsty; git checkout v2.7.0
 ```
-
-</details>
-
-
-<details><summary>Download Directly</summary>
-
-You can also download pigsty source tarball & [offline packages](https://pigsty.io/docs/setup/offline/) directly from GitHub release page.
-
-| Package                      | GitHub Release                                                                                                                          | CDN Mirror                                                                                                  |
-|------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------|
-| Pigsty Source Tarball        | [pigsty-v2.7.0.tgz](https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz)                                         | [pigsty-v2.7.0.tgz](https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz)                                         |
-| EL8 Offline Package          | [pigsty-pkg-2.7.0.el8.x86_64.tgz](https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz)            | [pigsty-pkg-2.7.0.el8.x86_64.tgz](https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz)            |
-| Debian 12 Offline Package    | [pigsty-pkg-v2.7.0.debian12.x86_64.tgz](https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz) | [pigsty-pkg-v2.7.0.debian12.x86_64.tgz](https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz) |
-| Ubuntu 22.04 Offline Package | [pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz](https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz) | [pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz](https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz) |
-
-
-```bash
-# download tarball directly from GitHub with curl
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz                      # Pigsty Source Tarball
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      -o /tmp/pkg.tgz  # Offline Package for Rocky 8.9    (Green Obsidian)
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz -o /tmp/pkg.tgz  # Offline Package for Debian 12    (bookworm, 12.4)
-curl -L https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Offline Package for Ubuntu 22.04 (jammy, 22.04.3)
-
-# or use the alternative CDN in china
-curl -L https://get.pigsty.cc/v2.7.0/pigsty-v2.7.0.tgz -o ~/pigsty.tgz                      # Pigsty Source Tarball
-curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.el8.x86_64.tgz      -o /tmp/pkg.tgz  # Offline Package for Rocky 8.9    (Green Obsidian)
-curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz -o /tmp/pkg.tgz  # Offline Package for Debian 12    (bookworm, 12.4)
-curl -L https://get.pigsty.cc/v2.7.0/pigsty-pkg-v2.7.0.ubuntu22.x86_64.tgz -o /tmp/pkg.tgz  # Offline Package for Ubuntu 22.04 (jammy, 22.04.3)
-```
-
-Beware that pre-packed offline packages are OS Minor version specific, if you are using a different minor version (e.g: 8.6, 22.04.2), consider not using the offline package and perform the default online installation.
 
 </details>
 

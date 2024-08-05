@@ -1241,7 +1241,7 @@ TRUNCATE pigsty.default_var;
 INSERT INTO pigsty.default_var VALUES
 
 -- INFRA PARAMETERS
-(101, 'version', '"v2.8.0"', 'INFRA', 'META', 'string', 'G', 'pigsty version string', NULL),
+(101, 'version', '"v3.0.0-a1"', 'INFRA', 'META', 'string', 'G', 'pigsty version string', NULL),
 (102, 'admin_ip', '"10.10.10.10"', 'INFRA', 'META', 'ip', 'G', 'admin node ip address', NULL),
 (103, 'region', '"default"', 'INFRA', 'META', 'enum', 'G', 'upstream mirror region: default,china,europe', NULL),
 (104, 'proxy_env', '{"no_proxy": "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"}', 'INFRA', 'META', 'dict', 'G', 'global proxy env when downloading packages', NULL),
@@ -1439,7 +1439,7 @@ INSERT INTO pigsty.default_var VALUES
 (733, 'redis_sentinel_monitor', '[]', 'REDIS', 'REDIS', 'master[]', 'C', 'sentinel master list, works on sentinel cluster only', NULL),
 
 -- PGSQL PARAMETERS
-(801, 'pg_mode', '"pgsql"', 'PGSQL', 'PG_ID', 'enum', 'C', 'pgsql cluster mode: pgsql,citus,gpsql,mssql', NULL),
+(801, 'pg_mode', '"pgsql"', 'PGSQL', 'PG_ID', 'enum', 'C', 'pgsql cluster mode: pgsql,citus,gpsql,mssql,ivory,polar', NULL),
 (802, 'pg_cluster', NULL, 'PGSQL', 'PG_ID', 'string', 'C', 'pgsql cluster name, REQUIRED identity parameter', NULL),
 (803, 'pg_seq', NULL, 'PGSQL', 'PG_ID', 'int', 'I', 'pgsql instance seq number, REQUIRED identity parameter', NULL),
 (804, 'pg_role', '"replica"', 'PGSQL', 'PG_ID', 'enum', 'I', 'pgsql role, REQUIRED, could be primary,replica,offline', NULL),

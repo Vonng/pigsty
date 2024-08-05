@@ -4,23 +4,23 @@
 # File      :   install
 # Desc      :   download & install pigsty from get.pigsty.cc
 # Ctime     :   2022-10-30
-# Mtime     :   2024-05-16
+# Mtime     :   2024-08-05
 # Path      :   https://get.pigsty.cc/{i,install,latest,beta}
 # Usage     :   bash -c "$(curl -fsSL https://get.pigsty.cc/i)"
 # Deps      :   curl
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-DEFAULT_VERSION=v2.8.0
+DEFAULT_VERSION=v3.0.0-a1
 
-# To install the latest version of pigsty (v2.8.0):
+# To install the latest version of pigsty (v3.0.0-a1):
 # bash -c "$(curl -fsSL https://get.pigsty.cc/i)"
 # bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
 # bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
 #
-# To install a specific version of pigsty (e.g. v2.6.0)
-# bash -c "$(curl -fsSL https://get.pigsty.cc/i)" -- v2.6.0
-# curl -fsSL https://get.pigsty.cc/i | bash -s v2.6.0
+# To install a specific version of pigsty (e.g. v3.0.0)
+# bash -c "$(curl -fsSL https://get.pigsty.cc/i)" -- v3.0.0
+# curl -fsSL https://get.pigsty.cc/i | bash -s v3.0.0
 
 
 #--------------------------------------------------------------#
@@ -49,7 +49,7 @@ function log_line()  { printf "${__CM}[$*] =====================================
 VALID_VERSIONS="\
 v1.0.0 v1.1.1 v1.2.0 v1.3.0 v1.4.0 v1.4.1 v1.5.0 v1.5.1 v2.0.0 \
 v2.0.1 v2.0.2 v2.1.0 v2.2.0 v2.3.0 v2.3.1 v2.4.0 v2.4.1 v2.5.0 \
-v2.5.1 v2.6.0 v2.7.0 v2.8.0"
+v2.5.1 v2.6.0 v2.7.0 v3.0.0 v3.0.0-a1"
 
 VERSION=${DEFAULT_VERSION}
 VERSION_FROM="default"
@@ -173,98 +173,6 @@ else
     log_hint "sudo rm -rf /tmp/pigsty_bk; cp -r ${INSTALL_TO} /tmp/pigsty_bk; # backup old"
     log_hint "sudo rm -rf /tmp/pigsty;    tar -xf ${DOWNLOAD_TO} -C /tmp/; # extract new"
     log_hint "rsync -av --exclude='/pigsty.yml' --exclude='/files/pki/***' /tmp/pigsty/ ${INSTALL_TO}/; # rsync src"
-fi
-
-
-
-#--------------------------------------------------------------#
-# OS Info
-#--------------------------------------------------------------#
-# Print optional offline package info if application to current kernel, arch, os, distro
-OS_VENDOR=""
-OS_VERSION=""
-OS_PACKAGE=""
-OS_MANAGER=""
-OS_CODENAME=""
-PIGSTY_VERSION=${VERSION}
-
-function check_os(){
-    if [[ "$(uname)" == "Darwin" ]]; then
-        OS_VENDOR="MacOS"
-        return 0
-    fi
-
-    if [[ -f /etc/os-release ]]; then
-        . /etc/os-release
-        OS_VENDOR="$ID"
-        OS_VERSION="$VERSION_ID"
-        OS_CODENAME=${VERSION_CODENAME-''}
-        if [[ $VERSION_ID == *.* ]]; then
-            OS_VERSION=$(echo "$VERSION_ID" | cut -d. -f1)
-        else
-            OS_VERSION="${VERSION_ID}"
-        fi
-    else
-        OS_VENDOR="unknown"
-        OS_VERSION="unknown"
-    fi
-
-    # get package / manager: rpm|deb and dnf|yum|apt|apt-get|zypper
-    if command -v dpkg >/dev/null 2>&1; then
-        OS_PACKAGE="deb"
-        if command -v apt >/dev/null 2>&1; then
-            OS_MANAGER="apt"
-        elif command -v apt-get >/dev/null 2>&1; then
-            OS_MANAGER="apt-get"
-        else
-            OS_MANAGER="unknown"
-        fi
-    elif command -v rpm >/dev/null 2>&1; then
-        OS_PACKAGE="rpm"
-        if command -v dnf >/dev/null 2>&1; then
-            OS_MANAGER="dnf"
-        elif command -v yum >/dev/null 2>&1; then
-            OS_MANAGER="yum"
-        elif command -v zypper >/dev/null 2>&1; then
-            OS_MANAGER="zypper"
-        else
-            OS_MANAGER="unknown"
-        fi
-    else
-        OS_PACKAGE="unknown"
-        OS_MANAGER="unknown"
-    fi
-}
-
-check_os
-
-PKG_FILENAME=""
-
-
-function check_offline_pkg_available(){
-    if [[ ${KERNEL} != "Linux" || ${ARCH} != "x86_64" ]]; then
-        return 0
-    fi
-
-    # EL 8, Debian 12, Ubuntu 22 has official offline packages!
-    if [[ ${OS_PACKAGE} == "rpm" && ${OS_VERSION} == "8" ]]; then
-        PKG_FILENAME="pigsty-pkg-${PIGSTY_VERSION}.el${OS_VERSION}.x86_64.tgz"
-    elif [[ ${OS_PACKAGE} == "deb" && ${OS_CODENAME} == "jammy" ]]; then
-        PKG_FILENAME="pigsty-pkg-${PIGSTY_VERSION}.${OS_VENDOR}${OS_VERSION}.x86_64.tgz"
-    elif [[ ${OS_PACKAGE} == "deb" && ${OS_CODENAME} == "bookworm" ]]; then
-        PKG_FILENAME="pigsty-pkg-${PIGSTY_VERSION}.${OS_VENDOR}${OS_VERSION}.x86_64.tgz"
-    fi
-}
-
-# if current OS is el8, debian 12, ubuntu 22, print offline package hint
-check_offline_pkg_available
-if [[ ${PKG_FILENAME} != "" ]]; then
-    log_line "Resource"
-    log_title "HINT" "${OS_VENDOR} ${OS_VERSION} ${OS_CODENAME} have [OPTIONAL] offline package available: https://pigsty.io/docs/setup/offline"
-
-    log_hint "curl -fSL ${GITHUB_BASEURL}/${PIGSTY_VERSION}/${PKG_FILENAME} -o /tmp/pkg.tgz"
-    log_hint "curl -fSL ${PIGSTY_BASEURL}/${PIGSTY_VERSION}/${PKG_FILENAME} -o /tmp/pkg.tgz # or use alternative CDN"
-    #log_warn 'RPM/DEB pkg conflict MAY occur if OS minor version mismatch! use with caution!'
 fi
 
 

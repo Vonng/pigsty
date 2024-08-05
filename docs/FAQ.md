@@ -118,10 +118,10 @@ If a firewall or GFW blocks some repo, consider using a [`proxy_env`](PARAM#prox
 Offline packages can be downloaded during [`bootstrap`](INSTALL#bootstrap), or you can download them directly via:
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v2.8.0/pigsty-v2.8.0.tgz                     # Pigsty Source Code
-https://github.com/Vonng/pigsty/releases/download/v2.8.0/pigsty-pkg-v2.8.0.el7.x86_64.tgz      # Package: EL 7(.9)            
-https://github.com/Vonng/pigsty/releases/download/v2.8.0/pigsty-pkg-v2.8.0.el8.x86_64.tgz      # Package: EL 8(.9)            
-https://github.com/Vonng/pigsty/releases/download/v2.8.0/pigsty-pkg-v2.8.0.el9.x86_64.tgz      # Package: EL 9(.3)            
+https://github.com/Vonng/pigsty/releases/download/v3.0.0-a1/pigsty-v3.0.0-a1.tgz                     # Pigsty Source Code
+https://github.com/Vonng/pigsty/releases/download/v3.0.0-a1/pigsty-pkg-v3.0.0-a1.el7.x86_64.tgz      # Package: EL 7(.9)            
+https://github.com/Vonng/pigsty/releases/download/v3.0.0-a1/pigsty-pkg-v3.0.0-a1.el8.x86_64.tgz      # Package: EL 8(.9)            
+https://github.com/Vonng/pigsty/releases/download/v3.0.0-a1/pigsty-pkg-v3.0.0-a1.el9.x86_64.tgz      # Package: EL 9(.3)            
 https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian11.x86_64.tgz # Package: Debian 11    (bullseye)                 
 https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.debian12.x86_64.tgz # Package: Debian 12    (bookworm)                 
 https://github.com/Vonng/pigsty/releases/download/v2.7.0/pigsty-pkg-v2.7.0.ubuntu20.x86_64.tgz # Package: Ubuntu 20.04 (focal)                 
