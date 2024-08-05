@@ -1,88 +1,140 @@
 # RELEASENOTE
 
-| Version         |    Time    | Description                                              | Release                                                                                   |
-|:----------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [v2.7.0](#v270) | 2024-05-20 | Extension Overwhelming, new docker apps                  | [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0)                             |
-| [v2.6.0](#v260) | 2024-02-28 | PG 16 as default version,  ParadeDB & DuckDB             | [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)                             |
-| [v2.5.1](#v251) | 2023-12-01 | Routine update, pg16 major extensions                    | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
-| [v2.5.0](#v250) | 2023-10-24 | Ubuntu/Debian Support:  bullseye, bookworm, jammy, focal | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
-| [v2.4.1](#v241) | 2023-09-24 | Supabase/PostgresML support, graphql, jwt, pg_net, vault | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
-| [v2.4.0](#v240) | 2023-09-14 | PG16, RDS Monitor, New Extensions                        | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
-| [v2.3.1](#v231) | 2023-09-01 | PGVector with HNSW, PG16 RC1, Chinese Docs, Bug Fix      | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
-| [v2.3.0](#v230) | 2023-08-20 | PGSQL/REDIS Update, NODE VIP, Mongo/FerretDB, MYSQL Stub | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
-| [v2.2.0](#v220) | 2023-08-04 | Dashboard & Provision overhaul, UOS compatibility        | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
-| [v2.1.0](#v210) | 2023-06-10 | PostgreSQL 12 ~ 16beta support                           | [v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0)                             |
-| [v2.0.2](#v202) | 2023-03-31 | Add pgvector support and fix MinIO CVE                   | [v2.0.2](https://github.com/Vonng/pigsty/releases/tag/v2.0.2)                             |
-| [v2.0.1](#v201) | 2023-03-21 | v2 Bug Fix, security enhance and bump grafana version    | [v2.0.1](https://github.com/Vonng/pigsty/releases/tag/v2.0.1)                             |
-| [v2.0.0](#v200) | 2023-02-28 | Compatibility Security Maintainability Enhancement       | [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)                             |
-| [v1.5.1](#v151) | 2022-06-18 | Grafana Security Hotfix                                  | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
-| [v1.5.0](#v150) | 2022-05-31 | Docker Applications                                      | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
-| [v1.4.1](#v141) | 2022-04-20 | Bug fix & Full translation of English documents.         | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |
-| [v1.4.0](#v140) | 2022-03-31 | MatrixDB Support, Separated INFRA, NODES, PGSQL, REDIS   | [v1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)                             |
-| [v1.3.0](#v130) | 2021-11-30 | PGCAT Overhaul & PGSQL Enhancement & Redis Support Beta  | [v1.3.0](https://github.com/Vonng/pigsty/releases/tag/v1.3.0)                             |
-| [v1.2.0](#v120) | 2021-11-03 | Upgrade default Postgres to 14, monitoring existing pg   | [v1.2.0](https://github.com/Vonng/pigsty/releases/tag/v1.2.0)                             |
-| [v1.1.0](#v110) | 2021-10-12 | HomePage, JupyterLab, PGWEB, Pev2 & Pgbadger             | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)                             |
-| [v1.0.0](#v100) | 2021-07-26 | v1 GA, Monitoring System Overhaul                        | [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)                             |
-| [v0.9.0](#v090) | 2021-04-04 | Pigsty GUI, CLI, Logging Integration                     | [v0.9.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.0)                             |
-| [v0.8.0](#v080) | 2021-03-28 | Service Provision                                        | [v0.8.0](https://github.com/Vonng/pigsty/releases/tag/v0.8.0)                             |
-| [v0.7.0](#v070) | 2021-03-01 | Monitor only deployment                                  | [v0.7.0](https://github.com/Vonng/pigsty/releases/tag/v0.7.0)                             |
-| [v0.6.0](#v060) | 2021-02-19 | Architecture Enhancement                                 | [v0.6.0](https://github.com/Vonng/pigsty/releases/tag/v0.6.0)                             |
-| [v0.5.0](#v050) | 2021-01-07 | Database Customize Template                              | [v0.5.0](https://github.com/Vonng/pigsty/releases/tag/v0.5.0)                             |
-| [v0.4.0](#v040) | 2020-12-14 | PostgreSQL 13 Support, Official Documentation            | [v0.4.0](https://github.com/Vonng/pigsty/releases/tag/v0.4.0)                             |
-| [v0.3.0](#v030) | 2020-10-22 | Provisioning Solution GA                                 | [v0.3.0](https://github.com/Vonng/pigsty/releases/tag/v0.3.0)                             |
-| v0.2.0          | 2020-07-10 | PGSQL Monitoring v6 GA                                   | [v0.2.0](https://github.com/Vonng/pigsty/commit/385e33a62a19817e8ba19997260e6b77d99fe2ba) |
-| v0.1.0          | 2020-06-20 | Validation on Testing Environment                        | [v0.1.0](https://github.com/Vonng/pigsty/commit/1cf2ea5ee91db071de00ec805032928ff582453b) |
-| v0.0.5          | 2020-08-19 | Offline Installation Mode                                | [v0.0.5](https://github.com/Vonng/pigsty/commit/0fe9e829b298fe5e56307de3f78c95071de28245) |
-| v0.0.4          | 2020-07-27 | Refactor playbooks into ansible roles                    | [v0.0.4](https://github.com/Vonng/pigsty/commit/90b44259818d2c71e37df5250fe8ed1078a883d0) |
-| v0.0.3          | 2020-06-22 | Interface enhancement                                    | [v0.0.3](https://github.com/Vonng/pigsty/commit/4c5c68ccd57bc32a9e9c98aa3f264aa19f45c7ee) |
-| v0.0.2          | 2020-04-30 | First Commit                                             | [v0.0.2](https://github.com/Vonng/pigsty/commit/dd646775624ddb33aef7884f4f030682bdc371f8) |
-| v0.0.1          | 2019-05-15 | POC                                                      | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
+| Version               |    Time    | Description                                              | Release                                                                                   |
+|:----------------------|:----------:|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [v3.0.0-a1](#v300-a1) | 2024-08-05 | The great alignment for Extension, Plugable Kernels      | [v3.0.0](https://github.com/Vonng/pigsty/releases/tag/v3.0.0-a1)                          |
+| [v2.7.0](#v270)       | 2024-05-20 | Extension Overwhelming, new docker apps                  | [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0)                             |
+| [v2.6.0](#v260)       | 2024-02-28 | PG 16 as default version,  ParadeDB & DuckDB             | [v2.6.0](https://github.com/Vonng/pigsty/releases/tag/v2.6.0)                             |
+| [v2.5.1](#v251)       | 2023-12-01 | Routine update, pg16 major extensions                    | [v2.5.1](https://github.com/Vonng/pigsty/releases/tag/v2.5.1)                             |
+| [v2.5.0](#v250)       | 2023-10-24 | Ubuntu/Debian Support:  bullseye, bookworm, jammy, focal | [v2.5.0](https://github.com/Vonng/pigsty/releases/tag/v2.5.0)                             |
+| [v2.4.1](#v241)       | 2023-09-24 | Supabase/PostgresML support, graphql, jwt, pg_net, vault | [v2.4.1](https://github.com/Vonng/pigsty/releases/tag/v2.4.1)                             |
+| [v2.4.0](#v240)       | 2023-09-14 | PG16, RDS Monitor, New Extensions                        | [v2.4.0](https://github.com/Vonng/pigsty/releases/tag/v2.4.0)                             |
+| [v2.3.1](#v231)       | 2023-09-01 | PGVector with HNSW, PG16 RC1, Chinese Docs, Bug Fix      | [v2.3.1](https://github.com/Vonng/pigsty/releases/tag/v2.3.1)                             |
+| [v2.3.0](#v230)       | 2023-08-20 | PGSQL/REDIS Update, NODE VIP, Mongo/FerretDB, MYSQL Stub | [v2.3.0](https://github.com/Vonng/pigsty/releases/tag/v2.3.0)                             |
+| [v2.2.0](#v220)       | 2023-08-04 | Dashboard & Provision overhaul, UOS compatibility        | [v2.2.0](https://github.com/Vonng/pigsty/releases/tag/v2.2.0)                             |
+| [v2.1.0](#v210)       | 2023-06-10 | PostgreSQL 12 ~ 16beta support                           | [v2.1.0](https://github.com/Vonng/pigsty/releases/tag/v2.1.0)                             |
+| [v2.0.2](#v202)       | 2023-03-31 | Add pgvector support and fix MinIO CVE                   | [v2.0.2](https://github.com/Vonng/pigsty/releases/tag/v2.0.2)                             |
+| [v2.0.1](#v201)       | 2023-03-21 | v2 Bug Fix, security enhance and bump grafana version    | [v2.0.1](https://github.com/Vonng/pigsty/releases/tag/v2.0.1)                             |
+| [v2.0.0](#v200)       | 2023-02-28 | Compatibility Security Maintainability Enhancement       | [v2.0.0](https://github.com/Vonng/pigsty/releases/tag/v2.0.0)                             |
+| [v1.5.1](#v151)       | 2022-06-18 | Grafana Security Hotfix                                  | [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)                             |
+| [v1.5.0](#v150)       | 2022-05-31 | Docker Applications                                      | [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)                             |
+| [v1.4.1](#v141)       | 2022-04-20 | Bug fix & Full translation of English documents.         | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                             |
+| [v1.4.0](#v140)       | 2022-03-31 | MatrixDB Support, Separated INFRA, NODES, PGSQL, REDIS   | [v1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)                             |
+| [v1.3.0](#v130)       | 2021-11-30 | PGCAT Overhaul & PGSQL Enhancement & Redis Support Beta  | [v1.3.0](https://github.com/Vonng/pigsty/releases/tag/v1.3.0)                             |
+| [v1.2.0](#v120)       | 2021-11-03 | Upgrade default Postgres to 14, monitoring existing pg   | [v1.2.0](https://github.com/Vonng/pigsty/releases/tag/v1.2.0)                             |
+| [v1.1.0](#v110)       | 2021-10-12 | HomePage, JupyterLab, PGWEB, Pev2 & Pgbadger             | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)                             |
+| [v1.0.0](#v100)       | 2021-07-26 | v1 GA, Monitoring System Overhaul                        | [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)                             |
+| [v0.9.0](#v090)       | 2021-04-04 | Pigsty GUI, CLI, Logging Integration                     | [v0.9.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.0)                             |
+| [v0.8.0](#v080)       | 2021-03-28 | Service Provision                                        | [v0.8.0](https://github.com/Vonng/pigsty/releases/tag/v0.8.0)                             |
+| [v0.7.0](#v070)       | 2021-03-01 | Monitor only deployment                                  | [v0.7.0](https://github.com/Vonng/pigsty/releases/tag/v0.7.0)                             |
+| [v0.6.0](#v060)       | 2021-02-19 | Architecture Enhancement                                 | [v0.6.0](https://github.com/Vonng/pigsty/releases/tag/v0.6.0)                             |
+| [v0.5.0](#v050)       | 2021-01-07 | Database Customize Template                              | [v0.5.0](https://github.com/Vonng/pigsty/releases/tag/v0.5.0)                             |
+| [v0.4.0](#v040)       | 2020-12-14 | PostgreSQL 13 Support, Official Documentation            | [v0.4.0](https://github.com/Vonng/pigsty/releases/tag/v0.4.0)                             |
+| [v0.3.0](#v030)       | 2020-10-22 | Provisioning Solution GA                                 | [v0.3.0](https://github.com/Vonng/pigsty/releases/tag/v0.3.0)                             |
+| v0.2.0                | 2020-07-10 | PGSQL Monitoring v6 GA                                   | [v0.2.0](https://github.com/Vonng/pigsty/commit/385e33a62a19817e8ba19997260e6b77d99fe2ba) |
+| v0.1.0                | 2020-06-20 | Validation on Testing Environment                        | [v0.1.0](https://github.com/Vonng/pigsty/commit/1cf2ea5ee91db071de00ec805032928ff582453b) |
+| v0.0.5                | 2020-08-19 | Offline Installation Mode                                | [v0.0.5](https://github.com/Vonng/pigsty/commit/0fe9e829b298fe5e56307de3f78c95071de28245) |
+| v0.0.4                | 2020-07-27 | Refactor playbooks into ansible roles                    | [v0.0.4](https://github.com/Vonng/pigsty/commit/90b44259818d2c71e37df5250fe8ed1078a883d0) |
+| v0.0.3                | 2020-06-22 | Interface enhancement                                    | [v0.0.3](https://github.com/Vonng/pigsty/commit/4c5c68ccd57bc32a9e9c98aa3f264aa19f45c7ee) |
+| v0.0.2                | 2020-04-30 | First Commit                                             | [v0.0.2](https://github.com/Vonng/pigsty/commit/dd646775624ddb33aef7884f4f030682bdc371f8) |
+| v0.0.1                | 2019-05-15 | POC                                                      | [v0.0.1](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b)     |
 
 
 
 ----------------
 
-## v3.0.0-a1 (WIP)
+## v3.0.0-a1
 
-**Highlight**
+> Get started with: `curl -fsSL https://repo.pigsty.io/get | bash -s v3.0.0-a1` 
 
-**Great Alignment**: All 36 rpm extensions maintained by Pigsty are now having deb packages.
-  - Now you can run supabase on Ubuntu / Debian with these necessary extensions
-  - All rust extensions are also available on both EL and Deb platforms 
+### Highlight Features
 
-**Babelfish Support**: Provide MSSQL compatibility through WiltonDB & Babelfish Extensions.
+**Great Alignment**:
 
-Deprecate support on EOL OS Distro: EL7 (CentOS 7.9), Debian 11 (Bullseye), and Ubuntu 20.04 (focal)
-  - Pigsty now focus on RockyLinux 9.3, Debian 12, and Ubuntu 22.04 as the main supported OS distros.
-  - If you wish to run Pigsty on legacy EOL platforms, consider using our [subscription service](https://pigsty.io/docs/about/service)
+Pigsty has migrated unique PostgreSQL extension plugins between the EL system and the Debian ecosystem, maintaining **64** extension [RPM packages](https://pigsty.io/zh/docs/pgext/list/rpm/) and **77** [DEB packages](https://pigsty.io/zh/docs/pgext/list/deb/). Ultimately, this results in an unprecedented **280** ready-to-use [total available extensions](https://pigsty.io/zh/docs/pgext/list/), achieving a major alignment of the PG extension ecosystem across the two major Linux distributions.
 
-**New Features**
+**Plugable Kernels**:
 
-- [x] Grafana 11 migration
-- [x] PG Exporter 0.7 for PostgreSQL 17beta2 metrics support
-- [x] duckdb: duckdb, libduckdb, duckdb_fdw version v1.0.0
-- [x] paradedb: bump pg_search & pg_lakehouse to v0.8.6
-- [x] write `proxy_env` for docker daemon
-- [x] Bump FerretDB, SealOS to the latest version
-- [x] `pgvectorscale` extension with DiskANN support
-- [x] New Extension for PG 16: `wal2mongo`, `multicorn2`, `pgtap`, `pg_dbms_job`
-- [x] specify config in `infra_portal` config to use existing certs
-- [x] Fix openssh CVE vulnerability
-- [x] Use plain extension name string in `pg_databases.extensions`
-- [x] Specify extension version in `pg_databases.extensions`
-- [x] PG Instance level parameter management through `pg_parameters`
-- [x] Rename and use region ad hoc in param `repo_url_packages`
-- [x] Designate a primary database among pgsql cluster: `patroni_citus_db` -> `pg_primary_db`
-- [x] Add new mode `mssql` support for `pg_mode` in `pg_databases`
-- [x] Adjust files/pigsty config dir to `./conf`
-- [x] Supabase support for Debian 12 and Ubuntu 22.04
-- [ ] Observability enhancement
-- [ ] bump default rocky minor version to 9.3 (TBD)
-- [ ] VictoriaMetrics & Vector ? (NOT PLANNED)
-- [ ] Migration pigsty repo entirely to Cloudflare? (PLANNING)
+Pigsty v3 allows you to replace the PostgreSQL kernel, currently supporting Babelfish (SQL Server compatible, with wire protocol emulation), IvorySQL (Oracle compatible), and RAC PolarDB for PostgreSQL. Additionally, self-hosted Supabase is now available on Debian systems. You can emulate MSSQL (via WiltonDB), Oracle (via IvorySQL), Oracle RAC (via PolarDB), MongoDB (via FerretDB), and Firebase (via Supabase) in Pigsty with production-grade PostgreSQL clusters featuring HA, IaC, PITR, and monitoring.
+
+**Pro Edition**:
+
+We now offer [PGSTY Pro](https://pigsty.io/docs/about/service/), a professional edition that provides value-added services on top of the open-source features. The professional edition includes additional modules: MSSQL, Oracle, Mongo, K8S, Victoria, Kafka, etc., and offers broader support for PG major versions, operating systems, and chip architectures. It provides offline installation packages customized for precise minor versions of all operating systems, and support for legacy systems like EL7, Debian 11, Ubuntu 20.04.
 
 
-**Software Upgrade**
+### Major Changes
+
+This Pigsty release updates the major version number from 2.x to 3.0, with several significant changes:
+
+- Primary supported operating systems updated to: EL 8 / EL 9 / Debian 12 / Ubuntu 22.04
+  - EL7 / Debian 11 / Ubuntu 20.04 systems are now deprecated and no longer supported.
+  - Users needing to run on these systems should consider our [subscription service](https://pigsty.io/zh/docs/about/service).
+- Default to online installation, offline packages are no longer provided to resolve minor OS version compatibility issues.
+  - The `bootstrap` process will no longer prompt for downloading offline packages, but if `/tmp/pkg.tgz` exists, it will still use the offline package automatically.
+  - For offline installation needs, please create offline packages yourself or consider our [subscription service](https://pigsty.io/zh/docs/about/service).
+- Unified adjustment of upstream software repositories used by Pigsty, address changes, and GPG signing and verification for all packages.
+  - Standard repository: `https://repo.pigsty.io/{apt/yum}`
+  - Domestic mirror: `https://repo.pigsty.cc/{apt/yum}`
+- API parameter changes and configuration template changes
+  - Configuration templates for EL and Debian systems are now consolidated, with differing parameters managed in the [`roles/node_id/vars/`](https://github.com/Vonng/pigsty/tree/master/roles/node_id/vars) directory.
+  - Configuration directory changes, all configuration file templates are now placed in the `conf` directory and categorized into `default`, `dbms`, `demo`, `build`.
+
+
+### Other New Features
+
+- Epic enhancement of PG OLAP analysis capabilities: DuckDB 1.0.0, DuckDB FDW, and PG Lakehouse, Hydra have been ported to the Debian system.
+- Strengthened PG vector search and full-text search capabilities: Vectorscale provides DiskANN vector indexing, Hunspell dictionary support, pg_search 0.8.6.
+- Resolved package build issues for ParadeDB, now available on Debian/Ubuntu.
+- All required extensions for Supabase are now available on Debian/Ubuntu, making Supabase self-hostable across all OSes.
+- Provided capability for scenario-based pre-configured extension stacks. If you're unsure which extensions to install, we offer extension recommendation packages (Stacks) tailored for specific application scenarios.
+- Created metadata tables, documentation, indexes, and name mappings for all PostgreSQL ecosystem extensions, ensuring alignment and usability for both EL and Debian systems.
+- Enhanced `proxy_env` parameter functionality to mitigate DockerHub ban issues, simplifying configuration.
+- Established a new dedicated software repository offering all extension plugins for versions 12-17, with the PG16 extension repository implemented by default in Pigsty.
+- Upgraded existing software repositories, employing standard signing and verification mechanisms to ensure package integrity and security. The APT repository adopts a new standard layout built through `reprepro`.
+- Provided sandbox environments for 1, 2, 3, 4, 43 nodes: `meta`, `dual`, `trio`, `full`, `prod`, and quick configuration templates for 7 major OS Distros.
+
+
+
+### API Changes
+
+- New parameter option: `pg_mode` now have several new options:
+  - `pgsql`: Standard PostgreSQL high availability cluster.
+  - `citus`: Citus horizontally distributed PostgreSQL native high availability cluster.
+  - `gpsql`: Monitoring for Greenplum and GP compatible databases (Pro edition).
+  - `mssql`: Install WiltonDB / Babelfish to provide Microsoft SQL Server compatibility mode for standard PostgreSQL high availability clusters, with wire protocol level support, extensions unavailable.
+  - `ivory`: Install IvorySQL to provide Oracle compatibility for PostgreSQL high availability clusters, supporting Oracle syntax/data types/functions/stored procedures, extensions unavailable (Pro edition).
+  - `polar`: Install PolarDB for PostgreSQL (PG RAC) open-source version to support localization database capabilities, extensions unavailable (Pro edition).
+
+- New parameter: `pg_parameters`, used to specify parameters in `postgresql.auto.conf` at the instance level, overriding cluster configurations for personalized settings on different instance members.
+
+- New parameter: `repo_extra_packages`, used to specify additional packages to download, to be used in conjunction with `repo_packages`, facilitating the specification of extension lists unique to OS versions.
+
+- Parameter renaming: `patroni_citus_db` renamed to `pg_primary_db`, used to specify the primary database in the cluster (used in Citus mode).
+
+- Parameter enhancement: Proxy server configurations in `proxy_env` will be written to the Docker Daemon to address internet access issues, and the `configure -x` option will automatically write the proxy server configuration of the current environment.
+
+- Parameter enhancement: The `repo_url_packages` in `repo.pigsty.io` will automatically switch to `repo.pigsty.cc` when the region is China, addressing internet access issues. Additionally, the downloaded file name can now be specified.
+
+- Parameter enhancement: The `extension` field in `pg_databases.extensions` now supports both dictionary and extension name string modes. The dictionary mode offers `version` support, allowing the installation of specific extension versions.
+
+- Parameter enhancement: If the `repo_upstream` parameter is not explicitly overridden, it will extract the default value for the corresponding system from [`rpm.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/rpm.yml) or [`deb.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/deb.yml).
+
+- Parameter enhancement: If the `repo_packages` parameter is not explicitly overridden, it will extract the default value for the corresponding system from [`rpm.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/rpm.yml) or [`deb.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/deb.yml).
+
+- Parameter enhancement: If the `infra_packages` parameter is not explicitly overridden, it will extract the default value for the corresponding system from [`rpm.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/rpm.yml) or [`deb.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/deb.yml).
+
+- Parameter enhancement: If the `node_default_packages` parameter is not explicitly overridden, it will extract the default value for the corresponding system from [`rpm.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/rpm.yml) or [`deb.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/deb.yml).
+
+- Parameter enhancement: The extensions specified in `pg_packages` and `pg_extensions` will now perform a lookup and translation from the `pg_package_map` defined in [`rpm.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/rpm.yml) or [`deb.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/deb.yml).
+
+- Parameter enhancement: Packages specified in `node_packages` and `pg_extensions` will be upgraded to the latest version upon installation. The default value in `node_packages` is now `[openssh-server]`, helping to fix the [OpenSSH CVE](https://pigsty.io/zh/blog/db/cve-2024-6387/).
+
+- Parameter enhancement: `pg_dbsu_uid` will automatically adjust to `26` (EL) or `543` (Debian) based on the operating system type, avoiding manual adjustments.
+
+
+### **Software Upgrade**
+
+The main components of Pigsty are upgraded to the following versions (as of the release time):
 
 - PostgreSQL 16.3, 15.7, 14.12, 13.15, and 12.19
 - pg_exporter: 0.7.0
@@ -106,45 +158,17 @@ Deprecate support on EOL OS Distro: EL7 (CentOS 7.9), Debian 11 (Bullseye), and 
 - redis_exporter: 1.62.0
 - vector: 0.39.0
 
-**New Postgres Extensions**
+The complete list of PostgreSQL extensions can be found [here](https://pigsty.io/zh/docs/pgext/list/).
 
-- There are 20 new extensions available, both in rpm / deb.
-- [hunspell](https://github.com/postgrespro/hunspell_dicts) : v1.0 (with 10 variant languages)
-- [pg_sqlog](https://github.com/kouber/pg_sqlog) : v1.6
-- [pg_proctab](https://gitlab.com/pg_proctab/pg_proctab) : v0.0.10
-- [pg_hashids](https://github.com/iCyberon/pg_hashids) : v1.3
-- [postgres_shacrypt](https://github.com/dverite/postgres-shacrypt) : v1.1
-- [permuteseq](https://github.com/dverite/permuteseq) : v1.2.2
-- [supautils](https://github.com/supabase/supautils) : v2.2.1
-- [pg_similarity](https://github.com/eulerto/pg_similarity) : v1.0 for PG16
-- [imgsmlr](https://github.com/postgrespro/imgsmlr) : v1.0 for PG16
-- [vectorscale](https://github.com/timescale/pgvectorscale) 0.2.0
-- [duckdb_fdw](https://github.com/alitrack/duckdb_fdw) : v1.0.0
-- [libduckdb](https://github.com/duckdb/duckdb) : v1.0.0
-- [pg_timetable](https://github.com/cybertec-postgresql/pg_timetable) 5.9.0 (INFRA)
 
-**Extension Upgrade**
+### **Docker Application**
 
-- pgml: 2.9.2
-- pgmq: 1.1.1 -> 1.2.1
-- pg_tier: 0.0.3 -> 0.0.4
-- pg_vectorize: 0.16.0 0.17.0
-- pg_search 0.7.0 -> 0.8.5
-- pg_lakehouse 0.7.0 -> 0.8.5
-- wrappers 0.3.1 -> 0.4.1
-- pg_graphql: 1.5.4 -> 1.5.7
-- PostGIS 3.4.1
-- PGVector 0.7.2
-- TimescaleDB 2.16.0
-- Citus 12.5
+Pigsty now offers out-of-the-box Dify and Odoo Docker Compose templates:
 
-**Docker Application**
+- [Dify](https://github.com/Vonng/pigsty/tree/master/app/dify): Open Source AI Agent Workflow & LLMOps
+- [Odoo](https://github.com/Vonng/pigsty/tree/master/app/Odoo): Open Source ERP System
 
-- [Dify](https://github.com/Vonng/pigsty/tree/master/app/dify): AI Agent Workflow & LLMOps
 
-**Bug Fix**
-
-**API Change**
 
 
 

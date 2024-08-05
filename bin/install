@@ -2,25 +2,23 @@
 # set -o pipefail
 #==============================================================#
 # File      :   install
-# Desc      :   download & install pigsty from get.pigsty.cc
+# Desc      :   download & install pigsty src
 # Ctime     :   2022-10-30
 # Mtime     :   2024-08-05
-# Path      :   https://get.pigsty.cc/{i,install,latest,beta}
-# Usage     :   bash -c "$(curl -fsSL https://get.pigsty.cc/i)"
+# Path      :   https://repo.pigsty.io/get (global, default)
+# Usage     :   curl -fsSL https://repo.pigsty.io/get | bash
 # Deps      :   curl
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 DEFAULT_VERSION=v3.0.0-a1
+DEFAULT_REGION=global
 
 # To install the latest version of pigsty (v3.0.0-a1):
-# bash -c "$(curl -fsSL https://get.pigsty.cc/i)"
-# bash -c "$(curl -fsSL https://get.pigsty.cc/install)"
-# bash -c "$(curl -fsSL https://get.pigsty.cc/latest)"
-#
-# To install a specific version of pigsty (e.g. v3.0.0)
-# bash -c "$(curl -fsSL https://get.pigsty.cc/i)" -- v3.0.0
-# curl -fsSL https://get.pigsty.cc/i | bash -s v3.0.0
+# curl -fsSL https://repo.pigsty.io/get | bash
+
+# To install a specific version of pigsty (e.g. v2.7.0)
+# curl -fsSL https://repo.pigsty.io/get | bash -s v2.7.0
 
 
 #--------------------------------------------------------------#
@@ -49,7 +47,7 @@ function log_line()  { printf "${__CM}[$*] =====================================
 VALID_VERSIONS="\
 v1.0.0 v1.1.1 v1.2.0 v1.3.0 v1.4.0 v1.4.1 v1.5.0 v1.5.1 v2.0.0 \
 v2.0.1 v2.0.2 v2.1.0 v2.2.0 v2.3.0 v2.3.1 v2.4.0 v2.4.1 v2.5.0 \
-v2.5.1 v2.6.0 v2.7.0 v3.0.0 v3.0.0-a1"
+v2.5.1 v2.6.0 v2.7.0 v3.0.0-a1 v3.0.0"
 
 VERSION=${DEFAULT_VERSION}
 VERSION_FROM="default"
@@ -62,6 +60,7 @@ if [[ -n "$1" ]]; then
     VERSION_FROM="arg"
 fi
 
+# validate version string
 function check_version(){
     local found=false
 
@@ -97,7 +96,7 @@ check_version
 # Reference
 #--------------------------------------------------------------#
 log_line "${VERSION}"
-log_hint "$ curl -fsSL https://pigsty.cc/install | bash"
+log_hint "$ curl -fsSL https://repo.pigsty.io/get | bash"
 log_title "Site" "https://pigsty.io"
 log_title "Demo" "https://demo.pigsty.cc"
 log_title "Repo" "https://github.com/Vonng/pigsty"
@@ -111,13 +110,20 @@ log_info "version = ${VERSION} (from ${VERSION_FROM})"
 #--------------------------------------------------------------#
 # Download
 #--------------------------------------------------------------#
-PIGSTY_BASEURL="https://get.pigsty.cc"
-GITHUB_BASEURL="https://github.com/Vonng/pigsty/releases/download"
-
 SRC_FILENAME="pigsty-${VERSION}.tgz"
-PIGSTY_SRC_URL="${PIGSTY_BASEURL}/${VERSION}/${SRC_FILENAME}"
-GITHUB_SRC_URL="${GITHUB_BASEURL}/${VERSION}/${SRC_FILENAME}"
 DOWNLOAD_TO="/tmp/${SRC_FILENAME}"
+
+PIGSTY_IO_BASEURL="https://repo.pigsty.io"
+PIGSTY_CC_BASEURL="https://repo.pigsty.cc"
+
+if [[ ${DEFAULT_REGION} == "global" ]]; then
+    PRIMARY_SRC_URL="${PIGSTY_IO_BASEURL}/src/${SRC_FILENAME}"
+    SECONDARY_SRC_URL="${PIGSTY_CC_BASEURL}/src/${SRC_FILENAME}"
+else
+    PRIMARY_SRC_URL="${PIGSTY_CC_BASEURL}/src/${SRC_FILENAME}"
+    SECONDARY_SRC_URL="${PIGSTY_IO_BASEURL}/src/${SRC_FILENAME}"
+fi
+
 
 # download file from url, if file already exists with same size, skip download
 function download_file(){
@@ -143,11 +149,11 @@ function download_file(){
     return $?
 }
 
-download_file "${PIGSTY_SRC_URL}" "${DOWNLOAD_TO}"
+download_file "${PRIMARY_SRC_URL}" "${DOWNLOAD_TO}"
 if [[ $? -ne 0 ]]; then
-    log_error "fail to download pigsty source from ${PIGSTY_SRC_URL}"
+    log_error "fail to download pigsty source from ${PRIMARY_SRC_URL}"
     log_hint "check: https://pigsty.io/docs/setup/install"
-    log_hint "alternative url: ${GITHUB_SRC_URL}"
+    log_hint "alternative url: ${SECONDARY_SRC_URL}"
     exit 2
 fi
 log_info "md5sums = $(md5sum ${DOWNLOAD_TO})"
@@ -186,4 +192,3 @@ log_hint './configure      # [OPTIONAL] preflight-check and config generation'
 log_hint './install.yml    # install pigsty modules according to your config.'
 
 log_line "Complete"
-# log_info "pigsty installed, ready for deploying with above command"
