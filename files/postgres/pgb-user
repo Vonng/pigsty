@@ -4,7 +4,7 @@ set -uo pipefail
 # File      :   pgb-user
 # Desc      :   add user to pgbouncer pool
 # Ctime     :   2021-03-29
-# Mtime     :   2022-11-24
+# Mtime     :   2024-08-05
 # Path      :   /pg/bin/pgb-user
 # Deps      :   psql, sed
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -13,7 +13,7 @@ set -uo pipefail
 PROG_NAME="$(basename $0)"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 
-
+PATH=/usr/pgsql/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$PATH
 #--------------------------------------------------------------#
 # use AUTO or "" as password will fetch from database
 # use NULL as password will set empty password ""
@@ -56,14 +56,12 @@ function pgbouncer_create_user() {
         echo "use nil md5pwd: ${entry}"
         ;;
     AUTO | auto | "") # fetch db password
-        entry=$(psql -AXtwq -U postgres -d postgres -c "SELECT concat('\"', rolname, '\" \"', rolpassword, '\"') FROM pg_authid WHERE rolname = '${username}'" 2>/dev/null)
+        entry=$(psql -AXtwq -U postgres -d postgres -c "SELECT concat('\"', rolname, '\" \"', rolpassword, '\"') FROM pg_authid WHERE rolname = '${username}'")
         if [[ ! -z ${entry} ]]; then
             echo "pwd fetched via postgres: ${entry}"
-        else        # recursive and try other method
-            if [[ -z ${password} ]]; then  # error: user not found
-                echo "ERROR: empty password is given and user ${username} not found"
-                exit 1
-            fi
+        else
+            echo "pwd fetching failed for ${username} ${password}"
+            exit 1
         fi
         ;;
     *)
