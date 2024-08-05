@@ -1,0 +1,84 @@
+---
+#==============================================================#
+# File      :   ivory.yml
+# Desc      :   Pigsty Config for IvorySQL (Oracle Compatible)
+# Ctime     :   2024-08-05
+# Mtime     :   2024-08-05
+# Docs      :   https://pigsty.io/docs/setup/config/
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+# Prototype of this config file: 4-node sandbox for el8/el9
+
+all:
+
+
+  children:
+
+    #----------------------------------#
+    # infra: monitor, alert, repo, etc..
+    #----------------------------------#
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
+
+    #----------------------------------#
+    # etcd cluster for HA postgres DCS
+    #----------------------------------#
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+
+    #----------------------------------#
+    # pgsql (singleton on current node)
+    #----------------------------------#
+    pg-meta:
+      hosts:
+        10.10.10.10: { pg_seq: 1, pg_role: primary }
+      vars:
+        pg_cluster: pg-meta
+        pg_databases: [ { name: meta ,baseline: cmdb.sql ,comment: polardb database ,schemas: [ pigsty ] }]
+        pg_users:
+          - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
+          - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
+
+    #----------------------------------#
+    # pgsql cluster: pg-test (3 nodes) #
+    #----------------------------------#
+    # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
+    pg-test:                          # define the new 3-node cluster pg-test
+      hosts:
+        10.10.10.11: { pg_seq: 1, pg_role: primary }
+        10.10.10.12: { pg_seq: 2, pg_role: replica }
+        10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true }
+      vars:
+        pg_cluster: pg-test           # define pgsql cluster name
+        pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
+        pg_databases: [{ name: test }]
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.3/24
+        pg_vip_interface: eth1
+
+  vars:
+
+    #----------------------------------#
+    # Meta Data
+    #----------------------------------#
+    version: v2.8.0                   # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: china                     # upstream mirror region: default,china,europe
+    infra_portal:                     # domain names and upstream servers
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
+
+    #----------------------------------#
+    # Ivory SQL Configuration
+    #----------------------------------#
+    node_repo_modules: local,node,pgsql,ivory  # add ivorysql upstream repo
+    pg_mode: ivory                    # IvorySQL Oracle Compatible Mode
+    pg_packages: [ 'ivorysql patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager' ]
+    pg_libs: 'liboracle_parser, pg_stat_statements, auto_explain'
+    pg_extensions: [ ]                # do not install any vanilla postgresql extensions
+
+...
