@@ -1,8 +1,8 @@
 ---
 #==============================================================#
-# File      :   full.yml
+# File      :   polar.yml
 # Desc      :   Pigsty Local Sandbox 4-node Demo Config
-# Ctime     :   2020-05-22
+# Ctime     :   2020-08-05
 # Mtime     :   2024-08-05
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -11,10 +11,6 @@
 
 
 all:
-
-  #==============================================================#
-  # Clusters, Nodes, and Modules
-  #==============================================================#
   children:
 
     # infra cluster for proxy, monitor, alert, etc..
@@ -23,9 +19,6 @@ all:
     # etcd cluster for ha postgres
     etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
 
-    #----------------------------------#
-    # pg-meta (1-node) & pg-test (3-node)
-    #----------------------------------#
     # postgres example cluster: pg-meta
     pg-meta:
       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
@@ -56,34 +49,7 @@ all:
         pg_vip_address: 10.10.10.3/24
         pg_vip_interface: eth1
 
-    #----------------------------------#
-    # redis ms, sentinel, native cluster
-    #----------------------------------#
-    redis-ms: # redis classic primary & replica
-      hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6379: { }, 6380: { replica_of: '10.10.10.10 6379' } } } }
-      vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
-
-    redis-meta: # redis sentinel x 3
-      hosts: { 10.10.10.11: { redis_node: 1 , redis_instances: { 26379: { } ,26380: { } ,26381: { } } } }
-      vars:
-        redis_cluster: redis-meta
-        redis_password: 'redis.meta'
-        redis_mode: sentinel
-        redis_max_memory: 16MB
-        redis_sentinel_monitor: # primary list for redis sentinel, use cls as name, primary ip:port
-          - { name: redis-ms, host: 10.10.10.10, port: 6379 ,password: redis.ms, quorum: 2 }
-
-    redis-test: # redis native cluster: 3m x 3s
-      hosts:
-        10.10.10.12: { redis_node: 1 ,redis_instances: { 6379: { } ,6380: { } ,6381: { } } }
-        10.10.10.13: { redis_node: 2 ,redis_instances: { 6379: { } ,6380: { } ,6381: { } } }
-      vars: { redis_cluster: redis-test ,redis_password: 'redis.test' ,redis_mode: cluster, redis_max_memory: 32MB }
-
-
-  #==============================================================#
-  # Global Parameters
-  #==============================================================#
-  vars:
+  vars:                               # global variables
     version: v3.0.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
@@ -97,4 +63,21 @@ all:
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
 
+    #----------------------------------#
+    # NODE, PGSQL, MSSQL
+    #----------------------------------#
+    node_repo_modules: local,node,pgsql,polar
+    pg_version: 11
+    pg_packages: [ 'polardb patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager' ]
+    pg_extensions: [ ]                # do not install any vanilla postgresql extensions
+    pg_mode: polar                    # Microsoft SQL Server Compatible Mode
+    pg_default_roles:                 # default roles and users in postgres cluster
+      - { name: dbrole_readonly  ,login: false ,comment: role for global read-only access     }
+      - { name: dbrole_offline   ,login: false ,comment: role for restricted read-only access }
+      - { name: dbrole_readwrite ,login: false ,roles: [dbrole_readonly] ,comment: role for global read-write access }
+      - { name: dbrole_admin     ,login: false ,roles: [pg_monitor, dbrole_readwrite] ,comment: role for object creation }
+      - { name: postgres     ,superuser: true  ,comment: system superuser }
+      - { name: replicator   ,superuser: true  ,replication: true ,roles: [pg_monitor, dbrole_readonly] ,comment: system replicator } # <- superuser is required for replication
+      - { name: dbuser_dba   ,superuser: true  ,roles: [dbrole_admin]  ,pgbouncer: true ,pool_mode: session, pool_connlimit: 16 ,comment: pgsql admin user }
+      - { name: dbuser_monitor ,roles: [pg_monitor] ,pgbouncer: true ,parameters: {log_min_duration_statement: 1000 } ,pool_mode: session ,pool_connlimit: 8 ,comment: pgsql monitor user }
 ...
