@@ -289,10 +289,10 @@ bootstrap:
         track_commit_timestamp: on                  # enabled xact timestamp
         wal_level: logical                          # force logical level
         wal_log_hints: on                           # wal log hints to support rewind
-        #wal_keep_size: {{ pg_size_twentieth * 2 }}GB  # 1/10 disk size
-        max_worker_processes: {{ pg_max_worker_processes }}
-        max_wal_senders: 24                         # 10 -> 24
-        max_replication_slots: 16                   # 10 -> 16
+        #wal_keep_size: {{ pg_size_twentieth * 2 }}GB                        # 1/10 disk size
+        max_worker_processes: {{ pg_max_worker_processes + 8 }}
+        max_wal_senders: 50                         # 10 -> 50
+        max_replication_slots: 50                   # 10 -> 50
 
         #------------------------------------------------------#
         # AUTHENTICATION
@@ -448,6 +448,8 @@ postgresql:
   listen: {{ pg_listen_address }}:{{ pg_port }}
   connect_address: {{ inventory_hostname }}:{{ pg_port }}
   use_unix_socket: true # default: /var/run/postgresql, /tmp
+  parameters:
+    unix_socket_directories: '/var/run/postgresql, /run/postgresql, /tmp'
 
   #------------------------------------------------------------#
   # who to connect to postgres
