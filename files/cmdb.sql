@@ -1381,10 +1381,11 @@ INSERT INTO pigsty.default_var VALUES
 (286, 'promtail_positions', '"/var/log/positions.yaml"', 'NODE', 'PROMTAIL', 'path', 'C', 'promtail position status file path', NULL),
 
 -- DOCKER PARAMETERS
-(401, 'docker_enabled', 'false', 'NODE', 'DOCKER', 'bool', 'C', 'enable docker on this node?', NULL),
-(402, 'docker_cgroups_driver', '"systemd"', 'NODE', 'DOCKER', 'enum', 'C', 'docker cgroup fs driver: cgroupfs,systemd', NULL),
-(403, 'docker_registry_mirrors', '[]', 'NODE', 'DOCKER', 'string[]', 'C', 'docker registry mirror list', NULL),
-(404, 'docker_image_cache', '"/tmp/docker"', 'NODE', 'DOCKER', 'path', 'C', 'docker image cache dir, `/tmp/docker` by default', NULL),
+(400, 'docker_enabled', 'false', 'NODE', 'DOCKER', 'bool', 'C', 'enable docker on this node?', NULL),
+(401, 'docker_cgroups_driver', '"systemd"', 'DOCKER', 'DOCKER', 'enum', 'C', 'docker cgroup fs driver: cgroupfs,systemd', NULL),
+(402, 'docker_registry_mirrors', '[]', 'DOCKER', 'DOCKER', 'string[]', 'C', 'docker registry mirror list', NULL),
+(403, 'docker_exporter_port', '9323', 'DOCKER', 'DOCKER', 'port', 'G', 'docker metrics exporter port, 9323 by default', NULL),
+(404, 'docker_image_cache', '"/tmp/docker"', 'DOCKER', 'DOCKER', 'path', 'C', 'docker image cache dir, `/tmp/docker` by default', NULL),
 
 -- ETCD PARAMETERS
 (501, 'etcd_seq', NULL, 'ETCD', 'ETCD', 'int', 'I', 'etcd instance identifier, REQUIRED', NULL),

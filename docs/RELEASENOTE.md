@@ -94,7 +94,6 @@ This Pigsty release updates the major version number from 2.x to 3.0, with sever
 - Provided sandbox environments for 1, 2, 3, 4, 43 nodes: `meta`, `dual`, `trio`, `full`, `prod`, and quick configuration templates for 7 major OS Distros.
 
 
-
 ### API Changes
 
 - New parameter option: `pg_mode` now have several new options:
@@ -119,17 +118,20 @@ This Pigsty release updates the major version number from 2.x to 3.0, with sever
 
 - Parameter enhancement: If the `repo_upstream` parameter is not explicitly overridden, it will extract the default value for the corresponding system from [`rpm.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/rpm.yml) or [`deb.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/deb.yml).
 
-- Parameter enhancement: If the `repo_packages` parameter is not explicitly overridden, it will extract the default value for the corresponding system from [`rpm.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/rpm.yml) or [`deb.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/deb.yml).
+- Parameter enhancement: If the `repo_packages` parameter is not explicitly overridden, it will extract the default value for the corresponding OS distros
 
-- Parameter enhancement: If the `infra_packages` parameter is not explicitly overridden, it will extract the default value for the corresponding system from [`rpm.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/rpm.yml) or [`deb.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/deb.yml).
+- Parameter enhancement: If the `infra_packages` parameter is not explicitly overridden, it will extract the default value for the corresponding OS distros
 
-- Parameter enhancement: If the `node_default_packages` parameter is not explicitly overridden, it will extract the default value for the corresponding system from [`rpm.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/rpm.yml) or [`deb.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/deb.yml).
+- Parameter enhancement: If the `node_default_packages` parameter is not explicitly overridden, it will extract the default value for the corresponding OS distros
 
-- Parameter enhancement: The extensions specified in `pg_packages` and `pg_extensions` will now perform a lookup and translation from the `pg_package_map` defined in [`rpm.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/rpm.yml) or [`deb.yml`](https://github.com/Vonng/pigsty/blob/master/roles/node_id/vars/deb.yml).
+- Parameter enhancement: The extensions specified in `pg_packages` and `pg_extensions` will now perform a lookup and translation from the `pg_package_map` OS distros
 
 - Parameter enhancement: Packages specified in `node_packages` and `pg_extensions` will be upgraded to the latest version upon installation. The default value in `node_packages` is now `[openssh-server]`, helping to fix the [OpenSSH CVE](https://pigsty.io/zh/blog/db/cve-2024-6387/).
 
 - Parameter enhancement: `pg_dbsu_uid` will automatically adjust to `26` (EL) or `543` (Debian) based on the operating system type, avoiding manual adjustments.
+
+- New parameter: `docker_exporter_port`, for defining the port of the Docker metrics endpoint, defaulting to `9323`.
+
 
 
 ### **Software Upgrade**

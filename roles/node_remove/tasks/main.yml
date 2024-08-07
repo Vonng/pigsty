@@ -10,6 +10,14 @@
   with_items: '{{ groups["infra"] }}'
   file: state=absent path={{ prometheus_sd_dir }}/node/{{ inventory_hostname }}.yml
 
+- name: remove docker target from prometheus
+  tags: [ register, prometheus ]
+  become: yes
+  ignore_errors: yes
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
+  file: state=absent path={{ prometheus_sd_dir }}/docker/{{ inventory_hostname }}.yml
+
 - name: remove node ping target from prometheus
   tags: [ register, prometheus ]
   become: yes

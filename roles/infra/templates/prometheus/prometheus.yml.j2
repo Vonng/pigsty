@@ -111,13 +111,29 @@ scrape_configs:
   # job: node
   # node_exporter, haproxy, docker, promtail
   # labels: [cls, ins, ip, instance]
-  # path: targets/pgsql/<ip>.yml
+  # path: targets/node/<ip>.yml
   #--------------------------------------------------------------#
   - job_name: node
     metrics_path: {{ exporter_metrics_path }}
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
         files: [ {{ prometheus_sd_dir }}/node/*.yml ]
+
+  #--------------------------------------------------------------#
+  # job: docker
+  # docker daemon
+  # labels: [cls, ins, ip, instance]
+  # path: targets/docker/<ip>.yml
+  #--------------------------------------------------------------#
+  - job_name: docker
+    metrics_path: /metrics
+    file_sd_configs:
+      - refresh_interval: {{ prometheus_sd_interval }}
+        files: [ {{ prometheus_sd_dir }}/docker/*.yml ]
+    relabel_configs: # relabel docker metrics job to node
+      - source_labels: [job]
+        target_label: job
+        replacement: 'node'
 
   #--------------------------------------------------------------#
   # job: etcd

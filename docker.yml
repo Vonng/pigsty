@@ -4,7 +4,7 @@
 # File      :   docker.yml
 # Desc      :   init docker on nodes
 # Ctime     :   2023-02-20
-# Mtime     :   2023-02-20
+# Mtime     :   2024-08-07
 # Path      :   docker.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -14,18 +14,20 @@
   gather_facts: no
   become: yes
   vars:
-    docker_enabled: true                # enable docker on this node?
-    # docker_cgroups_driver: systemd    # docker cgroup fs driver: cgroupfs,systemd
-    # docker_registry_mirrors: [ ]      # docker registry mirror list
-    # docker_image_cache: /tmp/docker   # docker image cache dir, `/tmp/docker` by default
+    #docker_enabled: false             # enable docker on this node? false by default
+    #docker_cgroups_driver: systemd    # docker cgroup fs driver: cgroupfs,systemd
+    #docker_registry_mirrors: [ ]      # docker registry mirror list
+    #docker_exporter_port: 9323        # docker metrics exporter port, 9323 by default
+    #docker_image_cache: /tmp/docker   # docker image cache dir, `/tmp/docker` by default
   roles:
     - { role: node_id , tags: id     }  # get node identity (always)
-    - { role: docker  , tags: docker }  # prepare node for pigsty
+    - { role: docker  , tags: docker ,when: docker_enabled is defined and docker_enabled|bool }
 
 #---------------------------------------------------------------
 # Usage
 #---------------------------------------------------------------
-# simply run this playbook on nodes to init docker on them
+
+# Set parameter `docker_enabled: true` on target nodes, then:
 #
 # ./docker.yml -l <group|host>
 #
@@ -39,6 +41,7 @@
 #   - docker_admin     : add user to docker admin group
 #   - docker_config    : generate docker daemon config
 #   - docker_launch    : launch docker daemon systemd service
+#   - docker_register  : register docker target to prometheus
 #   - docker_image     : load docker images from /tmp/docker/*.tgz if exists
 #---------------------------------------------------------------
 ...

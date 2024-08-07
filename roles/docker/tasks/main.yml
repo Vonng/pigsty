@@ -4,7 +4,6 @@
 #--------------------------------------------------------------#
 - name: install docker and docker-compose
   tags: docker_install
-  #when: docker_enabled|bool
   ignore_errors: true  # HOTFIX for EL8 Docker installation
   package: name={{ item }} state=present
   with_items:
@@ -18,7 +17,6 @@
 - name: add admin user to docker group
   ignore_errors: true
   tags: docker_admin
-  #when: docker_enabled|bool
   user: name={{ item }} append=true groups=docker
   with_items:
     - "{% if node_user == 'root' %}{{ node_admin_username }}{% else %}{{ node_user }}{% endif %}"
@@ -30,7 +28,6 @@
 #--------------------------------------------------------------#
 - name: config docker
   tags: docker_config
-  #when: docker_enabled|bool
   block:
     - name: create /etc/docker config dir
       file: path=/etc/docker state=directory mode=0755
@@ -42,20 +39,34 @@
 #--------------------------------------------------------------#
 # launch docker                                  [docker_launch]
 #--------------------------------------------------------------#
-# only launch docker when enabled
 - name: launch docker systemd service
   tags: docker_launch
-  #when: docker_enabled|bool
   systemd: name=docker state=restarted enabled=yes daemon_reload=yes
+
+
+#--------------------------------------------------------------#
+# Register Node            [docker_register,register_prometheus]
+#--------------------------------------------------------------#
+# /etc/prometheus/targets/docker/{{ ip }}.yml
+- name: register docker as prometheus target
+  tags: [ docker_register, register_prometheus ]
+  ignore_errors: true
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["infra"] }}'
+  copy:
+    dest: "{{ prometheus_sd_dir }}/docker/{{ inventory_hostname }}.yml"
+    owner: prometheus
+    content: |
+      # {{ inventory_hostname }} 
+      - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }}  }
+        targets: [ {{ inventory_hostname }}:{{ docker_exporter_port }} ]
 
 
 #--------------------------------------------------------------#
 # load docker images cache if exists              [docker_image]
 #--------------------------------------------------------------#
-# only load docker images docker when enabled
 - name: load docker images
   tags: docker_image
-  #when: docker_enabled|bool
   ignore_errors: true
   block:
 
