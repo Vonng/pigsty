@@ -159,14 +159,6 @@
           {% if haproxy_enabled|bool %}- {{ inventory_hostname }}:{{ haproxy_exporter_port }}{% endif %}
       
           {% if promtail_enabled|bool %}- {{ inventory_hostname }}:{{ promtail_port }}{% endif %}
-
-
-      {% if docker_enabled is defined and docker_enabled|bool %}
-      # docker
-      - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }}  }
-        targets: [ {{ inventory_hostname }}:9323 ]
-      {% endif %}
-      
       
       {% if vip_enabled|bool and vip_address is defined and vip_address != '' %}
       # keepalived
