@@ -1,4 +1,0 @@
-- [Website](https://pigsty.cc/en/)
-- [Demo](https://demo.pigsty.cc)
-- [Author](https://vonng.com/en/)
-- [中文](/zh/)
