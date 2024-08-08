@@ -1138,11 +1138,21 @@ ALTER ROLE authenticator set lock_timeout to '8s';
 -- 20240124080435_alter_lo_export_lo_import_owner.sql
 ----------------------------------------------------
 -- migrate:up
-    alter function pg_catalog.lo_export owner to supabase_admin;
+alter function pg_catalog.lo_export owner to supabase_admin;
 alter function pg_catalog.lo_import(text) owner to supabase_admin;
 alter function pg_catalog.lo_import(text, oid) owner to supabase_admin;
 
 -- migrate:down
+
+
+----------------------------------------------------
+-- 20240606060239_grant_predefined_roles_to_postgres.sql
+----------------------------------------------------
+-- migrate:up
+-- grant pg_read_all_data, pg_signal_backend to postgres;
+
+-- migrate:down
+
 
 
 
