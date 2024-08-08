@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-08-05
+# Mtime     :   2024-08-09
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -21,7 +21,8 @@ D11_PKG=pigsty-pkg-$(VERSION).d11.x86_64.tgz
 D12_PKG=pigsty-pkg-$(VERSION).d12.x86_64.tgz
 U20_PKG=pigsty-pkg-$(VERSION).u20.x86_64.tgz
 U22_PKG=pigsty-pkg-$(VERSION).u22.x86_64.tgz
-
+USE_PRO=""
+USE_PRO="pro/"
 
 ###############################################################
 #                      1. Quick Start                         #
@@ -324,13 +325,13 @@ cc: release copy-src copy-pkg use-src use-pkg
 copy-src:
 	scp "dist/${VERSION}/${SRC_PKG}" meta:~/pigsty.tgz
 copy-el8:
-	scp dist/${VERSION}/${EL8_PKG} meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/$(USE_PRO)${EL8_PKG} meta:/tmp/pkg.tgz
 copy-el9:
-	scp dist/${VERSION}/${EL9_PKG} meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/$(USE_PRO)${EL9_PKG} meta:/tmp/pkg.tgz
 copy-d12:
-	scp dist/${VERSION}/${D12_PKG} meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/$(USE_PRO)${D12_PKG} meta:/tmp/pkg.tgz
 copy-u22:
-	scp dist/${VERSION}/${U22_PKG} meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/$$(USE_PRO){U22_PKG} meta:/tmp/pkg.tgz
 copy-app:
 	scp dist/${VERSION}/${APP_PKG} meta:~/app.tgz
 	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
@@ -575,17 +576,17 @@ vprod22:
 
 prod: prod8
 prod8: cprod del vprod8 new ssh
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el8.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el8.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 prod9: cprod del vprod9 new ssh
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el9.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el9.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 prod12: cprod del vprod12 new ssh
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.d12.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.d12.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.d12.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.d12.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 prod22: cprod del vprod22 new ssh
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.u22.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.u22.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u22.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u22.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 
 #------------------------------#
 # dual & trio
