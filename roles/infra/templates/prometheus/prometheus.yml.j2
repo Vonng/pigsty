@@ -233,7 +233,7 @@ scrape_configs:
       # scrape redis_exporter on target node
       - source_labels: [__param_target]
         regex: ^redis://(.*):\d+$
-        replacement: $1:9121
+        replacement: $1:{{ redis_exporter_port }}
         target_label: __address__
 
   #--------------------------------------------------------------#
@@ -257,5 +257,17 @@ scrape_configs:
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
         files: [ {{ prometheus_sd_dir }}/mongo/*.yml ]
+
+  #--------------------------------------------------------------#
+  # job: kafka
+  # labels: [cls, ins, ip, instance]
+  # path: targets/kafka/<kafka_instance>.yml
+  #--------------------------------------------------------------#
+  - job_name: kafka
+    metrics_path: {{ exporter_metrics_path }}
+    file_sd_configs:
+      - refresh_interval: {{ prometheus_sd_interval }}
+        files: [ {{ prometheus_sd_dir }}/kafka/*.yml ]
+
 
 ...
