@@ -1078,7 +1078,7 @@ pg_recv_13:
         description: First write-ahead log location used when WAL receiver is started
     - init_tli:
         usage: COUNTER
-        description: First timeline number used when WAL receiver is started
+        description: First timeline number used7 when WAL receiver is started
     - flush_lsn:
         usage: COUNTER
         description: Last write-ahead log location already received and flushed to disk
@@ -3192,12 +3192,67 @@ pgbouncer_list:
 #┃ pgbouncer_database_paused{datname,host,port,real_datname}               GAUGE    1 if this database is currently paused, else 0
 #┃ pgbouncer_database_disabled{datname,host,port,real_datname}             GAUGE    1 if this database is currently disabled, else 0
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-pgbouncer_database_116:
+pgbouncer_database_123:
   name: pgbouncer_database
-  desc: Pgbouncer database stats (since 1.16) # http://www.pgbouncer.org/usage.html#show-databases
+  desc: Pgbouncer database stats (since 1.23) # http://www.pgbouncer.org/usage.html#show-databases
+  query: SHOW DATABASES;
+  ttl: 10
+  min_version: 12300
+  tags:
+    - pgbouncer
+
+  metrics:
+    - name:
+        usage: LABEL
+        rename: datname
+        description: Name of configured database entry
+    - host:
+        usage: LABEL
+        description: Host that pgbouncer will connects to
+    - port:
+        usage: LABEL
+        description: Port that pgbouncer will connects to
+    - database:
+        usage: LABEL
+        rename: real_datname
+        description: The real database name pgbouncer connects to
+    - force_user:
+        usage: DISCARD
+    - pool_size:
+        usage: GAUGE
+        description: Maximum number of server connections
+    - min_pool_size:
+        usage: GAUGE
+        description: Minimum number of server connections
+    - reserve_pool:
+        usage: GAUGE
+        description: Maximum number of additional connections for this database
+    - server_lifetime:
+        usage: GAUGE
+        description: The maximum lifetime of a server connection for this database
+    - pool_mode:
+        usage: DISCARD
+    - max_connections:
+        usage: GAUGE
+        description: Maximum number of allowed connections for this database
+    - current_connections:
+        usage: GAUGE
+        description: Current number of connections for this database
+    - paused:
+        usage: GAUGE
+        description: True(1) if this database is currently paused, else 0
+    - disabled:
+        usage: GAUGE
+        description: True(1) if this database is currently disabled, else 0
+
+
+pgbouncer_database_116_122:
+  name: pgbouncer_database
+  desc: Pgbouncer database stats (1.16-1.22) # http://www.pgbouncer.org/usage.html#show-databases
   query: SHOW DATABASES;
   ttl: 10
   min_version: 11600
+  max_version: 12300
   tags:
     - pgbouncer
 
@@ -3311,12 +3366,12 @@ pgbouncer_database_108_115:
 #┃ pgbouncer_stat_avg_query_time{datname}     GAUGE    Average query duration, in seconds
 #┃ pgbouncer_stat_avg_wait_time{datname}      GAUGE    Time spent by clients waiting for a server, in seconds (average per second).
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-pgbouncer_stat:
+pgbouncer_stat_123:
   name: pgbouncer_stat
-  desc: Pgbouncer stats per database   # http://www.pgbouncer.org/usage.html#show-stats
+  desc: Pgbouncer stats per database (since 1.23)   # http://www.pgbouncer.org/usage.html#show-stats
   query: SHOW STATS;
   ttl: 10
-  min_version: 10800
+  min_version: 12300
   tags:
     - pgbouncer
 
@@ -3326,10 +3381,81 @@ pgbouncer_stat:
         rename: datname
         description: Name of database
     - total_xact_count:
-        usage: GAUGE
+        usage: COUNTER
         description: Total number of SQL transactions pooled by pgbouncer
     - total_query_count:
+        usage: COUNTER
+        description: Total number of SQL queries pooled by pgbouncer
+    - total_server_assignment_count:
+        usage: COUNTER
+        description: Total times a server was assigned to a client
+    - total_received:
+        usage: COUNTER
+        description: Total volume in bytes of network traffic received by pgbouncer
+    - total_sent:
+        usage: COUNTER
+        description: Total volume in bytes of network traffic sent by pgbouncer
+    - total_xact_time:
+        usage: COUNTER
+        scale: 1e-6
+        description: Total number of seconds spent when in a transaction
+    - total_query_time:
+        usage: COUNTER
+        scale: 1e-6
+        description: Total number of seconds spent when executing queries
+    - total_wait_time:
+        usage: COUNTER
+        scale: 1e-6
+        description: Time spent by clients waiting for a server, in seconds
+    - avg_xact_count:
         usage: GAUGE
+        description: Average transactions per second in last stat period
+    - avg_query_count:
+        usage: GAUGE
+        description: Average queries per second in last stat period
+    - avg_server_assignment_count:
+        usage: GAUGE
+        description: Average number of times a server as assigned to a client per second in the last stat period.
+    - avg_recv:
+        usage: GAUGE
+        description: Average received (from clients) bytes per second
+    - avg_sent:
+        usage: GAUGE
+        description: Average sent (to clients) bytes per second
+    - avg_xact_time:
+        usage: GAUGE
+        scale: 1e-6
+        description: Average transaction duration, in seconds
+    - avg_query_time:
+        usage: GAUGE
+        scale: 1e-6
+        description: Average query duration, in seconds
+    - avg_wait_time:
+        usage: GAUGE
+        scale: 1e-6
+        description: Time spent by clients waiting for a server, in seconds (average per second).
+
+
+pgbouncer_stat_108_122:
+  name: pgbouncer_stat
+  desc: Pgbouncer stats per database (1.08 - 1.22)   # http://www.pgbouncer.org/usage.html#show-stats
+  query: SHOW STATS;
+  ttl: 10
+  min_version: 10800
+  max_version: 12300
+  tags:
+    - pgbouncer
+
+  metrics:
+    - database:
+        usage: LABEL
+        rename: datname
+        description: Name of database
+    - total_xact_count:
+        usage: COUNTER
+        description: Total number of SQL transactions pooled by pgbouncer
+    - total_query_count:
+        usage: COUNTER
         description: Total number of SQL queries pooled by pgbouncer
     - total_received:
         usage: COUNTER

@@ -4,9 +4,9 @@
 #┣┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┫#
 #┃ Author:   Ruohang Feng (rh@vonng.com)                       ┃#
 #┃ Desc  :   pg_exporter metrics collector definition          ┃#
-#┃ Ver   :   PostgreSQL 10~14 pgbouncer 1.9+                   ┃#
+#┃ Ver   :   PostgreSQL 10~17 pgbouncer 1.8-1.23+              ┃#
 #┃ Ctime :   2019-12-09                                        ┃#
-#┃ Mtime :   2023-09-15                                        ┃#
+#┃ Mtime :   2024-08-08                                        ┃#
 #┃ Copyright (C) 2019-2023 Ruohang Feng                        ┃#
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛#
 #################################################################
@@ -1515,14 +1515,39 @@ pg_archiver:
 #┃ pg_bgwriter_buffers_alloc{}          COUNTER  buffers allocated
 #┃ pg_bgwriter_stats_reset{}            COUNTER  time when statistics were last reset
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-pg_bgwriter:
+pg_bgwriter_17:
   name: pg_bgwriter
-  desc: "PostgreSQL background writer metrics"
+  desc: "PostgreSQL background writer metrics PG 17+"
+  # https://pgpedia.info/p/pg_stat_bgwriter.html
+  query: SELECT buffers_clean, maxwritten_clean, buffers_alloc, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_bgwriter;
+
+  ttl: {{ ttl_norm }}
+  min_version: 170000
+  tags:
+    - cluster
+  metrics:
+    - buffers_clean:
+        usage: COUNTER
+        description: Number of buffers written by the background writer
+    - maxwritten_clean:
+        usage: COUNTER
+        description: Number of times the background writer stopped a cleaning scan because it had written too many buffers
+    - buffers_alloc:
+        usage: COUNTER
+        description: Number of buffers allocated
+    - reset_time:
+        usage: COUNTER
+        description: Time at which bgwriter statistics were last reset
+
+pg_bgwriter_16:
+  name: pg_bgwriter
+  desc: "PostgreSQL background writer metrics (PG17-)"
   # https://pgpedia.info/p/pg_stat_bgwriter.html
   query: SELECT checkpoints_timed, checkpoints_req, checkpoint_write_time, checkpoint_sync_time, buffers_checkpoint, buffers_clean, buffers_backend, maxwritten_clean, buffers_backend_fsync, buffers_alloc, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_bgwriter;
 
   ttl: {{ ttl_norm }}
   min_version: 090400
+  max_version: 170000
   tags:
     - cluster
 
@@ -1565,9 +1590,111 @@ pg_bgwriter:
         description: Time at which bgwriter statistics were last reset
 
 
+
+
+#┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#┃ pg_checkpointer
+#┃ PostgreSQL checkpointer stat metrics: https://www.postgresql.org/docs/devel/monitoring-stats.html#MONITORING-PG-STAT-CHECKPOINTER-VIEW
+#┣┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+#┃ pg_checkpointer_num_timed{}           (COUNTER) Number of scheduled checkpoints that have been performed
+#┃ pg_checkpointer_num_requested{}       (COUNTER) Number of requested checkpoints that have been performed
+#┃ pg_checkpointer_restartpoints_timed{} (COUNTER) Number of scheduled restartpoints due to timeout or after a failed attempt to perform it
+#┃ pg_checkpointer_restartpoints_req{}   (COUNTER) Number of requested restartpoints
+#┃ pg_checkpointer_restartpoints_done{}  (COUNTER) Number of restartpoints that have been performed
+#┃ pg_checkpointer_write_time{}          (COUNTER) Total amount of time that has been spent in the portion of checkpoint processing where files are written to disk, in seconds
+#┃ pg_checkpointer_sync_time{}           (COUNTER) Total amount of time that has been spent in the portion of checkpoint processing where files are synchronized to disk, in seconds
+#┃ pg_checkpointer_buffers_written{}     (COUNTER) Number of buffers written during checkpoints and restartpoints
+#┃ pg_checkpointer_reset_time{}          (COUNTER) Time at which bgwriter statistics were last reset
+#┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+pg_checkpointer_17:
+  name: pg_checkpointer
+  desc: "PostgreSQL checkpointer stat metrics (PG 17+)"
+  # https://www.postgresql.org/docs/devel/monitoring-stats.html#MONITORING-PG-STAT-CHECKPOINTER-VIEW
+  query: SELECT num_timed, num_requested, restartpoints_timed, restartpoints_req, restartpoints_done, write_time, sync_time, buffers_written, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_checkpointer;
+
+  ttl: 10
+  min_version: 170000
+  tags:
+    - cluster
+
+  metrics:
+    - num_timed:
+        usage: COUNTER
+        rename: timed
+        description: Number of scheduled checkpoints that have been performed
+    - num_requested:
+        rename: req
+        usage: COUNTER
+        description: Number of requested checkpoints that have been performed
+    - restartpoints_timed:
+        usage: COUNTER
+        description: Number of scheduled restartpoints due to timeout or after a failed attempt to perform it
+    - restartpoints_req:
+        usage: COUNTER
+        description: Number of requested restartpoints
+    - restartpoints_done:
+        usage: COUNTER
+        description: Number of restartpoints that have been performed
+    - write_time:
+        usage: COUNTER
+        scale: 1e-3
+        description: Total amount of time that has been spent in the portion of checkpoint processing where files are written to disk, in seconds
+    - sync_time:
+        usage: COUNTER
+        scale: 1e-3
+        description: Total amount of time that has been spent in the portion of checkpoint processing where files are synchronized to disk, in seconds
+    - buffers_written:
+        usage: COUNTER
+        description: Number of buffers written during checkpoints and restartpoints
+    - reset_time:
+        usage: COUNTER
+        description: Time at which checkpointer statistics were last reset
+
+
+pg_checkpointer_94_16:
+  name: pg_checkpointer
+  desc: "PostgreSQL checkpointer stat metrics (PG 16-)"
+  # https://pgpedia.info/p/pg_stat_bgwriter.html
+  query: SELECT checkpoints_timed, checkpoints_req, checkpoint_write_time, checkpoint_sync_time, buffers_checkpoint, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_bgwriter;
+
+  ttl: 10
+  min_version: 090400
+  max_version: 170000
+  tags:
+    - cluster
+
+  metrics:
+    - checkpoints_timed:
+        usage: COUNTER
+        rename: timed
+        description: Number of scheduled checkpoints that have been performed
+    - checkpoints_req:
+        usage: COUNTER
+        rename: req
+        description: Number of requested checkpoints that have been performed
+    - checkpoint_write_time:
+        rename: write_time
+        usage: COUNTER
+        scale: 1e-3
+        description: Total amount of time that has been spent in the portion of checkpoint processing where files are written to disk, in seconds
+    - checkpoint_sync_time:
+        usage: COUNTER
+        rename: sync_time
+        scale: 1e-3
+        description: Total amount of time that has been spent in the portion of checkpoint processing where files are synchronized to disk, in seconds
+    - buffers_checkpoint:
+        usage: COUNTER
+        rename: buffers_written
+        description: Number of buffers written during checkpoints and restartpoints
+    - reset_time:
+        usage: COUNTER
+        description: Time at which checkpointer statistics were last reset
+
+
+
 pg_ssl:
   name: pg_ssl
-  desc: PostgreSQL SSL client conenction count
+  desc: PostgreSQL SSL client connection count
   query: |
     SELECT count(*) FILTER (WHERE ssl) AS enabled, count(*) FILTER ( WHERE NOT ssl) AS disabled FROM pg_stat_ssl;
 
@@ -1972,16 +2099,17 @@ pg_lock:
         description: Number of locks of corresponding mode and database
 
 
-pg_query_13:
+
+pg_query_17:
   name: pg_query
-  desc: PostgreSQL Query metrics, require pg_stat_statements installed, pg13
+  desc: PostgreSQL Query metrics, require pg_stat_statements installed, 17+
   query: |
-    SELECT datname, queryid AS query, sum(calls) AS calls, sum(rows) AS rows, sum(total_exec_time) AS exec_time, sum(blk_read_time) + sum(blk_write_time) AS io_time, sum(wal_bytes) AS wal_bytes
+    SELECT datname, queryid AS query, sum(calls) AS calls, sum(rows) AS rows, sum(total_exec_time) AS exec_time, sum(shared_blk_read_time) + sum(shared_blk_write_time) AS io_time, sum(wal_bytes) AS wal_bytes
     ,sum(shared_blks_hit) AS sblk_hit, sum(shared_blks_read) AS sblk_read, sum(shared_blks_dirtied) AS sblk_dirtied, sum(shared_blks_written) AS sblk_written
       FROM pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY 1, 2 ORDER BY 3 DESC LIMIT 128;
   ttl: {{ ttl_norm }}
   timeout: 1
-  min_version: 130000
+  min_version: 170000
   tags:
     - cluster
     - extension:pg_stat_statements
@@ -2022,6 +2150,56 @@ pg_query_13:
         usage: COUNTER
         description: Total number of shared blocks written by the statement
 
+pg_query_13_16:
+  name: pg_query
+  desc: PostgreSQL Query metrics, require pg_stat_statements installed, 13 - 16
+  query: |
+    SELECT datname, queryid AS query, sum(calls) AS calls, sum(rows) AS rows, sum(total_exec_time) AS exec_time, sum(blk_read_time) + sum(blk_write_time) AS io_time, sum(wal_bytes) AS wal_bytes
+    ,sum(shared_blks_hit) AS sblk_hit, sum(shared_blks_read) AS sblk_read, sum(shared_blks_dirtied) AS sblk_dirtied, sum(shared_blks_written) AS sblk_written
+      FROM pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY 1, 2 ORDER BY 3 DESC LIMIT 128;
+  ttl: {{ ttl_norm }}
+  timeout: 1
+  min_version: 130000
+  max_version: 170000
+  tags:
+    - cluster
+    - extension:pg_stat_statements
+  metrics:
+    - datname:
+        usage: LABEL
+        description: Name of database
+    - query:
+        usage: LABEL
+        description: QueryID generated from internal hash code, computed from the statement's parse tree
+    - calls:
+        usage: COUNTER
+        description: Number of times the statement was executed
+    - rows:
+        usage: COUNTER
+        description: Total number of rows retrieved or affected by the statement
+    - exec_time:
+        usage: COUNTER
+        scale: 1e-3
+        description: Total time spent executing the statement, in seconds
+    - io_time:
+        usage: COUNTER
+        scale: 1e-3
+        description: Total time the statement spent reading and writing blocks, in seconds
+    - wal_bytes:
+        usage: COUNTER
+        description: Total amount of WAL bytes generated by the statement
+    - sblk_hit:
+        usage: COUNTER
+        description: Total number of shared block cache hits by the statement
+    - sblk_read:
+        usage: COUNTER
+        description: Total number of shared blocks read by the statement
+    - sblk_dirtied:
+        usage: COUNTER
+        description: Total number of shared blocks dirtied by the statement
+    - sblk_written:
+        usage: COUNTER
+        description: Total number of shared blocks written by the statement
 
 
 pg_query_94_12:
@@ -2072,6 +2250,7 @@ pg_query_94_12:
     - sblk_written:
         usage: COUNTER
         description: Total number of shared blocks written by the statement
+
 
 
 #┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2603,14 +2782,53 @@ pg_db_10_11:
         description: Time at which database statistics were last reset
 
 
-pg_db_confl:
+pg_db_confl_16:
   name: pg_db_confl
-  desc: PostgreSQL database conflicts metrics (only available on replica)
+  desc: PostgreSQL database conflicts metrics (PG16+, only available on replica)
+  # https://pgpedia.info/p/pg_stat_database_conflicts.html
+  query: SELECT * FROM pg_stat_database_conflicts;
+
+  ttl: {{ ttl_norm }}
+  min_version: 160000
+  tags:
+    - cluster
+    - replica
+
+  metrics:
+    - datid:
+        usage: DISCARD
+    - datname:
+        usage: LABEL
+        description: Name of this database
+    - confl_tablespace:
+        usage: COUNTER
+        description: Number of queries in this database that have been canceled due to dropped tablespaces
+    - confl_lock:
+        usage: COUNTER
+        description: Number of queries in this database that have been canceled due to lock timeouts
+    - confl_snapshot:
+        usage: COUNTER
+        description: Number of queries in this database that have been canceled due to old snapshots
+    - confl_bufferpin:
+        usage: COUNTER
+        description: Number of queries in this database that have been canceled due to pinned buffers
+    - confl_deadlock:
+        usage: COUNTER
+        description: Number of queries in this database that have been canceled due to deadlocks
+    - confl_active_logicalslot:
+        usage: COUNTER
+        description: Number of uses of logical slots in this database that have been canceled due to old snapshots or too low a wal_level on the primary
+
+
+pg_db_confl_15:
+  name: pg_db_confl
+  desc: PostgreSQL database conflicts metrics (15-, only available on replica)
   # https://pgpedia.info/p/pg_stat_database_conflicts.html
   query: SELECT * FROM pg_stat_database_conflicts;
 
   ttl: {{ ttl_norm }}
   min_version: 90100
+  max_version: 160000
   tags:
     - cluster
     - replica
@@ -3231,12 +3449,67 @@ pgbouncer_list:
 #┃ pgbouncer_database_paused{datname,host,port,real_datname}               GAUGE    1 if this database is currently paused, else 0
 #┃ pgbouncer_database_disabled{datname,host,port,real_datname}             GAUGE    1 if this database is currently disabled, else 0
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-pgbouncer_database_116:
+pgbouncer_database_123:
   name: pgbouncer_database
-  desc: Pgbouncer database stats (since 1.16) # http://www.pgbouncer.org/usage.html#show-databases
+  desc: Pgbouncer database stats (since 1.23) # http://www.pgbouncer.org/usage.html#show-databases
+  query: SHOW DATABASES;
+  ttl: {{ ttl_norm }}
+  min_version: 12300
+  tags:
+    - pgbouncer
+
+  metrics:
+    - name:
+        usage: LABEL
+        rename: datname
+        description: Name of configured database entry
+    - host:
+        usage: LABEL
+        description: Host that pgbouncer will connects to
+    - port:
+        usage: LABEL
+        description: Port that pgbouncer will connects to
+    - database:
+        usage: LABEL
+        rename: real_datname
+        description: The real database name pgbouncer connects to
+    - force_user:
+        usage: DISCARD
+    - pool_size:
+        usage: GAUGE
+        description: Maximum number of server connections
+    - min_pool_size:
+        usage: GAUGE
+        description: Minimum number of server connections
+    - reserve_pool:
+        usage: GAUGE
+        description: Maximum number of additional connections for this database
+    - server_lifetime:
+        usage: GAUGE
+        description: The maximum lifetime of a server connection for this database
+    - pool_mode:
+        usage: DISCARD
+    - max_connections:
+        usage: GAUGE
+        description: Maximum number of allowed connections for this database
+    - current_connections:
+        usage: GAUGE
+        description: Current number of connections for this database
+    - paused:
+        usage: GAUGE
+        description: True(1) if this database is currently paused, else 0
+    - disabled:
+        usage: GAUGE
+        description: True(1) if this database is currently disabled, else 0
+
+
+pgbouncer_database_116_122:
+  name: pgbouncer_database
+  desc: Pgbouncer database stats (1.16-1.22) # http://www.pgbouncer.org/usage.html#show-databases
   query: SHOW DATABASES;
   ttl: {{ ttl_norm }}
   min_version: 11600
+  max_version: 12300
   tags:
     - pgbouncer
 
@@ -3350,12 +3623,12 @@ pgbouncer_database_108_115:
 #┃ pgbouncer_stat_avg_query_time{datname}     GAUGE    Average query duration, in seconds
 #┃ pgbouncer_stat_avg_wait_time{datname}      GAUGE    Time spent by clients waiting for a server, in seconds (average per second).
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-pgbouncer_stat:
+pgbouncer_stat_123:
   name: pgbouncer_stat
-  desc: Pgbouncer stats per database   # http://www.pgbouncer.org/usage.html#show-stats
+  desc: Pgbouncer stats per database (since 1.23)   # http://www.pgbouncer.org/usage.html#show-stats
   query: SHOW STATS;
   ttl: {{ ttl_norm }}
-  min_version: 10800
+  min_version: 12300
   tags:
     - pgbouncer
 
@@ -3365,10 +3638,81 @@ pgbouncer_stat:
         rename: datname
         description: Name of database
     - total_xact_count:
-        usage: GAUGE
+        usage: COUNTER
         description: Total number of SQL transactions pooled by pgbouncer
     - total_query_count:
+        usage: COUNTER
+        description: Total number of SQL queries pooled by pgbouncer
+    - total_server_assignment_count:
+        usage: COUNTER
+        description: Total times a server was assigned to a client
+    - total_received:
+        usage: COUNTER
+        description: Total volume in bytes of network traffic received by pgbouncer
+    - total_sent:
+        usage: COUNTER
+        description: Total volume in bytes of network traffic sent by pgbouncer
+    - total_xact_time:
+        usage: COUNTER
+        scale: 1e-6
+        description: Total number of seconds spent when in a transaction
+    - total_query_time:
+        usage: COUNTER
+        scale: 1e-6
+        description: Total number of seconds spent when executing queries
+    - total_wait_time:
+        usage: COUNTER
+        scale: 1e-6
+        description: Time spent by clients waiting for a server, in seconds
+    - avg_xact_count:
         usage: GAUGE
+        description: Average transactions per second in last stat period
+    - avg_query_count:
+        usage: GAUGE
+        description: Average queries per second in last stat period
+    - avg_server_assignment_count:
+        usage: GAUGE
+        description: Average number of times a server as assigned to a client per second in the last stat period.
+    - avg_recv:
+        usage: GAUGE
+        description: Average received (from clients) bytes per second
+    - avg_sent:
+        usage: GAUGE
+        description: Average sent (to clients) bytes per second
+    - avg_xact_time:
+        usage: GAUGE
+        scale: 1e-6
+        description: Average transaction duration, in seconds
+    - avg_query_time:
+        usage: GAUGE
+        scale: 1e-6
+        description: Average query duration, in seconds
+    - avg_wait_time:
+        usage: GAUGE
+        scale: 1e-6
+        description: Time spent by clients waiting for a server, in seconds (average per second).
+
+
+pgbouncer_stat_108_122:
+  name: pgbouncer_stat
+  desc: Pgbouncer stats per database (1.08 - 1.22)   # http://www.pgbouncer.org/usage.html#show-stats
+  query: SHOW STATS;
+  ttl: {{ ttl_norm }}
+  min_version: 10800
+  max_version: 12300
+  tags:
+    - pgbouncer
+
+  metrics:
+    - database:
+        usage: LABEL
+        rename: datname
+        description: Name of database
+    - total_xact_count:
+        usage: COUNTER
+        description: Total number of SQL transactions pooled by pgbouncer
+    - total_query_count:
+        usage: COUNTER
         description: Total number of SQL queries pooled by pgbouncer
     - total_received:
         usage: COUNTER
