@@ -1,0 +1,72 @@
+---
+#==============================================================#
+# File      :   kafka.yml
+# Ctime     :   2024-01-01
+# Mtime     :   2024-08-08
+# Desc      :   Record rules for kafka
+# Path      :   /etc/prometheus/rules/kafka.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+groups:
+  ################################################################
+  #                         Kafka Rules                          #
+  ################################################################
+  - name: kafka-rules
+    rules:
+
+      # message in
+      - record: kafka:topic:msg_rate1m
+        expr: sum without (partition) (rate(kafka_topic_partition_current_offset{}[1m]))
+      - record: kafka:topic:msg_rate5m
+        expr: sum without (partition) (rate(kafka_topic_partition_current_offset{}[5m]))
+
+      - record: kafka:ins:msg_rate1m
+        expr: sum(kafka:topic:msg_rate1m) without (topic)
+      - record: kafka:ins:msg_rate5m
+        expr: sum(kafka:topic:msg_rate5m) without (topic)
+
+      - record: kafka:cls:msg_rate1m
+        expr: sum(kafka:topic:msg_rate1m) by (job,cls)
+      - record: kafka:cls:msg_rate5m
+        expr: sum(kafka:topic:msg_rate5m) by (job,cls)
+
+      # message out
+      - record: kafka:topic:csg_rate1m
+        expr: sum without (partition) (rate(kafka_consumergroup_current_offset{}[1m]))
+      - record: kafka:topic:csg_rate5m
+        expr: sum without (partition) (rate(kafka_consumergroup_current_offset{}[5m]))
+
+      - record: kafka:ins:csg_rate1m
+        expr: sum(kafka:topic:msg_rate1m) without (topic)
+      - record: kafka:ins:csg_rate5m
+        expr: sum(kafka:topic:msg_rate5m) without (topic)
+
+      - record: kafka:cls:csg_rate1m
+        expr: sum(kafka:topic:msg_rate1m) by (job,cls)
+      - record: kafka:cls:csg_rate5m
+        expr: sum(kafka:topic:msg_rate5m) by (job,cls)
+
+
+  ################################################################
+  #                         Kafka Alert                          #
+  ################################################################
+  - name: kafka-alert
+    rules:
+
+      #==============================================================#
+      #                         Aliveness                            #
+      #==============================================================#
+      # etcd server instance down
+      - alert: KafkaExporterDown
+        expr: kafka_exporter_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: kafka }
+        annotations:
+          summary: "CRIT KafkaExporterDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            kafka_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/kafka-overview
+
