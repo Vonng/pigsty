@@ -8,7 +8,7 @@
 >
 > [Get Started](https://pigsty.io/docs/setup/install/) with the latest [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0) release: `curl -fsSL https://repo.pigsty.io/get | bash -s v2.7.0`
 
-> The latest Pigsth [v3.0.0-a1](https://github.com/Vonng/pigsty/releases/tag/v3.0.0-a1) Alpha release is out! 
+> The latest Pigsth [v3.0.0-b1](https://github.com/Vonng/pigsty/releases/tag/v3.0.0-b1) Alpha release is out! 
 
 
 ----------------
@@ -69,7 +69,7 @@ cd /home/vagrant/pigsty
 > HINT: To install a specific version, passing the version string as the first parameter:
 >
 > ```bash
-> curl -fsSL https://repo.pigsty.io/get | bash -s v3.0.0-a1
+> curl -fsSL https://repo.pigsty.io/get | bash -s v3.0.0-b1
 > ```
 
 </details>
