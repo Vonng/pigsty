@@ -8,7 +8,7 @@
 >
 > [Get Started](https://pigsty.io/docs/setup/install/) with the latest [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0) release: `curl -fsSL https://repo.pigsty.io/get | bash -s v2.7.0`
 
-> The latest Pigsth [v3.0.0-b1](https://github.com/Vonng/pigsty/releases/tag/v3.0.0-b1) Alpha release is out! 
+> The latest Pigsty [v3.0.0-b1](https://github.com/Vonng/pigsty/releases/tag/v3.0.0-b1) Beta release is out! 
 
 
 ----------------
@@ -19,7 +19,7 @@
 
 [![pigsty-desc](https://pigsty.io/img/pigsty/desc.png)](https://pigsty.io/)
 
-There are **280** unique [extensions](https://pigsty.io/docs/pgext/list) available in Pigsty (230 RPM, 189 DEB, 70 Contrib)
+There are **333** unique [extensions](https://pigsty.io/docs/pgext/list) available in Pigsty。
 
 [![pigsty-ecosystem.jpg](https://pigsty.io/img/pigsty/ecosystem.jpg)](https://pigsty.io/docs/pgext/list)
 
