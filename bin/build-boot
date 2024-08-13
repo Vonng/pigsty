@@ -45,10 +45,10 @@ ssh -t u22 "rm -rf ~/pigsty; tar -xf pigsty.tgz; cd ~/pigsty && ./configure -i 1
 wait
 
 log_info "copy offline packages to building VMs"
-rsync -avz "dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz"      el8:/tmp/pkg.tgz  &
-rsync -avz "dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz"      el9:/tmp/pkg.tgz  &
-rsync -avz "dist/${VERSION}/pigsty-pkg-${VERSION}.debian12.x86_64.tgz" d12:/tmp/pkg.tgz  &
-rsync -avz "dist/${VERSION}/pigsty-pkg-${VERSION}.ubuntu22.x86_64.tgz" u22:/tmp/pkg.tgz  &
+rsync -avz "dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz" el8:/tmp/pkg.tgz  &
+rsync -avz "dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz" el9:/tmp/pkg.tgz  &
+rsync -avz "dist/${VERSION}/pigsty-pkg-${VERSION}.d12.x86_64.tgz" d12:/tmp/pkg.tgz  &
+rsync -avz "dist/${VERSION}/pigsty-pkg-${VERSION}.u22.x86_64.tgz" u22:/tmp/pkg.tgz  &
 wait
 
 log_info "extract /tmp/pkg.tgz tarball"
@@ -59,10 +59,10 @@ ssh -t u22 "sudo mkdir -p /www; sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.t
 wait
 
 log_info "bootstrap building environment"
-ssh -t el8 "cd ~/pigsty && ./bootstrap -n" &
-ssh -t el9 "cd ~/pigsty && ./bootstrap -n" &
-ssh -t d12 "cd ~/pigsty && ./bootstrap -n" &
-ssh -t u22 "cd ~/pigsty && ./bootstrap -n" &
+ssh -t el8 "cd ~/pigsty && ./bootstrap" &
+ssh -t el9 "cd ~/pigsty && ./bootstrap" &
+ssh -t d12 "cd ~/pigsty && ./bootstrap" &
+ssh -t u22 "cd ~/pigsty && ./bootstrap" &
 wait
 
 log_info "building bootstrap complete"

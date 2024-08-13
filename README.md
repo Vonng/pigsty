@@ -19,7 +19,7 @@
 
 [![pigsty-desc](https://pigsty.io/img/pigsty/desc.png)](https://pigsty.io/)
 
-There are **333** unique [extensions](https://pigsty.io/docs/pgext/list) available in Pigsty。
+There are **333** unique [extensions](https://pigsty.io/docs/pgext/list) available for PostgreSQL in Pigsty v3, including **326** [**RPM**](https://pigsty.io/docs/pgext/list/rpm/) available in EL and **312** [**DEB**](https://pigsty.io/docs/pgext/list/deb/) available in Debian/Ubuntu.
 
 [![pigsty-ecosystem.jpg](https://pigsty.io/img/pigsty/ecosystem.jpg)](https://pigsty.io/docs/pgext/list)
 
