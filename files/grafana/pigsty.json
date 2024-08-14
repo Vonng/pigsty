@@ -660,6 +660,30 @@
                                 }
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "KAFKA"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#4bb39ce0",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Kafka Cluster ${__field.labels.cls}",
+                                        "url": "/d/kafka-overview?var-cls=${__field.labels.cls}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -803,6 +827,20 @@
                     "legendFormat": "MONGO",
                     "range": true,
                     "refId": "F"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(up{job=\"kafka\"})",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "KAFKA",
+                    "range": true,
+                    "refId": "G"
                 },
                 {
                     "datasource": {
@@ -1162,6 +1200,30 @@
                                 }
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "K"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#4bb39ce0",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Kafka Instance ${__field.labels.ins}",
+                                        "url": "/d/kafka-instance?var-ins=${__field.labels.ins}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -1283,12 +1345,12 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (instance) (up{job!~\"(node|infra|etcd|pgsql|redis|minio|pgrds)\"})",
-                    "hide": true,
+                    "expr": "min by (ins,instance) (up{job=\"infra\"})",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "{{ instance }}",
-                    "refId": "Z"
+                    "legendFormat": "{{ ins }}",
+                    "refId": "X"
                 },
                 {
                     "datasource": {
@@ -1297,12 +1359,12 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by (ins,instance) (up{job=\"infra\"})",
+                    "expr": "min by (ins,instance) (up{job=\"kafka\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
                     "legendFormat": "{{ ins }}",
-                    "refId": "X"
+                    "refId": "K"
                 },
                 {
                     "datasource": {
@@ -1330,6 +1392,20 @@
                     "interval": "",
                     "legendFormat": "{{ ins }}",
                     "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min by (instance) (up{job!~\"(node|infra|etcd|pgsql|redis|minio|kafka|pgrds)\"})",
+                    "hide": true,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ instance }}",
+                    "refId": "Z"
                 }
             ],
             "title": "Instances",
@@ -1649,6 +1725,37 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "K"
+                        },
+                        "properties": [
+                            {
+                                "id": "color"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#193e36e0",
+                                                "index": 0,
+                                                "text": "Down"
+                                            },
+                                            "1": {
+                                                "color": "#4bb39ce0",
+                                                "index": 1,
+                                                "text": "Alive"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -1748,6 +1855,20 @@
                     "legendFormat": "{{ cls }}",
                     "range": true,
                     "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "min by (cls) (up{job=\"kafka\"})",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ cls }}",
+                    "range": true,
+                    "refId": "K"
                 },
                 {
                     "datasource": {
@@ -2184,7 +2305,7 @@
                 "description": "Pigsty Version Number",
                 "hide": 2,
                 "name": "version",
-                "query": "v3.0.0-b1",
+                "query": "v3.0.0",
                 "skipUrlSync": false,
                 "type": "constant"
             }
