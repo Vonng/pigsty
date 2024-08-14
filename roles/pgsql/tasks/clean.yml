@@ -85,6 +85,16 @@
         systemctl stop pg_exporter
         systemctl stop pgbouncer_exporter
         systemctl stop --no-block postgresql
+        systemctl disable --no-block postgresql
+        {% if os_package|default('rpm') == 'rpm' %}
+        rm -rf /usr/lib/systemd/system/postgresql.service
+        {% elif os_package|default('rpm') == 'deb' %}
+        systemctl stop --no-block postgresql@{{ pg_version|default('16') }}-main
+        systemctl disable --no-block postgresql@{{ pg_version|default('16') }}-main
+        rm -rf /lib/systemd/system/postgresql@.service /lib/systemd/system/postgresql.service /etc/init.d/postgresql
+        systemctl daemon-reload
+        {% endif %}
+        
         if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D' ; then
             {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop --mode=immediate
         fi
