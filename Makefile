@@ -327,7 +327,7 @@ copy-el9:
 copy-d12:
 	scp dist/${VERSION}/$(USE_PRO)${D12_PKG} meta:/tmp/pkg.tgz
 copy-u22:
-	scp dist/${VERSION}/$$(USE_PRO){U22_PKG} meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/$(USE_PRO)${U22_PKG} meta:/tmp/pkg.tgz
 copy-app:
 	scp dist/${VERSION}/${APP_PKG} meta:~/app.tgz
 	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
