@@ -2,6 +2,7 @@
 # {{ ansible_managed }}
 # DEFAULT SERVER @ {{ nginx_port }} {% if nginx_sslmode != 'disable' %}/ {{ nginx_ssl_port }}{% endif %}
 
+
 # include haproxy admin webui upstream definition
 include /etc/nginx/conf.d/haproxy/upstream-*.conf;
 
@@ -47,7 +48,42 @@ server {
 }
 
 
-{% else %}
+{% elif 'path' in upstream %}
+# LOCAL DIR {{ upstream_name }}: {{ upstream.domain }} -> {{ upstream.path }}
+
+server {
+    server_name  {{  upstream.domain }};
+    listen       {{ nginx_port }};
+{% if nginx_sslmode != 'disable' %}
+    listen       {{ nginx_ssl_port }} ssl;
+    ssl_certificate {% if upstream.cert is defined %}{{ upstream.cert }}{% else %}/etc/nginx/conf.d/cert/pigsty.crt{% endif %};
+    ssl_certificate_key {% if upstream.key is defined %}{{ upstream.key }}{% else %}/etc/nginx/conf.d/cert/pigsty.key{% endif %};
+    ssl_session_timeout 5m;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+    ssl_prefer_server_ciphers on;
+{% endif %}
+
+{% if upstream.websocket is defined and upstream.websocket|bool %}
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+{% endif %}
+
+    # home server
+    location / {
+        root        {{ upstream.path }};
+        index       index.html;
+        autoindex   on;
+        autoindex_exact_size on;
+        autoindex_localtime on;
+        autoindex_format html;
+    }
+}
+
+
+
+{% elif 'endpoint' in upstream %}
 # {{ ansible_managed }}
 # INFRA PORTAL {{ upstream_name }}: {{ upstream.domain }} -> {{ upstream.endpoint|replace('${admin_ip}', admin_ip) }}
 
