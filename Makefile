@@ -31,18 +31,14 @@ USE_PRO="pro/"
 default: tip
 tip:
 	@echo "# Run on Linux node with nopass sudo & ssh access"
-	@echo 'bash -c "$$(curl -fsSL https://get.pigsty.cc/install)"'
+	@echo 'curl -fsSL https://repo.pigsty.io/get | bash'
 	@echo "./bootstrap     # prepare local repo & ansible"
 	@echo "./configure     # pre-check and templating config"
 	@echo "./install.yml   # install pigsty on current node"
 
 # print pkg download links
 link:
-	@echo 'bash -c "$$(curl -fsSL https://get.pigsty.cc/install)"'
-	@echo "[Github Download]"
-	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/${SRC_PKG} | gzip -d | tar -xC ~ ; cd ~/pigsty"
-	@echo "[CDN Download]"
-	@echo "curl -SL https://get.pigsty.cc/${VERSION}/${SRC_PKG} | gzip -d | tar -xC ~ ; cd ~/pigsty"
+	@echo 'curl -fsSL https://repo.pigsty.io/get | bash'
 
 # serve a local docs with docsify or python http
 doc:
