@@ -6,9 +6,9 @@
 >
 > [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/j5pG8qfKxU) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [站点](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog)
 >
-> [Get Started](https://pigsty.io/docs/setup/install/) with the latest [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0) release: `curl -fsSL https://repo.pigsty.io/get | bash -s v2.7.0`
+> [Get Started](https://pigsty.io/docs/setup/install/) with the latest release: `curl -fsSL https://repo.pigsty.io/get | bash`
 
-> The latest Pigsty [v3.0.0-b1](https://github.com/Vonng/pigsty/releases/tag/v3.0.0-b1) Beta release is out! 
+> The latest stable version is [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0) and the latest version is [v3.0.0-b1](https://github.com/Vonng/pigsty/releases/tag/v3.0.0-b1). 
 
 
 ----------------
