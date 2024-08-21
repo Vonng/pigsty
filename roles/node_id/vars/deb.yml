@@ -35,7 +35,7 @@ repo_packages_default:            # used according to `os_package`, if `repo_pac
   - patroni pgbouncer pgbackrest pgbadger pg-activity postgresql-filedump pgxnclient pgformatter pgcopydb pgloader                          # PGDG Common
   - postgresql-16 postgresql-client-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16            # PostgreSQL 16
   - timescaledb-2-postgresql-16 postgresql-16-periods postgresql-16-temporal-tables postgresql-16-emaj postgresql-16-tableversion postgresql-16-cron postgresql-16-pg-later postgresql-16-pg-background pg-timetable
-  - postgresql-16-postgis-3* postgresql-16-pgrouting* postgresql-16-pointcloud postgresql-16-h3 postgresql-16-q3c postgresql-16-ogr-fdw postgresql-16-geoip postgresql-16-mobilitydb
+  - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-pointcloud postgresql-16-h3 postgresql-16-q3c postgresql-16-ogr-fdw postgresql-16-geoip postgresql-16-mobilitydb
   - postgresql-16-pgvector postgresql-16-pgvectorscale postgresql-16-pg-vectorize postgresql-16-similarity postgresql-16-pg-tiktoken postgresql-16-pgml #postgresql-16-smlar
   - postgresql-16-pg-search postgresql-16-pg-bigm postgresql-16-zhparser postgresql-16-hunspell-cs-cz postgresql-16-hunspell-de-de postgresql-16-hunspell-en-us postgresql-16-hunspell-fr postgresql-16-hunspell-ne-np postgresql-16-hunspell-nl-nl postgresql-16-hunspell-nn-no postgresql-16-hunspell-pt-pt postgresql-16-hunspell-ru-ru postgresql-16-hunspell-ru-ru-aot
   - postgresql-16-citus-12.1 postgresql-16-hydra postgresql-16-pg-lakehouse postgresql-16-duckdb-fdw postgresql-16-pg-fkpart postgresql-16-partman postgresql-16-plproxy #postgresql-16-pg-duckdb
@@ -49,7 +49,7 @@ repo_packages_default:            # used according to `os_package`, if `repo_pac
   - postgresql-16-passwordcheck-cracklib postgresql-16-supautils postgresql-16-pgsodium postgresql-16-vault postgresql-16-anonymizer postgresql-16-pg-tde postgresql-16-pgsmcrypto postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pg-auth-mon postgresql-16-credcheck postgresql-16-pgcryptokey postgresql-16-pg-jobmon postgresql-16-logerrors postgresql-16-login-hook postgresql-16-set-user postgresql-16-snakeoil postgresql-16-pgextwlist postgresql-16-pg-auditor postgresql-16-noset #postgresql-16-sslutils
   - postgresql-16-wrappers postgresql-16-mysql-fdw postgresql-16-tds-fdw postgresql-16-sqlite-fdw postgresql-16-redis-fdw postgresql-16-pg-redis-pubsub postgresql-16-kafka-fdw postgresql-16-aws-s3 postgresql-16-log-fdw #postgresql-16-oracle-fdw postgresql-16-firebird-fdw
   - postgresql-16-orafce postgresql-16-pgtt postgresql-16-session-variable postgresql-16-pg-statement-rollback postgresql-16-pgmemcache #wiltondb
-  - postgresql-16-pglogical* postgresql-16-pgl-ddl-deploy postgresql-16-pg-failover-slots postgresql-16-wal2json postgresql-16-wal2mongo postgresql-16-decoderbufs postgresql-16-decoder-raw postgresql-16-mimeo postgresql-16-repmgr pgcopydb pgloader postgresql-16-pg-fact-loader postgresql-16-pg-bulkload
+  - postgresql-16-pglogical postgresql-16-pglogical-ticker postgresql-16-pgl-ddl-deploy postgresql-16-pg-failover-slots postgresql-16-wal2json postgresql-16-wal2mongo postgresql-16-decoderbufs postgresql-16-decoder-raw postgresql-16-mimeo postgresql-16-repmgr pgcopydb pgloader postgresql-16-pg-fact-loader postgresql-16-pg-bulkload
 
 node_packages_default:            # used according to `os_package`, if `node_default_packages` not set
   - lz4,unzip,bzip2,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump
@@ -116,11 +116,11 @@ pg_package_map:
   #--------------------------------#
   # STACK: Pre-defined Collections
   #--------------------------------#
-  gis-stack:                  "postgresql-$v-postgis-3*,postgresql-$v-pointcloud,postgresql-$v-h3,postgresql-$v-q3c,postgresql-$v-ogr-fdw,postgresql-$v-pgrouting*"
+  gis-stack:                  "postgresql-$v-postgis-3,postgresql-$v-postgis-3-scripts,postgresql-$v-pointcloud,postgresql-$v-h3,postgresql-$v-q3c,postgresql-$v-ogr-fdw,postgresql-$v-pgrouting,postgresql-$v-pgrouting-scripts"
   rag-stack:                  "postgresql-$v-pgvector,postgresql-$v-pgvectorscale,postgresql-$v-pg-vectorize,postgresql-$v-similarity,postgresql-$v-pg-tiktoken,postgresql-$v-pgml"
   fts-stack:                  "postgresql-$v-pg-search,postgresql-$v-pg-bigm,postgresql-$v-zhparser,postgresql-$v-hunspell-cs-cz,postgresql-$v-hunspell-de-de,postgresql-$v-hunspell-en-us,postgresql-$v-hunspell-fr,postgresql-$v-hunspell-ne-np,postgresql-$v-hunspell-nl-nl,postgresql-$v-hunspell-nn-no,postgresql-$v-hunspell-ru-ru,postgresql-$v-hunspell-ru-ru-aot"
   fdw-stack:                  "postgresql-$v-wrappers,postgresql-$v-mysql-fdw,postgresql-$v-tds-fdw,postgresql-$v-sqlite-fdw"
-  etl-stack:                  "postgresql-$v-pglogical*,postgresql-$v-pgl-ddl-deploy,postgresql-$v-wal2json,postgresql-$v-wal2mongo,postgresql-$v-decoderbufs,postgresql-$v-pg-fact-loader,postgresql-$v-pg-bulkload,pgloader,pgcopydb"
+  etl-stack:                  "postgresql-$v-pglogical,postgresql-$v-pglogical-ticker,postgresql-$v-pgl-ddl-deploy,postgresql-$v-wal2json,postgresql-$v-wal2mongo,postgresql-$v-decoderbufs,postgresql-$v-pg-fact-loader,postgresql-$v-pg-bulkload,pgloader,pgcopydb"
   feat-stack:                 "postgresql-$v-age,postgresql-$v-hll,postgresql-$v-rum,postgresql-$v-pg-graphql,postgresql-$v-pg-jsonschema,postgresql-$v-jsquery,postgresql-$v-pg-ivm,postgresql-$v-pgq3,postgresql-$v-gzip,postgresql-$v-http,postgresql-$v-topn,postgresql-$v-pgjwt"
   olap-stack:                 "duckdb,postgresql-$v-duckdb-fdw,postgresql-$v-pg-lakehouse,postgresql-$v-hydra,timescaledb-2-postgresql-$v,postgresql-$v-pg-fkpart,postgresql-$v-partman,postgresql-$v-plproxy"
   supa-stack:                 "postgresql-$v-pg-graphql,postgresql-$v-pg-jsonschema,postgresql-$v-wrappers,postgresql-$v-pgvector,postgresql-$v-cron,postgresql-$v-pgsodium,postgresql-$v-vault,postgresql-$v-pgjwt,postgresql-$v-http,postgresql-$v-pg-net,postgresql-$v-supautils,postgresql-$v-index-advisor"
@@ -143,8 +143,8 @@ pg_package_map:
   #--------------------------------#
   # GIS: GeoSpatial, Routing
   #--------------------------------#
-  postgis:                    'postgresql-$v-postgis-3*'
-  pgrouting:                  'postgresql-$v-pgrouting*'
+  postgis:                    'postgresql-$v-postgis-3,postgresql-$v-postgis-3-scripts'
+  pgrouting:                  'postgresql-$v-pgrouting,postgresql-$v-pgrouting-scripts'
   pointcloud:                 'postgresql-$v-pointcloud'
   pg_h3:                      'postgresql-$v-h3'
   q3c:                        'postgresql-$v-q3c'
@@ -416,7 +416,8 @@ pg_package_map:
   #--------------------------------#
   # ETL: CDC, Decoding, Replication
   #--------------------------------#
-  pglogical:                  'postgresql-$v-pglogical*'
+  pglogical:                  'postgresql-$v-pglogical'
+  pglogical_ticker:           'postgresql-$v-pglogical-ticker'
   pgl_ddl_deploy:             'postgresql-$v-pgl-ddl-deploy'
   pg_failover_slots:          'postgresql-$v-pg-failover-slots'
   wal2json:                   'postgresql-$v-wal2json'
