@@ -3,7 +3,7 @@
 # File      :   build-ext.yml
 # Desc      :   4-Node Env for Building Pigsty RPM packages
 # Ctime     :   2024-02-17
-# Mtime     :   2024-07-29
+# Mtime     :   2024-08-21
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -14,6 +14,7 @@
 # building PG 12 - 16 RPM / DEB for Pigsty                     #
 # ./node.yml -i conf/build/ext.yml -t node_repo,node_pkg       #
 #==============================================================#
+# 0.  el7 : 10.10.10.7   CentOS 7.9                            #
 # 1.  el8 : 10.10.10.8   Rocky  8.9                            #
 # 2.  el9 : 10.10.10.9   Rocky  9.3                            #
 # 3.  d12 : 10.10.10.12  Debian 12 bookworm                    #
@@ -25,7 +26,7 @@ all:
   children:
     infra:
       hosts:
-        #10.10.10.7:  { infra_seq: 7, admin_ip: 10.10.10.7  }
+        10.10.10.7:  { infra_seq: 7, admin_ip: 10.10.10.7  }
         10.10.10.8:  { infra_seq: 1, admin_ip: 10.10.10.8  }
         10.10.10.9:  { infra_seq: 2, admin_ip: 10.10.10.9  }
         10.10.10.12: { infra_seq: 3, admin_ip: 10.10.10.12 }
@@ -36,14 +37,14 @@ all:
 
     rpm:
       hosts:
-        #10.10.10.7:  { infra_seq: 7, admin_ip: 10.10.10.7  }
+        10.10.10.7:  { infra_seq: 7, admin_ip: 10.10.10.7  }
         10.10.10.8:  { infra_seq: 1, admin_ip: 10.10.10.8  }
         10.10.10.9:  { infra_seq: 2, admin_ip: 10.10.10.9  }
       vars:
         repo_upstream:
           #- { name: pigsty-local      ,description: 'Pigsty Local'      ,module: local ,releases: [7,8,9] ,baseurl: { default: 'http://${admin_ip}/pigsty'  }} # used by intranet nodes
-          #- { name: pigsty-infra      ,description: 'Pigsty INFRA'      ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://10.10.10.1/yum/infra/$basearch' }}
-          #- { name: pigsty-pgsql      ,description: 'Pigsty PGSQL'      ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'http://10.10.10.1/yum/pgsql/el$releasever.$basearch' }}
+          - { name: pigsty-infra      ,description: 'Pigsty INFRA'      ,module: infra ,releases: [7,8,9] ,baseurl: { default: 'http://10.10.10.1/yum/infra/$basearch' }}
+          - { name: pigsty-pgsql      ,description: 'Pigsty PGSQL'      ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'http://10.10.10.1/yum/pgsql/el$releasever.$basearch' }}
           - { name: base              ,description: 'EL 7 Base'         ,module: node  ,releases: [ 7 ] ,baseurl: { default: 'https://vault.centos.org/7.9.2009/os/$basearch/'                                ,china: 'https://mirrors.aliyun.com/centos/$releasever/os/$basearch/' } }
           - { name: updates           ,description: 'EL 7 Updates'      ,module: node  ,releases: [ 7 ] ,baseurl: { default: 'https://vault.centos.org/7.9.2009/updates/$basearch/'                           ,china: 'https://mirrors.aliyun.com/centos/$releasever/updates/$basearch/' } }
           - { name: extras            ,description: 'EL 7 Extras'       ,module: node  ,releases: [ 7 ] ,baseurl: { default: 'https://vault.centos.org/7.9.2009/extras/$basearch/'                            ,china: 'https://mirrors.aliyun.com/centos/$releasever/extras/$basearch/' } }
@@ -150,20 +151,20 @@ all:
     #----------------------------------#
     # build el7 packages on CentOS 7.9
     #----------------------------------#
-    #el7:
-    #  hosts: { 10.10.10.8: { pg_seq: 1, pg_role: primary } }
-    #  vars:
-    #    pg_cluster: pg-el8
-    #    node_default_packages:
-    #      - python3,python3-pip,python3-virtualenv
-    #      - rpm-build,rpmdevtools,createrepo_c,createrepo
-    #      - llvm,llvm-devel,clang,ccache,flex,bison,make,cmake,CUnit
-    #      - git,ncdu,wget,openssl,openblas*
-    #      - readline-devel,zlib-devel,lz4-devel,libzstd-devel,openssl-devel,krb5-devel
-    #      - hiredis-devel,gsl-devel,python3-docutils,uriparser-devel,librdkafka-devel
-    #      - libcurl-devel,libxml2-devel,gd-devel,pcre-devel,libical-devel,clamav-devel
-    #      - pgdg-srpm-macros,postgresql1*-devel,postgresql1*-server
-    #      - pkgconfig,yum-utils
+    el7:
+      hosts: { 10.10.10.7: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-el7
+        node_default_packages:
+          - python3,python3-pip,python3-virtualenv
+          - rpm-build,rpmdevtools,createrepo_c,createrepo
+          - llvm,llvm-devel,clang,ccache,flex,bison,make,cmake,CUnit
+          - git,ncdu,wget,openssl,openblas*
+          - readline-devel,zlib-devel,lz4-devel,libzstd-devel,openssl-devel,krb5-devel
+          - hiredis-devel,gsl-devel,python3-docutils,uriparser-devel,librdkafka-devel
+          - libcurl-devel,libxml2-devel,gd-devel,pcre-devel,libical-devel,clamav-devel
+          - pgdg-srpm-macros,postgresql1*-devel,postgresql1*-server
+          - pkgconfig,yum-utils
 
   vars:
     version: v3.0.0
