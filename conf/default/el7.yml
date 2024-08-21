@@ -3,7 +3,7 @@
 # File      :   el7.yml
 # Desc      :   Pigsty auto generated config for el7
 # Ctime     :   2020-05-22
-# Mtime     :   2024-08-07
+# Mtime     :   2024-08-18
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -100,19 +100,21 @@ all:
 
         # define pg extensions: https://pigsty.io/docs/pgext/
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
-        #pg_extensions: # extensions to be installed on this cluster
-        #  - timescaledb periods pg_cron pg_background pg_timetable postgis33 pointcloud q3c geoip       #[TIME]# #[GIS]#
-        #  - pgvector pg_similarity pg_bigm zhparser hunspell                                            #[RAG]#  #[FTS]#
-        #  - hydra pg_fkpart pg_partman age hll rum hypopg imgsmlr pg_ivm pgq #citus pg_strom plproxy    #[OLAP]# #[FEAT]#
-        #  - pg_tle luapgsql pldebugger plpgsql_check plprofiler plsh faker #plr pgtap                   #[LANG]#
-        #  - prefix semver pgmp pgunit roaringbitmap md5hash asn1oid numeral pg_rational ip4r pgsphere pgfaceting timestamp9 #[TYPE]# #[FUNC]# #[ADMIN]# #[STAT]# #[SEC]#
-        #  - pg_gzip pg_http topn pgjwt shacrypt pgsql_tweaks count_distinct extra_window_functions first_last_agg tdigest pgpcre icu_ext pg_hashids pg_uuidv7 permuteseq
-        #  - pg_repack pg_squeeze pg_dirtyread pgfincore ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pg_auto_failover preprepare pg_catcheck
-        #  - pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats bgw_replstatus pg_sqlog powa toastinfo
-        #  - passwordcheck pgsodium pg_vault anonymizer pgaudit17_15* pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors set_user pg_snakeoil pgextwlist
-        #  - multicorn mongo_fdw mysql_fdw tds_fdw sqlite_fdw hdfs_fdw pgbouncer_fdw #oracle_fdw db2_fdw #[FDW]#
-        #  - mysqlcompat pgtt orafce pg_statement_rollback #babelfish                                    #[SIM]# #[ETL]#
-        #  - pglogical wal2json pg_failover_slots mimeo pg_bulkload pg_comparator pgimportdoc pgexportdoc pgcopydb pgloader
+        pg_extensions: # extensions to be installed on this cluster
+          - timescaledb periods pg_cron pg_background pg_timetable
+          - postgis33_15* pointcloud q3c geoip pg_geohash
+          - pgvector pg_similarity smlar pg_bigm zhparser hunspell
+          - hydra pg_fkpart pg_partman plproxy age hll rum index_advisor hypopg imgsmlr pg_ivm pgq #pg_strom citus
+          - pg_tle pldebugger plpgsql_check plprofiler plsh  #plr pgtap dbt2 faker
+          - prefix semver pgunit md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational ip4r timestamp9 chkpass pg_uri pgemailaddr acl
+          - topn pg_gzip pg_http pg_html5_email_address pgsql_tweaks pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays pg_arraymath pg_uuidv7 permuteseq pg_hashids sequential_uuids
+          - pg_math pg_random pg_base36 pg_base62 floatvec pg_financial pgjwt shacrypt cryptint pg_ecdsa pgpcre icu_ext envvar url_encode pg_zstd aggs_for_vecs quantile lower_quantile pgqr pg_protobuf
+          - pg_repack pg_squeeze pg_dirtyread pgfincore ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pgautofailover pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior pg_fio #pgpool pgagent table_log
+          - pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus toastinfo pagevis powa pg_mon
+          - passwordcheck pgsodium pg_vault anonymizer pgaudit17_15* pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors set_user pg_snakeoil pgextwlist pg_auditor noset
+          - multicorn mysql_fdw tds_fdw sqlite_fdw pgbouncer_fdw mongo_fdw redis_fdw hdfs_fdw aws_s3 log_fdw #oracle_fdw #db2_fdw
+          - orafce pgtt session_variable pg_statement_rollback pgmemcache #pg_dbms_job
+          - pglogical pg_failover_slots wal2json decoder_raw mimeo pgcopydb pgloader pg_bulkload pg_comparator pgimportdoc pgexportdoc #repmgr #slony
 
         # define HBA rules here: https://pigsty.io/docs/pgsql/hba/#define-hba
         pg_hba_rules:                       # example hba rules
@@ -155,7 +157,7 @@ all:
     #----------------------------------#
     version: v3.0.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
-    region: default                   # upstream mirror region: default|china|europe
+    region: china                     # upstream mirror region: default|china|europe
     node_tune: tiny                   # node tuning specs: oltp,olap,tiny,crit
     pg_conf: tiny.yml                 # pgsql tuning specs: {oltp,olap,tiny,crit}.yml
     proxy_env:                        # global proxy env when downloading packages
@@ -232,6 +234,9 @@ all:
       - { name: centos-sclo-rh ,description: 'EL 7 SCLo rh'      ,module: node  ,releases: [7    ] ,baseurl: { default: 'https://vault.centos.org/7.9.2009/sclo/$basearch/rh/'              ,china: 'https://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/rh/'   }}
       - { name: pgdg-common    ,description: 'PostgreSQL Common' ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' }}
       - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' }}
+      - { name: pgdg12         ,description: 'PostgreSQL 12'     ,module: pgsql  ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/12/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/12/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/12/redhat/rhel-$releasever-$basearch' }}
+      - { name: pgdg13         ,description: 'PostgreSQL 13'     ,module: pgsql  ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch' }}
+      - { name: pgdg14         ,description: 'PostgreSQL 14'     ,module: pgsql  ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch' }}
       - { name: pgdg15         ,description: 'PostgreSQL 15'     ,module: pgsql ,releases: [7    ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' }}
       - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
       #- { name: pgdg15-nonfree ,description: 'PostgreSQL 15+'    ,module: pgsql ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/non-free/15/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/non-free/15/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/non-free/15/redhat/rhel-$releasever-$basearch' }}
@@ -244,14 +249,30 @@ all:
       - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates readline vim-minimal keepalived chrony openssl openssh-server openssh-clients  # Node Packages 2
       - patroni patroni-etcd pgbouncer pgbadger pgbackrest pg_activity pg_filedump pgxnclient pgFormatter timescaledb-tools pg_timetable luapgsql pgcopydb pgloader     # PG Common Tools
       - postgresql15*
-      - pg_repack_15* wal2json_15* passwordcheck_cracklib_15* pglogical_15* pg_cron_15* postgis33_15* timescaledb-2-postgresql-15* pgvector_15* citus_15*               # PGDG 15 Packages
-      - imgsmlr_15* pg_bigm_15* pg_similarity_15* pgsql_http_15* pgsql_gzip_15* vault_15 pgjwt_15 pg_tle_15* pg_roaringbitmap_15* pointcloud_15* zhparser_15* apache-age_15* hydra_15* pg_sparse_15* md5hash_15* pg_dirtyread_15* pg_filedump_15* postgresql_faker_15*
-      - apache-age_15* asn1oid_15* bgw_replstatus_15* count_distinct_15 credcheck_15 ddlx_15 e-maj_15 extra_window_functions_15 first_last_agg_15* geoip_15 hdfs_fdw_15 hll_15* hunspell_*_15
-      - hydra_15* hypopg_15* icu_ext_15* imgsmlr_15* ip4r_15* logerrors_15 md5hash_15* mimeo_15 mongo_fdw_15* multicorn2_15* mysql_fdw_15 mysqlcompat_15 numeral_15* orafce_15* periods_15* permuteseq_15* pg_auth_mon_15* pg_auto_failover_15* pg_background_15
-      - pg_bigm_15* pg_bulkload_15* pg_catcheck_15 pg_checksums_15 pg_comparator_15 pg_dirtyread_15* pg_failover_slots_15 pg_filedump_15* pg_fkpart_15 pg_hashids_15* pg_ivm_15* pg_jobmon_15 pg_partman_15 pg_permissions_15 pg_prioritize_15 pg_proctab_15* pg_qualstats_15* pg_rational_15* pg_readonly_15* pg_roaringbitmap_15* pg_rrule_15*
-      - pg_similarity_15* pg_snakeoil_15* pg_sparse_15* pg_sqlog_15 pg_squeeze_15* pg_stat_kcache_15* pg_stat_monitor_15* pg_statement_rollback_15* pg_store_plans_15* pg_tle_15* pg_top_15 pg_track_settings_15* pg_uuidv7_15* pg_wait_sampling_15* pgagent_15 pgaudit17_15 pgauditlogtofile_15* pgbouncer_fdw_15
-      - pgcryptokey_15 pgexportdoc_15 pgextwlist_15* pgfaceting_15 pgfincore_15* pgimportdoc_15 pgjwt_15 pgmp_15 pgpcre_15* pgq_15* pgsodium_15* pgsphere_15* pgsql_gzip_15* pgsql_http_15* pgsql_tweaks_15 pgtt_15 pldebugger_15 plpgsql_check_15* plprofiler_15* plproxy_15
-      - plsh_15* pointcloud_15* postgres_shacrypt_15* postgresql-unit_15* postgresql_anonymizer_15* postgresql_faker_15* powa_15* prefix_15* preprepare_15* q3c_15* rum_15 safeupdate_15 semver_15* set_user_15* sqlite_fdw_15* system_stats_15* tdigest_15* tds_fdw_15* timestamp9_15* toastinfo_15* topn_15* vault_15 zhparser_15*
+      - timescaledb-2-postgresql-15* periods_15* pg_cron_15* pg_background_15* pg_timetable postgis33_15* pgrouting_15* pointcloud_15* q3c_15* geoip_15* pg_geohash_15*
+      - pgvector_15* pg_similarity_15* smlar_15* pg_bigm_15* zhparser_15* hunspell_cs_cz_15 hunspell_de_de_15 hunspell_en_us_15 hunspell_fr_15 hunspell_ne_np_15 hunspell_nl_nl_15 hunspell_nn_no_15 hunspell_ru_ru_15 hunspell_ru_ru_aot_15
+      - citus_15* hydra_15* pg_fkpart_15* pg_partman_15* plproxy_15* apache-age_15* hll_15* rum_15 index_advisor_15 hypopg_15* imgsmlr_15* pg_ivm_15* pgq_15* #pg_strom_15*
+      - pg_tle_15* pldebugger_15* plpgsql_check_15* plprofiler_15* plsh_15* postgresql_faker_15*  #pljava_15* plr_15* pgtap_15* dbt2-pg15-extensions*
+      - prefix_15* semver_15* postgresql-unit_15* md5hash_15* asn1oid_15* pg_roaringbitmap_15* pgfaceting_15 pgsphere_15* pg_country_15* pg_currency_15* pgmp_15* numeral_15* pg_rational_15* pguint_15* ip4r_15* timestamp9_15* chkpass_15* pg_uri_15* pg_emailaddr_15* acl_15*
+      - topn_15* pgsql_gzip_15* pgsql_http_15* pg_html5_email_address_15 pgsql_tweaks_15* pg_timeit_15* count_distinct_15* extra_window_functions_15* first_last_agg_15 tdigest_15* aggs_for_arrays_15* pg_arraymath_15* pg_uuidv7_15* permuteseq_15* pg_hashids_15* sequential_uuids_15*
+      - pg_math_15* pg_random_15* pg_base36_15* pg_base62_15* floatvec_15* pg_financial_15* pgjwt_15* postgres_shacrypt_15* cryptint_15* pg_ecdsa_15* pgpcre_15 icu_ext_15* pg_envvar_15* url_encode_15* pg_zstd_15* aggs_for_vecs_15* quantile_15* lower_quantile_15* pgqr_15* pg_protobuf_15
+      - pg_repack_15* pg_squeeze_15* pg_dirtyread_15* pgfincore_15* pgdd_15 ddlx_15* pg_prioritize_15* pg_checksums_15* pg_readonly_15* safeupdate_15* pg_permissions_15* pg_auto_failover_15* pg_catcheck_15* preprepare_15* pgcozy_15 pg_orphaned_15* pg_crash_15* pg_cheat_funcs_15* pg_savior_15* pg_fio_15 #pgpool-II-pg15-extensions pgagent_15* table_log_15
+      - pg_stat_kcache_15* pg_stat_monitor_15* pg_qualstats_15* pg_store_plans_15* pg_track_settings_15* pg_wait_sampling_15* system_stats_15* pg_meta_15 pgnodemx_15 pg_sqlog_15* bgw_replstatus_15* toastinfo_15* pagevis_15 powa_15* pg_mon_15* #pg_statviz_extension_15 pgexporter_ext_15 pg_top_15*
+      - passwordcheck_cracklib_15* supautils_15* pgsodium_15* vault_15* postgresql_anonymizer_15* pg_tde_15* pgsmcrypto_15 pgaudit_15* pgauditlogtofile_15* pg_auth_mon_15* credcheck_15* pgcryptokey_15* pg_jobmon_15* logerrors_15* login_hook_15* set_user_15* pg_snakeoil_15* pgextwlist_15* pg_auditor_15 noset_15*
+      - multicorn2_15* mysql_fdw_15* tds_fdw_15* sqlite_fdw_15* pgbouncer_fdw_15* mongo_fdw_15* redis_fdw_15* hdfs_fdw_15* aws_s3_15 log_fdw_15* #oracle_fdw_15* #db2_fdw_15*
+      - orafce_15* pgtt_15* session_variable_15* pg_statement_rollback_15* pgmemcache_15* #wiltondb #pg_dbms_job_15*
+      - pglogical_15* pg_failover_slots_15* wal2json_15* decoder_raw_15* mimeo_15 pgcopydb pgloader pg_bulkload_15* pg_comparator_15* pgimportdoc_15* pgexportdoc_15* #repmgr_15*
+
+      # el8 only packages
+      - java-17-openjdk-src java-17-openjdk-headless
+      # observability stack
+      - victoria-metrics* victoria-logs vector mysqld_exporter mongodb_exporter kafka_exporter
+      # cloud native stack
+      - docker docker-compose-plugin containerd.io kubeadm kubelet kubectl sealos duckdb PolarDB cri-dockerd kafka
+      # pg 12,13,14,15 packages
+      #- postgresql12* wal2json_12* pg_repack_12* passwordcheck_cracklib_12* pglogical_12* pgvector_12*
+      #- postgresql13* wal2json_13* pg_repack_13* passwordcheck_cracklib_13* pglogical_13* pgvector_13*
+      #- postgresql14* wal2json_14* pg_repack_14* passwordcheck_cracklib_14* pglogical_14* pgvector_14*
 
     #----------------------------------#
     # PostgreSQL Packages & Extensions
