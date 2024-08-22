@@ -353,8 +353,8 @@ cmdb:
 # build env shortcuts
 #------------------------------#
 # copy src to build environment
-csa: copy-src-all
-copy-src-all:
+cso: copy-src-oss
+copy-src-oss:
 	scp "dist/${VERSION}/${SRC_PKG}" el8:~/pigsty.tgz
 	scp "dist/${VERSION}/${SRC_PKG}" el9:~/pigsty.tgz
 	scp "dist/${VERSION}/${SRC_PKG}" d12:~/pigsty.tgz
@@ -467,7 +467,7 @@ cfull:
 	cp conf/sandbox/full.yml pigsty.yml
 cprod:
 	cp conf/sandbox/prod.yml pigsty.yml
-cbuild:
+coss:
 	cp conf/build/oss.yml pigsty.yml
 cpro:
 	cp conf/build/pro.yml pigsty.yml
@@ -481,10 +481,12 @@ cdeb:
 #------------------------------#
 #     Building Environment     #
 #------------------------------#
-build: cbuild del vb new ssh dfx
+oss: coss del vb new ssh dfx copy-src-oss
 pro: cpro del va new ssh copy-src-rpm copy-src-deb
-build-boot:
-	bin/build-boot
+boot-oss:
+	bin/boot-oss $(VERSION)
+boot-pro:
+	bin/boot-pro $(VERSION)
 rpm: crpm del vr new ssh copy-src-rpm
 deb: cdeb del vd new ssh copy-src-deb
 old: del va new ssh
@@ -650,11 +652,11 @@ vtrio22:
         copy copy-src copy-pkg copy-el8 copy-el9 copy-u22 copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
         csa copy-src-all csr copy-src-rpm csd copy-src-deb df deb-fix push pull git-sync git-restore \
         r release rr remote-release rrpm release-rpm rdeb release-deb pb publish \
-        build build-pro build-boot rpm deb vb vr vd vm vf vp all old va vo \
+        oss pro boot-oss boot-pro rpm deb vb vr vd vm vf vp all old va vo \
         meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vfull11 vmeta12 vmeta20 vmeta22 \
         full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 \
         prod prod8 prod9 prod12 prod20 prod22 vprod vprod8 vprod9 vprod12 vprod20 vprod22 \
         dual dual8 dual9 dual12 dual20 dual22 vdual vdual8 vdual9 vdual12 vdual20 vdual22 \
         trio trio8 trio9 trio12 trio20 trio22 vtrio vtrio8 vtrio9 vtrio12 vtrio20 vtrio22 \
-        cmeta cdual ctrio cfull cprod cbuild cpro cext crpm cdeb
+        cmeta cdual ctrio cfull cprod coss cpro cext crpm cdeb
 ###############################################################
