@@ -47,9 +47,8 @@
   tags: cache_create
   become: yes
   shell: |
-    cd "{{ repo_home }}/{{ repo_name }}"
     {% if os_package|default('rpm') == 'rpm' %}
-    
+    cd "{{ repo_home }}/{{ repo_name }}"
     {% if os_version|int == 7 %}
     rm -f *.i686.rpm;       # remove i686 packages
     {% elif os_version|int >= 9 %}
@@ -73,8 +72,9 @@
     dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
     md5sum *.deb > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
     {% endif %}
-  #chdir: "{{ repo_home }}/{{ repo_name }}"
-  args: { executable: /bin/bash }
+  args:
+    executable: /bin/bash
+    chdir: "{{ repo_home }}/{{ repo_name }}"
 
 
 #--------------------------------------------------------------#
@@ -86,7 +86,9 @@
   shell: |
     tar cvf - -C "{{ repo_home }}" {% for item in cache_repo_list %}{{ item }} {% endfor %} | gzip -9 > /tmp/pkg.tgz
     chmod a+r /tmp/pkg.tgz;
-  args: { executable: /bin/bash }
+  args:
+    executable: /bin/bash
+    chdir: "{{ repo_home }}/{{ repo_name }}"
 
 
 #--------------------------------------------------------------#
@@ -98,6 +100,6 @@
   synchronize:
     src: /tmp/pkg.tgz
     dest: "{{ cache_dirname }}/{{ cache_filename }}"
-    mode: pull  # 指定是从远程拉取文件
+    mode: pull
 
 ...
