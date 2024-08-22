@@ -21,6 +21,8 @@
 
 There are **333** unique [extensions](https://pigsty.io/docs/pgext/list) available for PostgreSQL in Pigsty v3, including **326** [**RPM**](https://pigsty.io/docs/pgext/list/rpm/) available in EL and **312** [**DEB**](https://pigsty.io/docs/pgext/list/deb/) available in Debian/Ubuntu.
 
+The supplementary extension repo (repo.pigsty.io) can be [used alone](https://pigsty.io/docs/pgext/usage/repo), even without Pigsty. 
+
 [![pigsty-ecosystem.jpg](https://pigsty.io/img/pigsty/ecosystem.jpg)](https://pigsty.io/docs/pgext/list)
 
 
@@ -30,9 +32,9 @@ There are **333** unique [extensions](https://pigsty.io/docs/pgext/list) availab
 
 > Setup everything with one command! Check [**Get Started**](https://pigsty.io/docs/setup/install/) | [**快速上手**](https://pigsty.io/zh/docs/setup/install/) for details.
 
-[**Prepare**](https://pigsty.io/docs/setup/prepare/) a fresh Linux x86_64 node that runs [**compatible**](https://pigsty.io/docs/reference/compatibility/) OS distros,
+[**Prepare**](https://pigsty.io/docs/setup/prepare/) a fresh Linux x86_64 node that runs [**compatible**](https://pigsty.io/docs/reference/compatibility/) OS distros.
 
-Run this [**`install`**](https://github.com/Vonng/pigsty/blob/master/bin/install) script as the admin user with nopass `ssh` & `sudo` privilege:
+Then run this [**`install`**](https://github.com/pgsty/pkg/blob/main/get.io) script as the admin user with nopass `ssh` & `sudo` privilege:
 
 ```bash
 curl -fsSL https://repo.pigsty.io/get | bash
