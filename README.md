@@ -35,7 +35,7 @@ There are **333** unique [extensions](https://pigsty.io/docs/pgext/list) availab
 Run this [**`install`**](https://github.com/Vonng/pigsty/blob/master/bin/install) script as the admin user with nopass `ssh` & `sudo` privilege:
 
 ```bash
-curl -fsSL https://repo.pigsty.io/get | bash -s v2.7.0
+curl -fsSL https://repo.pigsty.io/get | bash
 cd ~/pigsty; ./bootstrap; ./configure; ./install.yml;
 ```
 
@@ -44,7 +44,7 @@ Then you will have a pigsty singleton node ready, with Web Services on port `80/
 <details><summary>Install Script Output</summary><br>
  
 ```bash
-$ curl -fsSL https://repo.pigsty.io/get | bash -s v2.7.0
+$ curl -fsSL https://repo.pigsty.io/get | bash
 [v2.7.0] ===========================================
 $ curl -fsSL https://repo.pigsty.io/get | bash
 [Site] https://pigsty.io
@@ -124,7 +124,7 @@ Besides, Pigsty also have a series of **OPTIONAL** extended modules for more adv
 - [**`MINIO`**](https://pigsty.io/docs/minio/): S3-compatible object storage service used as an optional central backup server for `PGSQL`.
 - [**`REDIS`**](https://pigsty.io/docs/redis/): Deploy Redis servers in standalone master-replica, sentinel, and native cluster mode.
 - [**`MONGO`**](https://pigsty.io/docs/mongo/): Native deployment support for FerretDB — adding MongoDB wire protocol compatibility to PostgreSQL!
-- [**`DOCKER`**](https://pigsty.io/docs/node/): Docker Daemon service, allowing users to easily deploy containerized stateless software templates.
+- [**`DOCKER`**](https://pigsty.io/docs/docker/): Docker Daemon service, allowing users to easily deploy containerized stateless software templates.
 - **`MSSQL`**: Add Microsoft SQL Server Wire Protocol / SQL Level Compatibility through WiltonDB & Babelfish, along with all native PG features!
 * **`IVORY`**: Add Oracle SQL/PL Compatibility through IvorySQL.
 * **`POLAR`**: Add Oracle RAC implementation through PolarDB for PostgreSQL
@@ -334,7 +334,7 @@ all:
     pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
     pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
     pg_extensions:
-      - postgis34_${ pg_version }* timescaledb-2-postgresql-${ pg_version }* pgvector_${ pg_version }* citus_${ pg_version }*
+      - postgis timescaledb pgvector_${ pg_version }* citus_${ pg_version }*
     pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
     pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
     pg_hba_rules:
@@ -429,7 +429,7 @@ Check [**Configuration**](https://pigsty.io/docs/setup/config/) & [**PGSQL Conf*
 
 ## About
 
-Docs: https://pigsty.io/
+Docs: https://pigsty.io/docs
 
 Website: https://pigsty.io/ | https://pigsty.cc/zh/
 

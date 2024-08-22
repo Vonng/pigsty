@@ -3,7 +3,7 @@
 # File      :   citus.yml
 # Desc      :   pigsty citus testing environment
 # Ctime     :   2020-05-22
-# Mtime     :   2023-03-31
+# Mtime     :   2024-08-21
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -15,9 +15,6 @@ all:
 
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
-
-    # minio cluster, s3 compatible object storage
-    # minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 
     # etcd cluster for ha postgres
     etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
@@ -37,7 +34,23 @@ all:
         10.10.10.14: { pg_seq: 2, pg_role: replica }
       vars: { pg_cluster: pg-citus3 , pg_group: 3 }
 
-  vars: # global parameters for all citus clusters
+  vars:                               # global variables
+    version: v3.0.0                   # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default|china|europe
+    node_tune: tiny                   # node tuning specs: oltp,olap,tiny,crit
+    pg_conf: tiny.yml                 # pgsql tuning specs: {oltp,olap,tiny,crit}.yml
+    infra_portal:                     # domain names and upstream servers
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
+
+    #----------------------------------#
+    # NODE, PGSQL, Citus
+    #----------------------------------#
     pg_mode: citus                    # pgsql cluster mode: citus
     pg_shard: pg-citus                # citus shard name: pg-citus
     pg_primary_db: meta               # primary database used by citus
@@ -45,15 +58,10 @@ all:
     pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
     pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
     pg_extensions:
-      - pg_repack_${ pg_version }* wal2json_${ pg_version }* passwordcheck_cracklib_${ pg_version }*
-      - postgis3*_${ pg_version }* timescaledb-2-postgresql-${ pg_version }* pgvector_${ pg_version }* citus_${ pg_version }*
+      - citus timescaledb postgis pgvector
     pg_hba_rules:
       - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
       - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet' }
     pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
-    pg_conf: tiny.yml                 # use tiny for demo citus nodes
-    version: v3.0.0                   # pigsty version string
-    admin_ip: 10.10.10.10             # admin node ip address
-    region: default                   # upstream mirror region: default|china|europe
 
 ...
