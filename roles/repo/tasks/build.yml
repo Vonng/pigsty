@@ -1,9 +1,16 @@
 ---
 #--------------------------------------------------------------#
-# 3.1   Remove existing upstream repo files        [repo_remove]
+# 3.1 Create repo dir                                 [repo_dir]
+#--------------------------------------------------------------#
+- name: create local repo dir
+  tags: [repo_dir,repo_new]
+  file: path={{ repo_home }}/{{ repo_name }} state=directory mode=0755
+
+#--------------------------------------------------------------#
+# 3.2   Remove existing upstream repo files        [repo_remove]
 #--------------------------------------------------------------#
 - name: remove existing repo before build
-  tags: [ repo_upstream, repo_remove ]
+  tags: [ repo_upstream, repo_remove , repo_new ]
   when: repo_remove|bool
   shell: |
     {% if os_package == 'rpm' %}
@@ -17,10 +24,10 @@
   args: { executable: /bin/bash }
 
 #--------------------------------------------------------------#
-# 3.2  Add required upstream repo files               [repo_add]
+# 3.3  Add required upstream repo files               [repo_add]
 #--------------------------------------------------------------#
 - name: add upstream repo to infra nodes
-  tags: [ repo_upstream , repo_add ]
+  tags: [ repo_upstream , repo_add ,repo_new ]
   copy:
     dest: "{{ upstream_dir }}/{{ upstream_file }}"
     content: |
@@ -67,11 +74,11 @@
 
 
 #--------------------------------------------------------------#
-# 3.3  Download url packages                      [repo_url_pkg]
+# 3.4  Download url packages                      [repo_url_pkg]
 #--------------------------------------------------------------#
 # download packages directly via url
 - name: download repo url packages
-  tags: repo_url_pkg
+  tags: [repo_url_pkg, repo_new]
   ignore_errors: true
   environment: "{{ proxy_env }}"
   get_url: dest={{ file_dest }} url={{ package_url | replace('${releasever}', os_version|string) | replace('${arch}', os_arch|string ) | replace('${distro_codename}', os_codename) }}
@@ -82,11 +89,11 @@
 
 
 #--------------------------------------------------------------#
-# 3.4 Make repo cache                               [repo_cache]
+# 3.5 Make repo cache                               [repo_cache]
 #--------------------------------------------------------------#
 # this usually takes 1~2 minutes, according to your network condition and region & mirrors
 - name: remake repo cache
-  tags: repo_cache
+  tags: [repo_cache,repo_new]
   environment: "{{ proxy_env|default({}) }}"
   shell: |
     {% if os_package == 'rpm' %}
@@ -104,7 +111,7 @@
   args: { executable: /bin/bash }
 
 #--------------------------------------------------------------#
-# 3.5  Install bootstrap packages                [repo_boot_pkg]
+# 3.6  Install bootstrap packages                [repo_boot_pkg]
 #--------------------------------------------------------------#
 # these packages are required to download from upstream
 - name: install repo boot packages
@@ -115,10 +122,10 @@
 
 
 #--------------------------------------------------------------#
-# 3.6 Download rpm Packages                           [repo_pkg]
+# 3.7 Download rpm Packages                           [repo_pkg]
 #--------------------------------------------------------------#
 - name: download repo packages
-  tags: repo_pkg
+  tags: [repo_pkg,repo_new]
   environment: "{{ proxy_env }}"
   shell:
     chdir: "{{ repo_home }}/{{ repo_name }}"
@@ -145,11 +152,11 @@
 
 
 #--------------------------------------------------------------#
-# 3.7 Create repo                                  [repo_create]
+# 3.8 Create repo                                  [repo_create]
 #--------------------------------------------------------------#
 # create local yum/apt repo
 - name: create local repo
-  tags: repo_create
+  tags: [repo_create,repo_new]
   shell:
     cmd: |
       {% if os_package|default('rpm') == 'rpm' %}
@@ -177,7 +184,7 @@
   args: { executable: /bin/bash }
 
 #--------------------------------------------------------------#
-# 3.8 Use built repo                                  [repo_use]
+# 3.9 Use built repo                                  [repo_use]
 #--------------------------------------------------------------#
 - name: use built local repo
   tags: repo_use

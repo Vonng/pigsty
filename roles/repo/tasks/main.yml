@@ -31,35 +31,6 @@
 # infra.yml -t repo_url_pkg -e repo_url_packages=[https://github.com/dalibo/pev2/releases/download/v1.8.0/index.html]
 # infra.yml -t repo_pkg     -e repo_packages=[xxxx]
 
-#--------------------------------------------------------------#
-# 0. Create repo dir?                                 [repo_dir]
-#--------------------------------------------------------------#
-- name: setup repo dir and file
-  tags: repo_dir
-  block:
-
-    # create repo directory
-    - name: create local repo dir
-      tags: repo_dir
-      file: path={{ repo_home }}/{{ repo_name }} state=directory mode=0755
-
-    - name: render repo definition file
-      tags: repo_file
-      when: os_package == 'rpm'
-      copy:
-        dest: "{{ repo_home }}/{{ repo_name }}.repo"
-        mode: 0755
-        content: |
-          [{{ repo_name }}]
-          name=Pigsty Local Yum Repo {{ repo_name }}
-          baseurl={{ repo_endpoint | replace('${admin_ip}', admin_ip ) }}/{{ repo_name }}
-          skip_if_unavailable = 1
-          enabled = 1
-          priority = 1
-          gpgcheck = 0
-          {% if os_version|int >= 8 %}
-          module_hotfixes=1
-          {% endif %}
 
 #--------------------------------------------------------------#
 # 1. Check whether repo exists?                     [repo_check]
