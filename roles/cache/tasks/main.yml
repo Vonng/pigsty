@@ -1,0 +1,103 @@
+---
+#--------------------------------------------------------------#
+# 0. Identifier                                       [cache_id]
+#--------------------------------------------------------------#
+- name: calculate offline package names
+  tags: [ always , cache_id ]
+  become: no
+  connection: local
+  set_fact:
+    cache_filename: "{{ cache_pkg_name|replace('${version}', version)|replace('${os}', node_os_code)|replace('${arch}', os_arch) }}"
+    cache_dirname: "{{ cache_pkg_dir | replace('${version}', version) }}"
+    cache_repo_list: "{{ cache_repo.split(',') }}"
+
+
+#--------------------------------------------------------------#
+# 1. Check                                         [cache_check]
+#--------------------------------------------------------------#
+- name: check repo dirs exists & not empty
+  tags: cache_check
+  find:
+    paths: "{{ repo_home }}/{{ item }}"
+    file_type: any
+  register: dir_contents
+  failed_when: dir_contents.matched == 0
+  loop: "{{ cache_repo_list }}"
+
+
+#--------------------------------------------------------------#
+# 2. Grafana Plugins                              [cache_plugin]
+#--------------------------------------------------------------#
+# overwrite /www/pigsty/plugins.tgz if /var/lib/grafana/plugins exists
+- name: cache grafana plugins
+  tags: cache_plugin
+  when: cache_gf_plugin|bool
+  become: yes
+  shell: |
+    if [ ! -z "$(ls -A /var/lib/grafana/plugins)" ]; then
+       tar -zcf "{{ repo_home }}/{{ repo_name }}/plugins.tgz" -C /var/lib/grafana/ plugins
+    fi
+  args: { executable: /bin/bash }
+
+
+#--------------------------------------------------------------#
+# 3. Create Repo                                  [cache_create]
+#--------------------------------------------------------------#
+- name: create and trim local repo
+  tags: cache_create
+  become: yes
+  shell: |
+    cd "{{ repo_home }}/{{ repo_name }}"
+    {% if os_package|default('rpm') == 'rpm' %}
+    
+    {% if os_version|int == 7 %}
+    rm -f *.i686.rpm;       # remove i686 packages
+    {% elif os_version|int >= 9 %}
+    rm -rf "proj-data*";    # remove optional proj data
+    {% endif %}
+    rm -rf "patroni*3.0.4*" # remove duplicated old version
+    rm -rf "*docs*";        # remove unnecessary docs
+    
+    createrepo_c {{ repo_home }}/{{ repo_name }}
+    {% if os_version|int >= 8 %}
+    repo2module -s stable . modules.yaml;
+    modifyrepo_c --mdtype=modules modules.yaml repodata/;
+    {% endif %}
+    
+    md5sum *.rpm > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
+    
+    {% elif os_package == 'deb' %}
+    cd {{ repo_home }}/{{ repo_name }};
+    rm -f *.i386.deb;   # remove i386 packages
+    rm -rf Packages.gz;
+    dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
+    md5sum *.deb > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
+    {% endif %}
+  #chdir: "{{ repo_home }}/{{ repo_name }}"
+  args: { executable: /bin/bash }
+
+
+#--------------------------------------------------------------#
+# 4. Create Cache Tarball                            [cache_tgz]
+#--------------------------------------------------------------#
+- name: create cache tarball
+  tags: cache_tgz
+  become: yes
+  shell: |
+    tar cvf - -C "{{ repo_home }}" {% for item in cache_repo_list %}{{ item }} {% endfor %} | gzip -9 > /tmp/pkg.tgz
+    chmod a+r /tmp/pkg.tgz;
+  args: { executable: /bin/bash }
+
+
+#--------------------------------------------------------------#
+# 5. Fetch Cache Tarball                           [cache_fetch]
+#--------------------------------------------------------------#
+- name: fetch cache tarball from target node
+  tags: cache_fetch
+  become: no
+  synchronize:
+    src: /tmp/pkg.tgz
+    dest: "{{ cache_dirname }}/{{ cache_filename }}"
+    mode: pull  # 指定是从远程拉取文件
+
+...

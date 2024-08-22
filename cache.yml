@@ -1,0 +1,84 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   cache.yml
+# Desc      :   make offline package cache from target nodes
+# Ctime     :   2024-08-22
+# Mtime     :   2024-08-22
+# Path      :   cache.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+# the default dir for collecting offline package is dist/${version}
+- name: CREATE LOCAL DIR
+  become: no
+  hosts: localhost
+  gather_facts: no
+  tags: cache_dir
+  tasks:
+    - name: create local directory
+      file: path={{ cache_pkg_dir|default('dist/${version}') | replace('${version}', version|default('v3.0.0-b1')) }} state=directory
+
+
+# gather offline packages from target nodes (the infra node with repo enabled)
+- name: MAKE OFFLINE PACKAGE
+  hosts: all
+  become: yes
+  gather_facts: no
+  vars:
+    #version: v3.0.0
+    #cache_pkg_dir: 'dist/${version}'  # where to store the cached package? dist/${version} by default
+    #cache_pkg_name: 'pigsty-pkg-${version}.${os}.${arch}.tgz' # cache offline package filename pattern
+    #cache_repo: pigsty                # target repo(s) to be cached, use `,` to separate multiple repos
+    #cache_gf_plugin: false            # cache grafana plugins, overwriting existing tarball?
+  roles:
+    - { role: node_id       , tags: id       }  # get node identity (always)
+    - { role: cache         , tags: cache    }  # make offline package
+
+
+# the default dir for collecting offline package is dist/${version}
+- name: CREATE LOCAL DIR
+  become: no
+  hosts: localhost
+  gather_facts: no
+  tags: cache_info
+  tasks:
+
+    - name: calculate cache tarball md5 checksum
+      shell: |
+        cd {{ cache_pkg_dir|default('dist/${version}') | replace('${version}', version|default('v3.0.0-b1')) }}
+        md5sum *.tgz > checksums
+        cat checksums
+        ls -lh *.tgz
+      register: cache_md5
+
+    - name: show cache tarball md5 checksum
+      debug:
+        msg: "{{ cache_md5.stdout_lines }}"
+
+
+#---------------------------------------------------------------
+# Usage
+#---------------------------------------------------------------
+# 1. make sure your nodes are already installed with pigsty!
+# 2. make sure target nodes are the infra nodes with repo enabled!
+#
+#     cache.yml -l infra        # make offline package from the infra group
+#     cache.yml -l 10.10.10.10  # make offline package from the ad hoc node
+#
+# The tarball will be generated @ /tmp/pkg.tgz, and copy to dist/${version}
+#---------------------------------------------------------------
+# Tasks
+#---------------------------------------------------------------
+# cache_dir     : create local dist dir for cache tarball
+# id            : calculate node identity
+# cache_id      : calculate cache tarball name
+# cache_check   : check repo directories exists
+# cache_plugin  : cache grafana plugins (optional)
+# cache_create  : adjust and recreate local yum/apt repo
+# cache_tgz     : make cache tarball from local repos
+# cache_fetch   : fetch cache tarball from target nodes
+# cache_info    : generate cache md5sum and print size
+#---------------------------------------------------------------
+...
