@@ -22,7 +22,7 @@ D12_PKG=pigsty-pkg-$(VERSION).d12.x86_64.tgz
 U20_PKG=pigsty-pkg-$(VERSION).u20.x86_64.tgz
 U22_PKG=pigsty-pkg-$(VERSION).u22.x86_64.tgz
 USE_PRO=""
-USE_PRO="pro/"
+#USE_PRO="pro/"
 
 ###############################################################
 #                      1. Quick Start                         #
@@ -320,12 +320,18 @@ cc: release copy-src copy-pkg use-src use-pkg
 # copy pigsty source code
 copy-src:
 	scp "dist/${VERSION}/${SRC_PKG}" meta:~/pigsty.tgz
+copy-el7:
+	scp dist/${VERSION}/$(USE_PRO)${EL7_PKG} meta:/tmp/pkg.tgz
 copy-el8:
 	scp dist/${VERSION}/$(USE_PRO)${EL8_PKG} meta:/tmp/pkg.tgz
 copy-el9:
 	scp dist/${VERSION}/$(USE_PRO)${EL9_PKG} meta:/tmp/pkg.tgz
+copy-d11:
+	scp dist/${VERSION}/$(USE_PRO)${D11_PKG} meta:/tmp/pkg.tgz
 copy-d12:
 	scp dist/${VERSION}/$(USE_PRO)${D12_PKG} meta:/tmp/pkg.tgz
+copy-u20:
+	scp dist/${VERSION}/$(USE_PRO)${U20_PKG} meta:/tmp/pkg.tgz
 copy-u22:
 	scp dist/${VERSION}/$(USE_PRO)${U22_PKG} meta:/tmp/pkg.tgz
 copy-app:
@@ -649,7 +655,8 @@ vtrio22:
         st status suspend resume v1 v4 v7 v8 v9 vb vr vd vm vo vc vu vp vp7 vp9 \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
-        copy copy-src copy-pkg copy-el8 copy-el9 copy-u22 copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
+        copy copy-src copy-pkg copy-el7 copy-el8 copy-el9 copy-d11 copy-d12 copy-u20 copy-u22 \
+        copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
         csa copy-src-all csr copy-src-rpm csd copy-src-deb df deb-fix push pull git-sync git-restore \
         r release rr remote-release rrpm release-rpm rdeb release-deb pb publish \
         oss pro boot-oss boot-pro rpm deb vb vr vd vm vf vp all old va vo \
