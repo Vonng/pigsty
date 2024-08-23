@@ -149,6 +149,18 @@
 
 
 #--------------------------------------------------------------#
+# Copy License (Optional)                              [pg_file]
+#--------------------------------------------------------------#
+# some postgres kernel fork require a licence file
+- name: copy additional files to pg data dir
+  tags: pg_file
+  when: pg_files is defined and pg_files | length > 0
+  become_user: "{{ pg_dbsu }}"
+  copy: src={{ item }} dest=/pg/data/{{ item|basename }}  owner={{ pg_dbsu }} group=postgres mode=0600
+  with_items: "{{ pg_files }}"
+
+
+#--------------------------------------------------------------#
 # Generate HBA                                          [pg_hba]
 #--------------------------------------------------------------#
 - name: render postgres hba rules
