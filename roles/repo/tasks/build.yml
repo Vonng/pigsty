@@ -160,7 +160,7 @@
   shell:
     cmd: |
       {% if os_package|default('rpm') == 'rpm' %}
-      
+      cd {{ repo_home }}/{{ repo_name }};
       {% if os_version|int == 7 %}
       rm -f *.i686.rpm;   # remove i686 packages
       {% endif %}
@@ -173,9 +173,9 @@
       
       md5sum *.rpm > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
       
-      {% elif os_package == 'deb' %}
+      {% elif os_package|default('rpm') == 'deb' %}
       cd {{ repo_home }}/{{ repo_name }};
-      rm -f *.i386.deb;   # remove i386 packages
+      rm -f *i386.deb;   # remove i386 packages
       rm -rf Packages.gz;
       dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
       md5sum *.deb > {{ repo_home }}/{{ repo_name }}/repo_complete || /bin/true
