@@ -145,4 +145,13 @@
   vars: { database: "{{ item }}" }
   with_items: "{{ pg_databases }}"
 
+#--------------------------------------------------------------#
+# Summary                                              [pg_done]
+#--------------------------------------------------------------#
+- name: pgsql init done
+  tags: pg_done
+  connection: local
+  debug:
+    msg: "postgres://{{ inventory_hostname }}{% if pg_port|int != 5432 %}:{{ pg_port }}{% endif %}/{{ pg_primary_db|default('postgres') }} {{ pg_databases|join(',') }} {{ pg_users|join(',') }}"
+
 ...
