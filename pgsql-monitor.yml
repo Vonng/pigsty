@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   pgsql-monitor.yml
 # Mtime     :   2020-11-02
-# Mtime     :   2023-09-11
+# Mtime     :   2024-08-25
 # Desc      :   add remote pgsql instance to pigsty monitor
 # Path      :   pgsql-monitor.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -15,8 +15,9 @@
   gather_facts: no
   ignore_errors: yes
   vars: { clsname: '' }    # work on single cluster if specified
-  roles: [ { role: pg_exporters } ]
-
+  roles:
+    - { role: node_id       , tags: id       }  # get node identity (always)
+    - { role: pg_exporters  , tags: exporter }  # setup exporters
 
 #--------------------------------------------------------------#
 # Usage

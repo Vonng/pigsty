@@ -51,7 +51,6 @@
       file:
         path: "{{ systemd_dir }}/ferretdb.service"
         state: absent
-      vars: { systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}" }
 
     - name: purge mongo/ferretdb config file
       file: path="{{ item }}" state=absent
@@ -85,8 +84,7 @@
       template:
         src: ferretdb.service.j2
         dest: "{{ systemd_dir }}/ferretdb.service"
-      vars:
-        systemd_dir: "{% if os_package is defined and os_package == 'deb' %}/lib/systemd/system/{% else %}/usr/lib/systemd/system{% endif %}"
+
 
 #--------------------------------------------------------------#
 # Config MongoDB SSL Certs                          [mongo_cert]
