@@ -6,7 +6,7 @@
 #┃ Desc  :   pg_exporter metrics collector definition          ┃#
 #┃ Ver   :   PostgreSQL 10~17 pgbouncer 1.8-1.23+              ┃#
 #┃ Ctime :   2019-12-09                                        ┃#
-#┃ Mtime :   2024-08-08                                        ┃#
+#┃ Mtime :   2024-08-24                                        ┃#
 #┃ Copyright (C) 2019-2023 Ruohang Feng                        ┃#
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛#
 #################################################################
@@ -433,6 +433,7 @@ pg_meta:
            current_setting('wal_level')                        AS wal_level,
            current_setting('server_version')                   AS version,
            current_setting('server_version_num')               AS ver_num,
+           version()                                           AS ver_str,
            current_setting('shared_preload_libraries')         AS extensions,
            'N/A'                                               AS primary_conninfo,
            1                                                   AS info
@@ -471,6 +472,9 @@ pg_meta:
     - ver_num:
         usage: LABEL
         description: server version number in machine readable format
+    - ver_str:
+        usage: LABEL
+        description: complete server version string
     - extensions:
         usage: LABEL
         description: server installed preload libraries
@@ -501,6 +505,7 @@ pg_meta_13:
            current_setting('wal_level')                        AS wal_level,
            current_setting('server_version')                   AS version,
            current_setting('server_version_num')               AS ver_num,
+           version()                                           AS ver_str,
            current_setting('shared_preload_libraries')         AS extensions,
            current_setting('primary_conninfo')                 AS primary_conninfo,
            1                                                   AS info
@@ -538,6 +543,9 @@ pg_meta_13:
     - ver_num:
         usage: LABEL
         description: server version number in machine readable format
+    - ver_str:
+        usage: LABEL
+        description: complete server version string
     - extensions:
         usage: LABEL
         description: server installed preload libraries
@@ -1612,7 +1620,7 @@ pg_checkpointer_17:
   # https://www.postgresql.org/docs/devel/monitoring-stats.html#MONITORING-PG-STAT-CHECKPOINTER-VIEW
   query: SELECT num_timed, num_requested, restartpoints_timed, restartpoints_req, restartpoints_done, write_time, sync_time, buffers_written, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_checkpointer;
 
-  ttl: 10
+  ttl: {{ ttl_norm }}
   min_version: 170000
   tags:
     - cluster
@@ -1657,7 +1665,7 @@ pg_checkpointer_94_16:
   # https://pgpedia.info/p/pg_stat_bgwriter.html
   query: SELECT checkpoints_timed, checkpoints_req, checkpoint_write_time, checkpoint_sync_time, buffers_checkpoint, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_bgwriter;
 
-  ttl: 10
+  ttl: {{ ttl_norm }}
   min_version: 090400
   max_version: 170000
   tags:
