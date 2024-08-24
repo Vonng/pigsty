@@ -127,17 +127,94 @@
                         }
                     ],
                     "mappings": [],
+                    "max": 2.5,
+                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#3e668f",
+                                "color": "#6986a3",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Leader"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGRDS Leader : ${primary}",
+                                        "url": "/d/pgrds-instance?var-ins=${primary}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Kernel"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "pattern": ".*wiltondb.*",
+                                            "result": {
+                                                "color": "#d82024e3",
+                                                "index": 0,
+                                                "text": "Babelfish"
+                                            }
+                                        },
+                                        "type": "regex"
+                                    },
+                                    {
+                                        "options": {
+                                            "pattern": ".*POLARDB.*",
+                                            "result": {
+                                                "color": "#f25009",
+                                                "index": 1,
+                                                "text": "PolarDB"
+                                            }
+                                        },
+                                        "type": "regex"
+                                    },
+                                    {
+                                        "options": {
+                                            "pattern": ".*IvorySQL.*",
+                                            "result": {
+                                                "color": "#ee9832",
+                                                "index": 2,
+                                                "text": "IvorySQL"
+                                            }
+                                        },
+                                        "type": "regex"
+                                    },
+                                    {
+                                        "options": {
+                                            "pattern": "PostgreSQL.*",
+                                            "result": {
+                                                "color": "#3e668f",
+                                                "index": 3,
+                                                "text": "PostgreSQL"
+                                            }
+                                        },
+                                        "type": "regex"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 3,
@@ -145,28 +222,29 @@
                 "x": 0,
                 "y": 1
             },
-            "id": 176,
+            "id": 182,
             "options": {
                 "colorMode": "background",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
                     ],
-                    "fields": "",
+                    "fields": "/.*/",
                     "values": false
                 },
                 "showPercentChange": false,
                 "text": {
+                    "titleSize": 14,
                     "valueSize": 16
                 },
-                "textMode": "name",
+                "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -175,11 +253,12 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "1",
+                    "expr": "pg_meta_info{ins=\"$primary\"}",
                     "format": "table",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "",
+                    "legendFormat": "__auto",
                     "queryType": "measurements",
                     "refId": "A"
                 }
@@ -189,12 +268,59 @@
                     "id": "organize",
                     "options": {
                         "excludeByName": {
-                            "Time": true
+                            "Time": true,
+                            "Value": true,
+                            "__name__": true,
+                            "cls": true,
+                            "cluster_id": true,
+                            "cluster_name": true,
+                            "conf_path": true,
+                            "data_dir": true,
+                            "extensions": true,
+                            "hba_path": true,
+                            "ins": true,
+                            "instance": true,
+                            "ip": true,
+                            "job": true,
+                            "listen_port": true,
+                            "primary_conninfo": true,
+                            "ver_num": false,
+                            "ver_str": false,
+                            "version": true,
+                            "wal_level": true
                         },
-                        "indexByName": {},
+                        "includeByName": {},
+                        "indexByName": {
+                            "Time": 3,
+                            "Value": 10,
+                            "__name__": 4,
+                            "cls": 5,
+                            "cluster_id": 9,
+                            "cluster_name": 14,
+                            "conf_path": 15,
+                            "data_dir": 16,
+                            "extensions": 17,
+                            "hba_path": 18,
+                            "ins": 6,
+                            "instance": 13,
+                            "ip": 11,
+                            "job": 7,
+                            "listen_port": 12,
+                            "ver_num": 1,
+                            "ver_str": 0,
+                            "version": 2,
+                            "wal_level": 8
+                        },
                         "renameByName": {
-                            "Time": "",
-                            "Value": "PGSQL"
+                            "cls": "Cluster",
+                            "cluster_id": "Cluster ID",
+                            "ins": "Leader",
+                            "ip": "Host",
+                            "listen_port": "Port",
+                            "ver_num": "Version",
+                            "ver_str": "Kernel",
+                            "version": "Version",
+                            "wal_level": "WAL Level"
                         }
                     }
                 }
@@ -256,7 +382,7 @@
                 "textMode": "name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -880,7 +1006,7 @@
                     }
                 ]
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -1263,7 +1389,7 @@
                     }
                 ]
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -1541,7 +1667,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -1930,7 +2056,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -2145,7 +2271,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -2364,7 +2490,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -2477,7 +2603,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -2580,7 +2706,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -2774,7 +2900,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -2935,7 +3061,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -3038,7 +3164,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -3319,7 +3445,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -3451,7 +3577,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -3559,7 +3685,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -3667,7 +3793,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -3776,7 +3902,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -3884,7 +4010,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -3992,7 +4118,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -4102,7 +4228,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -4212,7 +4338,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -4738,7 +4864,7 @@
                         "h": 5,
                         "w": 6,
                         "x": 0,
-                        "y": 31
+                        "y": 39
                     },
                     "id": 123,
                     "options": {
@@ -4856,7 +4982,7 @@
                         "h": 5,
                         "w": 6,
                         "x": 6,
-                        "y": 31
+                        "y": 39
                     },
                     "id": 158,
                     "links": [
@@ -4955,7 +5081,7 @@
                         "h": 5,
                         "w": 6,
                         "x": 12,
-                        "y": 31
+                        "y": 39
                     },
                     "id": 165,
                     "options": {
@@ -5056,7 +5182,7 @@
                         "h": 5,
                         "w": 6,
                         "x": 18,
-                        "y": 31
+                        "y": 39
                     },
                     "id": 161,
                     "options": {
@@ -5853,7 +5979,7 @@
                         "h": 6,
                         "w": 19,
                         "x": 0,
-                        "y": 37
+                        "y": 45
                     },
                     "id": 179,
                     "options": {
@@ -6747,7 +6873,7 @@
                         "h": 12,
                         "w": 5,
                         "x": 19,
-                        "y": 37
+                        "y": 45
                     },
                     "id": 180,
                     "options": {
@@ -7611,7 +7737,7 @@
                         "h": 6,
                         "w": 19,
                         "x": 0,
-                        "y": 43
+                        "y": 51
                     },
                     "id": 152,
                     "links": [
@@ -8641,7 +8767,7 @@
                         "h": 6,
                         "w": 19,
                         "x": 0,
-                        "y": 49
+                        "y": 57
                     },
                     "id": 128,
                     "options": {
@@ -8985,7 +9111,7 @@
                         "h": 13,
                         "w": 5,
                         "x": 19,
-                        "y": 49
+                        "y": 57
                     },
                     "id": 21,
                     "options": {
@@ -9996,7 +10122,7 @@
                         "h": 7,
                         "w": 19,
                         "x": 0,
-                        "y": 55
+                        "y": 63
                     },
                     "id": 168,
                     "options": {
@@ -10616,7 +10742,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 0,
-                        "y": 62
+                        "y": 70
                     },
                     "id": 162,
                     "links": [
@@ -11086,7 +11212,7 @@
                         "h": 6,
                         "w": 12,
                         "x": 12,
-                        "y": 62
+                        "y": 70
                     },
                     "id": 149,
                     "links": [
@@ -11504,7 +11630,7 @@
                         "h": 6,
                         "w": 24,
                         "x": 0,
-                        "y": 68
+                        "y": 76
                     },
                     "id": 167,
                     "links": [
@@ -11796,7 +11922,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 75
+                        "y": 83
                     },
                     "id": 98,
                     "options": {
@@ -11972,7 +12098,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 75
+                        "y": 83
                     },
                     "id": 90,
                     "options": {
@@ -12102,7 +12228,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 82
+                        "y": 90
                     },
                     "id": 88,
                     "options": {
@@ -12252,7 +12378,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 82
+                        "y": 90
                     },
                     "id": 104,
                     "links": [
@@ -12445,7 +12571,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 89
+                        "y": 97
                     },
                     "id": 100,
                     "options": {
@@ -12571,7 +12697,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 89
+                        "y": 97
                     },
                     "id": 84,
                     "links": [
@@ -12676,7 +12802,7 @@
                         "h": 9,
                         "w": 17,
                         "x": 0,
-                        "y": 96
+                        "y": 104
                     },
                     "id": 86,
                     "links": [
@@ -12784,7 +12910,7 @@
                         "h": 9,
                         "w": 7,
                         "x": 17,
-                        "y": 96
+                        "y": 104
                     },
                     "id": 102,
                     "options": {
@@ -12913,7 +13039,7 @@
                         "h": 9,
                         "w": 17,
                         "x": 0,
-                        "y": 105
+                        "y": 113
                     },
                     "id": 107,
                     "options": {
@@ -13043,7 +13169,7 @@
                         "h": 9,
                         "w": 7,
                         "x": 17,
-                        "y": 105
+                        "y": 113
                     },
                     "id": 105,
                     "options": {
@@ -13218,7 +13344,7 @@
                         "h": 7,
                         "w": 4,
                         "x": 0,
-                        "y": 39
+                        "y": 47
                     },
                     "id": 171,
                     "interval": "1s",
@@ -13411,7 +13537,7 @@
                         "h": 7,
                         "w": 20,
                         "x": 4,
-                        "y": 39
+                        "y": 47
                     },
                     "id": 172,
                     "interval": "1s",
@@ -13492,7 +13618,7 @@
                         "h": 12,
                         "w": 24,
                         "x": 0,
-                        "y": 46
+                        "y": 54
                     },
                     "id": 173,
                     "options": {
