@@ -168,7 +168,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -342,7 +342,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -653,7 +653,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -839,48 +839,67 @@
             "description": "",
             "fieldConfig": {
                 "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [
+                        {
+                            "title": "Node Instance : ${__field.labels.ip}",
+                            "url": "/d/node-instance?var-id=${__field.labels.ip}&${__url_time_range}"
+                        }
+                    ],
                     "mappings": [
                         {
                             "options": {
-                                "BACKUP": {
-                                    "color": "#3e668f",
+                                "-1": {
+                                    "color": "#E02F44",
+                                    "index": 0,
+                                    "text": "INIT"
+                                },
+                                "0": {
+                                    "color": "#f5a673",
                                     "index": 1,
                                     "text": "BACKUP"
                                 },
-                                "MASTER": {
-                                    "color": "#f5a673",
+                                "1": {
+                                    "color": "#3e668f",
                                     "index": 2,
                                     "text": "MASTER"
+                                },
+                                "2": {
+                                    "color": "#E02F44",
+                                    "index": 3,
+                                    "text": "FAULT"
                                 }
                             },
                             "type": "value"
-                        },
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "color": "#808080",
-                                    "index": 0,
-                                    "text": "UNKNOWN"
-                                }
-                            },
-                            "type": "special"
                         }
                     ],
+                    "max": 1.25,
+                    "min": -0.25,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#3e668f",
+                                "color": "#b783af",
                                 "value": null
                             },
                             {
                                 "color": "#f5a673",
+                                "value": 0
+                            },
+                            {
+                                "color": "#3e668f",
                                 "value": 1
+                            },
+                            {
+                                "color": "#cc4637",
+                                "value": 2
                             }
                         ]
                     },
-                    "unit": "none"
+                    "unit": "short"
                 },
                 "overrides": []
             },
@@ -890,31 +909,25 @@
                 "x": 0,
                 "y": 7
             },
-            "id": 129,
-            "maxDataPoints": 100,
+            "id": 240,
             "options": {
-                "colorMode": "background",
-                "graphMode": "none",
+                "colorMode": "background_solid",
+                "graphMode": "area",
                 "justifyMode": "auto",
                 "orientation": "horizontal",
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
                     "calcs": [
-                        "last"
+                        "lastNotNull"
                     ],
                     "fields": "",
                     "values": false
                 },
                 "showPercentChange": false,
-                "text": {
-                    "valueSize": 16
-                },
-                "textMode": "name",
+                "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
-            "repeat": "instance",
-            "repeatDirection": "h",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -922,18 +935,18 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "keepalived_vrrp_become_master{vip=\"$vip\"}",
+                    "expr": "keepalived_vrrp_state{vip=\"$vip\"} - 1",
                     "format": "time_series",
                     "hide": false,
-                    "instant": true,
+                    "instant": false,
                     "interval": "",
                     "intervalFactor": 2,
-                    "legendFormat": "{{ state }} : {{ ip }}",
+                    "legendFormat": "{{ ip }} : {{ ins }}",
                     "refId": "A",
-                    "step": 4
+                    "step": 2
                 }
             ],
-            "title": "Keepalived Role",
+            "title": "Status",
             "type": "stat"
         },
         {
@@ -1022,15 +1035,25 @@
                                 "value": [
                                     {
                                         "options": {
-                                            "BACKUP": {
-                                                "color": "#346f36cc",
+                                            "-1": {
+                                                "color": "#b783af",
+                                                "index": 3,
+                                                "text": "INIT"
+                                            },
+                                            "1": {
+                                                "color": "#f5a673",
                                                 "index": 0,
                                                 "text": "BACKUP"
                                             },
-                                            "MASTER": {
-                                                "color": "#f5a673",
+                                            "2": {
+                                                "color": "#3e668f",
                                                 "index": 1,
                                                 "text": "MASTER"
+                                            },
+                                            "3": {
+                                                "color": "#cc4637d9",
+                                                "index": 2,
+                                                "text": "FAULT"
                                             }
                                         },
                                         "type": "value"
@@ -1040,7 +1063,7 @@
                                             "match": "null+nan",
                                             "result": {
                                                 "color": "#808080",
-                                                "index": 2,
+                                                "index": 4,
                                                 "text": "UNKNOWN"
                                             }
                                         },
@@ -1228,7 +1251,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -1239,6 +1262,7 @@
                     "exemplar": false,
                     "expr": "keepalived_exporter_up{vip=\"$vip\"} * on(ins) group_left()\nkeepalived_up{vip=\"$vip\"} or on (ins) keepalived_exporter_up{vip=\"$vip\"}",
                     "format": "table",
+                    "hide": false,
                     "instant": true,
                     "range": false,
                     "refId": "A"
@@ -1250,7 +1274,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins,state,vrid,name) (keepalived_vrrp_become_master{vip=\"$vip\"})",
+                    "expr": "max by (ins,state,vrid,name) (keepalived_become_master_total{vip=\"$vip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1264,7 +1288,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (keepalived_vrrp_release_master{vip=\"$vip\"})",
+                    "expr": "max by (ins) (keepalived_release_master_total{vip=\"$vip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1278,7 +1302,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (rate(keepalived_vrrp_advert_rcvd{vip=\"$vip\"}[1m]))",
+                    "expr": "max by (ins) (rate(keepalived_advertisements_received_total{vip=\"$vip\"}[1m]))",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1292,7 +1316,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (rate(keepalived_vrrp_advert_sent{vip=\"$vip\"}[1m]))",
+                    "expr": "max by (ins) (rate(keepalived_advertisements_sent_total{vip=\"$vip\"}[1m]))",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1306,7 +1330,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (keepalived_vrrp_pri_zero_rcvd{vip=\"$vip\"})",
+                    "expr": "max by (ins) (keepalived_priority_zero_received_total{vip=\"$vip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1320,7 +1344,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (keepalived_vrrp_pri_zero_sent{vip=\"$vip\"})",
+                    "expr": "max by (ins) (keepalived_priority_zero_sent_total{vip=\"$vip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1334,7 +1358,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (keepalived_vrrp_ip_ttl_err{vip=\"$vip\"})",
+                    "expr": "max by (ins) (keepalived_ip_ttl_errors_total{vip=\"$vip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1348,7 +1372,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (keepalived_vrrp_invalid_type_rcvd{vip=\"$vip\"})",
+                    "expr": "max by (ins) (keepalived_invalid_type_received_total{vip=\"$vip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1362,7 +1386,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (keepalived_vrrp_addr_list_err{vip=\"$vip\"})",
+                    "expr": "max by (ins) (keepalived_address_list_errors_total{vip=\"$vip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1376,7 +1400,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (keepalived_vrrp_invalid_authtype{vip=\"$vip\"})",
+                    "expr": "max by (ins) (keepalived_authentication_invalid_total{vip=\"$vip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1390,7 +1414,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (keepalived_vrrp_authtype_mismatch{vip=\"$vip\"})",
+                    "expr": "max by (ins) (keepalived_authentication_mismatch_total{vip=\"$vip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1404,7 +1428,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (keepalived_vrrp_auth_failure{vip=\"$vip\"})",
+                    "expr": "max by (ins) (keepalived_authentication_failure_total{vip=\"$vip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1418,7 +1442,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (keepalived_vrrp_packet_len_err{vip=\"$vip\"})",
+                    "expr": "max by (ins) (keepalived_packet_length_errors_total{vip=\"$vip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1432,12 +1456,26 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (ins) (keepalived_vrrp_advert_interval_err{vip=\"$vip\"})",
+                    "expr": "max by (ins) (keepalived_advertisements_interval_errors_total{vip=\"$vip\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
                     "range": false,
                     "refId": "O"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (ins) (keepalived_vrrp_state{vip=\"$vip\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "range": false,
+                    "refId": "P"
                 }
             ],
             "title": "Keepalived Status",
@@ -1478,31 +1516,47 @@
                             "vip": true,
                             "vrid": true
                         },
+                        "includeByName": {},
                         "indexByName": {
-                            "Time 1": 13,
-                            "Time 2": 14,
-                            "Time 3": 15,
-                            "Time 4": 16,
-                            "Time 5": 21,
-                            "Time 6": 22,
-                            "Time 7": 23,
+                            "Time 1": 11,
+                            "Time 10": 26,
+                            "Time 11": 28,
+                            "Time 12": 30,
+                            "Time 13": 32,
+                            "Time 14": 34,
+                            "Time 15": 36,
+                            "Time 16": 38,
+                            "Time 2": 12,
+                            "Time 3": 13,
+                            "Time 4": 14,
+                            "Time 5": 19,
+                            "Time 6": 20,
+                            "Time 7": 21,
+                            "Time 8": 22,
+                            "Time 9": 24,
                             "Value #A": 0,
                             "Value #B": 6,
                             "Value #C": 7,
-                            "Value #D": 17,
-                            "Value #E": 18,
-                            "Value #F": 19,
-                            "Value #G": 20,
-                            "__name__": 11,
-                            "cls": 10,
+                            "Value #D": 15,
+                            "Value #E": 16,
+                            "Value #F": 17,
+                            "Value #G": 18,
+                            "Value #H": 23,
+                            "Value #I": 25,
+                            "Value #J": 27,
+                            "Value #K": 29,
+                            "Value #L": 31,
+                            "Value #M": 33,
+                            "Value #N": 35,
+                            "Value #O": 37,
+                            "Value #P": 1,
+                            "cls": 9,
                             "ins": 3,
-                            "instance": 12,
+                            "instance": 10,
                             "ip": 2,
                             "job": 4,
-                            "name": 8,
-                            "state": 1,
                             "vip": 5,
-                            "vrid": 9
+                            "vrid": 8
                         },
                         "renameByName": {
                             "Time 10": "",
@@ -1522,6 +1576,7 @@
                             "Value #M": "E-AuthFailure",
                             "Value #N": "E-PacketLength",
                             "Value #O": "E-AdvertInternal",
+                            "Value #P": "State",
                             "cls": "Cluster",
                             "ins": "Instance",
                             "instance": "",
@@ -1546,40 +1601,18 @@
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "palette-classic"
+                        "mode": "thresholds"
                     },
                     "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisGridShow": false,
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 1,
-                        "drawStyle": "line",
-                        "fillOpacity": 66,
-                        "gradientMode": "none",
+                        "fillOpacity": 70,
                         "hideFrom": {
                             "legend": false,
                             "tooltip": false,
                             "viz": false
                         },
                         "insertNulls": false,
-                        "lineInterpolation": "stepBefore",
                         "lineWidth": 0,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "normal"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
+                        "spanNulls": false
                     },
                     "decimals": 0,
                     "links": [
@@ -1588,15 +1621,76 @@
                             "url": "/d/node-instance?var-id=${__field.labels.ip}&${__url_time_range}"
                         }
                     ],
-                    "mappings": [],
-                    "max": 1,
-                    "min": 0,
+                    "mappings": [
+                        {
+                            "options": {
+                                "-1": {
+                                    "color": "#b783af",
+                                    "index": 0,
+                                    "text": "INIT"
+                                },
+                                "0": {
+                                    "color": "#346f36cc",
+                                    "index": 1,
+                                    "text": "BACKUP"
+                                },
+                                "1": {
+                                    "color": "#3e668f",
+                                    "index": 2,
+                                    "text": "MASTER"
+                                },
+                                "2": {
+                                    "color": "#cc4637d9",
+                                    "index": 3,
+                                    "text": "FAULT"
+                                }
+                            },
+                            "type": "value"
+                        },
+                        {
+                            "options": {
+                                "from": 0,
+                                "result": {
+                                    "color": "#346f36cc",
+                                    "index": 4,
+                                    "text": "BACKUP"
+                                },
+                                "to": 0.999999
+                            },
+                            "type": "range"
+                        },
+                        {
+                            "options": {
+                                "from": 1,
+                                "result": {
+                                    "color": "#3e668f",
+                                    "index": 5,
+                                    "text": "MASTER"
+                                },
+                                "to": 1.999999
+                            },
+                            "type": "range"
+                        }
+                    ],
+                    "max": 2,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#b783af",
                                 "value": null
+                            },
+                            {
+                                "color": "#f5a673",
+                                "value": 0
+                            },
+                            {
+                                "color": "#3e668f",
+                                "value": 1
+                            },
+                            {
+                                "color": "#cc4637",
+                                "value": 2
                             }
                         ]
                     },
@@ -1612,14 +1706,17 @@
             },
             "id": 234,
             "options": {
+                "alignValue": "left",
                 "legend": {
-                    "calcs": [],
                     "displayMode": "list",
                     "placement": "bottom",
                     "showLegend": true
                 },
+                "mergeValues": true,
+                "rowHeight": 0.9,
+                "showValue": "auto",
                 "tooltip": {
-                    "mode": "multi",
+                    "mode": "single",
                     "sort": "none"
                 }
             },
@@ -1631,7 +1728,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "keepalived_vrrp_advert_sent{vip=\"$vip\", state=\"MASTER\"} > bool 0",
+                    "expr": "keepalived_vrrp_state{vip=\"$vip\"} - 1",
                     "format": "time_series",
                     "hide": false,
                     "instant": false,
@@ -1642,8 +1739,8 @@
                     "step": 2
                 }
             ],
-            "title": "MASTER",
-            "type": "timeseries"
+            "title": "Status Timeline",
+            "type": "state-timeline"
         },
         {
             "datasource": {
@@ -1838,7 +1935,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (ins) (irate(keepalived_vrrp_advert_sent{vip=\"$vip\", state=\"MASTER\"}[1m]))",
+                    "expr": "sum by (ins) (irate(keepalived_advertisements_sent_total{vip=\"$vip\"}[1m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -1853,7 +1950,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (ins) (irate(keepalived_vrrp_advert_rcvd{vip=\"$vip\", state=\"BACKUP\"}[1m]))",
+                    "expr": "sum by (ins) (irate(keepalived_advertisements_received_total{vip=\"$vip\"}[1m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -2633,7 +2730,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -3208,7 +3305,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (ins) (irate(keepalived_vrrp_advert_interval_err{vip=\"$vip\"}[1m]))",
+                    "expr": "sum by (ins) (irate(keepalived_advertisements_interval_errors_total{vip=\"$vip\"}[1m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -3342,7 +3439,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (ins) (irate(keepalived_vrrp_ip_ttl_err{vip=\"$vip\"}[1m]))",
+                    "expr": "sum by (ins) (irate(keepalived_ip_ttl_errors_total{vip=\"$vip\"}[1m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -3476,7 +3573,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (ins) (irate(keepalived_vrrp_invalid_authtype{vip=\"$vip\"}[1m]))",
+                    "expr": "sum by (ins) (irate(keepalived_authentication_invalid_total{vip=\"$vip\"}[1m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -3610,7 +3707,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (ins) (irate(keepalived_vrrp_authtype_mismatch{vip=\"$vip\"}[1m]))",
+                    "expr": "sum by (ins) (irate(keepalived_authentication_mismatch_total{vip=\"$vip\"}[1m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -3744,7 +3841,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (ins) (irate(keepalived_vrrp_auth_failure{vip=\"$vip\"}[1m]))",
+                    "expr": "sum by (ins) (irate(keepalived_authentication_mismatch_total{vip=\"$vip\"}[1m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -3878,7 +3975,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (ins) (irate(keepalived_vrrp_addr_list_err{vip=\"$vip\"}[1m]))",
+                    "expr": "sum by (ins) (irate(keepalived_address_list_errors_total{vip=\"$vip\"}[1m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -4012,7 +4109,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (ins) (irate(keepalived_vrrp_packet_len_err{vip=\"$vip\"}[1m]))",
+                    "expr": "sum by (ins) (irate(keepalived_packet_length_errors_total{vip=\"$vip\"}[1m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -4146,7 +4243,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (ins) (irate(keepalived_vrrp_invalid_type_rcvd{vip=\"$vip\"}[1m]))",
+                    "expr": "sum by (ins) (irate(keepalived_invalid_type_received_total{vip=\"$vip\"}[1m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -4217,8 +4314,7 @@
                             }
                         ]
                     },
-                    "unit": "short",
-                    "unitScale": true
+                    "unit": "short"
                 },
                 "overrides": [
                     {
@@ -4280,7 +4376,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (ins) (irate(keepalived_vrrp_pri_zero_sent{vip=\"$vip\"}[1m]))",
+                    "expr": "sum by (ins) (irate(keepalived_priority_zero_sent_total{vip=\"$vip\"}[1m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -4351,8 +4447,7 @@
                             }
                         ]
                     },
-                    "unit": "short",
-                    "unitScale": true
+                    "unit": "short"
                 },
                 "overrides": [
                     {
@@ -4444,7 +4539,7 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (ins) (irate(keepalived_vrrp_pri_zero_rcvd{vip=\"$vip\"}[1m]))",
+                    "expr": "sum by (ins) (irate(keepalived_priority_zero_received_total{vip=\"$vip\"}[1m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
