@@ -8,7 +8,7 @@
 >
 > [Get Started](https://pigsty.io/docs/setup/install/) with the latest release: `curl -fsSL https://repo.pigsty.io/get | bash`
 
-> The latest stable version is [v2.7.0](https://github.com/Vonng/pigsty/releases/tag/v2.7.0) and the latest version is [v3.0.0-b3](https://github.com/Vonng/pigsty/releases/tag/v3.0.0-b3). 
+> The latest stable version is [v3.0.0](https://github.com/Vonng/pigsty/releases/tag/v3.0.0) 
 
 
 ----------------
@@ -47,21 +47,22 @@ Then you will have a pigsty singleton node ready, with Web Services on port `80/
  
 ```bash
 $ curl -fsSL https://repo.pigsty.io/get | bash
-[v2.7.0] ===========================================
+[v3.0.0] ===========================================
 $ curl -fsSL https://repo.pigsty.io/get | bash
 [Site] https://pigsty.io
 [Demo] https://demo.pigsty.cc
 [Repo] https://github.com/Vonng/pigsty
 [Docs] https://pigsty.io/docs/setup/install
 [Download] ===========================================
-[ OK ] version = v2.7.0 (from arg)
-curl -fSL https://repo.pigsty.io/src/pigsty-v2.7.0.tgz -o /tmp/pigsty-v2.7.0.tgz
+[ OK ] version = v3.0.0 (from default)
+curl -fSL https://repo.pigsty.io/src/pigsty-v3.0.0.tgz -o /tmp/pigsty-v3.0.0.tgz
 ######################################################################## 100.0%
-[ OK ] md5sums = 0fe70a5306e8beaa1cf020084b48d0fb  /tmp/pigsty-v2.7.0.tgz
+[ OK ] md5sums = 6cefb4113a3ac8eb50f408f976771eb5  /tmp/pigsty-v3.0.0.tgz
 [Install] ===========================================
-[ OK ] install = /home/vagrant/pigsty, from /tmp/pigsty-v2.7.0.tgz
+[WARN] os user = root , it's recommended to install as a sudo-able admin
+[ OK ] install = /root/pigsty, from /tmp/pigsty-v3.0.0.tgz
 [TodoList] ===========================================
-cd /home/vagrant/pigsty
+cd /root/pigsty
 ./bootstrap      # [OPTIONAL] install ansible & use offline package
 ./configure      # [OPTIONAL] preflight-check and config generation
 ./install.yml    # install pigsty modules according to your config.
@@ -71,7 +72,7 @@ cd /home/vagrant/pigsty
 > HINT: To install a specific version, passing the version string as the first parameter:
 >
 > ```bash
-> curl -fsSL https://repo.pigsty.io/get | bash -s v3.0.0-b3
+> curl -fsSL https://repo.pigsty.io/get | bash -s v3.0.0
 > ```
 
 </details>
