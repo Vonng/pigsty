@@ -6,9 +6,7 @@
 >
 > [Website](https://pigsty.io/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Discord](https://discord.gg/j5pG8qfKxU) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [站点](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog)
 >
-> [Get Started](https://pigsty.io/docs/setup/install/) with the latest release: `curl -fsSL https://repo.pigsty.io/get | bash`
-
-> The latest stable version is [v3.0.0](https://github.com/Vonng/pigsty/releases/tag/v3.0.0) 
+> [Get Started](https://pigsty.io/docs/setup/install/) with the latest [v3.0.0](https://github.com/Vonng/pigsty/releases/tag/v3.0.0)  release: `curl -fsSL https://repo.pigsty.io/get | bash`
 
 
 ----------------
@@ -20,7 +18,6 @@
 [![pigsty-desc](https://pigsty.io/img/pigsty/desc.png)](https://pigsty.io/)
 
 There are **333** unique [extensions](https://pigsty.io/docs/pgext/list) available for PostgreSQL in Pigsty v3, including **326** [**RPM**](https://pigsty.io/docs/pgext/list/rpm/) available in EL and **312** [**DEB**](https://pigsty.io/docs/pgext/list/deb/) available in Debian/Ubuntu.
-
 The supplementary extension repo (repo.pigsty.io) can be [used alone](https://pigsty.io/docs/pgext/usage/repo), even without Pigsty. 
 
 [![pigsty-ecosystem.jpg](https://pigsty.io/img/pigsty/ecosystem.jpg)](https://pigsty.io/docs/pgext/list)
@@ -32,7 +29,7 @@ The supplementary extension repo (repo.pigsty.io) can be [used alone](https://pi
 
 > Setup everything with one command! Check [**Get Started**](https://pigsty.io/docs/setup/install/) | [**快速上手**](https://pigsty.io/zh/docs/setup/install/) for details.
 
-[**Prepare**](https://pigsty.io/docs/setup/prepare/) a fresh Linux x86_64 node that runs [**compatible**](https://pigsty.io/docs/reference/compatibility/) OS distros.
+[**Prepare**](https://pigsty.io/docs/setup/prepare/) a fresh Linux x86_64 node that runs [**compatible**](https://pigsty.io/docs/reference/compatibility/) OS distro.
 
 Then run this [**`install`**](https://github.com/pgsty/pkg/blob/main/get.io) script as the admin user with nopass `ssh` & `sudo` privilege:
 
@@ -45,7 +42,7 @@ Then you will have a pigsty singleton node ready, with Web Services on port `80/
 
 <details><summary>Install Script Output</summary><br>
  
-```bash
+```
 $ curl -fsSL https://repo.pigsty.io/get | bash
 [v3.0.0] ===========================================
 $ curl -fsSL https://repo.pigsty.io/get | bash
@@ -83,7 +80,7 @@ cd /root/pigsty
 You can also download pigsty source with `git`, don't forget to check out a specific version tag, the `master` branch is for development.
 
 ```bash
-git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.7.0
+git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v3.0.0
 ```
 
 </details>
@@ -91,15 +88,10 @@ git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v2.7.0
 
 ----------------
 
-**Example: Online Singleton Installation on Ubuntu 22.04:** 
+**Example: Singleton Installation on RockyLinux 9.3:** 
 
-[![asciicast](https://asciinema.org/a/659640.svg)](https://asciinema.org/a/659640)
+[![asciicast](https://asciinema.org/a/673459.svg)](https://asciinema.org/a/673459)
 
-<details><summary>Example: Install with Offline Package (EL8)</summary>
-
-[![asciicast](https://asciinema.org/a/659637.svg)](https://asciinema.org/a/659637)
-
-</details>
 
 
 ----------------
@@ -158,7 +150,49 @@ bin/pgsql-add pg-test   # init pg-test cluster
 
 You can deploy different kinds of instance roles such as primary, replica, offline, delayed, sync standby, and different kinds of clusters, such as standby clusters, Citus clusters, and even Redis / MinIO / Etcd clusters.
 
-<details><summary>Example: Complex Postgres Customize</summary>
+
+<details><summary>Example: 4-node Sandbox</summary><br>
+
+The [`full.yml`](https://github.com/Vonng/pigsty/blob/main/conf/sandbox/full.yml) utilize 4 nodes to deploy two PostgreSQL clusters `pg-meta` and `pg-test`:
+
+```yaml
+pg-meta:
+  hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+  vars:
+    pg_cluster: pg-meta
+    pg_users:
+      - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
+      - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+    pg_databases:
+      - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty]}
+    pg_hba_rules:
+      - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
+    pg_vip_enabled: true
+    pg_vip_address: 10.10.10.2/24
+    pg_vip_interface: eth1
+
+# pgsql 3 node ha cluster: pg-test
+pg-test:
+  hosts:
+    10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
+    10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
+    10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
+  vars:
+    pg_cluster: pg-test           # define pgsql cluster name
+    pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
+    pg_databases: [{ name: test }]
+    pg_vip_enabled: true
+    pg_vip_address: 10.10.10.3/24
+    pg_vip_interface: eth1
+```
+
+</details>
+
+
+
+<details><summary>Example: Complex Postgres Customize</summary><br>
+
+This config file provides a detailed example of a complex PostgreSQL cluster `pg-meta` with multiple databases, users, and services definition:
 
 ```yaml
 pg-meta:
@@ -245,7 +279,11 @@ pg-meta:
 
 </details>
 
-<details><summary>Example: Security Enhanced PG Cluster with Delayed Replica</summary>
+
+
+<details><summary>Example: Security Enhanced PG Cluster with Delayed Replica</summary><br>
+
+The following [`conf/demo/security.yml`](https://github.com/Vonng/pigsty/blob/main/conf/demo/security.yml) provision a 3-node [security](https://pigsty.io/docs/setup/security/) enhanced postgres cluster `pg-meta` with a delayed replica `pg-meta-delay`:
 
 ```yaml
 pg-meta:      # 3 instance postgres cluster `pg-meta`
@@ -311,7 +349,78 @@ pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
 
 </details>
 
-<details><summary>Example: Citus Distributed Cluster: 5 Nodes</summary>
+
+
+
+
+<details><summary>Example: Self-hosting Supabase </summary><br>
+
+The [`conf/dbms/supabase.yml`](https://github.com/Vonng/pigsty/blob/main/conf/dbms/supabase.yml) provision a PostgreSQL cluster for self-hosting [supabase](https://pigsty.io/docs/software/supabase/) as below:
+
+```yaml
+pg-meta:
+  hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+  vars:
+    pg_cluster: pg-meta
+    pg_users:
+      # supabase roles: anon, authenticated, dashboard_user
+      - { name: anon           ,login: false }
+      - { name: authenticated  ,login: false }
+      - { name: dashboard_user ,login: false ,replication: true ,createdb: true ,createrole: true }
+      - { name: service_role   ,login: false ,bypassrls: true }
+      # supabase users: please use the same password
+      - { name: supabase_admin             ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: true   ,superuser: true ,replication: true ,createdb: true ,createrole: true ,bypassrls: true }
+      - { name: authenticator              ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,roles: [ authenticated ,anon ,service_role ] }
+      - { name: supabase_auth_admin        ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true }
+      - { name: supabase_storage_admin     ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true ,roles: [ authenticated ,anon ,service_role ] }
+      - { name: supabase_functions_admin   ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true }
+      - { name: supabase_replication_admin ,password: 'DBUser.Supa' ,replication: true }
+      - { name: supabase_read_only_user    ,password: 'DBUser.Supa' ,bypassrls: true ,roles: [ pg_read_all_data ] }
+
+    pg_databases:
+      - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ]} # the optional pigsty cmdb
+
+      # the supabase database (pg_cron should be installed in this database after bootstrap)
+      - name: supa
+        baseline: supa.sql    # the init-scripts: https://github.com/supabase/postgres/tree/develop/migrations/db/init-scripts
+        owner: supabase_admin
+        comment: supabase postgres database
+        schemas: [ extensions ,auth ,realtime ,storage ,graphql_public ,supabase_functions ,_analytics ,_realtime ]
+        extensions:
+          - { name: pgcrypto  ,schema: extensions  } # 1.3   : cryptographic functions
+          - { name: pg_net    ,schema: extensions  } # 0.9.2 : async HTTP
+          - { name: pgjwt     ,schema: extensions  } # 0.2.0 : json web token API for postgres
+          - { name: uuid-ossp ,schema: extensions  } # 1.1   : generate universally unique identifiers (UUIDs)
+          - { name: pgsodium        }                # 3.1.9 : pgsodium is a modern cryptography library for Postgres.
+          - { name: supabase_vault  }                # 0.2.8 : Supabase Vault Extension
+          - { name: pg_graphql      }                # 1.5.7 : pg_graphql: GraphQL support
+          - { name: pg_jsonschema   }                # 0.3.1 : pg_jsonschema: Validate json schema
+          - { name: wrappers        }                # 0.4.1 : wrappers: FDW collections
+          - { name: http            }                # 1.6   : http: allows web page retrieval inside the database.
+          - { name: pg_cron         }
+    # supabase required extensions
+    pg_libs: 'pg_net, pg_cron, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
+    pg_extensions:
+      - wal2json pg_repack
+      - supa-stack # pgvector pg_cron pgsodium pg_graphql pg_jsonschema wrappers pgjwt pgsql_http pg_net supautils
+    pg_parameters:
+      cron.database_name: supa
+      pgsodium.enable_event_trigger: off
+    pg_hba_rules: # supabase hba rules, require access from docker network
+      - { user: all ,db: supa ,addr: intra       ,auth: pwd ,title: 'allow supa database access from intranet'      }
+      - { user: all ,db: supa ,addr: 172.0.0.0/8 ,auth: pwd ,title: 'allow supa database access from docker network'}
+      - { user: all ,db: supa ,addr: all         ,auth: pwd ,title: 'allow supa database access from entire world'  }  # not safe!
+```
+
+</details>
+
+
+
+
+
+<details><summary>Example: Citus Distributed Cluster: 5 Nodes</summary><br>
+
+The [`conf/dbms/citus.yml`](https://github.com/Vonng/pigsty/blob/main/conf/dbms/citus.yml) provision a 5 node [citus](https://pigsty.io/docs/kernel/citus/) cluster as below:
 
 ```yaml
 all:
@@ -347,7 +456,143 @@ all:
 
 </details>
 
-<details><summary>Example: Redis Cluster/Sentinel/Standalone</summary>
+
+
+
+<details><summary>Example: Babelfish Cluster (MSSQL Compatible)</summary><br>
+
+The [`conf/dbms/mssql.yml`](https://github.com/Vonng/pigsty/blob/main/conf/dbms/mssql.yml) Provision a Microsoft SQL Server compatible [`kernel`](https://pigsty.io/docs/kernel/babelfish/) WiltonDB & BabelfishPG extension:
+
+```yaml
+pg-test:
+  hosts:
+    10.10.10.11: { pg_seq: 1, pg_role: primary }
+    10.10.10.12: { pg_seq: 2, pg_role: replica }
+    10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true }
+  vars:
+    pg_cluster: pg-test
+    pg_users:                           # create MSSQL superuser
+      - {name: dbuser_mssql ,password: DBUser.MSSQL ,superuser: true, pgbouncer: true ,roles: [dbrole_admin], comment: superuser & owner for babelfish  }
+    pg_primary_db: mssql                # use `mssql` as the primary sql server database
+    pg_databases:
+      - name: mssql
+        baseline: mssql.sql             # init babelfish database & user
+        extensions:
+          - { name: uuid-ossp          }
+          - { name: babelfishpg_common }
+          - { name: babelfishpg_tsql   }
+          - { name: babelfishpg_tds    }
+          - { name: babelfishpg_money  }
+          - { name: pg_hint_plan       }
+          - { name: system_stats       }
+          - { name: tds_fdw            }
+        owner: dbuser_mssql
+        parameters: { 'babelfishpg_tsql.migration_mode' : 'single-db' }
+        comment: babelfish cluster, a MSSQL compatible pg cluster
+
+    node_repo_modules: local,node,pgsql,mssql  # add local & mssql modules to node repo (Internet Required)
+    pg_version: 15                     # The current WiltonDB major version is 15
+    pg_packages:                       # install forked version of postgresql with babelfishpg support
+      - wiltondb patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager
+    pg_extensions: [ ]                 # do not install any vanilla postgresql extensions
+    pg_mode: mssql                     # Microsoft SQL Server Compatible Mode
+    pg_libs: 'babelfishpg_tds, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
+    pg_default_hba_rules: # overwrite default HBA rules for babelfish cluster
+      - { user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident' }
+      - { user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident' }
+      - { user: '${repl}'    ,db: replication ,addr: localhost ,auth: pwd   ,title: 'replicator replication from localhost' }
+      - { user: '${repl}'    ,db: replication ,addr: intra     ,auth: pwd   ,title: 'replicator replication from intranet' }
+      - { user: '${repl}'    ,db: postgres    ,addr: intra     ,auth: pwd   ,title: 'replicator postgres db from intranet' }
+      - { user: '${monitor}' ,db: all         ,addr: localhost ,auth: pwd   ,title: 'monitor from localhost with password' }
+      - { user: '${monitor}' ,db: all         ,addr: infra     ,auth: pwd   ,title: 'monitor from infra host with password' }
+      - { user: '${admin}'   ,db: all         ,addr: infra     ,auth: ssl   ,title: 'admin @ infra nodes with pwd & ssl' }
+      - { user: '${admin}'   ,db: all         ,addr: world     ,auth: ssl   ,title: 'admin @ everywhere with ssl & pwd' }
+      - { user: dbuser_mssql ,db: mssql       ,addr: intra     ,auth: md5   ,title: 'allow mssql dbsu intranet access' } # <--- use md5 auth method for mssql user
+      - { user: '+dbrole_readonly',db: all    ,addr: localhost ,auth: pwd   ,title: 'pgbouncer read/write via local socket' }
+      - { user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: pwd   ,title: 'read/write biz user via password' }
+      - { user: '+dbrole_offline' ,db: all    ,addr: intra     ,auth: pwd   ,title: 'allow etl offline tasks from intranet' }
+    pg_default_services: # route primary & replica service to mssql port 1433
+      - { name: primary ,port: 5433 ,dest: 1433  ,check: /primary   ,selector: "[]" }
+      - { name: replica ,port: 5434 ,dest: 1433  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
+      - { name: default ,port: 5436 ,dest: postgres ,check: /primary   ,selector: "[]" }
+      - { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]" }
+```
+
+</details>
+
+
+
+
+<details><summary>Example: IvorySQL Cluster (Oracle Compatible)</summary><br>
+
+The [`conf/dbms/ivory.yml`](https://github.com/Vonng/pigsty/blob/main/conf/dbms/mssql.yml) provides an Oracle compatible PostgreSQL [kernel](https://pigsty.io/docs/kernel/ivorysql/) (EL-only)
+
+```yaml
+pg-test:
+  hosts:
+    10.10.10.11: { pg_seq: 1, pg_role: primary }
+    10.10.10.12: { pg_seq: 2, pg_role: replica }
+    10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true }
+  vars:
+    pg_cluster: pg-test
+    pg_users:                           # create MSSQL superuser
+      - {name: dbuser_mssql ,password: DBUser.MSSQL ,superuser: true, pgbouncer: true ,roles: [dbrole_admin], comment: superuser & owner for babelfish  }
+    pg_primary_db: mssql                # use `mssql` as the primary sql server database
+    pg_databases:
+      - name: mssql
+        baseline: mssql.sql             # init babelfish database & user
+        extensions:
+          - { name: uuid-ossp          }
+          - { name: babelfishpg_common }
+          - { name: babelfishpg_tsql   }
+          - { name: babelfishpg_tds    }
+          - { name: babelfishpg_money  }
+          - { name: pg_hint_plan       }
+          - { name: system_stats       }
+          - { name: tds_fdw            }
+        owner: dbuser_mssql
+        parameters: { 'babelfishpg_tsql.migration_mode' : 'single-db' }
+        comment: babelfish cluster, a MSSQL compatible pg cluster
+
+    node_repo_modules: local,node,pgsql,mssql  # add local & mssql modules to node repo (Internet Required)
+    pg_version: 15                     # The current WiltonDB major version is 15
+    pg_packages:                       # install forked version of postgresql with babelfishpg support
+      - wiltondb patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager
+    pg_extensions: [ ]                 # do not install any vanilla postgresql extensions
+    pg_mode: mssql                     # Microsoft SQL Server Compatible Mode
+    pg_libs: 'babelfishpg_tds, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
+    pg_default_hba_rules: # overwrite default HBA rules for babelfish cluster
+      - { user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident' }
+      - { user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident' }
+      - { user: '${repl}'    ,db: replication ,addr: localhost ,auth: pwd   ,title: 'replicator replication from localhost' }
+      - { user: '${repl}'    ,db: replication ,addr: intra     ,auth: pwd   ,title: 'replicator replication from intranet' }
+      - { user: '${repl}'    ,db: postgres    ,addr: intra     ,auth: pwd   ,title: 'replicator postgres db from intranet' }
+      - { user: '${monitor}' ,db: all         ,addr: localhost ,auth: pwd   ,title: 'monitor from localhost with password' }
+      - { user: '${monitor}' ,db: all         ,addr: infra     ,auth: pwd   ,title: 'monitor from infra host with password' }
+      - { user: '${admin}'   ,db: all         ,addr: infra     ,auth: ssl   ,title: 'admin @ infra nodes with pwd & ssl' }
+      - { user: '${admin}'   ,db: all         ,addr: world     ,auth: ssl   ,title: 'admin @ everywhere with ssl & pwd' }
+      - { user: dbuser_mssql ,db: mssql       ,addr: intra     ,auth: md5   ,title: 'allow mssql dbsu intranet access' } # <--- use md5 auth method for mssql user
+      - { user: '+dbrole_readonly',db: all    ,addr: localhost ,auth: pwd   ,title: 'pgbouncer read/write via local socket' }
+      - { user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: pwd   ,title: 'read/write biz user via password' }
+      - { user: '+dbrole_offline' ,db: all    ,addr: intra     ,auth: pwd   ,title: 'allow etl offline tasks from intranet' }
+    pg_default_services: # route primary & replica service to mssql port 1433
+      - { name: primary ,port: 5433 ,dest: 1433  ,check: /primary   ,selector: "[]" }
+      - { name: replica ,port: 5434 ,dest: 1433  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
+      - { name: default ,port: 5436 ,dest: postgres ,check: /primary   ,selector: "[]" }
+      - { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]" }
+```
+
+</details>
+
+
+
+
+
+
+
+<details><summary>Example: Redis Cluster / Sentinel / Standalone</summary><br>
+
+The [`redis.yml`](https://github.com/Vonng/pigsty/blob/main/conf/dbms/redis.yml) provision 3 [Redis](https://pigsty.io/docs/redis/) clusters in standalone, sentinel, and native cluster mode as below:
 
 ```yaml
 redis-ms: # redis classic primary & replica
@@ -373,7 +618,9 @@ redis-test: # redis native cluster: 3m x 3s
 
 </details>
 
-<details><summary>Example: ETCD 3 Node Cluster</summary>
+<details><summary>Example: ETCD Cluster</summary><br>
+
+The following snippet provisions a 3-node [etcd](https://pigsty.io/docs/etcd/) cluster for HA Postgres DCS:
 
 ```yaml
 etcd: # dcs service for postgres/patroni ha consensus
@@ -389,7 +636,9 @@ etcd: # dcs service for postgres/patroni ha consensus
 
 </details>
 
-<details><summary>Example: Minio 3 Node Deployment</summary>
+<details><summary>Example: Minio 3 Node Deployment</summary><br>
+
+The following snippet [`minio.yml`](https://github.com/Vonng/pigsty/blob/main/conf/dbms/minio.yml) provisions an optional 3-node [Minio](https://pigsty.io/docs/minio/) cluster for S3-compatible object storage service:
 
 ```yaml
 minio:
@@ -418,14 +667,9 @@ minio:
 </details>
 
 
-<details><summary>Example: Install Pigsty 4-Node Sandbox</summary>
-
-[![asciicast](https://asciinema.org/a/566220.svg)](https://asciinema.org/a/566220)
-
-</details>
+Check [**Configuration**](https://pigsty.io/docs/setup/config/), [**PGSQL Conf**](https://pigsty.io/docs/pgsql/config/), [**Kernels**](https://pigsty.io/docs/kernel/) & [**Modules**](https://pigsty.io/docs/about/module/) for details.
 
 
-Check [**Configuration**](https://pigsty.io/docs/setup/config/) & [**PGSQL Conf**](https://pigsty.io/docs/pgsql/config/) for details.
 
 
 ----------------
