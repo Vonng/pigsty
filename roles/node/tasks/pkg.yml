@@ -3,7 +3,7 @@
 # Install node repo (public or local)                [node_repo]
 #--------------------------------------------------------------#
 - name: setup node repo
-  tags: node_repo
+  tags: [node_repo, node_install]
   block:
 
     # remove existing repos to /etc/yum.repos.d/backup
@@ -90,11 +90,13 @@
       when: os_package == 'deb'
 
     - name: install default node packages
+      tags: node_pkg_default
       environment: "{{ proxy_env | default({}) }}"
       package: name={{ item }} state=present
       with_items: "{{ node_default_packages | default(node_packages_default) | default([]) }}"
 
-    - name: install extra node packages
+    - name: install node packages (latest)
+      tags: [node_pkg_extra, node_install]
       environment: "{{ proxy_env | default({}) }}"
       package: name={{ item }} state=latest
       with_items: "{{ node_packages }}"
