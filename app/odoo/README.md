@@ -51,35 +51,33 @@ make load       # load odoo image from /tmp/docker/odoo.tgz
 You can use external PostgreSQL for Odoo. Odoo will create its own database during setup, so you don't need to do that
 
 ```yaml
-pg_users: [ { name: dbuser_odoo ,password: DBUser.Odoo ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: admin user for odoo database } ]
-pg_databases: [ { name: odoo ,owner: dbuser_odoo ,revokeconn: true ,comment: odoo primary database } ]
+pg_users:
+  - {name: dbuser_odoo     ,password: DBUser.Odoo     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for odoo database , superuser: true ,createdb: true}
 ```
 
-And create business user & database with:
+And create business user with:
 
 ```bash
 bin/pgsql-user  pg-meta  dbuser_odoo
 #bin/pgsql-db    pg-meta  odoo     # odoo will create the database during setup
 ```
 
-Check connectivity:
+Beware that Odoo will create its own database, so you don't need to create it with pigsty
 
-```bash
-psql postgres://dbuser_odoo:DBUser.Odoo@10.10.10.10:5432/odoo
-```
+
 
 
 ## Expose Odoo Service
 
 ```yaml
-    infra_portal:                     # domain names and upstream servers
-      home         : { domain: h.pigsty }
-      grafana      : { domain: g.pigsty    ,endpoint: "${admin_ip}:3000" , websocket: true }
-      prometheus   : { domain: p.pigsty    ,endpoint: "${admin_ip}:9090" }
-      alertmanager : { domain: a.pigsty    ,endpoint: "${admin_ip}:9093" }
-      blackbox     : { endpoint: "${admin_ip}:9115" }
-      loki         : { endpoint: "${admin_ip}:3100" }
-      odoo         : { domain: odoo.pigsty, endpoint: "127.0.0.1:8069", websocket: true }  # <------ add this line
+infra_portal:                     # domain names and upstream servers
+  home         : { domain: h.pigsty }
+  grafana      : { domain: g.pigsty    ,endpoint: "${admin_ip}:3000" , websocket: true }
+  prometheus   : { domain: p.pigsty    ,endpoint: "${admin_ip}:9090" }
+  alertmanager : { domain: a.pigsty    ,endpoint: "${admin_ip}:9093" }
+  blackbox     : { endpoint: "${admin_ip}:9115" }
+  loki         : { endpoint: "${admin_ip}:3100" }
+  odoo         : { domain: odoo.pigsty, endpoint: "127.0.0.1:8069", websocket: true }  # <------ add this line
 ```
 
 ```bash

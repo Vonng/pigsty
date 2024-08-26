@@ -3,7 +3,7 @@
 # File      :   meta.yml
 # Desc      :   Pigsty Devbox: One singleton node mete
 # Ctime     :   2020-05-22
-# Mtime     :   2024-08-03
+# Mtime     :   2024-08-26
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -36,14 +36,15 @@ all:
           - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service       }
           - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
           - {name: dbuser_noco     ,password: DBUser.Noco     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for nocodb service      }
+          - {name: dbuser_odoo     ,password: DBUser.Odoo     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for odoo service ,createdb: true} #,superuser: true}
         pg_databases:
           - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
-          - {name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
+          - {name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database  }
           - {name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
-          - {name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
+          - {name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong api gateway database }
           - {name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
-          - {name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database }
-          - {name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database }
+          - {name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database  }
+          - {name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database     }
         pg_hba_rules:
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain'
@@ -82,7 +83,7 @@ all:
       noco         : { domain: noco.pigsty ,endpoint: "127.0.0.1:9003" }
       supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }
       dify         : { domain: dify.pigsty ,endpoint: "10.10.10.10:8001", websocket: true }
-
+      odoo         : { domain: odoo.pigsty, endpoint: "127.0.0.1:8069"  , websocket: true }
     nginx_navbar:                    # application nav links on home page
       - { name: PgAdmin4   , url : 'http://adm.pigsty'  , comment: 'PgAdmin4 for PostgreSQL'  }
       - { name: PGWeb      , url : 'http://cli.pigsty'  , comment: 'PGWEB Browser Client'     }
@@ -101,6 +102,6 @@ all:
       - pool cn.pool.ntp.org iburst
       - pool ${admin_ip} iburst       # assume non-admin nodes does not have internet access
     node_etc_hosts: [ '10.10.10.10 h.pigsty a.pigsty p.pigsty g.pigsty sss.pigsty' ]
-    dns_records: [ "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty wiki.pigsty" ]
+    dns_records: [ "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty wiki.pigsty noco.pigsty supa.pigsty dify.pigsty odoo.pigsty" ]
     pgbackrest_method: local          # if you want to use minio as backup repo instead of 'local' fs, uncomment this
 ...
