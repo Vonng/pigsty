@@ -624,7 +624,7 @@ Pigsty allow using different PostgreSQL [**kernel**](https://pigsty.io/docs/kern
 - [**`MSSQL`**](https://pigsty.io/docs/kernel/babelfish/): Microsoft SQL Server Wire Protocol Compatible kernel powered by AWS, WiltonDB & Babelfish.
 - [**`IVORY`**](https://pigsty.io/docs/kernel/ivorysql): Oracle Compatible kernel powered by the IvorySQL project.
 - [**`POLAR`**](https://pigsty.io/docs/kernel/polardb/): Oracle RAC / CloudNative kernel powered by Alibaba PolarDB for PostgreSQL
-- And more will come: **`PolarO`**, **`GPSQL`**, **`NEON`**,  etc...
+- And more will come in the future: **`GPSQL`**, **`NEON`**, **`COCKROACH`**, **`YUGABYTES`**, **`RISINGWAVE`**, etc...
 
 Besides, Pigsty also have a series of **OPTIONAL** extended modules for more advanced use cases:
 
