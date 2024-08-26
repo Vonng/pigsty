@@ -632,7 +632,7 @@ Besides, Pigsty also have a series of **OPTIONAL** extended modules for more adv
 - [**`MONGO`**](https://pigsty.io/docs/mongo/): Native support for FerretDB — adding MongoDB wire protocol compatibility to PostgreSQL!
 - [**`DOCKER`**](https://pigsty.io/docs/docker/): Launch optional docker daemon to run other stateless parts in additional to Pigsty RDS.
 
-Other pro / beta / pilot modules: [**`KAFKA`**](https://pigsty.io/docs/pro/kafka/), [**`DUCKDB`**](https://pigsty.io/docs/pro/duckdb/), [**`SUPABASE`**](https://pigsty.io/docs/kernel/supabase/), [**`TIGERBEETLE`**](https://pigsty.io/docs/pro/tigerbeetle/), [**`VICTORIA`**](https://pigsty.cc/zh/docs/pro/victoria/), [**`Jupyter`**](https://pigsty.cc/zh/docs/pro/jupyter/), [**`MYSQL`**](https://pigsty.cc/zh/docs/pro/mysql/),...
+Other pro / beta / pilot modules: [**`KAFKA`**](https://pigsty.io/docs/pro/kafka/), [**`DUCKDB`**](https://pigsty.io/docs/pro/duckdb/), [**`SUPABASE`**](https://pigsty.io/docs/kernel/supabase/), [**`TIGERBEETLE`**](https://pigsty.io/docs/pro/tigerbeetle/), [**`VICTORIA`**](https://pigsty.io/docs/pro/victoria/), [**`Jupyter`**](https://pigsty.io/docs/pro/jupyter/), [**`MYSQL`**](https://pigsty.io/docs/pro/mysql/),...
 
 
 
