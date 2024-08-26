@@ -29,10 +29,10 @@ conf:
 	docker cp ~/.servers.json pgadmin:/tmp/servers.json ;
 	docker cp ~/.pgpass pgadmin:/pgpass ;
 	docker exec -u 0 -it pgadmin chown pgadmin /tmp/servers.json /pgpass
-	docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty.cc --load-servers /tmp/servers.json
+	docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py load-servers --user admin@pigsty.cc /tmp/servers.json
 
 dump:
-	docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty.cc --dump-servers /tmp/servers.json
+	docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py dump-servers --user admin@pigsty.cc /tmp/servers.json
 	docker cp pgadmin:/tmp/servers.json /tmp/servers.json
 
 pull:
