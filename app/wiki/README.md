@@ -36,7 +36,7 @@ bin/pgsql-db   pg-meta wiki
 ## Docker
 
 ```yaml
-version: "3"
+
 services:
   wiki:
     container_name: wiki

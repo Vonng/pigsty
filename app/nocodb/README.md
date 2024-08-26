@@ -52,7 +52,7 @@ Public demo: http://noco.pigsty.cc , username: `admin@pigsty.cc` and password: `
 ## Docker Compose 
 
 ```yaml
-version: "3"
+
 services:
   nocodb:
     container_name: nocodb

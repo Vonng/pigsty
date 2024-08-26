@@ -31,7 +31,7 @@ make load       # load polardb image from /tmp
 ## Docker Compose 
 
 ```yaml
-version: "3"
+
 services:
   polardb:
     image: polardb/polardb_pg_local_instance

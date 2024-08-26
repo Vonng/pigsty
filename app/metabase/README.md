@@ -48,7 +48,7 @@ Visit [http://mtbs.pigsty](http://mtbs.pigsty) or http://10.10.10.10:9004 with:
 ## Docker Compose 
 
 ```yaml
-version: "3"
+
 services:
   metabase:
     container_name: metabase

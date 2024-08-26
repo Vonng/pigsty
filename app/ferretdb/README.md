@@ -24,7 +24,7 @@ make load       # load ferretdb image from /tmp
 ## Docker Compose 
 
 ```yaml
-version: "3"
+
 services:
   ferretdb:
     image: quay.io/ferretdb/ferretdb:latest

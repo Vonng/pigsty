@@ -28,7 +28,7 @@ Then launch odoo with:
 make up  # docker compose up
 ```
 
-Visit [http://ddl.pigsty](http://ddl.pigsty) or http://10.10.10.10:8887
+Visit [http://odoo.pigsty](http://odoo.pigsty) or http://10.10.10.10:0869
 
 ## Makefile
 
