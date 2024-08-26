@@ -3,7 +3,7 @@
 # File      :   oss.yml
 # Desc      :   Pigsty oss building env for 4 major distros
 # Ctime     :   2022-10-12
-# Mtime     :   2024-08-24
+# Mtime     :   2024-08-26
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -20,7 +20,6 @@
 
 all:
 
-
   vars:
     version: v3.0.0
     admin_ip: 10.10.10.8
@@ -28,7 +27,8 @@ all:
     etcd_clean: true
     proxy_env: # global proxy env when downloading packages
       no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
-    repo_url_packages:                # extra packages from url
+    repo_modules: infra,node,pgsql,docker   # which repo modules are installed in repo_upstream
+    repo_url_packages:                      # extra packages from url
       - { name: "pev.html"    ,url: "http://10.10.10.1/etc/pev-1.11.0.html"    }
       - { name: "chart.tgz"   ,url: "http://10.10.10.1/etc/chart-1.0.0.tgz"    }
       - { name: "plugins.tgz" ,url: "http://10.10.10.1/etc/plugins-11.1.3.tgz" }
@@ -50,22 +50,36 @@ all:
         10.10.10.9:  { }
       vars:
         repo_upstream:
-          - { name: pigsty-local   ,description: 'Pigsty Local'      ,module: local  ,releases: [ 7,8,9 ] ,baseurl: { default: 'http://${admin_ip}/pigsty' } } # used by intranet nodes
-          - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra  ,releases: [ 7,8,9 ] ,baseurl: { default: 'http://10.10.10.1/yum/infra/$basearch' } }
-          - { name: pigsty-pgsql   ,description: 'Pigsty PGSQL'      ,module: pgsql  ,releases: [ 7,8,9 ] ,baseurl: { default: 'http://10.10.10.1/yum/pgsql/el$releasever.$basearch' } }
-          - { name: nginx          ,description: 'Nginx Repo'        ,module: infra  ,releases: [ 7,8,9 ] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' } }
-          - { name: baseos         ,description: 'EL 8+ BaseOS'      ,module: node   ,releases: [   8,9 ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/BaseOS/$basearch/os/'     ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/BaseOS/$basearch/os/'          ,europe: 'https://mirrors.xtom.de/rocky/$releasever/BaseOS/$basearch/os/' } }
-          - { name: appstream      ,description: 'EL 8+ AppStream'   ,module: node   ,releases: [   8,9 ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/AppStream/$basearch/os/'  ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/AppStream/$basearch/os/'       ,europe: 'https://mirrors.xtom.de/rocky/$releasever/AppStream/$basearch/os/' } }
-          - { name: extras         ,description: 'EL 8+ Extras'      ,module: node   ,releases: [   8,9 ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/extras/$basearch/os/'     ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/extras/$basearch/os/'          ,europe: 'https://mirrors.xtom.de/rocky/$releasever/extras/$basearch/os/' } }
-          - { name: powertools     ,description: 'EL 8 PowerTools'   ,module: node   ,releases: [   8   ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/PowerTools/$basearch/os/' ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/PowerTools/$basearch/os/'      ,europe: 'https://mirrors.xtom.de/rocky/$releasever/PowerTools/$basearch/os/' } }
-          - { name: crb            ,description: 'EL 9 CRB'          ,module: node   ,releases: [     9 ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/CRB/$basearch/os/'        ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/CRB/$basearch/os/'             ,europe: 'https://mirrors.xtom.de/rocky/$releasever/CRB/$basearch/os/' } }
-          - { name: epel           ,description: 'EL 8+ EPEL'        ,module: node   ,releases: [   8,9 ] ,baseurl: { default: 'http://download.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/Everything/$basearch/'     ,europe: 'https://mirrors.xtom.de/epel/$releasever/Everything/$basearch/' } }
-          - { name: pgdg-common    ,description: 'PostgreSQL Common' ,module: pgsql  ,releases: [ 7,8,9 ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' } }
-          - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,module: pgsql  ,releases: [ 7,8,9 ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' } }
-          - { name: pgdg-el8fix    ,description: 'PostgreSQL EL8FIX' ,module: pgsql  ,releases: [   8   ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' } }
-          - { name: pgdg-el9fix    ,description: 'PostgreSQL EL9FIX' ,module: pgsql  ,releases: [   9   ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/'  ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/' } }
-          - { name: pgdg16         ,description: 'PostgreSQL 16'     ,module: pgsql  ,releases: [   8,9 ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/16/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/16/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/16/redhat/rhel-$releasever-$basearch' } }
-          - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql  ,releases: [ 7,8,9 ] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch' } }
+          - { name: pigsty-local   ,description: 'Pigsty Local'      ,module: local   ,releases: [7,8,9] ,baseurl: { default: 'http://${admin_ip}/pigsty' } } # used by intranet nodes
+          - { name: pigsty-infra   ,description: 'Pigsty INFRA'      ,module: infra   ,releases: [7,8,9] ,baseurl: { default: 'http://10.10.10.1/yum/infra/$basearch' } }
+          - { name: pigsty-pgsql   ,description: 'Pigsty PGSQL'      ,module: pgsql   ,releases: [7,8,9] ,baseurl: { default: 'http://10.10.10.1/yum/pgsql/el$releasever.$basearch' } }
+          - { name: nginx          ,description: 'Nginx Repo'        ,module: infra   ,releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/' }}
+          - { name: baseos         ,description: 'EL 8+ BaseOS'      ,module: node    ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/BaseOS/$basearch/os/'     ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/BaseOS/$basearch/os/'          ,europe: 'https://mirrors.xtom.de/rocky/$releasever/BaseOS/$basearch/os/'     }}
+          - { name: appstream      ,description: 'EL 8+ AppStream'   ,module: node    ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/AppStream/$basearch/os/'  ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/AppStream/$basearch/os/'       ,europe: 'https://mirrors.xtom.de/rocky/$releasever/AppStream/$basearch/os/'  }}
+          - { name: extras         ,description: 'EL 8+ Extras'      ,module: node    ,releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/extras/$basearch/os/'     ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/extras/$basearch/os/'          ,europe: 'https://mirrors.xtom.de/rocky/$releasever/extras/$basearch/os/'     }}
+          - { name: powertools     ,description: 'EL 8 PowerTools'   ,module: node    ,releases: [  8  ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/PowerTools/$basearch/os/' ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/PowerTools/$basearch/os/'      ,europe: 'https://mirrors.xtom.de/rocky/$releasever/PowerTools/$basearch/os/' }}
+          - { name: crb            ,description: 'EL 9 CRB'          ,module: node    ,releases: [    9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/CRB/$basearch/os/'        ,china: 'https://mirrors.aliyun.com/rockylinux/$releasever/CRB/$basearch/os/'             ,europe: 'https://mirrors.xtom.de/rocky/$releasever/CRB/$basearch/os/'        }}
+          - { name: epel           ,description: 'EL 8+ EPEL'        ,module: node    ,releases: [  8,9] ,baseurl: { default: 'http://download.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/Everything/$basearch/' ,europe: 'https://mirrors.xtom.de/epel/$releasever/Everything/$basearch/'     }}
+          - { name: pgdg-common    ,description: 'PostgreSQL Common' ,module: pgsql   ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' }}
+          - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,module: pgsql   ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' }}
+          - { name: pgdg-el8fix    ,description: 'PostgreSQL EL8FIX' ,module: pgsql   ,releases: [  8  ] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-centos8-sysupdates/redhat/rhel-8-x86_64/' } }
+          - { name: pgdg-el9fix    ,description: 'PostgreSQL EL9FIX' ,module: pgsql   ,releases: [    9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/'  ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-9-x86_64/' }}
+          - { name: pgdg16         ,description: 'PostgreSQL 16'     ,module: pgsql   ,releases: [  8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/16/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/16/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/16/redhat/rhel-$releasever-$basearch' }}
+          - { name: timescaledb    ,description: 'TimescaleDB'       ,module: pgsql   ,releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
+          # these repos are not used by default, but can be enabled by setting repo_modules
+          - { name: pgdg12         ,description: 'PostgreSQL 12'     ,module: extra   ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/12/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/12/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/12/redhat/rhel-$releasever-$basearch' }}
+          - { name: pgdg13         ,description: 'PostgreSQL 13'     ,module: extra   ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch' }}
+          - { name: pgdg14         ,description: 'PostgreSQL 14'     ,module: extra   ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch' }}
+          - { name: pgdg15         ,description: 'PostgreSQL 15'     ,module: extra   ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' }}
+          - { name: pgdg15-nonfree ,description: 'PostgreSQL 15+'    ,module: extra   ,releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/non-free/15/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/non-free/15/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/non-free/15/redhat/rhel-$releasever-$basearch' }}
+          - { name: pgdg16-nonfree ,description: 'PostgreSQL 16+'    ,module: extra   ,releases: [  8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/non-free/16/redhat/rhel-$releasever-$basearch' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/non-free/16/redhat/rhel-$releasever-$basearch' ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/non-free/16/redhat/rhel-$releasever-$basearch' }}
+          - { name: pgdg17-beta    ,description: 'PostgreSQL 17 Beta',module: extra   ,releases: [  8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/testing/17/redhat/rhel-$releasever-$basearch'  ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/17/redhat/rhel-$releasever-$basearch'  ,europe: 'https://mirrors.xtom.de/postgresql/repos/yum/testing/17/redhat/rhel-$releasever-$basearch' }}
+          - { name: docker-ce      ,description: 'Docker CE'         ,module: docker  ,releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'    ,china: 'https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable'  ,europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable' }}
+          - { name: kubernetes     ,description: 'Kubernetes'        ,module: kube    ,releases: [7,8,9] ,baseurl: { default: 'https://pkgs.k8s.io/core:/stable:/v1.31/rpm/', china: 'https://mirrors.aliyun.com/kubernetes-new/core/stable/v1.31/rpm/' }}
+          - { name: wiltondb       ,description: 'WiltonDB'          ,module: mssql   ,releases: [7,8,9] ,baseurl: { default: 'https://download.copr.fedorainfracloud.org/results/wiltondb/wiltondb/epel-$releasever-$basearch/'  }}
+          - { name: ivorysql       ,description: 'IvorySQL'          ,module: ivory   ,releases: [7,8,9] ,baseurl: { default: 'https://yum.highgo.ca/dists/ivorysql-rpms/3/redhat/rhel-$releasever-$basearch' }}
+          - { name: mysql          ,description: 'MySQL'             ,module: mysql   ,releases: [7,8,9] ,baseurl: { default: 'https://repo.mysql.com/yum/mysql-8.0-community/el/$releasever/$basearch/', china: 'https://mirrors.tuna.tsinghua.edu.cn/mysql/yum/mysql-8.0-community-el7-$basearch/' }}
+          - { name: grafana        ,description: 'Grafana'           ,module: grafana ,releases: [7,8,9] ,baseurl: { default: 'https://rpm.grafana.com' }}
 
     deb:  # overwrite deb building upstream with local repo to accelerate building
       hosts:
@@ -76,17 +90,28 @@ all:
           - { name: pigsty-local  ,description: 'Pigsty Local'     ,module: local  ,releases: [11,12,20,22] ,baseurl: { default: 'http://${admin_ip}/pigsty ./' }}
           - { name: pigsty-pgsql  ,description: 'Pigsty PgSQL'     ,module: pgsql  ,releases: [11,12,20,22] ,baseurl: { default: 'http://10.10.10.1/apt/pgsql/${distro_codename} ${distro_codename} main' }}
           - { name: pigsty-infra  ,description: 'Pigsty Infra'     ,module: infra  ,releases: [11,12,20,22] ,baseurl: { default: 'http://10.10.10.1/apt/infra/ generic main' }}
-          - { name: nginx         ,description: 'Nginx'            ,module: infra  ,releases: [11,12,20,22] ,baseurl: { default: 'http://nginx.org/packages/mainline/${distro_name} ${distro_codename} nginx' }}
-          - { name: base          ,description: 'Debian Basic'     ,module: node   ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename} main non-free-firmware'         ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename} main restricted universe multiverse' }}
-          - { name: updates       ,description: 'Debian Updates'   ,module: node   ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename}-updates main non-free-firmware' ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-updates main restricted universe multiverse' }}
-          - { name: security      ,description: 'Debian Security'  ,module: node   ,releases: [11,12      ] ,baseurl: { default: 'http://security.debian.org/debian-security ${distro_codename}-security main non-free-firmware' }}
-          - { name: base          ,description: 'Ubuntu Basic'     ,module: node   ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}   main universe multiverse restricted' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}   main restricted universe multiverse' }}
-          - { name: updates       ,description: 'Ubuntu Updates'   ,module: node   ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-backports main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-updates   main restricted universe multiverse' }}
-          - { name: backports     ,description: 'Ubuntu Backports' ,module: node   ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-security  main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-backports main restricted universe multiverse' }}
-          - { name: security      ,description: 'Ubuntu Security'  ,module: node   ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-updates   main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-security  main restricted universe multiverse' }}
-          - { name: pgdg          ,description: 'PGDG'             ,module: pgsql  ,releases: [11,12,20,22] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg main' }}
-          - { name: citus         ,description: 'Citus'            ,module: pgsql  ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/${distro_name}/ ${distro_codename} main'   }}
-          - { name: timescaledb   ,description: 'Timescaledb'      ,module: pgsql  ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
+          - { name: nginx         ,description: 'Nginx'            ,module: infra     ,releases: [11,12,20,22] ,baseurl: { default: 'http://nginx.org/packages/mainline/${distro_name} ${distro_codename} nginx' }}
+          - { name: base          ,description: 'Debian Basic'     ,module: node      ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename} main non-free-firmware'         ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename} main restricted universe multiverse' }}
+          - { name: updates       ,description: 'Debian Updates'   ,module: node      ,releases: [11,12      ] ,baseurl: { default: 'http://deb.debian.org/debian/ ${distro_codename}-updates main non-free-firmware' ,china: 'https://mirrors.aliyun.com/debian/ ${distro_codename}-updates main restricted universe multiverse' }}
+          - { name: security      ,description: 'Debian Security'  ,module: node      ,releases: [11,12      ] ,baseurl: { default: 'http://security.debian.org/debian-security ${distro_codename}-security main non-free-firmware' }}
+          - { name: base          ,description: 'Ubuntu Basic'     ,module: node      ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/${distro_name}/ ${distro_codename}   main universe multiverse restricted' ,china: 'https://mirrors.aliyun.com/${distro_name}/ ${distro_codename}   main restricted universe multiverse' }}
+          - { name: updates       ,description: 'Ubuntu Updates'   ,module: node      ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-backports main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-updates   main restricted universe multiverse' }}
+          - { name: backports     ,description: 'Ubuntu Backports' ,module: node      ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-security  main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-backports main restricted universe multiverse' }}
+          - { name: security      ,description: 'Ubuntu Security'  ,module: node      ,releases: [      20,22] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-updates   main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-security  main restricted universe multiverse' }}
+          - { name: pgdg          ,description: 'PGDG'             ,module: pgsql     ,releases: [11,12,20,22] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg main' }}
+          - { name: citus         ,description: 'Citus'            ,module: pgsql     ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/${distro_name}/ ${distro_codename} main'   }}
+          - { name: timescaledb   ,description: 'Timescaledb'      ,module: pgsql     ,releases: [11,12,20,22] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
+          # these repos are not used by default, but can be enabled by setting repo_modules
+          - { name: grafana      ,description: 'Grafana'           ,module: grafana    ,releases: [11,12,20,22] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
+          - { name: haproxy      ,description: 'HAProxy Debian'    ,module: haproxy    ,releases: [11,12      ] ,baseurl: { default: 'http://haproxy.debian.net ${distro_codename}-backports-2.9 main'    }}
+          - { name: haproxy      ,description: 'HAProxy Ubuntu'    ,module: haproxy    ,releases: [      20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-2.9/ubuntu/ ${distro_codename} main'  }}
+          - { name: redis        ,description: 'Redis'             ,module: redis      ,releases: [11,12,20,22] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
+          - { name: pgml         ,description: 'PostgresML'        ,module: pgml       ,releases: [         22] ,baseurl: { default: 'https://apt.postgresml.org ${distro_codename} main'  }}
+          - { name: wiltondb     ,description: 'WiltonDB'          ,module: mssql      ,releases: [      20,22] ,baseurl: { default: 'https://ppa.launchpadcontent.net/wiltondb/wiltondb/ubuntu/ ${distro_codename} main'  }}
+          - { name: mysql        ,description: 'MySQL'             ,module: mysql      ,releases: [11,12,20,22] ,baseurl: { default: 'https://repo.mysql.com/apt/${distro_name} ${distro_codename} mysql-8.0 mysql-tools', china: 'https://mirrors.tuna.tsinghua.edu.cn/mysql/apt/${distro_name} ${distro_codename} mysql-8.0 mysql-tools' }}
+          - { name: docker-ce    ,description: 'Docker'            ,module: docker     ,releases: [11,12,20,22] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
+          - { name: kubernetes   ,description: 'Kubernetes'        ,module: kube       ,releases: [11,12,20,22] ,baseurl: { default: 'https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /', china: 'https://mirrors.aliyun.com/kubernetes-new/core/stable/v1.31/deb/ /' }}
+
 
     #----------------------------------#
     # build el8 packages on Rocky 8.9
@@ -98,6 +123,7 @@ all:
         #repo_packages: []
         repo_extra_packages:    # not included: plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions
           - python3.12-jmespath # ansible jmespath deps
+          - docker-ce docker-compose-plugin
         pg_extensions:
           - timescaledb periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable
           - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip #pg_geohash #mobilitydb
@@ -125,8 +151,10 @@ all:
       hosts: { 10.10.10.9: { pg_seq: 1, pg_role: primary } }
       vars:
         pg_cluster: pg-el9
-        repo_extra_packages: [] # not included: plr_16* pljava_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions
         #repo_packages: []
+        repo_extra_packages:
+          - docker-ce docker-compose-plugin
+        # not included: plr_16* pljava_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions
         pg_extensions:
           - timescaledb periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable
           - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip #pg_geohash #mobilitydb
@@ -156,7 +184,7 @@ all:
         pg_cluster: pg-d12
         #repo_packages: []
         repo_extra_packages: # not included: postgresql-16-plr postgresql-16-pljava postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
-          - netcat-openbsd tnftp linux-perf
+          - netcat-openbsd tnftp linux-perf docker-ce docker-compose-plugin
         pg_extensions:
           - timescaledb periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable
           - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip mobilitydb #pg_geohash
@@ -185,7 +213,7 @@ all:
       vars:
         pg_cluster: pg-u22
         repo_extra_packages: # not included: postgresql-16-plr postgresql-16-pljava postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
-          - netcat ftp linux-tools-generic
+          - netcat ftp linux-tools-generic docker-ce docker-compose-plugin
         #repo_packages: []
         pg_extensions:
           - timescaledb periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable
