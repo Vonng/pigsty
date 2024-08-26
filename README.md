@@ -390,12 +390,12 @@ pg-meta:
           - { name: pg_jsonschema   }                # 0.3.1 : pg_jsonschema: Validate json schema
           - { name: wrappers        }                # 0.4.1 : wrappers: FDW collections
           - { name: http            }                # 1.6   : http: allows web page retrieval inside the database.
-          - { name: pg_cron         }
+          - { name: pg_cron         }                # 1.6   : pg_cron: Job scheduler for PostgreSQL
     # supabase required extensions
     pg_libs: 'pg_net, pg_cron, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
     pg_extensions:
       - wal2json pg_repack
-      - supa-stack # pgvector pg_cron pgsodium pg_graphql pg_jsonschema wrappers pgjwt pgsql_http pg_net supautils
+      - supa-stack #pgvector pg_cron pgsodium pg_graphql pg_jsonschema wrappers pgjwt pgsql_http pg_net supautils index_advisor
     pg_parameters:
       cron.database_name: supa
       pgsodium.enable_event_trigger: off
@@ -403,6 +403,7 @@ pg-meta:
       - { user: all ,db: supa ,addr: intra       ,auth: pwd ,title: 'allow supa database access from intranet'      }
       - { user: all ,db: supa ,addr: 172.0.0.0/8 ,auth: pwd ,title: 'allow supa database access from docker network'}
       - { user: all ,db: supa ,addr: all         ,auth: pwd ,title: 'allow supa database access from entire world'  }  # not safe!
+
 ```
 
 </details>

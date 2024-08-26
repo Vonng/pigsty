@@ -3,7 +3,6 @@
 Here are some docker compose templates for popular applications that works well with PostgreSQL
 
 * [Supabase](supabase/) : The open source Firebase alternative, built on Postgres
-* [PostgresML](pgml/) : Run LLMs & classical Machine Learning with SQL
 * [FerretDB](ferretdb/) : Open Source MongoDB alternative, built on Postgres
 * [PolarDB](polardb/) : Open Source RAC alternative, built on Postgres
 * [PgAdmin4](pgadmin/) : Postgres Admin Tools

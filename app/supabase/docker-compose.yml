@@ -1,3 +1,4 @@
+# Self Hosting https://supabase.com/docs/guides/self-hosting/docker
 # Source: https://github.com/supabase/supabase/blob/master/docker/docker-compose.yml
 # Usage
 #   Start:          docker compose up
@@ -6,11 +7,12 @@
 #   Destroy:        docker compose -f docker-compose.yml -f ./dev/docker-compose.dev.yml down -v --remove-orphans
 
 name: supabase
+version: "3.8"
 
 services:
   studio:
     container_name: supabase-studio
-    image: supabase/studio:20240422-5cf8f30
+    image: supabase/studio:20240729-ce42139
     restart: unless-stopped
     healthcheck:
       test:
@@ -37,6 +39,7 @@ services:
       SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
       SUPABASE_ANON_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      AUTH_JWT_SECRET: ${JWT_SECRET}
 
       LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
       LOGFLARE_URL: http://analytics:4000
@@ -76,7 +79,7 @@ services:
 
   auth:
     container_name: supabase-auth
-    image: supabase/gotrue:v2.149.0
+    image: supabase/gotrue:v2.158.1
     depends_on:
       analytics:
         condition: service_healthy
@@ -130,7 +133,6 @@ services:
 
       GOTRUE_EXTERNAL_PHONE_ENABLED: ${ENABLE_PHONE_SIGNUP}
       GOTRUE_SMS_AUTOCONFIRM: ${ENABLE_PHONE_AUTOCONFIRM}
-
       # Uncomment to enable custom access token hook. You'll need to create a public.custom_access_token_hook function and grant necessary permissions.
       # See: https://supabase.com/docs/guides/auth/auth-hooks#hook-custom-access-token for details
       # GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_ENABLED="true"
@@ -147,7 +149,7 @@ services:
 
   rest:
     container_name: supabase-rest
-    image: postgrest/postgrest:v12.0.1
+    image: postgrest/postgrest:v12.2.0
     depends_on:
       analytics:
         condition: service_healthy
@@ -165,7 +167,7 @@ services:
   realtime:
     # This container name looks inconsistent but is correct because realtime constructs tenant id by parsing the subdomain
     container_name: realtime-dev.supabase-realtime
-    image: supabase/realtime:v2.28.32
+    image: supabase/realtime:v2.30.23
     depends_on:
       analytics:
         condition: service_healthy
@@ -173,9 +175,14 @@ services:
       test:
         [
           "CMD",
-          "bash",
-          "-c",
-          "printf \\0 > /dev/tcp/localhost/4000"
+          "curl",
+          "-sSfL",
+          "--head",
+          "-o",
+          "/dev/null",
+          "-H",
+          "Authorization: Bearer ${ANON_KEY}",
+          "http://localhost:4000/api/tenants/realtime-dev/health"
         ]
       timeout: 5s
       interval: 5s
@@ -191,14 +198,12 @@ services:
       DB_AFTER_CONNECT_QUERY: 'SET search_path TO _realtime'
       DB_ENC_KEY: supabaserealtime
       API_JWT_SECRET: ${JWT_SECRET}
-      FLY_ALLOC_ID: fly123
-      FLY_APP_NAME: realtime
       SECRET_KEY_BASE: UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
       ERL_AFLAGS: -proto_dist inet_tcp
-      ENABLE_TAILSCALE: "false"
       DNS_NODES: "''"
-    command: >
-      sh -c "/app/bin/migrate && /app/bin/realtime eval 'Realtime.Release.seeds(Realtime.Repo)' && /app/bin/server"
+      RLIMIT_NOFILE: "10000"
+      APP_NAME: realtime
+      SEED_SELF_HOST: true
 
   # To use S3 backed storage: docker compose -f docker-compose.yml -f docker-compose.s3.yml up
   storage:
@@ -259,7 +264,7 @@ services:
 
   meta:
     container_name: supabase-meta
-    image: supabase/postgres-meta:v0.80.0
+    image: supabase/postgres-meta:v0.83.2
     depends_on:
       analytics:
         condition: service_healthy
@@ -274,7 +279,7 @@ services:
 
   functions:
     container_name: supabase-edge-functions
-    image: supabase/edge-runtime:v1.45.2
+    image: supabase/edge-runtime:v1.56.0
     restart: unless-stopped
     depends_on:
       analytics:
@@ -303,6 +308,12 @@ services:
       interval: 5s
       retries: 10
     restart: unless-stopped
+    # Uncomment to use Big Query backend for analytics
+    # volumes:
+    #   - type: bind
+    #     source: ${PWD}/gcloud.json
+    #     target: /opt/app/rel/logflare/bin/gcloud.json
+    #     read_only: true
     environment:
       LOGFLARE_NODE_HOST: 127.0.0.1
       DB_USERNAME: supabase_admin

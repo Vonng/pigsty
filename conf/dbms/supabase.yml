@@ -3,14 +3,13 @@
 # File      :   supabase.yml
 # Desc      :   Pigsty 1 node installation for supabase
 # Ctime     :   2020-05-22
-# Mtime     :   2024-08-02
+# Mtime     :   2024-08-26
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 
-# Tutorial: https://pigsty.io/docs/software/supabase/
-# Description: https://github.com/Vonng/pigsty/tree/master/app/supabase
+# Tutorial: https://pigsty.io/docs/kernel/supabase/
 
 all:
   children:
@@ -66,12 +65,12 @@ all:
               - { name: pg_jsonschema   }                # 0.3.1 : pg_jsonschema: Validate json schema
               - { name: wrappers        }                # 0.4.1 : wrappers: FDW collections
               - { name: http            }                # 1.6   : http: allows web page retrieval inside the database.
-              - { name: pg_cron         }
+              - { name: pg_cron         }                # 1.6   : pg_cron: Job scheduler for PostgreSQL
         # supabase required extensions
         pg_libs: 'pg_net, pg_cron, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
         pg_extensions:
           - wal2json pg_repack
-          - supa-stack # pgvector pg_cron pgsodium pg_graphql pg_jsonschema wrappers pgjwt pgsql_http pg_net supautils
+          - supa-stack #pgvector pg_cron pgsodium pg_graphql pg_jsonschema wrappers pgjwt pgsql_http pg_net supautils index_advisor
         pg_parameters:
           cron.database_name: supa
           pgsodium.enable_event_trigger: off
@@ -92,21 +91,5 @@ all:
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
       supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }     # <---- expose web UI
-
-    # don't forget to add the DNS name `supa.pigsty` to your /etc/hosts or resolver
-    nginx_navbar:                    # application nav links on home page
-      - { name: Supabase   , url : 'http://supa.pigsty' , comment: 'Supabase Studio'          } # <--- access via domain
-      - { name: PgAdmin4   , url : 'http://adm.pigsty'  , comment: 'PgAdmin4 for PostgreSQL'  }
-      - { name: PGWeb      , url : 'http://cli.pigsty'  , comment: 'PGWEB Browser Client'     }
-      - { name: ByteBase   , url : 'http://ddl.pigsty'  , comment: 'ByteBase Schema Migrator' }
-      - { name: PostgREST  , url : 'http://api.pigsty'  , comment: 'Kong API Gateway'         }
-      - { name: Gitea      , url : 'http://git.pigsty'  , comment: 'Gitea Git Service'        }
-      - { name: Minio      , url : 'http://sss.pigsty'  , comment: 'Minio Object Storage'     }
-      - { name: Wiki       , url : 'http://wiki.pigsty' , comment: 'Local Wikipedia'          }
-      - { name: Explain    , url : '/pigsty/pev.html'   , comment: 'pgsql explain visualizer' }
-      - { name: Package    , url : '/pigsty'            , comment: 'local yum repo packages'  }
-      - { name: PG Logs    , url : '/logs'              , comment: 'postgres raw csv logs'    }
-      - { name: Schemas    , url : '/schema'            , comment: 'schemaspy summary report' }
-      - { name: Reports    , url : '/report'            , comment: 'pgbadger summary report'  }
 
 ...

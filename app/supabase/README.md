@@ -6,7 +6,7 @@ Pigsty allow you to self-host **supabase** with existing managed HA postgres clu
 
 > Notice: Supabase is [GA](https://supabase.com/ga) since 2024.04.15
 
-> Official Tutorial: https://pigsty.io/docs/software/supabase
+> Setup Tutorial: https://pigsty.io/docs/kernel/supabase
 
 -----------------------
 
@@ -64,18 +64,19 @@ pg-meta:
         schemas: [ extensions ,auth ,realtime ,storage ,graphql_public ,supabase_functions ,_analytics ,_realtime ]
         extensions:
           - { name: pgcrypto  ,schema: extensions  } # 1.3   : cryptographic functions
-          - { name: pg_net    ,schema: extensions  } # 0.7.1 : Async HTTP
+          - { name: pg_net    ,schema: extensions  } # 0.9.2 : Async HTTP
           - { name: pgjwt     ,schema: extensions  } # 0.2.0 : JSON Web Token API for Postgresql
           - { name: uuid-ossp ,schema: extensions  } # 1.1   : generate universally unique identifiers (UUIDs)
           - { name: pgsodium        }                # 3.1.8 : pgsodium is a modern cryptography library for Postgres.
           - { name: supabase_vault  }                # 0.2.8 : Supabase Vault Extension
           - { name: pg_graphql      }                # 1.3.0 : pg_graphql: GraphQL support
+          - { name: index_advisor   }                # 0.2.0 : index_advisor Query Index Advisor
     pg_hba_rules:
       - { user: all ,db: supa ,addr: intra       ,auth: pwd ,title: 'allow supa database access from intranet'}
       - { user: all ,db: supa ,addr: 172.0.0.0/8 ,auth: pwd ,title: 'allow supa database access from docker network'}
     pg_extensions: [ 'supa-stack' ]
-    # - pg_repack wal2json pgvector pg_cron pg_sodium pg_graphql pg_jsonschema wrappers vault pgjwt pg_net pgsql_http
-    pg_libs: 'pg_net, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
+    # - pg_repack wal2json pgvector pg_cron pg_sodium pg_graphql pg_jsonschema wrappers vault pgjwt pg_net pgsql_http supautils index_advisor
+    pg_libs: 'pg_net, pg_cron, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
 ```
 
 Beware that `baseline: supa.sql` parameter will use the [`files/supa.sql`](https://github.com/Vonng/pigsty/blob/master/files/supa.sql) as database baseline schema, which is gathered from [here](https://github.com/supabase/postgres/tree/develop/migrations/db/init-scripts).
@@ -84,22 +85,15 @@ You also have to run the migration script: [`migration.sql`](migration.sql) afte
 You can check the latest migration files and add them to [`migration.sql`](migration.sqlc), the current script is synced with [20231013070755](https://github.com/supabase/postgres/blob/develop/migrations/db/migrations/20231013070755_grant_authenticator_to_supabase_storage_admin.sql).
 You can run migration on provisioned postgres cluster `pg-meta` with simple `psql` command: 
 
-
-> Known issue: "ERROR:  unrecognized configuration parameter "pgsodium.enable_event_trigger": https://github.com/Vonng/pigsty/issues/350 , fix with:
-
 ```bash
-pg edit-config pg-meta --force -p pgsodium.enable_event_trigger='off' # setup pgsodium event trigger
-psql ${PGURL} -c 'SHOW pgsodium.enable_event_trigger;'                # should be off or false
-pg restart pg-meta                                                    # restart pg-meta to enable the new configuration
-```
+# restart postgres cluster
+pg restart pg-meta --force
 
-
-```bash
 # connection string
 PGURL=postgres://supabase_admin:DBUser.Supa@10.10.10.10:5432/supa
 
 # check connectivity & extensions
-psql ${PGURL} -c '\dx'
+psql ${PGURL} -c 'CREATE EXTENSION IF NOT EXISTS pg_cron;'
 
 # perform migration
 psql ${PGURL} -v ON_ERROR_STOP=1 --no-psqlrc -f ~/pigsty/app/supabase/migration.sql
@@ -107,15 +101,6 @@ psql ${PGURL} -v ON_ERROR_STOP=1 --no-psqlrc -f ~/pigsty/app/supabase/migration.
 
 The database is now ready for supabase!
 
-
-**Optional**: setup `pg_cron` extension
-
-```bash
-# install pg_cron
-pg edit-config pg-meta --force -p cron.database_name='supa'           # setup pg_cron database_name parameter
-psql ${PGURL} -c 'SHOW cron.database_name;'                           # should be the underlying database name for supabase
-psql ${PGURL} -c 'CREATE EXTENSION pg_cron;';                         # create pg_cron extension on the database 'supa'
-```
 
 
 -----------------------
