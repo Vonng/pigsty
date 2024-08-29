@@ -103,4 +103,14 @@
         - { src: "/etc/default/pg_exporter"           , dest: /pg/conf/pgexp.sh  }
         - { src: "/etc/default/pgbouncer_exporter"    , dest: /pg/conf/pgbexp.sh }
 
+    # make sure the /var/run/postgresql is created
+    - name: create tmpfiles.d for run dir
+      copy:
+        dest: /etc/tmpfiles.d/postgresql.conf
+        content: |
+          d /var/run/postgresql 0755 {{ pg_dbsu }} postgres -
+        owner: root
+        group: root
+        mode: '0644'
+
 ...
