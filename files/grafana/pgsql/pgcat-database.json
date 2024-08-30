@@ -269,7 +269,7 @@
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -862,7 +862,7 @@
                     }
                 ]
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -1670,7 +1670,7 @@
                     }
                 ]
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -1860,7 +1860,7 @@
                 "textMode": "value",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "format": "table",
@@ -2075,7 +2075,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "format": "table",
@@ -2234,7 +2234,7 @@
                 "textMode": "value",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "format": "table",
@@ -2346,7 +2346,7 @@
         },
         {
             "datasource": {
-                "type": "postgres",
+                "type": "grafana-postgresql-datasource",
                 "uid": "${dsn}"
             },
             "fieldConfig": {
@@ -2402,30 +2402,19 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
-                        "type": "postgres",
-                        "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
+                        "type": "grafana-postgresql-datasource",
+                        "uid": "${dsn}"
                     },
                     "editorMode": "code",
                     "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
+                    "hide": false,
                     "rawQuery": true,
-                    "rawSql": "SELECT coalesce((data ->> 'r')::INTEGER, 0) AS \"r\",\n       coalesce((data ->> 'i')::INTEGER, 0) AS \"i\",\n       coalesce((data ->> 'S')::INTEGER, 0) AS \"S\",\n       coalesce((data ->> 't')::INTEGER, 0) AS \"t\",\n       coalesce((data ->> 'v')::INTEGER, 0) AS \"v\",\n       coalesce((data ->> 'm')::INTEGER, 0) AS \"m\",\n       coalesce((data ->> 'c')::INTEGER, 0) AS \"c\",\n       coalesce((data ->> 'f')::INTEGER, 0) AS \"f\",\n       coalesce((data ->> 'p')::INTEGER, 0) AS \"p\",\n       coalesce((data ->> 'I')::INTEGER, 0) AS \"I\"\nFROM (\n         SELECT json_object_agg(kind, count) AS data\n         FROM (SELECT relkind::TEXT AS kind, count(*) AS count FROM pg_class GROUP BY 1) d\n     ) j;",
+                    "rawSql": "SELECT coalesce((data ->> 'r')::INTEGER, 0) AS \"r\",\n       coalesce((data ->> 'i')::INTEGER, 0) AS \"i\",\n       coalesce((data ->> 'S')::INTEGER, 0) AS \"S\",\n       coalesce((data ->> 't')::INTEGER, 0) AS \"t\",\n       coalesce((data ->> 'v')::INTEGER, 0) AS \"v\",\n       coalesce((data ->> 'm')::INTEGER, 0) AS \"m\",\n       coalesce((data ->> 'c')::INTEGER, 0) AS \"c\",\n       coalesce((data ->> 'f')::INTEGER, 0) AS \"f\",\n       coalesce((data ->> 'p')::INTEGER, 0) AS \"p\",\n       coalesce((data ->> 'I')::INTEGER, 0) AS \"I\"\nFROM (\n         SELECT json_object_agg(kind, count) AS data\n         FROM (SELECT relkind::TEXT AS kind, count(*) AS count FROM pg_class GROUP BY relkind) d\n     ) j;",
                     "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "value"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
                     "sql": {
                         "columns": [
                             {
@@ -2442,15 +2431,7 @@
                             }
                         ],
                         "limit": 50
-                    },
-                    "timeColumn": "time",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
+                    }
                 }
             ],
             "transformations": [
@@ -2886,7 +2867,7 @@
                     }
                 ]
             },
-            "pluginVersion": "11.1.3",
+            "pluginVersion": "11.1.4",
             "targets": [
                 {
                     "datasource": {
@@ -2898,7 +2879,7 @@
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT\n       relnamespace AS \"OID\", nspname AS \"Schema\", nspowner::RegRole::TEXT AS \"Owner\",\n       coalesce((data ->> 'r')::INTEGER, 0) AS \"r\",\n       coalesce((data ->> 'i')::INTEGER, 0) AS \"i\",\n       coalesce((data ->> 'S')::INTEGER, 0) AS \"S\",\n       coalesce((data ->> 't')::INTEGER, 0) AS \"t\",\n       coalesce((data ->> 'v')::INTEGER, 0) AS \"v\",\n       coalesce((data ->> 'm')::INTEGER, 0) AS \"m\",\n       coalesce((data ->> 'c')::INTEGER, 0) AS \"c\",\n       coalesce((data ->> 'f')::INTEGER, 0) AS \"f\",\n       coalesce((data ->> 'p')::INTEGER, 0) AS \"p\",\n       coalesce((data ->> 'I')::INTEGER, 0) AS \"I\"\nFROM (\n         SELECT relnamespace, json_object_agg(kind, count) AS data\n         FROM (SELECT relnamespace, relkind::TEXT AS kind, count(*) AS count FROM pg_class GROUP BY 1,2) d\n         GROUP BY 1\n     ) j LEFT JOIN pg_namespace nsp ON j.relnamespace = nsp.oid\nWHERE nspname NOT IN ('pg_toast', 'information_schema', 'pg_catalog');",
+                    "rawSql": "SELECT\n       relnamespace AS \"OID\", nspname AS \"Schema\", nspowner::RegRole::TEXT AS \"Owner\",\n       coalesce((data ->> 'r')::INTEGER, 0) AS \"r\",\n       coalesce((data ->> 'i')::INTEGER, 0) AS \"i\",\n       coalesce((data ->> 'S')::INTEGER, 0) AS \"S\",\n       coalesce((data ->> 't')::INTEGER, 0) AS \"t\",\n       coalesce((data ->> 'v')::INTEGER, 0) AS \"v\",\n       coalesce((data ->> 'm')::INTEGER, 0) AS \"m\",\n       coalesce((data ->> 'c')::INTEGER, 0) AS \"c\",\n       coalesce((data ->> 'f')::INTEGER, 0) AS \"f\",\n       coalesce((data ->> 'p')::INTEGER, 0) AS \"p\",\n       coalesce((data ->> 'I')::INTEGER, 0) AS \"I\"\nFROM (\n         SELECT relnamespace, json_object_agg(kind, count) AS data\n         FROM (SELECT relnamespace, relkind::TEXT AS kind, count(*) AS count FROM pg_class GROUP BY relnamespace,relkind) d\n         GROUP BY relnamespace\n     ) j LEFT JOIN pg_namespace nsp ON j.relnamespace = nsp.oid\nWHERE nspname NOT IN ('pg_toast', 'information_schema', 'pg_catalog');",
                     "refId": "A",
                     "select": [
                         [
@@ -3057,7 +3038,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     },
                                     {
                                         "color": "super-light-green",
@@ -3568,7 +3550,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#80808080"
+                                                    "color": "#80808080",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -3754,7 +3737,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#e3e3e3e0"
+                                                    "color": "#e3e3e3e0",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -3827,7 +3811,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -3892,7 +3877,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -3967,7 +3953,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -4045,7 +4032,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -4217,7 +4205,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#f5a673"
+                                                    "color": "#f5a673",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -4244,7 +4233,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc"
+                                                    "color": "#346f36cc",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#f5a673",
@@ -4293,7 +4283,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc"
+                                                    "color": "#346f36cc",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#f5a673",
@@ -4342,7 +4333,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -4410,7 +4402,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "10.1.1",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -4553,7 +4545,7 @@
             "panels": [
                 {
                     "datasource": {
-                        "type": "postgres",
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "fieldConfig": {
@@ -4571,7 +4563,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     },
                                     {
                                         "color": "super-light-green",
@@ -5082,7 +5075,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#80808080"
+                                                    "color": "#80808080",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -5264,7 +5258,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#e3e3e3e0"
+                                                    "color": "#e3e3e3e0",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -5337,7 +5332,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -5402,7 +5398,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -5470,7 +5467,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -5538,7 +5536,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -5710,7 +5709,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#f5a673"
+                                                    "color": "#f5a673",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -5727,7 +5727,7 @@
                         "h": 16,
                         "w": 24,
                         "x": 0,
-                        "y": 24
+                        "y": 36
                     },
                     "id": 216,
                     "links": [
@@ -5754,7 +5754,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.1.1",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -5766,7 +5766,7 @@
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT *,\n  pg_blocking_pids(pid) AS blocking_pids,\n  extract(epoch from now() - backend_start) AS conn_time,\n  extract(epoch from now() - xact_start)    AS xact_time,\n  extract(epoch from now() - query_start)   AS query_time,\n  extract(epoch from now() - state_change)  AS state_time\n  -- ,query_id::TEXT AS qid -- 14 has query_id, comment this for PG 13 and below \nFROM pg_stat_activity\nWHERE datname = current_database();",
+                            "rawSql": "SELECT pg_blocking_pids(pid) AS blocking_pids,\n       datid,\n       datname,\n       pid,\n       leader_pid,\n       usesysid,\n       usename,\n       application_name,\n       client_addr,\n       client_hostname,\n       client_port,\n       extract(epoch from now() - backend_start) AS conn_time,\n       extract(epoch from now() - xact_start)    AS xact_time,\n       extract(epoch from now() - query_start)   AS query_time,\n       extract(epoch from now() - state_change)  AS state_time,\n       wait_event_type,\n       wait_event,\n       state,\n       backend_xid,\n       backend_xmin,\n       query_id,\n       query,\n       backend_type,\n       query_id::TEXT AS qid -- 14 has query_id, comment this for PG 13 and below \nFROM pg_stat_activity;",
                             "refId": "A",
                             "select": [
                                 [
@@ -5908,7 +5908,7 @@
             "panels": [
                 {
                     "datasource": {
-                        "type": "postgres",
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "description": "Tables of current database ${datname}",
@@ -5930,7 +5930,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -6092,7 +6093,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -6119,7 +6121,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc"
+                                                    "color": "#346f36cc",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#fcdb72",
@@ -6185,7 +6188,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -6258,7 +6262,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -6310,7 +6315,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -6377,7 +6383,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#FF780A",
@@ -6553,7 +6560,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -6608,7 +6616,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc"
+                                                    "color": "#346f36cc",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -6643,7 +6652,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#7f7f7fc4"
+                                                    "color": "#7f7f7fc4",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -6672,7 +6682,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#7f7f7fc4"
+                                                    "color": "#7f7f7fc4",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#cc4637d9",
@@ -6695,7 +6706,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#7f7f7fc4"
+                                                    "color": "#7f7f7fc4",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#b783af",
@@ -6765,7 +6777,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#7f7f7fc4"
+                                                    "color": "#7f7f7fc4",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -6798,7 +6811,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#7f7f7fc4"
+                                                    "color": "#7f7f7fc4",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#cc4637d9",
@@ -6831,7 +6845,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#7f7f7fc4"
+                                                    "color": "#7f7f7fc4",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#cc4637d9",
@@ -6847,6 +6862,22 @@
                                         }
                                     }
                                 ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "/Last.*/"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 160
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "dateTimeFromNow"
+                                    }
+                                ]
                             }
                         ]
                     },
@@ -6854,10 +6885,9 @@
                         "h": 10,
                         "w": 24,
                         "x": 0,
-                        "y": 47
+                        "y": 53
                     },
                     "id": 189,
-                    "links": [],
                     "options": {
                         "cellHeight": "sm",
                         "footer": {
@@ -6877,7 +6907,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -6894,7 +6924,7 @@
                             "legendFormat": "",
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT c.oid,\n       n.nspname,\n       n.nspname || '.' || c.relname AS name,\n       CASE WHEN relispartition THEN 'P' ELSE c.relkind END AS kind,\n       age(c.relfrozenxid)::FLOAT / 2147483648 AS relage,\n       (n_tup_ins + n_tup_upd + n_tup_del) AS n_tup_mod,\n       seq_scan + idx_scan AS tbl_scan, seq_tup_read + idx_tup_fetch AS tup_read,\n       reltuples,\n       relpages,\n       relfilenode,\n       pg_table_size(c.oid)                                 AS size,\n       relnatts,\n       s.*\nFROM pg_catalog.pg_class c\n         LEFT JOIN pg_namespace n ON n.oid = c.relnamespace\n         LEFT JOIN pg_stat_user_tables s ON c.oid = s.relid\nWHERE c.relkind IN ('r', 'p', '')\nAND schemaname !~ '^pg_' AND schemaname !~ '^_' AND schemaname !~ '^timescaledb' AND schemaname !~ '^citus' AND schemaname !~ '^columnar' \nAND schemaname NOT IN ('pg_catalog','information_schema')\nORDER BY 1, 2;",
+                            "rawSql": "SELECT c.oid,\n       n.nspname,\n       n.nspname || '.' || c.relname                        AS name,\n       CASE WHEN relispartition THEN 'P' ELSE c.relkind END AS kind,\n       age(c.relfrozenxid)::FLOAT / 2147483648              AS relage,\n       (n_tup_ins + n_tup_upd + n_tup_del)                  AS n_tup_mod,\n       seq_scan + idx_scan                                  AS tbl_scan,\n       seq_tup_read + idx_tup_fetch                         AS tup_read,\n       reltuples,\n       relpages,\n       relfilenode,\n       pg_table_size(c.oid)                                 AS size,\n       relnatts,\n       s.seq_scan,\n       s.seq_tup_read,\n       s.idx_scan,\n       s.idx_tup_fetch,\n       s.n_tup_ins,\n       s.n_tup_upd,\n       s.n_tup_del,\n       s.n_tup_hot_upd,\n       -- s.n_tup_newpage_upd, -- PG16\n       s.n_live_tup,\n       s.n_dead_tup,\n       s.n_mod_since_analyze,\n       -- s.n_ins_since_vacuum, -- PG13\n       extract(EPOCH FROM s.last_vacuum) * 1000             AS last_vacuum,\n       extract(EPOCH FROM s.last_autovacuum) * 1000         AS last_autovacuum,\n       extract(EPOCH FROM s.last_analyze) * 1000            AS last_analyze,\n       extract(EPOCH FROM s.last_autoanalyze) * 1000        AS last_autoanalyze,\n       s.vacuum_count,\n       s.autovacuum_count,\n       s.analyze_count,\n       s.autoanalyze_count\nFROM pg_catalog.pg_class c\n         LEFT JOIN pg_namespace n ON n.oid = c.relnamespace\n         LEFT JOIN pg_stat_user_tables s ON c.oid = s.relid\nWHERE c.relkind IN ('r', 'p', '')\nAND schemaname !~ '^pg_' AND schemaname !~ '^_' AND schemaname !~ '^timescaledb' AND schemaname !~ '^citus' AND schemaname !~ '^columnar' \nAND schemaname NOT IN ('pg_catalog','information_schema')\nORDER BY c.oid, n.nspname;",
                             "refId": "A",
                             "select": [
                                 [
@@ -7140,7 +7170,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -7282,7 +7313,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#747474b3"
+                                                    "color": "#747474b3",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -7305,10 +7337,9 @@
                         "h": 11,
                         "w": 24,
                         "x": 0,
-                        "y": 66
+                        "y": 64
                     },
                     "id": 184,
-                    "links": [],
                     "options": {
                         "cellHeight": "sm",
                         "footer": {
@@ -7327,7 +7358,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -7436,7 +7467,7 @@
             "panels": [
                 {
                     "datasource": {
-                        "type": "postgres",
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "description": "Bloat ratio & wasted bytes estimation of all heap tables",
@@ -7458,7 +7489,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -7541,7 +7573,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -7606,7 +7639,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -7639,7 +7673,7 @@
                         "h": 12,
                         "w": 12,
                         "x": 0,
-                        "y": 141
+                        "y": 76
                     },
                     "id": 190,
                     "options": {
@@ -7660,7 +7694,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -7672,7 +7706,7 @@
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT nspname || '.' || relname AS relname, size, ratio, size * ratio AS waste FROM\n    (SELECT CURRENT_CATALOG                                                                                         AS datname,\n        nspname,\n        relname,\n        tblid,\n        bs * tblpages                                                                                           AS size,\n        CASE WHEN tblpages - est_tblpages_ff > 0 THEN (tblpages - est_tblpages_ff) / tblpages::FLOAT ELSE 0 END AS ratio\n FROM (SELECT ceil(reltuples / ((bs - page_hdr) * fillfactor / (tpl_size * 100))) +\n              ceil(toasttuples / 4) AS est_tblpages_ff,\n              tblpages,\n              fillfactor,\n              bs,\n              tblid,\n              nspname,\n              relname,\n              is_na\n       FROM (SELECT (4 + tpl_hdr_size + tpl_data_size + (2 * ma)\n           - CASE WHEN tpl_hdr_size % ma = 0 THEN ma ELSE tpl_hdr_size % ma END\n           - CASE WHEN ceil(tpl_data_size)::INT % ma = 0 THEN ma ELSE ceil(tpl_data_size)::INT % ma END\n                        )                    AS tpl_size,\n                    (heappages + toastpages) AS tblpages,\n                    heappages,\n                    toastpages,\n                    reltuples,\n                    toasttuples,\n                    bs,\n                    page_hdr,\n                    tblid,\n                    nspname,\n                    relname,\n                    fillfactor,\n                    is_na\n             FROM (SELECT tbl.oid                                                                           AS tblid,\n                          ns.nspname,\n                          tbl.relname,\n                          tbl.reltuples,\n                          tbl.relpages                                                                      AS heappages,\n                          coalesce(toast.relpages, 0)                                                       AS toastpages,\n                          coalesce(toast.reltuples, 0)                                                      AS toasttuples,\n                          coalesce(substring(array_to_string(tbl.reloptions, ' ') FROM 'fillfactor=([0-9]+)')::smallint,\n                                   100)                                                                     AS fillfactor,\n                          current_setting('block_size')::numeric                                            AS bs,\n                          CASE\n                              WHEN version() ~ 'mingw32' OR version() ~ '64-bit|x86_64|ppc64|ia64|amd64' THEN 8\n                              ELSE 4 END                                                                    AS ma,\n                          24                                                                                AS page_hdr,\n                          23 +\n                          CASE WHEN MAX(coalesce(s.null_frac, 0)) > 0 THEN (7 + count(s.attname)) / 8 ELSE 0::int END\n                              + CASE\n                                    WHEN bool_or(att.attname = 'oid' and att.attnum < 0) THEN 4\n                                    ELSE 0 END                                                              AS tpl_hdr_size,\n                          sum((1 - coalesce(s.null_frac, 0)) * coalesce(s.avg_width, 0))                    AS tpl_data_size,\n                          bool_or(att.atttypid = 'pg_catalog.name'::regtype)\n                              OR sum(CASE WHEN att.attnum > 0 THEN 1 ELSE 0 END) <> count(s.attname)        AS is_na\n                   FROM pg_attribute AS att\n                            JOIN pg_class AS tbl ON att.attrelid = tbl.oid\n                            JOIN pg_namespace AS ns ON ns.oid = tbl.relnamespace\n                            LEFT JOIN pg_stats AS s ON s.schemaname = ns.nspname AND s.tablename = tbl.relname AND\n                                                       s.inherited = false AND s.attname = att.attname\n                            LEFT JOIN pg_class AS toast ON tbl.reltoastrelid = toast.oid\n                   WHERE NOT att.attisdropped\n                     AND tbl.relkind = 'r'\n                     AND nspname NOT IN ('pg_catalog', 'information_schema')\n                   GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10) AS s) AS s2) AS s3\n WHERE NOT is_na) bloat",
+                            "rawSql": "SELECT CURRENT_CATALOG AS datname, nspname, relname , tblid , bs * tblpages AS size,\n       CASE WHEN tblpages - est_tblpages_ff > 0 THEN (tblpages - est_tblpages_ff)/tblpages::FLOAT ELSE 0 END AS ratio\nFROM (\n         SELECT ceil( reltuples / ( (bs-page_hdr)*fillfactor/(tpl_size*100) ) ) + ceil( toasttuples / 4 ) AS est_tblpages_ff,\n                tblpages, fillfactor, bs, tblid, nspname, relname, is_na\n         FROM (\n                  SELECT\n                      ( 4 + tpl_hdr_size + tpl_data_size + (2 * ma)\n                          - CASE WHEN tpl_hdr_size % ma = 0 THEN ma ELSE tpl_hdr_size % ma END\n                          - CASE WHEN ceil(tpl_data_size)::INT % ma = 0 THEN ma ELSE ceil(tpl_data_size)::INT % ma END\n                          ) AS tpl_size, (heappages + toastpages) AS tblpages, heappages,\n                      toastpages, reltuples, toasttuples, bs, page_hdr, tblid, nspname, relname, fillfactor, is_na\n                  FROM (\n                           SELECT\n                               tbl.oid AS tblid, ns.nspname , tbl.relname, tbl.reltuples,\n                               tbl.relpages AS heappages, coalesce(toast.relpages, 0) AS toastpages,\n                               coalesce(toast.reltuples, 0) AS toasttuples,\n                               coalesce(substring(array_to_string(tbl.reloptions, ' ') FROM 'fillfactor=([0-9]+)')::smallint, 100) AS fillfactor,\n                               current_setting('block_size')::numeric AS bs,\n                               CASE WHEN version()~'mingw32' OR version()~'64-bit|x86_64|ppc64|ia64|amd64' THEN 8 ELSE 4 END AS ma,\n                               24 AS page_hdr,\n                               23 + CASE WHEN MAX(coalesce(s.null_frac,0)) > 0 THEN ( 7 + count(s.attname) ) / 8 ELSE 0::int END\n                                   + CASE WHEN bool_or(att.attname = 'oid' and att.attnum < 0) THEN 4 ELSE 0 END AS tpl_hdr_size,\n                               sum( (1-coalesce(s.null_frac, 0)) * coalesce(s.avg_width, 0) ) AS tpl_data_size,\n                               bool_or(att.atttypid = 'pg_catalog.name'::regtype)\n                                   OR sum(CASE WHEN att.attnum > 0 THEN 1 ELSE 0 END) <> count(s.attname) AS is_na\n                           FROM pg_attribute AS att\n                                    JOIN pg_class AS tbl ON att.attrelid = tbl.oid\n                                    JOIN pg_namespace AS ns ON ns.oid = tbl.relnamespace\n                                    LEFT JOIN pg_stats AS s ON s.schemaname=ns.nspname AND s.tablename = tbl.relname AND s.inherited=false AND s.attname=att.attname\n                                    LEFT JOIN pg_class AS toast ON tbl.reltoastrelid = toast.oid\n                           WHERE NOT att.attisdropped AND tbl.relkind = 'r' AND nspname NOT IN ('pg_catalog','information_schema')\n                           GROUP BY tbl.oid, ns.nspname, tbl.relname, tbl.reltuples, tbl.relpages, toast.relpages, toast.reltuples, tbl.reloptions\n                       ) AS s\n              ) AS s2\n     ) AS s3\nWHERE NOT is_na;",
                             "refId": "A",
                             "select": [
                                 [
@@ -7743,7 +7777,7 @@
                 },
                 {
                     "datasource": {
-                        "type": "postgres",
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "fieldConfig": {
@@ -7762,7 +7796,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -7784,7 +7819,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -7823,7 +7859,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -7860,7 +7897,7 @@
                         "h": 12,
                         "w": 12,
                         "x": 12,
-                        "y": 141
+                        "y": 76
                     },
                     "id": 191,
                     "options": {
@@ -7874,26 +7911,15 @@
                     "targets": [
                         {
                             "datasource": {
-                                "type": "postgres",
-                                "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "${dsn}"
                             },
                             "editorMode": "code",
                             "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
+                            "hide": false,
                             "rawQuery": true,
-                            "rawSql": "SELECT nspname || '.' || relname AS relname, size, ratio, size * ratio AS waste FROM\n    (SELECT CURRENT_CATALOG                                                                                         AS datname,\n        nspname,\n        relname,\n        tblid,\n        bs * tblpages                                                                                           AS size,\n        CASE WHEN tblpages - est_tblpages_ff > 0 THEN (tblpages - est_tblpages_ff) / tblpages::FLOAT ELSE 0 END AS ratio\n FROM (SELECT ceil(reltuples / ((bs - page_hdr) * fillfactor / (tpl_size * 100))) +\n              ceil(toasttuples / 4) AS est_tblpages_ff,\n              tblpages,\n              fillfactor,\n              bs,\n              tblid,\n              nspname,\n              relname,\n              is_na\n       FROM (SELECT (4 + tpl_hdr_size + tpl_data_size + (2 * ma)\n           - CASE WHEN tpl_hdr_size % ma = 0 THEN ma ELSE tpl_hdr_size % ma END\n           - CASE WHEN ceil(tpl_data_size)::INT % ma = 0 THEN ma ELSE ceil(tpl_data_size)::INT % ma END\n                        )                    AS tpl_size,\n                    (heappages + toastpages) AS tblpages,\n                    heappages,\n                    toastpages,\n                    reltuples,\n                    toasttuples,\n                    bs,\n                    page_hdr,\n                    tblid,\n                    nspname,\n                    relname,\n                    fillfactor,\n                    is_na\n             FROM (SELECT tbl.oid                                                                           AS tblid,\n                          ns.nspname,\n                          tbl.relname,\n                          tbl.reltuples,\n                          tbl.relpages                                                                      AS heappages,\n                          coalesce(toast.relpages, 0)                                                       AS toastpages,\n                          coalesce(toast.reltuples, 0)                                                      AS toasttuples,\n                          coalesce(substring(array_to_string(tbl.reloptions, ' ') FROM 'fillfactor=([0-9]+)')::smallint,\n                                   100)                                                                     AS fillfactor,\n                          current_setting('block_size')::numeric                                            AS bs,\n                          CASE\n                              WHEN version() ~ 'mingw32' OR version() ~ '64-bit|x86_64|ppc64|ia64|amd64' THEN 8\n                              ELSE 4 END                                                                    AS ma,\n                          24                                                                                AS page_hdr,\n                          23 +\n                          CASE WHEN MAX(coalesce(s.null_frac, 0)) > 0 THEN (7 + count(s.attname)) / 8 ELSE 0::int END\n                              + CASE\n                                    WHEN bool_or(att.attname = 'oid' and att.attnum < 0) THEN 4\n                                    ELSE 0 END                                                              AS tpl_hdr_size,\n                          sum((1 - coalesce(s.null_frac, 0)) * coalesce(s.avg_width, 0))                    AS tpl_data_size,\n                          bool_or(att.atttypid = 'pg_catalog.name'::regtype)\n                              OR sum(CASE WHEN att.attnum > 0 THEN 1 ELSE 0 END) <> count(s.attname)        AS is_na\n                   FROM pg_attribute AS att\n                            JOIN pg_class AS tbl ON att.attrelid = tbl.oid\n                            JOIN pg_namespace AS ns ON ns.oid = tbl.relnamespace\n                            LEFT JOIN pg_stats AS s ON s.schemaname = ns.nspname AND s.tablename = tbl.relname AND\n                                                       s.inherited = false AND s.attname = att.attname\n                            LEFT JOIN pg_class AS toast ON tbl.reltoastrelid = toast.oid\n                   WHERE NOT att.attisdropped\n                     AND tbl.relkind = 'r'\n                     AND nspname NOT IN ('pg_catalog', 'information_schema')\n                   GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10) AS s) AS s2) AS s3\n WHERE NOT is_na) bloat",
+                            "rawSql": "SELECT CURRENT_CATALOG AS datname, nspname, relname , tblid , bs * tblpages AS size,\n       CASE WHEN tblpages - est_tblpages_ff > 0 THEN (tblpages - est_tblpages_ff)/tblpages::FLOAT ELSE 0 END AS ratio\nFROM (\n         SELECT ceil( reltuples / ( (bs-page_hdr)*fillfactor/(tpl_size*100) ) ) + ceil( toasttuples / 4 ) AS est_tblpages_ff,\n                tblpages, fillfactor, bs, tblid, nspname, relname, is_na\n         FROM (\n                  SELECT\n                      ( 4 + tpl_hdr_size + tpl_data_size + (2 * ma)\n                          - CASE WHEN tpl_hdr_size % ma = 0 THEN ma ELSE tpl_hdr_size % ma END\n                          - CASE WHEN ceil(tpl_data_size)::INT % ma = 0 THEN ma ELSE ceil(tpl_data_size)::INT % ma END\n                          ) AS tpl_size, (heappages + toastpages) AS tblpages, heappages,\n                      toastpages, reltuples, toasttuples, bs, page_hdr, tblid, nspname, relname, fillfactor, is_na\n                  FROM (\n                           SELECT\n                               tbl.oid AS tblid, ns.nspname , tbl.relname, tbl.reltuples,\n                               tbl.relpages AS heappages, coalesce(toast.relpages, 0) AS toastpages,\n                               coalesce(toast.reltuples, 0) AS toasttuples,\n                               coalesce(substring(array_to_string(tbl.reloptions, ' ') FROM 'fillfactor=([0-9]+)')::smallint, 100) AS fillfactor,\n                               current_setting('block_size')::numeric AS bs,\n                               CASE WHEN version()~'mingw32' OR version()~'64-bit|x86_64|ppc64|ia64|amd64' THEN 8 ELSE 4 END AS ma,\n                               24 AS page_hdr,\n                               23 + CASE WHEN MAX(coalesce(s.null_frac,0)) > 0 THEN ( 7 + count(s.attname) ) / 8 ELSE 0::int END\n                                   + CASE WHEN bool_or(att.attname = 'oid' and att.attnum < 0) THEN 4 ELSE 0 END AS tpl_hdr_size,\n                               sum( (1-coalesce(s.null_frac, 0)) * coalesce(s.avg_width, 0) ) AS tpl_data_size,\n                               bool_or(att.atttypid = 'pg_catalog.name'::regtype)\n                                   OR sum(CASE WHEN att.attnum > 0 THEN 1 ELSE 0 END) <> count(s.attname) AS is_na\n                           FROM pg_attribute AS att\n                                    JOIN pg_class AS tbl ON att.attrelid = tbl.oid\n                                    JOIN pg_namespace AS ns ON ns.oid = tbl.relnamespace\n                                    LEFT JOIN pg_stats AS s ON s.schemaname=ns.nspname AND s.tablename = tbl.relname AND s.inherited=false AND s.attname=att.attname\n                                    LEFT JOIN pg_class AS toast ON tbl.reltoastrelid = toast.oid\n                           WHERE NOT att.attisdropped AND tbl.relkind = 'r' AND nspname NOT IN ('pg_catalog','information_schema')\n                           GROUP BY tbl.oid, ns.nspname, tbl.relname, tbl.reltuples, tbl.relpages, toast.relpages, toast.reltuples, tbl.reloptions\n                       ) AS s\n              ) AS s2\n     ) AS s3\nWHERE NOT is_na;",
                             "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "probability"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
                             "sql": {
                                 "columns": [
                                     {
@@ -7910,17 +7936,7 @@
                                     }
                                 ],
                                 "limit": 50
-                            },
-                            "table": "auto_suspicious_matches",
-                            "timeColumn": "created_time",
-                            "timeColumnType": "timestamp",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
+                            }
                         }
                     ],
                     "title": "Table Wasted Bytes",
@@ -7953,7 +7969,7 @@
                 },
                 {
                     "datasource": {
-                        "type": "postgres",
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "description": "Bloat ratio & wasted bytes estimation of all btree indexes",
@@ -7975,7 +7991,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -8058,7 +8075,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -8123,7 +8141,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -8156,7 +8175,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 153
+                        "y": 88
                     },
                     "id": 192,
                     "options": {
@@ -8177,7 +8196,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -8189,7 +8208,7 @@
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT nspname || '.' || relname AS relname, size, ratio, size * ratio AS waste FROM (\n     SELECT CURRENT_CATALOG AS datname, nspname, idxname AS relname, tblid, idxid, relpages::BIGINT * bs AS size,\n            COALESCE((relpages - ( reltuples * (6 + ma - (CASE WHEN index_tuple_hdr % ma = 0 THEN ma ELSE index_tuple_hdr % ma END)\n                                                    + nulldatawidth + ma - (CASE WHEN nulldatawidth % ma = 0 THEN ma ELSE nulldatawidth % ma END))\n                                       / (bs - pagehdr)::FLOAT  + 1 )), 0) / relpages::FLOAT AS ratio\n     FROM (\n              SELECT nspname,idxname,indrelid AS tblid,indexrelid AS idxid,\n                     reltuples,relpages,\n                     current_setting('block_size')::INTEGER                                                               AS bs,\n                     (CASE WHEN version() ~ 'mingw32' OR version() ~ '64-bit|x86_64|ppc64|ia64|amd64' THEN 8 ELSE 4 END)  AS ma,\n                     24                                                                                                   AS pagehdr,\n                     (CASE WHEN max(COALESCE(pg_stats.null_frac, 0)) = 0 THEN 2 ELSE 6 END)                               AS index_tuple_hdr,\n                     sum((1.0 - COALESCE(pg_stats.null_frac, 0.0)) *\n                         COALESCE(pg_stats.avg_width, 1024))::INTEGER                                                     AS nulldatawidth\n              FROM pg_attribute\n                       JOIN (\n                  SELECT pg_namespace.nspname,\n                         ic.relname                                                   AS idxname,\n                         ic.reltuples,\n                         ic.relpages,\n                         pg_index.indrelid,\n                         pg_index.indexrelid,\n                         tc.relname                                                   AS tablename,\n                         regexp_split_to_table(pg_index.indkey::TEXT, ' ') :: INTEGER AS attnum,\n                         pg_index.indexrelid                                          AS index_oid\n                  FROM pg_index\n                           JOIN pg_class ic ON pg_index.indexrelid = ic.oid\n                           JOIN pg_class tc ON pg_index.indrelid = tc.oid\n                           JOIN pg_namespace ON pg_namespace.oid = ic.relnamespace\n                           JOIN pg_am ON ic.relam = pg_am.oid\n                  WHERE pg_am.amname = 'btree' AND ic.relpages > 0 AND nspname NOT IN ('pg_catalog', 'information_schema')\n              ) ind_atts ON pg_attribute.attrelid = ind_atts.indexrelid AND pg_attribute.attnum = ind_atts.attnum\n                       JOIN pg_stats ON pg_stats.schemaname = ind_atts.nspname\n                  AND ((pg_stats.tablename = ind_atts.tablename AND pg_stats.attname = pg_get_indexdef(pg_attribute.attrelid, pg_attribute.attnum, TRUE))\n                      OR (pg_stats.tablename = ind_atts.idxname AND pg_stats.attname = pg_attribute.attname))\n              WHERE pg_attribute.attnum > 0\n              GROUP BY 1, 2, 3, 4, 5, 6\n          ) est\n) bloat;",
+                            "rawSql": "SELECT CURRENT_CATALOG AS datname, nspname, idxname AS relname, tblid, idxid, relpages::BIGINT * bs AS size,\n       COALESCE((relpages - ( reltuples * (6 + ma - (CASE WHEN index_tuple_hdr % ma = 0 THEN ma ELSE index_tuple_hdr % ma END)\n        + nulldatawidth + ma - (CASE WHEN nulldatawidth % ma = 0 THEN ma ELSE nulldatawidth % ma END))\n        / (bs - pagehdr)::FLOAT  + 1 )), 0) / relpages::FLOAT AS ratio\nFROM (\n         SELECT nspname,idxname,indrelid AS tblid,indexrelid AS idxid,\n                reltuples,relpages,\n                current_setting('block_size')::INTEGER                                                               AS bs,\n                (CASE WHEN version() ~ 'mingw32' OR version() ~ '64-bit|x86_64|ppc64|ia64|amd64' THEN 8 ELSE 4 END)  AS ma,\n                24                                                                                                   AS pagehdr,\n                (CASE WHEN max(COALESCE(pg_stats.null_frac, 0)) = 0 THEN 2 ELSE 6 END)                               AS index_tuple_hdr,\n                sum((1.0 - COALESCE(pg_stats.null_frac, 0.0)) *\n                    COALESCE(pg_stats.avg_width, 1024))::INTEGER                                                     AS nulldatawidth\n         FROM pg_attribute\n                  JOIN (\n             SELECT pg_namespace.nspname,\n                    ic.relname                                                   AS idxname,\n                    ic.reltuples,\n                    ic.relpages,\n                    pg_index.indrelid,\n                    pg_index.indexrelid,\n                    tc.relname                                                   AS tablename,\n                    regexp_split_to_table(pg_index.indkey::TEXT, ' ') :: INTEGER AS attnum,\n                    pg_index.indexrelid                                          AS index_oid\n             FROM pg_index\n                      JOIN pg_class ic ON pg_index.indexrelid = ic.oid\n                      JOIN pg_class tc ON pg_index.indrelid = tc.oid\n                      JOIN pg_namespace ON pg_namespace.oid = ic.relnamespace\n                      JOIN pg_am ON ic.relam = pg_am.oid\n             WHERE pg_am.amname = 'btree' AND ic.relpages > 0 AND nspname NOT IN ('pg_catalog', 'information_schema')\n         ) ind_atts ON pg_attribute.attrelid = ind_atts.indexrelid AND pg_attribute.attnum = ind_atts.attnum\n                  JOIN pg_stats ON pg_stats.schemaname = ind_atts.nspname\n             AND ((pg_stats.tablename = ind_atts.tablename AND pg_stats.attname = pg_get_indexdef(pg_attribute.attrelid, pg_attribute.attnum, TRUE))\n                 OR (pg_stats.tablename = ind_atts.idxname AND pg_stats.attname = pg_attribute.attname))\n         WHERE pg_attribute.attnum > 0\n         GROUP BY nspname,idxname,indrelid,indexrelid,reltuples,relpages\n     ) est;",
                             "refId": "A",
                             "select": [
                                 [
@@ -8260,7 +8279,7 @@
                 },
                 {
                     "datasource": {
-                        "type": "postgres",
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "fieldConfig": {
@@ -8279,7 +8298,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -8301,7 +8321,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -8340,7 +8361,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -8377,7 +8399,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 153
+                        "y": 88
                     },
                     "id": 193,
                     "options": {
@@ -8399,7 +8421,7 @@
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT nspname || '.' || relname AS relname, size, ratio, size * ratio AS waste FROM (\n     SELECT CURRENT_CATALOG AS datname, nspname, idxname AS relname, tblid, idxid, relpages::BIGINT * bs AS size,\n            COALESCE((relpages - ( reltuples * (6 + ma - (CASE WHEN index_tuple_hdr % ma = 0 THEN ma ELSE index_tuple_hdr % ma END)\n                                                    + nulldatawidth + ma - (CASE WHEN nulldatawidth % ma = 0 THEN ma ELSE nulldatawidth % ma END))\n                                       / (bs - pagehdr)::FLOAT  + 1 )), 0) / relpages::FLOAT AS ratio\n     FROM (\n              SELECT nspname,idxname,indrelid AS tblid,indexrelid AS idxid,\n                     reltuples,relpages,\n                     current_setting('block_size')::INTEGER                                                               AS bs,\n                     (CASE WHEN version() ~ 'mingw32' OR version() ~ '64-bit|x86_64|ppc64|ia64|amd64' THEN 8 ELSE 4 END)  AS ma,\n                     24                                                                                                   AS pagehdr,\n                     (CASE WHEN max(COALESCE(pg_stats.null_frac, 0)) = 0 THEN 2 ELSE 6 END)                               AS index_tuple_hdr,\n                     sum((1.0 - COALESCE(pg_stats.null_frac, 0.0)) *\n                         COALESCE(pg_stats.avg_width, 1024))::INTEGER                                                     AS nulldatawidth\n              FROM pg_attribute\n                       JOIN (\n                  SELECT pg_namespace.nspname,\n                         ic.relname                                                   AS idxname,\n                         ic.reltuples,\n                         ic.relpages,\n                         pg_index.indrelid,\n                         pg_index.indexrelid,\n                         tc.relname                                                   AS tablename,\n                         regexp_split_to_table(pg_index.indkey::TEXT, ' ') :: INTEGER AS attnum,\n                         pg_index.indexrelid                                          AS index_oid\n                  FROM pg_index\n                           JOIN pg_class ic ON pg_index.indexrelid = ic.oid\n                           JOIN pg_class tc ON pg_index.indrelid = tc.oid\n                           JOIN pg_namespace ON pg_namespace.oid = ic.relnamespace\n                           JOIN pg_am ON ic.relam = pg_am.oid\n                  WHERE pg_am.amname = 'btree' AND ic.relpages > 0 AND nspname NOT IN ('pg_catalog', 'information_schema')\n              ) ind_atts ON pg_attribute.attrelid = ind_atts.indexrelid AND pg_attribute.attnum = ind_atts.attnum\n                       JOIN pg_stats ON pg_stats.schemaname = ind_atts.nspname\n                  AND ((pg_stats.tablename = ind_atts.tablename AND pg_stats.attname = pg_get_indexdef(pg_attribute.attrelid, pg_attribute.attnum, TRUE))\n                      OR (pg_stats.tablename = ind_atts.idxname AND pg_stats.attname = pg_attribute.attname))\n              WHERE pg_attribute.attnum > 0\n              GROUP BY 1, 2, 3, 4, 5, 6\n          ) est\n) bloat;",
+                            "rawSql": "SELECT CURRENT_CATALOG AS datname, nspname, idxname AS relname, tblid, idxid, relpages::BIGINT * bs AS size,\n       COALESCE((relpages - ( reltuples * (6 + ma - (CASE WHEN index_tuple_hdr % ma = 0 THEN ma ELSE index_tuple_hdr % ma END)\n        + nulldatawidth + ma - (CASE WHEN nulldatawidth % ma = 0 THEN ma ELSE nulldatawidth % ma END))\n        / (bs - pagehdr)::FLOAT  + 1 )), 0) / relpages::FLOAT AS ratio\nFROM (\n         SELECT nspname,idxname,indrelid AS tblid,indexrelid AS idxid,\n                reltuples,relpages,\n                current_setting('block_size')::INTEGER                                                               AS bs,\n                (CASE WHEN version() ~ 'mingw32' OR version() ~ '64-bit|x86_64|ppc64|ia64|amd64' THEN 8 ELSE 4 END)  AS ma,\n                24                                                                                                   AS pagehdr,\n                (CASE WHEN max(COALESCE(pg_stats.null_frac, 0)) = 0 THEN 2 ELSE 6 END)                               AS index_tuple_hdr,\n                sum((1.0 - COALESCE(pg_stats.null_frac, 0.0)) *\n                    COALESCE(pg_stats.avg_width, 1024))::INTEGER                                                     AS nulldatawidth\n         FROM pg_attribute\n                  JOIN (\n             SELECT pg_namespace.nspname,\n                    ic.relname                                                   AS idxname,\n                    ic.reltuples,\n                    ic.relpages,\n                    pg_index.indrelid,\n                    pg_index.indexrelid,\n                    tc.relname                                                   AS tablename,\n                    regexp_split_to_table(pg_index.indkey::TEXT, ' ') :: INTEGER AS attnum,\n                    pg_index.indexrelid                                          AS index_oid\n             FROM pg_index\n                      JOIN pg_class ic ON pg_index.indexrelid = ic.oid\n                      JOIN pg_class tc ON pg_index.indrelid = tc.oid\n                      JOIN pg_namespace ON pg_namespace.oid = ic.relnamespace\n                      JOIN pg_am ON ic.relam = pg_am.oid\n             WHERE pg_am.amname = 'btree' AND ic.relpages > 0 AND nspname NOT IN ('pg_catalog', 'information_schema')\n         ) ind_atts ON pg_attribute.attrelid = ind_atts.indexrelid AND pg_attribute.attnum = ind_atts.attnum\n                  JOIN pg_stats ON pg_stats.schemaname = ind_atts.nspname\n             AND ((pg_stats.tablename = ind_atts.tablename AND pg_stats.attname = pg_get_indexdef(pg_attribute.attrelid, pg_attribute.attnum, TRUE))\n                 OR (pg_stats.tablename = ind_atts.idxname AND pg_stats.attname = pg_attribute.attname))\n         WHERE pg_attribute.attnum > 0\n         GROUP BY nspname,idxname,indrelid,indexrelid,reltuples,relpages\n     ) est;",
                             "refId": "A",
                             "select": [
                                 [
@@ -8507,7 +8529,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -8600,7 +8623,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -8726,10 +8750,9 @@
                         "h": 11,
                         "w": 24,
                         "x": 0,
-                        "y": 110
+                        "y": 102
                     },
                     "id": 194,
-                    "links": [],
                     "options": {
                         "cellHeight": "sm",
                         "footer": {
@@ -8748,7 +8771,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -8893,7 +8916,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -8926,7 +8950,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "super-light-blue"
+                                                    "color": "super-light-blue",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -9151,7 +9176,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -9236,7 +9262,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7a7a7a40",
@@ -9290,7 +9317,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -9323,7 +9351,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -9356,7 +9385,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -9385,7 +9415,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -9414,7 +9445,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -9431,10 +9463,9 @@
                         "h": 18,
                         "w": 24,
                         "x": 0,
-                        "y": 43
+                        "y": 114
                     },
                     "id": 186,
-                    "links": [],
                     "options": {
                         "cellHeight": "sm",
                         "footer": {
@@ -9454,7 +9485,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -9675,7 +9706,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -9708,7 +9740,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "super-light-blue"
+                                                    "color": "super-light-blue",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -9885,7 +9918,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -9944,7 +9978,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -10029,7 +10064,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7a7a7a40",
@@ -10083,7 +10119,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -10116,7 +10153,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -10149,7 +10187,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -10178,7 +10217,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -10207,7 +10247,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -10224,7 +10265,7 @@
                         "h": 14,
                         "w": 15,
                         "x": 0,
-                        "y": 89
+                        "y": 133
                     },
                     "id": 207,
                     "options": {
@@ -10246,7 +10287,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -10470,7 +10511,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "super-light-blue"
+                                        "color": "super-light-blue",
+                                        "value": null
                                     },
                                     {
                                         "color": "#3e668f",
@@ -10551,7 +10593,7 @@
                         "h": 14,
                         "w": 9,
                         "x": 15,
-                        "y": 89
+                        "y": 133
                     },
                     "id": 208,
                     "options": {
@@ -10619,7 +10661,6 @@
                         }
                     ],
                     "title": "SQL by Calls",
-                    "transformations": [],
                     "type": "marcusolsson-treemap-panel"
                 }
             ],
@@ -10657,7 +10698,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -10690,7 +10732,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "super-light-blue"
+                                                    "color": "super-light-blue",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -10867,7 +10910,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -10904,7 +10948,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -10941,7 +10986,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -11026,7 +11072,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7a7a7a40",
@@ -11080,7 +11127,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -11113,7 +11161,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -11146,7 +11195,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -11175,7 +11225,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -11204,7 +11255,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -11221,7 +11273,7 @@
                         "h": 14,
                         "w": 15,
                         "x": 0,
-                        "y": 74
+                        "y": 148
                     },
                     "id": 209,
                     "options": {
@@ -11243,7 +11295,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -11467,7 +11519,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "super-light-blue"
+                                        "color": "super-light-blue",
+                                        "value": null
                                     },
                                     {
                                         "color": "#3e668f",
@@ -11548,7 +11601,7 @@
                         "h": 14,
                         "w": 9,
                         "x": 15,
-                        "y": 74
+                        "y": 148
                     },
                     "id": 210,
                     "options": {
@@ -11616,7 +11669,6 @@
                         }
                     ],
                     "title": "SQL by Rows",
-                    "transformations": [],
                     "type": "marcusolsson-treemap-panel"
                 }
             ],
@@ -11654,7 +11706,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -11687,7 +11740,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "super-light-blue"
+                                                    "color": "super-light-blue",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -11864,7 +11918,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -11901,7 +11956,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -11938,7 +11994,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -12023,7 +12080,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7a7a7a40",
@@ -12077,7 +12135,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -12110,7 +12169,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -12143,7 +12203,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -12172,7 +12233,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -12201,7 +12263,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -12218,7 +12281,7 @@
                         "h": 14,
                         "w": 15,
                         "x": 0,
-                        "y": 43
+                        "y": 163
                     },
                     "id": 211,
                     "options": {
@@ -12240,7 +12303,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -12464,7 +12527,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "super-light-blue"
+                                        "color": "super-light-blue",
+                                        "value": null
                                     },
                                     {
                                         "color": "#3e668f",
@@ -12545,7 +12609,7 @@
                         "h": 14,
                         "w": 9,
                         "x": 15,
-                        "y": 43
+                        "y": 163
                     },
                     "id": 212,
                     "options": {
@@ -12613,7 +12677,6 @@
                         }
                     ],
                     "title": "SQL by Time",
-                    "transformations": [],
                     "type": "marcusolsson-treemap-panel"
                 }
             ],
@@ -12651,7 +12714,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -12684,7 +12748,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "super-light-blue"
+                                                    "color": "super-light-blue",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -12861,7 +12926,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -12898,7 +12964,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -12935,7 +13002,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -13020,7 +13088,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7a7a7a40",
@@ -13074,7 +13143,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -13107,7 +13177,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -13140,7 +13211,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -13169,7 +13241,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -13198,7 +13271,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -13215,7 +13289,7 @@
                         "h": 14,
                         "w": 15,
                         "x": 0,
-                        "y": 44
+                        "y": 178
                     },
                     "id": 213,
                     "options": {
@@ -13237,7 +13311,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -13461,7 +13535,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "super-light-blue"
+                                        "color": "super-light-blue",
+                                        "value": null
                                     },
                                     {
                                         "color": "#3e668f",
@@ -13542,7 +13617,7 @@
                         "h": 14,
                         "w": 9,
                         "x": 15,
-                        "y": 44
+                        "y": 178
                     },
                     "id": 214,
                     "options": {
@@ -13610,7 +13685,6 @@
                         }
                     ],
                     "title": "SQL by WAL",
-                    "transformations": [],
                     "type": "marcusolsson-treemap-panel"
                 }
             ],
@@ -13648,7 +13722,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -13681,7 +13756,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "super-light-blue"
+                                                    "color": "super-light-blue",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -13858,7 +13934,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -13895,7 +13972,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -13932,7 +14010,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -14017,7 +14096,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7a7a7a40",
@@ -14071,7 +14151,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -14104,7 +14185,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -14137,7 +14219,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -14166,7 +14249,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -14195,7 +14279,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -14212,7 +14297,7 @@
                         "h": 14,
                         "w": 24,
                         "x": 0,
-                        "y": 37
+                        "y": 193
                     },
                     "id": 215,
                     "options": {
@@ -14234,7 +14319,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -14471,7 +14556,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -14493,7 +14579,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc"
+                                                    "color": "#346f36cc",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#f5a673",
@@ -14755,7 +14842,7 @@
                         "h": 6,
                         "w": 24,
                         "x": 0,
-                        "y": 113
+                        "y": 208
                     },
                     "id": 144,
                     "options": {
@@ -14771,7 +14858,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "format": "table",
@@ -14881,7 +14968,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -14892,15 +14980,15 @@
                         "h": 9,
                         "w": 12,
                         "x": 0,
-                        "y": 119
+                        "y": 214
                     },
                     "id": 147,
-                    "links": [],
                     "options": {
                         "colorMode": "background",
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [
                                 "lastNotNull"
@@ -14908,10 +14996,12 @@
                             "fields": "/.*/",
                             "values": false
                         },
+                        "showPercentChange": false,
                         "text": {},
-                        "textMode": "auto"
+                        "textMode": "auto",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "format": "table",
@@ -14970,7 +15060,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -14981,15 +15072,15 @@
                         "h": 9,
                         "w": 12,
                         "x": 12,
-                        "y": 119
+                        "y": 214
                     },
                     "id": 148,
-                    "links": [],
                     "options": {
                         "colorMode": "background",
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [
                                 "lastNotNull"
@@ -14997,10 +15088,12 @@
                             "fields": "/.*/",
                             "values": false
                         },
+                        "showPercentChange": false,
                         "text": {},
-                        "textMode": "auto"
+                        "textMode": "auto",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "format": "table",
@@ -15070,7 +15163,7 @@
                 "name": "dsn",
                 "options": [],
                 "query": "postgres",
-                "queryValue": "meta",
+                "queryValue": "",
                 "refresh": 1,
                 "regex": "/.*\\..*/",
                 "skipUrlSync": false,

@@ -2485,7 +2485,7 @@
         },
         {
             "datasource": {
-                "type": "postgres",
+                "type": "grafana-postgresql-datasource",
                 "uid": "${dsn}"
             },
             "fieldConfig": {
@@ -3706,7 +3706,7 @@
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT *,\n  pg_blocking_pids(pid) AS blocking_pids,\n  extract(epoch from now() - backend_start) AS conn_time,\n  extract(epoch from now() - xact_start)    AS xact_time,\n  extract(epoch from now() - query_start)   AS query_time,\n  extract(epoch from now() - state_change)  AS state_time\n  -- ,query_id::TEXT AS qid -- 14 has query_id, comment this for PG 13 and below \nFROM pg_stat_activity;",
+                    "rawSql": "SELECT pg_blocking_pids(pid) AS blocking_pids,\n       datid,\n       datname,\n       pid,\n       leader_pid,\n       usesysid,\n       usename,\n       application_name,\n       client_addr,\n       client_hostname,\n       client_port,\n       extract(epoch from now() - backend_start) AS conn_time,\n       extract(epoch from now() - xact_start)    AS xact_time,\n       extract(epoch from now() - query_start)   AS query_time,\n       extract(epoch from now() - state_change)  AS state_time,\n       wait_event_type,\n       wait_event,\n       state,\n       backend_xid,\n       backend_xmin,\n       query_id,\n       query,\n       backend_type,\n       query_id::TEXT AS qid -- 14 has query_id, comment this for PG 13 and below \nFROM pg_stat_activity;",
                     "refId": "A",
                     "select": [
                         [
@@ -3859,7 +3859,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     },
                                     {
                                         "color": "super-light-green",
@@ -4370,7 +4371,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#80808080"
+                                                    "color": "#80808080",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -4556,7 +4558,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#e3e3e3e0"
+                                                    "color": "#e3e3e3e0",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -4629,7 +4632,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -4694,7 +4698,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -4769,7 +4774,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -4847,7 +4853,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -5019,7 +5026,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#f5a673"
+                                                    "color": "#f5a673",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -5046,7 +5054,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc"
+                                                    "color": "#346f36cc",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#f5a673",
@@ -5095,7 +5104,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc"
+                                                    "color": "#346f36cc",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#f5a673",
@@ -5144,7 +5154,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -5190,7 +5201,7 @@
                         "h": 11,
                         "w": 24,
                         "x": 0,
-                        "y": 15
+                        "y": 31
                     },
                     "id": 179,
                     "links": [
@@ -5212,7 +5223,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "10.1.1",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -5359,6 +5370,7 @@
             "panels": [
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "fieldConfig": {
@@ -5562,7 +5574,7 @@
                         "h": 8,
                         "w": 8,
                         "x": 0,
-                        "y": 47
+                        "y": 43
                     },
                     "id": 105,
                     "options": {
@@ -5591,11 +5603,16 @@
                     "pluginVersion": "8.2.2",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
+                            },
+                            "editorMode": "code",
                             "format": "time_series",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT\n  now() as time ,\n  coalesce(backend_type, 'null') as metric,\n  count(*) as value\nFROM pg_stat_activity\nGROUP BY coalesce(backend_type, 'null');",
+                            "rawSql": "SELECT\n  extract(epoch from now()) AS time,\n  coalesce(backend_type, 'null') as metric,\n  count(*) as value\nFROM pg_stat_activity\nGROUP BY coalesce(backend_type, 'null');",
                             "refId": "A",
                             "select": [
                                 [
@@ -5607,6 +5624,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -5622,6 +5656,7 @@
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "fieldConfig": {
@@ -5690,7 +5725,7 @@
                         "h": 8,
                         "w": 8,
                         "x": 8,
-                        "y": 47
+                        "y": 43
                     },
                     "id": 104,
                     "options": {
@@ -5719,11 +5754,16 @@
                     "pluginVersion": "8.2.2",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
+                            },
+                            "editorMode": "code",
                             "format": "time_series",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT\n  now() as time ,\n  coalesce(state, 'null') as metric,\n  count(*) as value\nFROM pg_stat_activity\nGROUP BY coalesce(state, 'null');",
+                            "rawSql": "SELECT\n  extract(epoch from now()) AS time,\n  coalesce(state, 'null') AS metric,\n  count(*) AS value\nFROM pg_stat_activity\nGROUP BY coalesce(state, 'null');",
                             "refId": "A",
                             "select": [
                                 [
@@ -5735,6 +5775,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -5750,6 +5807,7 @@
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "fieldConfig": {
@@ -5803,7 +5861,7 @@
                         "h": 8,
                         "w": 8,
                         "x": 16,
-                        "y": 47
+                        "y": 43
                     },
                     "id": 103,
                     "options": {
@@ -5832,11 +5890,16 @@
                     "pluginVersion": "8.2.2",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
+                            },
+                            "editorMode": "code",
                             "format": "time_series",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT\n  now() as time ,\n  coalesce(wait_event, 'null') as metric,\n  count(*) as value\nFROM pg_stat_activity\nGROUP BY coalesce(wait_event, 'null');",
+                            "rawSql": "SELECT\n  extract(epoch from now()) AS time,\n  coalesce(wait_event, 'null') as metric,\n  count(*) as value\nFROM pg_stat_activity\nGROUP BY coalesce(wait_event, 'null');",
                             "refId": "A",
                             "select": [
                                 [
@@ -5848,6 +5911,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -5863,6 +5943,7 @@
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "fieldConfig": {
@@ -5976,7 +6057,7 @@
                         "h": 8,
                         "w": 8,
                         "x": 0,
-                        "y": 55
+                        "y": 51
                     },
                     "id": 107,
                     "options": {
@@ -6005,11 +6086,16 @@
                     "pluginVersion": "8.2.2",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
+                            },
+                            "editorMode": "code",
                             "format": "time_series",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT\n  now() as time ,\n  coalesce(client_addr::text, 'null') as metric,\n  count(*) as value\nFROM pg_stat_activity\nGROUP BY coalesce(client_addr::text, 'null');\n",
+                            "rawSql": "SELECT\n  extract(epoch from now()) AS time,\n  coalesce(client_addr::text, 'null') as metric,\n  count(*) as value\nFROM pg_stat_activity\nGROUP BY coalesce(client_addr::text, 'null');\n",
                             "refId": "A",
                             "select": [
                                 [
@@ -6021,6 +6107,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -6036,6 +6139,7 @@
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "fieldConfig": {
@@ -6164,7 +6268,7 @@
                         "h": 8,
                         "w": 8,
                         "x": 8,
-                        "y": 55
+                        "y": 51
                     },
                     "id": 109,
                     "options": {
@@ -6193,11 +6297,16 @@
                     "pluginVersion": "8.2.2",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
+                            },
+                            "editorMode": "code",
                             "format": "time_series",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT\n  now() as time ,\n  coalesce(usename, 'null') as metric,\n  count(*) as value\nFROM pg_stat_activity\nGROUP BY coalesce(usename, 'null');",
+                            "rawSql": "SELECT\n  extract(epoch from now()) AS time,\n  coalesce(usename, 'null') as metric,\n  count(*) as value\nFROM pg_stat_activity\nGROUP BY coalesce(usename, 'null');",
                             "refId": "A",
                             "select": [
                                 [
@@ -6209,6 +6318,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -6224,6 +6350,7 @@
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "fieldConfig": {
@@ -6352,7 +6479,7 @@
                         "h": 8,
                         "w": 8,
                         "x": 16,
-                        "y": 55
+                        "y": 51
                     },
                     "id": 106,
                     "options": {
@@ -6381,11 +6508,16 @@
                     "pluginVersion": "8.2.2",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
+                            },
+                            "editorMode": "code",
                             "format": "time_series",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT\n  now() as time ,\n  coalesce(application_name, 'null') as metric,\n  count(*) as value\nFROM pg_stat_activity\nGROUP BY 2;",
+                            "rawSql": "SELECT\n  extract(epoch from now()) AS time,\n  coalesce(application_name, 'null') as metric,\n  count(*) as value\nFROM pg_stat_activity\nGROUP BY application_name;",
                             "refId": "A",
                             "select": [
                                 [
@@ -6397,6 +6529,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -6449,7 +6598,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -6482,7 +6632,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "super-light-blue"
+                                                    "color": "super-light-blue",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#3e668f",
@@ -6707,7 +6858,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -6792,7 +6944,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7a7a7a40",
@@ -6846,7 +6999,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -6879,7 +7033,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -6912,7 +7067,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -6941,7 +7097,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -6970,7 +7127,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "transparent"
+                                                    "color": "transparent",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#7d7d7d33",
@@ -6987,7 +7145,7 @@
                         "h": 18,
                         "w": 24,
                         "x": 0,
-                        "y": 48
+                        "y": 60
                     },
                     "id": 172,
                     "options": {
@@ -7008,7 +7166,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -7238,7 +7396,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -7393,7 +7552,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc"
+                                                    "color": "#346f36cc",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -7527,7 +7687,7 @@
                         "h": 11,
                         "w": 24,
                         "x": 0,
-                        "y": 67
+                        "y": 79
                     },
                     "id": 84,
                     "options": {
@@ -7543,7 +7703,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -7710,6 +7870,7 @@
             "panels": [
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "description": "These settings can only be applied when the server starts",
@@ -7723,7 +7884,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -7734,15 +7896,15 @@
                         "h": 22,
                         "w": 6,
                         "x": 0,
-                        "y": 79
+                        "y": 91
                     },
                     "id": 130,
-                    "links": [],
                     "options": {
                         "colorMode": "background",
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [
                                 "lastNotNull"
@@ -7750,20 +7912,27 @@
                             "fields": "/^value$/",
                             "values": true
                         },
+                        "showPercentChange": false,
                         "text": {
                             "titleSize": 12,
                             "valueSize": 12
                         },
-                        "textMode": "auto"
+                        "textMode": "auto",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
+                            },
+                            "editorMode": "code",
                             "format": "time_series",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT now() AS time, name AS metric,setting AS value FROM pg_settings WHERE context = 'postmaster'",
+                            "rawSql": "SELECT extract(EPOCH FROM now()) AS time, name AS metric,setting AS value FROM pg_settings WHERE context = 'postmaster'",
                             "refId": "A",
                             "select": [
                                 [
@@ -7775,6 +7944,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -7786,11 +7972,11 @@
                         }
                     ],
                     "title": "Postmaster",
-                    "transformations": [],
                     "type": "stat"
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "description": "These settings cannot be changed directly; they reflect internally determined values. Some of them may be adjustable by rebuilding the server with different configuration options, or by changing options supplied to initdb.",
@@ -7804,7 +7990,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -7815,15 +8002,15 @@
                         "h": 13,
                         "w": 6,
                         "x": 6,
-                        "y": 79
+                        "y": 91
                     },
-                    "id": 131,
-                    "links": [],
+                    "id": 181,
                     "options": {
                         "colorMode": "background",
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [
                                 "lastNotNull"
@@ -7831,20 +8018,27 @@
                             "fields": "/^value$/",
                             "values": true
                         },
+                        "showPercentChange": false,
                         "text": {
                             "titleSize": 12,
                             "valueSize": 12
                         },
-                        "textMode": "auto"
+                        "textMode": "auto",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
+                            },
+                            "editorMode": "code",
                             "format": "time_series",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT now() AS time, name AS metric,setting AS value FROM pg_settings WHERE context = 'internal'",
+                            "rawSql": "SELECT extract(EPOCH FROM now()) AS time, name AS metric,setting AS value FROM pg_settings WHERE context = 'internal' AND\nname NOT LIKE 'polar%'",
                             "refId": "A",
                             "select": [
                                 [
@@ -7856,6 +8050,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -7867,12 +8078,11 @@
                         }
                     ],
                     "title": "Internal",
-                    "transformations": [],
                     "type": "stat"
                 },
                 {
                     "datasource": {
-                        "type": "postgres",
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "description": "These settings that has non-default values",
@@ -7893,7 +8103,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#f5a673"
+                                        "color": "#f5a673",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -8118,10 +8329,9 @@
                         "h": 22,
                         "w": 12,
                         "x": 12,
-                        "y": 79
+                        "y": 91
                     },
                     "id": 92,
-                    "links": [],
                     "options": {
                         "cellHeight": "sm",
                         "footer": {
@@ -8135,7 +8345,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -8143,9 +8353,12 @@
                                 "uid": "a48cedfc-b0bf-40da-aafb-23f7954b8000"
                             },
                             "editorMode": "code",
+                            "expr": "",
                             "format": "table",
                             "group": [],
+                            "legendFormat": "__auto",
                             "metricColumn": "none",
+                            "range": true,
                             "rawQuery": true,
                             "rawSql": "SELECT name,setting,source,context,pending_restart FROM pg_settings;",
                             "refId": "A",
@@ -8235,7 +8448,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -8246,7 +8460,7 @@
                         "h": 9,
                         "w": 6,
                         "x": 6,
-                        "y": 92
+                        "y": 104
                     },
                     "id": 129,
                     "options": {
@@ -8254,18 +8468,21 @@
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [],
                             "fields": "/.*/",
                             "values": false
                         },
+                        "showPercentChange": false,
                         "text": {
                             "titleSize": 12,
                             "valueSize": 12
                         },
-                        "textMode": "auto"
+                        "textMode": "auto",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "format": "table",
@@ -8295,15 +8512,14 @@
                         }
                     ],
                     "title": "Init Parameters",
-                    "transformations": [],
                     "type": "stat"
                 },
                 {
                     "datasource": {
-                        "type": "postgres",
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
-                    "description": "",
+                    "description": "Archive Command & Primary Info\n",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -8314,7 +8530,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -8325,15 +8542,15 @@
                         "h": 2,
                         "w": 24,
                         "x": 0,
-                        "y": 101
+                        "y": 113
                     },
-                    "id": 134,
-                    "links": [],
+                    "id": 182,
                     "options": {
                         "colorMode": "background",
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [
                                 "lastNotNull"
@@ -8341,25 +8558,27 @@
                             "fields": "/^value$/",
                             "values": true
                         },
+                        "showPercentChange": false,
                         "text": {
                             "titleSize": 12,
                             "valueSize": 12
                         },
-                        "textMode": "auto"
+                        "textMode": "auto",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
-                                "type": "postgres",
-                                "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
                             },
                             "editorMode": "code",
                             "format": "time_series",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT now() AS time, name AS metric,setting AS value FROM pg_settings WHERE name in ('archive_command', 'primary_conninfo')",
+                            "rawSql": "SELECT extract(EPOCH FROM now()) AS time, name AS metric,setting AS value FROM pg_settings WHERE name = 'archive_command' or name = 'primary_conninfo';",
                             "refId": "A",
                             "select": [
                                 [
@@ -8398,7 +8617,6 @@
                             ]
                         }
                     ],
-                    "transformations": [],
                     "type": "stat"
                 }
             ],
@@ -8442,7 +8660,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -8671,7 +8890,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc"
+                                                    "color": "#346f36cc",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#fcdb72",
@@ -8721,7 +8941,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc"
+                                                    "color": "#346f36cc",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#fcdb72",
@@ -8773,7 +8994,7 @@
                         "h": 6,
                         "w": 24,
                         "x": 0,
-                        "y": 104
+                        "y": 116
                     },
                     "id": 140,
                     "options": {
@@ -8789,7 +9010,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "format": "table",
@@ -8937,7 +9158,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -8959,7 +9181,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc"
+                                                    "color": "#346f36cc",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#f5a673",
@@ -9253,7 +9476,7 @@
                         "h": 6,
                         "w": 24,
                         "x": 0,
-                        "y": 110
+                        "y": 122
                     },
                     "id": 142,
                     "options": {
@@ -9269,7 +9492,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "format": "table",
@@ -9389,7 +9612,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -9411,7 +9635,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#346f36cc"
+                                                    "color": "#346f36cc",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#f5a673",
@@ -9673,7 +9898,7 @@
                         "h": 6,
                         "w": 24,
                         "x": 0,
-                        "y": 116
+                        "y": 128
                     },
                     "id": 144,
                     "options": {
@@ -9689,7 +9914,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "format": "table",
@@ -9786,6 +10011,7 @@
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "description": "The pg_stat_wal_receiver view will contain only one row, showing statistics about the WAL receiver from that receiver's connected server.",
@@ -9799,7 +10025,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -9810,15 +10037,15 @@
                         "h": 14,
                         "w": 8,
                         "x": 0,
-                        "y": 122
+                        "y": 134
                     },
                     "id": 146,
-                    "links": [],
                     "options": {
                         "colorMode": "background",
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [
                                 "lastNotNull"
@@ -9826,15 +10053,22 @@
                             "fields": "/.*/",
                             "values": false
                         },
+                        "showPercentChange": false,
                         "text": {
                             "titleSize": 16,
                             "valueSize": 16
                         },
-                        "textMode": "auto"
+                        "textMode": "auto",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-test-1.test"
+                            },
+                            "editorMode": "code",
                             "format": "table",
                             "group": [],
                             "metricColumn": "none",
@@ -9851,6 +10085,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -9878,6 +10129,7 @@
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "description": "The pg_stat_wal_receiver view will contain only one row, showing statistics about the WAL receiver from that receiver's connected server.",
@@ -9891,7 +10143,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -9902,15 +10155,15 @@
                         "h": 14,
                         "w": 8,
                         "x": 8,
-                        "y": 122
+                        "y": 134
                     },
                     "id": 147,
-                    "links": [],
                     "options": {
                         "colorMode": "background",
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [
                                 "lastNotNull"
@@ -9918,15 +10171,22 @@
                             "fields": "/.*/",
                             "values": false
                         },
+                        "showPercentChange": false,
                         "text": {
                             "titleSize": 16,
                             "valueSize": 16
                         },
-                        "textMode": "auto"
+                        "textMode": "auto",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-test-1.test"
+                            },
+                            "editorMode": "code",
                             "format": "table",
                             "group": [],
                             "metricColumn": "none",
@@ -9943,6 +10203,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -9983,7 +10260,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -9994,15 +10272,15 @@
                         "h": 14,
                         "w": 8,
                         "x": 16,
-                        "y": 122
+                        "y": 134
                     },
                     "id": 148,
-                    "links": [],
                     "options": {
                         "colorMode": "background",
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [
                                 "lastNotNull"
@@ -10010,13 +10288,15 @@
                             "fields": "/.*/",
                             "values": false
                         },
+                        "showPercentChange": false,
                         "text": {
                             "titleSize": 16,
                             "valueSize": 16
                         },
-                        "textMode": "auto"
+                        "textMode": "auto",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "format": "table",
@@ -10098,7 +10378,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -10145,7 +10426,7 @@
                         "h": 10,
                         "w": 8,
                         "x": 0,
-                        "y": 137
+                        "y": 149
                     },
                     "id": 118,
                     "options": {
@@ -10166,7 +10447,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "format": "table",
@@ -10213,6 +10494,7 @@
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "description": "PostgreSQL server's main shared memory segment.",
@@ -10344,7 +10626,7 @@
                         "h": 10,
                         "w": 16,
                         "x": 8,
-                        "y": 137
+                        "y": 149
                     },
                     "id": 122,
                     "options": {
@@ -10370,11 +10652,16 @@
                     "pluginVersion": "8.2.2",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
+                            },
+                            "editorMode": "code",
                             "format": "time_series",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT now() AS time, coalesce(name, 'Free') AS name, allocated_size AS size FROM pg_shmem() ORDER BY 2 DESC;",
+                            "rawSql": "SELECT extract(EPOCH FROM now()) AS time, coalesce(name, 'Free') AS name, allocated_size AS size FROM pg_shmem() ORDER BY 2 DESC;",
                             "refId": "A",
                             "select": [
                                 [
@@ -10386,6 +10673,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -10415,6 +10719,7 @@
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "description": "PostgreSQL server's main shared memory segment.",
@@ -10428,7 +10733,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -10439,7 +10745,7 @@
                         "h": 10,
                         "w": 8,
                         "x": 0,
-                        "y": 147
+                        "y": 159
                     },
                     "id": 127,
                     "options": {
@@ -10450,11 +10756,16 @@
                     "pluginVersion": "8.2.2",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
+                            },
+                            "editorMode": "code",
                             "format": "table",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT now() AS time, coalesce(name, 'Free') AS name, allocated_size AS size FROM pg_shmem() ORDER BY 2 DESC;",
+                            "rawSql": "SELECT extract(EPOCH FROM now()) AS time, coalesce(name, 'Free') AS name, allocated_size AS size FROM pg_shmem() ORDER BY 2 DESC;",
                             "refId": "A",
                             "select": [
                                 [
@@ -10466,6 +10777,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -10495,6 +10823,7 @@
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "description": "PostgreSQL accesses certain on-disk information via SLRU (simple least-recently-used) caches. The pg_stat_slru view will contain one row for each tracked SLRU cache, showing statistics about access to cached pages.",
@@ -10517,7 +10846,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#e3e3e3e0"
+                                        "color": "#e3e3e3e0",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -10551,7 +10881,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#e3e3e3e0"
+                                                    "color": "#e3e3e3e0",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -10575,7 +10906,7 @@
                         "h": 10,
                         "w": 16,
                         "x": 8,
-                        "y": 147
+                        "y": 159
                     },
                     "id": 113,
                     "options": {
@@ -10591,14 +10922,19 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
+                            },
+                            "editorMode": "code",
                             "format": "table",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT * FROM pg_stat_slru;",
+                            "rawSql": "SELECT name,blks_zeroed,blks_hit,blks_read,blks_written,blks_exists,flushes,truncates FROM pg_stat_slru",
                             "refId": "A",
                             "select": [
                                 [
@@ -10610,6 +10946,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -10651,7 +11004,7 @@
             "panels": [
                 {
                     "datasource": {
-                        "type": "postgres",
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "fieldConfig": {
@@ -10664,7 +11017,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -10675,7 +11029,7 @@
                         "h": 2,
                         "w": 6,
                         "x": 0,
-                        "y": 158
+                        "y": 10
                     },
                     "id": 155,
                     "options": {
@@ -10683,6 +11037,7 @@
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [
                                 "lastNotNull"
@@ -10690,13 +11045,15 @@
                             "fields": "/.*/",
                             "values": false
                         },
+                        "showPercentChange": false,
                         "text": {
                             "titleSize": 12,
                             "valueSize": 12
                         },
-                        "textMode": "value_and_name"
+                        "textMode": "value_and_name",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -10708,7 +11065,7 @@
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "select to_timestamp(((system_identifier>>32) & (2^32 -1)::bigint)) AS \"Cluster Created At\" FROM pg_control_system();",
+                            "rawSql": "select to_timestamp(((system_identifier>>32) & (2^32 -1)::bigint))::TEXT AS \"Cluster Created At\" FROM pg_control_system();",
                             "refId": "A",
                             "select": [
                                 [
@@ -10751,6 +11108,7 @@
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "fieldConfig": {
@@ -10763,7 +11121,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -10774,7 +11133,7 @@
                         "h": 8,
                         "w": 6,
                         "x": 6,
-                        "y": 158
+                        "y": 10
                     },
                     "id": 126,
                     "options": {
@@ -10782,25 +11141,33 @@
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [],
                             "fields": "/.*/",
                             "values": false
                         },
+                        "showPercentChange": false,
                         "text": {
                             "titleSize": 16,
                             "valueSize": 16
                         },
-                        "textMode": "auto"
+                        "textMode": "auto",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
+                            },
+                            "editorMode": "code",
                             "format": "table",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT * FROM pg_control_system();",
+                            "rawSql": "SELECT \npg_control_version,\ncatalog_version_no,\nsystem_identifier\t,\nextract(EPOCH FROM pg_control_last_modified) * 1000 AS last_modified\nFROM pg_control_system();",
                             "refId": "A",
                             "select": [
                                 [
@@ -10812,6 +11179,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -10823,11 +11207,24 @@
                         }
                     ],
                     "title": "pg_control_system",
-                    "transformations": [],
+                    "transformations": [
+                        {
+                            "id": "organize",
+                            "options": {
+                                "excludeByName": {},
+                                "includeByName": {},
+                                "indexByName": {},
+                                "renameByName": {
+                                    "pg_control_version": ""
+                                }
+                            }
+                        }
+                    ],
                     "type": "stat"
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "fieldConfig": {
@@ -10840,7 +11237,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -10851,86 +11249,7 @@
                         "h": 16,
                         "w": 6,
                         "x": 12,
-                        "y": 158
-                    },
-                    "id": 123,
-                    "options": {
-                        "colorMode": "background",
-                        "graphMode": "area",
-                        "justifyMode": "auto",
-                        "orientation": "horizontal",
-                        "reduceOptions": {
-                            "calcs": [
-                                "lastNotNull"
-                            ],
-                            "fields": "",
-                            "values": false
-                        },
-                        "text": {
-                            "titleSize": 16,
-                            "valueSize": 16
-                        },
-                        "textMode": "value_and_name"
-                    },
-                    "pluginVersion": "10.0.3",
-                    "targets": [
-                        {
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT * FROM pg_stat_bgwriter;",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
-                    ],
-                    "title": "pg_stat_bgwriter",
-                    "transformations": [],
-                    "type": "stat"
-                },
-                {
-                    "datasource": {
-                        "uid": "${dsn}"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "mappings": [],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "#3e668f"
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 16,
-                        "w": 6,
-                        "x": 18,
-                        "y": 158
+                        "y": 10
                     },
                     "id": 119,
                     "options": {
@@ -10938,6 +11257,7 @@
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [
                                 "lastNotNull"
@@ -10945,20 +11265,27 @@
                             "fields": "",
                             "values": false
                         },
+                        "showPercentChange": false,
                         "text": {
                             "titleSize": 16,
                             "valueSize": 16
                         },
-                        "textMode": "value_and_name"
+                        "textMode": "value_and_name",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-test-1.test"
+                            },
+                            "editorMode": "code",
                             "format": "table",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT * FROM pg_stat_wal;",
+                            "rawSql": "SELECT \n wal_records      ,\n wal_fpi          ,\n wal_bytes        ,\n wal_buffers_full ,\n wal_write        ,\n wal_sync         ,\n wal_write_time   ,\n wal_sync_time    \nFROM pg_stat_wal;",
                             "refId": "A",
                             "select": [
                                 [
@@ -10970,6 +11297,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -10981,11 +11325,11 @@
                         }
                     ],
                     "title": "pg_stat_wal",
-                    "transformations": [],
                     "type": "stat"
                 },
                 {
                     "datasource": {
+                        "type": "grafana-postgresql-datasource",
                         "uid": "${dsn}"
                     },
                     "fieldConfig": {
@@ -10998,7 +11342,113 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
+                                    }
+                                ]
+                            }
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 16,
+                        "w": 6,
+                        "x": 18,
+                        "y": 10
+                    },
+                    "id": 123,
+                    "options": {
+                        "colorMode": "background",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "text": {
+                            "titleSize": 16,
+                            "valueSize": 16
+                        },
+                        "textMode": "value_and_name",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "11.1.4",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-test-1.test"
+                            },
+                            "editorMode": "code",
+                            "format": "table",
+                            "group": [],
+                            "metricColumn": "none",
+                            "rawQuery": true,
+                            "rawSql": "SELECT checkpoints_timed,\n       checkpoints_req,\n       checkpoint_write_time,\n       checkpoint_sync_time,\n       buffers_checkpoint,\n       buffers_clean,\n       maxwritten_clean,\n       buffers_backend,\n       buffers_backend_fsync,\n       buffers_alloc\nFROM pg_stat_bgwriter;",
+                            "refId": "A",
+                            "select": [
+                                [
+                                    {
+                                        "params": [
+                                            "value"
+                                        ],
+                                        "type": "column"
+                                    }
+                                ]
+                            ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
+                            "timeColumn": "time",
+                            "where": [
+                                {
+                                    "name": "$__timeFilter",
+                                    "params": [],
+                                    "type": "macro"
+                                }
+                            ]
+                        }
+                    ],
+                    "title": "pg_stat_bgwriter",
+                    "type": "stat"
+                },
+                {
+                    "datasource": {
+                        "type": "grafana-postgresql-datasource",
+                        "uid": "${dsn}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -11036,7 +11486,7 @@
                         "h": 14,
                         "w": 6,
                         "x": 0,
-                        "y": 160
+                        "y": 12
                     },
                     "id": 116,
                     "options": {
@@ -11044,6 +11494,7 @@
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [
                                 "lastNotNull"
@@ -11051,20 +11502,27 @@
                             "fields": "/.*/",
                             "values": false
                         },
+                        "showPercentChange": false,
                         "text": {
                             "titleSize": 16,
                             "valueSize": 16
                         },
-                        "textMode": "auto"
+                        "textMode": "auto",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "grafana-postgresql-datasource",
+                                "uid": "pg-meta-1.meta"
+                            },
+                            "editorMode": "code",
                             "format": "table",
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT * FROM pg_control_checkpoint();",
+                            "rawSql": "SELECT\n    checkpoint_lsn,\n    redo_lsn,\n    redo_wal_file,\n    timeline_id,\n    prev_timeline_id,\n    full_page_writes,\n    next_xid,\n    next_oid,\n    next_multixact_id,\n    next_multi_offset,\n    oldest_xid,\n    oldest_xid_dbid,\n    oldest_active_xid,\n    oldest_multi_xid,\n    oldest_multi_dbid,\n    oldest_commit_ts_xid,\n    newest_commit_ts_xid,\n    checkpoint_time::text\nFROM pg_control_checkpoint();",
                             "refId": "A",
                             "select": [
                                 [
@@ -11076,6 +11534,23 @@
                                     }
                                 ]
                             ],
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            },
                             "timeColumn": "time",
                             "where": [
                                 {
@@ -11087,7 +11562,6 @@
                         }
                     ],
                     "title": "pg_control_checkpoint",
-                    "transformations": [],
                     "type": "stat"
                 },
                 {
@@ -11105,7 +11579,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#3e668f"
+                                        "color": "#3e668f",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -11143,7 +11618,7 @@
                         "h": 8,
                         "w": 6,
                         "x": 6,
-                        "y": 166
+                        "y": 18
                     },
                     "id": 125,
                     "options": {
@@ -11151,18 +11626,21 @@
                         "graphMode": "area",
                         "justifyMode": "auto",
                         "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
                         "reduceOptions": {
                             "calcs": [],
                             "fields": "/.*/",
                             "values": false
                         },
+                        "showPercentChange": false,
                         "text": {
                             "titleSize": 16,
                             "valueSize": 16
                         },
-                        "textMode": "auto"
+                        "textMode": "auto",
+                        "wideLayout": true
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -11214,7 +11692,6 @@
                         }
                     ],
                     "title": "pg_control_recovery",
-                    "transformations": [],
                     "type": "stat"
                 }
             ],
@@ -11253,7 +11730,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -11549,7 +12027,7 @@
                         "h": 10,
                         "w": 24,
                         "x": 0,
-                        "y": 175
+                        "y": 187
                     },
                     "id": 158,
                     "options": {
@@ -11570,7 +12048,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -11693,7 +12171,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -11728,7 +12207,7 @@
                         "h": 16,
                         "w": 10,
                         "x": 0,
-                        "y": 186
+                        "y": 198
                     },
                     "id": 170,
                     "options": {
@@ -11744,7 +12223,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -11868,7 +12347,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -11907,7 +12387,7 @@
                         "h": 16,
                         "w": 14,
                         "x": 10,
-                        "y": 186
+                        "y": 198
                     },
                     "id": 171,
                     "options": {
@@ -11928,7 +12408,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -12067,7 +12547,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -12140,7 +12621,7 @@
                         "h": 15,
                         "w": 24,
                         "x": 0,
-                        "y": 203
+                        "y": 215
                     },
                     "id": 162,
                     "options": {
@@ -12161,7 +12642,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -12299,7 +12780,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -12427,7 +12909,7 @@
                         "h": 9,
                         "w": 24,
                         "x": 0,
-                        "y": 219
+                        "y": 231
                     },
                     "id": 167,
                     "options": {
@@ -12443,7 +12925,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "10.0.3",
+                    "pluginVersion": "11.1.4",
                     "targets": [
                         {
                             "datasource": {
@@ -12582,7 +13064,7 @@
                 "name": "dsn",
                 "options": [],
                 "query": "postgres",
-                "queryValue": "test",
+                "queryValue": "",
                 "refresh": 1,
                 "regex": "/.*\\..*/",
                 "skipUrlSync": false,
