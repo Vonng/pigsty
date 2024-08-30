@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   pgsql.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2023-08-19
+# Mtime     :   2024-08-30
 # Desc      :   Rules for postgres & pgbouncer
 # Path      :   /etc/prometheus/rules/pgsql.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -574,7 +574,7 @@ groups:
       - record: pg:db:age_deriv1h
         expr: deriv(pg_db_age[1h])
 
-      # age exhaust time in seconds (according to last1h)
+      # age exhaust time in seconds (according to last 1h)
       - record: pg:db:age_exhaust
         expr: (2147483648 - pg_db_age) / pg:db:age_deriv1h
 
@@ -1420,9 +1420,9 @@ groups:
       - alert: PostgresRestart
         expr: pg_uptime < 300
         for: 1m
-        labels: { level: 1, severity: WARN, category: pgsql }
+        labels: { level: 2, severity: INFO, category: pgsql }
         annotations:
-          summary: "WARN PostgresRestart {{ $labels.ins }}@{{ $labels.instance }}"
+          summary: "INFO PostgresRestart {{ $labels.ins }}@{{ $labels.instance }}"
           description: |
             pg_uptime[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value | printf "%.1f" }} < 300
             http://g.pigsty/d/pgsql-instance?var-ins={{ $labels.ins }}
