@@ -1054,7 +1054,7 @@ pg_recv_13:
            pid, CASE status WHEN 'streaming' THEN 0 WHEN 'startup' THEN 1 WHEN 'catchup' THEN 2 WHEN 'backup' THEN 3 WHEN 'stopping' THEN 4 ELSE -1 END AS state,
            receive_start_lsn - '0/0' AS init_lsn,receive_start_tli AS init_tli,
            flushed_lsn - '0/0' AS flush_lsn,written_lsn - '0/0'AS write_lsn, received_tli AS flush_tli, latest_end_lsn - '0/0' AS reported_lsn,
-           last_msg_send_time AS msg_send_time,last_msg_receipt_time AS msg_recv_time,latest_end_time AS reported_time,now() AS time FROM pg_stat_wal_receiver;
+           extract(EPOCH FROM last_msg_send_time) AS msg_send_time,extract(EPOCH FROM last_msg_receipt_time) AS msg_recv_time,extract(EPOCH FROM latest_end_time) AS reported_time,extract(EPOCH FROM now()) AS time FROM pg_stat_wal_receiver;
 
   ttl: 10
   min_version: 130000
@@ -1086,7 +1086,7 @@ pg_recv_13:
         description: First write-ahead log location used when WAL receiver is started
     - init_tli:
         usage: COUNTER
-        description: First timeline number used7 when WAL receiver is started
+        description: First timeline number used when WAL receiver is started
     - flush_lsn:
         usage: COUNTER
         description: Last write-ahead log location already received and flushed to disk
@@ -1442,7 +1442,7 @@ pg_size:
 pg_archiver:
   name: pg_archiver
   desc: PostgreSQL archiver process statistics
-  query: SELECT archived_count AS finish_count, failed_count, last_archived_time AS last_finish_time, last_failed_time, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_archiver;
+  query: SELECT archived_count AS finish_count, failed_count, extract(EPOCH FROM last_archived_time) AS last_finish_time, extract(EPOCH FROM last_failed_time) AS last_failed_time, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_archiver;
   ttl: 60
   min_version: 090400
   tags:
@@ -1682,7 +1682,8 @@ pg_ssl:
 pg_checkpoint:
   name: pg_checkpoint
   desc: checkpoint information from pg_control_checkpoint since 10
-  query: SELECT checkpoint_lsn - '0/0' AS checkpoint_lsn, redo_lsn - '0/0' AS redo_lsn, timeline_id AS tli, prev_timeline_id AS prev_tli, full_page_writes, split_part(next_xid, ':', 1) AS next_xid_epoch, split_part(next_xid, ':', 2) AS next_xid, next_oid::BIGINT, next_multixact_id::text::BIGINT, next_multi_offset::text::BIGINT, oldest_xid::text::BIGINT, oldest_xid_dbid::text::BIGINT, oldest_active_xid::text::BIGINT, oldest_multi_xid::text::BIGINT, oldest_multi_dbid::BIGINT, oldest_commit_ts_xid::text::BIGINT, newest_commit_ts_xid::text::BIGINT, checkpoint_time AS time, extract(epoch from now() - checkpoint_time) AS elapse FROM pg_control_checkpoint();
+  query: |
+    SELECT checkpoint_lsn - '0/0' AS checkpoint_lsn, redo_lsn - '0/0' AS redo_lsn, timeline_id AS tli, prev_timeline_id AS prev_tli, full_page_writes, split_part(next_xid, ':', 1) AS next_xid_epoch, split_part(next_xid, ':', 2) AS next_xid, next_oid::BIGINT, next_multixact_id::text::BIGINT, next_multi_offset::text::BIGINT, oldest_xid::text::BIGINT, oldest_xid_dbid::text::BIGINT, oldest_active_xid::text::BIGINT, oldest_multi_xid::text::BIGINT, oldest_multi_dbid::BIGINT, oldest_commit_ts_xid::text::BIGINT, newest_commit_ts_xid::text::BIGINT, extract(epoch from checkpoint_time) AS time, extract(epoch from now() - checkpoint_time) AS elapse FROM pg_control_checkpoint();
   ttl: 60
   min_version: 100000
   tags:
@@ -1942,12 +1943,11 @@ pg_wal_14:
 pg_activity:
   name: pg_activity
   desc: PostgreSQL backend activity group by database and state
-
   query: |
     SELECT datname, state, coalesce(count, 0) AS count, coalesce(max_duration, 0) AS max_duration, coalesce(max_tx_duration, 0) AS max_tx_duration, coalesce(max_conn_duration, 0) AS max_conn_duration FROM
         (SELECT d.datname, a.state FROM pg_database d, unnest(ARRAY ['active','idle','idle in transaction','idle in transaction (aborted)','fastpath function call','disabled']) a(state) WHERE d.datallowconn AND NOT d.datistemplate) base
           LEFT JOIN (SELECT datname, state, count(*) AS count, max(extract(epoch from now() - state_change)) AS max_duration, max(extract(epoch from now() - xact_start))
-          AS max_tx_duration, max(extract(epoch from now() - backend_start)) AS max_conn_duration FROM pg_stat_activity WHERE pid <> pg_backend_pid() GROUP BY 1,2) data USING (datname,state);
+          AS max_tx_duration, max(extract(epoch from now() - backend_start)) AS max_conn_duration FROM pg_stat_activity WHERE pid <> pg_backend_pid() GROUP BY datname,state) data USING (datname,state);
 
   ttl: 10
   min_version: 090400
@@ -1978,9 +1978,8 @@ pg_activity:
 pg_wait:
   name: pg_wait
   desc: PostgreSQL backend client count group by wait event type since 9.6
-
   query: |
-    SELECT datname, wait_event_type AS event, count(*) AS count FROM pg_stat_activity WHERE datname NOT IN ('template0', 'template1') AND backend_type = 'client backend' AND pid <> pg_backend_pid() GROUP BY 1, 2;
+    SELECT datname, wait_event_type AS event, count(*) AS count FROM pg_stat_activity WHERE datname NOT IN ('template0', 'template1') AND backend_type = 'client backend' AND pid <> pg_backend_pid() GROUP BY datname, wait_event_type;
 
   ttl: 10
   min_version: 090600
@@ -2043,11 +2042,10 @@ pg_xact:
 pg_lock:
   name: pg_lock
   desc: PostgreSQL lock distribution by mode and database
-
   query: |
     SELECT datname, mode, coalesce(count, 0) AS count
       FROM (SELECT d.oid AS database, d.datname, l.mode FROM pg_database d, unnest(ARRAY ['AccessShareLock','RowShareLock','RowExclusiveLock','ShareUpdateExclusiveLock', 'ShareLock','ShareRowExclusiveLock','ExclusiveLock','AccessExclusiveLock']) l(mode) WHERE d.datallowconn AND NOT d.datistemplate) base
-      LEFT JOIN (SELECT database, mode, count(*) AS count FROM pg_locks WHERE database IS NOT NULL GROUP BY 1, 2) cnt USING (database, mode);
+      LEFT JOIN (SELECT database, mode, count(*) AS count FROM pg_locks WHERE database IS NOT NULL GROUP BY database, mode) cnt USING (database, mode);
 
   ttl: 10
   min_version: 090400
@@ -2073,7 +2071,7 @@ pg_query_17:
   query: |
     SELECT datname, queryid AS query, sum(calls) AS calls, sum(rows) AS rows, sum(total_exec_time) AS exec_time, sum(shared_blk_read_time) + sum(shared_blk_write_time) AS io_time, sum(wal_bytes) AS wal_bytes
     ,sum(shared_blks_hit) AS sblk_hit, sum(shared_blks_read) AS sblk_read, sum(shared_blks_dirtied) AS sblk_dirtied, sum(shared_blks_written) AS sblk_written
-      FROM pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY 1, 2 ORDER BY 3 DESC LIMIT 128;
+      FROM pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY datname, queryid ORDER BY 3 DESC LIMIT 128;
   ttl: 10
   timeout: 1
   min_version: 170000
@@ -2123,7 +2121,7 @@ pg_query_13_16:
   query: |
     SELECT datname, queryid AS query, sum(calls) AS calls, sum(rows) AS rows, sum(total_exec_time) AS exec_time, sum(blk_read_time) + sum(blk_write_time) AS io_time, sum(wal_bytes) AS wal_bytes
     ,sum(shared_blks_hit) AS sblk_hit, sum(shared_blks_read) AS sblk_read, sum(shared_blks_dirtied) AS sblk_dirtied, sum(shared_blks_written) AS sblk_written
-      FROM pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY 1, 2 ORDER BY 3 DESC LIMIT 128;
+      FROM pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY datname, queryid ORDER BY 3 DESC LIMIT 128;
   ttl: 10
   timeout: 1
   min_version: 130000
@@ -2176,7 +2174,7 @@ pg_query_94_12:
   query: |
     SELECT datname, queryid AS query, sum(calls) AS calls, sum(rows) AS rows, sum(total_time) AS exec_time, sum(blk_read_time) + sum(blk_write_time) AS io_time,
     sum(shared_blks_hit) AS sblk_hit, sum(shared_blks_read) AS sblk_read, sum(shared_blks_dirtied) AS sblk_dirtied, sum(shared_blks_written) AS sblk_written
-    FROM pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY 1, 2 ORDER BY 3 DESC LIMIT 128;
+    FROM pg_stat_statements(false) s JOIN pg_database d ON s.dbid = d.oid WHERE userid != 10 AND calls > 4 GROUP BY datname, queryid ORDER BY 3 DESC LIMIT 128;
   ttl: 10
   timeout: 1
   min_version: 090400
@@ -2845,7 +2843,7 @@ pg_pubrel:
 pg_subrel:
   name: pg_subrel
   desc: PostgreSQL subscripted relation group by state
-  query: SELECT CURRENT_CATALOG AS datname, subname, srsubstate::TEXT AS state, count(*) AS count FROM pg_subscription_rel sr LEFT JOIN pg_stat_subscription  ss ON sr.srsubid = ss.subid GROUP BY 2, 3;
+  query: SELECT CURRENT_CATALOG AS datname, subname, srsubstate::TEXT AS state, count(*) AS count FROM pg_subscription_rel sr LEFT JOIN pg_stat_subscription  ss ON sr.srsubid = ss.subid GROUP BY subname, srsubstate;
   ttl: 10
   min_version: 100000
 
@@ -3108,7 +3106,7 @@ pg_index:
 
 pg_func:
   desc: PostgreSQL function metrics
-  query: SELECT CURRENT_CATALOG AS datname, schemaname || '.' || funcname AS funcname, sum(calls) AS calls, sum(total_time) AS total_time, sum(self_time) AS self_time FROM pg_stat_user_functions GROUP BY 2 ORDER BY 4 DESC LIMIT 128;
+  query: SELECT CURRENT_CATALOG AS datname, schemaname || '.' || funcname AS funcname, sum(calls) AS calls, sum(total_time) AS total_time, sum(self_time) AS self_time FROM pg_stat_user_functions GROUP BY schemaname, funcname ORDER BY 4 DESC LIMIT 128;
   ttl: 10
   min_version: 090400
 

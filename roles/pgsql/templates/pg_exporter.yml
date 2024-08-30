@@ -1483,7 +1483,7 @@ pg_size:
 pg_archiver:
   name: pg_archiver
   desc: PostgreSQL archiver process statistics
-  query: SELECT archived_count AS finish_count, failed_count, extract(EPOCH FROM last_archived_time) AS last_finish_time, extract(EPOCH FROM last_failed_time), extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_archiver;
+  query: SELECT archived_count AS finish_count, failed_count, extract(EPOCH FROM last_archived_time) AS last_finish_time, extract(EPOCH FROM last_failed_time) AS last_failed_time, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_archiver;
   ttl: {{ ttl_slow }}
   min_version: 090400
   tags:
@@ -1984,7 +1984,6 @@ pg_wal_14:
 pg_activity:
   name: pg_activity
   desc: PostgreSQL backend activity group by database and state
-
   query: |
     SELECT datname, state, coalesce(count, 0) AS count, coalesce(max_duration, 0) AS max_duration, coalesce(max_tx_duration, 0) AS max_tx_duration, coalesce(max_conn_duration, 0) AS max_conn_duration FROM
         (SELECT d.datname, a.state FROM pg_database d, unnest(ARRAY ['active','idle','idle in transaction','idle in transaction (aborted)','fastpath function call','disabled']) a(state) WHERE d.datallowconn AND NOT d.datistemplate) base
