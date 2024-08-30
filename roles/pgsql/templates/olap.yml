@@ -172,7 +172,9 @@ bootstrap:
 {% if pg_lc_ctype != '' %}
     - lc-ctype: {{ pg_lc_ctype }}
 {% endif %}
-
+{% if pg_mode == 'oracle' %}
+    - compatibility_mode: ora
+{% endif %}
 
   #------------------------------------------------------------#
   # bootstrap users
@@ -371,7 +373,9 @@ bootstrap:
         #------------------------------------------------------#
         # REPORTING AND LOGGING
         #------------------------------------------------------#
+{% if pg_mode != 'oracle' %}
         log_destination: csvlog                 # use standard csv log
+{% endif %}
         logging_collector: 'on'                 # enable csvlog
         log_directory: {{ pg_log_dir }}         # postgres log dir
         # log_filename: 'postgresql-%a.log'     # weekly auto-recycle
