@@ -194,6 +194,18 @@
 
 
 #--------------------------------------------------------------#
+# Install Promtail                            [promtail_install]
+#--------------------------------------------------------------#
+- name: install promtail
+  tags: [promtail, promtail_install ]
+  block:
+    - name: install promtail systemd service
+      package: name=promtail state=present
+    - name: create promtail systemd service
+      copy: src=promtail.service dest={{ systemd_dir }}/promtail.service
+
+
+#--------------------------------------------------------------#
 # Cleanup Promtail                              [promtail_clean]
 #--------------------------------------------------------------#
 - name: remove promtail positions
@@ -215,25 +227,6 @@
       vars: { loki_url: "http://{{ infra_portal.loki.endpoint|replace('${admin_ip}', admin_ip) }}/loki/api/v1/push" }
     - name: create promtail systemd service
       copy: src=promtail.service dest=/etc/systemd/system/promtail.service
-
-
-# NOTICE: The official promtail rpm is tricky to use, since it
-# will launch immediately after install, we have to config it
-# before install & launch it. So do not install it in node_packages
-#--------------------------------------------------------------#
-# Install Promtail                            [promtail_install]
-#--------------------------------------------------------------#
-- name: install promtail
-  tags: promtail_install
-  ignore_errors: "{{ not promtail_enabled|bool }}"  # ignore errors if not enabled
-  block:
-    - name: install promtail systemd service
-      package: name=promtail state=present
-    - name: remove promtail /etc/systemd service
-      file: dest=/etc/systemd/system/promtail.service state=absent
-
-    - name: create promtail systemd service
-      copy: src=promtail.service dest={{ systemd_dir }}/promtail.service
 
 
 #--------------------------------------------------------------#
