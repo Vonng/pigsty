@@ -315,123 +315,35 @@ all:
 
 
     #==========================================================#
-    # pg-citus: 10 node citus cluster (5 x 1p1s)
+    # pg-citus: 10 node citus cluster (5 x primary-replica pair)
     #==========================================================#
-    pg-citus0: # citus coordinator, pg_group = 0
+    pg-citus: # citus group
       hosts:
-        10.10.10.50: { pg_seq: 1, pg_role: primary }
-        10.10.10.51: { pg_seq: 2, pg_role: replica }
+        10.10.10.50: { pg_group: 0, pg_cluster: pg-citus0 ,pg_vip_address: 10.10.10.60/24 ,pg_seq: 0, pg_role: primary }
+        10.10.10.51: { pg_group: 0, pg_cluster: pg-citus0 ,pg_vip_address: 10.10.10.60/24 ,pg_seq: 1, pg_role: replica }
+        10.10.10.52: { pg_group: 1, pg_cluster: pg-citus1 ,pg_vip_address: 10.10.10.61/24 ,pg_seq: 0, pg_role: primary }
+        10.10.10.53: { pg_group: 1, pg_cluster: pg-citus1 ,pg_vip_address: 10.10.10.61/24 ,pg_seq: 1, pg_role: replica }
+        10.10.10.54: { pg_group: 2, pg_cluster: pg-citus2 ,pg_vip_address: 10.10.10.62/24 ,pg_seq: 0, pg_role: primary }
+        10.10.10.55: { pg_group: 2, pg_cluster: pg-citus2 ,pg_vip_address: 10.10.10.62/24 ,pg_seq: 1, pg_role: replica }
+        10.10.10.56: { pg_group: 3, pg_cluster: pg-citus3 ,pg_vip_address: 10.10.10.63/24 ,pg_seq: 0, pg_role: primary }
+        10.10.10.57: { pg_group: 3, pg_cluster: pg-citus3 ,pg_vip_address: 10.10.10.63/24 ,pg_seq: 1, pg_role: replica }
+        10.10.10.58: { pg_group: 4, pg_cluster: pg-citus4 ,pg_vip_address: 10.10.10.64/24 ,pg_seq: 0, pg_role: primary }
+        10.10.10.59: { pg_group: 4, pg_cluster: pg-citus4 ,pg_vip_address: 10.10.10.64/24 ,pg_seq: 1, pg_role: replica }
       vars:
-        pg_cluster: pg-citus0
-        pg_group: 0
         pg_mode: citus                    # pgsql cluster mode: citus
         pg_shard: pg-citus                # citus shard name: pg-citus
         pg_primary_db: test               # primary database used by citus
         pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
         pg_vip_enabled: true
-        pg_vip_address: 10.10.10.60/24
         pg_vip_interface: eth1
         pg_extensions: [ 'citus postgis timescaledb pgvector' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
-        pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
-        pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
+        pg_users: [ { name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: test ,owner: test ,extensions: [ { name: citus }, { name: postgis } ] } ]
         pg_hba_rules:
           - { user: 'all' ,db: all  ,addr: 10.10.10.0/24 ,auth: trust ,title: 'trust citus cluster members'        }
           - { user: 'all' ,db: all  ,addr: 127.0.0.1/32  ,auth: ssl   ,title: 'all user ssl access from localhost' }
           - { user: 'all' ,db: all  ,addr: intra         ,auth: ssl   ,title: 'all user ssl access from intranet'  }
-
-    pg-citus1: # citus data node 1, pg_group = 1
-      hosts:
-        10.10.10.52: { pg_seq: 1, pg_role: primary }
-        10.10.10.53: { pg_seq: 2, pg_role: replica }
-      vars:
-        pg_cluster: pg-citus1
-        pg_group: 1
-        pg_mode: citus                    # pgsql cluster mode: citus
-        pg_shard: pg-citus                # citus shard name: pg-citus
-        pg_primary_db: test               # primary database used by citus
-        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
-        pg_vip_enabled: true
-        pg_vip_address: 10.10.10.61/24
-        pg_vip_interface: eth1
-        pg_extensions: [ 'citus postgis timescaledb pgvector' ]
-        pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
-        pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
-        pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
-        pg_hba_rules:
-          - { user: 'all' ,db: all  ,addr: 10.10.10.0/24 ,auth: trust ,title: 'trust citus cluster members'        }
-          - { user: 'all' ,db: all  ,addr: 127.0.0.1/32  ,auth: ssl   ,title: 'all user ssl access from localhost' }
-          - { user: 'all' ,db: all  ,addr: intra         ,auth: ssl   ,title: 'all user ssl access from intranet'  }
-
-    pg-citus2: # citus data node 2, pg_group = 2
-      hosts:
-        10.10.10.54: { pg_seq: 1, pg_role: primary }
-        10.10.10.55: { pg_seq: 2, pg_role: replica }
-      vars:
-        pg_cluster: pg-citus2
-        pg_group: 2
-        pg_mode: citus                    # pgsql cluster mode: citus
-        pg_shard: pg-citus                # citus shard name: pg-citus
-        pg_primary_db: test               # primary database used by citus
-        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
-        pg_vip_enabled: true
-        pg_vip_address: 10.10.10.62/24
-        pg_vip_interface: eth1
-        pg_extensions: [ 'citus postgis timescaledb pgvector' ]
-        pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
-        pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
-        pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
-        pg_hba_rules:
-          - { user: 'all' ,db: all  ,addr: 10.10.10.0/24 ,auth: trust ,title: 'trust citus cluster members'        }
-          - { user: 'all' ,db: all  ,addr: 127.0.0.1/32  ,auth: ssl   ,title: 'all user ssl access from localhost' }
-          - { user: 'all' ,db: all  ,addr: intra         ,auth: ssl   ,title: 'all user ssl access from intranet'  }
-
-    pg-citus3: # citus data node 3, pg_group = 3
-      hosts:
-        10.10.10.56: { pg_seq: 1, pg_role: primary }
-        10.10.10.57: { pg_seq: 2, pg_role: replica }
-      vars:
-        pg_cluster: pg-citus3
-        pg_group: 3
-        pg_mode: citus                    # pgsql cluster mode: citus
-        pg_shard: pg-citus                # citus shard name: pg-citus
-        pg_primary_db: test               # primary database used by citus
-        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
-        pg_vip_enabled: true
-        pg_vip_address: 10.10.10.63/24
-        pg_vip_interface: eth1
-        pg_extensions: [ 'citus postgis timescaledb pgvector' ]
-        pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
-        pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
-        pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
-        pg_hba_rules:
-          - { user: 'all' ,db: all  ,addr: 10.10.10.0/24 ,auth: trust ,title: 'trust citus cluster members'        }
-          - { user: 'all' ,db: all  ,addr: 127.0.0.1/32  ,auth: ssl   ,title: 'all user ssl access from localhost' }
-          - { user: 'all' ,db: all  ,addr: intra         ,auth: ssl   ,title: 'all user ssl access from intranet'  }
-
-    pg-citus4: # citus data node 4, pg_group = 4
-      hosts:
-        10.10.10.58: { pg_seq: 1, pg_role: primary }
-        10.10.10.59: { pg_seq: 2, pg_role: replica }
-      vars:
-        pg_cluster: pg-citus4
-        pg_group: 4
-        pg_mode: citus                    # pgsql cluster mode: citus
-        pg_shard: pg-citus                # citus shard name: pg-citus
-        pg_primary_db: test               # primary database used by citus
-        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
-        pg_vip_enabled: true
-        pg_vip_address: 10.10.10.64/24
-        pg_vip_interface: eth1
-        pg_extensions: [ 'citus postgis timescaledb pgvector' ]
-        pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
-        pg_users: [{ name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] }]
-        pg_databases:  [{ name: test ,owner: citus ,extensions: [{name: citus}, {name: postgis}] }]
-        pg_hba_rules:
-          - { user: 'all' ,db: all  ,addr: 10.10.10.0/24 ,auth: trust ,title: 'trust citus cluster members'        }
-          - { user: 'all' ,db: all  ,addr: 127.0.0.1/32  ,auth: ssl   ,title: 'all user ssl access from localhost' }
-          - { user: 'all' ,db: all  ,addr: intra         ,auth: ssl   ,title: 'all user ssl access from intranet'  }
-
 
     #==========================================================#
     # redis-meta: reuse the 5 etcd nodes as redis sentinel

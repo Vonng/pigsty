@@ -271,6 +271,8 @@ pg-meta:
 
 ```
 
+[![home](https://pigsty.io/img/pigsty/home.jpg)](https://pigsty.io/img/pigsty/home.jpg)
+
 </details>
 
 It will create a cluster with everything properly configured: [**High Availability**](https://pigsty.io/docs/concept/ha) powered by patroni & etcd; [**Point-In-Time-Recovery**](https://pigsty.io/docs/concept/pitr) powered by pgBackRest & optional MinIO / S3;
@@ -325,6 +327,10 @@ pg-test:
     pg_vip_address: 10.10.10.3/24
     pg_vip_interface: eth1
 ```
+
+You can even deploy PostgreSQL with different major versions and kernel forks in the same deployment:
+
+[![kernels](https://pigsty.io/img/pigsty/kernels.jpg)](https://pigsty.io/img/pigsty/kernels.jpg)
 
 </details>
 
@@ -508,44 +514,42 @@ You can also wrap existing kernel with add-ons: horizontal sharding with [**`CIT
 serving MongoDB wire protocol with [**`FERRET`**](https://pigsty.io/docs/ferret/), or self-hosting firebase alternative with [**`SUPABASE`**](https://pigsty.io/docs/kernel/supabase/):
 
 
-<details><summary>Example: Citus Distributed Cluster: 5 Nodes</summary><br>
+<details><summary>Example: Citus Distributed Cluster: 10-Node</summary><br>
 
-The [`conf/dbms/citus.yml`](https://github.com/Vonng/pigsty/blob/main/conf/dbms/citus.yml) provision a 5-node [citus](https://pigsty.io/docs/kernel/citus/) cluster as below:
+The [`conf/dbms/citus.yml`](https://github.com/Vonng/pigsty/blob/main/conf/dbms/citus.yml) provision a 5-node [**Citus**](https://pigsty.io/docs/kernel/citus/) cluster as below:
 
 ```yaml
-all:
-  children:
-    pg-citus0: # citus coordinator, pg_group = 0
-      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
-      vars: { pg_cluster: pg-citus0 , pg_group: 0 }
-    pg-citus1: # citus data node 1
-      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
-      vars: { pg_cluster: pg-citus1 , pg_group: 1 }
-    pg-citus2: # citus data node 2
-      hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
-      vars: { pg_cluster: pg-citus2 , pg_group: 2 }
-    pg-citus3: # citus data node 3, with an extra replica
-      hosts:
-        10.10.10.13: { pg_seq: 1, pg_role: primary }
-        10.10.10.14: { pg_seq: 2, pg_role: replica }
-      vars: { pg_cluster: pg-citus3 , pg_group: 3 }
-
-  vars:                               # global parameters for all citus clusters
+# pg-citus: 10 node citus cluster (5 x primary-replica pair)
+pg-citus: # citus group
+  hosts:
+    10.10.10.50: { pg_group: 0, pg_cluster: pg-citus0 ,pg_vip_address: 10.10.10.60/24 ,pg_seq: 0, pg_role: primary }
+    10.10.10.51: { pg_group: 0, pg_cluster: pg-citus0 ,pg_vip_address: 10.10.10.60/24 ,pg_seq: 1, pg_role: replica }
+    10.10.10.52: { pg_group: 1, pg_cluster: pg-citus1 ,pg_vip_address: 10.10.10.61/24 ,pg_seq: 0, pg_role: primary }
+    10.10.10.53: { pg_group: 1, pg_cluster: pg-citus1 ,pg_vip_address: 10.10.10.61/24 ,pg_seq: 1, pg_role: replica }
+    10.10.10.54: { pg_group: 2, pg_cluster: pg-citus2 ,pg_vip_address: 10.10.10.62/24 ,pg_seq: 0, pg_role: primary }
+    10.10.10.55: { pg_group: 2, pg_cluster: pg-citus2 ,pg_vip_address: 10.10.10.62/24 ,pg_seq: 1, pg_role: replica }
+    10.10.10.56: { pg_group: 3, pg_cluster: pg-citus3 ,pg_vip_address: 10.10.10.63/24 ,pg_seq: 0, pg_role: primary }
+    10.10.10.57: { pg_group: 3, pg_cluster: pg-citus3 ,pg_vip_address: 10.10.10.63/24 ,pg_seq: 1, pg_role: replica }
+    10.10.10.58: { pg_group: 4, pg_cluster: pg-citus4 ,pg_vip_address: 10.10.10.64/24 ,pg_seq: 0, pg_role: primary }
+    10.10.10.59: { pg_group: 4, pg_cluster: pg-citus4 ,pg_vip_address: 10.10.10.64/24 ,pg_seq: 1, pg_role: replica }
+  vars:
     pg_mode: citus                    # pgsql cluster mode: citus
     pg_shard: pg-citus                # citus shard name: pg-citus
-    pg_primary_db: meta               # primary database used by citus
+    pg_primary_db: test               # primary database used by citus
     pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
+    pg_vip_enabled: true
+    pg_vip_interface: eth1
+    pg_extensions: [ 'citus postgis timescaledb pgvector' ]
     pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
-    pg_extensions:
-      - postgis timescaledb pgvector_${ pg_version }* citus_${ pg_version }*
-    pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
-    pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
+    pg_users: [ { name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+    pg_databases: [ { name: test ,owner: test ,extensions: [ { name: citus }, { name: postgis } ] } ]
     pg_hba_rules:
-      - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
-      - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet'  }
+      - { user: 'all' ,db: all  ,addr: 10.10.10.0/24 ,auth: trust ,title: 'trust citus cluster members'        }
+      - { user: 'all' ,db: all  ,addr: 127.0.0.1/32  ,auth: ssl   ,title: 'all user ssl access from localhost' }
+      - { user: 'all' ,db: all  ,addr: intra         ,auth: ssl   ,title: 'all user ssl access from intranet'  }
 ```
 
-[![kernels](https://pigsty.io/img/pigsty/kernels.jpg)](https://pigsty.io/img/pigsty/kernels.jpg)
+[![citus](https://pigsty.io/img/pigsty/citus.jpg)](https://pigsty.cc/img/pigsty/citus.jpg)
 
 </details>
 
