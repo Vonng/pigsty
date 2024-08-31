@@ -64,11 +64,11 @@ pg-meta:
         schemas: [ extensions ,auth ,realtime ,storage ,graphql_public ,supabase_functions ,_analytics ,_realtime ]
         extensions:
           - { name: pgcrypto  ,schema: extensions  } # 1.3   : cryptographic functions
-          - { name: pg_net    ,schema: extensions  } # 0.9.2 : Async HTTP
+          - { name: pg_net    ,schema: extensions  } # 0.9.2 : send async HTTP requests
           - { name: pgjwt     ,schema: extensions  } # 0.2.0 : JSON Web Token API for Postgresql
           - { name: uuid-ossp ,schema: extensions  } # 1.1   : generate universally unique identifiers (UUIDs)
           - { name: pgsodium        }                # 3.1.8 : pgsodium is a modern cryptography library for Postgres.
-          - { name: supabase_vault  }                # 0.2.8 : Supabase Vault Extension
+          - { name: supabase_vault  }                # 0.2.8 : supabase vault extension
           - { name: pg_graphql      }                # 1.3.0 : pg_graphql: GraphQL support
           - { name: index_advisor   }                # 0.2.0 : index_advisor Query Index Advisor
     pg_hba_rules:
@@ -79,28 +79,20 @@ pg-meta:
     pg_libs: 'pg_net, pg_cron, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
 ```
 
-Beware that `baseline: supa.sql` parameter will use the [`files/supa.sql`](https://github.com/Vonng/pigsty/blob/master/files/supa.sql) as database baseline schema, which is gathered from [here](https://github.com/supabase/postgres/tree/develop/migrations/db/init-scripts).
-You also have to run the migration script: [`migration.sql`](migration.sql) after the cluster provisioning, which is gathered from [supabase/postgres/migrations/db/migrations](https://github.com/supabase/postgres/tree/develop/migrations/db/migrations) in chronological order and slightly modified to fit Pigsty.
+To serve a self-hosting supabase, you have to perform schema migration on the bootstrapped cluster `pg-meta`, which is achieved by the  [`files/supa.sql`](https://github.com/Vonng/pigsty/blob/master/files/supa.sql) baseline in `pg_databases[supa]`,
+and a migration script [`migration.sql`](migration.sql),  which is gathered from [supabase/postgres/migrations/db/migrations](https://github.com/supabase/postgres/tree/develop/migrations/db/migrations) in chronological order and slightly modified to fit Pigsty.
 
-You can check the latest migration files and add them to [`migration.sql`](migration.sqlc), the current script is synced with [20231013070755](https://github.com/supabase/postgres/blob/develop/migrations/db/migrations/20231013070755_grant_authenticator_to_supabase_storage_admin.sql).
-You can run migration on provisioned postgres cluster `pg-meta` with simple `psql` command: 
+The latest migration file is synced with [20240606060239](https://github.com/supabase/postgres/blob/develop/migrations/db/migrations/20240606060239_grant_predefined_roles_to_postgres.sql), to run it on the provisioned postgres cluster `pg-meta`:
 
 ```bash
-# restart postgres cluster
-pg restart pg-meta --force
-
-# connection string
+# adjust the connection string if necessary
 PGURL=postgres://supabase_admin:DBUser.Supa@10.10.10.10:5432/supa
-
-# check connectivity & extensions
-psql ${PGURL} -c 'CREATE EXTENSION IF NOT EXISTS pg_cron;'
-
-# perform migration
 psql ${PGURL} -v ON_ERROR_STOP=1 --no-psqlrc -f ~/pigsty/app/supabase/migration.sql
 ```
 
 The database is now ready for supabase!
 
+![](https://pigsty.io/img/pigsty/supa.jpg)
 
 
 -----------------------
@@ -137,7 +129,7 @@ POSTGRES_DB=supa                    # change to supabase database name, `supa` b
 POSTGRES_PASSWORD=DBUser.Supa       # supabase dbsu password (shared by multiple supabase biz users)
 ```
 
-Usually you'll have to change these parameters accordingly. Here we'll use fixed username, password and IP:Port database connstr for simplicity.
+Usually you'll have to change these parameters accordingly. Here we'll use fixed username, password and IP:Port database connect string for simplicity.
 
 The postgres username is fixed as `supabase_admin` and the password is `DBUser.Supa`, change that according to your [`supabase.yml`](https://github.com/Vonng/pigsty/blob/master/conf/sample/supabase.yml#L43)
 And the supabase studio WebUI credential is managed by `DASHBOARD_USERNAME` and `DASHBOARD_PASSWORD`, which is `supabase` and `pigsty` by default.
@@ -155,7 +147,6 @@ Once configured, you can launch the stateless part with `docker-compose` or `mak
 ```bash
 cd ~/pigsty/app/supabase; make up    #  = docker compose up
 ```
-
 
 
 

@@ -554,10 +554,12 @@ all:
 The [`conf/dbms/supabase.yml`](https://github.com/Vonng/pigsty/blob/main/conf/dbms/supabase.yml) provision a PostgreSQL cluster for self-hosting [supabase](https://pigsty.io/docs/software/supabase/) as below:
 
 ```yaml
+# supabase example cluster: pg-meta, this cluster needs to be migrated with ~/pigsty/app/supabase/migration.sql :
 pg-meta:
   hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
   vars:
     pg_cluster: pg-meta
+    pg_version: 15
     pg_users:
       # supabase roles: anon, authenticated, dashboard_user
       - { name: anon           ,login: false }
@@ -572,11 +574,8 @@ pg-meta:
       - { name: supabase_functions_admin   ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true }
       - { name: supabase_replication_admin ,password: 'DBUser.Supa' ,replication: true }
       - { name: supabase_read_only_user    ,password: 'DBUser.Supa' ,bypassrls: true ,roles: [ pg_read_all_data ] }
-
     pg_databases:
-      - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ]} # the optional pigsty cmdb
-
-      # the supabase database (pg_cron should be installed in this database after bootstrap)
+      - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ]} # the pigsty cmdb, optional
       - name: supa
         baseline: supa.sql    # the init-scripts: https://github.com/supabase/postgres/tree/develop/migrations/db/init-scripts
         owner: supabase_admin
@@ -584,30 +583,22 @@ pg-meta:
         schemas: [ extensions ,auth ,realtime ,storage ,graphql_public ,supabase_functions ,_analytics ,_realtime ]
         extensions:
           - { name: pgcrypto  ,schema: extensions  } # 1.3   : cryptographic functions
-          - { name: pg_net    ,schema: extensions  } # 0.9.2 : async HTTP
-          - { name: pgjwt     ,schema: extensions  } # 0.2.0 : json web token API for postgres
+          - { name: pg_net    ,schema: extensions  } # 0.9.2 : send async HTTP requests
+          - { name: pgjwt     ,schema: extensions  } # 0.2.0 : JSON Web Token API for Postgresql
           - { name: uuid-ossp ,schema: extensions  } # 1.1   : generate universally unique identifiers (UUIDs)
-          - { name: pgsodium        }                # 3.1.9 : pgsodium is a modern cryptography library for Postgres.
-          - { name: supabase_vault  }                # 0.2.8 : Supabase Vault Extension
-          - { name: pg_graphql      }                # 1.5.7 : pg_graphql: GraphQL support
-          - { name: pg_jsonschema   }                # 0.3.1 : pg_jsonschema: Validate json schema
-          - { name: wrappers        }                # 0.4.1 : wrappers: FDW collections
-          - { name: http            }                # 1.6   : http: allows web page retrieval inside the database.
-          - { name: pg_cron         }                # 1.6   : pg_cron: Job scheduler for PostgreSQL
-    # supabase required extensions
-    pg_libs: 'pg_net, pg_cron, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
-    pg_extensions:
-      - wal2json pg_repack
-      - supa-stack #pgvector pg_cron pgsodium pg_graphql pg_jsonschema wrappers pgjwt pgsql_http pg_net supautils index_advisor
-    pg_parameters:
-      cron.database_name: supa
-      pgsodium.enable_event_trigger: off
-    pg_hba_rules: # supabase hba rules, require access from docker network
-      - { user: all ,db: supa ,addr: intra       ,auth: pwd ,title: 'allow supa database access from intranet'      }
+          - { name: pgsodium        }                # 3.1.8 : pgsodium is a modern cryptography library for Postgres.
+          - { name: supabase_vault  }                # 0.2.8 : supabase vault extension
+          - { name: pg_graphql      }                # 1.3.0 : pg_graphql: GraphQL support
+          - { name: index_advisor   }                # 0.2.0 : index_advisor Query Index Advisor
+    pg_hba_rules:
+      - { user: all ,db: supa ,addr: intra       ,auth: pwd ,title: 'allow supa database access from intranet'}
       - { user: all ,db: supa ,addr: 172.0.0.0/8 ,auth: pwd ,title: 'allow supa database access from docker network'}
-      - { user: all ,db: supa ,addr: all         ,auth: pwd ,title: 'allow supa database access from entire world'  }  # not safe!
-
+    pg_extensions: [ 'supa-stack' ]
+    # - pg_repack wal2json pgvector pg_cron pg_sodium pg_graphql pg_jsonschema wrappers vault pgjwt pg_net pgsql_http supautils index_advisor
+    pg_libs: 'pg_net, pg_cron, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
 ```
+
+![](https://pigsty.io/img/pigsty/supa.jpg)
 
 </details>
 
