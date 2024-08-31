@@ -48,14 +48,14 @@
   become: yes
   shell: |
     {% if os_package|default('rpm') == 'rpm' %}
-    cd "{{ repo_home }}/{{ repo_name }}"
+    cd "{{ repo_home }}/{{ repo_name }}";
     {% if os_version|int == 7 %}
     rm -f *.i686.rpm;       # remove i686 packages
     {% elif os_version|int >= 9 %}
-    rm -rf "proj-data*";    # remove optional proj data
+    rm -rf proj-data*;      # remove optional proj data
     {% endif %}
-    rm -rf "patroni*3.0.4*" # remove duplicated old version
-    rm -rf "*docs*";        # remove unnecessary docs
+    rm -rf patroni*3.0.4*;  # remove duplicated old version
+    rm -rf *docs*;          # remove unnecessary docs
     
     createrepo_c {{ repo_home }}/{{ repo_name }}
     {% if os_version|int >= 8 %}

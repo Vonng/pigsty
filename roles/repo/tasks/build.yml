@@ -160,11 +160,11 @@
   shell:
     cmd: |
       {% if os_package|default('rpm') == 'rpm' %}
-      cd {{ repo_home }}/{{ repo_name }};
+      cd "{{ repo_home }}/{{ repo_name }}";
       {% if os_version|int == 7 %}
-      rm -f *.i686.rpm;   # remove i686 packages
+      rm -f *.i686.rpm;       # remove i686 packages
       {% endif %}
-      
+      rm -rf patroni*3.0.4*;  # remove duplicated old version
       createrepo_c {{ repo_home }}/{{ repo_name }}
       {% if os_version|int >= 8 %}
       repo2module -s stable . modules.yaml;
