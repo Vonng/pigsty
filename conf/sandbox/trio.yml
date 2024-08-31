@@ -3,7 +3,7 @@
 # File      :   trio.yml
 # Desc      :   Pigsty 3-node security enhance template
 # Ctime     :   2020-05-22
-# Mtime     :   2024-08-04
+# Mtime     :   2024-08-31
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -26,7 +26,9 @@ all:
         10.10.10.10: { infra_seq: 1 } # identity required
         10.10.10.11: { infra_seq: 2, repo_enabled: false }
         10.10.10.12: { infra_seq: 3, repo_enabled: false }
-      vars: { patroni_watchdog_mode: off }
+      vars:
+        patroni_watchdog_mode: off # do not fencing infra
+        docker_enabled: true  # install with ./docker.yml
 
     etcd: # dcs service for postgres/patroni ha consensus
       hosts: # 1 node for testing, 3 or 5 for production
