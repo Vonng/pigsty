@@ -1,12 +1,12 @@
 # Pigsty
 
 [![Webite: pigsty.io](https://img.shields.io/badge/website-pigsty.io-slategray?style=flat&logo=cilium&logoColor=white)](https://pigsty.io)
-[![Version: 3.0.0](https://img.shields.io/badge/version-v3.0.1-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.0.1)
+[![Version: v3.0.1](https://img.shields.io/badge/version-v3.0.1-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.0.1)
 [![License: AGPLv3](https://img.shields.io/github/license/Vonng/pigsty?logo=opensourceinitiative&logoColor=green&color=slategray)](https://pigsty.io/docs/about/license/)
 [![GitHub Stars](https://img.shields.io/github/stars/Vonng/pigsty?style=flat&logo=github&logoColor=black&color=slategray)](https://star-history.com/#Vonng/pigsty&Date)
 [![Extensions: 335](https://img.shields.io/badge/extensions-335-%233E668F?style=flat&logo=postgresql&logoColor=white&labelColor=3E668F)](https://pigsty.io/docs/pgext/list)
 
-Battery-Included, Local-First **PostgreSQL** Distribution as an Free & Better **RDS** Alternative!
+Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **RDS** Alternative!
 
 > "**P**ostgreSQL **I**n **G**reat **STY**le": **P**ostgres, **I**nfras, **G**raphics, **S**ervice, **T**oolbox, it's all **Y**ours.
 
