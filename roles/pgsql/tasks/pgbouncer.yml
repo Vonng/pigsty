@@ -14,7 +14,6 @@
       file: path={{ item }} state=absent
       with_items:
         - /etc/pgbouncer
-        - /var/run/pgbouncer
         - "{{ pgbouncer_log_dir }}"
 
 
@@ -26,7 +25,6 @@
   file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0750
   with_items:
     - /etc/pgbouncer
-    - /var/run/pgbouncer
     - "{{ pgbouncer_log_dir }}"
 
 
@@ -119,6 +117,7 @@
   block:
 
     - name: launch pgbouncer systemd service
+      tags: pgbouncer_restart
       systemd: name=pgbouncer state=restarted enabled=yes daemon_reload=yes
 
     - name: wait for pgbouncer service online

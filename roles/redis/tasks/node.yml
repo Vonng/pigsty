@@ -22,10 +22,22 @@
 #--------------------------------------------------------------#
 - name: create redis directories
   tags: redis_dir
-  file: path={{ item }} state=directory owner=redis mode=0700
-  with_items:
-    - /etc/redis
-    - /var/log/redis/
-    - /var/run/redis/
-    - "{{ redis_fs_main }}/redis"
+  block:
+    - name: create redis directories
+      file: path={{ item }} state=directory owner=redis mode=0700
+      with_items:
+        - /etc/redis
+        - /var/log/redis/
+        - /var/run/redis/
+        - "{{ redis_fs_main }}/redis"
+
+    # make sure the /var/run/redis is created after reboot
+    - name: create redis tmpfiles.d entry
+      copy:
+        dest: /etc/tmpfiles.d/postgresql.conf
+        content: |
+          d /var/run/redis 0755 redis redis -
+        owner: root
+        group: root
+        mode: '0644'
 ...

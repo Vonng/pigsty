@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   node.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2023-02-23
+# Mtime     :   2024-08-30
 # Desc      :   Node Record Rules (Node/Haproxy/Promtail)
 # Path      :   /etc/prometheus/rules/node.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -750,7 +750,7 @@ groups:
         for: 1m
         labels: { level: 1, severity: WARN, category: node }
         annotations:
-          summary: "CRIT PromtailDown {{ $labels.ins }}@{{ $labels.instance }}"
+          summary: "WARN PromtailDown {{ $labels.ins }}@{{ $labels.instance }}"
           description: |
             promtail_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
             http://g.pigsty/d/node-instance?var-ins={{ $labels.ins }}
@@ -761,7 +761,7 @@ groups:
         for: 1m
         labels: { level: 1, severity: WARN, category: node }
         annotations:
-          summary: "CRIT DockerDown {{ $labels.ins }}@{{ $labels.instance }}"
+          summary: "WARN DockerDown {{ $labels.ins }}@{{ $labels.instance }}"
           description: |
             docker_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
             http://g.pigsty/d/node-instance?var-ins={{ $labels.ins }}
@@ -772,7 +772,7 @@ groups:
         for: 1m
         labels: { level: 1, severity: WARN, category: node }
         annotations:
-          summary: "CRIT KeepalivedDown {{ $labels.ins }}@{{ $labels.instance }}"
+          summary: "WARN KeepalivedDown {{ $labels.ins }}@{{ $labels.instance }}"
           description: |
             keepalived_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
             http://g.pigsty/d/node-instance?var-ins={{ $labels.ins }}
@@ -843,9 +843,9 @@ groups:
       - alert: NodeMemSwapped
         expr: node:ins:swap_usage > 0.01
         for: 5m
-        labels: { level: 2, severity: INFO, category: node }
+        labels: { level: 1, severity: WARN, category: node }
         annotations:
-          summary: 'INFO NodeMemSwapped {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          summary: 'WARN NodeMemSwapped {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
             node:ins:swap_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 1%
 
@@ -894,9 +894,9 @@ groups:
       - alert: NodeDiskSlow
         expr: node:dev:disk_read_rt_1m{device="dfa"} > 0.032 or node:dev:disk_write_rt_1m{device="dfa"} > 0.032
         for: 1m
-        labels: { level: 1, severity: WARN, category: node }
+        labels: { level: 2, severity: INFO, category: node }
         annotations:
-          summary: 'WARN NodeReadSlow {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.6f" }}'
+          summary: 'INFO NodeReadSlow {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.6f" }}'
           description: |
             node:dev:disk_read_rt_1m[ins={{ $labels.ins }}] = {{ $value  | printf "%.6f" }} > 32ms
 
@@ -928,7 +928,7 @@ groups:
       - alert: NodeTcpRetransHigh
         expr: node:ins:tcp_retrans_ratio1m > 1e-2
         for: 1m
-        labels: { level: 1, severity: WARN, category: node }
+        labels: { level: 2, severity: INFO, category: node }
         annotations:
           summary: 'INFO NodeTcpRetransHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.6f" }}'
           description: |

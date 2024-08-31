@@ -41,10 +41,6 @@
       package: name={{ item }} state=latest
       with_items: "{{ pg_extension_list | trim | regex_findall('([^\\n]+)') | map('replace', '$v', pg_version|string) | list | map('replace', '${pg_version}', pg_version|string) | map('regex_replace', '(,|\\s)+', ',' ) | list }}"
 
-    # fix run dir ownership
-    - name: own /var/run/postgresql with dbsu
-      file: path=/var/run/postgresql state=directory owner={{ pg_dbsu }} group=postgres
-
     # fix rpm trash and unused service file, shut debian default service
     - name: post installation cleanups
       tags: pg_post

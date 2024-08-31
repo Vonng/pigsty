@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   etcd.yml
 # Ctime     :   2023-02-24
-# Mtime     :   2023-08-02
+# Mtime     :   2024-08-30
 # Desc      :   Record rules for etcd
 # Path      :   /etc/prometheus/rules/etcd.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -72,9 +72,9 @@ groups:
       - alert: EtcdSyncCommitSlow
         expr: etcd:ins:disk_fsync_rt_p99_5m > 0.100 or etcd:ins:backend_commit_rt_p99_5m > 0.100
         for: 1m
-        labels: { level: 1, severity: WARN, category: etcd }
+        labels: { level: 2, severity: INFO, category: etcd }
         annotations:
-          summary: "WARN EtcdSyncCommitSlow: {{ $labels.cls }} {{ $labels.ins }}"
+          summary: "INFO EtcdSyncCommitSlow: {{ $labels.cls }} {{ $labels.ins }}"
           description: |
             etcd:ins:disk_fsync_rt_p99_5m[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 100ms or
             etcd:ins:backend_commit_rt_p99_5m[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 100ms

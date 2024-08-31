@@ -172,28 +172,9 @@ bootstrap:
 {% if pg_lc_ctype != '' %}
     - lc-ctype: {{ pg_lc_ctype }}
 {% endif %}
-
-
-  #------------------------------------------------------------#
-  # bootstrap users
-  #------------------------------------------------------------#
-  # additional users which need to be created after initializing new cluster
-  # replication user and monitor user are required
-  users:
-    {{ pg_replication_username }}:
-      password: '{{ pg_replication_password }}'
-    {{ pg_monitor_username }}:
-      password: '{{ pg_monitor_password }}'
-
-  # bootstrap hba, allow local and intranet password access & replication
-  # will be overwritten later
-  pg_hba:
-    - local   all             postgres                                ident
-    - local   all             all                                     {{ pg_pwd_enc }}
-    - host    all             all            0.0.0.0/0                {{ pg_pwd_enc }}
-    - local   replication     postgres                                ident
-    - local   replication     all                                     {{ pg_pwd_enc }}
-    - host    replication     all            0.0.0.0/0                {{ pg_pwd_enc }}
+{% if pg_mode == 'oracle' %}
+    - compatibility_mode: ora
+{% endif %}
 
 
   #------------------------------------------------------------#
@@ -373,7 +354,9 @@ bootstrap:
         #------------------------------------------------------#
         # REPORTING AND LOGGING
         #------------------------------------------------------#
+{% if pg_mode != 'oracle' %}
         log_destination: csvlog                 # use standard csv log
+{% endif %}
         logging_collector: 'on'                 # enable csvlog
         log_directory: {{ pg_log_dir }}         # postgres log dir
         # log_filename: 'postgresql-%a.log'     # weekly auto-recycle
@@ -454,7 +437,7 @@ postgresql:
   connect_address: {{ inventory_hostname }}:{{ pg_port }}
   use_unix_socket: true # default: /var/run/postgresql, /tmp
   parameters:
-    unix_socket_directories: '/var/run/postgresql, /run/postgresql, /tmp'
+    unix_socket_directories: '/var/run/postgresql, /tmp'
 
   #------------------------------------------------------------#
   # who to connect to postgres

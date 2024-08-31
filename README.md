@@ -1,10 +1,10 @@
 # Pigsty
 
 [![Webite: pigsty.io](https://img.shields.io/badge/website-pigsty.io-slategray?style=flat&logo=cilium&logoColor=white)](https://pigsty.io)
-[![Version: 3.00](https://img.shields.io/badge/version-v3.0.0-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.0.0)
+[![Version: 3.0.0](https://img.shields.io/badge/version-v3.0.1-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.0.1)
 [![License: AGPLv3](https://img.shields.io/github/license/Vonng/pigsty?logo=opensourceinitiative&logoColor=green&color=slategray)](https://pigsty.io/docs/about/license/)
 [![GitHub Stars](https://img.shields.io/github/stars/Vonng/pigsty?style=flat&logo=github&logoColor=black&color=slategray)](https://star-history.com/#Vonng/pigsty&Date)
-[![Extensions: 333](https://img.shields.io/badge/extensions-333-%233E668F?style=flat&logo=postgresql&logoColor=white&labelColor=3E668F)](https://pigsty.io/docs/pgext/list)
+[![Extensions: 335](https://img.shields.io/badge/extensions-335-%233E668F?style=flat&logo=postgresql&logoColor=white&labelColor=3E668F)](https://pigsty.io/docs/pgext/list)
 
 Battery-Included, Local-First **PostgreSQL** Distribution as an Free & Better **RDS** Alternative!
 
@@ -12,18 +12,18 @@ Battery-Included, Local-First **PostgreSQL** Distribution as an Free & Better **
 
 [**Features**](https://pigsty.io/docs/about/feature) | [Website](https://pigsty.io/) | [Docs](https://pigsty.io/docs/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站](https://pigsty.cc/zh/) | [专业版](https://pigsty.cc/zh/docs/price/) | [博客](https://pigsty.cc/zh/blog) | [**特性**](https://pigsty.cc/zh/docs/about/feature)
 
-[**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.0.0**](https://github.com/Vonng/pigsty/releases/tag/v3.0.0) release: `curl -fsSL https://repo.pigsty.io/get | bash`
+[**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.0.1**](https://github.com/Vonng/pigsty/releases/tag/v3.0.1) release: `curl -fsSL https://repo.pigsty.io/get | bash`
 
 [![pigsty-desc](https://pigsty.io/img/pigsty/banner.en.jpg)](https://pigsty.io/docs/about/feature/)
 
 ## Features
 
-- [**Extensible**](https://pigsty.io/img/pigsty/extension.png): **333** [**PG Extensions**](https://pigsty.io/docs/pgext/list) & **6** [**PG Kernel**](https://pigsty.io/docs/kernel) replacements available (e.g., [**MSSQL**](https://pigsty.io/docs/kernel/babelfish/), [**Oracle**](https://pigsty.io/docs/kernel/ivorysql/) compatibility).
+- [**Extensible**](https://pigsty.io/img/pigsty/extension.png): **335** [**PG Extensions**](https://pigsty.io/docs/pgext/list) & **6** [**PG Kernel**](https://pigsty.io/docs/kernel) replacements available (e.g., [**MSSQL**](https://pigsty.io/docs/kernel/babelfish/), [**Oracle**](https://pigsty.io/docs/kernel/ivorysql/) compatibility).
 - [**Reliable**](https://pigsty.io/img/pigsty/arch.jpg): Self-healing [**HA**](https://pigsty.io/docs/concept/ha/) clusters with pre-configured [**PITR**](https://pigsty.io/docs/pgsql/arch#point-in-time-recovery) and built-in [**ACL**](https://pigsty.io/docs/pgsql/acl), [**CA & SSL**](https://pigsty.io/docs/reference/param/#ca) secure best practice.
 - [**Observable**](https://pigsty.io/img/pigsty/dashboard.jpg): SOTA monitoring for [**PG**](https://demo.pigsty.cc/d/pgrds-instance/pgrds-instance) / [**Infra**](https://pigsty.io/docs/infra) / [**Node**](https://pigsty.io/docs/node) based on **Prometheus** & **Grafana** stack: [**Demo**](https://demo.pigsty.cc) & [**Gallery**](https://github.com/Vonng/pigsty/wiki/Gallery).
 - [**Available**](https://pigsty.io/img/pigsty/ha.png): Auto-routed & pooled customizable database [**Services**](https://pigsty.io/docs/concept/svc#default-service) [**Access**](https://pigsty.io/docs/concept/svc#access-service) with **haproxy**, **pgbouncer**, and **VIP**.
 - [**Maintainable**](https://pigsty.io/img/pigsty/iac.jpg): [**One-Cmd Install**](https://pigsty.io/docs/setup/install), [**Admin SOP**](https://pigsty.io/docs/pgsql/admin), **Auto-Tune**, **Local Repo**, [**IaC**](https://pigsty.io/docs/pgsql/config) and [**Vagrant**](https://pigsty.io/docs/setup/provision#vagrant) / [**Terraform**](https://pigsty.io/docs/setup/provision#terraform) support.
-- [**Composable**](https://pigsty.io/img/pigsty/sandbox.jpg): Bonus [**Modules**](https://pigsty.io/docs/about/modules) such as [**Redis**](https://pigsty.io/docs/redis), [**MinIO**](https://pigsty.io/docs/minio), [**Etcd**](https://pigsty.io/docs/etcd), [**Docker**](https://pigsty.io/docs/app), [**DuckDB**](https://pigsty.io/docs/pro/duckdb), [**FerretDB**](https://pigsty.io/docs/mongo), [**Supabase**](https://pigsty.io/docs/kernel/supabase/), [**& more**](https://pigsty.io/docs/pro/)!
+- [**Composable**](https://pigsty.io/img/pigsty/sandbox.jpg): Bonus [**Modules**](https://pigsty.io/docs/about/modules) such as [**Redis**](https://pigsty.io/docs/redis), [**MinIO**](https://pigsty.io/docs/minio), [**Etcd**](https://pigsty.io/docs/etcd), [**Docker**](https://pigsty.io/docs/app), [**DuckDB**](https://pigsty.io/docs/pro/duckdb), [**FerretDB**](https://pigsty.io/docs/ferret), [**Supabase**](https://pigsty.io/docs/kernel/supabase/), [**& more**](https://pigsty.io/docs/pro/)!
 
 ### Advantages
 
@@ -36,7 +36,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as an Free & Better **
 
 ### Benefits
 
-- **Full Control**: Unleash the full power of PostgreSQL with 333+ extensions, and gain full control of your data!
+- **Full Control**: Unleash the full power of PostgreSQL with 335+ extensions, and gain full control of your data!
 - **Rest Assured**: Self-healing HA from hardware failures and Point-In-Time-Recovery from human error & bugs!
 - **Keen Insight**: You can't manage what you can't measure. Gain penetrating insight through all-seeing panels!
 - **Self-Reliant**: Self-serving enterprise RDS service with all its dependencies in the absence of a dedicated DBA!
@@ -75,20 +75,20 @@ Finally, you will get a pigsty singleton node [**ready**](https://pigsty.io/docs
 
 ```
 $ curl -fsSL https://repo.pigsty.io/get | bash
-[v3.0.0] ===========================================
+[v3.0.1] ===========================================
 $ curl -fsSL https://repo.pigsty.io/get | bash
 [Site] https://pigsty.io
 [Demo] https://demo.pigsty.cc
 [Repo] https://github.com/Vonng/pigsty
 [Docs] https://pigsty.io/docs/setup/install
 [Download] ===========================================
-[ OK ] version = v3.0.0 (from default)
-curl -fSL https://repo.pigsty.io/src/pigsty-v3.0.0.tgz -o /tmp/pigsty-v3.0.0.tgz
+[ OK ] version = v3.0.1 (from default)
+curl -fSL https://repo.pigsty.io/src/pigsty-v3.0.1.tgz -o /tmp/pigsty-v3.0.1.tgz
 ######################################################################## 100.0%
-[ OK ] md5sums = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  /tmp/pigsty-v3.0.0.tgz
+[ OK ] md5sums = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  /tmp/pigsty-v3.0.1.tgz
 [Install] ===========================================
 [WARN] os user = root , it's recommended to install as a sudo-able admin
-[ OK ] install = /root/pigsty, from /tmp/pigsty-v3.0.0.tgz
+[ OK ] install = /root/pigsty, from /tmp/pigsty-v3.0.1.tgz
 [TodoList] ===========================================
 cd /root/pigsty
 ./bootstrap      # [OPTIONAL] install ansible & use offline package
@@ -100,7 +100,7 @@ cd /root/pigsty
 > HINT: To install a specific version, pass the version string as the first parameter:
 >
 > ```bash
-> curl -fsSL https://repo.pigsty.io/get | bash -s v3.0.0
+> curl -fsSL https://repo.pigsty.io/get | bash -s v3.0.1
 > ```
 
 </details>
@@ -111,7 +111,7 @@ cd /root/pigsty
 You can also download the pigsty source with `git`, remember to check out a specific version tag, the `main` branch is for development.
 
 ```bash
-git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v3.0.0
+git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v3.0.1
 ```
 
 </details>
@@ -154,7 +154,7 @@ The node can be used as an admin controller to deploy & monitor more nodes & clu
 
 [![Redis](https://img.shields.io/badge/REDIS-%23FF4438?style=flat&logo=redis&logoColor=white)](https://pigsty.io/docs/infra) Deploy Redis servers in standalone master-replica, sentinel, and native cluster mode.
 
-[![Ferret](https://img.shields.io/badge/FERRET-%23042133?style=flat&logo=ferretdb&logoColor=white)](https://pigsty.io/docs/mongo) Native support for FerretDB — adding MongoDB wire protocol compatibility to Postgres!
+[![Ferret](https://img.shields.io/badge/FERRET-%23042133?style=flat&logo=ferretdb&logoColor=white)](https://pigsty.io/docs/ferret) Native support for FerretDB — adding MongoDB wire protocol compatibility to Postgres!
 
 [![Docker](https://img.shields.io/badge/DOCKER-%232496ED?style=flat&logo=docker&logoColor=white)](https://pigsty.io/docs/docker) Launch optional docker daemons to run other stateless parts besides Pigsty RDS.
 
@@ -397,7 +397,7 @@ pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
 </details>
 
 You can deploy different kinds of PostgreSQL instance such as primary, replica, offline, delayed, sync standby, etc.,
-and customize with scene-optimize [**templates**](https://github.com/Vonng/pigsty/tree/dev/conf), pre-defined [**stacks**](https://pigsty.io/docs/pgext/usage/stack) and all **333** [**extensions**](https://pigsty.io/docs/pgext/list).
+and customize with scene-optimize [**templates**](https://github.com/Vonng/pigsty/tree/dev/conf), pre-defined [**stacks**](https://pigsty.io/docs/pgext/usage/stack) and all **335** [**extensions**](https://pigsty.io/docs/pgext/list).
 
 [![landscape](https://pigsty.io/img/pigsty/landscape.jpg)](https://pigsty.io/docs/pgext/)
 
@@ -407,16 +407,22 @@ You can even replace the vanilla [**`PostgreSQL`**](https://pigsty.io/docs/pgsql
 
 <details><summary>Example: Babelfish Cluster (MSSQL Compatible)</summary><br>
 
-The [`conf/dbms/mssql.yml`](https://github.com/Vonng/pigsty/blob/main/conf/dbms/mssql.yml) Provision a Microsoft SQL Server compatible [`kernel`](https://pigsty.io/docs/kernel/babelfish/) WiltonDB & BabelfishPG extension:
+The [`conf/dbms/mssql.yml`](https://github.com/Vonng/pigsty/blob/main/conf/dbms/mssql.yml) Provision a [Babelfish](https://pigsty.io/docs/kernel/babelfish/) cluster with Microsoft SQL Server compatibility:
 
 ```yaml
-pg-test:
+# ./pgsql.yml -l pg-mssql
+pg-mssql:
   hosts:
-    10.10.10.11: { pg_seq: 1, pg_role: primary }
-    10.10.10.12: { pg_seq: 2, pg_role: replica }
-    10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true }
+    10.10.10.41: { pg_seq: 1 ,pg_role: primary }
+    10.10.10.42: { pg_seq: 2 ,pg_role: replica }
+    10.10.10.43: { pg_seq: 3 ,pg_role: replica }
+    10.10.10.44: { pg_seq: 4 ,pg_role: replica }
   vars:
-    pg_cluster: pg-test
+    pg_cluster: pg-mssql
+
+    pg_vip_enabled: true
+    pg_vip_address: 10.10.10.3/24
+    pg_vip_interface: eth1
     pg_users:                           # create MSSQL superuser
       - {name: dbuser_mssql ,password: DBUser.MSSQL ,superuser: true, pgbouncer: true ,roles: [dbrole_admin], comment: superuser & owner for babelfish  }
     pg_primary_db: mssql                # use `mssql` as the primary sql server database
@@ -435,14 +441,27 @@ pg-test:
         owner: dbuser_mssql
         parameters: { 'babelfishpg_tsql.migration_mode' : 'single-db' }
         comment: babelfish cluster, a MSSQL compatible pg cluster
-
-    node_repo_modules: local,node,pgsql,mssql  # add local & mssql modules to node repo (Internet Required)
+    node_repo_modules: local,mssql     # add local & mssql modules to node repo (Internet Required)
     pg_version: 15                     # The current WiltonDB major version is 15
     pg_packages:                       # install forked version of postgresql with babelfishpg support
-      - wiltondb patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager
+      - wiltondb sqlcmd patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager
     pg_extensions: [ ]                 # do not install any vanilla postgresql extensions
-    pg_mode: mssql                     # Microsoft SQL Server Compatible Mode
+    pg_mode: mssql                    # Microsoft SQL Server Compatible Mode
     pg_libs: 'babelfishpg_tds, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
+    pg_default_hba_rules: # overwrite default HBA rules for babelfish cluster
+      - { user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident' }
+      - { user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident' }
+      - { user: '${repl}'    ,db: replication ,addr: localhost ,auth: pwd   ,title: 'replicator replication from localhost' }
+      - { user: '${repl}'    ,db: replication ,addr: intra     ,auth: pwd   ,title: 'replicator replication from intranet' }
+      - { user: '${repl}'    ,db: postgres    ,addr: intra     ,auth: pwd   ,title: 'replicator postgres db from intranet' }
+      - { user: '${monitor}' ,db: all         ,addr: localhost ,auth: pwd   ,title: 'monitor from localhost with password' }
+      - { user: '${monitor}' ,db: all         ,addr: infra     ,auth: pwd   ,title: 'monitor from infra host with password' }
+      - { user: '${admin}'   ,db: all         ,addr: infra     ,auth: ssl   ,title: 'admin @ infra nodes with pwd & ssl' }
+      - { user: '${admin}'   ,db: all         ,addr: world     ,auth: ssl   ,title: 'admin @ everywhere with ssl & pwd' }
+      - { user: dbuser_mssql ,db: mssql       ,addr: intra     ,auth: md5   ,title: 'allow mssql dbsu intranet access' } # <--- use md5 auth method for mssql user
+      - { user: '+dbrole_readonly',db: all    ,addr: localhost ,auth: pwd   ,title: 'pgbouncer read/write via local socket' }
+      - { user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: pwd   ,title: 'read/write biz user via password' }
+      - { user: '+dbrole_offline' ,db: all    ,addr: intra     ,auth: pwd   ,title: 'allow etl offline tasks from intranet' }
     pg_default_services: # route primary & replica service to mssql port 1433
       - { name: primary ,port: 5433 ,dest: 1433  ,check: /primary   ,selector: "[]" }
       - { name: replica ,port: 5434 ,dest: 1433  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
@@ -450,38 +469,43 @@ pg-test:
       - { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]" }
 ```
 
+[![mssql](https://pigsty.io/img/pigsty/mssql.jpg)](https://pigsty.io/img/pigsty/mssql.jpg)
+
 </details>
 
 <details><summary>Example: IvorySQL Cluster (Oracle Compatible)</summary><br>
 
-The [`conf/dbms/ivory.yml`](https://github.com/Vonng/pigsty/blob/main/conf/dbms/mssql.yml) provides an Oracle-compatible PostgreSQL [kernel](https://pigsty.io/docs/kernel/ivorysql/) (EL-only)
+The [`conf/dbms/ivory.yml`](https://github.com/Vonng/pigsty/blob/main/conf/dbms/mssql.yml) define an [IvorySQL](https://pigsty.io/docs/kernel/ivorysql/) cluster, which aims to be Oracle compatible:
 
 ```yaml
-pg-test:
+# ./pgsql.yml -l pg-ivory
+pg-ivory:
   hosts:
-    10.10.10.11: { pg_seq: 1, pg_role: primary }
-    10.10.10.12: { pg_seq: 2, pg_role: replica }
-    10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true }
+    10.10.10.45: { pg_seq: 1 ,pg_role: primary }
+    10.10.10.46: { pg_seq: 2 ,pg_role: replica }
+    10.10.10.47: { pg_seq: 3 ,pg_role: replica }
   vars:
-    pg_cluster: pg-test           # define pgsql cluster name
-    pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
-    pg_databases: [{ name: test }]
-    pg_vip_enabled: true
-    pg_vip_address: 10.10.10.3/24
-    pg_vip_interface: eth1
-    # IvorySQL specific settings
-    node_repo_modules: local,node,pgsql,ivory  # add ivorysql upstream repo
-    pg_mode: ivory                    # IvorySQL Oracle Compatible Mode
+    pg_cluster: pg-ivory
+    pg_mode: ivory
     pg_packages: [ 'ivorysql patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager' ]
     pg_libs: 'liboracle_parser, pg_stat_statements, auto_explain'
     pg_extensions: [ ]                # do not install any vanilla postgresql extensions
+    pg_vip_enabled: true
+    pg_vip_address: 10.10.10.4/24
+    pg_vip_interface: eth1
+    pgbackrest_enabled: false
+    node_repo_modules: local,ivory
+    pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
+    pg_databases: [{ name: src }]
 ```
+
+[![ivorysql](https://pigsty.io/img/pigsty/ivory.jpg)](https://pigsty.io/img/pigsty/ivory.jpg)
 
 </details>
 
 
 You can also wrap existing kernel with add-ons: horizontal sharding with [**`CITUS`**](https://pigsty.io/docs/kernel/citus/),
-serving MongoDB wire protocol with [**`FERRET`**](https://pigsty.io/docs/mongo/), or self-hosting firebase alternative with [**`SUPABASE`**](https://pigsty.io/docs/kernel/supabase/):
+serving MongoDB wire protocol with [**`FERRET`**](https://pigsty.io/docs/ferret/), or self-hosting firebase alternative with [**`SUPABASE`**](https://pigsty.io/docs/kernel/supabase/):
 
 
 <details><summary>Example: Citus Distributed Cluster: 5 Nodes</summary><br>
@@ -520,6 +544,8 @@ all:
       - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
       - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet'  }
 ```
+
+[![kernels](https://pigsty.io/img/pigsty/kernels.jpg)](https://pigsty.io/img/pigsty/kernels.jpg)
 
 </details>
 
@@ -595,13 +621,14 @@ There are other pro, beta, or pilot modules, and there will be more coming in th
 [![CLOUDBERRY](https://img.shields.io/badge/CLOUDBERRY-orange?style=flat&logo=postgresql&labelColor=orange&logoColor=black)](https://pigsty.io/docs/kernel/cloudberry)
 [![NEON](https://img.shields.io/badge/NEON-%2366D9C6?style=flat&logo=postgresql&labelColor=66D9C6&logoColor=black)](https://pigsty.io/docs/kernel/neon)
 [![SUPABASE](https://img.shields.io/badge/SUPABASE-%233FCF8E?style=flat&logo=supabase&labelColor=3FCF8E&logoColor=white)](https://pigsty.io/docs/kernel/supabase)
+
 [![KAFKA](https://img.shields.io/badge/KAFKA-%23231F20?style=flat&logo=apachekafka&labelColor=231F20&logoColor=white)](https://pigsty.io/docs/pro/kafka)
 [![MYSQL](https://img.shields.io/badge/MYSQL-%234479A1?style=flat&logo=mysql&labelColor=4479A1&logoColor=white)](https://pigsty.io/docs/pro/kafka)
 [![DUCKDB](https://img.shields.io/badge/DUCKDB-%23FFF000?style=flat&logo=duckdb&labelColor=FFF000&logoColor=white)](https://pigsty.io/docs/pro/duckdb)
 [![TIGERBEETLE](https://img.shields.io/badge/TIGERBEETLE-%231919191?style=flat&logo=openbugbounty&labelColor=1919191&logoColor=white)](https://pigsty.io/docs/pro/tigerbeetle)
 [![VICTORIA](https://img.shields.io/badge/VICTORIA-%23621773?style=flat&logo=victoriametrics&labelColor=621773&logoColor=white)](https://pigsty.io/docs/pro/victoria)
-[![KUBERNETES](https://img.shields.io/badge/KUBERNETES-%23326CE5?style=flat&logo=kubernetes&labelColor=326CE5&logoColor=white)](https://pigsty.io/docs/pro/)
-[![CEPH](https://img.shields.io/badge/CEPH-%23EF5C55?style=flat&logo=ceph&labelColor=EF5C55&logoColor=white)](https://pigsty.io/docs/pro/)
+[![KUBERNETES](https://img.shields.io/badge/KUBERNETES-%23326CE5?style=flat&logo=kubernetes&labelColor=326CE5&logoColor=white)](https://pigsty.io/docs/pro/kube)
+[![CONSUL](https://img.shields.io/badge/CONSUL-%23F24C53?style=flat&logo=consul&labelColor=F24C53&logoColor=white)](https://pigsty.io/docs/pro/consul)
 [![JUPYTER](https://img.shields.io/badge/JUPYTER-%23F37626?style=flat&logo=jupyter&labelColor=F37626&logoColor=white)](https://pigsty.io/docs/pro/jupyter)
 [![COCKROACH](https://img.shields.io/badge/COCKROACH-%236933FF?style=flat&logo=cockroachlabs&labelColor=6933FF&logoColor=white)](https://pigsty.io/docs/pro/)
 

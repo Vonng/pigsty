@@ -1,0 +1,54 @@
+---
+- name: reload postgres
+  become_user: "{{ pg_dbsu|default('postgres') }}"
+  shell: |
+    {{ pg_bin_dir|default('/usr/pgsql/bin') }}/pg_ctl -D {{ pg_data|default('/pg/data') }} reload
+  args:
+    executable: /bin/bash
+
+- name: restart postgres
+  become_user: "{{ pg_dbsu|default('postgres') }}"
+  shell: |
+    {{ pg_bin_dir|default('/usr/pgsql/bin') }}/pg_ctl -D {{ pg_data|default('/pg/data') }} restart
+  args:
+    executable: /bin/bash
+
+- name: restart patroni postgres
+  become_user: "{{ pg_dbsu|default('postgres') }}"
+  shell: |
+    {% if pg_mode|default('pgsql') == 'citus' %} 
+    /bin/patronictl -c /etc/patroni/patroni.yml restart {{ pg_cluster }} --force
+    {% else %}
+    /bin/patronictl -c /etc/patroni/patroni.yml restart {{ pg_shard }} --group {{ pg_group }} --force
+    {% endif %}
+  args:
+    executable: /bin/bash
+
+- name: reload patroni
+  systemd: name=patroni state=reloaded daemon_reload=yes
+
+- name: restart patroni
+  systemd: name=patroni state=restarted daemon_reload=yes
+
+- name: reload pgbouncer
+  systemd: name=pgbouncer state=reloaded daemon_reload=yes
+
+- name: restart pgbouncer
+  systemd: name=pgbouncer state=restarted daemon_reload=yes
+
+- name: reload pg_exporter
+  systemd: name=pg_exporter state=reloaded daemon_reload=yes
+
+- name: restart pg_exporter
+  systemd: name=pg_exporter state=restarted daemon_reload=yes
+
+- name: reload pgbouncer_exporter
+  systemd: name=pgbouncer_exporter state=reloaded daemon_reload=yes
+
+- name: restart pgbouncer_exporter
+  systemd: name=pgbouncer_exporter state=restarted daemon_reload=yes
+
+- name: resetart vip-manager
+  systemd: name=pgbouncer_exporter state=resetart daemon_reload=yes
+
+...

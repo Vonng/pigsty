@@ -177,7 +177,7 @@ FROM (
                                     LEFT JOIN pg_stats AS s ON s.schemaname=ns.nspname AND s.tablename = tbl.relname AND s.inherited=false AND s.attname=att.attname
                                     LEFT JOIN pg_class AS toast ON tbl.reltoastrelid = toast.oid
                            WHERE NOT att.attisdropped AND tbl.relkind = 'r' AND nspname NOT IN ('pg_catalog','information_schema')
-                           GROUP BY 1,2,3,4,5,6,7,8,9,10
+                           GROUP BY tbl.oid, ns.nspname, tbl.relname, tbl.reltuples, tbl.relpages, toast.relpages, toast.reltuples, tbl.reloptions
                        ) AS s
               ) AS s2
      ) AS s3
@@ -193,8 +193,8 @@ DROP VIEW IF EXISTS monitor.pg_index_bloat CASCADE;
 CREATE OR REPLACE VIEW monitor.pg_index_bloat AS
 SELECT CURRENT_CATALOG AS datname, nspname, idxname AS relname, tblid, idxid, relpages::BIGINT * bs AS size,
        COALESCE((relpages - ( reltuples * (6 + ma - (CASE WHEN index_tuple_hdr % ma = 0 THEN ma ELSE index_tuple_hdr % ma END)
-                                               + nulldatawidth + ma - (CASE WHEN nulldatawidth % ma = 0 THEN ma ELSE nulldatawidth % ma END))
-                                  / (bs - pagehdr)::FLOAT  + 1 )), 0) / relpages::FLOAT AS ratio
+        + nulldatawidth + ma - (CASE WHEN nulldatawidth % ma = 0 THEN ma ELSE nulldatawidth % ma END))
+        / (bs - pagehdr)::FLOAT  + 1 )), 0) / relpages::FLOAT AS ratio
 FROM (
          SELECT nspname,idxname,indrelid AS tblid,indexrelid AS idxid,
                 reltuples,relpages,
@@ -226,7 +226,7 @@ FROM (
              AND ((pg_stats.tablename = ind_atts.tablename AND pg_stats.attname = pg_get_indexdef(pg_attribute.attrelid, pg_attribute.attnum, TRUE))
                  OR (pg_stats.tablename = ind_atts.idxname AND pg_stats.attname = pg_attribute.attname))
          WHERE pg_attribute.attnum > 0
-         GROUP BY 1, 2, 3, 4, 5, 6
+         GROUP BY nspname,idxname,indrelid,indexrelid,reltuples,relpages
      ) est;
 COMMENT ON VIEW monitor.pg_index_bloat IS 'postgres index bloat estimate (btree-only)';
 
@@ -299,7 +299,7 @@ FROM (SELECT datname,
              coalesce(sum(idx_size), 1)                           AS idx_size
       FROM monitor.pg_bloat
       WHERE tblname IS NOT NULL
-      GROUP BY 1, 2, 3
+      GROUP BY datname,nspname,tblname
      ) d;
 COMMENT ON VIEW monitor.pg_table_bloat_human IS 'postgres table bloat info in human-readable format';
 GRANT SELECT ON monitor.pg_table_bloat_human TO pg_monitor;
@@ -325,7 +325,7 @@ FROM (
          FROM pg_stat_activity
          WHERE backend_type = 'client backend'
            AND pid <> pg_backend_pid()
-         GROUP BY ROLLUP (1)
+         GROUP BY ROLLUP (datname)
          ORDER BY 1 NULLS FIRST
      ) t;
 COMMENT ON VIEW monitor.pg_session IS 'postgres activity group by session';
