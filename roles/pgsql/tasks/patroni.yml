@@ -70,10 +70,14 @@
       with_items: "{{ pg_files }}"
 
     - name: restart patroni postgres
-      #listen: restart patroni postgres
+      tags: pg_restart
       become_user: "{{ pg_dbsu|default('postgres') }}"
       shell: |
+        {% if pg_mode|default('pgsql') == 'citus' %} 
+        /bin/patronictl -c /etc/patroni/patroni.yml restart {{ pg_shard }} --group {{ pg_group }} --force
+        {% else %}
         /bin/patronictl -c /etc/patroni/patroni.yml restart {{ pg_cluster }} --force
+        {% endif %}
       args:
         executable: /bin/bash
 

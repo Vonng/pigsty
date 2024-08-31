@@ -16,7 +16,11 @@
 - name: restart patroni postgres
   become_user: "{{ pg_dbsu|default('postgres') }}"
   shell: |
+    {% if pg_mode|default('pgsql') == 'citus' %} 
     /bin/patronictl -c /etc/patroni/patroni.yml restart {{ pg_cluster }} --force
+    {% else %}
+    /bin/patronictl -c /etc/patroni/patroni.yml restart {{ pg_shard }} --group {{ pg_group }} --force
+    {% endif %}
   args:
     executable: /bin/bash
 
