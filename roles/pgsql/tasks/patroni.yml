@@ -47,8 +47,17 @@
         - /pg/data/pg_hba.conf.backup
         - /pg/data/pg_ident.conf.backup
 
-    # replicate the param file to replicas
-    - name: overwrite primary postgresql.auto.conf
+    - name: render postgres hba rules
+      become_user: "{{ pg_dbsu }}"
+      template: src=pg_hba.conf.j2 dest=/pg/data/pg_hba.conf owner={{ pg_dbsu }} group=postgres mode=0600
+
+    - name: copy extra files to postgres primary
+      when: pg_files is defined and pg_files | length > 0
+      become_user: "{{ pg_dbsu }}"
+      copy: src={{ item }} dest=/pg/data/{{ item|basename }}  owner={{ pg_dbsu }} group=postgres mode=0600
+      with_items: "{{ pg_files }}"
+
+    - name: overwrite postgres primary parameters
       become_user: "{{ pg_dbsu }}"
       copy:
         dest: /pg/data/postgresql.auto.conf
@@ -62,21 +71,14 @@
           {{ key }} = '{{ value }}'
           {% endfor %}
 
-    # replicate the param file to replicas
-    - name: copy postgres primary license
-      when: pg_files is defined and pg_files | length > 0
-      become_user: "{{ pg_dbsu }}"
-      copy: src={{ item }} dest=/pg/data/{{ item|basename }}  owner={{ pg_dbsu }} group=postgres mode=0600
-      with_items: "{{ pg_files }}"
-
-    - name: restart patroni postgres
+    - name: restart postgres via patroni
       tags: pg_restart
-      become_user: "{{ pg_dbsu|default('postgres') }}"
+      become_user: "{{ pg_dbsu }}"
       shell: |
         {% if pg_mode|default('pgsql') == 'citus' %} 
-        /bin/patronictl -c /etc/patroni/patroni.yml restart {{ pg_shard }} --group {{ pg_group }} --force
+        /usr/bin/patronictl -c /etc/patroni/patroni.yml restart {{ pg_shard }} --group {{ pg_group }} --force
         {% else %}
-        /bin/patronictl -c /etc/patroni/patroni.yml restart {{ pg_cluster }} --force
+        /usr/bin/patronictl -c /etc/patroni/patroni.yml restart {{ pg_cluster }} --force
         {% endif %}
       args:
         executable: /bin/bash
@@ -92,7 +94,6 @@
       retries: 2
       until: result.rc == 0
       delay: 5
-
 
 
 #--------------------------------------------------------------#
@@ -195,7 +196,7 @@
 # Copy License (Optional)                              [pg_file]
 #--------------------------------------------------------------#
 # some postgres kernel fork require a licence file
-- name: copy extra files to pg data dir
+- name: copy extra files to pgdata
   tags: pg_file
   when: pg_files is defined and pg_files | length > 0
   become_user: "{{ pg_dbsu }}"
@@ -214,7 +215,7 @@
 #--------------------------------------------------------------#
 # Generate postgresql.auto.conf                       [pg_param]
 #--------------------------------------------------------------#
-- name: overwrite postgresql.auto.conf
+- name: overwrite postgres parameters
   tags: pg_param
   become_user: "{{ pg_dbsu }}"
   copy:
