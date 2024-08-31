@@ -178,28 +178,6 @@ bootstrap:
 
 
   #------------------------------------------------------------#
-  # bootstrap users
-  #------------------------------------------------------------#
-  # additional users which need to be created after initializing new cluster
-  # replication user and monitor user are required
-  users:
-    {{ pg_replication_username }}:
-      password: '{{ pg_replication_password }}'
-    {{ pg_monitor_username }}:
-      password: '{{ pg_monitor_password }}'
-
-  # bootstrap hba, allow local and intranet password access & replication
-  # will be overwritten later
-  pg_hba:
-    - local   all             postgres                                ident
-    - local   all             all                                     {{ pg_pwd_enc }}
-    - host    all             all            0.0.0.0/0                {{ pg_pwd_enc }}
-    - local   replication     postgres                                ident
-    - local   replication     all                                     {{ pg_pwd_enc }}
-    - host    replication     all            0.0.0.0/0                {{ pg_pwd_enc }}
-
-
-  #------------------------------------------------------------#
   # customization
   #------------------------------------------------------------#
   # post_init: /pg/bin/pg-init
