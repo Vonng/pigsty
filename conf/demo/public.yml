@@ -3,7 +3,7 @@
 # File      :   public.yml
 # Desc      :   Pigsty Public Demo Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2024-08-14
+# Mtime     :   2024-08-31
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -15,33 +15,30 @@ all:
 
     # infra cluster for proxy, monitor, alert, etc..
     infra:
-      hosts: { 10.10.10.10: { infra_seq: 1 } }
+      hosts:
+        10.10.10.10: { infra_seq: 1 }
       vars:
+        nodename: pigsty.cc
+        node_id_from_pg: false
+        docker_enabled: true
+        docker_registry_mirrors: ["https://mirror.ccs.tencentyun.com"]
         pg_exporters:  # ./pgsql-monitor.yml to treat local postgres as RDS
           20001: { pg_cluster: pg-foo, pg_seq: 1, pg_host: 10.10.10.10 }
           #20002: { pg_cluster: pg-bar, pg_seq: 1, pg_host: 10.10.10.11 , pg_port: 5432 }
           #20003: { pg_cluster: pg-bar, pg_seq: 2, pg_host: 10.10.10.12 , pg_exporter_url: 'postgres://dbuser_monitor:DBUser.Monitor@10.10.10.12:5432/postgres?sslmode=disable' }
           #20004: { pg_cluster: pg-bar, pg_seq: 3, pg_host: 10.10.10.13 , pg_monitor_username: dbuser_monitor, pg_monitor_password: DBUser.Monitor }
 
+    # etcd cluster for ha postgres
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+
     # minio cluster, s3 compatible object storage
     minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
-
-    # etcd cluster for ha postgres
-    etcd: # dcs service for postgres/patroni ha consensus
-      hosts:  # 1 node for testing, 3 or 5 for production
-        10.10.10.10: { etcd_seq: 1 }  # etcd_seq required
-      vars: # cluster level parameter override roles/etcd
-        etcd_cluster: etcd  # mark etcd cluster name etcd
-        etcd_safeguard: false # safeguard against purging
-        etcd_clean: true # purge etcd during init process
 
     pg-meta:
       hosts:
         10.10.10.10: { pg_seq: 1, pg_role: primary, nodename: pigsty.cc }
       vars:
         pg_cluster: pg-meta
-        docker_enabled: true
-        nodename_overwrite: true
         pg_users:
           - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
           - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
@@ -62,24 +59,24 @@ all:
           - { name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database }
           - { name: odoo     ,owner: dbuser_odoo     ,revokeconn: true ,comment: nocodb database }
         pg_libs: 'timescaledb, pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
-        #pg_extensions: # extensions to be installed on this cluster
-        #  - timescaledb periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable
-        #  - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip #pg_geohash #mobilitydb
-        #  - pgvector pgvectorscale pg_vectorize pg_similarity pg_tiktoken pgml #smlar
-        #  - pg_search pg_bigm zhparser hunspell
-        #  - hydra pg_analytics pg_duckdb duckdb_fdw pg_fkpart pg_partman plproxy #pg_strom citus
-        #  - pg_hint_plan age hll rum pg_graphql pg_jsonschema jsquery index_advisor hypopg imgsmlr pg_ivm pgmq pgq #rdkit
-        #  - pg_tle plv8 pllua plprql pldebugger plpgsql_check plprofiler plsh # plr pgtap faker dbt2
-        #  - prefix semver pgunit md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint ip4r timestamp9 chkpass #pg_uri #pgemailaddr #acl #debversion #pg_rrule
-        #  - topn pg_gzip pg_http pg_net pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays pg_arraymath pg_idkit pg_uuidv7 permuteseq pg_hashids
-        #  - sequential_uuids pg_math pg_random pg_base36 pg_base62 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext envvar url_encode #pg_zstd #aggs_for_vecs #quantile #lower_quantile #pgqr #pg_protobuf
-        #  - pg_repack pg_squeeze pg_dirtyread pgfincore pgdd ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pgautofailover pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pgpool pgagent
-        #  - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_statviz pgexporter_ext pg_top pagevis powa #pg_mon
-        #  - passwordcheck supautils pgsodium pg_vault anonymizer pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pg_snakeoil pgextwlist pg_auditor sslutils noset
-        #  - wrappers multicorn odbc_fdw mysql_fdw tds_fdw sqlite_fdw pgbouncer_fdw mongo_fdw redis_fdw pg_redis_pubsub kafka_fdw hdfs_fdw firebird_fdw aws_s3 log_fdw #oracle_fdw #db2_fdw #jdbc_fdw
-        #  - orafce pgtt session_variable pg_statement_rollback pg_dbms_metadata pg_dbms_lock pgmemcache #pg_dbms_job #wiltondb
-        #  - pglogical pgl_ddl_deploy pg_failover_slots wal2json wal2mongo decoderbufs decoder_raw mimeo pgcopydb pgloader pg_fact_loader pg_bulkload pg_comparator pgimportdoc pgexportdoc #repmgr #slony
-        #  - gis-stack rag-stack fdw-stack fts-stack etl-stack feat-stack olap-stack supa-stack stat-stack json-stack
+        pg_extensions: # extensions to be installed on this cluster
+          - timescaledb periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable
+          - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip #pg_geohash #mobilitydb
+          - pgvector pgvectorscale pg_vectorize pg_similarity pg_tiktoken pgml #smlar
+          - pg_search pg_bigm zhparser hunspell
+          - hydra pg_analytics pg_duckdb duckdb_fdw pg_fkpart pg_partman plproxy #pg_strom citus
+          - pg_hint_plan age hll rum pg_graphql pg_jsonschema jsquery index_advisor hypopg imgsmlr pg_ivm pgmq pgq #rdkit
+          - pg_tle plv8 pllua plprql pldebugger plpgsql_check plprofiler plsh # plr pgtap faker dbt2
+          - prefix semver pgunit md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint ip4r timestamp9 chkpass #pg_uri #pgemailaddr #acl #debversion #pg_rrule
+          - topn pg_gzip pg_http pg_net pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays pg_arraymath pg_idkit pg_uuidv7 permuteseq pg_hashids
+          - sequential_uuids pg_math pg_random pg_base36 pg_base62 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext envvar url_encode #pg_zstd #aggs_for_vecs #quantile #lower_quantile #pgqr #pg_protobuf
+          - pg_repack pg_squeeze pg_dirtyread pgfincore pgdd ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pgautofailover pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pgpool pgagent
+          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_statviz pgexporter_ext pg_top pagevis powa #pg_mon
+          - passwordcheck supautils pgsodium pg_vault anonymizer pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pg_snakeoil pgextwlist pg_auditor sslutils noset
+          - wrappers multicorn odbc_fdw mysql_fdw tds_fdw sqlite_fdw pgbouncer_fdw mongo_fdw redis_fdw pg_redis_pubsub kafka_fdw hdfs_fdw firebird_fdw aws_s3 log_fdw #oracle_fdw #db2_fdw #jdbc_fdw
+          - orafce pgtt session_variable pg_statement_rollback pg_dbms_metadata pg_dbms_lock pgmemcache #pg_dbms_job #wiltondb
+          - pglogical pgl_ddl_deploy pg_failover_slots wal2json wal2mongo decoderbufs decoder_raw mimeo pgcopydb pgloader pg_fact_loader pg_bulkload pg_comparator pgimportdoc pgexportdoc #repmgr #slony
+          - gis-stack rag-stack fdw-stack fts-stack etl-stack feat-stack olap-stack supa-stack stat-stack json-stack
 
     redis-ms: # redis classic primary & replica
       hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6379: { }, 6380: { replica_of: '10.10.10.10 6379' } } } }
@@ -110,18 +107,20 @@ all:
       alertmanager : { domain: a.pigsty.cc    ,endpoint: "${admin_ip}:9093" }
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
-      minio        : { domain: sss.pigsty     ,endpoint: "${admin_ip}:9001" ,websocket: true ,scheme: https }
+      minio        : { domain: sss.pigsty.cc  ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
       postgrest    : { domain: api.pigsty.cc  ,endpoint: "127.0.0.1:8884"   }
       pgadmin      : { domain: adm.pigsty.cc  ,endpoint: "127.0.0.1:8885"   }
       pgweb        : { domain: cli.pigsty.cc  ,endpoint: "127.0.0.1:8886"   }
       bytebase     : { domain: ddl.pigsty.cc  ,endpoint: "127.0.0.1:8887"   }
-      jupyter      : { domain: lab.pigsty.cc  ,endpoint: "127.0.0.1:8888" ,websocket: true }
-      gitea        : { domain: git.pigsty.cc  ,endpoint: "127.0.0.1:8889"   }
-      wiki         : { domain: wiki.pigsty.cc ,endpoint: "127.0.0.1:9002"   }
-      noco         : { domain: noco.pigsty.cc ,endpoint: "127.0.0.1:9003"   }
-      odoo         : { domain: odoo.pigsty.cc ,endpoint: "127.0.0.1:8069" ,websocket: true }
-      supa         : { domain: supa.pigsty.cc ,endpoint: "127.0.0.1:8000" ,websocket: true }
-    # scp -r ~/pgsty/cert pj:/etc/cert
+      jupyter      : { domain: lab.pigsty.cc  ,endpoint: "127.0.0.1:8888", websocket: true }
+      gitea        : { domain: git.pigsty.cc  ,endpoint: "127.0.0.1:8889" }
+      wiki         : { domain: wiki.pigsty.cc ,endpoint: "127.0.0.1:9002" }
+      noco         : { domain: noco.pigsty.cc ,endpoint: "127.0.0.1:9003" }
+      supa         : { domain: supa.pigsty.cc ,endpoint: "10.10.10.10:8000", websocket: true }
+      dify         : { domain: dify.pigsty.cc ,endpoint: "10.10.10.10:8001", websocket: true }
+      odoo         : { domain: odoo.pigsty.cc, endpoint: "127.0.0.1:8069"  , websocket: true }
+    # scp -r ~/pgsty/cc/cert         pj:/etc/cert
+    # scp -r ~/dev/pigsty.cc/public  pj:/www/pigsty.cc
 
     nginx_navbar:                     # application nav links on home page
       - { name: PgAdmin4   , url: 'http://adm.pigsty.cc'           , comment: 'PgAdmin4 for PostgreSQL'     }
@@ -134,6 +133,7 @@ all:
       - { name: Wiki       , url: 'http://wiki.pigsty.cc'          , comment: 'Local Wikipedia'             }
       - { name: Nocodb     , url: 'http://noco.pigsty.cc'          , comment: 'Nocodb Example'              }
       - { name: Odoo       , url: 'http://odoo.pigsty.cc'          , comment: 'Odoo - the OpenERP'          }
+      - { name: Dify       , url: 'http://dify.pigsty.cc'          , comment: 'Dify - the LLM OPS'          }
       - { name: Explain    , url: '/pigsty/pev.html'               , comment: 'postgres explain visualizer' }
       - { name: Package    , url: '/pigsty'                        , comment: 'local yum repo packages'     }
       - { name: PG Logs    , url: '/logs'                          , comment: 'postgres raw csv logs'       }
@@ -143,6 +143,7 @@ all:
       - { name: Covid      , url: '${grafana}/d/covid-overview'    , comment: 'covid data visualization'    }
       - { name: Worktime   , url: '${grafana}/d/worktime-overview' , comment: 'worktime query'              }
       - { name: DBTrend    , url: '${grafana}/d/dbeng-trending'    , comment: 'DB Engine Trending Graph'    }
+
     node_timezone: Asia/Hong_Kong
     node_etc_hosts: [ "${admin_ip} sss.pigsty" ]
     node_ntp_servers:
