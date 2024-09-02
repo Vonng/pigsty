@@ -116,7 +116,7 @@
   when: pg_service_provider == '' or pg_service_provider not in groups
 
 #--------------------------------------------------------------#
-# Service (Remote HAProxy Provider)                  [pg_service]
+# Service (Remote HAProxy Provider)                 [pg_service]
 #--------------------------------------------------------------#
 # pg_service_config, pg_service_reload
 - import_tasks: service_remote.yml
@@ -134,13 +134,14 @@
 # Register Prometheus         [pg_register, register_prometheus]
 #--------------------------------------------------------------#
 - import_tasks: register_prometheus.yml
+  when: prometheus_enabled|bool
   tags: [ pg_register, register_prometheus ]
 
 #--------------------------------------------------------------#
 # Register Grafana               [pg_register, register_grafana]
 #--------------------------------------------------------------#
 - include_tasks: register_grafana.yml
-  when: pg_provision|bool
+  when: pg_provision|bool and grafana_enabled|bool
   tags: [ pg_register, register_grafana ]
   vars: { database: "{{ item }}" }
   with_items: "{{ pg_databases }}"
