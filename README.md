@@ -71,6 +71,9 @@ Next, [**bootstrap**](https://pigsty.io/docs/setup/offline/#bootstrap), [**confi
 
 Finally, you will get a pigsty singleton node [**ready**](https://pigsty.io/docs/setup/install/#interface), with Web service on port `80/443` and Postgres on port `5432`.
 
+> Consider [**Minimal Installation**](https://pigsty.io/docs/setup/mini/) if you only want essential components for HA PostgreSQL.
+
+
 <details><summary>Install with get script</summary><br>
 
 ```
@@ -549,7 +552,7 @@ pg-citus: # citus group
       - { user: 'all' ,db: all  ,addr: intra         ,auth: ssl   ,title: 'all user ssl access from intranet'  }
 ```
 
-[![citus](https://pigsty.io/img/pigsty/citus.jpg)](https://pigsty.cc/img/pigsty/citus.jpg)
+[![citus](https://pigsty.io/img/pigsty/citus.jpg)](https://pigsty.io/img/pigsty/citus.jpg)
 
 </details>
 
