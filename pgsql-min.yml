@@ -1,0 +1,92 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   pgsql-min.yml
+# Desc      :   install minimal version of pigsty (no infra)
+# Ctime     :   2024-09-02
+# Mtime     :   2023-09-02
+# Path      :   pgsql-min.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+
+
+# The minimal installation focus on Pure HA-PostgreSQL Cluster
+# It only install essential components for this purpose
+#
+# There's NO Infra modules, No monitoring, No software repo
+# Just partial of NODE module, along with ETCD & PGSQL modules
+#
+# Systemd Service Installed in this mode:
+#
+# patroni, pgbouncer, vip-manager, haproxy, etcd, chronyd, tuned
+
+
+#---------------------------------------------------------------
+# setup node & pgsql identity
+#---------------------------------------------------------------
+- name: IDENTITY
+  hosts: all
+  gather_facts: no
+  tags: id
+  roles:
+    - { role: node_id ,tags: node-id }
+    - { role: pg_id   ,tags: pg-id ,when: pg_cluster is defined }
+
+#---------------------------------------------------------------
+# Setup local CA
+#---------------------------------------------------------------
+- name: CA
+  become: yes
+  hosts: localhost
+  gather_facts: no
+  tags: ca
+  roles: [ { role: ca } ]
+
+#---------------------------------------------------------------
+# init node , ca, docker
+#---------------------------------------------------------------
+- name: NODE INIT
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: node
+  roles:
+    - { role: node    , tags: node     }  # prepare node for pigsty
+    - { role: haproxy , tags: haproxy  }  # init haproxy optional
+
+#---------------------------------------------------------------
+# init infra cert
+#---------------------------------------------------------------
+- name: INFRA INIT
+  become: yes
+  hosts: infra
+  gather_facts: no
+  tags: infra
+  tasks:
+    - group: name=infra
+    - user: name={% if node_user == 'root' %}{{ node_admin_username }}{% else %}{{ node_user }}{% endif %} append=true groups=infra
+    - user: name={{ node_admin_username|default('dba') }} append=true groups=infra
+    - include_tasks: roles/infra/tasks/cert.yml
+
+#---------------------------------------------------------------
+# ETCD INIT
+#---------------------------------------------------------------
+- name: ETCD INIT
+  become: yes
+  hosts: etcd
+  gather_facts: no
+  tags: etcd
+  roles: [ { role: etcd } ]   # init etcd on fixed group 'etcd'
+
+#---------------------------------------------------------------
+# INIT PGSQL
+#---------------------------------------------------------------
+- name: PGSQL INIT            # init pgsql on all nodes
+  become: yes                 # with pg_cluster defined
+  hosts: all
+  gather_facts: no
+  tags: pgsql
+  roles: [ { role: pgsql ,when: pg_cluster is defined } ]
+
+...
