@@ -3,7 +3,7 @@
 # File      :   debian.yml
 # Desc      :   Default parameters for Debian/Ubuntu in Pigsty
 # Ctime     :   2020-05-22
-# Mtime     :   2024-08-13
+# Mtime     :   2024-09-02
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -424,7 +424,7 @@ all:
     #-----------------------------------------------------------------
     node_repo_modules: local          # upstream repo to be added on node, local by default
     node_repo_remove: true            # remove existing repo on node?
-    node_packages: [ ]                # packages to be installed current nodes
+    node_packages: [openssh-server]   # packages to be installed current nodes with latest version
     node_default_packages:            # default packages to be installed on all nodes
       - lz4,unzip,bzip2,pv,jq,git,ncdu,make,patch,bash,lsof,wget,uuid,tuned,nvme-cli,numactl,sysstat,iotop,htop,rsync,tcpdump
       - python3,python3-pip,socat,lrzsz,net-tools,ipvsadm,telnet,ca-certificates,openssl,keepalived,etcd,haproxy,chrony
@@ -648,9 +648,9 @@ all:
     pg_listen: '0.0.0.0'              # postgres/pgbouncer listen addresses, comma separated list
     pg_port: 5432                     # postgres listen port, 5432 by default
     pg_localhost: /var/run/postgresql # postgres unix socket dir for localhost connection
-    pg_namespace: /pg                 # top level key namespace in etcd, used by patroni & vip
     patroni_enabled: true             # if disabled, no postgres cluster will be created during init
     patroni_mode: default             # patroni working mode: default,pause,remove
+    pg_namespace: /pg                 # top level key namespace in etcd, used by patroni & vip
     patroni_port: 8008                # patroni listen port, 8008 by default
     patroni_log_dir: /pg/log/patroni  # patroni log dir, `/pg/log/patroni` by default
     patroni_ssl_enabled: false        # secure patroni RestAPI communications with SSL?
@@ -659,12 +659,13 @@ all:
     patroni_password: Patroni.API     # patroni restapi password, `Patroni.API` by default
     pg_primary_db: postgres           # primary database name, used by citus,etc... ,postgres by default
     pg_parameters: {}                 # extra parameters in postgresql.auto.conf
+    pg_files: []                      # extra files to be copied to postgres data directory (e.g. license)
     pg_conf: oltp.yml                 # config template: oltp,olap,crit,tiny. `oltp.yml` by default
     pg_max_conn: auto                 # postgres max connections, `auto` will use recommended value
-    pg_shared_buffer_ratio: 0.25      # postgres shared buffer ratio, 0.25 by default, 0.1~0.4
+    pg_shared_buffer_ratio: 0.25      # postgres shared buffers ratio, 0.25 by default, 0.1~0.4
     pg_rto: 30                        # recovery time objective in seconds,  `30s` by default
     pg_rpo: 1048576                   # recovery point objective in bytes, `1MiB` at most by default
-    pg_libs: 'pg_stat_statements, auto_explain'  # extensions to be loaded
+    pg_libs: 'pg_stat_statements, auto_explain'  # preloaded libraries, `pg_stat_statements,auto_explain` by default
     pg_delay: 0                       # replication apply delay for standby cluster leader
     pg_checksum: false                # enable data checksum for postgres cluster?
     pg_pwd_enc: scram-sha-256         # passwords encryption algorithm: md5,scram-sha-256
