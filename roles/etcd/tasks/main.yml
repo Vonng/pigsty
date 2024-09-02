@@ -1,8 +1,4 @@
 ---
-# Run on: inventory_hostname in groups['etcd']
-# Reference: https://www.digitalocean.com/community/tutorials/how-to-set-up-and-secure-an-etcd-cluster-with-ansible-on-ubuntu-18-04
-
-
 #--------------------------------------------------------------#
 # Assert etcd identity                             [etcd_assert]
 #--------------------------------------------------------------#
@@ -150,6 +146,7 @@
 #--------------------------------------------------------------#
 - name: register etcd as prometheus target
   tags: [ etcd_register, register_prometheus ]
+  when: prometheus_enabled|bool
   ignore_errors: true
   delegate_to: '{{ item }}'
   with_items: '{{ groups["infra"] }}'
