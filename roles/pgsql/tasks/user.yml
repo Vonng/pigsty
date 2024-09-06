@@ -16,7 +16,7 @@
       ignore_errors: true
       become_user: "{{ pg_dbsu|default('postgres') }}"
       shell: |
-        {{ pg_bin_dir|default('/usr/pgsql/bin') }}/psql -h {{ pg_localhost|default('/var/run/postgresql') }}  -p {{ pg_port|default(5432) }} -d postgres -AXtwqf /pg/tmp/pg-user-{{ user.name }}.sql || true;
+        {{ pg_bin_dir|default('/usr/pgsql/bin') }}/psql -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} -d postgres -AXtwqf /pg/tmp/pg-user-{{ user.name }}.sql || true;
         role_exists=$({{ pg_bin_dir|default('/usr/pgsql/bin') }}/psql -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} -d postgres -AXtwqc "SELECT true WHERE EXISTS(SELECT * FROM pg_authid WHERE rolname = '{{ user.name }}' LIMIT 1)")
         [[ -z "${role_exists}" ]] && exit 1 || exit 0
       args: { executable: /bin/bash }

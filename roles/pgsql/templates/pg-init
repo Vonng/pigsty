@@ -17,21 +17,21 @@ PROG_DIR="$(cd $(dirname $0) && pwd)"
 #--------------------------------------------------------------#
 #                        Default Roles                         #
 #--------------------------------------------------------------#
-{{ pg_bin_dir}}/psql postgres -qAXwtf /pg/tmp/pg-init-roles.sql
+{{ pg_bin_dir}}/psql -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} postgres -qAXwtf /pg/tmp/pg-init-roles.sql
 
 
 #--------------------------------------------------------------#
 #                        System Template                       #
 #--------------------------------------------------------------#
 # system default template
-{{ pg_bin_dir}}/psql template1 -qAXwtf /pg/tmp/pg-init-template.sql
+{{ pg_bin_dir }}/psql -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} template1 -qAXwtf /pg/tmp/pg-init-template.sql
 
 # make postgres same as templated database (optional)
-{{ pg_bin_dir}}/psql postgres  -qAXwtf /pg/tmp/pg-init-template.sql
+{{ pg_bin_dir }}/psql -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} postgres -qAXwtf /pg/tmp/pg-init-template.sql
 
 {% if pg_mode == 'citus' and pg_primary_db != 'postgres' %}
 # pg_primary_db are created by patroni, init with templates
-{{ pg_bin_dir}}/psql {{ pg_primary_db }}  -qAXwtf /pg/tmp/pg-init-template.sql
+{{ pg_bin_dir }}/psql -h {{ pg_localhost|default('/var/run/postgresql') }} -p {{ pg_port|default(5432) }} {{ pg_primary_db }} -qAXwtf /pg/tmp/pg-init-template.sql
 {% endif %}
 
 #--------------------------------------------------------------#
