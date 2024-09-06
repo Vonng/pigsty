@@ -18,9 +18,25 @@ password={{ pg_admin_password|default('DBUser.DBA') }}
 ####################################
 {% for ip,ins in hostvars.items() %}
 {% if ins.pg_cluster is defined and ins.pg_cluster != '' and pg_role is defined and pg_seq is defined %}
+{% if ins.pg_role == 'primary' %}
+# cluster: {{ ins.pg_cluster }}
+[{{ ins.pg_cluster }}]
+{% if ins.dns_enabled|default(true) %}
+host={{ ins.pg_cluster +  pg_dns_suffix|default('') }}
+{% elif ins.pg_vip_enabled|default(false) %}
+host={{ ins.pg_vip_address.split('/')[0] }}
+{% else %}
+host={{ ins.pg_primary_ip|default(ins.inventory_hostname) }}
+{% endif %}
+port={{ ins.pg_port|default(5432) }}
+user={{ ins.pg_admin_username|default('dbuser_dba') }}
+password={{ ins.pg_admin_password|default('DBUser.DBA') }}
+dbname={{ ins.pg_primary_db|default('postgres') }}
+
+{% endif %}
 {% if ins.pg_role == 'primary' and 'pg_databases' in ins %}
 {% for database in ins.pg_databases %}
-# database: {{ ins.pg_cluster }}- {{ ins.pg_seq }}.{{ database.name }}
+# database: {{ ins.pg_cluster }}-{{ ins.pg_seq }}.{{ database.name }}
 [{{ ins.pg_cluster }}.{{ database.name }}]
 host={{ ins.inventory_hostname }}
 port={{ ins.pg_port|default(5432) }}
@@ -36,7 +52,7 @@ host={{ ins.inventory_hostname }}
 port={{ ins.pg_port|default(5432) }}
 user={{ ins.pg_admin_username|default('dbuser_dba') }}
 password={{ ins.pg_admin_password|default('DBUser.DBA') }}
-dbname=postgres
+dbname={{ ins.pg_primary_db|default('postgres') }}
 {% endif %}
 
 {% endfor %}
