@@ -2483,7 +2483,7 @@
         },
         {
             "datasource": {
-                "type": "postgres",
+                "type": "grafana-postgresql-datasource",
                 "uid": "${dsn}"
             },
             "description": "Schemas of current database ${datname}",
@@ -2875,9 +2875,12 @@
                         "uid": "cc8a3615-9c82-44d7-be42-07d8aa1cac68"
                     },
                     "editorMode": "code",
+                    "expr": "",
                     "format": "table",
                     "group": [],
+                    "legendFormat": "__auto",
                     "metricColumn": "none",
+                    "range": true,
                     "rawQuery": true,
                     "rawSql": "SELECT\n       relnamespace AS \"OID\", nspname AS \"Schema\", nspowner::RegRole::TEXT AS \"Owner\",\n       coalesce((data ->> 'r')::INTEGER, 0) AS \"r\",\n       coalesce((data ->> 'i')::INTEGER, 0) AS \"i\",\n       coalesce((data ->> 'S')::INTEGER, 0) AS \"S\",\n       coalesce((data ->> 't')::INTEGER, 0) AS \"t\",\n       coalesce((data ->> 'v')::INTEGER, 0) AS \"v\",\n       coalesce((data ->> 'm')::INTEGER, 0) AS \"m\",\n       coalesce((data ->> 'c')::INTEGER, 0) AS \"c\",\n       coalesce((data ->> 'f')::INTEGER, 0) AS \"f\",\n       coalesce((data ->> 'p')::INTEGER, 0) AS \"p\",\n       coalesce((data ->> 'I')::INTEGER, 0) AS \"I\"\nFROM (\n         SELECT relnamespace, json_object_agg(kind, count) AS data\n         FROM (SELECT relnamespace, relkind::TEXT AS kind, count(*) AS count FROM pg_class GROUP BY relnamespace,relkind) d\n         GROUP BY relnamespace\n     ) j LEFT JOIN pg_namespace nsp ON j.relnamespace = nsp.oid\nWHERE nspname NOT IN ('pg_toast', 'information_schema', 'pg_catalog');",
                     "refId": "A",
@@ -7453,7 +7456,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -7536,7 +7540,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -7601,7 +7606,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -7646,7 +7652,7 @@
                         "h": 12,
                         "w": 12,
                         "x": 0,
-                        "y": 64
+                        "y": 27
                     },
                     "id": 190,
                     "options": {
@@ -7679,7 +7685,7 @@
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT CURRENT_CATALOG AS datname, nspname || '.'  || relname AS relname, tblid , bs * tblpages AS size,\n       CASE WHEN tblpages - est_tblpages_ff > 0 THEN (tblpages - est_tblpages_ff)/tblpages::FLOAT ELSE 0 END AS ratio\nFROM (\n         SELECT ceil( reltuples / ( (bs-page_hdr)*fillfactor/(tpl_size*100) ) ) + ceil( toasttuples / 4 ) AS est_tblpages_ff,\n                tblpages, fillfactor, bs, tblid, nspname, relname, is_na\n         FROM (\n                  SELECT\n                      ( 4 + tpl_hdr_size + tpl_data_size + (2 * ma)\n                          - CASE WHEN tpl_hdr_size % ma = 0 THEN ma ELSE tpl_hdr_size % ma END\n                          - CASE WHEN ceil(tpl_data_size)::INT % ma = 0 THEN ma ELSE ceil(tpl_data_size)::INT % ma END\n                          ) AS tpl_size, (heappages + toastpages) AS tblpages, heappages,\n                      toastpages, reltuples, toasttuples, bs, page_hdr, tblid, nspname, relname, fillfactor, is_na\n                  FROM (\n                           SELECT\n                               tbl.oid AS tblid, ns.nspname , tbl.relname, tbl.reltuples,\n                               tbl.relpages AS heappages, coalesce(toast.relpages, 0) AS toastpages,\n                               coalesce(toast.reltuples, 0) AS toasttuples,\n                               coalesce(substring(array_to_string(tbl.reloptions, ' ') FROM 'fillfactor=([0-9]+)')::smallint, 100) AS fillfactor,\n                               current_setting('block_size')::numeric AS bs,\n                               CASE WHEN version()~'mingw32' OR version()~'64-bit|x86_64|ppc64|ia64|amd64' THEN 8 ELSE 4 END AS ma,\n                               24 AS page_hdr,\n                               23 + CASE WHEN MAX(coalesce(s.null_frac,0)) > 0 THEN ( 7 + count(s.attname) ) / 8 ELSE 0::int END\n                                   + CASE WHEN bool_or(att.attname = 'oid' and att.attnum < 0) THEN 4 ELSE 0 END AS tpl_hdr_size,\n                               sum( (1-coalesce(s.null_frac, 0)) * coalesce(s.avg_width, 0) ) AS tpl_data_size,\n                               bool_or(att.atttypid = 'pg_catalog.name'::regtype)\n                                   OR sum(CASE WHEN att.attnum > 0 THEN 1 ELSE 0 END) <> count(s.attname) AS is_na\n                           FROM pg_attribute AS att\n                                    JOIN pg_class AS tbl ON att.attrelid = tbl.oid\n                                    JOIN pg_namespace AS ns ON ns.oid = tbl.relnamespace\n                                    LEFT JOIN pg_stats AS s ON s.schemaname=ns.nspname AND s.tablename = tbl.relname AND s.inherited=false AND s.attname=att.attname\n                                    LEFT JOIN pg_class AS toast ON tbl.reltoastrelid = toast.oid\n                           WHERE NOT att.attisdropped AND tbl.relkind = 'r' AND nspname NOT IN ('pg_catalog','information_schema')\n                           GROUP BY tbl.oid, ns.nspname, tbl.relname, tbl.reltuples, tbl.relpages, toast.relpages, toast.reltuples, tbl.reloptions\n                       ) AS s\n              ) AS s2\n     ) AS s3\nWHERE NOT is_na;",
+                            "rawSql": "SELECT * FROM monitor.pg_table_bloat;",
                             "refId": "A",
                             "select": [
                                 [
@@ -7769,7 +7775,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -7791,7 +7798,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -7830,7 +7838,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -7867,7 +7876,7 @@
                         "h": 12,
                         "w": 12,
                         "x": 12,
-                        "y": 64
+                        "y": 27
                     },
                     "id": 191,
                     "options": {
@@ -7889,7 +7898,7 @@
                             "format": "table",
                             "hide": false,
                             "rawQuery": true,
-                            "rawSql": "SELECT CURRENT_CATALOG AS datname, nspname, relname , tblid , bs * tblpages AS size,\n       CASE WHEN tblpages - est_tblpages_ff > 0 THEN (tblpages - est_tblpages_ff)/tblpages::FLOAT ELSE 0 END AS ratio\nFROM (\n         SELECT ceil( reltuples / ( (bs-page_hdr)*fillfactor/(tpl_size*100) ) ) + ceil( toasttuples / 4 ) AS est_tblpages_ff,\n                tblpages, fillfactor, bs, tblid, nspname, relname, is_na\n         FROM (\n                  SELECT\n                      ( 4 + tpl_hdr_size + tpl_data_size + (2 * ma)\n                          - CASE WHEN tpl_hdr_size % ma = 0 THEN ma ELSE tpl_hdr_size % ma END\n                          - CASE WHEN ceil(tpl_data_size)::INT % ma = 0 THEN ma ELSE ceil(tpl_data_size)::INT % ma END\n                          ) AS tpl_size, (heappages + toastpages) AS tblpages, heappages,\n                      toastpages, reltuples, toasttuples, bs, page_hdr, tblid, nspname, relname, fillfactor, is_na\n                  FROM (\n                           SELECT\n                               tbl.oid AS tblid, ns.nspname , tbl.relname, tbl.reltuples,\n                               tbl.relpages AS heappages, coalesce(toast.relpages, 0) AS toastpages,\n                               coalesce(toast.reltuples, 0) AS toasttuples,\n                               coalesce(substring(array_to_string(tbl.reloptions, ' ') FROM 'fillfactor=([0-9]+)')::smallint, 100) AS fillfactor,\n                               current_setting('block_size')::numeric AS bs,\n                               CASE WHEN version()~'mingw32' OR version()~'64-bit|x86_64|ppc64|ia64|amd64' THEN 8 ELSE 4 END AS ma,\n                               24 AS page_hdr,\n                               23 + CASE WHEN MAX(coalesce(s.null_frac,0)) > 0 THEN ( 7 + count(s.attname) ) / 8 ELSE 0::int END\n                                   + CASE WHEN bool_or(att.attname = 'oid' and att.attnum < 0) THEN 4 ELSE 0 END AS tpl_hdr_size,\n                               sum( (1-coalesce(s.null_frac, 0)) * coalesce(s.avg_width, 0) ) AS tpl_data_size,\n                               bool_or(att.atttypid = 'pg_catalog.name'::regtype)\n                                   OR sum(CASE WHEN att.attnum > 0 THEN 1 ELSE 0 END) <> count(s.attname) AS is_na\n                           FROM pg_attribute AS att\n                                    JOIN pg_class AS tbl ON att.attrelid = tbl.oid\n                                    JOIN pg_namespace AS ns ON ns.oid = tbl.relnamespace\n                                    LEFT JOIN pg_stats AS s ON s.schemaname=ns.nspname AND s.tablename = tbl.relname AND s.inherited=false AND s.attname=att.attname\n                                    LEFT JOIN pg_class AS toast ON tbl.reltoastrelid = toast.oid\n                           WHERE NOT att.attisdropped AND tbl.relkind = 'r' AND nspname NOT IN ('pg_catalog','information_schema')\n                           GROUP BY tbl.oid, ns.nspname, tbl.relname, tbl.reltuples, tbl.relpages, toast.relpages, toast.reltuples, tbl.reloptions\n                       ) AS s\n              ) AS s2\n     ) AS s3\nWHERE NOT is_na;",
+                            "rawSql": "SELECT * FROM monitor.pg_table_bloat;",
                             "refId": "A",
                             "sql": {
                                 "columns": [
@@ -7962,7 +7971,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -8045,7 +8055,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -8110,7 +8121,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -8143,7 +8155,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 0,
-                        "y": 76
+                        "y": 39
                     },
                     "id": 192,
                     "options": {
@@ -8176,7 +8188,7 @@
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT CURRENT_CATALOG AS datname, nspname || '.' || idxname AS relname, tblid, idxid, relpages::BIGINT * bs AS size,\n       COALESCE((relpages - ( reltuples * (6 + ma - (CASE WHEN index_tuple_hdr % ma = 0 THEN ma ELSE index_tuple_hdr % ma END)\n        + nulldatawidth + ma - (CASE WHEN nulldatawidth % ma = 0 THEN ma ELSE nulldatawidth % ma END))\n        / (bs - pagehdr)::FLOAT  + 1 )), 0) / relpages::FLOAT AS ratio\nFROM (\n         SELECT nspname,idxname,indrelid AS tblid,indexrelid AS idxid,\n                reltuples,relpages,\n                current_setting('block_size')::INTEGER                                                               AS bs,\n                (CASE WHEN version() ~ 'mingw32' OR version() ~ '64-bit|x86_64|ppc64|ia64|amd64' THEN 8 ELSE 4 END)  AS ma,\n                24                                                                                                   AS pagehdr,\n                (CASE WHEN max(COALESCE(pg_stats.null_frac, 0)) = 0 THEN 2 ELSE 6 END)                               AS index_tuple_hdr,\n                sum((1.0 - COALESCE(pg_stats.null_frac, 0.0)) *\n                    COALESCE(pg_stats.avg_width, 1024))::INTEGER                                                     AS nulldatawidth\n         FROM pg_attribute\n                  JOIN (\n             SELECT pg_namespace.nspname,\n                    ic.relname                                                   AS idxname,\n                    ic.reltuples,\n                    ic.relpages,\n                    pg_index.indrelid,\n                    pg_index.indexrelid,\n                    tc.relname                                                   AS tablename,\n                    regexp_split_to_table(pg_index.indkey::TEXT, ' ') :: INTEGER AS attnum,\n                    pg_index.indexrelid                                          AS index_oid\n             FROM pg_index\n                      JOIN pg_class ic ON pg_index.indexrelid = ic.oid\n                      JOIN pg_class tc ON pg_index.indrelid = tc.oid\n                      JOIN pg_namespace ON pg_namespace.oid = ic.relnamespace\n                      JOIN pg_am ON ic.relam = pg_am.oid\n             WHERE pg_am.amname = 'btree' AND ic.relpages > 0 AND nspname NOT IN ('pg_catalog', 'information_schema')\n         ) ind_atts ON pg_attribute.attrelid = ind_atts.indexrelid AND pg_attribute.attnum = ind_atts.attnum\n                  JOIN pg_stats ON pg_stats.schemaname = ind_atts.nspname\n             AND ((pg_stats.tablename = ind_atts.tablename AND pg_stats.attname = pg_get_indexdef(pg_attribute.attrelid, pg_attribute.attnum, TRUE))\n                 OR (pg_stats.tablename = ind_atts.idxname AND pg_stats.attname = pg_attribute.attname))\n         WHERE pg_attribute.attnum > 0\n         GROUP BY nspname,idxname,indrelid,indexrelid,reltuples,relpages\n     ) est;",
+                            "rawSql": "SELECT * FROM monitor.pg_index_bloat;",
                             "refId": "A",
                             "select": [
                                 [
@@ -8266,7 +8278,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "#346f36cc"
+                                        "color": "#346f36cc",
+                                        "value": null
                                     }
                                 ]
                             }
@@ -8288,7 +8301,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -8327,7 +8341,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#3e668f"
+                                                    "color": "#3e668f",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "#346f36cc",
@@ -8364,7 +8379,7 @@
                         "h": 13,
                         "w": 12,
                         "x": 12,
-                        "y": 76
+                        "y": 39
                     },
                     "id": 193,
                     "options": {
@@ -8387,7 +8402,7 @@
                             "group": [],
                             "metricColumn": "none",
                             "rawQuery": true,
-                            "rawSql": "SELECT CURRENT_CATALOG AS datname, nspname, idxname AS relname, tblid, idxid, relpages::BIGINT * bs AS size,\n       COALESCE((relpages - ( reltuples * (6 + ma - (CASE WHEN index_tuple_hdr % ma = 0 THEN ma ELSE index_tuple_hdr % ma END)\n        + nulldatawidth + ma - (CASE WHEN nulldatawidth % ma = 0 THEN ma ELSE nulldatawidth % ma END))\n        / (bs - pagehdr)::FLOAT  + 1 )), 0) / relpages::FLOAT AS ratio\nFROM (\n         SELECT nspname,idxname,indrelid AS tblid,indexrelid AS idxid,\n                reltuples,relpages,\n                current_setting('block_size')::INTEGER                                                               AS bs,\n                (CASE WHEN version() ~ 'mingw32' OR version() ~ '64-bit|x86_64|ppc64|ia64|amd64' THEN 8 ELSE 4 END)  AS ma,\n                24                                                                                                   AS pagehdr,\n                (CASE WHEN max(COALESCE(pg_stats.null_frac, 0)) = 0 THEN 2 ELSE 6 END)                               AS index_tuple_hdr,\n                sum((1.0 - COALESCE(pg_stats.null_frac, 0.0)) *\n                    COALESCE(pg_stats.avg_width, 1024))::INTEGER                                                     AS nulldatawidth\n         FROM pg_attribute\n                  JOIN (\n             SELECT pg_namespace.nspname,\n                    ic.relname                                                   AS idxname,\n                    ic.reltuples,\n                    ic.relpages,\n                    pg_index.indrelid,\n                    pg_index.indexrelid,\n                    tc.relname                                                   AS tablename,\n                    regexp_split_to_table(pg_index.indkey::TEXT, ' ') :: INTEGER AS attnum,\n                    pg_index.indexrelid                                          AS index_oid\n             FROM pg_index\n                      JOIN pg_class ic ON pg_index.indexrelid = ic.oid\n                      JOIN pg_class tc ON pg_index.indrelid = tc.oid\n                      JOIN pg_namespace ON pg_namespace.oid = ic.relnamespace\n                      JOIN pg_am ON ic.relam = pg_am.oid\n             WHERE pg_am.amname = 'btree' AND ic.relpages > 0 AND nspname NOT IN ('pg_catalog', 'information_schema')\n         ) ind_atts ON pg_attribute.attrelid = ind_atts.indexrelid AND pg_attribute.attnum = ind_atts.attnum\n                  JOIN pg_stats ON pg_stats.schemaname = ind_atts.nspname\n             AND ((pg_stats.tablename = ind_atts.tablename AND pg_stats.attname = pg_get_indexdef(pg_attribute.attrelid, pg_attribute.attnum, TRUE))\n                 OR (pg_stats.tablename = ind_atts.idxname AND pg_stats.attname = pg_attribute.attname))\n         WHERE pg_attribute.attnum > 0\n         GROUP BY nspname,idxname,indrelid,indexrelid,reltuples,relpages\n     ) est;",
+                            "rawSql": "SELECT * FROM monitor.pg_index_bloat;",
                             "refId": "A",
                             "select": [
                                 [
@@ -15060,7 +15075,7 @@
                 "name": "dsn",
                 "options": [],
                 "query": "postgres",
-                "queryValue": "meta",
+                "queryValue": "",
                 "refresh": 1,
                 "regex": "/.*\\..*/",
                 "skipUrlSync": false,
