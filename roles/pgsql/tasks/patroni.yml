@@ -210,7 +210,6 @@
   tags: pg_hba
   become_user: "{{ pg_dbsu }}"
   template: src=pg_hba.conf.j2 dest=/pg/data/pg_hba.conf owner={{ pg_dbsu }} group=postgres mode=0600
-  notify: "reload postgres"
 
 #--------------------------------------------------------------#
 # Generate postgresql.auto.conf                       [pg_param]
@@ -229,10 +228,6 @@
       {% for key, value in pg_parameters.items() %}
       {{ key }} = '{{ value }}'
       {% endfor %}
-  notify: "reload postgres"
-
-- name: reload param & hba immediately
-  ansible.builtin.meta: flush_handlers
 
 
 #--------------------------------------------------------------#
