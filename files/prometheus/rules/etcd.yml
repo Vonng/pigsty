@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   etcd.yml
 # Ctime     :   2023-02-24
-# Mtime     :   2024-08-30
+# Mtime     :   2024-09-25
 # Desc      :   Record rules for etcd
 # Path      :   /etc/prometheus/rules/etcd.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
@@ -17,17 +17,37 @@ groups:
   - name: etcd-rules
     rules:
 
-      # etcd dist fsync duration
-      - record: etcd:ins:disk_fsync_rt_p99_5m
-        expr: histogram_quantile(0.99, rate(etcd_disk_wal_fsync_duration_seconds_bucket{job="etcd"}[5m]))
+      # etcd client requests per minute
+      - record: etcd:ins:rpm
+        expr: sum without (type, client_api_version) (increase(etcd_server_client_requests_total{job="etcd"}[1m]))
 
-      # etcd backend commit rt
-      - record: etcd:ins:backend_commit_rt_p99_5m
-        expr: histogram_quantile(0.99, rate(etcd_disk_backend_commit_duration_seconds_bucket{job="etcd"}[5m]))
+      # etcd write per minute
+      - record: etcd:ins:wpm
+        expr: increase(etcd_server_proposals_committed_total{job="etcd"}[1m])
 
-      # etcd network peer rt
-      - record: etcd:ins:network_peer_rt_p99_1m
-        expr: histogram_quantile(0.99, rate(etcd_network_peer_round_trip_time_seconds_bucket{job="etcd"}[1m]))
+      # etcd db size quota usage
+      - record: etcd:ins:quota_usage
+        expr: etcd_mvcc_db_total_size_in_bytes{job="etcd"} / etcd_server_quota_backend_bytes{job="etcd"}
+      - record: etcd:cls:quota_usage
+        expr: max by (job,cls) (etcd_mvcc_db_total_size_in_bytes{job="etcd"} / etcd_server_quota_backend_bytes{job="etcd"})
+
+      # etcd current revision - compact revision
+      - record: etcd:ins:age
+        expr: etcd_debugging_mvcc_current_revision{job="etcd"} - etcd_debugging_mvcc_compact_revision{job="etcd"}
+      - record: etcd:cls:age
+        expr: max by (job,cls) (etcd_debugging_mvcc_current_revision{job="etcd"} - etcd_debugging_mvcc_compact_revision{job="etcd"})
+
+      # etcd wal fsync duration (p95 in last 5m)
+      - record: etcd:ins:wal_fsync_rt_p95_5m
+        expr: histogram_quantile(0.95, rate(etcd_disk_wal_fsync_duration_seconds_bucket{job="etcd"}[5m]))
+
+      # etcd backend commit rt (p95 in last 5m)
+      - record: etcd:ins:backend_commit_rt_p95_5m
+        expr: histogram_quantile(0.95, rate(etcd_disk_backend_commit_duration_seconds_bucket{job="etcd"}[5m]))
+
+      # etcd network peer rt (p95 in last 5m)
+      - record: etcd:ins:network_peer_rt_p95_5m
+        expr: histogram_quantile(0.95, rate(etcd_network_peer_round_trip_time_seconds_bucket{job="etcd"}[5m]))
 
 
   ################################################################
@@ -66,17 +86,39 @@ groups:
             http://g.pigsty/d/etcd-overview?from=now-5m&to=now&var-cls={{$labels.cls}}
 
       #==============================================================#
+      #                        Saturation                            #
+      #==============================================================#
+      - alert: EtcdQuotaFull
+        expr: etcd:cls:quota_usage > 0.90
+        for: 1m
+        labels: { level: 1, severity: WARN, category: etcd }
+        annotations:
+          summary: "WARN EtcdQuotaFull: {{ $labels.cls }}"
+          description: |
+            etcd:cls:quota_usage[cls={{ $labels.cls }}] = {{ $value | printf "%.3f" }} > 90%
+
+      #==============================================================#
       #                         Latency                              #
       #==============================================================#
-      # Etcd disk fsync rt p99 > 50ms or backend commit rt p99 > 100ms
-      - alert: EtcdSyncCommitSlow
-        expr: etcd:ins:disk_fsync_rt_p99_5m > 0.100 or etcd:ins:backend_commit_rt_p99_5m > 0.100
+      # etcd network peer rt p95 > 200ms for 1m
+      - alert: EtcdNetworkPeerRTSlow
+        expr: etcd:ins:network_peer_rt_p95_5m > 0.200
         for: 1m
         labels: { level: 2, severity: INFO, category: etcd }
         annotations:
-          summary: "INFO EtcdSyncCommitSlow: {{ $labels.cls }} {{ $labels.ins }}"
+          summary: "INFO EtcdNetworkPeerRTSlow: {{ $labels.cls }} {{ $labels.ins }}"
           description: |
-            etcd:ins:disk_fsync_rt_p99_5m[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 100ms or
-            etcd:ins:backend_commit_rt_p99_5m[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 100ms
+            etcd:ins:network_peer_rt_p95_5m[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 200ms
+            http://g.pigsty/d/etcd-instance?from=now-10m&to=now&var-cls={{ $labels.cls }}
+
+      # Etcd wal fsync rt p95 > 50ms
+      - alert: EtcdWalFsyncSlow
+        expr: etcd:ins:wal_fsync_rt_p95_5m > 0.050
+        for: 1m
+        labels: { level: 2, severity: INFO, category: etcd }
+        annotations:
+          summary: "INFO EtcdWalFsyncSlow: {{ $labels.cls }} {{ $labels.ins }}"
+          description: |
+            etcd:ins:wal_fsync_rt_p95_5m[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 50ms
             http://g.pigsty/d/etcd-instance?from=now-10m&to=now&var-cls={{ $labels.cls }}
 
