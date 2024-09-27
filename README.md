@@ -1,7 +1,7 @@
 # Pigsty
 
 [![Webite: pigsty.io](https://img.shields.io/badge/website-pigsty.io-slategray?style=flat&logo=cilium&logoColor=white)](https://pigsty.io)
-[![Version: v3.0.2](https://img.shields.io/badge/version-v3.0.2-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.0.2)
+[![Version: v3.0.3](https://img.shields.io/badge/version-v3.0.3-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.0.3)
 [![License: AGPLv3](https://img.shields.io/github/license/Vonng/pigsty?logo=opensourceinitiative&logoColor=green&color=slategray)](https://pigsty.io/docs/about/license/)
 [![GitHub Stars](https://img.shields.io/github/stars/Vonng/pigsty?style=flat&logo=github&logoColor=black&color=slategray)](https://star-history.com/#Vonng/pigsty&Date)
 [![Extensions: 335](https://img.shields.io/badge/extensions-335-%233E668F?style=flat&logo=postgresql&logoColor=white&labelColor=3E668F)](https://pigsty.io/docs/pgext/list)
@@ -12,7 +12,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 [**Features**](https://pigsty.io/docs/about/feature) | [Website](https://pigsty.io/) | [Docs](https://pigsty.io/docs/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站](https://pigsty.cc/zh/) | [专业版](https://pigsty.cc/zh/docs/price/) | [博客](https://pigsty.cc/zh/blog) | [**特性**](https://pigsty.cc/zh/docs/about/feature)
 
-[**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.0.2**](https://github.com/Vonng/pigsty/releases/tag/v3.0.2) release: `curl -fsSL https://repo.pigsty.io/get | bash`
+[**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.0.3**](https://github.com/Vonng/pigsty/releases/tag/v3.0.3) release: `curl -fsSL https://repo.pigsty.io/get | bash`
 
 [![pigsty-desc](https://pigsty.io/img/pigsty/banner.en.jpg)](https://pigsty.io/docs/about/feature/)
 
@@ -78,20 +78,20 @@ Finally, you will get a pigsty singleton node [**ready**](https://pigsty.io/docs
 
 ```
 $ curl -fsSL https://repo.pigsty.io/get | bash
-[v3.0.2] ===========================================
+[v3.0.3] ===========================================
 $ curl -fsSL https://repo.pigsty.io/get | bash
 [Site] https://pigsty.io
 [Demo] https://demo.pigsty.cc
 [Repo] https://github.com/Vonng/pigsty
 [Docs] https://pigsty.io/docs/setup/install
 [Download] ===========================================
-[ OK ] version = v3.0.2 (from default)
-curl -fSL https://repo.pigsty.io/src/pigsty-v3.0.2.tgz -o /tmp/pigsty-v3.0.2.tgz
+[ OK ] version = v3.0.3 (from default)
+curl -fSL https://repo.pigsty.io/src/pigsty-v3.0.3.tgz -o /tmp/pigsty-v3.0.3.tgz
 ######################################################################## 100.0%
-[ OK ] md5sums = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  /tmp/pigsty-v3.0.2.tgz
+[ OK ] md5sums = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  /tmp/pigsty-v3.0.3.tgz
 [Install] ===========================================
 [WARN] os user = root , it's recommended to install as a sudo-able admin
-[ OK ] install = /root/pigsty, from /tmp/pigsty-v3.0.2.tgz
+[ OK ] install = /root/pigsty, from /tmp/pigsty-v3.0.3.tgz
 [TodoList] ===========================================
 cd /root/pigsty
 ./bootstrap      # [OPTIONAL] install ansible & use offline package
@@ -103,7 +103,7 @@ cd /root/pigsty
 > HINT: To install a specific version, pass the version string as the first parameter:
 >
 > ```bash
-> curl -fsSL https://repo.pigsty.io/get | bash -s v3.0.2
+> curl -fsSL https://repo.pigsty.io/get | bash -s v3.0.3
 > ```
 
 </details>
@@ -114,7 +114,7 @@ cd /root/pigsty
 You can also download the pigsty source with `git`, remember to check out a specific version tag, the `main` branch is for development.
 
 ```bash
-git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v3.0.2
+git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v3.0.3
 ```
 
 </details>
