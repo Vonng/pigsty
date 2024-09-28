@@ -123,6 +123,7 @@ REVOKE ALL ON FUNCTION monitor.upsert_heartbeat() FROM dbrole_readonly;
 REVOKE ALL ON FUNCTION monitor.upsert_heartbeat() FROM dbrole_offline;
 GRANT EXECUTE ON FUNCTION monitor.upsert_heartbeat() TO pg_monitor;
 
+-- function to be used by monitor tools
 CREATE OR REPLACE FUNCTION monitor.beating() RETURNS
     TABLE (cls TEXT, ts TIMESTAMPTZ, lsn PG_LSN, lsn_int BIGINT, txid BIGINT, status TEXT)
 AS
@@ -134,6 +135,15 @@ REVOKE ALL ON FUNCTION monitor.beating() FROM PUBLIC;
 REVOKE ALL ON FUNCTION monitor.beating() FROM dbrole_readonly;
 REVOKE ALL ON FUNCTION monitor.beating() FROM dbrole_offline;
 GRANT EXECUTE ON FUNCTION monitor.beating() TO pg_monitor;
+
+-- function to return explain plan of given query
+CREATE OR REPLACE FUNCTION monitor.explain(query TEXT) RETURNS JSON AS $$
+DECLARE result JSON;
+BEGIN
+    EXECUTE format('EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) %s', query) INTO result;
+    RETURN result;
+END; $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION monitor.explain(TEXT) IS 'return verbose explain json plan for given query text';
 
 
 --==================================================================--
@@ -369,7 +379,6 @@ CREATE VIEW monitor.pg_lock_waiting AS
     activity as (select pg_blocking_pids(pid) blocked_by, *,
                         extract(seconds FROM age(clock_timestamp(), xact_start)) as xact_wait,
                         extract(seconds FROM age(clock_timestamp(),
-
 {% if pg_version|int >= 14 %}
                         (select max(l.waitstart) from pg_locks l where a.pid = l.pid)    -- PG 14 and newer
 {% else %}
