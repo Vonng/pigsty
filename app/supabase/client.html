@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Supabase Demo</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<h1>Supabase: the Hello World Demo</h1>
+<code>
+    <p>const supabaseUrl = 'http://supa.pigsty';</p>
+    <p>const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE';</p>
+    <p>const client = supabase.createClient(supabaseUrl, supabaseKey);</p>
+</code>
+<h3>Async Fetch Results</h3>
+<div id="data"></div>
+<script>
+    const supabaseUrl = 'http://supa.pigsty';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE';
+    const sb = supabase.createClient(supabaseUrl, supabaseKey);
+    async function fetchData() {
+        try {
+            const { data, error } = await sb.from('countries').select();
+            if (error) {
+                console.error('Error:', error);
+                document.getElementById('data').textContent = 'Error fetching data';
+            } else {
+                document.getElementById('data').textContent = JSON.stringify(data, null, 2);
+            }
+        } catch (err) {
+            console.error('Unexpected error:', err);
+            document.getElementById('data').textContent = 'Unexpected error occurred';
+        }
+    }
+    fetchData();
+</script>
+</body>
+</html>

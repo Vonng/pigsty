@@ -1,55 +1,63 @@
 default: up view
 
-DOCKER_IMAGE_DIR=/tmp/docker/supabase
+IMG_DIR=/tmp/docker/supabase
 
-up: view
+up:
 	docker compose up -d
 
+down:
+	docker compose down
+
 view:
-	@echo "visit http://10.10.10.10:8000 for supabase studio"
+	@echo "visit http://supa.pigsty for supabase studio"
 
 log:
-	docker logs -f supabase-studio
+	docker compose logs -f
 
 info:
 	docker inspect supabase-studio | jq
 
-stop:
-	docker compose down
+restart:
+	docker compose restart
 
 clean:
-	docker compose down
+	docker compose rm
+
+edit:
+	vi .env
 
 pull:
 	docker compose pull
 
 save:
-	mkdir -p $(DOCKER_IMAGE_DIR)
-	docker save supabase/studio        | gzip -c -9 > $(DOCKER_IMAGE_DIR)/studio.tgz
-	docker save supabase/realtime      | gzip -c -9 > $(DOCKER_IMAGE_DIR)/realtime.tgz
-	docker save supabase/gotrue        | gzip -c -9 > $(DOCKER_IMAGE_DIR)/gotrue.tgz
-	docker save supabase/storage-api   | gzip -c -9 > $(DOCKER_IMAGE_DIR)/storage-api.tgz
-	docker save supabase/edge-runtime  | gzip -c -9 > $(DOCKER_IMAGE_DIR)/edge-runtime.tgz
-	docker save supabase/postgres-meta | gzip -c -9 > $(DOCKER_IMAGE_DIR)/postgres-meta.tgz
-	docker save supabase/logflare      | gzip -c -9 > $(DOCKER_IMAGE_DIR)/logflare.tgz
-	docker save darthsim/imgproxy      | gzip -c -9 > $(DOCKER_IMAGE_DIR)/imgproxy.tgz
-	docker save postgrest/postgrest    | gzip -c -9 > $(DOCKER_IMAGE_DIR)/postgrest.tgz
-	docker save kong                   | gzip -c -9 > $(DOCKER_IMAGE_DIR)/kong.tgz
+	mkdir -p $(IMG_DIR)
+	docker save supabase/storage-api:v1.10.1    | gzip -c -9 > $(IMG_DIR)/storage.tgz
+	docker save darthsim/imgproxy:v3.8.0        | gzip -c -9 > $(IMG_DIR)/imgproxy.tgz
+	docker save supabase/studio:20240923-2e3e90 | gzip -c -9 > $(IMG_DIR)/studio.tgz
+	docker save supabase/realtime:v2.30.34      | gzip -c -9 > $(IMG_DIR)/realtime.tgz
+	docker save supabase/edge-runtime:v1.58.3   | gzip -c -9 > $(IMG_DIR)/edge-functions.tgz
+	docker save supabase/gotrue:v2.158.1        | gzip -c -9 > $(IMG_DIR)/auth.tgz
+	docker save supabase/postgres-meta:v0.83.2  | gzip -c -9 > $(IMG_DIR)/meta.tgz
+	docker save postgrest/postgrest:v12.2.0     | gzip -c -9 > $(IMG_DIR)/rest.tgz
+	docker save supabase/logflare:1.4.0         | gzip -c -9 > $(IMG_DIR)/analytics.tgz
+	docker save kong:2.8.1                      | gzip -c -9 > $(IMG_DIR)/kong.tgz
+	docker save timberio/vector:0.28.1-alpine   | gzip -c -9 > $(IMG_DIR)/vector.tgz
 
+load:
+	$(IMG_DIR)/storage.tgz        | gzip -d -c - | docker load
+	$(IMG_DIR)/imgproxy.tgz       | gzip -d -c - | docker load
+	$(IMG_DIR)/studio.tgz         | gzip -d -c - | docker load
+	$(IMG_DIR)/realtime.tgz       | gzip -d -c - | docker load
+	$(IMG_DIR)/edge-functions.tgz | gzip -d -c - | docker load
+	$(IMG_DIR)/auth.tgz           | gzip -d -c - | docker load
+	$(IMG_DIR)/meta.tgz           | gzip -d -c - | docker load
+	$(IMG_DIR)/rest.tgz           | gzip -d -c - | docker load
+	$(IMG_DIR)/analytics.tgz      | gzip -d -c - | docker load
+	$(IMG_DIR)/kong.tgz           | gzip -d -c - | docker load
+	$(IMG_DIR)/vector.tgz         | gzip -d -c - | docker load
+
+tz: tarball
 tarball: save
 	tar -cvf /tmp/supabase.tgz -C /tmp/docker supabase
 
-load:
-	cat $(DOCKER_IMAGE_DIR)/studio.tgz         | gzip -d -c - | docker load
-	cat $(DOCKER_IMAGE_DIR)/realtime.tgz       | gzip -d -c - | docker load
-	cat $(DOCKER_IMAGE_DIR)/gotrue.tgz         | gzip -d -c - | docker load
-	cat $(DOCKER_IMAGE_DIR)/storage-api.tgz    | gzip -d -c - | docker load
-	cat $(DOCKER_IMAGE_DIR)/edge-runtime.tgz   | gzip -d -c - | docker load
-	cat $(DOCKER_IMAGE_DIR)/postgres-meta.tgz  | gzip -d -c - | docker load
-	cat $(DOCKER_IMAGE_DIR)/logflare.tgz       | gzip -d -c - | docker load
-	cat $(DOCKER_IMAGE_DIR)/imgproxy.tgz       | gzip -d -c - | docker load
-	cat $(DOCKER_IMAGE_DIR)/postgrest.tgz      | gzip -d -c - | docker load
-	cat $(DOCKER_IMAGE_DIR)/kong.tgz           | gzip -d -c - | docker load
-
-
-.PHONY: default up view log info stop clean pull save load
+.PHONY: default up down view log info restart clean edit pull save load tz tarball

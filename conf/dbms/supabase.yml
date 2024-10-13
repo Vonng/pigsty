@@ -1,31 +1,32 @@
 ---
 #==============================================================#
 # File      :   supabase.yml
-# Desc      :   Pigsty 1 node installation for supabase
-# Ctime     :   2020-05-22
-# Mtime     :   2024-08-26
-# Docs      :   https://pigsty.io/docs/setup/config/
+# Desc      :   Pigsty configuration for supabase
+# Ctime     :   2023-09-19
+# Mtime     :   2024-10-13
+# Docs      :   https://pigsty.io/docs/kernel/supabase
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 
-# Tutorial: https://pigsty.io/docs/kernel/supabase/
 
 all:
+
+  #==============================================================#
+  # Clusters, Nodes, and Modules
+  #==============================================================#
   children:
 
     # infra cluster for proxy, monitor, alert, etc..
-    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } }}
-
-    # minio cluster, s3 compatible object storage
-    #minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
     # etcd cluster for ha postgres
     etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
 
-    # supabase example cluster: pg-meta
-    # this cluster needs to be migrated with app/supabase/migration.sql :
-    # psql postgres://supabase_admin:DBUser.Supa@10.10.10.10:5432/supa -v ON_ERROR_STOP=1 --no-psqlrc -f ~pigsty/app/supabase/migration.sql
+    # minio cluster, s3 compatible object storage
+    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+
+    # pg-meta, the underlying postgres database for supabase
     pg-meta:
       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
       vars:
@@ -37,20 +38,16 @@ all:
           - { name: dashboard_user ,login: false ,replication: true ,createdb: true ,createrole: true }
           - { name: service_role   ,login: false ,bypassrls: true }
           # supabase users: please use the same password
-          - { name: supabase_admin             ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: true   ,superuser: true ,replication: true ,createdb: true ,createrole: true ,bypassrls: true }
-          - { name: authenticator              ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,roles: [ authenticated ,anon ,service_role ] }
-          - { name: supabase_auth_admin        ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true }
-          - { name: supabase_storage_admin     ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true ,roles: [ authenticated ,anon ,service_role ] }
-          - { name: supabase_functions_admin   ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,createrole: true }
-          - { name: supabase_replication_admin ,password: 'DBUser.Supa' ,replication: true }
-          - { name: supabase_read_only_user    ,password: 'DBUser.Supa' ,bypassrls: true ,roles: [ pg_read_all_data ] }
-
+          - { name: supabase_admin             ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: true   ,roles: [ dbrole_admin ] ,superuser: true ,replication: true ,createdb: true ,createrole: true ,bypassrls: true }
+          - { name: authenticator              ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,roles: [ dbrole_admin, authenticated ,anon ,service_role ] }
+          - { name: supabase_auth_admin        ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,roles: [ dbrole_admin ] ,createrole: true }
+          - { name: supabase_storage_admin     ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,roles: [ dbrole_admin, authenticated ,anon ,service_role ] ,createrole: true }
+          - { name: supabase_functions_admin   ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,roles: [ dbrole_admin ] ,createrole: true }
+          - { name: supabase_replication_admin ,password: 'DBUser.Supa' ,replication: true ,roles: [ dbrole_admin ]}
+          - { name: supabase_read_only_user    ,password: 'DBUser.Supa' ,bypassrls: true ,roles: [ dbrole_readonly, pg_read_all_data ] }
         pg_databases:
-          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ]} # the optional pigsty cmdb
-
-          # the supabase database (pg_cron should be installed in this database after bootstrap)
-          - name: supa
-            baseline: supa.sql    # the init-scripts: https://github.com/supabase/postgres/tree/develop/migrations/db/init-scripts
+          - name: postgres
+            baseline: supabase.sql
             owner: supabase_admin
             comment: supabase postgres database
             schemas: [ extensions ,auth ,realtime ,storage ,graphql_public ,supabase_functions ,_analytics ,_realtime ]
@@ -69,20 +66,40 @@ all:
         # supabase required extensions
         pg_libs: 'pg_net, pg_cron, pg_stat_statements, auto_explain'    # add pg_net to shared_preload_libraries
         pg_extensions:
-          - wal2json pg_repack
-          - supa-stack #pgvector pg_cron pgsodium pg_graphql pg_jsonschema wrappers pgjwt pgsql_http pg_net supautils index_advisor
+          - wal2json pg_repack supa-stack
+          # pgvector pg_cron pgsodium pg_graphql pg_jsonschema wrappers pgjwt pgsql_http pg_net supautils index_advisor safeupdate
         pg_parameters:
-          cron.database_name: supa
+          cron.database_name: postgres
           pgsodium.enable_event_trigger: off
         pg_hba_rules: # supabase hba rules, require access from docker network
-          - { user: all ,db: supa ,addr: intra       ,auth: pwd ,title: 'allow supa database access from intranet'      }
-          - { user: all ,db: supa ,addr: 172.0.0.0/8 ,auth: pwd ,title: 'allow supa database access from docker network'}
-          - { user: all ,db: supa ,addr: all         ,auth: pwd ,title: 'allow supa database access from entire world'  }  # not safe!
+          - { user: all ,db: postgres  ,addr: intra         ,auth: pwd ,title: 'allow supabase access from intranet'    }
+          - { user: all ,db: postgres  ,addr: 172.17.0.0/16 ,auth: pwd ,title: 'allow access from local docker network' }
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.2/24
+        pg_vip_interface: eth1
 
-  vars:                               # global variables
+    # supabase stateless part with docker compose
+    supabase:
+      hosts:
+        10.10.10.10:
+      vars:
+        docker_enabled: true
+        proxy_env:   # add [OPTIONAL] proxy env to /etc/docker/daemon.json configuration file
+          no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
+          #http_proxy: http://user:pass@host:port
+          #all_proxy: http://user:pass@host:port
+          #https_proxy: http://user:pass@host:port
+
+
+  #==============================================================#
+  # Global Parameters
+  #==============================================================#
+  vars:
     version: v3.0.3                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
+    node_tune: oltp                   # use tiny template for NODE  in demo environment
+    pg_conf: oltp.yml                 # use tiny template for PGSQL in demo environment
     infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
@@ -91,5 +108,6 @@ all:
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
       supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }     # <---- expose web UI
+
 
 ...

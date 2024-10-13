@@ -1,59 +1,35 @@
-# Self Hosting https://supabase.com/docs/guides/self-hosting/docker
+#!/usr/bin/env docker compose
+---
+#==============================================================#
+# File      :   docker-compose.yml
+# Desc      :   modified supabase docker compose for pigsty pg
+# Ctime     :   2023-09-19
+# Mtime     :   2024-10-12
+# Path      :   app/supabase/docker-compose.yml
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+# Dir: https://github.com/supabase/supabase/blob/master/docker/
 # Source: https://github.com/supabase/supabase/blob/master/docker/docker-compose.yml
+# Tutorial: https://supabase.com/docs/guides/self-hosting/docker
+
 # Usage
 #   Start:          docker compose up
-#   With helpers:   docker compose -f docker-compose.yml -f ./dev/docker-compose.dev.yml up
 #   Stop:           docker compose down
-#   Destroy:        docker compose -f docker-compose.yml -f ./dev/docker-compose.dev.yml down -v --remove-orphans
+
 
 name: supabase
-version: "3.8"
 
 services:
-  studio:
-    container_name: supabase-studio
-    image: supabase/studio:20240729-ce42139
-    restart: unless-stopped
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          "require('http').get('http://localhost:3000/api/profile', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
-        ]
-      timeout: 5s
-      interval: 5s
-      retries: 3
-    depends_on:
-      analytics:
-        condition: service_healthy
-    environment:
-      STUDIO_PG_META_URL: http://meta:8080
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
-      DEFAULT_ORGANIZATION_NAME: ${STUDIO_DEFAULT_ORGANIZATION}
-      DEFAULT_PROJECT_NAME: ${STUDIO_DEFAULT_PROJECT}
-
-      SUPABASE_URL: http://kong:8000
-      SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
-      SUPABASE_ANON_KEY: ${ANON_KEY}
-      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
-      AUTH_JWT_SECRET: ${JWT_SECRET}
-
-      LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
-      LOGFLARE_URL: http://analytics:4000
-      NEXT_PUBLIC_ENABLE_LOGS: true
-      # Comment to use Big Query backend for analytics
-      NEXT_ANALYTICS_BACKEND_PROVIDER: postgres
-      # Uncomment to use Big Query backend for analytics
-      # NEXT_ANALYTICS_BACKEND_PROVIDER: bigquery
-
+  #--------------------------------------------------------------#
+  # Kong: the API gateway for all supabase services
+  #--------------------------------------------------------------#
+  # https://supabase.com/docs/guides/getting-started/architecture#kong-api-gateway
   kong:
     container_name: supabase-kong
     image: kong:2.8.1
     restart: unless-stopped
-    # https://unix.stackexchange.com/a/294837
     entrypoint: bash -c 'eval "echo \"$$(cat ~/temp.yml)\"" > ~/kong.yml && /docker-entrypoint.sh kong docker-start'
     ports:
       - ${KONG_HTTP_PORT}:8000/tcp
@@ -74,9 +50,45 @@ services:
       DASHBOARD_USERNAME: ${DASHBOARD_USERNAME}
       DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
     volumes:
-      # https://github.com/supabase/supabase/issues/12661
       - ./volumes/api/kong.yml:/home/kong/temp.yml:ro
 
+
+  #--------------------------------------------------------------#
+  # Studio: the admin GUI dashboard for supabase
+  #--------------------------------------------------------------#
+  # https://supabase.com/docs/guides/getting-started/architecture#studio-dashboard
+  studio:
+    container_name: supabase-studio
+    image: supabase/studio:20240923-2e3e90c
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD","node","-e","require('http').get('http://localhost:3000/api/profile', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" ]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    depends_on:
+      analytics:
+        condition: service_healthy
+    environment:
+      STUDIO_PG_META_URL: http://meta:8080
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DEFAULT_ORGANIZATION_NAME: ${STUDIO_DEFAULT_ORGANIZATION}
+      DEFAULT_PROJECT_NAME: ${STUDIO_DEFAULT_PROJECT}
+      SUPABASE_URL: http://kong:8000
+      SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      AUTH_JWT_SECRET: ${JWT_SECRET}
+      LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
+      LOGFLARE_URL: http://analytics:4000
+      NEXT_PUBLIC_ENABLE_LOGS: true
+      NEXT_ANALYTICS_BACKEND_PROVIDER: postgres
+
+
+  #--------------------------------------------------------------#
+  # Auth: JWT-based API for authentication using GoTrue
+  #--------------------------------------------------------------#
+  # https://supabase.com/docs/guides/getting-started/architecture#gotrue-auth
   auth:
     container_name: supabase-auth
     image: supabase/gotrue:v2.158.1
@@ -84,15 +96,7 @@ services:
       analytics:
         condition: service_healthy
     healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "http://localhost:9999/health"
-        ]
+      test: [ "CMD","wget","--no-verbose","--tries=1","--spider","http://localhost:9999/health" ]
       timeout: 5s
       interval: 5s
       retries: 3
@@ -101,20 +105,16 @@ services:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
       API_EXTERNAL_URL: ${API_EXTERNAL_URL}
-
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
-
       GOTRUE_SITE_URL: ${SITE_URL}
       GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
       GOTRUE_DISABLE_SIGNUP: ${DISABLE_SIGNUP}
-
       GOTRUE_JWT_ADMIN_ROLES: service_role
       GOTRUE_JWT_AUD: authenticated
       GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
       GOTRUE_JWT_EXP: ${JWT_EXPIRY}
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
-
       GOTRUE_EXTERNAL_EMAIL_ENABLED: ${ENABLE_EMAIL_SIGNUP}
       GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED: ${ENABLE_ANONYMOUS_USERS}
       GOTRUE_MAILER_AUTOCONFIRM: ${ENABLE_EMAIL_AUTOCONFIRM}
@@ -126,27 +126,33 @@ services:
       GOTRUE_SMTP_USER: ${SMTP_USER}
       GOTRUE_SMTP_PASS: ${SMTP_PASS}
       GOTRUE_SMTP_SENDER_NAME: ${SMTP_SENDER_NAME}
-      GOTRUE_MAILER_URLPATHS_INVITE: ${MAILER_URLPATHS_INVITE}
-      GOTRUE_MAILER_URLPATHS_CONFIRMATION: ${MAILER_URLPATHS_CONFIRMATION}
-      GOTRUE_MAILER_URLPATHS_RECOVERY: ${MAILER_URLPATHS_RECOVERY}
-      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: ${MAILER_URLPATHS_EMAIL_CHANGE}
-
+      # use absolute URLs for mailer URL paths
+      GOTRUE_MAILER_URLPATHS_INVITE: "${SUPABASE_PUBLIC_URL}/${MAILER_URLPATHS_INVITE}"
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: "${SUPABASE_PUBLIC_URL}/${MAILER_URLPATHS_CONFIRMATION}"
+      GOTRUE_MAILER_URLPATHS_RECOVERY: "${SUPABASE_PUBLIC_URL}/${MAILER_URLPATHS_RECOVERY}"
+      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: "${SUPABASE_PUBLIC_URL}/${MAILER_URLPATHS_EMAIL_CHANGE}"
       GOTRUE_EXTERNAL_PHONE_ENABLED: ${ENABLE_PHONE_SIGNUP}
       GOTRUE_SMS_AUTOCONFIRM: ${ENABLE_PHONE_AUTOCONFIRM}
-      # Uncomment to enable custom access token hook. You'll need to create a public.custom_access_token_hook function and grant necessary permissions.
-      # See: https://supabase.com/docs/guides/auth/auth-hooks#hook-custom-access-token for details
-      # GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_ENABLED="true"
-      # GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_URI="pg-functions://postgres/public/custom_access_token_hook"
+      # Uncomment to enable custom access token hook. Please see: https://supabase.com/docs/guides/auth/auth-hooks for full list of hooks and additional details about custom_access_token_hook
+      # GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_ENABLED: "true"
+      # GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_URI: "pg-functions://postgres/public/custom_access_token_hook"
+      # GOTRUE_HOOK_CUSTOM_ACCESS_TOKEN_SECRETS: "<standard-base64-secret>"
+      # GOTRUE_HOOK_MFA_VERIFICATION_ATTEMPT_ENABLED: "true"
+      # GOTRUE_HOOK_MFA_VERIFICATION_ATTEMPT_URI: "pg-functions://postgres/public/mfa_verification_attempt"
+      # GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_ENABLED: "true"
+      # GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_URI: "pg-functions://postgres/public/password_verification_attempt"
+      # GOTRUE_HOOK_SEND_SMS_ENABLED: "false"
+      # GOTRUE_HOOK_SEND_SMS_URI: "pg-functions://postgres/public/custom_access_token_hook"
+      # GOTRUE_HOOK_SEND_SMS_SECRETS: "v1,whsec_VGhpcyBpcyBhbiBleGFtcGxlIG9mIGEgc2hvcnRlciBCYXNlNjQgc3RyaW5n"
+      # GOTRUE_HOOK_SEND_EMAIL_ENABLED: "false"
+      # GOTRUE_HOOK_SEND_EMAIL_URI: "http://host.docker.internal:54321/functions/v1/email_sender"
+      # GOTRUE_HOOK_SEND_EMAIL_SECRETS: "v1,whsec_VGhpcyBpcyBhbiBleGFtcGxlIG9mIGEgc2hvcnRlciBCYXNlNjQgc3RyaW5n"
 
-      # GOTRUE_HOOK_MFA_VERIFICATION_ATTEMPT_ENABLED="true"
-      # GOTRUE_HOOK_MFA_VERIFICATION_ATTEMPT_URI="pg-functions://postgres/public/mfa_verification_attempt"
 
-      # GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_ENABLED="true"
-      # GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_URI="pg-functions://postgres/public/password_verification_attempt"
-
-
-
-
+  #--------------------------------------------------------------#
+  # Rest: Turn PostgreSQL into a RESTful API using PostgREST
+  #--------------------------------------------------------------#
+  # https://supabase.com/docs/guides/getting-started/architecture#postgrest-api
   rest:
     container_name: supabase-rest
     image: postgrest/postgrest:v12.2.0
@@ -164,26 +170,20 @@ services:
       PGRST_APP_SETTINGS_JWT_EXP: ${JWT_EXPIRY}
     command: "postgrest"
 
+
+  #--------------------------------------------------------------#
+  # Realtime: A scalable websocket engine for realtime msg
+  #--------------------------------------------------------------#
+  # https://supabase.com/docs/guides/getting-started/architecture#realtime-api--multiplayer
   realtime:
     # This container name looks inconsistent but is correct because realtime constructs tenant id by parsing the subdomain
     container_name: realtime-dev.supabase-realtime
-    image: supabase/realtime:v2.30.23
+    image: supabase/realtime:v2.30.34
     depends_on:
       analytics:
         condition: service_healthy
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-sSfL",
-          "--head",
-          "-o",
-          "/dev/null",
-          "-H",
-          "Authorization: Bearer ${ANON_KEY}",
-          "http://localhost:4000/api/tenants/realtime-dev/health"
-        ]
+      test: [ "CMD","curl","-sSfL","--head","-o","/dev/null","-H","Authorization: Bearer ${ANON_KEY}","http://localhost:4000/api/tenants/realtime-dev/health" ]
       timeout: 5s
       interval: 5s
       retries: 3
@@ -205,25 +205,23 @@ services:
       APP_NAME: realtime
       SEED_SELF_HOST: true
 
+
+  #--------------------------------------------------------------#
+  # Storage: S3-compatible OSS that stores metadata in Postgres
+  #--------------------------------------------------------------#
+  # https://supabase.com/docs/guides/getting-started/architecture#storage-api-large-file-storage
+
   # To use S3 backed storage: docker compose -f docker-compose.yml -f docker-compose.s3.yml up
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v1.0.6
+    image: supabase/storage-api:v1.10.1
     depends_on:
       rest:
         condition: service_started
       imgproxy:
         condition: service_started
     healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "http://localhost:5000/status"
-        ]
+      test: [ "CMD","wget","--no-verbose","--tries=1","--spider","http://localhost:5000/status" ]
       timeout: 5s
       interval: 5s
       retries: 3
@@ -235,17 +233,21 @@ services:
       PGRST_JWT_SECRET: ${JWT_SECRET}
       DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       FILE_SIZE_LIMIT: 52428800
-      STORAGE_BACKEND: file
-      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
       TENANT_ID: stub
       # TODO: https://github.com/supabase/storage-api/issues/55
       REGION: stub
-      GLOBAL_S3_BUCKET: stub
       ENABLE_IMAGE_TRANSFORMATION: "true"
       IMGPROXY_URL: http://imgproxy:5001
+      # local file storage
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
     volumes:
       - ./volumes/storage:/var/lib/storage:z
 
+
+  #--------------------------------------------------------------#
+  # imgproxy: the proxy for image
+  #--------------------------------------------------------------#
   imgproxy:
     container_name: supabase-imgproxy
     image: darthsim/imgproxy:v3.8.0
@@ -262,6 +264,10 @@ services:
     volumes:
       - ./volumes/storage:/var/lib/storage:z
 
+
+  #--------------------------------------------------------------#
+  # Storage: S3-compatible OSS that stores metadata in Postgres
+  #--------------------------------------------------------------#
   meta:
     container_name: supabase-meta
     image: supabase/postgres-meta:v0.83.2
@@ -277,9 +283,14 @@ services:
       PG_META_DB_USER: supabase_admin
       PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
 
+
+  #--------------------------------------------------------------#
+  # Edge Functions: A modern runtime for JavaScript and TypeScript
+  #--------------------------------------------------------------#
+  # https://supabase.com/docs/guides/getting-started/architecture#deno-edge-functions
   functions:
     container_name: supabase-edge-functions
-    image: supabase/edge-runtime:v1.56.0
+    image: supabase/edge-runtime:v1.58.3
     restart: unless-stopped
     depends_on:
       analytics:
@@ -292,13 +303,15 @@ services:
       SUPABASE_DB_URL: postgresql://postgres:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       # TODO: Allow configuring VERIFY_JWT per function. This PR might help: https://github.com/supabase/cli/pull/786
       VERIFY_JWT: "${FUNCTIONS_VERIFY_JWT}"
+    command: [ "start", "--main-service", "/home/deno/functions/main" ]
     volumes:
       - ./volumes/functions:/home/deno/functions:Z
-    command:
-      - start
-      - --main-service
-      - /home/deno/functions/main
 
+
+  #--------------------------------------------------------------#
+  # Analytics: analysis log events
+  #--------------------------------------------------------------#
+  # NOTICE: pigsty is still using the same postgres database rather than _supabase for simplicity
   analytics:
     container_name: supabase-analytics
     image: supabase/logflare:1.4.0
@@ -308,12 +321,6 @@ services:
       interval: 5s
       retries: 10
     restart: unless-stopped
-    # Uncomment to use Big Query backend for analytics
-    # volumes:
-    #   - type: bind
-    #     source: ${PWD}/gcloud.json
-    #     target: /opt/app/rel/logflare/bin/gcloud.json
-    #     read_only: true
     environment:
       LOGFLARE_NODE_HOST: 127.0.0.1
       DB_USERNAME: supabase_admin
@@ -326,13 +333,27 @@ services:
       LOGFLARE_SINGLE_TENANT: true
       LOGFLARE_SUPABASE_MODE: true
       LOGFLARE_MIN_CLUSTER_SIZE: 1
-
-      # Comment variables to use Big Query backend for analytics
       POSTGRES_BACKEND_URL: postgresql://supabase_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       POSTGRES_BACKEND_SCHEMA: _analytics
       LOGFLARE_FEATURE_FLAG_OVERRIDE: multibackend=true
-      # Uncomment to use Big Query backend for analytics
-      # GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID}
-      # GOOGLE_PROJECT_NUMBER: ${GOOGLE_PROJECT_NUMBER}
     ports:
       - 4000:4000
+
+
+  #--------------------------------------------------------------#
+  # Vector: collecting logs
+  #--------------------------------------------------------------#
+  vector:
+    container_name: supabase-vector
+    image: timberio/vector:0.28.1-alpine
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider","http://vector:9001/health" ]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    environment:
+      LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
+    volumes:
+      - ./volumes/logs/vector.yml:/etc/vector/vector.yml:ro
+      - ${DOCKER_SOCKET_LOCATION}:/var/run/docker.sock:ro
+    command: [ "--config", "etc/vector/vector.yml" ]
