@@ -70,16 +70,18 @@
   ignore_errors: true
   block:
 
-    - name: check docker image cache exists
-      stat: path={{ docker_image_cache }}
-      register: docker_cache
+    - name: pull docker images
+      when: docker_image is defined and docker_image|length > 0
+      command: docker pull "{{ item }}"
+      with_items: "{{ docker_image }}"
 
     - name: load docker image cache if exists
-      when: docker_cache.stat.exists
+      when: docker_image_cache is defined and docker_image_cache|length > 0
       shell: |
-        cat {{ item }} | gzip -d -c - | docker load
+        if [[ -f "{{ item }}" ]]; then
+            cat {{ item }} | gzip -d -c - | docker load
+        fi
       args: { executable: /bin/bash }
-      with_fileglob:
-        - "/tmp/docker/*.tgz"
+      with_fileglob: "{{ docker_image_cache }}"
 
 ...
