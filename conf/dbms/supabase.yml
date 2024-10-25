@@ -3,7 +3,7 @@
 # File      :   supabase.yml
 # Desc      :   Pigsty configuration for supabase
 # Ctime     :   2023-09-19
-# Mtime     :   2024-10-23
+# Mtime     :   2024-10-25
 # Docs      :   https://pigsty.io/docs/kernel/supabase
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -59,30 +59,31 @@ all:
               - { name: pgsodium        }                # 3.1.9 : pgsodium is a modern cryptography library for Postgres.
               - { name: supabase_vault  }                # 0.2.8 : Supabase Vault Extension
               - { name: pg_graphql      }                # 1.5.9 : pg_graphql: GraphQL support
-              - { name: pg_jsonschema   }                # 0.3.2 : pg_jsonschema: Validate json schema
+              - { name: pg_jsonschema   }                # 0.3.3 : pg_jsonschema: Validate json schema
               - { name: wrappers        }                # 0.4.3 : wrappers: FDW collections
               - { name: http            }                # 1.6   : http: allows web page retrieval inside the database.
               - { name: pg_cron         }                # 1.6   : pg_cron: Job scheduler for PostgreSQL
+              - { name: timescaledb     }                # 2.17  : timescaledb: Enables scalable inserts and complex queries for time-series data
+              - { name: pg_tle          }                # 1.2   : pg_tle: Trusted Language Extensions for PostgreSQL
         # supabase required extensions
         pg_libs: 'pg_stat_statements, pgaudit, plpgsql, plpgsql_check, pg_cron, pg_net, timescaledb, auto_explain, pg_tle, plan_filter'
         pg_extensions: # extensions to be installed on this cluster
           - supa-stack
-          - timescaledb pg_cron pg_timetable #pg_timeseries #temporal_tables #pg_background #pg_later #emaj #table_version #periods
-          - postgis pgrouting pointcloud q3c pg_polyline geoip #mobilitydb #pg_geohash #pg_h3 #ogr_fdw
-          - pgvector pgvectorscale pg_similarity pg_summarize pg_tiktoken #smlar #pgml #pg_vectorize
+          - timescaledb pg_cron pg_timetable
+          - postgis pg_geohash
+          - pgvector pgvectorscale pg_similarity smlar pg_summarize pg_tiktoken
           - pg_search pg_bigm zhparser hunspell
-          - pg_analytics pg_parquet pg_duckdb pg_fkpart pg_partman plproxy #pg_strom #citus #hydra #duckdb_fdw
-          - pg_hint_plan hll rum pg_graphql pg_jsonschema jsquery index_advisor pg_plan_filter hypopg imgsmlr pg_ivm pgmq pgq pg_cardano #rdkit #age
-          - pg_tle plv8 pllua pldebugger plpgsql_check plprofiler plsh #pljava #plr pgtap #faker #dbt2 #plprql
-          - prefix semver pgunit md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint ip4r chkpass pg_uri #pgemailaddr #acl #timestamp9 #debversion #pg_rrule
-          - pg_gzip pg_http pg_net pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays aggs_for_vecs pg_arraymath quantile lower_quantile #topn
-          - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids pg_math pg_random pg_base36 pg_base62 pg_base58 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext envvar pg_protobuf url_encode #pg_zstd #pgqr
-          - pg_repack pg_squeeze pg_dirtyread pgfincore pg_prioritize pg_readonly safeupdate pg_permissions pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs table_log pg_fio #pgpool #pgagent #pgdd #pg_savior #ddlx #pg_checksums #pgautofailover
-          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pagevis #pg_mon #pg_statviz #pgexporter_ext #pg_top #powa #pg_store_plans
-          - passwordcheck supautils pgsodium pg_vault pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey logerrors login_hook set_user pgextwlist pg_auditor noset sslutils #pg_tde #pg_jobmon #pg_snakeoil #anonymizer
-          - wrappers mysql_fdw tds_fdw redis_fdw pg_redis_pubsub aws_s3 log_fdw #oracle_fdw #multicorn #db2_fdw #pgbouncer_fdw #mongo_fdw #hdfs_fdw #firebird_fdw #sqlite_fdw #kafka_fdw
-          - orafce session_variable #pg_dbms_metadata #pg_dbms_lock #pg_dbms_job #wiltondb #pgtt #pg_statement_rollback #pgmemcache
-          - pglogical pgl_ddl_deploy pg_failover_slots wal2json decoder_raw mimeo pgcopydb pgloader pg_fact_loader #pgimportdoc #pgexportdoc #pg_bulkload #decoderbufs #wal2mongo #repmgr
+          - pg_analytics pg_parquet pg_duckdb
+          - pg_hint_plan hll rum pg_graphql pg_jsonschema index_advisor pg_plan_filter hypopg pg_ivm pgmq pg_cardano
+          - pg_tle plv8 plpgsql_check #pljava
+          - pgunit md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr acl timestamp9
+          - pg_gzip pg_zstd pg_http pg_net pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays aggs_for_vecs pg_arraymath quantile lower_quantile
+          - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids pg_math pg_random pg_base36 pg_base62 pg_base58 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext pgqr envvar pg_protobuf url_encode
+          - pg_repack pg_squeeze pg_dirtyread ddlx pg_readonly safeupdate pg_permissions pg_savior pg_fio
+          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_track_settings system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus toastinfo pg_explain_ui pg_relusage
+          - passwordcheck supautils pgsodium pg_vault anonymizer pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck logerrors login_hook set_user pgextwlist pg_auditor sslutils noset
+          - wrappers mysql_fdw redis_fdw pg_redis_pubsub aws_s3 log_fdw
+          - pglogical wal2json decoder_raw pg_fact_loader
         pg_parameters:
           cron.database_name: postgres
           pgsodium.enable_event_trigger: off
@@ -128,7 +129,7 @@ all:
   # Global Parameters
   #==============================================================#
   vars:
-    version: v3.0.3                   # pigsty version string
+    version: v3.0.4                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     node_tune: oltp                   # use tiny template for NODE  in demo environment

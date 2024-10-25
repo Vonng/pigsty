@@ -69,6 +69,8 @@ These templates will demonstrate how to configure a cluster with different size 
 
 * [demo/el.yml](demo/remote.yml) : config file with all default parameters for EL 8/9 systems.
 * [demo/debian.yml](demo/public.yml) : config file with all default parameters for debian/ubuntu systems.
+* [demo/e17.yml](demo/e17.yml) : config file for EL 8/9 systems and PostgreSQL 17
+* [demo/d17.yml](demo/d17.yml) : config file for debian/ubuntu systems and PostgreSQL 17
 * [demo/remote.yml](demo/remote.yml) : example config for monitoring a remote pgsql cluster or RDS PG.
 * [demo/public.yml](demo/public.yml) : config file for the pigsty [public demo](https://demo.pigsty.cc)
 * [demo/security.yml](sdemo/ecurity.yml) : security enhanced config example with delayed replica
@@ -85,3 +87,4 @@ There config templates are used for development and testing purpose.
 * [build/pro.yml](build/pro.yml) : building config for EL 7-9, Ubuntu, Debian pro version
 * [build/rpm.yml](build/rpm.yml) : building config for EL 7/8/9
 * [build/deb.yml](build/deb.yml) : building config for ubuntu20/22 and debian 11/12
+* [build/v17.yml](build/v17.yml) : building config for oss four node, but for PostgreSQL 17
