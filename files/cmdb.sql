@@ -1385,7 +1385,9 @@ INSERT INTO pigsty.default_var VALUES
 (401, 'docker_cgroups_driver', '"systemd"', 'DOCKER', 'DOCKER', 'enum', 'C', 'docker cgroup fs driver: cgroupfs,systemd', NULL),
 (402, 'docker_registry_mirrors', '[]', 'DOCKER', 'DOCKER', 'string[]', 'C', 'docker registry mirror list', NULL),
 (403, 'docker_exporter_port', '9323', 'DOCKER', 'DOCKER', 'port', 'G', 'docker metrics exporter port, 9323 by default', NULL),
-(404, 'docker_image_cache', '"/tmp/docker"', 'DOCKER', 'DOCKER', 'path', 'C', 'docker image cache dir, `/tmp/docker` by default', NULL),
+(404, 'docker_image', '[]', 'DOCKER', 'DOCKER', 'path', 'C', 'docker image to be pulled, empty list by default', NULL),
+(405, 'docker_image_cache', '["/tmp/docker/*.tgz"]', 'DOCKER', 'DOCKER', 'path', 'C', 'docker image cache tarball glob', NULL),
+
 
 -- ETCD PARAMETERS
 (501, 'etcd_seq', NULL, 'ETCD', 'ETCD', 'int', 'I', 'etcd instance identifier, REQUIRED', NULL),
