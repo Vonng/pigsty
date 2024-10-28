@@ -1,7 +1,7 @@
 # Pigsty
 
 [![Webite: pigsty.io](https://img.shields.io/badge/website-pigsty.io-slategray?style=flat&logo=cilium&logoColor=white)](https://pigsty.io)
-[![Version: v3.0.3](https://img.shields.io/badge/version-v3.0.3-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.0.3)
+[![Version: v3.0.4](https://img.shields.io/badge/version-v3.0.4-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.0.4)
 [![License: AGPLv3](https://img.shields.io/github/license/Vonng/pigsty?logo=opensourceinitiative&logoColor=green&color=slategray)](https://pigsty.io/docs/about/license/)
 [![GitHub Stars](https://img.shields.io/github/stars/Vonng/pigsty?style=flat&logo=github&logoColor=black&color=slategray)](https://star-history.com/#Vonng/pigsty&Date)
 [![Extensions: 345](https://img.shields.io/badge/extensions-345-%233E668F?style=flat&logo=postgresql&logoColor=white&labelColor=3E668F)](https://ext.pigsty.io/#/list)
@@ -10,9 +10,9 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 > "**P**ostgreSQL **I**n **G**reat **STY**le": **P**ostgres, **I**nfras, **G**raphics, **S**ervice, **T**oolbox, it's all **Y**ours.
 
-[**Features**](https://pigsty.io/docs/about/feature) | [Website](https://pigsty.io/) | [Docs](https://pigsty.io/docs/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [中文站](https://pigsty.cc/zh/) | [专业版](https://pigsty.cc/zh/docs/price/) | [博客](https://pigsty.cc/zh/blog) | [**特性**](https://pigsty.cc/zh/docs/about/feature)
+[**Features**](https://pigsty.io/docs/about/feature) | [Website](https://pigsty.io/) | [Docs](https://pigsty.io/docs/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Extension](https://ext.pigsty.io/) | [中文站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [**特性**](https://pigsty.cc/zh/docs/about/feature)
 
-[**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.0.3**](https://github.com/Vonng/pigsty/releases/tag/v3.0.3) release: `curl -fsSL https://repo.pigsty.io/get | bash`
+[**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.0.4**](https://github.com/Vonng/pigsty/releases/tag/v3.0.4) release: `curl -fsSL https://repo.pigsty.io/get | bash`
 
 [![pigsty-desc](https://pigsty.io/img/pigsty/banner.en.jpg)](https://pigsty.io/docs/about/feature/)
 
@@ -78,20 +78,20 @@ Finally, you will get a pigsty singleton node [**ready**](https://pigsty.io/docs
 
 ```
 $ curl -fsSL https://repo.pigsty.io/get | bash
-[v3.0.3] ===========================================
+[v3.0.4] ===========================================
 $ curl -fsSL https://repo.pigsty.io/get | bash
 [Site] https://pigsty.io
 [Demo] https://demo.pigsty.cc
 [Repo] https://github.com/Vonng/pigsty
 [Docs] https://pigsty.io/docs/setup/install
 [Download] ===========================================
-[ OK ] version = v3.0.3 (from default)
-curl -fSL https://repo.pigsty.io/src/pigsty-v3.0.3.tgz -o /tmp/pigsty-v3.0.3.tgz
+[ OK ] version = v3.0.4 (from default)
+curl -fSL https://repo.pigsty.io/src/pigsty-v3.0.4.tgz -o /tmp/pigsty-v3.0.4.tgz
 ######################################################################## 100.0%
-[ OK ] md5sums = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  /tmp/pigsty-v3.0.3.tgz
+[ OK ] md5sums = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  /tmp/pigsty-v3.0.4.tgz
 [Install] ===========================================
 [WARN] os user = root , it's recommended to install as a sudo-able admin
-[ OK ] install = /root/pigsty, from /tmp/pigsty-v3.0.3.tgz
+[ OK ] install = /root/pigsty, from /tmp/pigsty-v3.0.4.tgz
 [TodoList] ===========================================
 cd /root/pigsty
 ./bootstrap      # [OPTIONAL] install ansible & use offline package
@@ -103,7 +103,7 @@ cd /root/pigsty
 > HINT: To install a specific version, pass the version string as the first parameter:
 >
 > ```bash
-> curl -fsSL https://repo.pigsty.io/get | bash -s v3.0.3
+> curl -fsSL https://repo.pigsty.io/get | bash -s v3.0.4
 > ```
 
 </details>
@@ -114,7 +114,7 @@ cd /root/pigsty
 You can also download the pigsty source with `git`, remember to check out a specific version tag, the `main` branch is for development.
 
 ```bash
-git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v3.0.3
+git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v3.0.4
 ```
 
 </details>
@@ -408,7 +408,7 @@ pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
 You can deploy different kinds of PostgreSQL instance such as primary, replica, offline, delayed, sync standby, etc.,
 and customize with scene-optimize [**templates**](https://github.com/Vonng/pigsty/tree/dev/conf), pre-defined [**stacks**](https://pigsty.io/docs/pgext/usage/stack) and all **345** [**extensions**](https://ext.pigsty.io/#/list).
 
-[![landscape](https://pigsty.io/img/pigsty/landscape.jpg)](https://ext.pigsty.io/)
+[![landscape](https://pigsty.io/img/pigsty/ecosystem.jpg)](https://ext.pigsty.io/)
 
 You can define [**Users**](https://pigsty.io/docs/pgsql/user/), [**Databases**](https://pigsty.io/docs/pgsql/db/), [**Service**](https://pigsty.io/docs/pgsql/svc/), [**HBAs**](https://pigsty.io/docs/pgsql/hba/) and other entities in code and provision them in one pass.
 You can even replace the vanilla [**`PostgreSQL`**](https://pigsty.io/docs/pgsql) [**Kernel**](https://pigsty.io/docs/kernel/) with other forks as an in-place replacement: [**`Babelfish`**](https://pigsty.io/docs/kernel/babelfish/) for MSSQL compatibility,
