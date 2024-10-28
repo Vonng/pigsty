@@ -43,11 +43,14 @@ save:
 	docker save timberio/vector        | gzip -c -9 > $(IMG_DIR)/vector.tgz
 	docker save kong                   | gzip -c -9 > $(IMG_DIR)/kong.tgz
 
-
 # copy to target machine: scp -r /tmp/docker xxx:/tmp/docker
 tz: tarball
 tarball: save
 	tar -cvf /tmp/supabase.tgz -C /tmp/docker supabase
+
+copy:
+	ssh 10.10.10.10 'mkdir -p /tmp/docker/supabase'
+	rsync -avz /tmp/docker/supabase/ 10.10.10.10:/tmp/docker/supabase/
 
 load:
 	cat $(IMG_DIR)/storage.tgz   | gzip -d -c - | docker load
