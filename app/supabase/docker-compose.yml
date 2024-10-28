@@ -4,7 +4,7 @@
 # File      :   docker-compose.yml
 # Desc      :   modified supabase docker compose for pigsty pg
 # Ctime     :   2023-09-19
-# Mtime     :   2024-10-12
+# Mtime     :   2024-10-28
 # Path      :   app/supabase/docker-compose.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -59,7 +59,7 @@ services:
   # https://supabase.com/docs/guides/getting-started/architecture#studio-dashboard
   studio:
     container_name: supabase-studio
-    image: supabase/studio:20240923-2e3e90c
+    image: supabase/studio:20241014-c083b3b
     restart: unless-stopped
     healthcheck:
       test: [ "CMD","node","-e","require('http').get('http://localhost:3000/api/profile', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" ]
@@ -214,7 +214,7 @@ services:
   # To use S3 backed storage: docker compose -f docker-compose.yml -f docker-compose.s3.yml up
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v1.10.1
+    image: supabase/storage-api:v1.11.13
     depends_on:
       rest:
         condition: service_started
@@ -270,7 +270,7 @@ services:
   #--------------------------------------------------------------#
   meta:
     container_name: supabase-meta
-    image: supabase/postgres-meta:v0.83.2
+    image: supabase/postgres-meta:v0.84.2
     depends_on:
       analytics:
         condition: service_healthy
@@ -290,7 +290,7 @@ services:
   # https://supabase.com/docs/guides/getting-started/architecture#deno-edge-functions
   functions:
     container_name: supabase-edge-functions
-    image: supabase/edge-runtime:v1.58.3
+    image: supabase/edge-runtime:v1.59.0
     restart: unless-stopped
     depends_on:
       analytics:
