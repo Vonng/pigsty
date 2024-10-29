@@ -18,6 +18,7 @@ ssh_pub_key = File.readlines(File.join(ENV['HOME'], '.ssh', 'id_rsa.pub')).first
 Vagrant.configure("2") do |config|
     config.ssh.insert_key = false
     config.vm.box_check_update = false
+    config.vm.synced_folder ".", "/vagrant", disabled: true
     config.vm.provision "shell" do |s|
       s.inline = <<-SHELL
         if grep -sq "#{ssh_pub_key}" /home/vagrant/.ssh/authorized_keys; then

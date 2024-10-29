@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   vagrant shortcuts
 # Ctime     :   2023-07-29
-# Mtime     :   2024-07-08
+# Mtime     :   2024-10-29
 # Path      :   vagrant/Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -40,7 +40,7 @@ dns:
 ssh:
 	./ssh
 sshb:
-	./ssh build
+	./ssh oss
 
 #------------------------------#
 # Start & Up
@@ -101,22 +101,20 @@ info:
 #------------------------------#
 #     Building Environment     #
 #------------------------------#
-build: del vb up ssh
+oss: del vb up ssh
 rpm:   del vr up ssh
 deb:   del vd up ssh
 all:   del va up ssh
-old:   del vo up ssh
 
-vb: # pigsty building environment
-	./config build
+vo: # oss building environment
+	./config oss
 vr: # rpm building environment
 	./config rpm
 vd: # deb building environment
 	./config deb
 va: # deb building environment
 	./config all
-vo: # old building environment
-	./config old
+
 
 #------------------------------#
 # meta, single node, the devbox
@@ -131,6 +129,7 @@ meta11: del vmeta11 up ssh
 meta12: del vmeta12 up ssh
 meta20: del vmeta20 up ssh
 meta22: del vmeta22 up ssh
+meta24: del vmeta24 up ssh
 
 vm: vmeta
 vmeta:
@@ -141,12 +140,17 @@ vmeta8:
 	./config meta el8
 vmeta9:
 	./config meta el9
+vmeta11:
+	./config meta debian11
 vmeta12:
 	./config meta debian12
 vmeta20:
 	./config meta ubuntu20
 vmeta22:
 	./config meta ubuntu22
+vmeta24:
+	./config meta ubuntu24
+
 
 #------------------------------#
 # full, four nodes, the sandbox
@@ -161,6 +165,7 @@ full11: del vfull11 up ssh
 full12: del vfull12 up ssh
 full20: del vfull20 up ssh
 full22: del vfull22 up ssh
+full24: del vfull24 up ssh
 
 vf: vfull
 vfull:
@@ -179,6 +184,8 @@ vfull20:
 	./config full ubuntu20
 vfull22:
 	./config full ubuntu22
+vfull24:
+	./config full ubuntu24
 
 #------------------------------#
 # prod, 43 nodes, the simubox
@@ -193,6 +200,7 @@ prod11: del vprod11 up ssh
 prod12: del vprod12 up ssh
 prod20: del vprod20 up ssh
 prod22: del vprod22 up ssh
+prod24: del vprod24 up ssh
 
 vp: vprod
 vprod:
@@ -211,6 +219,8 @@ vprod20:
 	./config prod ubuntu20
 vprod22:
 	./config prod ubuntu22
+vprod24:
+	./config prod ubuntu24
 
 #------------------------------#
 # dual, 2-node, seldom used
@@ -240,6 +250,8 @@ vdual20:
 	./config dual ubuntu20
 vdual22:
 	./config dual ubuntu22
+vdual24:
+	./config dual ubuntu24
 
 #------------------------------#
 # trio, 3-node, seldom used
@@ -254,6 +266,7 @@ trio11: del vtrio11 up ssh
 trio12: del vtrio12 up ssh
 trio20: del vtrio20 up ssh
 trio22: del vtrio22 up ssh
+trio24: del vtrio24 up ssh
 
 vtrio:
 	./config trio
@@ -269,16 +282,17 @@ vtrio20:
 	./config trio ubuntu20
 vtrio22:
 	./config trio ubuntu22
-
+vtrio24:
+	./config trio ubuntu24
 
 ###############################################################
 #                        Inventory                            #
 ###############################################################
 .PHONY: default new ssh sshb dns start up down dw halt clean del destroy nuke st status pause suspend resume info \
-	build rpm deb all old vb vr vd vm vf vp va vo\
-	meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vmeta12 vmeta20 vmeta22 \
-	dual dual7 dual8 dual9 dual11 dual12 dual20 dual22 vdual vdual7 vdual8 vdual9 vdual11 vdual12 vdual20 vdual22 \
-	trio trio7 trio8 trio9 trio11 trio12 trio20 trio22 vtrio vtrio7 vtrio8 vtrio9 vtrio11 vtrio12 vtrio20 vtrio22 \
-	full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 \
-	prod prod7 prod8 prod9 prod11 prod12 prod20 prod22 vprod vprod7 vprod8 vprod9 vprod11 vprod12 vprod20 vprod22
+	oss rpm deb all vo vr vd vm vf vp va \
+	meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vmeta11 vmeta12 vmeta20 vmeta22 vmeta24 \
+	dual dual7 dual8 dual9 dual11 dual12 dual20 dual22 vdual vdual7 vdual8 vdual9 vdual11 vdual12 vdual20 vdual22 vdual24 \
+	trio trio7 trio8 trio9 trio11 trio12 trio20 trio22 vtrio vtrio7 vtrio8 vtrio9 vtrio11 vtrio12 vtrio20 vtrio22 vtrio24 \
+	full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 vfull24 \
+	prod prod7 prod8 prod9 prod11 prod12 prod20 prod22 vprod vprod7 vprod8 vprod9 vprod11 vprod12 vprod20 vprod22 vprod24
 ###############################################################

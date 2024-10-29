@@ -520,6 +520,7 @@ meta11: cmeta del vmeta11 up ssh copy-d11 use-pkg
 meta12: cmeta del vmeta12 up ssh copy-d12 use-pkg
 meta20: cmeta del vmeta20 up ssh copy-u20 use-pkg
 meta22: cmeta del vmeta22 up ssh copy-u22 use-pkg
+meta24: cmeta del vmeta24 up ssh use-pkg
 
 vm: vmeta
 vmeta:
@@ -536,6 +537,8 @@ vmeta20:
 	vagrant/config meta ubuntu20
 vmeta22:
 	vagrant/config meta ubuntu22
+vmeta24:
+	vagrant/config meta ubuntu24
 
 #------------------------------#
 # full, four nodes, the sandbox
