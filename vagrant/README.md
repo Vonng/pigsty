@@ -28,7 +28,7 @@ You can use variant alias to create environment with different base image:
 make meta9      # create singleton-meta node with generic/rocky9 image
 make full22     # create 4-node sandbox with generic/ubuntu22 image
 make prod12     # create 43-node production env simubox with generic/debian12 image
-...             # available suffix: 7,8,9,11,12,20,22
+...             # available suffix: 7,8,9,11,12,20,22,24
 ```
 
 You can also launch pigsty building env with these alias, base image will not be substituted:
