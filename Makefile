@@ -498,9 +498,9 @@ cdeb:
 #     Building Environment     #
 #------------------------------#
 oss: coss del vo new ssh copy-src-oss dfx
-pro: cpro del va new ssh copy-src-rpm copy-src-deb
+pro: cpro del va new ssh copy-src-rpm copy-src-deb dfx
 rpm: crpm del vr new ssh copy-src-rpm
-deb: cdeb del vd new ssh copy-src-deb
+deb: cdeb del vd new ssh copy-src-deb dfx
 old: del va new ssh
 vo: # oss building environment
 	vagrant/config oss

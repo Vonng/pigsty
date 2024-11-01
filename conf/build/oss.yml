@@ -1,9 +1,9 @@
 ---
 #==============================================================#
 # File      :   oss.yml
-# Desc      :   Pigsty oss building env for 4 major distros
+# Desc      :   Pigsty oss building env for 5 major distros
 # Ctime     :   2022-10-12
-# Mtime     :   2024-10-25
+# Mtime     :   2024-11-01
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -15,6 +15,7 @@
 # 2.  el9 : 10.10.10.9  Rocky 9.3          #
 # 3.  d12 : 10.10.10.12 Debian 12 bookworm #
 # 4.  u22 : 10.10.10.22 Ubuntu 22.04 jammy #
+# 4.  u24 : 10.10.10.24 Ubuntu 24.04 jammy #
 #==========================================#
 
 
@@ -40,6 +41,7 @@ all:
         10.10.10.9:  { infra_seq: 2, admin_ip: 10.10.10.9  }
         10.10.10.12: { infra_seq: 3, admin_ip: 10.10.10.12 }
         10.10.10.22: { infra_seq: 4, admin_ip: 10.10.10.22 }
+        10.10.10.24: { infra_seq: 5, admin_ip: 10.10.10.24 }
       vars: { node_conf: oltp }
 
     etcd: { hosts: { 10.10.10.8:  { etcd_seq: 1 }}, vars: {  etcd_cluster: etcd  } }
@@ -86,6 +88,7 @@ all:
       hosts:
         10.10.10.12: { }
         10.10.10.22: { }
+        10.10.10.24: { }
       vars:
         repo_upstream:
           - { name: pigsty-local  ,description: 'Pigsty Local'     ,module: local     ,releases: [11,12,20,22,24] ,baseurl: { default: 'http://${admin_ip}/pigsty ./' }}
@@ -100,14 +103,11 @@ all:
           - { name: backports     ,description: 'Ubuntu Backports' ,module: node      ,releases: [      20,22,24] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-security  main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-backports main restricted universe multiverse' }}
           - { name: security      ,description: 'Ubuntu Security'  ,module: node      ,releases: [      20,22,24] ,baseurl: { default: 'https://mirrors.edge.kernel.org/ubuntu/ ${distro_codename}-updates   main restricted universe multiverse' ,china: 'https://mirrors.aliyun.com/ubuntu/ ${distro_codename}-security  main restricted universe multiverse' }}
           - { name: pgdg          ,description: 'PGDG'             ,module: pgsql     ,releases: [11,12,20,22,24] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg main' }}
-          - { name: citus         ,description: 'Citus'            ,module: pgsql     ,releases: [11,12,20,22,24] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/${distro_name}/ ${distro_codename} main'   }}
+          - { name: citus         ,description: 'Citus'            ,module: pgsql     ,releases: [11,12,20,22   ] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/${distro_name}/ ${distro_codename} main' } }
           - { name: timescaledb   ,description: 'Timescaledb'      ,module: pgsql     ,releases: [11,12,20,22,24] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
           # these repos are not used by default, but can be enabled by setting repo_modules
           - { name: grafana      ,description: 'Grafana'           ,module: grafana    ,releases: [11,12,20,22,24] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
-          - { name: haproxy      ,description: 'HAProxy Debian'    ,module: haproxy    ,releases: [11,12         ] ,baseurl: { default: 'http://haproxy.debian.net ${distro_codename}-backports-3.0 main'    }}
-          - { name: haproxy      ,description: 'HAProxy Ubuntu'    ,module: haproxy    ,releases: [      20,22,24] ,baseurl: { default: 'https://ppa.launchpadcontent.net/vbernat/haproxy-3.0/ubuntu/ ${distro_codename} main'  }}
-          - { name: redis        ,description: 'Redis'             ,module: redis      ,releases: [11,12,20,22,24] ,baseurl: { default: 'https://packages.redis.io/deb ${distro_codename} main' }}
-          - { name: pgml         ,description: 'PostgresML'        ,module: pgml       ,releases: [         22,24] ,baseurl: { default: 'https://apt.postgresml.org ${distro_codename} main'  }}
+          - { name: pgml         ,description: 'PostgresML'        ,module: pgml       ,releases: [         22   ] ,baseurl: { default: 'https://apt.postgresml.org ${distro_codename} main'  }}
           - { name: wiltondb     ,description: 'WiltonDB'          ,module: mssql      ,releases: [      20,22,24] ,baseurl: { default: 'https://ppa.launchpadcontent.net/wiltondb/wiltondb/ubuntu/ ${distro_codename} main'  }}
           - { name: mysql        ,description: 'MySQL'             ,module: mysql      ,releases: [11,12,20,22,24] ,baseurl: { default: 'https://repo.mysql.com/apt/${distro_name} ${distro_codename} mysql-8.0 mysql-tools', china: 'https://mirrors.tuna.tsinghua.edu.cn/mysql/apt/${distro_name} ${distro_codename} mysql-8.0 mysql-tools' }}
           - { name: docker-ce    ,description: 'Docker'            ,module: docker     ,releases: [11,12,20,22,24] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
@@ -125,22 +125,22 @@ all:
         repo_extra_packages:    # not included: plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions
           - docker-ce docker-compose-plugin python3.12-jmespath # extra docker & java packages
         pg_extensions:
-          - timescaledb pg_timeseries periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable
+          - timescaledb timescaledb_toolkit timescaledb_toolkit pg_timeseries periods temporal_tables emaj table_version pg_cron pg_later pg_background
           - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw pg_polyline geoip pg_geohash #mobilitydb
           - pgvector pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pgml pg4ml
           - pg_search pg_bigm zhparser hunspell
-          - hydra pg_analytics pg_parquet pg_duckdb duckdb_fdw pg_fkpart pg_partman plproxy #pg_strom citus
+          - hydra pg_analytics pg_parquet pg_duckdb duckdb_fdw pg_fkpart pg_partman plproxy #pg_strom citus #pg_mooncake
           - pg_hint_plan age hll rum pg_graphql pg_jsonschema jsquery index_advisor pg_plan_filter hypopg imgsmlr pg_ivm pgmq pgq pg_cardano #rdkit
           - pg_tle plv8 pllua plprql pldebugger plpgsql_check plprofiler plsh #plr pgtap faker dbt2
           - prefix semver pgunit md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr acl timestamp9 chkpass #pg_rrule
-          - topn pg_gzip pg_zstd pg_http pg_net pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays aggs_for_vecs pg_arraymath quantile lower_quantile
+          - topn pg_gzip pg_zstd pg_http pg_net pg_smtp_client pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays aggs_for_vecs pg_arraymath quantile lower_quantile
           - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids pg_math pg_random pg_base36 pg_base62 pg_base58 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext pgqr envvar pg_protobuf url_encode
           - pg_repack pg_squeeze pg_dirtyread pgfincore pgdd ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pgautofailover pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pgpool pgagent
-          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pgexporter_ext pg_top pagevis powa #pg_mon
-          - passwordcheck supautils pgsodium pg_vault anonymizer pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pgextwlist pg_snakeoil pg_auditor sslutils noset
+          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pgexporter_ext pg_top pagevis powa
+          - passwordcheck supautils pgsodium pg_vault pg_session_jwt anonymizer pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pgextwlist pg_snakeoil pg_auditor sslutils noset
           - wrappers multicorn jdbc_fdw odbc_fdw mysql_fdw tds_fdw sqlite_fdw pgbouncer_fdw mongo_fdw redis_fdw pg_redis_pubsub kafka_fdw hdfs_fdw firebird_fdw aws_s3 log_fdw #oracle_fdw #db2_fdw
           - orafce pgtt session_variable pg_statement_rollback pg_dbms_metadata pg_dbms_lock pgmemcache #pg_dbms_job #wiltondb
-          - pglogical pgl_ddl_deploy pg_failover_slots wal2json wal2mongo decoderbufs decoder_raw mimeo pgcopydb pgloader pg_fact_loader pg_bulkload pg_comparator pgimportdoc pgexportdoc #repmgr #slony
+          - pglogical pgl_ddl_deploy pg_failover_slots wal2json wal2mongo decoderbufs decoder_raw mimeo pg_fact_loader pg_bulkload #repmgr #slony
           - gis-stack rag-stack fdw-stack fts-stack etl-stack feat-stack olap-stack supa-stack stat-stack json-stack
 
 
@@ -156,22 +156,22 @@ all:
           - docker-ce docker-compose-plugin pljava_16* # extra docker & java packages
           # not included: plr_16* repmgr_16* pgexporter_ext_16* dbt2-pg16-extensions* pgpool-II-pg16-extensions
         pg_extensions:
-          - timescaledb pg_timeseries periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable
+          - timescaledb timescaledb_toolkit pg_timeseries periods temporal_tables emaj table_version pg_cron pg_later pg_background
           - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw pg_polyline geoip pg_geohash #mobilitydb
           - pgvector pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pgml pg4ml
           - pg_search pg_bigm zhparser hunspell
-          - hydra pg_analytics pg_parquet pg_duckdb duckdb_fdw pg_fkpart pg_partman plproxy #pg_strom citus
+          - hydra pg_analytics pg_parquet pg_duckdb duckdb_fdw pg_fkpart pg_partman plproxy #pg_strom citus #pg_mooncake
           - pg_hint_plan age hll rum pg_graphql pg_jsonschema jsquery index_advisor pg_plan_filter hypopg imgsmlr pg_ivm pgmq pgq pg_cardano #rdkit
           - pg_tle plv8 pllua plprql pldebugger plpgsql_check plprofiler plsh pljava #plr pgtap faker dbt2
           - prefix semver pgunit md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr acl timestamp9 chkpass #pg_rrule
-          - topn pg_gzip pg_zstd pg_http pg_net pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays aggs_for_vecs pg_arraymath quantile lower_quantile
+          - topn pg_gzip pg_zstd pg_http pg_net pg_smtp_client pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays aggs_for_vecs pg_arraymath quantile lower_quantile
           - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids pg_math pg_random pg_base36 pg_base62 pg_base58 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext pgqr envvar pg_protobuf url_encode
           - pg_repack pg_squeeze pg_dirtyread pgfincore pgdd ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pgautofailover pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pgpool pgagent
-          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pgexporter_ext pg_top pagevis powa #pg_mon
-          - passwordcheck supautils pgsodium pg_vault anonymizer pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pgextwlist pg_snakeoil pg_auditor sslutils noset
+          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pgexporter_ext pg_top pagevis powa
+          - passwordcheck supautils pgsodium pg_vault pg_session_jwt anonymizer pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pgextwlist pg_snakeoil pg_auditor sslutils noset
           - wrappers multicorn jdbc_fdw odbc_fdw mysql_fdw tds_fdw sqlite_fdw pgbouncer_fdw mongo_fdw redis_fdw pg_redis_pubsub kafka_fdw hdfs_fdw firebird_fdw aws_s3 log_fdw #oracle_fdw #db2_fdw
           - orafce pgtt session_variable pg_statement_rollback pg_dbms_metadata pg_dbms_lock pgmemcache #pg_dbms_job #wiltondb
-          - pglogical pgl_ddl_deploy pg_failover_slots wal2json wal2mongo decoderbufs decoder_raw mimeo pgcopydb pgloader pg_fact_loader pg_bulkload pg_comparator pgimportdoc pgexportdoc #repmgr #slony
+          - pglogical pgl_ddl_deploy pg_failover_slots wal2json wal2mongo decoderbufs decoder_raw mimeo pg_fact_loader pg_bulkload #repmgr #slony
           - gis-stack rag-stack fdw-stack fts-stack etl-stack feat-stack olap-stack supa-stack stat-stack json-stack
 
 
@@ -184,24 +184,24 @@ all:
         pg_cluster: pg-d12
         #repo_packages: []
         repo_extra_packages: # not included: postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
-          - netcat-openbsd tnftp linux-perf postgresql-16-pljava docker-ce docker-compose-plugin # extra docker & java packages
+          - tnftp linux-perf postgresql-16-pljava docker-ce docker-compose-plugin # extra docker & java packages
         pg_extensions:
-          - timescaledb pg_timeseries periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable
+          - timescaledb timescaledb_toolkit pg_timeseries periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable
           - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw pg_polyline geoip pg_geohash mobilitydb
           - pgvector pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pgml pg4ml
           - pg_search pg_bigm zhparser hunspell
-          - hydra pg_analytics pg_parquet pg_duckdb duckdb_fdw pg_fkpart pg_partman plproxy #pg_strom #citus
+          - hydra pg_analytics pg_parquet pg_duckdb duckdb_fdw pg_fkpart pg_partman plproxy #pg_strom #citus #pg_mooncake
           - pg_hint_plan age hll rum pg_graphql pg_jsonschema jsquery index_advisor pg_plan_filter hypopg imgsmlr pg_ivm pgmq pgq pg_cardano rdkit
           - pg_tle plv8 pllua plprql pldebugger plpgsql_check plprofiler plsh pljava #plr pgtap #faker #dbt2
           - prefix semver pgunit md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr acl timestamp9 debversion pg_rrule chkpass
-          - topn pg_gzip pg_zstd pg_http pg_net pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays aggs_for_vecs pg_arraymath quantile lower_quantile
+          - topn pg_gzip pg_zstd pg_http pg_net pg_smtp_client pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays aggs_for_vecs pg_arraymath quantile lower_quantile
           - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids pg_math pg_random pg_base36 pg_base62 pg_base58 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext pgqr envvar pg_protobuf url_encode
           - pg_repack pg_squeeze pg_dirtyread pgfincore pgdd ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pgautofailover pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pgpool #pgagent
-          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pagevis powa #pg_mon #pg_statviz #pgexporter_ext #pg_top
-          - passwordcheck supautils pgsodium pg_vault anonymizer pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pg_snakeoil pgextwlist pg_auditor sslutils noset
-          - wrappers mysql_fdw tds_fdw sqlite_fdw redis_fdw pg_redis_pubsub kafka_fdw aws_s3 log_fdw #oracle_fdw #multicorn #db2_fdw #pgbouncer_fdw #mongo_fdw #hdfs_fdw #firebird_fdw
-          - orafce session_variable pg_statement_rollback pgmemcache #pg_dbms_metadata #pg_dbms_lock #pg_dbms_job #wiltondb #pgtt
-          - pglogical pgl_ddl_deploy pg_failover_slots wal2json wal2mongo decoderbufs decoder_raw mimeo repmgr pgcopydb pgloader pg_fact_loader pg_bulkload #pg_comparator #pgimportdoc #pgexportdoc
+          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pagevis powa #pg_statviz #pg_top
+          - passwordcheck supautils pgsodium pg_vault pg_session_jwt anonymizer pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pg_snakeoil pgextwlist pg_auditor sslutils noset
+          - wrappers mysql_fdw tds_fdw sqlite_fdw redis_fdw pg_redis_pubsub kafka_fdw aws_s3 log_fdw firebird_fdw #oracle_fdw #multicorn #db2_fdw #pgbouncer_fdw #mongo_fdw #hdfs_fdw
+          - orafce session_variable pg_statement_rollback pgmemcache pgtt #pg_dbms_job #wiltondb
+          - pglogical pgl_ddl_deploy pg_failover_slots wal2json wal2mongo decoderbufs decoder_raw mimeo repmgr pg_fact_loader pg_bulkload
           - gis-stack rag-stack fdw-stack fts-stack etl-stack feat-stack olap-stack supa-stack stat-stack json-stack
 
 
@@ -213,25 +213,79 @@ all:
       vars:
         pg_cluster: pg-u22
         repo_extra_packages: # not included: postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
-          - netcat ftp linux-tools-generic docker-ce docker-compose-plugin postgresql-16-pljava # extra docker & java packages
+          - ftp linux-tools-generic docker-ce docker-compose-plugin postgresql-16-pljava # extra docker & java packages
         #repo_packages: []
         pg_extensions:
-          - timescaledb pg_timeseries periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable
+          - timescaledb timescaledb_toolkit pg_timeseries periods temporal_tables emaj table_version pg_cron pg_later pg_background pg_timetable
           - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw pg_polyline geoip pg_geohash mobilitydb
           - pgvector pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pgml pg4ml
           - pg_search pg_bigm zhparser hunspell
-          - hydra pg_analytics pg_parquet pg_duckdb duckdb_fdw pg_fkpart pg_partman plproxy #pg_strom #citus
+          - hydra pg_analytics pg_parquet pg_duckdb duckdb_fdw pg_fkpart pg_partman plproxy #pg_strom #citus #pg_mooncake
           - pg_hint_plan age hll rum pg_graphql pg_jsonschema jsquery index_advisor pg_plan_filter hypopg imgsmlr pg_ivm pgmq pgq pg_cardano rdkit
           - pg_tle plv8 pllua plprql pldebugger plpgsql_check plprofiler plsh pljava #plr pgtap #faker #dbt2
           - prefix semver pgunit md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr acl timestamp9 debversion pg_rrule chkpass
-          - topn pg_gzip pg_zstd pg_http pg_net pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays aggs_for_vecs pg_arraymath quantile lower_quantile
+          - topn pg_gzip pg_zstd pg_http pg_net pg_smtp_client pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays aggs_for_vecs pg_arraymath quantile lower_quantile
           - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids pg_math pg_random pg_base36 pg_base62 pg_base58 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext pgqr envvar pg_protobuf url_encode
           - pg_repack pg_squeeze pg_dirtyread pgfincore pgdd ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pgautofailover pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pgpool #pgagent
-          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pagevis powa #pg_mon #pg_statviz #pgexporter_ext #pg_top
-          - passwordcheck supautils pgsodium pg_vault anonymizer pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pg_snakeoil pgextwlist pg_auditor sslutils noset
-          - wrappers mysql_fdw tds_fdw sqlite_fdw redis_fdw pg_redis_pubsub kafka_fdw aws_s3 log_fdw #oracle_fdw #multicorn #db2_fdw #pgbouncer_fdw #mongo_fdw #hdfs_fdw #firebird_fdw
-          - orafce session_variable pg_statement_rollback pgmemcache #pg_dbms_metadata #pg_dbms_lock #pg_dbms_job #wiltondb #pgtt
-          - pglogical pgl_ddl_deploy pg_failover_slots wal2json wal2mongo decoderbufs decoder_raw mimeo repmgr pgcopydb pgloader pg_fact_loader pg_bulkload #pg_comparator #pgimportdoc #pgexportdoc
+          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pagevis powa #pg_statviz #pg_top
+          - passwordcheck supautils pgsodium pg_vault pg_session_jwt anonymizer pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pg_snakeoil pgextwlist pg_auditor sslutils noset
+          - wrappers mysql_fdw tds_fdw sqlite_fdw redis_fdw pg_redis_pubsub kafka_fdw aws_s3 log_fdw firebird_fdw #oracle_fdw #multicorn #db2_fdw #pgbouncer_fdw #mongo_fdw #hdfs_fdw #
+          - orafce session_variable pg_statement_rollback pgmemcache pgtt #wiltondb
+          - pglogical pgl_ddl_deploy pg_failover_slots wal2json wal2mongo decoderbufs decoder_raw mimeo repmgr pg_fact_loader pg_bulkload
           - gis-stack rag-stack fdw-stack fts-stack etl-stack feat-stack olap-stack supa-stack stat-stack json-stack
+
+    #----------------------------------#
+    # build u24 packages on Ubuntu 24.04
+    #----------------------------------#
+    u24:
+      hosts: { 10.10.10.24: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-u24
+        repo_extra_packages: # not included: postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
+          - ftp linux-tools-generic docker-ce docker-compose-plugin postgresql-16-pljava # extra docker & java packages
+        repo_packages:
+          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                              # Distro & Boot
+          - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                  # Pigsty Addons
+          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter    # Infra Packages
+          - redis-exporter redis minio mcli ferretdb duckdb                                                                                         # Extra Modules
+          - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump acl chrony # Node Tools 1
+          - netcat-openbsd socat lrzsz net-tools ipvsadm dnsutils telnet ca-certificates libreadline-dev vim-tiny keepalived openssl openssh-server openssh-client # Node Tools 2
+          - patroni pgbouncer pgbackrest pgbadger pg-activity postgresql-filedump pgxnclient pgformatter timescaledb-tools pgcopydb pgloader pg-timetable # PGDG Common
+          - postgresql-16 postgresql-client-16 postgresql-server-dev-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16            # PostgreSQL 16
+          - timescaledb-2-postgresql-16 postgresql-16-pg-timeseries postgresql-16-periods postgresql-16-temporal-tables postgresql-16-emaj postgresql-16-tableversion postgresql-16-cron postgresql-16-pg-later postgresql-16-pg-background #timescaledb-toolkit-postgresql-16
+          - postgresql-16-postgis-3 postgresql-16-postgis-3-scripts postgresql-16-pgrouting postgresql-16-pgrouting-scripts postgresql-16-pointcloud postgresql-16-h3 postgresql-16-q3c postgresql-16-ogr-fdw postgresql-16-geoip postgresql-16-pg-polyline postgresql-16-pg-geohash postgresql-16-mobilitydb
+          - postgresql-16-pgvector postgresql-16-pgvectorscale postgresql-16-pg-vectorize postgresql-16-similarity postgresql-16-smlar postgresql-16-pg-summarize postgresql-16-pg-tiktoken postgresql-16-pg4ml #postgresql-16-pgml
+          - postgresql-16-pg-search postgresql-16-pg-bigm postgresql-16-zhparser postgresql-16-hunspell-cs-cz postgresql-16-hunspell-de-de postgresql-16-hunspell-en-us postgresql-16-hunspell-fr postgresql-16-hunspell-ne-np postgresql-16-hunspell-nl-nl postgresql-16-hunspell-nn-no postgresql-16-hunspell-pt-pt postgresql-16-hunspell-ru-ru postgresql-16-hunspell-ru-ru-aot
+          - postgresql-16-hydra postgresql-16-pg-parquet postgresql-16-pg-analytics postgresql-16-pg-duckdb postgresql-16-duckdb-fdw postgresql-16-pg-mooncake postgresql-16-pg-fkpart postgresql-16-partman postgresql-16-plproxy #postgresql-16-citus-12.1
+          - postgresql-16-pg-hint-plan postgresql-16-age postgresql-16-rum postgresql-16-pg-graphql postgresql-16-pg-jsonschema postgresql-16-jsquery postgresql-16-index-advisor postgresql-16-pg-plan-filter postgresql-16-hypopg postgresql-16-imgsmlr postgresql-16-pg-ivm postgresql-16-pgmq postgresql-16-pgq3 postgresql-16-pg-cardano postgresql-16-rdkit #postgresql-16-hll
+          - postgresql-16-pg-tle postgresql-16-plv8 postgresql-16-pllua postgresql-16-plprql postgresql-16-pldebugger postgresql-16-plpgsql-check postgresql-16-plprofiler postgresql-16-plsh #postgresql-16-pljava postgresql-16-plr postgresql-16-pgtap
+          - postgresql-16-prefix postgresql-16-semver postgresql-16-unit postgresql-16-md5hash postgresql-16-asn1oid postgresql-16-roaringbitmap postgresql-16-pgfaceting postgresql-16-pgsphere postgresql-16-pg-country postgresql-16-pg-currency postgresql-16-pgmp postgresql-16-numeral postgresql-16-rational postgresql-16-pguint postgresql-16-pg-uint128 postgresql-16-ip4r postgresql-16-pg-uri postgresql-16-pg-emailaddr postgresql-16-acl postgresql-16-debversion postgresql-16-pg-rrule postgresql-16-timestamp9 postgresql-16-chkpass
+          - postgresql-16-gzip postgresql-16-pg-zstd postgresql-16-http postgresql-16-pg-net postgresql-16-pg-smtp-client postgresql-16-pg-html5-email-address postgresql-16-pgsql-tweaks postgresql-16-pg-extra-time postgresql-16-pg-timeit postgresql-16-count-distinct postgresql-16-extra-window-functions postgresql-16-first-last-agg postgresql-16-tdigest postgresql-16-aggs-for-arrays postgresql-16-aggs-for-vecs postgresql-16-pg-arraymath postgresql-16-quantile postgresql-16-lower-quantile postgresql-16-pg-idkit postgresql-16-pg-uuidv7 postgresql-16-permuteseq postgresql-16-pg-hashids postgresql-16-sequential-uuids #postgresql-16-topn
+          - postgresql-16-pg-math postgresql-16-random postgresql-16-base36 postgresql-16-base62 postgresql-16-pg-base58 postgresql-16-floatvec postgresql-16-pg-financial postgresql-16-pgjwt postgresql-16-pg-hashlib postgresql-16-shacrypt postgresql-16-cryptint postgresql-16-pg-ecdsa postgresql-16-pgpcre postgresql-16-icu-ext postgresql-16-pgqr postgresql-16-pg-envvar postgresql-16-url-encode postgresql-16-pg-protobuf
+          - postgresql-16-repack postgresql-16-squeeze postgresql-16-dirtyread postgresql-16-pgfincore postgresql-16-pgdd postgresql-16-ddlx postgresql-16-prioritize postgresql-16-pg-checksums postgresql-16-pg-readonly postgresql-16-pg-safeupdate postgresql-16-pg-permissions postgresql-16-auto-failover postgresql-16-pg-catcheck postgresql-16-preprepare postgresql-16-pgcozy postgresql-16-pg-orphaned postgresql-16-pg-crash postgresql-16-pg-cheat-funcs postgresql-16-pg-savior postgresql-16-tablelog postgresql-16-pg-fio #postgresql-16-pgpool2 pgagent
+          - postgresql-16-pg-profile postgresql-16-show-plans postgresql-16-pg-stat-kcache postgresql-16-pg-stat-monitor postgresql-16-pg-qualstats postgresql-16-pg-store-plan postgresql-16-pg-track-settings postgresql-16-pg-wait-sampling postgresql-16-system-stats postgresql-16-pg-meta postgresql-16-pgnodemx postgresql-16-pg-sqlog postgresql-16-bgw-replstatus postgresql-16-pgmeminfo postgresql-16-toastinfo postgresql-16-pg-explain-ui postgresql-16-pg-relusage postgresql-16-pagevis postgresql-16-powa #postgresql-16-statviz
+          - postgresql-16-passwordcheck-cracklib postgresql-16-supautils postgresql-16-pgsodium postgresql-16-vault postgresql-16-pg-session-jwt postgresql-16-anonymizer postgresql-16-pg-tde postgresql-16-pgsmcrypto postgresql-16-pgaudit postgresql-16-pgauditlogtofile postgresql-16-pg-auth-mon postgresql-16-credcheck postgresql-16-pgcryptokey postgresql-16-pg-jobmon postgresql-16-logerrors postgresql-16-login-hook postgresql-16-set-user postgresql-16-snakeoil postgresql-16-pgextwlist postgresql-16-pg-auditor postgresql-16-noset postgresql-16-sslutils
+          - postgresql-16-wrappers postgresql-16-mysql-fdw postgresql-16-tds-fdw postgresql-16-sqlite-fdw postgresql-16-redis-fdw postgresql-16-pg-redis-pubsub postgresql-16-kafka-fdw postgresql-16-aws-s3 postgresql-16-log-fdw postgresql-16-firebird-fdw #postgresql-16-oracle-fdw
+          - postgresql-16-orafce postgresql-16-pgtt postgresql-16-session-variable postgresql-16-pg-statement-rollback postgresql-16-pgmemcache #wiltondb
+          - postgresql-16-pglogical postgresql-16-pglogical-ticker postgresql-16-pgl-ddl-deploy postgresql-16-pg-failover-slots postgresql-16-wal2json postgresql-16-wal2mongo postgresql-16-decoderbufs postgresql-16-decoder-raw postgresql-16-mimeo postgresql-16-repmgr postgresql-16-pg-fact-loader postgresql-16-pg-bulkload
+        pg_extensions:
+          - timescaledb pg_timeseries periods temporal_tables emaj table_version pg_cron pg_later pg_background #timescaledb_toolkit
+          - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw pg_polyline geoip pg_geohash mobilitydb
+          - pgvector pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pg4ml #pgml
+          - pg_search pg_bigm zhparser hunspell
+          - hydra pg_analytics pg_parquet pg_duckdb duckdb_fdw pg_fkpart pg_partman plproxy #pg_strom #citus #pg_mooncake
+          - pg_hint_plan age rum pg_graphql pg_jsonschema jsquery index_advisor pg_plan_filter hypopg imgsmlr pg_ivm pgmq pgq pg_cardano rdkit #hll
+          - pg_tle plv8 pllua plprql pldebugger plpgsql_check plprofiler plsh pljava #plr pgtap #faker #dbt2
+          - prefix semver pgunit md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr acl timestamp9 debversion pg_rrule chkpass
+          - pg_gzip pg_zstd pg_http pg_net pg_smtp_client pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays aggs_for_vecs pg_arraymath quantile lower_quantile #topn
+          - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids pg_math pg_random pg_base36 pg_base62 pg_base58 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext pgqr envvar pg_protobuf url_encode
+          - pg_repack pg_squeeze pg_dirtyread pgfincore pgdd ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pgautofailover pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pgpool #pgagent
+          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pagevis powa #pg_statviz #pg_top
+          - passwordcheck supautils pgsodium pg_vault pg_session_jwt anonymizer pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pg_snakeoil pgextwlist pg_auditor sslutils noset
+          - wrappers mysql_fdw tds_fdw sqlite_fdw redis_fdw pg_redis_pubsub kafka_fdw aws_s3 log_fdw firebird_fdw #oracle_fdw #multicorn #db2_fdw #pgbouncer_fdw #mongo_fdw #hdfs_fdw
+          - orafce session_variable pg_statement_rollback pgmemcache pgtt #wiltondb
+          - pglogical pgl_ddl_deploy pg_failover_slots wal2json wal2mongo decoderbufs decoder_raw mimeo repmgr pg_fact_loader pg_bulkload
+          #- gis-stack rag-stack fdw-stack fts-stack etl-stack feat-stack olap-stack supa-stack stat-stack json-stack
+
 
 ...
