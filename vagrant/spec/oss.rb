@@ -14,4 +14,7 @@ Specs = [
   # Ubuntu 22.04
   { "name" => "u22",    "ip" => "10.10.10.22",  "cpu" => "1",  "mem" => "2048",  "image" =>  "generic/ubuntu2204"     },
 
+  # Ubuntu 24.04
+  { "name" => "u24",    "ip" => "10.10.10.24",  "cpu" => "1",  "mem" => "2048",  "image" =>  "bento/ubuntu-24.04"     },
+
 ]

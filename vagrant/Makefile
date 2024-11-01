@@ -101,7 +101,7 @@ info:
 #------------------------------#
 #     Building Environment     #
 #------------------------------#
-oss: del vb up ssh
+oss:   del vo up ssh
 rpm:   del vr up ssh
 deb:   del vd up ssh
 all:   del va up ssh

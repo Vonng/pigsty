@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-08-22
+# Mtime     :   2024-11-01
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -21,6 +21,7 @@ D11_PKG=pigsty-pkg-$(VERSION).d11.x86_64.tgz
 D12_PKG=pigsty-pkg-$(VERSION).d12.x86_64.tgz
 U20_PKG=pigsty-pkg-$(VERSION).u20.x86_64.tgz
 U22_PKG=pigsty-pkg-$(VERSION).u22.x86_64.tgz
+U24_PKG=pigsty-pkg-$(VERSION).u24.x86_64.tgz
 USE_PRO=""
 #USE_PRO="pro/"
 
@@ -334,6 +335,8 @@ copy-u20:
 	scp dist/${VERSION}/$(USE_PRO)${U20_PKG} meta:/tmp/pkg.tgz
 copy-u22:
 	scp dist/${VERSION}/$(USE_PRO)${U22_PKG} meta:/tmp/pkg.tgz
+copy-u24:
+	scp dist/${VERSION}/$(USE_PRO)${U24_PKG} meta:/tmp/pkg.tgz
 copy-app:
 	scp dist/${VERSION}/${APP_PKG} meta:~/app.tgz
 	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
@@ -365,10 +368,12 @@ copy-src-oss:
 	scp "dist/${VERSION}/${SRC_PKG}" el9:~/pigsty.tgz
 	scp "dist/${VERSION}/${SRC_PKG}" d12:~/pigsty.tgz
 	scp "dist/${VERSION}/${SRC_PKG}" u22:~/pigsty.tgz
+	scp "dist/${VERSION}/${SRC_PKG}" u24:~/pigsty.tgz
 	ssh -t el8 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	ssh -t el9 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	ssh -t d12 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	ssh -t u22 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t u24 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 csr: copy-src-rpm
 copy-src-rpm:
 	scp "dist/${VERSION}/${SRC_PKG}" el7:~/pigsty.tgz
@@ -386,20 +391,25 @@ copy-src-deb:
 	scp "dist/${VERSION}/${SRC_PKG}" d12:~/pigsty.tgz
 	scp "dist/${VERSION}/${SRC_PKG}" u20:~/pigsty.tgz
 	scp "dist/${VERSION}/${SRC_PKG}" u22:~/pigsty.tgz
-	ssh -t d11 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
-	ssh -t d12 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
-	ssh -t u20 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
-	ssh -t u22 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	scp "dist/${VERSION}/${SRC_PKG}" u24:~/pigsty.tgz
+	ssh -t  d11 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t  d12 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t  u20 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t  u22 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t  u24 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	ssh -t  d11 'cd ~/pigsty && ./configure -i 10.10.10.11'
 	ssh -t  d12 'cd ~/pigsty && ./configure -i 10.10.10.12'
 	ssh -t  u20 'cd ~/pigsty && ./configure -i 10.10.10.20'
 	ssh -t  u22 'cd ~/pigsty && ./configure -i 10.10.10.22'
+	ssh -t  u24 'cd ~/pigsty && ./configure -i 10.10.10.24'
 dfx: deb-fix
 deb-fix:
 	scp /etc/resolv.conf u22:/tmp/resolv.conf;
 	ssh -t u22 'sudo mv /tmp/resolv.conf /etc/resolv.conf'
 	scp /etc/resolv.conf d12:/tmp/resolv.conf;
 	ssh -t d12 'sudo mv /tmp/resolv.conf /etc/resolv.conf'
+	scp /etc/resolv.conf u24:/tmp/resolv.conf;
+	ssh -t u24 'sudo mv /tmp/resolv.conf /etc/resolv.conf'
 
 #------------------------------#
 # push / pull
@@ -487,25 +497,23 @@ cdeb:
 #------------------------------#
 #     Building Environment     #
 #------------------------------#
-oss: coss del vb new ssh dfx copy-src-oss
+oss: coss del vo new ssh copy-src-oss dfx
 pro: cpro del va new ssh copy-src-rpm copy-src-deb
-boot-oss:
-	bin/boot-oss $(VERSION)
-boot-pro:
-	bin/boot-pro $(VERSION)
 rpm: crpm del vr new ssh copy-src-rpm
 deb: cdeb del vd new ssh copy-src-deb
 old: del va new ssh
-vb: # pigsty building environment
-	vagrant/config build
+vo: # oss building environment
+	vagrant/config oss
 vr: # rpm building environment
 	vagrant/config rpm
 vd: # deb building environment
 	vagrant/config deb
 va: # all building environment
 	vagrant/config all
-vo: # old building environment
-	vagrant/config old
+boot-oss:
+	bin/boot-oss $(VERSION)
+boot-pro:
+	bin/boot-pro $(VERSION)
 
 #------------------------------#
 # meta, single node, the devbox
@@ -553,6 +561,7 @@ full11: cfull del vfull11 up ssh copy-d11 use-pkg
 full12: cfull del vfull12 up ssh copy-d12 use-pkg
 full20: cfull del vfull20 up ssh copy-u20 use-pkg
 full22: cfull del vfull22 up ssh copy-u22 use-pkg
+full24: cfull del vfull24 up ssh copy-u24 use-pkg
 
 vf: vfull
 vfull:
@@ -571,6 +580,8 @@ vfull20:
 	vagrant/config full ubuntu20
 vfull22:
 	vagrant/config full ubuntu22
+vfull24:
+	vagrant/config full ubuntu24
 
 #------------------------------#
 # prod, 43 nodes, the simubox
@@ -589,6 +600,8 @@ vprod12:
 	vagrant/config prod debian12
 vprod22:
 	vagrant/config prod ubuntu22
+vprod24:
+	vagrant/config prod ubuntu24
 
 prod: prod8
 prod8: cprod del vprod8 new ssh
@@ -603,6 +616,10 @@ prod12: cprod del vprod12 new ssh
 prod22: cprod del vprod22 new ssh
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u22.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u22.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+prod24: cprod del vprod24 new ssh
+	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u24.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u24.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+
 
 #------------------------------#
 # dual & trio
@@ -612,6 +629,7 @@ dual8:  cdual del vdual8  up ssh
 dual9:  cdual del vdual9  up ssh
 dual12: cdual del vdual12 up ssh
 dual22: cdual del vdual22 up ssh
+dual24: cdual del vdual24 up ssh
 
 vdual:
 	vagrant/config dual
@@ -625,12 +643,15 @@ vdual20:
 	vagrant/config dual ubuntu20
 vdual22:
 	vagrant/config dual ubuntu22
+vdual24:
+	vagrant/config dual ubuntu24
 
 trio:   ctrio del vtrio   up ssh
 trio8:  ctrio del vtrio8  up ssh
 trio9:  ctrio del vtrio9  up ssh
 trio12: ctrio del vtrio12 up ssh
 trio22: ctrio del vtrio22 up ssh
+trio24: ctrio del vtrio24 up ssh
 vtrio:
 	vagrant/config trio
 vtrio8:
@@ -641,6 +662,8 @@ vtrio12:
 	vagrant/config trio debian12
 vtrio22:
 	vagrant/config trio ubuntu22
+vtrio24:
+	vagrant/config trio ubuntu24
 
 ###############################################################
 
@@ -658,13 +681,13 @@ vtrio22:
         st status suspend resume v1 v4 v7 v8 v9 vb vr vd vm vo vc vu vp vp7 vp9 \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
-        copy copy-src copy-pkg copy-el7 copy-el8 copy-el9 copy-d11 copy-d12 copy-u20 copy-u22 \
+        copy copy-src copy-pkg copy-el7 copy-el8 copy-el9 copy-d11 copy-d12 copy-u20 copy-u22 copy-u24 \
         copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
         csa copy-src-all csr copy-src-rpm csd copy-src-deb df deb-fix push pull git-sync git-restore \
         r release rr remote-release rrpm release-rpm rdeb release-deb pb publish \
         oss pro boot-oss boot-pro rpm deb vb vr vd vm vf vp all old va vo \
-        meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vfull11 vmeta12 vmeta20 vmeta22 \
-        full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 \
+        meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vfull11 vmeta12 vmeta20 vmeta22 vmeta24 \
+        full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 vfull24 \
         prod prod8 prod9 prod12 prod20 prod22 vprod vprod8 vprod9 vprod12 vprod20 vprod22 \
         dual dual8 dual9 dual12 dual20 dual22 vdual vdual8 vdual9 vdual12 vdual20 vdual22 \
         trio trio8 trio9 trio12 trio20 trio22 vtrio vtrio8 vtrio9 vtrio12 vtrio20 vtrio22 \
