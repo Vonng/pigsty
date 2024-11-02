@@ -4,7 +4,7 @@
 [![Version: v3.0.4](https://img.shields.io/badge/version-v3.0.4-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.0.4)
 [![License: AGPLv3](https://img.shields.io/github/license/Vonng/pigsty?logo=opensourceinitiative&logoColor=green&color=slategray)](https://pigsty.io/docs/about/license/)
 [![GitHub Stars](https://img.shields.io/github/stars/Vonng/pigsty?style=flat&logo=github&logoColor=black&color=slategray)](https://star-history.com/#Vonng/pigsty&Date)
-[![Extensions: 345](https://img.shields.io/badge/extensions-345-%233E668F?style=flat&logo=postgresql&logoColor=white&labelColor=3E668F)](https://ext.pigsty.io/#/list)
+[![Extensions: 340](https://img.shields.io/badge/extensions-340-%233E668F?style=flat&logo=postgresql&logoColor=white&labelColor=3E668F)](https://ext.pigsty.io/#/list)
 
 Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **RDS** Alternative!
 
@@ -18,7 +18,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 ## Features
 
-- [**Extensible**](https://pigsty.io/img/pigsty/extension.png): **345** [**PG Extensions**](https://ext.pigsty.io/#/list) & **6** [**PG Kernel**](https://pigsty.io/docs/kernel) replacements available (e.g., [**MSSQL**](https://pigsty.io/docs/kernel/babelfish/), [**Oracle**](https://pigsty.io/docs/kernel/ivorysql/) compatibility).
+- [**Extensible**](https://pigsty.io/img/pigsty/extension.png): **340** [**PG Extensions**](https://ext.pigsty.io/#/list) & **6** [**PG Kernel**](https://pigsty.io/docs/kernel) replacements available (e.g., [**MSSQL**](https://pigsty.io/docs/kernel/babelfish/), [**Oracle**](https://pigsty.io/docs/kernel/ivorysql/) compatibility).
 - [**Reliable**](https://pigsty.io/img/pigsty/arch.jpg): Self-healing [**HA**](https://pigsty.io/docs/concept/ha/) clusters with pre-configured [**PITR**](https://pigsty.io/docs/pgsql/arch#point-in-time-recovery) and built-in [**ACL**](https://pigsty.io/docs/pgsql/acl), [**CA & SSL**](https://pigsty.io/docs/reference/param/#ca) secure best practice.
 - [**Observable**](https://pigsty.io/img/pigsty/dashboard.jpg): SOTA monitoring for [**PG**](https://demo.pigsty.cc/d/pgrds-instance/pgrds-instance) / [**Infra**](https://pigsty.io/docs/infra) / [**Node**](https://pigsty.io/docs/node) based on **Prometheus** & **Grafana** stack: [**Demo**](https://demo.pigsty.cc) & [**Gallery**](https://github.com/Vonng/pigsty/wiki/Gallery).
 - [**Available**](https://pigsty.io/img/pigsty/ha.png): Auto-routed & pooled customizable database [**Services**](https://pigsty.io/docs/concept/svc#default-service) [**Access**](https://pigsty.io/docs/concept/svc#access-service) with **haproxy**, **pgbouncer**, and **VIP**.
@@ -36,7 +36,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 ### Benefits
 
-- **Full Control**: Unleash the full power of PostgreSQL with 345+ extensions, and gain full control of your data!
+- **Full Control**: Unleash the full power of PostgreSQL with 340+ extensions, and gain full control of your data!
 - **Rest Assured**: Self-healing HA from hardware failures and Point-In-Time-Recovery from human error & bugs!
 - **Keen Insight**: You can't manage what you can't measure. Gain penetrating insight through all-seeing panels!
 - **Self-Reliant**: Self-serving enterprise RDS service with all its dependencies in the absence of a dedicated DBA!
@@ -51,7 +51,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 [![Linux](https://img.shields.io/badge/Linux-x86_64-%23FCC624?style=flat&logo=linux&labelColor=FCC624&logoColor=black)](https://pigsty.io/docs/node)
 [![EL Support: 7/8/9](https://img.shields.io/badge/EL-7/8/9-red?style=flat&logo=redhat&logoColor=red)](https://ext.pigsty.io/#/rpm)
 [![Debian Support: 11/12](https://img.shields.io/badge/Debian-11/12-%23A81D33?style=flat&logo=debian&logoColor=%23A81D33)](https://pigsty.io/docs/reference/compatibility/)
-[![Ubuntu Support: 20/22](https://img.shields.io/badge/Ubuntu-20/22-%23E95420?style=flat&logo=ubuntu&logoColor=%23E95420)](https://ext.pigsty.io/#/deb)
+[![Ubuntu Support: 20/22/24](https://img.shields.io/badge/Ubuntu-20/22/24-%23E95420?style=flat&logo=ubuntu&logoColor=%23E95420)](https://ext.pigsty.io/#/deb)
 [![Alma](https://img.shields.io/badge/Alma-slategray?style=flat&logo=almalinux&logoColor=black)](https://almalinux.org/)
 [![Rocky](https://img.shields.io/badge/Rocky-slategray?style=flat&logo=rockylinux&logoColor=%2310B981)](https://almalinux.org/)
 [![CentOS](https://img.shields.io/badge/CentOS-slategray?style=flat&logo=centos&logoColor=%23262577)](https://almalinux.org/)
