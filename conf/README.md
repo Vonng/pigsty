@@ -27,6 +27,7 @@ specified):
 * [default/el9.yml](default/el9.yml): EL9, Rocky 9.3 and compatible OS
 * [default/d12.yml](default/d12.yml): Debian 12 bookworm and compatible OS
 * [default/u22.yml](default/u22.yml): Ubuntu 22.04 jammy and compatible OS
+* [default/u24.yml](default/u24.yml): Ubuntu 24.04 noble and compatible OS
 
 These three templates are deprecated, but still available for backward compatibility:
 
@@ -82,9 +83,9 @@ These templates will demonstrate how to configure a cluster with different size 
 
 There config templates are used for development and testing purpose.
 
-* [build/oss.yml](build/oss.yml) : building config for EL 8, 9, Debian 12, and Ubuntu 22.04 OSS.
+* [build/oss.yml](build/oss.yml) : building config for EL 8, 9, Debian 12, and Ubuntu 22.04/24.04 OSS.
 * [build/ext.yml](build/ext.yml) : rpm building environment for EL 7/8/9
 * [build/pro.yml](build/pro.yml) : building config for EL 7-9, Ubuntu, Debian pro version
 * [build/rpm.yml](build/rpm.yml) : building config for EL 7/8/9
-* [build/deb.yml](build/deb.yml) : building config for ubuntu20/22 and debian 11/12
+* [build/deb.yml](build/deb.yml) : building config for ubuntu20/22/24 and debian 11/12
 * [build/v17.yml](build/v17.yml) : building config for oss four node, but for PostgreSQL 17
