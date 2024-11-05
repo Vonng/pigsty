@@ -3,7 +3,7 @@
 # File      :   v17.yml
 # Desc      :   Pigsty oss building env for PG17 packages
 # Ctime     :   2024-10-22
-# Mtime     :   2024-11-03
+# Mtime     :   2024-11-05
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -125,7 +125,7 @@ all:
           - redis_exporter redis minio mcli ferretdb duckdb                                                                                                                   # Extra Modules
           - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph chkconfig   # Node Packages 1
           - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates readline vim-minimal keepalived chrony openssl openssh-server openssh-clients    # Node Packages 2
-          - patroni patroni-etcd pgbouncer pgbackrest pgbadger pg_activity pg_filedump pgxnclient pgFormatter timescaledb-tools luapgsql pgcopydb pgloader                    # PGDG Common
+          - patroni patroni-etcd pgbouncer pgbackrest pgbadger pg_activity pg_filedump pgxnclient pgFormatter timescaledb-tools pgcopydb pgloader                             # PGDG Common
           - postgresql17*
           - timescaledb-2-postgresql-17* periods_17* temporal_tables_17* e-maj_17* table_version_17* pg_cron_17* pg_later_17 pg_background_17* #timescaledb-toolkit-postgresql-17 #pg_timeseries_17
           - postgis35_17* pgrouting_17* pointcloud_17* q3c_17* geoip_17* pg_polyline_17 pg_geohash_17* #h3-pg_17* #ogr_fdw_17*
@@ -177,7 +177,7 @@ all:
           - redis_exporter redis minio mcli ferretdb duckdb                                                                                                                   # Extra Modules
           - lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph chkconfig   # Node Packages 1
           - netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates readline vim-minimal keepalived chrony openssl openssh-server openssh-clients    # Node Packages 2
-          - patroni patroni-etcd pgbouncer pgbackrest pgbadger pg_activity pg_filedump pgxnclient pgFormatter timescaledb-tools luapgsql pgcopydb pgloader                    # PGDG Common
+          - patroni patroni-etcd pgbouncer pgbackrest pgbadger pg_activity pg_filedump pgxnclient pgFormatter timescaledb-tools pgcopydb pgloader                             # PGDG Common
           - postgresql17*
           - timescaledb-2-postgresql-17* periods_17* temporal_tables_17* e-maj_17* table_version_17* pg_cron_17* pg_later_17 pg_background_17* #timescaledb-toolkit-postgresql-17 #pg_timeseries_17
           - postgis35_17* pgrouting_17* pointcloud_17* q3c_17* geoip_17* pg_polyline_17 pg_geohash_17* #h3-pg_17* #ogr_fdw_17*
@@ -305,7 +305,7 @@ all:
           - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip pg_polyline pg_geohash mobilitydb
           - pgvector pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pg4ml #pgml
           - pg_search pg_bigm zhparser hunspell
-          - pg_analytics pg_duckdb pg_mooncake duckdb_fdw pg_parquet pg_fkpart pg_partman plproxy #citus #hydra #pg_strom
+          - pg_analytics pg_duckdb duckdb_fdw pg_parquet pg_fkpart pg_partman plproxy #citus #hydra #pg_strom #pg_mooncake
           - hll rum pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg index_advisor pg_plan_filter imgsmlr pg_ivm pgmq pgq pg_cardano #age #rdkit
           - pg_tle plv8 pllua pldebugger plpgsql_check plprofiler plsh #plprql #pljava #plr #pgtap #faker #dbt2
           - prefix semver pgunit md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr acl debversion pg_rrule timestamp9 chkpass
@@ -328,6 +328,13 @@ all:
         repo_extra_packages: # not included: postgresql-16-plr postgresql-16-pgpool2 postgresql-16-slony1-2 postgresql-16-repmgr
           - ftp linux-tools-generic docker-ce docker-compose-plugin postgresql-16-pljava # extra docker & java packages
         repo_packages:
+          - ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass                                                              # Distro & Boot
+          - nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter                                                                  # Pigsty Addons
+          - grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter    # Infra Packages
+          - redis-exporter redis minio mcli ferretdb duckdb                                                                                         # Extra Modules
+          - lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump acl chrony # Node Tools 1
+          - netcat-openbsd socat lrzsz net-tools ipvsadm dnsutils telnet ca-certificates libreadline-dev vim-tiny keepalived openssl openssh-server openssh-client # Node Tools 2
+          - patroni pgbouncer pgbackrest pgbadger pg-activity postgresql-filedump pgxnclient pgformatter timescaledb-tools pgcopydb pgloader pg-timetable # PGDG Common
           - postgresql-17 postgresql-client-17 postgresql-server-dev-17 postgresql-plpython3-17 postgresql-plperl-17 postgresql-pltcl-17
           - timescaledb-2-postgresql-17 postgresql-17-periods postgresql-17-temporal-tables postgresql-17-emaj postgresql-17-tableversion postgresql-17-cron postgresql-17-pg-later postgresql-17-pg-background #timescaledb-toolkit-postgresql-17 #postgresql-17-pg-timeseries
           - postgresql-17-postgis-3 postgresql-17-postgis-3-scripts postgresql-17-pgrouting postgresql-17-pgrouting-scripts postgresql-17-pointcloud postgresql-17-h3 postgresql-17-q3c postgresql-17-ogr-fdw postgresql-17-geoip postgresql-17-pg-polyline postgresql-17-pg-geohash postgresql-17-mobilitydb
@@ -349,7 +356,7 @@ all:
           - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip pg_polyline pg_geohash mobilitydb
           - pgvector pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pg4ml #pgml
           - pg_search pg_bigm zhparser hunspell
-          - pg_analytics pg_duckdb pg_mooncake duckdb_fdw pg_parquet pg_fkpart pg_partman plproxy #citus #hydra #pg_strom
+          - pg_analytics pg_duckdb duckdb_fdw pg_parquet pg_fkpart pg_partman plproxy #citus #hydra #pg_strom #pg_mooncake
           - hll rum pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg index_advisor pg_plan_filter imgsmlr pg_ivm pgmq pgq pg_cardano #age #rdkit
           - pg_tle plv8 pllua pldebugger plpgsql_check plprofiler plsh #plprql #pljava #plr #pgtap #faker #dbt2
           - prefix semver pgunit md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr acl debversion pg_rrule timestamp9 chkpass
