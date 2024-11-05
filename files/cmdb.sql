@@ -1260,7 +1260,7 @@ INSERT INTO pigsty.default_var VALUES
 (116, 'repo_upstream', '[]', 'INFRA', 'REPO', 'upstream[]', 'G', 'where to download upstream packages', NULL),
 (117, 'repo_packages', '[]', 'INFRA', 'REPO', 'string[]', 'G', 'which packages to be included', NULL),
 (118, 'repo_extra_packages', '[]', 'INFRA', 'REPO', 'string[]', 'G/C/I', 'extra repo packages to be included', NULL),
-(119, 'repo_url_packages', '[{"name": "pev.html", "url": "https://repo.pigsty.io/etc/pev-1.12.1.html"}, {"name": "chart.tgz", "url": "https://repo.pigsty.io/etc/chart-1.0.0.tgz"}, {"name": "plugins.tgz", "url": "https://repo.pigsty.io/etc/plugins-11.2.0.tgz"}]', 'INFRA', 'REPO', 'string[]', 'G', 'extra packages from url', NULL),
+(119, 'repo_url_packages', '[{"name": "pev.html", "url": "https://repo.pigsty.io/etc/pev-1.12.1.html"}, {"name": "chart.tgz", "url": "https://repo.pigsty.io/etc/chart-1.0.0.tgz"}, {"name": "plugins.tgz", "url": "https://repo.pigsty.io/etc/plugins-11.3.0.tgz"}]', 'INFRA', 'REPO', 'string[]', 'G', 'extra packages from url', NULL),
 
 (120, 'infra_packages', '[]', 'INFRA', 'INFRA_PACKAGE', 'string[]', 'G', 'packages to be installed on infra nodes', NULL),
 (121, 'infra_packages_pip', '""', 'INFRA', 'INFRA_PACKAGE', 'string', 'G', 'pip installed packages for infra nodes', NULL),
