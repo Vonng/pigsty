@@ -144,8 +144,11 @@ function check_machine(){
     if [[ "${machine_name}" == "x86_64" ]]; then
         log_info "machine = ${machine_name}"
         return 0
+    elif [[ "${machine_name}" == "aarch64" ]]; then
+        log_warn "machine = ${machine_name} (alpha)"
+        return 0
     else
-        log_error "machine = ${machine_name}, not supported, x86_64 only"
+        log_error "machine = ${machine_name}, not supported, x86_64/aarch64 only"
         exit 2
     fi
 }
@@ -646,7 +649,7 @@ function main(){
     log_hint "bootstrap pigsty ${PIGSTY_VERSION} begin\n"
     check_region          # region        = default
     check_kernel          # kernel        = Linux
-    check_machine         # machine       = x86_64
+    check_machine         # machine       = x86_64 or aarch64
     check_package_manager # package = rpm|deb, manager = dnf|yum|zypper|apt|apt-get
     check_vendor_version  # release       = rocky, version = 7,8,9...
     check_sudo            # current_user  = NOPASSWD sudo
@@ -659,4 +662,3 @@ function main(){
 }
 
 main $@
-

@@ -142,8 +142,11 @@ function check_machine(){
     if [[ "${machine_name}" == "x86_64" ]]; then
         log_info "machine = ${machine_name}"
         return 0
+    elif [[ "${machine_name}" == "aarch64" ]]; then
+        log_warn "machine = ${machine_name} (alpha)"
+        return 0
     else
-        log_warn "machine = ${machine_name}, not supported, x86_64 only"
+        log_warn "machine = ${machine_name}, not supported, x86_64/aarch64 only"
         #exit 2
     fi
 }
@@ -556,9 +559,9 @@ function main(){
     # check
     check_region          # region        = default
     check_kernel          # kernel        = Linux
-    check_machine         # machine       = x86_64
+    check_machine         # machine       = x86_64/aarch64
     check_package_manager # package = rpm|deb, manager = dnf|yum|zypper|apt|apt-get
-    check_vendor_version  # release       = centos, version = 7,8,9...
+    check_vendor_version  # release       = ...,
     check_sudo            # current_user  = NOPASSWD sudo
     check_ssh             # current_user  = NOPASSWD ssh
     check_proxy           # use_proxy     = true|false
