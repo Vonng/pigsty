@@ -38,7 +38,7 @@ all:
           - {name: dbuser_noco     ,password: DBUser.Noco     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for nocodb service      }
           - {name: dbuser_odoo     ,password: DBUser.Odoo     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for odoo service ,createdb: true} #,superuser: true}
         pg_databases:
-          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}, {name: timescaledb}]}
+          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}]}
           - {name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database  }
           - {name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
           - {name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong api gateway database }
@@ -47,7 +47,7 @@ all:
           - {name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database     }
         pg_hba_rules:
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
-        pg_libs: 'timescaledb, pg_stat_statements, auto_explain'
+        pg_libs: 'pg_stat_statements, auto_explain'
         pg_extensions: [ postgis, timescaledb, pgvector ]
         pg_vip_enabled: true
         pg_vip_address: 10.10.10.2/24
