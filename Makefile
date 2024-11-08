@@ -8,7 +8,7 @@
 # License   :   AGPLv3
 #==============================================================#
 # pigsty version string
-VERSION?=v3.0.4
+VERSION?=v3.1.0
 
 # variables
 SRC_PKG=pigsty-$(VERSION).tgz

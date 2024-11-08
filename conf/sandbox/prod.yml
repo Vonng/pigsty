@@ -118,7 +118,7 @@ all:
           - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
           - {name: dbuser_noco     ,password: DBUser.Noco     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for nocodb service      }
         pg_databases:
-          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: postgis, schema: public}]}
+          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: vector}]}
           - { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }
           - { name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
           - { name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong the api gateway database }
@@ -336,10 +336,10 @@ all:
         pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
         pg_vip_enabled: true
         pg_vip_interface: eth1
-        pg_extensions: [ 'citus postgis timescaledb pgvector' ]
+        pg_extensions: [ 'citus postgis pgvector' ]
         pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
         pg_users: [ { name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
-        pg_databases: [ { name: test ,owner: test ,extensions: [ { name: citus }, { name: postgis } ] } ]
+        pg_databases: [ { name: test ,owner: test ,extensions: [ { name: citus }, { name: vector } ] } ]
         pg_hba_rules:
           - { user: 'all' ,db: all  ,addr: 10.10.10.0/24 ,auth: trust ,title: 'trust citus cluster members'        }
           - { user: 'all' ,db: all  ,addr: 127.0.0.1/32  ,auth: ssl   ,title: 'all user ssl access from localhost' }
