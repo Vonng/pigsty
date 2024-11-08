@@ -55,11 +55,11 @@
         node_pages:      "{{ node_result.stdout_lines[9]|int }}"
         node_page_size:  "{{ node_result.stdout_lines[10]|int }}"
 
-    # load os ad hoc vars according to os_package (rpm/deb)
-    - name: load {{ os_vendor }}.{{ os_version }} vars
+    # load os ad hoc vars according to os_package (rpm/deb) (and optional aarch64 setup)
+    - name: load {{ os_vendor }}.{{ os_version }} {{ os_arch }} vars
       become: no
       connection: local
-      include_vars: { file: "{{ role_path }}/vars/{{ os_package }}.yml" }
+      include_vars: { file: "{{ role_path }}/vars/{{ os_package }}{% if os_arch|default('x86_64') == 'aarch64' %}-aarch64{% endif %}.yml" }
 
     # if nodename is empty, or can not be built from pgsql instance's identity
     - name: fill empty nodename with hostname

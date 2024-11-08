@@ -3,7 +3,7 @@
 # File      :   bootstrap
 # Desc      :   setup local repo & install boot utils
 # Ctime     :   2022-10-16
-# Mtime     :   2024-08-25
+# Mtime     :   2024-11-08
 # Path      :   bootstrap
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -432,9 +432,18 @@ EOF
 function add_ubuntu_repo(){
     local region=${1-"default"}
     if [ "${region}" = "china" ]; then
-      baseurl="https://mirrors.aliyun.com/ubuntu/"
+      if [ "${ARCH}" == "aarch64" ]; then
+          baseurl="https://mirrors.aliyun.com/ubuntu-ports/"
+      else
+          baseurl="https://mirrors.aliyun.com/ubuntu/"
+      fi
     else
-      baseurl="https://mirrors.edge.kernel.org/ubuntu/"
+      if [ "${ARCH}" == "aarch64" ]; then
+          baseurl="http://ports.ubuntu.com/ubuntu-ports/"
+      else
+          baseurl="https://mirrors.edge.kernel.org/ubuntu/"
+      fi
+
     fi
     cat > "/tmp/sources.list" <<-EOF
 deb [trusted=yes] ${baseurl} ${OS_CODENAME}           main universe multiverse restricted
