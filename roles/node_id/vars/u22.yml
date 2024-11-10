@@ -51,13 +51,12 @@ repo_upstream_default:
   - { name: pgdg          ,description: 'PGDG'             ,module: pgsql     ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg main' }}
   - { name: citus         ,description: 'Citus'            ,module: pgsql     ,releases: [11,12,20,22   ] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/${distro_name}/ ${distro_codename} main' } }
   - { name: timescaledb   ,description: 'Timescaledb'      ,module: pgsql     ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
-  
+  - { name: docker-ce    ,description: 'Docker'            ,module: docker    ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
   # these repos are not used by default, but can be enabled by setting repo_modules
   - { name: grafana      ,description: 'Grafana'           ,module: grafana   ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
   - { name: pgml         ,description: 'PostgresML'        ,module: pgml      ,releases: [         22   ] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://apt.postgresml.org ${distro_codename} main'  }}
   - { name: wiltondb     ,description: 'WiltonDB'          ,module: mssql     ,releases: [      20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://ppa.launchpadcontent.net/wiltondb/wiltondb/ubuntu/ ${distro_codename} main'  }}
   - { name: mysql        ,description: 'MySQL'             ,module: mysql     ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://repo.mysql.com/apt/${distro_name} ${distro_codename} mysql-8.0 mysql-tools', china: 'https://mirrors.tuna.tsinghua.edu.cn/mysql/apt/${distro_name} ${distro_codename} mysql-8.0 mysql-tools' }}
-  - { name: docker-ce    ,description: 'Docker'            ,module: docker    ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
   - { name: kubernetes   ,description: 'Kubernetes'        ,module: kube      ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /', china: 'https://mirrors.aliyun.com/kubernetes-new/core/stable/v1.31/deb/ /' }}
   
 
@@ -79,7 +78,7 @@ package_map:
   # PGSQL: kernel packages 
   #--------------------------------#
   pgsql-main:              "postgresql-$v postgresql-client-$v postgresql-plpython3-$v postgresql-plperl-$v postgresql-pltcl-$v postgresql-server-dev-$v postgresql-$v-repack postgresql-$v-wal2json postgresql-$v-pgvector"
-  pgsql-kernel:            "postgresql-$v postgresql-client-$v postgresql-plpython3-$v postgresql-plperl-$v postgresql-pltcl-$v postgresql-server-dev-$v"
+  pgsql-core:              "postgresql-$v postgresql-client-$v postgresql-plpython3-$v postgresql-plperl-$v postgresql-pltcl-$v postgresql-server-dev-$v"
   pgsql-simple:            "postgresql-$v postgresql-client-$v postgresql-plperl-$v postgresql-plpython3-$v postgresql-pltcl-$v"
   pgsql-client:            "postgresql-client-$v"
   pgsql-server:            "postgresql-$v"
@@ -129,7 +128,7 @@ package_map:
   # PG17: packages 
   #--------------------------------#
   pg17-main:               "postgresql-17 postgresql-client-17 postgresql-plpython3-17 postgresql-plperl-17 postgresql-pltcl-17 postgresql-server-dev-17 postgresql-17-repack postgresql-17-wal2json postgresql-17-pgvector"
-  pg17-kernel:             "postgresql-17 postgresql-client-17 postgresql-plpython3-17 postgresql-plperl-17 postgresql-pltcl-17 postgresql-server-dev-17"
+  pg17-core:               "postgresql-17 postgresql-client-17 postgresql-plpython3-17 postgresql-plperl-17 postgresql-pltcl-17 postgresql-server-dev-17"
   pg17-simple:             "postgresql-17 postgresql-client-17 postgresql-plperl-17 postgresql-plpython3-17 postgresql-pltcl-17"
   pg17-client:             "postgresql-client-17"
   pg17-server:             "postgresql-17"
@@ -155,7 +154,7 @@ package_map:
   # PG16: packages 
   #--------------------------------#
   pg16-main:               "postgresql-16 postgresql-client-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-server-dev-16 postgresql-16-repack postgresql-16-wal2json postgresql-16-pgvector"
-  pg16-kernel:             "postgresql-16 postgresql-client-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-server-dev-16"
+  pg16-core:               "postgresql-16 postgresql-client-16 postgresql-plpython3-16 postgresql-plperl-16 postgresql-pltcl-16 postgresql-server-dev-16"
   pg16-simple:             "postgresql-16 postgresql-client-16 postgresql-plperl-16 postgresql-plpython3-16 postgresql-pltcl-16"
   pg16-client:             "postgresql-client-16"
   pg16-server:             "postgresql-16"
@@ -181,7 +180,7 @@ package_map:
   # PG15: packages 
   #--------------------------------#
   pg15-main:               "postgresql-15 postgresql-client-15 postgresql-plpython3-15 postgresql-plperl-15 postgresql-pltcl-15 postgresql-server-dev-15 postgresql-15-repack postgresql-15-wal2json postgresql-15-pgvector"
-  pg15-kernel:             "postgresql-15 postgresql-client-15 postgresql-plpython3-15 postgresql-plperl-15 postgresql-pltcl-15 postgresql-server-dev-15"
+  pg15-core:               "postgresql-15 postgresql-client-15 postgresql-plpython3-15 postgresql-plperl-15 postgresql-pltcl-15 postgresql-server-dev-15"
   pg15-simple:             "postgresql-15 postgresql-client-15 postgresql-plperl-15 postgresql-plpython3-15 postgresql-pltcl-15"
   pg15-client:             "postgresql-client-15"
   pg15-server:             "postgresql-15"
@@ -207,7 +206,7 @@ package_map:
   # PG14: packages 
   #--------------------------------#
   pg14-main:               "postgresql-14 postgresql-client-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-server-dev-14 postgresql-14-repack postgresql-14-wal2json postgresql-14-pgvector"
-  pg14-kernel:             "postgresql-14 postgresql-client-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-server-dev-14"
+  pg14-core:               "postgresql-14 postgresql-client-14 postgresql-plpython3-14 postgresql-plperl-14 postgresql-pltcl-14 postgresql-server-dev-14"
   pg14-simple:             "postgresql-14 postgresql-client-14 postgresql-plperl-14 postgresql-plpython3-14 postgresql-pltcl-14"
   pg14-client:             "postgresql-client-14"
   pg14-server:             "postgresql-14"
@@ -233,7 +232,7 @@ package_map:
   # PG13: packages 
   #--------------------------------#
   pg13-main:               "postgresql-13 postgresql-client-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-server-dev-13 postgresql-13-repack postgresql-13-wal2json postgresql-13-pgvector"
-  pg13-kernel:             "postgresql-13 postgresql-client-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-server-dev-13"
+  pg13-core:               "postgresql-13 postgresql-client-13 postgresql-plpython3-13 postgresql-plperl-13 postgresql-pltcl-13 postgresql-server-dev-13"
   pg13-simple:             "postgresql-13 postgresql-client-13 postgresql-plperl-13 postgresql-plpython3-13 postgresql-pltcl-13"
   pg13-client:             "postgresql-client-13"
   pg13-server:             "postgresql-13"
@@ -259,7 +258,7 @@ package_map:
   # PG12: packages 
   #--------------------------------#
   pg12-main:               "postgresql-12 postgresql-client-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-server-dev-12 postgresql-12-repack postgresql-12-wal2json postgresql-12-pgvector"
-  pg12-kernel:             "postgresql-12 postgresql-client-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-server-dev-12"
+  pg12-core:               "postgresql-12 postgresql-client-12 postgresql-plpython3-12 postgresql-plperl-12 postgresql-pltcl-12 postgresql-server-dev-12"
   pg12-simple:             "postgresql-12 postgresql-client-12 postgresql-plperl-12 postgresql-plpython3-12 postgresql-pltcl-12"
   pg12-client:             "postgresql-client-12"
   pg12-server:             "postgresql-12"
