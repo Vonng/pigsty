@@ -31,7 +31,7 @@
   copy:
     dest: "{{ upstream_dir }}/{{ upstream_file }}"
     content: |
-      #=========# [{{ module_name }}] on {{ os_vendor }}{{ os_version }} : {{ os_codename }} {{ os_package }} repo
+      #=========# [{{ module_name }}] on {{ os_vendor }}{{ os_version }} {{ os_arch }}: {{ os_codename }} {{ os_package }} repo
       {% if repo_upstream is not defined %}
       {% set repo_upstream = repo_upstream_default|default([]) %}
       # this upstream repo are generated from pigsty role default configuration  
@@ -40,7 +40,7 @@
       {% endif %}
 
       {% for repo in repo_upstream %}
-      {% if os_version|int in repo.releases and repo.module == module_name %}
+      {% if os_version|int in repo.releases and repo.module == module_name and os_arch in repo.arch %}
       {% if os_package == 'rpm' %}
       {% if (os_version|int == 8 or os_version|int == 9) and (repo.name|lower in ['pgdg-common', 'pgdg12', 'pgdg13', 'pgdg14', 'pgdg15', 'pgdg16']) %}{% set target_version = os_version_full|string %}{% else %}{% set target_version = os_version|string %}{% endif %}
       [{{ repo.name }}]
