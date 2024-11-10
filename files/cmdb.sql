@@ -1506,7 +1506,7 @@ INSERT INTO pigsty.default_var VALUES
 (876, 'pg_rpo', '1048576', 'PGSQL', 'PG_BOOTSTRAP', 'int', 'C', 'recovery point objective in bytes, `1MiB` at most by default', NULL),
 (877, 'pg_libs', '"pg_stat_statements, auto_explain"', 'PGSQL', 'PG_BOOTSTRAP', 'string', 'C', 'preloaded libraries, `pg_stat_statements,auto_explain` by default', NULL),
 (878, 'pg_delay', '0', 'PGSQL', 'PG_BOOTSTRAP', 'interval', 'I', 'replication apply delay for standby cluster leader', NULL),
-(879, 'pg_checksum', 'false', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'C', 'enable data checksum for postgres cluster?', NULL),
+(879, 'pg_checksum', 'true', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'C', 'enable data checksum for postgres cluster?', NULL),
 (880, 'pg_pwd_enc', '"scram-sha-256"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'passwords encryption algorithm: md5,scram-sha-256', NULL),
 (881, 'pg_encoding', '"UTF8"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'database cluster encoding, `UTF8` by default', NULL),
 (882, 'pg_locale', '"C"', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'database cluster local, `C` by default', NULL),
