@@ -51,12 +51,12 @@ repo_upstream_default:
   - { name: pgdg          ,description: 'PGDG'             ,module: pgsql     ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'http://apt.postgresql.org/pub/repos/apt/ ${distro_codename}-pgdg main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ ${distro_codename}-pgdg main' }}
   - { name: citus         ,description: 'Citus'            ,module: pgsql     ,releases: [11,12,20,22   ] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://packagecloud.io/citusdata/community/${distro_name}/ ${distro_codename} main' } }
   - { name: timescaledb   ,description: 'Timescaledb'      ,module: pgsql     ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/${distro_name}/ ${distro_codename} main' }}
-  - { name: docker-ce    ,description: 'Docker'            ,module: docker    ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
   # these repos are not used by default, but can be enabled by setting repo_modules
   - { name: grafana      ,description: 'Grafana'           ,module: grafana   ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://apt.grafana.com stable main' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/ stable main' }}
   - { name: pgml         ,description: 'PostgresML'        ,module: pgml      ,releases: [         22   ] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://apt.postgresml.org ${distro_codename} main'  }}
   - { name: wiltondb     ,description: 'WiltonDB'          ,module: mssql     ,releases: [      20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://ppa.launchpadcontent.net/wiltondb/wiltondb/ubuntu/ ${distro_codename} main'  }}
   - { name: mysql        ,description: 'MySQL'             ,module: mysql     ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://repo.mysql.com/apt/${distro_name} ${distro_codename} mysql-8.0 mysql-tools', china: 'https://mirrors.tuna.tsinghua.edu.cn/mysql/apt/${distro_name} ${distro_codename} mysql-8.0 mysql-tools' }}
+  - { name: docker-ce     ,description: 'Docker'           ,module: docker    ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://download.docker.com/linux/${distro_name} ${distro_codename} stable' ,china: 'https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux//${distro_name} ${distro_codename} stable' }}
   - { name: kubernetes   ,description: 'Kubernetes'        ,module: kube      ,releases: [11,12,20,22,24] ,arch: [x86_64, aarch64] ,baseurl: { default: 'https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /', china: 'https://mirrors.aliyun.com/kubernetes-new/core/stable/v1.31/deb/ /' }}
   
 
@@ -67,7 +67,7 @@ package_map:
   # REPO: download packages 
   #--------------------------------#
   node-bootstrap:          "ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass ftp linux-tools-generic"
-  infra-package:           "nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter redis-exporter redis minio mcli ferretdb duckdb docker-ce docker-compose-plugin"
+  infra-package:           "nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter redis-exporter redis minio mcli ferretdb duckdb"
   infra-addons:            "grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter"
   node-package1:           "lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump acl chrony"
   node-package2:           "netcat-openbsd socat lrzsz net-tools ipvsadm dnsutils telnet ca-certificates libreadline-dev vim-tiny keepalived openssl openssh-server openssh-client"
@@ -77,6 +77,7 @@ package_map:
   #--------------------------------#
   # PGSQL: kernel packages 
   #--------------------------------#
+  postgresql:              "postgresql-$v postgresql-client-$v postgresql-plpython3-$v postgresql-plperl-$v postgresql-pltcl-$v postgresql-server-dev-$v"
   pgsql-main:              "postgresql-$v postgresql-client-$v postgresql-plpython3-$v postgresql-plperl-$v postgresql-pltcl-$v postgresql-server-dev-$v postgresql-$v-repack postgresql-$v-wal2json postgresql-$v-pgvector"
   pgsql-core:              "postgresql-$v postgresql-client-$v postgresql-plpython3-$v postgresql-plperl-$v postgresql-pltcl-$v postgresql-server-dev-$v"
   pgsql-simple:            "postgresql-$v postgresql-client-$v postgresql-plperl-$v postgresql-plpython3-$v postgresql-pltcl-$v"
@@ -84,8 +85,20 @@ package_map:
   pgsql-server:            "postgresql-$v"
   pgsql-devel:             "postgresql-server-dev-$v"
   pgsql-basic:             "postgresql-$v-repack postgresql-$v-wal2json postgresql-$v-pgvector"
-  wiltondb:                "wiltondb"
+
+  #--------------------------------#
+  # MISC: pro modules 
+  #--------------------------------#
+  wiltondb:                "wiltondb sqlcmd"
   polardb:                 "polardb-for-postgresql"
+  supabase:                "postgresql-$v-pg-tle,postgresql-$v-pg-graphql,postgresql-$v-pg-jsonschema,postgresql-$v-wrappers,postgresql-$v-pgvector,postgresql-$v-cron,postgresql-$v-pgsodium,postgresql-$v-vault,postgresql-$v-pgjwt,postgresql-$v-http,postgresql-$v-pg-net,postgresql-$v-supautils,postgresql-$v-index-advisor,postgresql-$v-pg-safeupdate,postgresql-$v-pg-plan-filter"
+  java-runtime:            "openjdk-17-jdk"
+  kafka:                   "kafka"
+  sealos:                  "sealos"
+  kubernetes:              "kubeadm kubelet kubectl"
+  docker:                  "docker-ce docker-compose-plugin"
+  infra-extra:             "victoria-metrics victoria-metrics-utils victoria-metrics-cluster victoria-logs vector mysqld-exporter mongodb-exporter kafka-exporter"
+  tigerbeetle:             "tigerbeetle"
 
   #--------------------------------#
   # PGSQL: tools & utils 
@@ -327,7 +340,7 @@ package_map:
   pg_search:               "postgresql-$v-pg-search"                  # 17 16 15 14        # 
   pg_bigm:                 "postgresql-$v-pg-bigm"                    # 17 16 15 14 13 12  # 
   zhparser:                "postgresql-$v-zhparser"                   # 17 16 15 14 13 12  # 
-  hunspell:                "hunspell_cs_cz_$v,hunspell_de_de_$v,hunspell_en_us_$v,hunspell_fr_$v,hunspell_ne_np_$v,hunspell_nl_nl_$v,hunspell_nn_no_$v,hunspell_ru_ru_$v,hunspell_ru_ru_aot_$v" # # hunspell_pt_pt_$v
+  hunspell:                "postgresql-$v-hunspell-cs-cz,postgresql-$v-hunspell-de-de,postgresql-$v-hunspell-en-us,postgresql-$v-hunspell-fr,postgresql-$v-hunspell-ne-np,postgresql-$v-hunspell-nl-nl,postgresql-$v-hunspell-nn-no,postgresql-$v-hunspell-ru-ru,postgresql-$v-hunspell-ru-ru-aot" # # postgresql-$v-hunspell-pt-pt
   hunspell_cs_cz:          "postgresql-$v-hunspell-cs-cz"             # 17 16 15 14 13 12  # 
   hunspell_de_de:          "postgresql-$v-hunspell-de-de"             # 17 16 15 14 13 12  # 
   hunspell_en_us:          "postgresql-$v-hunspell-en-us"             # 17 16 15 14 13 12  # 
