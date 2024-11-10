@@ -55,12 +55,6 @@
         node_pages:      "{{ node_result.stdout_lines[9]|int }}"
         node_page_size:  "{{ node_result.stdout_lines[10]|int }}"
 
-    # load os ad hoc vars according to os_package (rpm/deb) (and optional aarch64 setup)
-    - name: load {{ os_vendor }}.{{ os_version }} {{ os_arch }} vars
-      become: no
-      connection: local
-      include_vars: { file: "{{ role_path }}/vars/{{ os_package }}{% if os_arch|default('x86_64') == 'aarch64' %}-aarch64{% endif %}.yml" }
-
     # if nodename is empty, or can not be built from pgsql instance's identity
     - name: fill empty nodename with hostname
       when: (nodename is not defined or nodename == '') and not (node_id_from_pg|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' )
@@ -72,10 +66,16 @@
       set_fact:
         nodename:       "{% if node_id_from_pg|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' %}{{ pg_cluster }}-{{ pg_seq }}{% else %}{{ nodename|default(omit) }}{% endif %}"
         node_cluster:   "{% if node_id_from_pg|bool and pg_cluster is defined and pg_cluster != '' and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') %}{{ pg_cluster }}{% else %}{{ node_cluster|default('nodes') }}{% endif %}"
-        node_os_code:   "{% if os_package == 'rpm' %}el{{ os_version }}{% elif os_package == 'deb' %}{{ os_vendor[0] }}{{ os_version }}{% endif %}"
+        node_os_code:   "{% if os_package == 'rpm' %}el{{ os_version }}{% elif os_package == 'deb' %}{{ os_vendor[0] }}{{ os_version }}{% endif %}"  # el7, el8, el9, u20, u22, u24, d12
         node_mem_bytes: "{{ node_pages|int * node_page_size|int }}"
         node_mem_mb:    "{{ (node_pages|int * node_page_size|int / 1048576) | round(0, 'ceil')|int }}"
         node_mem_gb:    "{{ [ (node_pages|int * node_page_size|int / 1073741824) | round(0, 'ceil')|int , 1 ] | max }}"
+
+    # load os ad hoc vars according to os_package (rpm/deb) (and optional aarch64 setup)
+    - name: load {{ os_vendor }}.{{ os_version }} {{ os_arch }} vars
+      become: no
+      connection: local
+      include_vars: { file: "{{ role_path }}/vars/{{ node_os_code }}.yml" }
 
     # nodename, cluster, spec, os and modules
     - name: print node identity
@@ -84,7 +84,7 @@
         msg: >-
           nodename: {{ nodename }},
           node_cluster: {{ node_cluster }},
-          spec: c{{ node_cpu }}m{{ node_mem_gb }}, os: {{ os_vendor }}.{{ os_version }}.{{ os_arch }} {{ os_codename }}:{{ os_package }},
+          spec: c{{ node_cpu }}m{{ node_mem_gb }}, os: {{ os_vendor }}.{{ os_version }}.{{ os_arch }} {{ node_os_code }}:{{ os_package }},
           {% if inventory_hostname == admin_ip %}[ADMIN]{% endif %}
           {% if inventory_hostname in groups["infra"] %}[INFRA]{% endif %}
           {% if pg_cluster is defined %}[PGSQL: {{ pg_cluster }}]{% endif %}
