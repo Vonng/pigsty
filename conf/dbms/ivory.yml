@@ -3,16 +3,17 @@
 # File      :   ivory.yml
 # Desc      :   Pigsty Config for IvorySQL (Oracle Compatible)
 # Ctime     :   2024-08-05
-# Mtime     :   2024-08-05
+# Mtime     :   2024-11-10
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 
-# Prototype of this config file: 4-node sandbox for el8/el9
+# ivorysql is available on el7/el8/el9, compatible with pg16
+# limitation: pgbackrest not working on oracle-compatible mode
+# limitation: llvmjit deps are broken, so disable by default
 
 all:
-
 
   children:
 
@@ -61,7 +62,7 @@ all:
     #----------------------------------#
     # Meta Data
     #----------------------------------#
-    version: v3.0.4                   # pigsty version string
+    version: v3.1.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default,china,europe
     infra_portal:                     # domain names and upstream servers
@@ -75,10 +76,12 @@ all:
     #----------------------------------#
     # Ivory SQL Configuration
     #----------------------------------#
-    node_repo_modules: local,node,pgsql,ivory  # add ivorysql upstream repo
     pg_mode: ivory                    # IvorySQL Oracle Compatible Mode
     pg_packages: [ 'ivorysql patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager' ]
     pg_libs: 'liboracle_parser, pg_stat_statements, auto_explain'
-    pg_extensions: [ ]                # do not install any vanilla postgresql extensions
+    pgbackrest_enabled: false         # got checksum error when using oracle compatible mode
 
+    repo_modules: node,pgsql,infra,ivory
+    repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility ] #docker
+    repo_extra_packages: [ ivorysql ] # replace default postgresql kernel with ivroysql packages
 ...
