@@ -118,12 +118,12 @@
       tags: pg_extension
       set_fact:
         pg_packages_list: |-
-          {% set pkg_map = pg_package_map | default({}) %}
+          {% set pkg_map = package_map | default({}) %}
           {% for pkg_list in pg_packages %}{% for pkg in pkg_list | trim | regex_replace('(,|\\s)+', ',') | regex_findall('([^,\\s]+)') | default([]) %}{% if pkg != '' %}{% if pkg in pkg_map %}{% set pkg = pkg_map[pkg] %}{% endif %}{% if not loop.first %},{% endif %}{{ pkg|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string) }}{% endif %}{% endfor %}
           
           {% endfor %}
         pg_extension_list: |-
-          {% set pkg_map = pg_package_map | default({}) %}
+          {% set pkg_map = package_map | default({}) %}
           {% for ext_list in pg_extensions %}{% for ext in ext_list | trim | regex_replace('(,|\\s)+', ',') | regex_findall('([^,\\s]+)') | default([]) %}{% if ext != '' %}{% if ext in pkg_map %}{% set ext = pkg_map[ext] %}{% endif %}{% if not loop.first %},{% endif %}{{ ext|replace('${pg_version}', pg_version|string)|replace('$v', pg_version|string) }}{% endif %}{% endfor %}
           
           {% endfor %}
