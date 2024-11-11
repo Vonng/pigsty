@@ -127,9 +127,13 @@ repo-upstream:
 repo-check:
 	./install.yml -t node_repo,node_pkg,infra_pkg,pg_pkg
 
-# download repo packages
-repo-build: repo-clean
-	./infra.yml --tags=repo_upstream,repo_pkg
+# re-build local repo
+repo-build:
+	./infra.yml -t repo_build
+
+# add extra packages to local repo
+repo-add:
+	./infra.yml -t repo_build -t repo_upstream,repo_cache,repo_pkg -e '{"repo_packages":[],"repo_url_packages":[]}'
 
 repo-clean:
 	ansible all -b -a 'rm -rf /www/pigsty/repo_complete'
