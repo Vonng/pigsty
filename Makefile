@@ -154,6 +154,16 @@ loki:
 docker:
 	./docker.yml
 
+# install & uninstall pgsql (dangerous!!)
+pgsql-add:
+	./infra.yml -t repo_build
+	./pgsql.yml
+pgsql-rm:
+	./pgsql-rm.yml -e pg_uninstall=true
+pgsql-ext: repo-add
+	./infra.yml -t repo_build
+	./pgsql.yml -t pg_extension
+
 ###############################################################
 
 
@@ -344,10 +354,6 @@ copy-u24:
 copy-app:
 	scp dist/${VERSION}/${APP_PKG} meta:~/app.tgz
 	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
-copy-docker:
-	scp -r dist/docker meta:/tmp/
-load-docker:
-	ssh meta 'cat /tmp/docker.tgz | gzip -d -c - | docker load'
 copy-all: copy-src copy-pkg
 
 # extract packages
@@ -679,14 +685,15 @@ vtrio24:
 .PHONY: default tip link doc all boot conf i bootstrap config install \
         src pkg \
         c \
-        infra pgsql repo repo-upstream repo-build repo-clean prometheus grafana loki docker \
+        infra pgsql repo repo-upstream repo-build repo-add repo-clean pgsql-add pgsql-rm pgsql-ext \
+        prometheus grafana loki docker \
         deps dns start ssh \
         up dw del new clean up-test dw-test del-test new-test clean \
         st status suspend resume v1 v4 v7 v8 v9 vb vr vd vm vo vc vu vp vp7 vp9 \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-el7 copy-el8 copy-el9 copy-d11 copy-d12 copy-u20 copy-u22 copy-u24 \
-        copy-app copy-docker load-docker copy-all use-src use-pkg use-all cmdb \
+        copy-app copy-all use-src use-pkg use-all cmdb \
         csa copy-src-all csr copy-src-rpm csd copy-src-deb df deb-fix push pull git-sync git-restore \
         r release rr remote-release rrpm release-rpm rdeb release-deb pb publish \
         oss pro boot-oss boot-pro rpm deb vb vr vd vm vf vp all old va vo \
