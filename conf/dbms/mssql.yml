@@ -3,13 +3,13 @@
 # File      :   mssql.yml
 # Desc      :   Pigsty Config for Babelfish: WiltonDB
 # Ctime     :   2020-08-01
-# Mtime     :   2024-08-04
+# Mtime     :   2024-11-11
 # Docs      :   https://pigsty.io/docs/setup/config/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 
-# Prototype of this config file: 4-node sandbox for el8/el9
+# WiltonDB available on el7/el8/el9 and u20/u22/u24
 
 all:
   children:
@@ -85,7 +85,7 @@ all:
     #----------------------------------#
     # Meta Data
     #----------------------------------#
-    version: v3.0.4                   # pigsty version string
+    version: v3.1.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default,china,europe
     infra_portal:                     # domain names and upstream servers
@@ -99,7 +99,6 @@ all:
     #----------------------------------#
     # NODE, PGSQL, MSSQL
     #----------------------------------#
-    node_repo_modules: local,node,pgsql,mssql  # add local & mssql modules to node repo (Internet Required)
     pg_version: 15                     # The current WiltonDB major version is 15
     pg_packages:                       # install forked version of postgresql with babelfishpg support
       - wiltondb patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager
@@ -125,4 +124,9 @@ all:
       - { name: replica ,port: 5434 ,dest: 1433  ,check: /read-only ,selector: "[]" , backup: "[? pg_role == `primary` || pg_role == `offline` ]" }
       - { name: default ,port: 5436 ,dest: postgres ,check: /primary   ,selector: "[]" }
       - { name: offline ,port: 5438 ,dest: postgres ,check: /replica   ,selector: "[? pg_role == `offline` || pg_offline_query ]" , backup: "[? pg_role == `replica` && !pg_offline_query]" }
+
+    # download wiltondb instead of postgresql kernel
+    repo_modules: node,pgsql,infra,mssql
+    repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility ]
+    repo_extra_packages: [ wiltondb, sqlcmd ] # replace pgsql kernel with wiltondb/babelfish
 ...
