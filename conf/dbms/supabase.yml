@@ -3,11 +3,14 @@
 # File      :   supabase.yml
 # Desc      :   Pigsty configuration for supabase
 # Ctime     :   2023-09-19
-# Mtime     :   2024-10-25
+# Mtime     :   2024-11-11
 # Docs      :   https://pigsty.io/docs/kernel/supabase
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
+
+# supabase is available on el8/el9/u22/u24/d12  pg14,15,16,17
+# ./docker.yml -l supabase  # install docker
 
 
 all:
@@ -67,24 +70,13 @@ all:
               - { name: pg_tle          }                # 1.2   : pg_tle: Trusted Language Extensions for PostgreSQL
               - { name: vector          }                # 0.8.0 : pgvector: the vector similarity search
         # supabase required extensions
-        pg_libs: 'pg_stat_statements, pgaudit, plpgsql, plpgsql_check, pg_cron, pg_net, timescaledb, auto_explain, pg_tle, plan_filter'
+        pg_libs: 'pg_stat_statements, plpgsql, plpgsql_check, pg_cron, pg_net, timescaledb, auto_explain, pg_tle, plan_filter'
         pg_extensions: # extensions to be installed on this cluster
-          - supa-stack
-          - timescaledb pg_cron pg_timetable
-          - postgis pg_geohash
-          - pgvector pgvectorscale pg_similarity smlar pg_summarize pg_tiktoken
-          - pg_search pg_bigm zhparser hunspell
-          - pg_analytics pg_parquet pg_duckdb
-          - pg_hint_plan hll rum pg_graphql pg_jsonschema index_advisor pg_plan_filter hypopg pg_ivm pgmq pg_cardano
-          - pg_tle plv8 plpgsql_check #pljava
-          - pgunit md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr acl timestamp9
-          - pg_gzip pg_zstd pg_http pg_net pg_html5_email_address pgsql_tweaks pg_extra_time pg_timeit count_distinct extra_window_functions first_last_agg tdigest aggs_for_arrays aggs_for_vecs pg_arraymath quantile lower_quantile
-          - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids pg_math pg_random pg_base36 pg_base62 pg_base58 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext pgqr envvar pg_protobuf url_encode
-          - pg_repack pg_squeeze pg_dirtyread ddlx pg_readonly safeupdate pg_permissions pg_savior pg_fio
-          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_track_settings system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus toastinfo pg_explain_ui pg_relusage
-          - passwordcheck supautils pgsodium pg_vault anonymizer pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck logerrors login_hook set_user pgextwlist pg_auditor sslutils noset
-          - wrappers mysql_fdw redis_fdw pg_redis_pubsub aws_s3 log_fdw
-          - pglogical wal2json decoder_raw pg_fact_loader
+          - supabase   # essential extensions for supabase
+          - timescaledb postgis pg_graphql pg_jsonschema wrappers pg_search pg_analytics pg_parquet plv8 duckdb_fdw pg_cron pg_timetable pgqr
+          - supautils pg_plan_filter passwordcheck plpgsql_check pgaudit pgsodium pg_vault pgjwt pg_ecdsa pg_session_jwt index_advisor
+          - pgvector pgvectorscale pg_summarize pg_tiktoken pg_tle pg_stat_monitor hypopg pg_hint_plan pg_http pg_net pg_smtp_client pg_idkit
+
         pg_parameters:
           cron.database_name: postgres
           pgsodium.enable_event_trigger: off
@@ -106,12 +98,11 @@ all:
         #  no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
         #  #all_proxy: http://user:pass@host:port
 
-
   #==============================================================#
   # Global Parameters
   #==============================================================#
   vars:
-    version: v3.0.4                   # pigsty version string
+    version: v3.1.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     node_tune: oltp                   # use tiny template for NODE  in demo environment
@@ -125,5 +116,14 @@ all:
       loki         : { endpoint: "${admin_ip}:3100" }
       supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }     # <---- expose web UI
 
-
+    # download docker and supabase related extensions
+    pg_version: 17
+    repo_modules: node,pgsql,infra,docker
+    repo_packages: [node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker ]
+    repo_extra_packages:
+      - pgsql-main
+      - supabase   # essential extensions for supabase
+      - timescaledb postgis pg_graphql pg_jsonschema wrappers pg_search pg_analytics pg_parquet plv8 duckdb_fdw pg_cron pg_timetable pgqr
+      - supautils pg_plan_filter passwordcheck plpgsql_check pgaudit pgsodium pg_vault pgjwt pg_ecdsa pg_session_jwt index_advisor
+      - pgvector pgvectorscale pg_summarize pg_tiktoken pg_tle pg_stat_monitor hypopg pg_hint_plan pg_http pg_net pg_smtp_client pg_idkit
 ...
