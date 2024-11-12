@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-11-01
+# Mtime     :   2024-11-12
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -461,16 +461,9 @@ remote-release: release copy-src use-src
 # release offline packages with build environment
 ross: release-oss
 release-oss:
-	./cache.yml -i conf/build/oss.yml
-
-rrpm: release-rpm
-release-rpm:
-	./cache.yml -i conf/build/rpm.yml
-
-rdeb: release-deb
-release-deb:
-	./cache.yml -i conf/build/deb.yml
-
+	./cache.yml -i conf/oss.yml
+release-pro:
+	./cache.yml -i conf/pro.yml
 pb: publish
 publish:
 	bin/publish ${VERSION}
@@ -484,25 +477,25 @@ publish:
 #     Change Configuration     #
 #------------------------------#
 cmeta:
-	cp conf/sandbox/meta.yml pigsty.yml
+	cp conf/meta.yml pigsty.yml
 cdual:
-	cp conf/sandbox/dual.yml pigsty.yml
+	cp conf/dual.yml pigsty.yml
 ctrio:
-	cp conf/sandbox/trio.yml pigsty.yml
+	cp conf/trio.yml pigsty.yml
 cfull:
-	cp conf/sandbox/full.yml pigsty.yml
+	cp conf/full.yml pigsty.yml
 cprod:
-	cp conf/sandbox/prod.yml pigsty.yml
+	cp conf/prod.yml pigsty.yml
 coss:
-	cp conf/build/oss.yml pigsty.yml
+	cp conf/oss.yml pigsty.yml
 cpro:
-	cp conf/build/pro.yml pigsty.yml
+	cp conf/pro.yml pigsty.yml
 cext:
-	cp conf/build/ext.yml pigsty.yml
+	cp conf/ext.yml pigsty.yml
 crpm:
-	cp conf/build/rpm.yml pigsty.yml
+	cp conf/rpm.yml pigsty.yml
 cdeb:
-	cp conf/build/deb.yml pigsty.yml
+	cp conf/deb.yml pigsty.yml
 
 #------------------------------#
 #     Building Environment     #
@@ -598,7 +591,7 @@ vfull24:
 #------------------------------#
 # complex 43-node simubox for production simulation & complete testing
 prod-conf:
-	cp conf/sandbox/prod.yml pigsty.yml
+	cp conf/prod.yml pigsty.yml
 vp: vprod
 vprod:
 	vagrant/config prod
@@ -695,7 +688,7 @@ vtrio24:
         copy copy-src copy-pkg copy-el7 copy-el8 copy-el9 copy-d11 copy-d12 copy-u20 copy-u22 copy-u24 \
         copy-app copy-all use-src use-pkg use-all cmdb \
         csa copy-src-all csr copy-src-rpm csd copy-src-deb df deb-fix push pull git-sync git-restore \
-        r release rr remote-release rrpm release-rpm rdeb release-deb pb publish \
+        r release rr remote-release pb publish \
         oss pro boot-oss boot-pro rpm deb vb vr vd vm vf vp all old va vo \
         meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vfull11 vmeta12 vmeta20 vmeta22 vmeta24 \
         full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 vfull24 \
