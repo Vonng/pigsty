@@ -138,6 +138,9 @@ repo-add:
 repo-clean:
 	ansible all -b -a 'rm -rf /www/pigsty/repo_complete'
 
+reinstall: repo-clean
+	./install.yml
+
 # init prometheus
 prometheus:
 	./infra.yml --tags=prometheus
@@ -678,7 +681,7 @@ vtrio24:
 .PHONY: default tip link doc all boot conf i bootstrap config install \
         src pkg \
         c \
-        infra pgsql repo repo-upstream repo-build repo-add repo-clean pgsql-add pgsql-rm pgsql-ext \
+        infra pgsql repo repo-upstream repo-build repo-add repo-clean reinstall pgsql-add pgsql-rm pgsql-ext \
         prometheus grafana loki docker \
         deps dns start ssh \
         up dw del new clean up-test dw-test del-test new-test clean \

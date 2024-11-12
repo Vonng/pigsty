@@ -4,7 +4,7 @@
 # Desc      :   Install all extensions, provision multiple dbs
 # Ctime     :   2020-05-22
 # Mtime     :   2024-11-12
-# Docs      :   https://pigsty.io/docs/setup/config/
+# Docs      :   https://pigsty.io/docs/conf/rich
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
@@ -14,7 +14,7 @@ all:
   children:
 
     # infra cluster for proxy, monitor, alert, etc..
-    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } }, vars: { docker_enabled: true } }
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
     # etcd cluster for ha postgres
     etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
@@ -38,20 +38,19 @@ all:
           - {name: dbuser_noco     ,password: DBUser.Noco     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for nocodb service      }
           - {name: dbuser_odoo     ,password: DBUser.Odoo     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for odoo service ,createdb: true} #,superuser: true}
         pg_databases:
-          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: vector}]}
+          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: vector},{name: postgis},{name: timescaledb}]}
           - {name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database  }
           - {name: bytebase ,owner: dbuser_bytebase ,revokeconn: true ,comment: bytebase primary database }
           - {name: kong     ,owner: dbuser_kong     ,revokeconn: true ,comment: kong api gateway database }
           - {name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
           - {name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database  }
           - {name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database     }
+          - {name: odoo     ,owner: dbuser_odoo     ,revokeconn: true ,comment: odoo main database  }
         pg_hba_rules:
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
-        pg_libs: 'pg_stat_statements, auto_explain'
-        pg_extensions: [ postgis, pgvector ]
-        pg_vip_enabled: true
-        pg_vip_address: 10.10.10.2/24
-        pg_vip_interface: eth1
+        pg_libs: 'timescaledb,pg_stat_statements, auto_explain'  # add timescaledb to shared_preload_libraries
+        pg_extensions:
+          postgis, pgvector, timescaledb
         node_crontab:  # make one full backup 1 am everyday
           - '00 01 * * * postgres /pg/bin/pg-backup full'
 
@@ -59,23 +58,24 @@ all:
       hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6379: { }, 6380: { replica_of: '10.10.10.10 6379' } } } }
       vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
 
+    # To install & enable docker: ./docker.yml -l docker
     docker:
-      hosts:
-        10.10.10.10:
+      hosts: { 10.10.10.10: { infra_seq: 1 } }
       vars:
         docker_enabled: true
-        #docker_registry_mirrors: ['https://docker.xxxxx.io']
-        #proxy_env:   # add [OPTIONAL] proxy env to /etc/docker/daemon.json configuration file
-        #  no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
-        #  #all_proxy: http://user:pass@host:port
-
+        #docker_registry_mirrors: ['https://docker.xxxxx.io']   # add your docker mirror/proxy if needed
 
   vars:                               # global variables
     version: v3.1.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
-    node_tune: tiny                   # oltp|olap|tiny|cirt
-    pg_conf: tiny.yml                 # oltp.yml|olap.yml|tiny.yml|cirt.yml
+    node_tune: tiny                   # node tuning specs: oltp,olap,tiny,crit
+    pg_conf: tiny.yml                 # pgsql tuning specs: {oltp,olap,tiny,crit}.yml
+    proxy_env:                        # global proxy env when downloading packages
+      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
+      # http_proxy:  # set your proxy here: e.g http://user:pass@proxy.xxx.com
+      # https_proxy: # set your proxy here: e.g http://user:pass@proxy.xxx.com
+      # all_proxy:   # set your proxy here: e.g http://user:pass@proxy.xxx.com
     infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
@@ -103,24 +103,22 @@ all:
       - { name: Gitea      , url : 'http://git.pigsty'  , comment: 'Gitea Git Service'        }
       - { name: Minio      , url : 'http://sss.pigsty'  , comment: 'Minio Object Storage'     }
       - { name: Wiki       , url : 'http://wiki.pigsty' , comment: 'Local Wikipedia'          }
+      - { name: Noco       , url : 'http://noco.pigsty' , comment: 'Nocodb Example'           }
+      - { name: Odoo       , url : 'http://odoo.pigsty' , comment: 'Odoo - the OpenERP'       }
       - { name: Explain    , url : '/pigsty/pev.html'   , comment: 'pgsql explain visualizer' }
       - { name: Package    , url : '/pigsty'            , comment: 'local yum repo packages'  }
       - { name: PG Logs    , url : '/logs'              , comment: 'postgres raw csv logs'    }
       - { name: Schemas    , url : '/schema'            , comment: 'schemaspy summary report' }
       - { name: Reports    , url : '/report'            , comment: 'pgbadger summary report'  }
-    node_timezone: Asia/Hong_Kong     # use Asia/Hong_Kong Timezone
-    node_ntp_servers:                 # NTP servers in /etc/chrony.conf
-      - pool cn.pool.ntp.org iburst
-      - pool ${admin_ip} iburst       # assume non-admin nodes does not have internet access
-    node_etc_hosts: [ '10.10.10.10 h.pigsty a.pigsty p.pigsty g.pigsty sss.pigsty' ]
-    dns_records: [ "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty wiki.pigsty noco.pigsty supa.pigsty dify.pigsty odoo.pigsty" ]
-    pgbackrest_method: local          # if you want to use minio as backup repo instead of 'local' fs, uncomment this
 
-    repo_modules: node,pgsql,infra,docker
-    repo_packages: [                  # default packages to be downloaded (if `repo_packages` is not explicitly set)
-      node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker
-    ]
-    repo_extra_packages: [            # default postgres extensions to be downloaded (all pg17 extensions)
+    node_etc_hosts: [ "${admin_ip} sss.pigsty" ]
+    dns_records: [ "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty wiki.pigsty noco.pigsty supa.pigsty dify.pigsty odoo.pigsty" ]
+    pgbackrest_method: minio          # use minio as backup repo instead of 'local'
+
+    # download docker and pg17 extensions
+    repo_modules: infra,node,pgsql,docker
+    repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker ]
+    repo_extra_packages: [            # download pg17 kernel & all available extensions (x86_64)
       pg17-core,pg17-time,pg17-gis,pg17-rag,pg17-fts,pg17-olap,pg17-feat,pg17-lang,pg17-type,pg17-func,pg17-admin,pg17-stat,pg17-sec,pg17-fdw,pg17-sim,pg17-etl
     ]
 
