@@ -143,7 +143,7 @@ function check_machine(){
         log_info "machine = ${machine_name}"
         return 0
     elif [[ "${machine_name}" == "aarch64" ]]; then
-        log_warn "machine = ${machine_name} (alpha)"
+        log_warn "machine = ${machine_name} (beta)"
         return 0
     else
         log_warn "machine = ${machine_name}, not supported, x86_64/aarch64 only"
@@ -385,30 +385,23 @@ function check_mode(){
     local mode=${1-${MODE}}
     local primary_ip=${2-${PRIMARY_IP}}
 
-    # if mode is not end with .yml, add the suffix
-    if [[ ! ${mode} == *.yml ]]; then
-        mode="${mode}.yml"
-    fi
-
     # if mode is explicitly set, just use it
     if [[ ! -z "${mode}" ]]; then
         log_info "mode = ${mode} (manually set)"
         return 0
     fi
+    MODE=meta
 
     # use el by default, and adhoc template for el7, will be obsolete soon (2024)
     if [[ ${OS_PACKAGE} == "rpm" ]]; then
         if [[ "${OS_VERSION}" == "7" ]]; then
-            MODE=default/el7    # deprecated os support: el7
-            log_warn "mode = el7, CentOS 7.9 EOL @ 2024-06-30, deprecated, consider using el8 or el9 instead"
+            log_warn "mode = meta, CentOS 7.9 EOL @ 2024-06-30, deprecated, consider using el8 or el9 instead"
             return 0
         elif [[ "${OS_VERSION}" == "8" ]]; then
-            MODE=default/el8
-            log_info "mode = el8"
+            log_info "mode = meta (el8)"
             return 0
         elif [[ "${OS_VERSION}" == "9" ]]; then
-            MODE=default/el9
-            log_info "mode = el9"
+            log_info "mode = meta (el9)"
             return 0
         fi
 
@@ -422,39 +415,32 @@ function check_mode(){
     if [[ ${OS_PACKAGE} == "deb" ]]; then
         if [[ "${OS_VENDOR}" == "debian" ]]; then
             if [[ "${OS_VERSION}" == "11" ]]; then
-                MODE=default/d11     # deprecated os support: debian11
-                log_warn "mode = d11 (debian11), EOL @ 2024-08-14, deprecated, consider using debian12 instead"
+                log_warn "mode = meta (debian11), EOL @ 2024-08-14, deprecated, consider using debian12 instead"
                 return 0
             elif [[ "${OS_VERSION}" == "12" ]]; then
-                MODE=default/d12
-                log_info "mode = d12 (debian12)"
+                log_info "mode = meta (debian12)"
                 return 0
             fi
-            MODE=default/d12
             log_warn "os = ${OS_VENDOR} ${OS_VERSION} unknown, fallback to debian 12"
             return 0
         elif [[ "${OS_VENDOR}" == "ubuntu" ]]; then
             if [[ "${OS_VERSION}" == "20" ]]; then
-                MODE=default/u20     # deprecated os support: ubuntu20
-                log_warn "mode = u20 (ubuntu20.04), EOL @ 2025-04-23, deprecated, consider using ubuntu22.04 instead"
+                log_warn "mode = meta (ubuntu20.04), EOL @ 2025-04-23, deprecated, consider using ubuntu22.04 instead"
                 return 0
             elif [[ "${OS_VERSION}" == "22" ]]; then
-                MODE=default/u22
-                log_info "mode = u22 (ubuntu22.04)"
+                log_info "mode = meta (ubuntu22.04)"
                 return 0
             elif [[ "${OS_VERSION}" == "24" ]]; then
-                MODE=default/u24
-                log_info "mode = u24 (ubuntu24.04)"
+                log_info "mode = meta (ubuntu24.04)"
                 return 0
             fi
-            MODE=default/u22
-            log_warn "os = ${OS_VENDOR} ${OS_VERSION} unknown, fallback to ubuntu 22"
+            log_warn "os = ${OS_VENDOR} ${OS_VERSION} unknown"
             return 0
         fi
     fi
 
     # if OS is not determined, fall backup to the generic conf/meta.yml
-    log_warn "mode = meta (fallback to generic config)"
+    log_info "mode = meta (unknown distro)"
     MODE=meta
     return 0
 }
