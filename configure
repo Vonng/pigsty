@@ -300,6 +300,14 @@ function list_ipaddr(){
 function check_ipaddr(){
     local primary_ip=${1-${PRIMARY_IP}}
     local interactive=${2-${INTERACTIVE}}
+
+    case "${MODE}" in
+      build/*|demo/*) # do not replace ip for build/demo templates
+        log_warn "primary_ip = keep (due to conf/${MODE})"
+        return 0
+        ;;
+    esac
+
     # if ip is given, check it
     if [[ ! -z "${primary_ip}" ]]; then
         if is_valid_ip ${primary_ip}; then
@@ -363,6 +371,14 @@ function check_ipaddr(){
 
 function check_admin(){
     local primary_ip=${1-${PRIMARY_IP}}
+
+    case "${MODE}" in
+      build/*|demo/*) # do not replace ip for build/demo templates
+        log_warn "admin = skip checking (due to conf/${MODE})"
+        return 0
+        ;;
+    esac
+
     local current_user=$(whoami)
     if ssh -t -o "StrictHostKeyChecking no" -o "ConnectTimeout=4" ${primary_ip} 'sudo -n ls' 1>/dev/null 2>/dev/null; then
         log_info "admin = ${current_user}@${primary_ip} ok"
@@ -406,8 +422,7 @@ function check_mode(){
         fi
 
         # fallback to el8 by default
-        log_warn "mode = ${OS_VENDOR} ${OS_VERSION} unknown, fallback to default/el8"
-        MODE=default/el8
+        log_warn "mode = ${OS_VENDOR} ${OS_VERSION} unknown (EL)"
         return 0
     fi
 
@@ -434,7 +449,7 @@ function check_mode(){
                 log_info "mode = meta (ubuntu24.04)"
                 return 0
             fi
-            log_warn "os = ${OS_VENDOR} ${OS_VERSION} unknown"
+            log_warn "os = ${OS_VENDOR} ${OS_VERSION} unknown (Debian)"
             return 0
         fi
     fi
@@ -464,9 +479,17 @@ function check_config(){
     fi
     cat "${config_src}" > "${config_dst}"
 
-    # copy target config, and replace IP placeholder for singleton templates
-    sed -ie "s/10.10.10.10/${primary_ip}/g" "${config_dst}"
-    rm -rf "${config_dst}e"
+    # copy target config, and replace IP placeholder for singleton templates        
+    case "${mode}" in
+      build/*|demo/*) # do not replace ip for build/demo templates
+        sed -ie "s/10.10.10.10/${primary_ip}/g" "${config_dst}"
+        rm -rf "${config_dst}e"    
+        ;;
+      *)
+        sed -ie "s/10.10.10.10/${primary_ip}/g" "${config_dst}"
+        rm -rf "${config_dst}e"
+        ;;
+    esac
 
     # replace node_tune & pg_conf with tiny or oltp according to cpu count
     if (($(getconf _NPROCESSORS_ONLN)>=4)); then

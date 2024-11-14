@@ -464,9 +464,9 @@ remote-release: release copy-src use-src
 # release offline packages with build environment
 ross: release-oss
 release-oss:
-	./cache.yml -i conf/oss.yml
+	./cache.yml -i conf/build/oss.yml
 release-pro:
-	./cache.yml -i conf/pro.yml
+	./cache.yml -i conf/build/pro.yml
 pb: publish
 publish:
 	bin/publish ${VERSION}
@@ -490,15 +490,15 @@ cfull:
 cprod:
 	cp conf/prod.yml pigsty.yml
 coss:
-	cp conf/oss.yml pigsty.yml
+	cp conf/build/oss.yml pigsty.yml
 cpro:
-	cp conf/pro.yml pigsty.yml
+	cp conf/build/pro.yml pigsty.yml
 cext:
-	cp conf/ext.yml pigsty.yml
+	cp conf/build/ext.yml pigsty.yml
 crpm:
-	cp conf/rpm.yml pigsty.yml
+	cp conf/build/rpm.yml pigsty.yml
 cdeb:
-	cp conf/deb.yml pigsty.yml
+	cp conf/build/deb.yml pigsty.yml
 
 #------------------------------#
 #     Building Environment     #
