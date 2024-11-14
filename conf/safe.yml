@@ -3,7 +3,7 @@
 # File      :   safe.yml
 # Desc      :   Pigsty 3-node security enhance template
 # Ctime     :   2020-05-22
-# Mtime     :   2024-11-11
+# Mtime     :   2024-11-12
 # Docs      :   https://pigsty.io/docs/conf/safe
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -76,7 +76,7 @@ all:
   #                          Parameters                              #
   ####################################################################
   vars: # global variables
-    version: v3.0.4                   # pigsty version string
+    version: v3.1.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     patroni_ssl_enabled: true         # secure patroni RestAPI communications with SSL?
@@ -134,6 +134,9 @@ all:
     #----------------------------------#
     # add passwordcheck extension to enforce strong password policy
     pg_libs: '$libdir/passwordcheck, pg_stat_statements, auto_explain'
+    pg_extensions:
+      - passwordcheck, supautils, pgsodium, pg_vault, pg_session_jwt, anonymizer, pgsmcrypto, pgauditlogtofile, pgaudit #, pgaudit17, pgaudit16, pgaudit15, pgaudit14
+      - pg_auth_mon, credcheck, pgcryptokey, pg_jobmon, logerrors, login_hook, set_user, pgextwlist, pg_auditor, sslutils, noset #pg_tde #pg_snakeoil
     pg_default_roles: # default roles and users in postgres cluster
       - { name: dbrole_readonly  ,login: false ,comment: role for global read-only access }
       - { name: dbrole_offline   ,login: false ,comment: role for restricted read-only access }
@@ -144,24 +147,45 @@ all:
       - { name: dbuser_dba   ,superuser: true  ,expire_in: 7300 ,roles: [ dbrole_admin ]  ,pgbouncer: true ,pool_mode: session, pool_connlimit: 16 , comment: pgsql admin user }
       - { name: dbuser_monitor ,roles: [ pg_monitor ] ,expire_in: 7300 ,pgbouncer: true ,parameters: { log_min_duration_statement: 1000 } ,pool_mode: session ,pool_connlimit: 8 ,comment: pgsql monitor user }
     pg_default_hba_rules: # postgres host-based auth rules by default
-      - { user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident' }
-      - { user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident' }
+      - { user: '${dbsu}'    ,db: all         ,addr: local     ,auth: ident ,title: 'dbsu access via local os user ident'   }
+      - { user: '${dbsu}'    ,db: replication ,addr: local     ,auth: ident ,title: 'dbsu replication from local os ident'  }
       - { user: '${repl}'    ,db: replication ,addr: localhost ,auth: ssl   ,title: 'replicator replication from localhost' }
-      - { user: '${repl}'    ,db: replication ,addr: intra     ,auth: ssl   ,title: 'replicator replication from intranet' }
-      - { user: '${repl}'    ,db: postgres    ,addr: intra     ,auth: ssl   ,title: 'replicator postgres db from intranet' }
-      - { user: '${monitor}' ,db: all         ,addr: localhost ,auth: pwd   ,title: 'monitor from localhost with password' }
+      - { user: '${repl}'    ,db: replication ,addr: intra     ,auth: ssl   ,title: 'replicator replication from intranet'  }
+      - { user: '${repl}'    ,db: postgres    ,addr: intra     ,auth: ssl   ,title: 'replicator postgres db from intranet'  }
+      - { user: '${monitor}' ,db: all         ,addr: localhost ,auth: pwd   ,title: 'monitor from localhost with password'  }
       - { user: '${monitor}' ,db: all         ,addr: infra     ,auth: ssl   ,title: 'monitor from infra host with password' }
-      - { user: '${admin}'   ,db: all         ,addr: infra     ,auth: ssl   ,title: 'admin @ infra nodes with pwd & ssl' }
-      - { user: '${admin}'   ,db: all         ,addr: world     ,auth: cert  ,title: 'admin @ everywhere with ssl & cert' }
+      - { user: '${admin}'   ,db: all         ,addr: infra     ,auth: ssl   ,title: 'admin @ infra nodes with pwd & ssl'    }
+      - { user: '${admin}'   ,db: all         ,addr: world     ,auth: cert  ,title: 'admin @ everywhere with ssl & cert'    }
       - { user: '+dbrole_readonly',db: all    ,addr: localhost ,auth: ssl   ,title: 'pgbouncer read/write via local socket' }
-      - { user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: ssl   ,title: 'read/write biz user via password' }
+      - { user: '+dbrole_readonly',db: all    ,addr: intra     ,auth: ssl   ,title: 'read/write biz user via password'      }
       - { user: '+dbrole_offline' ,db: all    ,addr: intra     ,auth: ssl   ,title: 'allow etl offline tasks from intranet' }
     pgb_default_hba_rules: # pgbouncer host-based authentication rules
       - { user: '${dbsu}'    ,db: pgbouncer   ,addr: local     ,auth: peer  ,title: 'dbsu local admin access with os ident' }
-      - { user: 'all'        ,db: all         ,addr: localhost ,auth: pwd   ,title: 'allow all user local access with pwd' }
-      - { user: '${monitor}' ,db: pgbouncer   ,addr: intra     ,auth: ssl   ,title: 'monitor access via intranet with pwd' }
-      - { user: '${monitor}' ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other monitor access addr' }
-      - { user: '${admin}'   ,db: all         ,addr: intra     ,auth: ssl   ,title: 'admin access via intranet with pwd' }
-      - { user: '${admin}'   ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other admin access addr' }
-      - { user: 'all'        ,db: all         ,addr: intra     ,auth: ssl   ,title: 'allow all user intra access with pwd' }
+      - { user: 'all'        ,db: all         ,addr: localhost ,auth: pwd   ,title: 'allow all user local access with pwd'  }
+      - { user: '${monitor}' ,db: pgbouncer   ,addr: intra     ,auth: ssl   ,title: 'monitor access via intranet with pwd'  }
+      - { user: '${monitor}' ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other monitor access addr'  }
+      - { user: '${admin}'   ,db: all         ,addr: intra     ,auth: ssl   ,title: 'admin access via intranet with pwd'    }
+      - { user: '${admin}'   ,db: all         ,addr: world     ,auth: deny  ,title: 'reject all other admin access addr'    }
+      - { user: 'all'        ,db: all         ,addr: intra     ,auth: ssl   ,title: 'allow all user intra access with pwd'  }
+
+    #----------------------------------#
+    # Repo, Node, Packages
+    #----------------------------------#
+    # if you wish to customize your own repo, change these settings:
+    repo_modules: infra,node,pgsql    # install upstream repo during repo bootstrap
+    repo_remove: true                 # remove existing repo on admin node during repo bootstrap
+    node_repo_modules: local          # install the local module in repo_upstream for all nodes
+    node_repo_remove: true            # remove existing node repo for node managed by pigsty
+    repo_packages: [                  # default packages to be downloaded (if `repo_packages` is not explicitly set)
+      node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-common #,docker
+    ]
+    repo_extra_packages: [            # default postgres packages to be downloaded
+      pgsql-main, pgsql-sec,
+      passwordcheck, supautils, pgsodium, pg_vault, pg_session_jwt, anonymizer, pgsmcrypto, pgauditlogtofile, pgaudit, #, pgaudit17, pgaudit16, pgaudit15, pgaudit14
+      pg_auth_mon, credcheck, pgcryptokey, pg_jobmon, logerrors, login_hook, set_user, pgextwlist, pg_auditor, sslutils, noset #pg_tde #pg_snakeoil
+      #,pgsql-core,pgsql-time,pgsql-gis,pgsql-rag,pgsql-fts,pgsql-olap,pgsql-feat,pgsql-lang,pgsql-type,pgsql-func,pgsql-admin,pgsql-stat,pgsql-sec,pgsql-fdw,pgsql-sim,pgsql-etl,
+      #,pg17-core,pg17-time,pg17-gis,pg17-rag,pg17-fts,pg17-olap,pg17-feat,pg17-lang,pg17-type,pg17-func,pg17-admin,pg17-stat,pg17-sec,pg17-fdw,pg17-sim,pg17-etl,
+      #,pg16-core,pg16-time,pg16-gis,pg16-rag,pg16-fts,pg16-olap,pg16-feat,pg16-lang,pg16-type,pg16-func,pg16-admin,pg16-stat,pg16-sec,pg16-fdw,pg16-sim,pg16-etl,
+    ]
+
 ...

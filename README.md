@@ -27,7 +27,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 ### Advantages
 
-- **Unparalleled Extension**: We packed **135** [**RPM**](https://ext.pigsty.io/#/rpm) and **133** [**DEB**](https://ext.pigsty.io/#/deb) extensions in addition to the official **PGDG** repo.
+- **Unparalleled Extension**: [**340**](https://ext.pigsty.io/#/list) PostgreSQL extensions available in addition to the official **PGDG** repo.
 - **Stunning Observability**: Ultimate experience with **3000+** metrics visualized in **30+** organized dashboards.
 - **Reliable Best Practices**: Proven & Polished in large-scale production environment (**25K** vCPU) for **5** years+.
 - **NO Docker/Kubernetes**: We choose the hard way to deliver RDS based on bare OS **WITHOUT** [**Containers**](https://pigsty.io/blog/db/db-in-k8s/)!
@@ -47,8 +47,8 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 ## Get Started
 
-[![Postgres: 16.4](https://img.shields.io/badge/PostgreSQL-16.4-%233E668F?style=flat&logo=postgresql&labelColor=3E668F&logoColor=white)](https://pigsty.io/docs/pgsql)
-[![Linux](https://img.shields.io/badge/Linux-x86_64-%23FCC624?style=flat&logo=linux&labelColor=FCC624&logoColor=black)](https://pigsty.io/docs/node)
+[![Postgres: 17.0](https://img.shields.io/badge/PostgreSQL-17.0-%233E668F?style=flat&logo=postgresql&labelColor=3E668F&logoColor=white)](https://pigsty.io/docs/pgsql)
+[![Linux](https://img.shields.io/badge/Linux-%23FCC624?style=flat&logo=linux&labelColor=FCC624&logoColor=black)](https://pigsty.io/docs/node)
 [![EL Support: 7/8/9](https://img.shields.io/badge/EL-7/8/9-red?style=flat&logo=redhat&logoColor=red)](https://ext.pigsty.io/#/rpm)
 [![Debian Support: 11/12](https://img.shields.io/badge/Debian-11/12-%23A81D33?style=flat&logo=debian&logoColor=%23A81D33)](https://pigsty.io/docs/reference/compatibility/)
 [![Ubuntu Support: 20/22/24](https://img.shields.io/badge/Ubuntu-20/22/24-%23E95420?style=flat&logo=ubuntu&logoColor=%23E95420)](https://ext.pigsty.io/#/deb)
