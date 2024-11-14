@@ -12,7 +12,12 @@ Pigsty allow you to self-host **supabase** with existing managed HA postgres clu
 
 ## Quick Start
 
-To run supabase with existing postgres instance, prepare the [database](#database) with [`supabase.yml`](https://github.com/Vonng/pigsty/blob/master/conf/sample/supabase.yml)
+To run supabase with existing postgres instance, prepare the [database](#database) with [`supa.yml`](https://github.com/Vonng/pigsty/blob/master/conf/supa.yml)
+
+```bash
+./configure -c supa -i 10.10.10.10
+./install
+```
 
 then launch the [stateless part](#stateless-part) with the [`docker-compose`](docker-compose.yml) file:
 
@@ -30,12 +35,11 @@ You can also configure the `infra_portal` to expose the WebUI to the public thro
 
 ## Database
 
-Supabase require certain PostgreSQL extensions, schemas, and roles to work, which can be pre-configured by Pigsty: [`supabase.yml`](https://github.com/Vonng/pigsty/blob/master/conf/dbms/supabase.yml).
+Supabase require certain PostgreSQL extensions, schemas, and roles to work, which can be pre-configured by Pigsty: [`supa.yml`](https://github.com/Vonng/pigsty/blob/main/conf/supa.yml).
 
 Provisioning a cluster with that configuration, then the database is now ready for supabase!
 
 ![](https://pigsty.io/img/pigsty/supa.jpg)
-
 
 
 -----------------------
@@ -44,7 +48,7 @@ Provisioning a cluster with that configuration, then the database is now ready f
 
 Supabase stateless part is managed by `docker-compose`, the [`docker-compose`](docker-compose.yml) file we use here is a simplified version of [github.com/supabase/docker/docker-compose.yml](https://github.com/supabase/supabase/blob/master/docker/docker-compose.yml).
 
-Everything you need to care about is in the [`.env`](.env) file, which contains important settings for supabase. It is already configured to use the `pg-meta`.`supa` database by default, You have to change that according to your actual deployment. 
+Everything you need to care about is in the [`.env`](.env) file, which contains important settings for supabase. It is already configured to use the `pg-meta`.`postgres` database by default, You have to change that according to your actual deployment. 
 
 ```bash
 POSTGRES_PASSWORD=DBUser.Supa       # supabase dbsu password (shared by multiple supabase biz users)
@@ -61,16 +65,10 @@ POSTGRES_DB=postgres                # change to supabase database name, `supa` b
 
 Usually you'll have to change these parameters accordingly. Here we'll use fixed username, password and IP:Port database connect string for simplicity.
 
-The postgres username is fixed as `supabase_admin` and the password is `DBUser.Supa`, change that according to your [`supabase.yml`](https://github.com/Vonng/pigsty/blob/master/conf/sample/supabase.yml#L43)
+The postgres username is fixed as `supabase_admin` and the password is `DBUser.Supa`, change that according to your [`supabase.yml`](https://github.com/Vonng/pigsty/blob/main/conf/supa.yml#L44)
 And the supabase studio WebUI credential is managed by `DASHBOARD_USERNAME` and `DASHBOARD_PASSWORD`, which is `supabase` and `pigsty` by default.
 
 The official tutorial: [Self-Hosting with Docker](https://supabase.com/docs/guides/self-hosting/docker) just have all the details you need.
-
-> ### Hint
->
-> You can use the [Primary Service](https://github.com/Vonng/pigsty/blob/master/docs/PGSQL-SVC.md#primary-service) of that cluster through DNS/VIP and other service ports, or whatever access method you like.
->
-> You can also configure `supabase.storage` service to use the MinIO service managed by pigsty, too
 
 Once configured, you can launch the stateless part with `docker-compose` or `make up` shortcut:
 
@@ -98,4 +96,4 @@ To expose the service, you can run the `infra.yml` playbook with the `nginx` tag
 ./infra.yml -t nginx
 ```
 
-Make suare `supa.pigsty` or your own domain is resolvable to the `infra_portal` server, and you can access the supabase studio dashboard via `https://supa.pigsty`.
+Make sure `supa.pigsty` or your own domain is resolvable to the `infra_portal` server, and you can access the supabase studio dashboard via `https//supa.pigsty`.
