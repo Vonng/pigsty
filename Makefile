@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-11-12
+# Mtime     :   2024-11-15
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -465,6 +465,7 @@ remote-release: release copy-src use-src
 ross: release-oss
 release-oss:
 	./cache.yml -i conf/build/oss.yml
+rpro: release-pro
 release-pro:
 	./cache.yml -i conf/build/pro.yml
 pb: publish
@@ -691,7 +692,7 @@ vtrio24:
         copy copy-src copy-pkg copy-el7 copy-el8 copy-el9 copy-d11 copy-d12 copy-u20 copy-u22 copy-u24 \
         copy-app copy-all use-src use-pkg use-all cmdb \
         csa copy-src-all csr copy-src-rpm csd copy-src-deb df deb-fix push pull git-sync git-restore \
-        r release rr remote-release pb publish \
+        r release rr remote-release ross release-oss rpro release-pro pb publish \
         oss pro boot-oss boot-pro rpm deb vb vr vd vm vf vp all old va vo \
         meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vfull11 vmeta12 vmeta20 vmeta22 vmeta24 \
         full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 vfull24 \
