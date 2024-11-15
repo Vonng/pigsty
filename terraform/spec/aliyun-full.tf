@@ -1,9 +1,9 @@
 #==============================================================#
-# File      :   terraform.yml
-# Desc      :   1-node aliyun template for x86_64/aarch64
+# File      :   aliyun-full.yml
+# Desc      :   4-node full sandbox env for x86_64/aarch64
 # Ctime     :   2020-05-12
 # Mtime     :   2024-11-15
-# Path      :   terraform/terraform.yml
+# Path      :   terraform/spec/aliyun-full.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
@@ -128,24 +128,24 @@ resource "alicloud_instance" "pg-meta" {
   system_disk_size              = 40
 }
 
-#resource "alicloud_instance" "pg-test-groups" {
-#  for_each                      = toset(["1", "2", "3"])
-#  instance_name                 = "pg-test-${each.key}"
-#  host_name                     = "pg-test-${each.key}"
-#  private_ip                    = "10.10.10.1${each.key}"
-#  instance_type                 = local.selected_instype
-#  image_id                      = "${data.alicloud_images.img.images.0.id}"
-#  vswitch_id                    = "${alicloud_vswitch.vsw.id}"
-#  security_groups               = ["${alicloud_security_group.default.id}"]
-#  password                      = "PigstyDemo4"
-#  instance_charge_type          = "PostPaid"
-#  internet_charge_type          = "PayByTraffic"
-#  spot_strategy                 = "SpotAsPriceGo"
-#  system_disk_category          = "cloud_essd"
-#  system_disk_performance_level = "PL1"
-#  system_disk_size              = 40
-#  #internet_max_bandwidth_out    = 100 # no public ip
-#}
+resource "alicloud_instance" "pg-test-groups" {
+  for_each                      = toset(["1", "2", "3"])
+  instance_name                 = "pg-test-${each.key}"
+  host_name                     = "pg-test-${each.key}"
+  private_ip                    = "10.10.10.1${each.key}"
+  instance_type                 = local.selected_instype
+  image_id                      = "${data.alicloud_images.img.images.0.id}"
+  vswitch_id                    = "${alicloud_vswitch.vsw.id}"
+  security_groups               = ["${alicloud_security_group.default.id}"]
+  password                      = "PigstyDemo4"
+  instance_charge_type          = "PostPaid"
+  internet_charge_type          = "PayByTraffic"
+  spot_strategy                 = "SpotAsPriceGo"
+  system_disk_category          = "cloud_essd"
+  system_disk_performance_level = "PL1"
+  system_disk_size              = 40
+  #internet_max_bandwidth_out    = 100 # no public ip
+}
 
 # print the public IP address after provisioning
 output "public_ip" {

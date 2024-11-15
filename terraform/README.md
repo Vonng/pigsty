@@ -2,14 +2,17 @@
 
 [Terraform](https://www.terraform.io/) is a popular IaC tool. You can create VMs on public cloud with one command.
 
-AWS & Aliyun templates are used as example providers. You can modify `terraform.tf` file to use other cloud providers.
+Aliyun & AWS templates are used as example providers. You can modify `terraform.tf` file to use other cloud providers.
 
 
 
 ## Specifications
 
-* [spec/aws.tf](spec/aws.tf) : AWS 4 node CentOS7 environment
-* [spec/aliyun.tf](spec/aliyun.tf) : Aliyun 4 node CentOS7 environment
+* [spec/aliyun-meta.tf](spec/aliyun-meta.tf) : Aliyun 1 meta node template for all distro & amd/arm (default)  
+* [spec/aliyun-full.tf](spec/aliyun-full.tf) : Aliyun 4-node sandbox template for all distro & amd/arm.
+* [spec/aliyun-oss.tf](spec/aliyun-oss.tf) : Aliyun 5-node building template for all distro & amd/arm.
+* [spec/aws-cn.tf](spec/aws-cn.tf) : AWS 4 node CentOS7 environment
+* [spec/tencentcloud.tf](spec/tencentcloud.tf) : QCloud 4 node CentOS7 environment
 
 
 
@@ -27,6 +30,16 @@ Print public IP Address:
 terraform output | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
 ```
 
+
+## Aliyun Credential
+
+You can add your aliyun credentials to the environment file, such as `~/.bash_profile`
+
+```bash
+export ALICLOUD_ACCESS_KEY="<your_access_key>"
+export ALICLOUD_SECRET_KEY="<your_secret_key>"
+export ALICLOUD_REGION="cn-beijing"
+```
 
 
 ## AWS Credential
@@ -49,7 +62,3 @@ aws_secret_access_key =  <AWS_ACCESS_SECRET>
 # ~/.aws/pigsty-key.pub
 ```
 
-
-## Caveat
-
-Aliyun CentOS 7 have a problem with `nscd` package, remove them to avoid glibc conflict.
