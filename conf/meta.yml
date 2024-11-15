@@ -3,7 +3,7 @@
 # File      :   meta.yml
 # Desc      :   Pigsty default config for single node
 # Ctime     :   2020-05-22
-# Mtime     :   2024-11-15
+# Mtime     :   2024-11-12
 # Docs      :   https://pigsty.io/docs/conf/meta
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -106,27 +106,6 @@ all:
         #pg_vip_interface: eth1             # L2 VIP Network interface, overwrite on host vars if member have different network interface names
         node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ] # make a full backup every 1am
 
-    #----------------------------------#
-    # example cluster (3-node pg-test)
-    #----------------------------------#
-    #pg-test:                          # define the new 3-node cluster pg-test
-    #  hosts:
-    #    10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
-    #    10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
-    #    10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
-    #  vars:
-    #    pg_cluster: pg-test            # define pgsql cluster name
-    #    pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
-    #    pg_databases: [{ name: test }] # create a database and user named 'test'
-    #    node_tune: tiny
-    #    pg_conf: tiny.yml
-    #    pg_vip_enabled: true
-    #    pg_vip_address: 10.10.10.3/24
-    #    pg_vip_interface: eth1
-    #    node_crontab:  # make a full backup on monday 1am, and an incremental backup during weekdays
-    #      - '00 01 * * 1 postgres /pg/bin/pg-backup full'
-    #      - '00 01 * * 2,3,4,5,6,7 postgres /pg/bin/pg-backup'
-
 
   #==============================================================#
   # Global Parameters
@@ -202,6 +181,14 @@ all:
     repo_remove: true                 # remove existing repo on admin node during repo bootstrap
     node_repo_modules: local          # install the local module in repo_upstream for all nodes
     node_repo_remove: true            # remove existing node repo for node managed by pigsty
-    #repo_packages: []                 # default packages to be downloaded
-    #repo_extra_packages: []          # default postgres packages to be downloaded
+    repo_packages: [                  # default packages to be downloaded (if `repo_packages` is not explicitly set)
+      node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-common #,docker
+    ]
+    repo_extra_packages: [            # default postgres packages to be downloaded
+      pgsql-main
+      #,pgsql-core,pgsql-time,pgsql-gis,pgsql-rag,pgsql-fts,pgsql-olap,pgsql-feat,pgsql-lang,pgsql-type,pgsql-func,pgsql-admin,pgsql-stat,pgsql-sec,pgsql-fdw,pgsql-sim,pgsql-etl,
+      #,pg17-core,pg17-time,pg17-gis,pg17-rag,pg17-fts,pg17-olap,pg17-feat,pg17-lang,pg17-type,pg17-func,pg17-admin,pg17-stat,pg17-sec,pg17-fdw,pg17-sim,pg17-etl,
+      #,pg16-core,pg16-time,pg16-gis,pg16-rag,pg16-fts,pg16-olap,pg16-feat,pg16-lang,pg16-type,pg16-func,pg16-admin,pg16-stat,pg16-sec,pg16-fdw,pg16-sim,pg16-etl,
+    ]
+
 ...
