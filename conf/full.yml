@@ -3,7 +3,7 @@
 # File      :   full.yml
 # Desc      :   Pigsty Local Sandbox 4-node Demo Config
 # Ctime     :   2020-05-22
-# Mtime     :   2024-11-11
+# Mtime     :   2024-11-15
 # Docs      :   https://pigsty.io/docs/conf/full/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -96,11 +96,20 @@ all:
       alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
+
+    #----------------------------------#
+    # Repo, Node, Packages
+    #----------------------------------#
+    repo_modules: infra,node,pgsql,docker
+    repo_remove: true                 # remove existing repo on admin node during repo bootstrap
+    node_repo_modules: local          # install the local module in repo_upstream for all nodes
+    node_repo_remove: true            # remove existing node repo for node managed by pigsty
     repo_packages: [                  # default packages to be downloaded (if `repo_packages` is not explicitly set)
       node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker
     ]
     repo_extra_packages: [            # default postgres extensions to be downloaded (all pg17 extensions)
-      pg17-core,pg17-time,pg17-gis,pg17-rag,pg17-fts,pg17-olap,pg17-feat,pg17-lang,pg17-type,pg17-func,pg17-admin,pg17-stat,pg17-sec,pg17-fdw,pg17-sim,pg17-etl
+      pgsql-main,
+      pgsql-core,pgsql-time,pgsql-gis,pgsql-rag,pgsql-fts,pgsql-olap,pgsql-feat,pgsql-lang,pgsql-type,pgsql-func,pgsql-admin,pgsql-stat,pgsql-sec,pgsql-fdw,pgsql-sim,pgsql-etl
     ]
 
 ...
