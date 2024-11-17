@@ -6,10 +6,12 @@ After=network-online.target
 AssertFileIsExecutable=/usr/local/bin/minio
 
 [Service]
-WorkingDirectory=/tmp
+WorkingDirectory=/usr/local
 
 User={{ minio_user }}
 Group=minio
+#ProtectProc=invisible
+
 EnvironmentFile=-/etc/default/minio
 #ExecStartPre=/bin/bash -c "if [ -z \"${MINIO_VOLUMES}\" ]; then echo \"Variable MINIO_VOLUMES not set in /etc/default/minio\"; exit 1; fi"
 ExecStart=/usr/local/bin/minio server $MINIO_OPTS $MINIO_VOLUMES
