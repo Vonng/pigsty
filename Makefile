@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-11-15
+# Mtime     :   2024-11-17
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -24,6 +24,7 @@ U22_PKG=pigsty-pkg-$(VERSION).u22.x86_64.tgz
 U24_PKG=pigsty-pkg-$(VERSION).u24.x86_64.tgz
 USE_PRO=""
 #USE_PRO="pro/"
+ADMIN_IP=10.10.10.10
 
 ###############################################################
 #                      1. Quick Start                         #
@@ -263,15 +264,15 @@ resume:
 #=============================================================#
 # meta cmdb bench
 ri:
-	pgbench -is10 postgres://dbuser_meta:DBUser.Meta@meta:5433/meta
+	pgbench -is10 postgres://dbuser_meta:DBUser.Meta@$(ADMIN_IP):5433/meta
 rc:
-	psql -AXtw postgres://dbuser_meta:DBUser.Meta@meta:5433/meta -c 'DROP TABLE IF EXISTS pgbench_accounts, pgbench_branches, pgbench_history, pgbench_tellers;'
+	psql -AXtw postgres://dbuser_meta:DBUser.Meta@$(ADMIN_IP):5433/meta -c 'DROP TABLE IF EXISTS pgbench_accounts, pgbench_branches, pgbench_history, pgbench_tellers;'
 rw:
-	while true; do pgbench -nv -P1 -c4 --rate=64 -T10 postgres://dbuser_meta:DBUser.Meta@meta:5433/meta; done
+	while true; do pgbench -nv -P1 -c4 --rate=64 -T10 postgres://dbuser_meta:DBUser.Meta@$(ADMIN_IP):5433/meta; done
 ro:
-	while true; do pgbench -nv -P1 -c8 --rate=256 -S -T10 postgres://dbuser_meta:DBUser.Meta@meta:5434/meta; done
+	while true; do pgbench -nv -P1 -c8 --rate=256 -S -T10 postgres://dbuser_meta:DBUser.Meta@$(ADMIN_IP):5434/meta; done
 rh:
-	ssh meta 'sudo -iu postgres /pg/bin/pg-heartbeat'
+	ssh $(ADMIN_IP) 'sudo -iu postgres /pg/bin/pg-heartbeat'
 # pg-test cluster benchmark
 test-ri:
 	pgbench -is10  postgres://test:test@pg-test:5436/test
@@ -337,33 +338,33 @@ cc: release copy-src copy-pkg use-src use-pkg
 
 # copy pigsty source code
 copy-src:
-	scp "dist/${VERSION}/${SRC_PKG}" meta:~/pigsty.tgz
+	scp "dist/${VERSION}/${SRC_PKG}" $(ADMIN_IP):~/pigsty.tgz
 copy-el7:
-	scp dist/${VERSION}/$(USE_PRO)${EL7_PKG} meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/$(USE_PRO)${EL7_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-el8:
-	scp dist/${VERSION}/$(USE_PRO)${EL8_PKG} meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/$(USE_PRO)${EL8_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-el9:
-	scp dist/${VERSION}/$(USE_PRO)${EL9_PKG} meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/$(USE_PRO)${EL9_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-d11:
-	scp dist/${VERSION}/$(USE_PRO)${D11_PKG} meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/$(USE_PRO)${D11_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-d12:
-	scp dist/${VERSION}/$(USE_PRO)${D12_PKG} meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/$(USE_PRO)${D12_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-u20:
-	scp dist/${VERSION}/$(USE_PRO)${U20_PKG} meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/$(USE_PRO)${U20_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-u22:
-	scp dist/${VERSION}/$(USE_PRO)${U22_PKG} meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/$(USE_PRO)${U22_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-u24:
-	scp dist/${VERSION}/$(USE_PRO)${U24_PKG} meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/$(USE_PRO)${U24_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-app:
-	scp dist/${VERSION}/${APP_PKG} meta:~/app.tgz
-	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
+	scp dist/${VERSION}/${APP_PKG} $(ADMIN_IP):~/app.tgz
+	ssh -t $(ADMIN_IP) 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
 copy-all: copy-src copy-pkg
 
 # extract packages
 use-src:
-	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	ssh -t $(ADMIN_IP) 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 use-pkg:
-	ssh meta "sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www"
+	ssh $(ADMIN_IP) "sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www"
 use-all: use-src use-pkg
 
 # load config into cmdb
@@ -458,8 +459,8 @@ release:
 
 rr: remote-release
 remote-release: release copy-src use-src
-	ssh meta "cd pigsty; make release"
-	scp meta:~/pigsty/dist/${VERSION}/${SRC_PKG} dist/${VERSION}/${SRC_PKG}
+	ssh $(ADMIN_IP) "cd pigsty; make release"
+	scp $(ADMIN_IP):~/pigsty/dist/${VERSION}/${SRC_PKG} dist/${VERSION}/${SRC_PKG}
 
 # release offline packages with build environment
 ross: release-oss
