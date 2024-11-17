@@ -285,6 +285,38 @@ vtrio22:
 vtrio24:
 	./config trio ubuntu24
 
+#------------------------------#
+# minio, 4-node, seldom used
+#------------------------------#
+# 4-node environment
+
+minio:   del vminio   up ssh
+minio7:  del vminio7  up ssh
+minio8:  del vminio8  up ssh
+minio9:  del vminio9  up ssh
+minio11: del vminio11 up ssh
+minio12: del vminio12 up ssh
+minio20: del vminio20 up ssh
+minio22: del vminio22 up ssh
+minio24: del vminio24 up ssh
+
+vminio:
+	./config minio
+vminio7:
+	./config minio el7
+vminio8:
+	./config minio el8
+vminio9:
+	./config minio el9
+vminio12:
+	./config minio debian12
+vminio20:
+	./config minio ubuntu20
+vminio22:
+	./config minio ubuntu22
+vminio24:
+	./config minio ubuntu24
+
 ###############################################################
 #                        Inventory                            #
 ###############################################################
@@ -294,5 +326,7 @@ vtrio24:
 	dual dual7 dual8 dual9 dual11 dual12 dual20 dual22 vdual vdual7 vdual8 vdual9 vdual11 vdual12 vdual20 vdual22 vdual24 \
 	trio trio7 trio8 trio9 trio11 trio12 trio20 trio22 vtrio vtrio7 vtrio8 vtrio9 vtrio11 vtrio12 vtrio20 vtrio22 vtrio24 \
 	full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 vfull24 \
-	prod prod7 prod8 prod9 prod11 prod12 prod20 prod22 vprod vprod7 vprod8 vprod9 vprod11 vprod12 vprod20 vprod22 vprod24
+	prod prod7 prod8 prod9 prod11 prod12 prod20 prod22 vprod vprod7 vprod8 vprod9 vprod11 vprod12 vprod20 vprod22 vprod24 \
+	minio minio7 minio8 minio9 minio11 minio12 minio20 minio22 mini24 vminio vminio7 vminio8 vminio9 vminio12 vminio20 vminio22 vminio24
+
 ###############################################################

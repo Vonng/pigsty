@@ -1,8 +1,79 @@
+# full: pigsty full-featured 4-node sandbox for HA-testing & tutorial & practices
+
+Specs = [
+
+  { "name" => "minio-0" , "ip" => "10.10.10.10" ,  "cpu" => "10" ,  "mem" => "20480" ,  "image" => "generic/rocky9"  },
+  { "name" => "minio-1" , "ip" => "10.10.10.11" ,  "cpu" => "10" ,  "mem" => "20480" ,  "image" => "generic/rocky9"  },
+  { "name" => "minio-2" , "ip" => "10.10.10.12" ,  "cpu" => "10" ,  "mem" => "20480" ,  "image" => "generic/rocky9"  },
+  { "name" => "minio-3" , "ip" => "10.10.10.13" ,  "cpu" => "10" ,  "mem" => "20480" ,  "image" => "generic/rocky9"  },
+
+]
+
+
+
+# This is the Vagrantfile template for libvirt (KVM) which require vagrant-libvirt plugin to work
+# check https://vagrant-libvirt.github.io/vagrant-libvirt/ for details
+
+# read ssh key from current user's ~/.ssh
+ssh_prv_key = File.read(File.join(ENV['HOME'], '.ssh', 'id_rsa'))
+ssh_pub_key = File.readlines(File.join(ENV['HOME'], '.ssh', 'id_rsa.pub')).first.strip
+
 Vagrant.configure("2") do |config|
-  config.vm.box = "bento/rockylinux-9"
-      config.vm.synced_folder ".", "/vagrant", disabled: true
-  config.vm.provider "vmware_desktop" do |vmware|
-    vmware.vmx["memsize"] = "2048"
-    vmware.vmx["numvcpus"] = "2"
-  end
+    config.ssh.insert_key = false
+    config.vm.box_check_update = false
+    config.vm.synced_folder ".", "/vagrant", disabled: true
+    config.vm.provision "shell" do |s|
+      s.inline = <<-SHELL
+        if grep -sq "#{ssh_pub_key}" /home/vagrant/.ssh/authorized_keys; then
+          echo "SSH keys already provisioned." ; exit 0;
+        fi
+        echo "SSH key provisioning."
+        sshd=/home/vagrant/.ssh
+        mkdir -p ${sshd}; touch ${sshd}/{authorized_keys,config}
+        echo #{ssh_pub_key}   >> ${sshd}/authorized_keys
+        echo #{ssh_pub_key}   >  ${sshd}/id_rsa.pub      ; chmod 644 ${sshd}/id_rsa.pub
+        echo "#{ssh_prv_key}" >  ${sshd}/id_rsa          ; chmod 600 ${sshd}/id_rsa
+        if ! grep -q "StrictHostKeyChecking" ${sshd}/config; then
+            echo 'StrictHostKeyChecking=no' >> ${sshd}/config
+        fi
+        chown -R vagrant:vagrant /home/vagrant
+        exit 0
+      SHELL
+    end
+
+    Specs.each_with_index do |spec, index|
+        config.vm.define spec["name"] do |node|
+            node.vm.box = spec["image"]
+            node.vm.network "private_network", ip: spec["ip"]
+            node.vm.hostname = spec["name"]
+            node.vm.provider "libvirt" do |v|
+                v.cpus   =  spec["cpu"]
+                v.memory =  spec["mem"]
+                if spec["name"].start_with?("minio")
+                    v.storage :file, :size => '32G', :device => 'vdb'
+                    v.storage :file, :size => '32G', :device => 'vdc'
+                    v.storage :file, :size => '32G', :device => 'vdd'
+                    v.storage :file, :size => '32G', :device => 'vde'
+                end
+            end
+
+            if spec["name"].start_with?("minio")
+                node.vm.provision "shell" do |s|
+                  s.inline = <<-SHELL
+                    mkdir -p /data1 /data2 /data3 /data4;
+                    mkfs.xfs /dev/vdb; mkfs.xfs /dev/vdc; mkfs.xfs /dev/vdd; mkfs.xfs /dev/vde;
+                    mount -o noatime,nodiratime -t xfs /dev/vdb /data1;
+                    mount -o noatime,nodiratime -t xfs /dev/vdc /data2;
+                    mount -o noatime,nodiratime -t xfs /dev/vdd /data3;
+                    mount -o noatime,nodiratime -t xfs /dev/vde /data4;
+                    echo "/dev/vdb /data1 xfs defaults,noatime,nodiratime 0 0" >> /etc/fstab;
+                    echo "/dev/vdc /data2 xfs defaults,noatime,nodiratime 0 0" >> /etc/fstab;
+                    echo "/dev/vdd /data3 xfs defaults,noatime,nodiratime 0 0" >> /etc/fstab;
+                    echo "/dev/vde /data4 xfs defaults,noatime,nodiratime 0 0" >> /etc/fstab;
+                  SHELL
+                end
+            end
+
+        end
+    end
 end
