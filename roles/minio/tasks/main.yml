@@ -77,9 +77,10 @@
     - name: stop minio service
       systemd: name=minio state=stopped enabled=no daemon_reload=yes
 
-    #- name: remove minio data dir
-    #  file: path={{ item }} state=absent
-    #  with_items: "{{ minio_data_dirs.split(',') }}"
+    - name: purge minio data dir
+      tags: minio_purge
+      shell: find {{ item }} -mindepth 1 -delete
+      with_items: "{{ minio_data_dirs.split(',') }}"
 
 
 #--------------------------------------------------------------#
@@ -99,7 +100,7 @@
       with_items: "{{ minio_data_dirs.split(',') }}"
 
     - name: create minio conf dir
-      file: path=/etc/minio state=directory owner={{ minio_user }} group=minio mode=0755
+      file: path=/etc/minio state=directory owner={{ minio_user }} group=minio mode=0700
 
 
 #--------------------------------------------------------------#
