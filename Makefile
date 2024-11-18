@@ -530,7 +530,7 @@ boot-pro:
 #------------------------------#
 # simple 1-node devbox for quick setup, demonstration, and development
 
-meta: meta8
+meta: meta9
 meta7:  cmeta del vmeta7  up ssh copy-el7 use-pkg
 meta8:  cmeta del vmeta8  up ssh copy-el8 use-pkg
 meta9:  cmeta del vmeta9  up ssh copy-el9 use-pkg
@@ -563,7 +563,7 @@ vmeta24:
 #------------------------------#
 # full-featured 4-node sandbox for HA-testing & tutorial & practices
 
-full:   full8
+full:   full9
 full7:  cfull del vfull7  up ssh copy-el7 use-pkg
 full8:  cfull del vfull8  up ssh copy-el8 use-pkg
 full9:  cfull del vfull9  up ssh copy-el9 use-pkg
@@ -613,7 +613,7 @@ vprod22:
 vprod24:
 	vagrant/config prod ubuntu24
 
-prod: prod8
+prod: prod9
 prod8: cprod del vprod8 new ssh
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el8.x86_64.tgz meta-1:/tmp/pkg.tgz ; ssh meta-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el8.x86_64.tgz meta-2:/tmp/pkg.tgz ; ssh meta-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'

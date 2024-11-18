@@ -1,14 +1,14 @@
 ---
 #==============================================================#
 # File      :   minio.yml
-# Desc      :   pigsty config for 4 node x 2 disk minio clusters
+# Desc      :   pigsty config for 4 node x 4 disk minio clusters
 # Ctime     :   2023-01-07
-# Mtime     :   2024-11-17
+# Mtime     :   2024-11-18
 # Docs      :   https://pigsty.io/docs/conf/minio/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-# MINIO_VOLUMES="https://minio-{0...3}.pigsty:9000/data{1...2}/minio"
+# MINIO_VOLUMES="https://minio-{1...4}.pigsty:9000/data{1...2}/minio"
 
 
 #==============================================================#
@@ -40,16 +40,16 @@ all:
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
-    # minio cluster with 4 nodes and 2 drivers per node
+    # minio cluster with 4 nodes and 4 drivers per node
     minio:
       hosts:
-        10.10.10.10: { minio_seq: 0 , nodename: minio-1 }
-        10.10.10.11: { minio_seq: 1 , nodename: minio-2 }
-        10.10.10.12: { minio_seq: 2 , nodename: minio-3 }
-        10.10.10.13: { minio_seq: 3 , nodename: minio-3 }
+        10.10.10.10: { minio_seq: 1 , nodename: minio-1 }
+        10.10.10.11: { minio_seq: 2 , nodename: minio-2 }
+        10.10.10.12: { minio_seq: 3 , nodename: minio-3 }
+        10.10.10.13: { minio_seq: 4 , nodename: minio-3 }
       vars:
         minio_cluster: minio
-        minio_data: '/data{1...2}'         # use two disk per node
+        minio_data: '/data{1...4}'         # use 4 disk per node
         minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio node name pattern
         minio_buckets: [ { name: pgsql }, { name: infra },  { name: redis } ]
         minio_users:
@@ -67,6 +67,7 @@ all:
         haproxy_services:
           - name: minio                    # [REQUIRED] service name, unique
             port: 9002                     # [REQUIRED] service port, unique
+            balance: leastconn             # [OPTIONAL] load balancer algorithm
             options:                       # [OPTIONAL] minio health check
               - option httpchk
               - option http-keep-alive
@@ -89,14 +90,30 @@ all:
       alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
-      # exposing minio admin console with nginx portal, optional
-      minio        : { domain: sss.pigsty   ,endpoint: 10.10.10.10:9001 ,scheme: https ,websocket: true }
-      minio1       : { domain: sss1.pigsty  ,endpoint: 10.10.10.10:9001 ,scheme: https ,websocket: true }
-      minio2       : { domain: sss2.pigsty  ,endpoint: 10.10.10.11:9001 ,scheme: https ,websocket: true }
-      minio3       : { domain: sss3.pigsty  ,endpoint: 10.10.10.12:9001 ,scheme: https ,websocket: true }
-      minio4       : { domain: sss4.pigsty  ,endpoint: 10.10.10.13:9001 ,scheme: https ,websocket: true }
+
+      # domain names to access minio web console via nginx web portal (optional)
+      minio        : { domain: s3.pigsty   ,endpoint: "10.10.10.10:9001" ,scheme: https ,websocket: true }
+      minio0       : { domain: s30.pigsty  ,endpoint: "10.10.10.10:9001" ,scheme: https ,websocket: true }
+      minio1       : { domain: s31.pigsty  ,endpoint: "10.10.10.11:9001" ,scheme: https ,websocket: true }
+      minio2       : { domain: s32.pigsty  ,endpoint: "10.10.10.12:9001" ,scheme: https ,websocket: true }
+      minio3       : { domain: s33.pigsty  ,endpoint: "10.10.10.13:9001" ,scheme: https ,websocket: true }
+
+    # domain name to access minio from all nodes (required)
+    node_etc_hosts:
+      - 10.10.10.10 sss.pigsty
 
 
 
-
+    #==============================================================#
+    # MinIO: 1 Node 1 Driver Example
+    #==============================================================#
+    # minio:
+    #   hosts: { 10.10.10.10: { minio_seq: 1 } }
+    #   vars:
+    #     minio_cluster: minio
+    #     minio_data: '/data{1...4}'
+    #     minio_extra_vars: |
+    #       MINIO_PROMETHEUS_URL=http://10.10.10.10:9090
+    #       MINIO_PROMETHEUS_JOB_ID=minio
+    #     #MINIO_SERVER_URL="https://sss.pigsty:"
 ...

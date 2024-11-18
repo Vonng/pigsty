@@ -1,18 +1,14 @@
-# full: pigsty full-featured 4-node sandbox for HA-testing & tutorial & practices
+# pigsty simple 1-node devbox for quick setup, demonstration, and development
 
 Specs = [
 
-  { "name" => "minio-0" , "ip" => "10.10.10.10" ,  "cpu" => "10" ,  "mem" => "20480" ,  "image" => "generic/rocky9"  },
-  { "name" => "minio-1" , "ip" => "10.10.10.11" ,  "cpu" => "10" ,  "mem" => "20480" ,  "image" => "generic/rocky9"  },
-  { "name" => "minio-2" , "ip" => "10.10.10.12" ,  "cpu" => "10" ,  "mem" => "20480" ,  "image" => "generic/rocky9"  },
-  { "name" => "minio-3" , "ip" => "10.10.10.13" ,  "cpu" => "10" ,  "mem" => "20480" ,  "image" => "generic/rocky9"  },
+  { "name" => "meta"   , "ip" => "10.10.10.10" ,  "cpu" => "2" ,  "mem" => "4096" ,  "image" => "generic/rocky9"  }
 
 ]
 
 
 
-# This is the Vagrantfile template for libvirt (KVM) which require vagrant-libvirt plugin to work
-# check https://vagrant-libvirt.github.io/vagrant-libvirt/ for details
+# This is the Vagrantfile template for the default virtualbox provider
 
 # read ssh key from current user's ~/.ssh
 ssh_prv_key = File.read(File.join(ENV['HOME'], '.ssh', 'id_rsa'))
@@ -46,30 +42,30 @@ Vagrant.configure("2") do |config|
             node.vm.box = spec["image"]
             node.vm.network "private_network", ip: spec["ip"]
             node.vm.hostname = spec["name"]
-            node.vm.provider "libvirt" do |v|
-                v.cpus   =  spec["cpu"]
-                v.memory =  spec["mem"]
+
+            node.vm.provider "virtualbox" do |v|
+                v.linked_clone = true
+                v.customize ["modifyvm", :id, "--cpus", spec["cpu"], "--memory", spec["mem"], "--nictype1", "virtio", "--nictype2", "virtio", "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"]
+                v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000]
+            end
+
+            # provision an additional disk for minio nodes
+            if spec["name"].start_with?("minio")
+                node.vm.disk :disk, name: "main", size: "128GB", primary: true
                 if spec["name"].start_with?("minio")
-                    v.storage :file, :size => '32G', :device => 'vdb'
-                    v.storage :file, :size => '32G', :device => 'vdc'
-                    v.storage :file, :size => '32G', :device => 'vdd'
-                    v.storage :file, :size => '32G', :device => 'vde'
+                    v.storage :file, :size => '16G', :device => 'vdb'
+                    v.storage :file, :size => '16G', :device => 'vdc'
+                    v.storage :file, :size => '16G', :device => 'vdd'
+                    v.storage :file, :size => '16G', :device => 'vde'
                 end
             end
 
             if spec["name"].start_with?("minio")
                 node.vm.provision "shell" do |s|
                   s.inline = <<-SHELL
-                    mkdir -p /data1 /data2 /data3 /data4;
-                    mkfs.xfs /dev/vdb; mkfs.xfs /dev/vdc; mkfs.xfs /dev/vdd; mkfs.xfs /dev/vde;
-                    mount -o noatime,nodiratime -t xfs /dev/vdb /data1;
-                    mount -o noatime,nodiratime -t xfs /dev/vdc /data2;
-                    mount -o noatime,nodiratime -t xfs /dev/vdd /data3;
-                    mount -o noatime,nodiratime -t xfs /dev/vde /data4;
-                    echo "/dev/vdb /data1 xfs defaults,noatime,nodiratime 0 0" >> /etc/fstab;
-                    echo "/dev/vdc /data2 xfs defaults,noatime,nodiratime 0 0" >> /etc/fstab;
-                    echo "/dev/vdd /data3 xfs defaults,noatime,nodiratime 0 0" >> /etc/fstab;
-                    echo "/dev/vde /data4 xfs defaults,noatime,nodiratime 0 0" >> /etc/fstab;
+                    mkdir /data; mkfs.xfs /dev/sdb;
+                    mount -o noatime -o nodiratime -t xfs /dev/sdb /data;
+                    echo "/dev/sdb /data xfs defaults,noatime,nodiratime 0 0" >> /etc/fstab;
                   SHELL
                 end
             end
