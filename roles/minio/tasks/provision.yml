@@ -21,7 +21,7 @@
   tags: minio_alias
   become: no
   delegate_to: '{{ item }}'
-  shell: mcli alias set {{ minio_alias }} https://{{ minio_domain }}:{{ minio_port }} {{ minio_access_key }} {{ minio_secret_key }}
+  shell: mcli alias set {{ minio_alias }} {% if minio_endpoint is defined and minio_endpoint != '' %}{{ minio_endpoint }}{% else %}https://{{ minio_domain }}:{{ minio_port }}{% endif %} {{ minio_access_key }} {{ minio_secret_key }}
   args: { executable: /bin/bash }
   with_items: '{{ groups["infra"] }}'
   #no_log: true
