@@ -1,5 +1,20 @@
 ---
 #--------------------------------------------------------------#
+# Check MinIO Health Status                        [minio_check]
+#--------------------------------------------------------------#
+- name: check minio health status
+  tags: minio_check
+  uri:
+    url: "https://{{ minio_nodename }}:{{ minio_port }}/minio/health/live"
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 3
+  delay: 5
+
+
+#--------------------------------------------------------------#
 # Create Minio Alias                               [minio_alias]
 #--------------------------------------------------------------#
 - name: write minio alias to infra nodes
@@ -9,7 +24,7 @@
   shell: mcli alias set {{ minio_alias }} https://{{ minio_domain }}:{{ minio_port }} {{ minio_access_key }} {{ minio_secret_key }}
   args: { executable: /bin/bash }
   with_items: '{{ groups["infra"] }}'
-  no_log: true
+  #no_log: true
 
 
 #--------------------------------------------------------------#
@@ -40,5 +55,5 @@
     set -o history
   args: { executable: /bin/bash }
   with_items: '{{ minio_users }}'
-  no_log: true
+  #no_log: true
 ...
