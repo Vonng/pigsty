@@ -1,0 +1,59 @@
+---
+#--------------------------------------------------------------#
+# Create Minio OS user & Group                   [minio_os_user]
+#--------------------------------------------------------------#
+- name: create minio user group
+  tags: minio_os_user
+  block:
+    - name: create minio os group
+      group: name=minio state=present
+    - name: create minio os user
+      user: name={{ minio_user }} group=minio
+
+
+#--------------------------------------------------------------#
+# Install Minio Package                              [minio_pkg]
+#--------------------------------------------------------------#
+- name: install minio package
+  tags: minio_pkg
+  package: name={{ item }} state=present
+  with_items: [ minio, mcli ]
+
+
+#--------------------------------------------------------------#
+# Purge Minio Directories                          [minio_clean]
+#--------------------------------------------------------------#
+- name: clean minio data dir
+  tags: minio_clean
+  when: minio_clean|bool
+  block:
+
+    - name: stop minio service
+      systemd: name=minio state=stopped enabled=no daemon_reload=yes
+
+    - name: purge minio data dir
+      tags: minio_purge
+      shell: find {{ item }} -mindepth 1 -delete
+      with_items: "{{ minio_data_dirs.split(',') }}"
+
+
+#--------------------------------------------------------------#
+# Create Minio Directories                           [minio_dir]
+#--------------------------------------------------------------#
+- name: create minio directories
+  tags: minio_dir
+  block:
+
+    - name: create minio data directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ minio_user }}"
+        group: minio
+        mode: 0750
+      with_items: "{{ minio_data_dirs.split(',') }}"
+
+    - name: create minio conf dir
+      file: path=/home/{{ minio_user }}/.minio state=directory owner={{ minio_user }} group=minio mode=0750
+
+...

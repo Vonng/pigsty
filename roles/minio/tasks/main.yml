@@ -32,11 +32,10 @@
         minio_seq_range={% raw %}{{% endraw %}{{ minio_meta | json_query('min([].minio_seq)') | int  }}...{{ minio_meta | json_query('max([].minio_seq)') | int  }}{% raw %}}{% endraw %}
         minio_member="{% for host in minio_meta %}{% if not loop.first %},{% endif %}{{ host.inventory_hostname }} {{ minio_node|replace('${minio_cluster}', host.minio_cluster)|replace('${minio_seq}', host.minio_seq|string) }}{% endfor %}"
 
-    - name: calculate minio volumes
+    - name: calculate or use minio volumes
       connection: local
       set_fact:
-        minio_node_pattern: "{{ minio_node|replace('${minio_cluster}', minio_cluster)|replace('${minio_seq}',minio_seq_range) }}"
-        minio_volumes: "{% if minio_cluster_size|int > 1 %}https://{{ minio_node|replace('${minio_cluster}', minio_cluster)|replace('${minio_seq}',minio_seq_range) }}:{{ minio_port|default(9000) }}{% endif %}{{ minio_data }}"
+        minio_volumes: "{% if minio_volumes is defined and minio_volumes != ''%}{{ minio_volumes }}{% else %}{% if minio_cluster_size|int > 1 %}https://{{ minio_node|replace('${minio_cluster}', minio_cluster)|replace('${minio_seq}',minio_seq_range) }}:{{ minio_port|default(9000) }}{% endif %}{{ minio_data }}{% endif %}"
 
     - name: print minio identity
       debug:
@@ -44,61 +43,10 @@
 
 
 #--------------------------------------------------------------#
-# Create Minio OS user & Group                   [minio_os_user]
-#--------------------------------------------------------------#
-- name: create minio user group
-  tags: minio_os_user
-  block:
-    - name: create minio os group
-      group: name=minio state=present
-    - name: create minio os user
-      user: name={{ minio_user }} group=minio
-
-
-#--------------------------------------------------------------#
 # Install Minio                                  [minio_install]
 #--------------------------------------------------------------#
-- name: install minio
+- import_tasks: install.yml
   tags: minio_install
-  package: name={{ item }} state=present
-  with_items: [ minio, mcli ]
-
-
-#--------------------------------------------------------------#
-# Purge Minio Directories                          [minio_clean]
-#--------------------------------------------------------------#
-- name: clean minio data dir
-  tags: minio_clean
-  when: minio_clean|bool
-  block:
-
-    - name: stop minio service
-      systemd: name=minio state=stopped enabled=no daemon_reload=yes
-
-    - name: purge minio data dir
-      tags: minio_purge
-      shell: find {{ item }} -mindepth 1 -delete
-      with_items: "{{ minio_data_dirs.split(',') }}"
-
-
-#--------------------------------------------------------------#
-# Create Minio Directories                           [minio_dir]
-#--------------------------------------------------------------#
-- name: create minio directories
-  tags: minio_dir
-  block:
-
-    - name: create minio data directories
-      file:
-        path: "{{ item }}"
-        state: directory
-        owner: "{{ minio_user }}"
-        group: minio
-        mode: 0750
-      with_items: "{{ minio_data_dirs.split(',') }}"
-
-    - name: create minio conf dir
-      file: path=/home/{{ minio_user }}/.minio state=directory owner={{ minio_user }} group=minio mode=0750
 
 
 #--------------------------------------------------------------#
