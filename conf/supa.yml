@@ -112,9 +112,18 @@ all:
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
       prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
       alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      minio        : { domain: m.pigsty ,endpoint: "10.10.10.10:9001", https: true, websocket: true }
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
-      supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }     # <---- expose web UI
+      supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true } # <---- expose web UI
+
+    minio_buckets: [ { name: pgsql }, { name: supa } ]
+    minio_users:
+      - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
+      - { access_key: pgbackrest , secret_key: S3User.Backup,   policy: readwrite }
+      - { access_key: supabase   , secret_key: S3User.Supabase, policy: readwrite }
+    minio_endpoint: https://sss.pigsty:9000    # explicit overwrite minio endpoint with haproxy port
+    node_etc_hosts: ["10.10.10.10 sss.pigsty"] # domain name to access minio from all nodes (required)
 
     # download docker and supabase related extensions
     pg_version: 17

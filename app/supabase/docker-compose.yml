@@ -4,7 +4,7 @@
 # File      :   docker-compose.yml
 # Desc      :   modified supabase docker compose for pigsty pg
 # Ctime     :   2023-09-19
-# Mtime     :   2024-10-28
+# Mtime     :   2024-11-18
 # Path      :   app/supabase/docker-compose.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -16,6 +16,7 @@
 # Usage
 #   Start:          docker compose up
 #   Stop:           docker compose down
+
 
 
 name: supabase
@@ -74,6 +75,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       DEFAULT_ORGANIZATION_NAME: ${STUDIO_DEFAULT_ORGANIZATION}
       DEFAULT_PROJECT_NAME: ${STUDIO_DEFAULT_PROJECT}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       SUPABASE_URL: http://kong:8000
       SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
       SUPABASE_ANON_KEY: ${ANON_KEY}
@@ -210,8 +212,6 @@ services:
   # Storage: S3-compatible OSS that stores metadata in Postgres
   #--------------------------------------------------------------#
   # https://supabase.com/docs/guides/getting-started/architecture#storage-api-large-file-storage
-
-  # To use S3 backed storage: docker compose -f docker-compose.yml -f docker-compose.s3.yml up
   storage:
     container_name: supabase-storage
     image: supabase/storage-api:v1.11.13
@@ -234,15 +234,32 @@ services:
       DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       FILE_SIZE_LIMIT: 52428800
       TENANT_ID: stub
-      # TODO: https://github.com/supabase/storage-api/issues/55
       REGION: stub
       ENABLE_IMAGE_TRANSFORMATION: "true"
       IMGPROXY_URL: http://imgproxy:5001
-      # local file storage
-      STORAGE_BACKEND: file
-      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+
+      # local file storage (use minio instead)
+      #STORAGE_BACKEND: file
+      #FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+
+      STORAGE_BACKEND: s3
+      GLOBAL_S3_BUCKET: ${S3_BUCKET}
+      GLOBAL_S3_ENDPOINT: ${S3_ENDPOINT}
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
+      AWS_DEFAULT_REGION: ${S3_REGION}
+      GLOBAL_S3_PROTOCOL: ${S3_PROTOCOL}
+      GLOBAL_S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE}
+
+      # add pigsty ca to the container
+      NODE_EXTRA_CA_CERTS: /etc/pki/ca.crt
+
     volumes:
-      - ./volumes/storage:/var/lib/storage:z
+      - /etc/pki/ca.crt:/etc/pki/ca.crt:ro
+      #- ./volumes/storage:/var/lib/storage:z
+    extra_hosts:
+      - "sss.pigsty:${MINIO_DOMAIN_IP}"
+
 
 
   #--------------------------------------------------------------#
