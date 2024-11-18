@@ -32,8 +32,6 @@
         minio_seq_range={% raw %}{{% endraw %}{{ minio_meta | json_query('min([].minio_seq)') | int  }}...{{ minio_meta | json_query('max([].minio_seq)') | int  }}{% raw %}}{% endraw %}
         minio_member="{% for host in minio_meta %}{% if not loop.first %},{% endif %}{{ host.inventory_hostname }} {{ minio_node|replace('${minio_cluster}', host.minio_cluster)|replace('${minio_seq}', host.minio_seq|string) }}{% endfor %}"
 
-#  {% if not loop.first %},{% endif %}{{ host.inventory_hostname }}
-
     - name: calculate minio volumes
       connection: local
       set_fact:
@@ -96,11 +94,11 @@
         state: directory
         owner: "{{ minio_user }}"
         group: minio
-        mode: 0770
+        mode: 0750
       with_items: "{{ minio_data_dirs.split(',') }}"
 
     - name: create minio conf dir
-      file: path=/etc/minio state=directory owner={{ minio_user }} group=minio mode=0700
+      file: path=/home/{{ minio_user }}/.minio state=directory owner={{ minio_user }} group=minio mode=0750
 
 
 #--------------------------------------------------------------#
@@ -117,7 +115,6 @@
 - name: launch minio server
   tags: minio_launch
   block:
-
     - name: launch minio server service
       systemd: name=minio state=restarted enabled=yes daemon_reload=yes
     - name: wait for minio server online
