@@ -1,37 +1,27 @@
 ---
 #==============================================================#
 # File      :   minio.yml
-# Desc      :   pigsty config for 4 node x 4 disk minio clusters
+# Desc      :   pigsty: 4 node x 4 disk MNMD minio clusters
 # Ctime     :   2023-01-07
 # Mtime     :   2024-11-18
-# Docs      :   https://pigsty.io/docs/conf/minio/
+# Docs      :   https://pigsty.io/docs/conf/minio
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
-# MINIO_VOLUMES="https://minio-{1...4}.pigsty:9000/data{1...2}/minio"
 
-
+# One pass installation with:
+# ./install.yml
 #==============================================================#
-# Business Traffic
-#==============================================================# (intranet dns record)
-# 1.  minio-0  :  10.10.10.10  minio-0 (9000)     (9002) svc <--# <--- sss.pigsty
-# 2.  minio-1  :  10.10.10.11  minio-1 (9000)  x  (9002) svc <--#
-# 3.  minio-2  :  10.10.10.12  minio-2 (9000)     (9002) svc <--#
-# 4.  minio-3  :  10.10.10.12  minio-3 (9000)     (9002) svc <--#
+# 1.  minio-1 @ 10.10.10.10:9000 -  - (9002) svc <-x  10.10.10.9:9002
+# 2.  minio-2 @ 10.10.10.11:9000 -xx- (9002) svc <-x <----------------
+# 3.  minio-3 @ 10.10.10.12:9000 -xx- (9002) svc <-x  sss.pigsty:9002
+# 4.  minio-4 @ 10.10.10.12:9000 -  - (9002) svc <-x  (intranet dns)
 #==============================================================#
 # use minio load balancer service (9002) instead of direct access (9000)
-# $ mcli alias set sss https://sss.pigsty:9002 minioadmin minioadmin
+# mcli alias set sss https://sss.pigsty:9002 minioadmin minioadmin
 #==============================================================#
-
-
-#==============================================================#
-# Admin Traffic
-#==============================================================# (public domain name)
-# 0.  minio-0 : 10.10.10.10:9001 <-- sss0.pigsty < (80) nginx <# <--- sss.pigsty
-# 1.  minio-1 : 10.10.10.11:9001 <-- sss1.pigsty <             # <--- sss2.pigsty
-# 2.  minio-2 : 10.10.10.12:9001 <-- sss2.pigsty <             # <--- sss3.pigsty
-# 3.  minio-3 : 10.10.10.12:9001 <-- sss3.pigsty <             # <--- sss3.pigsty
-#==============================================================#
+# https://min.io/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html
+# MINIO_VOLUMES="https://minio-{1...4}.pigsty:9000/data{1...4}/minio"
 
 
 all:
@@ -46,24 +36,23 @@ all:
         10.10.10.10: { minio_seq: 1 , nodename: minio-1 }
         10.10.10.11: { minio_seq: 2 , nodename: minio-2 }
         10.10.10.12: { minio_seq: 3 , nodename: minio-3 }
-        10.10.10.13: { minio_seq: 4 , nodename: minio-3 }
+        10.10.10.13: { minio_seq: 4 , nodename: minio-4 }
       vars:
         minio_cluster: minio
-        minio_data: '/data{1...4}'         # use 4 disk per node
-        minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio node name pattern
-        minio_buckets: [ { name: pgsql }, { name: infra },  { name: redis } ]
+        minio_data: '/data{1...4}'
+        minio_buckets: [ { name: pgsql }, { name: infra }, { name: redis } ]
         minio_users:
           - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
           - { access_key: pgbackrest , secret_key: S3User.SomeNewPassWord , policy: readwrite }
 
-        # bind a node l2 vip to minio cluster (optional)
+        # bind a node l2 vip (10.10.10.9) to minio cluster (optional)
         node_cluster: minio
         vip_enabled: true
         vip_vrid: 128
         vip_address: 10.10.10.9
         vip_interface: eth1
 
-        # expose minio service with haproxy (optional)
+        # expose minio service with haproxy on all nodes
         haproxy_services:
           - name: minio                    # [REQUIRED] service name, unique
             port: 9002                     # [REQUIRED] service port, unique
@@ -74,10 +63,10 @@ all:
               - http-check send meth OPTIONS uri /minio/health/live
               - http-check expect status 200
             servers:
-              - { name: minio-0 ,ip: 10.10.10.10 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
-              - { name: minio-1 ,ip: 10.10.10.11 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
-              - { name: minio-2 ,ip: 10.10.10.12 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
-              - { name: minio-3 ,ip: 10.10.10.13 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+              - { name: minio-1 ,ip: 10.10.10.10 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+              - { name: minio-2 ,ip: 10.10.10.11 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+              - { name: minio-3 ,ip: 10.10.10.12 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+              - { name: minio-4 ,ip: 10.10.10.13 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
 
   vars:
     version: v3.1.0                   # pigsty version string
@@ -92,28 +81,13 @@ all:
       loki         : { endpoint: "${admin_ip}:3100" }
 
       # domain names to access minio web console via nginx web portal (optional)
-      minio        : { domain: s3.pigsty   ,endpoint: "10.10.10.10:9001" ,scheme: https ,websocket: true }
-      minio0       : { domain: s30.pigsty  ,endpoint: "10.10.10.10:9001" ,scheme: https ,websocket: true }
-      minio1       : { domain: s31.pigsty  ,endpoint: "10.10.10.11:9001" ,scheme: https ,websocket: true }
-      minio2       : { domain: s32.pigsty  ,endpoint: "10.10.10.12:9001" ,scheme: https ,websocket: true }
-      minio3       : { domain: s33.pigsty  ,endpoint: "10.10.10.13:9001" ,scheme: https ,websocket: true }
+      minio        : { domain: m.pigsty     ,endpoint: "10.10.10.10:9001" ,scheme: https ,websocket: true }
+      minio10      : { domain: m10.pigsty   ,endpoint: "10.10.10.10:9001" ,scheme: https ,websocket: true }
+      minio11      : { domain: m11.pigsty   ,endpoint: "10.10.10.11:9001" ,scheme: https ,websocket: true }
+      minio12      : { domain: m12.pigsty   ,endpoint: "10.10.10.12:9001" ,scheme: https ,websocket: true }
+      minio13      : { domain: m13.pigsty   ,endpoint: "10.10.10.13:9001" ,scheme: https ,websocket: true }
 
-    # domain name to access minio from all nodes (required)
-    node_etc_hosts:
-      - 10.10.10.10 sss.pigsty
+    minio_endpoint: https://sss.pigsty:9002   # explicit overwrite minio endpoint with haproxy port
+    node_etc_hosts: ["10.10.10.9 sss.pigsty"] # domain name to access minio from all nodes (required)
 
-
-
-    #==============================================================#
-    # MinIO: 1 Node 1 Driver Example
-    #==============================================================#
-    # minio:
-    #   hosts: { 10.10.10.10: { minio_seq: 1 } }
-    #   vars:
-    #     minio_cluster: minio
-    #     minio_data: '/data{1...4}'
-    #     minio_extra_vars: |
-    #       MINIO_PROMETHEUS_URL=http://10.10.10.10:9090
-    #       MINIO_PROMETHEUS_JOB_ID=minio
-    #     #MINIO_SERVER_URL="https://sss.pigsty:"
 ...
