@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-11-17
+# Mtime     :   2024-11-18
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -489,6 +489,8 @@ ctrio:
 	cp conf/trio.yml pigsty.yml
 cfull:
 	cp conf/full.yml pigsty.yml
+cminio:
+	cp conf/minio.yml pigsty.yml
 cprod:
 	cp conf/prod.yml pigsty.yml
 coss:
@@ -630,7 +632,7 @@ prod24: cprod del vprod24 new ssh
 
 
 #------------------------------#
-# dual & trio
+# dual & trio & minio
 #------------------------------#
 dual:   cdual del vdual   up ssh
 dual8:  cdual del vdual8  up ssh
@@ -673,6 +675,22 @@ vtrio22:
 vtrio24:
 	vagrant/config trio ubuntu24
 
+minio:   cminio del vminio   up ssh
+minio8:  cminio del vminio8  up ssh
+minio9:  cminio del vminio9  up ssh
+minio12: cminio del vminio12 up ssh
+minio22: cminio del vminio22 up ssh
+minio24: cminio del vminio24 up ssh
+vminio:
+	vagrant/config minio
+vminio9:
+	vagrant/config minio el9
+vminio12:
+	vagrant/config minio debian12
+vminio22:
+	vagrant/config minio ubuntu22
+vminio24:
+	vagrant/config minio ubuntu24
 ###############################################################
 
 
@@ -700,5 +718,6 @@ vtrio24:
         prod prod8 prod9 prod12 prod20 prod22 vprod vprod8 vprod9 vprod12 vprod20 vprod22 \
         dual dual8 dual9 dual12 dual20 dual22 vdual vdual8 vdual9 vdual12 vdual20 vdual22 \
         trio trio8 trio9 trio12 trio20 trio22 vtrio vtrio8 vtrio9 vtrio12 vtrio20 vtrio22 \
+        minio minio8 minio9 minio12 minio22 minio24 vminio vminio9 vminio12 vminio22 vminio24 \
         cmeta cdual ctrio cfull cprod coss cpro cext crpm cdeb
 ###############################################################
