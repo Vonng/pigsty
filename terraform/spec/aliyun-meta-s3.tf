@@ -2,7 +2,7 @@
 # File      :   aliyun-meta-s3.yml
 # Desc      :   1-node sandbox env for x86_64/aarch64 with s3
 # Ctime     :   2020-05-12
-# Mtime     :   2024-11-18
+# Mtime     :   2024-11-19
 # Path      :   terraform/spec/aliyun-meta-s3.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -22,7 +22,7 @@ variable "architecture" {
 variable "distro_code" {
   description = "The 3-char distro code (el8,el9,u22,u24,d12)"
   type        = string
-  default     = "el8"       # el7/el8/el9/d11/d12/u20/u22/an8
+  default     = "el9"       # el7/el8/el9/d11/d12/u20/u22/an8
 }
 
 locals {
