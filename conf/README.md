@@ -25,25 +25,22 @@ These config templates provide a boilerplate for running Pigsty on 1/2/3/4 or mo
 * [trio.yml](trio.yml) : example config for 3-node deployment
 * [full.yml](full.yml) : example config for a 4-node cluster deployment
 
-These templates are based on the `full.yml` 4-node templates, with an exotic PostgreSQL kernel (or wrappers).
+Templates for exotic DBMS and kernels:
 
-* [supabase.yml](supabase.yml) : example config for Supabase underlying PostgreSQL (4-node)
+* [supa.yml](supa.yml) : example config for Supabase underlying PostgreSQL (4-node)
 * [mssql.yml](mssql.yml) : example config for WiltonDB & Babelfish Cluster with MSSQL compatibility (4-node)
 * [polar.yml](polar.yml) : PolarDB for PostgreSQL config example: PG with RAC (4-node)
 * [ivory.yml](ivory.yml) : IvorySQL cluster config example: Oracle Compatibility (4-node)
- 
-Deploy PostgreSQL without Infra (& repo), or run a local 43-node prod env simulation
-
-* [slim.yml](slim.yml) : 1-node slim config, deploy PostgreSQL without infra and local repo & infra
-* [prod.yml](prod.yml) : Production emulation config with 43-node env
+* [citus.yml](citus.yml) : citus cluster example: 1 coordinator and 3 data nodes
 
 Other templates:
 
+* [slim.yml](slim.yml) : 1-node slim config, deploy PostgreSQL without infra and local repo & infra
+* [prod.yml](prod.yml) : Production emulation config with 36-node env
 * [demo.yml](demo.yml) : config file for the pigsty [public demo](https://demo.pigsty.cc)
-* [bare.yml](demo/bare.yml): 1-node bare config, the minimal config to run pigsty.
-* [rich.yml](demo/rich.yml) : 1-node rich config, run multiple database and install all extensions.
+* [rich.yml](rich.yml) : 1-node rich config, run multiple database and install all extensions.
 * [safe.yml](safe.yml) : security enhanced config example with delayed replica
-
+* [minio.yml](minio.yml) : example config for a 3-node minio clusters
 
 
 ----------
@@ -53,11 +50,11 @@ Other templates:
 In addition to the main templates, Pigsty provides a set of demo templates for different scenarios.
 
 * [demo/el.yml](demo/remote.yml) : config file with all default parameters for EL 8/9 systems.
-* [demo/debian.yml](demo/public.yml) : config file with all default parameters for debian/ubuntu systems.
+* [demo/debian.yml](demo/debian.yml) : config file with all default parameters for debian/ubuntu systems.
 * [demo/remote.yml](demo/remote.yml) : example config for monitoring a remote pgsql cluster or RDS PG.
 * [demo/redis.yml](demo/redis.yml) : example config for redis clusters
-* [demo/minio.yml](demo/minio.yml) : example config for a 3-node minio clusters
-* [demo/citus.yml](demo/citus.yml) : citus cluster example: 1 coordinator and 3 data nodes
+* [demo/supa4.yml](demo/supa4.yml) : example config for 4-node supabase cluster
+
 
 
 ----------
