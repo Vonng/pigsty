@@ -4,7 +4,8 @@
 # File      :   minio.yml
 # Desc      :   setup minio service
 # Ctime     :   2022-11-10
-# Mtime     :   2023-10-04
+# Mtime     :   2024-11-21
+# Docs      :   https://pigsty.io/docs/minio
 # Path      :   minio.yml
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -26,42 +27,14 @@
 # 3. run ./minio.yml -l <cls> to deploy minio cluster
 #
 #---------------------------------------------------------------
-# Example
-#---------------------------------------------------------------
-# Single Node Single Driver (DEFAULT)
-#  minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
-#
-# Multi Node x Multi Driver Example
-#  minio:
-#    hosts:
-#      10.10.10.10: { minio_seq: 1 }
-#      10.10.10.11: { minio_seq: 2 }
-#      10.10.10.12: { minio_seq: 3 }
-#    vars:
-#      minio_cluster: minio
-#      minio_data: '/data{1...2}'        # use two disk per node
-#      minio_node: '${minio_cluster}-${minio_seq}.pigsty' # minio node name pattern
-#      haproxy_services:
-#        - name: minio
-#          port: 9002
-#          options:
-#            - option httpchk
-#            - option http-keep-alive
-#            - http-check send meth OPTIONS uri /minio/health/live
-#            - http-check expect status 200
-#          servers:
-#            - { name: minio-1 ,ip: 10.10.10.10 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
-#            - { name: minio-2 ,ip: 10.10.10.11 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
-#            - { name: minio-3 ,ip: 10.10.10.12 , port: 9000 , options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
-#
-#---------------------------------------------------------------
 # Tasks
 #---------------------------------------------------------------
 # minio-id        : generate minio identity
-# minio_os_user   : create os user minio
-# minio_install   : install minio/mcli rpm
-# minio_clean     : remove minio data (not default)
-# minio_dir       : create minio directories
+# minio_install   : install minio software
+#   - minio_os_user : create os user minio
+#   - minio_pkg     : install minio/mcli rpm
+#   - minio_clean   : remove minio data (with minio_clean=true flag)
+#   - minio_dir     : create minio directories
 # minio_config    : generate minio config
 #   - minio_conf    : minio main config
 #   - minio_cert    : minio ssl cert
