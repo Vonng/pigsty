@@ -251,12 +251,12 @@
                 ]
             },
             "gridPos": {
-                "h": 6,
+                "h": 8,
                 "w": 24,
                 "x": 0,
                 "y": 1
             },
-            "id": 163,
+            "id": 182,
             "options": {
                 "cellHeight": "sm",
                 "footer": {
@@ -394,6 +394,7 @@
                             "Value #A": true,
                             "Value #B": false,
                             "Value #C": false,
+                            "Value #D": false,
                             "Value #E": false,
                             "Value #H": false,
                             "__name__": true,
@@ -432,6 +433,7 @@
                             "job 6": true,
                             "job 7": true
                         },
+                        "includeByName": {},
                         "indexByName": {
                             "Time 1": 10,
                             "Time 2": 12,
@@ -513,21 +515,46 @@
                             },
                             {
                                 "color": "#346f36cc",
-                                "value": 2
+                                "value": 4
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Nodes Offline"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 6,
+                "h": 5,
                 "w": 3,
                 "x": 0,
-                "y": 7
+                "y": 9
             },
-            "id": 153,
+            "id": 170,
             "maxDataPoints": 100,
             "options": {
                 "colorMode": "background",
@@ -543,7 +570,10 @@
                     "values": true
                 },
                 "showPercentChange": false,
-                "text": {},
+                "text": {
+                    "titleSize": 14,
+                    "valueSize": 24
+                },
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
@@ -556,7 +586,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "sum(minio_cluster_nodes_online_total{cls=\"$cls\"})",
+                    "expr": "max(minio_cluster_nodes_online_total{ins=\"$ins\"})",
                     "format": "time_series",
                     "instant": true,
                     "interval": "",
@@ -564,6 +594,24 @@
                     "legendFormat": "Nodes Online",
                     "metric": "process_start_time_seconds",
                     "refId": "A",
+                    "step": 60
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "max(minio_cluster_nodes_offline_total{ins=\"$ins\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "Nodes Offline",
+                    "metric": "process_start_time_seconds",
+                    "refId": "B",
                     "step": 60
                 }
             ],
@@ -602,21 +650,46 @@
                             },
                             {
                                 "color": "#346f36cc",
-                                "value": 2
+                                "value": 4
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Driver Offline"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#cc4637d9",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 6,
+                "h": 5,
                 "w": 3,
                 "x": 3,
-                "y": 7
+                "y": 9
             },
-            "id": 154,
+            "id": 171,
             "maxDataPoints": 100,
             "options": {
                 "colorMode": "background",
@@ -632,7 +705,10 @@
                     "values": true
                 },
                 "showPercentChange": false,
-                "text": {},
+                "text": {
+                    "titleSize": 14,
+                    "valueSize": 24
+                },
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
@@ -645,15 +721,183 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "sum(minio_cluster_drive_online_total{cls=\"$cls\"})",
+                    "expr": "max(minio_cluster_drive_online_total{ins=\"$ins\"})",
                     "format": "time_series",
                     "instant": true,
                     "interval": "",
                     "intervalFactor": 1,
-                    "legendFormat": "Disks Online",
+                    "legendFormat": "Driver Online",
                     "metric": "process_start_time_seconds",
                     "refId": "A",
                     "step": 60
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "max(minio_cluster_drive_offline_total{ins=\"$ins\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "Driver Offline",
+                    "metric": "process_start_time_seconds",
+                    "refId": "B",
+                    "step": 60
+                }
+            ],
+            "title": "",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#7c7c7c",
+                                "value": null
+                            },
+                            {
+                                "color": "#3e668f",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 3,
+                "x": 6,
+                "y": 9
+            },
+            "id": 147,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 24
+                },
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.3.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max(minio_cluster_bucket_total{ins=\"$ins\"})",
+                    "instant": true,
+                    "legendFormat": "Buckets",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "MinIO Object Count",
+                            "url": "/d/minio-overview?viewPanel=145&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#3e668f",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 3,
+                "x": 9,
+                "y": 9
+            },
+            "id": 148,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 24
+                },
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.3.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max(minio_cluster_usage_object_total{ins=\"$ins\"})",
+                    "instant": true,
+                    "legendFormat": "Objects",
+                    "range": false,
+                    "refId": "A"
                 }
             ],
             "title": "",
@@ -670,12 +914,7 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "MinIO API QPS",
-                            "url": "/d/minio-overview?viewPanel=120&${__url_time_range}"
-                        }
-                    ],
+                    "links": [],
                     "mappings": [],
                     "max": 1,
                     "min": 0,
@@ -684,26 +923,22 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
+                                "color": "#3e668f",
                                 "value": null
-                            },
-                            {
-                                "color": "#f5a673",
-                                "value": 1000
                             }
                         ]
                     },
-                    "unit": "reqps"
+                    "unit": "bytes"
                 },
                 "overrides": []
             },
             "gridPos": {
-                "h": 6,
+                "h": 5,
                 "w": 3,
-                "x": 6,
-                "y": 7
+                "x": 12,
+                "y": 9
             },
-            "id": 150,
+            "id": 151,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -718,7 +953,10 @@
                     "values": false
                 },
                 "showPercentChange": false,
-                "text": {},
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 24
+                },
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
@@ -731,11 +969,116 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "sum(rate(minio_s3_requests_total{cls=\"$cls\"}[1m]))",
+                    "expr": "max(minio_cluster_usage_total_bytes{ins=\"$ins\"})",
                     "interval": "",
-                    "legendFormat": "QPS",
+                    "legendFormat": "Data Size",
                     "range": true,
                     "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "max(minio_cluster_capacity_usable_total_bytes{ins=\"$ins\"} - minio_cluster_capacity_usable_free_bytes{ins=\"$ins\"})",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Used Size",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 1,
+                    "links": [],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "noValue": "\u2205",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#3e668f",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 3,
+                "x": 15,
+                "y": 9
+            },
+            "id": 152,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 24
+                },
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.3.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "max(minio_cluster_capacity_raw_total_bytes{ins=\"$ins\"})",
+                    "interval": "",
+                    "legendFormat": "Raw Disk",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "max(minio_cluster_capacity_usable_total_bytes{ins=\"$ins\"})",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Usable Disk",
+                    "range": true,
+                    "refId": "B"
                 }
             ],
             "title": "",
@@ -784,20 +1127,49 @@
                     },
                     "unit": "percentunit"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Space / Data"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "x"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": null
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 6,
+                "h": 5,
                 "w": 3,
-                "x": 9,
-                "y": 7
+                "x": 18,
+                "y": 9
             },
             "id": 165,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
                     "calcs": [
@@ -807,7 +1179,10 @@
                     "values": false
                 },
                 "showPercentChange": false,
-                "text": {},
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 24
+                },
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
@@ -825,6 +1200,20 @@
                     "legendFormat": "Usage%",
                     "range": true,
                     "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "max(minio_cluster_capacity_usable_total_bytes{ins=\"$ins\"} - minio_cluster_capacity_usable_free_bytes{ins=\"$ins\"}) /\nmax(minio_cluster_usage_total_bytes{ins=\"$ins\"})",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Space / Data",
+                    "range": true,
+                    "refId": "B"
                 }
             ],
             "title": "",
@@ -836,220 +1225,6 @@
                 "uid": "ds-prometheus"
             },
             "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [],
-                    "mappings": [],
-                    "max": 1,
-                    "min": 0,
-                    "noValue": "\u2205",
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#3e668f",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "decbytes"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 3,
-                "x": 12,
-                "y": 7
-            },
-            "id": 151,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "text": {},
-                "textMode": "value_and_name",
-                "wideLayout": true
-            },
-            "pluginVersion": "11.3.0",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "exemplar": true,
-                    "expr": "max(minio_cluster_capacity_usable_total_bytes{cls=\"$cls\"})",
-                    "interval": "",
-                    "legendFormat": "Size Max",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "",
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 1,
-                    "links": [],
-                    "mappings": [],
-                    "max": 1,
-                    "min": 0,
-                    "noValue": "\u2205",
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#3e668f",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "decbytes"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 3,
-                "x": 15,
-                "y": 7
-            },
-            "id": 152,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "text": {},
-                "textMode": "value_and_name",
-                "wideLayout": true
-            },
-            "pluginVersion": "11.3.0",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "exemplar": true,
-                    "expr": "max(minio_cluster_capacity_usable_total_bytes{cls=\"$cls\"} - \nminio_cluster_capacity_usable_free_bytes{cls=\"$cls\"})",
-                    "interval": "",
-                    "legendFormat": "Used",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "",
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#7c7c7c",
-                                "value": null
-                            },
-                            {
-                                "color": "#3e668f",
-                                "value": 1
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 3,
-                "x": 18,
-                "y": 7
-            },
-            "id": 147,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "value_and_name",
-                "wideLayout": true
-            },
-            "pluginVersion": "11.3.0",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "editorMode": "code",
-                    "expr": "max(minio_cluster_bucket_total{ins=\"$ins\"})",
-                    "legendFormat": "Buckets",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "",
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1057,35 +1232,72 @@
                     },
                     "links": [
                         {
-                            "title": "MinIO Object Count",
-                            "url": "/d/minio-overview?viewPanel=145&${__url_time_range}"
+                            "title": "MinIO API QPS",
+                            "url": "/d/minio-overview?viewPanel=120&${__url_time_range}"
                         }
                     ],
                     "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "noValue": "\u2205",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#3e668f",
+                                "color": "#346f36cc",
                                 "value": null
+                            },
+                            {
+                                "color": "#f5a673",
+                                "value": 1000
+                            }
+                        ]
+                    },
+                    "unit": "reqps"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Errors"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "err/s"
                             }
                         ]
                     }
-                },
-                "overrides": []
+                ]
             },
             "gridPos": {
-                "h": 6,
+                "h": 5,
                 "w": 3,
                 "x": 21,
-                "y": 7
+                "y": 9
             },
-            "id": 148,
+            "id": 150,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "horizontal",
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
                     "calcs": [
@@ -1095,6 +1307,10 @@
                     "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 24
+                },
                 "textMode": "value_and_name",
                 "wideLayout": true
             },
@@ -1106,10 +1322,26 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "max(minio_cluster_usage_object_total{cls=\"$cls\"})",
-                    "legendFormat": "Objects",
+                    "exemplar": true,
+                    "expr": "sum(rate(minio_s3_requests_total{ins=\"$ins\"}[1m]))",
+                    "interval": "",
+                    "legendFormat": "QPS",
                     "range": true,
                     "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "sum(rate(minio_s3_requests_errors_total{ins=\"$ins\"}[1m]))",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Errors",
+                    "range": true,
+                    "refId": "B"
                 }
             ],
             "title": "",
@@ -1121,7 +1353,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 13
+                "y": 14
             },
             "id": 133,
             "panels": [],
@@ -1155,7 +1387,7 @@
                             "viz": false
                         },
                         "insertNulls": false,
-                        "lineInterpolation": "linear",
+                        "lineInterpolation": "stepBefore",
                         "lineWidth": 1,
                         "pointSize": 5,
                         "scaleDistribution": {
@@ -1221,10 +1453,10 @@
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 14
+                "y": 15
             },
             "id": 120,
             "options": {
@@ -1252,7 +1484,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "sum by (api) (increase(minio_s3_requests_total{cls=\"$cls\", ins=\"$ins\"}[$__rate_interval]))",
+                    "expr": "sum by (api) (rate(minio_s3_requests_total{ins=\"$ins\"}[1m]))",
                     "interval": "1m",
                     "intervalFactor": 2,
                     "legendFormat": "{{ api }}",
@@ -1260,7 +1492,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "S3 API QPS",
+            "title": "QPS by API (rate1m)",
             "type": "timeseries"
         },
         {
@@ -1356,10 +1588,10 @@
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 14
+                "y": 15
             },
             "id": 121,
             "options": {
@@ -1387,7 +1619,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "sum by (api) (increase(minio_s3_requests_errors_total{cls=\"$cls\", ins=\"$ins\"}[$__rate_interval]))",
+                    "expr": "sum by (api) (rate(minio_s3_requests_errors_total{ins=\"$ins\"}[1m]))",
                     "interval": "1m",
                     "intervalFactor": 2,
                     "legendFormat": "{{ api }}",
@@ -1395,7 +1627,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "S3 ERROR QPS",
+            "title": "Error by API (rate1m)",
             "type": "timeseries"
         },
         {
@@ -1425,7 +1657,7 @@
                             "viz": false
                         },
                         "insertNulls": false,
-                        "lineInterpolation": "linear",
+                        "lineInterpolation": "stepBefore",
                         "lineWidth": 1,
                         "pointSize": 5,
                         "scaleDistribution": {
@@ -1487,7 +1719,7 @@
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 7,
                 "w": 12,
                 "x": 0,
                 "y": 22
@@ -1518,7 +1750,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "sum by (server) (increase(minio_s3_requests_total{ins=\"$ins\"}[$__rate_interval]))",
+                    "expr": "sum by (server) (rate(minio_s3_requests_total{ins=\"$ins\"}[1m]))",
                     "interval": "1m",
                     "intervalFactor": 2,
                     "legendFormat": "{{ api }}",
@@ -1526,7 +1758,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "S3 API QPS",
+            "title": "QPS by Server (rate1m)",
             "type": "timeseries"
         },
         {
@@ -1622,7 +1854,7 @@
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 7,
                 "w": 12,
                 "x": 12,
                 "y": 22
@@ -1653,7 +1885,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "sum by (server) (increase(minio_s3_requests_errors_total{cls=\"$cls\", ins=\"$ins\"}[$__rate_interval]))",
+                    "expr": "sum by (server) (rate(minio_s3_requests_errors_total{ins=\"$ins\"}[1m]))",
                     "interval": "1m",
                     "intervalFactor": 2,
                     "legendFormat": "{{ api }}",
@@ -1661,7 +1893,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "S3 ERROR QPS",
+            "title": "Error by Server (rate1m)",
             "type": "timeseries"
         },
         {
@@ -1670,7 +1902,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 30
+                "y": 29
             },
             "id": 139,
             "panels": [],
@@ -1743,7 +1975,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 31
+                "y": 30
             },
             "id": 145,
             "options": {
@@ -1771,7 +2003,7 @@
                     },
                     "editorMode": "code",
                     "expr": "minio_cluster_usage_object_total{cls=\"$cls\"}",
-                    "legendFormat": "{{ ins }}",
+                    "legendFormat": "{{ server }}",
                     "range": true,
                     "refId": "A"
                 }
@@ -1791,7 +2023,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
+                                "color": "#3e668f",
                                 "value": null
                             }
                         ]
@@ -1803,7 +2035,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 31
+                "y": 30
             },
             "id": 144,
             "options": {
@@ -1904,10 +2136,6 @@
                             {
                                 "color": "#346f36cc",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     },
@@ -1916,21 +2144,19 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 11,
+                "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 38
+                "y": 37
             },
-            "id": 141,
+            "id": 142,
             "options": {
                 "legend": {
                     "calcs": [
-                        "min",
-                        "max",
                         "mean"
                     ],
                     "displayMode": "table",
-                    "placement": "bottom",
+                    "placement": "right",
                     "showLegend": true,
                     "sortBy": "Max",
                     "sortDesc": true
@@ -1948,13 +2174,13 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "minio_s3_traffic_sent_bytes{cls=\"$cls\"}",
-                    "legendFormat": "{{ ins }}->{{ server }}",
+                    "expr": "rate(minio_s3_traffic_received_bytes{ins=\"$ins\"}[1m])",
+                    "legendFormat": "{{ server }}",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Transmit by Bucket",
+            "title": "Receive Bandwidth",
             "type": "timeseries"
         },
         {
@@ -2008,33 +2234,27 @@
                             {
                                 "color": "#346f36cc",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     },
-                    "unit": "decbytes"
+                    "unit": "binBps"
                 },
                 "overrides": []
             },
             "gridPos": {
-                "h": 11,
+                "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 38
+                "y": 37
             },
-            "id": 142,
+            "id": 141,
             "options": {
                 "legend": {
                     "calcs": [
-                        "min",
-                        "max",
                         "mean"
                     ],
                     "displayMode": "table",
-                    "placement": "bottom",
+                    "placement": "right",
                     "showLegend": true,
                     "sortBy": "Max",
                     "sortDesc": true
@@ -2052,13 +2272,13 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "minio_s3_traffic_sent_bytes{cls=\"$cls\"}",
-                    "legendFormat": "{{ ins }}->{{ server }}",
+                    "expr": "rate(minio_s3_traffic_sent_bytes{ins=\"$ins\"}[1m])",
+                    "legendFormat": "{{ server }}",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Receive by Bucket",
+            "title": "Sent / Transmit Bandwidth",
             "type": "timeseries"
         },
         {
@@ -2067,7 +2287,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 49
+                "y": 44
             },
             "id": 127,
             "panels": [],
@@ -2092,8 +2312,8 @@
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "barWidthFactor": 0.6,
-                        "drawStyle": "bars",
-                        "fillOpacity": 100,
+                        "drawStyle": "line",
+                        "fillOpacity": 1,
                         "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
@@ -2135,14 +2355,16 @@
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 50
+                "y": 45
             },
             "id": 129,
             "options": {
                 "legend": {
-                    "calcs": [],
-                    "displayMode": "list",
-                    "placement": "bottom",
+                    "calcs": [
+                        "mean"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
                     "showLegend": true
                 },
                 "tooltip": {
@@ -2188,7 +2410,7 @@
                         "barAlignment": 0,
                         "barWidthFactor": 0.6,
                         "drawStyle": "line",
-                        "fillOpacity": 10,
+                        "fillOpacity": 5,
                         "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
@@ -2230,14 +2452,16 @@
                 "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 50
+                "y": 45
             },
             "id": 131,
             "options": {
                 "legend": {
-                    "calcs": [],
-                    "displayMode": "list",
-                    "placement": "bottom",
+                    "calcs": [
+                        "mean"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
                     "showLegend": true
                 },
                 "tooltip": {
@@ -2283,8 +2507,8 @@
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "barWidthFactor": 0.6,
-                        "drawStyle": "bars",
-                        "fillOpacity": 100,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
                         "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
@@ -2311,13 +2535,11 @@
                     "decimals": 0,
                     "links": [],
                     "mappings": [],
-                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             }
                         ]
                     },
@@ -2360,14 +2582,16 @@
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 59
+                "y": 54
             },
             "id": 135,
             "options": {
                 "legend": {
-                    "calcs": [],
-                    "displayMode": "list",
-                    "placement": "bottom",
+                    "calcs": [
+                        "mean"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
                     "showLegend": true
                 },
                 "tooltip": {
@@ -2384,11 +2608,11 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "rate(minio_node_syscall_read_total{ins=\"$ins\"}[$__rate_interval])",
+                    "expr": "rate(minio_node_syscall_read_total{ins=\"$ins\"}[1m])",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 2,
-                    "legendFormat": "Read Syscalls [{{server}}]",
+                    "legendFormat": "\u25b2{{server}}",
                     "metric": "process_start_time_seconds",
                     "range": true,
                     "refId": "A",
@@ -2401,9 +2625,9 @@
                     },
                     "editorMode": "code",
                     "exemplar": true,
-                    "expr": "rate(minio_node_syscall_write_total{ins=\"$ins\"}[1m])",
+                    "expr": "- rate(minio_node_syscall_write_total{ins=\"$ins\"}[1m])",
                     "interval": "",
-                    "legendFormat": "Write Syscalls [{{server}}]",
+                    "legendFormat": "\u25bc{{server}}",
                     "range": true,
                     "refId": "B"
                 }
@@ -2429,8 +2653,8 @@
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "barWidthFactor": 0.6,
-                        "drawStyle": "bars",
-                        "fillOpacity": 100,
+                        "drawStyle": "line",
+                        "fillOpacity": 1,
                         "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
@@ -2459,8 +2683,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
+                                "color": "green"
                             }
                         ]
                     },
@@ -2472,12 +2695,1129 @@
                 "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 59
+                "y": 54
             },
             "id": 137,
             "options": {
                 "legend": {
-                    "calcs": [],
+                    "calcs": [
+                        "mean"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.3.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "rate(minio_node_io_read_bytes{ins=\"$ins\"}[5m])",
+                    "format": "time_series",
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "\u25b2{{server}}",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "- rate(minio_node_io_write_bytes{ins=\"$ins\"}[5m])",
+                    "interval": "",
+                    "legendFormat": "\u25bc{{server}}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Node I/O Bandwidth",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "description": "MinIO cluster members",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "max": 1.2,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Instance"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "MinIO Instance : ${__data.fields.Instance}",
+                                        "url": "/d/minio-instance?var-ins=${__data.fields.Instance}&${__url_time_range}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 140
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "IP"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 130
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Node Instance : ${__data.fields.IP}",
+                                        "url": "/d/node-instance?var-id=${__data.fields.IP}&${__url_time_range}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "center"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Version"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 190
+                            },
+                            {
+                                "id": "unit",
+                                "value": "string"
+                            },
+                            {
+                                "id": "custom.inspect",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Address"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 140
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Server"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 160
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/Free|Used|Size/"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "bytes"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Usage"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#3e668f"
+                                        },
+                                        {
+                                            "color": "#346f36cc",
+                                            "value": 0.1
+                                        },
+                                        {
+                                            "color": "#fcdb72",
+                                            "value": 0.3
+                                        },
+                                        {
+                                            "color": "#f5a673",
+                                            "value": 0.5
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 0.7
+                                        },
+                                        {
+                                            "color": "#b783af",
+                                            "value": 0.9
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "lcd",
+                                    "type": "gauge"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Pool"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 73
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Set"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 69
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 24,
+                "x": 0,
+                "y": 63
+            },
+            "id": 172,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Server"
+                    }
+                ]
+            },
+            "pluginVersion": "11.3.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "minio_cluster_health_erasure_set_status{job=\"minio\", cls=\"$cls\"}",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "minio_cluster_health_erasure_set_online_drives{job=\"minio\", cls=\"$cls\"}",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "minio_cluster_health_erasure_set_healing_drives{job=\"minio\", cls=\"$cls\"}",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "minio_cluster_health_erasure_set_read_quorum{job=\"minio\", cls=\"$cls\"}",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "minio_cluster_health_erasure_set_write_quorum{job=\"minio\", cls=\"$cls\"}",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "E"
+                }
+            ],
+            "title": "MinIO Erasure Set",
+            "transformations": [
+                {
+                    "id": "seriesToColumns",
+                    "options": {
+                        "byField": "server",
+                        "mode": "outer"
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "Time 1": true,
+                            "Time 10": true,
+                            "Time 2": true,
+                            "Time 3": true,
+                            "Time 4": true,
+                            "Time 5": true,
+                            "Time 6": true,
+                            "Time 8": true,
+                            "Time 9": true,
+                            "Value": true,
+                            "Value #A": true,
+                            "Value #B": false,
+                            "Value #C": false,
+                            "Value #D": false,
+                            "Value #E": false,
+                            "Value #H": false,
+                            "__name__": true,
+                            "__name__ 1": true,
+                            "__name__ 2": true,
+                            "__name__ 3": true,
+                            "__name__ 4": true,
+                            "__name__ 5": true,
+                            "__name__ 7": true,
+                            "cls": true,
+                            "cls 1": true,
+                            "cls 2": true,
+                            "cls 3": true,
+                            "cls 4": true,
+                            "cls 5": true,
+                            "cls 6": true,
+                            "cls 7": true,
+                            "ins 1": false,
+                            "ins 2": true,
+                            "ins 3": true,
+                            "ins 4": true,
+                            "ins 5": true,
+                            "instance": false,
+                            "instance 1": true,
+                            "instance 2": true,
+                            "instance 3": true,
+                            "instance 4": true,
+                            "instance 5": true,
+                            "instance 6": true,
+                            "ip 2": true,
+                            "ip 3": true,
+                            "ip 4": true,
+                            "ip 5": true,
+                            "ip 6": true,
+                            "ip 7": true,
+                            "job": true,
+                            "job 1": true,
+                            "job 2": true,
+                            "job 3": true,
+                            "job 4": true,
+                            "job 5": true,
+                            "job 6": true,
+                            "job 7": true,
+                            "pool 2": true,
+                            "pool 3": true,
+                            "pool 4": true,
+                            "pool 5": true,
+                            "set 2": true,
+                            "set 3": true,
+                            "set 4": true,
+                            "set 5": true
+                        },
+                        "includeByName": {},
+                        "indexByName": {
+                            "Time 1": 9,
+                            "Time 2": 11,
+                            "Time 3": 12,
+                            "Time 4": 13,
+                            "Time 5": 14,
+                            "Value #A": 10,
+                            "Value #B": 5,
+                            "Value #C": 6,
+                            "Value #D": 7,
+                            "Value #E": 8,
+                            "__name__ 1": 15,
+                            "__name__ 2": 20,
+                            "__name__ 3": 28,
+                            "__name__ 4": 35,
+                            "__name__ 5": 43,
+                            "cls 1": 16,
+                            "cls 2": 21,
+                            "cls 3": 29,
+                            "cls 4": 36,
+                            "cls 5": 44,
+                            "ins 1": 0,
+                            "ins 2": 22,
+                            "ins 3": 30,
+                            "ins 4": 37,
+                            "ins 5": 45,
+                            "instance 1": 17,
+                            "instance 2": 23,
+                            "instance 3": 31,
+                            "instance 4": 38,
+                            "instance 5": 46,
+                            "ip 1": 1,
+                            "ip 2": 24,
+                            "ip 3": 32,
+                            "ip 4": 39,
+                            "ip 5": 47,
+                            "job 1": 18,
+                            "job 2": 25,
+                            "job 3": 33,
+                            "job 4": 40,
+                            "job 5": 48,
+                            "pool 1": 3,
+                            "pool 2": 26,
+                            "pool 3": 34,
+                            "pool 4": 41,
+                            "pool 5": 49,
+                            "server": 2,
+                            "set 1": 4,
+                            "set 2": 27,
+                            "set 3": 19,
+                            "set 4": 42,
+                            "set 5": 50
+                        },
+                        "renameByName": {
+                            "Time 4": "",
+                            "Value #A": "",
+                            "Value #B": "Online Driver",
+                            "Value #C": "Healing Driver",
+                            "Value #D": "Read Quorum",
+                            "Value #E": "Write Quorum",
+                            "Value #F": "RT",
+                            "Value #G": "LB Conn",
+                            "Value #H": "LB",
+                            "Value #I": "QPS",
+                            "Value #J": "LB Clients",
+                            "Value #K": "Lag",
+                            "cls 1": "",
+                            "cls 2": "",
+                            "ins": "Instance",
+                            "ins 1": "Instance",
+                            "instance": "Address",
+                            "instance 2": "",
+                            "ip": "IP",
+                            "ip 1": "IP",
+                            "job": "",
+                            "pool 1": "Pool",
+                            "server": "Server",
+                            "server_id": "Server ID",
+                            "server_version": "Version",
+                            "set 1": "Set",
+                            "version": "Version"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 70
+            },
+            "id": 173,
+            "panels": [],
+            "title": "Disk",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "description": "\u25b2 for read IOPS, \u25bc for write IOPS ",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": true,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "Node Instance: ${__field.labels.ins}",
+                            "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=46&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#346f36cc"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 71
+            },
+            "id": 174,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.3.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "node:ins:disk_reads_rate1m{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "\u25b2{{ ins }}",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "- node:ins:disk_writes_rate1m{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "\u25bc{{ ins }}",
+                    "refId": "B"
+                }
+            ],
+            "title": "Read/Write IOPS",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "description": "\u25b2 for read bandwidth, \u25bc for write bandwidth",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": true,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "Node Instance: ${__field.labels.ins}",
+                            "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=45&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#346f36cc"
+                            }
+                        ]
+                    },
+                    "unit": "Bps"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "/dfa/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 40
+                            },
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 10
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 71
+            },
+            "id": 176,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.3.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "node:ins:disk_read_bytes_rate1m{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "\u25b2{{ ins }}",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "- node:ins:disk_write_bytes_rate1m{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "\u25bc{{ ins }}",
+                    "refId": "B"
+                }
+            ],
+            "title": "Read/Write Bandwidth",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "description": "Number of items which were in the queue at the sampling time point",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "bars",
+                        "fillOpacity": 100,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "Node Instance: ${__field.labels.ins}",
+                            "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=38&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#346f36cc"
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 79
+            },
+            "id": 179,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.3.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "node_disk_io_now{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}:{{ device }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "Instant Queue Size",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "description": "\u25b2 for read rt, \u25bc for write rt",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": true,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "points",
+                        "fillOpacity": 10,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 2,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "Node Instance: ${__field.labels.ins}",
+                            "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=29&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#346f36cc"
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "/dfa/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.pointSize",
+                                "value": 4
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 79
+            },
+            "id": 178,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.3.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "node:dev:disk_read_rt_1m{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "\u25b2{{ ins }}:{{ device }}",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "- node:dev:disk_write_rt_1m{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "\u25bc{{ ins }}:{{ device }}",
+                    "refId": "B"
+                }
+            ],
+            "title": "Read/Write Await Time",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 1,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 3,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "Node Instance: ${__field.labels.ins}",
+                            "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=199&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#3e668f"
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.8
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.85
+                            },
+                            {
+                                "color": "#E24D42",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.95
+                            },
+                            {
+                                "color": "text",
+                                "value": 0.99
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 87
+            },
+            "id": 181,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean"
+                    ],
                     "displayMode": "list",
                     "placement": "bottom",
                     "showLegend": true
@@ -2495,29 +3835,141 @@
                         "uid": "ds-prometheus"
                     },
                     "editorMode": "code",
-                    "exemplar": true,
-                    "expr": "rate(minio_node_io_rchar_bytes{ins=\"$ins\"}[1m])",
-                    "format": "time_series",
-                    "instant": false,
+                    "exemplar": false,
+                    "expr": "1 - (minio_cluster_capacity_usable_free_bytes{ins=\"$ins\"} / minio_cluster_capacity_usable_total_bytes{ins=\"$ins\"})",
+                    "hide": false,
                     "interval": "",
-                    "legendFormat": "Node RChar [{{server}}]",
+                    "legendFormat": "Usage",
+                    "range": true,
                     "refId": "A"
+                }
+            ],
+            "title": "Storage Usage",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 1,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 3,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "Node Instance: ${__field.labels.ins}",
+                            "url": "/d/node-instance?var-ins=${__field.labels.ins}&viewPanel=199&${__url_time_range}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#3e668f"
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.8
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.85
+                            },
+                            {
+                                "color": "#E24D42",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.95
+                            },
+                            {
+                                "color": "text",
+                                "value": 0.99
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
                 },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 87
+            },
+            "id": 180,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.3.0",
+            "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
                         "uid": "ds-prometheus"
                     },
-                    "editorMode": "code",
-                    "exemplar": true,
-                    "expr": "rate(minio_node_io_wchar_bytes{ins=\"$ins\"}[1m])",
+                    "exemplar": false,
+                    "expr": "node:fs:space_usage{cls=\"$cls\"}",
+                    "hide": false,
                     "interval": "",
-                    "legendFormat": "Node WChar [{{server}}]",
-                    "range": true,
-                    "refId": "B"
+                    "legendFormat": "{{ ins }}:{{ mountpoint }}",
+                    "refId": "A"
                 }
             ],
-            "title": "Node IO",
+            "title": "Disk Usage",
             "type": "timeseries"
         },
         {
@@ -2526,7 +3978,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 68
+                "y": 95
             },
             "id": 169,
             "panels": [],
@@ -2584,8 +4036,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "#346f36cc",
-                                "value": null
+                                "color": "#346f36cc"
                             }
                         ]
                     },
@@ -2597,7 +4048,7 @@
                 "h": 6,
                 "w": 24,
                 "x": 0,
-                "y": 69
+                "y": 96
             },
             "id": 168,
             "interval": "1s",
@@ -2645,7 +4096,7 @@
                 "h": 13,
                 "w": 24,
                 "x": 0,
-                "y": 75
+                "y": 102
             },
             "id": 167,
             "options": {
@@ -2740,7 +4191,6 @@
                 },
                 "definition": "label_values(minio_node_process_uptime_seconds{cls='$cls'}, ins)",
                 "description": "Minio Instance Name",
-                "hide": 2,
                 "includeAll": false,
                 "label": "Instance",
                 "name": "ins",
