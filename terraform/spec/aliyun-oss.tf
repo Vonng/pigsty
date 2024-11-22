@@ -246,7 +246,7 @@ resource "alicloud_instance" "pg-u24" {
   host_name                     = "pg-u24"
   private_ip                    = "10.10.10.24"
   instance_type                 = local.selected_instype
-  image_id                      = "${data.alicloud_images.u24.images.0.id}"
+  image_id                      = "${data.alicloud_images.u24_img.images.0.id}"
   vswitch_id                    = "${alicloud_vswitch.vsw.id}"
   security_groups               = ["${alicloud_security_group.default.id}"]
   password                      = "PigstyDemo4"
