@@ -1,12 +1,22 @@
 #!/bin/bash
-
-# Write Terraform SSH config to ~/.ssh/tf
-
+#==============================================================#
+# File      :   ssh
+# Desc      :   write terraform ssh config to ~/.ssh/pigsty_config
+# Ctime     :   2024-11-23
+# Mtime     :   2024-08-22
+# Path      :   bin/boot-oss
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
+#==============================================================#
+PROG_NAME="$(basename $0)"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
 PASSWORD='PigstyDemo4'
 
+# Write Terraform SSH config to ~/.ssh/pigsty_config
+cd "$PROG_DIR"
 outputs=$(terraform output -json)
 
-SSH_CONFIG_FILE="$HOME/.ssh/tf"
+SSH_CONFIG_FILE="$HOME/.ssh/pigsty_config"
 > "$SSH_CONFIG_FILE"
 
 for key in $(echo "$outputs" | jq -r 'keys[]'); do
@@ -20,6 +30,8 @@ for key in $(echo "$outputs" | jq -r 'keys[]'); do
     echo ""
   } >> "$SSH_CONFIG_FILE"
 done
+
+cat "$SSH_CONFIG_FILE"
 
 for key in $(echo "$outputs" | jq -r 'keys[]'); do
   ip=$(echo "$outputs" | jq -r ".${key}.value")

@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-11-18
+# Mtime     :   2024-11-22
 # Path      :   Makefile
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -211,8 +211,10 @@ dns:
 # start will pull-up node and write ssh-config
 # it may take a while to download centos/7 box for the first time
 start: up ssh      # 1-node version
-ssh:               # add current ssh config to your ~/.ssh/pigsty_config
+ssh:               # add current vagrant ssh config to your ~/.ssh/pigsty_config
 	vagrant/ssh
+tssh:               # add current terraform ssh config to your ~/.ssh/pigsty_config
+	terraform/ssh
 
 #------------------------------#
 # vagrant vm management
@@ -703,7 +705,7 @@ vminio24:
         c \
         infra pgsql repo repo-upstream repo-build repo-add repo-clean reinstall pgsql-add pgsql-rm pgsql-ext \
         prometheus grafana loki docker \
-        deps dns start ssh \
+        deps dns start ssh tssh \
         up dw del new clean up-test dw-test del-test new-test clean \
         st status suspend resume v1 v4 v7 v8 v9 vb vr vd vm vo vc vu vp vp7 vp9 \
         ri rc rw ro rh rhc test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
