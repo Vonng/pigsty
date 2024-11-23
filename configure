@@ -3,7 +3,7 @@
 # File      :   configure
 # Desc      :   generate pigsty.yml config according to env
 # Ctime     :   2021-05-17
-# Mtime     :   2024-11-15
+# Mtime     :   2024-11-22
 # Path      :   configure
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -556,7 +556,7 @@ function check_config(){
         fi
     fi
 
-    # if PGVER is non-empty, upsert pg_version & repo_modules accordingly
+    # if PGVER is non-empty, upsert pg_version accordingly
     if [[ -n "${PGVER}" && "${mode}" != "ivory" && "${mode}" != "mssql" && "${mode}" != "polar"  ]]; then
         # upsert pg_version to given PGVER
         if grep -q 'pg_version:' "${config_dst}"; then
@@ -565,16 +565,6 @@ function check_config(){
             sed -ie '$i\    pg_version: '"${PGVER}  # set by configure" "${config_dst}"
         fi
         rm -rf "${config_dst}e"
-
-        # for non-17 EL distro, add module to repo_modules
-        if [[ "${PGVER}" != "17" && "${OS_PACKAGE}" == "rpm" ]]; then
-            if grep -q '    repo_modules:' "${config_dst}"; then
-                sed -ie 's/\(    repo_modules:\s*\S*\)/\1,pg'"${PGVER}"'/g' "${config_dst}"
-            else
-                log_warn "add repo_modules"
-                sed -ie '$i\    repo_modules: infra,node,pgsql,pg'"${PGVER} # pg${PGVER} module is added during configure" "${config_dst}"
-            fi
-        fi
     fi
 
     rm -rf "${config_dst}e"
