@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Write Terraform SSH config to ~/.ssh/tf
+
+PASSWORD='PigstyDemo4'
+
+outputs=$(terraform output -json)
+
+SSH_CONFIG_FILE="$HOME/.ssh/tf"
+> "$SSH_CONFIG_FILE"
+
+for key in $(echo "$outputs" | jq -r 'keys[]'); do
+  ip=$(echo "$outputs" | jq -r ".${key}.value")
+  shortname=$(echo "$key" | sed 's/_ip$//')
+  hostname="${shortname}"
+  {
+    echo "Host $hostname"
+    echo "  HostName $ip"
+    echo "  User root"
+    echo ""
+  } >> "$SSH_CONFIG_FILE"
+done
+
+for key in $(echo "$outputs" | jq -r 'keys[]'); do
+  ip=$(echo "$outputs" | jq -r ".${key}.value")
+  sshpass -p "$PASSWORD" ssh-copy-id -o StrictHostKeyChecking=no root@"$ip"
+done
