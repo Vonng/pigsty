@@ -1,3 +1,13 @@
+#==============================================================#
+# File      :   aws-cn.yml
+# Desc      :   1-node sandbox env on AWS China
+# Ctime     :   2020-05-12
+# Mtime     :   2024-11-19
+# Path      :   terraform/spec/aws-cn.yml
+# License   :   AGPLv3 @ https://pigsty.io/docs/about/license
+# Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
+#==============================================================#
+
 ###########################################################
 # AWS Provider
 ###########################################################

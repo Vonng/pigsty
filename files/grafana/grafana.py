@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+#==============================================================#
+# File      :   grafana.py
+# Desc      :   dump/load/init grafana dashboards
+# Ctime     :   2022-11-23
+# Mtime     :   2024-11-24
+# Path      :   files/grafana/grafana.py
+# License   :   AGPLv3 @ https://pigsty.io/docs/about/license
+# Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
+#==============================================================#
 import os, sys, json, requests
 
 # grafana access info
@@ -233,8 +242,8 @@ def dump_dashboard_to_file(d, path):
     with open(path, 'w') as dst:
         raw = dashboard_raw(d)
         raw["version"] = 1
-        raw["author"] = "Vonng (rh@vonng.com)"
-        raw["license"] = "AGPLv3"
+        raw["author"] = "Ruohang Feng (rh@vonng.com)"
+        raw["license"] = "AGPLv3 @ https://pigsty.io/docs/about/license"
         json.dump(raw, dst, indent=4, sort_keys=True)
 
 

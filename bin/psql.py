@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*- #
+# License   :   AGPLv3 @ https://pigsty.io/docs/about/license
+# Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
+
 __author__ = 'Vonng (rh@vonng.com)'
 
 # A Wrapper for psycopg2

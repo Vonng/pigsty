@@ -556,7 +556,7 @@ pg-citus: # citus group
 
 <details><summary>Example: PostgreSQL for Self-hosting Supabase</summary><br>
 
-The [`conf/supa.yml`](https://github.com/Vonng/pigsty/blob/main/conf/supa.yml) provision a PostgreSQL cluster for self-hosting [supabase](https://pigsty.io/docs/kernel/supabase/) as below:
+The [`conf/supa.yml`](https://github.com/Vonng/pigsty/blob/main/conf/supa.yml) provision a PostgreSQL cluster for self-hosting [supabase](https://pigsty.io/docs/conf/supa/) as below:
 
 ```yaml
 # pg-meta, the underlying postgres database for supabase

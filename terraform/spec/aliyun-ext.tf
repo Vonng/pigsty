@@ -4,8 +4,8 @@
 # Ctime     :   2020-05-12
 # Mtime     :   2024-11-23
 # Path      :   terraform/spec/aliyun-arm-oss.yml
-# Author    :   Ruohang Feng (rh@vonng.com)
-# License   :   AGPLv3
+# License   :   AGPLv3 @ https://pigsty.io/docs/about/license
+# Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 
 
