@@ -30,10 +30,10 @@
   become: yes
   hosts: supabase
   gather_facts: no
-  tags: docker
+  tags: [ supa-docker, docker ]
   roles:
-    - role: node_id
-    - role: docker
+    - { role: node_id ,tags: id }
+    - { role: docker  ,tags: docker }
 
 
 # install supabase with docker compose
@@ -41,13 +41,13 @@
   become: yes
   hosts: supabase
   gather_facts: no
-  tags: supa-init
+  tags: [ supa-init , supabase ]
   tasks:
 
     # copy app/supabase to /opt/supabase
     - name: copy supabase app dir
       tags: supa_copy
-      copy: src="{{ playbook_dir }}/app/supabase" dest=/opt/supabase
+      copy: src="{{ playbook_dir }}/app/supabase/" dest=/opt/supabase/
 
     # copy app/supabase to /opt/supabase
     - name: overwrite supabase config
@@ -55,7 +55,7 @@
       lineinfile:
         path: /opt/supabase/.env
         regexp: '^{{ item.key | upper }}='
-        line: '{{ item.key | upper }}={{ item.value }}'
+        line: '{{ item.key | upper }}={{ item.value if item.value is not boolean else item.value | string | lower }}'
         create: yes
       loop: "{{ supa_config | dict2items }}"
 
@@ -65,6 +65,5 @@
       shell:
         cmd: docker compose up -d
         chdir: /opt/supabase
-        warn: no
 
 ...

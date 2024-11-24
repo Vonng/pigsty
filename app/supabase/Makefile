@@ -4,7 +4,9 @@ IMG_DIR=/tmp/docker/supabase
 
 up:
 	docker compose up -d
+start: up
 
+stop: down
 down:
 	docker compose down
 
@@ -66,4 +68,4 @@ load:
 	cat $(IMG_DIR)/kong.tgz      | gzip -d -c - | docker load
 
 
-.PHONY: default up down view log info restart clean edit pull save load tz tarball
+.PHONY: default up down start stop view log info restart clean edit pull save load tz tarball

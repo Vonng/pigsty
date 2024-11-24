@@ -53,8 +53,6 @@ In addition to the main templates, Pigsty provides a set of demo templates for d
 * [demo/debian.yml](demo/debian.yml) : config file with all default parameters for debian/ubuntu systems.
 * [demo/remote.yml](demo/remote.yml) : example config for monitoring a remote pgsql cluster or RDS PG.
 * [demo/redis.yml](demo/redis.yml) : example config for redis clusters
-* [demo/supa4.yml](demo/supa4.yml) : example config for 4-node supabase cluster
-
 
 
 ----------

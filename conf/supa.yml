@@ -9,7 +9,7 @@
 # Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 
-# supabase is available on el8/el9/u22/u24/d12 with pg14,15,16,17
+# supabase is available on el8/el9/u22/u24/d12 with pg15,16,17
 # To install supabase on fresh node, run:
 #
 #  curl -fsSL https://repo.pigsty.io/get | bash
@@ -92,14 +92,17 @@ all:
         pg_vip_interface: eth1
 
 
-    # launch supabase stateless part with docker compose
+    # launch supabase stateless part with docker compose:
     # ./supabase.yml
     supabase:
       hosts:
-        10.10.10.10: { supa_seq: 1 }
+        10.10.10.10: { supa_seq: 1 }  # instance id
       vars:
-        docker_enabled: true
-        #docker_registry_mirrors: ['https://docker.xxxxx.io']  # use these to pull docker images via proxy and mirror registries
+        supa_cluster: supa            # cluster name
+        docker_enabled: true          # enable docker
+
+        # use these to pull docker images via proxy and mirror registries
+        #docker_registry_mirrors: ['https://docker.xxxxx.io']
         #proxy_env:   # add [OPTIONAL] proxy env to /etc/docker/daemon.json configuration file
         #  no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
         #  #all_proxy: http://user:pass@host:port
@@ -111,8 +114,8 @@ all:
           # IMPORTANT: CHANGE JWT_SECRET AND REGENERATE CREDENTIAL ACCORDING!!!!!!!!!!!
           # https://supabase.com/docs/guides/self-hosting/docker#securing-your-services
           jwt_secret: your-super-secret-jwt-token-with-at-least-32-characters-long
-          anon_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJyb2xlIjogImFub24iLAogICJpc3MiOiAic3VwYWJhc2UiLAogICJpYXQiOiAxNzMyMzc3NjAwLAogICJleHAiOiAxOTkwMTQ0MDAwCn0.u0zKPMNEIkDb7XYvttXtOh9jJK0V_TLdfGp_C3HJ8h0
-          service_role_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJyb2xlIjogImFub24iLAogICJpc3MiOiAic3VwYWJhc2UiLAogICJpYXQiOiAxNzMyMzc3NjAwLAogICJleHAiOiAyMDAwMDAwMDAwCn0.-7G2xzxp4AtwQoxK9I0vSZsCEpGV3e06WJy-s490h5k
+          anon_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
+          service_role_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q
           dashboard_username: supabase
           dashboard_password: pigsty
 
