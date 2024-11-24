@@ -3,16 +3,20 @@
 # File      :   supa.yml
 # Desc      :   Pigsty configuration for self-hosting supabase
 # Ctime     :   2023-09-19
-# Mtime     :   2024-11-14
+# Mtime     :   2024-11-24
 # Docs      :   https://pigsty.io/docs/kernel/supabase/
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 
-# supabase is available on el8/el9/u22/u24/d12  pg14,15,16,17
-# ./install.yml             # install pigsty
-# ./docker.yml -l supabase  # install docker
-
+# supabase is available on el8/el9/u22/u24/d12 with pg14,15,16,17
+# To install supabase on fresh node, run:
+#
+#  curl -fsSL https://repo.pigsty.io/get | bash
+# ./bootstrap               # prepare local repo & ansible
+# ./configure -c supa       # IMPORTANT: CHANGE CREDENTIALS!!
+# ./install.yml             # install pigsty & pgsql & minio
+# ./supabase.yml            # launch supabase with docker compose
 
 all:
 
@@ -87,16 +91,62 @@ all:
         pg_vip_address: 10.10.10.2/24
         pg_vip_interface: eth1
 
-    # supabase stateless part with docker compose
+
+    # launch supabase stateless part with docker compose
+    # ./supabase.yml
     supabase:
       hosts:
-        10.10.10.10:
+        10.10.10.10: { supa_seq: 1 }
       vars:
         docker_enabled: true
-        #docker_registry_mirrors: ['https://docker.xxxxx.io']
+        #docker_registry_mirrors: ['https://docker.xxxxx.io']  # use these to pull docker images via proxy and mirror registries
         #proxy_env:   # add [OPTIONAL] proxy env to /etc/docker/daemon.json configuration file
         #  no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
         #  #all_proxy: http://user:pass@host:port
+
+        # these configuration entries will OVERWRITE or APPEND to /opt/supabase/.env file (src template: app/supabase/.env)
+        # check https://github.com/Vonng/pigsty/blob/main/app/supabase/.env for default values
+        supa_config:
+
+          # IMPORTANT: CHANGE JWT_SECRET AND REGENERATE CREDENTIAL ACCORDING!!!!!!!!!!!
+          # https://supabase.com/docs/guides/self-hosting/docker#securing-your-services
+          jwt_secret: your-super-secret-jwt-token-with-at-least-32-characters-long
+          anon_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJyb2xlIjogImFub24iLAogICJpc3MiOiAic3VwYWJhc2UiLAogICJpYXQiOiAxNzMyMzc3NjAwLAogICJleHAiOiAxOTkwMTQ0MDAwCn0.u0zKPMNEIkDb7XYvttXtOh9jJK0V_TLdfGp_C3HJ8h0
+          service_role_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJyb2xlIjogImFub24iLAogICJpc3MiOiAic3VwYWJhc2UiLAogICJpYXQiOiAxNzMyMzc3NjAwLAogICJleHAiOiAyMDAwMDAwMDAwCn0.-7G2xzxp4AtwQoxK9I0vSZsCEpGV3e06WJy-s490h5k
+          dashboard_username: supabase
+          dashboard_password: pigsty
+
+          # postgres connection string (use the correct ip and port)
+          postgres_host: 10.10.10.10
+          postgres_port: 5436             # access via the 'default' service, which always route to the primary postgres
+          postgres_db: postgres
+          postgres_password: DBUser.Supa  # password for supabase_admin and multiple supabase users
+
+          # expose supabase via domain name
+          site_url: http://supa.pigsty
+          api_external_url: http://supa.pigsty
+          supabase_public_url: http://supa.pigsty
+
+          # if using s3/minio as file storage
+          s3_bucket: supa
+          s3_endpoint: https://sss.pigsty:9000
+          s3_access_key: supabase
+          s3_secret_key: S3User.Supabase
+          s3_force_path_style: true
+          s3_protocol: https
+          s3_region: stub
+          minio_domain_ip: 10.10.10.10  # sss.pigsty domain name will resolve to this ip statically
+
+          # if using SMTP (optional)
+          #smtp_admin_email: admin@example.com
+          #smtp_host: supabase-mail
+          #smtp_port: 2500
+          #smtp_user: fake_mail_user
+          #smtp_pass: fake_mail_password
+          #smtp_sender_name: fake_sender
+          #enable_anonymous_users: false
+
+
 
   #==============================================================#
   # Global Parameters
@@ -114,9 +164,10 @@ all:
       alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
       minio        : { domain: m.pigsty ,endpoint: "10.10.10.10:9001", https: true, websocket: true }
       blackbox     : { endpoint: "${admin_ip}:9115" }
-      loki         : { endpoint: "${admin_ip}:3100" }
-      supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true } # <---- expose web UI
+      loki         : { endpoint: "${admin_ip}:3100" }  # expose supa studio UI and API via nginx
+      supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }
 
+    # use minio as supabase file storage, single node single driver mode for demonstration purpose
     minio_buckets: [ { name: pgsql }, { name: supa } ]
     minio_users:
       - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
