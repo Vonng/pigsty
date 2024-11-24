@@ -5,8 +5,8 @@
 -- Host      :   {{ pg_instance }} @ {{ inventory_hostname }}:{{ pg_port }}
 -- Path      :   /pg/tmp/pg-init-roles.sql
 -- Note      :   ANSIBLE MANAGED, DO NOT CHANGE!
--- Author    :   Ruohang Feng (rh@vonng.com)
--- License   :   AGPLv3
+-- License   :   AGPLv3 @ https://pigsty.io/docs/about/license
+-- Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
 ----------------------------------------------------------------------
 
 {% for user in pg_default_roles %}
