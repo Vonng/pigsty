@@ -3,13 +3,15 @@
 # File      :   supa4.yml
 # Desc      :   Pigsty configuration for 4-node self-hosting supabase
 # Ctime     :   2023-09-19
-# Mtime     :   2024-11-18
+# Mtime     :   2024-11-22
 # Docs      :   https://pigsty.io/docs/kernel/supabase/
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
 #==============================================================#
 
-# this template require the minio.rb vagrant template, with 4 disks for each node
+# NOTICE: this template require the minio.rb vagrant template, with 4 disks for each node
+# OTHERWISE THE MINIO CLUSTER WILL NOT WORK!
+#
 # make minio
 # ./install.yml             # install pigsty
 # ./docker.yml -l supabase  # install docker
@@ -86,6 +88,14 @@ all:
               - { name: minio-2 ,ip: 10.10.10.11 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
               - { name: minio-3 ,ip: 10.10.10.12 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
               - { name: minio-4 ,ip: 10.10.10.13 ,port: 9000 ,options: 'check-ssl ca-file /etc/pki/ca.crt check port 9000' }
+
+    # postgres example cluster: pg-meta
+    pg-meta:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-meta
+        pg_users: [ {name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [dbrole_admin] ,comment: pigsty admin user }]
+        pg_databases: [{name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty]}]
 
     # pg-supa, the underlying postgres database for supabase
     pg-supa:

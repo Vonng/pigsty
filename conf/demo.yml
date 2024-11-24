@@ -3,7 +3,7 @@
 # File      :   demo.yml
 # Desc      :   Pigsty Public Demo Configuration
 # Ctime     :   2020-05-22
-# Mtime     :   2024-11-12
+# Mtime     :   2024-11-24
 # Docs      :   https://pigsty.io/docs/conf/demo
 # Author    :   Ruohang Feng (rh@vonng.com)
 # License   :   AGPLv3
@@ -41,15 +41,16 @@ all:
       vars:
         pg_cluster: pg-meta
         pg_users:
-          - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
-          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
-          - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database    }
-          - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
-          - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
-          - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service       }
-          - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
-          - {name: dbuser_noco     ,password: DBUser.Noco     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for nocodb service      }
-          - {name: dbuser_odoo     ,password: DBUser.Odoo     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for odoo service ,createdb: true} #,superuser: true}
+          - {name: dbuser_meta       ,password: DBUser.Meta       ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
+          - {name: dbuser_view       ,password: DBUser.Viewer     ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+          - {name: dbuser_grafana    ,password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database    }
+          - {name: dbuser_bytebase   ,password: DBUser.Bytebase   ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
+          - {name: dbuser_kong       ,password: DBUser.Kong       ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
+          - {name: dbuser_gitea      ,password: DBUser.Gitea      ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service       }
+          - {name: dbuser_wiki       ,password: DBUser.Wiki       ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
+          - {name: dbuser_noco       ,password: DBUser.Noco       ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for nocodb service      }
+          - {name: dbuser_odoo       ,password: DBUser.Odoo       ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for odoo service ,createdb: true } #,superuser: true}
+          - {name: dbuser_mattermost ,password: DBUser.MatterMost ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for mattermost ,createdb: true }
         pg_databases:
           - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: vector},{name: postgis},{name: timescaledb}]}
           - {name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database  }
@@ -59,6 +60,7 @@ all:
           - {name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database  }
           - {name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database     }
           - {name: odoo     ,owner: dbuser_odoo     ,revokeconn: true ,comment: odoo main database  }
+          - {name: mattermost ,owner: dbuser_mattermost ,revokeconn: true ,comment: mattermost main database }
         pg_hba_rules:
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
         pg_libs: 'timescaledb,pg_stat_statements, auto_explain'  # add timescaledb to shared_preload_libraries
@@ -120,9 +122,10 @@ all:
       gitea        : { domain: git.pigsty.cc  ,endpoint: "127.0.0.1:8889" }
       wiki         : { domain: wiki.pigsty.cc ,endpoint: "127.0.0.1:9002" }
       noco         : { domain: noco.pigsty.cc ,endpoint: "127.0.0.1:9003" }
-      supa         : { domain: supa.pigsty.cc ,endpoint: "10.10.10.10:8000", websocket: true }
-      dify         : { domain: dify.pigsty.cc ,endpoint: "10.10.10.10:8001", websocket: true }
-      odoo         : { domain: odoo.pigsty.cc, endpoint: "127.0.0.1:8069"  , websocket: true }
+      supa         : { domain: supa.pigsty.cc ,endpoint: "10.10.10.10:8000" ,websocket: true }
+      dify         : { domain: dify.pigsty.cc ,endpoint: "10.10.10.10:8001" ,websocket: true }
+      odoo         : { domain: odoo.pigsty.cc ,endpoint: "127.0.0.1:8069"   ,websocket: true }
+      mm           : { domain: mm.pigsty.cc   ,endpoint: "10.10.10.10:8065" ,websocket: true }
     # scp -r ~/pgsty/cc/cert/*       pj:/etc/cert/       # copy https certs
     # scp -r ~/dev/pigsty.cc/public  pj:/www/pigsty.cc   # copy pigsty.cc website
 
