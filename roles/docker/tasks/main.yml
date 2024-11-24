@@ -75,13 +75,17 @@
       command: docker pull "{{ item }}"
       with_items: "{{ docker_image }}"
 
-    - name: load docker image cache if exists
-      when: docker_image_cache is defined and docker_image_cache|length > 0
-      shell: |
-        if [[ -f "{{ item }}" ]]; then
-            cat {{ item }} | gzip -d -c - | docker load
-        fi
-      args: { executable: /bin/bash }
-      with_fileglob: "{{ docker_image_cache }}"
+    - name: find local docker image cache
+      find:
+        paths: "{{ docker_image_cache | dirname }}"
+        patterns: "{{ docker_image_cache | basename }}"
+        use_regex: no
+      register: docker_images
 
+    - name: load docker image cache
+      shell: |
+        cat "{{ item.path }}" | gzip -d -c | docker load
+      args: { executable: /bin/bash }
+      loop: "{{ docker_images.files }}"
+      when: docker_images.files is defined and docker_images.files | length > 0
 ...

@@ -1385,8 +1385,7 @@ INSERT INTO pigsty.default_var VALUES
 (402, 'docker_registry_mirrors', '[]', 'DOCKER', 'DOCKER', 'string[]', 'C', 'docker registry mirror list', NULL),
 (403, 'docker_exporter_port', '9323', 'DOCKER', 'DOCKER', 'port', 'G', 'docker metrics exporter port, 9323 by default', NULL),
 (404, 'docker_image', '[]', 'DOCKER', 'DOCKER', 'path', 'C', 'docker image to be pulled, empty list by default', NULL),
-(405, 'docker_image_cache', '["/tmp/docker/*.tgz"]', 'DOCKER', 'DOCKER', 'path', 'C', 'docker image cache tarball glob', NULL),
-
+(405, 'docker_image_cache', '"/tmp/docker/*.tgz"', 'DOCKER', 'DOCKER', 'path', 'C', 'docker image cache tarball glob, /tmp/docker/*.tgz by default', NULL),
 
 -- ETCD PARAMETERS
 (501, 'etcd_seq', NULL, 'ETCD', 'ETCD', 'int', 'I', 'etcd instance identifier, REQUIRED', NULL),
