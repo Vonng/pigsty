@@ -36,10 +36,10 @@
 #--------------------------------------------------------------#
 # make sure /pg/backup target dir exists (pg_dir)
 # if local repo is used, init a local repo on all cluster members
-# if minio repo is used, init a minio repo on primary only
+# if other repos are used, init a remote repo from primary only
 - name: create pgbackrest repo stanza
   tags: [ pgbackrest, pgbackrest_init ]
-  when: pgbackrest_method == 'local' or (pg_role == 'primary' and pg_upstream is not defined)
+  when: pgbackrest_method == 'local' or (pgbackrest_method != 'local' and pg_role == 'primary' and pg_upstream is not defined)
   become: yes
   become_user: "{{ pg_dbsu }}"
   ignore_errors: true
