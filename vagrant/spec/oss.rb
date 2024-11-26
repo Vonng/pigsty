@@ -1,4 +1,4 @@
-# oss: pigsty building environment templates： RockyLinux 8.9 / RockyLinux 9.3 / Debian 12.4 / Ubuntu 22.04
+# oss: pigsty building environment templates: RockyLinux 8.9 / RockyLinux 9.3 / Debian 12.4 / Ubuntu 22.04
 
 Specs = [
 
