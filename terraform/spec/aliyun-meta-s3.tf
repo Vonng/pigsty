@@ -157,7 +157,7 @@ output "public_ip" {
 # The OSS bucket for PITR
 #===========================================================#
 resource "alicloud_oss_bucket" "pigsty-oss" {
-  bucket = "pigsty-oss2"
+  bucket = "pigsty-oss"
 }
 
 resource "alicloud_oss_bucket_acl" "pigsty-oss-acl" {
