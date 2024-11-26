@@ -91,9 +91,7 @@ all:
         pg_vip_address: 10.10.10.2/24
         pg_vip_interface: eth1
 
-
-    # launch supabase stateless part with docker compose:
-    # ./supabase.yml
+    # launch supabase stateless part with docker compose: ./supabase.yml
     supabase:
       hosts:
         10.10.10.10: { supa_seq: 1 }  # instance id
@@ -170,7 +168,25 @@ all:
       loki         : { endpoint: "${admin_ip}:3100" }  # expose supa studio UI and API via nginx
       supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }
 
+    #----------------------------------#
+    # Credential: CHANGE THESE PASSWORDS
+    #----------------------------------#
+    #grafana_admin_username: admin
+    grafana_admin_password: pigsty
+    #pg_admin_username: dbuser_dba
+    pg_admin_password: DBUser.DBA
+    #pg_monitor_username: dbuser_monitor
+    pg_monitor_password: DBUser.Monitor
+    #pg_replication_username: replicator
+    pg_replication_password: DBUser.Replicator
+    #patroni_username: postgres
+    patroni_password: Patroni.API
+    #haproxy_admin_username: admin
+    haproxy_admin_password: pigsty
+
     # use minio as supabase file storage, single node single driver mode for demonstration purpose
+    minio_access_key: minioadmin      # root access key, `minioadmin` by default
+    minio_secret_key: minioadmin      # root secret key, `minioadmin` by default
     minio_buckets: [ { name: pgsql }, { name: supa } ]
     minio_users:
       - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
@@ -178,6 +194,30 @@ all:
       - { access_key: supabase   , secret_key: S3User.Supabase, policy: readwrite }
     minio_endpoint: https://sss.pigsty:9000    # explicit overwrite minio endpoint with haproxy port
     node_etc_hosts: ["10.10.10.10 sss.pigsty"] # domain name to access minio from all nodes (required)
+
+    # use minio as default backup repo for PostgreSQL
+    pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
+    pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+      local:                          # default pgbackrest repo with local posix fs
+        path: /pg/backup              # local backup directory, `/pg/backup` by default
+        retention_full_type: count    # retention full backups by count
+        retention_full: 2             # keep 2, at most 3 full backup when using local fs repo
+      minio:                          # optional minio repo for pgbackrest
+        type: s3                      # minio is s3-compatible, so s3 is used
+        s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default
+        s3_region: us-east-1          # minio region, us-east-1 by default, useless for minio
+        s3_bucket: pgsql              # minio bucket name, `pgsql` by default
+        s3_key: pgbackrest            # minio user access key for pgbackrest
+        s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
+        s3_uri_style: path            # use path style uri for minio rather than host style
+        path: /pgbackrest             # minio backup path, default is `/pgbackrest`
+        storage_port: 9000            # minio port, 9000 by default
+        storage_ca_file: /pg/cert/ca.crt  # minio ca file path, `/pg/cert/ca.crt` by default
+        bundle: y                     # bundle small files into a single file
+        cipher_type: aes-256-cbc      # enable AES encryption for remote backup repo
+        cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
+        retention_full_type: time     # retention full backup by time on minio repo
+        retention_full: 14            # keep full backup for last 14 days
 
     # download docker and supabase related extensions
     pg_version: 17

@@ -1,99 +1,47 @@
 # Supabase
 
-[Supabase](https://supabase.com/), The open-source Firebase alternative based on PostgreSQL.
+> [Supabase](https://supabase.com/) —— Build in a weekend, Scale to millions
 
 Pigsty allow you to self-host **supabase** with existing managed HA postgres cluster, and launch the stateless part of supabase with docker-compose.
+Check the official tutorial for details: [Self-Hosting Supabase](https://pigsty.io/docs/kernel/supabase)
 
-> Notice: Supabase is [GA](https://supabase.com/ga) since 2024.04.15
+Supabase is the open-source Firebase alternative built upon PostgreSQL.
+It provides authentication, API, edge functions, real-time subscriptions, object storage, and vector embedding capabilities out of the box.
+All you need to do is to design the database schema and frontend, and you can quickly get things done without worrying about the backend development.
 
-> Complete Tutorial: https://pigsty.io/docs/kernel/supabase
+Supabase's slogan is: "**Build in a weekend, Scale to millions**". Supabase has great cost-effectiveness in small scales (4c8g) indeed.
+But there is no doubt that when you really grow to millions of users, some may choose to self-hosting their own Supabase —— for functionality, performance, cost, and other reasons.
 
------------------------
+That's where Pigsty comes in. Pigsty provides a complete one-click self-hosting solution for Supabase.
+Self-hosted Supabase can enjoy full PostgreSQL monitoring, IaC, PITR, and high availability, the new PG 17 kernels (and 14-16),
+and [340](https://ext.pigsty.io/#/list) PostgreSQL extensions ready to use, and can take full advantage of the performance and cost advantages of modern hardware.
+
+
+
+-------
 
 ## Quick Start
 
-To run supabase with existing postgres instance, prepare the [database](#database) with [`supa.yml`](https://github.com/Vonng/pigsty/blob/master/conf/supa.yml)
+First, download & [install](/docs/setup/install) pigsty as usual, with the `supa` config template:
 
 ```bash
-./configure -c supa -i 10.10.10.10
-./install
+ curl -fsSL https://repo.pigsty.io/get | bash
+./bootstrap          # install deps (ansible)
+./configure -c supa  # use supa config template (IMPORTANT: CHANGE PASSWORDS!)
+./install.yml        # install pigsty, create ha postgres & minio clusters 
 ```
 
-then launch the [stateless part](#stateless-part) with the [`docker-compose`](docker-compose.yml) file:
+Please change the `pigsty.yml` config file according to your need before deploying Supabase. (Credentials)
+
+Then, run the [`supabase.yml`](https://github.com/Vonng/pigsty/blob/main/supabase.yml) to launch stateless part of supabase.
 
 ```bash
-cd app/supabase; make up    # https://supabase.com/docs/guides/self-hosting/docker
+./supabase.yml       # launch stateless supabase containers with docker compose
 ```
 
-Then you can access the supabase studio dashboard via `http://<admin_ip>:8000` by default, the default dashboard username is `supabase` and password is `pigsty`.
+You can access the supabase API / Web UI through the `80/443` infra portal,
+with configured DNS for public domain, or a local `/etc/hosts` record with `supa.pigsty` pointing to the node also works.
 
-You can also configure the `infra_portal` to expose the WebUI to the public through Nginx and SSL.
+> Default username & password: `supabase` : `pigsty`
 
-
-
------------------------
-
-## Database
-
-Supabase require certain PostgreSQL extensions, schemas, and roles to work, which can be pre-configured by Pigsty: [`supa.yml`](https://github.com/Vonng/pigsty/blob/main/conf/supa.yml).
-
-Provisioning a cluster with that configuration, then the database is now ready for supabase!
-
-![](https://pigsty.io/img/pigsty/supa.jpg)
-
-
------------------------
-
-## Stateless Part
-
-Supabase stateless part is managed by `docker-compose`, the [`docker-compose`](docker-compose.yml) file we use here is a simplified version of [github.com/supabase/docker/docker-compose.yml](https://github.com/supabase/supabase/blob/master/docker/docker-compose.yml).
-
-Everything you need to care about is in the [`.env`](.env) file, which contains important settings for supabase. It is already configured to use the `pg-meta`.`postgres` database by default, You have to change that according to your actual deployment. 
-
-```bash
-POSTGRES_PASSWORD=DBUser.Supa       # supabase dbsu password (shared by multiple supabase biz users)
-JWT_SECRET=your-super-secret-jwt-token-with-at-least-32-characters-long
-ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
-SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q
-DASHBOARD_USERNAME=supabase         # change to your own username
-DASHBOARD_PASSWORD=pigsty           # change to your own password
-
-POSTGRES_HOST=10.10.10.10           # change to Pigsty managed PostgreSQL cluster/instance VIP/IP/Hostname
-POSTGRES_PORT=5432                  # you can use other service port such as 5433, 5436, 6432, etc...
-POSTGRES_DB=postgres                # change to supabase database name, `supa` by default in pigsty
-```
-
-Usually you'll have to change these parameters accordingly. Here we'll use fixed username, password and IP:Port database connect string for simplicity.
-
-The postgres username is fixed as `supabase_admin` and the password is `DBUser.Supa`, change that according to your [`supabase.yml`](https://github.com/Vonng/pigsty/blob/main/conf/supa.yml#L44)
-And the supabase studio WebUI credential is managed by `DASHBOARD_USERNAME` and `DASHBOARD_PASSWORD`, which is `supabase` and `pigsty` by default.
-
-The official tutorial: [Self-Hosting with Docker](https://supabase.com/docs/guides/self-hosting/docker) just have all the details you need.
-
-Once configured, you can launch the stateless part with `docker-compose` or `make up` shortcut:
-
-```bash
-cd ~/pigsty/app/supabase; make up    #  = docker compose up
-```
-
-
-
------------------------
-
-## Expose Service
-
-The supabase studio dashboard is exposed on port `8000` by default, you can add this service to the `infra_portal` to expose it to the public through Nginx and SSL. 
-
-```yaml
-    infra_portal:                     # domain names and upstream servers
-      # ...
-      supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }
-```
-
-To expose the service, you can run the `infra.yml` playbook with the `nginx` tag:
-
-```bash
-./infra.yml -t nginx
-```
-
-Make sure `supa.pigsty` or your own domain is resolvable to the `infra_portal` server, and you can access the supabase studio dashboard via `https//supa.pigsty`.
+Check the official tutorial for more details: [Self-Hosting Supabase](https://pigsty.io/docs/kernel/supabase)
