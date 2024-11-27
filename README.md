@@ -176,8 +176,7 @@ pg-test:
     10.10.10.11: { pg_seq: 1, pg_role: primary }
     10.10.10.12: { pg_seq: 2, pg_role: replica }
     10.10.10.13: { pg_seq: 3, pg_role: offline }
-  vars:
-    pg_cluster: pg-test
+  vars: { pg_cluster: pg-test }
 ```
 
 The default config file is [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/main/pigsty.yml) under pigsty home, add the snippet above to the `all.children.pg-test`,
