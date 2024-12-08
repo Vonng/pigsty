@@ -47,17 +47,17 @@ make all        # 7-node building env with all base images
 
 `Vagranfile` is a ruby script file describing VM nodes. Here are some default specs of Pigsty. 
 
-|         Templates         | Shortcut |      Spec       |         Comment         |  Alias   |
-|:-------------------------:|:--------:|:---------------:|:-----------------------:|:--------:|
-|  [meta.rb](spec/meta.rb)  |  3 node  |    2c4g x 1     |    Single Node Meta     |  Devbox  |
-|  [dual.rb](spec/dual.rb)  |  3 node  |    1c2g x 2     |       Dual Nodes        |          |
-|  [trio.rb](spec/trio.rb)  |  3 node  |    1c2G x 3     |       Three Nodes       |          |
-|  [full.rb](spec/full.rb)  |  3 node  | 2c4g + 1c2g x 3 |  Full-Featured 4 Node   | Sandbox  |
-|  [prod.rb](spec/prod.rb)  | 43 node  |      misc       |   Prod Env Simulation   | Simubox  |
-| [build.rb](spec/build.rb) |  4 node  |    1c2g x 4     |   4-Node Building Env   | Buildbox |
-|   [rpm.rb](spec/rpm.rb)   |  3 node  |    1c2G x 3     | 3-Node EL Building Env  |          |
-|   [deb.rb](spec/deb.rb)   |  5 node  |    1c2G x 5     | 5-Node Deb Building Env |          |
-|   [all.rb](spec/all.rb)   |  7 node  |    1c2G x 7     | 7-Node All Building Env |          |
+|        Templates        |  Nodes  |      Spec       |         Comment         |  Alias   |
+|:-----------------------:|:-------:|:---------------:|:-----------------------:|:--------:|
+| [meta.rb](spec/meta.rb) | 1 node  |    2c4g x 1     |    Single Node Meta     |  Devbox  |
+| [dual.rb](spec/dual.rb) | 2 node  |    1c2g x 2     |       Dual Nodes        |          |
+| [trio.rb](spec/trio.rb) | 3 node  |    1c2G x 3     |       Three Nodes       |          |
+| [full.rb](spec/full.rb) | 4 node  | 2c4g + 1c2g x 3 |  Full-Featured 4 Node   | Sandbox  |
+| [prod.rb](spec/prod.rb) | 36 node |      misc       |   Prod Env Simulation   | Simubox  |
+| [build.rb](spec/oss.rb) | 5 node  |    1c2g x 4     |   4-Node Building Env   | Buildbox |
+|  [rpm.rb](spec/rpm.rb)  | 3 node  |    1c2G x 3     | 3-Node EL Building Env  |          |
+|  [deb.rb](spec/deb.rb)  | 5 node  |    1c2G x 5     | 5-Node Deb Building Env |          |
+|  [all.rb](spec/all.rb)  | 7 node  |    1c2G x 7     | 7-Node All Building Env |          |
 
 Each spec file contains a `Specs` variable describe VM nodes. For example, the [`full.rb`](spec/full.rb) contains:
 
