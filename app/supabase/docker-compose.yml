@@ -4,7 +4,7 @@
 # File      :   docker-compose.yml
 # Desc      :   modified supabase docker compose for pigsty pg
 # Ctime     :   2023-09-19
-# Mtime     :   2024-11-18
+# Mtime     :   2024-12-08
 # Path      :   app/supabase/docker-compose.yml
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
@@ -60,11 +60,11 @@ services:
   # https://supabase.com/docs/guides/getting-started/architecture#studio-dashboard
   studio:
     container_name: supabase-studio
-    image: supabase/studio:20241014-c083b3b
+    image: supabase/studio:20241202-71e5240
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD","node","-e","require('http').get('http://localhost:3000/api/profile', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" ]
-      timeout: 5s
+      test: [ "CMD", "node", "-e", "fetch('http://studio:3000/api/profile').then((r) => {if (r.status !== 200) throw new Error(r.status)})"]
+      timeout: 10s
       interval: 5s
       retries: 3
     depends_on:
@@ -93,7 +93,7 @@ services:
   # https://supabase.com/docs/guides/getting-started/architecture#gotrue-auth
   auth:
     container_name: supabase-auth
-    image: supabase/gotrue:v2.158.1
+    image: supabase/gotrue:v2.164.0
     depends_on:
       analytics:
         condition: service_healthy
@@ -120,6 +120,8 @@ services:
       GOTRUE_EXTERNAL_EMAIL_ENABLED: ${ENABLE_EMAIL_SIGNUP}
       GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED: ${ENABLE_ANONYMOUS_USERS}
       GOTRUE_MAILER_AUTOCONFIRM: ${ENABLE_EMAIL_AUTOCONFIRM}
+      # Uncomment to bypass nonce check in ID Token flow. Commonly set to true when using Google Sign In on mobile.
+      # GOTRUE_EXTERNAL_SKIP_NONCE_CHECK: true
       # GOTRUE_MAILER_SECURE_EMAIL_CHANGE_ENABLED: true
       # GOTRUE_SMTP_MAX_FREQUENCY: 1s
       GOTRUE_SMTP_ADMIN_EMAIL: ${SMTP_ADMIN_EMAIL}
@@ -180,7 +182,7 @@ services:
   realtime:
     # This container name looks inconsistent but is correct because realtime constructs tenant id by parsing the subdomain
     container_name: realtime-dev.supabase-realtime
-    image: supabase/realtime:v2.30.34
+    image: supabase/realtime:v2.33.58
     depends_on:
       analytics:
         condition: service_healthy
@@ -221,7 +223,7 @@ services:
       imgproxy:
         condition: service_started
     healthcheck:
-      test: [ "CMD","wget","--no-verbose","--tries=1","--spider","http://localhost:5000/status" ]
+      test: [ "CMD","wget","--no-verbose","--tries=1","--spider","http://storage:5000/status" ]
       timeout: 5s
       interval: 5s
       retries: 3
@@ -307,7 +309,7 @@ services:
   # https://supabase.com/docs/guides/getting-started/architecture#deno-edge-functions
   functions:
     container_name: supabase-edge-functions
-    image: supabase/edge-runtime:v1.59.0
+    image: supabase/edge-runtime:v1.65.3
     restart: unless-stopped
     depends_on:
       analytics:
@@ -373,4 +375,4 @@ services:
     volumes:
       - ./volumes/logs/vector.yml:/etc/vector/vector.yml:ro
       - ${DOCKER_SOCKET_LOCATION}:/var/run/docker.sock:ro
-    command: [ "--config", "etc/vector/vector.yml" ]
+    command: [ "--config", "/etc/vector/vector.yml" ]

@@ -2,7 +2,7 @@
 -- # File      :   supabase.sql
 -- # Desc      :   Pigsty self-hosting supabase baseline schema
 -- # Ctime     :   2021-04-21
--- # Mtime     :   2024-10-11
+-- # Mtime     :   2024-12-08
 -- # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 -- # Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
 -- ######################################################################
@@ -1555,7 +1555,7 @@ ALTER ROLE authenticator set lock_timeout to '8s';
 -- 20240124080435_alter_lo_export_lo_import_owner.sql
 ----------------------------------------------------
 -- migrate:up
-    alter function pg_catalog.lo_export owner to supabase_admin;
+alter function pg_catalog.lo_export owner to supabase_admin;
 alter function pg_catalog.lo_import(text) owner to supabase_admin;
 alter function pg_catalog.lo_import(text, oid) owner to supabase_admin;
 
@@ -1570,6 +1570,20 @@ alter function pg_catalog.lo_import(text, oid) owner to supabase_admin;
 
 -- migrate:down
 
+
+----------------------------------------------------
+-- 20241031003909_create_orioledb.sql
+----------------------------------------------------
+-- migrate:up
+do $$
+begin
+    if exists (select 1 from pg_available_extensions where name = 'orioledb') then
+        if not exists (select 1 from pg_extension where extname = 'orioledb') then
+            create extension if not exists orioledb;
+        end if;
+    end if;
+end $$;
+-- migrate:down
 
 
 
