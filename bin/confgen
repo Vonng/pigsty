@@ -21,8 +21,8 @@ DISTROS = ['el8', 'el9', 'd12', 'u22', 'u24']
 DEB_OS = ['d12', 'u22', 'u24']
 RPM_OS = ['el8', 'el9']
 
-THROW_LIST = []
-HIDE_LIST = ['pgpool', 'plr', 'pgagent', 'dbt2', 'pgtap', 'faker', 'repmgr', 'slony', 'oracle_fdw', 'pg_strom', 'db2_fdw']
+THROW_LIST = ['pg_mooncake', 'pg_timeit', 'pgdd', 'hunspell_pt_pt' ]
+HIDE_LIST = ['pgpool', 'plr', 'pgagent', 'dbt2', 'pgtap', 'faker', 'repmgr', 'slony', 'oracle_fdw', 'pg_strom', 'db2_fdw', 'pg_moonckae']
 
 
 # these extensions will not be added to repo_packages & pg_extension due to various reasons
@@ -49,7 +49,7 @@ DISTRO_FULLNAME = {
 }
 
 # these extensions will be commented in pg_extensions due to conflict
-EXT_NOP_LIST = ["pg_mooncake", "citus"]
+EXT_NOP_LIST = ["pg_mooncake", "citus", "hunspell_pt_pt"]
 
 EXTRA_COMMENT = {
     'pgpool': 'exclude due to not used',
@@ -63,11 +63,10 @@ EXTRA_COMMENT = {
     'oracle_fdw': 'exclude due to heavy oracle deps',
     'pg_strom': 'exclude due to heavy cuda deps',
     'db2_fdw': 'exclude due to heavy db2 deps',
-    'citus': 'conflict with hydra',
-    'hydra': 'conflict with citus',
-    'pg_duckdb': 'conflict with duckdb_fdw,pg_mooncake',
-    'pg_mooncake': 'conflict with pg_duckdb,duckdb_fdw',
-    'duckdb_fdw': 'conflict with pg_duckdb,pg_mooncake',
+    'citus': 'conflict with hydra, no arm, no pg17',
+    'hydra': 'conflict with citus, no pg17',
+    'pg_duckdb': 'conflict with duckdb_fdw',
+    'duckdb_fdw': 'conflict with pg_duckdb',
     'hunspell_pt_pt': 'conflict with default pg dict',
     'pg_dbms_job': 'exclude due to broken deps',
     'babelfishpg_common': 'work with wiltondb pg15 kernel',
@@ -79,19 +78,19 @@ EXTRA_COMMENT = {
 RPM_COMMON_PKG = [
     #"ansible python3 python3-pip python3-virtualenv python3-requests python3-jmespath python3-cryptography dnf-utils modulemd-tools createrepo_c sshpass",
     "nginx dnsmasq etcd haproxy vip-manager pg_exporter pgbackrest_exporter redis_exporter redis minio mcli ferretdb duckdb",
-    "grafana loki logcli promtail prometheus2 alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter",
+    "grafana loki logcli promtail prometheus alertmanager pushgateway node_exporter blackbox_exporter nginx_exporter keepalived_exporter",
     "lz4 unzip bzip2 zlib yum pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl grubby sysstat iotop htop rsync tcpdump perf flamegraph chkconfig",
     "netcat socat ftp lrzsz net-tools ipvsadm bind-utils telnet audit ca-certificates readline vim-minimal keepalived chrony openssl openssh-server openssh-clients",
-    "patroni patroni-etcd pgbouncer pgbackrest pgbadger pg_activity pg_timetable pgFormatter pg_filedump pgxnclient timescaledb-tools pgcopydb pgloader",
+    "patroni patroni-etcd pgbouncer pgbackrest pgbadger pg_activity pg_timetable pgFormatter pg_filedump pgxnclient timescaledb-tools pgcopydb",
 ]
 
 DEB_COMMON_PKG = [
     #"ansible python3 python3-pip python3-venv python3-jmespath dpkg-dev sshpass",
     "nginx dnsmasq etcd haproxy vip-manager pg-exporter pgbackrest-exporter redis-exporter redis minio mcli ferretdb duckdb",
-    "grafana loki logcli promtail prometheus2 alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter",
+    "grafana loki logcli promtail prometheus alertmanager pushgateway node-exporter blackbox-exporter nginx-exporter keepalived-exporter",
     "lz4 unzip bzip2 zlib1g pv jq git ncdu make patch bash lsof wget uuid tuned nvme-cli numactl sysstat iotop htop rsync tcpdump acl chrony",
     "netcat-openbsd socat lrzsz net-tools ipvsadm dnsutils telnet ca-certificates libreadline-dev vim-tiny keepalived openssl openssh-server openssh-client",
-    "patroni pgbouncer pgbackrest pgbadger pg-activity pg-timetable pgformatter postgresql-filedump pgxnclient timescaledb-tools pgcopydb pgloader",
+    "patroni pgbouncer pgbackrest pgbadger pg-activity pg-timetable pgformatter postgresql-filedump pgxnclient timescaledb-tools pgcopydb",
 ]
 
 DISTRO_ADHOC_PKG = {
@@ -197,7 +196,7 @@ node_packages_default:
 
 # default infra packages to be installed (if `infra_packages` is not explicitly set)
 infra_packages_default:
-  - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway
+  - grafana,loki,logcli,promtail,prometheus,alertmanager,pushgateway
   - node_exporter,blackbox_exporter,nginx_exporter,pg_exporter
   - nginx,dnsmasq,ansible,etcd,python3-requests,redis,mcli
 
@@ -242,7 +241,7 @@ node_packages_default:
 
 # default infra packages to be installed (if `infra_packages` is not explicitly set)
 infra_packages_default:
-  - grafana,loki,logcli,promtail,prometheus2,alertmanager,pushgateway
+  - grafana,loki,logcli,promtail,prometheus,alertmanager,pushgateway
   - node-exporter,blackbox-exporter,nginx-exporter,pg-exporter
   - nginx,dnsmasq,ansible,etcd,python3-requests,redis,mcli
 
@@ -483,7 +482,7 @@ def gen_oss_conf(ver):
     deb_repo =  '\n'.join(['          ' + i.replace('https://repo.pigsty.io', 'http://10.10.10.1').replace('https://repo.pigsty.cc', 'http://10.10.10.1') for i in DEB_REPO.split('\n')])
     args = tuple([ver,ver,current_date,ver,rpm_repo,deb_repo] + pkg_ext)
     output_path = os.path.join(CONF_PATH, 'pg%s.yml' % ver)
-    OSS_CONF_TMPL = open(os.path.join(TMPL_PATH, 'oss.yml')).read()
+    OSS_CONF_TMPL = open(os.path.join(CONF_PATH,  'template.yml')).read()
     with open(output_path, 'w') as dst:
         dst.write(OSS_CONF_TMPL % args)
 
@@ -716,5 +715,6 @@ def gen_build_conf():
     for ver in PG_VERS:
         gen_oss_conf(ver)
 
+gen_build_conf()
 gen_distro_vars()
 
