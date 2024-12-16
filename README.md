@@ -298,7 +298,7 @@ There are many built-in configuration [templates](https://pigsty.io/docs/conf) t
 
 <details><summary>Example: Sandbox (4-node) with two PG cluster</summary><br>
 
-The [`full.yml`](https://github.com/Vonng/pigsty/blob/main/conf/sandbox/full.yml) utilize four nodes to deploy two PostgreSQL clusters `pg-meta` and `pg-test`:
+The [`conf/full.yml`](https://github.com/Vonng/pigsty/blob/main/conf/full.yml) utilize four nodes to deploy two PostgreSQL clusters `pg-meta` and `pg-test`:
 
 ```yaml
 pg-meta:
@@ -416,7 +416,7 @@ You can even replace the vanilla [**`PostgreSQL`**](https://pigsty.io/docs/pgsql
 
 <details><summary>Example: Babelfish Cluster (MSSQL Compatible)</summary><br>
 
-The [`conf/dbms/mssql.yml`](https://github.com/Vonng/pigsty/blob/main/conf/mssql.yml) Provision a [Babelfish](https://pigsty.io/docs/kernel/babelfish/) cluster with Microsoft SQL Server compatibility:
+The [`conf/mssql.yml`](https://github.com/Vonng/pigsty/blob/main/conf/mssql.yml) Provision a [Babelfish](https://pigsty.io/docs/kernel/babelfish/) cluster with Microsoft SQL Server compatibility:
 
 ```yaml
 # ./pgsql.yml -l pg-mssql
