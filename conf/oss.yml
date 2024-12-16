@@ -1,7 +1,7 @@
 ---
 #==============================================================#
 # File      :   oss.yml
-# Desc      :   Pigsty 5-node building env (PG17 by default)
+# Desc      :   Pigsty 3-node building env (PG17 by default)
 # Ctime     :   2024-10-22
 # Mtime     :   2024-12-14
 # Docs      :   https://pigsty.io/docs/conf/oss/
@@ -10,176 +10,48 @@
 #==============================================================#
 
 #==========================================#
-# 1.  el8 : 10.10.10.8  Rocky 8.9          #
-# 2.  el9 : 10.10.10.9  Rocky 9.3          #
-# 3.  d12 : 10.10.10.12 Debian 12 bookworm #
-# 4.  u22 : 10.10.10.22 Ubuntu 22.04 jammy #
-# 5.  u24 : 10.10.10.24 Ubuntu 24.04 noble #
+# 1.  el9 : 10.10.10.9  RockyLinux 9.3+    #
+# 2.  d12 : 10.10.10.12 Debian 12 bookworm #
+# 3.  u22 : 10.10.10.22 Ubuntu 22.04 jammy #
 #==========================================#
 
 
 all:
-
   vars:
     version: v3.1.0
     admin_ip: 10.10.10.9
-    region: china
+    region: default
     etcd_clean: true
     proxy_env:
       no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn,*.pigsty.cc"
+
+    # building spec
     pg_version: 17
+    cache_pkg_dir: 'dist/${version}/'
     repo_modules: infra,node,pgsql,docker #kube,mssql,ivory
     repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker ]
+    repo_extra_packages: [ pg17-core ,pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ]
+    pg_extensions: [ pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ]
 
   children:
     infra:
       hosts:
-        10.10.10.8:  { infra_seq: 1, admin_ip: 10.10.10.8  } #,ansible_host: el8 ,ansible_python_interpreter: /usr/bin/python3.12  }
         10.10.10.9:  { infra_seq: 2, admin_ip: 10.10.10.9  } #,ansible_host: el9 }
         10.10.10.12: { infra_seq: 3, admin_ip: 10.10.10.12 } #,ansible_host: d12 }
         10.10.10.22: { infra_seq: 4, admin_ip: 10.10.10.22 } #,ansible_host: u22 }
-        10.10.10.24: { infra_seq: 5, admin_ip: 10.10.10.24 } #,ansible_host: u24 }
       vars: { node_conf: oltp }
 
     etcd: { hosts: { 10.10.10.9:  { etcd_seq: 1 }}, vars: {  etcd_cluster: etcd  } }
 
-    #----------------------------------#
-    # build el8 packages on Rocky 8.9
-    #----------------------------------#
-    el8:
-      hosts: { 10.10.10.8: { pg_seq: 1, pg_role: primary } }
-      vars:
-        pg_cluster: pg-el8
-        #repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility ]
-        repo_extra_packages: [pgsql-core,pgsql-time,pgsql-gis,pgsql-rag,pgsql-fts,pgsql-olap,pgsql-feat,pgsql-lang,pgsql-type,pgsql-func,pgsql-admin,pgsql-stat,pgsql-sec,pgsql-fdw,pgsql-sim,pgsql-etl]
-        pg_extensions:
-          - timescaledb periods temporal_tables emaj table_version pg_cron pg_later pg_background #timescaledb_toolkit #pg_timeseries
-          - postgis pgrouting pointcloud q3c geoip pg_polyline pg_geohash #pg_h3 #ogr_fdw #mobilitydb
-          - pgvector vchord pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pg4ml #pgml
-          - pg_search pgroonga pg_bigm zhparser pg_bestmatch hunspell
-          - pg_analytics pg_duckdb duckdb_fdw pg_parquet pg_fkpart plproxy #citus #hydra #pg_partman #pg_strom
-          - hll rum pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg index_advisor pg_plan_filter imgsmlr pg_ivm pgmq pgq pg_cardano #age #rdkit
-          - pg_tle plv8 pllua pldebugger plpgsql_check plprofiler plsh #plprql #pljava #plr #pgtap #faker #dbt2
-          - pg_prefix pg_semver pgunit pgpdf pglite_fusion md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr pg_acl timestamp9 chkpass #debversion #pg_rrule
-          - topn pg_gzip pg_zstd pg_http pg_net pg_smtp_client pg_html5_email_address pgsql_tweaks pg_extra_time count_distinct extra_window_functions first_last_agg tdigest aggs_for_vecs aggs_for_arrays pg_arraymath quantile lower_quantile
-          - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids pg_math pg_random pg_base36 pg_base62 pg_base58 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext pgqr envvar pg_protobuf url_encode
-          - pg_repack pg_squeeze pg_dirtyread pgfincore pg_ddlx pg_prioritize pg_readonly safeupdate pg_permissions pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pg_checksums #pgautofailover #pgpool #pgagent
-          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pagevis #pg_store_plans #pg_top #powa
-          - passwordcheck supautils pgsodium pg_vault pg_session_jwt pg_anon pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pg_snakeoil pgextwlist pg_auditor sslutils pg_noset #pg_tde
-          - wrappers multicorn mysql_fdw tds_fdw sqlite_fdw pgbouncer_fdw redis_fdw pg_redis_pubsub hdfs_fdw firebird_fdw aws_s3 log_fdw #odbc_fdw #jdbc_fdw #oracle_fdw #db2_fdw #mongo_fdw #kafka_fdw
-          - orafce pgtt session_variable pg_statement_rollback pg_dbms_metadata pg_dbms_lock pgmemcache #pg_dbms_job #wiltondb
-          - pglogical pglogical_ticker pgl_ddl_deploy pg_failover_slots wal2json decoderbufs decoder_raw mimeo pg_fact_loader #wal2mongo #repmgr #pg_bulkload
-
-
-    #----------------------------------#
-    # build el9 packages on Rocky 9.3
-    #----------------------------------#
     el9:
       hosts: { 10.10.10.9: { pg_seq: 1, pg_role: primary } }
-      vars:
-        pg_cluster: pg-el9
-        #repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility ]
-        repo_extra_packages: [pgsql-core,pgsql-time,pgsql-gis,pgsql-rag,pgsql-fts,pgsql-olap,pgsql-feat,pgsql-lang,pgsql-type,pgsql-func,pgsql-admin,pgsql-stat,pgsql-sec,pgsql-fdw,pgsql-sim,pgsql-etl]
-        pg_extensions:
-          - timescaledb periods temporal_tables emaj table_version pg_cron pg_later pg_background #timescaledb_toolkit #pg_timeseries
-          - postgis pgrouting pointcloud q3c geoip pg_polyline pg_geohash #pg_h3 #ogr_fdw #mobilitydb
-          - pgvector vchord pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pg4ml #pgml
-          - pg_search pgroonga pg_bigm zhparser pg_bestmatch hunspell
-          - pg_analytics pg_duckdb duckdb_fdw pg_parquet pg_fkpart plproxy #citus #hydra #pg_partman #pg_strom
-          - hll rum pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg index_advisor pg_plan_filter imgsmlr pg_ivm pgmq pgq pg_cardano #age #rdkit
-          - pg_tle plv8 pllua pldebugger plpgsql_check plprofiler plsh pljava #plprql #plr #pgtap #faker #dbt2
-          - pg_prefix pg_semver pgunit pgpdf pglite_fusion md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr pg_acl timestamp9 chkpass #debversion #pg_rrule
-          - topn pg_gzip pg_zstd pg_http pg_net pg_smtp_client pg_html5_email_address pgsql_tweaks pg_extra_time count_distinct extra_window_functions first_last_agg tdigest aggs_for_vecs aggs_for_arrays pg_arraymath quantile lower_quantile
-          - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids pg_math pg_random pg_base36 pg_base62 pg_base58 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext pgqr envvar pg_protobuf url_encode
-          - pg_repack pg_squeeze pg_dirtyread pgfincore pg_ddlx pg_prioritize pg_readonly safeupdate pg_permissions pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pg_checksums #pgautofailover #pgpool #pgagent
-          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pagevis #pg_store_plans #pg_top #powa
-          - passwordcheck supautils pgsodium pg_vault pg_session_jwt pg_anon pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pg_snakeoil pgextwlist pg_auditor sslutils pg_noset #pg_tde
-          - wrappers multicorn mysql_fdw tds_fdw sqlite_fdw pgbouncer_fdw redis_fdw pg_redis_pubsub hdfs_fdw firebird_fdw aws_s3 log_fdw #odbc_fdw #jdbc_fdw #oracle_fdw #db2_fdw #mongo_fdw #kafka_fdw
-          - orafce pgtt session_variable pg_statement_rollback pg_dbms_metadata pg_dbms_lock pgmemcache #pg_dbms_job #wiltondb
-          - pglogical pglogical_ticker pgl_ddl_deploy pg_failover_slots wal2json decoderbufs decoder_raw mimeo pg_fact_loader #wal2mongo #repmgr #pg_bulkload
+      vars: { pg_cluster: pg-el9 }
 
-
-    #----------------------------------#
-    # build d12 packages on Debian 12
-    #----------------------------------#
     d12:
       hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
-      vars:
-        pg_cluster: pg-d12
-        #repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility ]
-        repo_extra_packages: [pgsql-core,pgsql-time,pgsql-gis,pgsql-rag,pgsql-fts,pgsql-olap,pgsql-feat,pgsql-lang,pgsql-type,pgsql-func,pgsql-admin,pgsql-stat,pgsql-sec,pgsql-fdw,pgsql-sim,pgsql-etl]
-        pg_extensions:
-          - timescaledb periods temporal_tables emaj table_version pg_cron pg_later pg_background #timescaledb_toolkit #pg_timeseries
-          - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip pg_polyline pg_geohash mobilitydb
-          - pgvector vchord pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pg4ml #pgml
-          - pg_search pgroonga pg_bigm zhparser pg_bestmatch hunspell
-          - pg_analytics pg_duckdb duckdb_fdw pg_parquet pg_fkpart pg_partman plproxy #citus #hydra #pg_strom
-          - hll rum pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg index_advisor pg_plan_filter imgsmlr pg_ivm pgmq pgq pg_cardano #age #rdkit
-          - pg_tle plv8 pllua pldebugger plpgsql_check plprofiler plsh pljava #plprql #plr #pgtap #faker #dbt2
-          - pg_prefix pg_semver pgunit pgpdf pglite_fusion md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr pg_acl debversion pg_rrule timestamp9 chkpass
-          - pg_gzip pg_zstd pg_http pg_net pg_smtp_client pg_html5_email_address pgsql_tweaks pg_extra_time count_distinct extra_window_functions first_last_agg tdigest aggs_for_vecs aggs_for_arrays pg_arraymath quantile lower_quantile
-          - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids pg_math pg_random pg_base36 pg_base62 pg_base58 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext pgqr envvar pg_protobuf url_encode #topn
-          - pg_repack pg_squeeze pg_dirtyread pgfincore pg_ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pgautofailover pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pgpool #pgagent
-          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pagevis #pg_store_plans #pg_top #powa
-          - passwordcheck supautils pgsodium pg_vault pg_session_jwt pg_anon pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pg_snakeoil pgextwlist pg_auditor sslutils pg_noset #pg_tde
-          - wrappers mysql_fdw tds_fdw redis_fdw pg_redis_pubsub firebird_fdw aws_s3 log_fdw #multicorn #odbc_fdw #jdbc_fdw #oracle_fdw #db2_fdw #sqlite_fdw #pgbouncer_fdw #mongo_fdw #kafka_fdw #hdfs_fdw
-          - orafce pgtt session_variable pg_statement_rollback pgmemcache #pg_dbms_metadata #pg_dbms_lock #pg_dbms_job
-          - pglogical pglogical_ticker pgl_ddl_deploy pg_failover_slots wal2json decoderbufs decoder_raw mimeo pg_fact_loader #wal2mongo #repmgr #pg_bulkload
+      vars: { pg_cluster: pg-d12 }
 
-
-    #----------------------------------#
-    # build u22 packages on Ubuntu 22.04
-    #----------------------------------#
     u22:
       hosts: { 10.10.10.22: { pg_seq: 1, pg_role: primary } }
-      vars:
-        pg_cluster: pg-u22
-        #repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility ]
-        repo_extra_packages: [pgsql-core,pgsql-time,pgsql-gis,pgsql-rag,pgsql-fts,pgsql-olap,pgsql-feat,pgsql-lang,pgsql-type,pgsql-func,pgsql-admin,pgsql-stat,pgsql-sec,pgsql-fdw,pgsql-sim,pgsql-etl]
-        pg_extensions:
-          - timescaledb periods temporal_tables emaj table_version pg_cron pg_later pg_background #timescaledb_toolkit #pg_timeseries
-          - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip pg_polyline pg_geohash mobilitydb
-          - pgvector vchord pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pg4ml #pgml
-          - pg_search pgroonga pg_bigm zhparser pg_bestmatch hunspell
-          - pg_analytics pg_duckdb duckdb_fdw pg_parquet pg_fkpart pg_partman plproxy #citus #hydra #pg_strom
-          - hll rum pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg index_advisor pg_plan_filter imgsmlr pg_ivm pgmq pgq pg_cardano #age #rdkit
-          - pg_tle plv8 pllua pldebugger plpgsql_check plprofiler plsh pljava #plprql #plr #pgtap #faker #dbt2
-          - pg_prefix pg_semver pgunit pgpdf pglite_fusion md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr pg_acl debversion pg_rrule timestamp9 chkpass
-          - pg_gzip pg_zstd pg_http pg_net pg_smtp_client pg_html5_email_address pgsql_tweaks pg_extra_time count_distinct extra_window_functions first_last_agg tdigest aggs_for_vecs aggs_for_arrays pg_arraymath quantile lower_quantile
-          - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids pg_math pg_random pg_base36 pg_base62 pg_base58 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext pgqr envvar pg_protobuf url_encode #topn
-          - pg_repack pg_squeeze pg_dirtyread pgfincore pg_ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pgautofailover pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pgpool #pgagent
-          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pagevis #pg_store_plans #pg_top #powa
-          - passwordcheck supautils pgsodium pg_vault pg_session_jwt pg_anon pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pg_snakeoil pgextwlist pg_auditor sslutils pg_noset #pg_tde
-          - wrappers mysql_fdw tds_fdw redis_fdw pg_redis_pubsub firebird_fdw aws_s3 log_fdw #multicorn #odbc_fdw #jdbc_fdw #oracle_fdw #db2_fdw #sqlite_fdw #pgbouncer_fdw #mongo_fdw #kafka_fdw #hdfs_fdw
-          - orafce pgtt session_variable pg_statement_rollback pgmemcache #pg_dbms_metadata #pg_dbms_lock #pg_dbms_job #wiltondb
-          - pglogical pglogical_ticker pgl_ddl_deploy pg_failover_slots wal2json decoderbufs decoder_raw mimeo pg_fact_loader #wal2mongo #repmgr #pg_bulkload
-
-
-    #----------------------------------#
-    # build u24 packages on Ubuntu 24.04
-    #----------------------------------#
-    u24:
-      hosts: { 10.10.10.24: { pg_seq: 1, pg_role: primary } }
-      vars:
-        pg_cluster: pg-u24
-        #repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility ]
-        repo_extra_packages: [pgsql-core,pgsql-time,pgsql-gis,pgsql-rag,pgsql-fts,pgsql-olap,pgsql-feat,pgsql-lang,pgsql-type,pgsql-func,pgsql-admin,pgsql-stat,pgsql-sec,pgsql-fdw,pgsql-sim,pgsql-etl]
-        pg_extensions:
-          - timescaledb periods temporal_tables emaj table_version pg_cron pg_later pg_background #timescaledb_toolkit #pg_timeseries
-          - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip pg_polyline pg_geohash mobilitydb
-          - pgvector vchord pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pg4ml #pgml
-          - pg_search pgroonga pg_bigm zhparser pg_bestmatch hunspell
-          - pg_analytics pg_duckdb duckdb_fdw pg_parquet pg_fkpart pg_partman plproxy #citus #hydra #pg_strom
-          - hll rum pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg index_advisor pg_plan_filter imgsmlr pg_ivm pgmq pgq pg_cardano #age #rdkit
-          - pg_tle plv8 pllua pldebugger plpgsql_check plprofiler plsh pljava #plprql #plr #pgtap #faker #dbt2
-          - pg_prefix pg_semver pgunit pgpdf pglite_fusion md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr pg_acl debversion pg_rrule timestamp9 chkpass
-          - pg_gzip pg_zstd pg_http pg_net pg_smtp_client pg_html5_email_address pgsql_tweaks pg_extra_time count_distinct extra_window_functions first_last_agg tdigest aggs_for_vecs aggs_for_arrays pg_arraymath quantile lower_quantile
-          - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids pg_math pg_random pg_base36 pg_base62 pg_base58 floatvec pg_financial pgjwt pg_hashlib shacrypt cryptint pg_ecdsa pgpcre icu_ext pgqr envvar pg_protobuf url_encode #topn
-          - pg_repack pg_squeeze pg_dirtyread pgfincore pg_ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_permissions pgautofailover pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pgpool #pgagent
-          - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pagevis #pg_store_plans #pg_top #powa
-          - passwordcheck supautils pgsodium pg_vault pg_session_jwt pg_anon pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pg_snakeoil pgextwlist pg_auditor sslutils pg_noset #pg_tde
-          - wrappers mysql_fdw tds_fdw redis_fdw pg_redis_pubsub firebird_fdw aws_s3 log_fdw #multicorn #odbc_fdw #jdbc_fdw #oracle_fdw #db2_fdw #sqlite_fdw #pgbouncer_fdw #mongo_fdw #kafka_fdw #hdfs_fdw
-          - orafce pgtt session_variable pg_statement_rollback pgmemcache #pg_dbms_metadata #pg_dbms_lock #pg_dbms_job #wiltondb
-          - pglogical pglogical_ticker pgl_ddl_deploy pg_failover_slots wal2json decoderbufs decoder_raw mimeo pg_fact_loader #wal2mongo #repmgr #pg_bulkload
-
+      vars: { pg_cluster: pg-u22 }
 ...

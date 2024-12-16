@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   vagrant shortcuts
 # Ctime     :   2023-07-29
-# Mtime     :   2024-10-29
+# Mtime     :   2024-12-16
 # Path      :   vagrant/Makefile
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
@@ -13,7 +13,7 @@
 #                         Environment                         #
 ###############################################################
 # VAGRANT_SPEC='meta'
-# VAGRANT_IMAGE='generic/rocky8'
+# VAGRANT_IMAGE='generic/rocky9'
 # VAGRANT_SCALE='1'
 # VAGRANT_PROVIDER='virtualbox'
 
@@ -102,12 +102,15 @@ info:
 #     Building Environment     #
 #------------------------------#
 oss:   del vo up ssh
+pro:   del vp up ssh
 rpm:   del vr up ssh
 deb:   del vd up ssh
 all:   del va up ssh
 
 vo: # oss building environment
 	./config oss
+vp: # pro building environment
+	./config pro
 vr: # rpm building environment
 	./config rpm
 vd: # deb building environment
@@ -188,39 +191,39 @@ vfull24:
 	./config full ubuntu24
 
 #------------------------------#
-# prod, 43 nodes, the simubox
+# simu, 36 nodes, the simubox
 #------------------------------#
-# complex 43-node simubox for production simulation & complete testing
+# complex 36-node simubox for production simulation & complete testing
 
-prod:   del vprod   up ssh
-prod7:  del vprod7  up ssh
-prod8:  del vprod8  up ssh
-prod9:  del vprod9  up ssh
-prod11: del vprod11 up ssh
-prod12: del vprod12 up ssh
-prod20: del vprod20 up ssh
-prod22: del vprod22 up ssh
-prod24: del vprod24 up ssh
+simu:   del vsimu   up ssh
+simu7:  del vsimu7  up ssh
+simu8:  del vsimu8  up ssh
+simu9:  del vsimu9  up ssh
+simu11: del vsimu11 up ssh
+simu12: del vsimu12 up ssh
+simu20: del vsimu20 up ssh
+simu22: del vsimu22 up ssh
+simu24: del vsimu24 up ssh
 
-vp: vprod
-vprod:
-	./config prod
-vprod7:
-	./config prod el7
-vprod8:
-	./config prod el8
-vprod9:
-	./config prod el9
-vprod11:
-	./config prod debian11
-vprod12:
-	./config prod debian12
-vprod20:
-	./config prod ubuntu20
-vprod22:
-	./config prod ubuntu22
-vprod24:
-	./config prod ubuntu24
+vs: vsimu
+vsimu:
+	./config simu
+vsimu7:
+	./config simu el7
+vsimu8:
+	./config simu el8
+vsimu9:
+	./config simu el9
+vsimu11:
+	./config simu debian11
+vsimu12:
+	./config simu debian12
+vsimu20:
+	./config simu ubuntu20
+vsimu22:
+	./config simu ubuntu22
+vsimu24:
+	./config simu ubuntu24
 
 #------------------------------#
 # dual, 2-node, seldom used
@@ -326,7 +329,7 @@ vminio24:
 	dual dual7 dual8 dual9 dual11 dual12 dual20 dual22 vdual vdual7 vdual8 vdual9 vdual11 vdual12 vdual20 vdual22 vdual24 \
 	trio trio7 trio8 trio9 trio11 trio12 trio20 trio22 vtrio vtrio7 vtrio8 vtrio9 vtrio11 vtrio12 vtrio20 vtrio22 vtrio24 \
 	full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 vfull24 \
-	prod prod7 prod8 prod9 prod11 prod12 prod20 prod22 vprod vprod7 vprod8 vprod9 vprod11 vprod12 vprod20 vprod22 vprod24 \
+	simu simu7 simu8 simu9 simu11 simu12 simu20 simu22 vsimu vsimu7 vsimu8 vsimu9 vsimu11 vsimu12 vsimu20 vsimu22 vsimu24 \
 	minio minio7 minio8 minio9 minio11 minio12 minio20 minio22 mini24 vminio vminio7 vminio8 vminio9 vminio12 vminio20 vminio22 vminio24
 
 ###############################################################
