@@ -1,4 +1,4 @@
-# prod: pigsty complex 36-node simubox for production simulation & complete testing
+# simu: pigsty complex 36-node simubox for production simulation & complete testing
 
 Specs = [
 

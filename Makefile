@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-11-22
+# Mtime     :   2024-12-16
 # Path      :   Makefile
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
@@ -380,15 +380,16 @@ cmdb:
 # copy src to build environment
 cso: copy-src-oss
 copy-src-oss:
-	scp "dist/${VERSION}/${SRC_PKG}" el8:~/pigsty.tgz
 	scp "dist/${VERSION}/${SRC_PKG}" el9:~/pigsty.tgz
 	scp "dist/${VERSION}/${SRC_PKG}" d12:~/pigsty.tgz
 	scp "dist/${VERSION}/${SRC_PKG}" u22:~/pigsty.tgz
-	scp "dist/${VERSION}/${SRC_PKG}" u24:~/pigsty.tgz
-	ssh -t el8 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	ssh -t el9 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	ssh -t d12 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	ssh -t u22 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+copy-src-pro: copy-src-oss
+	scp "dist/${VERSION}/${SRC_PKG}" el8:~/pigsty.tgz
+	scp "dist/${VERSION}/${SRC_PKG}" u24:~/pigsty.tgz
+	ssh -t el8 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	ssh -t u24 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 csr: copy-src-rpm
 copy-src-rpm:
@@ -493,8 +494,8 @@ cfull:
 	cp conf/full.yml pigsty.yml
 cminio:
 	cp conf/minio.yml pigsty.yml
-cprod:
-	cp conf/prod.yml pigsty.yml
+csimu:
+	cp conf/simu.yml pigsty.yml
 coss:
 	cp conf/build/oss.yml pigsty.yml
 cpro:
@@ -510,12 +511,14 @@ cdeb:
 #     Building Environment     #
 #------------------------------#
 oss: coss del vo new ssh copy-src-oss dfx
-pro: cpro del va new ssh copy-src-rpm copy-src-deb dfx
+pro: cpro del vp new ssh dfx
+all: call del va new ssh dfx
 rpm: crpm del vr new ssh copy-src-rpm
 deb: cdeb del vd new ssh copy-src-deb dfx
-old: del va new ssh
 vo: # oss building environment
 	vagrant/config oss
+vp: # pro building environment
+	vagrant/config pro
 vr: # rpm building environment
 	vagrant/config rpm
 vd: # deb building environment
@@ -596,39 +599,39 @@ vfull24:
 	vagrant/config full ubuntu24
 
 #------------------------------#
-# prod, 43 nodes, the simubox
+# simu, 36 nodes, the simubox
 #------------------------------#
-# complex 43-node simubox for production simulation & complete testing
-prod-conf:
-	cp conf/prod.yml pigsty.yml
-vp: vprod
-vprod:
-	vagrant/config prod
-vprod8:
-	vagrant/config prod el8
-vprod9:
-	vagrant/config prod el9
-vprod12:
-	vagrant/config prod debian12
-vprod22:
-	vagrant/config prod ubuntu22
-vprod24:
-	vagrant/config prod ubuntu24
+# complex 36-node simubox for production simulation & complete testing
+simu-conf:
+	cp conf/simu.yml pigsty.yml
+vsimu:
+	vagrant/config simu
+vsimu8:
+	vagrant/config simu el8
+vsimu9:
+	vagrant/config simu el9
+vsimu12:
+	vagrant/config simu debian12
+vsimu22:
+	vagrant/config simu ubuntu22
+vsimu24:
+	vagrant/config simu ubuntu24
 
-prod: prod9
-prod8: cprod del vprod8 new ssh
+vs: simu
+simu: simu9
+simu8: csimu del vsimu8 new ssh
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el8.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el8.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-prod9: cprod del vprod9 new ssh
+simu9: csimu del vsimu9 new ssh
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el9.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el9.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-prod12: cprod del vprod12 new ssh
+simu12: csimu del vsimu12 new ssh
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.d12.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.d12.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-prod22: cprod del vprod22 new ssh
+simu22: csimu del vsimu22 new ssh
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u22.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u22.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-prod24: cprod del vprod24 new ssh
+simu24: csimu del vsimu24 new ssh
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u24.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u24.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 
@@ -714,12 +717,12 @@ vminio24:
         copy-app copy-all use-src use-pkg use-all cmdb \
         csa copy-src-all csr copy-src-rpm csd copy-src-deb df deb-fix push pull git-sync git-restore \
         r release rr remote-release ross release-oss rpro release-pro pb publish \
-        oss pro boot-oss boot-pro rpm deb vb vr vd vm vf vp all old va vo \
+        oss pro all boot-oss boot-pro rpm deb vb vr vd vm vf vs vp all old va vo \
         meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vfull11 vmeta12 vmeta20 vmeta22 vmeta24 \
         full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 vfull24 \
-        prod prod8 prod9 prod12 prod20 prod22 vprod vprod8 vprod9 vprod12 vprod20 vprod22 \
+        simu simu8 simu9 simu12 simu20 simu22 simu simu8 simu9 simu12 simu20 simu22 \
         dual dual8 dual9 dual12 dual20 dual22 vdual vdual8 vdual9 vdual12 vdual20 vdual22 \
         trio trio8 trio9 trio12 trio20 trio22 vtrio vtrio8 vtrio9 vtrio12 vtrio20 vtrio22 \
         minio minio8 minio9 minio12 minio22 minio24 vminio vminio9 vminio12 vminio22 vminio24 \
-        cmeta cdual ctrio cfull cprod coss cpro cext crpm cdeb
+        cmeta cdual ctrio cfull csimu coss cpro cext crpm cdeb
 ###############################################################
