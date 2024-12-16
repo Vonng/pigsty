@@ -4,7 +4,7 @@
 # File      :   cache.yml
 # Desc      :   make offline package cache from target nodes
 # Ctime     :   2024-08-22
-# Mtime     :   2024-08-22
+# Mtime     :   2024-12-16
 # Path      :   cache.yml
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
@@ -44,6 +44,12 @@
   gather_facts: no
   tags: cache_info
   tasks:
+
+    - name: create cache directory
+      file:
+        path: "{{ cache_pkg_dir|default('dist/${version}') | replace('${version}', version|default('v3.1.0')) }}"
+        state: directory
+        mode: '0755'
 
     - name: calculate cache tarball md5 checksum
       shell: |
