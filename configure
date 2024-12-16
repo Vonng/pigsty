@@ -14,18 +14,13 @@ PIGSTY_VERSION=v3.1.0
 # Usage
 #--------------------------------------------------------------#
 # ./configure
-#     [-i|--ip <ip>]
-#     [-r|--region <region>   [default|china|europe]
 #     [-c|--conf <confname>   [meta|dual|trio|full|prod]
+#     [-i|--ip <ip>]          # primary IP address (skip with -s)
 #     [-v|--version <pgver>   [17|16|15|14|13|12]
-#     [-n|--non-interactive]
-#     [-x|--proxy]
-#==============================================================#
-# args
-#  -i  --ip  <ip addr>    : set local primary ip address
-#  -c  --conf             : conf, (el7|el8|el9|ubuntu20|debian|...)
-#  -n  --non-interactive  : flag, run as non-interactive mode
-#  -x  --proxy            : flag, setup proxy_env from environment
+#     [-r|--region <region>   [default|china|europe]
+#     [-s|--skip]             # skip IP address probing
+#     [-x|--proxy]            # write proxy env from environment
+#     [-n|--non-interactive]  # non-interactively mode
 #==============================================================#
 INTERACTIVE=true                  # run configure with interactive mode
 PRIMARY_IP=""                     # primary IP address (do not use public IP)
@@ -33,6 +28,7 @@ MODE=""                           # config template (meta|dual|trio|full|prod)
 PGVER=""                          # major pg version (17/16/15/14/13/12)
 REGION=""                         # default region (default|china|europe)
 USE_PROXY=false                   # use global env http_proxy, https_proxy, all_proxy, no_proxy
+SKIP=false                        # skip ip probe (convenient if using fixed templates)
 DEFAULT_NO_PROXY="localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,mirror.*,*.myqcloud.com,*.tsinghua.edu.cn,*.fedoraproject.org"
 
 
@@ -265,9 +261,11 @@ function check_sudo(){
         log_info "sudo = ${current_user} ok"
     else
         log_warn "sudo = ${current_user} missing nopasswd"
-        log_warn "fix nopass sudo for '${current_user}' with sudo:"
-        log_hint "echo '%%${current_user} ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/${current_user}\n"
-        # exit 5   # we don't exit here , just a configure process
+        if [[ ${SKIP} != "true" ]]; then
+            log_warn "fix nopass sudo for '${current_user}' with sudo:"
+            log_hint "echo '%%${current_user} ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/${current_user}\n"
+            # exit 5   # we don't exit here , just a configure process
+        fi
     fi
 }
 
@@ -338,11 +336,17 @@ function check_ipaddr(){
     local interactive=${2-${INTERACTIVE}}
 
     case "${MODE}" in
-      build/*|demo/*) # do not replace ip for build/demo templates
+      build/*|demo/*|oss) # do not replace ip for build/demo templates
         log_warn "primary_ip = keep (due to conf/${MODE})"
         return 0
         ;;
     esac
+
+    if [[ ${SKIP} == "true" ]]; then
+        log_info "primary_ip = primary_ip = skip"
+        PRIMARY_IP=10.10.10.10
+        return 0
+    fi
 
     # if ip is given, check it
     if [[ ! -z "${primary_ip}" ]]; then
@@ -409,11 +413,16 @@ function check_admin(){
     local primary_ip=${1-${PRIMARY_IP}}
 
     case "${MODE}" in
-      build/*|demo/*) # do not replace ip for build/demo templates
+      build/*|demo/*|oss) # do not replace ip for build/demo templates
         log_warn "admin ssh = skip checking (due to conf/${MODE})"
         return 0
         ;;
     esac
+
+    if [[ ${SKIP} == "true" ]]; then
+        log_info "admin ssh = skip checking (due to --skip)"
+        return 0
+    fi
 
     local current_user=$(whoami)
     if ssh -t -o "StrictHostKeyChecking no" -o "ConnectTimeout=4" ${primary_ip} 'sudo -n ls' 1>/dev/null 2>/dev/null; then
@@ -431,9 +440,9 @@ function check_admin(){
 
 
 #----------------------------------------------#
-# check deployment mode
+# check config mode
 #----------------------------------------------#
-function check_mode(){
+function check_conf(){
     local mode=${1-${MODE}}
     local primary_ip=${2-${PRIMARY_IP}}
 
@@ -517,10 +526,13 @@ function check_config(){
 
     # copy target config, and replace IP placeholder for singleton templates
     case "${mode}" in
-      build/*|demo/*) # do not replace ip for build/demo templates
+      build/*|demo/*|oss) # do not replace ip for build/demo templates
         log_warn "skip ip replacement (due to conf/${MODE})"
         ;;
       *)
+        if [[ ${SKIP} == "true" ]]; then
+            log_info "skip ip replacement (due to --skip)"
+        fi
         sed -ie "s/10.10.10.10/${primary_ip}/g" "${config_dst}"
         rm -rf "${config_dst}e"
         ;;
@@ -601,13 +613,13 @@ function main(){
     while [ $# -gt 0 ]; do
         case $1 in
             -h|--help)
-                echo './configure [-n|--non-interactive] [-i|--ip <ipaddr>] [-c|--conf <confname>] [-v|--version 17] [-x|--proxy]'
+                echo './configure [-c|--conf <confname>] [-i|--ip <ipaddr>] [-v|--version 17] [-r|--region <region>] [-n|--non-interactive] [-s|--skip] [-x|--proxy]'
                 exit 0;;
+            -c|--conf|--config) MODE="$2" ; shift;;
             -i|--ip) PRIMARY_IP="$2" ; shift;;
             -r|--region) REGION="$2" ; shift;;
-            -m|--mode)     MODE="$2" ; shift;;
-            -c|--conf|--config) MODE="$2" ; shift;;
             -v|--ver|--version) PGVER="$2" ; shift;;
+            -s|--skip) SKIP=true ;;
             -n|--non-interactive) INTERACTIVE=false ;;
             -x|--proxy) USE_PROXY=true ;;
             (--) shift; break;;
@@ -630,7 +642,7 @@ function main(){
     check_proxy           # use_proxy     = true|false
     check_ipaddr          # primary_ip (arg|probe|input)                    (INTERACTIVE: ask for ip)
     check_admin           # check current_user@primary_ip nopass ssh sudo
-    check_mode            # check config template
+    check_conf            # check config template
     check_config          # generate config according to primary_ip and mode
     #check_utils          # check ansible sshpass and other utils installed
     log_info "configure pigsty done"
