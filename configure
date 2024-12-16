@@ -3,7 +3,7 @@
 # File      :   configure
 # Desc      :   generate pigsty.yml config according to env
 # Ctime     :   2021-05-17
-# Mtime     :   2024-11-22
+# Mtime     :   2024-12-16
 # Path      :   configure
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
@@ -174,8 +174,8 @@ function check_machine(){
     if [[ "${machine_name}" == "x86_64" ]]; then
         log_info "machine = ${machine_name}"
         return 0
-    elif [[ "${machine_name}" == "aarch64" ]]; then
-        log_warn "machine = ${machine_name} (beta)"
+    elif [[ "${machine_name}" == "aarch64" || ${machine_name} == "arm64" ]]; then
+        log_warn "machine = ${machine_name}"
         return 0
     else
         log_warn "machine = ${machine_name}, not supported, x86_64/aarch64 only"
@@ -194,6 +194,8 @@ function check_package_manager(){
             OS_MANAGER="apt"
         elif command -v apt-get >/dev/null 2>&1; then
             OS_MANAGER="apt-get"
+        elif command -v brew >/dev/null 2>&1; then
+            OS_MANAGER="brew"
         else
             log_error "fail to determine os package manager for deb"
             exit 4
@@ -206,13 +208,15 @@ function check_package_manager(){
             OS_MANAGER="yum"
         elif command -v zypper >/dev/null 2>&1; then
             OS_MANAGER="zypper"
+        elif command -v brew >/dev/null 2>&1; then
+            OS_MANAGER="brew"
         else
             log_error "fail to determine os package manager for rpm"
             exit 4
         fi
     else
         log_error "fail to determine os package type"
-        exit 3
+        #exit 3
     fi
     log_info "package = ${OS_PACKAGE},${OS_MANAGER}"
 }
@@ -564,6 +568,8 @@ function check_config(){
         else
             sed -ie '$i\    pg_version: '"${PGVER}  # set by configure" "${config_dst}"
         fi
+        # also replace pg17-... with pg${PGVER}-...
+        sed -ie "s/pg17-/pg${PGVER}-/g" "${config_dst}"
         rm -rf "${config_dst}e"
     fi
 
