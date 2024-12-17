@@ -123,6 +123,15 @@
         scheme: "{% if nginx_sslmode == 'enforce' %}https{% else %}http{% endif %}"
         grafana_prefix: "{% if nginx_sslmode == 'enforce' %}https{% else %}http{% endif %}://{{ infra_portal.grafana.domain }}"
 
+    - name: copy pev html to nginx home
+      tags: nginx_pev
+      ignore_errors: true
+      shell: |
+        if [ -f /usr/share/pev2.html ]; then
+          cp -f /usr/share/pev2.html {{ nginx_home }}/pev.html
+        fi
+
+
 #--------------------------------------------------------------#
 # 4. Nginx Launch                                 [nginx_launch]
 #--------------------------------------------------------------#
