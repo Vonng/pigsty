@@ -425,8 +425,8 @@ deb-fix:
 	ssh -t u22 'sudo mv /tmp/resolv.conf /etc/resolv.conf'
 	scp /etc/resolv.conf d12:/tmp/resolv.conf;
 	ssh -t d12 'sudo mv /tmp/resolv.conf /etc/resolv.conf'
-	scp /etc/resolv.conf u24:/tmp/resolv.conf;
-	ssh -t u24 'sudo mv /tmp/resolv.conf /etc/resolv.conf'
+	#scp /etc/resolv.conf u24:/tmp/resolv.conf;
+	#ssh -t u24 'sudo mv /tmp/resolv.conf /etc/resolv.conf'
 
 #------------------------------#
 # push / pull
