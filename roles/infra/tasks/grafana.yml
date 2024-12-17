@@ -4,7 +4,9 @@
 #--------------------------------------------------------------#
 #- name: make sure grafana installed
 #  tags: grafana_install
-#  package: name=grafana state=present
+#  package: name={{ item }} state=present
+#  with_items: [ grafana, grafana-plugins ]
+
 
 #--------------------------------------------------------------#
 # Cleanup Grafana                                [grafana_clean]
@@ -36,12 +38,13 @@
 #--------------------------------------------------------------#
 - name: make grafana directories
   tags: grafana_dir
-  file: path={{ item }} state=directory owner=grafana group=root mode=0775
+  file: path={{ item }} state=directory owner=grafana group=grafana mode=755
   with_items:
     - /etc/grafana/                          # grafana config dir
     - /etc/dashboards                        # grafana dashboard dir to be provisioned
     - /etc/grafana/provisioning/dashboards   # dashboard provisioner config dir
     - /etc/grafana/provisioning/datasources  # datasource provisioner config dir
+    - /var/lib/grafana/plugins               # grafana plugins dir
 
 
 #--------------------------------------------------------------#
@@ -51,7 +54,6 @@
   tags: grafana_config
   block:
 
-    # default datasources are registered in grafana.py since grafana 9.4 has a bug
     - name: render provisioning datasources
       template: src=grafana/datasource.yml.j2 dest=/etc/grafana/provisioning/datasources/pigsty.yml owner=grafana group=grafana
 
@@ -70,40 +72,42 @@
 #--------------------------------------------------------------#
 # Grafana Plugins                               [grafana_plugin]
 #--------------------------------------------------------------#
-- name: install grafana plugins
-  tags: grafana_plugin
-  when: grafana_enabled|bool
-  ignore_errors: true  # since plugins are not so critical
-  block:
+# grafana plugins are installed via grafana-extra package since pigsty v3.2
 
-    - name: check grafana plugin cache exists
-      stat: path={{ grafana_plugin_cache }}
-      register: grafana_plugins_cache
-
-    # use tarball if cache exists
-    - name: provision grafana plugins via cache if exists
-      when: grafana_plugins_cache.stat.exists
-      vars:
-        grafana_plugin_path: "{{ nginx_home }}/{{ repo_name }}/plugins.tgz"
-        grafana_chart_path: "{{ nginx_home }}/{{ repo_name }}/chart.tgz"
-      shell: |
-        #!/bin/bash
-        if [[ -a "{{ grafana_plugin_path }}" ]]; then
-            rm -rf /var/lib/grafana/plugins && tar -xf "{{ grafana_plugin_path }}" -C /var/lib/grafana
-        fi
-        chown -R grafana /var/lib/grafana
-        if [[ -a "{{ grafana_chart_path }}" ]]; then
-            rm -rf /usr/share/grafana/public/chart && tar -xf "{{ grafana_chart_path }}" -C /usr/share/grafana/public/
-        fi
-      args: { executable: /bin/bash }
-
-    # download from internet if cache not exists
-    - name: download grafana plugins via internet
-      when: not grafana_plugins_cache.stat.exists
-      ignore_errors: true
-      environment: "{{ proxy_env | default({}) }}"
-      grafana_plugin: name={{ item }}
-      with_items: "{{ grafana_plugin_list  }}"
+#- name: install grafana plugins
+#  tags: grafana_plugin
+#  when: grafana_enabled|bool
+#  ignore_errors: true  # since plugins are not so critical
+#  block:
+#
+#    - name: check grafana plugin cache exists
+#      stat: path={{ grafana_plugin_cache }}
+#      register: grafana_plugins_cache
+#
+#    # use tarball if cache exists
+#    - name: provision grafana plugins via cache if exists
+#      when: grafana_plugins_cache.stat.exists
+#      vars:
+#        grafana_plugin_path: "{{ nginx_home }}/{{ repo_name }}/plugins.tgz"
+#        grafana_chart_path: "{{ nginx_home }}/{{ repo_name }}/chart.tgz"
+#      shell: |
+#        #!/bin/bash
+#        if [[ -a "{{ grafana_plugin_path }}" ]]; then
+#            rm -rf /var/lib/grafana/plugins && tar -xf "{{ grafana_plugin_path }}" -C /var/lib/grafana
+#        fi
+#        chown -R grafana /var/lib/grafana
+#        if [[ -a "{{ grafana_chart_path }}" ]]; then
+#            rm -rf /usr/share/grafana/public/chart && tar -xf "{{ grafana_chart_path }}" -C /usr/share/grafana/public/
+#        fi
+#      args: { executable: /bin/bash }
+#
+#    # download from internet if cache not exists
+#    - name: download grafana plugins via internet
+#      when: not grafana_plugins_cache.stat.exists
+#      ignore_errors: true
+#      environment: "{{ proxy_env | default({}) }}"
+#      grafana_plugin: name={{ item }}
+#      with_items: "{{ grafana_plugin_list  }}"
 
 
 #--------------------------------------------------------------#
