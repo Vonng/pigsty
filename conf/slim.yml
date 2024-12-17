@@ -3,7 +3,7 @@
 # File      :   slim.yml
 # Desc      :   Pigsty slim installation config (2-node)
 # Ctime     :   2020-05-22
-# Mtime     :   2024-11-12
+# Mtime     :   2024-12-17
 # Docs      :   https://pigsty.io/docs/conf/slim
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
@@ -20,8 +20,14 @@ all:
     # actually not used
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
-    # etcd cluster for ha postgres, still required in minimal installation
-    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+    #----------------------------------#
+    # etcd cluster for HA postgres DCS
+    #----------------------------------#
+    etcd:
+      hosts:
+        10.10.10.10: { etcd_seq: 1 }
+      vars:
+        etcd_cluster: etcd
 
     # postgres cluster 'pg-meta' with 2 instances
     pg-meta:
@@ -30,7 +36,7 @@ all:
         10.10.10.11: { pg_seq: 2, pg_role: replica }
       vars:
         pg_cluster: pg-meta
-        pg_databases: [ { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [ { name: vector }] } ]
+        pg_databases: [ { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [{name: vector}]}]
         pg_users:
           - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
           - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
@@ -55,15 +61,17 @@ all:
     #----------------------------------#
     # Repo, Node, Packages
     #----------------------------------#
-    node_repo_modules: node,infra,pgsql # use node_repo_modules instead of repo_modules
-    node_repo_remove: true            # remove existing node repo for node managed by pigsty?
-    repo_packages: [                  # default packages to be downloaded (if `repo_packages` is not explicitly set)
+    # if you wish to customize your own repo, change these settings:
+    repo_modules: infra,node,pgsql
+    repo_remove: true                 # remove existing repo on admin node during repo bootstrap
+    node_repo_modules: local          # install the local module in repo_upstream for all nodes
+    node_repo_remove: true            # remove existing node repo for node managed by pigsty
+    repo_packages: [                  # default packages to be downloaded
       node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-common #,docker
     ]
     repo_extra_packages: [            # default postgres packages to be downloaded
-      pgsql-main
-      #,pgsql-core,pgsql-time,pgsql-gis,pgsql-rag,pgsql-fts,pgsql-olap,pgsql-feat,pgsql-lang,pgsql-type,pgsql-func,pgsql-admin,pgsql-stat,pgsql-sec,pgsql-fdw,pgsql-sim,pgsql-etl,
-      #,pg17-core,pg17-time,pg17-gis,pg17-rag,pg17-fts,pg17-olap,pg17-feat,pg17-lang,pg17-type,pg17-func,pg17-admin,pg17-stat,pg17-sec,pg17-fdw,pg17-sim,pg17-etl,
-      #,pg16-core,pg16-time,pg16-gis,pg16-rag,pg16-fts,pg16-olap,pg16-feat,pg16-lang,pg16-type,pg16-func,pg16-admin,pg16-stat,pg16-sec,pg16-fdw,pg16-sim,pg16-etl,
+      pg17-main                       # replace with the following line if you want all extensions
+      #pg17-core ,pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl
     ]
+    #pg_extensions: [ pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ]
 ...
