@@ -1,9 +1,9 @@
 ---
 #==============================================================#
 # File      :   rich.yml (1-node)
-# Desc      :   Install all extensions, provision multiple dbs
+# Desc      :   Feature rich 1-node template with all extensions
 # Ctime     :   2020-05-22
-# Mtime     :   2024-11-15
+# Mtime     :   2024-12-17
 # Docs      :   https://pigsty.io/docs/conf/rich
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
@@ -13,16 +13,23 @@
 all:
   children:
 
-    # infra cluster for proxy, monitor, alert, etc..
-    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
+    infra:
+      hosts:
+        10.10.10.10: { infra_seq: 1 }
 
-    # etcd cluster for ha postgres
-    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+    etcd:
+      hosts:
+        10.10.10.10: { etcd_seq: 1 }
+      vars:
+        etcd_cluster: etcd
 
-    # minio cluster, s3 compatible object storage
-    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+    minio:
+      hosts:
+        10.10.10.10: { minio_seq: 1 }
+      vars:
+        minio_cluster: minio
 
-    # postgres example cluster: pg-meta
+    # postgres cluster: pg-meta
     pg-meta:
       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
       vars:
@@ -49,8 +56,6 @@ all:
         pg_hba_rules:
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
         pg_libs: 'timescaledb,pg_stat_statements, auto_explain'  # add timescaledb to shared_preload_libraries
-        pg_extensions:
-          - postgis, pgvector, timescaledb
         node_crontab:  # make one full backup 1 am everyday
           - '00 01 * * * postgres /pg/bin/pg-backup full'
 
@@ -111,16 +116,59 @@ all:
       - { name: Schemas    , url : '/schema'            , comment: 'schemaspy summary report' }
       - { name: Reports    , url : '/report'            , comment: 'pgbadger summary report'  }
 
+    #----------------------------------#
+    # MinIO Related Options
+    #----------------------------------#
+    #pgbackrest_method: minio          # if you want to use minio as backup repo instead of 'local' fs, uncomment this
+    #minio_users:                      # and configure `pgbackrest_repo` & `minio_users` accordingly
+    #  - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
+    #  - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
+    #pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+    #  minio: ...                      # optional minio repo for pgbackrest ...
+    #    s3_key: pgbackrest            # minio user access key for pgbackrest
+    #    s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
+    #    cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
+    # if you want to use minio as backup repo instead of 'local' fs, uncomment this, and configure `pgbackrest_repo`
+    pgbackrest_method: minio          # use minio as backup repo instead of 'local'
     node_etc_hosts: [ "${admin_ip} sss.pigsty" ]
     dns_records: [ "${admin_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty wiki.pigsty noco.pigsty supa.pigsty dify.pigsty odoo.pigsty" ]
-    pgbackrest_method: minio          # use minio as backup repo instead of 'local'
 
-    # download docker and pg17 extensions
+    #----------------------------------#
+    # Credential: CHANGE THESE PASSWORDS
+    #----------------------------------#
+    #grafana_admin_username: admin
+    grafana_admin_password: pigsty
+    #pg_admin_username: dbuser_dba
+    pg_admin_password: DBUser.DBA
+    #pg_monitor_username: dbuser_monitor
+    pg_monitor_password: DBUser.Monitor
+    #pg_replication_username: replicator
+    pg_replication_password: DBUser.Replicator
+    #patroni_username: postgres
+    patroni_password: Patroni.API
+    #haproxy_admin_username: admin
+    haproxy_admin_password: pigsty
+    #minio_access_key: minioadmin
+    minio_secret_key: minioadmin
+
+    #----------------------------------#
+    # Safe Guard
+    #----------------------------------#
+    # you can enable these flags after bootstrap, to prevent purging running etcd / pgsql instances
+    etcd_safeguard: false             # prevent purging running etcd instance?
+    pg_safeguard: false               # prevent purging running postgres instance? false by default
+
+    #----------------------------------#
+    # Repo, Node, Packages
+    #----------------------------------#
+    # if you wish to customize your own repo, change these settings:
     repo_modules: infra,node,pgsql,docker
     repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker ]
-    repo_extra_packages: [            # download kernel & all available extensions
-      pgsql-main,                     # lots of extensions are not available on aarch64 yet, so comment the line below on aarch64
-      pgsql-core,pgsql-time,pgsql-gis,pgsql-rag,pgsql-fts,pgsql-olap,pgsql-feat,pgsql-lang,pgsql-type,pgsql-func,pgsql-admin,pgsql-stat,pgsql-sec,pgsql-fdw,pgsql-sim,pgsql-etl
+    pg_version: 17                    # default postgres version
+    repo_extra_packages: [            # download postgres kernel and all available extensions
+      pg17-core ,pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl
     ]
-
+    pg_extensions: [                  # check extension availability for your OS & PG @ https://ext.pigsty.io/#/list
+      pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl
+    ]
 ...
