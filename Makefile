@@ -8,7 +8,7 @@
 # Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 # pigsty version string
-VERSION?=v3.1.0
+VERSION?=v3.2.0
 
 # variables
 SRC_PKG=pigsty-$(VERSION).tgz
