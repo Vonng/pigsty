@@ -36,7 +36,7 @@ Templates for exotic DBMS and kernels:
 Other templates:
 
 * [slim.yml](slim.yml) : 1-node slim config, deploy PostgreSQL without infra and local repo & infra
-* [prod.yml](prod.yml) : Production emulation config with 36-node env
+* [simu.yml](simu.yml) : Production simulation config with 36-node env
 * [demo.yml](demo.yml) : config file for the pigsty [public demo](https://demo.pigsty.cc)
 * [rich.yml](rich.yml) : 1-node rich config, run multiple database and install all extensions.
 * [safe.yml](safe.yml) : security enhanced config example with delayed replica

@@ -515,7 +515,7 @@ serving MongoDB wire protocol with [**`FERRET`**](https://pigsty.io/docs/ferret/
 
 <details><summary>Example: Citus Distributed Cluster: 10-Node</summary><br>
 
-The [`conf/prod.yml`](https://github.com/Vonng/pigsty/blob/main/conf/prod.yml) provision a 10-node [**Citus**](https://pigsty.io/docs/kernel/citus/) cluster as below:
+The [`conf/simu.yml`](https://github.com/Vonng/pigsty/blob/main/conf/simu.yml) provision a 10-node [**Citus**](https://pigsty.io/docs/kernel/citus/) cluster as below:
 
 ```yaml
 # pg-citus: 10 node citus cluster (5 x primary-replica pair)
