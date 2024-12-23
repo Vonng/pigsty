@@ -1,7 +1,7 @@
 # Pigsty
 
 [![Webite: pigsty.io](https://img.shields.io/badge/website-pigsty.io-slategray?style=flat&logo=cilium&logoColor=white)](https://pigsty.io)
-[![Version: v3.1.0](https://img.shields.io/badge/version-v3.1.0-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.1.0)
+[![Version: v3.2.0](https://img.shields.io/badge/version-v3.2.0-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.2.0)
 [![License: AGPLv3](https://img.shields.io/github/license/Vonng/pigsty?logo=opensourceinitiative&logoColor=green&color=slategray)](https://pigsty.io/docs/about/license/)
 [![GitHub Stars](https://img.shields.io/github/stars/Vonng/pigsty?style=flat&logo=github&logoColor=black&color=slategray)](https://star-history.com/#Vonng/pigsty&Date)
 [![Extensions: 341](https://img.shields.io/badge/extensions-341-%233E668F?style=flat&logo=postgresql&logoColor=white&labelColor=3E668F)](https://ext.pigsty.io/#/list)
@@ -12,14 +12,14 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 [**Features**](https://pigsty.io/docs/about/feature) | [Website](https://pigsty.io/) | [Docs](https://pigsty.io/docs/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Roadmap](https://github.com/users/Vonng/projects/2/views/3) | [Extension](https://ext.pigsty.io/) | [中文站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [**特性**](https://pigsty.cc/zh/docs/about/feature)
 
-[**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.1.0**](https://github.com/Vonng/pigsty/releases/tag/v3.1.0) release: `curl -fsSL https://repo.pigsty.io/get | bash`
+[**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.2.0**](https://github.com/Vonng/pigsty/releases/tag/v3.2.0) release: `curl -fsSL https://repo.pigsty.io/get | bash`
 
 [![pigsty-desc](https://pigsty.io/img/pigsty/banner.en.jpg)](https://pigsty.io/docs/about/feature/)
 
 
 ## Features
 
-- [**Extensible**](https://pigsty.io/img/pigsty/extension.png): **341** [**PG Extensions**](https://ext.pigsty.io/#/list) & **6** [**PG Kernel**](https://pigsty.io/docs/kernel) replacements available (e.g., [**MSSQL**](https://pigsty.io/docs/kernel/babelfish/), [**Oracle**](https://pigsty.io/docs/kernel/ivorysql/) compatibility).
+- [**Extensible**](https://pigsty.io/img/pigsty/extension.png): **340** [**PG Extensions**](https://ext.pigsty.io/#/list) & **6** [**PG Kernel**](https://pigsty.io/docs/kernel) replacements available (e.g., [**MSSQL**](https://pigsty.io/docs/kernel/babelfish/), [**Oracle**](https://pigsty.io/docs/kernel/ivorysql/) compatibility).
 - [**Reliable**](https://pigsty.io/img/pigsty/arch.jpg): Self-healing [**HA**](https://pigsty.io/docs/concept/ha/) clusters with pre-configured [**PITR**](https://pigsty.io/docs/pgsql/arch#point-in-time-recovery) and built-in [**ACL**](https://pigsty.io/docs/pgsql/acl), [**CA & SSL**](https://pigsty.io/docs/reference/param/#ca) secure best practice.
 - [**Observable**](https://pigsty.io/img/pigsty/dashboard.jpg): SOTA monitoring for [**PG**](https://demo.pigsty.cc/d/pgrds-instance/pgrds-instance) / [**Infra**](https://pigsty.io/docs/infra) / [**Node**](https://pigsty.io/docs/node) based on **Prometheus** & **Grafana** stack: [**Demo**](https://demo.pigsty.cc) & [**Gallery**](https://github.com/Vonng/pigsty/wiki/Gallery).
 - [**Available**](https://pigsty.io/img/pigsty/ha.png): Auto-routed & pooled customizable database [**Services**](https://pigsty.io/docs/concept/svc#default-service) [**Access**](https://pigsty.io/docs/concept/svc#access-service) with **haproxy**, **pgbouncer**, and **VIP**.
@@ -28,7 +28,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 ### Advantages
 
-- **Unparalleled Extension**: [**341**](https://ext.pigsty.io/#/list) PostgreSQL extensions available in addition to the official **PGDG** repo.
+- **Unparalleled Extension**: [**340**](https://ext.pigsty.io/#/list) PostgreSQL extensions available in addition to the official **PGDG** repo.
 - **Stunning Observability**: Ultimate experience with **3000+** metrics visualized in **30+** organized dashboards.
 - **Reliable Best Practices**: Proven & Polished in large-scale production environment (**25K** vCPU) for **5** years+.
 - **NO Docker/Kubernetes**: We choose the hard way to deliver RDS based on bare OS **WITHOUT** [**Containers**](https://pigsty.io/blog/db/db-in-k8s/)!
@@ -37,7 +37,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 ### Benefits
 
-- **Full Control**: Unleash the full power of PostgreSQL with 341+ extensions, and gain full control of your data!
+- **Full Control**: Unleash the full power of PostgreSQL with 340+ extensions, and gain full control of your data!
 - **Rest Assured**: Self-healing HA from hardware failures and Point-In-Time-Recovery from human error & bugs!
 - **Keen Insight**: You can't manage what you can't measure. Gain penetrating insight through all-seeing panels!
 - **Self-Reliant**: Self-serving enterprise RDS service with all its dependencies in the absence of a dedicated DBA!
@@ -79,20 +79,20 @@ Finally, you will get a pigsty singleton node [**ready**](https://pigsty.io/docs
 
 ```
 $ curl -fsSL https://repo.pigsty.io/get | bash
-[v3.1.0] ===========================================
+[v3.2.0] ===========================================
 $ curl -fsSL https://repo.pigsty.io/get | bash
 [Site] https://pigsty.io
 [Demo] https://demo.pigsty.cc
 [Repo] https://github.com/Vonng/pigsty
 [Docs] https://pigsty.io/docs/setup/install
 [Download] ===========================================
-[ OK ] version = v3.1.0 (from default)
-curl -fSL https://repo.pigsty.io/src/pigsty-v3.1.0.tgz -o /tmp/pigsty-v3.1.0.tgz
+[ OK ] version = v3.2.0 (from default)
+curl -fSL https://repo.pigsty.io/src/pigsty-v3.2.0.tgz -o /tmp/pigsty-v3.2.0.tgz
 ######################################################################## 100.0%
-[ OK ] md5sums = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  /tmp/pigsty-v3.1.0.tgz
+[ OK ] md5sums = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  /tmp/pigsty-v3.2.0.tgz
 [Install] ===========================================
 [WARN] os user = root , it's recommended to install as a sudo-able admin
-[ OK ] install = /root/pigsty, from /tmp/pigsty-v3.1.0.tgz
+[ OK ] install = /root/pigsty, from /tmp/pigsty-v3.2.0.tgz
 [TodoList] ===========================================
 cd /root/pigsty
 ./bootstrap      # [OPTIONAL] install ansible & use offline package
@@ -104,7 +104,7 @@ cd /root/pigsty
 > HINT: To install a specific version, pass the version string as the first parameter:
 >
 > ```bash
-> curl -fsSL https://repo.pigsty.io/get | bash -s v3.1.0
+> curl -fsSL https://repo.pigsty.io/get | bash -s v3.2.0
 > ```
 
 </details>
@@ -115,7 +115,7 @@ cd /root/pigsty
 You can also download the pigsty source with `git`, remember to check out a specific version tag, the `main` branch is for development.
 
 ```bash
-git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v3.1.0
+git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v3.2.0
 ```
 
 </details>
@@ -407,7 +407,7 @@ pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
 </details>
 
 You can deploy different kinds of PostgreSQL instance such as primary, replica, offline, delayed, sync standby, etc.,
-and customize with scene-optimize [**templates**](https://github.com/Vonng/pigsty/tree/dev/conf), pre-defined [**stacks**](https://pigsty.io/docs/pgext/usage/stack) and all **341** [**extensions**](https://ext.pigsty.io/#/list).
+and customize with scene-optimize [**templates**](https://github.com/Vonng/pigsty/tree/dev/conf), pre-defined [**stacks**](https://pigsty.io/docs/pgext/usage/stack) and all **340** [**extensions**](https://ext.pigsty.io/#/list).
 
 You can define [**Users**](https://pigsty.io/docs/pgsql/user/), [**Databases**](https://pigsty.io/docs/pgsql/db/), [**Service**](https://pigsty.io/docs/pgsql/svc/), [**HBAs**](https://pigsty.io/docs/pgsql/hba/) and other entities in code and provision them in one pass.
 You can even replace the vanilla [**`PostgreSQL`**](https://pigsty.io/docs/pgsql) [**Kernel**](https://pigsty.io/docs/kernel/) with other forks as an in-place replacement: [**`Babelfish`**](https://pigsty.io/docs/kernel/babelfish/) for MSSQL compatibility,
