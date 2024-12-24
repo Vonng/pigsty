@@ -482,6 +482,18 @@ publish:
 ###############################################################
 
 #------------------------------#
+#          Terraform           #
+#------------------------------#
+tu: # terraform up
+	cd terraform && make u
+td: # terraform destroy
+	cd terraform && make d
+ts: # terraform ssh
+	cd terraform && make ssh
+to: # terraform output
+	cd terraform && make out
+
+#------------------------------#
 #     Change Configuration     #
 #------------------------------#
 cmeta:
