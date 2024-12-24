@@ -97,6 +97,14 @@ function is_valid_ip(){
         return 1
     fi
 }
+function assign() {
+    if [[ $1 == *=* ]]; then # --backup=foo
+        TARGET="${1#*=}"
+    else # --backup foo / -b foo
+        TARGET=$2
+        shift
+    fi
+}
 
 
 #--------------------------------------------------------------#
@@ -114,11 +122,26 @@ while [ $# -gt 0 ]; do
         -s|--stanza)    STANZA=$2 ; shift ;;
         -d|--default)   METHOD="default"   ; ;;
         -i|--immediate) [[ ${METHOD} != "default" ]] && usage ; METHOD="immediate" ;  ;;
-        -t|--time)      [[ ${METHOD} != "default" ]] && usage ; METHOD="time"      ;   TARGET=$2; shift;;
-        -n|--name)      [[ ${METHOD} != "default" ]] && usage ; METHOD="name"      ;   TARGET=$2; shift;;
-        -b|--backup)    [[ ${METHOD} != "default" ]] && usage ; METHOD="set"       ;   TARGET=$2; shift;;
-        -l|--lsn)       [[ ${METHOD} != "default" ]] && usage ; METHOD="lsn"       ;   TARGET=$2; shift;;
-        -x|--xid)       [[ ${METHOD} != "default" ]] && usage ; METHOD="xid"       ;   TARGET=$2; shift;;
+        -t|--time*)
+            [[ ${METHOD} != "default" ]] && usage ;
+            METHOD="time"; assign $1 "${2:-}"
+            [[ $1 != *=* ]] && shift ;;
+        -n|--name*)
+            [[ ${METHOD} != "default" ]] && usage ;
+            METHOD="name"; assign  $1 "${2:-}"
+            [[ $1 != *=* ]] && shift ;;
+        -b|--backup*)
+            [[ ${METHOD} != "default" ]] && usage;
+            METHOD="set"; assign $1 "${2:-}"
+            [[ $1 != *=* ]] && shift ;;
+        -l|--lsn*)
+            [[ ${METHOD} != "default" ]] && usage ;
+            METHOD="lsn"; assign  $1 "${2:-}"
+            [[ $1 != *=* ]] && shift ;;
+        -x|--xid*)
+            [[ ${METHOD} != "default" ]] && usage ;
+            METHOD="xid"; assign  $1 "${2:-}"
+            [[ $1 != *=* ]] && shift ;;
         -X|--target-exclusive) TARGET_EXCLUSIVE=true ;;
         -P|--target-action) TARGET_ACTION="promote" ;;
         (--) shift; break;;
