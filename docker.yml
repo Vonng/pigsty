@@ -4,7 +4,7 @@
 # File      :   docker.yml
 # Desc      :   init docker on nodes
 # Ctime     :   2023-02-20
-# Mtime     :   2024-08-07
+# Mtime     :   2024-12-24
 # Path      :   docker.yml
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
@@ -24,6 +24,7 @@
     - { role: node_id , tags: id     }  # get node identity (always)
     - { role: docker  , tags: docker ,when: docker_enabled is defined and docker_enabled|bool }
 
+
 #---------------------------------------------------------------
 # Usage
 #---------------------------------------------------------------
@@ -34,6 +35,12 @@
 #
 # docker images on /tmp/docker/*.tgz will be loaded automatically
 # you can add registry mirror to `docker_registry_mirrors` to accelerate
+#
+# one-time online installation
+# ./node.yml -t node_install -e '{"node_repo_modules":"node,docker","node_packages":["docker-ce,docker-compose-plugin"]}'
+#
+# install docker with mirror
+# ./docker.yml -e '{"docker_enabled":"true","docker_registry_mirrors":["https://docker.xxxxxx.io"]}'
 #---------------------------------------------------------------
 # Tasks
 #---------------------------------------------------------------
