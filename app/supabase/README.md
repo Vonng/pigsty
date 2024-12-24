@@ -3,7 +3,7 @@
 > [Supabase](https://supabase.com/) —— Build in a weekend, Scale to millions
 
 Pigsty allow you to self-host **supabase** with existing managed HA postgres cluster, and launch the stateless part of supabase with docker-compose.
-Check the official tutorial for details: [Self-Hosting Supabase](https://pigsty.io/docs/kernel/supabase)
+Check the official tutorial for details: [Self-Hosting Supabase](https://pigsty.io/blog/db/supabase/)
 
 Supabase is the open-source Firebase alternative built upon PostgreSQL.
 It provides authentication, API, edge functions, real-time subscriptions, object storage, and vector embedding capabilities out of the box.
@@ -45,3 +45,5 @@ with configured DNS for public domain, or a local `/etc/hosts` record with `supa
 > Default username & password: `supabase` : `pigsty`
 
 Check the official tutorial for more details: [Self-Hosting Supabase](https://pigsty.io/docs/kernel/supabase)
+
+> Beware the storage API require MinIO/S3 to work, and you have to access it via a valid domain name (`/etc/hosts` or real domain)
