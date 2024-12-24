@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-12-16
+# Mtime     :   2024-12-24
 # Path      :   Makefile
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
@@ -736,5 +736,6 @@ vminio24:
         dual dual8 dual9 dual12 dual20 dual22 vdual vdual8 vdual9 vdual12 vdual20 vdual22 \
         trio trio8 trio9 trio12 trio20 trio22 vtrio vtrio8 vtrio9 vtrio12 vtrio20 vtrio22 \
         minio minio8 minio9 minio12 minio22 minio24 vminio vminio9 vminio12 vminio22 vminio24 \
-        cmeta cdual ctrio cfull csimu coss cpro cext crpm cdeb
+        cmeta cdual ctrio cfull csimu coss cpro cext crpm cdeb tu td ts to
+
 ###############################################################
