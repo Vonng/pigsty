@@ -17,6 +17,8 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 [![pigsty-desc](https://pigsty.io/img/pigsty/banner.en.jpg)](https://pigsty.io/docs/about/feature/)
 
 
+--------
+
 ## Features
 
 - [**Extensible**](https://pigsty.io/img/pigsty/extension.png): **340** [**PG Extensions**](https://ext.pigsty.io/#/list) & **6** [**PG Kernel**](https://pigsty.io/docs/kernel) replacements available (e.g., [**MSSQL**](https://pigsty.io/docs/kernel/babelfish/), [**Oracle**](https://pigsty.io/docs/kernel/ivorysql/) compatibility).
@@ -58,7 +60,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 [![Debian Support: 11/12](https://img.shields.io/badge/Debian-11/12-%23A81D33?style=flat&logo=debian&logoColor=%23A81D33)](https://pigsty.io/docs/reference/compatibility/)
 [![Ubuntu Support: 20/22/24](https://img.shields.io/badge/Ubuntu-20/22/24-%23E95420?style=flat&logo=ubuntu&logoColor=%23E95420)](https://ext.pigsty.io/#/deb)
 
-[**Prepare**](https://pigsty.io/docs/setup/prepare/) a fresh `x86_64` / `aarch64` node runs any [**compatible**](https://pigsty.io/docs/reference/compatibility/) **Linux** OS Distros, then [**Download**](https://pigsty.io/docs/setup/install/) **Pigsty** with:
+[**Prepare**](https://pigsty.io/docs/setup/prepare/) a fresh `x86_64` / `aarch64` node runs any [**compatible**](#compatibility) **Linux** OS Distros, then [**Download**](https://pigsty.io/docs/setup/install/) **Pigsty** with:
 
 ```bash
 curl -fsSL https://repo.pigsty.io/get | bash; cd ~/pigsty;
@@ -73,6 +75,24 @@ Next, [**bootstrap**](https://pigsty.io/docs/setup/offline/#bootstrap), [**confi
 Finally, you will get a pigsty singleton node [**ready**](https://pigsty.io/docs/setup/install/#interface), with Web service on port `80/443` and Postgres on port `5432`.
 
 > Consider [**Slim Installation**](https://pigsty.io/docs/setup/slim/) if you only want essential components for HA PostgreSQL.
+
+
+<details><summary>Install with the pig cli</summary><br>
+
+```bash
+curl -fsSL https://repo.pigsty.cc/pig | bash     # mainland china mirror
+```
+
+Then you can launch pigsty with `pig sty` sub command:
+
+```bash
+pig sty init     # install embed pigsty to ~/pigsty 
+pig sty boot     # install ansible and other pre-deps 
+pig sty conf     # auto-generate pigsty.yml config file
+pig sty install  # run the install.yml playbook
+```
+
+</details>
 
 
 <details><summary>Install with get script</summary><br>
@@ -644,6 +664,26 @@ There are other pro, beta, or pilot modules, and there will be more coming in th
 [![JUPYTER](https://img.shields.io/badge/JUPYTER-%23F37626?style=flat&logo=jupyter&labelColor=F37626&logoColor=white)](https://pigsty.io/docs/pro/jupyter)
 [![COCKROACH](https://img.shields.io/badge/COCKROACH-%236933FF?style=flat&logo=cockroachlabs&labelColor=6933FF&logoColor=white)](https://pigsty.io/docs/pro/)
 
+
+----------------
+
+## Compatibility
+
+Pigsty focus on active maintained mainstream LTS Linux distros:
+
+|  Code   | Distro                            |   `x86_64`   | Status |   `aarch64`   | Status |
+|:-------:|-----------------------------------|:------------:|:------:|:-------------:|:------:|
+| **U24** | Ubuntu 24.04 (noble)              | `u24.x86_64` |   ✔    | `u24.aarch64` |   ✔    |
+| **U22** | Ubuntu 22.04 (jammy)              | `u22.x86_64` |   ✔    | `u22.aarch64` |   ✔    |
+| **D12** | Debian 12 (bookworm)              | `d12.x86_64` |   ✔    | `d12.aarch64` |   ✔    |
+| **EL9** | RHEL 9 / Rocky9 / Alma9 / ...     | `el9.x86_64` |   ✔    | `el9.aarch64` |   ✔    |
+| **EL8** | RHEL 8 / Rocky8 / Alma8 / Anolis8 | `el8.x86_64` |   ✔    | `el8.aarch64` |   ✘    |
+| **EL7** | RHEL7 / CentOS7 / Oracle7...      | `d12.x86_64` |   x    | `el7.aarch64` |   ✘    |
+| **D11** | Debian 11 (bullseye)              | `d12.x86_64` |   x    | `d11.aarch64` |   ✘    |
+| **U20** | Ubuntu 20.04 (focal)              | `d12.x86_64` |   x    | `u20.aarch64` |   ✘    |
+
+For legacy distros such as (el7, d11, u20), we have pro support for them. 
+Check [**compatibility**](https://pigsty.io/docs/about/compatibility) for details.
 
 ----------------
 
