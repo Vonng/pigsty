@@ -4,7 +4,7 @@
 # Desc      :   shell script to init postgres cluster
 # Path      :   /etc/profile.d/pg-alias.sh
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
-# Copyright :   2018-2024  Ruohang Feng / Vonng (rh@vonng.com)
+# Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 
 #--------------------------------------------------------------#
