@@ -13,26 +13,41 @@
 all:
   children:
 
-    # infra cluster for proxy, monitor, alert, etc..
-    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
-
-    # etcd cluster for ha postgres
-    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
-
-    pg-citus0: # citus coordinator, pg_group = 0
-      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
-      vars: { pg_cluster: pg-citus0 , pg_group: 0 }
-    pg-citus1: # citus data node 1
-      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
-      vars: { pg_cluster: pg-citus1 , pg_group: 1 }
-    pg-citus2: # citus data node 2
-      hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
-      vars: { pg_cluster: pg-citus2 , pg_group: 2 }
-    pg-citus3: # citus data node 3, with an extra replica
+    # infra singleton for repo, monitoring,...
+    infra:
       hosts:
-        10.10.10.13: { pg_seq: 1, pg_role: primary }
-        10.10.10.14: { pg_seq: 2, pg_role: replica }
-      vars: { pg_cluster: pg-citus3 , pg_group: 3 }
+        10.10.10.10: { infra_seq: 1 }
+
+    # etcd singleton for HA postgres DCS
+    etcd:
+      hosts:
+        10.10.10.10: { etcd_seq: 1 }
+      vars:
+        etcd_cluster: etcd
+
+    # citus 4-node, 3-group example cluster
+    pg-citus:
+      hosts:
+        10.10.10.10: { pg_group: 0, pg_cluster: pg-citus0 ,pg_vip_address: 10.10.10.2/24 ,pg_seq: 1, pg_role: primary }
+        10.10.10.11: { pg_group: 1, pg_cluster: pg-citus1 ,pg_vip_address: 10.10.10.3/24 ,pg_seq: 1, pg_role: primary }
+        10.10.10.12: { pg_group: 2, pg_cluster: pg-citus2 ,pg_vip_address: 10.10.10.4/24 ,pg_seq: 1, pg_role: primary }
+        10.10.10.13: { pg_group: 2, pg_cluster: pg-citus2 ,pg_vip_address: 10.10.10.4/24 ,pg_seq: 2, pg_role: replica }
+      vars:
+        pg_mode: citus                    # pgsql cluster mode: citus
+        pg_version: 16                    # citus does not have pg16 available
+        pg_shard: pg-citus                # citus shard name: pg-citus
+        pg_primary_db: meta               # primary database used by citus
+        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
+        pg_vip_enabled: true              # enable vip for citus cluster
+        pg_vip_interface: eth1            # vip interface for all members
+        pg_extensions: [ citus, postgis, pgvector ]  # add more if you want
+        pg_libs: 'citus, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
+        pg_users: [ { name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
+        pg_databases: [ { name: test ,owner: test ,extensions: [ { name: citus }, { name: vector } ] } ]
+        pg_hba_rules:
+          - { user: 'all' ,db: all  ,addr: 10.10.10.0/24 ,auth: trust ,title: 'trust citus cluster members'        }
+          - { user: 'all' ,db: all  ,addr: 127.0.0.1/32  ,auth: ssl   ,title: 'all user ssl access from localhost' }
+          - { user: 'all' ,db: all  ,addr: intra         ,auth: ssl   ,title: 'all user ssl access from intranet'  }
 
   vars:                               # global variables
     version: v3.2.1                   # pigsty version string
@@ -48,25 +63,7 @@ all:
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
 
-    #----------------------------------#
-    # NODE, PGSQL, Citus
-    #----------------------------------#
-    pg_mode: citus                    # pgsql cluster mode: citus
-    pg_shard: pg-citus                # citus shard name: pg-citus
-    pg_primary_db: meta               # primary database used by citus
-    pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
-    pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
-    pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
-    pg_version: 16                    # citus now only has 16,15,14 support
-    pg_extensions:
-      - citus timescaledb postgis pgvector
-    pg_hba_rules:
-      - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
-      - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet' }
-    pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
     repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility ]
-    repo_extra_packages: [            # default postgres packages to be downloaded
-      pgsql-main, pgsql-citus, postgis, pgvector
-    ]
+    repo_extra_packages: [ pgsql-main, pgsql-citus, postgis, pgvector ]
 
 ...

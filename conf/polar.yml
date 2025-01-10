@@ -1,32 +1,40 @@
 ---
 #==============================================================#
 # File      :   polar.yml
-# Desc      :   Pigsty Local Sandbox 4-node Demo Config
+# Desc      :   Pigsty Local 4-node PolarDB for PG Demo Config
 # Ctime     :   2020-08-05
-# Mtime     :   2024-11-11
+# Mtime     :   2025-01-10
 # Docs      :   https://pigsty.io/docs/conf/polar/
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 
+# polardb is available on u22, u24, el8, el9, x86_64 only, pg15 compatible
 
 all:
   children:
 
-    # infra cluster for proxy, monitor, alert, etc..
-    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } }}
+    # infra singleton for repo, monitoring,...
+    infra:
+      hosts:
+        10.10.10.10: { infra_seq: 1 }
 
-    # etcd cluster for ha postgres
-    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+    # etcd singleton for HA postgres DCS
+    etcd:
+      hosts:
+        10.10.10.10: { etcd_seq: 1 }
+      vars:
+        etcd_cluster: etcd
 
-    # postgres example cluster: pg-meta
+    # polardb singleton
     pg-meta:
-      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      hosts:
+        10.10.10.10: { pg_seq: 1, pg_role: primary }
       vars:
         pg_cluster: pg-meta
         pg_users:
-          - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
-          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+          - {name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
+          - {name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
         pg_databases:
           - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty]}
         pg_hba_rules:
@@ -35,7 +43,7 @@ all:
         pg_vip_address: 10.10.10.2/24
         pg_vip_interface: eth1
 
-    # pgsql 3 node ha cluster: pg-test
+    # polardb 3-node ha cluster: 10.10.10.3 ---> 10.10.10.1{1,2,3}
     pg-test:
       hosts:
         10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
@@ -52,7 +60,7 @@ all:
   vars:                               # global variables
     version: v3.2.1                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
-    region: default                   # upstream mirror region: default|china|europe
+    region: default                   # upstream mirror region: default,china,europe
     node_tune: oltp                   # node tuning specs: oltp,olap,tiny,crit
     pg_conf: oltp.yml                 # pgsql tuning specs: {oltp,olap,tiny,crit}.yml
     infra_portal:                     # domain names and upstream servers
