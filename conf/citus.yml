@@ -3,7 +3,7 @@
 # File      :   citus.yml
 # Desc      :   pigsty citus testing environment
 # Ctime     :   2020-05-22
-# Mtime     :   2024-11-11
+# Mtime     :   2025-01-10
 # Docs      :   https://pigsty.io/docs/conf/citus/
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -57,6 +57,7 @@ all:
     pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
     pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
     pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
+    pg_version: 16                    # citus now only has 16,15,14 support
     pg_extensions:
       - citus timescaledb postgis pgvector
     pg_hba_rules:
@@ -65,10 +66,7 @@ all:
     pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
     repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility ]
     repo_extra_packages: [            # default postgres packages to be downloaded
-      pgsql-main, citus, postgis, pgvector
-      #pgsql-core,pgsql-time,pgsql-gis,pgsql-rag,pgsql-fts,pgsql-olap,pgsql-feat,pgsql-lang,pgsql-type,pgsql-func,pgsql-admin,pgsql-stat,pgsql-sec,pgsql-fdw,pgsql-sim,pgsql-etl,
-      #pg17-core,pg17-time,pg17-gis,pg17-rag,pg17-fts,pg17-olap,pg17-feat,pg17-lang,pg17-type,pg17-func,pg17-admin,pg17-stat,pg17-sec,pg17-fdw,pg17-sim,pg17-etl,
-      #pg16-core,pg16-time,pg16-gis,pg16-rag,pg16-fts,pg16-olap,pg16-feat,pg16-lang,pg16-type,pg16-func,pg16-admin,pg16-stat,pg16-sec,pg16-fdw,pg16-sim,pg16-etl,
+      pgsql-main, pgsql-citus, postgis, pgvector
     ]
 
 ...
