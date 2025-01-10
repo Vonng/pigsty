@@ -1240,7 +1240,7 @@ TRUNCATE pigsty.default_var;
 INSERT INTO pigsty.default_var VALUES
 
 -- INFRA PARAMETERS
-(101, 'version', '"v3.2.0"', 'INFRA', 'META', 'string', 'G', 'pigsty version string', NULL),
+(101, 'version', '"v3.2.1"', 'INFRA', 'META', 'string', 'G', 'pigsty version string', NULL),
 (102, 'admin_ip', '"10.10.10.10"', 'INFRA', 'META', 'ip', 'G', 'admin node ip address', NULL),
 (103, 'region', '"default"', 'INFRA', 'META', 'enum', 'G', 'upstream mirror region: default,china,europe', NULL),
 (104, 'proxy_env', '{"no_proxy": "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"}', 'INFRA', 'META', 'dict', 'G', 'global proxy env when downloading packages', NULL),
@@ -1259,7 +1259,7 @@ INSERT INTO pigsty.default_var VALUES
 (116, 'repo_upstream', '[]', 'INFRA', 'REPO', 'upstream[]', 'G', 'where to download upstream packages', NULL),
 (117, 'repo_packages', '[]', 'INFRA', 'REPO', 'string[]', 'G', 'which packages to be included', NULL),
 (118, 'repo_extra_packages', '[]', 'INFRA', 'REPO', 'string[]', 'G/C/I', 'extra repo packages to be included', NULL),
-(119, 'repo_url_packages', '[{"name": "pev.html", "url": "https://repo.pigsty.io/etc/pev-1.12.1.html"}, {"name": "chart.tgz", "url": "https://repo.pigsty.io/etc/chart-1.0.0.tgz"}, {"name": "plugins.tgz", "url": "https://repo.pigsty.io/etc/plugins-11.4.0.tgz"}]', 'INFRA', 'REPO', 'string[]', 'G', 'extra packages from url', NULL),
+(119, 'repo_url_packages', '[]', 'INFRA', 'REPO', 'string[]', 'G', 'extra packages from url', NULL),
 
 (120, 'infra_packages', '[]', 'INFRA', 'INFRA_PACKAGE', 'string[]', 'G', 'packages to be installed on infra nodes', NULL),
 (121, 'infra_packages_pip', '""', 'INFRA', 'INFRA_PACKAGE', 'string', 'G', 'pip installed packages for infra nodes', NULL),
@@ -1298,8 +1298,6 @@ INSERT INTO pigsty.default_var VALUES
 (171, 'grafana_clean', 'true', 'INFRA', 'GRAFANA', 'bool', 'G/A', 'clean grafana data during init?', NULL),
 (172, 'grafana_admin_username', '"admin"', 'INFRA', 'GRAFANA', 'username', 'G', 'grafana admin username, `admin` by default', NULL),
 (173, 'grafana_admin_password', '"pigsty"', 'INFRA', 'GRAFANA', 'password', 'G', 'grafana admin password, `pigsty` by default', NULL),
-(174, 'grafana_plugin_cache', '"/www/pigsty/plugins.tgz"', 'INFRA', 'GRAFANA', 'path', 'G', 'path to grafana plugins cache tarball', NULL),
-(175, 'grafana_plugin_list', '["volkovlabs-echarts-panel","volkovlabs-image-panel","volkovlabs-form-panel","volkovlabs-table-panel","volkovlabs-variable-panel","knightss27-weathermap-panel","marcusolsson-dynamictext-panel","marcusolsson-treemap-panel","marcusolsson-calendar-panel","marcusolsson-hourly-heatmap-panel","marcusolsson-static-datasource","marcusolsson-json-datasource","volkovlabs-rss-datasource","volkovlabs-grapi-datasource"]', 'INFRA', 'GRAFANA', 'string[]', 'G', 'grafana plugins to be downloaded with grafana-cli', NULL),
 (176, 'loki_enabled', 'true', 'INFRA', 'LOKI', 'bool', 'G/I', 'enable loki on this infra node?', NULL),
 (177, 'loki_clean', 'false', 'INFRA', 'LOKI', 'bool', 'G/A', 'whether remove existing loki data?', NULL),
 (178, 'loki_data', '"/data/loki"', 'INFRA', 'LOKI', 'path', 'G', 'loki data dir, `/data/loki` by default', NULL),
