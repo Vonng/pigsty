@@ -27,21 +27,27 @@ all:
 
     # building spec
     pg_version: 17
-    cache_pkg_dir: 'dist/${version}/'
+    cache_pkg_dir: 'dist/${version}/oss'
     repo_modules: infra,node,pgsql,docker #kube,mssql,ivory
     repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker ]
     repo_extra_packages: [ pg17-core ,pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ]
     pg_extensions:       [            pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ]
 
   children:
-    etcd: { hosts: { 10.10.10.9:  { etcd_seq: 1 }}, vars: {  etcd_cluster: etcd  } }
+    el9:  { hosts: { 10.10.10.9:  { pg_cluster: pg-el9 ,pg_seq: 1 ,pg_role: primary }}}
+    d12:  { hosts: { 10.10.10.12: { pg_cluster: pg-d12 ,pg_seq: 1 ,pg_role: primary }}}
+    u22:  { hosts: { 10.10.10.22: { pg_cluster: pg-u22 ,pg_seq: 1 ,pg_role: primary }}}
+    #u24:  { hosts: { 10.10.10.24: { pg_cluster: pg-u24 ,pg_seq: 1 ,pg_role: primary }}}
+    #el8:  { hosts: { 10.10.10.8:  { pg_cluster: pg-el8 ,pg_seq: 1 ,pg_role: primary }}}
+    
+    etcd: { hosts: { 10.10.10.9:  { etcd_seq: 1 }}, vars: { etcd_cluster: etcd  }}
     infra:
       hosts:
-        #10.10.10.8:  { infra_seq: 1, admin_ip: 10.10.10.8  ,pg_cluster: pg-el8, pg_seq: 1, pg_role: primary, ansible_host: el8 }
-        10.10.10.9:  { infra_seq: 2, admin_ip: 10.10.10.9  ,pg_cluster: pg-el9, pg_seq: 1, pg_role: primary, ansible_host: el9 }
-        10.10.10.12: { infra_seq: 3, admin_ip: 10.10.10.12 ,pg_cluster: pg-d12, pg_seq: 1, pg_role: primary, ansible_host: d12 }
-        10.10.10.22: { infra_seq: 4, admin_ip: 10.10.10.22 ,pg_cluster: pg-u22, pg_seq: 1, pg_role: primary, ansible_host: u22 }
-        #10.10.10.24: { infra_seq: 5, admin_ip: 10.10.10.24 ,pg_cluster: pg-u24, pg_seq: 1, pg_role: primary, ansible_host: u24 }
-      vars: { node_conf: oltp }
-
+        10.10.10.9:  { infra_seq: 2, admin_ip: 10.10.10.9  ,ansible_host: el9 }
+        10.10.10.12: { infra_seq: 3, admin_ip: 10.10.10.12 ,ansible_host: d12 }
+        10.10.10.22: { infra_seq: 4, admin_ip: 10.10.10.22 ,ansible_host: u22 }
+        #10.10.10.24: { infra_seq: 5, admin_ip: 10.10.10.24 ,ansible_host: u24 }
+        #10.10.10.8:  { infra_seq: 1, admin_ip: 10.10.10.8  ,ansible_host: el8 }
+      vars:
+        node_conf: oltp
 ...
