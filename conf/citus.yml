@@ -3,7 +3,7 @@
 # File      :   citus.yml
 # Desc      :   pigsty citus testing environment
 # Ctime     :   2020-05-22
-# Mtime     :   2025-01-10
+# Mtime     :   2025-01-11
 # Docs      :   https://pigsty.io/docs/conf/citus/
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -29,25 +29,28 @@ all:
     pg-citus:
       hosts:
         10.10.10.10: { pg_group: 0, pg_cluster: pg-citus0 ,pg_vip_address: 10.10.10.2/24 ,pg_seq: 1, pg_role: primary }
-        10.10.10.11: { pg_group: 1, pg_cluster: pg-citus1 ,pg_vip_address: 10.10.10.3/24 ,pg_seq: 1, pg_role: primary }
-        10.10.10.12: { pg_group: 2, pg_cluster: pg-citus2 ,pg_vip_address: 10.10.10.4/24 ,pg_seq: 1, pg_role: primary }
-        10.10.10.13: { pg_group: 2, pg_cluster: pg-citus2 ,pg_vip_address: 10.10.10.4/24 ,pg_seq: 2, pg_role: replica }
+        10.10.10.11: { pg_group: 0, pg_cluster: pg-citus0 ,pg_vip_address: 10.10.10.2/24 ,pg_seq: 2, pg_role: replica }
+        10.10.10.12: { pg_group: 1, pg_cluster: pg-citus1 ,pg_vip_address: 10.10.10.3/24 ,pg_seq: 1, pg_role: primary }
+        10.10.10.13: { pg_group: 2, pg_cluster: pg-citus2 ,pg_vip_address: 10.10.10.4/24 ,pg_seq: 1, pg_role: primary }
       vars:
-        pg_mode: citus                    # pgsql cluster mode: citus
-        pg_version: 16                    # citus does not have pg16 available
-        pg_shard: pg-citus                # citus shard name: pg-citus
-        pg_primary_db: meta               # primary database used by citus
-        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
-        pg_vip_enabled: true              # enable vip for citus cluster
-        pg_vip_interface: eth1            # vip interface for all members
-        pg_extensions: [ citus, postgis, pgvector ]  # add more if you want
-        pg_libs: 'citus, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
-        pg_users: [ { name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
-        pg_databases: [ { name: test ,owner: test ,extensions: [ { name: citus }, { name: vector } ] } ]
+        pg_mode: citus                            # pgsql cluster mode: citus
+        pg_version: 16                            # citus does not have pg16 available
+        pg_shard: pg-citus                        # citus shard name: pg-citus
+        pg_primary_db: citus                      # primary database used by citus
+        pg_vip_enabled: true                      # enable vip for citus cluster
+        pg_vip_interface: eth1                    # vip interface for all members
+        pg_dbsu_password: DBUser.Postgres         # enable dbsu password access for citus
+        pg_extensions: [ citus, postgis, pgvector, topn, pg_cron, hll ]  # install these extensions
+        pg_libs: 'citus, pg_cron, pg_stat_statements' # citus will be added by patroni automatically
+        pg_users: [{ name: dbuser_citus ,password: DBUser.Citus ,pgbouncer: true ,roles: [ dbrole_admin ]    }]
+        pg_databases: [{ name: citus ,owner: dbuser_citus ,extensions: [ citus, vector, topn, pg_cron, hll ] }]
+        pg_parameters:
+          cron.database_name: citus
+          citus.node_conninfo: 'sslmode=require sslrootcert=/pg/cert/ca.crt sslmode=verify-full'
         pg_hba_rules:
-          - { user: 'all' ,db: all  ,addr: 10.10.10.0/24 ,auth: trust ,title: 'trust citus cluster members'        }
           - { user: 'all' ,db: all  ,addr: 127.0.0.1/32  ,auth: ssl   ,title: 'all user ssl access from localhost' }
           - { user: 'all' ,db: all  ,addr: intra         ,auth: ssl   ,title: 'all user ssl access from intranet'  }
+
 
   vars:                               # global variables
     version: v3.2.1                   # pigsty version string
@@ -63,7 +66,8 @@ all:
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
 
+    pg_version: 16
     repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility ]
-    repo_extra_packages: [ pgsql-main, pgsql-citus, postgis, pgvector ]
+    repo_extra_packages: [ pgsql-main, pgsql-citus, postgis, pgvector, pg_cron, hll, topn ]
 
 ...
