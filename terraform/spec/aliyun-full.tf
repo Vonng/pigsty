@@ -2,7 +2,7 @@
 # File      :   aliyun-full.yml
 # Desc      :   4-node full sandbox env for x86_64/aarch64
 # Ctime     :   2020-05-12
-# Mtime     :   2024-11-15
+# Mtime     :   2024-01-11
 # Path      :   terraform/spec/aliyun-full.yml
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -19,16 +19,20 @@ variable "architecture" {
   #default     = "arm64"   # uncomment this to use arm64
 }
 
-variable "distro_code" {
-  description = "The 3-char distro code (el8,el9,u22,u24,d12)"
+variable "distro" {
+  description = "The Distribution code"
   type        = string
-  default     = "el9"       # el7/el8/el9/d11/d12/u20/u22/an8
+  default     = "u22"
 }
 
 locals {
+  bandwidth = 100                       # internet bandwidth in Mbps (100Mbps)
+  disk_size = 40                        # system disk size in GB (40GB)
+  spot_policy = "SpotWithPriceLimit"    # NoSpot, SpotWithPriceLimit, SpotAsPriceGo
+  spot_price_limit = 5                  # only valid when spot_policy is SpotWithPriceLimit
   instance_type_map = {
-      amd64 = "ecs.c8i.xlarge"   # 4c8g spot instance
-      arm64 = "ecs.c8y.xlarge"   # 4c8g spot instance
+    amd64 = "ecs.c8i.xlarge"
+    arm64 = "ecs.c8y.xlarge"
   }
   image_regex_map = {
     amd64 = {
@@ -50,14 +54,8 @@ locals {
       u24   = "^ubuntu_24_04_arm64"
     }
   }
-  selected_instype = local.instance_type_map[var.architecture]                # node type: amd/arm
-  selected_images = local.image_regex_map[var.architecture][var.distro_code]  # os: 5 distro x amd/arm
-}
-
-# the finally used image inquiry
-data "alicloud_images" "img" {
-  owners     = "system"
-  name_regex = local.selected_images
+  selected_images = local.image_regex_map[var.architecture]
+  selected_instype = local.instance_type_map[var.architecture]
 }
 
 
@@ -110,22 +108,28 @@ resource "alicloud_security_group_rule" "allow_all_tcp" {
 #===========================================================#
 # The meta node: pg-meta instance
 #===========================================================#
+data "alicloud_images" "pigsty_img" {
+  owners     = "system"
+  name_regex = local.selected_images[var.distro]
+}
+
 resource "alicloud_instance" "pg-meta" {
   instance_name                 = "pg-meta"
   host_name                     = "pg-meta"
   private_ip                    = "10.10.10.10"
   instance_type                 = local.selected_instype
-  image_id                      = "${data.alicloud_images.img.images.0.id}"
+  image_id                      = "${data.alicloud_images.pigsty_img.images.0.id}"
   vswitch_id                    = "${alicloud_vswitch.vsw.id}"
   security_groups               = ["${alicloud_security_group.default.id}"]
   password                      = "PigstyDemo4"
   instance_charge_type          = "PostPaid"
   internet_charge_type          = "PayByTraffic"
-  spot_strategy                 = "SpotAsPriceGo"
-  internet_max_bandwidth_out    = 100
+  spot_strategy                 = local.spot_policy
+  spot_price_limit              = local.spot_price_limit
+  internet_max_bandwidth_out    = local.bandwidth
   system_disk_category          = "cloud_essd"
   system_disk_performance_level = "PL1"
-  system_disk_size              = 40
+  system_disk_size              = local.disk_size
 }
 
 resource "alicloud_instance" "pg-test-groups" {
@@ -134,20 +138,22 @@ resource "alicloud_instance" "pg-test-groups" {
   host_name                     = "pg-test-${each.key}"
   private_ip                    = "10.10.10.1${each.key}"
   instance_type                 = local.selected_instype
-  image_id                      = "${data.alicloud_images.img.images.0.id}"
+  image_id                      = "${data.alicloud_images.pigsty_img.images.0.id}"
   vswitch_id                    = "${alicloud_vswitch.vsw.id}"
   security_groups               = ["${alicloud_security_group.default.id}"]
   password                      = "PigstyDemo4"
   instance_charge_type          = "PostPaid"
   internet_charge_type          = "PayByTraffic"
-  spot_strategy                 = "SpotAsPriceGo"
+  spot_strategy                 = local.spot_policy
+  spot_price_limit              = local.spot_price_limit
+  internet_max_bandwidth_out    = local.bandwidth
   system_disk_category          = "cloud_essd"
   system_disk_performance_level = "PL1"
-  system_disk_size              = 40
+  system_disk_size              = local.disk_size
   #internet_max_bandwidth_out    = 100 # no public ip
 }
 
-# print the public IP address after provisioning
-output "public_ip" {
+# print the meta IP address after provisioning
+output "meta_ip" {
   value = "${alicloud_instance.pg-meta.public_ip}"
 }
