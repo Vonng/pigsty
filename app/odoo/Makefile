@@ -5,7 +5,7 @@ up: view
 
 # run with local data dir & external pg
 run: pg
-	docker run --init --name odoo --restart always --detach --publish 8069:8069 odoo:17.0
+	docker run --init --name odoo --restart always --detach --publish 8069:8069 odoo:18.0
 
 view:
 	@echo "visit http://odoo.pigsty  or  http://10.10.10.10:8069"
@@ -31,11 +31,11 @@ pull:
 	docker compose pull
 
 rmi:
-	docker rmi odoo:17.0
+	docker rmi odoo:18.0
 
 save:
 	mkdir -p /tmp/docker
-	docker save odoo/odoo:17.0 | gzip -9 -c > /tmp/docker/odoo.tgz
+	docker save odoo/odoo:18.0 | gzip -9 -c > /tmp/docker/odoo.tgz
 
 load:
 	cat /tmp/docker/odoo.tgz | gzip -d -c - | docker load

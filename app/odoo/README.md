@@ -97,10 +97,10 @@ volumes:
 
 You can mount the `./addons` dir to the `/mnt/extra-addons` in the container, then download and unzip to the `addons` folder,
 
-To enable addon module, first entering the [Developer mode](https://www.odoo.com/documentation/17.0/applications/general/developer_mode.html)
+To enable addon module, first entering the [Developer mode](https://www.odoo.com/documentation/18.0/applications/general/developer_mode.html)
 
 > Settings -> Generic Settings -> Developer Tools -> Activate the developer Mode
 
 Then goes to the > Apps -> Update Apps List, then you can find the extra addons and install from the panel.
 
-Frequently used [free](https://apps.odoo.com/apps/modules/browse?order=Downloads) addons: [Accounting Kit](https://apps.odoo.com/apps/modules/17.0/base_accounting_kit/)
+Frequently used [free](https://apps.odoo.com/apps/modules/browse?order=Downloads) addons: [Accounting Kit](https://apps.odoo.com/apps/modules/18.0/base_accounting_kit/)
