@@ -1,0 +1,86 @@
+---
+#==============================================================#
+# File      :   odoo.yml
+# Desc      :   pigsty config for running singleton odoo
+# Ctime     :   2025-01-11
+# Mtime     :   2025-01-11
+# Docs      :   https://pigsty.io/docs/software/odoo
+# License   :   AGPLv3 @ https://pigsty.io/docs/about/license
+# Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
+#==============================================================#
+
+# how to use this template:
+#
+#  curl -fsSL https://repo.pigsty.io/get | bash
+# ./bootstrap               # prepare local repo & ansible
+# ./configure -c demo/odoo  # IMPORTANT: CHANGE CREDENTIALS!!
+# ./install.yml             # install pigsty & pgsql & minio
+# ./docker.yml              # install docker & docker-compose
+# ./app.yml                 # install odoo
+
+all:
+  children:
+
+    infra:
+      hosts: { 10.10.10.10: { infra_seq: 1 } }
+      vars:
+
+        # ./docker.yml -l infra
+        docker_enabled: true
+        docker_registry_mirrors: [ ]
+        #  - https://docker.m.daocloud.io
+        #  - https://dockerproxy.com
+
+        # ./app.yml -l infra -e app=odoo
+        app: odoo
+        app_config:
+          PG_HOST: 10.10.10.10
+          PG_PORT: 5432
+          PG_USER: dbuser_odoo
+          PG_PASS: DBUser.Odoo
+          ODOO_PORT: 8069
+
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+    #minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+
+    pg-meta:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-meta
+        pg_users:
+          - { name: dbuser_meta       ,password: DBUser.Meta       ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
+          - { name: dbuser_view       ,password: DBUser.Viewer     ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
+          - { name: dbuser_odoo       ,password: DBUser.Odoo       ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: admin user for odoo service ,createdb: true } #,superuser: true}
+        pg_databases:
+          - { name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [ pigsty ] ,extensions: [ { name: vector } ] }
+          #- {name: odoo ,owner: dbuser_odoo ,revokeconn: true ,comment: odoo main database  }  # this will be created by the dbuser_odoo, you can register it to grafana later
+        pg_hba_rules:
+          - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
+        pg_libs: 'pg_stat_statements, auto_explain'  # add timescaledb to shared_preload_libraries
+
+  vars: # global variables
+    version: v3.2.1                   # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default|china|europe
+    infra_portal: # domain names and upstream servers
+      home: { domain: h.pigsty }
+      grafana: { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus: { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager: { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox: { endpoint: "${admin_ip}:9115" }
+      loki: { endpoint: "${admin_ip}:3100" }
+      odoo: { domain: odoo.pigsty, endpoint: "127.0.0.1:8069", websocket: true }
+
+    # Credential: CHANGE THESE PASSWORDS IN PRODUCTION
+    grafana_admin_password: pigsty
+    pg_admin_password: DBUser.DBA
+    pg_monitor_password: DBUser.Monitor
+    pg_replication_password: DBUser.Replicator
+    patroni_password: Patroni.API
+    haproxy_admin_password: pigsty
+
+    repo_modules: infra,node,pgsql,docker
+    repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker ]
+    repo_extra_packages: [ pg17-main ]
+    pg_version: 17
+...

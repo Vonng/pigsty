@@ -16,6 +16,11 @@ all:
     infra:
       hosts:
         10.10.10.10: { infra_seq: 1 }
+      vars:
+        docker_enabled: true
+        docker_registry_mirrors:
+          - https://docker.m.daocloud.io
+          - https://dockerproxy.com
 
     etcd:
       hosts:
@@ -52,7 +57,7 @@ all:
           - {name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
           - {name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database  }
           - {name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database     }
-          - {name: odoo     ,owner: dbuser_odoo     ,revokeconn: true ,comment: odoo main database  }
+          #- {name: odoo     ,owner: dbuser_odoo     ,revokeconn: true ,comment: odoo main database  }
         pg_hba_rules:
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
         pg_libs: 'timescaledb,pg_stat_statements, auto_explain'  # add timescaledb to shared_preload_libraries
