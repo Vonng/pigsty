@@ -1,9 +1,9 @@
 #==============================================================#
-# File      :   aliyun-oss.yml
-# Desc      :   5-node oss building env for x86_64/aarch64
-# Ctime     :   2024-12-12
-# Mtime     :   2024-12-12
-# Path      :   tf/terraform
+# File      :   terraform.yml
+# Desc      :   1-node cloud vm env for x86_64/aarch64
+# Ctime     :   2020-05-12
+# Mtime     :   2024-01-11
+# Path      :   terraform/terraform.yml
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
@@ -19,9 +19,15 @@ variable "architecture" {
   #default     = "arm64"   # uncomment this to use arm64
 }
 
+variable "distro" {
+  description = "The Distribution code"
+  type        = string
+  default     = "d12"
+}
+
 locals {
   bandwidth = 100                       # internet bandwidth in Mbps (100Mbps)
-  disk_size = 100                       # system disk size in GB (100GB)
+  disk_size = 40                        # system disk size in GB (40GB)
   spot_policy = "SpotWithPriceLimit"    # NoSpot, SpotWithPriceLimit, SpotAsPriceGo
   spot_price_limit = 5                  # only valid when spot_policy is SpotWithPriceLimit
   instance_type_map = {
@@ -52,7 +58,10 @@ locals {
   selected_instype = local.instance_type_map[var.architecture]
 }
 
-
+data "alicloud_images" "pigsty_img" {
+  owners     = "system"
+  name_regex = local.selected_images[var.distro]
+}
 
 #===========================================================#
 # Credentials
@@ -99,25 +108,15 @@ resource "alicloud_security_group_rule" "allow_all_tcp" {
   cidr_ip           = "0.0.0.0/0"
 }
 
-
-
-
-
-#======================================#
-# EL9 ARM64
-#======================================#
-# rockylinux_9_4_arm64_20G_alibase_20240820.vhd
-data "alicloud_images" "el9_img" {
-  owners     = "system"
-  name_regex = local.selected_images.el9
-}
-
-resource "alicloud_instance" "pg-el9" {
-  instance_name                 = "pg-el9"
-  host_name                     = "pg-el9"
-  private_ip                    = "10.10.10.9"
+#===========================================================#
+# The meta node: pg-meta instance
+#===========================================================#
+resource "alicloud_instance" "pg-meta" {
+  instance_name                 = "pg-meta"
+  host_name                     = "pg-meta"
+  private_ip                    = "10.10.10.10"
   instance_type                 = local.selected_instype
-  image_id                      = "${data.alicloud_images.el9_img.images.0.id}"
+  image_id                      = "${data.alicloud_images.pigsty_img.images.0.id}"
   vswitch_id                    = "${alicloud_vswitch.vsw.id}"
   security_groups               = ["${alicloud_security_group.default.id}"]
   password                      = "PigstyDemo4"
@@ -126,85 +125,15 @@ resource "alicloud_instance" "pg-el9" {
   spot_strategy                 = local.spot_policy
   spot_price_limit              = local.spot_price_limit
   internet_max_bandwidth_out    = local.bandwidth
-  system_disk_category          = "cloud_essd"
-  system_disk_performance_level = "PL1"
-  system_disk_size              = local.disk_size
-}
-
-output "el9_ip" {
-  value = "${alicloud_instance.pg-el9.public_ip}"
-}
-
-
-
-
-#======================================#
-# D12 ARM64
-#======================================#
-# debian_12_7_arm64_20G_alibase_20241105.vhd
-data "alicloud_images" "d12_img" {
-  owners     = "system"
-  name_regex = local.selected_images.d12
-}
-
-resource "alicloud_instance" "pg-d12" {
-  instance_name                 = "pg-d12"
-  host_name                     = "pg-d12"
-  private_ip                    = "10.10.10.12"
-  instance_type                 = local.selected_instype
-  image_id                      = "${data.alicloud_images.d12_img.images.0.id}"
-  vswitch_id                    = "${alicloud_vswitch.vsw.id}"
-  security_groups               = ["${alicloud_security_group.default.id}"]
-  password                      = "PigstyDemo4"
-  instance_charge_type          = "PostPaid"
-  internet_charge_type          = "PayByTraffic"
   spot_strategy                 = local.spot_policy
   spot_price_limit              = local.spot_price_limit
   internet_max_bandwidth_out    = local.bandwidth
+  system_disk_size              = local.disk_size
   system_disk_category          = "cloud_essd"
   system_disk_performance_level = "PL1"
-  system_disk_size              = local.disk_size
 }
 
-output "d12_ip" {
-  value = "${alicloud_instance.pg-d12.public_ip}"
+# print the meta IP address after provisioning
+output "meta_ip" {
+  value = "${alicloud_instance.pg-meta.public_ip}"
 }
-
-
-
-#======================================#
-# U22 ARM64
-#======================================#
-# ubuntu_22_04_arm64_20G_alibase_20230712.vhd
-data "alicloud_images" "u22_img" {
-  owners     = "system"
-  name_regex = local.selected_images.u22
-}
-
-resource "alicloud_instance" "pg-u22" {
-  instance_name                 = "pg-u22"
-  host_name                     = "pg-u22"
-  private_ip                    = "10.10.10.22"
-  instance_type                 = local.selected_instype
-  image_id                      = "${data.alicloud_images.u22_img.images.0.id}"
-  vswitch_id                    = "${alicloud_vswitch.vsw.id}"
-  security_groups               = ["${alicloud_security_group.default.id}"]
-  password                      = "PigstyDemo4"
-  instance_charge_type          = "PostPaid"
-  internet_charge_type          = "PayByTraffic"
-  spot_strategy                 = local.spot_policy
-  spot_price_limit              = local.spot_price_limit
-  internet_max_bandwidth_out    = local.bandwidth
-  system_disk_category          = "cloud_essd"
-  system_disk_performance_level = "PL1"
-  system_disk_size              = local.disk_size
-}
-
-output "u22_ip" {
-  value = "${alicloud_instance.pg-u22.public_ip}"
-}
-
-
-# sshpass -p PigstyDemo4 ssh-copy-id el9
-# sshpass -p PigstyDemo4 ssh-copy-id u22
-# sshpass -p PigstyDemo4 ssh-copy-id d12

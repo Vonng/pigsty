@@ -22,7 +22,7 @@ variable "architecture" {
 variable "distro" {
   description = "The Distribution code"
   type        = string
-  default     = "u22"
+  default     = "d12"
 }
 
 locals {
@@ -58,7 +58,10 @@ locals {
   selected_instype = local.instance_type_map[var.architecture]
 }
 
-
+data "alicloud_images" "pigsty_img" {
+  owners     = "system"
+  name_regex = local.selected_images[var.distro]
+}
 
 #===========================================================#
 # Credentials
@@ -108,11 +111,6 @@ resource "alicloud_security_group_rule" "allow_all_tcp" {
 #===========================================================#
 # The meta node: pg-meta instance
 #===========================================================#
-data "alicloud_images" "pigsty_img" {
-  owners     = "system"
-  name_regex = local.selected_images[var.distro]
-}
-
 resource "alicloud_instance" "pg-meta" {
   instance_name                 = "pg-meta"
   host_name                     = "pg-meta"
@@ -127,9 +125,9 @@ resource "alicloud_instance" "pg-meta" {
   spot_strategy                 = local.spot_policy
   spot_price_limit              = local.spot_price_limit
   internet_max_bandwidth_out    = local.bandwidth
+  system_disk_size              = local.disk_size
   system_disk_category          = "cloud_essd"
   system_disk_performance_level = "PL1"
-  system_disk_size              = local.disk_size
 }
 
 resource "alicloud_instance" "pg-test-groups" {
@@ -147,9 +145,9 @@ resource "alicloud_instance" "pg-test-groups" {
   spot_strategy                 = local.spot_policy
   spot_price_limit              = local.spot_price_limit
   internet_max_bandwidth_out    = local.bandwidth
+  system_disk_size              = local.disk_size
   system_disk_category          = "cloud_essd"
   system_disk_performance_level = "PL1"
-  system_disk_size              = local.disk_size
   #internet_max_bandwidth_out    = 100 # no public ip
 }
 
