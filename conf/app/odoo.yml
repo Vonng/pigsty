@@ -1,7 +1,7 @@
 ---
 #==============================================================#
 # File      :   odoo.yml
-# Desc      :   pigsty config for running singleton odoo
+# Desc      :   pigsty config for running 1-node odoo app
 # Ctime     :   2025-01-11
 # Mtime     :   2025-01-11
 # Docs      :   https://pigsty.io/docs/software/odoo
@@ -9,11 +9,12 @@
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 
+# tutorial: https://pigsty.io/docs/software/odoo/
 # how to use this template:
 #
-#  curl -fsSL https://repo.pigsty.io/get | bash
+#  curl -fsSL https://repo.pigsty.io/get | bash; cd ~/pigsty
 # ./bootstrap               # prepare local repo & ansible
-# ./configure -c demo/odoo  # IMPORTANT: CHANGE CREDENTIALS!!
+# ./configure -c app/odoo   # IMPORTANT: CHANGE CREDENTIALS!!
 # ./install.yml             # install pigsty & pgsql & minio
 # ./docker.yml              # install docker & docker-compose
 # ./app.yml                 # install odoo
@@ -57,7 +58,6 @@ all:
         pg_hba_rules:
           - { user: all ,db: all ,addr: 172.17.0.0/16  ,auth: pwd ,title: 'allow access from local docker network' }
           - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
-        pg_libs: 'pg_stat_statements, auto_explain'
 
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
     etcd:  { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }

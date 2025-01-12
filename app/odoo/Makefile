@@ -9,7 +9,6 @@ dir:
 view:
 	@echo "visit http://odoo.pigsty  or  http://10.10.10.10:8069"
 
-
 # administration
 up:
 	docker compose up -d
