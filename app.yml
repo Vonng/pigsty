@@ -11,15 +11,24 @@
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 
+- name: NODE ID
+  become: yes
+  hosts: all
+  gather_facts: no
+  roles:
+    - { role: node_id ,tags: id }
+    #- { role: docker  ,tags: docker }
 
-# Run docker compose appplication (require the docker module)
+# Run docker compose application (require the docker module)
 - name: APP INSTALL
   hosts: all
   gather_facts: no
   become: yes
   vars:
-    #app: pgadmin     # any entries in the app/ folder, required
-    app_config: {}    # .env entries to override
+  #app: pgadmin     # any entries in the app/ folder, required
+  #app_config: {}   # .env entries to override
+  #app_dir: []      # additional directories to be created (ansible file module)
+
   tasks:
     # check app defined and dir exists
     - name: check app arg defined
@@ -42,15 +51,22 @@
           fail: {msg: "app/{{ app }} folder not exist"}
           when: not app_folder_stat.stat.exists
 
+    # create app dir
+    - name: setup app dir
+      tags: app_dir
+      when: app_dir is defined and app_dir | length > 0
+      file: "{{ item }}"
+      with_items: "{{ app_dir }}"
+
     # copy docker app folder to /opt/<app>
-    - name: copy docker app dir
+    - name: copy app resource dir
       tags: app_install
-      copy: src="{{ playbook_dir }}/app/{{ app }}/" dest=/opt/{{ app }}/
+      copy: src="{{ playbook_dir }}/app/{{ app }}/" dest="/opt/{{ app }}/"
 
     # append entries to app .env config (override existing entries)
     - name: overwrite docker app .env
       tags: app_config
-      when: app_config is defined and app_config | type == 'dict' and app_config | length > 0
+      when: app_config is defined
       lineinfile:
         path: /opt/{{ app }}/.env
         regexp: '^{{ item.key | upper }}='
@@ -62,7 +78,7 @@
     - name: launch app
       tags: app_launch
       shell:
-        cmd: docker compose up -d
+        cmd: make
         chdir: /opt/{{ app }}
 
 ...
