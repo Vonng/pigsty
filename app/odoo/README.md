@@ -6,87 +6,83 @@
 
 Check public demo: http://odoo.pigsty.cc, username: `test@pigsty.cc`, password: `pigsty`
 
-If you want to access odoo through SSL, you have to trust `files/pki/ca/ca.crt` on your browser (or use the dirty hack `thisisunsafe` in chrome)
 
+--------
 
 ## Get Started
 
-Check [`.env`](.env) file for configurable environment variables:
+```yaml
+ curl -fsSL https://repo.pigsty.io/get | bash
+./bootstrap               # prepare local repo & ansible
+./configure -c demo/odoo  # IMPORTANT: CHANGE CREDENTIALS!!
 
-```bash
-# https://hub.docker.com/_/odoo#
-PG_HOST=10.10.10.10
-PG_PORT=5432
-PG_USER=dbuser_odoo
-PG_PASS=DBUser.Odoo
-ODOO_PORT=8069
+./install.yml             # install pigsty & pgsql & minio
+./docker.yml              # install docker & docker-compose
+./app.yml                 # install odoo
 ```
 
-Then launch odoo with:
+That's it, YOU ARE ALL SET!
 
-```bash
-make up  # docker compose up
-```
+Odoo is serving on port 8069 by default, you can access it via `http://<ip>:8069`.
 
-Visit [http://odoo.pigsty](http://odoo.pigsty) or http://10.10.10.10:0869
+You can add a static entry to your `/etc/hosts` file to access odoo via `http://odoo.pigsty` through the nginx 80/443 portal
 
-## Makefile
+> The default credentials are `admin` / `admin`
+>
+> And to create another odoo database, you'll have to alter the `odoo` db user to superuser to do so.
 
-```bash
-make up         # pull up odoo with docker compose in minimal mode
-make run        # launch odoo with docker , local data dir and external PostgreSQL
-make view       # print odoo access point
-make log        # tail -f odoo logs
-make info       # introspect odoo with jq
-make stop       # stop odoo container
-make clean      # remove odoo container
-make pull       # pull latest odoo image
-make rmi        # remove odoo image
-make save       # save odoo image to /tmp/docker/odoo.tgz
-make load       # load odoo image from /tmp/docker/odoo.tgz
-```
 
-## Use External PostgreSQL
+--------
 
-You can use external PostgreSQL for Odoo. Odoo will create its own database during setup, so you don't need to do that
+## Configuration
+
+There's a config template [`conf/demo/odoo.yml`](https://github.com/Vonng/pigsty/blob/main/conf/demo/odoo.yml), you'd better change some credentials and make your modifications there:
 
 ```yaml
-pg_users:
-  - {name: dbuser_odoo     ,password: DBUser.Odoo     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for odoo database , superuser: true ,createdb: true}
+# the odoo application
+app:
+  hosts: { 10.10.10.10: {} }
+  vars:
+    app: odoo                         # app name
+    app_dir:                          # app directories
+      - { path: /data/odoo         ,state: directory, owner: 100, group: 101 }
+      - { path: /data/odoo/webdata ,state: directory, owner: 100, group: 101 }
+      - { path: /data/odoo/addons  ,state: directory, owner: 100, group: 101 }
+    app_config:                       # app config
+      PG_HOST: 10.10.10.10            # postgres host
+      PG_PORT: 5432                   # postgres port
+      PG_USERNAME: odoo               # postgres user
+      PG_PASSWORD: DBUser.Odoo        # postgres password
+      ODOO_PORT: 8069                 # odoo app port
+      ODOO_DATA: /data/odoo/webdata   # odoo webdata
+      ODOO_ADDONS: /data/odoo/addons  # odoo plugins
+      ODOO_DBNAME: odoo               # odoo database name
+      ODOO_VERSION: 18.0              # odoo image version
+    docker_enabled: true              # install & enabled docker
+    #docker_registry_mirrors: [https://docker.m.daocloud.io, https://dockerproxy.com, https://docker.mirrors.ustc.edu.cn]
+
+# the odoo database
+pg-odoo:
+  hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+  vars:
+    pg_cluster: pg-odoo
+    pg_users:
+      - { name: odoo    ,password: DBUser.Odoo ,pgbouncer: true ,roles: [ dbrole_admin ] , createdb: true ,comment: admin user for odoo service }
+      - { name: odoo_ro ,password: DBUser.Odoo ,pgbouncer: true ,roles: [ dbrole_readonly ]  ,comment: read only user for odoo service  }
+      - { name: odoo_rw ,password: DBUser.Odoo ,pgbouncer: true ,roles: [ dbrole_readwrite ] ,comment: read write user for odoo service }
+    pg_databases:
+      - { name: odoo ,owner: odoo ,revokeconn: true ,comment: odoo main database  }
+    pg_hba_rules:
+      - { user: all ,db: all ,addr: 172.17.0.0/16  ,auth: pwd ,title: 'allow access from local docker network' }
+      - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
+    pg_libs: 'pg_stat_statements, auto_explain'
 ```
 
-And create business user with:
-
-```bash
-bin/pgsql-user  pg-meta  dbuser_odoo
-#bin/pgsql-db    pg-meta  odoo     # odoo will create the database during setup
-```
-
-Beware that Odoo will create its own database, so you don't need to create it with pigsty
 
 
+-------
 
-
-## Expose Odoo Service
-
-```yaml
-infra_portal:                     # domain names and upstream servers
-  home         : { domain: h.pigsty }
-  grafana      : { domain: g.pigsty    ,endpoint: "${admin_ip}:3000" , websocket: true }
-  prometheus   : { domain: p.pigsty    ,endpoint: "${admin_ip}:9090" }
-  alertmanager : { domain: a.pigsty    ,endpoint: "${admin_ip}:9093" }
-  blackbox     : { endpoint: "${admin_ip}:9115" }
-  loki         : { endpoint: "${admin_ip}:3100" }
-  odoo         : { domain: odoo.pigsty, endpoint: "127.0.0.1:8069", websocket: true }  # <------ add this line
-```
-
-```bash
-./infra.yml -t nginx   # setup nginx infra portal
-```
-
-
-
-# Odoo Addons
+## Odoo Addons
 
 There are lots of Odoo modules available in the community, you can install them by downloading and placing them in the `addons` folder.
 

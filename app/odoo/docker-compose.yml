@@ -2,17 +2,31 @@
 # please change the credentials in .env file!
 
 services:
+
+  # the main odoo container
   odoo:
     container_name: odoo
-    image: odoo:18.0
+    image: odoo:${ODOO_VERSION}
     ports:
-      - "${ODOO_PORT}:8069"
+      - ${ODOO_PORT}:8069
     environment:
       - HOST=${PG_HOST}
       - PORT=${PG_PORT}
-      - USER=${PG_USER}
-      - PASSWORD=${PG_PASS}
-    #volumes:
-    #- ./addons:/mnt/extra-addons
-    #- ${ODOO_DATA}:/var/lib/odoo
-    #- ./config:/etc/odoo
+      - USER=${PG_USERNAME}
+      - PASSWORD=${PG_PASSWORD}
+    volumes:
+      - ${ODOO_DATA}:/var/lib/odoo
+      - ${ODOO_ADDONS}:/mnt/extra-addons
+      #- ./config:/etc/odoo
+
+  # run this init schema migration with: docker compose --profile init up odoo-init
+  odoo-init:
+    image: odoo:${ODOO_VERSION}
+    profiles: ["init"]
+    command: [ odoo, --stop-after-init , --init=base , -d,  "${ODOO_DBNAME}" ]  #--without-demo
+    environment:
+      - HOST=${PG_HOST}
+      - PORT=${PG_PORT}
+      - USER=${PG_USERNAME}
+      - PASSWORD=${PG_PASSWORD}
+    restart: "no"
