@@ -551,6 +551,11 @@ function check_config(){
         sed -ie 's/    region: default/    region: '"${REGION}"'  /g' "${config_dst}"
         rm -rf "${config_dst}e"
     fi
+    if [[ ${REGION} == "china" ]]; then
+        # also uncomment docker_registry_mirrors for china region
+        sed -ie 's/#docker_registry_mirrors/docker_registry_mirrors/g' "${config_dst}"
+        rm -rf "${config_dst}e"
+    fi
 
     # add proxy_env from current env
     if [[ "${USE_PROXY}" == "true" ]]; then
