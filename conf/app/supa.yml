@@ -1,0 +1,220 @@
+---
+#==============================================================#
+# File      :   supa.yml
+# Desc      :   Pigsty configuration for self-hosting supabase
+# Ctime     :   2023-09-19
+# Mtime     :   2025-01-12
+# Docs      :   https://pigsty.io/docs/kernel/supabase/
+# License   :   AGPLv3 @ https://pigsty.io/docs/about/license
+# Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
+#==============================================================#
+
+# supabase is available on el8/el9/u22/u24/d12 with pg15,16,17
+# To install supabase on fresh node, run:
+#
+#  curl -fsSL https://repo.pigsty.io/get | bash
+# ./bootstrap               # prepare local repo & ansible
+# ./configure -c app/supa   # IMPORTANT: CHANGE CREDENTIALS!!
+# ./install.yml             # install pigsty & pgsql & minio
+# ./docker.yml              # install docker & docker compose
+# ./app.yml                 # launch supabase with docker compose
+
+all:
+
+  #==============================================================#
+  # Clusters, Nodes, and Modules
+  #==============================================================#
+  children:
+
+    # launch supabase stateless part with docker compose:
+    # ./docker.yml -l app
+    # ./app.yml    -l app
+    app:
+      hosts:
+        10.10.10.10: { supa_seq: 1 }  # instance id
+      vars:
+        docker_enabled: true          # enable docker
+        #docker_registry_mirrors: [https://docker.m.daocloud.io, https://dockerproxy.com]
+
+        # these configuration entries will OVERWRITE or APPEND to /opt/supabase/.env file (src template: app/supabase/.env)
+        # check https://github.com/Vonng/pigsty/blob/main/app/supabase/.env for default values
+        app: supabase
+        app_config:
+          # IMPORTANT: CHANGE JWT_SECRET AND REGENERATE CREDENTIAL ACCORDING!!!!!!!!!!!
+          # https://supabase.com/docs/guides/self-hosting/docker#securing-your-services
+          jwt_secret: your-super-secret-jwt-token-with-at-least-32-characters-long
+          anon_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
+          service_role_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q
+          dashboard_username: supabase
+          dashboard_password: pigsty
+
+          # postgres connection string (use the correct ip and port)
+          postgres_host: 10.10.10.10
+          postgres_port: 5436             # access via the 'default' service, which always route to the primary postgres
+          postgres_db: postgres
+          postgres_password: DBUser.Supa  # password for supabase_admin and multiple supabase users
+
+          # expose supabase via domain name
+          site_url: http://supa.pigsty
+          api_external_url: http://supa.pigsty
+          supabase_public_url: http://supa.pigsty
+
+          # if using s3/minio as file storage
+          s3_bucket: supa
+          s3_endpoint: https://sss.pigsty:9000
+          s3_access_key: supabase
+          s3_secret_key: S3User.Supabase
+          s3_force_path_style: true
+          s3_protocol: https
+          s3_region: stub
+          minio_domain_ip: 10.10.10.10  # sss.pigsty domain name will resolve to this ip statically
+
+          # if using SMTP (optional)
+          #smtp_admin_email: admin@example.com
+          #smtp_host: supabase-mail
+          #smtp_port: 2500
+          #smtp_user: fake_mail_user
+          #smtp_pass: fake_mail_password
+          #smtp_sender_name: fake_sender
+          #enable_anonymous_users: false
+
+
+    # infra cluster for proxy, monitor, alert, etc..
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
+
+    # etcd cluster for ha postgres
+    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+
+    # minio cluster, s3 compatible object storage
+    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+
+    # pg-meta, the underlying postgres database for supabase
+    pg-meta:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-meta
+        pg_users:
+          # supabase roles: anon, authenticated, dashboard_user
+          - { name: anon           ,login: false }
+          - { name: authenticated  ,login: false }
+          - { name: dashboard_user ,login: false ,replication: true ,createdb: true ,createrole: true }
+          - { name: service_role   ,login: false ,bypassrls: true }
+          # supabase users: please use the same password
+          - { name: supabase_admin             ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: true   ,roles: [ dbrole_admin ] ,superuser: true ,replication: true ,createdb: true ,createrole: true ,bypassrls: true }
+          - { name: authenticator              ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,roles: [ dbrole_admin, authenticated ,anon ,service_role ] }
+          - { name: supabase_auth_admin        ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,roles: [ dbrole_admin ] ,createrole: true }
+          - { name: supabase_storage_admin     ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,roles: [ dbrole_admin, authenticated ,anon ,service_role ] ,createrole: true }
+          - { name: supabase_functions_admin   ,password: 'DBUser.Supa' ,pgbouncer: true ,inherit: false  ,roles: [ dbrole_admin ] ,createrole: true }
+          - { name: supabase_replication_admin ,password: 'DBUser.Supa' ,replication: true ,roles: [ dbrole_admin ]}
+          - { name: supabase_read_only_user    ,password: 'DBUser.Supa' ,bypassrls: true ,roles: [ dbrole_readonly, pg_read_all_data ] }
+        pg_databases:
+          - name: postgres
+            baseline: supabase.sql
+            owner: supabase_admin
+            comment: supabase postgres database
+            schemas: [ extensions ,auth ,realtime ,storage ,graphql_public ,supabase_functions ,_analytics ,_realtime ]
+            extensions:
+              - { name: pgcrypto  ,schema: extensions  } # 1.3   : cryptographic functions
+              - { name: pg_net    ,schema: extensions  } # 0.9.2 : async HTTP
+              - { name: pgjwt     ,schema: extensions  } # 0.2.0 : json web token API for postgres
+              - { name: uuid-ossp ,schema: extensions  } # 1.1   : generate universally unique identifiers (UUIDs)
+              - { name: pgsodium        }                # 3.1.9 : pgsodium is a modern cryptography library for Postgres.
+              - { name: supabase_vault  }                # 0.2.8 : Supabase Vault Extension
+              - { name: pg_graphql      }                # 1.5.9 : pg_graphql: GraphQL support
+              - { name: pg_jsonschema   }                # 0.3.3 : pg_jsonschema: Validate json schema
+              - { name: wrappers        }                # 0.4.3 : wrappers: FDW collections
+              - { name: http            }                # 1.6   : http: allows web page retrieval inside the database.
+              - { name: pg_cron         }                # 1.6   : pg_cron: Job scheduler for PostgreSQL
+              - { name: timescaledb     }                # 2.17  : timescaledb: Enables scalable inserts and complex queries for time-series data
+              - { name: pg_tle          }                # 1.2   : pg_tle: Trusted Language Extensions for PostgreSQL
+              - { name: vector          }                # 0.8.0 : pgvector: the vector similarity search
+              - { name: pgmq            }                # 1.4.4 : pgmq: A lightweight message queue like AWS SQS and RSMQ
+        # supabase required extensions
+        pg_libs: 'timescaledb, plpgsql, plpgsql_check, pg_cron, pg_net, pg_stat_statements, auto_explain, pg_tle, plan_filter'
+        pg_parameters:
+          cron.database_name: postgres
+          pgsodium.enable_event_trigger: off
+        pg_hba_rules: # supabase hba rules, require access from docker network
+          - { user: all ,db: postgres  ,addr: intra         ,auth: pwd ,title: 'allow supabase access from intranet'    }
+          - { user: all ,db: postgres  ,addr: 172.17.0.0/16 ,auth: pwd ,title: 'allow access from local docker network' }
+        node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ] # make a full backup every 1am
+
+
+
+  #==============================================================#
+  # Global Parameters
+  #==============================================================#
+  vars:
+    version: v3.2.1                   # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default|china|europe
+    node_tune: oltp                   # node tuning specs: oltp,olap,tiny,crit
+    pg_conf: oltp.yml                 # pgsql tuning specs: {oltp,olap,tiny,crit}.yml
+    infra_portal:                     # domain names and upstream servers
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      minio        : { domain: m.pigsty ,endpoint: "10.10.10.10:9001", https: true, websocket: true }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }  # expose supa studio UI and API via nginx
+      supa         : { domain: supa.pigsty ,endpoint: "10.10.10.10:8000", websocket: true }
+
+    #----------------------------------#
+    # Credential: CHANGE THESE PASSWORDS
+    #----------------------------------#
+    #grafana_admin_username: admin
+    grafana_admin_password: pigsty
+    #pg_admin_username: dbuser_dba
+    pg_admin_password: DBUser.DBA
+    #pg_monitor_username: dbuser_monitor
+    pg_monitor_password: DBUser.Monitor
+    #pg_replication_username: replicator
+    pg_replication_password: DBUser.Replicator
+    #patroni_username: postgres
+    patroni_password: Patroni.API
+    #haproxy_admin_username: admin
+    haproxy_admin_password: pigsty
+
+    # use minio as supabase file storage, single node single driver mode for demonstration purpose
+    minio_access_key: minioadmin      # root access key, `minioadmin` by default
+    minio_secret_key: minioadmin      # root secret key, `minioadmin` by default
+    minio_buckets: [ { name: pgsql }, { name: supa } ]
+    minio_users:
+      - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
+      - { access_key: pgbackrest , secret_key: S3User.Backup,   policy: readwrite }
+      - { access_key: supabase   , secret_key: S3User.Supabase, policy: readwrite }
+    minio_endpoint: https://sss.pigsty:9000    # explicit overwrite minio endpoint with haproxy port
+    node_etc_hosts: ["10.10.10.10 sss.pigsty"] # domain name to access minio from all nodes (required)
+
+    # use minio as default backup repo for PostgreSQL
+    pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
+    pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+      local:                          # default pgbackrest repo with local posix fs
+        path: /pg/backup              # local backup directory, `/pg/backup` by default
+        retention_full_type: count    # retention full backups by count
+        retention_full: 2             # keep 2, at most 3 full backup when using local fs repo
+      minio:                          # optional minio repo for pgbackrest
+        type: s3                      # minio is s3-compatible, so s3 is used
+        s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default
+        s3_region: us-east-1          # minio region, us-east-1 by default, useless for minio
+        s3_bucket: pgsql              # minio bucket name, `pgsql` by default
+        s3_key: pgbackrest            # minio user access key for pgbackrest
+        s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
+        s3_uri_style: path            # use path style uri for minio rather than host style
+        path: /pgbackrest             # minio backup path, default is `/pgbackrest`
+        storage_port: 9000            # minio port, 9000 by default
+        storage_ca_file: /pg/cert/ca.crt  # minio ca file path, `/pg/cert/ca.crt` by default
+        bundle: y                     # bundle small files into a single file
+        cipher_type: aes-256-cbc      # enable AES encryption for remote backup repo
+        cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
+        retention_full_type: time     # retention full backup by time on minio repo
+        retention_full: 14            # keep full backup for last 14 days
+
+    # download docker and all available extensions
+    pg_version: 17
+    repo_modules: node,pgsql,infra,docker
+    repo_packages: [node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker ]
+    repo_extra_packages: [pg17-core ,pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl, pg17-citus ]
+    pg_extensions:                 [ pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ]
+...
