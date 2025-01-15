@@ -684,7 +684,7 @@ Pigsty focus on active maintained mainstream LTS Linux distros:
 | **U20** | Ubuntu 20.04 (focal)              | `d12.x86_64` |   x    | `u20.aarch64` |   ✘    |
 
 For legacy distros such as (el7, d11, u20), we have pro support for them. 
-Check [**compatibility**](https://pigsty.io/docs/about/compatibility) for details.
+Check [**compatibility**](https://pigsty.io/docs/reference/compatibility/) for details.
 
 ----------------
 

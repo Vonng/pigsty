@@ -1,93 +1,225 @@
 ---
 #==============================================================#
-# File      :   odoo.yml
-# Desc      :   pigsty config for running singleton odoo
-# Ctime     :   2025-01-11
-# Mtime     :   2025-01-11
-# Docs      :   https://pigsty.io/docs/software/odoo
+# File      :   pigsty.yml
+# Desc      :   Pigsty default 1-node config install
+# Ctime     :   2020-05-22
+# Mtime     :   2025-01-15
+# Docs      :   https://pigsty.io/docs/conf/meta
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 
-# how to use this template:
-#
-#  curl -fsSL https://repo.pigsty.io/get | bash
-# ./bootstrap               # prepare local repo & ansible
-# ./configure -c demo/odoo  # IMPORTANT: CHANGE CREDENTIALS!!
-# ./install.yml             # install pigsty & pgsql & minio
-# ./docker.yml              # install docker & docker-compose
-# ./app.yml                 # install odoo
-
 all:
+
+  #==============================================================#
+  # Clusters, Nodes, and Modules
+  #==============================================================#
   children:
 
-    # the odoo application
-    app:
-      hosts: { 10.10.10.10: {} }
+    #----------------------------------#
+    # infra: monitor, alert, repo, etc..
+    #----------------------------------#
+    infra:
+      hosts:
+        10.10.10.10: { infra_seq: 1 }
       vars:
-        app: odoo                         # app name
-        app_dir:                          # app directories
-          - { path: /data/odoo         ,state: directory, owner: 100, group: 101 }
-          - { path: /data/odoo/webdata ,state: directory, owner: 100, group: 101 }
-          - { path: /data/odoo/addons  ,state: directory, owner: 100, group: 101 }
-        app_config:                       # app config
-          PG_HOST: 10.10.10.10            # postgres host
-          PG_PORT: 5432                   # postgres port
-          PG_USERNAME: odoo               # postgres user
-          PG_PASSWORD: DBUser.Odoo        # postgres password
-          ODOO_PORT: 8069                 # odoo app port
-          ODOO_DATA: /data/odoo/webdata   # odoo webdata
-          ODOO_ADDONS: /data/odoo/addons  # odoo plugins
-          ODOO_DBNAME: odoo               # odoo database name
-          ODOO_VERSION: 18.0              # odoo image version
-        docker_enabled: true              # install & enabled docker
+        docker_enabled: true # enabled docker with ./docker.yml (also add docker to repo)
         #docker_registry_mirrors: [https://docker.m.daocloud.io, https://dockerproxy.com]
 
-    # the odoo database
-    pg-odoo:
-      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+    #----------------------------------#
+    # etcd cluster for HA postgres DCS
+    #----------------------------------#
+    etcd:
+      hosts:
+        10.10.10.10: { etcd_seq: 1 }
       vars:
-        pg_cluster: pg-odoo
-        pg_users:
-          - { name: odoo    ,password: DBUser.Odoo ,pgbouncer: true ,roles: [ dbrole_admin ] ,createdb: true ,comment: admin user for odoo service }
-          - { name: odoo_ro ,password: DBUser.Odoo ,pgbouncer: true ,roles: [ dbrole_readonly ]  ,comment: read only user for odoo service  }
-          - { name: odoo_rw ,password: DBUser.Odoo ,pgbouncer: true ,roles: [ dbrole_readwrite ] ,comment: read write user for odoo service }
-        pg_databases:
-          - { name: odoo ,owner: odoo ,revokeconn: true ,comment: odoo main database  }
-        pg_hba_rules:
-          - { user: all ,db: all ,addr: 172.17.0.0/16  ,auth: pwd ,title: 'allow access from local docker network' }
-          - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
-        pg_libs: 'pg_stat_statements, auto_explain'
+        etcd_cluster: etcd
 
-    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
-    etcd:  { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
-    #minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+    #----------------------------------#
+    # minio (OPTIONAL backup repo)
+    #----------------------------------#
+    #minio:
+    #  hosts:
+    #    10.10.10.10: { minio_seq: 1 }
+    #  vars:
+    #    minio_cluster: minio
 
-  vars:                               # global variables
+    #----------------------------------#
+    # pgsql (singleton on current node)
+    #----------------------------------#
+    # this is an example single-node postgres cluster with postgis & timescaledb installed, with one biz database & two biz users
+    pg-meta:
+      hosts:
+        10.10.10.10: { pg_seq: 1, pg_role: primary } # <---- primary instance with read-write capability
+        #x.xx.xx.xx: { pg_seq: 2, pg_role: replica } # <---- read only replica for read-only online traffic
+        #x.xx.xx.xy: { pg_seq: 3, pg_role: offline } # <---- offline instance of ETL & interactive queries
+      vars:
+        pg_cluster: pg-meta                 # required identity parameter, usually same as group name
+
+        # define business databases here: https://pigsty.io/docs/pgsql/db/
+        pg_databases:                       # define business databases on this cluster, array of database definition
+          - name: meta                      # REQUIRED, `name` is the only mandatory field of a database definition
+            baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g: files/)
+            schemas: [ pigsty ]             # optional, additional schemas to be created, array of schema names
+            extensions:                     # optional, additional extensions to be installed: array of `{name[,schema]}`
+              - { name: vector }            # install pgvector extension on this database by default
+            comment: pigsty meta database   # optional, comment string for this database
+            #pgbouncer: true                # optional, add this database to pgbouncer database list? true by default
+            #owner: postgres                # optional, database owner, postgres by default
+            #template: template1            # optional, which template to use, template1 by default
+            #encoding: UTF8                 # optional, database encoding, UTF8 by default. (MUST same as template database)
+            #locale: C                      # optional, database locale, C by default.  (MUST same as template database)
+            #lc_collate: C                  # optional, database collate, C by default. (MUST same as template database)
+            #lc_ctype: C                    # optional, database ctype, C by default.   (MUST same as template database)
+            #tablespace: pg_default         # optional, default tablespace, 'pg_default' by default.
+            #allowconn: true                # optional, allow connection, true by default. false will disable connect at all
+            #revokeconn: false              # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
+            #register_datasource: true      # optional, register this database to grafana datasources? true by default
+            #connlimit: -1                  # optional, database connection limit, default -1 disable limit
+            #pool_auth_user: dbuser_meta    # optional, all connection to this pgbouncer database will be authenticated by this user
+            #pool_mode: transaction         # optional, pgbouncer pool mode at database level, default transaction
+            #pool_size: 64                  # optional, pgbouncer pool size at database level, default 64
+            #pool_size_reserve: 32          # optional, pgbouncer pool size reserve at database level, default 32
+            #pool_size_min: 0               # optional, pgbouncer pool size min at database level, default 0
+            #pool_max_db_conn: 100          # optional, max database connections at database level, default 100
+          #- { name: grafana  ,owner: dbuser_grafana  ,revokeconn: true ,comment: grafana primary database }  # define another database
+
+        # define business users here: https://pigsty.io/docs/pgsql/user/
+        pg_users:                           # define business users/roles on this cluster, array of user definition
+          - name: dbuser_meta               # REQUIRED, `name` is the only mandatory field of a user definition
+            password: DBUser.Meta           # optional, password, can be a scram-sha-256 hash string or plain text
+            login: true                     # optional, can log in, true by default  (new biz ROLE should be false)
+            superuser: false                # optional, is superuser? false by default
+            createdb: false                 # optional, can create database? false by default
+            createrole: false               # optional, can create role? false by default
+            inherit: true                   # optional, can this role use inherited privileges? true by default
+            replication: false              # optional, can this role do replication? false by default
+            bypassrls: false                # optional, can this role bypass row level security? false by default
+            pgbouncer: true                 # optional, add this user to pgbouncer user-list? false by default (production user should be true explicitly)
+            connlimit: -1                   # optional, user connection limit, default -1 disable limit
+            expire_in: 3650                 # optional, now + n days when this role is expired (OVERWRITE expire_at)
+            expire_at: '2030-12-31'         # optional, YYYY-MM-DD 'timestamp' when this role is expired  (OVERWRITTEN by expire_in)
+            comment: pigsty admin user      # optional, comment string for this user/role
+            roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
+            parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
+            pool_mode: transaction          # optional, pgbouncer pool mode at user level, transaction by default
+            pool_connlimit: -1              # optional, max database connections at user level, default -1 disable limit
+          - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database }
+
+        # define pg extensions: https://pigsty.io/docs/pgext/
+        pg_libs: 'pg_stat_statements, auto_explain' # add timescaledb to shared_preload_libraries
+        pg_extensions: [ pgvector ] # check list for available extension for your pg & os combination: https://ext.pigsty.io/#/list
+
+        # define HBA rules here: https://pigsty.io/docs/pgsql/hba/#define-hba
+        pg_hba_rules:                       # example hba rules
+          - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
+
+        #pg_vip_enabled: true               # define a L2 VIP which bind to cluster primary instance
+        #pg_vip_address: 10.10.10.2/24      # L2 VIP Address and netmask
+        #pg_vip_interface: eth1             # L2 VIP Network interface, overwrite on host vars if member have different network interface names
+        node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ] # make a full backup every 1am
+
+
+  #==============================================================#
+  # Global Parameters
+  #==============================================================#
+  vars:
+
+    #----------------------------------#
+    # Meta Data
+    #----------------------------------#
     version: v3.2.1                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
-    infra_portal: # domain names and upstream servers
+    node_tune: oltp                   # node tuning specs: oltp,olap,tiny,crit
+    pg_conf: oltp.yml                 # pgsql tuning specs: {oltp,olap,tiny,crit}.yml
+    proxy_env:                        # global proxy env when downloading packages
+      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
+      # http_proxy:  # set your proxy here: e.g http://user:pass@proxy.xxx.com
+      # https_proxy: # set your proxy here: e.g http://user:pass@proxy.xxx.com
+      # all_proxy:   # set your proxy here: e.g http://user:pass@proxy.xxx.com
+    infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
       prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
       alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
-      minio        : { domain: m.pigsty    ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
-      odoo         : { domain: odoo.pigsty, endpoint: "127.0.0.1:8069" , websocket: true }  # cert: /path/to/crt ,key: /path/to/key
-      # setup your own domain name here ^^^, or use default domain name, or ip + 8069 port direct access
+      #minio        : { domain: m.pigsty ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
 
-    # Credential: CHANGE THESE PASSWORDS IN PRODUCTION
+    #----------------------------------#
+    # MinIO Related Options
+    #----------------------------------#
+    #pgbackrest_method: minio          # if you want to use minio as backup repo instead of 'local' fs, uncomment this
+    #minio_users:                      # and configure `pgbackrest_repo` & `minio_users` accordingly
+    #  - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
+    #  - { access_key: pgbackrest , secret_key: S3User.Backup, policy: readwrite }
+    #pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+    #  minio: ...                      # optional minio repo for pgbackrest ...
+    #    s3_key: pgbackrest            # minio user access key for pgbackrest
+    #    s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
+    #    cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
+    # if you want to use minio as backup repo instead of 'local' fs, uncomment this, and configure `pgbackrest_repo`
+    #pgbackrest_method: minio
+    #node_etc_hosts: [ '10.10.10.10 h.pigsty a.pigsty p.pigsty g.pigsty sss.pigsty' ]
+
+    #----------------------------------#
+    # Credential: CHANGE THESE PASSWORDS
+    #----------------------------------#
+    #grafana_admin_username: admin
     grafana_admin_password: pigsty
+    #pg_admin_username: dbuser_dba
     pg_admin_password: DBUser.DBA
+    #pg_monitor_username: dbuser_monitor
     pg_monitor_password: DBUser.Monitor
+    #pg_replication_username: replicator
     pg_replication_password: DBUser.Replicator
+    #patroni_username: postgres
     patroni_password: Patroni.API
+    #haproxy_admin_username: admin
     haproxy_admin_password: pigsty
+    #minio_access_key: minioadmin
+    minio_secret_key: minioadmin
 
-    repo_modules: infra,node,pgsql,docker
-    repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker ]
-    repo_extra_packages: [ pg17-main ]
-    pg_version: 17
+    #----------------------------------#
+    # Safe Guard
+    #----------------------------------#
+    # you can enable these flags after bootstrap, to prevent purging running etcd / pgsql instances
+    etcd_safeguard: false             # prevent purging running etcd instance?
+    pg_safeguard: false               # prevent purging running postgres instance? false by default
+
+    #----------------------------------#
+    # Repo, Node, Packages
+    #----------------------------------#
+    # if you wish to customize your own repo, change these settings:
+    repo_modules: infra,node,pgsql
+    repo_remove: true                 # remove existing repo on admin node during repo bootstrap
+    node_repo_modules: local          # install the local module in repo_upstream for all nodes
+    node_repo_remove: true            # remove existing node repo for node managed by pigsty
+    repo_packages: [                  # default packages to be downloaded
+      node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-common #,docker
+    ]
+    repo_extra_packages: [            # default postgres packages to be downloaded
+      pg17-main                       # replace with the following line if you want all extensions
+      #pg17-core ,pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl, pg17-citus
+    ]
+    pg_version: 17                    # default postgres version
+    #pg_extensions: [ pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ]
+    #pg_extensions:                   # check extension availability for your OS & PG @ https://ext.pigsty.io/#/list
+    #  - timescaledb pg_timeseries periods temporal_tables emaj table_version pg_cron pg_task pg_later pg_background
+    #  - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip pg_polyline pg_geohash mobilitydb
+    #  - pgvector vchord pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pg4ml pgml
+    #  - pg_search pgroonga pg_bigm zhparser pg_bestmatch hunspell
+    #  - hydra pg_analytics pg_duckdb duckdb_fdw pg_parquet pg_fkpart pg_partman plproxy #citus #pg_strom
+    #  - age hll rum pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg index_advisor pg_plan_filter imgsmlr pg_ivm pgmq pgq pg_cardano rdkit
+    #  - pg_tle plv8 pllua plprql pldebugger plpgsql_check plprofiler plsh pljava #plr #pgtap #faker #dbt2
+    #  - pg_prefix pg_semver pgunit pgpdf pglite_fusion md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr pg_acl debversion pg_rrule timestamp9 chkpass #pg_duration
+    #  - pg_zstd pg_gzip pg_http pg_net pgjwt pg_smtp_client pg_html5_email_address url_encode pgsql_tweaks pg_extra_time pgpcre icu_ext pgqr pg_protobuf envvar floatfile pg_readme ddl_historization data_historization pg_schedoc pg_hashlib shacrypt cryptint pg_ecdsa
+    #  - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids topn quantile lower_quantile count_distinct omnisketch ddsketch vasco tdigest first_last_agg extra_window_functions floatvec aggs_for_vecs aggs_for_arrays pg_arraymath pg_math pg_random pg_base36 pg_base62 pg_base58 pg_financial
+    #  - pg_repack pg_squeeze pg_dirtyread pgfincore pg_ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_upless pg_permissions pgautofailover pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pgpool #pgagent
+    #  - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pagevis powa
+    #  - passwordcheck supautils pgsodium pg_vault pg_session_jwt pg_anon pg_tde pgsmcrypto pgaudit pgauditlogtofile pg_auth_mon credcheck pgcryptokey pg_jobmon logerrors login_hook set_user pg_snakeoil pgextwlist pg_auditor sslutils pg_noset
+    #  - wrappers mysql_fdw tds_fdw sqlite_fdw redis_fdw pg_redis_pubsub kafka_fdw firebird_fdw aws_s3 log_fdw #multicorn #odbc_fdw #jdbc_fdw #oracle_fdw #db2_fdw #pgbouncer_fdw #mongo_fdw #hdfs_fdw
+    #  - orafce pgtt session_variable pg_statement_rollback pgmemcache #pg_dbms_metadata #pg_dbms_lock #pg_dbms_job
+    #  - pglogical pglogical_ticker pgl_ddl_deploy pg_failover_slots wal2json wal2mongo decoderbufs decoder_raw mimeo pg_fact_loader pg_bulkload #repmgr
 ...
