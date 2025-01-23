@@ -3,7 +3,7 @@
 # File      :   pigsty.yml
 # Desc      :   Pigsty default 1-node config install
 # Ctime     :   2020-05-22
-# Mtime     :   2025-01-15
+# Mtime     :   2025-01-23
 # Docs      :   https://pigsty.io/docs/conf/meta
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -47,7 +47,7 @@ all:
     #----------------------------------#
     # pgsql (singleton on current node)
     #----------------------------------#
-    # this is an example single-node postgres cluster with postgis & timescaledb installed, with one biz database & two biz users
+    # this is an example single-node postgres cluster with pgvector installed, with one biz database & two biz users
     pg-meta:
       hosts:
         10.10.10.10: { pg_seq: 1, pg_role: primary } # <---- primary instance with read-write capability
@@ -196,25 +196,19 @@ all:
     repo_remove: true                 # remove existing repo on admin node during repo bootstrap
     node_repo_modules: local          # install the local module in repo_upstream for all nodes
     node_repo_remove: true            # remove existing node repo for node managed by pigsty
-    repo_packages: [                  # default packages to be downloaded
-      node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-common #,docker
-    ]
-    repo_extra_packages: [            # default postgres packages to be downloaded
-      pg17-main                       # replace with the following line if you want all extensions
-      #pg17-core ,pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl, pg17-citus
-    ]
+    repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-common ] #,docker]
+    repo_extra_packages: [ pg17-main ] #,pg17-core ,pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl]
     pg_version: 17                    # default postgres version
-    #pg_extensions: [ pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ]
-    #pg_extensions:                   # check extension availability for your OS & PG @ https://ext.pigsty.io/#/list
+    #pg_extensions: [pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ] #,pg17-olap]
     #  - timescaledb pg_timeseries periods temporal_tables emaj table_version pg_cron pg_task pg_later pg_background
     #  - postgis pgrouting pointcloud pg_h3 q3c ogr_fdw geoip pg_polyline pg_geohash mobilitydb
     #  - pgvector vchord pgvectorscale pg_vectorize pg_similarity smlar pg_summarize pg_tiktoken pg4ml pgml
     #  - pg_search pgroonga pg_bigm zhparser pg_bestmatch hunspell
-    #  - hydra pg_analytics pg_duckdb duckdb_fdw pg_parquet pg_fkpart pg_partman plproxy #citus #pg_strom
-    #  - age hll rum pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg index_advisor pg_plan_filter imgsmlr pg_ivm pgmq pgq pg_cardano rdkit
+    #  - hydra pg_analytics pg_duckdb duckdb_fdw pg_parquet pg_fkpart pg_partman plproxy #citus #pg_strom #pg_mooncake
+    #  - omnigres age hll rum pg_graphql pg_jsonschema jsquery pg_hint_plan hypopg index_advisor pg_plan_filter imgsmlr pg_ivm pgmq pgq pg_cardano rdkit
     #  - pg_tle plv8 pllua plprql pldebugger plpgsql_check plprofiler plsh pljava #plr #pgtap #faker #dbt2
     #  - pg_prefix pg_semver pgunit pgpdf pglite_fusion md5hash asn1oid roaringbitmap pgfaceting pgsphere pg_country pg_currency pgmp numeral pg_rational pguint pg_uint128 ip4r pg_uri pgemailaddr pg_acl debversion pg_rrule timestamp9 chkpass #pg_duration
-    #  - pg_zstd pg_gzip pg_http pg_net pgjwt pg_smtp_client pg_html5_email_address url_encode pgsql_tweaks pg_extra_time pgpcre icu_ext pgqr pg_protobuf envvar floatfile pg_readme ddl_historization data_historization pg_schedoc pg_hashlib shacrypt cryptint pg_ecdsa
+    #  - pg_zstd pg_gzip pg_http pg_net pgjwt pg_smtp_client pg_html5_email_address url_encode pgsql_tweaks pg_extra_time pgpcre icu_ext pgqr pg_protobuf envvar floatfile pg_readme ddl_historization data_historization pg_schedoc pg_hashlib pg_xxhash shacrypt cryptint pg_ecdsa
     #  - pg_idkit pg_uuidv7 permuteseq pg_hashids sequential_uuids topn quantile lower_quantile count_distinct omnisketch ddsketch vasco tdigest first_last_agg extra_window_functions floatvec aggs_for_vecs aggs_for_arrays pg_arraymath pg_math pg_random pg_base36 pg_base62 pg_base58 pg_financial
     #  - pg_repack pg_squeeze pg_dirtyread pgfincore pg_ddlx pg_prioritize pg_checksums pg_readonly safeupdate pg_upless pg_permissions pgautofailover pg_catcheck preprepare pgcozy pg_orphaned pg_crash pg_cheat_funcs pg_savior table_log pg_fio #pgpool #pgagent
     #  - pg_profile pg_show_plans pg_stat_kcache pg_stat_monitor pg_qualstats pg_store_plans pg_track_settings pg_wait_sampling system_stats pg_meta pgnodemx pg_sqlog bgw_replstatus pgmeminfo toastinfo pg_explain_ui pg_relusage pagevis powa
