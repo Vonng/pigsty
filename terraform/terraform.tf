@@ -125,9 +125,6 @@ resource "alicloud_instance" "pg-meta" {
   spot_strategy                 = local.spot_policy
   spot_price_limit              = local.spot_price_limit
   internet_max_bandwidth_out    = local.bandwidth
-  spot_strategy                 = local.spot_policy
-  spot_price_limit              = local.spot_price_limit
-  internet_max_bandwidth_out    = local.bandwidth
   system_disk_size              = local.disk_size
   system_disk_category          = "cloud_essd"
   system_disk_performance_level = "PL1"

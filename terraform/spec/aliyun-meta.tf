@@ -2,7 +2,7 @@
 # File      :   aliyun-meta.yml
 # Desc      :   1-node sandbox env for x86_64/aarch64
 # Ctime     :   2020-05-12
-# Mtime     :   2024-01-11
+# Mtime     :   2024-01-23
 # Path      :   terraform/spec/aliyun-meta.yml
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -122,9 +122,6 @@ resource "alicloud_instance" "pg-meta" {
   password                      = "PigstyDemo4"
   instance_charge_type          = "PostPaid"
   internet_charge_type          = "PayByTraffic"
-  spot_strategy                 = local.spot_policy
-  spot_price_limit              = local.spot_price_limit
-  internet_max_bandwidth_out    = local.bandwidth
   spot_strategy                 = local.spot_policy
   spot_price_limit              = local.spot_price_limit
   internet_max_bandwidth_out    = local.bandwidth
