@@ -62,8 +62,5 @@ In addition to the main templates, Pigsty provides a set of demo templates for d
 There config templates are used for development and testing purpose.
 
 * [build/oss.yml](build/oss.yml) : building config for EL 8, 9, Debian 12, and Ubuntu 22.04/24.04 OSS.
-* [build/ext.yml](build/ext.yml) : rpm building environment for EL 7/8/9
 * [build/pro.yml](build/pro.yml) : building config for EL 7-9, Ubuntu, Debian pro version
-* [build/rpm.yml](build/rpm.yml) : building config for EL 7/8/9
-* [build/deb.yml](build/deb.yml) : building config for ubuntu20/22/24 and debian 11/12
-
+* [build/ext.yml](build/ext.yml) : rpm building environment for EL 8/9 and Debian 12, Ubuntu 22/24

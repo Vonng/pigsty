@@ -8,7 +8,7 @@
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 # pigsty version string
-VERSION?=v3.2.1
+VERSION?=v3.2.2
 
 # variables
 SRC_PKG=pigsty-$(VERSION).tgz
@@ -473,9 +473,6 @@ release-oss:
 rpro: release-pro
 release-pro:
 	./cache.yml -i conf/build/pro.yml
-rent: release-ent
-release-ent:
-	./cache.yml -i conf/build/ent.yml
 pb: publish
 publish:
 	bin/publish ${VERSION}
@@ -516,14 +513,8 @@ coss:
 	cp conf/build/oss.yml pigsty.yml
 cpro:
 	cp conf/build/pro.yml pigsty.yml
-cent:
-	cp conf/build/ent.yml pigsty.yml
 cext:
 	cp conf/build/ext.yml pigsty.yml
-crpm:
-	cp conf/build/rpm.yml pigsty.yml
-cdeb:
-	cp conf/build/deb.yml pigsty.yml
 
 #------------------------------#
 #     Building Environment     #
@@ -734,7 +725,7 @@ vminio24:
         copy copy-src copy-pkg copy-el7 copy-el8 copy-el9 copy-d11 copy-d12 copy-u20 copy-u22 copy-u24 \
         copy-app copy-all use-src use-pkg use-all cmdb \
         csa copy-src-all csr copy-src-rpm csd copy-src-deb df deb-fix push pull git-sync git-restore \
-        r release rr remote-release ross release-oss rpro release-pro rent release-ent pb publish \
+        r release rr remote-release ross release-oss rpro release-pro pb publish \
         oss pro all boot-oss boot-pro rpm deb vb vr vd vm vf vs vp all old va vo ve \
         meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vfull11 vmeta12 vmeta20 vmeta22 vmeta24 \
         full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 vfull24 \
@@ -742,6 +733,6 @@ vminio24:
         dual dual8 dual9 dual12 dual20 dual22 vdual vdual8 vdual9 vdual12 vdual20 vdual22 \
         trio trio8 trio9 trio12 trio20 trio22 vtrio vtrio8 vtrio9 vtrio12 vtrio20 vtrio22 \
         minio minio8 minio9 minio12 minio22 minio24 vminio vminio9 vminio12 vminio22 vminio24 \
-        cmeta cdual ctrio cfull csimu coss cpro cent cext crpm cdeb tu td ts to
+        cmeta cdual ctrio cfull csimu coss cpro cext crpm cdeb tu td ts to
 
 ###############################################################
