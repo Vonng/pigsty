@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2025-01-11
+# Mtime     :   2025-01-23
 # Path      :   Makefile
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)

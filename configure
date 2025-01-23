@@ -3,7 +3,7 @@
 # File      :   configure
 # Desc      :   generate pigsty.yml config according to env
 # Ctime     :   2021-05-17
-# Mtime     :   2024-12-16
+# Mtime     :   2025-01-23
 # Path      :   configure
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -16,19 +16,21 @@ PIGSTY_VERSION=v3.2.1
 # ./configure
 #     [-c|--conf <confname>   [meta|dual|trio|full|prod]
 #     [-i|--ip <ip>]          # primary IP address (skip with -s)
-#     [-v|--version <pgver>   [17|16|15|14|13|12]
+#     [-v|--version <pgver>   [17|16|15|14|13]
 #     [-r|--region <region>   [default|china|europe]
 #     [-s|--skip]             # skip IP address probing
 #     [-x|--proxy]            # write proxy env from environment
 #     [-n|--non-interactive]  # non-interactively mode
+#     [-p|--port <port>]      # specify SSH port (only used if set)
 #==============================================================#
 INTERACTIVE=true                  # run configure with interactive mode
 PRIMARY_IP=""                     # primary IP address (do not use public IP)
 MODE=""                           # config template (meta|dual|trio|full|prod)
-PGVER=""                          # major pg version (17/16/15/14/13/12)
+PGVER=""                          # pg major version (17|16|15|14|13)
 REGION=""                         # default region (default|china|europe)
 USE_PROXY=false                   # use global env http_proxy, https_proxy, all_proxy, no_proxy
 SKIP=false                        # skip ip probe (convenient if using fixed templates)
+SSH_PORT=""                       # default SSH port
 DEFAULT_NO_PROXY="localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,mirror.*,*.myqcloud.com,*.tsinghua.edu.cn,*.fedoraproject.org"
 
 
@@ -40,7 +42,7 @@ __CY='\033[0;33m';__CB='\033[0;34m';__CM='\033[0;35m';__CC='\033[0;36m';__CW='\0
 function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
 function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
 function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
-function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n";   }
 function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
 function log_hint()  { printf "${__CB}$*${__CN}"; }
 ipv4_regexp='(([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])'
@@ -63,7 +65,6 @@ OS_VERSION=""
 OS_PACKAGE=""
 OS_MANAGER=""
 
-
 #----------------------------------------------#
 # region
 #----------------------------------------------#
@@ -76,7 +77,6 @@ function behind_gfw() {
     return 0
 }
 
-
 function check_region(){
   if [ "${REGION}" == "" ]; then
     if behind_gfw; then
@@ -87,7 +87,6 @@ function check_region(){
     log_info "region = ${REGION}"
   fi
 }
-
 
 
 #----------------------------------------------#
@@ -115,7 +114,6 @@ function check_version(){
         fi
     fi
 }
-
 
 
 #----------------------------------------------#
@@ -162,6 +160,7 @@ function check_kernel(){
     fi
 }
 
+
 #----------------------------------------------#
 # machine
 #----------------------------------------------#
@@ -174,10 +173,11 @@ function check_machine(){
         log_warn "machine = ${machine_name}"
         return 0
     else
-        log_warn "machine = ${machine_name}, not supported, x86_64/aarch64 only"
+        log_warn "machine = ${machine_name}, not supported"
         #exit 2
     fi
 }
+
 
 #----------------------------------------------#
 # os package manager (yum|apt|...)
@@ -280,19 +280,28 @@ function can_nopass_ssh(){
     local current_user=$(whoami)
     local user=${1-${current_user}}
     local ipaddr=${2-'127.0.0.1'}
-    if ssh -oBatchMode=yes -o "StrictHostKeyChecking no" ${user}@${ipaddr} 'ls' 1>/dev/null 2>/dev/null; then
-        return 0
+    if [[ -n "${SSH_PORT}" ]]; then
+        ssh -p "${SSH_PORT}" -oBatchMode=yes -o "StrictHostKeyChecking no" ${user}@${ipaddr} 'ls' 1>/dev/null 2>/dev/null
     else
-        return 1
+        ssh -oBatchMode=yes -o "StrictHostKeyChecking no" ${user}@${ipaddr} 'ls' 1>/dev/null 2>/dev/null
     fi
 }
 
+
 function check_ssh(){
-    if can_nopass_ssh ; then
-        log_info "ssh = $(whoami)@127.0.0.1 ok"
+    if can_nopass_ssh; then
+        if [[ -n "${SSH_PORT}" ]]; then
+            log_info "ssh = $(whoami)@127.0.0.1 (port: ${SSH_PORT}) ok"
+        else
+            log_info "ssh = $(whoami)@127.0.0.1 ok"
+        fi
         return 0
     else
-        log_warn "ssh = $(whoami)@127.0.0.1 failed"
+        if [[ -n "${SSH_PORT}" ]]; then
+            log_warn "ssh = $(whoami)@127.0.0.1 (port: ${SSH_PORT}) failed"
+        else
+            log_warn "ssh = $(whoami)@127.0.0.1 failed"
+        fi
         # exit 6   # we don't exit here , just a configure process
     fi
 }
@@ -343,7 +352,7 @@ function check_ipaddr(){
     esac
 
     if [[ ${SKIP} == "true" ]]; then
-        log_info "primary_ip = primary_ip = skip"
+        log_info "primary_ip = skip"
         PRIMARY_IP=10.10.10.10
         return 0
     fi
@@ -425,16 +434,31 @@ function check_admin(){
     fi
 
     local current_user=$(whoami)
-    if ssh -t -o "StrictHostKeyChecking no" -o "ConnectTimeout=4" ${primary_ip} 'sudo -n ls' 1>/dev/null 2>/dev/null; then
-        log_info "admin = ${current_user}@${primary_ip} ok"
+    if [[ -n "${SSH_PORT}" ]]; then
+        ssh -p "${SSH_PORT}" -t -o "StrictHostKeyChecking no" -o "ConnectTimeout=4" "${primary_ip}" 'sudo -n ls' 1>/dev/null 2>/dev/null
     else
-        log_error "admin = ${current_user}@${primary_ip} failed (nopass ssh sudo failed)"
-        log_hint "check ${current_user} in sudoer, @${primary_ip} is ssh accessible\n"
-        # exit 10  # we don't exit here , just a configure process
+        ssh -t -o "StrictHostKeyChecking no" -o "ConnectTimeout=4" "${primary_ip}" 'sudo -n ls' 1>/dev/null 2>/dev/null
     fi
+
+    if [[ $? -eq 0 ]]; then
+        if [[ -n "${SSH_PORT}" ]]; then
+            log_info "admin = ${current_user}@${primary_ip} (port: ${SSH_PORT}) ok"
+        else
+            log_info "admin = ${current_user}@${primary_ip} ok"
+        fi
+    else
+        if [[ -n "${SSH_PORT}" ]]; then
+            log_error "admin = ${current_user}@${primary_ip}:${SSH_PORT} failed (nopass ssh sudo failed)"
+            log_hint "check ${current_user} in sudoer, @${primary_ip}:${SSH_PORT} is ssh accessible\n"
+        else
+            log_error "admin = ${current_user}@${primary_ip} failed (nopass ssh sudo failed)"
+            log_hint "check ${current_user} in sudoer, @${primary_ip} is ssh accessible\n"
+        fi
+    fi
+
     # if using root, warning
     if [[ "${current_user}" == "root" ]]; then
-        log_warn "user = root is not recommended, sure?"
+        log_warn "user = root is not recommended"
     fi
 }
 
@@ -598,7 +622,6 @@ function check_config(){
 #----------------------------------------------#
 # check utils
 #----------------------------------------------#
-# install ansible sshpass unzip wget yum , etc...
 function check_utils(){
     # check ansible is installed
     if command -v ansible-playbook >/dev/null ; then
@@ -618,7 +641,7 @@ function main(){
     while [ $# -gt 0 ]; do
         case $1 in
             -h|--help)
-                echo './configure [-c|--conf <confname>] [-i|--ip <ipaddr>] [-v|--version 17] [-r|--region <region>] [-n|--non-interactive] [-s|--skip] [-x|--proxy]'
+                echo './configure [-c|--conf <confname>] [-i|--ip <ipaddr>] [-v|--version 17] [-r|--region <region>] [-n|--non-interactive] [-s|--skip] [-x|--proxy] [-p|--port <ssh_port>]'
                 exit 0;;
             -c|--conf|--config) MODE="$2" ; shift;;
             -i|--ip) PRIMARY_IP="$2" ; shift;;
@@ -627,6 +650,7 @@ function main(){
             -s|--skip) SKIP=true ;;
             -n|--non-interactive) INTERACTIVE=false ;;
             -x|--proxy) USE_PROXY=true ;;
+            -p|--port) SSH_PORT="$2"; shift;;
             (--) shift; break;;
             (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 1;;
             (*) break;;
@@ -643,7 +667,7 @@ function main(){
     check_package_manager # package = rpm|deb, manager = dnf|yum|zypper|apt|apt-get
     check_vendor_version  # release       = ...,
     check_sudo            # current_user  = NOPASSWD sudo
-    check_ssh             # current_user  = NOPASSWD ssh
+    check_ssh             # current_user  = NOPASSWD ssh[:port]
     check_proxy           # use_proxy     = true|false
     check_ipaddr          # primary_ip (arg|probe|input)                    (INTERACTIVE: ask for ip)
     check_admin           # check current_user@primary_ip nopass ssh sudo
