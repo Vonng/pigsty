@@ -98,5 +98,22 @@
 - name: remove node etc profile
   tags: profile
   ignore_errors: yes
-  file: path=/etc/profile.d/node.sh state=absent
+  file:
+    path: "/etc/profile.d/{{ item }}"
+    state: absent
+  loop:
+    - node.sh
+    - node.alias.docker.sh
+
+#--------------------------------------------------------------#
+# remove node bash_completion profile                  [profile]
+#--------------------------------------------------------------#
+- name: remove node bash_completion profile
+  tags: profile
+  ignore_errors: yes
+  file:
+    path: "/etc/bash_completion.d/{{ item }}"
+    state: absent
+  loop:
+    - docker
 ...
