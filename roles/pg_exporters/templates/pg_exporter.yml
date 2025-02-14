@@ -1462,9 +1462,10 @@ pg_size:
   name: pg_size
   desc: PostgreSQL Database, WAL, Log size since v10
   query: |
-    SELECT datname, pg_database_size(oid) AS bytes FROM pg_database UNION ALL
-      SELECT 'log' AS datname, (SELECT (coalesce(sum(size), 0)) AS size FROM pg_catalog.pg_ls_logdir()) AS bytes UNION ALL
-      SELECT 'wal' AS datname, (SELECT (coalesce(sum(size), 0)) AS size FROM pg_catalog.pg_ls_waldir()) AS bytes;
+    SELECT datname, pg_database_size(oid) AS bytes FROM pg_database UNION ALL SELECT 'log' AS datname, 
+          (CASE WHEN EXISTS (SELECT setting FROM pg_settings WHERE name = 'log_directory' and setting like '/%') 
+          THEN (SELECT COALESCE(SUM(size), 0) FROM pg_catalog.pg_ls_logdir()) ELSE 0 END) AS bytes
+    UNION ALL SELECT 'wal' AS datname, (SELECT COALESCE(SUM(size), 0) FROM pg_catalog.pg_ls_waldir()) AS bytes;
 
   ttl: {{ ttl_slow }}
   timeout: 1
