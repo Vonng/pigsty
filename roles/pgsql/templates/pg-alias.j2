@@ -1,7 +1,7 @@
 #!/bin/bash
 #==============================================================#
 # File      :   pg-alias.sh
-# Desc      :   shell script to init postgres cluster
+# Desc      :   shell script to manage postgres cluster
 # Path      :   /etc/profile.d/pg-alias.sh
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -28,20 +28,20 @@ function pg() {
 }
 
 alias pg-s='ps -fp $(pgrep -u postgres); systemctl status patroni; pg list'
-alias pg-start='pg_ctl -D /pg/data start'
-alias pg-stop='pg_ctl -D /pg/data stop'
-alias pg-restart='pg_ctl -D /pg/data restart'
-alias pg-reload='pg_ctl -D /pg/data reload'
-alias pg-promote='pg_ctl -D /pg/data promote'
+alias pg-start='pg_ctl -D {{ pg_data|default('/pg/data') }} start'
+alias pg-stop='pg_ctl -D {{ pg_data|default('/pg/data') }} stop'
+alias pg-restart='pg_ctl -D {{ pg_data|default('/pg/data') }} restart'
+alias pg-reload='pg_ctl -D {{ pg_data|default('/pg/data') }} reload'
+alias pg-promote='pg_ctl -D {{ pg_data|default('/pg/data') }} promote'
 function pg-promote(){
-  rm -rf /pg/data/standby.signal;
-  pg_ctl -D /pg/data promote;
+  rm -rf {{ pg_data|default('/pg/data') }}/standby.signal;
+  pg_ctl -D {{ pg_data|default('/pg/data') }} promote;
 }
 function pg-demote(){
-  touch /pg/data/standby.signal;
-  chown postgres:postgres /pg/data/standby.signal;
+  touch {{ pg_data|default('/pg/data') }}/standby.signal;
+  chown postgres:postgres {{ pg_data|default('/pg/data') }}/standby.signal;
   psql postgres -c 'CHECKPOINT;';
-  pg_ctl -D /pg/data restart;
+  pg_ctl -D {{ pg_data|default('/pg/data') }} restart;
 }
 alias pg-up='sudo systemctl start patroni'
 alias pg-dw='sudo systemctl stop patroni'
@@ -49,10 +49,10 @@ alias pg-rc='sudo systemctl reload patroni'
 alias pg-rb='sudo systemctl restart patroni'
 alias pg-st='systemctl status patroni; systemctl status pgbouncer; systemctl status pg_exporter; '
 alias pg-ps='ps -fp $(pgrep -u postgres)'
-alias pg-cf="cat /pg/data/patroni.dynamic.json | jq"
-alias pg-d="cd /pg/data"
-alias pg-c="vi /pg/data/postgresql.conf"
-alias pg-h="vi /pg/data/pg_hba.conf"
+alias pg-cf="cat {{ pg_data|default('/pg/data') }}/patroni.dynamic.json | jq"
+alias pg-d="cd {{ pg_data|default('/pg/data') }}"
+alias pg-c="vi {{ pg_data|default('/pg/data') }}/postgresql.conf"
+alias pg-h="vi {{ pg_data|default('/pg/data') }}/pg_hba.conf"
 alias pg-db="oid2name | grep -v postgres | grep -v template"
 alias pg-md=" sed 's/+/|/g' | sed 's/^/|/' | sed 's/$/|/' |  grep -v rows | grep -v '||'"
 alias pg-ts='psql -qAXtwc "SELECT CURRENT_TIMESTAMP;"'
@@ -108,11 +108,12 @@ function pb-init() {
 }
 
 
+
 #--------------------------------------------------------------#
 # log
 #--------------------------------------------------------------#
 function pg-log() {
-    local logdir=$(grep 'log_directory' /pg/data/postgresql.conf | awk '{print $3}' | tr -d "'")
+    local logdir=$(grep 'log_directory' {{ pg_data|default('/pg/data') }}/postgresql.conf | awk '{print $3}' | tr -d "'")
     [[ -f "${logdir}/postgresql-$(date '+%Y-%m-%d').csv" ]] && tail -f "${logdir}/postgresql-$(date '+%Y-%m-%d').csv"
 }
 function pt-log() {

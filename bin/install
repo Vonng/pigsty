@@ -1,24 +1,23 @@
 #!/bin/bash
-# set -o pipefail
+#set -uo pipefail
 #==============================================================#
-# File      :   install
+# File      :   get
 # Desc      :   download & install pigsty src
 # Ctime     :   2022-10-30
-# Mtime     :   2024-12-23
+# Mtime     :   2025-01-10
 # Path      :   https://repo.pigsty.io/get (global, default)
 # Usage     :   curl -fsSL https://repo.pigsty.io/get | bash
 # Deps      :   curl
-# License   :   AGPLv3 @ https://pigsty.io/docs/about/license
-# Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
+# Author    :   Ruohang Feng (rh@vonng.com)
+# License   :   AGPLv3
 #==============================================================#
-DEFAULT_VERSION=v3.2.0
-DEFAULT_REGION=global
+DEFAULT_VERSION=v3.2.2
 
-# To install the latest version of pigsty (v3.2.0):
+# To install the latest version of pigsty (v3.2.2):
 # curl -fsSL https://repo.pigsty.io/get | bash
 
-# To install a specific version of pigsty (e.g. v3.2.0)
-# curl -fsSL https://repo.pigsty.io/get | bash -s v3.2.0
+# To install a specific version of pigsty (e.g. v3.2.2)
+# curl -fsSL https://repo.pigsty.io/get | bash -s v3.2.2
 
 
 #--------------------------------------------------------------#
@@ -44,53 +43,17 @@ function log_line()  { printf "${__CM}[$*] =====================================
 #--------------------------------------------------------------#
 # Version
 #--------------------------------------------------------------#
-VALID_VERSIONS="\
-v1.0.0 v1.1.1 v1.2.0 v1.3.0 v1.4.0 v1.4.1 v1.5.0 v1.5.1 v2.0.0 \
-v2.0.1 v2.0.2 v2.1.0 v2.2.0 v2.3.0 v2.3.1 v2.4.0 v2.4.1 v2.5.0 \
-v2.5.1 v2.6.0 v2.7.0 v3.0.0 v3.0.1 v3.0.2 v3.0.3 v3.0.4 v3.1.0 \
-v3.2.0 v3.2.1 v3.3.0 v3.3.1"
-
-VERSION=${DEFAULT_VERSION}
-VERSION_FROM="default"
-KERNEL=$(uname)
-ARCH=$(uname -m)
-
 # arg1 > env > default
 if [[ -n "$1" ]]; then
-    VERSION=$1
+    VERSION="$1"
     VERSION_FROM="arg"
+elif [[ -n "${PIGSTY_VERSION}" ]]; then
+    VERSION="${PIGSTY_VERSION}"
+    VERSION_FROM="env"
+else
+    VERSION=${DEFAULT_VERSION}
+    VERSION_FROM="default"
 fi
-
-# validate version string
-function check_version(){
-    local found=false
-
-    # validate version format
-    if [[ ! ${VERSION} =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-z]+[0-9]+)?$ ]]; then
-        log_error "invalid version string from ${VERSION_FROM}: ${VERSION}"
-        exit 1
-    fi
-
-    # check version in table
-    for ver in ${VALID_VERSIONS}; do
-        if [ "${ver}" = "${VERSION}" ]; then
-            found="true"
-            break
-        fi
-    done
-
-    # print version string if invalid
-    if [[ "${found}" != "true" ]]; then
-        log_error "invalid version from ${VERSION_FROM}: ${VERSION}"
-        log_hint "valid pigsty versions:"
-        for ver in ${VALID_VERSIONS}; do
-            log_hint "  - ${ver}"
-        done
-        exit 1
-    fi
-}
-
-check_version
 
 
 #--------------------------------------------------------------#
@@ -102,9 +65,7 @@ log_title "Site" "https://pigsty.io"
 log_title "Demo" "https://demo.pigsty.cc"
 log_title "Repo" "https://github.com/Vonng/pigsty"
 log_title "Docs" "https://pigsty.io/docs/setup/install"
-
 log_line "Download"
-
 log_info "version = ${VERSION} (from ${VERSION_FROM})"
 
 
@@ -113,18 +74,7 @@ log_info "version = ${VERSION} (from ${VERSION_FROM})"
 #--------------------------------------------------------------#
 SRC_FILENAME="pigsty-${VERSION}.tgz"
 DOWNLOAD_TO="/tmp/${SRC_FILENAME}"
-
-PIGSTY_IO_BASEURL="https://repo.pigsty.io"
-PIGSTY_CC_BASEURL="https://repo.pigsty.cc"
-
-if [[ ${DEFAULT_REGION} == "global" ]]; then
-    PRIMARY_SRC_URL="${PIGSTY_IO_BASEURL}/src/${SRC_FILENAME}"
-    SECONDARY_SRC_URL="${PIGSTY_CC_BASEURL}/src/${SRC_FILENAME}"
-else
-    PRIMARY_SRC_URL="${PIGSTY_CC_BASEURL}/src/${SRC_FILENAME}"
-    SECONDARY_SRC_URL="${PIGSTY_IO_BASEURL}/src/${SRC_FILENAME}"
-fi
-
+DOWNLOAD_URL="https://repo.pigsty.io/src/${SRC_FILENAME}"
 
 # download file from url, if file already exists with same size, skip download
 function download_file(){
@@ -150,9 +100,9 @@ function download_file(){
     return $?
 }
 
-download_file "${PRIMARY_SRC_URL}" "${DOWNLOAD_TO}"
+download_file "${DOWNLOAD_URL}" "${DOWNLOAD_TO}"
 if [[ $? -ne 0 ]]; then
-    log_error "fail to download pigsty source from ${PRIMARY_SRC_URL}"
+    log_error "fail to download pigsty source from ${DOWNLOAD_URL}"
     log_hint "check: https://pigsty.io/docs/setup/install"
     log_hint "alternative url: ${SECONDARY_SRC_URL}"
     exit 2

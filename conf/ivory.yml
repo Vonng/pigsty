@@ -1,54 +1,56 @@
 ---
 #==============================================================#
 # File      :   ivory.yml
-# Desc      :   Pigsty Config for IvorySQL (Oracle Compatible)
+# Desc      :   Pigsty Config for IvorySQL 4 (Oracle Compatible)
 # Ctime     :   2024-08-05
-# Mtime     :   2024-11-15
+# Mtime     :   2025-01-23
 # Docs      :   https://pigsty.io/docs/conf/ivory/
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 
-# ivorysql is available on el7/el8/el9, compatible with pg16
+# ivorysql4 is available on el8/el9, pg17 compatible
 # limitation: pgbackrest not working on oracle-compatible mode
 # limitation: llvmjit deps are broken, so disable by default
 
 all:
-
   children:
 
-    #----------------------------------#
-    # infra: monitor, alert, repo, etc..
-    #----------------------------------#
-    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
+    # infra singleton for repo, monitoring,...
+    infra:
+      hosts:
+        10.10.10.10: { infra_seq: 1 }
 
-    #----------------------------------#
-    # etcd cluster for HA postgres DCS
-    #----------------------------------#
-    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+    # etcd singleton for HA postgres DCS
+    etcd:
+      hosts:
+        10.10.10.10: { etcd_seq: 1 }
+      vars:
+        etcd_cluster: etcd
 
-    #----------------------------------#
-    # pgsql (singleton on current node)
-    #----------------------------------#
+    # ivorysql singleton
     pg-meta:
       hosts:
         10.10.10.10: { pg_seq: 1, pg_role: primary }
       vars:
         pg_cluster: pg-meta
-        pg_databases: [ { name: meta ,baseline: cmdb.sql ,comment: polardb database ,schemas: [ pigsty ] }]
         pg_users:
-          - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [ dbrole_admin ]    ,comment: pigsty admin user }
-          - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [ dbrole_readonly ] ,comment: read-only viewer for meta database }
+          - {name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
+          - {name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+        pg_databases:
+          - {name: meta ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty]}
+        pg_hba_rules:
+          - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
+        pg_vip_enabled: true
+        pg_vip_address: 10.10.10.2/24
+        pg_vip_interface: eth1
 
-    #----------------------------------#
-    # pgsql cluster: pg-test (3 nodes) #
-    #----------------------------------#
-    # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
-    pg-test:                          # define the new 3-node cluster pg-test
+    # ivorysql 3-node ha cluster: 10.10.10.3 ---> 10.10.10.1{1,2,3}
+    pg-test:
       hosts:
-        10.10.10.11: { pg_seq: 1, pg_role: primary }
-        10.10.10.12: { pg_seq: 2, pg_role: replica }
-        10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true }
+        10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
+        10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
+        10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
       vars:
         pg_cluster: pg-test           # define pgsql cluster name
         pg_users:  [{ name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] }]
@@ -57,12 +59,8 @@ all:
         pg_vip_address: 10.10.10.3/24
         pg_vip_interface: eth1
 
-  vars:
-
-    #----------------------------------#
-    # Meta Data
-    #----------------------------------#
-    version: v3.2.0                   # pigsty version string
+  vars:                               # global variables
+    version: v3.2.2                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default,china,europe
     node_tune: oltp                   # node tuning specs: oltp,olap,tiny,crit
@@ -79,7 +77,7 @@ all:
     # Ivory SQL Configuration
     #----------------------------------#
     pg_mode: ivory                    # IvorySQL Oracle Compatible Mode
-    pg_version: 16                    # The current IvorySQL compatible major version is 16
+    pg_version: 17                    # The current IvorySQL compatible major version is 17
     pg_packages: [ 'ivorysql patroni pgbouncer pgbackrest pg_exporter pgbadger vip-manager' ]
     pg_libs: 'liboracle_parser, pg_stat_statements, auto_explain'
     pgbackrest_enabled: false         # got checksum error when using oracle compatible mode

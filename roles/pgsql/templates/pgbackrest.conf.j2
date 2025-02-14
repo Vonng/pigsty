@@ -17,7 +17,10 @@
 #--------------------------------------------------------------#
 pg1-path={{ pg_data }}
 pg1-port={{ pg_port }}
-
+{%if pg_mode|default('pgsql') == 'ivory' %}
+archive-header-check=n
+pg-version-force={{ pg_version|default(17) }}
+{% endif %}
 
 [global]
 #--------------------------------------------------------------#
@@ -55,7 +58,13 @@ log-path={{ pgbackrest_log_dir }}
 
 
 #--------------------------------------------------------------#
-# 6. repository                                                #
+# 6. maintainer                                                #
+# https://pgbackrest.org/configuration.html#section-maintainer #
+#--------------------------------------------------------------#
+
+
+#--------------------------------------------------------------#
+# 7. repository                                                #
 # https://pgbackrest.org/configuration.html#section-repository #
 #--------------------------------------------------------------#
 {% for k,v in pgbackrest_repo[pgbackrest_method].items() %}
@@ -64,7 +73,7 @@ repo1-{{ k|replace('_', '-') }}={{ v|replace('${pg_cluster}', pg_cluster) }}
 
 
 #--------------------------------------------------------------#
-# 7. restore                                                   #
+# 8. restore                                                   #
 # https://pgbackrest.org/configuration.html#section-restore    #
 #--------------------------------------------------------------#
 link-all=y
@@ -73,7 +82,7 @@ archive-mode=off
 
 
 #--------------------------------------------------------------#
-# 8. server                                                    #
+# 9. server                                                    #
 # https://pgbackrest.org/configuration.html#section-server     #
 #--------------------------------------------------------------#
 #tls-server-address=*
@@ -84,7 +93,7 @@ archive-mode=off
 
 
 #--------------------------------------------------------------#
-# 9. adhoc (parallel)                                          #
+# 10. adhoc (parallel)                                          #
 #--------------------------------------------------------------#
 [global:restore]
 process-max={{ ([node_cpu|int, 8])|min|int }}

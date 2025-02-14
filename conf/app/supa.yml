@@ -3,7 +3,7 @@
 # File      :   supa.yml
 # Desc      :   Pigsty configuration for self-hosting supabase
 # Ctime     :   2023-09-19
-# Mtime     :   2025-01-23
+# Mtime     :   2025-01-12
 # Docs      :   https://pigsty.io/docs/kernel/supabase/
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -14,9 +14,10 @@
 #
 #  curl -fsSL https://repo.pigsty.io/get | bash
 # ./bootstrap               # prepare local repo & ansible
-# ./configure -c supa       # IMPORTANT: CHANGE CREDENTIALS!!
+# ./configure -c app/supa   # IMPORTANT: CHANGE CREDENTIALS!!
 # ./install.yml             # install pigsty & pgsql & minio
-# ./supabase.yml            # launch supabase with docker compose
+# ./docker.yml              # install docker & docker compose
+# ./app.yml                 # launch supabase with docker compose
 
 all:
 
@@ -24,6 +25,59 @@ all:
   # Clusters, Nodes, and Modules
   #==============================================================#
   children:
+
+    # launch supabase stateless part with docker compose:
+    # ./docker.yml -l app
+    # ./app.yml    -l app
+    app:
+      hosts:
+        10.10.10.10: { supa_seq: 1 }  # instance id
+      vars:
+        docker_enabled: true          # enable docker
+        #docker_registry_mirrors: [https://docker.m.daocloud.io, https://dockerproxy.com]
+
+        # these configuration entries will OVERWRITE or APPEND to /opt/supabase/.env file (src template: app/supabase/.env)
+        # check https://github.com/Vonng/pigsty/blob/main/app/supabase/.env for default values
+        app: supabase
+        app_config:
+          # IMPORTANT: CHANGE JWT_SECRET AND REGENERATE CREDENTIAL ACCORDING!!!!!!!!!!!
+          # https://supabase.com/docs/guides/self-hosting/docker#securing-your-services
+          jwt_secret: your-super-secret-jwt-token-with-at-least-32-characters-long
+          anon_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
+          service_role_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q
+          dashboard_username: supabase
+          dashboard_password: pigsty
+
+          # postgres connection string (use the correct ip and port)
+          postgres_host: 10.10.10.10
+          postgres_port: 5436             # access via the 'default' service, which always route to the primary postgres
+          postgres_db: postgres
+          postgres_password: DBUser.Supa  # password for supabase_admin and multiple supabase users
+
+          # expose supabase via domain name
+          site_url: http://supa.pigsty
+          api_external_url: http://supa.pigsty
+          supabase_public_url: http://supa.pigsty
+
+          # if using s3/minio as file storage
+          s3_bucket: supa
+          s3_endpoint: https://sss.pigsty:9000
+          s3_access_key: supabase
+          s3_secret_key: S3User.Supabase
+          s3_force_path_style: true
+          s3_protocol: https
+          s3_region: stub
+          minio_domain_ip: 10.10.10.10  # sss.pigsty domain name will resolve to this ip statically
+
+          # if using SMTP (optional)
+          #smtp_admin_email: admin@example.com
+          #smtp_host: supabase-mail
+          #smtp_port: 2500
+          #smtp_user: fake_mail_user
+          #smtp_pass: fake_mail_password
+          #smtp_sender_name: fake_sender
+          #enable_anonymous_users: false
+
 
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
@@ -84,57 +138,6 @@ all:
           - { user: all ,db: postgres  ,addr: intra         ,auth: pwd ,title: 'allow supabase access from intranet'    }
           - { user: all ,db: postgres  ,addr: 172.17.0.0/16 ,auth: pwd ,title: 'allow access from local docker network' }
         node_crontab: [ '00 01 * * * postgres /pg/bin/pg-backup full' ] # make a full backup every 1am
-
-    # launch supabase stateless part with docker compose: ./supabase.yml
-    supabase:
-      hosts:
-        10.10.10.10: { supa_seq: 1 }  # instance id
-      vars:
-        supa_cluster: supa            # cluster name
-        docker_enabled: true          # enable docker
-        #docker_registry_mirrors: [https://docker.m.daocloud.io, https://dockerproxy.com]
-
-        # these configuration entries will OVERWRITE or APPEND to /opt/supabase/.env file (src template: app/supabase/.env)
-        # check https://github.com/Vonng/pigsty/blob/main/app/supabase/.env for default values
-        supa_config:
-
-          # IMPORTANT: CHANGE JWT_SECRET AND REGENERATE CREDENTIAL ACCORDING!!!!!!!!!!!
-          # https://supabase.com/docs/guides/self-hosting/docker#securing-your-services
-          jwt_secret: your-super-secret-jwt-token-with-at-least-32-characters-long
-          anon_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
-          service_role_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q
-          dashboard_username: supabase
-          dashboard_password: pigsty
-
-          # postgres connection string (use the correct ip and port)
-          postgres_host: 10.10.10.10
-          postgres_port: 5436             # access via the 'default' service, which always route to the primary postgres
-          postgres_db: postgres
-          postgres_password: DBUser.Supa  # password for supabase_admin and multiple supabase users
-
-          # expose supabase via domain name
-          site_url: http://supa.pigsty
-          api_external_url: http://supa.pigsty
-          supabase_public_url: http://supa.pigsty
-
-          # if using s3/minio as file storage
-          s3_bucket: supa
-          s3_endpoint: https://sss.pigsty:9000
-          s3_access_key: supabase
-          s3_secret_key: S3User.Supabase
-          s3_force_path_style: true
-          s3_protocol: https
-          s3_region: stub
-          minio_domain_ip: 10.10.10.10  # sss.pigsty domain name will resolve to this ip statically
-
-          # if using SMTP (optional)
-          #smtp_admin_email: admin@example.com
-          #smtp_host: supabase-mail
-          #smtp_port: 2500
-          #smtp_user: fake_mail_user
-          #smtp_pass: fake_mail_password
-          #smtp_sender_name: fake_sender
-          #enable_anonymous_users: false
 
 
 
@@ -207,6 +210,7 @@ all:
         cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
         retention_full_type: time     # retention full backup by time on minio repo
         retention_full: 14            # keep full backup for last 14 days
+
 
     # download docker and all available extensions
     pg_version: 17

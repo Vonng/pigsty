@@ -3,7 +3,7 @@
 # File      :   citus.yml
 # Desc      :   pigsty citus testing environment
 # Ctime     :   2020-05-22
-# Mtime     :   2024-11-11
+# Mtime     :   2025-01-23
 # Docs      :   https://pigsty.io/docs/conf/citus/
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -13,29 +13,45 @@
 all:
   children:
 
-    # infra cluster for proxy, monitor, alert, etc..
-    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
-
-    # etcd cluster for ha postgres
-    etcd: { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
-
-    pg-citus0: # citus coordinator, pg_group = 0
-      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
-      vars: { pg_cluster: pg-citus0 , pg_group: 0 }
-    pg-citus1: # citus data node 1
-      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
-      vars: { pg_cluster: pg-citus1 , pg_group: 1 }
-    pg-citus2: # citus data node 2
-      hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
-      vars: { pg_cluster: pg-citus2 , pg_group: 2 }
-    pg-citus3: # citus data node 3, with an extra replica
+    # infra singleton for repo, monitoring,...
+    infra:
       hosts:
-        10.10.10.13: { pg_seq: 1, pg_role: primary }
-        10.10.10.14: { pg_seq: 2, pg_role: replica }
-      vars: { pg_cluster: pg-citus3 , pg_group: 3 }
+        10.10.10.10: { infra_seq: 1 }
+
+    # etcd singleton for HA postgres DCS
+    etcd:
+      hosts:
+        10.10.10.10: { etcd_seq: 1 }
+      vars:
+        etcd_cluster: etcd
+
+    # citus 4-node, 3-group example cluster
+    pg-citus:
+      hosts:
+        10.10.10.10: { pg_group: 0, pg_cluster: pg-citus0 ,pg_vip_address: 10.10.10.2/24 ,pg_seq: 1, pg_role: primary }
+        10.10.10.11: { pg_group: 0, pg_cluster: pg-citus0 ,pg_vip_address: 10.10.10.2/24 ,pg_seq: 2, pg_role: replica }
+        10.10.10.12: { pg_group: 1, pg_cluster: pg-citus1 ,pg_vip_address: 10.10.10.3/24 ,pg_seq: 1, pg_role: primary }
+        10.10.10.13: { pg_group: 2, pg_cluster: pg-citus2 ,pg_vip_address: 10.10.10.4/24 ,pg_seq: 1, pg_role: primary }
+      vars:
+        pg_mode: citus                            # pgsql cluster mode: citus
+        pg_shard: pg-citus                        # citus shard name: pg-citus
+        pg_primary_db: citus                      # primary database used by citus
+        pg_vip_enabled: true                      # enable vip for citus cluster
+        pg_vip_interface: eth1                    # vip interface for all members
+        pg_dbsu_password: DBUser.Postgres         # enable dbsu password access for citus
+        pg_extensions: [ citus, postgis, pgvector, topn, pg_cron, hll ]  # install these extensions
+        pg_libs: 'citus, pg_cron, pg_stat_statements' # citus will be added by patroni automatically
+        pg_users: [{ name: dbuser_citus ,password: DBUser.Citus ,pgbouncer: true ,roles: [ dbrole_admin ]    }]
+        pg_databases: [{ name: citus ,owner: dbuser_citus ,extensions: [ citus, vector, topn, pg_cron, hll ] }]
+        pg_parameters:
+          cron.database_name: citus
+          citus.node_conninfo: 'sslrootcert=/pg/cert/ca.crt sslmode=verify-full'
+        pg_hba_rules:
+          - { user: 'all' ,db: all  ,addr: 127.0.0.1/32  ,auth: ssl   ,title: 'all user ssl access from localhost' }
+          - { user: 'all' ,db: all  ,addr: intra         ,auth: ssl   ,title: 'all user ssl access from intranet'  }
 
   vars:                               # global variables
-    version: v3.2.0                   # pigsty version string
+    version: v3.2.2                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     node_tune: tiny                   # node tuning specs: oltp,olap,tiny,crit
@@ -48,27 +64,8 @@ all:
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
 
-    #----------------------------------#
-    # NODE, PGSQL, Citus
-    #----------------------------------#
-    pg_mode: citus                    # pgsql cluster mode: citus
-    pg_shard: pg-citus                # citus shard name: pg-citus
-    pg_primary_db: meta               # primary database used by citus
-    pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
-    pg_users: [ { name: dbuser_meta ,password: DBUser.Meta ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
-    pg_databases: [ { name: meta ,extensions: [ { name: citus }, { name: postgis }, { name: timescaledb } ] } ]
-    pg_extensions:
-      - citus timescaledb postgis pgvector
-    pg_hba_rules:
-      - { user: 'all' ,db: all  ,addr: 127.0.0.1/32 ,auth: ssl ,title: 'all user ssl access from localhost' }
-      - { user: 'all' ,db: all  ,addr: intra        ,auth: ssl ,title: 'all user ssl access from intranet' }
-    pg_libs: 'citus, timescaledb, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
+    pg_version: 17
     repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility ]
-    repo_extra_packages: [            # default postgres packages to be downloaded
-      pgsql-main, citus, postgis, pgvector
-      #pgsql-core,pgsql-time,pgsql-gis,pgsql-rag,pgsql-fts,pgsql-olap,pgsql-feat,pgsql-lang,pgsql-type,pgsql-func,pgsql-admin,pgsql-stat,pgsql-sec,pgsql-fdw,pgsql-sim,pgsql-etl,
-      #pg17-core,pg17-time,pg17-gis,pg17-rag,pg17-fts,pg17-olap,pg17-feat,pg17-lang,pg17-type,pg17-func,pg17-admin,pg17-stat,pg17-sec,pg17-fdw,pg17-sim,pg17-etl,
-      #pg16-core,pg16-time,pg16-gis,pg16-rag,pg16-fts,pg16-olap,pg16-feat,pg16-lang,pg16-type,pg16-func,pg16-admin,pg16-stat,pg16-sec,pg16-fdw,pg16-sim,pg16-etl,
-    ]
+    repo_extra_packages: [ pgsql-main, citus, postgis, pgvector, pg_cron, hll, topn ]
 
 ...

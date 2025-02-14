@@ -2,13 +2,13 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2024-12-24
+# Mtime     :   2025-01-23
 # Path      :   Makefile
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 # pigsty version string
-VERSION?=v3.2.0
+VERSION?=v3.2.2
 
 # variables
 SRC_PKG=pigsty-$(VERSION).tgz
@@ -22,8 +22,9 @@ D12_PKG=pigsty-pkg-$(VERSION).d12.x86_64.tgz
 U20_PKG=pigsty-pkg-$(VERSION).u20.x86_64.tgz
 U22_PKG=pigsty-pkg-$(VERSION).u22.x86_64.tgz
 U24_PKG=pigsty-pkg-$(VERSION).u24.x86_64.tgz
-USE_PRO=""
-#USE_PRO="pro/"
+#PKG=oss/
+#PKG=ent/
+PKG=pro/
 ADMIN_IP=10.10.10.10
 
 ###############################################################
@@ -342,21 +343,21 @@ cc: release copy-src copy-pkg use-src use-pkg
 copy-src:
 	scp "dist/${VERSION}/${SRC_PKG}" $(ADMIN_IP):~/pigsty.tgz
 copy-el7:
-	scp dist/${VERSION}/$(USE_PRO)${EL7_PKG} $(ADMIN_IP):/tmp/pkg.tgz
+	scp dist/${VERSION}/$(PKG)${EL7_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-el8:
-	scp dist/${VERSION}/$(USE_PRO)${EL8_PKG} $(ADMIN_IP):/tmp/pkg.tgz
+	scp dist/${VERSION}/$(PKG)${EL8_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-el9:
-	scp dist/${VERSION}/$(USE_PRO)${EL9_PKG} $(ADMIN_IP):/tmp/pkg.tgz
+	scp dist/${VERSION}/$(PKG)${EL9_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-d11:
-	scp dist/${VERSION}/$(USE_PRO)${D11_PKG} $(ADMIN_IP):/tmp/pkg.tgz
+	scp dist/${VERSION}/$(PKG)${D11_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-d12:
-	scp dist/${VERSION}/$(USE_PRO)${D12_PKG} $(ADMIN_IP):/tmp/pkg.tgz
+	scp dist/${VERSION}/$(PKG)${D12_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-u20:
-	scp dist/${VERSION}/$(USE_PRO)${U20_PKG} $(ADMIN_IP):/tmp/pkg.tgz
+	scp dist/${VERSION}/$(PKG)${U20_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-u22:
-	scp dist/${VERSION}/$(USE_PRO)${U22_PKG} $(ADMIN_IP):/tmp/pkg.tgz
+	scp dist/${VERSION}/$(PKG)${U22_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-u24:
-	scp dist/${VERSION}/$(USE_PRO)${U24_PKG} $(ADMIN_IP):/tmp/pkg.tgz
+	scp dist/${VERSION}/$(PKG)${U24_PKG} $(ADMIN_IP):/tmp/pkg.tgz
 copy-app:
 	scp dist/${VERSION}/${APP_PKG} $(ADMIN_IP):~/app.tgz
 	ssh -t $(ADMIN_IP) 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
@@ -514,10 +515,6 @@ cpro:
 	cp conf/build/pro.yml pigsty.yml
 cext:
 	cp conf/build/ext.yml pigsty.yml
-crpm:
-	cp conf/build/rpm.yml pigsty.yml
-cdeb:
-	cp conf/build/deb.yml pigsty.yml
 
 #------------------------------#
 #     Building Environment     #
@@ -632,20 +629,20 @@ vsimu24:
 vs: simu
 simu: simu9
 simu8: csimu del vsimu8 new ssh
-	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el8.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el8.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(PKG)pigsty-pkg-${VERSION}.el8.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(PKG)pigsty-pkg-${VERSION}.el8.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 simu9: csimu del vsimu9 new ssh
-	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el9.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.el9.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(PKG)pigsty-pkg-${VERSION}.el9.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(PKG)pigsty-pkg-${VERSION}.el9.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 simu12: csimu del vsimu12 new ssh
-	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.d12.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.d12.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(PKG)pigsty-pkg-${VERSION}.d12.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(PKG)pigsty-pkg-${VERSION}.d12.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 simu22: csimu del vsimu22 new ssh
-	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u22.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u22.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(PKG)pigsty-pkg-${VERSION}.u22.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(PKG)pigsty-pkg-${VERSION}.u22.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 simu24: csimu del vsimu24 new ssh
-	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u24.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/$(USE_PRO)pigsty-pkg-${VERSION}.u24.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(PKG)pigsty-pkg-${VERSION}.u24.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/$(PKG)pigsty-pkg-${VERSION}.u24.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 
 
 #------------------------------#
@@ -729,7 +726,7 @@ vminio24:
         copy-app copy-all use-src use-pkg use-all cmdb \
         csa copy-src-all csr copy-src-rpm csd copy-src-deb df deb-fix push pull git-sync git-restore \
         r release rr remote-release ross release-oss rpro release-pro pb publish \
-        oss pro all boot-oss boot-pro rpm deb vb vr vd vm vf vs vp all old va vo \
+        oss pro all boot-oss boot-pro rpm deb vb vr vd vm vf vs vp all old va vo ve \
         meta meta7 meta8 meta9 meta11 meta12 meta20 meta22 vmeta vmeta7 vmeta8 vmeta9 vfull11 vmeta12 vmeta20 vmeta22 vmeta24 \
         full full7 full8 full9 full11 full12 full20 full22 vfull vfull7 vfull8 vfull9 vfull11 vfull12 vfull20 vfull22 vfull24 \
         simu simu8 simu9 simu12 simu20 simu22 simu simu8 simu9 simu12 simu20 simu22 \

@@ -3,12 +3,14 @@
 # File      :   simu.yml
 # Desc      :   Pigsty Simubox: a 36 node prod simulation env
 # Ctime     :   2023-07-20
-# Mtime     :   2024-11-19
+# Mtime     :   2025-01-11
 # Docs      :   https://pigsty.io/docs/conf/simu/
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 
+# this config template was intended to use the ent offline packages
+# which contains postgres 13-17 and all other required packages
 
 all:
 
@@ -25,6 +27,7 @@ all:
         10.10.10.11: {}
       vars:
         docker_enabled: true
+        #docker_registry_mirrors: [https://docker.m.daocloud.io, https://dockerproxy.com]
         node_conf: oltp         # use oltp template for infra nodes
         pg_conf: oltp.yml       # use oltp template for infra pgsql
         pg_exporters:           # bin/pgmon-add pg-meta2/pg-test2/pg-src2/pg-dst2
@@ -50,8 +53,8 @@ all:
     # ./node.yml
     nodes:
       hosts:
-        10.10.10.10 : { nodename: meta1  ,node_cluster: meta   ,pg_cluster: pg_meta  ,pg_seq: 1 ,pg_role: primary, infra_seq: 1 }
-        10.10.10.11 : { nodename: meta2  ,node_cluster: meta   ,pg_cluster: pg_meta  ,pg_seq: 2 ,pg_role: replica, infra_seq: 2 }
+        10.10.10.10 : { nodename: meta1  ,node_cluster: meta   ,pg_cluster: pg-meta  ,pg_seq: 1 ,pg_role: primary, infra_seq: 1 }
+        10.10.10.11 : { nodename: meta2  ,node_cluster: meta   ,pg_cluster: pg-meta  ,pg_seq: 2 ,pg_role: replica, infra_seq: 2 }
         10.10.10.12 : { nodename: pg12   ,node_cluster: pg12   ,pg_cluster: pg-v12   ,pg_seq: 1 ,pg_role: primary }
         10.10.10.13 : { nodename: pg13   ,node_cluster: pg13   ,pg_cluster: pg-v13   ,pg_seq: 1 ,pg_role: primary }
         10.10.10.14 : { nodename: pg14   ,node_cluster: pg14   ,pg_cluster: pg-v14   ,pg_seq: 1 ,pg_role: primary }
@@ -302,19 +305,21 @@ all:
         10.10.10.58: { pg_group: 4, pg_cluster: pg-citus4 ,pg_vip_address: 10.10.10.64/24 ,pg_seq: 0, pg_role: primary }
         10.10.10.59: { pg_group: 4, pg_cluster: pg-citus4 ,pg_vip_address: 10.10.10.64/24 ,pg_seq: 1, pg_role: replica }
       vars:
-        pg_mode: citus                    # pgsql cluster mode: citus
-        pg_version: 16                    # citus does not have pg16 available
-        pg_shard: pg-citus                # citus shard name: pg-citus
-        pg_primary_db: test               # primary database used by citus
-        pg_dbsu_password: DBUser.Postgres # all dbsu password access for citus cluster
-        pg_vip_enabled: true
-        pg_vip_interface: eth1
-        pg_extensions: [ 'citus postgis pgvector' ]
-        pg_libs: 'citus, pg_stat_statements, auto_explain' # citus will be added by patroni automatically
-        pg_users: [ { name: test ,password: test ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
-        pg_databases: [ { name: test ,owner: test ,extensions: [ { name: citus }, { name: vector } ] } ]
+        pg_mode: citus                            # pgsql cluster mode: citus
+        pg_version: 16                            # citus does not have pg16 available
+        pg_shard: pg-citus                        # citus shard name: pg-citus
+        pg_primary_db: citus                      # primary database used by citus
+        pg_vip_enabled: true                      # enable vip for citus cluster
+        pg_vip_interface: eth1                    # vip interface for all members
+        pg_dbsu_password: DBUser.Postgres         # enable dbsu password access for citus
+        pg_extensions: [ citus, postgis, pgvector, topn, pg_cron, hll ]  # install these extensions
+        pg_libs: 'citus, pg_cron, pg_stat_statements' # citus will be added by patroni automatically
+        pg_users: [{ name: dbuser_citus ,password: DBUser.Citus ,pgbouncer: true ,roles: [ dbrole_admin ]    }]
+        pg_databases: [{ name: citus ,owner: dbuser_citus ,extensions: [ citus, vector, topn, pg_cron, hll ] }]
+        pg_parameters:
+          cron.database_name: citus
+          citus.node_conninfo: 'sslrootcert=/pg/cert/ca.crt sslmode=verify-full'
         pg_hba_rules:
-          - { user: 'all' ,db: all  ,addr: 10.10.10.0/24 ,auth: trust ,title: 'trust citus cluster members'        }
           - { user: 'all' ,db: all  ,addr: 127.0.0.1/32  ,auth: ssl   ,title: 'all user ssl access from localhost' }
           - { user: 'all' ,db: all  ,addr: intra         ,auth: ssl   ,title: 'all user ssl access from intranet'  }
 
@@ -414,9 +419,9 @@ all:
     #==========================================================#
     # INFRA
     #==========================================================#
-    version: v3.2.0                   # pigsty version string
+    version: v3.2.2                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
-    region: default                   # upstream mirror region: default|china|europe
+    region: china                     # upstream mirror region: default|china|europe
     infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "10.10.10.10:3000" , websocket: true }
@@ -480,4 +485,13 @@ all:
         retention_full_type: time
         retention_full: 14
 
+    #==========================================================#
+    # Repo
+    #==========================================================#
+    repo_packages: [
+      node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility,
+      pg17-core ,pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ,
+      pg16-core ,pg16-time ,pg16-gis ,pg16-rag ,pg16-fts ,pg16-olap ,pg16-feat ,pg16-lang ,pg16-type ,pg16-util ,pg16-func ,pg16-admin ,pg16-stat ,pg16-sec ,pg16-fdw ,pg16-sim ,pg16-etl ,
+      pg15-main, pg14-main, pg13-main
+    ]
 ...

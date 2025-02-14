@@ -3,7 +3,7 @@
 # File      :   rich.yml (1-node)
 # Desc      :   Feature rich 1-node template with all extensions
 # Ctime     :   2020-05-22
-# Mtime     :   2024-12-17
+# Mtime     :   2025-01-23
 # Docs      :   https://pigsty.io/docs/conf/rich
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -11,24 +11,43 @@
 
 
 all:
+
+  #==============================================================#
+  # Clusters, Nodes, and Modules
+  #==============================================================#
   children:
 
+    #----------------------------------#
+    # infra: monitor, alert, repo, etc..
+    #----------------------------------#
     infra:
       hosts:
         10.10.10.10: { infra_seq: 1 }
+      vars:
+        docker_enabled: true # enabled docker with ./docker.yml (also add docker to repo)
+        #docker_registry_mirrors: [https://docker.m.daocloud.io, https://dockerproxy.com]
 
+    #----------------------------------#
+    # etcd cluster for HA postgres DCS
+    #----------------------------------#
     etcd:
       hosts:
         10.10.10.10: { etcd_seq: 1 }
       vars:
         etcd_cluster: etcd
 
-    minio:
-      hosts:
-        10.10.10.10: { minio_seq: 1 }
-      vars:
-        minio_cluster: minio
+    #----------------------------------#
+    # minio (OPTIONAL backup repo)
+    #----------------------------------#
+    #minio:
+    #  hosts:
+    #    10.10.10.10: { minio_seq: 1 }
+    #  vars:
+    #    minio_cluster: minio
 
+    #----------------------------------#
+    # pgsql (singleton on current node)
+    #----------------------------------#
     # postgres cluster: pg-meta
     pg-meta:
       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
@@ -52,7 +71,7 @@ all:
           - {name: gitea    ,owner: dbuser_gitea    ,revokeconn: true ,comment: gitea meta database }
           - {name: wiki     ,owner: dbuser_wiki     ,revokeconn: true ,comment: wiki meta database  }
           - {name: noco     ,owner: dbuser_noco     ,revokeconn: true ,comment: nocodb database     }
-          - {name: odoo     ,owner: dbuser_odoo     ,revokeconn: true ,comment: odoo main database  }
+          #- {name: odoo     ,owner: dbuser_odoo     ,revokeconn: true ,comment: odoo main database  }
         pg_hba_rules:
           - {user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes'}
         pg_libs: 'timescaledb,pg_stat_statements, auto_explain'  # add timescaledb to shared_preload_libraries
@@ -63,15 +82,9 @@ all:
       hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6379: { }, 6380: { replica_of: '10.10.10.10 6379' } } } }
       vars: { redis_cluster: redis-ms ,redis_password: 'redis.ms' ,redis_max_memory: 64MB }
 
-    # To install & enable docker: ./docker.yml -l docker
-    docker:
-      hosts: { 10.10.10.10: { infra_seq: 1 } }
-      vars:
-        docker_enabled: true
-        #docker_registry_mirrors: ['https://docker.xxxxx.io']   # add your docker mirror/proxy if needed
 
   vars:                               # global variables
-    version: v3.2.0                   # pigsty version string
+    version: v3.2.2                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     node_tune: oltp                   # node tuning specs: oltp,olap,tiny,crit
@@ -163,8 +176,8 @@ all:
     #----------------------------------#
     # if you wish to customize your own repo, change these settings:
     repo_modules: infra,node,pgsql,docker
-    repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker ]
+    repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-common ,docker]
+    repo_extra_packages: [ pg17-main ,pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl]
     pg_version: 17                    # default postgres version
-    repo_extra_packages: [pg17-core ,pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl]
-    pg_extensions: [ pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ]
+    pg_extensions: [pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ] #,pg17-olap]
 ...
