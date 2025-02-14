@@ -6,11 +6,12 @@
 #┃ Desc  :   pg_exporter metrics for restricted polardb ins    ┃#
 #┃ Ver   :   PostgreSQL 10~17 pgbouncer 1.8-1.23+              ┃#
 #┃ Ctime :   2023-09-10                                        ┃#
-#┃ Mtime :   2024-08-30                                        ┃#
+#┃ Mtime :   2025-02-14                                        ┃#
 #┃ License   : AGPLv3 @ https://pigsty.io/docs/about/license   ┃#
 #┃ Copyright : 2018-2025  Ruohang Feng / Vonng (rh@vonng.com)  ┃#
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛#
 #################################################################
+
 
 
 #┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -3411,12 +3412,76 @@ pgbouncer_list:
 #┃ pgbouncer_database_paused{datname,host,port,real_datname}               GAUGE    1 if this database is currently paused, else 0
 #┃ pgbouncer_database_disabled{datname,host,port,real_datname}             GAUGE    1 if this database is currently disabled, else 0
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+pgbouncer_database_124:
+  name: pgbouncer_database
+  desc: Pgbouncer database stats (since 1.24) # http://www.pgbouncer.org/usage.html#show-databases
+  query: SHOW DATABASES;
+  ttl: 10
+  min_version: 12400
+  tags:
+    - pgbouncer
+
+  metrics:
+    - name:
+        usage: LABEL
+        rename: datname
+        description: Name of configured database entry
+    - host:
+        usage: LABEL
+        description: Host that pgbouncer will connects to
+    - port:
+        usage: LABEL
+        description: Port that pgbouncer will connects to
+    - database:
+        usage: LABEL
+        rename: real_datname
+        description: The real database name pgbouncer connects to
+    - force_user:
+        usage: DISCARD
+    - pool_size:
+        usage: GAUGE
+        description: Maximum number of server connections
+    - min_pool_size:
+        usage: GAUGE
+        description: Minimum number of server connections
+    - reserve_pool_size:
+        usage: GAUGE
+        rename: reserve_pool
+        description: Maximum number of additional connections for this database
+    - server_lifetime:
+        usage: GAUGE
+        description: The maximum lifetime of a server connection for this database
+    - pool_mode:
+        usage: DISCARD
+    - load_balance_hosts:
+        usage: DISCARD
+    - max_connections:
+        usage: GAUGE
+        description: Maximum number of allowed connections for this database
+    - current_connections:
+        usage: GAUGE
+        description: Current number of connections for this database
+    - max_client_connections:
+        usage: GAUGE
+        description: Maximum number of allowed client connections for this pgbouncer instance
+    - current_client_connections:
+        usage: GAUGE
+        description: Current number of client connections for this database
+    - paused:
+        usage: GAUGE
+        description: True(1) if this database is currently paused, else 0
+    - disabled:
+        usage: GAUGE
+        description: True(1) if this database is currently disabled, else 0
+
+
 pgbouncer_database_123:
   name: pgbouncer_database
-  desc: Pgbouncer database stats (since 1.23) # http://www.pgbouncer.org/usage.html#show-databases
+  desc: Pgbouncer database stats (1.23) # http://www.pgbouncer.org/usage.html#show-databases
   query: SHOW DATABASES;
   ttl: 10
   min_version: 12300
+  max_version: 12400
   tags:
     - pgbouncer
 
@@ -3585,12 +3650,101 @@ pgbouncer_database_108_115:
 #┃ pgbouncer_stat_avg_query_time{datname}     GAUGE    Average query duration, in seconds
 #┃ pgbouncer_stat_avg_wait_time{datname}      GAUGE    Time spent by clients waiting for a server, in seconds (average per second).
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+pgbouncer_stat_124:
+  name: pgbouncer_stat
+  desc: Pgbouncer stats per database (since 1.24)   # http://www.pgbouncer.org/usage.html#show-stats
+  query: SHOW STATS;
+  ttl: 10
+  min_version: 12400
+  tags:
+    - pgbouncer
+
+  metrics:
+    - database:
+        usage: LABEL
+        rename: datname
+        description: Name of database
+    - total_xact_count:
+        usage: COUNTER
+        description: Total number of SQL transactions pooled by pgbouncer
+    - total_query_count:
+        usage: COUNTER
+        description: Total number of SQL queries pooled by pgbouncer
+    - total_server_assignment_count:
+        usage: COUNTER
+        description: Total times a server was assigned to a client
+    - total_received:
+        usage: COUNTER
+        description: Total volume in bytes of network traffic received by pgbouncer
+    - total_sent:
+        usage: COUNTER
+        description: Total volume in bytes of network traffic sent by pgbouncer
+    - total_xact_time:
+        usage: COUNTER
+        scale: 1e-6
+        description: Total number of seconds spent when in a transaction
+    - total_query_time:
+        usage: COUNTER
+        scale: 1e-6
+        description: Total number of seconds spent when executing queries
+    - total_wait_time:
+        usage: COUNTER
+        scale: 1e-6
+        description: Time spent by clients waiting for a server, in seconds
+    - total_client_parse_count:
+        usage: COUNTER
+        description: Total number of prepared statements created by clients
+    - total_server_parse_count:
+        usage: COUNTER
+        description: Total number of prepared statements created on a server.
+    - total_bind_count:
+        usage: COUNTER
+        description: Total number of prepared statements readied for execution by clients and forwarded to postgres
+    - avg_xact_count:
+        usage: GAUGE
+        description: Average transactions per second in last stat period
+    - avg_query_count:
+        usage: GAUGE
+        description: Average queries per second in last stat period
+    - avg_server_assignment_count:
+        usage: GAUGE
+        description: Average number of times a server as assigned to a client per second in the last stat period.
+    - avg_recv:
+        usage: GAUGE
+        description: Average received (from clients) bytes per second
+    - avg_sent:
+        usage: GAUGE
+        description: Average sent (to clients) bytes per second
+    - avg_xact_time:
+        usage: GAUGE
+        scale: 1e-6
+        description: Average transaction duration, in seconds
+    - avg_query_time:
+        usage: GAUGE
+        scale: 1e-6
+        description: Average query duration, in seconds
+    - avg_wait_time:
+        usage: GAUGE
+        scale: 1e-6
+        description: Time spent by clients waiting for a server, in seconds (average per second).
+    - avg_client_parse_count:
+        usage: COUNTER
+        description: Average number of prepared statements created by clients
+    - avg_server_parse_count:
+        usage: COUNTER
+        description: Average number of prepared statements created on a server.
+    - avg_bind_count:
+        usage: COUNTER
+        description: Average number of prepared statements readied for execution by clients and forwarded to postgres
+
+
 pgbouncer_stat_123:
   name: pgbouncer_stat
-  desc: Pgbouncer stats per database (since 1.23)   # http://www.pgbouncer.org/usage.html#show-stats
+  desc: Pgbouncer stats per database (1.23)   # http://www.pgbouncer.org/usage.html#show-stats
   query: SHOW STATS;
   ttl: 10
   min_version: 12300
+  max_version: 12400
   tags:
     - pgbouncer
 
