@@ -3,7 +3,7 @@
 # File      :   bootstrap
 # Desc      :   setup local repo & install boot utils
 # Ctime     :   2022-10-16
-# Mtime     :   2024-11-08
+# Mtime     :   2025-02-15
 # Path      :   bootstrap
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -395,11 +395,14 @@ function add_el89_repo(){
     local suffix=""
     if [ "${region}" = "china" ]; then
       baseurl="https://mirrors.aliyun.com"
+      epelbase="https://mirrors.tuna.tsinghua.edu.cn"
       suffix=linux
     elif [ "${region}" = "europe" ]; then
       baseurl="https://mirrors.xtom.de"
+      epelbase="https://mirrors.xtom.de"
     else
       baseurl="https://dl.rockylinux.org/pub"
+      epelbase="http://download.fedoraproject.org/pub"
     fi
     cat > "/tmp/el${releasever}.repo" <<-EOF
 [baseos-default]
@@ -418,7 +421,7 @@ skip_if_unavailable = 1
 module_hotfixes=1
 [epel-default]
 name = EL ${releasever} EPEL \$releasever - \$basearch
-baseurl = ${baseurl}/epel/\$releasever/Everything/\$basearch/
+baseurl = ${epelbase}/epel/\$releasever/Everything/\$basearch/
 gpgcheck = 0
 enabled = 1
 skip_if_unavailable = 1
