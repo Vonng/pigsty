@@ -64,17 +64,24 @@ alias sa="sudo su - root"
 alias sp="sudo su - postgres"
 alias adm="sudo su - admin"
 alias pp="sudo su - postgres"
-alias s="systemctl"
-alias st="sudo systemctl status "
-alias sr="sudo systemctl restart  "
-alias ssdr="sudo systemctl daemon-reload"
-alias d="docker"
-alias dc="docker compose"
-alias di="docker images"
-alias dp="docker ps -a"
 alias vl="sudo cat /var/log/messages"
 alias je="journalctl -xe"
 alias ju="journalctl -u"
+if [ -f /usr/share/bash-completion/completions/journalctl ] && ! type _alias_ju_completion &>/dev/null ; then
+  source /usr/share/bash-completion/completions/journalctl
+  _alias_ju_completion() {
+    local cur
+    _get_comp_words_by_ref -n : cur
+    comps=$(journalctl -F '_SYSTEMD_UNIT' 2>/dev/null)
+    if ! [[ $cur =~ '\\' ]]; then
+        cur="$(printf '%q' $cur)"
+    fi
+    compopt -o filenames
+    COMPREPLY=( $(compgen -o filenames -W '$comps' -- "$cur") )
+    return 0
+  }
+  complete -F _alias_ju_completion ju
+fi
 alias ntps="sudo chronyc -a makestep"
 alias node-mt="curl -sL localhost:9100/metrics | grep -v '#' | grep node_"
 #--------------------------------------------------------------#

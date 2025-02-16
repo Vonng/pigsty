@@ -4,7 +4,25 @@
 #--------------------------------------------------------------#
 - name: write node etc profile
   tags: node_profile
-  copy: src=node.sh dest=/etc/profile.d/node.sh mode=0644
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/profile.d/{{ item }}"
+    mode: 0644
+  loop:
+    - node.sh
+    - node.alias.docker.sh
+    - node.alias.systemctl.sh
+
+#--------------------------------------------------------------#
+# Stage 1: Add /etc/bash_completion               [node_profile]
+#--------------------------------------------------------------#
+- name: write node bash_completion profile
+  tags: node_profile
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/bash_completion.d/{{ item }}"
+  loop:
+    - docker
 
 
 #--------------------------------------------------------------#
