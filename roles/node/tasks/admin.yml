@@ -1,14 +1,28 @@
 ---
 #--------------------------------------------------------------#
-# Stage 1: Add /etc/profile                       [node_profile]
+# Stage 1: Add /etc/profile/node.sh               [node_profile]
 #--------------------------------------------------------------#
 - name: write node etc profile
   tags: node_profile
   copy: src=node.sh dest=/etc/profile.d/node.sh mode=0644
 
+#--------------------------------------------------------------#
+# Stage 2: Add node aliases                      [node_alias]
+#--------------------------------------------------------------#
+- name: write node aliases
+  tags: node_alias
+  when: node_aliases is defined and node_aliases|length > 0
+  template:
+    dest: /etc/profile.d/node.alias.sh
+    mode: 0644
+    content: |
+      #!/bin/bash
+      {% for k, v in node_aliases.items() %}
+      alias {{ k }}='{{ v }}'
+      {% endfor %}
 
 #--------------------------------------------------------------#
-# Stage 2: Setup pam ulimit for node users         [node_ulimit]
+# Stage 3: Setup pam ulimit for node users         [node_ulimit]
 #--------------------------------------------------------------#
 - name: set pam ulimit
   tags: node_ulimit
@@ -16,7 +30,7 @@
 
 
 #--------------------------------------------------------------#
-# Stage 3: Create data dir if not exists             [node_data]
+# Stage 4: Create data dir if not exists             [node_data]
 #--------------------------------------------------------------#
 - name: assure node data dir exists
   tags: node_data
