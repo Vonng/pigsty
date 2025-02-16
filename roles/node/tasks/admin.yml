@@ -4,33 +4,16 @@
 #--------------------------------------------------------------#
 - name: write node etc profile
   tags: node_profile
-  copy:
-    src: "{{ item }}"
-    dest: "/etc/profile.d/{{ item }}"
-    mode: 0644
-  loop:
-    - node.sh
-    - node.alias.docker.sh
-    - node.alias.systemctl.sh
+  copy: src="node.sh" dest="/etc/profile.d/node.sh" mode=0644
+
 
 #--------------------------------------------------------------#
-# Stage 1: Add /etc/bash_completion               [node_profile]
-#--------------------------------------------------------------#
-- name: write node bash_completion profile
-  tags: node_profile
-  copy:
-    src: "{{ item }}"
-    dest: "/etc/bash_completion.d/{{ item }}"
-  loop:
-    - docker
-
-#--------------------------------------------------------------#
-# Stage 2: Add node aliases                      [node_alias]
+# Stage 2: Add node aliases                         [node_alias]
 #--------------------------------------------------------------#
 - name: write node aliases
   tags: node_alias
   when: node_aliases is defined and node_aliases|length > 0
-  template:
+  copy:
     dest: /etc/profile.d/node.alias.sh
     mode: 0644
     content: |

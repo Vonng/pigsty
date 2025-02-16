@@ -65,23 +65,6 @@ alias sp="sudo su - postgres"
 alias adm="sudo su - admin"
 alias pp="sudo su - postgres"
 alias vl="sudo cat /var/log/messages"
-alias je="journalctl -xe"
-alias ju="journalctl -u"
-if [ -f /usr/share/bash-completion/completions/journalctl ] && ! type _alias_ju_completion &>/dev/null ; then
-  source /usr/share/bash-completion/completions/journalctl
-  _alias_ju_completion() {
-    local cur
-    _get_comp_words_by_ref -n : cur
-    comps=$(journalctl -F '_SYSTEMD_UNIT' 2>/dev/null)
-    if ! [[ $cur =~ '\\' ]]; then
-        cur="$(printf '%q' $cur)"
-    fi
-    compopt -o filenames
-    COMPREPLY=( $(compgen -o filenames -W '$comps' -- "$cur") )
-    return 0
-  }
-  complete -F _alias_ju_completion ju
-fi
 alias ntps="sudo chronyc -a makestep"
 alias node-mt="curl -sL localhost:9100/metrics | grep -v '#' | grep node_"
 #--------------------------------------------------------------#
@@ -115,7 +98,7 @@ alias urlenc='python -c "import sys, urllib as ul; print(ul.quote(sys.argv[1]));
 alias urldec='python -c "import sys, urllib as ul; print(ul.unquote(sys.argv[1]));"'
 alias b64enc='python -c "import sys,base64 as b;print(b.b64encode(sys.argv[1]));"'
 alias b64dec='python -c "import sys,base64 as b;print(b.b64decode(sys.argv[1]));"'
-
+#--------------------------------------------------------------#
 # alias g='git'
 alias ga='git add'
 alias gb='git branch'
@@ -125,6 +108,7 @@ alias gl='git log'
 alias glg='git log --graph --oneline --decorate --date=short --pretty=format:"%C(yellow)%h%Creset %Cgreen%ad%Creset %Cblue%an%Creset %Cred%d%Creset %s"'
 alias gp="git pull"
 alias gps='git push'
+alias gpm='git push origin main'
 alias gs='git switch'
 alias gst="git status"
 if [ -f /usr/share/bash-completion/completions/git ]; then
@@ -173,4 +157,56 @@ function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
 function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
 function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
 function log_hint()  { printf "${__CB}$*${__CN}"; }
+#--------------------------------------------------------------#
+# systemctl
+alias s="systemctl"
+alias st="sudo systemctl status "
+alias sr="sudo systemctl restart  "
+alias ssdr="sudo systemctl daemon-reload"
+
+if [ -f /usr/share/bash-completion/completions/systemctl ] && ! type -f _alias_sr_completion &>/dev/null ; then
+  source /usr/share/bash-completion/completions/systemctl
+
+  complete -F _systemctl s
+  complete -F _alias_sr_completion sr
+  complete -F _alias_st_completion st
+
+  _alias_sr_completion() {
+    local cur compopt
+    _get_comp_words_by_ref -n : cur
+    comps=$( __get_restartable_units --system "$cur" )
+    compopt -o filenames
+    COMPREPLY=( $(compgen -o filenames -W '$comps' -- "$cur") )
+    return 0
+  }
+
+  _alias_st_completion() {
+    local cur compopt
+    _get_comp_words_by_ref -n : cur
+    comps=$( __get_non_template_units --system "$cur" )
+    compopt -o filenames
+    COMPREPLY=( $(compgen -o filenames -W '$comps' -- "$cur") )
+    return 0
+  }
+fi
+#--------------------------------------------------------------#
+# journalctl
+alias je="journalctl -xe"
+alias ju="journalctl -u"
+if [ -f /usr/share/bash-completion/completions/journalctl ] && ! type _alias_ju_completion &>/dev/null ; then
+  source /usr/share/bash-completion/completions/journalctl
+  _alias_ju_completion() {
+    local cur
+    _get_comp_words_by_ref -n : cur
+    comps=$(journalctl -F '_SYSTEMD_UNIT' 2>/dev/null)
+    if ! [[ $cur =~ '\\' ]]; then
+        cur="$(printf '%q' $cur)"
+    fi
+    compopt -o filenames
+    COMPREPLY=( $(compgen -o filenames -W '$comps' -- "$cur") )
+    return 0
+  }
+  complete -F _alias_ju_completion ju
+fi
 #==============================================================#
+# vim:ts=2:sw=2

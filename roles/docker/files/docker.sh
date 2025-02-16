@@ -1,8 +1,8 @@
 #!/bin/sh
-# copy this file to /etc/profile.d/
+# copy this file to /etc/profile.d/docker.sh
 
 if [ -x "$(command -v docker)" ]; then
-  alias dc='docker-compose'
+  alias dc="docker compose"
   alias d="docker"
   alias dcc='docker container'
   alias di="docker image"
