@@ -1,17 +1,17 @@
 # Pigsty
 
-[![Webite: pigsty.io](https://img.shields.io/badge/website-pigsty.io-slategray?style=flat&logo=cilium&logoColor=white)](https://www.pigsty.io)
+[![Webite: pigsty.io](https://img.shields.io/badge/website-pigsty.io-slategray?style=flat&logo=cilium&logoColor=white)](https://pigsty.io)
 [![Docs](https://img.shields.io/badge/docs-slategray?style=flat&logo=cilium&logoColor=white)](https://pigsty.io/docs)
 [![Version: v3.2.2](https://img.shields.io/badge/version-v3.2.2-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.2.2)
 [![License: AGPLv3](https://img.shields.io/github/license/Vonng/pigsty?logo=opensourceinitiative&logoColor=green&color=slategray)](https://pigsty.io/docs/about/license/)
 [![GitHub Stars](https://img.shields.io/github/stars/Vonng/pigsty?style=flat&logo=github&logoColor=black&color=slategray)](https://star-history.com/#Vonng/pigsty&Date)
-[![Extensions: 400](https://img.shields.io/badge/extensions-400-%233E668F?style=flat&logo=postgresql&logoColor=white&labelColor=3E668F)](https://ext.pigsty.io/#/list)
+[![Extensions: 404](https://img.shields.io/badge/extensions-404-%233E668F?style=flat&logo=postgresql&logoColor=white&labelColor=3E668F)](https://pigsty.io/ext/list)
 
 Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **RDS** Alternative!
 
 > "**P**ostgreSQL **I**n **G**reat **STY**le": **P**ostgres, **I**nfras, **G**raphics, **S**ervice, **T**oolbox, it's all **Y**ours.
 
-[Website](https://www.pigsty.io/) | [Docs](https://pigsty.io/docs/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Support](https://www.pigsty.io/pricing) | [Extension](https://ext.pigsty.io/) | [中文站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [**特性**](https://pigsty.cc/zh/docs/about/feature)
+[Website](https://www.pigsty.io/) | [Docs](https://pigsty.io/docs/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Support](https://www.pigsty.io/pricing) | [Extension](https://pigsty.io/about/ext) | [中文站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [**特性**](https://pigsty.cc/zh/docs/about/feature)
 
 [**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.2.2**](https://github.com/Vonng/pigsty/releases/tag/v3.2.2): `curl -fsSL https://repo.pigsty.io/get`
 
@@ -22,7 +22,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 ## Features
 
-- [**Extensible**](https://pigsty.io/img/pigsty/extension.png): **400** [**PG Extensions**](https://ext.pigsty.io/#/list) & **6** [**PG Kernel**](https://pigsty.io/docs/kernel) replacements available (e.g., [**MSSQL**](https://pigsty.io/docs/kernel/babelfish/), [**Oracle**](https://pigsty.io/docs/kernel/ivorysql/) compatibility).
+- [**Extensible**](https://pigsty.io/img/pigsty/extension.png): **404** [**PG Extensions**](https://pigsty.io/ext/list) & **6** [**PG Kernel**](https://pigsty.io/docs/kernel) replacements available (e.g., [**MSSQL**](https://pigsty.io/docs/kernel/babelfish/), [**Oracle**](https://pigsty.io/docs/kernel/ivorysql/) compatibility).
 - [**Reliable**](https://pigsty.io/img/pigsty/arch.jpg): Self-healing [**HA**](https://pigsty.io/docs/concept/ha/) clusters with pre-configured [**PITR**](https://pigsty.io/docs/pgsql/arch#point-in-time-recovery) and built-in [**ACL**](https://pigsty.io/docs/pgsql/acl), [**CA & SSL**](https://pigsty.io/docs/reference/param/#ca) secure best practice.
 - [**Observable**](https://pigsty.io/img/pigsty/dashboard.jpg): SOTA monitoring for [**PG**](https://demo.pigsty.cc/d/pgrds-instance/pgrds-instance) / [**Infra**](https://pigsty.io/docs/infra) / [**Node**](https://pigsty.io/docs/node) based on **Prometheus** & **Grafana** stack: [**Demo**](https://demo.pigsty.cc) & [**Gallery**](https://github.com/Vonng/pigsty/wiki/Gallery).
 - [**Available**](https://pigsty.io/img/pigsty/ha.png): Auto-routed & pooled customizable database [**Services**](https://pigsty.io/docs/concept/svc#default-service) [**Access**](https://pigsty.io/docs/concept/svc#access-service) with **haproxy**, **pgbouncer**, and **VIP**.
@@ -31,7 +31,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 ### Advantages
 
-- **Unparalleled Extension**: [**400**](https://ext.pigsty.io/#/list) PostgreSQL extensions available in addition to the official **PGDG** repo.
+- **Unparalleled Extension**: [**404**](https://pigsty.io/ext/list) PostgreSQL extensions available in addition to the official **PGDG** repo.
 - **Stunning Observability**: Ultimate experience with **3000+** metrics visualized in **30+** organized dashboards.
 - **Reliable Best Practices**: Proven & Polished in large-scale production environment (**25K** vCPU) for **5** years+.
 - **NO Docker/Kubernetes**: We choose the hard way to deliver RDS based on bare OS **WITHOUT** [**Containers**](https://pigsty.io/blog/db/db-in-k8s/)!
@@ -40,31 +40,31 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 ### Benefits
 
-- **Full Control**: Unleash the full power of PostgreSQL with 400+ extensions, and gain full control of your data!
+- **Full Control**: Unleash the full power of PostgreSQL with 404+ extensions, and gain full control of your data!
 - **Rest Assured**: Self-healing HA from hardware failures and Point-In-Time-Recovery from human error & bugs!
 - **Keen Insight**: You can't manage what you can't measure. Gain penetrating insight through all-seeing panels!
 - **Self-Reliant**: Self-serving enterprise RDS service with all its dependencies in the absence of a dedicated DBA!
 - **Anti-Entropy**: Describe everything in code, minimize complexity with IaC & SOP, Administration with GitOps!
 - **Get more, Pay less**: No vendor lock-in, Run your own RDS to reclaim 90%+ hardware bonus from the Cloud!
 
-[![landscape](https://pigsty.io/img/pigsty/ecosystem.jpg)](https://ext.pigsty.io/#/list)
+[![landscape](https://pigsty.io/img/pigsty/ecosystem.jpg)](https://pigsty.io/ext/list)
 
 
 ----------------
 
 ## Get Started
 
-[![Postgres: 17.2](https://img.shields.io/badge/PostgreSQL-17.2-%233E668F?style=flat&logo=postgresql&labelColor=3E668F&logoColor=white)](https://pigsty.io/docs/pgsql)
+[![Postgres: 17.4](https://img.shields.io/badge/PostgreSQL-17.2-%233E668F?style=flat&logo=postgresql&labelColor=3E668F&logoColor=white)](https://pigsty.io/docs/pgsql)
 [![Linux](https://img.shields.io/badge/Linux-AMD64-%23FCC624?style=flat&logo=linux&labelColor=FCC624&logoColor=black)](https://pigsty.io/docs/node)
 [![Linux](https://img.shields.io/badge/Linux-ARM64-%23FCC624?style=flat&logo=linux&labelColor=FCC624&logoColor=black)](https://pigsty.io/docs/node)
-[![EL Support: 8/9](https://img.shields.io/badge/EL-7/8/9-red?style=flat&logo=redhat&logoColor=red)](https://ext.pigsty.io/#/rpm)
+[![EL Support: 8/9](https://img.shields.io/badge/EL-7/8/9-red?style=flat&logo=redhat&logoColor=red)](https://pigsty.io/ext/list/rpm)
 [![Debian Support: 12](https://img.shields.io/badge/Debian-11/12-%23A81D33?style=flat&logo=debian&logoColor=%23A81D33)](https://pigsty.io/docs/reference/compatibility/)
-[![Ubuntu Support: 22/24](https://img.shields.io/badge/Ubuntu-20/22/24-%23E95420?style=flat&logo=ubuntu&logoColor=%23E95420)](https://ext.pigsty.io/#/deb)
+[![Ubuntu Support: 22/24](https://img.shields.io/badge/Ubuntu-20/22/24-%23E95420?style=flat&logo=ubuntu&logoColor=%23E95420)](https://pigsty.io/ext/list/deb)
 
 [**Prepare**](https://pigsty.io/docs/setup/prepare/) a fresh `x86_64` / `aarch64` node runs any [**compatible**](#compatibility) **Linux** OS Distros, then [**Download**](https://pigsty.io/docs/setup/install/) **Pigsty** with:
 
 ```bash
-curl -fsSL https://repo.pigsty.io/pig | bash; cd ~/pigsty;
+curl -fsSL https://repo.pigsty.io/get | bash; cd ~/pigsty;
 ```
 
 Next, [**bootstrap**](https://pigsty.io/docs/setup/offline/#bootstrap), [**configure**](https://pigsty.io/docs/setup/install#configure), and run the [**`install.yml`**](https://pigsty.io/docs/setup/install#install) playbook with an [**admin user**](https://pigsty.io/docs/setup/prepare/#admin-user) (**nopass** `ssh` & `sudo`):
@@ -429,7 +429,7 @@ pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
 </details>
 
 You can deploy different kinds of PostgreSQL instance such as primary, replica, offline, delayed, sync standby, etc.,
-and customize with scene-optimize [**templates**](https://github.com/Vonng/pigsty/tree/dev/conf), pre-defined [**stacks**](https://pigsty.io/docs/pgext/usage/stack) and all **400** [**extensions**](https://ext.pigsty.io/#/list).
+and customize with scene-optimize [**templates**](https://github.com/Vonng/pigsty/tree/dev/conf), pre-defined [**stacks**](https://pigsty.io/docs/pgext/usage/stack) and all **404** [**extensions**](https://pigsty.io/ext/list).
 
 You can define [**Users**](https://pigsty.io/docs/pgsql/user/), [**Databases**](https://pigsty.io/docs/pgsql/db/), [**Service**](https://pigsty.io/docs/pgsql/svc/), [**HBAs**](https://pigsty.io/docs/pgsql/hba/) and other entities in code and provision them in one pass.
 You can even replace the vanilla [**`PostgreSQL`**](https://pigsty.io/docs/pgsql) [**Kernel**](https://pigsty.io/docs/kernel/) with other forks as an in-place replacement: [**`Babelfish`**](https://pigsty.io/docs/kernel/babelfish/) for MSSQL compatibility,
@@ -680,9 +680,9 @@ Pigsty focus on active maintained mainstream LTS Linux distros:
 | **D12** | Debian 12 (bookworm)              | `d12.x86_64` |   ✔    | `d12.aarch64` |   ✔    |
 | **EL9** | RHEL 9 / Rocky9 / Alma9 / ...     | `el9.x86_64` |   ✔    | `el9.aarch64` |   ✔    |
 | **EL8** | RHEL 8 / Rocky8 / Alma8 / Anolis8 | `el8.x86_64` |   ✔    | `el8.aarch64` |   ✘    |
-| **EL7** | RHEL7 / CentOS7 / Oracle7...      | `d12.x86_64` |   x    | `el7.aarch64` |   ✘    |
-| **D11** | Debian 11 (bullseye)              | `d12.x86_64` |   x    | `d11.aarch64` |   ✘    |
-| **U20** | Ubuntu 20.04 (focal)              | `d12.x86_64` |   x    | `u20.aarch64` |   ✘    |
+| **EL7** | RHEL7 / CentOS7 / Oracle7...      | `d12.x86_64` |   ✘    | `el7.aarch64` |   ✘    |
+| **D11** | Debian 11 (bullseye)              | `d12.x86_64` |   ✘    | `d11.aarch64` |   ✘    |
+| **U20** | Ubuntu 20.04 (focal)              | `d12.x86_64` |   ✘    | `u20.aarch64` |   ✘    |
 
 For legacy distros such as (el7, d11, u20), we have [pro support](https://www.pigsty.io/pricing) for them.
 Check [**compatibility**](https://pigsty.io/docs/reference/compatibility/) for details.
@@ -702,4 +702,4 @@ Check [**compatibility**](https://pigsty.io/docs/reference/compatibility/) for d
 [![Mail: rh@vonng.com](https://img.shields.io/badge/rh%40vonng.com-steelblue?style=flat)](mailto:rh@vonng.com)
 [![Copyright: 2018-2025 rh@Vonng.com](https://img.shields.io/badge/Copyright-2018--2025_(rh%40vonng.com)-red?logo=c&color=steelblue)](https://github.com/Vonng)
 [![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-steelblue?style=flat&logo=opensourceinitiative&logoColor=green)](https://pigsty.io/docs/about/license/)
-[![Service: PGSTY PRO](https://img.shields.io/badge/Service-PGSTY-steelblue?style=flat)](https://www.pigsty.io/pricing)
+[![Service: PGSTY PRO](https://img.shields.io/badge/Service-PGSTY-steelblue?style=flat)](https://pigsty.io/price)
