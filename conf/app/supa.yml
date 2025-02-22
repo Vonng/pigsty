@@ -3,7 +3,7 @@
 # File      :   supa.yml
 # Desc      :   Pigsty configuration for self-hosting supabase
 # Ctime     :   2023-09-19
-# Mtime     :   2025-01-12
+# Mtime     :   2025-02-22
 # Docs      :   https://pigsty.io/docs/kernel/supabase/
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -20,21 +20,13 @@
 # ./app.yml                 # launch supabase with docker compose
 
 all:
-
-  #==============================================================#
-  # Clusters, Nodes, and Modules
-  #==============================================================#
   children:
 
-    # launch supabase stateless part with docker compose:
-    # ./docker.yml -l app
-    # ./app.yml    -l app
+    # the supabase stateless (default username & password: supabase/pigsty)
     app:
       hosts:
-        10.10.10.10: { supa_seq: 1 }  # instance id
+        10.10.10.10: {}
       vars:
-        docker_enabled: true          # enable docker
-        #docker_registry_mirrors: [https://docker.m.daocloud.io, https://dockerproxy.com]
 
         # these configuration entries will OVERWRITE or APPEND to /opt/supabase/.env file (src template: app/supabase/.env)
         # check https://github.com/Vonng/pigsty/blob/main/app/supabase/.env for default values
@@ -78,6 +70,13 @@ all:
           #smtp_sender_name: fake_sender
           #enable_anonymous_users: false
 
+        docker_enabled: true              # enable docker on app group
+        #docker_registry_mirrors: [https://docker.m.daocloud.io] # use dao cloud mirror in mainland china
+        proxy_env:                        # global proxy env when downloading packages & pull docker images
+          no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.tsinghua.edu.cn"
+          #http_proxy:  127.0.0.1:12345 # add your proxy env here for downloading packages or pull images
+          #https_proxy: 127.0.0.1:12345 # usually the proxy is format as http://user:pass@proxy.xxx.com
+          #all_proxy:   127.0.0.1:12345
 
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
@@ -145,7 +144,7 @@ all:
   # Global Parameters
   #==============================================================#
   vars:
-    version: v3.2.2                   # pigsty version string
+    version: v3.3.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     node_tune: oltp                   # node tuning specs: oltp,olap,tiny,crit
@@ -217,5 +216,5 @@ all:
     repo_modules: node,pgsql,infra,docker
     repo_packages: [node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker ]
     repo_extra_packages: [pg17-core ,pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ]
-    pg_extensions: [pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl, pg_duckdb, pg_parquet, pg_analytics, pg_fkpart, pg_partman, plproxy ] #,pg17-olap]
+    pg_extensions: [pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl, pg_duckdb, pg_parquet, pg_analytics, pg_fkpart, pg_partman, plproxy ]
 ...
