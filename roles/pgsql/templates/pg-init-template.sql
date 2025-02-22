@@ -51,7 +51,11 @@ REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 --                             Extensions                           --
 --==================================================================--
 {% for extension in pg_default_extensions %}
-CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension %} WITH SCHEMA "{{ extension.schema }}"{% endif %};
+{% if extension is string %}
+CREATE EXTENSION IF NOT EXISTS "{{ extension }}" CASCADE;
+{% elif extension is mapping and 'name' in extension %}
+CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension %} WITH SCHEMA "{{ extension.schema }}"{% endif %}{% if 'version' in extension %} VERSION "{{ extension.version }}"{% endif %} CASCADE;
+{% endif %}
 {% endfor %}
 
 -- always enable file_fdw and default server fs
