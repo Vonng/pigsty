@@ -42,15 +42,6 @@ all:
           ODOO_DBNAME: odoo               # odoo database name
           ODOO_VERSION: 18.0              # odoo image version
 
-        docker_enabled: true              # enable docker on app group
-        #docker_registry_mirrors: [https://docker.m.daocloud.io] # use dao cloud mirror in mainland china
-        proxy_env:                        # global proxy env when downloading packages & pull docker images
-          no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.tsinghua.edu.cn"
-          #http_proxy:  127.0.0.1:12345 # add your proxy env here for downloading packages or pull images
-          #https_proxy: 127.0.0.1:12345 # usually the proxy is format as http://user:pass@proxy.xxx.com
-          #all_proxy:   127.0.0.1:12345
-
-
     # the odoo database
     pg-odoo:
       hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
@@ -74,6 +65,17 @@ all:
     version: v3.2.2                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
+    node_tune: oltp                   # node tuning specs: oltp,olap,tiny,crit
+    pg_conf: oltp.yml                 # pgsql tuning specs: {oltp,olap,tiny,crit}.yml
+
+    docker_enabled: true              # enable docker on app group
+    #docker_registry_mirrors: [https://docker.m.daocloud.io] # use dao cloud mirror in mainland china
+    proxy_env:                        # global proxy env when downloading packages & pull docker images
+      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.tsinghua.edu.cn"
+      #http_proxy:  127.0.0.1:12345 # add your proxy env here for downloading packages or pull images
+      #https_proxy: 127.0.0.1:12345 # usually the proxy is format as http://user:pass@proxy.xxx.com
+      #all_proxy:   127.0.0.1:12345
+
     infra_portal: # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }

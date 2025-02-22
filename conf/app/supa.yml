@@ -70,14 +70,6 @@ all:
           #smtp_sender_name: fake_sender
           #enable_anonymous_users: false
 
-        docker_enabled: true              # enable docker on app group
-        #docker_registry_mirrors: [https://docker.m.daocloud.io] # use dao cloud mirror in mainland china
-        proxy_env:                        # global proxy env when downloading packages & pull docker images
-          no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.tsinghua.edu.cn"
-          #http_proxy:  127.0.0.1:12345 # add your proxy env here for downloading packages or pull images
-          #https_proxy: 127.0.0.1:12345 # usually the proxy is format as http://user:pass@proxy.xxx.com
-          #all_proxy:   127.0.0.1:12345
-
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
 
@@ -149,6 +141,13 @@ all:
     region: default                   # upstream mirror region: default|china|europe
     node_tune: oltp                   # node tuning specs: oltp,olap,tiny,crit
     pg_conf: oltp.yml                 # pgsql tuning specs: {oltp,olap,tiny,crit}.yml
+    docker_enabled: true              # enable docker on app group
+    #docker_registry_mirrors: [https://docker.m.daocloud.io] # use dao cloud mirror in mainland china
+    proxy_env:                        # global proxy env when downloading packages & pull docker images
+      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.tsinghua.edu.cn"
+      #http_proxy:  127.0.0.1:12345 # add your proxy env here for downloading packages or pull images
+      #https_proxy: 127.0.0.1:12345 # usually the proxy is format as http://user:pass@proxy.xxx.com
+      #all_proxy:   127.0.0.1:12345
     infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
