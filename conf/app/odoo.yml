@@ -3,7 +3,7 @@
 # File      :   odoo.yml
 # Desc      :   pigsty config for running 1-node odoo app
 # Ctime     :   2025-01-11
-# Mtime     :   2025-01-11
+# Mtime     :   2025-02-22
 # Docs      :   https://pigsty.io/docs/software/odoo
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -22,7 +22,7 @@
 all:
   children:
 
-    # the odoo application
+    # the odoo application (default username & password: admin/admin)
     app:
       hosts: { 10.10.10.10: {} }
       vars:
@@ -41,8 +41,15 @@ all:
           ODOO_ADDONS: /data/odoo/addons  # odoo plugins
           ODOO_DBNAME: odoo               # odoo database name
           ODOO_VERSION: 18.0              # odoo image version
-        docker_enabled: true              # install & enabled docker
-        #docker_registry_mirrors: [https://docker.m.daocloud.io, https://dockerproxy.com]
+
+        docker_enabled: true              # enable docker on app group
+        #docker_registry_mirrors: [https://docker.m.daocloud.io] # use dao cloud mirror in mainland china
+        proxy_env:                        # global proxy env when downloading packages & pull docker images
+          no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.tsinghua.edu.cn"
+          #http_proxy:  127.0.0.1:12345 # add your proxy env here for downloading packages or pull images
+          #https_proxy: 127.0.0.1:12345 # usually the proxy is format as http://user:pass@proxy.xxx.com
+          #all_proxy:   127.0.0.1:12345
+
 
     # the odoo database
     pg-odoo:
@@ -78,12 +85,20 @@ all:
       odoo         : { domain: odoo.pigsty, endpoint: "127.0.0.1:8069" , websocket: true }  # cert: /path/to/crt ,key: /path/to/key
       # setup your own domain name here ^^^, or use default domain name, or ip + 8069 port direct access
 
-    # Credential: CHANGE THESE PASSWORDS IN PRODUCTION
+    #----------------------------------#
+    # Credential: CHANGE THESE PASSWORDS
+    #----------------------------------#
+    #grafana_admin_username: admin
     grafana_admin_password: pigsty
+    #pg_admin_username: dbuser_dba
     pg_admin_password: DBUser.DBA
+    #pg_monitor_username: dbuser_monitor
     pg_monitor_password: DBUser.Monitor
+    #pg_replication_username: replicator
     pg_replication_password: DBUser.Replicator
+    #patroni_username: postgres
     patroni_password: Patroni.API
+    #haproxy_admin_username: admin
     haproxy_admin_password: pigsty
 
     repo_modules: infra,node,pgsql,docker
