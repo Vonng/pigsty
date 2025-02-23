@@ -11,11 +11,11 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 > "**P**ostgreSQL **I**n **G**reat **STY**le": **P**ostgres, **I**nfras, **G**raphics, **S**ervice, **T**oolbox, it's all **Y**ours.
 
-[Website](https://www.pigsty.io/) | [Docs](https://pigsty.io/docs/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Support](https://www.pigsty.io/pricing) | [Extension](https://pigsty.io/about/ext) | [中文站](https://pigsty.cc/zh/) | [博客](https://pigsty.cc/zh/blog) | [**特性**](https://pigsty.cc/zh/docs/about/feature)
+[Website](https://pigsty.io/) | [Docs](https://pigsty.io/docs/) | [Extensions](https://pigsty.io/ext/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Support](https://pigsty.io/price) | [Extension](https://pigsty.io/about/ext) | [中文站](https://pigsty.cc) | [博客](https://pigsty.cc/blog)
 
 [**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.2.2**](https://github.com/Vonng/pigsty/releases/tag/v3.2.2): `curl -fsSL https://repo.pigsty.io/get`
 
-[![pigsty-desc](https://pigsty.io/img/pigsty/banner.en.jpg)](https://www.pigsty.io)
+[![pigsty-desc](https://pigsty.io/img/pigsty/banner.en.jpg)](https://pigsty.io)
 
 
 --------
@@ -58,7 +58,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 [![Linux](https://img.shields.io/badge/Linux-AMD64-%23FCC624?style=flat&logo=linux&labelColor=FCC624&logoColor=black)](https://pigsty.io/docs/node)
 [![Linux](https://img.shields.io/badge/Linux-ARM64-%23FCC624?style=flat&logo=linux&labelColor=FCC624&logoColor=black)](https://pigsty.io/docs/node)
 [![EL Support: 8/9](https://img.shields.io/badge/EL-7/8/9-red?style=flat&logo=redhat&logoColor=red)](https://pigsty.io/ext/list/rpm)
-[![Debian Support: 12](https://img.shields.io/badge/Debian-11/12-%23A81D33?style=flat&logo=debian&logoColor=%23A81D33)](https://pigsty.io/docs/reference/compatibility/)
+[![Debian Support: 12](https://img.shields.io/badge/Debian-11/12-%23A81D33?style=flat&logo=debian&logoColor=%23A81D33)](https://pigsty.io/ext/list/deb)
 [![Ubuntu Support: 22/24](https://img.shields.io/badge/Ubuntu-20/22/24-%23E95420?style=flat&logo=ubuntu&logoColor=%23E95420)](https://pigsty.io/ext/list/deb)
 
 [**Prepare**](https://pigsty.io/docs/setup/prepare/) a fresh `x86_64` / `aarch64` node runs any [**compatible**](#compatibility) **Linux** OS Distros, then [**Download**](https://pigsty.io/docs/setup/install/) **Pigsty** with:
@@ -684,14 +684,14 @@ Pigsty focus on active maintained mainstream LTS Linux distros:
 | **D11** | Debian 11 (bullseye)              | `d12.x86_64` |   ✘    | `d11.aarch64` |   ✘    |
 | **U20** | Ubuntu 20.04 (focal)              | `d12.x86_64` |   ✘    | `u20.aarch64` |   ✘    |
 
-For legacy distros such as (el7, d11, u20), we have [pro support](https://www.pigsty.io/pricing) for them.
+For legacy distros such as (el7, d11, u20), we have [pro support](https://pigsty.io/price) for them.
 Check [**compatibility**](https://pigsty.io/docs/reference/compatibility/) for details.
 
 ----------------
 
 ## About
 
-[![Webite: www.pigsty.io](https://img.shields.io/badge/Website-www.pigsty.io-slategray?style=flat)](https://www.pigsty.io)
+[![Webite: pigsty.io](https://img.shields.io/badge/Website-pigsty.io-slategray?style=flat)](https://pigsty.io)
 [![Github: Discussions](https://img.shields.io/badge/GitHub-Discussions-slategray?style=flat&logo=github&logoColor=black)](https://github.com/Vonng/pigsty/discussions)
 [![Telegram: gV9zfZraNPM3YjFh](https://img.shields.io/badge/Telegram-gV9zfZraNPM3YjFh-cornflowerblue?style=flat&logo=telegram&logoColor=cornflowerblue)](https://t.me/joinchat/gV9zfZraNPM3YjFh)
 [![Discord: j5pG8qfKxU](https://img.shields.io/badge/Discord-j5pG8qfKxU-mediumpurple?style=flat&logo=discord&logoColor=mediumpurple)](https://discord.gg/j5pG8qfKxU)
