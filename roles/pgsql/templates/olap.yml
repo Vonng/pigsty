@@ -412,6 +412,13 @@ bootstrap:
         timescaledb.telemetry_level: 'off'      # disable timescale telemetry
         timescaledb.max_background_workers: {{ pg_max_worker_processes }}
 
+        # pg_cron
+{% if pg_parameters is defined and pg_parameters is mapping and 'cron.database_name' in pg_parameters %}
+        cron.database_name: {{ pg_parameters['cron.database_name'] }}
+{% else %}
+        cron.database_name: {{ pg_primary_db|default('postgres') }}
+{% endif %}
+
 
 #--------------------------------------------------------------#
 # postgres
