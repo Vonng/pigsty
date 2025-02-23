@@ -18,10 +18,19 @@
       template: src=nginx/nginx.conf.j2 dest=/etc/nginx/nginx.conf
 
     # server config
+    # infra_portal entries:
+    # conf: ad hoc template
+    # path: local web server
+    # endpoint: proxy pass
+    # home: default server
+    # other: invalid
     - name: render nginx server conf
       when: upstream.domain is defined and upstream.domain != ''
-      template: src=nginx/server.conf.j2 dest=/etc/nginx/conf.d/{{ upstream_name }}.conf
-      vars: { upstream_name: '{{ item.key }}' , upstream: '{{ item.value }}' }
+      template: src=nginx/{{ upstrema_conf }} dest=/etc/nginx/conf.d/{{ upstream_name }}.conf
+      vars:
+        upstream_name: '{{ item.key }}'
+        upstream: '{{ item.value }}'
+        upstrema_conf: '{% if "conf" in item.value %}{{ item.value.conf }}{% elif item.key == "home" %}home.conf{% elif "path" in item.value %}path.conf{% elif "endpoint" in item.value %}endpoint.conf{% endif %}'
       with_dict: "{{ infra_portal|default({}) }}"
 
 
