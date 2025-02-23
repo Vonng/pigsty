@@ -34,6 +34,17 @@ all:
         etcd_cluster: etcd
 
     #----------------------------------#
+    # ferretdb for mongodb on postgresql
+    #----------------------------------#
+    # ./mongo.yml -l ferret
+    ferret:
+      hosts:
+        10.10.10.10: { mongo_seq: 1 }
+      vars:
+        mongo_cluster: ferret
+        mongo_pgurl: 'postgres://mongod:DBUser.Mongo@10.10.10.10:5432/meta'
+
+    #----------------------------------#
     # pgsql (singleton on current node)
     #----------------------------------#
     # postgres cluster: pg-meta
@@ -42,23 +53,20 @@ all:
       vars:
         pg_cluster: pg-meta
         pg_users:
-          - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
-          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+          - { name: mongod      ,password: DBUser.Mongo  ,pgbouncer: true ,roles: [dbrole_admin ] ,superuser: true ,comment: ferretdb super user }
+          - { name: dbuser_meta ,password: DBUser.Meta   ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty admin user }
+          - { name: dbuser_view ,password: DBUser.Viewer ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
         pg_databases:
-          - name: meta
-            baseline: cmdb.sql
-            comment: pigsty meta database
-            schemas: [pigsty]
-            extensions: [ documentdb, postgis, vector, pg_cron, rum ]
+          - {name: meta, owner: mongod ,baseline: cmdb.sql ,comment: pigsty meta database ,schemas: [pigsty] ,extensions: [ documentdb, postgis, vector, pg_cron, rum ]}
         pg_hba_rules:
           - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
+          - { user: mongod      , db: all ,addr: world ,auth: pwd ,title: 'mongodb password access from everywhere' }
         pg_extensions:
-          - documentdb, citus, postgis, vector, pg_cron, rum
+          - documentdb, citus, postgis, pgvector, pg_cron, rum
         pg_parameters:
           cron.database_name: meta
-        pg_libs: 'documentdb, pg_cron, pg_stat_statements, auto_explain'  # add timescaledb to shared_preload_libraries
-        node_crontab:  # make one full backup 1 am everyday
-          - '00 01 * * * postgres /pg/bin/pg-backup full'
+        pg_libs: 'pg_documentdb, pg_documentdb_core, pg_cron, pg_stat_statements, auto_explain'  # add timescaledb to shared_preload_libraries
+
 
   vars:                               # global variables
     version: v3.3.0                   # pigsty version string
@@ -66,13 +74,6 @@ all:
     region: default                   # upstream mirror region: default|china|europe
     node_tune: oltp                   # node tuning specs: oltp,olap,tiny,crit
     pg_conf: oltp.yml                 # pgsql tuning specs: {oltp,olap,tiny,crit}.yml
-    docker_enabled: true              # enable docker on app group
-    #docker_registry_mirrors: ["https://docker.m.daocloud.io"] # use dao cloud mirror in mainland china
-    proxy_env:                        # global proxy env when downloading packages & pull docker images
-      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.tsinghua.edu.cn"
-      #http_proxy:  127.0.0.1:12345 # add your proxy env here for downloading packages or pull images
-      #https_proxy: 127.0.0.1:12345 # usually the proxy is format as http://user:pass@proxy.xxx.com
-      #all_proxy:   127.0.0.1:12345
     infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
