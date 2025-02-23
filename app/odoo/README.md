@@ -65,7 +65,7 @@ app:
       ODOO_DBNAME: odoo               # odoo database name
       ODOO_VERSION: 18.0              # odoo image version
     docker_enabled: true              # install & enabled docker
-    #docker_registry_mirrors: [https://docker.m.daocloud.io, https://docker.mirrors.ustc.edu.cn]
+    #docker_registry_mirrors: ["https://docker.m.daocloud.io"]
 
 # the odoo database
 pg-odoo:
