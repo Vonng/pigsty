@@ -2,7 +2,7 @@
 
 [![Webite: pigsty.io](https://img.shields.io/badge/website-pigsty.io-slategray?style=flat&logo=cilium&logoColor=white)](https://pigsty.io)
 [![Docs](https://img.shields.io/badge/docs-slategray?style=flat&logo=cilium&logoColor=white)](https://pigsty.io/docs)
-[![Version: v3.2.2](https://img.shields.io/badge/version-v3.2.2-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.2.2)
+[![Version: v3.3.0](https://img.shields.io/badge/version-v3.3.0-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.3.0)
 [![License: AGPLv3](https://img.shields.io/github/license/Vonng/pigsty?logo=opensourceinitiative&logoColor=green&color=slategray)](https://pigsty.io/docs/about/license/)
 [![GitHub Stars](https://img.shields.io/github/stars/Vonng/pigsty?style=flat&logo=github&logoColor=black&color=slategray)](https://star-history.com/#Vonng/pigsty&Date)
 [![Extensions: 404](https://img.shields.io/badge/extensions-404-%233E668F?style=flat&logo=postgresql&logoColor=white&labelColor=3E668F)](https://pigsty.io/ext/list)
@@ -13,7 +13,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 [Website](https://pigsty.io/) | [Docs](https://pigsty.io/docs/) | [Extensions](https://pigsty.io/ext/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Support](https://pigsty.io/price) | [Extension](https://pigsty.io/about/ext) | [中文站](https://pigsty.cc) | [博客](https://pigsty.cc/blog)
 
-[**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.2.2**](https://github.com/Vonng/pigsty/releases/tag/v3.2.2): `curl -fsSL https://repo.pigsty.io/get`
+[**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.3.0**](https://github.com/Vonng/pigsty/releases/tag/v3.3.0): `curl -fsSL https://repo.pigsty.io/get`
 
 [![pigsty-desc](https://pigsty.io/img/pigsty/banner.en.jpg)](https://pigsty.io)
 
@@ -33,7 +33,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 - **Unparalleled Extension**: [**404**](https://pigsty.io/ext/list) PostgreSQL extensions available in addition to the official **PGDG** repo.
 - **Stunning Observability**: Ultimate experience with **3000+** metrics visualized in **30+** organized dashboards.
-- **Reliable Best Practices**: Proven & Polished in large-scale production environment (**25K** vCPU) for **5** years+.
+- **Reliable Best Practices**: Proven & Polished in large-scale production environment (**25K** vCPU) for **6** years+.
 - **NO Docker/Kubernetes**: We choose the hard way to deliver RDS based on bare OS **WITHOUT** [**Containers**](https://pigsty.io/blog/db/db-in-k8s/)!
 - **Infrastructure as Code**: Describe everything with declarative API and provision with idempotent playbooks!
 - **Free OSS & Local-First**: Pigsty is a free software under [**AGPLv3**](https://pigsty.io/docs/about/license/). Build for PostgreSQL with passion & love.
