@@ -2,7 +2,7 @@
 # File      :   Makefile
 # Desc      :   pigsty shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2025-02-14
+# Mtime     :   2025-02-24
 # Path      :   Makefile
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -22,9 +22,9 @@ D12_PKG=pigsty-pkg-$(VERSION).d12.x86_64.tgz
 U20_PKG=pigsty-pkg-$(VERSION).u20.x86_64.tgz
 U22_PKG=pigsty-pkg-$(VERSION).u22.x86_64.tgz
 U24_PKG=pigsty-pkg-$(VERSION).u24.x86_64.tgz
+PKG=""
 #PKG=oss/
-#PKG=ent/
-PKG=pro/
+#PKG=pro/
 ADMIN_IP=10.10.10.10
 
 ###############################################################
