@@ -15,12 +15,12 @@ Check public demo: http://odoo.pigsty.cc, username: `test@pigsty.cc`, password: 
 
 First, follow the standard pigsty single (or multiple if you want) node installation, using the [`conf/app/odoo`](https://github.com/Vonng/pigsty/blob/main/conf/app/odoo.yml) config template.
 
-```yaml
- curl -fsSL https://repo.pigsty.io/get | bash; cd ~/pigsty
-
-./bootstrap               # prepare local repo & ansible
-./configure -c demo/odoo  # IMPORTANT: CHANGE CREDENTIALS!!
-./install.yml             # install pigsty & pgsql & minio
+```bash
+curl -fsSL https://repo.pigsty.io/pig | bash
+pig sty init              # init pigsty directory
+pig sty boot              # prepare local repo & ansible
+pig sty conf -c app/odoo  # use the odoo 1-node config template
+pig sty install           # begin installation
 ```
 
 Then install docker and launch odoo app:
@@ -45,42 +45,47 @@ You can add a static entry to your `/etc/hosts` file to access odoo via `http://
 There's a config template [`conf/app/odoo`](https://github.com/Vonng/pigsty/blob/main/conf/app/odoo.yml), you'd better change some credentials and make your modifications there:
 
 ```yaml
-# the odoo application
-app:
-  hosts: { 10.10.10.10: {} }
-  vars:
-    app: odoo                         # app name
-    app_dir:                          # app directories
-      - { path: /data/odoo         ,state: directory, owner: 100, group: 101 }
-      - { path: /data/odoo/webdata ,state: directory, owner: 100, group: 101 }
-      - { path: /data/odoo/addons  ,state: directory, owner: 100, group: 101 }
-    app_config:                       # app config
-      PG_HOST: 10.10.10.10            # postgres host
-      PG_PORT: 5432                   # postgres port
-      PG_USERNAME: odoo               # postgres user
-      PG_PASSWORD: DBUser.Odoo        # postgres password
-      ODOO_PORT: 8069                 # odoo app port
-      ODOO_DATA: /data/odoo/webdata   # odoo webdata
-      ODOO_ADDONS: /data/odoo/addons  # odoo plugins
-      ODOO_DBNAME: odoo               # odoo database name
-      ODOO_VERSION: 18.0              # odoo image version
-    docker_enabled: true              # install & enabled docker
-    #docker_registry_mirrors: ["https://docker.m.daocloud.io"]
 
-# the odoo database
-pg-odoo:
-  hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
-  vars:
-    pg_cluster: pg-odoo
-    pg_users:
-      - { name: odoo    ,password: DBUser.Odoo ,pgbouncer: true ,roles: [ dbrole_admin ] , createdb: true ,comment: admin user for odoo service }
-      - { name: odoo_ro ,password: DBUser.Odoo ,pgbouncer: true ,roles: [ dbrole_readonly ]  ,comment: read only user for odoo service  }
-      - { name: odoo_rw ,password: DBUser.Odoo ,pgbouncer: true ,roles: [ dbrole_readwrite ] ,comment: read write user for odoo service }
-    pg_databases:
-      - { name: odoo ,owner: odoo ,revokeconn: true ,comment: odoo main database  }
-    pg_hba_rules:
-      - { user: all ,db: all ,addr: 172.17.0.0/16  ,auth: pwd ,title: 'allow access from local docker network' }
-      - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
+all:
+  children:
+
+    # the odoo application (default username & password: admin/admin)
+    odoo:
+      hosts: { 10.10.10.10: {} }
+      vars:
+        app: odoo   # specify app name to be installed (in the apps)
+        apps:       # define all applications
+          odoo:     # app name, should have corresponding ~/app/odoo folder
+            file:   # optional directory to be created
+              - { path: /data/odoo         ,state: directory, owner: 100, group: 101 }
+              - { path: /data/odoo/webdata ,state: directory, owner: 100, group: 101 }
+              - { path: /data/odoo/addons  ,state: directory, owner: 100, group: 101 }
+            conf:   # override /opt/<app>/.env config file
+              PG_HOST: 10.10.10.10            # postgres host
+              PG_PORT: 5432                   # postgres port
+              PG_USERNAME: odoo               # postgres user
+              PG_PASSWORD: DBUser.Odoo        # postgres password
+              ODOO_PORT: 8069                 # odoo app port
+              ODOO_DATA: /data/odoo/webdata   # odoo webdata
+              ODOO_ADDONS: /data/odoo/addons  # odoo plugins
+              ODOO_DBNAME: odoo               # odoo database name
+              ODOO_VERSION: 18.0              # odoo image version
+
+    # the odoo database
+    pg-odoo:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-odoo
+        pg_users:
+          - { name: odoo    ,password: DBUser.Odoo ,pgbouncer: true ,roles: [ dbrole_admin ] ,createdb: true ,comment: admin user for odoo service }
+          - { name: odoo_ro ,password: DBUser.Odoo ,pgbouncer: true ,roles: [ dbrole_readonly ]  ,comment: read only user for odoo service  }
+          - { name: odoo_rw ,password: DBUser.Odoo ,pgbouncer: true ,roles: [ dbrole_readwrite ] ,comment: read write user for odoo service }
+        pg_databases:
+          - { name: odoo ,owner: odoo ,revokeconn: true ,comment: odoo main database  }
+        pg_hba_rules:
+          - { user: all ,db: all ,addr: 172.17.0.0/16  ,auth: pwd ,title: 'allow access from local docker network' }
+          - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
+
 ```
 
 

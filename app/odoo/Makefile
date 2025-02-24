@@ -30,6 +30,8 @@ rm:
 	docker compose rm
 logs:
 	docker compose logs
+logs:
+	docker compose logs -f
 port:
 	docker compose port
 conf:

@@ -3,7 +3,7 @@
 # File      :   odoo.yml
 # Desc      :   pigsty config for running 1-node odoo app
 # Ctime     :   2025-01-11
-# Mtime     :   2025-02-22
+# Mtime     :   2025-02-24
 # Docs      :   https://pigsty.io/docs/software/odoo
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -23,24 +23,26 @@ all:
   children:
 
     # the odoo application (default username & password: admin/admin)
-    app:
+    odoo:
       hosts: { 10.10.10.10: {} }
       vars:
-        app: odoo                         # app name
-        app_dir:                          # app directories
-          - { path: /data/odoo         ,state: directory, owner: 100, group: 101 }
-          - { path: /data/odoo/webdata ,state: directory, owner: 100, group: 101 }
-          - { path: /data/odoo/addons  ,state: directory, owner: 100, group: 101 }
-        app_config:                       # app config
-          PG_HOST: 10.10.10.10            # postgres host
-          PG_PORT: 5432                   # postgres port
-          PG_USERNAME: odoo               # postgres user
-          PG_PASSWORD: DBUser.Odoo        # postgres password
-          ODOO_PORT: 8069                 # odoo app port
-          ODOO_DATA: /data/odoo/webdata   # odoo webdata
-          ODOO_ADDONS: /data/odoo/addons  # odoo plugins
-          ODOO_DBNAME: odoo               # odoo database name
-          ODOO_VERSION: 18.0              # odoo image version
+        app: odoo   # specify app name to be installed (in the apps)
+        apps:       # define all applications
+          odoo:     # app name, should have corresponding ~/app/odoo folder
+            file:   # optional directory to be created
+              - { path: /data/odoo         ,state: directory, owner: 100, group: 101 }
+              - { path: /data/odoo/webdata ,state: directory, owner: 100, group: 101 }
+              - { path: /data/odoo/addons  ,state: directory, owner: 100, group: 101 }
+            conf:   # override /opt/<app>/.env config file
+              PG_HOST: 10.10.10.10            # postgres host
+              PG_PORT: 5432                   # postgres port
+              PG_USERNAME: odoo               # postgres user
+              PG_PASSWORD: DBUser.Odoo        # postgres password
+              ODOO_PORT: 8069                 # odoo app port
+              ODOO_DATA: /data/odoo/webdata   # odoo webdata
+              ODOO_ADDONS: /data/odoo/addons  # odoo plugins
+              ODOO_DBNAME: odoo               # odoo database name
+              ODOO_VERSION: 18.0              # odoo image version
 
     # the odoo database
     pg-odoo:
@@ -62,7 +64,7 @@ all:
     #minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 
   vars:                               # global variables
-    version: v3.2.2                   # pigsty version string
+    version: v3.3.0                   # pigsty version string
     admin_ip: 10.10.10.10             # admin node ip address
     region: default                   # upstream mirror region: default|china|europe
     node_tune: oltp                   # node tuning specs: oltp,olap,tiny,crit
@@ -84,8 +86,9 @@ all:
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
       minio        : { domain: m.pigsty    ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
-      odoo         : { domain: odoo.pigsty, endpoint: "127.0.0.1:8069" , websocket: true }  # cert: /path/to/crt ,key: /path/to/key
+      odoo         : { domain: odoo.pigsty, endpoint: "127.0.0.1:8069"   ,websocket: true }  #cert: /path/to/crt ,key: /path/to/key
       # setup your own domain name here ^^^, or use default domain name, or ip + 8069 port direct access
+      # certbot --agree-tos -n -M your@email.addr --nginx -d odoo.your.domain
 
     #----------------------------------#
     # Credential: CHANGE THESE PASSWORDS
