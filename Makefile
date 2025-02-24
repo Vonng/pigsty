@@ -23,7 +23,6 @@ U20_PKG=pigsty-pkg-$(VERSION).u20.x86_64.tgz
 U22_PKG=pigsty-pkg-$(VERSION).u22.x86_64.tgz
 U24_PKG=pigsty-pkg-$(VERSION).u24.x86_64.tgz
 PKG=""
-#PKG=oss/
 #PKG=pro/
 ADMIN_IP=10.10.10.10
 

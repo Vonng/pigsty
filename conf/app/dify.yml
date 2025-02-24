@@ -1,0 +1,156 @@
+---
+#==============================================================#
+# File      :   dify.yml
+# Desc      :   pigsty config for running 1-node dify app
+# Ctime     :   2025-02-24
+# Mtime     :   2025-02-24
+# Docs      :   https://pigsty.io/docs/software/dify
+# License   :   AGPLv3 @ https://pigsty.io/docs/about/license
+# Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
+#==============================================================#
+
+# tutorial: https://pigsty.io/docs/software/dify/
+# how to use this template:
+#
+#  curl -fsSL https://repo.pigsty.io/get | bash; cd ~/pigsty
+# ./bootstrap               # prepare local repo & ansible
+# ./configure -c app/dify   # IMPORTANT: CHANGE CREDENTIALS!!
+# ./install.yml             # install pigsty & pgsql & minio
+# ./redis.yml               # install extra redis instances
+# ./docker.yml              # install docker & docker-compose
+# ./app.yml                 # install dify
+
+all:
+  children:
+
+    # the dify application (default username & password: admin/admin)
+    dify:
+      hosts: { 10.10.10.10: {} }
+      vars:
+        app: dify   # specify app name to be installed (in the apps)
+        apps:       # define all applications
+          dify:     # app name, should have corresponding ~/app/dify folder
+            conf:   # override /opt/dify/.env config file
+              # A secret key for signing and encryption, gen with `openssl rand -base64 42` (CHANGE PASSWORD!)
+              SECRET_KEY: sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U
+              DB_USERNAME: dify
+              DB_PASSWORD: difyai123456
+              DB_HOST: 10.10.10.10
+              DB_PORT: 5432
+              DB_DATABASE: dify
+              VECTOR_STORE: pgvector
+              PGVECTOR_HOST: 10.10.10.10
+              PGVECTOR_PORT: 5432
+              PGVECTOR_USER: dify
+              PGVECTOR_PASSWORD: difyai123456
+              PGVECTOR_DATABASE: dify
+              PGVECTOR_MIN_CONNECTION: 2
+              PGVECTOR_MAX_CONNECTION: 10
+              NGINX_SERVER_NAME: localhost
+              DIFY_PORT: 5001 # expose DIFY nginx service with port 5001 by default
+              #STORAGE_TYPE: s3
+              #S3_ENDPOINT: 'https://sss.pigsty'
+              #S3_BUCKET_NAME: 'dify'
+              #S3_ACCESS_KEY: 'dify'
+              #S3_SECRET_KEY: 'S3User.Dify'
+              #S3_REGION: 'us-east-1'
+
+    pg-meta:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-meta
+        pg_users:
+          - { name: dify ,password: difyai123456 ,pgbouncer: true ,roles: [ dbrole_admin ] ,superuser: true ,comment: dify superuser }
+        pg_databases:
+          - { name: dify ,owner: dify ,revokeconn: true ,comment: dify main database  }
+        pg_hba_rules:
+          - { user: dify ,db: all ,addr: 172.17.0.0/16  ,auth: pwd ,title: 'allow dify access from local docker network' }
+          - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
+
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
+    etcd:  { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
+
+  vars:                               # global variables
+    version: v3.3.0                   # pigsty version string
+    admin_ip: 10.10.10.10             # admin node ip address
+    region: default                   # upstream mirror region: default|china|europe
+    node_tune: oltp                   # node tuning specs: oltp,olap,tiny,crit
+    pg_conf: oltp.yml                 # pgsql tuning specs: {oltp,olap,tiny,crit}.yml
+
+    docker_enabled: true              # enable docker on app group
+    #docker_registry_mirrors: ["https://docker.m.daocloud.io"] # use dao cloud mirror in mainland china
+    proxy_env:                        # global proxy env when downloading packages & pull docker images
+      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.tsinghua.edu.cn"
+      #http_proxy:  127.0.0.1:12345 # add your proxy env here for downloading packages or pull images
+      #https_proxy: 127.0.0.1:12345 # usually the proxy is format as http://user:pass@proxy.xxx.com
+      #all_proxy:   127.0.0.1:12345
+
+    infra_portal: # domain names and upstream servers
+      home         : { domain: h.pigsty }
+      grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
+      prometheus   : { domain: p.pigsty ,endpoint: "${admin_ip}:9090" }
+      alertmanager : { domain: a.pigsty ,endpoint: "${admin_ip}:9093" }
+      blackbox     : { endpoint: "${admin_ip}:9115" }
+      loki         : { endpoint: "${admin_ip}:3100" }
+      minio        : { domain: m.pigsty    ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
+      dify: { domain: dify.pigsty ,endpoint: "10.10.10.10:5001" ,websocket: true }
+      # setup your own domain name here ^^^, or use default domain name, or ip + 5001 port direct access
+      # certbot --nginx --agree-tos --email your@email.com -n -d dify.your.domain    # replace with your email & dify domain
+
+    #----------------------------------#
+    # Credential: CHANGE THESE PASSWORDS
+    #----------------------------------#
+    #grafana_admin_username: admin
+    grafana_admin_password: pigsty
+    #pg_admin_username: dbuser_dba
+    pg_admin_password: DBUser.DBA
+    #pg_monitor_username: dbuser_monitor
+    pg_monitor_password: DBUser.Monitor
+    #pg_replication_username: replicator
+    pg_replication_password: DBUser.Replicator
+    #patroni_username: postgres
+    patroni_password: Patroni.API
+    #haproxy_admin_username: admin
+    haproxy_admin_password: pigsty
+    #minio_access_key: minioadmin
+    minio_secret_key: minioadmin      # minio root secret key, `minioadmin` by default
+
+    # use minio as supabase file storage, single node single driver mode for demonstration purpose
+    minio_buckets: [ { name: pgsql }, { name: supa } ]
+    minio_users:
+      - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
+      - { access_key: pgbackrest , secret_key: S3User.Backup ,policy: readwrite }
+      - { access_key: dify       , secret_key: S3User.Dify   ,policy: readwrite }   # <----- Change These Too!
+    minio_endpoint: https://sss.pigsty:9000    # explicit overwrite minio endpoint with haproxy port
+    node_etc_hosts: ["10.10.10.10 sss.pigsty"] # domain name to access minio from all nodes (required)
+
+    # use minio as default backup repo for PostgreSQL
+    pgbackrest_method: minio          # pgbackrest repo method: local,minio,[user-defined...]
+    pgbackrest_repo:                  # pgbackrest repo: https://pgbackrest.org/configuration.html#section-repository
+      local:                          # default pgbackrest repo with local posix fs
+        path: /pg/backup              # local backup directory, `/pg/backup` by default
+        retention_full_type: count    # retention full backups by count
+        retention_full: 2             # keep 2, at most 3 full backup when using local fs repo
+      minio:                          # optional minio repo for pgbackrest
+        type: s3                      # minio is s3-compatible, so s3 is used
+        s3_endpoint: sss.pigsty       # minio endpoint domain name, `sss.pigsty` by default
+        s3_region: us-east-1          # minio region, us-east-1 by default, useless for minio
+        s3_bucket: pgsql              # minio bucket name, `pgsql` by default
+        s3_key: pgbackrest            # minio user access key for pgbackrest
+        s3_key_secret: S3User.Backup  # minio user secret key for pgbackrest
+        s3_uri_style: path            # use path style uri for minio rather than host style
+        path: /pgbackrest             # minio backup path, default is `/pgbackrest`
+        storage_port: 9000            # minio port, 9000 by default
+        storage_ca_file: /pg/cert/ca.crt  # minio ca file path, `/pg/cert/ca.crt` by default
+        bundle: y                     # bundle small files into a single file
+        cipher_type: aes-256-cbc      # enable AES encryption for remote backup repo
+        cipher_pass: pgBackRest       # AES encryption password, default is 'pgBackRest'
+        retention_full_type: time     # retention full backup by time on minio repo
+        retention_full: 14            # keep full backup for last 14 days
+
+    repo_modules: infra,node,pgsql,docker
+    repo_packages: [ node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker ]
+    repo_extra_packages: [ pg17-main ]
+    pg_version: 17
+...

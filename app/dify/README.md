@@ -4,77 +4,80 @@ Dify: https://dify.ai/
 
 The Innovation Engine for GenAI Applications, Dify is an open-source LLM app development platform. Orchestrate LLM apps from agents to complex AI workflows, with an RAG engine.
 
-- [Detailed setup tutorial](https://pigsty.io/zh/blog/pg/dify-setup/)
+- [Detailed setup tutorial](https://pigsty.io/docs/software/dify/)
 - [GitHub: langgenius/Dify](https://github.com/langgenius/dify/)
 - [Pigsty: Dify Docker Compose Template](https://github.com/Vonng/pigsty/tree/master/app/dify)
 
+
+```bash
+curl -fsSL https://repo.pigsty.io/get | bash; cd ~/pigsty
+cd ~/pigsty
+./bootstrap               # prepare local repo & ansible
+./configure -c app/dify   # IMPORTANT: CHANGE CREDENTIALS!!
+./install.yml             # install pigsty & pgsql & minio
+./redis.yml               # install extra redis instances
+./docker.yml              # install docker & docker-compose
+./app.yml                 # install dify with docker compose
+```
 
 ------
 
 ## Get Started
 
-Define & Create required PostgreSQL & Redis with Pigsty:
+Define & Create required PostgreSQL and Docker resources with Pigsty:
 
 ```yaml
-pg-meta:
-  hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
-  vars:
-    pg_cluster: pg-meta
-    pg_users: [ { name: dbuser_dify ,password: DBUser.Dify  ,superuser: true ,pgbouncer: true ,roles: [ dbrole_admin ] } ]
-    pg_databases: [ { name: dify, owner: dbuser_dify, extensions: [ { name: pgvector } ] } ]
-    pg_hba_rules: [ { user: dbuser_dify , db: all ,addr: world ,auth: pwd ,title: 'allow dify user world pwd access' } ]
+all:
+  children:
 
-redis-dify:
-  hosts: { 10.10.10.10: { redis_node: 1 , redis_instances: { 6379: { } } } }
-  vars: { redis_cluster: redis-dify ,redis_password: 'redis.dify' ,redis_max_memory: 64MB }
+    # the dify application (default username & password: admin/admin)
+    dify:
+      hosts: { 10.10.10.10: {} }
+      vars:
+        app: dify   # specify app name to be installed (in the apps)
+        apps:       # define all applications
+          dify:     # app name, should have corresponding ~/app/dify folder
+            conf:   # override /opt/dify/.env config file
+              # A secret key for signing and encryption, gen with `openssl rand -base64 42` (CHANGE PASSWORD!)
+              SECRET_KEY: sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U
+              DB_USERNAME: dify
+              DB_PASSWORD: difyai123456
+              DB_HOST: 10.10.10.10
+              DB_PORT: 5432
+              DB_DATABASE: dify
+              VECTOR_STORE: pgvector
+              PGVECTOR_HOST: 10.10.10.10
+              PGVECTOR_PORT: 5432
+              PGVECTOR_USER: dify
+              PGVECTOR_PASSWORD: difyai123456
+              PGVECTOR_DATABASE: dify
+              PGVECTOR_MIN_CONNECTION: 2
+              PGVECTOR_MAX_CONNECTION: 10
+              NGINX_SERVER_NAME: localhost
+              DIFY_PORT: 5001 # expose DIFY nginx service with port 5001 by default
+              #STORAGE_TYPE: s3
+              #S3_ENDPOINT: 'https://sss.pigsty'
+              #S3_BUCKET_NAME: 'dify'
+              #S3_ACCESS_KEY: 'dify'
+              #S3_SECRET_KEY: 'S3User.Dify'
+              #S3_REGION: 'us-east-1'
+
+    pg-meta:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
+      vars:
+        pg_cluster: pg-meta
+        pg_users:
+          - { name: dify ,password: difyai123456 ,pgbouncer: true ,roles: [ dbrole_admin ] ,superuser: true ,comment: dify superuser }
+        pg_databases:
+          - { name: dify ,owner: dify ,revokeconn: true ,comment: dify main database  }
+        pg_hba_rules:
+          - { user: dify ,db: all ,addr: 172.17.0.0/16  ,auth: pwd ,title: 'allow dify access from local docker network' }
+          - { user: dbuser_view , db: all ,addr: infra ,auth: pwd ,title: 'allow grafana dashboard access cmdb from infra nodes' }
+    
+    infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
+    etcd:  { hosts: { 10.10.10.10: { etcd_seq: 1 } }, vars: { etcd_cluster: etcd } }
+    minio: { hosts: { 10.10.10.10: { minio_seq: 1 } }, vars: { minio_cluster: minio } }
 ```
-
-Then create them with pigsty playbooks:
-
-```bash
-bin/pgsql-add  pg-meta                # create the dify database cluster
-bin/pgsql-user pg-meta dbuser_dify    # create dify biz user
-bin/pgsql-db   pg-meta dify           # create dify biz database
-bin/redis-add  redis-dify             # create redis cluster
-```
-
-Check [`.env`](.env) file for database credentials:
-
-```bash
-# meta parameter
-DIFY_PORT=8001 # expose dify nginx service with port 8001 by default
-LOG_LEVEL=INFO # The log level for the application. Supported values are `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`
-SECRET_KEY=sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U # A secret key for signing and encryption, gen with `openssl rand -base64 42`
-
-# postgres credential
-PG_USERNAME=dbuser_dify
-PG_PASSWORD=DBUser.Dify
-PG_HOST=10.10.10.10
-PG_PORT=5432
-PG_DATABASE=dify
-
-# redis credential
-REDIS_HOST=10.10.10.10
-REDIS_PORT=6379
-REDIS_USERNAME=''
-REDIS_PASSWORD=redis.dify
-
-# minio/s3 [OPTIONAL] when STORAGE_TYPE=s3
-STORAGE_TYPE=local
-S3_ENDPOINT='https://sss.pigsty'
-S3_BUCKET_NAME='infra'
-S3_ACCESS_KEY='dba'
-S3_SECRET_KEY='S3User.DBA'
-S3_REGION='us-east-1'
-```
-
-then launch [Dify](https://dify.ai/) with:
-
-```bash
-make up  # docker compose up
-```
-
-Visit [http://dify.pigsty](http://dify.pigsty) or http://10.10.10.10:8001
 
 
 ------
@@ -102,3 +105,23 @@ Then expose dify web service via Pigsty's Nginx server:
 ```
 
 Don't forget to add `dify.pigsty` to your DNS or local `/etc/hosts` / `C:\Windows\System32\drivers\etc\hosts` to access via domain name.
+
+If you are using a public domain, consider using [Certbot](https://pigsty.io/docs/tasks/certbot/) to get a free SSL certificate.
+
+```bash
+certbot --nginx --agree-tos --email your@email.com -n -d dify.your.domain    # replace with your email & dify domain
+```
+
+Then add `certbot` field to the `dify` entry:
+
+```yaml
+infra_portal:
+  #...
+  dify : { domain: dify.pigsty.cc ,endpoint: "10.10.10.10:8001", websocket: true , certbot: 'dify.pigsty.cc' }
+```
+
+To take over nginx config back to pigsty:
+
+```bash
+./infra.yml -t nginx_config     # regenerate nginx config align with certbot modification
+```
