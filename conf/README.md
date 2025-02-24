@@ -57,10 +57,20 @@ In addition to the main templates, Pigsty provides a set of demo templates for d
 
 ----------
 
+## App Templates
+
+You can run docker software/app with the following templates:
+
+* [app/supa.yml](app/supa.yml) : launch 1-node supabase
+* [app/odoo.yml](app/odoo.yml) : launch the odoo ERP system
+* [app/dify.yml](app/dify.yml) : launch the dify AI workflow system
+
+
+----------
+
 ## Building Templates
 
 There config templates are used for development and testing purpose.
 
 * [build/oss.yml](build/oss.yml) : building config for EL 8, 9, Debian 12, and Ubuntu 22.04/24.04 OSS.
 * [build/pro.yml](build/pro.yml) : building config for EL 7-9, Ubuntu, Debian pro version
-* [build/ext.yml](build/ext.yml) : rpm building environment for EL 8/9 and Debian 12, Ubuntu 22/24
