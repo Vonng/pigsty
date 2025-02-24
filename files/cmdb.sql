@@ -2,7 +2,7 @@
 -- # File      :   cmdb.sql
 -- # Desc      :   Pigsty CMDB baseline
 -- # Ctime     :   2021-04-21
--- # Mtime     :   2024-08-04
+-- # Mtime     :   2025-02-24
 -- # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 -- # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
 -- ######################################################################
@@ -828,6 +828,7 @@ CREATE TYPE pglog.cmd_tag AS ENUM (
     'LISTEN',
     'LOAD',
     'LOCK TABLE',
+    'LOGIN',
     'MERGE',
     'MOVE',
     'NOTIFY',
@@ -904,6 +905,8 @@ CREATE TYPE pglog.code AS ENUM (
 -- Class 0Z — Diagnostics Exception
     '0Z000', -- 	diagnostics_exception
     '0Z002', -- 	stacked_diagnostics_accessed_without_active_handler
+-- Class 10 — XQuery Error
+    '10608', -- 	invalid_argument_for_xquery
 -- Class 20 — Case Not Found
     '20000', -- 	case_not_found
 -- Class 21 — Cardinality Violation
@@ -1000,6 +1003,7 @@ CREATE TYPE pglog.code AS ENUM (
     '25P01', -- 	no_active_sql_transaction
     '25P02', -- 	in_failed_sql_transaction
     '25P03', -- 	idle_in_transaction_session_timeout
+    '25P04', --     transaction_timeout
 -- Class 26 — Invalid SQL Statement Name
     '26000', -- 	invalid_sql_statement_name
 -- Class 27 — Triggered Data Change Violation
@@ -1123,6 +1127,7 @@ CREATE TYPE pglog.code AS ENUM (
     '58030', -- 	io_error
     '58P01', -- 	undefined_file
     '58P02', -- 	duplicate_file
+    '58P03', --     file_name_too_long
 -- Class 72 — Snapshot Failure
     '72000', -- 	snapshot_too_old
 -- Class F0 — Configuration File Error
