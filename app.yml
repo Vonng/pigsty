@@ -4,7 +4,7 @@
 # File      :   app.yml
 # Desc      :   copy and launch docker compose app
 # Ctime     :   2025-01-11
-# Mtime     :   2025-01-11
+# Mtime     :   2025-02-24
 # Path      :   app.yml
 # Docs      :   https://pigsty.io/docs/app
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
@@ -24,61 +24,80 @@
   hosts: all
   gather_facts: no
   become: yes
-  vars:
-    #app: pgadmin     # any entries in the app/ folder, required
-    #app_config: {}   # .env entries to override
-    #app_dir: []      # additional directories to be created (ansible file module)
-
   tasks:
-    # check app defined and dir exists
-    - name: check app arg defined
-      tags: [always, app_preflight]
-      become: no
-      fail: msg="the 'app' arg is required, use -e app=<appname> to specify the name in the app/ folder"
-      when: app is not defined
 
-    # abort if local app not exists
-    - name: check app folder exists
-      tags: app_check
+    #----------------------------------------------------------#
+    # Validate app and app definition                [preflight]
+    #----------------------------------------------------------#
+    - name: preflight
+      tags: [ app_check, preflight, always ]
       connection: local
-      become: no
       block:
-        - name: check local app folder
-          stat: path={{ playbook_dir }}/app/{{ app }}
-          register: app_folder_stat
+        - name: validate app and apps parameter
+          assert:
+            that:
+              - app is defined
+              - app != ''
+              - apps is defined
+              - apps is mapping
+              - app in apps
+            fail_msg: "'app' and 'apps' should be specified (-e app=<name in apps>)"
 
+        - name: fetch app definition
+          set_fact:
+            app_def: "{{ apps[app] }}"
+            app_src: "{{ playbook_dir }}/app/{{ apps[app].src | default(app) }}" # override src name with app.src
+            app_dest: "/opt/{{ apps[app].name | default(app) }}"                 # override dest name with app.dest
+            app_conf: "{{ apps[app].conf | default({}) }}"                       # application configuration
+            app_file: "{{ apps[app].file | default([]) }}"                       # application files & directories
+
+        - name: check local app folder
+          stat: path={{ app_src }}
+          register: app_folder_stat
         - name: abort if local app not exists
-          fail: {msg: "app/{{ app }} folder not exist"}
+          fail: {msg: "{{ app_src }} folder not exist"}
           when: not app_folder_stat.stat.exists
 
-    # create app dir
-    - name: setup app dir
-      tags: app_dir
-      when: app_dir is defined and app_dir | length > 0
+
+    #----------------------------------------------------------#
+    # Prepare files & directories                     [app_file]
+    #----------------------------------------------------------#
+    - name: setup app files & directories
+      tags: app_file
+      when: app_file | length > 0
       file: "{{ item }}"
-      with_items: "{{ app_dir }}"
+      with_items: "{{ app_file }}"
 
-    # copy docker app folder to /opt/<app>
-    - name: copy app resource dir
+    #----------------------------------------------------------#
+    # Install app resources to /opt                [app_install]
+    #----------------------------------------------------------#
+    # copy docker app folder to /opt/<app.dest> or /opt/<app.name>
+    - name: install app resource to /opt
       tags: app_install
-      copy: src="{{ playbook_dir }}/app/{{ app }}/" dest="/opt/{{ app }}/"
+      copy: src="{{ app_src }}/" dest="/{{ app_dest }}/"
 
+    #----------------------------------------------------------#
+    # Configure app with .env                       [app_config]
+    #----------------------------------------------------------#
     # append entries to app .env config (override existing entries)
-    - name: overwrite docker app .env
+    - name: configure app by updating .env
       tags: app_config
-      when: app_config is defined
+      when: app_conf | length > 0
       lineinfile:
-        path: /opt/{{ app }}/.env
+        path: "{{ app_dest }}/.env"
         regexp: '^{{ item.key | upper }}='
         line: '{{ item.key | upper }}={{ item.value if item.value is not boolean else item.value | string | lower }}'
         create: yes
-      loop: "{{ app_config | dict2items }}"
+      loop: "{{ app_conf | dict2items }}"
 
-    # it may take a while to pull images, or very fast if you already have local image loaded
+    #----------------------------------------------------------#
+    # Launch app with make command                  [app_launch]
+    #----------------------------------------------------------#
+    # it may take a while to pull images, or very fast if you already have local image loaded, or proxy, mirror.
     - name: launch app
       tags: app_launch
       shell:
         cmd: make
-        chdir: /opt/{{ app }}
+        chdir: "{{ app_dest }}"
 
 ...
