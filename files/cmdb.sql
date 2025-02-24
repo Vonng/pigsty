@@ -409,8 +409,8 @@ CREATE OR REPLACE VIEW pigsty.pg_users AS
        (u ->> 'expire_in')::INTEGER                    AS expire_in,
        (u ->> 'expire_at')::DATE                       AS expire_at,
        (u ->> 'comment')                               AS comment,
-       (u -> 'roles')                                  AS roles,
-       (u -> 'parameters')                             AS parameters,
+       (u ->  'roles')                                 AS roles,
+       (u ->  'parameters')                            AS parameters,
        (u ->> 'pool_auth_user')                        AS pool_auth_user,
        (u ->> 'pool_mode')                             AS pool_mode,
        (u ->> 'pool_size')::INTEGER                    AS pool_size,
@@ -1347,6 +1347,7 @@ INSERT INTO pigsty.default_var VALUES
 (254, 'node_admin_ssh_exchange', 'true', 'NODE', 'NODE_ADMIN', 'bool', 'C', 'exchange admin ssh key among node cluster', NULL),
 (255, 'node_admin_pk_current', 'true', 'NODE', 'NODE_ADMIN', 'bool', 'C', 'add current user''s ssh pk to admin authorized_keys', NULL),
 (256, 'node_admin_pk_list', '[]', 'NODE', 'NODE_ADMIN', 'string[]', 'C', 'ssh public keys to be added to admin user', NULL),
+(257, 'node_aliases', '{}', 'NODE', 'NODE_ADMIN', 'dict', 'C/I', 'extra shell aliases to be added, k:v dict', NULL),
 
 (260, 'node_timezone', '""', 'NODE', 'NODE_TIME', 'string', 'C', 'setup node timezone, empty string to skip', NULL),
 (261, 'node_ntp_enabled', 'true', 'NODE', 'NODE_TIME', 'bool', 'C', 'enable chronyd time sync service?', NULL),
