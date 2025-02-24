@@ -26,17 +26,19 @@ First, download & [install](/docs/setup/install) pigsty as usual, with the `supa
 
 ```bash
  curl -fsSL https://repo.pigsty.io/get | bash
-./bootstrap          # install deps (ansible)
-./configure -c supa  # use supa config template (IMPORTANT: CHANGE PASSWORDS!)
-./install.yml        # install pigsty, create ha postgres & minio clusters 
+ cd pigsty
+./bootstrap              # install deps (ansible)
+./configure -c app/supa  # use app/supa config template (IMPORTANT: CHANGE PASSWORDS!)
+./install.yml            # install pigsty, create ha postgres & minio clusters 
 ```
 
 Please change the `pigsty.yml` config file according to your need before deploying Supabase. (Credentials)
 
-Then, run the [`supabase.yml`](https://github.com/Vonng/pigsty/blob/main/supabase.yml) to launch stateless part of supabase.
+Then, run the [`docker.yml`](https://github.com/Vonng/pigsty/blob/main/docker.yml) and [`app.yml`](https://github.com/Vonng/pigsty/blob/main/app.yml) to install supabase with docker.
 
 ```bash
-./supabase.yml       # launch stateless supabase containers with docker compose
+./docker.yml   # install docker & docker compose
+./app.yml      # launch supabase stateless part with docker compose
 ```
 
 You can access the supabase API / Web UI through the `80/443` infra portal,

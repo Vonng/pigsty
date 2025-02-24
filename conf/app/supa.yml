@@ -3,7 +3,7 @@
 # File      :   supa.yml
 # Desc      :   Pigsty configuration for self-hosting supabase
 # Ctime     :   2023-09-19
-# Mtime     :   2025-02-22
+# Mtime     :   2025-02-24
 # Docs      :   https://pigsty.io/docs/kernel/supabase/
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -23,52 +23,52 @@ all:
   children:
 
     # the supabase stateless (default username & password: supabase/pigsty)
-    app:
+    supa:
       hosts:
         10.10.10.10: {}
       vars:
+        app: supabase # specify app name (supa) to be installed (in the apps)
+        apps:         # define all applications
+          supabase:   # the definition of supabase app
+            conf:     # override /opt/supabase/.env
+              # IMPORTANT: CHANGE JWT_SECRET AND REGENERATE CREDENTIAL ACCORDING!!!!!!!!!!!
+              # https://supabase.com/docs/guides/self-hosting/docker#securing-your-services
+              JWT_SECRET: your-super-secret-jwt-token-with-at-least-32-characters-long
+              ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
+              SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q
+              DASHBOARD_USERNAME: supabase
+              DASHBOARD_PASSWORD: pigsty
 
-        # these configuration entries will OVERWRITE or APPEND to /opt/supabase/.env file (src template: app/supabase/.env)
-        # check https://github.com/Vonng/pigsty/blob/main/app/supabase/.env for default values
-        app: supabase
-        app_config:
-          # IMPORTANT: CHANGE JWT_SECRET AND REGENERATE CREDENTIAL ACCORDING!!!!!!!!!!!
-          # https://supabase.com/docs/guides/self-hosting/docker#securing-your-services
-          jwt_secret: your-super-secret-jwt-token-with-at-least-32-characters-long
-          anon_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
-          service_role_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q
-          dashboard_username: supabase
-          dashboard_password: pigsty
+              # postgres connection string (use the correct ip and port)
+              POSTGRES_HOST: 10.10.10.10
+              POSTGRES_PORT: 5436             # access via the 'default' service, which always route to the primary postgres
+              POSTGRES_DB: postgres
+              POSTGRES_PASSWORD: DBUser.Supa  # password for supabase_admin and multiple supabase users
 
-          # postgres connection string (use the correct ip and port)
-          postgres_host: 10.10.10.10
-          postgres_port: 5436             # access via the 'default' service, which always route to the primary postgres
-          postgres_db: postgres
-          postgres_password: DBUser.Supa  # password for supabase_admin and multiple supabase users
+              # expose supabase via domain name
+              SITE_URL: http://supa.pigsty
+              API_EXTERNAL_URL: http://supa.pigsty
+              SUPABASE_PUBLIC_URL: http://supa.pigsty
 
-          # expose supabase via domain name
-          site_url: http://supa.pigsty
-          api_external_url: http://supa.pigsty
-          supabase_public_url: http://supa.pigsty
+              # if using s3/minio as file storage
+              S3_BUCKET: supa
+              S3_ENDPOINT: https://sss.pigsty:9000
+              S3_ACCESS_KEY: supabase
+              S3_SECRET_KEY: S3User.Supabase
+              S3_FORCE_PATH_STYLE: true
+              S3_PROTOCOL: https
+              S3_REGION: stub
+              MINIO_DOMAIN_IP: 10.10.10.10  # sss.pigsty domain name will resolve to this ip statically
 
-          # if using s3/minio as file storage
-          s3_bucket: supa
-          s3_endpoint: https://sss.pigsty:9000
-          s3_access_key: supabase
-          s3_secret_key: S3User.Supabase
-          s3_force_path_style: true
-          s3_protocol: https
-          s3_region: stub
-          minio_domain_ip: 10.10.10.10  # sss.pigsty domain name will resolve to this ip statically
+              # if using SMTP (optional)
+              #SMTP_ADMIN_EMAIL: admin@example.com
+              #SMTP_HOST: supabase-mail
+              #SMTP_PORT: 2500
+              #SMTP_USER: fake_mail_user
+              #SMTP_PASS: fake_mail_password
+              #SMTP_SENDER_NAME: fake_sender
+              #ENABLE_ANONYMOUS_USERS: false
 
-          # if using SMTP (optional)
-          #smtp_admin_email: admin@example.com
-          #smtp_host: supabase-mail
-          #smtp_port: 2500
-          #smtp_user: fake_mail_user
-          #smtp_pass: fake_mail_password
-          #smtp_sender_name: fake_sender
-          #enable_anonymous_users: false
 
     # infra cluster for proxy, monitor, alert, etc..
     infra: { hosts: { 10.10.10.10: { infra_seq: 1 } } }
@@ -105,21 +105,21 @@ all:
             comment: supabase postgres database
             schemas: [ extensions ,auth ,realtime ,storage ,graphql_public ,supabase_functions ,_analytics ,_realtime ]
             extensions:
-              - { name: pgcrypto  ,schema: extensions  } # 1.3   : cryptographic functions
-              - { name: pg_net    ,schema: extensions  } # 0.9.2 : async HTTP
-              - { name: pgjwt     ,schema: extensions  } # 0.2.0 : json web token API for postgres
-              - { name: uuid-ossp ,schema: extensions  } # 1.1   : generate universally unique identifiers (UUIDs)
-              - { name: pgsodium        }                # 3.1.9 : pgsodium is a modern cryptography library for Postgres.
-              - { name: supabase_vault  }                # 0.2.8 : Supabase Vault Extension
-              - { name: pg_graphql      }                # 1.5.9 : pg_graphql: GraphQL support
-              - { name: pg_jsonschema   }                # 0.3.3 : pg_jsonschema: Validate json schema
-              - { name: wrappers        }                # 0.4.3 : wrappers: FDW collections
-              - { name: http            }                # 1.6   : http: allows web page retrieval inside the database.
-              - { name: pg_cron         }                # 1.6   : pg_cron: Job scheduler for PostgreSQL
-              - { name: timescaledb     }                # 2.17  : timescaledb: Enables scalable inserts and complex queries for time-series data
-              - { name: pg_tle          }                # 1.2   : pg_tle: Trusted Language Extensions for PostgreSQL
-              - { name: vector          }                # 0.8.0 : pgvector: the vector similarity search
-              - { name: pgmq            }                # 1.4.4 : pgmq: A lightweight message queue like AWS SQS and RSMQ
+              - { name: pgcrypto  ,schema: extensions } # cryptographic functions
+              - { name: pg_net    ,schema: extensions } # async HTTP
+              - { name: pgjwt     ,schema: extensions } # json web token API for postgres
+              - { name: uuid-ossp ,schema: extensions } # generate universally unique identifiers (UUIDs)
+              - { name: pgsodium        }               # pgsodium is a modern cryptography library for Postgres.
+              - { name: supabase_vault  }               # Supabase Vault Extension
+              - { name: pg_graphql      }               # pg_graphql: GraphQL support
+              - { name: pg_jsonschema   }               # pg_jsonschema: Validate json schema
+              - { name: wrappers        }               # wrappers: FDW collections
+              - { name: http            }               # http: allows web page retrieval inside the database.
+              - { name: pg_cron         }               # pg_cron: Job scheduler for PostgreSQL
+              - { name: timescaledb     }               # timescaledb: Enables scalable inserts and complex queries for time-series data
+              - { name: pg_tle          }               # pg_tle: Trusted Language Extensions for PostgreSQL
+              - { name: vector          }               # pgvector: the vector similarity search
+              - { name: pgmq            }               # pgmq: A lightweight message queue like AWS SQS and RSMQ
         # supabase required extensions
         pg_libs: 'timescaledb, plpgsql, plpgsql_check, pg_cron, pg_net, pg_stat_statements, auto_explain, pg_tle, plan_filter'
         pg_parameters:
@@ -142,12 +142,15 @@ all:
     node_tune: oltp                   # node tuning specs: oltp,olap,tiny,crit
     pg_conf: oltp.yml                 # pgsql tuning specs: {oltp,olap,tiny,crit}.yml
     docker_enabled: true              # enable docker on app group
+
+    # WARNING: YOU MAY HAVE
     #docker_registry_mirrors: ["https://docker.m.daocloud.io"] # use dao cloud mirror in mainland china
     proxy_env:                        # global proxy env when downloading packages & pull docker images
       no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.tsinghua.edu.cn"
       #http_proxy:  127.0.0.1:12345 # add your proxy env here for downloading packages or pull images
       #https_proxy: 127.0.0.1:12345 # usually the proxy is format as http://user:pass@proxy.xxx.com
       #all_proxy:   127.0.0.1:12345
+
     infra_portal:                     # domain names and upstream servers
       home         : { domain: h.pigsty }
       grafana      : { domain: g.pigsty ,endpoint: "${admin_ip}:3000" , websocket: true }
@@ -173,10 +176,10 @@ all:
     patroni_password: Patroni.API
     #haproxy_admin_username: admin
     haproxy_admin_password: pigsty
+    #minio_access_key: minioadmin
+    minio_secret_key: minioadmin      # minio root secret key, `minioadmin` by default
 
     # use minio as supabase file storage, single node single driver mode for demonstration purpose
-    minio_access_key: minioadmin      # root access key, `minioadmin` by default
-    minio_secret_key: minioadmin      # root secret key, `minioadmin` by default
     minio_buckets: [ { name: pgsql }, { name: supa } ]
     minio_users:
       - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
@@ -215,5 +218,5 @@ all:
     repo_modules: node,pgsql,infra,docker
     repo_packages: [node-bootstrap, infra-package, infra-addons, node-package1, node-package2, pgsql-utility, docker ]
     repo_extra_packages: [pg17-core ,pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ]
-    pg_extensions: [pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl, pg_duckdb, pg_parquet, pg_analytics, pg_fkpart, pg_partman, plproxy ]
+    pg_extensions:                  [pg17-time ,pg17-gis ,pg17-rag ,pg17-fts ,pg17-olap ,pg17-feat ,pg17-lang ,pg17-type ,pg17-util ,pg17-func ,pg17-admin ,pg17-stat ,pg17-sec ,pg17-fdw ,pg17-sim ,pg17-etl ]
 ...

@@ -4,7 +4,7 @@
 # File      :   docker-compose.yml
 # Desc      :   modified supabase docker compose for pigsty pg
 # Ctime     :   2023-09-19
-# Mtime     :   2025-01-12
+# Mtime     :   2025-02-24
 # Path      :   app/supabase/docker-compose.yml
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -25,10 +25,11 @@ services:
     container_name: supabase-kong
     image: kong:2.8.1
     restart: unless-stopped
-    entrypoint: bash -c 'eval "echo \"$$(cat ~/temp.yml)\"" > ~/kong.yml && /docker-entrypoint.sh kong docker-start'
     ports:
       - ${KONG_HTTP_PORT}:8000/tcp
       - ${KONG_HTTPS_PORT}:8443/tcp
+    volumes:
+      - ./volumes/api/kong.yml:/home/kong/temp.yml:ro
     depends_on:
       analytics:
         condition: service_healthy
@@ -44,9 +45,7 @@ services:
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
       DASHBOARD_USERNAME: ${DASHBOARD_USERNAME}
       DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
-    volumes:
-      - ./volumes/api/kong.yml:/home/kong/temp.yml:ro
-
+    entrypoint: bash -c 'eval "echo \"$$(cat ~/temp.yml)\"" > ~/kong.yml && /docker-entrypoint.sh kong docker-start'
 
   #--------------------------------------------------------------#
   # Studio: the admin GUI dashboard for supabase
@@ -54,7 +53,7 @@ services:
   # https://supabase.com/docs/guides/getting-started/architecture#studio-dashboard
   studio:
     container_name: supabase-studio
-    image: supabase/studio:20241202-71e5240
+    image: supabase/studio:20250113-83c9420
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "node", "-e", "fetch('http://studio:3000/api/profile').then((r) => {if (r.status !== 200) throw new Error(r.status)})"]
@@ -87,7 +86,7 @@ services:
   # https://supabase.com/docs/guides/getting-started/architecture#gotrue-auth
   auth:
     container_name: supabase-auth
-    image: supabase/gotrue:v2.164.0
+    image: supabase/gotrue:v2.167.0
     depends_on:
       analytics:
         condition: service_healthy
@@ -176,7 +175,7 @@ services:
   realtime:
     # This container name looks inconsistent but is correct because realtime constructs tenant id by parsing the subdomain
     container_name: realtime-dev.supabase-realtime
-    image: supabase/realtime:v2.33.70
+    image: supabase/realtime:v2.34.7
     depends_on:
       analytics:
         condition: service_healthy
@@ -196,7 +195,7 @@ services:
       DB_AFTER_CONNECT_QUERY: 'SET search_path TO _realtime'
       DB_ENC_KEY: supabaserealtime
       API_JWT_SECRET: ${JWT_SECRET}
-      SECRET_KEY_BASE: UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       ERL_AFLAGS: -proto_dist inet_tcp
       DNS_NODES: "''"
       RLIMIT_NOFILE: "10000"
@@ -211,7 +210,7 @@ services:
   # https://supabase.com/docs/guides/getting-started/architecture#storage-api-large-file-storage
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v1.11.13
+    image: supabase/storage-api:v1.14.5
     depends_on:
       rest:
         condition: service_started
@@ -253,7 +252,7 @@ services:
 
     volumes:
       - /etc/pki/ca.crt:/etc/pki/ca.crt:ro
-      #- ./volumes/storage:/var/lib/storage:z
+      - ./volumes/storage:/var/lib/storage:z
     extra_hosts:
       - "sss.pigsty:${MINIO_DOMAIN_IP}"
 
@@ -304,7 +303,7 @@ services:
   # https://supabase.com/docs/guides/getting-started/architecture#deno-edge-functions
   functions:
     container_name: supabase-edge-functions
-    image: supabase/edge-runtime:v1.65.3
+    image: supabase/edge-runtime:v1.67.0
     restart: unless-stopped
     depends_on:
       analytics:
