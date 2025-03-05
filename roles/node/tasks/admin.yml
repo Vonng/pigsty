@@ -23,7 +23,18 @@
       {% endfor %}
 
 #--------------------------------------------------------------#
-# Stage 3: Setup pam ulimit for node users         [node_ulimit]
+# Stage 3: Add node pg completion                   [node_alias]
+#--------------------------------------------------------------#
+- name: add pg completion
+  copy: src={{ item.src }} dest={{ item.dest }} mode=0644
+  tags: node_alias
+  ignore_errors: true
+  with_items:
+    - { src: pg_completion ,dest: /etc/bash_completion.d/pg }
+
+
+#--------------------------------------------------------------#
+# Stage 4: Setup pam ulimit for node users         [node_ulimit]
 #--------------------------------------------------------------#
 - name: set pam ulimit
   tags: node_ulimit
@@ -31,7 +42,7 @@
 
 
 #--------------------------------------------------------------#
-# Stage 4: Create data dir if not exists             [node_data]
+# Stage 5: Create data dir if not exists             [node_data]
 #--------------------------------------------------------------#
 - name: assure node data dir exists
   tags: node_data
@@ -45,7 +56,7 @@
 
 
 #--------------------------------------------------------------#
-# Stage 5: Create default users/groups              [node_admin]
+# Stage 6: Create default users/groups              [node_admin]
 #--------------------------------------------------------------#
 - name: create os node users and groups
   tags: node_admin

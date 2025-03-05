@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+#==============================================================#
+# File      :   pg_completion
+# Desc      :   auto-completion for pg commands
+# Path      :   /etc/bash_completion.d/pg
+# License   :   MIT
+# Author    :   waitingsong
+#==============================================================#
+
+# subcommands
+#   - edit-config:  Edit cluster configuration
+#   - list:         List the Patroni members for a given Patroni
+
+
+cache_duration=30  # seconds
+cache_timestamp=0
+cache_pg_cls=""
+pg_subcommands="list edit-config"     # from patronictl
+
+if ! command -v ansible-inventory &> /dev/null; then
+  echo "ansible-inventory not found, skip auto-completion"
+  return
+fi
+
+if ! command -v jq &> /dev/null; then
+  echo "jq not found, skip auto-completion"
+  return
+fi
+
+yml='pigsty.yml'
+yml2="/home/dba/pigsty/${yml}"
+INVENTORY_FILE=''
+if [[ -f "${yml2}" ]]; then
+  INVENTORY_FILE="${yml2}"
+fi
+
+# Pick up pg* clusters from inventory file
+_get_pg_cls() {
+  ansible-inventory -i "$1" --list 2>/dev/null | jq -r '.all.children | map(select(type == "string" and startswith("pg")))  | .[] '
+}
+
+_pg_completions() {
+  local subcommands="$2"
+  local cur prev words cword
+  _get_comp_words_by_ref -n : cur prev words cword
+  # echo "command: $command, subcommands: $subcommands, cur: $cur, prev: $prev, words: $words, cword: $cword"
+
+  if [[ $cword -eq 1 ]]; then
+    COMPREPLY=($(compgen -W "$pg_subcommands" -- "$cur"))
+    return
+  fi
+
+  if [[ -n $prev ]] && [[ ! " $pg_subcommands " =~ " $prev " ]]; then
+    echo $subcommands
+    return
+  fi
+
+  local FILE=''
+  if [[ -f $yml ]]; then
+    FILE=$yml
+  else
+    FILE="${INVENTORY_FILE}"
+  fi
+
+  if [[ $cword -eq 2 ]] && [[ -f "$FILE" ]]; then
+    local current_time=$(date +%s)
+    if [[ $cache_timestamp -eq 0 ]] || (( current_time - cache_timestamp > cache_duration )); then
+      # echo "refresh cache"
+      cache_pg_cls=$(_get_pg_cls $FILE)
+      cache_timestamp=$current_time
+    fi
+
+    if [[ -n "$cache_pg_cls" ]]; then
+      COMPREPLY=($(compgen -W "$cache_pg_cls" -- "$cur"))
+    fi
+  fi
+}
+
+complete -F _pg_completions pg
+
