@@ -36,8 +36,8 @@ else
     NR_HUGEPAGE=$(sudo -iu postgres psql -qwAXtc 'show shared_memory_size_in_huge_pages')
 fi
 
-# check if result is acquired
-if [[ -z "${NR_HUGEPAGE}" ]]; then
+# check if result is acquired. if huge pages are not supported, this will be -1
+if [[ -z "${NR_HUGEPAGE}" ]] || [[ ${NR_HUGEPAGE} -lt 0 ]] ; then
     echo "[FAIL] fail to acquire shared_memory_size_in_huge_pages from postgres"
     exit 1
 fi
