@@ -44,6 +44,9 @@ if [[ -z "${NR_HUGEPAGE}" ]] || [[ ${NR_HUGEPAGE} -lt 0 ]] ; then
     exit 1
 fi
 
+gid=$(id -g postgres)
+
+
 #--------------------------------------------------------------#
 # Execute
 #--------------------------------------------------------------#
@@ -78,10 +81,11 @@ sudo bash -c "echo ${DIRECTIVE} > ${FILE}"
 echo "[HINT] $ sysctl -p ${FILE}"
 sudo sysctl -p ${FILE}
 
-gid=$(id -g postgres)
 if [[ -n $gid ]]; then
+  DIRECTIVE2="vm.hugetlb_shm_group=$gid"
   # Restrict hugepage used by postgres only
-  echo "vm.hugetlb_shm_group = $gid" >> ${FILE}
+  echo "[EXEC] $ echo ${DIRECTIVE2} >> ${FILE}"
+  sudo bash -c "echo ${DIRECTIVE2} >> ${FILE}"
 fi
 
 echo "[AFTER]============================"
