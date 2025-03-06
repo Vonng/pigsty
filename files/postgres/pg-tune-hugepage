@@ -76,6 +76,13 @@ sudo bash -c "echo ${DIRECTIVE} > ${FILE}"
 echo "[HINT] $ sysctl -p ${FILE}"
 sudo sysctl -p ${FILE}
 
+gid=$(id -g postgres)
+if [[ -n $gid ]]; then
+  # Restrict hugepage used by postgres only
+  echo "vm.hugetlb_shm_group = $gid" >> ${FILE}
+fi
+
 echo "[AFTER]============================"
 cat /proc/meminfo | grep -i HugePages
 sysctl -a | grep vm.nr_hugepages
+sysctl -a | grep vm.hugetlb_shm_group
