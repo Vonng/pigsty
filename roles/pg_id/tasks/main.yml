@@ -8,6 +8,13 @@
 - name: pgsql identity
   tags: [always, pg-id ]
   block:
+    - name: run pg-role
+      command: /pg/bin/pg-role
+      register: pg_role_cmd
+
+    - name: set variable pg_role
+      set_fact:
+        pg_role: "{{ pg_role_cmd.stdout | trim }}"
 
     - name: get pgsql identity
       connection: local
