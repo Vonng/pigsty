@@ -40,9 +40,38 @@ BACKUP_MODE=${1-''}
 #--------------------------------------------------------------#
 # Check
 #--------------------------------------------------------------#
+is_cron_job() {
+  local pid=$$
+  local count=0
+
+  while [[ $pid -ne 1 ]] && [[ $count -lt 5 ]]; do
+    local name=$(ps -o comm= -p "$pid" 2>/dev/null | tr -d ' ')
+    local ppid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+
+    if [[ "$name" =~ ^(cron|crond|\[cron\]|\[crond\])$ ]]; then
+        return 0
+    fi
+
+    # 更新 pid 并增加计数器
+    pid=$ppid
+    ((count++))
+  done
+
+  return 1
+}
+
+
+#--------------------------------------------------------------#
+# Check
+#--------------------------------------------------------------#
 if [[ $(/pg/bin/pg-role) != "primary" ]]; then
-  echo "[FAIL] this script should run on pgsql primary instance"
-  exit 0
+  msg="this script should run on pgsql primary instance"
+  if is_cron_job; then
+    echo "[INFO] ${msg}, skip"
+    exit 0
+  fi
+  echo "[FAIL] ${msg}"
+  exit 1
 fi
 
 if [[ "$(whoami)" != "postgres" ]]; then
