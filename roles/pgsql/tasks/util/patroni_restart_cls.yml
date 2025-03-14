@@ -1,0 +1,23 @@
+#!/usr/bin/ansible-playbook
+---
+
+- name: patroni restart cls {{ pg_cluster }}
+  become_user: "{{ dbsu }}"
+  when: patroni_mode != 'remove'
+  vars:
+    dbsu: "{{ pg_dbsu|default('postgres') }}"
+  block:
+    - name: restart {{ pg_cluster }} at primary
+      when: pg_role == 'primary'
+      include_tasks: patroni_restart_at_primary.yml
+
+    - name: set variable need_restart_at_replica at all nodes
+      set_fact:
+        need_restart_at_replica: "{{ not (hostvars[pg_primary_host_runtime].pt_restart_full_succeed | default(false) | string | trim | bool) }}"
+      changed_when: false
+
+    - name: patroni restart at replica of {{ pg_cluster }} if needed {{ need_restart_at_replica }}
+      include_tasks: patroni_restart_at_replica.yml
+      when: pg_role != 'primary' and need_restart_at_replica == true
+
+...
